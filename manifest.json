@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "Roblox Hidden Games Finder",
+  "version": "1.0",
+  "description": "Find hidden games of Roblox users from their profile.",
+  "permissions": ["tabs", "scripting", "activeTab", "storage"],
+  "host_permissions": ["https://games.roblox.com/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.roblox.com/users/*/profile"],
+      "js": ["content.js"]
+    }
+  ]
+  
+}
+
