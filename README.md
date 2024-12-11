@@ -1,8 +1,7 @@
 # Hidden-Games
 This shows a user's hidden games on Roblox.
 ![image](https://github.com/user-attachments/assets/50217724-200e-40fa-9c64-e06c28b90dfd)
-# Requirements
-This extension requires [BTRoblox](https://chromewebstore.google.com/detail/btroblox-making-roblox-be/hbkpclpemjeibhioopcebchdmohaieln)
+
 
 # How to install
 1. Enable developer mode on your browser of choice.
