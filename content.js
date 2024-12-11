@@ -6,68 +6,75 @@ if (userId) {
     fetch(`https://games.roblox.com/v2/users/${userId}/games?accessFilter=2&limit=50&sortOrder=Asc`)
         .then(response => response.json())
         .then(data => {
-            // Locate the "Experiences" header container
-            const containerHeader = document.querySelector('.container-header');
+            // Locate the "Experiences" header container and elements specific to btroblox
             const experiencesContainer = document.querySelector('.hlist.btr-games-list');
             const profileGameSection = document.querySelector('.profile-game.section.ng-scope');
             const pager = profileGameSection ? profileGameSection.querySelector('.btr-pager') : null; // Find the btr-pager inside profile-game section
 
-            if (containerHeader && experiencesContainer) {
-                // Create a new tab container for "Hidden Games"
-                const hiddenGamesContainer = document.createElement('div');
-                hiddenGamesContainer.classList.add('hidden-games-list');
-                hiddenGamesContainer.style.display = 'none'; // Hide by default
+            // If btroblox elements (with 'btr' class) are not found, log the switch to the console
+            if (!experiencesContainer) {
+                console.log('Switching to non-btroblox functionality');
+                loadNonBtrobloxFile(); // Load non-btroblox functionality
+                return; // Exit the current function to prevent further processing
+            }
 
-                // Find all game links in the "Experiences" section (inside the hlist.btr-games-list)
-                const gameLinks = Array.from(
-                    experiencesContainer.querySelectorAll('a[href^="https://www.roblox.com/games/"]')
-                );
+            // Process btroblox-specific logic
+            const containerHeader = document.querySelector('.container-header'); // This is not from btroblox, so we keep it as-is
+            const hiddenGamesContainer = document.createElement('div');
+            hiddenGamesContainer.classList.add('hidden-games-list');
+            hiddenGamesContainer.style.display = 'none'; // Hide by default
 
-                // Extract the game IDs from the links
-                const visibleGameIds = gameLinks.map(link => {
-                    const urlParts = link.href.split('/');
-                    return urlParts[urlParts.length - 1]; // The game ID is the last part of the URL
-                });
+            // Find all game links in the "Experiences" section (inside the hlist.btr-games-list)
+            const gameLinks = Array.from(
+                experiencesContainer.querySelectorAll('a[href^="https://www.roblox.com/games/"]')
+            );
 
-                // Filter and add only hidden games (those not in the visible list)
-                const hiddenGames = data.data.filter(game => {
+            // Extract the game IDs from the links
+            const visibleGameIds = gameLinks.map(link => {
+                const urlParts = link.href.split('/');
+                return urlParts[urlParts.length - 1]; // The game ID is the last part of the URL
+            });
+
+            // Filter and add only hidden games (those not in the visible list)
+            const hiddenGames = data.data.filter(game => {
+                const gameId = game.rootPlace?.id; // Extract the rootPlace ID
+                return gameId && !visibleGameIds.includes(gameId.toString()); // Exclude visible games
+            });
+
+            if (hiddenGames.length === 0) {
+                const noGames = document.createElement('p');
+                noGames.textContent = "No hidden games found.";
+                hiddenGamesContainer.appendChild(noGames);
+            } else {
+                hiddenGames.forEach(game => {
                     const gameId = game.rootPlace?.id; // Extract the rootPlace ID
-                    return gameId && !visibleGameIds.includes(gameId.toString()); // Exclude visible games
+                    if (gameId) {
+                        const gameElement = document.createElement('div');
+                        gameElement.classList.add('game-item');
+
+                        const gameName = document.createElement('span');
+                        gameName.textContent = game.name;
+                        gameName.classList.add('game-name'); // Add class for hover effect
+
+                        const gameLink = document.createElement('a');
+                        gameLink.href = `https://www.roblox.com/games/${gameId}`;
+                        gameLink.target = "_blank";
+                        gameLink.style.display = 'none'; // Hide actual link
+
+                        gameElement.appendChild(gameName);
+                        gameElement.appendChild(gameLink);
+                        hiddenGamesContainer.appendChild(gameElement);
+
+                        // Make the entire game element clickable
+                        gameElement.addEventListener('click', () => {
+                            window.open(gameLink.href, '_blank'); // Open game in a new tab
+                        });
+                    }
                 });
+            }
 
-                if (hiddenGames.length === 0) {
-                    const noGames = document.createElement('p');
-                    noGames.textContent = "No hidden games found.";
-                    hiddenGamesContainer.appendChild(noGames);
-                } else {
-                    hiddenGames.forEach(game => {
-                        const gameId = game.rootPlace?.id; // Extract the rootPlace ID
-                        if (gameId) {
-                            const gameElement = document.createElement('div');
-                            gameElement.classList.add('game-item');
-
-                            const gameName = document.createElement('span');
-                            gameName.textContent = game.name;
-                            gameName.classList.add('game-name'); // Add class for hover effect
-
-                            const gameLink = document.createElement('a');
-                            gameLink.href = `https://www.roblox.com/games/${gameId}`;
-                            gameLink.target = "_blank";
-                            gameLink.style.display = 'none'; // Hide actual link
-
-                            gameElement.appendChild(gameName);
-                            gameElement.appendChild(gameLink);
-                            hiddenGamesContainer.appendChild(gameElement);
-
-                            // Make the entire game element clickable
-                            gameElement.addEventListener('click', () => {
-                                window.open(gameLink.href, '_blank'); // Open game in a new tab
-                            });
-                        }
-                    });
-                }
-
-                // Add the hidden games container to the page
+            // Add the hidden games container to the page
+            if (containerHeader && experiencesContainer) {
                 experiencesContainer.parentNode.appendChild(hiddenGamesContainer);
 
                 // Create tab buttons
@@ -159,3 +166,10 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
+
+// Function to load non-btroblox fallback
+function loadNonBtrobloxFile() {
+    const script = document.createElement('script');
+    script.src = chrome.runtime.getURL('none-btroblox.js'); // Assuming 'none-btroblox.js' is your fallback file
+    document.body.appendChild(script);
+}
