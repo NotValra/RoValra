@@ -1,6 +1,9 @@
-# Hidden-Games
-This shows user's and group's hidden games on Roblox.
-![image](https://github.com/user-attachments/assets/50217724-200e-40fa-9c64-e06c28b90dfd)
+# RoValra
+This is extension is just features Valra wants but no other extension has
+
+# Features
+The ability to view hidden games on profiles and groups
+The ability to view sales and revenue on spesific items. Credits to [Frames](https://github.com/workframes/roblox-owner-counts)
 
 # Known incompatibilies
 The extension is unable to show the hidden games of groups if you use RoSeal with the "Seamless navigation of communities" setting on.
