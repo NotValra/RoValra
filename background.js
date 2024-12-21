@@ -7,7 +7,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             .then(response => response.json())
             .then(data => {
                 const hiddenGames = data.data.filter(game => {
-                    // Exclude games already visible in "hlist btr-games-list"
                     return !document.querySelector(`[data-game-id="${game.id}"]`);
                 });
 
@@ -40,3 +39,4 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             .catch(error => console.error('Error fetching hidden games:', error));
     }
 });
+//havent touched this since for ever AWOOOGAAAAAAAAAAAAAAAAAAAAA

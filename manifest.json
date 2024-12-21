@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Roblox Hidden Games Finder",
-  "version": "1.1",
-  "description": "Find hidden games of Roblox users from their profile.",
+  "name": "RoValra",
+  "version": "1.2",
+  "description": "Features Valra wants but no other extension has 🥲",
   "permissions": ["tabs", "scripting", "activeTab", "storage"],
   "host_permissions": ["https://games.roblox.com/*"],
   "background": {

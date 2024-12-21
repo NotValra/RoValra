@@ -1,44 +1,129 @@
+if (window.location.pathname.startsWith('/catalog') || window.location.pathname.startsWith('/bundles')) {
+
+    // Extract the item ID from the URL
+    const itemId = parseInt(window.location.pathname.split('/')[2], 10);
+    console.log("Extracted item ID:", itemId);
+
+
+    fetch('https://raw.githubusercontent.com/workframes/roblox-owner-counts/refs/heads/main/items.json') // FRAMES GIVE ME MY MUTLI TOOL I HAVE WAITED WAYYYYYY TOO LONG AHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+        .then(response => response.json())
+        .then(data => {
+            const items = data.item || [];
+
+            if (items.length === 0) {
+                console.log('No items found in the fetched data.');
+                return;
+            }
+
+            const item = items.find(item => item.id === itemId || parseInt(item.id, 10) === itemId);
+
+            if (item) {
+                console.log("Item found:", item);
+// This makes sure even ur potato pc can run this
+                const retryFindElement = (selector, maxRetries, delay, callback) => {
+                    let retries = 0;
+                    const interval = setInterval(() => {
+                        const element = document.querySelector(selector);
+                        if (element) {
+                            clearInterval(interval);
+                            callback(element);
+                        } else if (retries >= maxRetries) {
+                            clearInterval(interval);
+                            console.log(`${selector} not found after ${maxRetries} retries.`);
+                        }
+                        retries++;
+                    }, delay);
+                };
+// This finds location yes yes
+                const contentElementCallback = (contentElement) => {
+                    retryFindElement("#item-container", 20, 100, (itemContainerElement) => {
+                        retryFindElement(".remove-panel.section-content.top-section", 20, 100, (removePanelElement) => {
+                            retryFindElement("#item-info-container-frontend", 20, 100, (itemInfoContainerElement) => {
+                                retryFindElement(".shopping-cart.item-details-info-content", 20, 100, (shoppingCartElement) => {
+                                    retryFindElement("#item-details", 20, 100, (itemDetailsElement) => {
+                                        retryFindElement(".price-row-container", 20, 100, (priceRowContainer) => {
+                                            retryFindElement(".item-info-row-container", 20, 100, (iteminforowcontainer) => {
+                                                retryFindElement(".text-label.row-label.price-label", 20, 100, (textlabelrowlabelpricelabel) => {
+                                                    const salesDiv = document.createElement('div');
+                                                    salesDiv.classList.add('item-sales');
+                                                    salesDiv.innerHTML = `<strong>Sales:</strong> ${item.sales.toLocaleString()}`;
+                                                    salesDiv.style.color = "#bdbebe";
+                                                    salesDiv.style.marginTop = "10px";
+                                                    salesDiv.style.marginLeft = "0px";
+
+                                                    const revenueDiv = document.createElement('div');
+                                                    revenueDiv.classList.add('item-revenue');
+                                                    revenueDiv.innerHTML = `<strong>Revenue:</strong> $${(item.revenue / 100).toFixed(2)}`;
+                                                    revenueDiv.style.color = "#bdbebe";
+                                                    revenueDiv.style.marginTop = "10px";
+                                                    revenueDiv.style.marginLeft = "0";
+
+                                                    textlabelrowlabelpricelabel.appendChild(salesDiv);
+                                                    textlabelrowlabelpricelabel.appendChild(revenueDiv);
+
+                                                    console.log("If you see this that means Valra prob forgot to sleep and has now been awake for 24 hours.");
+                                                });
+                                            });
+                                        });
+                                    });
+                                });
+                            });
+                        });
+                    });
+                };
+
+                retryFindElement(".content", 20, 100, contentElementCallback);
+
+            } else {
+                console.log("Item not found.");
+            }
+        })
+        .catch(error => {
+            // Something messed up hehe
+            console.error('Error fetching data:', error);
+        });
+}
+
+
+
+
+else
 if (window.location.pathname.startsWith('/communities')) {
-    console.log("GROUP!!!");
+    console.log("GROUP!!! i mean community 😔");
     const groupId = window.location.pathname.split('/')[2];
     console.log("Group ID:", groupId);
-
     if (groupId) {
-        // Fetch group games from the Roblox API
+        // api stuff yes
         fetch(`https://games.roblox.com/v2/groups/${groupId}/gamesV2?accessFilter=1&limit=50&sortOrder=Asc`)
             .then(response => response.json())
             .then(data => {
-                const retryInterval = 1000; // Time in milliseconds between retries (1 second)
-                const maxRetries = 10; // Max number of retries before stopping
+                // This makes sure YOUR potato can run this (my (valras) pc would never require this)
+                const retryInterval = 1000;
+                const maxRetries = 10;
 
                 function checkElements(retries = 0) {
                     const groupGamesContainer = document.querySelector('.group-games');
                     const containerHeader = document.querySelector("#group-container > div > div > div.group-details.col-xs-12.ng-scope.col-sm-9 > div > div:nth-child(3) > div > group-games > div > div.container-header");
 
                     if (!groupGamesContainer || !containerHeader) {
+                        // in case of potato
                         if (retries < maxRetries) {
                             console.log(`Retrying... Attempt ${retries + 1}`);
-                            setTimeout(() => checkElements(retries + 1), retryInterval);
-                        } else {
-                            console.log("Group games container or header not found, most likely meaning the group has no games.");
-                        }
-                    } else {
-                        console.log("Elements found successfully!");
+                            setTimeout(() => checkElements(retries + 1), retryInterval);} 
+                            else {console.log("Group likely aint games got👀🥒🔥");}}
+                            else {
 
                         const hiddenGamesContainer = document.createElement('div');
                         hiddenGamesContainer.classList.add('hidden-games-list');
                         hiddenGamesContainer.style.display = 'none';
-
-                        // Find all visible game links by checking all anchor tags in groupGamesContainer
+                        // Honestly no idea what this does 🤔😖
                         const gameLinks = Array.from(groupGamesContainer.querySelectorAll('a[href^="https://www.roblox.com/games/refer?PlaceId="]'));
 
-                        // Get the game IDs from the visible game links by extracting the PlaceId query parameter
                         const visibleGameIds = gameLinks.map(link => {
                             const url = new URL(link.href);
-                            return url.searchParams.get('PlaceId'); // Extracts PlaceId
+                            return url.searchParams.get('PlaceId'); 
                         });
 
-                        // Loop through all game containers (all classes) and find any hidden games
                         const hiddenGames = data.data.filter(game => {
                             const gameId = game.rootPlace?.id;
                             return gameId && !visibleGameIds.includes(gameId.toString());
@@ -77,7 +162,7 @@ if (window.location.pathname.startsWith('/communities')) {
 
                         groupGamesContainer.parentNode.appendChild(hiddenGamesContainer);
 
-                        // Create tab buttons
+
                         const experiencesButton = document.createElement('button');
                         experiencesButton.textContent = "Experiences";
                         experiencesButton.classList.add('tab-button', 'active-tab');
@@ -86,7 +171,7 @@ if (window.location.pathname.startsWith('/communities')) {
                         hiddenGamesButton.textContent = "Hidden Experiences";
                         hiddenGamesButton.classList.add('tab-button');
 
-                        // Add tab functionality
+
                         hiddenGamesButton.addEventListener('click', () => {
                             groupGamesContainer.style.display = 'none';
                             hiddenGamesContainer.style.display = 'block';
@@ -106,35 +191,32 @@ if (window.location.pathname.startsWith('/communities')) {
                     }
                 }
 
-                // Start checking for the elements
                 checkElements();
             })
             .catch(error => {
+                // Wow something didnt go as planned WHAAAAAAAAAAAAAAAAAAATTTTTTTTTTTTTTTTTTTTT
                 console.error('Error fetching group games:', error);
             });
     }
 }
 
-
+// If not group yep
  else {
     const userId = window.location.pathname.split('/')[2];
     console.log("User ID:", userId);
     if (userId) {
-        // Fetch hidden games from the Roblox API
         fetch(`https://games.roblox.com/v2/users/${userId}/games?accessFilter=2&limit=50&sortOrder=Asc`)
             .then(response => response.json())
             .then(data => {
-                // Original user-specific logic
                 const experiencesContainer = document.querySelector('.hlist.btr-games-list');
                 const profileGameSection = document.querySelector('.profile-game.section.ng-scope');
                 const pager = profileGameSection ? profileGameSection.querySelector('.btr-pager') : null;
-
+                // incase you hate QoL on roblox 🤔
                 if (!experiencesContainer) {
                     console.log('Switching to non-btroblox functionality');
                     loadNonBtrobloxFile();
                     return;
                 }
-
                 const containerHeader = document.querySelector('.container-header');
                 const hiddenGamesContainer = document.createElement('div');
                 hiddenGamesContainer.classList.add('hidden-games-list');
@@ -143,17 +225,14 @@ if (window.location.pathname.startsWith('/communities')) {
                 const gameLinks = Array.from(
                     experiencesContainer.querySelectorAll('a[href^="https://www.roblox.com/games/"]')
                 );
-
                 const visibleGameIds = gameLinks.map(link => {
                     const urlParts = link.href.split('/');
                     return urlParts[urlParts.length - 1];
                 });
-
                 const hiddenGames = data.data.filter(game => {
                     const gameId = game.rootPlace?.id;
                     return gameId && !visibleGameIds.includes(gameId.toString());
                 });
-
                 if (hiddenGames.length === 0) {
                     const noGames = document.createElement('p');
                     noGames.textContent = "No hidden games found.";
@@ -226,7 +305,7 @@ if (window.location.pathname.startsWith('/communities')) {
     }
 }
 
-// Add styles for tabs and games
+//Makes it look all nice and cool like valra
 const style = document.createElement('style');
 style.textContent = `
     .tab-button {
@@ -272,7 +351,7 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-// Function to load non-btroblox fallback
+// moves u to the hate qol file if hate qol
 function loadNonBtrobloxFile() {
     const script = document.createElement('script');
     script.src = chrome.runtime.getURL('none-btroblox.js');

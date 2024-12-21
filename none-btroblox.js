@@ -1,31 +1,26 @@
 console.log('Switched to non-btroblox functionality');
-
-// Extract User ID from the URL
+// I AINT making new comments for the same script but for people who HATE QoL 🦢🦢🦢🦢🦢🦢🦢🦢
 const userId = window.location.pathname.split('/')[2];
 
 if (userId) {
-    // Fetch hidden games from the Roblox API
     fetch(`https://games.roblox.com/v2/users/${userId}/games?accessFilter=2&limit=50&sortOrder=Asc`)
         .then(response => response.json())
         .then(data => {
             console.log('Fetched hidden games:', data);
 
-            // Locate the container where we'll add the buttons
             const containerHeader = document.querySelector("#creations > div.profile-game.ng-scope.section > div.container-header");
             const profileGameSection = document.querySelector('.profile-game.section.ng-scope');
             const switcherContainer = document.querySelector('.switcher.slide-switcher.games.ng-isolate-scope');
             const hiddenGamesContainer = document.createElement('div');
             hiddenGamesContainer.classList.add('hidden-games-list');
-            hiddenGamesContainer.style.display = 'none'; // Hidden by default
+            hiddenGamesContainer.style.display = 'none';
 
-            // Find all game links inside the switcher (to exclude games already visible)
             const switcherGames = Array.from(switcherContainer ? switcherContainer.querySelectorAll('a[href^="https://www.roblox.com/games/"]') : []);
             const visibleGameIds = switcherGames.map(link => {
                 const urlParts = link.href.split('/');
-                return urlParts[urlParts.length - 1]; // The game ID is the last part of the URL
+                return urlParts[urlParts.length - 1];
             });
 
-            // Filter out visible games and only show the hidden ones
             const hiddenGames = data.data.filter(game => {
                 const gameId = game.rootPlace?.id;
                 return gameId && !visibleGameIds.includes(gameId.toString());
@@ -49,21 +44,18 @@ if (userId) {
                         const gameLink = document.createElement('a');
                         gameLink.href = `https://www.roblox.com/games/${gameId}`;
                         gameLink.target = "_blank";
-                        gameLink.style.display = 'none'; // Hide actual link
+                        gameLink.style.display = 'none';
 
                         gameElement.appendChild(gameName);
                         gameElement.appendChild(gameLink);
                         hiddenGamesContainer.appendChild(gameElement);
 
-                        // Make the entire game element clickable
                         gameElement.addEventListener('click', () => {
-                            window.open(gameLink.href, '_blank'); // Open game in a new tab
+                            window.open(gameLink.href, '_blank');
                         });
                     }
                 });
             }
-
-            // Create tab buttons
             const gamesButton = document.createElement('button');
             gamesButton.textContent = "Games";
             gamesButton.classList.add('tab-button', 'active-tab');
@@ -72,27 +64,21 @@ if (userId) {
             hiddenGamesButton.textContent = "Hidden Games";
             hiddenGamesButton.classList.add('tab-button');
 
-            // Add functionality to switch tabs
             hiddenGamesButton.addEventListener('click', () => {
                 switcherContainer.style.display = 'none';
                 hiddenGamesContainer.style.display = 'block';
                 hiddenGamesButton.classList.add('active-tab');
                 gamesButton.classList.remove('active-tab');
             });
-
             gamesButton.addEventListener('click', () => {
                 switcherContainer.style.display = 'block';
                 hiddenGamesContainer.style.display = 'none';
                 gamesButton.classList.add('active-tab');
                 hiddenGamesButton.classList.remove('active-tab');
             });
-
-            // Insert buttons into the container header (before the hidden games container)
             if (containerHeader) {
                 containerHeader.appendChild(gamesButton);
                 containerHeader.appendChild(hiddenGamesButton);
-
-                // Now insert the hidden games container
                 containerHeader.appendChild(hiddenGamesContainer);
             }
         })
@@ -101,7 +87,7 @@ if (userId) {
         });
 }
 
-// Add styles for the tabs and games
+// Makes it cool and good looking like valra (No lie)
 const style = document.createElement('style');
 style.textContent = `
     .tab-button {
