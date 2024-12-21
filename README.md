@@ -3,6 +3,7 @@ This is extension is just features Valra wants but no other extension has
 
 # Features
 The ability to view hidden games on profiles and groups
+
 The ability to view sales and revenue on spesific items. Credits to [Frames](https://github.com/workframes/roblox-owner-counts)
 
 # Known incompatibilies
