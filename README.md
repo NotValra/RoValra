@@ -21,5 +21,6 @@ The extension wont show sales if the item is offsale. it will be logged in the c
 
 # Credits
 Sales / revenue thingy: https://github.com/workframes/roblox-owner-counts
+
 Coding: Chatgpt 😘
 Extra coding help when chatgpt and me didnt know how: [Aspect](https://github.com/Aspectise) 
