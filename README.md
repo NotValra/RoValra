@@ -6,11 +6,11 @@ The ability to view hidden games on profiles and groups
 
 The ability to view sales and revenue on spesific items. Credits to [Frames](https://github.com/workframes/roblox-owner-counts)
 
+The ability to join a server in a spesific region (Requires [RoQoL](https://chromewebstore.google.com/detail/roqol-improve-your-roblox/ohffojhdniagefegnmjfpfidnjofekpj))
+
 # Known incompatibilies
 The extension is unable to show the hidden games of groups if you use RoSeal with the "Seamless navigation of communities" setting on.
 
-# Known issues
-The extension wont show sales if the item is offsale. it will be logged in the console tho. (Gonna fix when i want to add more stuff to the extension)
 
 # How to install
 1. Enable developer mode on your browser of choice.
