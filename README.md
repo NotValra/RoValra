@@ -10,7 +10,9 @@ The ability to join a server in a spesific region (Requires [RoQoL](https://chro
 
 # Known incompatibilies
 The extension is unable to show the hidden games of groups if you use RoSeal with the "Seamless navigation of communities" setting on.
-
+The different states in the US isnt showing. It is bc of limitations with the IP location checker.
+Some servers might not show like France, again bc of limitations bc of the IP location checker.
+Im also gonna be making the region selector look better in the next update
 
 # How to install
 1. Enable developer mode on your browser of choice.
