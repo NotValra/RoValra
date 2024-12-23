@@ -1,11 +1,12 @@
+
+
 if (window.location.pathname.startsWith('/catalog') || window.location.pathname.startsWith('/bundles')) {
 
     // Extract the item ID from the URL
     const itemId = parseInt(window.location.pathname.split('/')[2], 10);
     console.log("Extracted item ID:", itemId);
 
-
-    fetch('https://raw.githubusercontent.com/workframes/roblox-owner-counts/refs/heads/main/items.json') // FRAMES GIVE ME MY MUTLI TOOL I HAVE WAITED WAYYYYYY TOO LONG AHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+    fetch('https://raw.githubusercontent.com/workframes/roblox-owner-counts/refs/heads/main/items.json') 
         .then(response => response.json())
         .then(data => {
             const items = data.item || [];
@@ -19,67 +20,53 @@ if (window.location.pathname.startsWith('/catalog') || window.location.pathname.
 
             if (item) {
                 console.log("Item found:", item);
-// This makes sure even ur potato pc can run this
-                const retryFindElement = (selector, maxRetries, delay, callback) => {
+
+                const retryFindElement = (selector, maxRetries, retryInterval, callback, fallbackSelector) => {
                     let retries = 0;
                     const interval = setInterval(() => {
-                        const element = document.querySelector(selector);
+                        let element = document.querySelector(selector);
+                        if (!element && fallbackSelector) {
+                            element = document.querySelector(fallbackSelector);
+                        }
+
                         if (element) {
                             clearInterval(interval);
                             callback(element);
                         } else if (retries >= maxRetries) {
                             clearInterval(interval);
-                            console.log(`${selector} not found after ${maxRetries} retries.`);
+                            console.log(`${selector} and fallback ${fallbackSelector} not found after ${maxRetries} retries.`);
                         }
                         retries++;
-                    }, delay);
-                };
-// This finds location yes yes
-                const contentElementCallback = (contentElement) => {
-                    retryFindElement("#item-container", 20, 100, (itemContainerElement) => {
-                        retryFindElement(".remove-panel.section-content.top-section", 20, 100, (removePanelElement) => {
-                            retryFindElement("#item-info-container-frontend", 20, 100, (itemInfoContainerElement) => {
-                                retryFindElement(".shopping-cart.item-details-info-content", 20, 100, (shoppingCartElement) => {
-                                    retryFindElement("#item-details", 20, 100, (itemDetailsElement) => {
-                                        retryFindElement(".price-row-container", 20, 100, (priceRowContainer) => {
-                                            retryFindElement(".item-info-row-container", 20, 100, (iteminforowcontainer) => {
-                                                retryFindElement(".text-label.row-label.price-label", 20, 100, (textlabelrowlabelpricelabel) => {
-                                                    const salesDiv = document.createElement('div');
-                                                    salesDiv.classList.add('item-sales');
-                                                    salesDiv.innerHTML = `<strong>Sales:</strong> ${item.sales.toLocaleString()}`;
-                                                    salesDiv.style.color = "#bdbebe";
-                                                    salesDiv.style.marginTop = "10px";
-                                                    salesDiv.style.marginLeft = "0px";
-
-                                                    const revenueDiv = document.createElement('div');
-                                                    revenueDiv.classList.add('item-revenue');
-                                                    revenueDiv.innerHTML = `<strong>Revenue:</strong> $${(item.revenue / 100).toFixed(2)}`;
-                                                    revenueDiv.style.color = "#bdbebe";
-                                                    revenueDiv.style.marginTop = "10px";
-                                                    revenueDiv.style.marginLeft = "0";
-
-                                                    textlabelrowlabelpricelabel.appendChild(salesDiv);
-                                                    textlabelrowlabelpricelabel.appendChild(revenueDiv);
-
-                                                    console.log("If you see this that means Valra prob forgot to sleep and has now been awake for 24 hours.");
-                                                });
-                                            });
-                                        });
-                                    });
-                                });
-                            });
-                        });
-                    });
+                    }, retryInterval);
                 };
 
-                retryFindElement(".content", 20, 100, contentElementCallback);
-
+                retryFindElement(
+                    ".text-label.row-label.price-label", 
+                    20, 
+                    100, 
+                    (foundElement) => {
+                        const salesDiv = document.createElement('div');
+                        salesDiv.classList.add('item-sales');
+                        salesDiv.innerHTML = `<strong>Sales:</strong> ${item.sales.toLocaleString()}`;
+                        salesDiv.style.color = "#bdbebe";
+                        salesDiv.style.marginTop = "10px";
+                        salesDiv.style.marginLeft = "0px";
+                        foundElement.appendChild(salesDiv);
+                        const revenueDiv = document.createElement('div');
+                        revenueDiv.classList.add('item-revenue');
+                        revenueDiv.innerHTML = `<strong>Revenue:</strong> $${(item.revenue / 100).toFixed(2)}`;
+                        revenueDiv.style.color = "#bdbebe";
+                        revenueDiv.style.marginTop = "10px";
+                        revenueDiv.style.marginLeft = "0";
+                        foundElement.appendChild(revenueDiv);
+                    },
+                    ".price-row-container"
+                );
             } else {
                 console.log("Item not found.");
             }
         })
         .catch(error => {
-            // Something messed up hehe
             console.error('Error fetching data:', error);
         });
 }
@@ -361,3 +348,271 @@ function loadNonBtrobloxFile() {
 
 
 
+
+
+
+
+
+
+
+// region thing yes yes
+const placeId = window.location.pathname.split('/')[2];
+
+const defaultRegions = ["HK", "FR", "NL", "GB", "AU", "IN", "DE", "PL", "JP", "SG", "BR", "US"];
+
+let regionServerMap = {};
+let regionCounts = {};
+
+if (placeId) {
+    chrome.runtime.sendMessage({ action: "getRobloxCookie" }, (response) => {
+        if (response.success) {
+            const robloxCookie = response.cookie;
+            getServerInfo(placeId, robloxCookie, defaultRegions);
+        } else {
+            console.error("Error retrieving .ROBLOSECURITY cookie:", response.message);
+        }
+    });
+} else {
+    console.log("No valid placeId found in the URL");
+}
+
+async function getServerInfo(placeId, robloxCookie, regions) {
+    const url = `https://games.roblox.com/v1/games/${placeId}/servers/Public?excludeFullGames=true&limit=100`;
+
+    try {
+        const response = await fetch(url, {
+            headers: {
+                "User-Agent": "Roblox/WinInet",
+                "Referer": `https://www.roblox.com/games/${placeId}/`,
+                "Origin": "https://roblox.com",
+                "Cookie": `${robloxCookie}`,
+            },
+        });
+
+        if (!response.ok) {
+            console.error(`Error fetching servers, status code: ${response.status}`);
+            const errorDetails = await response.text();
+            console.error("Error details:", errorDetails);
+            return;
+        }
+
+        const servers = await response.json();
+
+        if (!servers.data || servers.data.length === 0) {
+            return;
+        }
+
+        for (const server of servers.data) {
+            await handleServer(server, placeId, robloxCookie, regions);
+        }
+        for (const [region, count] of Object.entries(regionCounts)) {
+        }
+
+    } catch (error) {
+        console.error("Error fetching server data:", error);
+    }
+}
+
+async function handleServer(server, placeId, robloxCookie, regions) {
+    const serverId = server.id;
+
+    try {
+        const serverInfo = await fetch(`https://gamejoin.roblox.com/v1/join-game-instance`, {
+            method: 'POST',
+            headers: {
+                "User-Agent": "Roblox/WinInet",
+                "Accept": "*/*",
+                "Accept-Encoding": "gzip, deflate, br, zstd",
+                "Accept-Language": "en,en-US;q=0.9",
+                "Referer": `https://www.roblox.com/games/${placeId}/`,
+                "Origin": "https://roblox.com",
+            },
+            body: new URLSearchParams({
+                placeId: placeId,
+                isTeleport: false,
+                gameId: serverId,
+                gameJoinAttemptId: serverId,
+            }),
+            credentials: 'include',
+        });
+
+        const ipData = await serverInfo.json();
+        const ip = ipData?.joinScript?.UdmuxEndpoints?.[0]?.Address;
+
+        if (!ip) {
+            return;
+        }
+
+        const geolocationData = await fetchGeolocation(ip);
+        if (!geolocationData) {
+            return;
+        }
+
+        const countryCode = mapStateToRegion(geolocationData);
+        if (regions.includes(countryCode)) {
+            regionCounts[countryCode] = (regionCounts[countryCode] || 0) + 1;
+            regionServerMap[countryCode] = server;
+
+            updatePopup();
+        }
+    } catch (error) {
+        console.error(`Error fetching server info for server ${serverId}:`, error);
+    }
+}
+
+const retryFindElement = (selector, maxRetries, interval, callback) => {
+    let retries = 0;
+    const intervalId = setInterval(() => {
+        const element = document.querySelector(selector);
+        if (element) {
+            clearInterval(intervalId);
+            callback(element);
+        } else if (retries >= maxRetries) {
+            clearInterval(intervalId);
+        }
+        retries++;
+    }, interval);
+};
+
+retryFindElement(".nav.nav-tabs", 20, 100, (tabgameinstances) => {
+    const tabs = document.querySelectorAll(".rbx-tab");
+
+    tabs.forEach((tab) => {
+        const observer = new MutationObserver((mutationsList) => {
+            mutationsList.forEach((mutation) => {
+                if (mutation.type === "attributes" && mutation.attributeName === "class") {
+                    if (tab.classList.contains("active")) {
+
+                        const contentId = tab.getAttribute("data-target");
+                        const activeContent = document.querySelector(contentId || ".tab-content.rbx-tab-content.section");
+
+                        if (activeContent) {
+                            handleTabContentChange(activeContent);
+                        }
+                    }
+                }
+            });
+        });
+
+        observer.observe(tab, { attributes: true });
+    });
+});
+
+
+function handleTabContentChange(contentElement) {
+    const allContentElements = document.querySelectorAll(".tab-content.rbx-tab-content.section");
+
+    allContentElements.forEach((element) => {
+        if (element !== contentElement) {
+            element.style.display = "none";
+        }
+    });
+
+    contentElement.style.display = "block";
+}
+
+retryFindElement(".nav.nav-tabs", 20, 100, (tabgameinstances) => {
+    const regionDiv = document.createElement('div');
+    regionDiv.classList.add('stuff');
+
+    const toggleButton = document.createElement('button');
+    toggleButton.textContent = "Show Servers";
+    toggleButton.style.marginTop = "0px";
+    toggleButton.style.backgroundColor = "transparent";
+    toggleButton.style.color = "white";
+    toggleButton.style.border = "none";
+    toggleButton.style.padding = "10px 20px";
+    toggleButton.style.cursor = "pointer";
+    toggleButton.style.fontWeight = "Bold";
+
+    const serverPopup = document.createElement('div');
+    serverPopup.classList.add('server-popup');
+    serverPopup.style.display = "none";
+    regionDiv.appendChild(toggleButton);
+    regionDiv.appendChild(serverPopup);
+
+    toggleButton.addEventListener("click", () => {
+        const isHidden = serverPopup.style.display === "none";
+        serverPopup.style.display = isHidden ? "block" : "none";
+        toggleButton.textContent = isHidden ? "Hide Servers" : "Show Servers";
+        const tabContent = document.querySelector('.tab-content.rbx-tab-content.section');
+        if (tabContent) {
+            tabContent.style.display = isHidden ? "none" : "block";
+        }
+    });
+
+    tabgameinstances.appendChild(regionDiv);
+    
+    const tabContent = document.querySelector('.tab-content.rbx-tab-content.section');
+    if (tabContent) {
+        const observer = new MutationObserver(() => {
+            const isTabVisible = window.getComputedStyle(tabContent).display !== "none";
+
+            if (isTabVisible && serverPopup.style.display === "block") {
+                serverPopup.style.display = "none";
+                toggleButton.textContent = "Show Servers";
+            }
+        });
+
+        observer.observe(tabContent, { attributes: true, childList: true, subtree: false });
+    }
+});
+
+function updatePopup() {
+    const serverPopup = document.querySelector('.server-popup');
+    if (!serverPopup) return;
+
+    serverPopup.innerHTML = '';
+
+    for (const [region, count] of Object.entries(regionCounts)) {
+        const button = document.createElement('button');
+        button.textContent = `${region}: ${count} servers`;
+        button.style.margin = "5px";
+        button.style.padding = "5px 10px";
+        button.style.backgroundColor = "transparent";
+        button.style.border = "none";
+        button.style.cursor = "pointer";
+        button.style.width = "70%";
+        button.style.fontSize = "15px";
+        button.style.fontWeight = "bold";
+        button.style.color = "white";
+
+        button.addEventListener("click", () => {
+            const serverId = regionServerMap[region]?.id;
+            if (serverId) {
+                const url = `https://www.roblox.com/games/start?placeId=16302670534&launchData=${placeId}/${serverId}`;
+                window.open(url, '_blank');
+            } else {
+                console.error("Server ID not found for region:", region);
+            }
+        });
+
+        serverPopup.appendChild(button);
+    }
+}
+
+async function fetchGeolocation(ip) {
+    try {
+        const response = await fetch(`https://get.geojs.io/v1/ip/country/${ip}.json`);
+        if (response.status === 200) {
+            const data = await response.json();
+
+            return {
+                name: data.name || "Unknown",
+                countryCode: data.country || "Unknown",
+                countryCode3: data.country_3 || "Unknown",
+                ip: data.ip || ip,
+            };
+        }
+    } catch (error) {
+        console.error(`Error fetching geolocation for IP ${ip}:`, error);
+    }
+    return null;
+}
+
+function mapStateToRegion(data) {
+    if (data.countryCode === "US") {
+        return "US";
+    }
+    return data.countryCode;
+}
