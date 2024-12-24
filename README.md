@@ -16,6 +16,8 @@
 
 - **And more to come, if you have a feature you want me to add just lmk**
 
+# To try list
+- [ ] Making the region selector not rely on RoQoL (I dont know if this is possible without server cost)
 
 # Known incompatibilies
 - **The extension is unable to show the hidden games of groups if you use RoSeal with the "Seamless navigation of communities" setting on.**
