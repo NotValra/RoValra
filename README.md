@@ -17,6 +17,10 @@ Some servers might not show like France, again bc of limitations bc of the IP lo
 
 Im also gonna be making the region selector look better in the next update
 
+# Known issues
+
+The show server button (for server regions) shows up in the friend list tab and might show up in other places.
+
 # How to install
 1. Enable developer mode on your browser of choice.
 ![image](https://github.com/user-attachments/assets/301ab762-7b3b-4f5f-9eb0-9e7699212546)
