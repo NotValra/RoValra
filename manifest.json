@@ -4,7 +4,7 @@
   "version": "1.5",
   "description": "Features Valra wants but no other extension has 🥲",
   "permissions": ["tabs", "scripting", "activeTab", "storage", "cookies"],
-  "host_permissions": ["https://games.roblox.com/*","http://ip-api.com/*", "http://ipinfo.io/*", "https://www.roblox.com/*"],
+  "host_permissions": ["https://games.roblox.com/*", "https://www.roblox.com/*"],
   "background": {
     "service_worker": "background.js"
   },
@@ -19,5 +19,12 @@
       "resources": ["none-btroblox.js"],
       "matches": ["https://www.roblox.com/*"]
     }
-  ]
+  ],
+  "action": {
+    "default_icon": {
+      "16": "Assets/icon-16.png",
+      "48": "Assets/icon-48.png",
+      "128": "Assets/icon-128.png"
+    }
+  }
 }

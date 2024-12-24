@@ -355,14 +355,16 @@ function loadNonBtrobloxFile() {
 
 
 
-// region thing yes yes
-const placeId = window.location.pathname.split('/')[2];
+const pathname = window.location.pathname;
+let placeId = null;
 
+if (pathname.includes('/games/')) {
+    placeId = pathname.split('/')[2];
+}
+// The different locations yep
 const defaultRegions = ["HK", "FR", "NL", "GB", "AU", "IN", "DE", "PL", "JP", "SG", "BR", "US"];
-
 let regionServerMap = {};
 let regionCounts = {};
-
 if (placeId) {
     chrome.runtime.sendMessage({ action: "getRobloxCookie" }, (response) => {
         if (response.success) {
@@ -376,46 +378,130 @@ if (placeId) {
     console.log("No valid placeId found in the URL");
 }
 
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
 async function getServerInfo(placeId, robloxCookie, regions) {
-    const url = `https://games.roblox.com/v1/games/${placeId}/servers/Public?excludeFullGames=true&limit=100`;
-
+    let url = `https://games.roblox.com/v1/games/${placeId}/servers/Public?excludeFullGames=true&limit=100`;
     try {
-        const response = await fetch(url, {
-            headers: {
-                "User-Agent": "Roblox/WinInet",
-                "Referer": `https://www.roblox.com/games/${placeId}/`,
-                "Origin": "https://roblox.com",
-                "Cookie": `${robloxCookie}`,
-            },
-        });
+        let totalRequests = 0;
+        let serverPromises = [];
+        // makes getting the servers almost instant
+        const BATCH_SIZE = 1;
+        let rateLimited = false;
+        //makes getting the servers a little slower than instant bc it can be heavy to run
+        const REQUEST_DELAY = 1500;
+        // you can change the totalRquests to a higher number for it to get more than just 100 servers but i dont recommend since u will get rate limited quite a bit
+        while (url && totalRequests < 1) {
+            await delay(REQUEST_DELAY);
 
-        if (!response.ok) {
-            console.error(`Error fetching servers, status code: ${response.status}`);
-            const errorDetails = await response.text();
-            console.error("Error details:", errorDetails);
-            return;
+            const response = await fetch(url, {
+                headers: {
+                    "User-Agent": "Roblox/WinInet",
+                    "Referer": `https://www.roblox.com/games/${placeId}/`,
+                    "Origin": "https://roblox.com",
+                    "Cookie": `${robloxCookie}`,
+                    "Cache-Control": "no-cache",
+                },
+            });
+
+            if (response.status === 429) {
+                rateLimited = true;
+                break;
+            }
+
+            if (!response.ok) {
+                console.log(`Error fetching servers, status code: ${response.status}`);
+                const errorDetails = await response.text();
+                console.log("Error details:", errorDetails);
+                return;
+            }
+            const servers = await response.json();
+
+            if (!servers.data || servers.data.length === 0) {
+                return;
+            }
+            for (const server of servers.data) {
+                serverPromises.push(handleServer(server, placeId, robloxCookie, regions));
+            }
+            while (serverPromises.length > 0) {
+                const batch = serverPromises.splice(0, BATCH_SIZE);
+                await Promise.all(batch);
+            }
+            url = servers.nextPageCursor
+                ? `https://games.roblox.com/v1/games/${placeId}/servers/Public?excludeFullGames=true&limit=100&cursor=${servers.nextPageCursor}`
+                : null;
+
+            totalRequests++;
         }
 
-        const servers = await response.json();
-
-        if (!servers.data || servers.data.length === 0) {
-            return;
+        if (rateLimited) {
+            showRateLimitedMessage();
+        } else {
+            updatePopup();
         }
-
-        for (const server of servers.data) {
-            await handleServer(server, placeId, robloxCookie, regions);
-        }
-        for (const [region, count] of Object.entries(regionCounts)) {
-        }
-
     } catch (error) {
-        console.error("Error fetching server data:", error);
+        console.log("Error fetching server data:", error);
     }
 }
 
+
+function showRateLimitedMessage() {
+    const serverPopup = document.querySelector('.nav.nav-tabs');
+    if (!serverPopup) return;
+    const existingButtonContainer = document.querySelector('.server-buttons-container');
+    if (existingButtonContainer) {
+        existingButtonContainer.remove();
+    }
+
+    // Rate limit stuff yepo
+    const messageContainer = document.createElement('div');
+    messageContainer.classList.add('rate-limited-message');
+    messageContainer.style.color = "red";
+    messageContainer.style.fontSize = "16px";
+    messageContainer.style.fontWeight = "bold";
+    messageContainer.style.textAlign = "center";
+    messageContainer.style.padding = "0px";
+    messageContainer.style.gap = "0px";
+    messageContainer.style.marginTop = "10px";
+    messageContainer.style.backgroundColor = "#393b3d";
+    messageContainer.style.borderRadius = "6px";
+    messageContainer.style.boxShadow = "0 4px 6px rgba(0, 0, 0, 0.1)";
+    messageContainer.textContent = "Region Selector is rate-limited. Wait before trying again";
+    const refreshButton = document.createElement('button');
+    refreshButton.textContent = "Refresh";
+    refreshButton.style.padding = "20px 20px";
+    refreshButton.style.marginLeft = "10px";
+    refreshButton.style.backgroundColor = "#24292e";
+    refreshButton.style.border = "1px solid #444";
+    refreshButton.style.borderRadius = "6px";
+    refreshButton.style.cursor = "pointer";
+    refreshButton.style.padding = "10px";
+    refreshButton.style.fontSize = "13.4px";
+    refreshButton.style.fontWeight = "600";
+    refreshButton.style.color = "white";
+    refreshButton.style.transition = "all 0.3s ease";
+    refreshButton.style.transition = "background-color 0.3s ease, transform 0.3s ease, border-color 0.3s ease";
+    refreshButton.addEventListener("mouseenter", () => {
+        refreshButton.style.backgroundColor = "#4c5053";
+        refreshButton.style.borderColor = "#24292e"; 
+        refreshButton.style.transform = "scale(1.05)";
+    });
+    refreshButton.addEventListener("mouseleave", () => {
+        refreshButton.style.backgroundColor = "#24292e";
+        refreshButton.style.borderColor = "#4c5053";
+        refreshButton.style.transform = "scale(1)";
+    });
+
+    refreshButton.addEventListener("click", () => {
+        location.reload();
+    });
+    messageContainer.appendChild(refreshButton);
+    serverPopup.parentNode.insertBefore(messageContainer, serverPopup.nextSibling);
+}
+// the second one that i only just realized i had when making comments for you to read 
 async function handleServer(server, placeId, robloxCookie, regions) {
     const serverId = server.id;
-
     try {
         const serverInfo = await fetch(`https://gamejoin.roblox.com/v1/join-game-instance`, {
             method: 'POST',
@@ -456,127 +542,63 @@ async function handleServer(server, placeId, robloxCookie, regions) {
             updatePopup();
         }
     } catch (error) {
-        console.error(`Error fetching server info for server ${serverId}:`, error);
+        console.log(`Error fetching server info for server ${serverId}:`, error);
     }
 }
 
-const retryFindElement = (selector, maxRetries, interval, callback) => {
-    let retries = 0;
-    const intervalId = setInterval(() => {
-        const element = document.querySelector(selector);
-        if (element) {
-            clearInterval(intervalId);
-            callback(element);
-        } else if (retries >= maxRetries) {
-            clearInterval(intervalId);
-        }
-        retries++;
-    }, interval);
-};
-
-retryFindElement(".nav.nav-tabs", 20, 100, (tabgameinstances) => {
-    const tabs = document.querySelectorAll(".rbx-tab");
-
-    tabs.forEach((tab) => {
-        const observer = new MutationObserver((mutationsList) => {
-            mutationsList.forEach((mutation) => {
-                if (mutation.type === "attributes" && mutation.attributeName === "class") {
-                    if (tab.classList.contains("active")) {
-
-                        const contentId = tab.getAttribute("data-target");
-                        const activeContent = document.querySelector(contentId || ".tab-content.rbx-tab-content.section");
-
-                        if (activeContent) {
-                            handleTabContentChange(activeContent);
-                        }
-                    }
-                }
-            });
-        });
-
-        observer.observe(tab, { attributes: true });
-    });
-});
-
-
-function handleTabContentChange(contentElement) {
-    const allContentElements = document.querySelectorAll(".tab-content.rbx-tab-content.section");
-
-    allContentElements.forEach((element) => {
-        if (element !== contentElement) {
-            element.style.display = "none";
-        }
-    });
-
-    contentElement.style.display = "block";
-}
-
-retryFindElement(".nav.nav-tabs", 20, 100, (tabgameinstances) => {
-    const regionDiv = document.createElement('div');
-    regionDiv.classList.add('stuff');
-
-    const toggleButton = document.createElement('button');
-    toggleButton.textContent = "Show Servers";
-    toggleButton.style.marginTop = "0px";
-    toggleButton.style.backgroundColor = "transparent";
-    toggleButton.style.color = "white";
-    toggleButton.style.border = "none";
-    toggleButton.style.padding = "10px 20px";
-    toggleButton.style.cursor = "pointer";
-    toggleButton.style.fontWeight = "Bold";
-
-    const serverPopup = document.createElement('div');
-    serverPopup.classList.add('server-popup');
-    serverPopup.style.display = "none";
-    regionDiv.appendChild(toggleButton);
-    regionDiv.appendChild(serverPopup);
-
-    toggleButton.addEventListener("click", () => {
-        const isHidden = serverPopup.style.display === "none";
-        serverPopup.style.display = isHidden ? "block" : "none";
-        toggleButton.textContent = isHidden ? "Hide Servers" : "Show Servers";
-        const tabContent = document.querySelector('.tab-content.rbx-tab-content.section');
-        if (tabContent) {
-            tabContent.style.display = isHidden ? "none" : "block";
-        }
-    });
-
-    tabgameinstances.appendChild(regionDiv);
+function updatePopup(retries = 5) {
+    const serverPopup = document.querySelector('.nav.nav-tabs');
     
-    const tabContent = document.querySelector('.tab-content.rbx-tab-content.section');
-    if (tabContent) {
-        const observer = new MutationObserver(() => {
-            const isTabVisible = window.getComputedStyle(tabContent).display !== "none";
-
-            if (isTabVisible && serverPopup.style.display === "block") {
-                serverPopup.style.display = "none";
-                toggleButton.textContent = "Show Servers";
-            }
-        });
-
-        observer.observe(tabContent, { attributes: true, childList: true, subtree: false });
+    // Retry if .nav.nav-tabs is not found
+    if (!serverPopup) {
+        if (retries > 0) {
+            console.log("Retrying to find .nav.nav-tabs...");
+            setTimeout(() => updatePopup(retries - 1), 1000); // Retry after 1 second
+        } else {
+            console.error(".nav.nav-tabs not found after multiple retries.");
+        }
+        return;
     }
-});
 
-function updatePopup() {
-    const serverPopup = document.querySelector('.server-popup');
-    if (!serverPopup) return;
+    // i might have 2 of these too, bruh im so flipping dumb i swear
+    const existingButtonContainer = document.querySelector('.server-buttons-container');
+    if (existingButtonContainer) {
+        existingButtonContainer.remove();
+    }
 
-    serverPopup.innerHTML = '';
+    // BUTTON STUFF YIPPEEEEEEEEE
+    const buttonContainer = document.createElement('div');
+    buttonContainer.classList.add('server-buttons-container');
+    buttonContainer.style.display = "flex";
+    buttonContainer.style.flexWrap = "wrap";
+    buttonContainer.style.gap = "10px";
+    buttonContainer.style.marginTop = "6px";
+    buttonContainer.style.padding = "10px";
+    buttonContainer.style.backgroundColor = "#393b3d";
+    buttonContainer.style.borderRadius = "6px";
+    buttonContainer.style.boxShadow = "0 4px 6px rgba(0, 0, 0, 0.1)";
 
     for (const [region, count] of Object.entries(regionCounts)) {
         const button = document.createElement('button');
         button.textContent = `${region}: ${count} servers`;
-        button.style.margin = "5px";
-        button.style.padding = "5px 10px";
-        button.style.backgroundColor = "transparent";
-        button.style.border = "none";
+        button.style.padding = "10px 15px";
+        button.style.backgroundColor = "#24292e";
+        button.style.border = "1px solid #444";
+        button.style.borderRadius = "6px";
         button.style.cursor = "pointer";
-        button.style.width = "70%";
-        button.style.fontSize = "15px";
-        button.style.fontWeight = "bold";
+        button.style.fontSize = "13.4px";
+        button.style.fontWeight = "600";
         button.style.color = "white";
-
+        button.style.transition = "all 0.3s ease";
+        button.addEventListener("mouseenter", () => {
+            button.style.backgroundColor = "#0366d6"; 
+            button.style.borderColor = "#0366d6";
+        });
+        button.addEventListener("mouseleave", () => {
+            button.style.backgroundColor = "#24292e";
+            button.style.borderColor = "#444";
+        });
+        // Joins the server location u picked by using another game that allows me to do this bc roblox is bad booooo roblox ewwwwwwwww
         button.addEventListener("click", () => {
             const serverId = regionServerMap[region]?.id;
             if (serverId) {
@@ -586,11 +608,160 @@ function updatePopup() {
                 console.error("Server ID not found for region:", region);
             }
         });
+        buttonContainer.appendChild(button);
+    }
+    // makes sure a potato pc can run this even tho it shouldnt be needed really
+    serverPopup.parentNode.insertBefore(buttonContainer, serverPopup.nextSibling);
+    const buttonCheckInterval = setInterval(() => {
+        const checkButtonContainer = document.querySelector('.server-buttons-container');
+        if (checkButtonContainer) {
+            clearInterval(buttonCheckInterval); 
+        }
+    }, 500); 
+}
 
-        serverPopup.appendChild(button);
+// I HAVE TWO OF THESE TOOO?????? BRUHHHHHHHHHHHHHHHHHHHHH still not removing it tho
+async function fetchGeolocation(ip) {
+    try {
+        const response = await fetch(`https://get.geojs.io/v1/ip/country/${ip}.json`);
+        if (response.status === 200) {
+            const data = await response.json();
+
+            return {
+                name: data.name || "Unknown",
+                countryCode: data.country || "Unknown",
+                countryCode3: data.country_3 || "Unknown",
+                ip: data.ip || ip,
+            };
+        } else {
+            console.log("Failed to fetch geolocation data:", response.status);
+        }
+    } catch (error) {
+        console.log("Error fetching geolocation data:", error);
     }
 }
 
+
+// I just realized i have 2 of these in this code, im not gonna touch anything since it works
+async function handleServer(server, placeId, robloxCookie, regions) {
+    const serverId = server.id;
+    // Doesnt work but does work with RoQoL roblox is so broken its insane
+    try {
+        const serverInfo = await fetch(`https://gamejoin.roblox.com/v1/join-game-instance`, {
+            method: 'POST',
+            headers: {
+                "User-Agent": "Roblox/WinInet",
+                "Accept": "*/*",
+                "Accept-Encoding": "gzip, deflate, br, zstd",
+                "Accept-Language": "en,en-US;q=0.9",
+                "Referer": `https://www.roblox.com/games/${placeId}/`,
+                "Origin": "https://roblox.com",
+            },
+            body: new URLSearchParams({
+                placeId: placeId,
+                isTeleport: false,
+                gameId: serverId,
+                gameJoinAttemptId: serverId,
+            }),
+            credentials: 'include',
+        });
+        const ipData = await serverInfo.json();
+        const ip = ipData?.joinScript?.UdmuxEndpoints?.[0]?.Address;
+        if (!ip) {
+            return;
+        }
+        const geolocationData = await fetchGeolocation(ip);
+        if (!geolocationData) {
+            return;
+        }
+        const countryCode = mapStateToRegion(geolocationData);
+        if (regions.includes(countryCode)) {
+            regionCounts[countryCode] = (regionCounts[countryCode] || 0) + 1;
+            regionServerMap[countryCode] = server;
+            updatePopup();
+        }
+    } catch (error) {
+        // This error happens quite a lot so just ignore ig
+        console.log(`Error fetching server info for server ${serverId}:`, error);
+    }
+}
+
+function updatePopup() {
+    const serverPopup = document.querySelector('.nav.nav-tabs');
+    if (!serverPopup) return;
+
+    // apparently removes buttons maybe maybe not
+    const existingButtonContainer = document.querySelector('.server-buttons-container');
+    if (existingButtonContainer) {
+        existingButtonContainer.remove();
+    }
+
+    // Does stuff yep :)
+    const buttonContainer = document.createElement('div');
+    buttonContainer.classList.add('server-buttons-container');
+    buttonContainer.style.display = "flex";
+    buttonContainer.style.flexWrap = "wrap";
+    buttonContainer.style.gap = "10px";
+    buttonContainer.style.marginTop = "6px";
+    buttonContainer.style.padding = "10px";
+    buttonContainer.style.backgroundColor = "#393b3d";
+    buttonContainer.style.borderRadius = "6px";
+    buttonContainer.style.boxShadow = "0 4px 6px rgba(0, 0, 0, 0.1)";
+    // BUTTON
+    for (const [region, count] of Object.entries(regionCounts)) {
+        const button = document.createElement('button');
+        button.textContent = `${region}: ${count} servers`;
+        button.style.padding = "10px 15px";
+        button.style.backgroundColor = "#24292e";
+        button.style.border = "1px solid #444";
+        button.style.borderRadius = "6px";
+        button.style.cursor = "pointer";
+        button.style.fontSize = "13.4px";
+        button.style.fontWeight = "600";
+        button.style.borderColor = "#4c5053";
+        button.style.color = "white";
+        
+        // Makes the ui a little less breaky :)
+        button.style.flexGrow = "1";
+        button.style.flexShrink = "1";
+        button.style.minWidth = "50px";
+        button.style.textAlign = "center";
+
+        // ANIMATION STUFF YESSS
+        button.style.transition = "background-color 0.3s ease, transform 0.3s ease";
+        button.addEventListener('mouseover', () => {
+            button.style.backgroundColor = "#4c5053";
+            button.style.borderRadius = "6px";
+            button.style.borderColor = "#24292e";
+            button.style.transform = "scale(1.05)";
+        });
+
+        button.addEventListener('mouseout', () => {
+            button.style.backgroundColor = "#24292e";
+            button.style.borderRadius = "6px";
+            button.style.borderColor = "#4c5053";
+            button.style.transform = "scale(1)";
+        });
+        button.addEventListener("click", () => {
+            const serverId = regionServerMap[region]?.id;
+            if (serverId) {
+                const url = `https://www.roblox.com/games/start?placeId=16302670534&launchData=${placeId}/${serverId}`;
+                window.open(url, '_blank');
+            } else {
+                console.error("Server ID not found for region:", region);
+            }
+        });
+        buttonContainer.appendChild(button);
+    }
+    // This part actually adds the buttons yes yes
+    serverPopup.parentNode.insertBefore(buttonContainer, serverPopup.nextSibling);
+}
+
+
+
+
+
+// this checks the ip of the different servers
 async function fetchGeolocation(ip) {
     try {
         const response = await fetch(`https://get.geojs.io/v1/ip/country/${ip}.json`);
@@ -609,10 +780,12 @@ async function fetchGeolocation(ip) {
     }
     return null;
 }
-
+// idk what this does, it used to be a fuction that would show the different states but the ip checker is unable to do that now.
 function mapStateToRegion(data) {
     if (data.countryCode === "US") {
         return "US";
     }
     return data.countryCode;
 }
+//Makes a cool looking ui yes yes
+
