@@ -81,7 +81,7 @@ if (window.location.pathname.startsWith('/communities')) {
     console.log("Group ID:", groupId);
     if (groupId) {
         // api stuff yes
-        fetch(`https://games.roblox.com/v2/groups/${groupId}/gamesV2?accessFilter=1&limit=50&sortOrder=Asc`)
+        fetch(`https://games.roblox.com/v2/groups/${groupId}/gamesV2?accessFilter=1&limit=50&sortOrder=desc`)
             .then(response => response.json())
             .then(data => {
                 // This makes sure YOUR potato can run this (my (valras) pc would never require this)
@@ -192,7 +192,7 @@ if (window.location.pathname.startsWith('/communities')) {
     const userId = window.location.pathname.split('/')[2];
     console.log("User ID:", userId);
     if (userId) {
-        fetch(`https://games.roblox.com/v2/users/${userId}/games?accessFilter=2&limit=50&sortOrder=Asc`)
+        fetch(`https://games.roblox.com/v2/users/${userId}/games?accessFilter=2&limit=50&sortOrder=Desc`)
             .then(response => response.json())
             .then(data => {
                 const experiencesContainer = document.querySelector('.hlist.btr-games-list');
