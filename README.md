@@ -7,7 +7,7 @@ The ability to view hidden games on profiles and groups
 The ability to view sales and revenue on spesific items. Credits to [Frames](https://github.com/workframes/roblox-owner-counts)
 
 The ability to join a server in a spesific region (Requires [RoQoL](https://chromewebstore.google.com/detail/roqol-improve-your-roblox/ohffojhdniagefegnmjfpfidnjofekpj))
-![image](https://github.com/user-attachments/assets/f694b069-fe00-43a7-9f46-115f383c40d5)
+<img src="https://github.com/user-attachments/assets/f694b069-fe00-43a7-9f46-115f383c40d5" width="100">
 
 
 # Known incompatibilies
