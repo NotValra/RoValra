@@ -4,10 +4,16 @@ This is extension is just features Valra wants but no other extension has
 # Features
 The ability to view hidden games on profiles and groups
 
+<img src="https://github.com/user-attachments/assets/33f304cd-fbc2-4994-9f79-8ae5e6f238ec" width="500">
+
 The ability to view sales and revenue on spesific items. Credits to [Frames](https://github.com/workframes/roblox-owner-counts)
 
+<img src="https://github.com/user-attachments/assets/4b919c15-a7d2-4e91-9e17-2813b1d97407" width="500">
+
+
 The ability to join a server in a spesific region (Requires [RoQoL](https://chromewebstore.google.com/detail/roqol-improve-your-roblox/ohffojhdniagefegnmjfpfidnjofekpj))
-<img src="https://github.com/user-attachments/assets/f694b069-fe00-43a7-9f46-115f383c40d5" width="100">
+
+<img src="https://github.com/user-attachments/assets/f694b069-fe00-43a7-9f46-115f383c40d5" width="500">
 
 
 # Known incompatibilies
