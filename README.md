@@ -1,7 +1,7 @@
 # RoValra
 ## Sections
-- [**Features**](https://github.com/NotValra/RoValra?tab=readme-ov-file#how-to-install)
-- [**Known incompatibilies**](https://github.com/NotValra/RoValra/edit/main/README.md#known-incompatibilies)
+- [**Features**](https://github.com/NotValra/RoValra?tab=readme-ov-file#features)
+- [**Known incompatibilies**](https://github.com/NotValra/RoValra?tab=readme-ov-file#known-incompatibilies)
 - [**How to install**](https://github.com/NotValra/RoValra?tab=readme-ov-file#how-to-install)
 
 # Features
