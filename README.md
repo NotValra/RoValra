@@ -11,13 +11,16 @@
 <img src="https://github.com/user-attachments/assets/4b919c15-a7d2-4e91-9e17-2813b1d97407" width="500">
 
 - **The ability to join a server in a spesific region (Requires [RoQoL](https://chromewebstore.google.com/detail/roqol-improve-your-roblox/ohffojhdniagefegnmjfpfidnjofekpj))**
-
+- **If you dont want to use RoQoL you can follow this guide below it shows how to get the region selector working without RoQoL. Its the next best way.** 
 <img src="https://github.com/user-attachments/assets/f694b069-fe00-43a7-9f46-115f383c40d5" width="500">
+
+[![Watch the video](https://github.com/user-attachments/assets/c2d914c6-7f22-4efb-9796-5a19c901f49a)](https://github.com/user-attachments/assets/fb0e44a0-fd5f-46ab-9978-b56cffbaeb77)
 
 - **And more to come, if you have a feature you want me to add just lmk**
 
 # To try list
-- [ ] Making the region selector not rely on RoQoL (I dont know if this is possible without server cost)
+- [ ] ~~Making the region selector not rely on RoQoL (I dont know if this is possible without server cost)~~
+- **Im not able to add this sadly. If you know an easy way of how to block roblox from overwriting the user agent please dm me on dc (Valra)**
 
 # Known incompatibilies
 - **The extension is unable to show the hidden games of groups if you use RoSeal with the "Seamless navigation of communities" setting on.**
