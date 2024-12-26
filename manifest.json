@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "RoValra",
-  "version": "1.6.1",
+  "version": "1.6.5",
   "description": "Features Valra wants but no other extension has 🥲",
   "permissions": ["tabs", "scripting", "activeTab", "storage", "cookies", "alarms"],
   "host_permissions": [

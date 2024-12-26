@@ -350,22 +350,23 @@ function loadNonBtrobloxFile() {
 
 
 
-
-
-
-
-
 const pathname = window.location.pathname;
 let placeId = null;
 
 if (pathname.includes('/games/')) {
     placeId = pathname.split('/')[2];
 }
-// The different locations yep
 const defaultRegions = ["HK", "FR", "NL", "GB", "AU", "IN", "DE", "PL", "JP", "SG", "BR", "US"];
 let regionServerMap = {};
 let regionCounts = {};
+let allServers = [];
+let userRegion = null;
+let userIP = null;
+let serverLocations = {}; 
+let userLocation = null;
+let serverScores = {}; 
 if (placeId) {
+    fetchUserLocation();
     chrome.runtime.sendMessage({ action: "getRobloxCookie" }, (response) => {
         if (response.success) {
             const robloxCookie = response.cookie;
@@ -385,15 +386,11 @@ async function getServerInfo(placeId, robloxCookie, regions) {
     try {
         let totalRequests = 0;
         let serverPromises = [];
-        // makes getting the servers almost instant
         const BATCH_SIZE = 1;
         let rateLimited = false;
-        //makes getting the servers a little slower than instant bc it can be heavy to run
         const REQUEST_DELAY = 1500;
-        // you can change the totalRquests to a higher number for it to get more than just 100 servers but i dont recommend since u will get rate limited quite a bit
         while (url && totalRequests < 1) {
             await delay(REQUEST_DELAY);
-
             const response = await fetch(url, {
                 headers: {
                     "User-Agent": "Roblox/WinInet",
@@ -403,12 +400,10 @@ async function getServerInfo(placeId, robloxCookie, regions) {
                     "Cache-Control": "no-cache",
                 },
             });
-
             if (response.status === 429) {
                 rateLimited = true;
                 break;
             }
-
             if (!response.ok) {
                 console.log(`Error fetching servers, status code: ${response.status}`);
                 const errorDetails = await response.text();
@@ -416,24 +411,22 @@ async function getServerInfo(placeId, robloxCookie, regions) {
                 return;
             }
             const servers = await response.json();
-
             if (!servers.data || servers.data.length === 0) {
                 return;
             }
-            for (const server of servers.data) {
+           for (const server of servers.data) {
                 serverPromises.push(handleServer(server, placeId, robloxCookie, regions));
+                allServers.push(server);
             }
-            while (serverPromises.length > 0) {
+           while (serverPromises.length > 0) {
                 const batch = serverPromises.splice(0, BATCH_SIZE);
                 await Promise.all(batch);
             }
             url = servers.nextPageCursor
                 ? `https://games.roblox.com/v1/games/${placeId}/servers/Public?excludeFullGames=true&limit=100&cursor=${servers.nextPageCursor}`
                 : null;
-
             totalRequests++;
         }
-
         if (rateLimited) {
             showRateLimitedMessage();
         } else {
@@ -444,7 +437,6 @@ async function getServerInfo(placeId, robloxCookie, regions) {
     }
 }
 
-
 function showRateLimitedMessage() {
     const serverPopup = document.querySelector('.nav.nav-tabs');
     if (!serverPopup) return;
@@ -452,8 +444,6 @@ function showRateLimitedMessage() {
     if (existingButtonContainer) {
         existingButtonContainer.remove();
     }
-
-    // Rate limit stuff yepo
     const messageContainer = document.createElement('div');
     messageContainer.classList.add('rate-limited-message');
     messageContainer.style.color = "red";
@@ -483,7 +473,7 @@ function showRateLimitedMessage() {
     refreshButton.style.transition = "background-color 0.3s ease, transform 0.3s ease, border-color 0.3s ease";
     refreshButton.addEventListener("mouseenter", () => {
         refreshButton.style.backgroundColor = "#4c5053";
-        refreshButton.style.borderColor = "#24292e"; 
+        refreshButton.style.borderColor = "#24292e";
         refreshButton.style.transform = "scale(1.05)";
     });
     refreshButton.addEventListener("mouseleave", () => {
@@ -491,16 +481,14 @@ function showRateLimitedMessage() {
         refreshButton.style.borderColor = "#4c5053";
         refreshButton.style.transform = "scale(1)";
     });
-
     refreshButton.addEventListener("click", () => {
         location.reload();
     });
     messageContainer.appendChild(refreshButton);
     serverPopup.parentNode.insertBefore(messageContainer, serverPopup.nextSibling);
 }
-// the second one that i only just realized i had when making comments for you to read 
 async function handleServer(server, placeId, robloxCookie, regions) {
-    const serverId = server.id;
+     const serverId = server.id;
     try {
         const serverInfo = await fetch(`https://gamejoin.roblox.com/v1/join-game-instance`, {
             method: 'POST',
@@ -520,54 +508,48 @@ async function handleServer(server, placeId, robloxCookie, regions) {
             }),
             credentials: 'include',
         });
-
         const ipData = await serverInfo.json();
         const ip = ipData?.joinScript?.UdmuxEndpoints?.[0]?.Address;
-
-        if (!ip) {
+         if (!ip) {
             return;
-        }
-
+         }
         const geolocationData = await fetchGeolocation(ip);
         if (!geolocationData) {
-            return;
+           return;
         }
-
         const countryCode = mapStateToRegion(geolocationData);
-        if (regions.includes(countryCode)) {
-            regionCounts[countryCode] = (regionCounts[countryCode] || 0) + 1;
-            regionServerMap[countryCode] = server;
-
-            updatePopup();
-        }
+      if (regions.includes(countryCode)) {
+             regionCounts[countryCode] = (regionCounts[countryCode] || 0) + 1;
+           regionServerMap[countryCode] = server;
+           serverLocations[server.id] = geolocationData;
+            if (userLocation){
+                scoreServer(server, userLocation, geolocationData, server.fps, server.ping);
+             }
+             updatePopup();
+         }
     } catch (error) {
         console.log(`Error fetching server info for server ${serverId}:`, error);
     }
 }
-
 function updatePopup(retries = 5) {
-    const serverPopup = document.querySelector('.nav.nav-tabs');
-    
-    // Retry if .nav.nav-tabs is not found
+    const serverPopup = document.querySelector(".nav.nav-tabs");
     if (!serverPopup) {
-        if (retries > 0) {
-            console.log("Retrying to find .nav.nav-tabs...");
-            setTimeout(() => updatePopup(retries - 1), 1000); // Retry after 1 second
-        } else {
-            console.error(".nav.nav-tabs not found after multiple retries.");
-        }
-        return;
+      if (retries > 0) {
+        console.log("Retrying to find .nav.nav-tabs...");
+        setTimeout(() => updatePopup(retries - 1), 1000);
+      } else {
+        console.error(".nav.nav-tabs not found after multiple retries.");
+      }
+      return;
     }
-
-    // i might have 2 of these too, bruh im so flipping dumb i swear
-    const existingButtonContainer = document.querySelector('.server-buttons-container');
+  
+    const existingButtonContainer = document.querySelector(".server-buttons-container");
     if (existingButtonContainer) {
-        existingButtonContainer.remove();
+      existingButtonContainer.remove();
     }
-
-    // BUTTON STUFF YIPPEEEEEEEEE
-    const buttonContainer = document.createElement('div');
-    buttonContainer.classList.add('server-buttons-container');
+  
+    const buttonContainer = document.createElement("div");
+    buttonContainer.classList.add("server-buttons-container");
     buttonContainer.style.display = "flex";
     buttonContainer.style.flexWrap = "wrap";
     buttonContainer.style.gap = "10px";
@@ -576,201 +558,166 @@ function updatePopup(retries = 5) {
     buttonContainer.style.backgroundColor = "#393b3d";
     buttonContainer.style.borderRadius = "6px";
     buttonContainer.style.boxShadow = "0 4px 6px rgba(0, 0, 0, 0.1)";
-
+  
+     const bestServerButton = document.createElement("button");
+    let bestServerRegion = "N/A";
+    let bestServer = null;
+  
+      if (allServers.length > 0 && userLocation) {
+          bestServer = findBestServer();
+          if (bestServer) {
+             for (const [region, server] of Object.entries(regionServerMap)) {
+                  if (server.id === bestServer.id) {
+                      bestServerRegion = region;
+                  }
+              }
+          }
+     }
+  
+     if (bestServer == null || bestServerRegion == "N/A"){
+             if(allServers.length > 0){
+                bestServer = findBestServer()
+               if (bestServer) {
+                  for (const [region, server] of Object.entries(regionServerMap)) {
+                      if (server.id === bestServer.id) {
+                          bestServerRegion = region;
+                      }
+                   }
+               }
+              }
+          if (bestServer == null || bestServerRegion == "N/A"){
+              bestServerRegion = "N/A"
+          }
+  
+     }
+      bestServerButton.textContent = `Best Ping`;
+    bestServerButton.style.padding = "10px 15px";
+     bestServerButton.style.backgroundColor = "#0366d6";
+     bestServerButton.style.border = "1px solid #0366d6";
+      bestServerButton.style.borderRadius = "6px";
+     bestServerButton.style.cursor = "pointer";
+      bestServerButton.style.fontSize = "13.4px";
+      bestServerButton.style.fontWeight = "600";
+      bestServerButton.style.color = "white";
+      bestServerButton.style.transition = "all 0.3s ease";
+      bestServerButton.addEventListener("mouseover", () => {
+        bestServerButton.style.backgroundColor = "#24292e";
+        bestServerButton.style.borderColor = "#444";
+      });
+      bestServerButton.addEventListener("mouseout", () => {
+         bestServerButton.style.backgroundColor = "#0366d6";
+        bestServerButton.style.borderColor = "#0366d6";
+      });
+      bestServerButton.addEventListener("click", async() => {
+         if (userRegion === "US") {
+             showUSWarningModal(async () => {
+               if (bestServerRegion === "N/A"){
+                   await fetchUserLocation();
+                 }
+                 joinBestServer(bestServer);
+             });
+          } else {
+             if (bestServerRegion === "N/A"){
+                await fetchUserLocation();
+              }
+            joinBestServer(bestServer);
+         }
+       
+      });
+      buttonContainer.appendChild(bestServerButton);
+    
+  
+    const regionButtons = []; 
     for (const [region, count] of Object.entries(regionCounts)) {
-        const button = document.createElement('button');
-        button.textContent = `${region}: ${count} servers`;
-        button.style.padding = "10px 15px";
-        button.style.backgroundColor = "#24292e";
-        button.style.border = "1px solid #444";
-        button.style.borderRadius = "6px";
-        button.style.cursor = "pointer";
-        button.style.fontSize = "13.4px";
-        button.style.fontWeight = "600";
-        button.style.color = "white";
-        button.style.transition = "all 0.3s ease";
-        button.addEventListener("mouseenter", () => {
-            button.style.backgroundColor = "#0366d6"; 
-            button.style.borderColor = "#0366d6";
-        });
-        button.addEventListener("mouseleave", () => {
-            button.style.backgroundColor = "#24292e";
-            button.style.borderColor = "#444";
-        });
-        // Joins the server location u picked by using another game that allows me to do this bc roblox is bad booooo roblox ewwwwwwwww
-        button.addEventListener("click", () => {
-            const serverId = regionServerMap[region]?.id;
-            if (serverId) {
-                const url = `https://www.roblox.com/games/start?placeId=16302670534&launchData=${placeId}/${serverId}`;
-                window.open(url, '_blank');
-            } else {
-                console.error("Server ID not found for region:", region);
-            }
-        });
-        buttonContainer.appendChild(button);
+      const button = document.createElement("button");
+      button.textContent = `${region}: ${count} servers`; // Start with servers
+      button.style.padding = "10px 15px";
+      button.style.backgroundColor = "#24292e";
+      button.style.border = "1px solid #444";
+      button.style.borderRadius = "6px";
+      button.style.cursor = "pointer";
+      button.style.fontSize = "15px";
+      button.style.fontWeight = "600";
+      button.style.color = "white";
+      button.style.flexGrow = "1";
+      button.style.flexShrink = "1";
+      button.style.minWidth = "50px";
+      button.style.textAlign = "center";
+      button.style.transition = "background-color 0.3s ease, transform 0.3s ease";
+       button.addEventListener('mouseover', () => {
+              button.style.backgroundColor = "#4c5053";
+              button.style.borderRadius = "6px";
+              button.style.borderColor = "#24292e";
+              button.style.transform = "scale(1.05)";
+          });
+          button.addEventListener('mouseout', () => {
+               button.style.backgroundColor = "#24292e";
+              button.style.borderRadius = "6px";
+             button.style.borderColor = "#4c5053";
+              button.style.transform = "scale(1)";
+          });
+          button.addEventListener("click", () => {
+          const serverId = regionServerMap[region]?.id;
+          if (serverId) {
+             const url = `https://www.roblox.com/games/start?placeId=16302670534&launchData=${placeId}/${serverId}`;
+             window.open(url, '_blank');
+          } else {
+             console.error("Server ID not found for region:", region);
+          }
+       });
+      buttonContainer.appendChild(button);
+      regionButtons.push(button); 
     }
-    // makes sure a potato pc can run this even tho it shouldnt be needed really
+  
+  
     serverPopup.parentNode.insertBefore(buttonContainer, serverPopup.nextSibling);
-    const buttonCheckInterval = setInterval(() => {
-        const checkButtonContainer = document.querySelector('.server-buttons-container');
-        if (checkButtonContainer) {
-            clearInterval(buttonCheckInterval); 
-        }
-    }, 500); 
-}
+  
 
-// I HAVE TWO OF THESE TOOO?????? BRUHHHHHHHHHHHHHHHHHHHHH still not removing it tho
+    const adjustButtonText = () => {
+        let totalWidth = 0;
+        regionButtons.forEach((button) => {
+          totalWidth += button.offsetWidth + 10;
+        });
+  
+       if (totalWidth > buttonContainer.offsetWidth) {
+            regionButtons.forEach((button) => {
+            const [region, count] = button.textContent.split(": ");
+            button.textContent = `${region}: ${count.split(" ")[0]}`;
+            });
+       } else {
+            regionButtons.forEach((button) => {
+                  const [region, count] = button.textContent.split(": ");
+                   if (!count.includes("servers")) {
+                       button.textContent = `${region}: ${count} servers`;
+                   }
+               });
+       }
+    };
+  
+  
+      const buttonCheckInterval = setInterval(() => {
+          const checkButtonContainer = document.querySelector('.server-buttons-container');
+          if (checkButtonContainer) {
+              adjustButtonText();
+              clearInterval(buttonCheckInterval);
+          }
+      }, 500);
+  
+        window.addEventListener('resize',adjustButtonText);
+  }
 async function fetchGeolocation(ip) {
     try {
         const response = await fetch(`https://get.geojs.io/v1/ip/country/${ip}.json`);
         if (response.status === 200) {
             const data = await response.json();
-
-            return {
+            const locationData = await fetch(`https://get.geojs.io/v1/ip/geo/${ip}.json`);
+            const location = await locationData.json();
+             return {
                 name: data.name || "Unknown",
                 countryCode: data.country || "Unknown",
                 countryCode3: data.country_3 || "Unknown",
-                ip: data.ip || ip,
-            };
-        } else {
-            console.log("Failed to fetch geolocation data:", response.status);
-        }
-    } catch (error) {
-        console.log("Error fetching geolocation data:", error);
-    }
-}
-
-
-// I just realized i have 2 of these in this code, im not gonna touch anything since it works
-async function handleServer(server, placeId, robloxCookie, regions) {
-    const serverId = server.id;
-    // Doesnt work but does work with RoQoL roblox is so broken its insane
-    try {
-        const serverInfo = await fetch(`https://gamejoin.roblox.com/v1/join-game-instance`, {
-            method: 'POST',
-            headers: {
-                "User-Agent": "Roblox/WinInet",
-                "Accept": "*/*",
-                "Accept-Encoding": "gzip, deflate, br, zstd",
-                "Accept-Language": "en,en-US;q=0.9",
-                "Referer": `https://www.roblox.com/games/${placeId}/`,
-                "Origin": "https://roblox.com",
-            },
-            body: new URLSearchParams({
-                placeId: placeId,
-                isTeleport: false,
-                gameId: serverId,
-                gameJoinAttemptId: serverId,
-            }),
-            credentials: 'include',
-        });
-        const ipData = await serverInfo.json();
-        const ip = ipData?.joinScript?.UdmuxEndpoints?.[0]?.Address;
-        if (!ip) {
-            return;
-        }
-        const geolocationData = await fetchGeolocation(ip);
-        if (!geolocationData) {
-            return;
-        }
-        const countryCode = mapStateToRegion(geolocationData);
-        if (regions.includes(countryCode)) {
-            regionCounts[countryCode] = (regionCounts[countryCode] || 0) + 1;
-            regionServerMap[countryCode] = server;
-            updatePopup();
-        }
-    } catch (error) {
-        // This error happens quite a lot so just ignore ig
-        console.log(`Error fetching server info for server ${serverId}:`, error);
-    }
-}
-
-function updatePopup() {
-    const serverPopup = document.querySelector('.nav.nav-tabs');
-    if (!serverPopup) return;
-
-    // apparently removes buttons maybe maybe not
-    const existingButtonContainer = document.querySelector('.server-buttons-container');
-    if (existingButtonContainer) {
-        existingButtonContainer.remove();
-    }
-
-    // Does stuff yep :)
-    const buttonContainer = document.createElement('div');
-    buttonContainer.classList.add('server-buttons-container');
-    buttonContainer.style.display = "flex";
-    buttonContainer.style.flexWrap = "wrap";
-    buttonContainer.style.gap = "10px";
-    buttonContainer.style.marginTop = "6px";
-    buttonContainer.style.padding = "10px";
-    buttonContainer.style.backgroundColor = "#393b3d";
-    buttonContainer.style.borderRadius = "6px";
-    buttonContainer.style.boxShadow = "0 4px 6px rgba(0, 0, 0, 0.1)";
-    // BUTTON
-    for (const [region, count] of Object.entries(regionCounts)) {
-        const button = document.createElement('button');
-        button.textContent = `${region}: ${count} servers`;
-        button.style.padding = "10px 15px";
-        button.style.backgroundColor = "#24292e";
-        button.style.border = "1px solid #444";
-        button.style.borderRadius = "6px";
-        button.style.cursor = "pointer";
-        button.style.fontSize = "13.4px";
-        button.style.fontWeight = "600";
-        button.style.borderColor = "#4c5053";
-        button.style.color = "white";
-        
-        // Makes the ui a little less breaky :)
-        button.style.flexGrow = "1";
-        button.style.flexShrink = "1";
-        button.style.minWidth = "50px";
-        button.style.textAlign = "center";
-
-        // ANIMATION STUFF YESSS
-        button.style.transition = "background-color 0.3s ease, transform 0.3s ease";
-        button.addEventListener('mouseover', () => {
-            button.style.backgroundColor = "#4c5053";
-            button.style.borderRadius = "6px";
-            button.style.borderColor = "#24292e";
-            button.style.transform = "scale(1.05)";
-        });
-
-        button.addEventListener('mouseout', () => {
-            button.style.backgroundColor = "#24292e";
-            button.style.borderRadius = "6px";
-            button.style.borderColor = "#4c5053";
-            button.style.transform = "scale(1)";
-        });
-        button.addEventListener("click", () => {
-            const serverId = regionServerMap[region]?.id;
-            if (serverId) {
-                const url = `https://www.roblox.com/games/start?placeId=16302670534&launchData=${placeId}/${serverId}`;
-                window.open(url, '_blank');
-            } else {
-                console.error("Server ID not found for region:", region);
-            }
-        });
-        buttonContainer.appendChild(button);
-    }
-    // This part actually adds the buttons yes yes
-    serverPopup.parentNode.insertBefore(buttonContainer, serverPopup.nextSibling);
-}
-
-
-
-
-
-// this checks the ip of the different servers
-async function fetchGeolocation(ip) {
-    try {
-        const response = await fetch(`https://get.geojs.io/v1/ip/country/${ip}.json`);
-        if (response.status === 200) {
-            const data = await response.json();
-
-            return {
-                name: data.name || "Unknown",
-                countryCode: data.country || "Unknown",
-                countryCode3: data.country_3 || "Unknown",
+                 latitude: parseFloat(location.latitude),
+                longitude: parseFloat(location.longitude),
                 ip: data.ip || ip,
             };
         }
@@ -779,26 +726,207 @@ async function fetchGeolocation(ip) {
     }
     return null;
 }
-// idk what this does, it used to be a fuction that would show the different states but the ip checker is unable to do that now.
+
 function mapStateToRegion(data) {
     if (data.countryCode === "US") {
         return "US";
     }
     return data.countryCode;
 }
-//Makes a cool looking ui yes yes
+async function fetchUserLocation(retries = 2) {
+    try {
+        const response = await fetch("https://api.ipify.org?format=json");
+        const data = await response.json();
+        userIP = data.ip;
+        const geolocationData = await fetchGeolocation(userIP);
+        if (geolocationData) {
+            userLocation = geolocationData;
+            userRegion = mapStateToRegion(geolocationData);
+        } else {
+            if (retries > 0){
+              console.log("retrying location fetch...")
+             await delay(1000)
+              await fetchUserLocation(retries -1)
+            }
+          }
+    } catch (error) {
+        console.error("Error fetching user location:", error);
+        if (retries > 0){
+          console.log("retrying location fetch...")
+             await delay(1000)
+              await fetchUserLocation(retries -1)
+            }
+    }
+}
+// Figures out the best server by using black magic and something about how big earth it
+function calculateDistance(lat1, lon1, lat2, lon2) {
+    const earthRadius = 6371;
+
+      const dLat = deg2rad(lat2 - lat1);
+      const dLon = deg2rad(lon2 - lon1);
+
+      const a =
+          Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+          Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
+          Math.sin(dLon / 2) * Math.sin(dLon / 2);
+
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+       const distance = earthRadius * c;
+      return distance;
+  }
+  function deg2rad(deg) {
+    return deg * (Math.PI / 180)
+  }
+function scoreServer(server, userLocation, serverLocation, fps, ping) {
+    const distance = calculateDistance(
+        userLocation.latitude,
+        userLocation.longitude,
+        serverLocation.latitude,
+        serverLocation.longitude
+    );
+
+    const normalizedFPS = (fps - 0) / (60 - 0);
+    const normalizedPing = (300 - ping) / (300 - 0);
+
+    const clampedFPS = Math.max(0, Math.min(1, normalizedFPS));
+    const clampedPing = Math.max(0, Math.min(1, normalizedPing));
+
+   const distanceScore = Math.max(0, 1 - (distance / 3000));
 
 
+    const fpsWeight = 0.5;
+    const distanceWeight = 0.2;
+    const pingWeight = 0.3;
 
 
+    const score = (fpsWeight * clampedFPS) +
+        (distanceWeight * distanceScore) +
+         (pingWeight * clampedPing);
 
 
+    serverScores[server.id] = score;
+}
+
+  function findBestServer() {
+    if (allServers.length === 0 || !userLocation) {
+        return null;
+    }
+
+    let bestServer = null;
+    let bestScore = -Infinity;
+    
+    for (const server of allServers) {
+      const serverScore = serverScores[server.id]
+        if (serverScore > bestScore){
+             bestScore = serverScore
+            bestServer = server;
+        }
+    }
+    return bestServer;
+}
+
+function joinBestServer(server) {
+     if (!server) {
+        console.log("No server found with a score.");
+          if (allServers.length > 0) {
+              const firstServer = allServers[0]
+                  const serverId = firstServer.id;
+                   if (serverId) {
+                        const url = `https://www.roblox.com/games/start?placeId=16302670534&launchData=${placeId}/${serverId}`;
+                         window.open(url, '_blank');
+                    } else {
+                            console.error("Server ID not found for region:");
+                    }
+          }
+        return;
+    }
+    const serverId = server.id;
+     if (serverId) {
+            const url = `https://www.roblox.com/games/start?placeId=16302670534&launchData=${placeId}/${serverId}`;
+            window.open(url, '_blank');
+        } else {
+                console.error("Server ID not found for region:");
+    }
+}
+function showUSWarningModal(proceedCallback) {
+    const modalOverlay = document.createElement('div');
+    modalOverlay.style.position = 'fixed';
+    modalOverlay.style.top = '0';
+    modalOverlay.style.left = '0';
+    modalOverlay.style.width = '100%';
+    modalOverlay.style.height = '100%';
+    modalOverlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+    modalOverlay.style.display = 'flex';
+    modalOverlay.style.justifyContent = 'center';
+    modalOverlay.style.alignItems = 'center';
+    modalOverlay.style.zIndex = '1000';
+
+    const modalContent = document.createElement('div');
+    modalContent.style.backgroundColor = '#393b3d';
+    modalContent.style.padding = '20px';
+    modalContent.style.borderRadius = '8px';
+    modalContent.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)';
+    modalContent.style.textAlign = 'center';
+    modalContent.style.color = "white";
+
+    const warningText = document.createElement('p');
+    warningText.textContent = "This extension is unable to accurately locate servers in the USA. Proceed with caution.";
+    warningText.style.marginBottom = '20px';
+    warningText.style.fontSize = "17px";
+    warningText.style.fontWeight = '600';
 
 
+     const buttonContainer = document.createElement('div');
+    buttonContainer.style.display = 'flex';
+      buttonContainer.style.gap = "10px";
+      buttonContainer.style.justifyContent = 'center';
 
+    const proceedButton = document.createElement('button');
+    proceedButton.textContent = 'Proceed';
+    proceedButton.style.padding = '10px 15px';
+    proceedButton.style.backgroundColor = '#f05c6c';
+    proceedButton.style.border = 'none';
+     proceedButton.style.borderRadius = '6px';
+    proceedButton.style.cursor = 'pointer';
+     proceedButton.style.fontSize = '15px';
+    proceedButton.style.fontWeight = '600';
+    proceedButton.style.color = 'white';
+     proceedButton.style.transition = "all 0.3s ease";
+     proceedButton.addEventListener("mouseover", () => {
+          proceedButton.style.backgroundColor = "#A03D48";
+      });
+      proceedButton.addEventListener("mouseout", () => {
+         proceedButton.style.backgroundColor = "#f05c6c";
+      });
+    proceedButton.addEventListener('click', () => {
+        modalOverlay.remove();
+        proceedCallback();
+    });
 
-
-
-
-
-
+    const cancelButton = document.createElement('button');
+    cancelButton.textContent = 'Cancel';
+     cancelButton.style.padding = '10px 15px';
+    cancelButton.style.backgroundColor = '#24292e';
+     cancelButton.style.border = '1px solid #24292e';
+      cancelButton.style.borderRadius = '6px';
+     cancelButton.style.cursor = 'pointer';
+    cancelButton.style.fontSize = '15px';
+    cancelButton.style.fontWeight = '600';
+    cancelButton.style.color = 'white';
+    cancelButton.style.transition = "all 0.3s ease";
+     cancelButton.addEventListener("mouseover", () => {
+         cancelButton.style.backgroundColor = "#4c5053";
+       });
+      cancelButton.addEventListener("mouseout", () => {
+        cancelButton.style.backgroundColor = "#24292e";
+      });
+    cancelButton.addEventListener('click', () => {
+        modalOverlay.remove();
+    });
+      buttonContainer.appendChild(proceedButton);
+    buttonContainer.appendChild(cancelButton)
+    modalContent.appendChild(warningText);
+     modalContent.appendChild(buttonContainer);
+    modalOverlay.appendChild(modalContent);
+    document.body.appendChild(modalOverlay);
+}
