@@ -1,16 +1,23 @@
 {
   "manifest_version": 3,
   "name": "RoValra",
-  "version": "1.5",
+  "version": "1.6",
   "description": "Features Valra wants but no other extension has 🥲",
-  "permissions": ["tabs", "scripting", "activeTab", "storage", "cookies"],
-  "host_permissions": ["https://games.roblox.com/*", "https://www.roblox.com/*"],
+  "permissions": ["tabs", "scripting", "activeTab", "storage", "cookies", "alarms"],
+  "host_permissions": [
+    "https://games.roblox.com/*",
+    "https://www.roblox.com/*",
+    "https://api.github.com/repos/*"
+  ],
   "background": {
     "service_worker": "background.js"
   },
   "content_scripts": [
     {
-      "matches": ["https://www.roblox.com/*", "https://gamejoin.roblox.com/v1/join-game-instance*"],
+      "matches": [
+        "https://www.roblox.com/*",
+        "https://gamejoin.roblox.com/v1/join-game-instance*"
+      ],
       "js": ["content.js"]
     }
   ],
@@ -21,6 +28,7 @@
     }
   ],
   "action": {
+    "default_popup": "popup.html",
     "default_icon": {
       "16": "Assets/icon-16.png",
       "48": "Assets/icon-48.png",
