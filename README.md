@@ -39,6 +39,7 @@
 - **The different states in the US isnt showing. It is bc of limitations with the IP location checker.**
 
 - **Some servers might not show like France, again bc of limitations bc of the IP location checker.**
+- **If you are located in the US the Best Ping button wont work. Dw there is a warning if you press it just in case**
 </details>
 
 
