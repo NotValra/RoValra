@@ -377,7 +377,6 @@ if (placeId) {
 } else {
     console.log("No valid placeId found in the URL");
 }
-
 function delay(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -803,25 +802,3 @@ function mapStateToRegion(data) {
 
 
 
-chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-    if (request.action === "fetchHiddenGames") {
-        const userId = request.userId;
-        const apiUrl = `https://games.roblox.com/v2/users/${userId}/games?accessFilter=2&limit=10&sortOrder=Asc`;
-        console.log(apiUrl)
-        fetch(apiUrl)
-            .then(response => response.json())
-            .then(data => {
-                // Now you have access to the DOM!
-                const hiddenGames = data.data.filter(game => !document.querySelector(`[data-game-id="${game.id}"]`));
-                // ... (rest of your logic to create the new tab with hidden games) ...
-                sendResponse({hiddenGames: hiddenGames}); // Send data back to background script
-            })
-            .catch(error => {
-                console.error('Error fetching hidden games:', error);
-                sendResponse({ error: 'Failed to fetch hidden games' });
-            });
-
-
-         return true; // Keep the message channel open for async response
-    }
-});
