@@ -33,6 +33,9 @@
 
 - **And more to come, if you have a feature you want me to add just lmk**
 
+# To do list
+- [ ] Making a setting page so you can disable features you dont want.
+
 # Known incompatibilies
 <details>
   <summary>Expand</summary>
