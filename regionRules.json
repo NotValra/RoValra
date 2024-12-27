@@ -1,0 +1,20 @@
+[
+    {
+        "id": 1,
+        "priority": 1,
+        "action": {
+            "type": "modifyHeaders",
+            "requestHeaders": [
+                {
+                    "header": "User-Agent",
+                    "operation": "set",
+                    "value": "Roblox/WinInet"
+                }
+            ]
+        },
+        "condition": {
+            "urlFilter": "https://gamejoin.roblox.com/v1/join-game-instance",
+            "resourceTypes": ["xmlhttprequest"]
+        }
+    }
+]
