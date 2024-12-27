@@ -13,7 +13,7 @@
 
 <img src="https://github.com/user-attachments/assets/4b919c15-a7d2-4e91-9e17-2813b1d97407" width="500">
 
-- **The ability to join a server in a spesific region (DOES NOT REQUIRE ROQOL ANYMORE!**
+- **The ability to join a server in a spesific region (DOES NOT REQUIRE ROQOL ANYMORE!)**
 
 <img src="https://github.com/user-attachments/assets/0e62016c-04dc-494c-b2be-5f07a886362c" width="500">
 
