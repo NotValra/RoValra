@@ -17,7 +17,7 @@
 - **<details>**
   <summary>Without RoQoL Tutorial</summary>
   
-
+  - **User Agent Extensions should do the job too. I recommend only having it changed when using the region selector btw**
   [![Tutorial](https://github.com/user-attachments/assets/b4004e28-ef36-4e21-90e0-9fbc883bd9e9)](https://github.com/user-attachments/assets/48139d2f-968c-4579-9800-458e3a237ede)
 
 
