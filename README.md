@@ -13,17 +13,20 @@
 
 <img src="https://github.com/user-attachments/assets/4b919c15-a7d2-4e91-9e17-2813b1d97407" width="500">
 
-- **The ability to join a server in a spesific region (Works best with [RoQoL](https://chromewebstore.google.com/detail/roqol-improve-your-roblox/ohffojhdniagefegnmjfpfidnjofekpj))**
-- **<details>**
-  <summary>Without RoQoL Tutorial</summary>
-  
-  - **User Agent Extensions should do the job too. I recommend only having it changed when using the region selector btw**
-  [![Tutorial](https://github.com/user-attachments/assets/b4004e28-ef36-4e21-90e0-9fbc883bd9e9)](https://github.com/user-attachments/assets/48139d2f-968c-4579-9800-458e3a237ede)
+- **The ability to join a server in a spesific region (DOES NOT REQUIRE ROQOL ANYMORE!**
 
+<img src="https://github.com/user-attachments/assets/0e62016c-04dc-494c-b2be-5f07a886362c" width="500">
 
+- **The ability to snipe users.**
+<img src="https://github.com/user-attachments/assets/7fda76de-8b4c-4647-b9a1-8d5cc56bf2e2" width="500">
+<details>
+  <summary>Explained in more detail ↓</summary>
   
-**</details>**
-<img src="https://github.com/user-attachments/assets/f694b069-fe00-43a7-9f46-115f383c40d5" width="500">
+  - Basically this feature allows you to join anyone with their joins on or whose on ur friends list instantly.
+  
+  - lets say for example you wanna join someone whose streaming a game with viewers, you could just use the snipe feature, and you would almost instantly join (Depending on your pc ofc)
+</details>
+
 
 
 
