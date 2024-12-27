@@ -58,6 +58,8 @@
 # Credits
 - **Sales / revenue thingy: https://github.com/workframes/roblox-owner-counts**
 
-- **Coding: Chatgpt 😘**
+- **Coding: Chatgpt 😘 and little me**
+
+- **Region searcher, orginally a python script made by l5se on dc that I improved in python and then recoded to add to my extension (with premission)**
 
 - **Extra coding help when chatgpt and me didnt know how: [Aspect](https://github.com/Aspectise)**
