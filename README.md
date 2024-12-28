@@ -3,13 +3,14 @@
 - [**Features**](https://github.com/NotValra/RoValra?tab=readme-ov-file#features)
 - [**Known incompatibilies**](https://github.com/NotValra/RoValra?tab=readme-ov-file#known-incompatibilies)
 - [**How to install**](https://github.com/NotValra/RoValra?tab=readme-ov-file#how-to-install)
+- [**Credits**](https://github.com/NotValra/RoValra?tab=readme-ov-file#credits) 
 
 # Features
 - **The ability to view hidden games on profiles and groups**
   
 <img src="https://github.com/user-attachments/assets/33f304cd-fbc2-4994-9f79-8ae5e6f238ec" width="500">
 
-- **The ability to view sales and revenue on spesific items. Credits to [Frames](https://github.com/workframes/roblox-owner-counts)**
+- **The ability to view sales and revenue on spesific items.**
 
 <img src="https://github.com/user-attachments/assets/4b919c15-a7d2-4e91-9e17-2813b1d97407" width="500">
 
@@ -69,3 +70,5 @@
 - **Region searcher, orginally a python script made by l5se on dc that I improved in python and then recoded to add to my extension (with premission)**
 
 - **Extra coding help when chatgpt and me didnt know how: [Aspect](https://github.com/Aspectise)**
+  
+- **Extensions logo is gilbert, which is a fish I caught in [Fisch](https://www.roblox.com/games/16732694052/Fisch)**
