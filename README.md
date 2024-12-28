@@ -36,6 +36,7 @@
 
 # To do list
 - [ ] Making a setting page so you can disable features you dont want.
+- [ ] Making the region seacher able to search more servers without making it get more rate limits.
 
 # Known incompatibilies
 <details>
