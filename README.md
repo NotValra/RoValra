@@ -37,6 +37,7 @@
 # To do list
 - [ ] Making a setting page so you can disable features you dont want.
 - [ ] Making the region seacher able to search more servers without making it get more rate limits.
+- [ ] Making a server uptime feature. If you know the undocumented api that makes it possible PLEASE dm me on dc: NotValra
 
 # Known incompatibilies
 <details>
