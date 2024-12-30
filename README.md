@@ -26,6 +26,7 @@
   - Basically this feature allows you to join anyone with their joins on or whose on ur friends list instantly.
   
   - lets say for example you wanna join someone whose streaming a game with viewers, you could just use the snipe feature, and you would almost instantly join (Depending on your pc ofc)
+  - Confirmed to work with popular peoeple like kreekcraft.
 </details>
 
 
