@@ -37,10 +37,10 @@
 
 # To do list
 - [ ] Making a setting page so you can disable features you dont want.
-- [ ] Making the region seacher able to search more servers without making it get more rate limits.
+- [x] Making the region seacher able to search more servers without making it get more rate limits. **Coming next update**
 - [ ] Adding my Subplace extension to RoValra, but without all the bypassing features. Mostly to kinda fix bugs that other extensions didnt think about.
 - [ ] Redesign most of my extensions UI making it have the games thumbnails and other stuff. 
-- [ ] Making a server uptime feature. Edit: likely not possible for me to do, i havent found a single api that makes it some what possible.
+- [ ] ~~Making a server uptime feature.~~ **Not possible to add without servers.**
 
 # Known incompatibilies
 <details>
