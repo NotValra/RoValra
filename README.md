@@ -37,7 +37,7 @@
 
 # To do list
 - [ ] Making a setting page so you can disable features you dont want.
-- [x] Making the region seacher able to search more servers without making it get more rate limits. **Coming next update**
+- [x] ~~Making the region seacher able to search more servers without making it get more rate limits.~~ **ADDED!**
 - [ ] Adding my Subplace extension to RoValra, but without all the bypassing features. Mostly to kinda fix bugs that other extensions didnt think about.
 - [ ] Redesign most of my extensions UI making it have the games thumbnails and other stuff. 
 - [ ] ~~Making a server uptime feature.~~ **Not possible to add without servers.**
@@ -48,9 +48,8 @@
   
 - **The extension is unable to show the hidden games of groups if you use [RoSeal](https://chromewebstore.google.com/detail/roseal-augmented-roblox-e/hfjngafpndganmdggnapblamgbfjhnof?hl=en) with the "Seamless navigation of communities" setting on.**
 
-- **The different states in the US isnt showing. It is bc of limitations with the IP location checker.**
-
-- **Some servers might not show like France, again bc of limitations bc of the IP location checker.**
+- **Some servers might not show like France**
+- 
 - **If you are located in the US the Best Ping button wont work. Dw there is a warning if you press it just in case**
 </details>
 
@@ -77,3 +76,4 @@
 - **Extra coding help when chatgpt and me didnt know how: [Aspect](https://github.com/Aspectise)**
   
 - **Extensions logo is gilbert, which is a fish I caught in [Fisch](https://www.roblox.com/games/16732694052/Fisch)**
+- **7_lz helped me a lot with the process of switching away from third party APIs by providing me with the json and just general help**
