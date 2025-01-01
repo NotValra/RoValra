@@ -14,7 +14,7 @@
 
 <img src="https://github.com/user-attachments/assets/4b919c15-a7d2-4e91-9e17-2813b1d97407" width="500">
 
-- **The ability to join a server in a spesific region (DOES NOT REQUIRE ROQOL ANYMORE!)**
+- **The ability to join a server in a spesific region**
 
 <img src="https://github.com/user-attachments/assets/0e62016c-04dc-494c-b2be-5f07a886362c" width="500">
 
@@ -48,8 +48,7 @@
   
 - **The extension is unable to show the hidden games of groups if you use [RoSeal](https://chromewebstore.google.com/detail/roseal-augmented-roblox-e/hfjngafpndganmdggnapblamgbfjhnof?hl=en) with the "Seamless navigation of communities" setting on.**
 
-- **Some servers might not show like France**
-- 
+- **Some servers might not show like France (Might actually be cuz Roblox either change the servers ip or stopped running them)**
 - **If you are located in the US the Best Ping button wont work. Dw there is a warning if you press it just in case**
 </details>
 
