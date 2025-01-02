@@ -38,7 +38,7 @@
 # To do list
 - [x] ~~Making a setting page so you can disable features you dont want.~~ **Coming next update**
 - [x] ~~Making the region seacher able to search more servers without making it get more rate limits.~~ **ADDED!**
-- [ ] Adding my Subplace extension to RoValra, but without all the bypassing features. Mostly to kinda fix bugs that other extensions didnt think about.
+- [x] ~~Adding my Subplace extension to RoValra, but without all the bypassing features.~~ **Coming in 2.1**
 - [x] ~~Redesign most of my extensions UI making it have the games thumbnails and other stuff.~~ **Coming next update**
 
 # Known incompatibilies
