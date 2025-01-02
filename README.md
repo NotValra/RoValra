@@ -59,7 +59,7 @@
 
 - Enable developer mode on your browser of choice.
 ![image](https://github.com/user-attachments/assets/301ab762-7b3b-4f5f-9eb0-9e7699212546)
-- Unzip the file in [releases](https://github.com/NotValra/Hidden-Games/releases/tag/Release)
+- Unzip the file in [releases](https://github.com/NotValra/Hidden-Games/releases)
 - Import the unzipped folder into your browser. Ensure that you import the folder that contains direct access to background.js, content.js and manifest.json etc.
 ![image](https://github.com/user-attachments/assets/2b238201-c297-4106-a5ad-6db4c9259dc6)
 </details>
