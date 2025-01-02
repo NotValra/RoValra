@@ -36,11 +36,10 @@
 - **And more to come, if you have a feature you want me to add just lmk**
 
 # To do list
-- [ ] Making a setting page so you can disable features you dont want.
+- [x] ~~Making a setting page so you can disable features you dont want.~~ **Coming next update**
 - [x] ~~Making the region seacher able to search more servers without making it get more rate limits.~~ **ADDED!**
 - [ ] Adding my Subplace extension to RoValra, but without all the bypassing features. Mostly to kinda fix bugs that other extensions didnt think about.
-- [ ] Redesign most of my extensions UI making it have the games thumbnails and other stuff. 
-- [ ] ~~Making a server uptime feature.~~ **Not possible to add without servers.**
+- [x] ~~Redesign most of my extensions UI making it have the games thumbnails and other stuff.~~ **Coming next update**
 
 # Known incompatibilies
 <details>
