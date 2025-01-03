@@ -1,4 +1,8 @@
 # RoValra
+
+# Where's the updates?
+**So im still actively making the extension, i just cant release a new version since im waiting for google to accept it to the webstore. Sadly that takes quite a while and im unable to upload new versions until google accepts it.**
+
 ## Sections
 - [**Features**](https://github.com/NotValra/RoValra?tab=readme-ov-file#features)
 - [**Known incompatibilies**](https://github.com/NotValra/RoValra?tab=readme-ov-file#known-incompatibilies)
@@ -36,6 +40,7 @@
 - **And more to come, if you have a feature you want me to add just lmk**
 
 # To do list
+- [ ] **Redesigning my settings page**
 - [x] ~~Making a setting page so you can disable features you dont want.~~ **Coming next update**
 - [x] ~~Making the region seacher able to search more servers without making it get more rate limits.~~ **ADDED!**
 - [x] ~~Adding my Subplace extension to RoValra, but without all the bypassing features.~~ **Coming in 2.1**
