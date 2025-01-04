@@ -1,25 +1,21 @@
+console.log("item_sales_content.js: Script started");
 
+const itemId = parseInt(window.location.pathname.split('/')[2], 10);
+console.log("item_sales_content.js: Extracted item ID:", itemId);
+const itemsURL = document.currentScript.dataset.itemsUrl;
 
-if (window.location.pathname.startsWith('/catalog') || window.location.pathname.startsWith('/bundles')) {
-
-    // Extract the item ID from the URL
-    const itemId = parseInt(window.location.pathname.split('/')[2], 10);
-    console.log("Extracted item ID:", itemId);
-
-    fetch('https://raw.githubusercontent.com/workframes/roblox-owner-counts/refs/heads/main/items.json') 
-        .then(response => response.json())
-        .then(data => {
-            const items = data.item || [];
-
-            if (items.length === 0) {
-                console.log('No items found in the fetched data.');
-                return;
-            }
-
+fetch(itemsURL)
+    .then(response => response.json())
+    .then(data => {
+        const items = data.item || [];
+         if (items.length === 0) {
+            console.log("item_sales_content.js: No items found in the fetched data.");
+            return;
+         }
             const item = items.find(item => item.id === itemId || parseInt(item.id, 10) === itemId);
 
             if (item) {
-                console.log("Item found:", item);
+                console.log("item_sales_content.js: Item found:", item);
 
                 const retryFindElement = (selector, maxRetries, retryInterval, callback, fallbackSelector) => {
                     let retries = 0;
@@ -41,9 +37,9 @@ if (window.location.pathname.startsWith('/catalog') || window.location.pathname.
                 };
 
                 retryFindElement(
-                    ".text-label.row-label.price-label", 
-                    20, 
-                    100, 
+                    ".text-label.row-label.price-label",
+                    50,
+                    100,
                     (foundElement) => {
                         const salesDiv = document.createElement('div');
                         salesDiv.classList.add('item-sales');
@@ -63,12 +59,7 @@ if (window.location.pathname.startsWith('/catalog') || window.location.pathname.
                     ".price-row-container"
                 );
             } else {
-                console.log("Item not found.");
+                console.log("item_sales_content.js: Item not found.");
             }
         })
-        .catch(error => {
-            console.error('Error fetching data:', error);
-        });
-}
-
-
+    .catch(error => console.error("item_sales_content.js: Error loading items.json", error));

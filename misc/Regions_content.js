@@ -9,7 +9,17 @@ if (window.location.pathname.includes('/games/')) {
     if (pathname.includes('/games/')) {
         placeId = pathname.split('/')[2];
     }
-    const defaultRegions = ["HK", "FR", "NL", "GB", "AU", "IN", "DE", "PL", "JP", "SG", "BR", "US", "EG"];
+    const defaultRegions = [
+        "HK", "FR", "NL", "GB", "AU", "IN", "DE", "PL", "JP", "SG", "BR","EG",
+        "US-AL", "US-AK", "US-AZ", "US-AR", "US-CA", "US-CO", "US-CT", "US-DE", "US-FL", "US-GA", 
+        "US-HI", "US-ID", "US-IL", "US-IN", "US-IA", "US-KS", "US-KY", "US-LA", "US-ME", "US-MD", 
+        "US-MA", "US-MI", "US-MN", "US-MS", "US-MO", "US-MT", "US-NE", "US-NV", "US-NH", "US-NJ", 
+        "US-NM", "US-NY", "US-NC", "US-ND", "US-OH", "US-OK", "US-OR", "US-PA", "US-RI", "US-SC", 
+        "US-SD", "US-TN", "US-TX", "US-UT", "US-VT", "US-VA", "US-WA", "US-WV", "US-WI", "US-WY"
+      ];
+      
+    let serverPopup = null; 
+    let serverButtonsContainer = null;
     let regionServerMap = {};
     let regionCounts = {};
     let allServers = [];
@@ -19,10 +29,9 @@ if (window.location.pathname.includes('/games/')) {
     let userLocation = null;
     let serverScores = {};
 
-    // New variable to store server data
     let storedServerData = {};
     const SERVER_DATA_KEY = 'storedServerData';
-    const INACTIVE_THRESHOLD = 48 * 60 * 60 * 1000;
+    const INACTIVE_THRESHOLD = 3 * 60 * 60 * 1000;
 
     let config;
     let started = 'off';
@@ -32,16 +41,13 @@ if (window.location.pathname.includes('/games/')) {
     function loadFromBrowserStorage(item, callback_function) {
         chrome.storage.local.get(item, (result) => {
             if (result[SERVER_DATA_KEY]) {
-                console.log("Clearing ALL stored server data for testing purposes.");
                 storedServerData = {};
                 chrome.storage.local.set({
                     [SERVER_DATA_KEY]: JSON.stringify(storedServerData)
                 }, () => {
-                    console.log('Stored server data has been cleared');
                     callback_function(result);
                 });
             } else {
-                console.log("No stored server data found, skipping clear")
                 callback_function(result);
             }
         });
@@ -49,7 +55,6 @@ if (window.location.pathname.includes('/games/')) {
 
     function loadConfigurationFromLocalStorage() {
         if (localStorage.getItem('config')) {
-            console.log('Load standard config');
             config = JSON.parse(localStorage.getItem('config'));
 
             if (config.format_version === '1.0') {
@@ -60,17 +65,14 @@ if (window.location.pathname.includes('/games/')) {
                 }
                 config.debug_mode = false;
                 config.use_url_contains = false;
-                console.log('save new config' + JSON.stringify(config));
             }
             if (config.format_version === '1.1') {
                 config.format_version = '1.2';
                 for (let line of config.headers) line.url_contains = '';
                 config.use_url_contains = false;
-                console.log('save new config' + JSON.stringify(config));
             }
         } else {
             if (localStorage.getItem('targetPage') && localStorage.getItem('modifyTable')) {
-                console.log('Load old config');
                 let headers = [];
                 let modifyTable = JSON.parse(localStorage.getItem('modifyTable'));
                 for (const to_modify of modifyTable) {
@@ -92,7 +94,6 @@ if (window.location.pathname.includes('/games/')) {
                     use_url_contains: false
                 };
             } else {
-                console.log('Load default config');
                 let headers = [];
                 headers.push({
                     url_contains: '',
@@ -128,31 +129,72 @@ if (window.location.pathname.includes('/games/')) {
     function storeInBrowserStorage(item, callback_function) {
         chrome.storage.local.set(item, callback_function);
     }
-
-    if (placeId) {
-        // Load server data from storage
-        loadFromBrowserStorage([SERVER_DATA_KEY], (result) => {
-            if (result[SERVER_DATA_KEY]) {
-                storedServerData = JSON.parse(result[SERVER_DATA_KEY]);
-            }
-            fetchUserLocation();
-            chrome.runtime.sendMessage({
-                action: "getRobloxCookie"
-            }, (response) => {
-                if (response.success) {
-                    const robloxCookie = response.cookie;
-                    getServerInfo(placeId, robloxCookie, defaultRegions);
-                } else {
-                    console.error("Error retrieving .ROBLOSECURITY cookie:", response.message);
-                }
+    async function updateRegionSelectorState() {
+        const settings = await new Promise((resolve) => {
+            chrome.storage.local.get({
+                regionSelectorEnabled: false,
+            }, (result) => {
+                resolve(result);
             });
         });
+
+        regionSelectorEnabled = settings.regionSelectorEnabled;
+        if (serverPopup) {
+            serverPopup.style.display = regionSelectorEnabled ? '' : 'none';
+        }
+        if (serverButtonsContainer) {
+            serverButtonsContainer.style.display = regionSelectorEnabled ? 'flex' : 'none';
+        }
+
+         if (regionSelectorEnabled && placeId) {
+               loadFromBrowserStorage([SERVER_DATA_KEY], (result) => {
+                if (result[SERVER_DATA_KEY]) {
+                    storedServerData = JSON.parse(result[SERVER_DATA_KEY]);
+                }
+                fetchUserLocation();
+                chrome.runtime.sendMessage({
+                    action: "getRobloxCookie"
+                }, (response) => {
+                    if (response.success) {
+                        const robloxCookie = response.cookie;
+                        getServerInfo(placeId, robloxCookie, defaultRegions);
+                    } else {
+                    }
+                });
+            });
+         }
+    }
+
+    chrome.storage.onChanged.addListener(async (changes, namespace) => {
+            if (changes.regionSelectorEnabled) {
+                 await updateRegionSelectorState()
+            }
+    });
+     updateRegionSelectorState()
+   
+    if (placeId) {
+        loadFromBrowserStorage([SERVER_DATA_KEY], (result) => {
+               if (result[SERVER_DATA_KEY]) {
+                   storedServerData = JSON.parse(result[SERVER_DATA_KEY]);
+               }
+               fetchUserLocation();
+               chrome.runtime.sendMessage({
+                   action: "getRobloxCookie"
+               }, (response) => {
+                   if (response.success) {
+                       const robloxCookie = response.cookie;
+                        if(regionSelectorEnabled) {
+                            getServerInfo(placeId, robloxCookie, defaultRegions);
+                         }
+                   } else {
+                   }
+               });
+           });
     } else {
-        console.log("No valid placeId found in the URL");
     }
 
 
-    async function getServerInfo(placeId, robloxCookie, regions) {
+      async function getServerInfo(placeId, robloxCookie, regions) {
         let url = `https://games.roblox.com/v1/games/${placeId}/servers/Public?excludeFullGames=true&limit=100`;
         try {
             let totalRequests = 0;
@@ -162,7 +204,7 @@ if (window.location.pathname.includes('/games/')) {
             let rateLimited = false;
             const REQUEST_DELAY = 500;
             await delay(REQUEST_DELAY);
-            const response = await fetch(url, {
+                const response = await fetch(url, {
                 headers: {
                     "Referer": `https://www.roblox.com/games/${placeId}/`,
                     "Origin": "https://roblox.com",
@@ -170,27 +212,29 @@ if (window.location.pathname.includes('/games/')) {
                     "Cache-Control": "no-cache",
                 },
             });
+    
             if (response.status === 429) {
                 rateLimited = true;
                 showRateLimitedMessage();
-                updatePopup()
+                updatePopup();
                 return;
             }
             if (!response.ok) {
-                console.log(`Error fetching servers, status code: ${response.status}`);
                 const errorDetails = await response.text();
-                console.log("Error details:", errorDetails);
                 return;
             }
+    
             const servers = await response.json();
             if (!servers.data || servers.data.length === 0) {
                 return;
             }
+    
             for (const server of servers.data) {
                 const promise = handleServer(server, placeId, robloxCookie, regions, newServerCount);
                 serverPromises.push(promise);
                 allServers.push(server);
             }
+    
             while (serverPromises.length > 0) {
                 const batch = serverPromises.splice(0, BATCH_SIZE);
                 const results = await Promise.all(batch);
@@ -198,33 +242,29 @@ if (window.location.pathname.includes('/games/')) {
                     newServerCount = results.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
                 }
             }
-
-
-            //Check for inactive servers after each fetch
+    
             checkInactiveServers(placeId, servers.data.length);
-
-            // Print all stored server data
-            console.log("All Stored Server Data:", storedServerData);
-
-            // Print specific place server data
+    
+    
             if (storedServerData[placeId]) {
-                console.log(`Stored Server Data for placeId: ${placeId}:`, storedServerData[placeId]);
+    
                 for (const serverId in storedServerData[placeId]) {
                     const server = storedServerData[placeId][serverId];
                     const uptime = calculateUptime(server.t);
                 }
+            } else {
             }
-
-
+              storeInBrowserStorage({[SERVER_DATA_KEY]: JSON.stringify(storedServerData)});
+    
             if (rateLimited) {
                 showRateLimitedMessage();
             } else {
                 updatePopup();
             }
         } catch (error) {
-            console.log("Error fetching server data:", error);
         }
     }
+    
 
 
     function showRateLimitedMessage() {
@@ -278,10 +318,194 @@ if (window.location.pathname.includes('/games/')) {
         serverPopup.parentNode.insertBefore(messageContainer, serverPopup.nextSibling);
     }
 
+    async function fetchUserLocation(retries = 2) {
+        try {
+            const robloxCookieResponse = await chrome.runtime.sendMessage({ action: "getRobloxCookie" });
+    
+            if (!robloxCookieResponse || !robloxCookieResponse.success) {
+               
+                if (retries > 0) {
+                    await delay(1000);
+                    return await fetchUserLocation(retries - 1);
+                } else {
+                    return false;
+                }
+            }
+    
+            const robloxCookie = robloxCookieResponse.cookie;
+             await chrome.runtime.sendMessage({ action: "enableCountryCodeRule" });
+             const response = await fetch("https://users.roblox.com/v1/users/authenticated/country-code", {
+                 headers: {
+                     "Cache-Control": "no-cache",
+                 },
+                 credentials: 'include'
+              });
+             await chrome.runtime.sendMessage({ action: "disableCountryCodeRule" });
+    
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+    
+            const data = await response.json();
+              if (data && data.countryCode) {
+                    let locationData = null;
+                     if (data.countryCode === "US"){
+                         const regionResponse = await fetch("https://users.roblox.com/v1/users/authenticated/region", {
+                             headers: {
+                                 "Cache-Control": "no-cache",
+                             },
+                             credentials: 'include'
+                          });
+                            if (!regionResponse.ok){
+                                throw new Error(`HTTP error! Status: ${regionResponse.status}`);
+                            }
+                         const regionData = await regionResponse.json()
+                         if (regionData && regionData.regionCode){
+                            locationData = await fetchApproximateLocation(data.countryCode, regionData.regionCode);
+                              if (locationData) {
+                                userLocation = {
+                                    countryCode: data.countryCode,
+                                    regionCode: regionData.regionCode,
+                                    latitude: locationData.latitude,
+                                    longitude: locationData.longitude,
+                                 };
+                            }  else {
+                                userLocation = {
+                                    countryCode: data.countryCode,
+                                    regionCode: regionData.regionCode,
+                                   latitude: 0,
+                                    longitude: 0,
+                                 };
+                            }
+                         } else {
+                              locationData = await fetchApproximateLocation(data.countryCode);
+                                 if (locationData) {
+                                    userLocation = {
+                                        countryCode: data.countryCode,
+                                        latitude: locationData.latitude,
+                                        longitude: locationData.longitude,
+                                     };
+                               }  else {
+                                  userLocation = {
+                                        countryCode: data.countryCode,
+                                       latitude: 0,
+                                        longitude: 0,
+                                     };
+
+                               }
+                         }
+                     } else {
+                         locationData = await fetchApproximateLocation(data.countryCode);
+                           if (locationData) {
+                                userLocation = {
+                                    countryCode: data.countryCode,
+                                    latitude: locationData.latitude,
+                                    longitude: locationData.longitude,
+                                 };
+
+                            }  else {
+                                 userLocation = {
+                                    countryCode: data.countryCode,
+                                   latitude: 0,
+                                    longitude: 0,
+                                 };
+                            }
+                     }
+                    userRegion = mapStateToRegion(userLocation);
+                  return true;
+                } else {
+                    if (retries > 0) {
+                        await delay(1000);
+                        return await fetchUserLocation(retries - 1);
+                    } else {
+                         return false;
+                    }
+                }
+        
+        } catch (error) {
+            if (retries > 0) {
+                await delay(1000);
+                return await fetchUserLocation(retries - 1);
+            }
+           else {
+                return false;
+            }
+        }
+    }
+    
+    
+
+    // dont ask i just really wanted this shit to work, i know almost all of these arent even a server location IM NOT DUMB
+    function getUSStateCoordinates(stateCode) {
+        const usStateCoordinates = {
+            AL: { latitude: 32.806671, longitude: -86.791130 },
+            AK: { latitude: 61.370716, longitude: -152.404419 },
+            AZ: { latitude: 33.729759, longitude: -111.431221 },
+            AR: { latitude: 34.969704, longitude: -92.373123 },
+            CA: { latitude: 36.116203, longitude: -119.681564 },
+            CO: { latitude: 39.059811, longitude: -105.311104 },
+            CT: { latitude: 41.597782, longitude: -72.755371 },
+            DE: { latitude: 39.318523, longitude: -75.507141 },
+            FL: { latitude: 27.766279, longitude: -81.686783 },
+            GA: { latitude: 33.040619, longitude: -83.643074 },
+            HI: { latitude: 21.094318, longitude: -157.498337 },
+            ID: { latitude: 44.240459, longitude: -114.478828 },
+            IL: { latitude: 40.349457, longitude: -88.986137 },
+            IN: { latitude: 39.849426, longitude: -86.258278 },
+            IA: { latitude: 42.011539, longitude: -93.210526 },
+            KS: { latitude: 38.526600, longitude: -96.726486 },
+            KY: { latitude: 37.668140, longitude: -84.670067 },
+            LA: { latitude: 31.169546, longitude: -91.867805 },
+            ME: { latitude: 44.693947, longitude: -69.381927 },
+            MD: { latitude: 39.063946, longitude: -76.802101 },
+            MA: { latitude: 42.230171, longitude: -71.530106 },
+            MI: { latitude: 43.326618, longitude: -84.536095 },
+            MN: { latitude: 45.694454, longitude: -93.900192 },
+            MS: { latitude: 32.741646, longitude: -89.678696 },
+            MO: { latitude: 38.456085, longitude: -92.288368 },
+            MT: { latitude: 46.921925, longitude: -110.454353 },
+            NE: { latitude: 41.125370, longitude: -98.268082 },
+            NV: { latitude: 38.313515, longitude: -117.055374 },
+            NH: { latitude: 43.452492, longitude: -71.563896 },
+            NJ: { latitude: 40.298904, longitude: -74.521011 },
+            NM: { latitude: 34.840515, longitude: -106.248482 },
+            NY: { latitude: 42.165726, longitude: -74.948051 },
+            NC: { latitude: 35.630066, longitude: -79.806419 },
+            ND: { latitude: 47.528912, longitude: -99.784012 },
+            OH: { latitude: 40.388783, longitude: -82.764915 },
+            OK: { latitude: 35.565342, longitude: -96.928917 },
+            OR: { latitude: 44.572021, longitude: -122.070938 },
+            PA: { latitude: 40.590752, longitude: -77.209755 },
+            RI: { latitude: 41.680893, longitude: -71.511780 },
+            SC: { latitude: 33.856892, longitude: -80.945007 },
+            SD: { latitude: 44.299782, longitude: -99.438828 },
+            TN: { latitude: 35.747845, longitude: -86.692345 },
+            TX: { latitude: 31.054487, longitude: -97.563461 },
+            UT: { latitude: 40.150032, longitude: -111.862434 },
+            VT: { latitude: 44.045876, longitude: -72.710686 },
+            VA: { latitude: 37.769337, longitude: -78.169968 },
+            WA: { latitude: 47.400902, longitude: -121.490494 },
+            WV: { latitude: 38.491226, longitude: -80.954456 },
+            WI: { latitude: 44.268543, longitude: -89.616508 },
+            WY: { latitude: 42.755966, longitude: -107.302490 },
+        };
+    
+        return usStateCoordinates[stateCode] || null;
+    }
+    
+    
+    let serverIpMap = null;
+
+    (async () => {
+         serverIpMap = await fetch(chrome.runtime.getURL("data/ServerList.json"))
+                    .then(response => response.json())
+                    .catch(error => {
+                        return {};
+                    });
+    })();
 
     async function handleServer(server, placeId, robloxCookie, regions, newServerCount) {
         const serverId = server.id;
-
         try {
             const serverInfo = await fetch(`https://gamejoin.roblox.com/v1/join-game-instance`, {
                 method: 'POST',
@@ -300,122 +524,165 @@ if (window.location.pathname.includes('/games/')) {
                 }),
                 credentials: 'include',
             });
+    
             const ipData = await serverInfo.json();
-            const ip = ipData?.joinScript?.UdmuxEndpoints?.[0]?.Address;
+            let ip = ipData?.joinScript?.UdmuxEndpoints?.[0]?.Address;
             if (!ip) {
                 return;
             }
-            const geolocationData = await fetchGeolocation(ip);
-            if (!geolocationData) {
-                return;
-            }
-
-            const countryCode = mapStateToRegion(geolocationData);
-            const countryCodeInteger = defaultRegions.indexOf(countryCode);
-            if (regions.includes(countryCode)) {
-                regionCounts[countryCode] = (regionCounts[countryCode] || 0) + 1;
-                regionServerMap[countryCode] = server;
-                serverLocations[server.id] = geolocationData;
-
-                // Store or update server data
-                if (!storedServerData[placeId]) {
-                    storedServerData[placeId] = {};
-                }
-                 //Add server data if it is not already added
-                 const { maxPlayers, playerTokens, players, playing, ...serverDataToStore } = server; // Destructure and exclude
-                   const optimizedLocation = {
-                    c: geolocationData.countryCode,
-                    x: parseFloat(geolocationData.latitude.toFixed(1)),
-                    y: parseFloat(geolocationData.longitude.toFixed(1)),
-                 };
-                if (!storedServerData[placeId][serverId]) {
-                    newServerCount = newServerCount + 1;
-                    storedServerData[placeId][serverId] = {
-                       f: Math.round(server.fps),
-                       i: server.id,
-                       c: countryCodeInteger,
-                       p: new Uint16Array([server.ping])[0],
-                       // Store timestamp in milliseconds
-                       t:  Date.now(),
-                       l : optimizedLocation,
-                    };
-                     storeInBrowserStorage({[SERVER_DATA_KEY]: JSON.stringify(storedServerData)});
-                } else {
-                     //If the server is marked likely inactive remove the flag and update the time.
-                    if (storedServerData[placeId][serverId].likelyInactive === true){
-                       delete storedServerData[placeId][serverId].likelyInactive;
-                         // Update timestamp in milliseconds
-                         storedServerData[placeId][serverId].t = Date.now();
-                        storeInBrowserStorage({[SERVER_DATA_KEY]: JSON.stringify(storedServerData)});
-                     } else {
-                           // Update timestamp in milliseconds
-                         storedServerData[placeId][serverId].t = Date.now();
-                          storeInBrowserStorage({[SERVER_DATA_KEY]: JSON.stringify(storedServerData)});
-                   }
-                }
-                 if (storedServerData[placeId] && storedServerData[placeId][serverId] && storedServerData[placeId][serverId].likelyInactive) {
-                     return newServerCount;
-                 }
-
-                if (userLocation) {
-                    scoreServer(server, userLocation, geolocationData, server.fps, server.ping);
-                }
-                updatePopup();
-            }
-        } catch (error) {
-            console.log(`Error fetching server info for server ${serverId}:`, error);
-        }
-         return newServerCount;
-    }
-    function checkInactiveServers(currentPlaceId, serverCount) {
-    const now = Date.now();
-    let fetchedServerIds = new Set(allServers.map(server => server.id)); // collect IDs of fetched servers
-
-    if (storedServerData[currentPlaceId]) {
-        for (const serverId in storedServerData[currentPlaceId]) {
-            const server = storedServerData[currentPlaceId][serverId];
-             if (serverCount < 100) {
-                if (!fetchedServerIds.has(serverId)) {
-                    console.log(`Server ${serverId} in place ${currentPlaceId} is not found and the serverCount is ${serverCount}, removing server`);
-                    delete storedServerData[currentPlaceId][serverId];
-                    storeInBrowserStorage({[SERVER_DATA_KEY]: JSON.stringify(storedServerData)});
-                 }
-            } else {
-                  if (!fetchedServerIds.has(serverId)) {
-                      if (now - server.t > INACTIVE_THRESHOLD) {
-                          if (!storedServerData[currentPlaceId][serverId].likelyInactive) {
-                              storedServerData[currentPlaceId][serverId].likelyInactive = true;
-                              storeInBrowserStorage({[SERVER_DATA_KEY]: JSON.stringify(storedServerData)});
-                              console.log(`Server ${serverId} in place ${currentPlaceId} seems inactive and marked as such.`);
-                          }
-                      } else if (storedServerData[currentPlaceId][serverId].likelyInactive) {
-                         // If its now within the threshhold and was inactive remove the flag.
-                            delete storedServerData[currentPlaceId][serverId].likelyInactive;
-                            storeInBrowserStorage({[SERVER_DATA_KEY]: JSON.stringify(storedServerData)});
-                           console.log(`Server ${serverId} in place ${currentPlaceId} is within the threshold now and has been unflagged.`);
-                        }
-                  }
-                }
-            }
-       }
-}
     
-
-    function mapStateToRegion(data) {
-        if (data && data.countryCode === "US") {
-            return "US";
+            ip = ip.split('.').slice(0, 3).join('.') + '.0';
+            let serverLocationData = serverIpMap[ip];
+    
+            if (!serverLocationData) {
+                serverLocationData = { country: { code: "US" } };
+            }
+    
+            const countryCode = serverLocationData?.country?.code;
+            let stateCode = null;
+            let regionCode = countryCode;
+    
+            if (countryCode === "US") {
+                stateCode = serverLocationData.region?.code?.replace(/-\d+$/, '') || null;
+                regionCode = `US-${stateCode}`;
+            }
+    
+            if (!storedServerData[placeId]) {
+                storedServerData[placeId] = {};
+            }
+    
+             const optimizedLocation = {
+                c: countryCode === "US" ? stateCode : regionCode,
+                x: 0,
+                y: 0,
+            };
+    
+        
+             if (serverLocationData) {
+                    const lat = serverLocationData.latitude;
+                    const lon = serverLocationData.longitude;
+                    if (typeof lat === 'number' && typeof lon === 'number'){
+                        optimizedLocation.x = lat;
+                        optimizedLocation.y = lon;
+                       }
+                }
+        
+            if (countryCode === "US") {
+                storedServerData[placeId][serverId] = {
+                    f: Math.round(server.fps),
+                    i: server.id,
+                    c: regionCode,
+                    p: new Uint16Array([server.ping])[0],
+                    t: Date.now(),
+                    l: optimizedLocation,
+                };
+            } else {
+                storedServerData[placeId][serverId] = {
+                    f: Math.round(server.fps),
+                    i: server.id,
+                    c: optimizedLocation.c,
+                    p: new Uint16Array([server.ping])[0],
+                    t: Date.now(),
+                    l: optimizedLocation,
+                };
+            }
+                if (regions.includes(regionCode)) {
+                regionCounts[regionCode] = (regionCounts[regionCode] || 0) + 1;
+                regionServerMap[regionCode] = server;
+            }
+    
+            newServerCount++;
+            return newServerCount;
+        } catch (error) {
         }
-        return data?.countryCode;
+        return newServerCount;
     }
-
+    
+    async function fetchApproximateLocation(countryCode, regionCode = null) {
+        try {
+            let apiUrl = `https://restcountries.com/v3.1/alpha/${countryCode}`;
+            const response = await fetch(apiUrl);
+    
+            if (!response.ok) {
+                return null;
+            }
+    
+            const data = await response.json();
+    
+            if (countryCode === "US" && regionCode) {
+                const stateCoordinates = getUSStateCoordinates(regionCode);
+                if (stateCoordinates) {
+                    return stateCoordinates;
+                }
+                return null;
+            }
+    
+            if (data && data.length > 0 && data[0].latlng) {
+                return {
+                    latitude: data[0].latlng[0],
+                    longitude: data[0].latlng[1],
+                };
+            }
+    
+            return null;
+        } catch (error) {
+            return null;
+        }
+    }
+    
+    
+    function mapStateToRegion(data) {
+        if (data && data.countryCode === "US" && data.regionCode) {
+            return data.regionCode.replace(/-\d+$/, '');
+        }
+         if (data && data.l?.c?.includes("US-")) {
+            return data.l.c;
+        }
+        if (data && data.l?.c === "US" && data.isUS) {
+            return `US-${data.l.c}`;
+        }
+         if (data && data.l?.c === "US") {
+            return data.l.c;
+        }
+       
+        return data?.countryCode || data?.c;
+    }
+    
+    
+    function checkInactiveServers(currentPlaceId, serverCount) {
+        const now = Date.now();
+        let fetchedServerIds = new Set(allServers.map(server => server.id)); 
+    
+        if (storedServerData[currentPlaceId]) {
+            for (const serverId in storedServerData[currentPlaceId]) {
+                const server = storedServerData[currentPlaceId][serverId];
+                 if (serverCount < 100) {
+                    if (!fetchedServerIds.has(serverId)) {
+                        delete storedServerData[currentPlaceId][serverId];
+                        storeInBrowserStorage({[SERVER_DATA_KEY]: JSON.stringify(storedServerData)});
+                     }
+                } else {
+                      if (!fetchedServerIds.has(serverId)) {
+                          if (now - server.t > INACTIVE_THRESHOLD) {
+                              if (!storedServerData[currentPlaceId][serverId].likelyInactive) {
+                                  storedServerData[currentPlaceId][serverId].likelyInactive = true;
+                                  storeInBrowserStorage({[SERVER_DATA_KEY]: JSON.stringify(storedServerData)});
+                              }
+                          } else if (storedServerData[currentPlaceId][serverId].likelyInactive) {
+                                delete storedServerData[currentPlaceId][serverId].likelyInactive;
+                                storeInBrowserStorage({[SERVER_DATA_KEY]: JSON.stringify(storedServerData)});
+                            }
+                      }
+                    }
+                }
+           }
+    }
     function updatePopup(retries = 5) {
         const serverPopup = document.querySelector(".nav.nav-tabs");
         if (!serverPopup) {
             if (retries > 0) {
-                console.log("Retrying to find .nav.nav-tabs...");
                 setTimeout(() => updatePopup(retries - 1), 1000);
             } else {
-                console.error(".nav.nav-tabs not found after multiple retries.");
             }
             return;
         }
@@ -429,21 +696,19 @@ if (window.location.pathname.includes('/games/')) {
             buttonContainer.classList.add("server-buttons-container");
             buttonContainer.style.display = "flex";
             buttonContainer.style.flexWrap = "wrap";
-            buttonContainer.style.gap = "9px"; // Adjusted for gap between buttons
+            buttonContainer.style.gap = "9px"; 
             buttonContainer.style.marginTop = "10px";
-            buttonContainer.style.padding = "8px"; // Added some padding to the container
+            buttonContainer.style.padding = "8px"; 
             buttonContainer.style.backgroundColor = "#393b3d";
             buttonContainer.style.borderRadius = "6px";
             buttonContainer.style.boxShadow = "0 4px 6px rgba(0, 0, 0, 0.1)";
             buttonContainer.style.marginBottom = "8px";
-            // Added filter button
-        const filterButton = document.createElement("div"); // Changed to div to contain the dropdown
+        const filterButton = document.createElement("div");
             filterButton.style.position = "relative";
             filterButton.style.display = "inline-block";
-            filterButton.style.marginBottom = '5px'; // Added some margin to the bottom
-        const filterButtonBtn = document.createElement("button"); // Create an actual button inside the div
+            filterButton.style.marginBottom = '5px';
+        const filterButtonBtn = document.createElement("button");
              filterButtonBtn.textContent = "Filter";
-             // Apply the styles from your provided style string
             filterButtonBtn.style.padding = "10px 15px";
              filterButtonBtn.style.backgroundColor = "#0366d6";
            filterButtonBtn.style.border = "1px solid #0366d6";
@@ -489,7 +754,7 @@ if (window.location.pathname.includes('/games/')) {
             dropdownContent.style.padding = '5px';
            dropdownContent.style.width = '160px';
            dropdownContent.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
-
+    
        const bestPingOption = document.createElement('button');
           bestPingOption.textContent = 'Best Ping';
             bestPingOption.style.display = 'block';
@@ -511,238 +776,202 @@ if (window.location.pathname.includes('/games/')) {
                 const bestPingTooltipSubtitle = document.createElement('div');
                 bestPingTooltipSubtitle.textContent = 'This finds the least laggy server using different methods';
                 bestPingTooltipSubtitle.style.fontSize = '13px'
-               bestPingTooltip.appendChild(bestPingTooltipSubtitle)
-                       bestPingTooltip.style.position = "absolute";
-                       bestPingTooltip.style.left = '105%';
-                       bestPingTooltip.style.top = '0';
-                        bestPingTooltip.style.padding = '5px';
-                        bestPingTooltip.style.backgroundColor = "#212323";
-                         bestPingTooltip.style.border = "1px solid #444";
-                       bestPingTooltip.style.borderRadius = "6px";
-                        bestPingTooltip.style.display = 'none';
-                       bestPingTooltip.style.width = "150%";
-                bestPingOption.appendChild(bestPingTooltip)
-              bestPingOption.addEventListener('mouseover', () => {
-                   bestPingOption.style.backgroundColor = '#4c5053';
-                       bestPingOption.style.borderRadius = "6px";
-                      bestPingOption.style.borderColor = "#24292e";
-                    bestPingTooltip.style.display = 'block';
-              });
-            bestPingOption.addEventListener('mouseout', () => {
-                bestPingOption.style.backgroundColor = '#24292e';
-                 bestPingOption.style.borderRadius = "6px";
-                 bestPingOption.style.borderColor = "#4c5053";
-                bestPingTooltip.style.display = 'none';
-            });
-            bestPingOption.addEventListener('click', async () => {
-                  let bestServerRegion = "N/A";
-                 let bestServer = null;
-                if (allServers.length > 0 && userLocation) {
-                     bestServer = findBestServer();
-                     if (bestServer) {
-                         for (const [region, server] of Object.entries(regionServerMap)) {
-                             if (server.id === bestServer.id) {
-                                 bestServerRegion = region;
-                             }
+           bestPingTooltip.appendChild(bestPingTooltipSubtitle)
+                   bestPingTooltip.style.position = "absolute";
+                   bestPingTooltip.style.left = '105%';
+                   bestPingTooltip.style.top = '0';
+                    bestPingTooltip.style.padding = '5px';
+                    bestPingTooltip.style.backgroundColor = "#212323";
+                     bestPingTooltip.style.border = "1px solid #444";
+                   bestPingTooltip.style.borderRadius = "6px";
+                    bestPingTooltip.style.display = 'none';
+                   bestPingTooltip.style.width = "150%";
+            bestPingOption.appendChild(bestPingTooltip)
+          bestPingOption.addEventListener('mouseover', () => {
+               bestPingOption.style.backgroundColor = '#4c5053';
+                   bestPingOption.style.borderRadius = "6px";
+                  bestPingOption.style.borderColor = "#24292e";
+                bestPingTooltip.style.display = 'block';
+          });
+        bestPingOption.addEventListener('mouseout', () => {
+            bestPingOption.style.backgroundColor = '#24292e';
+             bestPingOption.style.borderRadius = "6px";
+             bestPingOption.style.borderColor = "#4c5053";
+            bestPingTooltip.style.display = 'none';
+        });
+        bestPingOption.addEventListener('click', async () => {
+              let bestServerRegion = "N/A";
+             let bestServer = null;
+            if (allServers.length > 0 && userLocation) {
+                 bestServer = findBestServer();
+                 if (bestServer) {
+                     for (const [region, server] of Object.entries(regionServerMap)) {
+                         if (server.id === bestServer.id) {
+                             bestServerRegion = region;
                          }
                      }
-                }
-    
-                if (bestServer == null || bestServerRegion == "N/A") {
-                    if (allServers.length > 0) {
-                        bestServer = findBestServer()
-                        if (bestServer) {
-                            for (const [region, server] of Object.entries(regionServerMap)) {
-                                if (server.id === bestServer.id) {
-                                    bestServerRegion = region;
-                                }
+                 }
+            }
+
+            if (bestServer == null || bestServerRegion == "N/A") {
+                if (allServers.length > 0) {
+                    bestServer = findBestServer()
+                    if (bestServer) {
+                        for (const [region, server] of Object.entries(regionServerMap)) {
+                            if (server.id === bestServer.id) {
+                                bestServerRegion = region;
                             }
                         }
                     }
-                    if (bestServer == null || bestServerRegion == "N/A") {
-                        bestServerRegion = "N/A"
-                    }
-    
                 }
-                if (userRegion === "US") {
-                    showUSWarningModal(async () => {
-                        if (bestServerRegion === "N/A") {
-                            await fetchUserLocation();
-                        }
-                        joinBestServer(bestServer);
-                    });
-                } else {
+                if (bestServer == null || bestServerRegion == "N/A") {
+                    bestServerRegion = "N/A"
+                }
+
+            }
+            if (userRegion === "US") {
+                showUSWarningModal(async () => {
                     if (bestServerRegion === "N/A") {
                         await fetchUserLocation();
                     }
                     joinBestServer(bestServer);
-                }
-            dropdownContent.style.display = 'none';
-             dropdownArrow.textContent = '▶';
-           });
-    
-            const newestServerOption = document.createElement('button');
-            newestServerOption.textContent = 'Newest Server';
-                newestServerOption.style.display = 'block';
-                 newestServerOption.style.width = '100%';
-                 newestServerOption.style.padding = '8px';
-                 newestServerOption.style.border = 'none';
-                 newestServerOption.style.marginTop = "5px";
-                  newestServerOption.style.backgroundColor = '#24292e';
-                 newestServerOption.style.color = 'white';
-            newestServerOption.style.cursor = 'pointer';
-            newestServerOption.style.textAlign = 'left';
-                newestServerOption.style.fontSize = '15px';
-             newestServerOption.style.fontWeight = '600';
-                  newestServerOption.style.transition = "background-color 0.3s ease";
-                  const newestTooltip = document.createElement('div');
-                  const newestTooltipTitle = document.createElement('div');
-                      newestTooltipTitle.textContent = 'Finds The Newest Server';
-                          newestTooltipTitle.style.fontWeight = 'bold';
-                      newestTooltip.appendChild(newestTooltipTitle)
-                      const newestTooltipSubtitle = document.createElement('div');
-                      newestTooltipSubtitle.textContent = 'Might be inaccurate since the data is gathered by you only.';
-                  newestTooltipSubtitle.style.fontSize = '13px'
-                     newestTooltip.appendChild(newestTooltipSubtitle)
-                    newestTooltip.style.position = "absolute";
-                    newestTooltip.style.left = '105%';
-                    newestTooltip.style.top = '0';
-                   newestTooltip.style.padding = '5px';
-                     newestTooltip.style.backgroundColor = "#212323";
-                     newestTooltip.style.border = "1px solid #444";
-                     newestTooltip.style.borderRadius = "6px";
-                    newestTooltip.style.display = 'none';
-                  newestTooltip.style.width = "200%";
-                  newestServerOption.appendChild(newestTooltip);
-                 newestServerOption.addEventListener('mouseover', () => {
-                    newestServerOption.style.backgroundColor = '#4c5053';
-                      newestServerOption.style.borderRadius = "6px";
-                     newestServerOption.style.borderColor = "#24292e";
-                    newestTooltip.style.display = 'block';
-                 });
-                 newestServerOption.addEventListener('mouseout', () => {
-                     newestServerOption.style.backgroundColor = '#24292e';
-                     newestServerOption.style.borderRadius = "6px";
-                       newestServerOption.style.borderColor = "#4c5053";
-                      newestTooltip.style.display = 'none';
-                });
-             newestServerOption.addEventListener('click', () => {
-                 joinNewestServer();
-                   dropdownContent.style.display = 'none';
-                dropdownArrow.textContent = '▶';
-            });
-            dropdownContent.appendChild(bestPingOption);
-           dropdownContent.appendChild(newestServerOption);
-          filterButton.appendChild(filterButtonBtn)
-           filterButton.appendChild(dropdownContent);
-         filterButtonBtn.addEventListener('click', (event) => {
-             event.stopPropagation();
-             dropdownContent.style.display = dropdownContent.style.display === 'none' ? 'block' : 'none';
-              dropdownArrow.textContent = dropdownContent.style.display === 'none' ? '▶' : '▼';
-        });
-
-       document.addEventListener('click', () => {
-             dropdownContent.style.display = 'none';
-            dropdownArrow.textContent = '▶';
-        });
-
-        buttonContainer.appendChild(filterButton)
-      
-        const regionButtons = [];
-        for (const region of defaultRegions) {
-            let serverCount = regionCounts[region] || 0;
-           let storedServerCount = 0;
-             let uniqueStoredServers = new Set();
-
-              if (storedServerData && storedServerData[placeId]) {
-                  for (const serverId in storedServerData[placeId]) {
-                        const server = storedServerData[placeId][serverId]
-                          if (defaultRegions[server.c] === region && !server.likelyInactive){
-                               let isNewServer = false;
-                                for (const foundServer of allServers){
-                                      if (foundServer.id === serverId) {
-                                          isNewServer = true;
-                                           break;
-                                       }
-                                 }
-                                   if (!isNewServer) {
-                                       storedServerCount++
-                                     }
-                           }
-                    }
-                 }
-            const totalCount = serverCount + storedServerCount;
-            if (totalCount > 0) {
-                const button = document.createElement("button");
-                 button.textContent = `${region}: ${totalCount}`;
-               button.style.padding = "10px 15px";
-               button.style.backgroundColor = "#24292e";
-               button.style.border = "1px solid #444";
-               button.style.borderRadius = "6px";
-              button.style.cursor = "pointer";
-               button.style.fontSize = "15px";
-                button.style.fontWeight = "600";
-               button.style.color = "white";
-               button.style.flex = "1"; //Flex to allow button to take up more space
-                 button.style.minWidth = "80px";
-               button.style.margin = "4px";
-              button.style.textAlign = "center";
-               button.style.transition = "background-color 0.3s ease, transform 0.3s ease";
-                button.addEventListener('mouseover', () => {
-                    button.style.backgroundColor = "#4c5053";
-                     button.style.borderRadius = "6px";
-                     button.style.borderColor = "#24292e";
-                     button.style.transform = "scale(1.05)";
-                });
-                 button.addEventListener('mouseout', () => {
-                   button.style.backgroundColor = "#24292e";
-                    button.style.borderRadius = "6px";
-                    button.style.borderColor = "#4c5053";
-                     button.style.transform = "scale(1)";
-                 });
-                button.addEventListener("click", () => {
-                    joinSpecificRegionServer(region);
-                });
-                  buttonContainer.appendChild(button);
-                 regionButtons.push(button);
-           }
-       }
-    
-        serverPopup.parentNode.insertBefore(buttonContainer, serverPopup.nextSibling);
-    
-    
-        const adjustButtonText = () => {
-            let totalWidth = 0;
-            regionButtons.forEach((button) => {
-                totalWidth += button.offsetWidth + 10;
-            });
-    
-            if (totalWidth > buttonContainer.offsetWidth) {
-                regionButtons.forEach((button) => {
-                    const [region, count] = button.textContent.split(": ");
-                   button.textContent = `${region}: ${count.split(" ")[0]}`;
                 });
             } else {
-                regionButtons.forEach((button) => {
-                     const [region, count] = button.textContent.split(": ");
-                    if (!count.includes("servers")) {
-                         button.textContent = `${region}: ${count}`;
-                    }
-                });
+                if (bestServerRegion === "N/A") {
+                    await fetchUserLocation();
+                }
+                joinBestServer(bestServer);
             }
-        };
+        dropdownContent.style.display = 'none';
+         dropdownArrow.textContent = '▶';
+       });
+
     
-    
-        const buttonCheckInterval = setInterval(() => {
-            const checkButtonContainer = document.querySelector('.server-buttons-container');
-            if (checkButtonContainer) {
-                adjustButtonText();
-                clearInterval(buttonCheckInterval);
-            }
-        }, 500);
-    
-        window.addEventListener('resize', adjustButtonText);
-     }
+        dropdownContent.appendChild(bestPingOption);
+      filterButton.appendChild(filterButtonBtn)
+       filterButton.appendChild(dropdownContent);
+     filterButtonBtn.addEventListener('click', (event) => {
+         event.stopPropagation();
+         dropdownContent.style.display = dropdownContent.style.display === 'none' ? 'block' : 'none';
+          dropdownArrow.textContent = dropdownContent.style.display === 'none' ? '▶' : '▼';
+    });
+
+   document.addEventListener('click', () => {
+         dropdownContent.style.display = 'none';
+        dropdownArrow.textContent = '▶';
+    });
+
+    buttonContainer.appendChild(filterButton)
+    const uniqueRegions = new Set();
+    for (const serverId in storedServerData[placeId]) {
+        const server = storedServerData[placeId][serverId];
+        let storedRegion = mapStateToRegion(server);
+           if (storedRegion){
+               uniqueRegions.add(storedRegion);
+           }
+      }
+       for (const serverId in serverLocations) {
+           const server = serverLocations[serverId];
+            let currentRegion = mapStateToRegion(server);
+                 if (currentRegion){
+                       uniqueRegions.add(currentRegion);
+                  }
+       }
+    const regionButtons = [];
+    for (const region of uniqueRegions) {
+         let serverCount = regionCounts[region] || 0;
+       let storedServerCount = 0;
+          if (storedServerData && storedServerData[placeId]) {
+              for (const serverId in storedServerData[placeId]) {
+                    const server = storedServerData[placeId][serverId]
+                     let storedRegion =  mapStateToRegion(server);
+                           if (storedRegion === region && !server.likelyInactive){
+                                let isNewServer = false;
+                                    for (const foundServer of allServers){
+                                           if (foundServer.id === serverId) {
+                                               isNewServer = true;
+                                               break;
+                                            }
+                                     }
+                                 if (!isNewServer){
+                                      storedServerCount++
+                                   }
+                              }
+                }
+             }
+        const totalCount = serverCount + storedServerCount;
+        if (totalCount > 0) {
+            const button = document.createElement("button");
+             button.textContent = `${region}: ${totalCount}`;
+           button.style.padding = "10px 15px";
+           button.style.backgroundColor = "#24292e";
+           button.style.border = "1px solid #444";
+           button.style.borderRadius = "6px";
+          button.style.cursor = "pointer";
+           button.style.fontSize = "15px";
+           button.style.height = "44px";
+            button.style.fontWeight = "600";
+           button.style.color = "white";
+           button.style.flex = "1";
+             button.style.minWidth = "100px";
+           button.style.margin = "4px";
+          button.style.textAlign = "center";
+           button.style.transition = "background-color 0.3s ease, transform 0.3s ease";
+            button.addEventListener('mouseover', () => {
+                button.style.backgroundColor = "#4c5053";
+                 button.style.borderRadius = "6px";
+                 button.style.borderColor = "#24292e";
+                 button.style.transform = "scale(1.05)";
+            });
+             button.addEventListener('mouseout', () => {
+               button.style.backgroundColor = "#24292e";
+                button.style.borderRadius = "6px";
+                button.style.borderColor = "#4c5053";
+                 button.style.transform = "scale(1)";
+             });
+            button.addEventListener("click", () => {
+                joinSpecificRegionServer(region);
+            });
+              buttonContainer.appendChild(button);
+             regionButtons.push(button);
+       }
+   }
+    serverPopup.parentNode.insertBefore(buttonContainer, serverPopup.nextSibling);
+
+
+    const adjustButtonText = () => {
+        let totalWidth = 0;
+        regionButtons.forEach((button) => {
+            totalWidth += button.offsetWidth + 10;
+        });
+
+        if (totalWidth > buttonContainer.offsetWidth) {
+            regionButtons.forEach((button) => {
+                const [region, count] = button.textContent.split(": ");
+               button.textContent = `${region}: ${count.split(" ")[0]}`;
+            });
+        } else {
+            regionButtons.forEach((button) => {
+                 const [region, count] = button.textContent.split(": ");
+                if (!count.includes("servers")) {
+                     button.textContent = `${region}: ${count}`;
+                }
+            });
+        }
+    };
+
+
+    const buttonCheckInterval = setInterval(() => {
+        const checkButtonContainer = document.querySelector('.server-buttons-container');
+        if (checkButtonContainer) {
+            adjustButtonText();
+            clearInterval(buttonCheckInterval);
+        }
+    }, 1000);
+
+    window.addEventListener('resize', adjustButtonText);
+ }
+     
         function calculateDistance(lat1, lon1, lat2, lon2) {
             const earthRadius = 6371;
     
@@ -763,205 +992,250 @@ if (window.location.pathname.includes('/games/')) {
             return deg * (Math.PI / 180)
         }
     
-         function scoreServer(server, userLocation, serverLocation, fps, ping) {
-            let  locationData = serverLocation;
-               if (storedServerData[placeId] && storedServerData[placeId][server.id]){
-                    locationData = storedServerData[placeId][server.id].l;
-                 }
-             
-              const distance = calculateDistance(
-                  userLocation.latitude,
-                  userLocation.longitude,
-                  locationData?.x || locationData?.lat || 0,
-                  locationData?.y || locationData?.lon || 0
-              );
+        function scoreServer(server, serverLocation, fps, ping) {
+         
+            let locationData = serverLocation;
+            if (storedServerData[placeId] && storedServerData[placeId][server.i || server.id]) {
+                locationData = storedServerData[placeId][server.i || server.id].l;
+            }
+           
+            const userLat = userLocation?.latitude || 0;
+            const userLon = userLocation?.longitude || 0;
+            const serverLat = locationData?.x || locationData?.lat || 0;
+            const serverLon = locationData?.y || locationData?.lon || 0;
+            const distance = calculateDistance(
+                userLat,
+                userLon,
+                serverLat,
+                serverLon
+            );
+        
     
-    
+            ping = typeof ping === 'number' && !isNaN(ping) ? ping : 0;
+            fps = typeof fps === 'number' && !isNaN(fps) ? fps : 0;
+        
+            if (fps < 0 || isNaN(fps)) {
+                return;
+            }
+            if (ping < 0 || isNaN(ping)) {
+                return;
+            }
             const normalizedFPS = (fps - 0) / (60 - 0);
             const normalizedPing = (300 - ping) / (300 - 0);
-    
             const clampedFPS = Math.max(0, Math.min(1, normalizedFPS));
             const clampedPing = Math.max(0, Math.min(1, normalizedPing));
-    
+        
             const distanceScore = Math.max(0, 1 - (distance / 3000));
-    
-    
-            const fpsWeight = 0.5;
-            const distanceWeight = 0.2;
+        
+        
+            const fpsWeight = 0.4;
+            const distanceWeight = 0.3;
             const pingWeight = 0.3;
-    
-    
+        
             const score = (fpsWeight * clampedFPS) +
-                (distanceWeight * distanceScore) +
-                (pingWeight * clampedPing);
-    
-    
-            serverScores[server.id] = score;
+            (distanceWeight * distanceScore) +
+            (pingWeight * clampedPing);
+        
+            serverScores[server.i || server.id] = score;
         }
- function joinNewestServer() {
-        if (!storedServerData[placeId]) {
-            console.log("No server data stored for this place.");
-            return;
-        }
-    
-            let newestServer = null;
-            let secondNewestServer = null;
-            let newestTimestamp = 0;
-             let secondNewestTimestamp = 0;
-    
-        for (const serverId in storedServerData[placeId]) {
-            const server = storedServerData[placeId][serverId];
-             if (server.likelyInactive) {
-                        continue;
-                  }
-             if (server.t > newestTimestamp) {
-                   secondNewestTimestamp = newestTimestamp;
-                    secondNewestServer = newestServer;
-                   newestTimestamp = server.t;
-                    newestServer = server;
-                } else if (server.t > secondNewestTimestamp) {
-                     secondNewestTimestamp = server.t;
-                     secondNewestServer = server;
-                }
-        }
-         if (newestServer) {
-            const serverId = newestServer.i;
-              if (storedServerData[placeId] && storedServerData[placeId][serverId] && storedServerData[placeId][serverId].likelyInactive) {
-                        console.log(`Server ${serverId} in place ${placeId} is marked likely inactive and not joining.`);
-                       return;
-             }
-            const url = `roblox://experiences/start?placeId=${placeId}&gameInstanceId=${serverId}`;
-            window.open(url, '_blank');
-             console.log("Joining newest server:", newestServer);
-        } else if (secondNewestServer) {
-              const serverId = secondNewestServer.id;
-              if (storedServerData[placeId] && storedServerData[placeId][serverId] && storedServerData[placeId][serverId].likelyInactive) {
-                        console.log(`Server ${serverId} in place ${placeId} is marked likely inactive and not joining.`);
-                       return;
-             }
-            const url = `roblox://experiences/start?placeId=${placeId}&gameInstanceId=${serverId}`;
-            window.open(url, '_blank');
-            console.log("Joining second newest server:", secondNewestServer);
-    
-        } else {
-             console.log("No eligible servers found to join");
-            }
-    }
-  function joinSpecificRegionServer(region) {
-    if (!storedServerData[placeId]) {
-        console.log("No server data stored for this place.");
-        return;
-    }
-    let serverToJoin = null;
-
-   // Loop through the servers found in the current fetch
-    for (const server of allServers){
-           if (storedServerData[placeId] && storedServerData[placeId][server.id] && storedServerData[placeId][server.id].likelyInactive) {
-                    continue;
-              }
-        if (serverLocations[server.id] && mapStateToRegion(serverLocations[server.id]) === region) {
-              serverToJoin = server;
-              break;
-        }
-    }
-     //If no server from this fetch has been found use stored server data.
-   if (serverToJoin == null){
-         for (const serverId in storedServerData[placeId]) {
-              const server = storedServerData[placeId][serverId];
-                  if (storedServerData[placeId][serverId].likelyInactive) {
-                    continue;
-                  }
-                if (server.l && mapStateToRegion(server.l) === region) {
-                    serverToJoin = server;
-                     break;
-                 }
-          }
-   }
-      if (serverToJoin) {
-        const serverId = serverToJoin.i;
-        const url = `roblox://experiences/start?placeId=${placeId}&gameInstanceId=${serverId}`;
-        window.open(url, '_blank');
-         console.log("Joining specific region server:", serverToJoin, " region:", region );
-    }  else {
-         console.log("No eligible servers found to join in region:", region);
-        }
-}
-async function fetchGeolocation(ip) {
-    try {
-        const response = await fetch(`https://get.geojs.io/v1/ip/country/${ip}.json`);
-        if (response.status === 200) {
-            const data = await response.json();
-            const locationData = await fetch(`https://get.geojs.io/v1/ip/geo/${ip}.json`);
-            const location = await locationData.json();
-            return {
-                name: data.name || "Unknown",
-                countryCode: data.country || "Unknown",
-                countryCode3: data.country_3 || "Unknown",
-                latitude: parseFloat(location.latitude),
-                longitude: parseFloat(location.longitude),
-                ip: data.ip || ip,
-            };
-        }
-    } catch (error) {
-        console.error(`Error fetching geolocation for IP ${ip}:`, error);
-    }
-    return null;
-}
-
-    function mapStateToRegion(data) {
-        if (data && data.countryCode === "US") {
-            return "US";
-        }
-        return data?.countryCode;
-    }
-    async function fetchUserLocation(retries = 2) {
-        try {
-            const response = await fetch("https://api.ipify.org?format=json");
-            const data = await response.json();
-            userIP = data.ip;
-            const geolocationData = await fetchGeolocation(userIP);
-            if (geolocationData) {
-                userLocation = geolocationData;
-                userRegion = mapStateToRegion(geolocationData);
-            } else {
-                if (retries > 0) {
-                    console.log("retrying location fetch...")
-                    await delay(1000)
-                    await fetchUserLocation(retries - 1)
-                }
-            }
-        } catch (error) {
-            console.error("Error fetching user location:", error);
-            if (retries > 0) {
-                console.log("retrying location fetch...")
-                await delay(1000)
-                await fetchUserLocation(retries - 1)
-            }
-        }
-    }
-
-    function checkInactiveServers(currentPlaceId, serverCount) {
-         const now = Date.now();
-        let fetchedServerIds = new Set(allServers.map(server => server.id));
-        if (storedServerData[currentPlaceId]) {
-            for (const serverId in storedServerData[currentPlaceId]) {
-                const server = storedServerData[currentPlaceId][serverId];
-                 if (serverCount < 100) {
-                    if (!fetchedServerIds.has(serverId)) {
-                        delete storedServerData[currentPlaceId][serverId];
-                    }
-                } else {
-                     if (!fetchedServerIds.has(serverId)) {
-                        if (now - server.t > INACTIVE_THRESHOLD) {
-                             delete storedServerData[currentPlaceId][serverId]
-                          } else {
-                          }
+        function findBestServer() {
+            let combinedServers = [];
+              if (allServers.length > 0 && userLocation) {
+                 combinedServers = [...allServers]
+                   if(storedServerData && storedServerData[placeId]) {
+                      for (const serverId in storedServerData[placeId]) {
+                         if (!storedServerData[placeId][serverId].likelyInactive && Date.now() - storedServerData[placeId][serverId].t < INACTIVE_THRESHOLD ){
+                                let isNewServer = false;
+                                  for (const foundServer of allServers){
+                                        if (foundServer.id === serverId){
+                                            isNewServer = true
+                                            break;
+                                        }
+                                  }
+                                 if (!isNewServer){
+                                      combinedServers.push(storedServerData[placeId][serverId])
+                                 }
+                            }
+                       }
+                   }
+              } else if (storedServerData && storedServerData[placeId] && userLocation){
+                     for (const serverId in storedServerData[placeId]) {
+                       if (!storedServerData[placeId][serverId].likelyInactive && Date.now() - storedServerData[placeId][serverId].t < INACTIVE_THRESHOLD ){
+                        combinedServers.push(storedServerData[placeId][serverId])
+                       }
                       }
+                } else {
+                  return null;
+              }
+              if(combinedServers.length === 0){
+                return null
+              }
+              let bestServer = null;
+              let bestScore = -Infinity;
+              for (const server of combinedServers) {
+                   if (storedServerData[placeId] && storedServerData[placeId][server.i || server.id] && storedServerData[placeId][server.i || server.id].likelyInactive) {
+                      continue;
+                   }
+                    let serverToScore = server;
+                    if (!server.f) {
+                        const serverId = server.i || server.id;
+                        if(storedServerData[placeId] && storedServerData[placeId][serverId]){
+                             serverToScore = storedServerData[placeId][serverId];
+                        } else {
+                            continue;
+                        }
+                     }
+                
+                    scoreServer(serverToScore, serverToScore.l, serverToScore.f, serverToScore.p);
+                  const serverScore = serverScores[server.i || server.id]
+                  if (serverScore > bestScore) {
+                      bestScore = serverScore
+                      bestServer = server;
                    }
               }
-         }
-     }
-
+              return bestServer;
+          }
+          async function joinBestServer(server) {
+        if (!userLocation){
+             const success = await fetchUserLocation()
+               if (!success){
+                    return;
+              }
+        }
+           if (!server) {
+              if (allServers.length > 0) {
+                const firstServer = allServers[0];
+                const serverId = firstServer?.id;
+               if (serverId && storedServerData[placeId] && storedServerData[placeId][serverId] && storedServerData[placeId][serverId].likelyInactive) {
+                       return;
+                    }
+                if (serverId) {
+                  if (storedServerData[placeId] && storedServerData[placeId][serverId]){
+                        const serverIp = Object.keys(serverIpMap).find(ip => serverIpMap[ip]?.country?.code === storedServerData[placeId][serverId].l?.c);
+                       const url = `roblox://experiences/start?placeId=${placeId}&gameInstanceId=${serverId}`;
+                       window.open(url, '_blank');
+                       return;
+                   }
+                      const url = `roblox://experiences/start?placeId=${placeId}&gameInstanceId=${serverId}`;
+                        window.open(url, '_blank');
+                    } else {
+                   }
+              } else {
+              }
+                return;
+           }
+        
+           const serverId = server.i || server.id;
+    
+            if (storedServerData[placeId] && storedServerData[placeId][serverId] && storedServerData[placeId][serverId].likelyInactive) {
+                return;
+             }
+            if (storedServerData[placeId] && storedServerData[placeId][serverId]){
+                   const serverIp = Object.keys(serverIpMap).find(ip => serverIpMap[ip]?.country?.code === storedServerData[placeId][serverId].l?.c);
+            }
+             if (serverId) {
+                    const url = `roblox://experiences/start?placeId=${placeId}&gameInstanceId=${serverId}`;
+                    window.open(url, '_blank');
+              } else {
+            }
+        }
+    
+        function joinNewestServer() {
+            if (!storedServerData[placeId]) {
+                return;
+            }
+        
+            let newestServer = null;
+            let secondNewestServer = null;
+            let thirdNewestServer = null;
+            let newestTimestamp = 0;
+            let secondNewestTimestamp = 0;
+             let thirdNewestTimestamp = 0;
+        
+        
+            for (const serverId in storedServerData[placeId]) {
+                const server = storedServerData[placeId][serverId];
+                if (server.likelyInactive) {
+                    continue;
+                }
+                if (server.t > newestTimestamp) {
+                      thirdNewestTimestamp = secondNewestTimestamp;
+                    thirdNewestServer = secondNewestServer;
+                    secondNewestTimestamp = newestTimestamp;
+                    secondNewestServer = newestServer;
+                    newestTimestamp = server.t;
+                    newestServer = server;
+        
+                } else if (server.t > secondNewestTimestamp) {
+                       thirdNewestTimestamp = secondNewestTimestamp;
+                    thirdNewestServer = secondNewestServer;
+                    secondNewestTimestamp = server.t;
+                    secondNewestServer = server;
+                } else if (server.t > thirdNewestTimestamp) {
+                    thirdNewestTimestamp = server.t;
+                     thirdNewestServer = server;
+                }
+            }
+        
+   
+            let serverToJoin = secondNewestServer || thirdNewestServer || newestServer;
+        
+             if (serverToJoin) {
+                const serverId = serverToJoin.i || serverToJoin.id;
+                if (storedServerData[placeId] && storedServerData[placeId][serverId] && storedServerData[placeId][serverId].likelyInactive) {
+                        return;
+                }
+               if (storedServerData[placeId] && storedServerData[placeId][serverId]){
+                    const serverIp = Object.keys(serverIpMap).find(ip => serverIpMap[ip]?.country?.code === storedServerData[placeId][serverId].l?.c);
+                }
+                const url = `roblox://experiences/start?placeId=${placeId}&gameInstanceId=${serverId}`;
+                window.open(url, '_blank');
+        
+            }
+                else {
+            }
+        }
+        function joinSpecificRegionServer(region) {
+            if (!storedServerData[placeId]) {
+                return;
+            }
+            let serverToJoin = null;
+        
+ 
+            for (const server of allServers){
+                   if (storedServerData[placeId] && storedServerData[placeId][server.id] && storedServerData[placeId][server.id].likelyInactive) {
+                            continue;
+                      }
+                 let currentRegion = mapStateToRegion(serverLocations[server.id]);
+                if (currentRegion === region) {
+                      serverToJoin = server;
+                      break;
+                }
+            }
+           if (serverToJoin == null){
+                 for (const serverId in storedServerData[placeId]) {
+                      const server = storedServerData[placeId][serverId];
+                          if (storedServerData[placeId][serverId].likelyInactive) {
+                            continue;
+                          }
+                          let storedRegion = mapStateToRegion(server);
+                        if (storedRegion === region) {
+                            serverToJoin = server;
+                             break;
+                         }
+                  }
+           }
+              if (serverToJoin) {
+                const serverId = serverToJoin.i || serverToJoin.id;
+                 if (storedServerData[placeId] && storedServerData[placeId][serverId]){
+                   const serverIp = Object.keys(serverIpMap).find(ip => serverIpMap[ip]?.country?.code === storedServerData[placeId][serverId].l?.c);
+                }
+                const url = `roblox://experiences/start?placeId=${placeId}&gameInstanceId=${serverId}`;
+                window.open(url, '_blank');
+            }  else {
+                }
+    }
+    
  function calculateUptime(timestamp) {
         const now = Date.now();
         const diff = now - timestamp;
@@ -980,127 +1254,10 @@ async function fetchGeolocation(ip) {
         return `${seconds} sec`;
     }
     
-    function scoreServer(server, userLocation, serverLocation, fps, ping) {
-        let  locationData = serverLocation;
-           if (storedServerData[placeId] && storedServerData[placeId][server.id]){
-                locationData = storedServerData[placeId][server.id].l;
-             }
-         
-          const distance = calculateDistance(
-              userLocation.latitude,
-              userLocation.longitude,
-              locationData?.x || locationData?.lat || 0,
-              locationData?.y || locationData?.lon || 0
-          );
 
+     
 
-        const normalizedFPS = (fps - 0) / (60 - 0);
-        const normalizedPing = (300 - ping) / (300 - 0);
-
-        const clampedFPS = Math.max(0, Math.min(1, normalizedFPS));
-        const clampedPing = Math.max(0, Math.min(1, normalizedPing));
-
-        const distanceScore = Math.max(0, 1 - (distance / 3000));
-
-
-        const fpsWeight = 0.5;
-        const distanceWeight = 0.2;
-        const pingWeight = 0.3;
-
-
-        const score = (fpsWeight * clampedFPS) +
-            (distanceWeight * distanceScore) +
-            (pingWeight * clampedPing);
-
-
-        serverScores[server.id] = score;
-    }
-
-    function findBestServer() {
-        let combinedServers = [];
-
-         if (allServers.length > 0 && userLocation) {
-            combinedServers = [...allServers]
-             if(storedServerData && storedServerData[placeId]) {
-                for (const serverId in storedServerData[placeId]) {
-                 if (!storedServerData[placeId][serverId].likelyInactive && Date.now() - storedServerData[placeId][serverId].lastSeenTimestamp < INACTIVE_THRESHOLD ){
-                      let isNewServer = false;
-                      for (const foundServer of allServers){
-                             if (foundServer.id === serverId){
-                                   isNewServer = true
-                                   break;
-                              }
-                      }
-                         if (!isNewServer){
-                              combinedServers.push(storedServerData[placeId][serverId])
-                         }
-                    }
-               }
-             }
-         } else if (storedServerData && storedServerData[placeId] && userLocation){
-              for (const serverId in storedServerData[placeId]) {
-                 if (!storedServerData[placeId][serverId].likelyInactive && Date.now() - storedServerData[placeId][serverId].lastSeenTimestamp < INACTIVE_THRESHOLD ){
-                  combinedServers.push(storedServerData[placeId][serverId])
-                 }
-               }
-         } else {
-           return null;
-       }
-           
-        if(combinedServers.length === 0){
-          return null
-        }
-
-
-       let bestServer = null;
-       let bestScore = -Infinity;
-        for (const server of combinedServers) {
-           if (storedServerData[placeId] && storedServerData[placeId][server.id] && storedServerData[placeId][server.id].likelyInactive) {
-                 continue;
-              }
-            const serverScore = serverScores[server.id]
-            if (serverScore > bestScore) {
-                bestScore = serverScore
-                bestServer = server;
-            }
-        }
-        return bestServer;
-   }
-
-
-    function joinBestServer(server) {
-         if (!server) {
-            console.log("No server found with a score.");
-            if (allServers.length > 0) {
-                const firstServer = allServers[0]
-                const serverId = firstServer.id;
-                  if (storedServerData[placeId] && storedServerData[placeId][serverId] && storedServerData[placeId][serverId].likelyInactive) {
-                    console.log(`Server ${serverId} in place ${placeId} is marked likely inactive and not joining.`);
-                   return
-                  }
-                if (serverId) {
-                    const url = `roblox://experiences/start?placeId=${placeId}&gameInstanceId=${serverId}`;
-                    window.open(url, '_blank');
-                } else {
-                    console.error("Server ID not found for region:");
-                }
-            }
-            return;
-        }
-        const serverId = server.i;
-          if (storedServerData[placeId] && storedServerData[placeId][serverId] && storedServerData[placeId][serverId].likelyInactive) {
-                    console.log(`Server ${serverId} in place ${placeId} is marked likely inactive and not joining.`);
-                   return
-         }
-        if (serverId) {
-            const url = `roblox://experiences/start?placeId=${placeId}&gameInstanceId=${serverId}`;
-            window.open(url, '_blank');
-        } else {
-            console.error("Server ID not found for region:");
-        }
-    }
-
-
+   
     function showUSWarningModal(proceedCallback) {
         const modalOverlay = document.createElement('div');
         modalOverlay.style.position = 'fixed';
