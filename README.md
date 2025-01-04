@@ -1,7 +1,7 @@
 # RoValra
 
-# Where's the updates?
-**So im still actively making the extension, i just cant release a new version since im waiting for google to accept it to the webstore. Sadly that takes quite a while and im unable to upload new versions until google accepts it.**
+# Google Web Store
+[RoValra](https://chromewebstore.google.com/detail/rovalra/njcickgebhnpgmoodjdgohkclfplejli)
 
 ## Sections
 - [**Features**](https://github.com/NotValra/RoValra?tab=readme-ov-file#features)
@@ -12,11 +12,11 @@
 # Features
 - **The ability to view hidden games on profiles and groups**
   
-<img src="https://github.com/user-attachments/assets/33f304cd-fbc2-4994-9f79-8ae5e6f238ec" width="500">
+<img src="https://github.com/user-attachments/assets/1c4d6106-9b8e-4ff6-8d12-face87220acb" width="500">
 
 - **The ability to view sales and revenue on spesific items.**
 
-<img src="https://github.com/user-attachments/assets/4b919c15-a7d2-4e91-9e17-2813b1d97407" width="500">
+<img src="https://github.com/user-attachments/assets/408b9093-c82b-4c1f-90ce-3cfd978047b7" width="500">
 
 - **The ability to join a server in a spesific region**
 
@@ -40,11 +40,12 @@
 - **And more to come, if you have a feature you want me to add just lmk**
 
 # To do list
+- [ ] **Adding light mode support**
 - [ ] **Redesigning my settings page**
-- [x] ~~Making a setting page so you can disable features you dont want.~~ **Coming next update**
+- [x] ~~Making a setting page so you can disable features you dont want.~~ **ADDED!**
 - [x] ~~Making the region seacher able to search more servers without making it get more rate limits.~~ **ADDED!**
 - [x] ~~Adding my Subplace extension to RoValra, but without all the bypassing features.~~ **Coming in 2.1**
-- [x] ~~Redesign most of my extensions UI making it have the games thumbnails and other stuff.~~ **Coming next update**
+- [x] ~~Redesign most of my extensions UI making it have the games thumbnails and other stuff.~~ **ADDED!**
 
 # Known incompatibilies
 <details>
