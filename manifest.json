@@ -1,94 +1,79 @@
 {
   "manifest_version": 3,
   "name": "RoValra",
-  "version": "1.8",
+  "version": "1.9",
   "description": "Features Valra wants but no other extension has 🥲",
-  "permissions": [
+    "permissions": [
       "cookies",
       "declarativeNetRequest",
-      "declarativeNetRequestFeedback",
       "storage",
       "tabs",
       "scripting",
       "alarms"
-  ],
+    ],
   "host_permissions": [
-      "https://games.roblox.com/*",
-      "https://www.roblox.com/*",
-      "https://api.github.com/repos/*",
-      "https://gamejoin.roblox.com/v1/join-game-instance",
-       "https://users.roblox.com/*"
+    "https://games.roblox.com/*",
+    "https://www.roblox.com/*",
+     "https://api.github.com/repos/*",
+      "https://gamejoin.roblox.com/v1/join-game-instance"
   ],
   "background": {
       "service_worker": "background.js"
   },
   "content_scripts": [
-      {
-          "matches": [
-              "https://www.roblox.com/*",
-              "https://gamejoin.roblox.com/v1/join-game-instance*"
-          ],
-          "js": ["content.js"]
-      },
-      {
-          "matches": ["https://www.roblox.com/*"],
-          "js": ["misc/item_sales_content.js"]
-      },
-      {
-          "matches": ["https://www.roblox.com/*"],
-          "js": ["misc/Regions_content.js"]
-      },
-      {
-          "matches": ["https://www.roblox.com/*"],
-          "js": ["misc/userSniper.js"]
-      }
+    {
+        "matches": [
+          "https://www.roblox.com/*",
+          "https://gamejoin.roblox.com/v1/join-game-instance*"
+        ],
+        "js": ["content.js"]
+     },
+    {
+       "matches": [ "https://www.roblox.com/*" ],
+       "js": ["misc/item_sales_content.js"]
+     },
+     {
+      "matches": [ "https://www.roblox.com/*" ],
+      "js": ["misc/Regions_content.js"]
+    },
+    {
+      "matches": [ "https://www.roblox.com/*" ],
+      "js": ["misc/userSniper.js"]
+    }
   ],
-  "declarative_net_request": {
-      "rule_resources": [
-          {
-              "id": "ruleset_1",
-              "enabled": true,
-              "path": "rules.json"
-          },
-          {
+     "declarative_net_request": {
+        "rule_resources": [
+            {
+                "id": "ruleset_1",
+                "enabled": true,
+                "path": "rules.json"
+            },
+            {
               "id": "ruleset_2",
               "enabled": false,
               "path": "regionRules.json"
-          },
-         {
-              "id": "ruleset_3",
-              "enabled": false,
-              "path": "countryCodeRules.json"
-         }
-      ]
-  },
-    "web_accessible_resources": [
-    {
-      "resources": [
-          "HiddenGames/none-btroblox.js",
-          "HiddenGames/group_games.js",
-          "HiddenGames/user_games.js",
-           "misc/style.js",
-           "misc/utils.js",
-            "misc/joinScript.js",
-            "ServerList.json"
-      ],
-      "matches": [
-        "https://www.roblox.com/*"
-      ]
-    }
+            }
+        ]
+    },
+  "web_accessible_resources": [
+      {
+          "resources": [
+            "HiddenGames/none-btroblox.js",
+              "HiddenGames/group_games.js",
+            "HiddenGames/user_games.js",
+            "misc/style.js",
+             "misc/utils.js",
+             "misc/joinScript.js"
+            ],
+           "matches": ["https://www.roblox.com/*"]
+      }
   ],
   "action": {
-      "default_popup": "Popup/popup.html",
-      "default_icon": {
-          "16": "Assets/icon-16.png",
-          "48": "Assets/icon-48.png",
-          "128": "Assets/icon-128.png"
-      }
-  },
-  "icons": {
+    "default_popup": "Popup/popup.html",
+    "default_icon": {
       "16": "Assets/icon-16.png",
       "48": "Assets/icon-48.png",
       "128": "Assets/icon-128.png"
     }
+  }
 }
