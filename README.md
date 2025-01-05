@@ -41,7 +41,7 @@
 
 # To do list
 - [ ] **Adding light mode support**
-- [ ] **Redesigning my settings page**
+- [x] ~~**Redesigning my settings page**~~ **Coming in 2.1.1**
 - [x] ~~Making a setting page so you can disable features you dont want.~~ **ADDED!**
 - [x] ~~Making the region seacher able to search more servers without making it get more rate limits.~~ **ADDED!**
 - [x] ~~Adding my Subplace extension to RoValra, but without all the bypassing features.~~ **Coming in 2.1**
