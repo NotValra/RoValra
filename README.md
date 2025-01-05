@@ -51,9 +51,10 @@
 <details>
   <summary>Expand</summary>
   
-- **The extension is unable to show the hidden games of groups if you use [RoSeal](https://chromewebstore.google.com/detail/roseal-augmented-roblox-e/hfjngafpndganmdggnapblamgbfjhnof?hl=en) with the "Seamless navigation of communities" setting on.**
+- **The hidden games of groups bugs out a bit if you use [RoSeal](https://chromewebstore.google.com/detail/roseal-augmented-roblox-e/hfjngafpndganmdggnapblamgbfjhnof?hl=en) with the "Seamless navigation of communities" setting on.**
 
 - **Some servers might not show like France (Might actually be cuz Roblox either change the servers ip or stopped running them)**
+
 - **If you are located in the US the Best Ping button wont work. Dw there is a warning if you press it just in case**
 </details>
 
@@ -80,4 +81,5 @@
 - **Extra coding help when chatgpt and me didnt know how: [Aspect](https://github.com/Aspectise)**
   
 - **Extensions logo is gilbert, which is a fish I caught in [Fisch](https://www.roblox.com/games/16732694052/Fisch)**
-- **7_lz helped me a lot with the process of switching away from third party APIs by providing me with the json and just general help**
+- **7_lz on dc helped me a lot with the process of switching away from third party APIs by providing me with the json and just general help**
+- **Credit to coweggs on dc for coming up with the name RoValra, it was just too funny I had to use it**
