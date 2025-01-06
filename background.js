@@ -187,18 +187,16 @@ const repoOwner = "";
 const repoName = "";
 const githubApiUrl = ``;
 let isDebugMode = false;
-
+//Old updating logic that doesnt matter anymore
 async function fetchLatestRelease() {
     try {
         const response = await fetch(githubApiUrl);
         if (!response.ok) {
-            console.error("Failed to fetch latest release:", response.status, response.statusText);
             return null;
         }
         const data = await response.json();
         return data.tag_name.startsWith('v') ? data.tag_name.substring(1) : data.tag_name;
     } catch (error) {
-        console.error("Error fetching latest release:", error);
         return null;
     }
 }
@@ -206,12 +204,10 @@ async function fetchLatestRelease() {
 async function applyUpdate() {
     const latestVersion = await fetchLatestRelease();
     if (latestVersion && compareVersions(latestVersion, currentVersion) > 0) {
-        console.log("Automatic Update: Applying new version", latestVersion);
         chrome.tabs.create({
             url: ``
         });
     } else {
-        console.log("No update available for automatic update.");
     }
 }
 function compareVersions(v1, v2) {
@@ -227,28 +223,22 @@ function compareVersions(v1, v2) {
 }
 
 async function checkForUpdates(bypassDoNotShow = false) {
-    console.log("checkForUpdates called, bypassDoNotShow:", bypassDoNotShow);
 
     const latestVersion = await fetchLatestRelease();
     chrome.storage.local.get(['doNotShowAgain', 'dismissedVersion'], (result) => {
         if (result.doNotShowAgain === true && result.dismissedVersion === latestVersion && !bypassDoNotShow) {
-            console.log("do not show again preference is true for current version", latestVersion);
             return;
         }
 
         if (result.dismissedVersion !== latestVersion)
             chrome.storage.local.remove(['doNotShowAgain', 'dismissedVersion']);
 
-        console.log("Latest version:", latestVersion);
 
         if (latestVersion) {
-            console.log("Current Version:", currentVersion, "Latest Version:", latestVersion);
 
             if (isDebugMode || compareVersions(latestVersion, currentVersion) > 0 || bypassDoNotShow) {
-                console.log("Update available!");
                 applyUpdate();
             } else {
-                console.log("No update available.");
             }
         }
     });

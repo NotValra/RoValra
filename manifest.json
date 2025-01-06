@@ -14,7 +14,7 @@
       "js": [ "content.js" ],
       "matches": [ "https://www.roblox.com/*", "https://gamejoin.roblox.com/v1/join-game-instance*" ]
    }, {
-      "js": [ "misc/Regions_content.js" ],
+      "js": [ "Games/Regions_content.js" ],
       "matches": [ "https://www.roblox.com/*" ]
    } ],
    "declarative_net_request": {
@@ -40,9 +40,9 @@
    "name": "RoValra",
    "permissions": [ "cookies", "declarativeNetRequest", "storage", "tabs" ],
    "update_url": "https://clients2.google.com/service/update2/crx",
-   "version": "2",
+   "version": "2.1",
    "web_accessible_resources": [ {
       "matches": [ "https://www.roblox.com/*" ],
-      "resources": [ "HiddenGames/none-btroblox.js", "HiddenGames/group_games.js", "HiddenGames/user_games.js", "misc/userSniper.js", "misc/item_sales_content.js", "misc/style.js", "misc/utils.js", "misc/Regions_content.js", "misc/joinScript.js", "data/ServerList.json", "data/items.json" ]
+      "resources": [ "HiddenGames/none-btroblox.js", "HiddenGames/group_games.js", "HiddenGames/user_games.js", "misc/userSniper.js", "misc/item_sales_content.js", "misc/style.js", "misc/utils.js", "Games/Regions_content.js", "Games/Subplaces.js", "misc/joinScript.js", "data/ServerList.json", "data/items.json", "Avatar/R6Warning.js", "Avatar/R6Fix.js" ]
    } ]
 }

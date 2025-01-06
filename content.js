@@ -1,5 +1,5 @@
 console.log("Content.js: Content script started.");
-// Main brain that makes the settings actually work
+
 const loadScript = (src, dataAttributes = {}) => {
     return new Promise((resolve, reject) => {
         const script = document.createElement('script');
@@ -26,22 +26,80 @@ const loadScript = (src, dataAttributes = {}) => {
 
         await loadScript('misc/style.js');
         console.log('Content.js: style.js loaded.');
-        // Only the first five are actual features i just wanted to see if it was easily expandable 
-        const settings = await chrome.storage.local.get({
+
+        let settings = await chrome.storage.local.get({
             itemSalesEnabled: true,
             groupGamesEnabled: true,
             userGamesEnabled: true,
             userSniperEnabled: true,
-            regionSelectorEnabled: false,
-            actionTab: true,
-            backgroundTab: true,
-            pinnedGroups: false,
-            improvedSearch: true,
-            messagePing: true
+            regionSelectorEnabled: true,
+            subplacesEnabled: true,
+            forceR6Enabled: true,
+            fixR6Enabled: false,
+            regionSelectorInitialized: false,
+            regionSelectorFirstTime: true, //Track if this is the very first time using the extension
         });
-        console.log("Content.js: Loaded settings:", settings);
 
-        const currentPath = window.location.pathname;
+         console.log("Content.js: Loaded settings:", settings);
+
+         const currentPath = window.location.pathname;
+
+          // First-time use logic for region selector
+        if (settings.regionSelectorFirstTime) {
+            console.log("Content.js: First time using extension");
+
+           // Update settings to the correct state
+            if (settings.regionSelectorEnabled) {
+                console.log("Content.js: Region selector is enabled, loading once.");
+                await loadScript('Games/Regions_content.js', { serverListURL: chrome.runtime.getURL('data/ServerList.json') });
+
+           } else {
+                console.log("Content.js: Region selector is disabled. Skipping first load");
+           }
+
+          console.log("Content.js: Disabling region selector");
+            await chrome.storage.local.set({ regionSelectorEnabled: false,  regionSelectorInitialized: 'pendingRefresh', regionSelectorFirstTime: false});
+
+
+            // Refresh the page after settings have been saved
+            console.log("Content.js: Refreshing page to complete region selector initialization");
+            window.location.reload();
+            return; // Stop execution here as the page will reload.
+       }
+
+      if(settings.regionSelectorInitialized === 'pendingRefresh')
+        {
+             console.log("Content.js: Page Refreshed, loading second time.");
+              await chrome.storage.local.set({  regionSelectorInitialized: true });
+
+              if (settings.regionSelectorEnabled) {
+                   console.log("Content.js: Region selector enabled, loading second time.")
+                 await loadScript('Games/Regions_content.js', { serverListURL: chrome.runtime.getURL('data/ServerList.json') });
+
+              } else {
+                  console.log("Content.js: Region selector disabled, skipping second load.");
+             }
+
+
+            // Re-enable the setting
+            console.log("Content.js: Enabling region selector.");
+             await chrome.storage.local.set({ regionSelectorEnabled: true });
+             console.log("Content.js: Region selector initialized.");
+
+                // Wait 1 second and then refresh the page again
+             console.log("Content.js: Waiting 1 second before refreshing again");
+             setTimeout(() => {
+                window.location.reload();
+             }, 100);
+            return;
+        } else {
+              if (settings.regionSelectorEnabled) {
+                console.log("Content.js: Region Selector: Enabled, loading script");
+                   await loadScript('Games/Regions_content.js', { serverListURL: chrome.runtime.getURL('data/ServerList.json') });
+              } else {
+                 console.log("Content.js: Region Selector: Disabled");
+            }
+        }
 
         if (currentPath.startsWith('/catalog') || currentPath.startsWith('/bundles')) {
             if (settings.itemSalesEnabled) {
@@ -72,16 +130,34 @@ const loadScript = (src, dataAttributes = {}) => {
                 console.log("Content.js: User Sniper: Disabled");
             }
         }
-        if (settings.regionSelectorEnabled) {
-            console.log("Content.js: Region Selector: Enabled, loading script");
-            await loadScript('misc/Regions_content.js', { serverListURL: chrome.runtime.getURL('data/ServerList.json') });
+         else if (currentPath.startsWith('/games/')) {
+            if (settings.subplacesEnabled) {
+                console.log("Content.js: Subplaces: Loading");
+                await loadScript('Games/Subplaces.js');
+            }
+            else {
+                console.log("Content.js: Subplaces: Disabled")
+            }
+        }
+
+         if (settings.forceR6Enabled) {
+            console.log("Content.js: Disable R6 Warning: Enabled, loading script");
+            await loadScript('Avatar/R6Warning.js');
         } else {
-            console.log("Content.js: Region Selector: Disabled");
+            console.log("Content.js: Disable R6 Warning: Disabled");
+        }
+
+        if (settings.fixR6Enabled) {
+            console.log("Content.js: R6 Fix: Enabled, loading script");
+            await loadScript('Avatar/R6Fix.js');
+        } else {
+            console.log("Content.js: R6 Fix: Disabled");
         }
 
         window.addEventListener('loadNonBtroblox', () => {
             loadNonBtrobloxFile();
         });
+
 
         const retryFindElement = (selector, maxRetries, retryInterval, callback, fallbackSelector) => {
             let retries = 0;
@@ -102,7 +178,7 @@ const loadScript = (src, dataAttributes = {}) => {
             }, retryInterval);
         };
 
-        
+
     } catch (error) {
         console.error("Content.js: An error occurred:", error);
     }
