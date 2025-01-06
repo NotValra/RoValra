@@ -40,11 +40,11 @@
 - **And more to come, if you have a feature you want me to add just lmk**
 
 # To do list
-- [ ] **Adding light mode support (Limited support will be added in 2.1.1 by adding a dark background to every feature.)**
+- [x] ~~**Adding light mode support**~~ **Coming in 2.1.1**
 - [x] ~~**Redesigning my settings page**~~ **Coming in 2.1.1**
 - [x] ~~Making a setting page so you can disable features you dont want.~~ **ADDED!**
 - [x] ~~Making the region seacher able to search more servers without making it get more rate limits.~~ **ADDED!**
-- [x] ~~Adding my Subplace extension to RoValra, but without all the bypassing features.~~ **Coming in 2.1**
+- [x] ~~Adding my Subplace extension to RoValra, but without all the bypassing features.~~ **ADDED TO GOOGLE WEB STORE!**
 - [x] ~~Redesign most of my extensions UI making it have the games thumbnails and other stuff.~~ **ADDED!**
 
 # Known incompatibilies
