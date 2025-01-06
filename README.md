@@ -1,6 +1,6 @@
 # RoValra
 
-# Google Web Store
+# Chrome Web Store
 [RoValra](https://chromewebstore.google.com/detail/rovalra/njcickgebhnpgmoodjdgohkclfplejli)
 
 ## Sections
