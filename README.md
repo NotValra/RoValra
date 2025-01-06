@@ -40,7 +40,7 @@
 - **And more to come, if you have a feature you want me to add just lmk**
 
 # To do list
-- [ ] **Adding light mode support**
+- [ ] **Adding light mode support (Limited support will be added in 2.1.1 by adding a dark background to every feature.)**
 - [x] ~~**Redesigning my settings page**~~ **Coming in 2.1.1**
 - [x] ~~Making a setting page so you can disable features you dont want.~~ **ADDED!**
 - [x] ~~Making the region seacher able to search more servers without making it get more rate limits.~~ **ADDED!**
