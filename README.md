@@ -10,30 +10,23 @@
 - [**Credits**](https://github.com/NotValra/RoValra?tab=readme-ov-file#credits) 
 
 # Features
-- **The ability to view hidden games on profiles and groups**
-  
-<img src="https://github.com/user-attachments/assets/1c4d6106-9b8e-4ff6-8d12-face87220acb" width="500">
-
-- **The ability to view sales and revenue on spesific items.**
-
-<img src="https://github.com/user-attachments/assets/408b9093-c82b-4c1f-90ce-3cfd978047b7" width="500">
-
-- **The ability to join a server in a spesific region**
-
-<img src="https://github.com/user-attachments/assets/0e62016c-04dc-494c-b2be-5f07a886362c" width="500">
-
-- **The ability to snipe users.**
-<img src="https://github.com/user-attachments/assets/7fda76de-8b4c-4647-b9a1-8d5cc56bf2e2" width="500">
-<details>
-  <summary>Explained in more detail ↓</summary>
-  
-  - Basically this feature allows you to join anyone with their joins on or whose on ur friends list instantly.
-  
-  - lets say for example you wanna join someone whose streaming a game with viewers, you could just use the snipe feature, and you would almost instantly join (Depending on your pc ofc)
-  - Confirmed to work with popular peoeple like kreekcraft.
-</details>
-
-
+- **Games**
+    - **Shows hidden games on profiles and groups**
+    - **Join a server in a specific region**
+    - **Shows Subplaces of a game**
+- **Items**
+    - **Shows sales and revenue on spesific items.**
+- **Profile**
+  - **User Sniper**
+  - <details>
+    <summary>User sniper explained.</summary>
+    Basically this feature allows you to join anyone with their joins on or whose on ur friends list instantly.
+    
+    lets say for example you wanna join someone whose streaming a game with viewers, you could just use the snipe feature, and you would almost instantly join (Depending on your pc ofc)
+  </details>
+- **Avatar**
+    - **Remove R6 Warning**
+    - **R6 Fix. Stops Roblox from automatically switching your character to R15 when equipping dynamic heads.**
 
 
 
