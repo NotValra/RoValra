@@ -29,7 +29,6 @@ style.textContent = `
     }
     .game-name {
         display: inline-block;
-        color: white;
     }
     .game-item:hover {
         box-shadow: 0 0 15px 5px rgba(255, 255, 255, 0.7);
@@ -276,17 +275,7 @@ style.textContent = `
         border: 1px solid #c6cbd1;
         color: #24292e;
 }
-.server-buttons-container {
-   display: flex;
-   flex-wrap: wrap;
-   gap: 9px;
-   margin-top: 10px;
-   padding: 8px;
-   background-color: #393b3d;
-    border-radius: 6px;
-   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-   margin-bottom: 8px;
-}
+
 /* Buttons Container Light Mode */
  .server-buttons-container.light-mode {
      background-color: #f0f3f6;

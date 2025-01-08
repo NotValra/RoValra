@@ -73,6 +73,7 @@ if (window.location.pathname.includes('/games/')) {
                 config.use_url_contains = false;
             }
         } else {
+            // Ngl i dont know exactly what this is for... BUtttttttttttttttttttttttttt number 1 rule of coding if it works and u dont know why DONT TOUCH IT
             if (localStorage.getItem('targetPage') && localStorage.getItem('modifyTable')) {
                 let headers = [];
                 let modifyTable = JSON.parse(localStorage.getItem('modifyTable'));
@@ -129,16 +130,20 @@ if (window.location.pathname.includes('/games/')) {
     function storeInBrowserStorage(item, callback_function) {
         chrome.storage.local.set(item, callback_function);
     }
+    let regionSelectorShowServerListOverlay = true;
+
     async function updateRegionSelectorState() {
         const settings = await new Promise((resolve) => {
             chrome.storage.local.get({
                 regionSelectorEnabled: false,
+                showServerListOverlay: true, 
             }, (result) => {
                 resolve(result);
             });
         });
 
         regionSelectorEnabled = settings.regionSelectorEnabled;
+        regionSelectorShowServerListOverlay = settings.showServerListOverlay; 
         if (serverPopup) {
             serverPopup.style.display = regionSelectorEnabled ? '' : 'none';
         }
@@ -615,13 +620,16 @@ function handleRateLimitedState(limited) {
            }
     }
     function updatePopup(retries = 5) {
-        const serverPopup = document.querySelector(".nav.nav-tabs");
+        let serverPopup = document.querySelector(".tab-pane.game-instances.section-content.active");
         if (!serverPopup) {
+             serverPopup = document.querySelector(".tab-pane.game-instances.active");
+            if(!serverPopup) {
             if (retries > 0) {
                 setTimeout(() => updatePopup(retries - 1), 1000);
             } else {
             }
             return;
+        }
         }
     
         const existingButtonContainer = document.querySelector(".server-buttons-container");
@@ -633,22 +641,23 @@ function handleRateLimitedState(limited) {
         buttonContainer.classList.add("server-buttons-container");
         buttonContainer.style.display = "flex";
         buttonContainer.style.flexWrap = "wrap";
-        buttonContainer.style.gap = "9px";
-        buttonContainer.style.marginTop = "10px";
-        buttonContainer.style.padding = "8px";
-        buttonContainer.style.backgroundColor = "#393b3d";
+        buttonContainer.style.gap = "5px";
+        buttonContainer.style.marginTop = "0px";
+        buttonContainer.style.padding = "0px";
+        const isDarkMode = document.body.classList.contains('dark-mode');
+        buttonContainer.style.backgroundColor = isDarkMode ? "#393b3d" : "#fff";
         buttonContainer.style.borderRadius = "6px";
-        buttonContainer.style.boxShadow = "0 4px 6px rgba(0, 0, 0, 0.1)";
-        buttonContainer.style.marginBottom = "8px";
+    
+        buttonContainer.style.marginBottom = "15px";
         const filterButton = document.createElement("div");
         filterButton.style.position = "relative";
         filterButton.style.display = "inline-block";
-        filterButton.style.marginBottom = '5px';
+        filterButton.style.margin = '4px';
         const filterButtonBtn = document.createElement("button");
         filterButtonBtn.textContent = "Filter";
         filterButtonBtn.style.padding = "10px 15px";
-        filterButtonBtn.style.backgroundColor = "#0366d6";
-        filterButtonBtn.style.border = "1px solid #0366d6";
+        filterButtonBtn.style.backgroundColor = isDarkMode ? "#0366d6" : "#1a73e8";
+        filterButtonBtn.style.border = `1px solid ${isDarkMode ? "#0366d6" : "#1a73e8"}`;
         filterButtonBtn.style.borderRadius = "6px";
         filterButtonBtn.style.cursor = "pointer";
         filterButtonBtn.style.fontSize = "15px";
@@ -657,7 +666,6 @@ function handleRateLimitedState(limited) {
         filterButtonBtn.style.flex = "1 1 0%";
         filterButtonBtn.style.minWidth = "80px";
         filterButtonBtn.style.margin = "0px";
-        filterButtonBtn.style.marginTop = "5px";
         filterButtonBtn.style.textAlign = "center";
         filterButtonBtn.style.transition = "background-color 0.3s, transform 0.3s";
         filterButtonBtn.style.transform = "scale(1)";
@@ -669,17 +677,17 @@ function handleRateLimitedState(limited) {
         dropdownArrow.style.marginLeft = "5px";
         filterButtonBtn.appendChild(dropdownArrow);
         filterButtonBtn.addEventListener("mouseover", () => {
-            filterButtonBtn.style.backgroundColor = "#0366d6";
+            filterButtonBtn.style.backgroundColor = isDarkMode ? "#0366d6" : "#1a73e8";
             filterButtonBtn.style.borderRadius = "6px";
-            filterButtonBtn.style.borderColor = "#0366d6";
+            filterButtonBtn.style.borderColor = isDarkMode ? "#0366d6" : "#1a73e8";
             filterButtonBtn.style.transform = "scale(1.05)";
     
     
         });
         filterButtonBtn.addEventListener("mouseout", () => {
-            filterButtonBtn.style.backgroundColor = "#0366d6";
+            filterButtonBtn.style.backgroundColor = isDarkMode ? "#0366d6" : "#1a73e8";
             filterButtonBtn.style.borderRadius = "6px";
-            filterButtonBtn.style.borderColor = "#0366d6";
+            filterButtonBtn.style.borderColor = isDarkMode ? "#0366d6" : "#1a73e8";
             filterButtonBtn.style.transform = "scale(1)";
         });
         const dropdownContent = document.createElement('div');
@@ -687,8 +695,8 @@ function handleRateLimitedState(limited) {
         dropdownContent.style.position = 'absolute';
         dropdownContent.style.top = 'calc(100% + 3px)';
         dropdownContent.style.left = '0';
-        dropdownContent.style.backgroundColor = '#393b3d';
-        dropdownContent.style.border = '1px solid #444';
+        dropdownContent.style.backgroundColor = isDarkMode ? '#393b3d' : '#f0f0f0';
+        dropdownContent.style.border = isDarkMode ? '1px solid #444' : '1px solid #ddd';
         dropdownContent.style.borderRadius = '6px';
         dropdownContent.style.zIndex = '1001';
         dropdownContent.style.padding = '5px';
@@ -701,8 +709,8 @@ function handleRateLimitedState(limited) {
         bestPingOption.style.width = '100%';
         bestPingOption.style.padding = '8px';
         bestPingOption.style.border = 'none';
-        bestPingOption.style.backgroundColor = '#24292e';
-        bestPingOption.style.color = 'white';
+        bestPingOption.style.backgroundColor = isDarkMode ? '#24292e' : '#fff';
+        bestPingOption.style.color = isDarkMode ? 'white' : 'rgb(57, 59, 61)';
         bestPingOption.style.cursor = 'pointer';
         bestPingOption.style.textAlign = 'left';
         bestPingOption.style.fontSize = '15px';
@@ -710,36 +718,36 @@ function handleRateLimitedState(limited) {
         bestPingOption.style.transition = "background-color 0.3s ease";
     
     
-          const bestPingTooltip = document.createElement('div');
-          const bestPingTooltipTitle = document.createElement('div');
-            bestPingTooltipTitle.style.fontWeight = 'bold';
-           
-          if (rateLimited) {
-              bestPingTooltipTitle.textContent = 'The API is being rate limited!';
-           }
-             bestPingTooltip.appendChild(bestPingTooltipTitle)
-          const bestPingTooltipSubtitle = document.createElement('div');
-          if (!rateLimited) {
-                 bestPingTooltipSubtitle.textContent = 'This will automatically find the server likely to have the least latency and lag.';
-          } else {
-              bestPingTooltipSubtitle.textContent = "Please wait a few seconds before trying again."
-          }
+        const bestPingTooltip = document.createElement('div');
+        const bestPingTooltipTitle = document.createElement('div');
+        bestPingTooltipTitle.style.fontWeight = 'bold';
     
-          bestPingTooltipSubtitle.style.fontSize = '14px'
-          bestPingTooltipSubtitle.style.fontWeight = 'bold'
-     bestPingTooltip.appendChild(bestPingTooltipSubtitle)
-             bestPingTooltip.style.position = "absolute";
-             bestPingTooltip.style.left = '105%';
-             bestPingTooltip.style.top = '0';
-              bestPingTooltip.style.padding = '5px';
-              bestPingTooltip.style.backgroundColor = "#212323";
-               bestPingTooltip.style.border = "1px solid #444";
-             bestPingTooltip.style.borderRadius = "6px";
-              bestPingTooltip.style.display = 'none';
-             bestPingTooltip.style.width = "150%";
-             bestPingTooltip.style.maxWidth = "250px";
-             bestPingTooltip.style.maxHeight = "100px";
-            bestPingOption.appendChild(bestPingTooltip)
+        if (rateLimited) {
+            bestPingTooltipTitle.textContent = 'The API is being rate limited!';
+        }
+        bestPingTooltip.appendChild(bestPingTooltipTitle)
+        const bestPingTooltipSubtitle = document.createElement('div');
+        if (!rateLimited) {
+            bestPingTooltipSubtitle.textContent = 'This will automatically find the server likely to have the least latency and lag.';
+        } else {
+            bestPingTooltipSubtitle.textContent = "Please wait a few seconds before trying again."
+        }
+    
+        bestPingTooltipSubtitle.style.fontSize = '14px'
+        bestPingTooltipSubtitle.style.fontWeight = 'bold'
+        bestPingTooltip.appendChild(bestPingTooltipSubtitle)
+        bestPingTooltip.style.position = "absolute";
+        bestPingTooltip.style.left = '105%';
+        bestPingTooltip.style.top = '0';
+        bestPingTooltip.style.padding = '5px';
+        bestPingTooltip.style.backgroundColor = isDarkMode ? "#212323" : "#fff";
+        bestPingTooltip.style.border = isDarkMode ? "1px solid #444" : "1px solid #ddd";
+        bestPingTooltip.style.borderRadius = "6px";
+        bestPingTooltip.style.display = 'none';
+        bestPingTooltip.style.width = "150%";
+        bestPingTooltip.style.maxWidth = "250px";
+        bestPingTooltip.style.maxHeight = "100px";
+        bestPingOption.appendChild(bestPingTooltip)
     
     
         if (rateLimited) {
@@ -747,27 +755,27 @@ function handleRateLimitedState(limited) {
             bestPingOption.style.border = "1px solid #555";
             bestPingOption.style.cursor = "not-allowed";
             bestPingOption.disabled = true;
-              bestPingOption.addEventListener('mouseover', () => {
-              bestPingTooltip.style.display = 'block';
-              });
+            bestPingOption.addEventListener('mouseover', () => {
+                bestPingTooltip.style.display = 'block';
+            });
             bestPingOption.addEventListener('mouseout', () => {
-              bestPingTooltip.style.display = 'none';
+                bestPingTooltip.style.display = 'none';
             });
         } else {
             bestPingOption.disabled = false;
-            bestPingOption.style.backgroundColor = '#24292e';
+            bestPingOption.style.backgroundColor = isDarkMode ? '#24292e' : '#fff';
             bestPingOption.style.border = "none";
             bestPingOption.style.cursor = "pointer";
-             bestPingOption.addEventListener('mouseover', () => {
-                  bestPingOption.style.backgroundColor = '#4c5053';
-                    bestPingOption.style.borderRadius = "6px";
-                   bestPingOption.style.borderColor = "#24292e";
-                    bestPingTooltip.style.display = 'block';
-              });
+            bestPingOption.addEventListener('mouseover', () => {
+                bestPingOption.style.backgroundColor = isDarkMode ? '#4c5053' : '#f0f0f0';
+                bestPingOption.style.borderRadius = "6px";
+                bestPingOption.style.borderColor = isDarkMode ? '#24292e' : '#f0f0f0';
+                bestPingTooltip.style.display = 'block';
+            });
             bestPingOption.addEventListener('mouseout', () => {
-                bestPingOption.style.backgroundColor = '#24292e';
-                 bestPingOption.style.borderRadius = "6px";
-                 bestPingOption.style.borderColor = "#4c5053";
+                bestPingOption.style.backgroundColor = isDarkMode ? '#24292e' : '#fff';
+                bestPingOption.style.borderRadius = "6px";
+                bestPingOption.style.borderColor = isDarkMode ? '#4c5053' : '#f0f0f0';
                 bestPingTooltip.style.display = 'none';
             });
         }
@@ -877,39 +885,43 @@ function handleRateLimitedState(limited) {
                 const button = document.createElement("button");
                 button.textContent = `${region}: ${totalCount}`;
                 button.style.padding = "10px 15px";
-                button.style.backgroundColor = "#24292e";
-                button.style.border = "1px solid #444";
+                button.style.backgroundColor = isDarkMode ? '#24292e' : '#fff';
+                button.style.border = isDarkMode ? '1px solid #444' : '1px solid #ddd';
                 button.style.borderRadius = "6px";
                 button.style.cursor = "pointer";
                 button.style.fontSize = "15px";
                 button.style.height = "44px";
                 button.style.fontWeight = "600";
-                button.style.color = "white";
+                button.style.color = isDarkMode ? "white" : "rgb(57, 59, 61)";
                 button.style.flex = "1";
                 button.style.minWidth = "100px";
                 button.style.margin = "4px";
                 button.style.textAlign = "center";
                 button.style.transition = "background-color 0.3s ease, transform 0.3s ease";
                 button.addEventListener('mouseover', () => {
-                    button.style.backgroundColor = "#4c5053";
+                    button.style.backgroundColor = isDarkMode ? "#4c5053" : "#f0f0f0";
                     button.style.borderRadius = "6px";
-                    button.style.borderColor = "#24292e";
+                    button.style.borderColor = isDarkMode ? "#24292e" : "#f0f0f0";
                     button.style.transform = "scale(1.05)";
                 });
                 button.addEventListener('mouseout', () => {
-                    button.style.backgroundColor = "#24292e";
+                    button.style.backgroundColor = isDarkMode ? '#24292e' : '#fff';
                     button.style.borderRadius = "6px";
-                    button.style.borderColor = "#4c5053";
+                    button.style.borderColor = isDarkMode ? "#4c5053" : "#f0f0f0";
                     button.style.transform = "scale(1)";
                 });
                 button.addEventListener("click", () => {
-                    joinSpecificRegionServer(region);
+                    if (regionSelectorShowServerListOverlay) {
+                        showServerListOverlay(region);
+                    } else {
+                        joinSpecificRegion(region);
+                    }
                 });
                 buttonContainer.appendChild(button);
                 regionButtons.push(button);
             }
         }
-        serverPopup.parentNode.insertBefore(buttonContainer, serverPopup.nextSibling);
+        serverPopup.insertBefore(buttonContainer, serverPopup.childNodes[0]);
     
     
         const adjustButtonText = () => {
@@ -1126,50 +1138,64 @@ function handleRateLimitedState(limited) {
         
             return bestServer;
         }
-          async function joinBestServer(server) {
-        if (!userLocation){
-             const success = await fetchUserLocation()
-               if (!success){
-                    return;
+        async function joinBestServer(server) {
+            if (!userLocation) {
+              const success = await fetchUserLocation();
+              if (!success) {
+                return;
               }
-        }
-           if (!server) {
+            }
+            if (!server) {
               if (allServers.length > 0) {
                 const firstServer = allServers[0];
                 const serverId = firstServer?.id;
-               if (serverId && storedServerData[placeId] && storedServerData[placeId][serverId] && storedServerData[placeId][serverId].likelyInactive) {
-                       return;
-                    }
+                if (
+                  serverId &&
+                  storedServerData[placeId] &&
+                  storedServerData[placeId][serverId] &&
+                  storedServerData[placeId][serverId].likelyInactive
+                ) {
+                  return;
+                }
                 if (serverId) {
-                  if (storedServerData[placeId] && storedServerData[placeId][serverId]){
-                        const serverIp = Object.keys(serverIpMap).find(ip => serverIpMap[ip]?.country?.code === storedServerData[placeId][serverId].l?.c);
-                       const url = `roblox://experiences/start?placeId=${placeId}&gameInstanceId=${serverId}`;
-                       window.open(url, '_blank');
-                       return;
-                   }
-                      const url = `roblox://experiences/start?placeId=${placeId}&gameInstanceId=${serverId}`;
-                        window.open(url, '_blank');
-                    } else {
-                   }
+                  if (storedServerData[placeId] && storedServerData[placeId][serverId]) {
+                    const serverIp = Object.keys(serverIpMap).find(
+                      (ip) =>
+                        serverIpMap[ip]?.country?.code ===
+                        storedServerData[placeId][serverId].l?.c
+                    );
+                    const url = `roblox://experiences/start?placeId=${placeId}&gameInstanceId=${serverId}`;
+                    window.open(url, "_blank");
+                    return;
+                  }
+                  const url = `roblox://experiences/start?placeId=${placeId}&gameInstanceId=${serverId}`;
+                  window.open(url, "_blank");
+                } else {
+                }
               } else {
               }
-                return;
-           }
+              return;
+            }
         
-           const serverId = server.i || server.id;
-    
-            if (storedServerData[placeId] && storedServerData[placeId][serverId] && storedServerData[placeId][serverId].likelyInactive) {
-                return;
-             }
-            if (storedServerData[placeId] && storedServerData[placeId][serverId]){
-                   const serverIp = Object.keys(serverIpMap).find(ip => serverIpMap[ip]?.country?.code === storedServerData[placeId][serverId].l?.c);
+            const serverId = server.i || server.id;
+        
+            if (
+              storedServerData[placeId] &&
+              storedServerData[placeId][serverId] &&
+              storedServerData[placeId][serverId].likelyInactive
+            ) {
+              return;
             }
-             if (serverId) {
-                    const url = `roblox://experiences/start?placeId=${placeId}&gameInstanceId=${serverId}`;
-                    window.open(url, '_blank');
-              } else {
+              if (storedServerData[placeId] && storedServerData[placeId][serverId]){
+                    const serverIp = Object.keys(serverIpMap).find(ip => serverIpMap[ip]?.country?.code === storedServerData[placeId][serverId].l?.c);
+               }
+        
+            if (serverId) {
+              const url = `roblox://experiences/start?placeId=${placeId}&gameInstanceId=${serverId}`;
+              window.open(url, "_blank");
+            } else {
             }
-        }
+          }
     
         function joinNewestServer() {
             if (!storedServerData[placeId]) {
@@ -1226,46 +1252,415 @@ function handleRateLimitedState(limited) {
                 else {
             }
         }
-        function joinSpecificRegionServer(region) {
-            if (!storedServerData[placeId]) {
-                return;
-            }
-            let serverToJoin = null;
-    
-            for (const server of allServers) {
-                  if (storedServerData[placeId] && storedServerData[placeId][server.id] && storedServerData[placeId][server.id].likelyInactive) {
-                     continue;
-                 }
-                let currentRegion = mapStateToRegion(serverLocations[server.id]);
-                if (currentRegion === region) {
-                    serverToJoin = server;
-                    break;
+        let serverListState = {
+            visibleServerCount: 0,
+            fetchedServerIds: new Set(),
+            renderedServerIds: new Set(),
+            servers: [],
+            renderedServersData: new Map(),
+            loading: false,
+        };
+        
+        function showServerListOverlay(region) {
+            serverListState.visibleServerCount = 0;
+            serverListState.fetchedServerIds.clear();
+            serverListState.renderedServerIds.clear();
+            serverListState.renderedServersData.clear();
+            const modalOverlay = document.createElement('div');
+            modalOverlay.style.position = 'fixed';
+            modalOverlay.style.top = '0';
+            modalOverlay.style.left = '0';
+            modalOverlay.style.width = '100%';
+            modalOverlay.style.height = '100%';
+            modalOverlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+            modalOverlay.style.display = 'flex';
+            modalOverlay.style.justifyContent = 'center';
+            modalOverlay.style.alignItems = 'center';
+            modalOverlay.style.zIndex = '1000';
+            modalOverlay.style.pointerEvents = 'all';
+            const body = document.querySelector("body");
+            body.style.overflow = "hidden";
+        
+            const overlay = document.createElement('div');
+            overlay.style.position = 'fixed';
+            overlay.style.top = '0';
+            overlay.style.left = '0';
+            overlay.style.width = '100%';
+            overlay.style.height = '100%';
+            overlay.style.zIndex = '999';
+            overlay.style.pointerEvents = 'none';
+            document.body.appendChild(overlay);
+        
+            const modalContent = document.createElement('div');
+           const isDarkMode = document.body.classList.contains('dark-mode');
+             modalContent.style.backgroundColor = isDarkMode ? '#393b3d' : '#fff';
+            modalContent.style.padding = '20px';
+            modalContent.style.borderRadius = '8px';
+            modalContent.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)';
+            modalContent.style.textAlign = 'center';
+            modalContent.style.maxHeight = '800px';
+            modalContent.style.overflowY = 'auto';
+             modalContent.style.color = isDarkMode ? 'white' : 'rgb(57, 59, 61)';
+            modalContent.style.width = '70%';
+            modalContent.style.maxWidth = '800px';
+        
+            const headerContainer = document.createElement('div');
+            headerContainer.style.position = 'relative';
+            headerContainer.style.top = '0';
+             headerContainer.style.backgroundColor = isDarkMode ? '#393b3d' : '#fff';
+            headerContainer.style.zIndex = '1002';
+            headerContainer.style.paddingBottom = "10px";
+            headerContainer.style.width = "100%";
+            headerContainer.style.height = "50px";
+            headerContainer.style.display = 'flex';
+            headerContainer.style.alignItems = 'center';
+            headerContainer.style.justifyContent = 'space-between';
+        
+        
+            const title = document.createElement('h1');
+             const locationData = serverIpMap[region]?.city || region;
+            title.textContent = `Servers in ${locationData}`;
+            title.style.marginBottom = '0px';
+            title.style.textAlign = "left";
+            title.style.marginLeft = "0px";
+            headerContainer.appendChild(title);
+        
+        
+            const closeButton = document.createElement('button');
+            closeButton.textContent = 'Close';
+            closeButton.style.padding = '8px 12px';
+             closeButton.style.backgroundColor = isDarkMode ? '#d11a2a' : '#d93025';
+            closeButton.style.border = isDarkMode ? '1px solid #b50e1c' : '1px solid #d93025';
+            closeButton.style.borderRadius = '6px';
+            closeButton.style.cursor = 'pointer';
+            closeButton.style.fontSize = '14px';
+            closeButton.style.fontWeight = '600';
+            closeButton.style.color = 'white';
+            closeButton.style.marginLeft = "auto";
+            closeButton.style.marginRight = "0px";
+            closeButton.style.transition = "background-color 0.3s ease";
+            closeButton.addEventListener('mouseover', () => {
+                 closeButton.style.backgroundColor = isDarkMode ? "#9a0613" : "#b01f1e";
+                closeButton.style.borderRadius = "6px";
+                closeButton.style.borderColor = isDarkMode ? "#c82d3e" : "#b01f1e";
+            });
+            closeButton.addEventListener('mouseout', () => {
+                 closeButton.style.backgroundColor = isDarkMode ? '#d11a2a' : '#d93025';
+                closeButton.style.borderRadius = "6px";
+                closeButton.style.borderColor = isDarkMode ? '#b50e1c' : '#d93025';
+            });
+        
+            closeButton.addEventListener('click', () => {
+                modalOverlay.remove();
+                overlay.remove();
+                body.style.overflow = "auto";
+                body.style.pointerEvents = "all";
+            });
+            headerContainer.appendChild(closeButton);
+        
+            modalContent.appendChild(headerContainer)
+        
+        
+            const serverList = document.createElement('div');
+            serverList.style.display = 'flex';
+            serverList.style.flexDirection = 'column';
+            serverList.style.gap = '10px';
+        
+            let servers = [];
+            const storedServers = storedServerData[placeId] || {};
+            for (const serverId in storedServers) {
+               const server = storedServers[serverId];
+                let storedRegion = mapStateToRegion(server);
+                if (storedRegion === region) {
+                    if (!server.likelyInactive) {
+                        servers.push(server);
+                   } else {
+                          delete storedServerData[placeId][serverId];
+                          storeInBrowserStorage({[SERVER_DATA_KEY]: JSON.stringify(storedServerData)});
+                    }
+                } else if (server.likelyInactive) {
+                        delete storedServerData[placeId][serverId];
+                        storeInBrowserStorage({[SERVER_DATA_KEY]: JSON.stringify(storedServerData)});
+                   }
+               }
+             for (const server of allServers) {
+                 let currentRegion = mapStateToRegion(serverLocations[server.id]);
+                  if (currentRegion === region) {
+                      if (!storedServerData[placeId] || !storedServerData[placeId][server.id] || !storedServerData[placeId][server.id].likelyInactive) {
+                          let found = false;
+                         for (const storedServer of servers) {
+                             if (storedServer.i === server.id) {
+                                found = true;
+                              }
+                          }
+                         if (!found) {
+                             servers.push(server);
+                           }
+                      }
                 }
             }
-            if (serverToJoin == null){
+              servers.sort((a, b) => {
+                   const aPing = a.p || Infinity;
+                    const bPing = b.p || Infinity;
+                  return aPing - bPing;
+               });
+              serverListState.servers = servers;
+            const serversPerPage = 20;
+            async function fetchServerData(serverId) {
+                try {
+                    const serverInfo = await fetch(`https://gamejoin.roblox.com/v1/join-game-instance`, {
+                        method: 'POST',
+                        headers: {
+                            "Accept": "*/*",
+                            "Accept-Encoding": "gzip, deflate, br, zstd",
+                            "Accept-Language": "en,en-US;q=0.9",
+                            "Referer": `https://www.roblox.com/games/${placeId}/`,
+                            "Origin": "https://roblox.com",
+                        },
+                        body: new URLSearchParams({
+                            placeId: placeId,
+                            isTeleport: false,
+                            gameId: serverId,
+                            gameJoinAttemptId: serverId,
+                        }),
+                        credentials: 'include',
+                    });
+                    const ipData = await serverInfo.json();
+                    return ipData;
+                } catch (error) {
+                    return null;
+                }
+            }
+            async function renderServers() {
+               const serversToRender = serverListState.servers.slice(serverListState.visibleServerCount, serverListState.visibleServerCount + serversPerPage);
+                 const serverDataPromises = serversToRender.map(async (server) => {
+                     const serverId = server.i || server.id;
+                    if (serverListState.renderedServerIds.has(serverId)) {
+                           return serverListState.renderedServersData.get(serverId);
+                      }
+                   const serverButton = document.createElement('button');
+                    serverButton.style.padding = "10px 15px";
+                    serverButton.style.backgroundColor = isDarkMode ? '#24292e' : '#fff';
+                    serverButton.style.border = isDarkMode ? '1px solid #444' : '1px solid #ddd';
+                    serverButton.style.borderRadius = "6px";
+                    serverButton.style.cursor = "pointer";
+                    serverButton.style.fontSize = "15px";
+                     serverButton.style.fontWeight = "600";
+                   serverButton.style.color = isDarkMode ? 'white' : 'rgb(57, 59, 61)';
+                   serverButton.style.transition = "background-color 0.3s ease";
+                   serverButton.style.display = 'flex';
+                    serverButton.style.flexDirection = 'column';
+                    serverButton.style.alignItems = 'center';
+                    serverButton.style.width = "100%";
+                     serverButton.style.textAlign = "left";
+                     serverButton.addEventListener('mouseover', () => {
+                        serverButton.style.backgroundColor = isDarkMode ? "#4c5053" : "#f0f0f0";
+                       serverButton.style.borderRadius = "6px";
+                       serverButton.style.borderColor = isDarkMode ? "#24292e" : "#f0f0f0";
+                    });
+                   serverButton.addEventListener('mouseout', () => {
+                      serverButton.style.backgroundColor = isDarkMode ? '#24292e' : '#fff';
+                        serverButton.style.borderRadius = "6px";
+                        serverButton.style.borderColor = isDarkMode ? "#4c5053" : "#f0f0f0";
+                  });
+                    const serverInfo = document.createElement('div');
+                    serverInfo.style.width = "100%";
+                   serverInfo.style.display = 'flex';
+                   serverInfo.style.flexDirection = 'column';
+                  const serverData = await fetchServerData(serverId);
+                    let ping = "N/A";
+                     let isFull = false
+                    let isInvalid = false;
+                    let isShutDown = false;
+                       let storedFPS = null;
+                     let storedPing = null
+                   if (storedServerData[placeId] && storedServerData[placeId][serverId]) {
+                         storedFPS = storedServerData[placeId][serverId].f;
+                       storedPing = storedServerData[placeId][serverId].p
+                    }
+                    if(serverData?.joinScript?.UdmuxEndpoints?.length > 0) {
+                        const serverIp = serverData?.joinScript?.UdmuxEndpoints[0]?.Address
+                        if (serverIp) {
+                             const serverIP = serverIp.split('.').slice(0, 3).join('.') + '.0';
+                            const clientAddress = serverData?.joinScript?.MachineAddress
+                             const serverLocationData = serverIpMap[serverIP]
+                           const userLat = userLocation?.latitude || 0;
+                            const userLon = userLocation?.longitude || 0;
+                           const serverLat = serverLocationData?.latitude || 0;
+                            const serverLon = serverLocationData?.longitude || 0;
+                             if (clientAddress) {
+                                const distance = calculateDistance(
+                                    userLat,
+                                    userLon,
+                                   serverLat,
+                                   serverLon
+                                );
+                                const calculatedPing = Math.round((distance / 3000) * 100)
+                                if (storedPing) {
+                                    if (calculatedPing < storedPing) {
+                                        ping = Math.round((calculatedPing * 0.8) + (storedPing * 0.2))
+                                   }  else if (calculatedPing > storedPing * 2) {
+                                        ping = Math.round((calculatedPing * 0.6) + (storedPing * 0.4))
+                                    } else {
+                                        ping = Math.round((calculatedPing * 0.7) + (storedPing * 0.3))
+                                   }
+                               } else {
+                                  ping = calculatedPing
+                               }
+                            }  else {
+                                ping = "N/A"
+                           }
+                      }
+                  }   else if (serverData && serverData.status === 22){
+                       isFull = true
+                     } else if (serverData && serverData.status === 11){
+                       isInvalid = true
+                   } else if (serverData && serverData.status === 5){
+                       isShutDown = true
+                    }  else {
+                       ping = "N/A"
+                  }
+                    const serverIdText = document.createElement('div')
+                    serverIdText.textContent = `Server ID: ${serverId}`;
+                    serverIdText.style.fontWeight = "bold";
+                   serverInfo.appendChild(serverIdText);
+                    const serverDetails = document.createElement('div');
+                   serverDetails.style.display = "grid";
+                   serverDetails.style.gridTemplateColumns = "80px 80px 100px";
+                    serverDetails.style.gap = "5px";
+                   serverDetails.style.width = "100%";
+                    const pingText = document.createElement('span');
+                    pingText.textContent = `Ping: ${ping}`;
+                    pingText.style.width = 'fit-content';
+                    serverDetails.appendChild(pingText);
+                     if (storedFPS) {
+                         const fpsText = document.createElement('span');
+                         fpsText.textContent = `FPS: ${storedFPS}`;
+                        fpsText.style.width = 'fit-content';
+                       serverDetails.appendChild(fpsText);
+                    }
+                    if (serverIpMap[mapStateToRegion(server)]?.city) {
+                         const locationName = document.createElement('span');
+                         locationName.textContent = `${serverIpMap[mapStateToRegion(server)].city}`;
+                         locationName.style.width = 'fit-content';
+                        serverDetails.appendChild(locationName);
+                     }
+                   serverInfo.appendChild(serverDetails);
+                    serverButton.appendChild(serverInfo)
+                    serverButton.addEventListener('click', () => {
+                      joinSpecificServer(serverId)
+                       modalOverlay.remove();
+                        overlay.remove();
+                        body.style.overflow = "auto";
+                        body.style.pointerEvents = "all";
+                   });
+                     if (isFull || isInvalid || isShutDown) return null;
+                  serverListState.renderedServerIds.add(serverId);
+                    serverListState.fetchedServerIds.add(serverId)
+                    serverListState.renderedServersData.set(serverId, serverButton);
+                     return serverButton;
+                 });
+               const serverButtons = await Promise.all(serverDataPromises);
+               serverButtons.forEach(button => {
+                   if(button)
+                        serverList.appendChild(button);
+                });
+            }
+            serverList.innerHTML = '';
+            renderServers();
+            if(serverListState.servers.length === 0) {
+              const noServers = document.createElement('p');
+              noServers.textContent = 'No active servers in this region.';
+               noServers.style.textAlign = "center";
+                noServers.style.fontWeight = "bold";
+                noServers.style.color = isDarkMode ? 'white' : '#24292e';
+                serverList.appendChild(noServers);
+            }
+            modalContent.appendChild(serverList)
+            modalOverlay.appendChild(modalContent);
+            document.body.appendChild(modalOverlay);
+            modalContent.addEventListener('scroll', () => {
+               if (serverListState.loading) return;
+              const scrollTop = modalContent.scrollTop;
+               const scrollHeight = modalContent.scrollHeight;
+                const clientHeight = modalContent.clientHeight;
+                if (scrollHeight - scrollTop - clientHeight < 300) { 
+                    serverListState.loading = true;
+                   serverListState.visibleServerCount += serversPerPage;
+                     renderServers();
+                    serverListState.loading = false;
+               }
+            });
+            modalOverlay.addEventListener('click', (event) => {
+                if (event.target === modalOverlay) {
+                    modalOverlay.remove();
+                   overlay.remove();
+                   body.style.overflow = "auto";
+                    body.style.pointerEvents = "all";
+               }
+            });
+           const Body = document.querySelector("body");
+          Body.style.pointerEvents = "none";
+          serverListState.visibleServerCount = 0;
+        }
+        function getFullLocationName(region) {
+            return serverIpMap[region]?.city || region;
+        }
+         async function joinSpecificRegion(region) {
+            let bestServer = null;
+             if (allServers.length > 0 && userLocation) {
+                bestServer = findBestServer();
+           
+            }
+            if (bestServer == null) {
+               bestServer =  findBestServer();
+               if (bestServer == null){
                  for (const serverId in storedServerData[placeId]) {
-                    const server = storedServerData[placeId][serverId];
-                    if (storedServerData[placeId][serverId].likelyInactive) {
-                        continue;
-                    }
-                    let storedRegion = mapStateToRegion(server);
-                    if (storedRegion === region) {
-                        serverToJoin = server;
+                     const server = storedServerData[placeId][serverId];
+                     const storedRegion = mapStateToRegion(server);
+                   if (storedRegion === region) {
+                           bestServer = server
                         break;
-                    }
+                     }
                 }
              }
-              if (serverToJoin) {
-                const serverId = serverToJoin.i || serverToJoin.id;
-                if (storedServerData[placeId] && storedServerData[placeId][serverId]){
-                   const serverIp = Object.keys(serverIpMap).find(ip => serverIpMap[ip]?.country?.code === storedServerData[placeId][serverId].l?.c);
-                }
-                const url = `roblox://experiences/start?placeId=${placeId}&gameInstanceId=${serverId}`;
-                window.open(url, '_blank');
-            }  else {
+             if(bestServer == null){
+               if (allServers.length > 0) {
+                  for (const server of allServers) {
+                       const serverRegion = mapStateToRegion(serverLocations[server.id]);
+                    if (serverRegion === region) {
+                            bestServer = server;
+                            break;
+                        }
+                    }
+                 }
+            }
+          }
+             if (userRegion === "US") {
+                    showUSWarningModal(async () => {
+                         if (bestServer == null) {
+                              await fetchUserLocation();
+                         }
+                         joinBestServer(bestServer);
+                    });
+                } else {
+                    if (bestServer == null) {
+                         await fetchUserLocation();
+                    }
+                joinBestServer(bestServer);
             }
     }
-    
+        
+    function joinSpecificServer(serverId) {
+        if (storedServerData[placeId] && storedServerData[placeId][serverId] && storedServerData[placeId][serverId].likelyInactive) {
+             return;
+        }
+        if (storedServerData[placeId] && storedServerData[placeId][serverId]){
+           const serverIp = Object.keys(serverIpMap).find(ip => serverIpMap[ip]?.country?.code === storedServerData[placeId][serverId].l?.c);
+       }
+        const url = `roblox://experiences/start?placeId=${placeId}&gameInstanceId=${serverId}`;
+        window.open(url, '_blank');
+    } 
  function calculateUptime(timestamp) {
         const now = Date.now();
         const diff = now - timestamp;

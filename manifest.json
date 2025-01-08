@@ -1,48 +1,91 @@
 {
-   "action": {
-      "default_icon": {
-         "128": "Assets/icon-128.png",
-         "16": "Assets/icon-16.png",
-         "48": "Assets/icon-48.png"
-      },
-      "default_popup": "Popup/popup.html"
-   },
-   "background": {
+    "manifest_version": 3,
+    "name": "RoValra",
+    "version": "2.1.1",
+    "description": "An extension aiming to provide features that other Roblox extensions pay wall!",
+    "permissions": [
+      "cookies",
+      "declarativeNetRequest",
+      "storage",
+      "tabs"
+    ],
+    "host_permissions": [
+      "https://games.roblox.com/*",
+      "https://www.roblox.com/*",
+      "https://gamejoin.roblox.com/v1/join-game-instance",
+      "https://users.roblox.com/*"
+    ],
+    "background": {
       "service_worker": "background.js"
-   },
-   "content_scripts": [ {
-      "js": [ "content.js" ],
-      "matches": [ "https://www.roblox.com/*", "https://gamejoin.roblox.com/v1/join-game-instance*" ]
-   }, {
-      "js": [ "Games/Regions_content.js" ],
-      "matches": [ "https://www.roblox.com/*" ]
-   } ],
-   "declarative_net_request": {
-      "rule_resources": [ {
-         "enabled": true,
-         "id": "ruleset_1",
-         "path": "Rules/rules.json"
-      }, {
-         "enabled": false,
-         "id": "ruleset_2",
-         "path": "Rules/regionRules.json"
-      } ]
-   },
-   "description": "An extension aiming to provide features other extensions pay wall",
-   "host_permissions": [ "https://games.roblox.com/*", "https://www.roblox.com/*", "https://gamejoin.roblox.com/v1/join-game-instance", "https://users.roblox.com/*" ],
-   "icons": {
-      "128": "Assets/icon-128.png",
+    },
+    "content_scripts": [
+      {
+        "matches": [
+          "https://www.roblox.com/*",
+          "https://gamejoin.roblox.com/v1/join-game-instance*"
+        ],
+        "js": ["content.js"]
+      },
+       {
+            "matches": ["https://www.roblox.com/*"],
+            "js": ["Games/Regions_content.js"]
+        },
+        {
+          "matches": ["https://www.roblox.com/*"],
+          "js": ["settings.js"]
+        }
+    ],
+    "declarative_net_request": {
+      "rule_resources": [
+        {
+          "id": "ruleset_1",
+          "enabled": true,
+          "path": "Rules/rules.json"
+        },
+         {
+          "id": "ruleset_2",
+          "enabled": false,
+          "path": "Rules/regionRules.json"
+        }
+      ]
+    },
+    "web_accessible_resources": [
+        {
+            "resources": [
+                "HiddenGames/none-btroblox.js",
+                "HiddenGames/group_games.js",
+                "HiddenGames/user_games.js",
+                "misc/userSniper.js",
+                "misc/item_sales_content.js",
+                "misc/style.js",
+                "misc/utils.js",
+                "Games/Regions_content.js",
+                "Games/Subplaces.js",
+                "misc/joinScript.js",
+                "data/ServerList.json",
+                "data/items.json",
+                "Avatar/R6Warning.js",
+                "Avatar/R6Fix.js",
+                "settings.js",
+                "Assets/icon-128.png",
+                "Games/invite.js"
+                
+            ],
+            "matches": [
+                "https://www.roblox.com/*"
+            ]
+        }
+    ],
+      "action": {
+      "default_icon": {
+        "16": "Assets/icon-16.png",
+        "48": "Assets/icon-48.png",
+        "128": "Assets/icon-128.png"
+      }
+    },
+    "icons": {
       "16": "Assets/icon-16.png",
-      "48": "Assets/icon-48.png"
-   },
-   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzoXy98wyIST4Eurm3vwcsUBJN+HofYd3u2kOU4mt/nfiwbBFqWpP/ye0rUt0AERutaFGDnmnoAf+Qis7wutQX4YXJzNCi9nJnYmxU2ocgLDEXbOTCOPiIHonAPA3bQ3fIiCk6s8hPk+Y8HbAIkoEIkRoTQ71NrMffgsZAXfIsuxsG6wSUpOYBowjg6vbvU44Ps8haGfv6TYcWeVI1wcaMFH26P1RpmtrVfOIxSPutRG3UVdV6IvxzMUzC3SIpKrhQ315Y+6KMcIBlRuVuqqDLsuAyvXMiLajHuqZXg9TB6VMg29ibIOEKhBPaJV0KIrI9vdU3Ts2Lcw8S+Wi8zCf0wIDAQAB",
-   "manifest_version": 3,
-   "name": "RoValra",
-   "permissions": [ "cookies", "declarativeNetRequest", "storage", "tabs" ],
-   "update_url": "https://clients2.google.com/service/update2/crx",
-   "version": "2.1",
-   "web_accessible_resources": [ {
-      "matches": [ "https://www.roblox.com/*" ],
-      "resources": [ "HiddenGames/none-btroblox.js", "HiddenGames/group_games.js", "HiddenGames/user_games.js", "misc/userSniper.js", "misc/item_sales_content.js", "misc/style.js", "misc/utils.js", "Games/Regions_content.js", "Games/Subplaces.js", "misc/joinScript.js", "data/ServerList.json", "data/items.json", "Avatar/R6Warning.js", "Avatar/R6Fix.js" ]
-   } ]
-}
+      "48": "Assets/icon-48.png",
+      "128": "Assets/icon-128.png"
+    }
+  }

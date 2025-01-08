@@ -1,6 +1,5 @@
 if (window.location.pathname.startsWith('/users/')) {
     (function() {
-        console.log("Script started");
     
         let isRunning = false;
         let intervalId;
@@ -13,30 +12,24 @@ if (window.location.pathname.startsWith('/users/')) {
     
         function getUserIdFromUrl() {
             const path = window.location.pathname;
-            console.log("URL Path:", path);
             const match = path.match(/\/users\/(\d+)/);
             if (match) {
                 const userId = parseInt(match[1], 10);
-                console.log("UserId", userId);
                 return userId;
             } else {
-                console.log("Could not extract the user id from the path");
                 return null;
             }
         }
     
         async function sendPresenceRequest(userId) {
             if (isRateLimited || !canMakeRequest) {
-                    console.log("Rate limited or request is pending. Waiting to resume.");
                     return;
                 }
                  canMakeRequest = false;
-            console.log("sendPresenceRequest called");
             const url = "https://presence.roblox.com/v1/presence/users";
             const requestBody = JSON.stringify({
                 userIds: [userId],
             });
-            console.log("Request Body:", requestBody);
             try {
                   const response = await fetch(url, {
                     method: 'POST',
@@ -52,32 +45,26 @@ if (window.location.pathname.startsWith('/users/')) {
                 });
                   if (response.status === 429) {
                        isRateLimited = true;
-                       console.log("Rate limit detected. Waiting 3 seconds.");
                        setTimeout(() => {
                            isRateLimited = false;
-                           console.log("Resuming requests.");
                        }, 3000);
                         canMakeRequest = true;
                         return;
                     }
                   if (!response.ok) {
-                      console.error('API Error:', response.status, await response.text());
                       canMakeRequest = true;
                       return;
                    }
                   const data = await response.json();
-                 console.log('API Response:', data);
                 if (data && data.userPresences && data.userPresences.length > 0) {
                       const presence = data.userPresences[0];
                       if (presence.placeId && presence.gameId) {
                           if (!hasJoinedGame) {
                               const joinURL = `roblox://experiences/start?placeId=${presence.placeId}&gameInstanceId=${presence.gameId}`;
                              window.open(joinURL, '_blank');
-                             console.log('Joining game:', joinURL);
                              hasJoinedGame = true;
                                stopPresenceCheck();
                             } else{
-                              console.log("Already joined a game, not joining another")
                              }
                             canMakeRequest = true;
                             return;
@@ -86,7 +73,6 @@ if (window.location.pathname.startsWith('/users/')) {
                 canMakeRequest = true;
                 return data;
             } catch (error) {
-                console.error('Fetch Error:', error);
                 canMakeRequest = true;
             }
         }
@@ -95,9 +81,7 @@ if (window.location.pathname.startsWith('/users/')) {
             if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.sendMessage) {
                  chrome.runtime.sendMessage({ action: "enableServerJoinHeaders" }, (response) => {
                         if (response) {
-                            console.log("Forced headers enabled");
                         } else {
-                           console.error("Error enabling forced headers");
                         }
                     });
                 }
@@ -106,9 +90,7 @@ if (window.location.pathname.startsWith('/users/')) {
                if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.sendMessage) {
                    chrome.runtime.sendMessage({ action: "disableServerJoinHeaders" }, (response) => {
                         if (response) {
-                             console.log("Forced headers disabled");
                         } else {
-                             console.error("Error disabling forced headers");
                         }
                     });
                 }
@@ -119,7 +101,6 @@ if (window.location.pathname.startsWith('/users/')) {
             clearInterval(intervalId);
             isRunning = false;
             hasJoinedGame = false;
-            console.log("Stopping presence check");
         }
     
        function showConfirmationOverlay(callback) {
@@ -278,7 +259,6 @@ if (window.location.pathname.startsWith('/users/')) {
         button.addEventListener('click', async () => {
             const userId = getUserIdFromUrl();
             if (!userId) {
-                console.error("Could not extract user ID from URL.");
                 return;
             }
             if (isRunning) {
@@ -293,13 +273,11 @@ if (window.location.pathname.startsWith('/users/')) {
     
             enableForcedHeaders();
             button.textContent = 'Stop Sniping';
-            console.log("Starting presence check");
               intervalId = setInterval(async () => {
                   const currentTime = Date.now();
                     if(currentTime - lastRequestTime >= requestDelay){
                       const response = await sendPresenceRequest(userId);
                       if (response) {
-                        console.log('API Response (No Join):', response)
                       }
                      lastRequestTime = currentTime;
                    }
@@ -312,14 +290,11 @@ if (window.location.pathname.startsWith('/users/')) {
               const targetElement = document.querySelector('.profile-header-top');
               if (targetElement) {
                 targetElement.insertBefore(button, targetElement.firstChild);
-                 console.log('Button added to target.');
             } else {
-                 console.log('Target element not found. Attempting again in 100ms.');
                 setTimeout(appendButtonToTarget, 100);
             }
         }
         appendButtonToTarget();
-        console.log("Script fully loaded");
     })();
     }
     function applyUserSniper(){
@@ -333,23 +308,17 @@ if (window.location.pathname.startsWith('/users/')) {
                             targetButton.dataset.sniper = "true";
                            targetButton.addEventListener('click', function () {
                                 if (targetButton.textContent.trim() === "Unfollow") {
-                                     console.log("Disabling Forced Headers");
                                      chrome.runtime.sendMessage({ action: "disableUserSniper" }, (response) => {
                                             if (chrome.runtime.lastError) {
-                                               console.error("Error disabling forced headers:", chrome.runtime.lastError.message);
                                           } else {
-                                               console.log("Forced headers disabled");
                                             }
                                      });
                                 } else {
-                                      console.log("Enabling Forced Headers");
                                        chrome.runtime.sendMessage({ action: "enableUserSniper" }, (response) => {
                                               if (chrome.runtime.lastError) {
-                                                    console.error("Error enabling forced headers:", chrome.runtime.lastError.message);
                                                 }
                                                 else
                                                 {
-                                                      console.log("Forced headers enabled");
                                                 }
                                        });
                                 }

@@ -1,3 +1,4 @@
+// Dont look at this shit dookie poo po of code
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
       if (request.action == "openSettings")

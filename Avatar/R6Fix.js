@@ -1,8 +1,6 @@
-console.log("R6Fix.js: Script loaded");
 
 (function() {
     if (!window.location.href.startsWith('https://www.roblox.com/my/avatar')) {
-        console.log("R6Fix.js: Not on an avatar page, script will not run.");
         return;
     }
 

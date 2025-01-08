@@ -1,8 +1,32 @@
-console.log("item_sales_content.js: Script started");
+
+let currentTheme = 'light';
+window.addEventListener('themeDetected', (event) => {
+    currentTheme = event.detail.theme;
+    console.log(`item_sales_content.js: Theme received: ${currentTheme}`);
+    applyTheme();
+});
 
 const itemId = parseInt(window.location.pathname.split('/')[2], 10);
 console.log("item_sales_content.js: Extracted item ID:", itemId);
 const itemsURL = document.currentScript.dataset.itemsUrl;
+
+
+function applyTheme() {
+     const isDarkMode = currentTheme === 'dark';
+     const textColor = isDarkMode ? "#bdbebe" : "rgb(96, 97, 98)";
+
+     const salesDiv = document.querySelector(".item-sales");
+     const revenueDiv = document.querySelector(".item-revenue");
+
+    if(salesDiv){
+         salesDiv.style.color = textColor;
+     }
+    if(revenueDiv){
+        revenueDiv.style.color = textColor;
+    }
+
+}
+
 
 fetch(itemsURL)
     .then(response => response.json())
@@ -44,17 +68,19 @@ fetch(itemsURL)
                         const salesDiv = document.createElement('div');
                         salesDiv.classList.add('item-sales');
                         salesDiv.innerHTML = `<strong>Sales:</strong> ${item.sales.toLocaleString()}`;
-                        salesDiv.style.color = "#bdbebe";
-                        salesDiv.style.marginTop = "10px";
+                       salesDiv.style.marginTop = "10px";
                         salesDiv.style.marginLeft = "0px";
                         foundElement.appendChild(salesDiv);
+
                         const revenueDiv = document.createElement('div');
                         revenueDiv.classList.add('item-revenue');
                         revenueDiv.innerHTML = `<strong>Revenue:</strong> $${(item.revenue / 100).toFixed(2)}`;
-                        revenueDiv.style.color = "#bdbebe";
                         revenueDiv.style.marginTop = "10px";
                         revenueDiv.style.marginLeft = "0";
                         foundElement.appendChild(revenueDiv);
+                         if(currentTheme){
+                            applyTheme();
+                         }
                     },
                     ".price-row-container"
                 );

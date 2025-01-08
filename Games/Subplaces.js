@@ -1,4 +1,10 @@
-console.log("Subplaces.js: Script started.");
+
+let currentTheme = 'light';
+
+window.addEventListener('themeDetected', (event) => {
+    currentTheme = event.detail.theme;
+   applyTheme();
+});
 
 function extractPlaceId() {
     const url = window.location.href;
@@ -6,10 +12,8 @@ function extractPlaceId() {
     const match = url.match(regex);
 
     if (match && match[1]) {
-        console.log("Extracted Place ID:", match[1]);
         return match[1];
     } else {
-        console.error("Place ID not found in URL.");
         return null;
     }
 }
@@ -19,17 +23,14 @@ const retryFetch = async (url, retries = 5, delay = 3000) => {
         const response = await fetch(url);
         if (response.status === 429) {
             if (retries > 0) {
-                console.log(`Rate limited, retrying in ${delay / 1000} seconds...`);
                 await new Promise(resolve => setTimeout(resolve, delay));
                 return retryFetch(url, retries - 1, delay * 2);
             } else {
-                console.error('Max retries reached, giving up on:', url);
                 return null;
             }
         }
         return response;
     } catch (error) {
-        console.error('Fetch error:', error);
         return null;
     }
 };
@@ -47,11 +48,9 @@ async function fetchUniverseId(placeId) {
             throw new Error("Universe ID not found in the API response");
         }
     } catch (error) {
-        console.error("Error fetching Universe ID:", error);
         throw error;
     }
 }
-
 
 async function fetchSubplaces(universeId, cursor = null, allSubplaces = []) {
     let url = `https://develop.roblox.com/v1/universes/${universeId}/places?isUniverseCreation=false&limit=100&sortOrder=Asc`;
@@ -75,17 +74,13 @@ async function fetchSubplaces(universeId, cursor = null, allSubplaces = []) {
         }
         return allSubplaces;
     } catch (error) {
-        console.error("Error fetching subplaces:", error);
         throw error;
     }
 }
 
-
-
 async function createSubplacesTab(subplaces) {
     const horizontalTabs = document.getElementById('horizontal-tabs');
     if (!horizontalTabs) {
-        console.error("Tabs container not found");
         return;
     }
 
@@ -102,7 +97,6 @@ async function createSubplacesTab(subplaces) {
     subplacesContentDiv.className = 'tab-pane';
     subplacesContentDiv.id = 'subplaces';
 
-
     const searchBar = document.createElement('input');
     searchBar.type = 'text';
     searchBar.placeholder = 'Search subplaces...';
@@ -112,15 +106,13 @@ async function createSubplacesTab(subplaces) {
     searchBar.style.padding = '8px';
     searchBar.style.boxSizing = 'border-box';
     searchBar.style.borderRadius = '4px';
-    searchBar.style.border = '1px solid #555';
-    searchBar.style.backgroundColor = '#242424';
-    searchBar.style.color = '#ddd';
+    searchBar.style.border = '1px solid #bbb';
     searchBar.style.transition = 'border-color 0.3s ease';
     searchBar.addEventListener('focus', () => {
         searchBar.style.borderColor = '#888';
     });
     searchBar.addEventListener('blur', () => {
-        searchBar.style.borderColor = '#555';
+        searchBar.style.borderColor = '#bbb';
     });
     subplacesContentDiv.appendChild(searchBar);
 
@@ -149,6 +141,8 @@ async function createSubplacesTab(subplaces) {
     loadMoreButton.style.width = '950px';
     loadMoreButton.style.height = '35px';
     loadMoreButton.style.textAlign = 'center';
+    loadMoreButton.style.border = '1px solid #bbb';
+
     const loadMoreButtonWrapper = document.createElement('div');
     loadMoreButtonWrapper.style.width = '100%';
     loadMoreButtonWrapper.style.display = 'flex';
@@ -156,25 +150,27 @@ async function createSubplacesTab(subplaces) {
     loadMoreButtonWrapper.style.justifyContent = 'center';
     loadMoreButtonWrapper.appendChild(loadMoreButton);
 
-
     function displaySubplaces(gamesToDisplay) {
         gamesToDisplay.forEach(async (subplace, index) => {
             const gameId = subplace.id;
-
             if (gameId) {
                 const gameElement = document.createElement('div');
                 gameElement.classList.add('game-container', 'shown');
                 gameElement.setAttribute('data-index', index);
                 gameElement.style.marginLeft = '1px';
                 gameElement.style.padding = '0px';
+                gameElement.style.borderRadius = '8px';
+
 
                 const gameLink = document.createElement('a');
                 gameLink.href = `https://www.roblox.com/games/${gameId}`;
                 gameLink.style.textDecoration = 'none';
                 gameLink.style.display = 'block';
-                gameLink.style.width = '150%';
+                 gameLink.style.width = '100%';
                 gameLink.style.height = '100%';
                 gameElement.appendChild(gameLink)
+
+
 
                 const gameImage = document.createElement('img');
                 gameImage.style.alignSelf = 'center';
@@ -193,10 +189,10 @@ async function createSubplacesTab(subplaces) {
                 gameName.style.textAlign = 'left'
                 gameName.style.marginBottom = '5px'
                 gameName.style.width = "150px";
-                const maxLength = 18;
-                if (gameTitle.length > maxLength) {
-                    gameTitle = gameTitle.substring(0, maxLength - 3) + "...";
-                }
+                 const maxLength = 18;
+                 if (gameTitle.length > maxLength) {
+                  gameTitle = gameTitle.substring(0, maxLength - 3) + "...";
+                 }
                 gameName.textContent = gameTitle;
 
                 retryFetch(`https://www.roblox.com/item-thumbnails?params=[{"assetId":${gameId}}]`)
@@ -209,21 +205,20 @@ async function createSubplacesTab(subplaces) {
                         }
                     })
                     .catch(error => {
-                        console.error('Error fetching thumbnail for game:', gameId, error);
                         gameImage.src = 'https://t4.rbxcdn.com/f652a7f81606a413f9814925e122a54a';
                     });
 
-
-                gameLink.appendChild(gameImage);
-                gameLink.appendChild(gameName);
+                  gameLink.appendChild(gameImage);
+                  gameLink.appendChild(gameName);
                 subplacesContainer.appendChild(gameElement);
-                gameImage.addEventListener('mouseenter', () => {
+                   gameImage.addEventListener('mouseenter', () => {
                     gameImage.style.filter = 'brightness(0.8)';
                 });
                 gameImage.addEventListener('mouseleave', () => {
                     gameImage.style.filter = 'brightness(1)';
                 });
             };
+             applyThemeForElement(gameElement);
         })
     }
 
@@ -242,14 +237,12 @@ async function createSubplacesTab(subplaces) {
                 }
             }
         })
-
     }
 
-    async function loadAllSubplaces() {
+     async function loadAllSubplaces() {
         if (allDisplayed) return;
         let remainingSubplaces = subplaces.slice(displayedSubplaceCount);
         if (remainingSubplaces.length > 0) {
-
             displaySubplaces(remainingSubplaces);
             displayedSubplaceCount += remainingSubplaces.length;
         }
@@ -262,20 +255,19 @@ async function createSubplacesTab(subplaces) {
     searchBar.addEventListener('input', () => {
         const searchTerm = searchBar.value.trim();
         filterSubplaces(searchTerm);
-        if (searchTerm) {
-            loadAllSubplaces();
+          if (searchTerm) {
+             loadAllSubplaces();
         } else {
             const allGameContainers = Array.from(subplacesContainer.querySelectorAll('.game-container'));
             allGameContainers.forEach(container => {
                 container.style.display = '';
             })
-            if (subplaces.length > 12) {
-                loadMoreButtonWrapper.style.display = 'flex'
-                loadMoreButton.style.display = 'block'
-            }
+               if (subplaces.length > 12) {
+                  loadMoreButtonWrapper.style.display = 'flex'
+                   loadMoreButton.style.display = 'block'
+                }
         }
     });
-
 
     displaySubplaces(subplaces.slice(0, 12));
     displayedSubplaceCount += 12;
@@ -297,8 +289,7 @@ async function createSubplacesTab(subplaces) {
         }
     }
 
-
-     if (subplaces.length <= 12) {
+    if (subplaces.length <= 12) {
          loadMoreButtonWrapper.style.display = 'none';
      }
 
@@ -309,11 +300,11 @@ async function createSubplacesTab(subplaces) {
         subplacesContainer.appendChild(noGames);
         loadMoreButtonWrapper.style.display = 'none';
     } else {
-        if (displayedSubplaceCount < subplaces.length) {
-            if (subplaces.length > 12)
-             loadMoreButtonWrapper.style.display = 'flex';
+          if (displayedSubplaceCount < subplaces.length) {
+               if (subplaces.length > 12)
+            loadMoreButtonWrapper.style.display = 'flex';
         }
-        loadMoreButton.addEventListener('click', () => loadMoreSubplaces());
+         loadMoreButton.addEventListener('click', () => loadMoreSubplaces());
     }
 
     if (subplaces.length > 0) {
@@ -321,7 +312,51 @@ async function createSubplacesTab(subplaces) {
     }
 
 
-  let contentSection = document.querySelector('.tab-content.rbx-tab-content.section');
+    function applyTheme() {
+        const isDarkMode = currentTheme === 'dark';
+        const backgroundColor = isDarkMode ? 'rgb(57, 59, 61)' : '#fff';
+        const textColor = isDarkMode ? '#ddd' : '#1a1a1a';
+        const searchBarBackgroundColor = isDarkMode ? 'rgb(35, 37, 39)' : '#f0f0f0';
+        const buttonBackgroundColor = isDarkMode ? '#333' : '#e0e0e0';
+        const gameContainerColor = isDarkMode ? 'rgb(57, 59, 61)' : '#fff'
+        const gameContainerBorder = isDarkMode ? '0px solid #555' : ''
+          const searchBarBorder = isDarkMode ? '0px solid #555' : '1px solid #bbb';
+           const loadMoreBorder = isDarkMode ? '1px solid #555' : '1px solid #bbb';
+
+        subplacesContentDiv.style.backgroundColor = backgroundColor;
+        searchBar.style.backgroundColor = searchBarBackgroundColor;
+        searchBar.style.color = textColor;
+        searchBar.style.border = searchBarBorder;
+        loadMoreButton.style.backgroundColor = buttonBackgroundColor;
+        loadMoreButton.style.color = textColor;
+           loadMoreButton.style.border = loadMoreBorder;
+           subplacesContainer.querySelectorAll('.game-container').forEach(container => {
+            container.style.backgroundColor = gameContainerColor;
+           container.style.border = gameContainerBorder;
+         });
+         subplacesContainer.querySelectorAll('.game-name').forEach(gameName => {
+           gameName.style.color = textColor;
+        });
+          subplacesContainer.querySelectorAll('p').forEach(p => {
+          p.style.color = textColor;
+       })
+
+    }
+
+        function applyThemeForElement(element) {
+           const isDarkMode = currentTheme === 'dark';
+           const gameContainerColor = isDarkMode ? 'rgb(57, 59, 61)' : '#fff';
+           const gameContainerBorder = isDarkMode ? '0px solid #555' : '';
+           const textColor = isDarkMode ? '#ddd' : 'rgb(57, 59, 61)';
+            element.style.backgroundColor = gameContainerColor;
+             element.style.border = gameContainerBorder;
+            const gameName = element.querySelector('.game-name');
+             if (gameName) {
+                gameName.style.color = textColor;
+            }
+        }
+
+        let contentSection = document.querySelector('.tab-content.rbx-tab-content.section');
     if (!contentSection) {
         contentSection = document.querySelector('.tab-content.rbx-tab-content');
     }
@@ -330,13 +365,18 @@ async function createSubplacesTab(subplaces) {
       contentSection.appendChild(subplacesContentDiv);
     }
 
-
     subplaceTab.addEventListener('click', () => {
         document.querySelectorAll('.rbx-tab').forEach(tab => tab.classList.remove('active'));
         document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
         subplaceTab.classList.add('active');
         subplacesContentDiv.classList.add('active');
     });
+
+       applyTheme()
+        subplacesContainer.querySelectorAll('.game-container').forEach(container => {
+            applyThemeForElement(container);
+         });
+
 }
 
 
@@ -351,6 +391,5 @@ async function createSubplacesTab(subplaces) {
             createSubplacesTab(subplaces);
         }
     } catch (error) {
-        console.error("Error initializing subplaces:", error);
     }
 })();

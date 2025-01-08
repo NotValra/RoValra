@@ -1,19 +1,24 @@
+
+let currentTheme = 'light';
+
+window.addEventListener('themeDetected', (event) => {
+    currentTheme = event.detail.theme;
+    applyTheme();
+});
+
 const retryFetch = async (url, retries = 5, delay = 3000) => {
     try {
         const response = await fetch(url);
         if (response.status === 429) {
             if (retries > 0) {
-                console.log(`Rate limited, retrying in ${delay / 1000} seconds...`);
                 await new Promise(resolve => setTimeout(resolve, delay));
                 return retryFetch(url, retries - 1, delay * 2);
             } else {
-                console.error('Max retries reached, giving up on:', url);
                 return null;
             }
         }
         return response;
     } catch (error) {
-        console.error('Fetch error:', error);
         return null;
     }
 };
@@ -49,11 +54,53 @@ const fetchGameDetails = async (games) => {
 
     return { likeMap, playerMap };
 };
+function applyTheme() {
+    const isDarkMode = currentTheme === 'dark';
+    const likeIconUrl = isDarkMode
+        ? 'https://images.rbxcdn.com/87b4f6103befbe2c1e9c13eb9d7064db-common_sm_dark_12032018.svg'
+        : 'https://images.rbxcdn.com/994d61715b1d8899f7c7abe114ec452a-common_sm_light_12032018.svg';
 
+    const countColor = isDarkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgb(57, 59, 61)';
+    const titleColor = isDarkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgb(57, 59, 61)';
+
+    const hiddenGamesContainers = document.querySelectorAll('.hidden-games-list');
+    hiddenGamesContainers.forEach(hiddenGamesContainer => {
+        const gameElements = hiddenGamesContainer.querySelectorAll('.game-container');
+        gameElements.forEach(gameElement => {
+            const likeIcon = gameElement.querySelector('div > span:nth-child(1)');
+            const playerIcon = gameElement.querySelector('div > span:nth-child(3)');
+             const gameName = gameElement.querySelector('.game-name');
+
+
+            if (likeIcon) {
+                likeIcon.style.backgroundImage = `url(${likeIconUrl})`;
+                likeIcon.style.backgroundPosition = isDarkMode ? '0px -32px' : '0px -32px';
+            }
+
+            if (playerIcon) {
+                playerIcon.style.backgroundImage = `url(${likeIconUrl})`;
+                playerIcon.style.backgroundPosition = isDarkMode ? '0px -48px' : '0px -48px';
+            }
+            
+             if (gameName) {
+                  gameName.style.color = titleColor;
+            }
+
+            const likes = gameElement.querySelector('div > span:nth-child(2)');
+            const players = gameElement.querySelector('div > span:nth-child(4)');
+
+            if (likes) {
+                likes.style.color = countColor;
+            }
+            if (players) {
+                players.style.color = countColor;
+            }
+        });
+    });
+}
 if (window.location.pathname.startsWith('/communities')) {
     console.log("GROUP!!! i mean community 😔");
     const groupId = window.location.pathname.split('/')[2];
-    console.log("Group ID:", groupId);
 
     if (groupId) {
         async function fetchAllGroupGames() {
@@ -78,7 +125,6 @@ if (window.location.pathname.startsWith('/communities')) {
                 } while (nextCursor);
                   return allGames;
             } catch (error) {
-                console.error('Error fetching all group games:', error);
                 return [];
             }
         }
@@ -97,7 +143,6 @@ if (window.location.pathname.startsWith('/communities')) {
 
                     if (!groupGamesContainer || !containerHeader) {
                         if (retries < maxRetries) {
-                            console.log(`Retrying... Attempt ${retries + 1}`);
                             setTimeout(() => checkElements(retries + 1), retryInterval);
                         } else {
                             console.log("Group likely aint got games");
@@ -148,183 +193,183 @@ if (window.location.pathname.startsWith('/communities')) {
                         hiddenGamesContainer.appendChild(hiddenGamesGrid);
                         
                         function displayGames(gamesToDisplay) {
-                             gamesToDisplay.forEach((game, index) => {
-                                const gameId = game.rootPlace?.id;
-                                 const universeId = game.id;
+                            gamesToDisplay.forEach((game, index) => {
+                               const gameId = game.rootPlace?.id;
+                                const universeId = game.id;
 
-                                if (gameId) {
-                                    const gameElement = document.createElement('div');
-                                    gameElement.classList.add('game-container', 'shown');
-                                    gameElement.setAttribute('data-index', index);
-                                   gameElement.style.marginLeft = '1px';
-                                     gameElement.style.padding = '0px';
-
-
-                                    const gameLink = document.createElement('a');
-                                        gameLink.href = `https://www.roblox.com/games/${gameId}`;
-                                        gameLink.style.textDecoration = 'none';
-                                        gameLink.style.display = 'block';
-                                        gameLink.style.width = '150%';
-                                        gameLink.style.height = '100%';
-                                    gameElement.appendChild(gameLink)
+                               if (gameId) {
+                                   const gameElement = document.createElement('div');
+                                   gameElement.classList.add('game-container', 'shown');
+                                   gameElement.setAttribute('data-index', index);
+                                  gameElement.style.marginLeft = '1px';
+                                    gameElement.style.padding = '0px';
 
 
-                                    const gameImage = document.createElement('img');
-                                        gameImage.style.alignSelf = 'center';
-                                        gameImage.style.width = '150px';
-                                        gameImage.style.height = '150px';
-                                        gameImage.style.borderRadius = '8px';
-                                        gameImage.style.marginBottom = '5px';
-                                        gameImage.style.transition = 'filter 0.5s ease';
-
-                                    const gameName = document.createElement('span');
-                                        let gameTitle = game.name;
-                                        gameName.classList.add('game-name');
-                                        gameName.setAttribute('data-full-name', gameTitle)
-                                        gameName.style.fontWeight = '700';
-                                         gameName.style.fontSize = '16px';
-                                        gameName.style.textAlign = 'left'
-                                        gameName.style.marginBottom = '5px'
-                                        gameName.style.width = "150px";
-                                        const maxLength = 18;
-                                         if (gameTitle.length > maxLength) {
-                                            gameTitle = gameTitle.substring(0, maxLength - 3) + "...";
-                                        }
-                                        gameName.textContent = gameTitle;
-
-                                        const ratingContainer = document.createElement('div');
-                                            ratingContainer.style.display = 'flex';
-                                            ratingContainer.style.alignItems = 'center';
-
-                                        const likes = document.createElement('span');
-                                            likes.style.fontSize = '12px';
-                                            likes.textContent = '0%';
-                                        const players = document.createElement('span');
-                                            players.style.fontSize = '12px';
-                                            players.textContent = '0';
-
-                                        const likeIcon = document.createElement('span');
-                                        likeIcon.style.boxSizing = 'border-box';
-                                        likeIcon.style.display = 'inline-block';
-                                        likeIcon.style.height = '16px';
-                                        likeIcon.style.width = '16px';
-                                        likeIcon.style.textSizAdjust = '100%';
-                                        likeIcon.style.fontFamily = '"Builder Sans", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif';
-                                        likeIcon.style.fontSize = '12px';
-                                        likeIcon.style.fontWeight = '500';
-                                        likeIcon.style.lineHeight = '18px';
-                                        likeIcon.style.textAlign = 'start';
-                                        likeIcon.style.textWrap = 'wrap';
-                                        likeIcon.style.verticalAlign = 'middle';
-                                        likeIcon.style.whiteSpaceCollapse = 'collapse';
-                                        likeIcon.style.color = 'rgba(255, 255, 255, 0.7)';
-                                        likeIcon.style.backgroundImage = `url(https://images.rbxcdn.com/87b4f6103befbe2c1e9c13eb9d7064db-common_sm_dark_12032018.svg)`;
-                                        likeIcon.style.backgroundPositionX = '0px';
-                                        likeIcon.style.backgroundPositionY = '-32px';
-                                        likeIcon.style.backgroundRepeat = 'no-repeat';
-                                        likeIcon.style.backgroundSize = '32px';
-                                        likeIcon.style.cursor = 'pointer';
-                                        likeIcon.style.textRendering = 'auto';
-                                         likeIcon.style.WebkitFontSmoothing = 'antialiased';
-                                       likeIcon.style.listStyleImage = 'none';
-                                        likeIcon.style.listStylePosition = 'outside';
-                                        likeIcon.style.listStyleType = 'none';
-                                        likeIcon.style.marginRight = '5px'
-
-                                      const playerIcon = document.createElement('span');
-                                        playerIcon.style.boxSizing = 'border-box';
-                                       playerIcon.style.display = 'inline-block';
-                                       playerIcon.style.height = '16px';
-                                        playerIcon.style.width = '16px';
-                                       playerIcon.style.textSizAdjust = '100%';
-                                      playerIcon.style.fontFamily = '"Builder Sans", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif';
-                                        playerIcon.style.fontSize = '12px';
-                                        playerIcon.style.fontWeight = '500';
-                                      playerIcon.style.lineHeight = '18px';
-                                      playerIcon.style.textAlign = 'start';
-                                      playerIcon.style.textWrap = 'wrap';
-                                        playerIcon.style.verticalAlign = 'middle';
-                                      playerIcon.style.whiteSpaceCollapse = 'collapse';
-                                        playerIcon.style.color = 'rgba(255, 255, 255, 0.7)';
-                                        playerIcon.style.backgroundImage = `url(https://images.rbxcdn.com/87b4f6103befbe2c1e9c13eb9d7064db-common_sm_dark_12032018.svg)`;
-                                      playerIcon.style.backgroundPositionX = '0px';
-                                       playerIcon.style.backgroundPositionY = '-48px';
-                                        playerIcon.style.backgroundRepeat = 'no-repeat';
-                                       playerIcon.style.backgroundSize = '32px';
-                                        playerIcon.style.cursor = 'pointer';
-                                        playerIcon.style.textRendering = 'auto';
-                                        playerIcon.style.WebkitFontSmoothing = 'antialiased';
-                                      playerIcon.style.listStyleImage = 'none';
-                                      playerIcon.style.listStylePosition = 'outside';
-                                     playerIcon.style.listStyleType = 'none';
-                                        playerIcon.style.marginRight = '5px'
-                                        const likeRatio = likeMap.get(universeId) || 0;
-                                        likes.textContent = `${likeRatio}%`;
-                                        const playerCount = playerMap.get(universeId) || 0
-                                        players.textContent = playerCount
-                                        likes.style.marginRight = '10px'
-
-                                    retryFetch(`https://www.roblox.com/item-thumbnails?params=[{"assetId":${gameId}}]`)
-                                        .then(response => response ? response.json() : null)
-                                        .then(thumbnailData => {
-                                            if (thumbnailData && thumbnailData.length > 0 && thumbnailData[0].thumbnailUrl) {
-                                                gameImage.src = thumbnailData[0].thumbnailUrl;
-                                            } else {
-                                                gameImage.src = 'https://t4.rbxcdn.com/f652a7f81606a413f9814925e122a54a';
-                                            }
-                                        })
-                                         .catch(error => {
-                                                console.error('Error fetching thumbnail for game:', gameId, error);
-                                                gameImage.src = 'https://t4.rbxcdn.com/f652a7f81606a413f9814925e122a54a';
-                                            });
+                                   const gameLink = document.createElement('a');
+                                       gameLink.href = `https://www.roblox.com/games/${gameId}`;
+                                       gameLink.style.textDecoration = 'none';
+                                       gameLink.style.display = 'block';
+                                       gameLink.style.width = '150%';
+                                       gameLink.style.height = '100%';
+                                   gameElement.appendChild(gameLink)
 
 
+                                   const gameImage = document.createElement('img');
+                                       gameImage.style.alignSelf = 'center';
+                                       gameImage.style.width = '150px';
+                                       gameImage.style.height = '150px';
+                                       gameImage.style.borderRadius = '8px';
+                                       gameImage.style.marginBottom = '5px';
+                                       gameImage.style.transition = 'filter 0.5s ease';
 
-                                     gameLink.appendChild(gameImage);
-                                     gameLink.appendChild(gameName);
-                                     gameLink.appendChild(ratingContainer);
-                                     ratingContainer.appendChild(likeIcon);
-                                     ratingContainer.appendChild(likes);
-                                    ratingContainer.appendChild(playerIcon);
-                                     ratingContainer.appendChild(players);
+                                   const gameName = document.createElement('span');
+                                       let gameTitle = game.name;
+                                       gameName.classList.add('game-name');
+                                       gameName.setAttribute('data-full-name', gameTitle)
+                                       gameName.style.fontWeight = '700';
+                                        gameName.style.fontSize = '16px';
+                                       gameName.style.textAlign = 'left'
+                                       gameName.style.marginBottom = '5px'
+                                       gameName.style.width = "150px";
+                                       const maxLength = 18;
+                                        if (gameTitle.length > maxLength) {
+                                           gameTitle = gameTitle.substring(0, maxLength - 3) + "...";
+                                       }
+                                       gameName.textContent = gameTitle;
 
-                                     hiddenGamesGrid.appendChild(gameElement);
+                                       const ratingContainer = document.createElement('div');
+                                           ratingContainer.style.display = 'flex';
+                                           ratingContainer.style.alignItems = 'center';
+
+                                       const likes = document.createElement('span');
+                                           likes.style.fontSize = '12px';
+                                           likes.textContent = '0%';
+                                       const players = document.createElement('span');
+                                           players.style.fontSize = '12px';
+                                           players.textContent = '0';
+
+                                       const likeIcon = document.createElement('span');
+                                       likeIcon.style.boxSizing = 'border-box';
+                                       likeIcon.style.display = 'inline-block';
+                                       likeIcon.style.height = '16px';
+                                       likeIcon.style.width = '16px';
+                                       likeIcon.style.textSizAdjust = '100%';
+                                       likeIcon.style.fontFamily = '"Builder Sans", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif';
+                                       likeIcon.style.fontSize = '12px';
+                                       likeIcon.style.fontWeight = '500';
+                                       likeIcon.style.lineHeight = '18px';
+                                       likeIcon.style.textAlign = 'start';
+                                       likeIcon.style.textWrap = 'wrap';
+                                       likeIcon.style.verticalAlign = 'middle';
+                                       likeIcon.style.whiteSpaceCollapse = 'collapse';
+                                       likeIcon.style.color = 'rgba(255, 255, 255, 0.7)';
+                                       likeIcon.style.backgroundImage = `url(https://images.rbxcdn.com/87b4f6103befbe2c1e9c13eb9d7064db-common_sm_dark_12032018.svg)`;
+                                       likeIcon.style.backgroundPositionX = '0px';
+                                       likeIcon.style.backgroundPositionY = '-32px';
+                                       likeIcon.style.backgroundRepeat = 'no-repeat';
+                                       likeIcon.style.backgroundSize = '32px';
+                                       likeIcon.style.cursor = 'pointer';
+                                       likeIcon.style.textRendering = 'auto';
+                                        likeIcon.style.WebkitFontSmoothing = 'antialiased';
+                                      likeIcon.style.listStyleImage = 'none';
+                                       likeIcon.style.listStylePosition = 'outside';
+                                       likeIcon.style.listStyleType = 'none';
+                                       likeIcon.style.marginRight = '5px'
+
+                                     const playerIcon = document.createElement('span');
+                                       playerIcon.style.boxSizing = 'border-box';
+                                      playerIcon.style.display = 'inline-block';
+                                      playerIcon.style.height = '16px';
+                                       playerIcon.style.width = '16px';
+                                      playerIcon.style.textSizAdjust = '100%';
+                                     playerIcon.style.fontFamily = '"Builder Sans", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif';
+                                       playerIcon.style.fontSize = '12px';
+                                       playerIcon.style.fontWeight = '500';
+                                     playerIcon.style.lineHeight = '18px';
+                                     playerIcon.style.textAlign = 'start';
+                                     playerIcon.style.textWrap = 'wrap';
+                                       playerIcon.style.verticalAlign = 'middle';
+                                     playerIcon.style.whiteSpaceCollapse = 'collapse';
+                                       playerIcon.style.color = 'rgba(255, 255, 255, 0.7)';
+                                       playerIcon.style.backgroundImage = `url(https://images.rbxcdn.com/87b4f6103befbe2c1e9c13eb9d7064db-common_sm_dark_12032018.svg)`;
+                                     playerIcon.style.backgroundPositionX = '0px';
+                                      playerIcon.style.backgroundPositionY = '-48px';
+                                       playerIcon.style.backgroundRepeat = 'no-repeat';
+                                      playerIcon.style.backgroundSize = '32px';
+                                       playerIcon.style.cursor = 'pointer';
+                                       playerIcon.style.textRendering = 'auto';
+                                       playerIcon.style.WebkitFontSmoothing = 'antialiased';
+                                     playerIcon.style.listStyleImage = 'none';
+                                     playerIcon.style.listStylePosition = 'outside';
+                                    playerIcon.style.listStyleType = 'none';
+                                       playerIcon.style.marginRight = '5px'
+                                       const likeRatio = likeMap.get(universeId) || 0;
+                                       likes.textContent = `${likeRatio}%`;
+                                       const playerCount = playerMap.get(universeId) || 0
+                                       players.textContent = playerCount
+                                       likes.style.marginRight = '10px'
+
+                                   retryFetch(`https://www.roblox.com/item-thumbnails?params=[{"assetId":${gameId}}]`)
+                                       .then(response => response ? response.json() : null)
+                                       .then(thumbnailData => {
+                                           if (thumbnailData && thumbnailData.length > 0 && thumbnailData[0].thumbnailUrl) {
+                                               gameImage.src = thumbnailData[0].thumbnailUrl;
+                                           } else {
+                                               gameImage.src = 'https://t4.rbxcdn.com/f652a7f81606a413f9814925e122a54a';
+                                           }
+                                       })
+                                        .catch(error => {
+                                               gameImage.src = 'https://t4.rbxcdn.com/f652a7f81606a413f9814925e122a54a';
+                                           });
 
 
-                                    gameImage.addEventListener('mouseenter', () => {
-                                        gameImage.style.filter = 'brightness(0.8)';
-                                    });
-                                    gameImage.addEventListener('mouseleave', () => {
-                                        gameImage.style.filter = 'brightness(1)';
-                                    });
-                                }
-                            });
-                         }
+
+                                    gameLink.appendChild(gameImage);
+                                    gameLink.appendChild(gameName);
+                                    gameLink.appendChild(ratingContainer);
+                                    ratingContainer.appendChild(likeIcon);
+                                    ratingContainer.appendChild(likes);
+                                   ratingContainer.appendChild(playerIcon);
+                                    ratingContainer.appendChild(players);
+
+                                    hiddenGamesGrid.appendChild(gameElement);
 
 
-                          function loadMoreGames() {
-                             const gamesToLoad = hiddenGames.slice(displayedGameCount, displayedGameCount + 12);
-                            displayGames(gamesToLoad);
-                            displayedGameCount += gamesToLoad.length;
-                            if (displayedGameCount >= hiddenGames.length) {
-                                loadMoreButton.style.display = 'none';
-                            }
+                                   gameImage.addEventListener('mouseenter', () => {
+                                       gameImage.style.filter = 'brightness(0.8)';
+                                   });
+                                   gameImage.addEventListener('mouseleave', () => {
+                                       gameImage.style.filter = 'brightness(1)';
+                                   });
+                                   applyTheme()
+                               }
+                           });
                         }
 
 
-                       if (hiddenGames.length === 0) {
-                            const noGames = document.createElement('p');
-                            noGames.textContent = "No hidden games found.";
-                             hiddenGamesGrid.appendChild(noGames);
-                        } else {
-                             const initialGames = hiddenGames.slice(0, 6);
-                                displayGames(initialGames);
-                            displayedGameCount = initialGames.length;
-                              if (displayedGameCount < hiddenGames.length) {
-                                  loadMoreButton.style.display = 'block';
-                                }
-                                 loadMoreButton.addEventListener('click', loadMoreGames);
-                        }
+                         function loadMoreGames() {
+                            const gamesToLoad = hiddenGames.slice(displayedGameCount, displayedGameCount + 10);
+                           displayGames(gamesToLoad);
+                           displayedGameCount += gamesToLoad.length;
+                           if (displayedGameCount >= hiddenGames.length) {
+                               loadMoreButton.style.display = 'none';
+                           }
+                       }
+
+
+                      if (hiddenGames.length === 0) {
+                           const noGames = document.createElement('p');
+                           noGames.textContent = "No hidden games found.";
+                            hiddenGamesGrid.appendChild(noGames);
+                       } else {
+                            const initialGames = hiddenGames.slice(0, 10);
+                               displayGames(initialGames);
+                           displayedGameCount = initialGames.length;
+                             if (displayedGameCount < hiddenGames.length) {
+                                 loadMoreButton.style.display = 'block';
+                               }
+                                loadMoreButton.addEventListener('click', loadMoreGames);
+                       }
                         hiddenGamesContainer.appendChild(loadMoreButton);
                         groupGamesContainer.parentNode.appendChild(hiddenGamesContainer);
 
@@ -358,13 +403,18 @@ if (window.location.pathname.startsWith('/communities')) {
 
                         containerHeader.appendChild(experiencesButton);
                         containerHeader.appendChild(hiddenGamesButton);
+                         if (currentTheme) {
+                                applyTheme();
+                         }
                     }
                 }
 
                 checkElements();
             })
              .catch(error => {
+                // U BROKE SOMETHING GODDMANNN IT JDUIKQJAHD ,qixkmuegdq7ijxdhgyq
                 console.error('Error fetching group games:', error);
             });
     }
 }
+// Valra is very cool said everyone.

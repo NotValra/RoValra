@@ -1,8 +1,5 @@
-console.log("ForceR6.js: Script loaded.");
-
 (function() {
     if (!window.location.href.startsWith('https://www.roblox.com/my/avatar')) {
-        console.log("ForceR6.js: Not on an avatar page, script will not run.");
         return;
     }
 
@@ -19,7 +16,6 @@ console.log("ForceR6.js: Script loaded.");
                        if (node.nodeType === 1 && node.classList.contains('modal-dialog')) {
                             if(node !== lastModal)
                             {
-                                console.log("ForceR6.js: Element with class 'modal-dialog' detected.");
                                  attemptClickButton();
                                  lastModal = node
                                   modalDetected = true;
@@ -34,7 +30,6 @@ console.log("ForceR6.js: Script loaded.");
                                    const modal = modalElements[0];
                                    if(modal !== lastModal)
                                     {
-                                         console.log("ForceR6.js: Element with class 'modal-dialog' detected.");
                                         attemptClickButton();
                                         lastModal = modal;
                                         modalDetected = true;
@@ -50,7 +45,6 @@ console.log("ForceR6.js: Script loaded.");
                     {
                           if(mutation.target !== lastModal)
                            {
-                            console.log("ForceR6.js: Element with class 'modal-dialog' detected.");
                                  attemptClickButton();
                                   lastModal = mutation.target;
                                    modalDetected = true;
