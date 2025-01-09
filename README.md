@@ -33,12 +33,7 @@
 - **And more to come, if you have a feature you want me to add just lmk**
 
 # To do list
-- [x] ~~**Adding light mode support**~~ **Coming in 2.1.1**
-- [x] ~~**Redesigning my settings page**~~ **Coming in 2.1.1. Not completely done in 2.1.1**
-- [x] ~~Making a setting page so you can disable features you dont want.~~ **ADDED!**
-- [x] ~~Making the region seacher able to search more servers without making it get more rate limits.~~ **ADDED!**
-- [x] ~~Adding my Subplace extension to RoValra, but without all the bypassing features.~~ **ADDED**
-- [x] ~~Redesign most of my extensions UI making it have the games thumbnails and other stuff.~~ **ADDED!**
+- [ ] **Adding a user sniper for people that arent on your friends list :)**
 
 # Known incompatibilies
 <details>
@@ -51,6 +46,8 @@
 - **If you are located in the US the Best Ping button wont work. Dw there is a warning if you press it just in case**
 </details>
 
+# Known Issues
+- **The extension completely breaks if you use a different language on roblox, this is bc i completely forgot that is even a setting**
 
 # How to install
 
