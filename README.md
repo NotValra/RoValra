@@ -47,7 +47,7 @@
 </details>
 
 # Known Issues
-- **The extension completely breaks if you use a different language on roblox, this is bc i completely forgot that is even a setting**
+- ~~**The extension completely breaks if you use a different language on roblox, this is bc i completely forgot that is even a setting**~~ **fix coming next update**
 
 # How to install
 
