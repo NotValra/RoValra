@@ -49,6 +49,7 @@ _The chrome web store version is a bit behind cuz google got angry over me not h
 
 # Known Issues
 - ~~**The extension completely breaks if you use a different language on roblox, this is bc i completely forgot that is even a setting**~~ **Fix added in 2.1.1.5**
+- **With the fixes relating different languages a few new issues popped up, like the avatars features being quite broken and some other stuff, it will be fixed in the next update**
 
 # How to install
 
