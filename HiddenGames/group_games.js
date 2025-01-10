@@ -1,4 +1,3 @@
-
 let currentTheme = 'light';
 
 window.addEventListener('themeDetected', (event) => {
@@ -98,10 +97,20 @@ function applyTheme() {
         });
     });
 }
-if (window.location.pathname.startsWith('/communities')) {
+if (window.location.pathname.includes('/communities')) {
     console.log("GROUP!!! i mean community 😔");
-    const groupId = window.location.pathname.split('/')[2];
-
+      const currentURL = window.location.href;
+      const languageMatch = currentURL.match(/https:\/\/www\.roblox\.com\/([a-z]{2})\//);
+      let languagePrefix = '';
+        if (languageMatch && languageMatch[0]) {
+            languagePrefix = languageMatch[0]
+        }
+        const regex = /https:\/\/www\.roblox\.com\/(?:[a-z]{2}\/)?communities\/(\d+)/;
+        const match = currentURL.match(regex);
+        let groupId = null;
+    if (match && match[1]) {
+        groupId = match[1]
+     }
     if (groupId) {
         async function fetchAllGroupGames() {
             let allGames = [];
@@ -160,12 +169,19 @@ if (window.location.pathname.startsWith('/communities')) {
                         hiddenGamesGrid.style.gap = '12px';
                         hiddenGamesGrid.style.marginTop = '5px';
 
-                        const gameLinks = Array.from(groupGamesContainer.querySelectorAll('a[href^="https://www.roblox.com/games/refer?PlaceId="]'));
+                        const gameLinks = Array.from(groupGamesContainer.querySelectorAll('.game-card a'));
 
                         const visibleGameIds = gameLinks.map(link => {
-                             const url = new URL(link.href);
-                            return parseInt(url.searchParams.get('PlaceId'), 10); 
-                        });
+                                 const parentElement = link.closest('.game-card');
+                                if (parentElement) {
+                                    const dataPlaceId = parentElement.getAttribute('data-place-id');
+                                        if (dataPlaceId) {
+                                           return parseInt(dataPlaceId, 12);
+                                        }
+                                }
+                             return null;
+                            }).filter(id => id !== null);
+
 
                         const hiddenGames = allGames.filter(game => {
                             if (!game.rootPlace || !game.rootPlace.id) {
@@ -348,7 +364,7 @@ if (window.location.pathname.startsWith('/communities')) {
 
 
                          function loadMoreGames() {
-                            const gamesToLoad = hiddenGames.slice(displayedGameCount, displayedGameCount + 10);
+                            const gamesToLoad = hiddenGames.slice(displayedGameCount, displayedGameCount + 12);
                            displayGames(gamesToLoad);
                            displayedGameCount += gamesToLoad.length;
                            if (displayedGameCount >= hiddenGames.length) {
@@ -362,7 +378,7 @@ if (window.location.pathname.startsWith('/communities')) {
                            noGames.textContent = "No hidden games found.";
                             hiddenGamesGrid.appendChild(noGames);
                        } else {
-                            const initialGames = hiddenGames.slice(0, 10);
+                            const initialGames = hiddenGames.slice(0, 12);
                                displayGames(initialGames);
                            displayedGameCount = initialGames.length;
                              if (displayedGameCount < hiddenGames.length) {

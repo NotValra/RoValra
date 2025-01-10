@@ -4,12 +4,14 @@ let observer = null;
 
 function getPlaceIdFromUrl() {
     try {
-        const path = window.location.pathname;
-        const match = path.match(/\/games\/(\d+)/);
-        if (match) {
-            return match[1];
+        const url = window.location.href;
+         const regex = /https:\/\/www\.roblox\.com\/(?:[a-z]{2}\/)?games\/(\d+)/;
+          const match = url.match(regex);
+
+          if (match && match[1]) {
+              return match[1];
         }
-        return null;
+            return null;
     } catch (error) {
         return null;
     } finally {
@@ -49,7 +51,14 @@ function addInviteButton(detailsElement, serverId, placeId) {
         inviteButton.dataset.serverid = serverId;
         inviteButton.textContent = 'Invite';
         inviteButton.href = 'javascript:void(0);';
-        const inviteUrl = `https://www.roblox.com/games/start?placeId=${placeId}&gameInstanceId=${serverId}`;
+         const currentURL = window.location.href;
+            const languageMatch = currentURL.match(/https:\/\/www\.roblox\.com\/([a-z]{2})\//);
+              let languagePrefix = '';
+                if (languageMatch && languageMatch[0]) {
+                  languagePrefix = languageMatch[0];
+                }
+         const inviteUrl = `https://roblox.com/games/start?placeId=${placeId}&gameInstanceId=${serverId}`;
+
 
         inviteButton.addEventListener('click', function (event) {
              try {

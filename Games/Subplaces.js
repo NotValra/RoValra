@@ -1,21 +1,20 @@
-
 let currentTheme = 'light';
-
 window.addEventListener('themeDetected', (event) => {
     currentTheme = event.detail.theme;
-   applyTheme();
+    applyTheme();
 });
 
 function extractPlaceId() {
-    const url = window.location.href;
-    const regex = /\/games\/(\d+)/;
-    const match = url.match(regex);
+  const url = window.location.href;
+    const regex = /https:\/\/www\.roblox\.com\/(?:[a-z]{2}\/)?games\/(\d+)/;
+  const match = url.match(regex);
 
-    if (match && match[1]) {
-        return match[1];
-    } else {
-        return null;
-    }
+
+  if (match && match[1]) {
+      return match[1];
+  } else {
+      return null;
+  }
 }
 
 const retryFetch = async (url, retries = 5, delay = 3000) => {
@@ -40,7 +39,9 @@ async function fetchUniverseId(placeId) {
     const url = `https://games.roblox.com/v1/games/multiget-place-details?placeIds=${placeId}`;
     try {
         const response = await fetch(url, { method: 'GET', credentials: 'include' });
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const data = await response.json();
         if (data && Array.isArray(data) && data.length > 0 && data[0].universeId) {
             return data[0].universeId;
@@ -57,10 +58,11 @@ async function fetchSubplaces(universeId, cursor = null, allSubplaces = []) {
     if (cursor) {
         url += `&cursor=${cursor}`;
     }
-
     try {
         const response = await fetch(url, { method: 'GET', credentials: 'include' });
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const data = await response.json();
         if (data && data.data) {
             const currentSubplaces = data.data;
@@ -161,9 +163,17 @@ async function createSubplacesTab(subplaces) {
                 gameElement.style.padding = '0px';
                 gameElement.style.borderRadius = '8px';
 
+               const currentURL = window.location.href;
+                const languageMatch = currentURL.match(/https:\/\/www\.roblox\.com\/([a-z]{2})\//);
+                let languagePrefix = '';
 
-                const gameLink = document.createElement('a');
-                gameLink.href = `https://www.roblox.com/games/${gameId}`;
+                if (languageMatch && languageMatch[1]) {
+                  languagePrefix = languageMatch[0];
+                }
+
+
+                 const gameLink = document.createElement('a');
+                  gameLink.href = `${languagePrefix}games/${gameId}`;
                 gameLink.style.textDecoration = 'none';
                 gameLink.style.display = 'block';
                  gameLink.style.width = '100%';
@@ -218,7 +228,7 @@ async function createSubplacesTab(subplaces) {
                     gameImage.style.filter = 'brightness(1)';
                 });
             };
-             applyThemeForElement(gameElement);
+                applyThemeForElement(gameElement);
         })
     }
 
@@ -360,6 +370,10 @@ async function createSubplacesTab(subplaces) {
     if (!contentSection) {
         contentSection = document.querySelector('.tab-content.rbx-tab-content');
     }
+    if (!contentSection) {
+        return;
+    }
+
 
     if (contentSection) {
       contentSection.appendChild(subplacesContentDiv);
@@ -382,11 +396,13 @@ async function createSubplacesTab(subplaces) {
 
 (async function () {
     const placeId = extractPlaceId();
-    if (!placeId) return;
+    if (!placeId) {
+        return;
+    }
 
     try {
         const universeId = await fetchUniverseId(placeId);
-        if (universeId) {
+         if (universeId) {
             const subplaces = await fetchSubplaces(universeId);
             createSubplacesTab(subplaces);
         }

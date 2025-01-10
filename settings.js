@@ -341,72 +341,75 @@ function startObserver() {
     observer.observe(document.body, { childList: true, subtree: true });
 }
 const loadSettings = async () => {
-     return new Promise((resolve, reject) => {
-        chrome.storage.local.get({
-              itemSalesEnabled: true,
-                groupGamesEnabled: true,
-                 userGamesEnabled: true,
-                userSniperEnabled: true,
-               regionSelectorEnabled: false,
-                 subplacesEnabled: true,
-                  showServerListOverlay: true,
-                    forceR6Enabled: true,
-                       fixR6Enabled: false,
-                       inviteEnabled: true,
-            }, (settings) => {
-                 if (chrome.runtime.lastError) {
-                     reject(chrome.runtime.lastError)
-                 } else {
-                    resolve(settings);
-                }
-            });
-     });
-
- };
-
-
-  const handleSaveSettings = async (itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, showServerListOverlayCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox) => {
-    try{
-    const settings = {
-         itemSalesEnabled: itemSalesCheckbox.checked,
-        groupGamesEnabled: groupGamesCheckbox.checked,
-        userGamesEnabled: userGamesCheckbox.checked,
-        userSniperEnabled: userSniperCheckbox.checked,
-        regionSelectorEnabled: regionSelectorCheckbox.checked,
-        subplacesEnabled: subplacesCheckbox.checked,
-        showServerListOverlay: showServerListOverlayCheckbox.checked,
-         forceR6Enabled: forceR6Checkbox.checked,
-        fixR6Enabled: r6FixCheckbox.checked,
-        inviteEnabled: inviteCheckbox.checked,
-    };
-     return new Promise((resolve, reject) => {
-        chrome.storage.local.set(settings, () => {
-         if (chrome.runtime.lastError) {
-                reject(chrome.runtime.lastError);
-           } else {
-                resolve();
-            }
-        });
+    return new Promise((resolve, reject) => {
+       chrome.storage.local.get({
+             itemSalesEnabled: true,
+               groupGamesEnabled: true,
+                userGamesEnabled: true,
+               userSniperEnabled: true,
+              regionSelectorEnabled: false,
+                subplacesEnabled: true,
+                 showServerListOverlay: true,
+                   forceR6Enabled: true,
+                      fixR6Enabled: false,
+                      inviteEnabled: true,
+                       sniperEnabled: true, // Added setting
+           }, (settings) => {
+                if (chrome.runtime.lastError) {
+                    reject(chrome.runtime.lastError)
+                } else {
+                   resolve(settings);
+               }
+           });
     });
 
-    } catch (error) {
-    }
 };
-const initSettings = async (itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, showServerListOverlayCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox) => {
-    const settings = await loadSettings();
 
-    if(settings){
-         itemSalesCheckbox.checked = settings.itemSalesEnabled;
-        groupGamesCheckbox.checked = settings.groupGamesEnabled;
-        userGamesCheckbox.checked = settings.userGamesEnabled;
-        userSniperCheckbox.checked = settings.userSniperEnabled;
-        regionSelectorCheckbox.checked = settings.regionSelectorEnabled;
-        subplacesCheckbox.checked = settings.subplacesEnabled;
-        showServerListOverlayCheckbox.checked = settings.showServerListOverlay;
-         forceR6Checkbox.checked = settings.forceR6Enabled;
-        r6FixCheckbox.checked = settings.fixR6Enabled;
-        inviteCheckbox.checked = settings.inviteEnabled;
-    }
+
+ const handleSaveSettings = async (itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, showServerListOverlayCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox, sniperCheckbox) => { // Added sniperCheckbox here
+   try{
+   const settings = {
+        itemSalesEnabled: itemSalesCheckbox.checked,
+       groupGamesEnabled: groupGamesCheckbox.checked,
+       userGamesEnabled: userGamesCheckbox.checked,
+       userSniperEnabled: userSniperCheckbox.checked,
+       regionSelectorEnabled: regionSelectorCheckbox.checked,
+       subplacesEnabled: subplacesCheckbox.checked,
+       showServerListOverlay: showServerListOverlayCheckbox.checked,
+        forceR6Enabled: forceR6Checkbox.checked,
+       fixR6Enabled: r6FixCheckbox.checked,
+       inviteEnabled: inviteCheckbox.checked,
+       sniperEnabled: sniperCheckbox.checked,
+   };
+    return new Promise((resolve, reject) => {
+       chrome.storage.local.set(settings, () => {
+        if (chrome.runtime.lastError) {
+               reject(chrome.runtime.lastError);
+          } else {
+               resolve();
+           }
+       });
+   });
+
+   } catch (error) {
+   }
+};
+const initSettings = async (itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, showServerListOverlayCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox, sniperCheckbox) => { // Added sniperCheckbox here
+   const settings = await loadSettings();
+
+   if(settings){
+        itemSalesCheckbox.checked = settings.itemSalesEnabled;
+       groupGamesCheckbox.checked = settings.groupGamesEnabled;
+       userGamesCheckbox.checked = settings.userGamesEnabled;
+       userSniperCheckbox.checked = settings.userSniperEnabled;
+       regionSelectorCheckbox.checked = settings.regionSelectorEnabled;
+       subplacesCheckbox.checked = settings.subplacesEnabled;
+       showServerListOverlayCheckbox.checked = settings.showServerListOverlay;
+        forceR6Checkbox.checked = settings.forceR6Enabled;
+       r6FixCheckbox.checked = settings.fixR6Enabled;
+       inviteCheckbox.checked = settings.inviteEnabled;
+       sniperCheckbox.checked = settings.sniperEnabled;
+   }
 };
 
 
@@ -732,6 +735,15 @@ async function checkRoValraPage() {
                               <div class="setting-separator"></div>
                           </div>
                               <div class="setting">
+                                   <label style="">Enable Universal User Sniper</label>
+                                  <p>This lets you join ANYONE as long as you know what game they are playing!</p>
+                                      <label class="toggle-switch">
+                                              <input type="checkbox" id="enableSniper">
+                                              <span class="slider"></span>
+                                      </label>
+                                      <div class="setting-separator"></div>
+                              </div>
+                              <div class="setting">
                                   <label style="">Enable Hidden User Games</label>
                                   <p>Shows a users hidden games on their profile.</p>
                                   <label class="toggle-switch">
@@ -751,7 +763,7 @@ async function checkRoValraPage() {
                                   <div class="setting-separator"></div>
                               </div>
                             <div class="setting">
-                                  <label style="">Enable Universal Server Invites (BETA)</label>
+                                  <label style="">Enable Universal Server Invites (BROKEN ATM!)</label>
                                   <p>This allows you to invite your friends to the game you're in, without your friend requiring any extension, not even RoValra!</p>
                                   <p>This does require you to have BTRoblox for it to work.</p>
                                   <label class="toggle-switch">
@@ -795,7 +807,7 @@ async function checkRoValraPage() {
                               </div>
                               <div class="setting">
                                   <label style="">Enable R6 Fix (BETA)</label>
-                                  <p>Stops Roblox from automatically switching your character to r15 when equiping dynamic heads.</p>
+                                  <p>Stops Roblox from automatically switching your character to r15 when equiping dynamic heads. This requires you to use the english language on Roblox.</p>
                                       <label class="toggle-switch">
                                           <input type="checkbox" id="enableR6Fix">
                                           <span class="slider"></span>
@@ -814,18 +826,20 @@ async function checkRoValraPage() {
                   const showServerListOverlayCheckbox = contentContainer.querySelector('#showServerListOverlay');
                   const forceR6Checkbox = contentContainer.querySelector('#enableForceR6');
                   const r6FixCheckbox = contentContainer.querySelector('#enableR6Fix');
-                  const inviteCheckbox = contentContainer.querySelector('#enableInvite');
-                  initSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, showServerListOverlayCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox);
-                  itemSalesCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, showServerListOverlayCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
-                  groupGamesCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, showServerListOverlayCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
-                  userGamesCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, showServerListOverlayCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
-                  userSniperCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, showServerListOverlayCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
-                  regionSelectorCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, showServerListOverlayCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
-                  subplacesCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, showServerListOverlayCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
-                  showServerListOverlayCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, showServerListOverlayCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
-                  forceR6Checkbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, showServerListOverlayCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
-                  r6FixCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, showServerListOverlayCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
-                   inviteCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, showServerListOverlayCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
+                   const inviteCheckbox = contentContainer.querySelector('#enableInvite');
+                  const sniperCheckbox = contentContainer.querySelector('#enableSniper');
+                  initSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, showServerListOverlayCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox, sniperCheckbox);
+                  itemSalesCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, showServerListOverlayCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox, sniperCheckbox));
+                  groupGamesCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, showServerListOverlayCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox, sniperCheckbox));
+                  userGamesCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, showServerListOverlayCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox, sniperCheckbox));
+                  userSniperCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, showServerListOverlayCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox, sniperCheckbox));
+                  regionSelectorCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, showServerListOverlayCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox, sniperCheckbox));
+                  subplacesCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, showServerListOverlayCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox, sniperCheckbox));
+                  showServerListOverlayCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, showServerListOverlayCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox, sniperCheckbox));
+                  forceR6Checkbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, showServerListOverlayCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox, sniperCheckbox));
+                  r6FixCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, showServerListOverlayCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox, sniperCheckbox));
+                  inviteCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, showServerListOverlayCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox, sniperCheckbox));
+                  sniperCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, showServerListOverlayCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox, sniperCheckbox));
                   const showServerListOverlayContainer = contentContainer.querySelector('.showServerListOverlay-container')
                   const regionSelectorCheckboxElement = contentContainer.querySelector('#enableRegionSelector');
   

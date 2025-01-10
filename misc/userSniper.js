@@ -1,4 +1,4 @@
-if (window.location.pathname.startsWith('/users/')) {
+if (window.location.pathname.includes('/users/')) {
     (function() {
     
         let isRunning = false;
@@ -12,14 +12,15 @@ if (window.location.pathname.startsWith('/users/')) {
     
         function getUserIdFromUrl() {
             const path = window.location.pathname;
-            const match = path.match(/\/users\/(\d+)/);
+            const regex = /^\/(?:[a-z]{2}\/)?users\/(\d+)/;
+            const match = path.match(regex);
             if (match) {
-                const userId = parseInt(match[1], 10);
-                return userId;
+              const userId = parseInt(match[1], 10);
+              return userId;
             } else {
-                return null;
+              return null;
             }
-        }
+          }
     
         async function sendPresenceRequest(userId) {
             if (isRateLimited || !canMakeRequest) {
@@ -299,7 +300,7 @@ if (window.location.pathname.startsWith('/users/')) {
     }
     function applyUserSniper(){
         const observer = new MutationObserver(mutations => {
-        if (window.location.pathname.startsWith('/users/')) {
+        if (window.location.pathname.includes('/users/')) {
               const userId = window.location.pathname.split('/')[2];
     
               if (userId) {

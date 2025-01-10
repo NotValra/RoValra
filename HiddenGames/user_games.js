@@ -5,8 +5,13 @@ window.addEventListener('themeDetected', (event) => {
     currentTheme = event.detail.theme;
     applyTheme(); 
 });
-
-const userId = window.location.pathname.split('/')[2];
+const currentURL = window.location.href;
+const regex = /https:\/\/www\.roblox\.com\/(?:[a-z]{2}\/)?users\/(\d+)/;
+        const match = currentURL.match(regex);
+        let userId = null;
+    if (match && match[1]) {
+        userId = match[1]
+     }
 
 const retryFetch = async (url, retries = 5, delay = 3000) => {
     try {

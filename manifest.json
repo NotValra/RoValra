@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
     "name": "RoValra",
-    "version": "2.1.1",
+    "version": "2.1.1.5",
     "description": "An extension aiming to provide features that other Roblox extensions pay wall!",
     "permissions": [
       "cookies",
@@ -68,7 +68,8 @@
                 "Avatar/R6Fix.js",
                 "settings.js",
                 "Assets/icon-128.png",
-                "Games/invite.js"
+                "Games/invite.js",
+                "Games/sniper.js"
                 
             ],
             "matches": [

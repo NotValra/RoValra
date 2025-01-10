@@ -1,5 +1,5 @@
 (function() {
-    if (!window.location.href.startsWith('https://www.roblox.com/my/avatar')) {
+    if (!window.location.href.includes('/my/avatar')) {
         return;
     }
 

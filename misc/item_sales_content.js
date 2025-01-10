@@ -1,13 +1,13 @@
-
 let currentTheme = 'light';
 window.addEventListener('themeDetected', (event) => {
     currentTheme = event.detail.theme;
-    console.log(`item_sales_content.js: Theme received: ${currentTheme}`);
     applyTheme();
 });
 
-const itemId = parseInt(window.location.pathname.split('/')[2], 10);
-console.log("item_sales_content.js: Extracted item ID:", itemId);
+const url = window.location.href;
+const regex = /https:\/\/www\.roblox\.com\/(?:[a-z]{2}\/)?(?:catalog|bundles)\/(\d+)/;
+const match = url.match(regex);
+const itemId = parseInt(match[1], 10);
 const itemsURL = document.currentScript.dataset.itemsUrl;
 
 
@@ -33,13 +33,11 @@ fetch(itemsURL)
     .then(data => {
         const items = data.item || [];
          if (items.length === 0) {
-            console.log("item_sales_content.js: No items found in the fetched data.");
             return;
          }
             const item = items.find(item => item.id === itemId || parseInt(item.id, 10) === itemId);
 
             if (item) {
-                console.log("item_sales_content.js: Item found:", item);
 
                 const retryFindElement = (selector, maxRetries, retryInterval, callback, fallbackSelector) => {
                     let retries = 0;
@@ -54,7 +52,6 @@ fetch(itemsURL)
                             callback(element);
                         } else if (retries >= maxRetries) {
                             clearInterval(interval);
-                            console.log(`${selector} and fallback ${fallbackSelector} not found after ${maxRetries} retries.`);
                         }
                         retries++;
                     }, retryInterval);
@@ -85,7 +82,6 @@ fetch(itemsURL)
                     ".price-row-container"
                 );
             } else {
-                console.log("item_sales_content.js: Item not found.");
             }
         })
     .catch(error => console.error("item_sales_content.js: Error loading items.json", error));

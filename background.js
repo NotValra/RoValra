@@ -1,21 +1,5 @@
 // Dont look at this shit dookie poo po of code
-chrome.runtime.onMessage.addListener(
-    function(request, sender, sendResponse) {
-      if (request.action == "openSettings")
-        chrome.runtime.openOptionsPage();
-    }
-  );
-function getRobloxCookie() {
-  return new Promise((resolve, reject) => {
-    chrome.cookies.get({ url: "https://www.roblox.com", name: ".ROBLOSECURITY" }, (cookie) => {
-      if (cookie) {
-        resolve(cookie.value);
-      } else {
-        reject("No .ROBLOSECURITY cookie found");
-      }
-    });
-  });
-}
+
 
 async function updateDeclarativeNetRequestRuleWithCookie(rulesetId) {
   try {
@@ -88,10 +72,11 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
                     sendResponse({ success: false, message: error });
                 });
             return true;
+        // Not in use like almost the entire script
         case "fetchUserIP": {
             try {
                 const cookie = await getRobloxCookie();
-                const response = await fetch("https://www.roblox.com/my/settings/json", {
+                const response = await fetch("", {
                     headers: {
                         "Cookie": `${cookie}`
                     }
@@ -122,7 +107,7 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
         case "initializeServerRegion":
             try {
                 const cookie = await getRobloxCookie();
-                const response = await fetch("https://www.roblox.com/my/settings/json", {
+                const response = await fetch("", {
                     headers: {
                         "Cookie": `${cookie}`
                     }
@@ -161,7 +146,7 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
            return true
         }
         case "fetchItemData":
-            fetch("https://raw.githubusercontent.com/workframes/roblox-owner-counts/refs/heads/main/items.json")
+            fetch("")
                 .then((response) => response.json())
                 .then((data) => {
                     sendResponse({

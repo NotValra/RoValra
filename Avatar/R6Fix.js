@@ -1,13 +1,18 @@
-
 (function() {
-    if (!window.location.href.startsWith('https://www.roblox.com/my/avatar')) {
+    if (!window.location.href.includes('/my/avatar')) {
         return;
     }
+    const currentURL = window.location.href;
+      const languageMatch = currentURL.match(/https:\/\/www\.roblox\.com\/([a-z]{2})\//);
+      let languagePrefix = '';
+        if (languageMatch && languageMatch[0]) {
+            languagePrefix = languageMatch[0]
+        }
+   const avatarPageURL = `${languagePrefix}my/avatar`;
 
     const dynamicHeadsSelector = 'span.ng-binding';
     const avatarAPIURL = 'https://avatar.roblox.com/v1/avatar';
     const setAvatarTypeAPIURL = 'https://avatar.roblox.com/v1/avatar/set-player-avatar-type';
-    const avatarPageURL = 'https://www.roblox.com/my/avatar';
     const thumbnailLoaderSelector = 'div[ng-if="isThumbnailLoading"].thumbnail-loader.ng-scope';
     const dynamicHeadsContainerSelector = 'div.container-of-dynamic-heads';
     const refreshButtonSelector = '#refreshAvatar';
