@@ -33,7 +33,7 @@
 - **And more to come, if you have a feature you want me to add just lmk**
 
 # To do list
-- [ ] **Adding a user sniper for people that arent on your friends list :)**
+- [x] **~~Adding a user sniper for people that arent on your friends list :)~~ ADDED!**
 
 # Known incompatibilies
 <details>
