@@ -1,7 +1,10 @@
 # RoValra
 
 # Chrome Web Store
-[RoValra](https://chromewebstore.google.com/detail/rovalra/njcickgebhnpgmoodjdgohkclfplejli)
+**[RoValra](https://chromewebstore.google.com/detail/rovalra/njcickgebhnpgmoodjdgohkclfplejli)**
+
+_The chrome web store version is a bit behind cuz google got angry over me not having a privacy policy even tho they said it didnt need one_
+
 
 ## Sections
 - [**Features**](https://github.com/NotValra/RoValra?tab=readme-ov-file#features)
@@ -14,6 +17,8 @@
     - **Shows hidden games on profiles and groups**
     - **Join a server in a specific region**
     - **Shows Subplaces of a game**
+    - **Universal game invitation link**
+    - **Universal user sniper that does not require you to be friends with them**
 - **Items**
     - **Shows sales and revenue on spesific items.**
 - **Profile**
@@ -40,14 +45,10 @@
   <summary>Expand</summary>
   
 - **The hidden games of groups bugs out a bit if you use [RoSeal](https://chromewebstore.google.com/detail/roseal-augmented-roblox-e/hfjngafpndganmdggnapblamgbfjhnof?hl=en) with the "Seamless navigation of communities" setting on.**
-
-- **Some servers might not show like France (Might actually be cuz Roblox either change the servers ip or stopped running them)**
-
-- **If you are located in the US the Best Ping button wont work. Dw there is a warning if you press it just in case**
 </details>
 
 # Known Issues
-- ~~**The extension completely breaks if you use a different language on roblox, this is bc i completely forgot that is even a setting**~~ **fix coming next update**
+- ~~**The extension completely breaks if you use a different language on roblox, this is bc i completely forgot that is even a setting**~~ **Fix added in 2.1.1.5**
 
 # How to install
 
