@@ -2,7 +2,7 @@
 function delay(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
-// this script might me just a tiny bit badly coded :)
+// this script might be just a tiny bit badly coded :)
 if (window.location.pathname.includes('/games/')) {
     const url = window.location.href;
     let placeId = null;
@@ -111,7 +111,7 @@ if (window.location.pathname.includes('/games/')) {
                 });
                 config = {
                     format_version: '1.1',
-                    target_page: 'https://httpbin.org/*',
+                    target_page: '',
                     headers: headers,
                     debug_mode: false,
                     use_url_contains: false
@@ -198,7 +198,6 @@ function handleRateLimitedState(limited) {
                 headers: {
                     "Referer": `https://www.roblox.com/games/${placeId}/`,
                     "Origin": "https://roblox.com",
-                    "Cookie": `${robloxCookie}`,
                     "Cache-Control": "no-cache",
                 },
             });
@@ -264,7 +263,6 @@ function handleRateLimitedState(limited) {
 
     async function fetchUserLocation(retries = 2) {
         try {
-            const robloxCookieResponse = await chrome.runtime.sendMessage({ action: "getRobloxCookie" });
     
             if (!robloxCookieResponse || !robloxCookieResponse.success) {
                
@@ -546,24 +544,30 @@ function handleRateLimitedState(limited) {
                 }
            }
     }
+    
+    
+    
+   
+        
+    
     function updatePopup(retries = 5) {
         let serverPopup = document.querySelector(".tab-pane.game-instances.section-content.active");
         if (!serverPopup) {
-             serverPopup = document.querySelector(".tab-pane.game-instances.active");
-            if(!serverPopup) {
-            if (retries > 0) {
-                setTimeout(() => updatePopup(retries - 1), 1000);
-            } else {
+            serverPopup = document.querySelector(".tab-pane.game-instances.active");
+            if (!serverPopup) {
+                if (retries > 0) {
+                    setTimeout(() => updatePopup(retries - 1), 1000);
+                } else {
+                }
+                return;
             }
-            return;
-        }
         }
     
         const existingButtonContainer = document.querySelector(".server-buttons-container");
         if (existingButtonContainer) {
             existingButtonContainer.remove();
         }
-      
+    
         const loadingContainer = document.createElement("div");
         loadingContainer.classList.add("server-buttons-container");
           loadingContainer.style.display = "flex";
@@ -726,36 +730,229 @@ function handleRateLimitedState(limited) {
             });
         }
     
-        bestPingOption.addEventListener('click', async () => {
+       bestPingOption.addEventListener('click', async () => {
             let bestServerRegion = "N/A";
             let bestServer = null;
-            if (allServers.length > 0 && userLocation) {
-                bestServer = await findBestServer();
-                if (bestServer) {
-                    for (const [region, server] of Object.entries(regionServerMap)) {
-                        if (server.id === bestServer.id) {
-                            bestServerRegion = region;
-                        }
-                    }
-                }
-            }
     
-            if (bestServer == null || bestServerRegion == "N/A") {
-                if (allServers.length > 0) {
-                    if (bestServer) {
-                        for (const [region, server] of Object.entries(regionServerMap)) {
+    
+            const modalContainer = document.createElement('div');
+            modalContainer.id = 'simplemodal-container';
+            modalContainer.className = 'simplemodal-container';
+            modalContainer.style.cssText = 'position: fixed; z-index: 1042; height: 282px; width: 400px; left: 50%; top: 50%; transform: translate(-50%, -50%);';
+    
+            const modalCloseButton = document.createElement('a');
+            modalCloseButton.className = 'modalCloseImg simplemodal-close';
+            modalCloseButton.title = 'Close';
+            modalContainer.appendChild(modalCloseButton);
+            modalCloseButton.addEventListener('click', () => {
+                modalContainer.remove();
+                const overlay = document.getElementById('modal-overlay');
+                if(overlay) overlay.remove();
+
+            });
+    
+            const modalWrap = document.createElement('div');
+            modalWrap.className = 'simplemodal-wrap';
+            modalWrap.style.cssText = 'height: 100%; outline: 0px; width: 100%; overflow: visible;';
+            modalContainer.appendChild(modalWrap);
+    
+            const modalContent = document.createElement('div');
+            modalContent.id = 'modal-confirmation';
+            modalContent.className = 'modal-confirmation noImage protocolhandler-are-you-installed-modal simplemodal-data';
+            modalContent.dataset.modalType = 'confirmation';
+            modalContent.style.display = 'block';
+            modalWrap.appendChild(modalContent);
+            
+            const modalDialog = document.createElement('div');
+            modalDialog.id = 'modal-dialog';
+            modalDialog.className = 'modal-dialog';
+            modalContent.appendChild(modalDialog);
+    
+    
+            const modalContentContainer = document.createElement('div');
+            modalContentContainer.className = 'modal-content';
+            modalDialog.appendChild(modalContentContainer)
+    
+            const modalHeader = document.createElement('div');
+            modalHeader.className = 'modal-header';
+            modalContentContainer.appendChild(modalHeader);
+    
+            const closeButton = document.createElement('button');
+             closeButton.type = "button"
+            closeButton.className = 'close';
+            closeButton.dataset.dismiss = 'modal';
+             modalHeader.appendChild(closeButton);
+                const closeSpan = document.createElement('span');
+             closeSpan.ariaHidden = "true"
+            closeButton.appendChild(closeSpan)
+            const closeIcon = document.createElement('span')
+              closeIcon.className = 'icon-close'
+              closeSpan.appendChild(closeIcon)
+            const srOnlySpan = document.createElement('span');
+             srOnlySpan.className = 'sr-only';
+            srOnlySpan.textContent = "Close"
+            closeButton.appendChild(srOnlySpan)
+    
+                const modalTitle = document.createElement('h5')
+                 modalTitle.className = "modal-title"
+             modalHeader.appendChild(modalTitle)
+    
+            const modalBody = document.createElement('div');
+            modalBody.className = 'modal-body';
+             modalContentContainer.appendChild(modalBody);
+    
+            const modalTopBody = document.createElement('div');
+            modalTopBody.className = 'modal-top-body';
+            modalBody.appendChild(modalTopBody);
+    
+            const modalMessage = document.createElement('div');
+            modalMessage.className = 'modal-message';
+            modalTopBody.appendChild(modalMessage);
+    
+            const logoSpan = document.createElement('img');
+             logoSpan.src = chrome.runtime.getURL("Assets/icon-128.png");
+            logoSpan.style.display = 'inline-block';
+            logoSpan.style.transition = 'transform 0.8s linear';
+            logoSpan.style.height = '120px';
+            logoSpan.style.width = '120px';
+                
+            modalMessage.appendChild(logoSpan);
+              function startSpin() {
+                     logoSpan.style.transform = 'rotate(360deg)';
+                    setTimeout(() => {
+                         logoSpan.style.transform = 'rotate(0deg)';
+                            startSpin();
+                        }, 800);
+                }
+                startSpin()
+                
+            
+             const messageParagraph = document.createElement('p');
+            messageParagraph.textContent = `Joining the best server!`;
+             
+             modalMessage.appendChild(messageParagraph);
+    
+            const modalImageContainer = document.createElement('div');
+            modalImageContainer.className = 'modal-image-container roblox-item-image';
+            modalImageContainer.dataset.imageSize = 'medium';
+            modalImageContainer.dataset.noOverlays = '';
+            modalImageContainer.dataset.noClick = '';
+            modalTopBody.appendChild(modalImageContainer);
+    
+            const modalImage = document.createElement('img');
+            modalImage.className = 'modal-thumb';
+             modalImage.alt = 'generic image';
+            modalImageContainer.appendChild(modalImage);
+    
+             const modalCheckbox = document.createElement('div');
+            modalCheckbox.className = 'modal-checkbox checkbox';
+                modalCheckbox.style.display = 'none';
+            modalTopBody.appendChild(modalCheckbox);
+    
+                const checkboxInput = document.createElement('input');
+                checkboxInput.type = 'checkbox';
+                checkboxInput.id = 'modal-checkbox-input';
+             modalCheckbox.appendChild(checkboxInput)
+    
+            const checkboxLabel = document.createElement('label');
+                checkboxLabel.setAttribute('for', 'modal-checkbox-input')
+             modalCheckbox.appendChild(checkboxLabel)
+    
+    
+            const modalBtns = document.createElement('div');
+                modalBtns.className = 'modal-btns';
+            modalBody.appendChild(modalBtns)
+    
+                const confirmButton = document.createElement('a');
+                 confirmButton.id = 'confirm-btn'
+              confirmButton.className = 'btn-primary-md';
+                    confirmButton.textContent = 'Download and Install Roblox'
+                   confirmButton.style.display = 'none';
+                modalBtns.appendChild(confirmButton)
+    
+                const declineButton = document.createElement('a');
+                 declineButton.id = 'decline-btn'
+                   declineButton.style.display = "none"
+                  declineButton.className = 'btn-control-md';
+                  declineButton.textContent = "No"
+                 modalBtns.appendChild(declineButton)
+    
+            const loadingDiv = document.createElement('div');
+             loadingDiv.className = 'loading modal-processing';
+                loadingDiv.style.display = 'none'
+             modalBody.appendChild(loadingDiv)
+           
+    
+    
+            const modalFooter = document.createElement('div')
+                modalFooter.className = 'modal-footer text-footer'
+                modalFooter.style.display = 'block'
+             modalContentContainer.appendChild(modalFooter);
+                const helpLink = document.createElement('a');
+            helpLink.className = 'text-name small';
+                helpLink.textContent = "Loading...";
+                  helpLink.style.pointerEvents = "none";
+                 modalFooter.appendChild(helpLink)
+                 document.body.appendChild(modalContainer);
+
+                const overlay1 = document.createElement('div');
+                overlay1.id = 'modal-overlay';
+                overlay1.style.position = 'fixed';
+                overlay1.style.top = '0';
+                overlay1.style.left = '0';
+                overlay1.style.width = '100%';
+                overlay1.style.height = '100%';
+                overlay1.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+                overlay1.style.zIndex = '1041';
+                document.body.appendChild(overlay1);
+    
+    
+            if (allServers.length > 0 && userLocation) {
+                 bestServer = await findBestServer();
+                if (bestServer) {
+                      for (const [region, server] of Object.entries(regionServerMap)) {
                             if (server.id === bestServer.id) {
                                 bestServerRegion = region;
+                                 messageParagraph.textContent = `Joining the best server in ${bestServerRegion}!`;
                             }
                         }
                     }
                 }
-                if (bestServer == null || bestServerRegion == "N/A") {
-                    bestServerRegion = "N/A"
-                }
-    
+                
+           if (bestServer == null || bestServerRegion == "N/A") {
+                 if (allServers.length > 0) {
+                       if (bestServer) {
+                              for (const [region, server] of Object.entries(regionServerMap)) {
+                                if (server.id === bestServer.id) {
+                                    bestServerRegion = region;
+                                     messageParagraph.textContent = `Joining the best server!`;
+                                }
+                            }
+                        }
+                    }
+                 messageParagraph.textContent = `Joining the best server!`;
             }
-           
+    
+            
+            if (bestServer) {
+                delay(500);
+                let serverId = bestServer?.i || bestServer?.id;
+                const url = `roblox://experiences/start?placeId=${placeId}&gameInstanceId=${serverId}`;
+                
+                const link = document.createElement('a');
+                link.href = url;
+                link.style.display = 'none'; // Hide it from the user
+                
+                document.body.appendChild(link);
+            
+                link.click();
+            
+                document.body.removeChild(link);
+            }
+           await delay(2000);
+            modalContainer.remove();
+            const overlay = document.getElementById('modal-overlay');
+            if(overlay) overlay.remove();
             dropdownContent.style.display = 'none';
             dropdownArrow.textContent = '▶';
         });
@@ -1101,8 +1298,6 @@ async function findBestServer() {
         }
 
         let serverId = bestServer?.i || bestServer?.id;
-       const url = `roblox://experiences/start?placeId=${placeId}&gameInstanceId=${serverId}`;
-       window.open(url, "_blank");
        return bestServer;
     } catch (error) {
        console.error("An error occurred in findBestServer:", error);
@@ -1189,8 +1384,15 @@ async function fetchServerData(serverId) {
                     const serverIp = Object.keys(serverIpMap).find(ip => serverIpMap[ip]?.country?.code === storedServerData[placeId][serverId].l?.c);
                 }
                 const url = `roblox://experiences/start?placeId=${placeId}&gameInstanceId=${serverId}`;
-                window.open(url, '_blank');
-        
+                
+                const link = document.createElement('a');
+                link.href = url;
+                link.style.display = 'none'; 
+                document.body.appendChild(link);
+            
+                link.click();
+            
+                document.body.removeChild(link);
             }
                 else {
             }
@@ -1602,7 +1804,15 @@ async function fetchServerData(serverId) {
            const serverIp = Object.keys(serverIpMap).find(ip => serverIpMap[ip]?.country?.code === storedServerData[placeId][serverId].l?.c);
        }
         const url = `roblox://experiences/start?placeId=${placeId}&gameInstanceId=${serverId}`;
-        window.open(url, '_blank');
+                
+        const link = document.createElement('a');
+        link.href = url;
+        link.style.display = 'none'; 
+        document.body.appendChild(link);
+            
+        link.click();
+            
+        document.body.removeChild(link);
     } 
  function calculateUptime(timestamp) {
         const now = Date.now();

@@ -173,7 +173,7 @@ async function createSubplacesTab(subplaces) {
 
 
                  const gameLink = document.createElement('a');
-                  gameLink.href = `${languagePrefix}games/${gameId}`;
+                  gameLink.href = `https://www.roblox.com/games/${gameId}`;
                 gameLink.style.textDecoration = 'none';
                 gameLink.style.display = 'block';
                  gameLink.style.width = '100%';

@@ -564,7 +564,16 @@ async function fetchInitialThumbnail(targetid, updateRateLimitCount, isCancelled
                       `;
 
                     joinButton.addEventListener('click', () => {
-                      window.open(`roblox://experiences/start?placeId=${placeId}&gameInstanceId=${requestId}`, '_blank'); 
+                      const url = `roblox://experiences/start?placeId=${placeId}&gameInstanceId=${serverId}`;
+                
+                      const link = document.createElement('a');
+                      link.href = url;
+                      link.style.display = 'none';
+                      
+                      document.body.appendChild(link);
+                  
+                      link.click();
+            
                       if(intervalId){
                           clearInterval(intervalId)
                           intervalId = null

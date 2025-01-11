@@ -1,224 +1,216 @@
-let processedIds = new Set();
-let previousServerListHash = null;
-let observer = null;
+const copyToClipboard = (text) => {
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(text)
+            .catch(() => fallbackCopyTextToClipboard(text));
+    } else {
+        fallbackCopyTextToClipboard(text);
+    }
+};
+
+function fallbackCopyTextToClipboard(text) {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    textArea.style.cssText = "top: 0; left: 0; position: fixed;";
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    try {
+         document.execCommand('copy');
+    } catch (err) {
+    }
+    document.body.removeChild(textArea);
+}
+
 
 function getPlaceIdFromUrl() {
-    try {
-        const url = window.location.href;
-         const regex = /https:\/\/www\.roblox\.com\/(?:[a-z]{2}\/)?games\/(\d+)/;
-          const match = url.match(regex);
+    const path = window.location.pathname;
+    const match = path.match(/\/games\/(\d+)/);
+    return match ? match[1] : null;
+}
 
-          if (match && match[1]) {
-              return match[1];
-        }
-            return null;
-    } catch (error) {
-        return null;
-    } finally {
+
+function createInviteLink(placeId, jobId) {
+    return `https://www.roblox.com/games/start?placeId=${placeId}&gameInstanceId=${jobId}#RoValra`;
+}
+
+
+function addOrUpdateInviteButton(serverItem, placeId) {
+    if (!serverItem) {
+        return;
+    }
+
+    const oldInviteButton = serverItem.querySelector('.create-server-link');
+    const copyJoinLinkButton = serverItem.querySelector('a.rg-btn');
+
+    if (oldInviteButton) {
+        oldInviteButton.style.display = 'none';
+    }
+    if (copyJoinLinkButton) {
+        copyJoinLinkButton.remove();
+    }
+
+   const joinButton = serverItem.querySelector('button.rbx-game-server-join');
+
+    let jobId = null;
+    if (joinButton)
+    {
+          jobId = joinButton.getAttribute('data-btr-instance-id');
+    }
+    if (!jobId) {
+        jobId = serverItem.getAttribute('jobid') || serverItem.getAttribute('data-gameid');
+    }
+
+
+    if (!jobId) {
+        return;
+    }
+
+
+    let inviteButton = serverItem.querySelector('.custom-invite-button');
+    if (inviteButton) {
+        return;
+    }
+
+    const inviteLink = createInviteLink(placeId, jobId);
+    inviteButton = document.createElement('a');
+    inviteButton.textContent = 'Invite';
+    inviteButton.classList.add('btn-control-xs', 'custom-invite-button');
+    inviteButton.style.cssText = 'width: 30%; margin-left: 2%; position: relative; margin-top: 12px;';
+    inviteButton.setAttribute('data-placeid', placeId);
+
+    inviteButton.addEventListener('click', (event) => {
+        event.preventDefault();
+        const originalText = inviteButton.textContent;
+        inviteButton.textContent = "Copied!";
+        copyToClipboard(inviteLink);
+        setTimeout(() => {
+            inviteButton.textContent = originalText;
+        }, 5000);
+    });
+
+    if(joinButton){
+      joinButton.style.width = '68%';
+      joinButton.insertAdjacentElement('afterend', inviteButton);
+    } else{
+         serverItem.appendChild(inviteButton);
     }
 }
 
-function addInviteButton(detailsElement, serverId, placeId) {
-    try {
 
-        if (!serverId) {
-            return;
-        }
-        const serverItem = detailsElement ? detailsElement.closest('.rbx-game-server-item') : null;
-
-        if (!serverItem) {
-            return;
-        }
-        if (serverItem.classList.contains('rovalra-inviter')) {
-            return;
-        }
-
-        const existingInviteButton = detailsElement ? detailsElement.querySelector('.create-server-link') : null;
-        if (existingInviteButton) {
-            serverItem.classList.add('rovalra-inviter');
-            return;
-        }
-
-        const joinButton = detailsElement ? detailsElement.querySelector('.rbx-game-server-join.game-server-join-btn') : null;
-        if (!joinButton) {
-            return;
-        }
-
-        let inviteButton = document.createElement('a');
-        inviteButton.style.cssText = 'width:30%;margin-left:2%;position:relative!important;';
-        inviteButton.classList.add('btn-full-width', 'btn-control-xs', 'create-server-link');
-        inviteButton.dataset.placeid = placeId;
-        inviteButton.dataset.serverid = serverId;
-        inviteButton.textContent = 'Invite';
-        inviteButton.href = 'javascript:void(0);';
-         const currentURL = window.location.href;
-            const languageMatch = currentURL.match(/https:\/\/www\.roblox\.com\/([a-z]{2})\//);
-              let languagePrefix = '';
-                if (languageMatch && languageMatch[0]) {
-                  languagePrefix = languageMatch[0];
-                }
-         const inviteUrl = `https://roblox.com/games/start?placeId=${placeId}&gameInstanceId=${serverId}`;
-
-
-        inviteButton.addEventListener('click', function (event) {
-             try {
-                event.preventDefault();
-                navigator.clipboard.writeText(inviteUrl)
-                    .then(() => {
-                            inviteButton.textContent = 'Copied!';
-                            setTimeout(() => {
-                             inviteButton.textContent = 'Invite';
-                            }, 2000)
-
-                    })
-                    .catch(err => {
-                    });
-            } catch (error) {
-            }
-
-
-        });
-
-        joinButton.style.width = "68%";
-        detailsElement.appendChild(inviteButton);
-        if (serverItem) {
-            serverItem.classList.add('server-with-invite');
-            serverItem.classList.add('rovalra-inviter');
-        }
-    } catch (error) {
-    } finally {
+function processServerItems(placeId, serverItems) {
+    if (!serverItems || serverItems.length === 0) {
+        return;
     }
-}
 
-function getServerListHash() {
-    try {
-        const serverDetailsElements = document.querySelectorAll('.rbx-game-server-details.game-server-details');
-        let hashString = '';
-        serverDetailsElements.forEach(detailsElement => {
+    serverItems.forEach(serverItem => {
+        if (serverItem.classList.contains('rbx-game-server-item') &&
+            !serverItem.classList.contains('ropro-server-invite-added') &&
+            !serverItem.classList.contains('stack-row')) {
             try {
-                const joinButton = detailsElement.querySelector('.rbx-game-server-join.game-server-join-btn');
-                if (joinButton && joinButton.dataset.btrInstanceId) {
-                    hashString += joinButton.dataset.btrInstanceId;
-                }
-            } catch (error) {
+                addOrUpdateInviteButton(serverItem, placeId);
+                serverItem.classList.add('ropro-server-invite-added');
+            } catch (err) {
             }
-
-        });
-        return hashString;
-    } catch (error) {
-        return "";
-    } finally {
-    }
+        }
+    });
 }
 
-function processServerList(placeId, force = false, targetNode) {
-     try {
-        const currentHash = getServerListHash();
 
-        if (!force && currentHash === previousServerListHash) {
+function monitorServerList(placeId) {
+    let serverList = document.getElementById('running-game-instances-container') || document.getElementById('rbx-game-server-item-container');
+    if (!serverList) {
+        return;
+    }
+    let noJobIdCount = 0;
+    let isProcessing = false;
+    let observer = null;
+
+    async function processAvailableServers(addedNodes) {
+       if (isProcessing) {
             return;
         }
-          const serverDetailsElements = targetNode ? targetNode.querySelectorAll('.rbx-game-server-details.game-server-details') : [];
-            serverDetailsElements.forEach(detailsElement => {
-              try {
-                 const joinButton = detailsElement.querySelector('.rbx-game-server-join.game-server-join-btn');
-                 if (joinButton && joinButton.dataset.btrInstanceId) {
-                     const serverId = joinButton.dataset.btrInstanceId;
-                      const copyJoinLinkButton = detailsElement.querySelector('.btn-full-width.btn-control-xs.rg-btn');
-                     if (copyJoinLinkButton) {
-                       copyJoinLinkButton.remove();
-                     }
+       isProcessing = true;
 
-                      addInviteButton(detailsElement, serverId, placeId);
-                  }
-             } catch (error) {
-              }
-            });
-            previousServerListHash = currentHash;
-     } catch (error) {
-    } finally {
-    }
-}
+        try{
+          let serverItems = [];
+          if (!addedNodes || addedNodes.length === 0) {
+             serverItems = Array.from(serverList.querySelectorAll('li.rbx-game-server-item'));
+        } else {
+            serverItems = Array.from(addedNodes).filter(node => node.nodeType === Node.ELEMENT_NODE && node.classList.contains('rbx-game-server-item'));
+        }
 
+        if (serverItems.length === 0) {
+          return;
+        }
 
-async function waitForElement(selector) {
-    try {
-        return new Promise(resolve => {
-            if (document.querySelector(selector)) {
-                return resolve(document.querySelector(selector));
-            }
+        let hasJobId = false;
+         for (const serverItem of serverItems)
+         {
+            const joinButton = serverItem.querySelector('button.rbx-game-server-join');
+               if (joinButton?.getAttribute('data-btr-instance-id') || serverItem.getAttribute('jobid') || serverItem.getAttribute('data-gameid'))
+             {
+                hasJobId = true;
+                break;
+             }
+        }
 
-            const observer = new MutationObserver(mutations => {
-                if (document.querySelector(selector)) {
+        if (!hasJobId)
+            {
+               noJobIdCount++;
+                if (noJobIdCount >= 5)
+                {
                     observer.disconnect();
-                    resolve(document.querySelector(selector));
+                    return;
                 }
-            });
+             } else {
+               noJobIdCount = 0;
+             }
+            processServerItems(placeId, serverItems);
 
-            observer.observe(document.body, {
-                childList: true,
-                subtree: true
-            });
-        });
-    } catch (error) {
-        return null;
-    } finally {
-    }
-}
-
-async function trackServerChanges(placeId) {
-    try {
-
-        if (observer) {
-            observer.disconnect();
-            observer = null;
+        } finally {
+          isProcessing = false;
         }
-
-        observer = new MutationObserver(mutationsList => {
-            trackServerChangesInternal(placeId)
-        });
-
-
-        trackServerChangesInternal(placeId);
-
-    }  catch(error) {
-    } finally {
     }
-}
-async function trackServerChangesInternal(placeId) {
-    try {
-       let targetNode = document.querySelector('#rbx-running-games');
 
-       if (!targetNode) {
+    async function initializeMonitor() {
+        if (!serverList) {
             return;
         }
+        const allCopyButtons = serverList.querySelectorAll('a.rg-btn');
+        allCopyButtons.forEach(button => {
+            try {
+                button.remove();
+            } catch (err) {
+            }
+        });
+
+        const initialServerItems = Array.from(serverList.querySelectorAll('li.rbx-game-server-item'));
+        setTimeout(() => {
+            processServerItems(placeId, initialServerItems);
+        }, 500);
 
 
-         let serverListContainer =  targetNode.querySelector("#rbx-game-server-item-container");
-       if(!serverListContainer){
-              return
-        }
-         if(serverListContainer.classList.contains('section-content-off') && serverListContainer.classList.contains('empty-game-instances-container')){
-             return;
-         }
 
-         processServerList(placeId, true, serverListContainer);
-            if(observer){
-          observer.observe(targetNode, { childList: true, subtree: true });
-        }
+          observer = new MutationObserver((mutations) => {
 
-    } catch (error) {
+                mutations.forEach(mutation => {
+                  if(mutation.type === 'childList')
+                    {
+                      processAvailableServers(Array.from(mutation.addedNodes));
+                    }
+                });
+           });
+
+        observer.observe(serverList, { childList: true, subtree: true });
+
     }
+
+    initializeMonitor();
 }
+
+
 const placeId = getPlaceIdFromUrl();
-if (placeId) {
-    trackServerChanges(placeId);
-}
 
-window.addEventListener('beforeunload', function () {
-    try {
-        processedIds.clear();
-    } catch (error) {
-    } finally {
-    }
-});
+if (placeId) {
+    monitorServerList(placeId);
+}

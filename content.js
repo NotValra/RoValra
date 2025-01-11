@@ -1,8 +1,9 @@
-console.log("%cRoValra", "font-size: 3em; color: #FF4500;", "Developed by Valra");
 
 let trackedServerRequests = [];
+let loadedScripts = [];
 
-const loadScript = (src, dataAttributes = {}) => {
+const loadScript = async (src, dataAttributes = {}) => {
+    const startTime = performance.now();
     return new Promise((resolve, reject) => {
         const script = document.createElement('script');
         script.src = chrome.runtime.getURL(src);
@@ -10,9 +11,13 @@ const loadScript = (src, dataAttributes = {}) => {
             script.dataset[key] = dataAttributes[key];
         }
         script.onload = () => {
+            const endTime = performance.now();
+            const duration = (endTime - startTime).toFixed(2);
+            loadedScripts.push({ src, duration });
             resolve();
         };
         script.onerror = (error) => {
+             loadedScripts.push({src, error: "Failed to load"})
             reject(error);
         };
         document.head.appendChild(script);
@@ -27,7 +32,7 @@ const detectTheme = () => {
 
     const backgroundColor = window.getComputedStyle(header).backgroundColor;
 
-    const isDarkMode = backgroundColor === 'rgb(25, 27, 29)' || backgroundColor === 'rgba(25, 27, 29, 1)' || backgroundColor === 'rgb(10, 10, 10)' || backgroundColor === 'rgb(35, 37, 39)';
+    const isDarkMode = backgroundColor === 'rgb(25, 27, 29)' || backgroundColor === 'rgba(25, 27, 29, 1)' || backgroundColor === 'rgb(10, 10, 10)' || backgroundColor === 'rgb(35, 37, 39)'  || backgroundColor === 'rgb(18, 18, 21)' || backgroundColor === '#181414';
 
     const theme = isDarkMode ? 'dark' : 'light';
     return theme;
@@ -53,9 +58,8 @@ function getPlaceIdFromUrl() {
 
 
 (async () => {
+    const loadStartTime = performance.now();
     try {
-
-
          let settings;
         try {
          settings = await chrome.storage.local.get({
@@ -67,10 +71,10 @@ function getPlaceIdFromUrl() {
             subplacesEnabled: true,
             forceR6Enabled: true,
             fixR6Enabled: false,
-            inviteEnabled: true,
+            inviteEnabled: false,
             regionSelectorInitialized: false,
             regionSelectorFirstTime: true,
-            sniperEnabled: true, 
+            sniperEnabled: true,
         });
         } catch(error) {
         }
@@ -110,9 +114,7 @@ function getPlaceIdFromUrl() {
         }
 
 
-        await loadScript('misc/utils.js');
-
-        await loadScript('misc/style.js');
+       // await loadScript('misc/utils.js');
 
 
         if (currentPath.includes('/catalog') || currentPath.includes('/bundles')) {
@@ -127,38 +129,51 @@ function getPlaceIdFromUrl() {
             if (settings.userGamesEnabled) {
                 await loadScript('HiddenGames/user_games.js');
             }
-            if (settings.userSniperEnabled) {
-                await loadScript('misc/userSniper.js');
+           if (settings.userSniperEnabled && currentPath.includes('/users/')) {
+                 await loadScript('misc/userSniper.js');
             }
         }
          else if (currentPath.includes('/games/')) {
             if (settings.subplacesEnabled) {
                 await loadScript('Games/Subplaces.js');
             }
-             if (settings.sniperEnabled) {
+             if (settings.sniperEnabled && currentPath.includes('/games/')) {
                  await loadScript('Games/sniper.js', {  trackedRequests: JSON.stringify(trackedServerRequests) });
             }
         }
-        if (settings.forceR6Enabled) {
-            await loadScript('Avatar/R6Warning.js');
-        }
-        if (settings.fixR6Enabled) {
-            await loadScript('Avatar/R6Fix.js');
+
+         if (currentPath.includes('/my/avatar')) {
+              if (settings.forceR6Enabled) {
+                await loadScript('Avatar/R6Warning.js');
+            }
+            if (settings.fixR6Enabled) {
+                await loadScript('Avatar/R6Fix.js');
+            }
         }
 
-
-        window.addEventListener('loadNonBtroblox', () => {
-            loadNonBtrobloxFile();
-        });
 
         const theme = detectTheme();
         dispatchThemeEvent(theme);
-
-        if (theme === 'dark') {
+           if (theme === 'dark') {
             document.body.classList.add('dark-mode');
         } else {
             document.body.classList.remove('dark-mode');
         }
+
+
+        const loadEndTime = performance.now();
+        const totalLoadDuration = (loadEndTime - loadStartTime).toFixed(2);
+
+         await loadScript('misc/style.js');
+
+        console.log(
+            "%cRoValra",
+            "font-size: 3em; color: #FF4500;",
+            "Developed by Valra",
+            "\n",
+             `Scripts Loaded (${totalLoadDuration}ms):`,
+            loadedScripts.map(script => `\n   - ${script.src} - ${script.duration ? `${script.duration}ms` : "Failed to load"}`).join(""),
+          );
 
     } catch (error) {
     }

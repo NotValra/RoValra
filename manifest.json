@@ -1,8 +1,24 @@
 {
     "manifest_version": 3,
-    "name": "RoValra",
-    "version": "2.1.1.5",
+    "name": "RoValra - Roblox Improved",
+    "version": "2.1.1.6",
     "description": "An extension aiming to provide features that other Roblox extensions pay wall!",
+    "content_scripts": [
+      {
+        "matches": [
+          "*://*.roblox.com/*"
+        ],
+        "js": ["content.js"]
+      },
+       {
+            "matches": ["*://*.roblox.com/*"],
+            "js": ["Games/Regions_content.js"]
+        },
+        {
+          "matches": ["*://*.roblox.com/*"],
+          "js": ["settings.js"]
+        }
+    ],
     "permissions": [
       "cookies",
       "declarativeNetRequest",
@@ -11,30 +27,14 @@
     ],
     "host_permissions": [
       "https://games.roblox.com/*",
-      "https://www.roblox.com/*",
+      "*://*.roblox.com/*",
       "https://gamejoin.roblox.com/v1/join-game-instance",
       "https://users.roblox.com/*"
     ],
     "background": {
       "service_worker": "background.js"
     },
-    "content_scripts": [
-      {
-        "matches": [
-          "https://www.roblox.com/*",
-          "https://gamejoin.roblox.com/v1/join-game-instance*"
-        ],
-        "js": ["content.js"]
-      },
-       {
-            "matches": ["https://www.roblox.com/*"],
-            "js": ["Games/Regions_content.js"]
-        },
-        {
-          "matches": ["https://www.roblox.com/*"],
-          "js": ["settings.js"]
-        }
-    ],
+
     "declarative_net_request": {
       "rule_resources": [
         {
