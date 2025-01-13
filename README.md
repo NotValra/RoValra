@@ -20,7 +20,7 @@ _The chrome web store version is a bit behind cuz google got angry over me not h
     - **Universal game invitation link**
     - **Universal user sniper that does not require you to be friends with them**
 - **Items**
-    - **Shows sales and revenue on spesific items.**
+    - **Shows sales and revenue on specific items.**
 - **Profile**
   - **User Sniper**
   - <details>
