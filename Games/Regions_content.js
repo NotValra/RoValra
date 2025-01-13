@@ -32,6 +32,7 @@ if (window.location.pathname.includes('/games/')) {
     let serverLocations = {};
     let userLocation = null;
     let serverScores = {};
+    let isRefreshing = false;
 
     let storedServerData = {};
     const SERVER_DATA_KEY = 'storedServerData';
@@ -184,76 +185,83 @@ function handleRateLimitedState(limited) {
    rateLimited = limited;
 }
 
-    async function getServerInfo(placeId, robloxCookie, regions) {
-        let url = `https://games.roblox.com/v1/games/${placeId}/servers/Public?excludeFullGames=true&limit=100`;
-        try {
-            let totalRequests = 0;
-            let serverPromises = [];
-            let newServerCount = 0;
-            const BATCH_SIZE = 1;
-            let rateLimited = false;
-            const REQUEST_DELAY = 500;
-            await delay(REQUEST_DELAY);
-                const response = await fetch(url, {
-                headers: {
-                    "Referer": `https://www.roblox.com/games/${placeId}/`,
-                    "Origin": "https://roblox.com",
-                    "Cache-Control": "no-cache",
-                },
-            });
-            if (response.status === 429) {
-                rateLimited = true;
-                handleRateLimitedState(true)
-                showRateLimitedMessage();
-                updatePopup();
-                return;
-            }
-            if (!response.ok) {
-                const errorDetails = await response.text();
-                return;
-            }
-    
-            const servers = await response.json();
-            if (!servers.data || servers.data.length === 0) {
-                return;
-            }
-    
-            for (const server of servers.data) {
-                const promise = handleServer(server, placeId, robloxCookie, regions, newServerCount);
-                serverPromises.push(promise);
-                allServers.push(server);
-            }
-    
-            while (serverPromises.length > 0) {
-                const batch = serverPromises.splice(0, BATCH_SIZE);
-                const results = await Promise.all(batch);
-                if (results.length > 0) {
-                    newServerCount = results.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
-                }
-            }
-    
-            checkInactiveServers(placeId, servers.data.length);
-    
-    
-            if (storedServerData[placeId]) {
-    
-                for (const serverId in storedServerData[placeId]) {
-                    const server = storedServerData[placeId][serverId];
-                    const uptime = calculateUptime(server.t);
-                }
-            } else {
-            }
-              storeInBrowserStorage({[SERVER_DATA_KEY]: JSON.stringify(storedServerData)});
-    
-            if (rateLimited) {
-                showRateLimitedMessage();
-            } else {
-                 handleRateLimitedState(false)
-                updatePopup();
-            }
-        } catch (error) {
-        }
+async function getServerInfo(placeId, robloxCookie, regions, cursor = null) {
+    let url = `https://games.roblox.com/v1/games/${placeId}/servers/Public?excludeFullGames=true&limit=100`;
+    if (cursor) {
+      url += `&cursor=${cursor}`;
     }
+    try {
+        let totalRequests = 0;
+        let serverPromises = [];
+        let newServerCount = 0;
+        const BATCH_SIZE = 1;
+        let rateLimited = false;
+        
+            const response = await fetch(url, {
+            headers: {
+                "Referer": `https://www.roblox.com/games/${placeId}/`,
+                "Origin": "https://roblox.com",
+                "Cache-Control": "no-cache",
+            },
+            credentials: 'include',
+        });
+        if (response.status === 429) {
+            rateLimited = true;
+            isRefreshing = false;
+            handleRateLimitedState(true)
+            showRateLimitedMessage();
+            updatePopup();
+            return;
+        }
+        if (!response.ok) {
+            const errorDetails = await response.text();
+            return;
+        }
+
+        const servers = await response.json();
+        if (!servers.data || servers.data.length === 0) {
+             isRefreshing = false;
+            return;
+        }
+
+        for (const server of servers.data) {
+            const promise = handleServer(server, placeId, robloxCookie, regions, newServerCount);
+            serverPromises.push(promise);
+            allServers.push(server);
+            isRefreshing = false;
+        }
+
+        while (serverPromises.length > 0) {
+            const batch = serverPromises.splice(0, BATCH_SIZE);
+            const results = await Promise.all(batch);
+            if (results.length > 0) {
+                newServerCount = results.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+            }
+        }
+          checkInactiveServers(placeId, servers.data.length);
+
+         if (servers.nextPageCursor && isRefreshing) {
+             await getServerInfo(placeId, robloxCookie, regions, servers.nextPageCursor)
+          }
+        
+        
+         storeInBrowserStorage({[SERVER_DATA_KEY]: JSON.stringify(storedServerData)});
+
+        if (rateLimited) {
+            isRefreshing = false;
+
+            showRateLimitedMessage();
+            
+        } else {
+             handleRateLimitedState(false)
+            updatePopup();
+
+        }
+    } catch (error) {
+        isRefreshing = false;
+    } finally {
+    }
+}
    
     
 
@@ -457,25 +465,37 @@ function handleRateLimitedState(limited) {
                 y: 0,
             };
     
-            if (countryCode === "US") {
-                storedServerData[placeId][serverId] = {
-                    f: Math.round(server.fps),
-                    i: server.id,
-                    c: regionCode,
-                    p: new Uint16Array([server.ping])[0],
-                    t: Date.now(),
-                    l: optimizedLocation,
-                };
-            } else {
-                storedServerData[placeId][serverId] = {
-                    f: Math.round(server.fps),
-                    i: server.id,
-                    c: optimizedLocation.c,
-                    p: new Uint16Array([server.ping])[0],
-                    t: Date.now(),
-                    l: optimizedLocation,
-                };
-            }
+           let serverData = {};
+    
+            if (storedServerData[placeId][serverId]) {
+                serverData = storedServerData[placeId][serverId];
+                  serverData.f = Math.round(server.fps);
+                serverData.p = new Uint16Array([server.ping])[0];
+             } else {
+                   if (countryCode === "US") {
+                     serverData = {
+                            f: Math.round(server.fps),
+                            i: server.id,
+                            c: regionCode,
+                            p: new Uint16Array([server.ping])[0],
+                            t: Date.now(),
+                             l: optimizedLocation,
+                        };
+                    } else {
+                          serverData = {
+                            f: Math.round(server.fps),
+                            i: server.id,
+                            c: optimizedLocation.c,
+                            p: new Uint16Array([server.ping])[0],
+                            t: Date.now(),
+                            l: optimizedLocation,
+                         };
+                      }
+    
+             }
+               storedServerData[placeId][serverId] = serverData;
+    
+    
             if (regions.includes(regionCode)) {
                 regionCounts[regionCode] = (regionCounts[regionCode] || 0) + 1;
                 regionServerMap[regionCode] = server;
@@ -485,6 +505,7 @@ function handleRateLimitedState(limited) {
                 longitude: longitude || 0,
             }
             newServerCount++;
+            storeInBrowserStorage({[SERVER_DATA_KEY]: JSON.stringify(storedServerData)});
             return newServerCount;
         } catch (error) {
         } finally {
@@ -550,7 +571,7 @@ function handleRateLimitedState(limited) {
    
         
     
-    function updatePopup(retries = 5) {
+    async function updatePopup(retries = 5) {
         let serverPopup = document.querySelector(".tab-pane.game-instances.section-content.active");
         if (!serverPopup) {
             serverPopup = document.querySelector(".tab-pane.game-instances.active");
@@ -729,8 +750,96 @@ function handleRateLimitedState(limited) {
                 bestPingTooltip.style.display = 'none';
             });
         }
+        
+        const refreshButton = document.createElement('button');
+        refreshButton.textContent = 'Refresh Servers';
+        refreshButton.style.display = 'block';
+        refreshButton.style.width = '100%';
+        refreshButton.style.padding = '8px';
+        refreshButton.style.border = 'none';
+        refreshButton.style.backgroundColor = isDarkMode ? '#24292e' : '#fff';
+        refreshButton.style.color = isDarkMode ? 'white' : 'rgb(57, 59, 61)';
+        refreshButton.style.cursor = 'pointer';
+        refreshButton.style.marginTop = '5px';
+        refreshButton.style.textAlign = 'left';
+        refreshButton.style.fontSize = '15px';
+        refreshButton.style.fontWeight = '600';
+        refreshButton.style.transition = "background-color 0.3s ease";
     
-       bestPingOption.addEventListener('click', async () => {
+        const refreshTooltip = document.createElement('div');
+        const refreshTooltipTitle = document.createElement('div');
+        refreshTooltipTitle.style.fontWeight = 'bold';
+         if (rateLimited) {
+            refreshTooltipTitle.textContent = 'The API is being rate limited!';
+        }
+        refreshTooltip.appendChild(refreshTooltipTitle)
+        const refreshTooltipSubtitle = document.createElement('div');
+         if (!rateLimited) {
+              refreshTooltipSubtitle.textContent = 'This will search for more servers. Best used if you didnt find a good enough region.';
+        } else {
+             refreshTooltipSubtitle.textContent = "Please wait a few seconds before trying again."
+         }
+    
+        refreshTooltipSubtitle.style.fontSize = '14px'
+        refreshTooltipSubtitle.style.fontWeight = 'bold'
+        refreshTooltip.appendChild(refreshTooltipSubtitle)
+        refreshTooltip.style.position = "absolute";
+        refreshTooltip.style.left = '105%';
+        refreshTooltip.style.top = '0';
+        refreshTooltip.style.padding = '5px';
+        refreshTooltip.style.backgroundColor = isDarkMode ? "#212323" : "#fff";
+        refreshTooltip.style.border = isDarkMode ? "1px solid #444" : "1px solid #ddd";
+        refreshTooltip.style.borderRadius = "6px";
+        refreshTooltip.style.display = 'none';
+         refreshTooltip.style.width = "150%";
+        refreshTooltip.style.maxWidth = "250px";
+        refreshTooltip.style.maxHeight = "100px";
+        refreshButton.appendChild(refreshTooltip)
+       
+
+             refreshButton.disabled = false;
+             refreshButton.style.backgroundColor = isDarkMode ? '#24292e' : '#fff';
+             refreshButton.style.border = "none";
+             refreshButton.style.cursor = "pointer";
+             refreshButton.addEventListener('mouseover', () => {
+                refreshButton.style.backgroundColor = isDarkMode ? '#4c5053' : '#f0f0f0';
+                 refreshButton.style.borderRadius = "6px";
+                 refreshButton.style.borderColor = isDarkMode ? '#24292e' : '#f0f0f0';
+                refreshTooltip.style.display = 'block';
+            });
+             refreshButton.addEventListener('mouseout', () => {
+                refreshButton.style.backgroundColor = isDarkMode ? '#24292e' : '#fff';
+               refreshButton.style.borderRadius = "6px";
+                refreshButton.style.borderColor = isDarkMode ? '#4c5053' : '#f0f0f0';
+                 refreshTooltip.style.display = 'none';
+           });
+        
+      
+                refreshButton.addEventListener('click', async () => {
+                if (isRefreshing) return;
+            isRefreshing = true;
+            allServers = [];
+              regionServerMap = {};
+            regionCounts = {};
+
+            
+            chrome.runtime.sendMessage({
+                    action: "getRobloxCookie"
+                }, (response) => {
+                    if (response.success) {
+                        const robloxCookie = response.cookie;
+                         getServerInfo(placeId, robloxCookie, defaultRegions);
+                       
+                    } else {
+                    }
+                });
+            dropdownContent.style.display = 'none';
+            dropdownArrow.textContent = '▶';
+        });
+
+              
+        
+        bestPingOption.addEventListener('click', async () => {
             let bestServerRegion = "N/A";
             let bestServer = null;
     
@@ -941,7 +1050,7 @@ function handleRateLimitedState(limited) {
                 
                 const link = document.createElement('a');
                 link.href = url;
-                link.style.display = 'none'; // Hide it from the user
+                link.style.display = 'none';
                 
                 document.body.appendChild(link);
             
@@ -959,6 +1068,7 @@ function handleRateLimitedState(limited) {
     
     
         dropdownContent.appendChild(bestPingOption);
+         dropdownContent.appendChild(refreshButton);
         filterButton.appendChild(filterButtonBtn)
         filterButton.appendChild(dropdownContent);
         filterButtonBtn.addEventListener('click', (event) => {
@@ -1089,8 +1199,9 @@ function handleRateLimitedState(limited) {
             }, 1000);
     
             window.addEventListener('resize', adjustButtonText);
-        }, 500)
+        }, 200)
     }
+
     // Black magic type of shit
     function calculateDistance(lat1, lon1, lat2, lon2) {
         if (lat1 === null || lon1 === null || lat2 === null || lon2 === null || typeof lat1 !== 'number' || typeof lon1 !== 'number' || typeof lat2 !== 'number' || typeof lon2 !== 'number' || isNaN(lat1) || isNaN(lon1) || isNaN(lat2) || isNaN(lon2)) {
@@ -1622,10 +1733,12 @@ async function fetchServerData(serverId) {
                     let storedPing = null;
                     let userLat = 0;
                     let userLon = 0;
-        
+                    let foundTime = "N/A";
+
                     if (storedServerData[placeId] && storedServerData[placeId][serverId]) {
                         storedFPS = storedServerData[placeId][serverId].f;
                         storedPing = storedServerData[placeId][serverId].p;
+                        foundTime = calculateUptime(storedServerData[placeId][serverId].t);
                     }
                      try {
                          const sessionData =  JSON.parse(serverData?.joinScript?.SessionId);
@@ -1680,7 +1793,7 @@ async function fetchServerData(serverId) {
                     serverInfo.appendChild(serverIdText);
                     const serverDetails = document.createElement('div');
                     serverDetails.style.display = "grid";
-                    serverDetails.style.gridTemplateColumns = "80px 80px 100px";
+                    serverDetails.style.gridTemplateColumns = "80px 80px 100px auto";
                     serverDetails.style.gap = "5px";
                     serverDetails.style.width = "100%";
                     const pingText = document.createElement('span');
@@ -1699,6 +1812,11 @@ async function fetchServerData(serverId) {
                          locationName.style.width = 'fit-content';
                         serverDetails.appendChild(locationName);
                     }
+                     const foundTimeText = document.createElement('span');
+                    foundTimeText.textContent = `Found: ${foundTime}`;
+                   foundTimeText.style.width = '300px';
+                   foundTimeText.style.height= '22.4062px';
+                    serverDetails.appendChild(foundTimeText)
                     serverInfo.appendChild(serverDetails);
                     serverButton.appendChild(serverInfo);
                     serverButton.addEventListener('click', () => {
