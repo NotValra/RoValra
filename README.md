@@ -48,8 +48,7 @@ _The chrome web store version is a bit behind cuz google got angry over me not h
 </details>
 
 # Known Issues
-- ~~**The extension completely breaks if you use a different language on roblox, this is bc i completely forgot that is even a setting**~~ **Fix added in 2.1.1.5**
-- ~~**With the fixes relating different languages a few new issues popped up**~~ **Fix added in 2.1.1.6**
+- **The extension for what ever reason opens up the microsoft store version of roblox, it isnt for me so if u know a fix please let me know**
 
 # How to install
 
