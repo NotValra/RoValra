@@ -1046,7 +1046,7 @@ async function getServerInfo(placeId, robloxCookie, regions, cursor = null) {
             if (bestServer) {
                 delay(500);
                 let serverId = bestServer?.i || bestServer?.id;
-                const url = `roblox://experiences/start?placeId=${placeId}&gameInstanceId=${serverId}`;
+                const url = `https://www.roblox.com/games/start?placeId=${placeId}&gameInstanceId=${serverId}`;
                 
                 const link = document.createElement('a');
                 link.href = url;
@@ -1494,7 +1494,7 @@ async function fetchServerData(serverId) {
                if (storedServerData[placeId] && storedServerData[placeId][serverId]){
                     const serverIp = Object.keys(serverIpMap).find(ip => serverIpMap[ip]?.country?.code === storedServerData[placeId][serverId].l?.c);
                 }
-                const url = `roblox://experiences/start?placeId=${placeId}&gameInstanceId=${serverId}`;
+                const url = `https://www.roblox.com/games/start?placeId=${placeId}&gameInstanceId=${serverId}`;
                 
                 const link = document.createElement('a');
                 link.href = url;
@@ -1921,7 +1921,7 @@ async function fetchServerData(serverId) {
         if (storedServerData[placeId] && storedServerData[placeId][serverId]){
            const serverIp = Object.keys(serverIpMap).find(ip => serverIpMap[ip]?.country?.code === storedServerData[placeId][serverId].l?.c);
        }
-        const url = `roblox://experiences/start?placeId=${placeId}&gameInstanceId=${serverId}`;
+        const url = `https://www.roblox.com/games/start?placeId=${placeId}&gameInstanceId=${serverId}`;
                 
         const link = document.createElement('a');
         link.href = url;

@@ -564,7 +564,7 @@ async function fetchInitialThumbnail(targetid, updateRateLimitCount, isCancelled
                       `;
 
                     joinButton.addEventListener('click', () => {
-                      const url = `roblox://experiences/start?placeId=${placeId}&gameInstanceId=${serverId}`;
+                      const url = `https://www.roblox.com/games/start?placeId=${placeId}&gameInstanceId=${serverId}`;
                 
                       const link = document.createElement('a');
                       link.href = url;

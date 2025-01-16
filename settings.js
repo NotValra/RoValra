@@ -774,6 +774,7 @@ async function checkRoValraPage() {
                     <div class="setting">
                     <label style="">Enable User Sniper</label>
                     <p>This joins a user instantly when they go into a game, best used for people with a lot of people trying to join them.</p>
+                    <p>It is recommended that you uninstall the microsoft store version of roblox, if you plan to use this feature.</p>
                     <label class="toggle-switch">
                     <input type="checkbox" id="enableUserSniper">
                     <span class="slider"></span>
