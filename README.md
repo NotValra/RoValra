@@ -3,7 +3,7 @@
 # Chrome Web Store
 **[RoValra](https://chromewebstore.google.com/detail/rovalra/njcickgebhnpgmoodjdgohkclfplejli)**
 
-_The chrome web store version is a bit behind cuz google got angry over me not having a privacy policy even tho they said it didnt need one_
+
 
 
 ## Sections
