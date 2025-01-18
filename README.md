@@ -48,7 +48,7 @@
 </details>
 
 # Known Issues
-- **The extension for what ever reason opens up the microsoft store version of roblox, it isnt for me so if u know a fix please let me know**
+- **No known issues right now.**
 
 # How to install
 
