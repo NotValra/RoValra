@@ -1,5 +1,5 @@
 # RoValra
-
+**[Discord Server](https://discord.gg/GHd5cSKJRk)**
 # Chrome Web Store
 **[RoValra](https://chromewebstore.google.com/detail/rovalra/njcickgebhnpgmoodjdgohkclfplejli)**
 
