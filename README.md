@@ -48,7 +48,7 @@
 </details>
 
 # Known Issues
-- **I broke the universal user sniper :)**
+- **No Known issues**
 
 # How to install
 
