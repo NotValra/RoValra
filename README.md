@@ -73,4 +73,5 @@
   
 - **Extensions logo is gilbert, which is a fish I caught in [Fisch](https://www.roblox.com/games/16732694052/Fisch)**
 - **7_lz on dc helped me a lot with the process of switching away from third party APIs by providing me with the json and just general help**
+- **Thanks to Julia ([RoSeal](https://www.roseal.live/) creator) for letting me know that my extension required RoSeal, it would have taken a lot longer to find out without her help.**
 - **Credit to coweggs on dc for coming up with the name RoValra, it was just too funny I had to use it**
