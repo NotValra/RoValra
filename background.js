@@ -1,6 +1,34 @@
 // Dont look at this shit dookie poo po of code
 
+chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
+    if (message.action === "injectScript") {
+        const { codeToInject } = message;
 
+        chrome.scripting.executeScript({
+            target: { tabId: sender.tab.id },
+            world: "MAIN",
+            func: (code) => {
+                try {
+                    eval(code);
+                }
+                 catch (error) {
+                    console.error("Error in injected script:", error);
+                }
+             },
+            args: [codeToInject]
+        })
+            .then(() => {
+                sendResponse({ success: true });
+            })
+            .catch((error) => {
+                console.error("Error injecting script:", error);
+                sendResponse({ success: false, error: error.message });
+            });
+
+        return true; // Indicate async response
+    }
+    return false;
+});
 async function updateDeclarativeNetRequestRuleWithCookie(rulesetId) {
     try {
       const cookie = await getRobloxCookie();

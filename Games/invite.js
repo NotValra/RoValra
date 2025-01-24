@@ -30,7 +30,7 @@ function getPlaceIdFromUrl() {
 
 
 function createInviteLink(placeId, jobId) {
-    return `https://www.roblox.com/games/start?placeId=${placeId}&gameInstanceId=${jobId}#RoValra`;
+    return `roblox://experiences/start?placeId=${placeId}&gameInstanceId=${jobId}`;
 }
 
 

@@ -74,7 +74,6 @@ function getPlaceIdFromUrl() {
             inviteEnabled: false,
             regionSelectorInitialized: false,
             regionSelectorFirstTime: true,
-            sniperEnabled: true,
         });
         } catch(error) {
         }
@@ -137,9 +136,7 @@ function getPlaceIdFromUrl() {
             if (settings.subplacesEnabled) {
                 await loadScript('Games/Subplaces.js');
             }
-             if (settings.sniperEnabled && currentPath.includes('/games/')) {
-                 await loadScript('Games/sniper.js', {  trackedRequests: JSON.stringify(trackedServerRequests) });
-            }
+            
         }
 
          if (currentPath.includes('/my/avatar')) {

@@ -319,11 +319,9 @@ const loadSettings = async () => {
                userSniperEnabled: true,
               regionSelectorEnabled: false,
                 subplacesEnabled: true,
-                 showServerListOverlay: true,
                    forceR6Enabled: true,
                       fixR6Enabled: false,
                       inviteEnabled: false,
-                       sniperEnabled: true,
            }, (settings) => {
                 if (chrome.runtime.lastError) {
                     reject(chrome.runtime.lastError)
@@ -336,7 +334,7 @@ const loadSettings = async () => {
 };
 
 
- const handleSaveSettings = async (itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, showServerListOverlayCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox, sniperCheckbox) => {
+ const handleSaveSettings = async (itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox) => {
    try{
    const settings = {
         itemSalesEnabled: itemSalesCheckbox.checked,
@@ -345,11 +343,9 @@ const loadSettings = async () => {
        userSniperEnabled: userSniperCheckbox.checked,
        regionSelectorEnabled: regionSelectorCheckbox.checked,
        subplacesEnabled: subplacesCheckbox.checked,
-       showServerListOverlay: showServerListOverlayCheckbox.checked,
         forceR6Enabled: forceR6Checkbox.checked,
        fixR6Enabled: r6FixCheckbox.checked,
        inviteEnabled: inviteCheckbox.checked,
-       sniperEnabled: sniperCheckbox.checked,
    };
     return new Promise((resolve, reject) => {
        chrome.storage.local.set(settings, () => {
@@ -364,7 +360,7 @@ const loadSettings = async () => {
    } catch (error) {
    }
 };
-const initSettings = async (itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, showServerListOverlayCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox, sniperCheckbox) => { 
+const initSettings = async (itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox) => { 
    const settings = await loadSettings();
 
    if(settings){
@@ -374,11 +370,9 @@ const initSettings = async (itemSalesCheckbox, groupGamesCheckbox, userGamesChec
        userSniperCheckbox.checked = settings.userSniperEnabled;
        regionSelectorCheckbox.checked = settings.regionSelectorEnabled;
        subplacesCheckbox.checked = settings.subplacesEnabled;
-       showServerListOverlayCheckbox.checked = settings.showServerListOverlay;
         forceR6Checkbox.checked = settings.forceR6Enabled;
        r6FixCheckbox.checked = settings.fixR6Enabled;
        inviteCheckbox.checked = settings.inviteEnabled;
-       sniperCheckbox.checked = settings.sniperEnabled;
    }
 };
 
@@ -594,49 +588,53 @@ async function checkRoValraPage() {
         `;
         document.head.appendChild(style);
         const buttonData = [
-                {
-              text: "Info", content: `
-              <div style="padding: 15px; border-radius: 8px;">
-              <h2 style="; margin-bottom: 10px;">RoValra Infomation!</h2>
-              <p style="">RoValra is an extension that's trying to make basic QoL features free and accessible to everyone, by making everything completely open-source.</p>
+            {
+          text: "Info", content: `
+          <div style="padding: 15px; border-radius: 8px;">
+          <h2 style="; margin-bottom: 10px;">RoValra Infomation!</h2>
+          <p style="">RoValra is an extension that's trying to make basic QoL features free and accessible to everyone, by making everything completely open-source.</p>
+          <div style="margin-top: 5px;">
+              <p style="">This is possible by running everything locally.</p>
               <div style="margin-top: 5px;">
-                  <p style="">This is possible by running everything locally.</p>
-                  <div style="margin-top: 5px;">
-                  <p style="">If you have any feature suggestions please let me know in my Discord server or via GitHub</p>
-                  <div style="margin-top: 5px;">
-                  <p style="">If you find any bugs, big or small please feel free to report them to me on GitHub</p>
-                  </div>
-              <div style="margin-top: 10px;">
-                      <a href="https://discord.gg/GHd5cSKJRk" target="_blank" style="text-decoration: none !important; font-weight: bold !important;">Discord Server</a>
-                      <a href="https://github.com/NotValra/RoValra"; target="_blank" style="text-decoration: none !important; font-weight: bold !important;">
-                      Github Repo
-                      <img src="${chrome.runtime.getURL("Assets/icon-128.png")}" style="width: 20px; height: 20px; margin-left: 5px; vertical-align: middle;">
-                      </a>
+              <p style="">If you have any feature suggestions please let me know in my Discord server or via GitHub</p>
+              <div style="margin-top: 5px;">
+              <p style="">If you find any bugs, big or small please feel free to report them to me on GitHub</p>
               </div>
+          <div style="margin-top: 10px;">
+                  <a href="https://discord.gg/GHd5cSKJRk" target="_blank" style="text-decoration: none !important; font-weight: bold !important;">Discord Server</a>
+                  <a href="https://github.com/NotValra/RoValra"; target="_blank" style="text-decoration: none !important; font-weight: bold !important;">
+                  Github Repo
+                  <img src="${chrome.runtime.getURL("Assets/icon-128.png")}" style="width: 20px; height: 20px; margin-left: 5px; vertical-align: middle;">
+                  </a>
           </div>
-          `},
-            {
-                text: "Credits", content: `
-                    <div style="padding: 15px; border-radius: 8px;">
-                        <h2 style=" margin-bottom: 10px;">RoValra Credits!</h2>
-                        <ul style=" margin-top: 10px; padding-left: 0px;">
-                            <li style="margin-bottom: 8px;">The sales and revenue feature is only possible because of <b style="font-weight: bold;">Frames.</b>
-                                <a href="https://github.com/workframes/roblox-owner-counts" target="_blank" style="text-decoration: none !important; font-weight: bold !important;">GitHub Repo</a>
-                            </li>
-                            <li style="margin-bottom: 8px;">The Region searcher was originally a Python script made by <b style="font-weight: bold;">l5se</b> on Discord, that I recoded in Python and then in JS.</li>
-                            <li style="margin-bottom: 8px;">Thanks to <b style="font-weight: bold;">Aspect</b> for helping me out here and there when I had a bunch of dumb questions or problems.
-                                <a href="https://github.com/Aspectise" style="text-decoration: none !important; font-weight: bold !important;" target="_blank">GitHub</a>
-                                <a href="https://discord.gg/U75BFsV49z" style="text-decoration: none !important; font-weight: bold !important;" target="_blank">  Discord Server</a>
-                            </li>
-                            <li style="margin-bottom: 8px;">Thanks to <b style="font-weight: bold;">7_lz</b> on Discord for helping me a bunch when preparing for the Chrome Web Store release. They helped a ton and I'm very thankful.</li>
-                            <li style="margin-bottom: 8px;">And thanks to <b style="font-weight: bold;">Coweggs</b> for coming up with the very funny name that is "RoValra" as a joke that I then ended up using.</li>
-                        </ul>
-                    </div>
-                `},
-            {
-                text: "Settings", content: ""
-            },
-        ];
+      </div>
+      `},
+        {
+            text: "Credits", content: `
+                <div style="padding: 15px; border-radius: 8px;">
+                    <h2 style=" margin-bottom: 10px;">RoValra Credits!</h2>
+                    <ul style=" margin-top: 10px; padding-left: 0px;">
+                        <li style="margin-bottom: 8px;">The sales and revenue feature is only possible because of <b style="font-weight: bold;">Frames.</b>
+                            <a href="https://github.com/workframes/roblox-owner-counts" target="_blank" style="text-decoration: none !important; font-weight: bold !important;">GitHub Repo</a>
+                        </li>
+                        <li style="margin-bottom: 8px;">The Region searcher was originally a Python script made by <b style="font-weight: bold;">l5se</b> on Discord, that I recoded in Python and then in JS.</li>
+                        <li style="margin-bottom: 8px;">Thanks to <b style="font-weight: bold;">Aspect</b> for helping me out here and there when I had a bunch of dumb questions or problems.
+                        <a href="https://github.com/Aspectise" style="text-decoration: none !important; font-weight: bold !important;" target="_blank">GitHub</a>
+                        <a href="https://discord.gg/U75BFsV49z" style="text-decoration: none !important; font-weight: bold !important;" target="_blank">  Discord Server</a>  
+                        </li>
+                        <li style="margin-bottom: 8px;">Thanks to <b style="font-weight: bold;">7_lz</b> on Discord for helping me a bunch when preparing for the Chrome Web Store release. They helped a ton and I'm very thankful.</li>
+                        <li style="margin-bottom: 8px;">Thanks to <b style="font-weight: bold;">Julia</b> For letting me know that my extension required RoSeal to work correctly.</li>
+                        <a href="https://www.roseal.live/" style="text-decoration: none !important; font-weight: bold !important;" target="_blank">RoSeal Extension</a>
+                        <a href="https://discord.gg/E4aMqWa5AP" style="text-decoration: none !important; font-weight: bold !important;" target="_blank">RoSeal Discord Server</a>
+                        
+                        <li style="margin-bottom: 8px; margin-top: 8px;">And thanks to <b style="font-weight: bold;">Coweggs</b> for coming up with the very funny name that is "RoValra" as a joke that I then ended up using.</li>
+                    </ul>
+                </div>
+            `},
+        {
+            text: "Settings", content: ""
+        },
+    ];
 
         uiContainer.innerHTML = '';
 
@@ -713,13 +711,6 @@ async function checkRoValraPage() {
                     <input type="checkbox" id="enableRegionSelector">
                     <span class="slider"></span>
                     </label>
-                    <div class="setting showServerListOverlay-container ${ await (await loadSettings()).regionSelectorEnabled ? '' : 'disabled-setting'}"  style="margin-left: 35px;">
-                    <label style="">  Show Server List Overlay</label>
-                    <p>This will show an overlay with all the different servers for the picked region. Without this it will instant join.</p>
-                    <label class="toggle-switch">
-                    <input type="checkbox" id="showServerListOverlay">
-                    <span class="slider"></span>
-                    </label>
                     <div class="setting-separator"></div>
                     </div>
                     <div class="setting">
@@ -727,15 +718,6 @@ async function checkRoValraPage() {
                     <p>Shows the subplaces of a game.</p>
                     <label class="toggle-switch">
                     <input type="checkbox" id="enableSubplaces">
-                    <span class="slider"></span>
-                    </label>
-                    <div class="setting-separator"></div>
-                    </div>
-                    <div class="setting">
-                    <label style="">Enable Universal User Sniper</label>
-                    <p>This lets you join ANYONE as long as you know what game they are playing!</p>
-                    <label class="toggle-switch">
-                    <input type="checkbox" id="enableSniper">
                     <span class="slider"></span>
                     </label>
                     <div class="setting-separator"></div>
@@ -762,7 +744,7 @@ async function checkRoValraPage() {
                     <div class="setting">
                     <label style="">Enable Universal Server Invites (BETA)</label>
                     <p>This allows you to invite your friends to the game you're in, without your friend requiring any extension, not even RoValra!</p>
-                    <p>This does require you to have BTRoblox for it to work. Invites only work for people on PC.</p>
+                    <p>This does require you to have BTRoblox for it to work.</p>
                     <label class="toggle-switch">
                     <input type="checkbox" id="enableInvite">
                     <span class="slider"></span>
@@ -791,12 +773,10 @@ async function checkRoValraPage() {
                     </label>
                     <div class="setting-separator"></div>
                     </div>
-                    
-                    </div>
                     <h1 style="; margin-top: 0px; margin-bottom: 10px;">Avatar</h1>
                     <div class="setting">
                     <label style="">Remove R6 Warning</label>
-                    <p>Removes the R6 warning when switching to r6</p>
+                    <p>Removes the R6 warning when switching to R6</p>
                     <label class="toggle-switch">
                     <input type="checkbox" id="enableForceR6">
                     <span class="slider"></span>
@@ -805,7 +785,7 @@ async function checkRoValraPage() {
                     </div>
                     <div class="setting">
                     <label style="">Enable R6 Fix (BETA)</label>
-                    <p>Stops Roblox from automatically switching your character to r15 when equiping dynamic heads.</p>
+                    <p>Stops Roblox from automatically switching your character to R15 when equiping dynamic heads.</p>
                     <p>This requires you to use the english language on Roblox.</p>
                     <label class="toggle-switch">
                     <input type="checkbox" id="enableR6Fix">
@@ -814,6 +794,8 @@ async function checkRoValraPage() {
                     <div class="setting-separator"></div>
                     </div>
                     </div>
+                    </div>
+                    
                     `;
                      const itemSalesCheckbox = contentContainer.querySelector('#enableItemSales');
                      const groupGamesCheckbox = contentContainer.querySelector('#enableGroupGames');
@@ -821,31 +803,24 @@ async function checkRoValraPage() {
                      const userSniperCheckbox = contentContainer.querySelector('#enableUserSniper');
                      const regionSelectorCheckbox = contentContainer.querySelector('#enableRegionSelector');
                      const subplacesCheckbox = contentContainer.querySelector('#enableSubplaces');
-                    const showServerListOverlayCheckbox = contentContainer.querySelector('#showServerListOverlay');
                      const forceR6Checkbox = contentContainer.querySelector('#enableForceR6');
                      const r6FixCheckbox = contentContainer.querySelector('#enableR6Fix');
                      const inviteCheckbox = contentContainer.querySelector('#enableInvite');
-                     const sniperCheckbox = contentContainer.querySelector('#enableSniper');
-                     initSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, showServerListOverlayCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox, sniperCheckbox);
-                     itemSalesCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, showServerListOverlayCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox, sniperCheckbox));
-                   groupGamesCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, showServerListOverlayCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox, sniperCheckbox));
-                   userGamesCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, showServerListOverlayCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox, sniperCheckbox));
-                   userSniperCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, showServerListOverlayCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox, sniperCheckbox));
-                   regionSelectorCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, showServerListOverlayCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox, sniperCheckbox));
-                   subplacesCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, showServerListOverlayCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox, sniperCheckbox));
-                    showServerListOverlayCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, showServerListOverlayCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox, sniperCheckbox));
-                   forceR6Checkbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, showServerListOverlayCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox, sniperCheckbox));
-                   r6FixCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, showServerListOverlayCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox, sniperCheckbox));
-                    inviteCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, showServerListOverlayCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox, sniperCheckbox));
-                    sniperCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, showServerListOverlayCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox, sniperCheckbox));
-                     const showServerListOverlayContainer = contentContainer.querySelector('.showServerListOverlay-container')
+                     initSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox);
+                     itemSalesCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
+                   groupGamesCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
+                   userGamesCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
+                   userSniperCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
+                   regionSelectorCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
+                   subplacesCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
+                   forceR6Checkbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
+                   r6FixCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
+                    inviteCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
                      const regionSelectorCheckboxElement = contentContainer.querySelector('#enableRegionSelector');
                      function toggleOverlayDisable() {
-                        if(regionSelectorCheckboxElement && showServerListOverlayContainer){
+                        if(regionSelectorCheckboxElement){
                             if(!regionSelectorCheckboxElement.checked){
-                                showServerListOverlayContainer.classList.add('disabled-setting');
                             } else{
-                                showServerListOverlayContainer.classList.remove('disabled-setting');
                             }
                         }
                      }

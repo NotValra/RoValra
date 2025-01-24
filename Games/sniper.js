@@ -564,15 +564,26 @@ async function fetchInitialThumbnail(targetid, updateRateLimitCount, isCancelled
                       `;
 
                     joinButton.addEventListener('click', () => {
-                      const url = `https://www.roblox.com/games/start?placeId=${placeId}&gameInstanceId=${requestId}`;
-                
-                      const link = document.createElement('a');
-                      link.href = url;
-                      link.style.display = 'none';
-                      
-                      document.body.appendChild(link);
-                  
-                      link.click();
+                      const codeToInject = `
+                      (function() {
+                          if (typeof Roblox !== 'undefined' && Roblox.GameLauncher && Roblox.GameLauncher.joinGameInstance) {
+                            Roblox.GameLauncher.joinGameInstance(parseInt('` + placeId + `', 10), String('` + requestId + `'));
+                          } else {
+                            console.error("Roblox.GameLauncher.joinGameInstance is not available in page context.");
+                          }
+                        })();
+                      `;
+              
+                  chrome.runtime.sendMessage(
+                      { action: "injectScript", codeToInject: codeToInject },
+                      (response) => {
+                          if (response && response.success) {
+                              console.log("Successfully joined best server");
+                          } else {
+                              console.error("Failed to join best server:", response?.error || "Unknown error");
+                          }
+                      }
+                  );
             
                       if(intervalId){
                           clearInterval(intervalId)
