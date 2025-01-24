@@ -103,6 +103,7 @@ function processServerItems(placeId, serverItems) {
     }
 
     serverItems.forEach(serverItem => {
+        // This is to stop ropro from adding their invites and making the layout all weird
         if (serverItem.classList.contains('rbx-game-server-item') &&
             !serverItem.classList.contains('ropro-server-invite-added') &&
             !serverItem.classList.contains('stack-row')) {

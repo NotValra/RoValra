@@ -114,6 +114,7 @@ function addCustomButton() {
     newButtonListItem.setAttribute('role', 'tab');
 
     const newButtonLink = document.createElement('a');
+     newButtonLink.href = 'https://www.roblox.com/RoValra';
     newButtonLink.classList.add('menu-option-content');
     newButtonLink.style.cursor = 'pointer';
     newButtonLink.style.display = 'flex';
@@ -134,13 +135,11 @@ function addCustomButton() {
     newButtonLink.appendChild(logo);
     newButtonLink.appendChild(newButtonSpan);
     newButtonListItem.appendChild(newButtonLink);
-
-    newButtonLink.addEventListener('click', function () {
-        window.location.href = 'https://www.roblox.com/RoValra';
-    });
+     
     divider.insertAdjacentElement('afterend', newButtonListItem);
     rovalraButtonAdded = true;
 }
+
 
 function observeContentChanges() {
     const targetNode = document.body;
@@ -214,6 +213,7 @@ function addPopoverButton() {
             newButtonListItem.classList.add('list-item', 'menu-option');
 
             const newButtonLink = document.createElement('a');
+            newButtonLink.href = 'https://www.roblox.com/RoValra';
             newButtonLink.classList.add('menu-option-content');
             newButtonLink.style.cursor = 'pointer';
             newButtonLink.style.display = 'flex';
@@ -237,13 +237,11 @@ function addPopoverButton() {
             newButtonLink.appendChild(newButtonSpan);
             newButtonListItem.appendChild(newButtonLink);
 
-            newButtonLink.addEventListener('click', function () {
-                window.location.href = 'https://www.roblox.com/RoValra';
-
-                    const popover = document.querySelector('.popover-menu.settings-popover');
-                    if (popover) {
-                         popover.style.display = 'none';
-                     }
+          newButtonLink.addEventListener('click', function () {
+                 const popover = document.querySelector('.popover-menu.settings-popover');
+                if (popover) {
+                    popover.style.display = 'none';
+                }
             });
             popoverMenu.insertBefore(newButtonListItem, popoverMenu.firstChild);
 
@@ -254,7 +252,6 @@ function addPopoverButton() {
         }, 10);
     }, 50)
 }
-
 
 
 function startObserver() {
