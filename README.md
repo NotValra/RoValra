@@ -8,6 +8,7 @@
 
 ## Sections
 - [**Features**](https://github.com/NotValra/RoValra?tab=readme-ov-file#features)
+- [**FAQ**](https://github.com/NotValra/RoValra?tab=readme-ov-file#FAQ)
 - [**Known incompatibilies**](https://github.com/NotValra/RoValra?tab=readme-ov-file#known-incompatibilies)
 - [**How to install**](https://github.com/NotValra/RoValra?tab=readme-ov-file#how-to-install)
 - [**Credits**](https://github.com/NotValra/RoValra?tab=readme-ov-file#credits) 
@@ -36,6 +37,20 @@
 
 
 - **And more to come, if you have a feature you want me to add just lmk**
+
+# FAQ
+- **Is this extension a cookie logger?**
+    - **No. But dont just take my word for it read the source code yourself.**
+- **Does this extension support firefox?**
+    - **No, and I sadly dont see myself adding support anytime soon, sorry.**
+- **Is it bannable to use the extension?**
+    - **No, This extension follows Roblox's ToS, if Roblox doesnt like a feature being possible they can just patch it.**
+- **Is everything free?**
+    - **Yes, everything is free and will for ever be free**.
+- **Why are you making a completely free extension?**
+    - **I made this extension for myself to use, and I just made it public cuz why not.**
+- **I have a feature request, where do I request it?**
+    - **You can request it in my [Discord Server](https://discord.gg/GHd5cSKJRk) just like ping @Valra or something so i notice.**
 
 # To do list
 - [x] **~~Adding a user sniper for people that arent on your friends list :)~~ ADDED!**
