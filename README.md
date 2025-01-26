@@ -3,8 +3,8 @@
 
 **[Discord Server](https://discord.gg/GHd5cSKJRk)**
 # Chrome Web Store
-**[RoValra](https://chromewebstore.google.com/detail/rovalra/njcickgebhnpgmoodjdgohkclfplejli)**
-
+**[RoValra](https://chromewebstore.google.com/detail/rovalra/njcickgebhnpgmoodjdgohkclfplejli)**\
+*This version is outdated compared to the GitHub version, if you have any issues with it try the GitHub version to see if it fixed them*
 
 
 
