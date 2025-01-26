@@ -1,5 +1,6 @@
 # RoValra
-<img alt="GitHub Downloads (all assets, all releases)" src="https://img.shields.io/github/downloads/NotValra/RoValra/total">\
+<img alt="GitHub Downloads (all assets, all releases)" src="https://img.shields.io/github/downloads/NotValra/RoValra/total">
+
 **[Discord Server](https://discord.gg/GHd5cSKJRk)**
 # Chrome Web Store
 **[RoValra](https://chromewebstore.google.com/detail/rovalra/njcickgebhnpgmoodjdgohkclfplejli)**
