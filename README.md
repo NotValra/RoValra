@@ -36,7 +36,7 @@
   </details>
 - **Avatar**
     - **Remove R6 Warning**
-    - **R6 Fix. Stops Roblox from automatically switching your character to R15 when equipping dynamic heads.**
+    - **R6 Fix. Stops Roblox from automatically switching your character to R15 when equipping dynamic heads.e**
 
 
 
