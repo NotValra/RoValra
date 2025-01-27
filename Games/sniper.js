@@ -204,7 +204,6 @@ async function fetchServers(placeId, initialImageUrl, updateRequestCount, update
                 nextPageCursor = data.nextPageCursor;
                 if (!nextPageCursor) {
                     if (!found) {
-                      // Only display not found message once after the final fetch.
                        if(resultsDisplay.querySelector('p') == null) {
                          const notFoundMessage = document.createElement('p');
                             notFoundMessage.textContent = "User Not Found";
@@ -721,7 +720,7 @@ function createOverlay() {
     document.body.style.overflow = 'hidden';
     document.body.style.pointerEvents = 'none';
 
-    overlayData = { overlay, requestCountDisplay, rateLimitCountDisplay, startTime, intervalId, startButton };
+    overlayData = { overlay, requestCountDisplay, startTime, intervalId, startButton };
     return overlayData;
 }
 
@@ -795,7 +794,6 @@ function injectButton() {
 
 function initialize() {
     xcsrfToken = fetchXcsrfToken();
-     // Listen for theme changes and update styles accordingly.
     window.addEventListener('themeDetected', (event) => {
         const theme = event.detail.theme;
         updateThemeStyles(theme);
@@ -803,7 +801,6 @@ function initialize() {
     if (xcsrfToken) {
         injectButton()
     }
-     // Initialize styles on page load.
     const initialTheme = detectTheme();
     updateThemeStyles(initialTheme);
 }
@@ -817,7 +814,7 @@ function updateThemeStyles(theme) {
         document.documentElement.style.setProperty('--button-hover-background', 'rgb(0, 176, 111)');
         document.documentElement.style.setProperty('--border-color', '#444');
          document.documentElement.style.setProperty('--border-color-hover', '#24292e');
-          document.documentElement.style.setProperty('--input-background', 'rgb(68, 72, 76)');
+          document.documentElement.style.setProperty('--input-background', 'rgb(36, 41, 46)');
            document.documentElement.style.setProperty('--join-button-background', 'rgb(0, 176, 111)');
     } else {
          document.documentElement.style.setProperty('--text-color', 'rgb(96, 97, 98)');

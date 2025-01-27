@@ -1,5 +1,5 @@
 // Dont look at this shit dookie poo po of code
-
+// Starting roblox logic, i would recommend not touching this :)
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     if (message.action === "injectScript") {
       const { codeToInject } = message;
@@ -32,6 +32,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     }
     return false;
   });
+// this was from back when i was testing stuff, pretty sure its not in use i just dont wanna remove it since if it aint broke dont fix it
 async function updateDeclarativeNetRequestRuleWithCookie(rulesetId) {
     try {
       const cookie = await getRobloxCookie();
@@ -104,7 +105,7 @@ async function updateDeclarativeNetRequestRuleWithCookie(rulesetId) {
                   });
               return true;
           // Not in use like almost the entire script
-          case "fetchUserIP": {
+          case "fetchUserIP": { // This is not in use, the reason why its called "FetchUserIp" is back when it was used. This does not fetch ur ip i just dont wanna remove it since parts of this code i still in use and i cant be bothered
               try {
                   const cookie = await getRobloxCookie();
                   const response = await fetch("", {
@@ -156,6 +157,7 @@ async function updateDeclarativeNetRequestRuleWithCookie(rulesetId) {
                   } else {
                       sendResponse({
                           success: false,
+                          // This is also not in used, it was used to find the closest server to u but its now all running inside of Regions_content.js and its not using ur ip anymore to do it.
                           message: "IP address not found in settings"
                       });
                   }
@@ -166,7 +168,7 @@ async function updateDeclarativeNetRequestRuleWithCookie(rulesetId) {
                   });
               }
               return true;
-          
+          // this was also from back when it wasnt released on the chrome webstore, ur country code is not being used anymore. Back then it was using a third party api that we are not using anymore.
           case "fetchCountryCode": {
             try {
                const cookie = await getRobloxCookie();
@@ -274,6 +276,7 @@ async function updateDeclarativeNetRequestRuleWithCookie(rulesetId) {
               });
           });
           return true;
+          // more cookie logic which im 99% sure isnt in use, now how we do it is just by adding it directly into the api request.
       } else if (request.action === "getRobloxCookie") {
           getRobloxCookie()
               .then(cookie => {
@@ -354,6 +357,7 @@ async function updateDeclarativeNetRequestRuleWithCookie(rulesetId) {
   });
   
   // Not updating logic :D
+  // Unsure if this is being used, it might be but its only to send api request with ur cookie which is needed THIS IS HOW APIS WORK.
   function getRobloxCookie() {
     return new Promise((resolve, reject) => {
       chrome.cookies.get({ url: "https://www.roblox.com", name: ".ROBLOSECURITY" }, (cookie) => {

@@ -1,3 +1,4 @@
+// yes it is normal that this is erroring in the console, I just cant be bothered fixing it since it still works
 let currentTheme = 'light';
 window.addEventListener('themeDetected', (event) => {
     currentTheme = event.detail.theme;

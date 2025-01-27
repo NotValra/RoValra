@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
     "name": "RoValra - Roblox Improved",
-    "version": "2.1.3",
+    "version": "2.1.4",
     "description": "An extension aiming to provide features that other Roblox extensions pay wall!",
     "content_scripts": [
       {

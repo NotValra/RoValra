@@ -39,16 +39,7 @@ function applyTheme() {
     if (uiContainer) {
         uiContainer.style.color = textColor;
     }
-    if (contentContainer) {
-        const childDiv = contentContainer.querySelector(':scope > div');
-        if (childDiv) {
-            childDiv.querySelectorAll('h2, p, a, div').forEach(element => {
-                if (!element.closest('.slider')) {
-                    element.style.color = textColor;
-                }
-            });
-        }
-    }
+  
     tabButtons.forEach(button => {
         if (!isDarkMode) {
             button.style.setProperty('color', '#fff', 'important');
@@ -313,7 +304,7 @@ const loadSettings = async () => {
              itemSalesEnabled: true,
                groupGamesEnabled: true,
                 userGamesEnabled: true,
-               userSniperEnabled: true,
+               userSniperEnabled: false,
               regionSelectorEnabled: false,
                 subplacesEnabled: true,
                    forceR6Enabled: true,
@@ -425,7 +416,6 @@ function updateContent(buttonInfo, contentContainer, buttonData) {
 }
 
 async function checkRoValraPage() {
-
     if (!window.location.href.includes('/RoValra')) {
         return;
     }
@@ -436,37 +426,37 @@ async function checkRoValraPage() {
         return;
     }
 
-  const roproThemeFrame = containerMain.querySelector('#roproThemeFrame');
-  let roproThemeFrameHTML = roproThemeFrame ? roproThemeFrame.outerHTML : '';
+    const roproThemeFrame = containerMain.querySelector('#roproThemeFrame');
+    let roproThemeFrameHTML = roproThemeFrame ? roproThemeFrame.outerHTML : '';
 
-   containerMain.innerHTML = roproThemeFrameHTML;
+    containerMain.innerHTML = roproThemeFrameHTML;
 
 
-      let reactUserAccountBaseDiv = document.createElement('div');
+    let reactUserAccountBaseDiv = document.createElement('div');
     reactUserAccountBaseDiv.id = 'react-user-account-base'
 
-      let contentDiv = document.createElement('div')
-      contentDiv.classList.add('content')
-       contentDiv.id = 'content'
+    let contentDiv = document.createElement('div')
+    contentDiv.classList.add('content')
+    contentDiv.id = 'content'
 
-      let userAccountDiv = document.createElement('div')
-      userAccountDiv.classList.add('row', 'page-content', 'new-username-pwd-rule')
-      userAccountDiv.id = 'user-account';
+    let userAccountDiv = document.createElement('div')
+    userAccountDiv.classList.add('row', 'page-content', 'new-username-pwd-rule')
+    userAccountDiv.id = 'user-account';
 
-      let rovalraHeader = document.createElement('h1');
-      rovalraHeader.textContent = 'RoValra Settings';
+    let rovalraHeader = document.createElement('h1');
+    rovalraHeader.textContent = 'RoValra Settings';
 
-      let settingsContainer = document.createElement('div');
-      settingsContainer.id = 'settings-container';
+    let settingsContainer = document.createElement('div');
+    settingsContainer.id = 'settings-container';
 
-      userAccountDiv.appendChild(reactUserAccountBaseDiv)
-        reactUserAccountBaseDiv.appendChild(rovalraHeader)
-        reactUserAccountBaseDiv.appendChild(settingsContainer)
-      contentDiv.appendChild(userAccountDiv)
-      containerMain.appendChild(contentDiv);
-       applyTheme();
+    userAccountDiv.appendChild(reactUserAccountBaseDiv)
+    reactUserAccountBaseDiv.appendChild(rovalraHeader)
+    reactUserAccountBaseDiv.appendChild(settingsContainer)
+    contentDiv.appendChild(userAccountDiv)
+    containerMain.appendChild(contentDiv);
+    applyTheme();
     if (rovalraHeader && rovalraHeader.textContent === 'RoValra Settings' && settingsContainer) {
-         contentDiv.style.cssText = `
+        contentDiv.style.cssText = `
             width: 1199px !important;
             max-width: 1199px !important;
             height: auto !important;
@@ -477,14 +467,14 @@ async function checkRoValraPage() {
             min-height: 800px !important;
             position: relative !important;
         `;
-         if (userAccountDiv) {
-             userAccountDiv.style.cssText = `
+        if (userAccountDiv) {
+            userAccountDiv.style.cssText = `
                 display: flex !important;
                 padding-left: 20px !important;
                 padding-right: 20px !important;
                 margin: 0 !important;
             `;
-             rovalraButtonAdded = false;
+            rovalraButtonAdded = false;
         }
         rovalraHeader.remove();
         const uiContainer = document.createElement('div');
@@ -507,7 +497,6 @@ async function checkRoValraPage() {
                 flex-direction: column;
                 justify-content: space-between;
                 font-size: 16px;
-                color: white;
                 margin: 0 0px;
                 
             }
@@ -516,8 +505,10 @@ async function checkRoValraPage() {
                 flex-grow: 1;
                 margin-right: 5px;
                 font-weight: bold;
+                
             }
             .setting p {
+               
             }
             .toggle-switch {
                 position: relative;
@@ -586,52 +577,61 @@ async function checkRoValraPage() {
         document.head.appendChild(style);
         const buttonData = [
             {
-          text: "Info", content: `
-          <div style="padding: 15px; border-radius: 8px;">
-          <h2 style="; margin-bottom: 10px;">RoValra Infomation!</h2>
-          <p style="">RoValra is an extension that's trying to make basic QoL features free and accessible to everyone, by making everything completely open-source.</p>
-          <div style="margin-top: 5px;">
-              <p style="">This is possible by running everything locally.</p>
-              <div style="margin-top: 5px;">
-              <p style="">If you have any feature suggestions please let me know in my Discord server or via GitHub</p>
-              <div style="margin-top: 5px;">
-              <p style="">If you find any bugs, big or small please feel free to report them to me on GitHub</p>
-              </div>
-          <div style="margin-top: 10px;">
-                  <a href="https://discord.gg/GHd5cSKJRk" target="_blank" style="text-decoration: none !important; font-weight: bold !important;">Discord Server</a>
-                  <a href="https://github.com/NotValra/RoValra"; target="_blank" style="text-decoration: none !important; font-weight: bold !important;">
-                  Github Repo
-                  <img src="${chrome.runtime.getURL("Assets/icon-128.png")}" style="width: 20px; height: 20px; margin-left: 5px; vertical-align: middle;">
-                  </a>
-          </div>
-      </div>
-      `},
-        {
-            text: "Credits", content: `
-                <div style="padding: 15px; border-radius: 8px;">
-                    <h2 style=" margin-bottom: 10px;">RoValra Credits!</h2>
-                    <ul style=" margin-top: 10px; padding-left: 0px;">
-                        <li style="margin-bottom: 8px;">The sales and revenue feature is only possible because of <b style="font-weight: bold;">Frames.</b>
-                            <a href="https://github.com/workframes/roblox-owner-counts" target="_blank" style="text-decoration: none !important; font-weight: bold !important;">GitHub Repo</a>
+                text: "Info", content: `
+               <div style="padding: 15px; background-color: #2a2b2c; border-radius: 8px;">
+               <h2 style="; margin-bottom: 10px;">RoValra Infomation!</h2>
+               <p style="">RoValra is an extension that's trying to make basic QoL features free and accessible to everyone, by making everything completely open-source.</p>
+               <div style="margin-top: 5px;">
+                   <p style="">This is possible by running everything locally.</p>
+                   <div style="margin-top: 5px;">
+                   <p style="">If you have any feature suggestions please let me know in my Discord server or via GitHub</p>
+                   <div style="margin-top: 5px;">
+                   <p style="">Feel free to report any bugs big or small to me on GitHub.</p>
+                   </div>
+               <div style="margin-top: 10px;">
+                       <a href="https://discord.gg/GHd5cSKJRk" target="_blank">Discord Server</a>
+                       <a href="https://github.com/NotValra/RoValra" target="_blank">
+                       Github Repo
+                       <img src="${chrome.runtime.getURL("Assets/icon-128.png")}" style="width: 20px; height: 20px; margin-left: 5px; vertical-align: middle;" />
+                       </a>
+               </div>
+           </div>
+           `},
+            {
+                text: "Credits", content: `
+                    <div style="padding: 15px; background-color: #2a2b2c; border-radius: 8px;">
+                        <h2 style="margin-bottom: 10px;">RoValra Credits!</h2>
+                        <ul style="margin-top: 10px; padding-left: 0px;">
+                            <li style="margin-bottom: 8px; list-style-type: disc; margin-left: 20px;">
+                                The sales and revenue feature is only possible because of <b style="font-weight: bold;">Frames.</b>
+                                <a href="https://github.com/workframes/roblox-owner-counts" target="_blank">GitHub Repo</a>
+                            </li>
+                            <li style="margin-bottom: 8px; list-style-type: disc; margin-left: 20px;">
+                                The Region searcher was originally a Python script made by <b style="font-weight: bold;">l5se</b> on Discord, that I recoded in Python and then in JS.
+                            </li>
+                            <li style="margin-bottom: 8px; list-style-type: disc; margin-left: 20px;">
+                                Thanks to <b style="font-weight: bold;">Aspect</b> for helping me out here and there when I had a bunch of dumb questions or problems.
+                                <a href="https://github.com/Aspectise" target="_blank">GitHub</a>
+                                <a href="https://discord.gg/U75BFsV49z" target="_blank">Discord</a>
+                            </li>
+                            <li style="margin-bottom: 8px; list-style-type: disc; margin-left: 20px;">
+                                Thanks to <b style="font-weight: bold;">7_lz</b> on Discord for helping me a bunch when preparing for the Chrome Web Store release. They helped a ton and I'm very thankful.
+                            </li>
+                            <li style="margin-bottom: 8px; list-style-type: disc; margin-left: 20px;">
+                                Thanks to <b style="font-weight: bold;">Julia</b> For letting me know that my extension required RoSeal to work correctly.
+                                 <a href="https://www.roseal.live/" target="_blank">RoSeal Extension🦭</a>
+                                <a href="https://discord.gg/E4aMqWa5AP" target="_blank">RoSeal Discord</a>
+                            </li>
+                            <li style="margin-bottom: 8px; list-style-type: disc; margin-left: 20px;">
+                            And thanks to <b style="font-weight: bold;">Coweggs</b> for coming up with the very funny name that is "RoValra" as a joke that I then ended up using.
                         </li>
-                        <li style="margin-bottom: 8px;">The Region searcher was originally a Python script made by <b style="font-weight: bold;">l5se</b> on Discord, that I recoded in Python and then in JS.</li>
-                        <li style="margin-bottom: 8px;">Thanks to <b style="font-weight: bold;">Aspect</b> for helping me out here and there when I had a bunch of dumb questions or problems.
-                        <a href="https://github.com/Aspectise" style="text-decoration: none !important; font-weight: bold !important;" target="_blank">GitHub</a>
-                        <a href="https://discord.gg/U75BFsV49z" style="text-decoration: none !important; font-weight: bold !important;" target="_blank">  Discord Server</a>  
-                        </li>
-                        <li style="margin-bottom: 8px;">Thanks to <b style="font-weight: bold;">7_lz</b> on Discord for helping me a bunch when preparing for the Chrome Web Store release. They helped a ton and I'm very thankful.</li>
-                        <li style="margin-bottom: 8px;">Thanks to <b style="font-weight: bold;">Julia</b> For letting me know that my extension required RoSeal to work correctly.</li>
-                        <a href="https://www.roseal.live/" style="text-decoration: none !important; font-weight: bold !important;" target="_blank">RoSeal Extension</a>
-                        <a href="https://discord.gg/E4aMqWa5AP" style="text-decoration: none !important; font-weight: bold !important;" target="_blank">RoSeal Discord Server</a>
-                        
-                        <li style="margin-bottom: 8px; margin-top: 8px;">And thanks to <b style="font-weight: bold;">Coweggs</b> for coming up with the very funny name that is "RoValra" as a joke that I then ended up using.</li>
-                    </ul>
-                </div>
-            `},
-        {
-            text: "Settings", content: ""
-        },
-    ];
+                        </ul>
+                    </div>
+                `},
+            {
+                text: "Settings", content: ""
+            },
+        ];
 
         uiContainer.innerHTML = '';
 
@@ -640,8 +640,8 @@ async function checkRoValraPage() {
         buttonContainer.style.flexDirection = 'column';
         buttonContainer.style.width = '160px';
         buttonContainer.style.flexShrink = '0';
-          const contentContainer = document.createElement('div');
-         contentContainer.id = 'content-container';
+        const contentContainer = document.createElement('div');
+        contentContainer.id = 'content-container';
         contentContainer.style.flex = '1';
         contentContainer.style.overflowY = 'auto';
         contentContainer.style.overflowX = 'auto';
@@ -654,7 +654,7 @@ async function checkRoValraPage() {
         uiContainer.appendChild(buttonContainer);
         uiContainer.appendChild(contentContainer);
 
-         
+
         buttonData.forEach(item => {
             const button = document.createElement('button');
             button.textContent = item.text || item;
@@ -679,31 +679,33 @@ async function checkRoValraPage() {
                     this.style.backgroundColor = 'rgb(57, 59, 61)';
                 }
             });
-             button.addEventListener('click', async function () {
+            button.addEventListener('click', async function () {
                 const previouslyActiveButton = buttonContainer.querySelector('button[data-active="true"]');
 
-                if (previouslyActiveButton && previouslyActiveButton !== this) {
-                    previouslyActiveButton.style.backgroundColor = 'rgb(57, 59, 61)';
-                    previouslyActiveButton.dataset.active = 'false';
+
+                if (this.dataset.active === 'true') { // Skip deactivation
+                    return;
                 }
 
-                if (this.dataset.active === 'false') {
-                    this.style.backgroundColor = 'rgb(117, 119, 121)';
-                    this.dataset.active = 'true';
-                } else {
-                    this.style.backgroundColor = 'rgb(57, 59, 61)';
-                    this.dataset.active = 'false';
-                }
+                if (previouslyActiveButton) {
+                   previouslyActiveButton.style.backgroundColor = 'rgb(57, 59, 61)';
+                   previouslyActiveButton.dataset.active = 'false';
+               }
 
-              
+
+                this.style.backgroundColor = 'rgb(117, 119, 121)';
+                this.dataset.active = 'true';
+
+
+
                 if (item.text === "Settings") {
-                       contentContainer.innerHTML = `
+                    contentContainer.innerHTML = `
                     <div style="padding: 25px; background-color: #2a2b2c; border-radius: 8px;">
                     
                     <h1 style="; margin-bottom: 5px;">Games</h1>
                     <div class="setting">
                     <label style="">Enable Region Selector</label>
-                    <p>This lets you select the region to play on. Kinda like RoPro but for free and with support for any game.</p>
+                    <p>This lets you select a server in a specific region to join.</p>
                     <label class="toggle-switch">
                     <input type="checkbox" id="enableRegionSelector">
                     <span class="slider"></span>
@@ -738,10 +740,10 @@ async function checkRoValraPage() {
                     </label>
                     <div class="setting-separator"></div>
                     </div>
-                    <div class="setting">
+                   <div class="setting">
                     <label style="">Enable Universal Server Invites (BETA)</label>
-                    <p>This allows you to invite your friends to the game you're in, without your friend requiring any extension, not even RoValra!</p>
-                    <p>This does require you to have BTRoblox for it to work.</p>
+                     <p>This allows you to invite your friends to the game you're in, without your friend requiring any extension, not even RoValra!</p>
+                     <p>This does require you to have BTRoblox for it to work.</p>
                     <label class="toggle-switch">
                     <input type="checkbox" id="enableInvite">
                     <span class="slider"></span>
@@ -764,13 +766,14 @@ async function checkRoValraPage() {
                     <div class="setting">
                     <label style="">Enable Item Sales</label>
                     <p>This shows the most up to date sales and revenue data we have.</p>
+                    <p>The sales data is very likely to be inaccurate on items that are for sale, but very likely to be correct on off sale items.</p>
                     <label class="toggle-switch">
                     <input type="checkbox" id="enableItemSales">
                     <span class="slider"></span>
                     </label>
                     <div class="setting-separator"></div>
                     </div>
-                    <h1 style="; margin-top: 0px; margin-bottom: 10px;">Avatar</h1>
+                     <h1 style="; margin-top: 0px; margin-bottom: 10px;">Avatar</h1>
                     <div class="setting">
                     <label style="">Remove R6 Warning</label>
                     <p>Removes the R6 warning when switching to R6</p>
@@ -782,8 +785,8 @@ async function checkRoValraPage() {
                     </div>
                     <div class="setting">
                     <label style="">Enable R6 Fix (BETA)</label>
-                    <p>Stops Roblox from automatically switching your character to R15 when equiping dynamic heads.</p>
-                    <p>This requires you to use the english language on Roblox.</p>
+                     <p>Stops Roblox from automatically switching your character to R15 when equiping dynamic heads.</p>
+                      <p>This requires you to use the english language on Roblox.</p>
                     <label class="toggle-switch">
                     <input type="checkbox" id="enableR6Fix">
                     <span class="slider"></span>
@@ -794,110 +797,379 @@ async function checkRoValraPage() {
                     </div>
                     
                     `;
-                     const itemSalesCheckbox = contentContainer.querySelector('#enableItemSales');
-                     const groupGamesCheckbox = contentContainer.querySelector('#enableGroupGames');
-                     const userGamesCheckbox = contentContainer.querySelector('#enableUserGames');
-                     const userSniperCheckbox = contentContainer.querySelector('#enableUserSniper');
-                     const regionSelectorCheckbox = contentContainer.querySelector('#enableRegionSelector');
-                     const subplacesCheckbox = contentContainer.querySelector('#enableSubplaces');
-                     const forceR6Checkbox = contentContainer.querySelector('#enableForceR6');
-                     const r6FixCheckbox = contentContainer.querySelector('#enableR6Fix');
-                     const inviteCheckbox = contentContainer.querySelector('#enableInvite');
-                     initSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox);
-                     itemSalesCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
-                   groupGamesCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
-                   userGamesCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
-                   userSniperCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
-                   regionSelectorCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
-                   subplacesCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
-                   forceR6Checkbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
-                   r6FixCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
-                    inviteCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
-                     const regionSelectorCheckboxElement = contentContainer.querySelector('#enableRegionSelector');
-                     function toggleOverlayDisable() {
+                    const itemSalesCheckbox = contentContainer.querySelector('#enableItemSales');
+                    const groupGamesCheckbox = contentContainer.querySelector('#enableGroupGames');
+                    const userGamesCheckbox = contentContainer.querySelector('#enableUserGames');
+                    const userSniperCheckbox = contentContainer.querySelector('#enableUserSniper');
+                    const regionSelectorCheckbox = contentContainer.querySelector('#enableRegionSelector');
+                    const subplacesCheckbox = contentContainer.querySelector('#enableSubplaces');
+                    const forceR6Checkbox = contentContainer.querySelector('#enableForceR6');
+                    const r6FixCheckbox = contentContainer.querySelector('#enableR6Fix');
+                    const inviteCheckbox = contentContainer.querySelector('#enableInvite');
+                    initSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox);
+                    itemSalesCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
+                    groupGamesCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
+                    userGamesCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
+                    userSniperCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
+                    regionSelectorCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
+                    subplacesCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
+                    forceR6Checkbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
+                    r6FixCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
+                     inviteCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
+                    const regionSelectorCheckboxElement = contentContainer.querySelector('#enableRegionSelector');
+                    function toggleOverlayDisable() {
                         if(regionSelectorCheckboxElement){
                             if(!regionSelectorCheckboxElement.checked){
                             } else{
                             }
                         }
-                     }
-                   regionSelectorCheckboxElement.addEventListener('change', () => {
-                     toggleOverlayDisable();
+                    }
+                    regionSelectorCheckboxElement.addEventListener('change', () => {
+                        toggleOverlayDisable();
                     });
                     applyTheme();
                 } else {
-                     updateContent(item, contentContainer, buttonData);
+                    updateContent(item, contentContainer, buttonData);
                     applyTheme();
                 }
-                  applyTheme();
+                applyTheme();
             });
             buttonContainer.appendChild(button);
         });
         const infoButton = buttonContainer.querySelector('button:first-child');
-         if (infoButton) {
+        if (infoButton) {
             infoButton.style.backgroundColor = 'rgb(117, 119, 121)';
             infoButton.dataset.active = 'true';
             applyTheme();
-        
-         }
+
+        }
         settingsContainer.insertAdjacentElement("afterbegin", rovalraHeader)
-        updateContent(buttonData[0], contentContainer, buttonData) 
-       applyTheme();
+        updateContent(buttonData[0], contentContainer, buttonData)
+        applyTheme();
     } else {
-           contentDiv.style.cssText = '';
-          const userAccountDiv = contentDiv.querySelector('.row.page-content.new-username-pwd-rule#user-account')
-       if(userAccountDiv){
-          userAccountDiv.style.cssText = '';
-       }
+        contentDiv.style.cssText = '';
+        const userAccountDiv = contentDiv.querySelector('.row.page-content.new-username-pwd-rule#user-account')
+        if(userAccountDiv){
+            userAccountDiv.style.cssText = '';
+        }
     }
 }
 async function updateContent(buttonInfo, contentContainer, buttonData) {
     const isDarkMode = currentTheme === 'dark';
     const contentColor = isDarkMode ? '#2a2b2c' : '';
-    const textColor = isDarkMode ? '' : 'rgb(96, 97, 98)';
-     const headerColor = isDarkMode ? '' : 'rgb(40, 40, 40)';
+    const textColor = isDarkMode ? 'rgb(189, 190, 190)' : 'rgb(96, 97, 98)';
+    const headerColor = isDarkMode ? '' : 'rgb(40, 40, 40)';
+    const discordLinkColor = isDarkMode ? '#7289da' : '#3479b7';
+    const githubLinkColor = isDarkMode ? '#2dba4e' : '#1e722a';
+
 
     if (typeof buttonInfo === 'object' && buttonInfo !== null && buttonInfo.content) {
         contentContainer.innerHTML = buttonInfo.content;
         contentContainer.style.borderRadius = '8px';
-          if (isDarkMode) {
-             contentContainer.style.backgroundColor = contentColor;
-         } else{
-           contentContainer.style.backgroundColor = '';
-         }
-        
-          if (window.location.href.includes('/RoValra')) {
-            contentContainer.querySelectorAll('h2, p, div, span, li, b, a').forEach(element => {
-                element.style.setProperty('color', textColor, 'important');
-            });
-          }
+        if (isDarkMode) {
+            contentContainer.style.backgroundColor = contentColor;
+        } else {
+            contentContainer.style.backgroundColor = '';
+        }
 
-          const allLinks = contentContainer.querySelectorAll('a');
-           allLinks.forEach(link => {
-               link.style.setProperty('text-decoration', 'none', 'important');
-               link.style.setProperty('font-weight', 'bold', 'important');
-           });
+        if (window.location.href.includes('/RoValra')) {
+            contentContainer.querySelectorAll('div, span, li, b').forEach(element => { 
+                const computedStyle = window.getComputedStyle(element);
+                const elementColor = computedStyle.color;
+                if (elementColor === 'rgb(0, 0, 0)' || elementColor === 'rgb(255, 255, 255)') {
+                    element.style.setProperty('color', textColor, 'important');
+                }
+            });
+
+            contentContainer.querySelectorAll('h2').forEach(h2Element => {
+                if(isDarkMode){
+                    h2Element.style.setProperty('color', 'white', 'important');
+                } else{
+                    h2Element.style.removeProperty('color')
+                }
+            });
+        }
+
+        const allLinks = contentContainer.querySelectorAll('a');
+        allLinks.forEach(link => {
+            link.style.setProperty('text-decoration', 'underline', 'important');
+            link.style.setProperty('font-weight', 'bold', 'important');
+             link.style.setProperty('transition', 'color 0.3s ease', 'important');
+
+            link.addEventListener('mouseenter', function() {
+                   const computedColor = window.getComputedStyle(this).color;
+                    const lighterColor = lightenColor(computedColor, 0.2);
+                   this.style.setProperty('color', lighterColor, 'important');
+                });
+                 link.addEventListener('mouseleave', function() {
+                     if (this.href.includes('discord.gg')) {
+                         this.style.setProperty('color', discordLinkColor, 'important');
+                     }
+                     else if(this.href.includes('github.com')) {
+                         this.style.setProperty('color', githubLinkColor, 'important');
+                     } else{
+                         this.style.setProperty('color', 'inherit', 'important');
+                     }
+                 });
+        });
+
+
         const discordLinks = contentContainer.querySelectorAll('a[href*="discord.gg"]');
-         discordLinks.forEach(link => {
-            link.style.setProperty('color', '#7289da', 'important');
-            });
+        discordLinks.forEach(link => {
+             link.style.setProperty('color', discordLinkColor, 'important');
+         });
 
-            const githubLinks = contentContainer.querySelectorAll('a[href*="github.com"]');
-            githubLinks.forEach(link => {
-                 link.style.setProperty('color', '#2dba4e', 'important');
-            });
+        const githubLinks = contentContainer.querySelectorAll('a[href*="github.com"]');
+        githubLinks.forEach(link => {
+            link.style.setProperty('color', githubLinkColor, 'important');
+        });
 
 
-         const rovalraHeader = contentContainer.querySelector('#react-user-account-base > h1');
-         if(rovalraHeader){
+
+        const rovalraHeader = contentContainer.querySelector('#react-user-account-base > h1');
+        if (rovalraHeader) {
             rovalraHeader.style.setProperty('color', headerColor, 'important');
-         }
+        }
     } else {
         contentContainer.innerHTML = '';
     }
-   if (currentTheme) {
+    if (currentTheme) {
         applyTheme();
     }
+}
+async function updateContent(buttonInfo, contentContainer, buttonData) {
+    const isDarkMode = currentTheme === 'dark';
+    const contentColor = isDarkMode ? '#2a2b2c' : '';
+    const textColor = isDarkMode ? 'rgb(189, 190, 190)' : 'rgb(96, 97, 98)';
+    const headerColor = isDarkMode ? '' : 'rgb(40, 40, 40)';
+    const discordLinkColor = isDarkMode ? '#7289da' : '#3479b7';
+    const githubLinkColor = isDarkMode ? '#2dba4e' : '#1e722a';
+
+
+    if (typeof buttonInfo === 'object' && buttonInfo !== null && buttonInfo.content) {
+        contentContainer.innerHTML = buttonInfo.content;
+        contentContainer.style.borderRadius = '8px';
+        if (isDarkMode) {
+            contentContainer.style.backgroundColor = contentColor;
+        } else {
+            contentContainer.style.backgroundColor = '';
+        }
+
+        if (window.location.href.includes('/RoValra')) {
+            contentContainer.querySelectorAll('div, span, li, b').forEach(element => { 
+                const computedStyle = window.getComputedStyle(element);
+                const elementColor = computedStyle.color;
+                if (elementColor === 'rgb(0, 0, 0)' || elementColor === 'rgb(255, 255, 255)') {
+                    element.style.setProperty('color', textColor, 'important');
+                }
+            });
+
+
+            contentContainer.querySelectorAll('h2').forEach(h2Element => {
+                if(isDarkMode){
+                    h2Element.style.setProperty('color', 'white', 'important');
+                } else{
+                    h2Element.style.removeProperty('color')
+                }
+            });
+        }
+
+        const allLinks = contentContainer.querySelectorAll('a');
+        allLinks.forEach(link => {
+            link.style.setProperty('text-decoration', 'underline', 'important');
+            link.style.setProperty('font-weight', 'bold', 'important');
+             link.style.setProperty('transition', 'color 0.3s ease', 'important');
+
+            link.addEventListener('mouseenter', function() {
+                   const computedColor = window.getComputedStyle(this).color;
+                    const lighterColor = lightenColor(computedColor, 0.2);
+                   this.style.setProperty('color', lighterColor, 'important');
+                });
+                 link.addEventListener('mouseleave', function() {
+                     if (this.href.includes('discord.gg')) {
+                         this.style.setProperty('color', discordLinkColor, 'important');
+                     }
+                     else if(this.href.includes('github.com')) {
+                         this.style.setProperty('color', githubLinkColor, 'important');
+                     } else{
+                         this.style.setProperty('color', 'inherit', 'important');
+                     }
+                 });
+        });
+
+
+        const discordLinks = contentContainer.querySelectorAll('a[href*="discord.gg"]');
+        discordLinks.forEach(link => {
+             link.style.setProperty('color', discordLinkColor, 'important');
+         });
+
+        const githubLinks = contentContainer.querySelectorAll('a[href*="github.com"]');
+        githubLinks.forEach(link => {
+            link.style.setProperty('color', githubLinkColor, 'important');
+        });
+
+
+
+        const rovalraHeader = contentContainer.querySelector('#react-user-account-base > h1');
+        if (rovalraHeader) {
+            rovalraHeader.style.setProperty('color', headerColor, 'important');
+        }
+    } else {
+        contentContainer.innerHTML = '';
+    }
+    if (currentTheme) {
+        applyTheme();
+    }
+}
+function applyTheme() {
+    const isDarkMode = currentTheme === 'light';
+    const contentColor = isDarkMode ? 'white' : 'rgb(42, 43, 44)';
+    const textColor = isDarkMode ? 'rgb(57, 59, 61)' : 'rgb(255, 255, 255)';
+    const headerColor = isDarkMode ? '' : 'rgb(40, 40, 40)';
+    const sliderOnBackgroundColor = isDarkMode ? '#444' : '#ddd';
+    const sliderButtonColor = isDarkMode ? '#24292e' : 'white';
+    const contentContainer = document.querySelector('#content-container');
+    const settingsContainer = document.querySelector('#settings-container');
+    const uiContainer = document.querySelector('#settings-container > div');
+    const tabButtons = document.querySelectorAll('.tab-button');
+
+    if (contentContainer) {
+        const childDiv = contentContainer.querySelector(':scope > div');
+        if (childDiv) {
+            childDiv.style.backgroundColor = contentColor;
+        }
+    }
+    if (settingsContainer) {
+        const rovalraHeader = settingsContainer.querySelector('#react-user-account-base > h1');
+        if (rovalraHeader) {
+            rovalraHeader.style.color = headerColor;
+        }
+    }
+    if (uiContainer) {
+         if (window.location.href.includes('/RoValra')) {
+          uiContainer.style.color = textColor;
+         }
+    }
+
+    tabButtons.forEach(button => {
+        if (!isDarkMode) {
+            button.style.setProperty('color', '#fff', 'important');
+        } else {
+            button.style.removeProperty('color');
+        }
+    });
+
+    const sliders = document.querySelectorAll('.slider');
+    sliders.forEach(slider => {
+        const input = slider.parentNode.querySelector('input');
+        slider.style.backgroundColor = input.checked ? sliderOnBackgroundColor : sliderOffBackgroundColor;
+    });
+
+    const sliderButtons = document.querySelectorAll('.slider:before');
+    sliderButtons.forEach(button => {
+        button.style.backgroundColor = sliderButtonColor;
+    });
+}
+async function updateContent(buttonInfo, contentContainer, buttonData) {
+    const isDarkMode = currentTheme === 'dark';
+    const contentColor = isDarkMode ? '#2a2b2c' : '';
+    const textColor = isDarkMode ? 'rgb(189, 190, 190)' : 'rgb(96, 97, 98)';
+    const headerColor = isDarkMode ? '' : 'rgb(40, 40, 40)';
+    const discordLinkColor = isDarkMode ? '#7289da' : '#3479b7';
+    const githubLinkColor = isDarkMode ? '#2dba4e' : '#1e722a';
+
+
+    if (typeof buttonInfo === 'object' && buttonInfo !== null && buttonInfo.content) {
+        contentContainer.innerHTML = buttonInfo.content;
+        contentContainer.style.borderRadius = '8px';
+        if (isDarkMode) {
+            contentContainer.style.backgroundColor = contentColor;
+        } else {
+            contentContainer.style.backgroundColor = '';
+        }
+
+        if (window.location.href.includes('/RoValra')) {
+            contentContainer.querySelectorAll('div, span, li, b').forEach(element => { 
+                const computedStyle = window.getComputedStyle(element);
+                const elementColor = computedStyle.color;
+                if (elementColor === 'rgb(0, 0, 0)' || elementColor === 'rgb(255, 255, 255)') {
+                    element.style.setProperty('color', textColor, 'important');
+                }
+            });
+
+            contentContainer.querySelectorAll('h2').forEach(h2Element => {
+                if(isDarkMode){
+                    h2Element.style.setProperty('color', 'white', 'important');
+                } else{
+                    h2Element.style.removeProperty('color')
+                }
+            });
+        }
+
+        const allLinks = contentContainer.querySelectorAll('a');
+        allLinks.forEach(link => {
+            link.style.setProperty('text-decoration', 'underline', 'important');
+            link.style.setProperty('font-weight', 'bold', 'important');
+             link.style.setProperty('transition', 'color 0.3s ease', 'important');
+
+            link.addEventListener('mouseenter', function() {
+                   const computedColor = window.getComputedStyle(this).color;
+                    const lighterColor = lightenColor(computedColor, 0.2);
+                   this.style.setProperty('color', lighterColor, 'important');
+                });
+                 link.addEventListener('mouseleave', function() {
+                     if (this.href.includes('discord.gg')) {
+                         this.style.setProperty('color', discordLinkColor, 'important');
+                     }
+                     else if(this.href.includes('github.com')) {
+                         this.style.setProperty('color', githubLinkColor, 'important');
+                     } else{
+                         this.style.setProperty('color', 'inherit', 'important');
+                     }
+                 });
+        });
+
+
+        const discordLinks = contentContainer.querySelectorAll('a[href*="discord.gg"]');
+        discordLinks.forEach(link => {
+             link.style.setProperty('color', discordLinkColor, 'important');
+         });
+
+        const githubLinks = contentContainer.querySelectorAll('a[href*="github.com"]');
+        githubLinks.forEach(link => {
+            link.style.setProperty('color', githubLinkColor, 'important');
+        });
+
+
+
+        const rovalraHeader = contentContainer.querySelector('#react-user-account-base > h1');
+        if (rovalraHeader) {
+            rovalraHeader.style.setProperty('color', headerColor, 'important');
+        }
+    } else {
+        contentContainer.innerHTML = '';
+    }
+    if (currentTheme) {
+        applyTheme();
+    }
+}
+
+function lightenColor(color, percent) {
+    const rgbMatch = color.match(/rgb\((\d+), (\d+), (\d+)\)/);
+    if (!rgbMatch) return color;
+
+
+    let r = parseInt(rgbMatch[1]);
+    let g = parseInt(rgbMatch[2]);
+    let b = parseInt(rgbMatch[3]);
+
+
+    r = Math.min(255, Math.round(r + (255 - r) * percent));
+    g = Math.min(255, Math.round(g + (255 - g) * percent));
+    b = Math.min(255, Math.round(b + (255 - b) * percent));
+
+
+    return `rgb(${r}, ${g}, ${b})`;
 }
   
   
