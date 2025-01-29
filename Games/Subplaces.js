@@ -2,7 +2,7 @@
 let currentTheme = 'light';
 window.addEventListener('themeDetected', (event) => {
     currentTheme = event.detail.theme;
-    applyTheme();
+    //applyTheme();
 });
 
 function extractPlaceId() {
@@ -229,7 +229,7 @@ async function createSubplacesTab(subplaces) {
                     gameImage.style.filter = 'brightness(1)';
                 });
             };
-                applyThemeForElement(gameElement);
+                applyThemeForElement();
         })
     }
 

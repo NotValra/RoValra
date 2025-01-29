@@ -366,51 +366,86 @@ const initSettings = async (itemSalesCheckbox, groupGamesCheckbox, userGamesChec
 
 
 
-function updateContent(buttonInfo, contentContainer, buttonData) {
+async function updateContent(buttonInfo, contentContainer, buttonData) {
     const isDarkMode = currentTheme === 'dark';
     const contentColor = isDarkMode ? '#2a2b2c' : '';
-    const textColor = isDarkMode ? '' : 'rgb(96, 97, 98)';
+    const textColor = isDarkMode ? 'rgb(189, 190, 190)' : 'rgb(96, 97, 98)';
     const headerColor = isDarkMode ? '' : 'rgb(40, 40, 40)';
+    const discordLinkColor = isDarkMode ? '#7289da' : '#3479b7';
+    const githubLinkColor = isDarkMode ? '#2dba4e' : '#1e722a';
+
 
     if (typeof buttonInfo === 'object' && buttonInfo !== null && buttonInfo.content) {
         contentContainer.innerHTML = buttonInfo.content;
         contentContainer.style.borderRadius = '8px';
-          if (isDarkMode) {
-             contentContainer.style.backgroundColor = contentColor;
-         } else{
-           contentContainer.style.backgroundColor = '';
-         }
-        
-          if (window.location.href.startsWith('https://www.roblox.com/my/account')) {
-            contentContainer.querySelectorAll('h2, p, div, span, li, b, a').forEach(element => {
-                element.style.setProperty('color', textColor, 'important');
-            });
-          }
+        if (isDarkMode) {
+            contentContainer.style.backgroundColor = contentColor;
+        } else {
+            contentContainer.style.backgroundColor = '';
+        }
 
-          const allLinks = contentContainer.querySelectorAll('a');
-           allLinks.forEach(link => {
-               link.style.setProperty('text-decoration', 'none', 'important');
-              link.style.setProperty('font-weight', 'bold', 'important');
-           });
+        if (window.location.href.includes('/RoValra')) {
+            contentContainer.querySelectorAll('div, span, li, b').forEach(element => { 
+                const computedStyle = window.getComputedStyle(element);
+                const elementColor = computedStyle.color;
+                if (elementColor === 'rgb(0, 0, 0)' || elementColor === 'rgb(255, 255, 255)') {
+                    element.style.setProperty('color', textColor, 'important');
+                }
+            });
+
+            contentContainer.querySelectorAll('h2').forEach(h2Element => {
+                if(isDarkMode){
+                    h2Element.style.setProperty('color', 'white', 'important');
+                } else{
+                    h2Element.style.removeProperty('color')
+                }
+            });
+        }
+
+        const allLinks = contentContainer.querySelectorAll('a');
+        allLinks.forEach(link => {
+            link.style.setProperty('text-decoration', 'underline', 'important');
+            link.style.setProperty('font-weight', 'bold', 'important');
+             link.style.setProperty('transition', 'color 0.3s ease', 'important');
+
+            link.addEventListener('mouseenter', function() {
+                   const computedColor = window.getComputedStyle(this).color;
+                    const lighterColor = lightenColor(computedColor, 0.2);
+                   this.style.setProperty('color', lighterColor, 'important');
+                });
+                 link.addEventListener('mouseleave', function() {
+                     if (this.href.includes('discord.gg')) {
+                         this.style.setProperty('color', discordLinkColor, 'important');
+                     }
+                     else if(this.href.includes('github.com')) {
+                         this.style.setProperty('color', githubLinkColor, 'important');
+                     } else{
+                         this.style.setProperty('color', 'inherit', 'important');
+                     }
+                 });
+        });
+
+
         const discordLinks = contentContainer.querySelectorAll('a[href*="discord.gg"]');
-         discordLinks.forEach(link => {
-            link.style.setProperty('color', '#7289da', 'important');
-            });
+        discordLinks.forEach(link => {
+             link.style.setProperty('color', discordLinkColor, 'important');
+         });
 
-            const githubLinks = contentContainer.querySelectorAll('a[href*="github.com"]');
-            githubLinks.forEach(link => {
-                 link.style.setProperty('color', '#2dba4e', 'important');
-            });
+        const githubLinks = contentContainer.querySelectorAll('a[href*="github.com"]');
+        githubLinks.forEach(link => {
+            link.style.setProperty('color', githubLinkColor, 'important');
+        });
 
 
-         const rovalraHeader = contentContainer.querySelector('#react-user-account-base > h1');
-         if(rovalraHeader){
+
+        const rovalraHeader = contentContainer.querySelector('#react-user-account-base > h1');
+        if (rovalraHeader) {
             rovalraHeader.style.setProperty('color', headerColor, 'important');
-         }
+        }
     } else {
         contentContainer.innerHTML = '';
     }
-   if (currentTheme) {
+    if (currentTheme) {
         applyTheme();
     }
 }
@@ -578,54 +613,65 @@ async function checkRoValraPage() {
         const buttonData = [
             {
                 text: "Info", content: `
-               <div style="padding: 15px; background-color: #2a2b2c; border-radius: 8px;">
-               <h2 style="; margin-bottom: 10px;">RoValra Infomation!</h2>
-               <p style="">RoValra is an extension that's trying to make basic QoL features free and accessible to everyone, by making everything completely open-source.</p>
-               <div style="margin-top: 5px;">
-                   <p style="">This is possible by running everything locally.</p>
+                   <div style="padding: 15px; background-color: #2a2b2c; border-radius: 8px;">
+                   <h2 style="; margin-bottom: 10px;">RoValra Infomation!</h2>
+                   <p style="">RoValra is an extension that's trying to make basic quality of life features free and accessible to everyone, by making everything completely open-source.</p>
                    <div style="margin-top: 5px;">
-                   <p style="">If you have any feature suggestions please let me know in my Discord server or via GitHub</p>
-                   <div style="margin-top: 5px;">
-                   <p style="">Feel free to report any bugs big or small to me on GitHub.</p>
+                       <p style="">This is possible by running everything locally.</p>
+                       <div style="margin-top: 5px;">
+                       <p style="">If you have any feature suggestions please let me know in my Discord server or via GitHub</p>
+                       <div style="margin-top: 5px;">
+                       <p style="">Feel free to report any bugs big or small to me on GitHub.</p>
+                       </div>
+                   <div style="margin-top: 10px;">
+                           <a href="https://discord.gg/GHd5cSKJRk" target="_blank">Discord Server</a>
+                           <a href="https://github.com/NotValra/RoValra" target="_blank">
+                           Github Repo
+                           <img src="${chrome.runtime.getURL("Assets/icon-128.png")}" style="width: 20px; height: 20px; margin-left: 5px; vertical-align: middle;" />
+                           </a>
                    </div>
-               <div style="margin-top: 10px;">
-                       <a href="https://discord.gg/GHd5cSKJRk" target="_blank">Discord Server</a>
-                       <a href="https://github.com/NotValra/RoValra" target="_blank">
-                       Github Repo
-                       <img src="${chrome.runtime.getURL("Assets/icon-128.png")}" style="width: 20px; height: 20px; margin-left: 5px; vertical-align: middle;" />
-                       </a>
                </div>
-           </div>
-           `},
+               `},
             {
                 text: "Credits", content: `
                     <div style="padding: 15px; background-color: #2a2b2c; border-radius: 8px;">
                         <h2 style="margin-bottom: 10px;">RoValra Credits!</h2>
                         <ul style="margin-top: 10px; padding-left: 0px;">
                             <li style="margin-bottom: 8px; list-style-type: disc; margin-left: 20px;">
-                                The sales and revenue feature is only possible because of <b style="font-weight: bold;">Frames.</b>
+                                Thanks to <b style="font-weight: bold;">Frames</b> for somehow getting the Roblox sales and revenue on some items
                                 <a href="https://github.com/workframes/roblox-owner-counts" target="_blank">GitHub Repo</a>
                             </li>
                             <li style="margin-bottom: 8px; list-style-type: disc; margin-left: 20px;">
-                                The Region searcher was originally a Python script made by <b style="font-weight: bold;">l5se</b> on Discord, that I recoded in Python and then in JS.
-                            </li>
+                                 Thanks to <b style="font-weight: bold;">Aspect</b> for helping me out here and there when I had a bunch of dumb questions or problems.
+                                 <a href="https://github.com/Aspectise" target="_blank">GitHub</a>
+                                 <a href="https://discord.gg/U75BFsV49z" target="_blank">Discord</a>
+                           </li>
+                           <li style="margin-bottom: 8px; list-style-type: disc; margin-left: 20px;">
+                                Thanks to <b style="font-weight: bold;">l5se</b> for allowing me to use their open source region selector as a template for my extension.
+                           </li>
+                            
                             <li style="margin-bottom: 8px; list-style-type: disc; margin-left: 20px;">
-                                Thanks to <b style="font-weight: bold;">Aspect</b> for helping me out here and there when I had a bunch of dumb questions or problems.
-                                <a href="https://github.com/Aspectise" target="_blank">GitHub</a>
-                                <a href="https://discord.gg/U75BFsV49z" target="_blank">Discord</a>
+                                Thanks to <b style="font-weight: bold;">7_lz</b> for helping me a bunch when preparing for the Chrome Web Store release. They helped a ton and I'm very thankful.
                             </li>
-                            <li style="margin-bottom: 8px; list-style-type: disc; margin-left: 20px;">
-                                Thanks to <b style="font-weight: bold;">7_lz</b> on Discord for helping me a bunch when preparing for the Chrome Web Store release. They helped a ton and I'm very thankful.
-                            </li>
-                            <li style="margin-bottom: 8px; list-style-type: disc; margin-left: 20px;">
-                                Thanks to <b style="font-weight: bold;">Julia</b> For letting me know that my extension required RoSeal to work correctly.
-                                 <a href="https://www.roseal.live/" target="_blank">RoSeal Extension🦭</a>
-                                <a href="https://discord.gg/E4aMqWa5AP" target="_blank">RoSeal Discord</a>
-                            </li>
-                            <li style="margin-bottom: 8px; list-style-type: disc; margin-left: 20px;">
-                            And thanks to <b style="font-weight: bold;">Coweggs</b> for coming up with the very funny name that is "RoValra" as a joke that I then ended up using.
-                        </li>
+                             <li style="margin-bottom: 8px; list-style-type: disc; margin-left: 20px;">
+                                Thanks to <b style="font-weight: bold;">Coweggs</b> for coming up with the very funny name that is "RoValra" as a joke that I then ended up using.
+                                   </li>
                         </ul>
+                         <div style="margin-top: 20px; border-top: 1px solid #444; padding-top: 10px;">
+                            <h2 style="margin-bottom: 5px;">Extensions</h2>
+                            <p style="margin-bottom: 10px; font-size: 16px;">Valra's personal favorite extensions</p>
+                            <ul style="margin-top: 10px; padding-left: 0px;">
+                                 <li style="margin-bottom: 8px; list-style-type: disc; margin-left: 20px;">
+                                    <a href="https://RoSeal.live" target="_blank">RoSeal🦭</a>
+                                     <p style="margin-top: 5px;">Adds so many features that after using it you wont be able to use Roblox without it.</p>
+                                </li>
+                                <li style="margin-bottom: 8px; list-style-type: disc; margin-left: 20px;">
+                                   <a href="https://roqol.io/" target="_blank">RoQoL</a>
+                                    <p style="margin-top: 5px;">Adds quite a few nice quality of life changes.</p>
+                               </li>
+                               
+                            </ul>
+                         </div>
                     </div>
                 `},
             {
@@ -721,26 +767,7 @@ async function checkRoValraPage() {
                     </label>
                     <div class="setting-separator"></div>
                     </div>
-                    <div class="setting">
-                    <label style="">Enable Hidden User Games</label>
-                    <p>Shows a users hidden games on their profile.</p>
-                    <label class="toggle-switch">
-                    <input type="checkbox" id="enableUserGames">
-                    <span class="slider"></span>
-                    </label>
-                    <div class="setting-separator"></div>
-                    </div>
-                    <div class="setting">
-                    
-                    <label style="">Enable Hidden Group Games</label>
-                    <p>Shows a groups hidden games.</p>
-                    <label class="toggle-switch">
-                    <input type="checkbox" id="enableGroupGames">
-                    <span class="slider"></span>
-                    </label>
-                    <div class="setting-separator"></div>
-                    </div>
-                   <div class="setting">
+                     <div class="setting">
                     <label style="">Enable Universal Server Invites (BETA)</label>
                      <p>This allows you to invite your friends to the game you're in, without your friend requiring any extension, not even RoValra!</p>
                      <p>This does require you to have BTRoblox for it to work.</p>
@@ -752,12 +779,32 @@ async function checkRoValraPage() {
                     </div>
                     
                     <h1 style="; margin-top: 0px; margin-bottom: 10px;">Profile</h1>
+                     <div class="setting">
+                    <label style="">Enable Hidden User Games</label>
+                    <p>Shows a users hidden games on their profile.</p>
+                    <label class="toggle-switch">
+                    <input type="checkbox" id="enableUserGames">
+                    <span class="slider"></span>
+                    </label>
+                    <div class="setting-separator"></div>
+                    </div>
                     <div class="setting">
                     <label style="">Enable User Sniper</label>
                     <p>This joins a user instantly when they go into a game, best used for people with a lot of people trying to join them.</p>
                     <p>It is recommended that you uninstall the microsoft store version of roblox, if you plan to use this feature.</p>
                     <label class="toggle-switch">
                     <input type="checkbox" id="enableUserSniper">
+                    <span class="slider"></span>
+                    </label>
+                    <div class="setting-separator"></div>
+                    </div>
+                      <h1 style="; margin-top: 0px; margin-bottom: 10px;">Communities</h1>
+                    <div class="setting">
+                   
+                    <label style="">Enable Hidden Community Games</label>
+                    <p>Shows a communities hidden games.</p>
+                    <label class="toggle-switch">
+                    <input type="checkbox" id="enableGroupGames">
                     <span class="slider"></span>
                     </label>
                     <div class="setting-separator"></div>
@@ -805,7 +852,7 @@ async function checkRoValraPage() {
                     const subplacesCheckbox = contentContainer.querySelector('#enableSubplaces');
                     const forceR6Checkbox = contentContainer.querySelector('#enableForceR6');
                     const r6FixCheckbox = contentContainer.querySelector('#enableR6Fix');
-                    const inviteCheckbox = contentContainer.querySelector('#enableInvite');
+                      const inviteCheckbox = contentContainer.querySelector('#enableInvite');
                     initSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox);
                     itemSalesCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
                     groupGamesCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
@@ -854,89 +901,7 @@ async function checkRoValraPage() {
         }
     }
 }
-async function updateContent(buttonInfo, contentContainer, buttonData) {
-    const isDarkMode = currentTheme === 'dark';
-    const contentColor = isDarkMode ? '#2a2b2c' : '';
-    const textColor = isDarkMode ? 'rgb(189, 190, 190)' : 'rgb(96, 97, 98)';
-    const headerColor = isDarkMode ? '' : 'rgb(40, 40, 40)';
-    const discordLinkColor = isDarkMode ? '#7289da' : '#3479b7';
-    const githubLinkColor = isDarkMode ? '#2dba4e' : '#1e722a';
 
-
-    if (typeof buttonInfo === 'object' && buttonInfo !== null && buttonInfo.content) {
-        contentContainer.innerHTML = buttonInfo.content;
-        contentContainer.style.borderRadius = '8px';
-        if (isDarkMode) {
-            contentContainer.style.backgroundColor = contentColor;
-        } else {
-            contentContainer.style.backgroundColor = '';
-        }
-
-        if (window.location.href.includes('/RoValra')) {
-            contentContainer.querySelectorAll('div, span, li, b').forEach(element => { 
-                const computedStyle = window.getComputedStyle(element);
-                const elementColor = computedStyle.color;
-                if (elementColor === 'rgb(0, 0, 0)' || elementColor === 'rgb(255, 255, 255)') {
-                    element.style.setProperty('color', textColor, 'important');
-                }
-            });
-
-            contentContainer.querySelectorAll('h2').forEach(h2Element => {
-                if(isDarkMode){
-                    h2Element.style.setProperty('color', 'white', 'important');
-                } else{
-                    h2Element.style.removeProperty('color')
-                }
-            });
-        }
-
-        const allLinks = contentContainer.querySelectorAll('a');
-        allLinks.forEach(link => {
-            link.style.setProperty('text-decoration', 'underline', 'important');
-            link.style.setProperty('font-weight', 'bold', 'important');
-             link.style.setProperty('transition', 'color 0.3s ease', 'important');
-
-            link.addEventListener('mouseenter', function() {
-                   const computedColor = window.getComputedStyle(this).color;
-                    const lighterColor = lightenColor(computedColor, 0.2);
-                   this.style.setProperty('color', lighterColor, 'important');
-                });
-                 link.addEventListener('mouseleave', function() {
-                     if (this.href.includes('discord.gg')) {
-                         this.style.setProperty('color', discordLinkColor, 'important');
-                     }
-                     else if(this.href.includes('github.com')) {
-                         this.style.setProperty('color', githubLinkColor, 'important');
-                     } else{
-                         this.style.setProperty('color', 'inherit', 'important');
-                     }
-                 });
-        });
-
-
-        const discordLinks = contentContainer.querySelectorAll('a[href*="discord.gg"]');
-        discordLinks.forEach(link => {
-             link.style.setProperty('color', discordLinkColor, 'important');
-         });
-
-        const githubLinks = contentContainer.querySelectorAll('a[href*="github.com"]');
-        githubLinks.forEach(link => {
-            link.style.setProperty('color', githubLinkColor, 'important');
-        });
-
-
-
-        const rovalraHeader = contentContainer.querySelector('#react-user-account-base > h1');
-        if (rovalraHeader) {
-            rovalraHeader.style.setProperty('color', headerColor, 'important');
-        }
-    } else {
-        contentContainer.innerHTML = '';
-    }
-    if (currentTheme) {
-        applyTheme();
-    }
-}
 async function updateContent(buttonInfo, contentContainer, buttonData) {
     const isDarkMode = currentTheme === 'dark';
     const contentColor = isDarkMode ? '#2a2b2c' : '';
@@ -1154,6 +1119,7 @@ async function updateContent(buttonInfo, contentContainer, buttonData) {
     }
 }
 
+
 function lightenColor(color, percent) {
     const rgbMatch = color.match(/rgb\((\d+), (\d+), (\d+)\)/);
     if (!rgbMatch) return color;
@@ -1174,49 +1140,49 @@ function lightenColor(color, percent) {
   
   
 const buttonData = [
-   {
-       text: "Info", content: `
-       <div style="padding: 15px; background-color: #2a2b2c; border-radius: 8px;">
-       <h2 style="; margin-bottom: 10px;">RoValra Infomation!</h2>
-       <p style="">RoValra is an extension that's trying to make basic QoL features free and accessible to everyone, by making everything completely open-source.</p>
-       <div style="margin-top: 5px;">
-           <p style="">This is possible by running everything locally.</p>
-           <div style="margin-top: 5px;">
-           <p style="">If you have any feature suggestions please let me know in my Discord server or via GitHub</p>
-           </div>
-       <div style="margin-top: 10px;">
-               <a href="https://discord.gg/GHd5cSKJRk" target="_blank">Discord Server</a>
-               <a href="https://github.com/NotValra/RoValra" target="_blank">
-               Github Repo
-               <img src="${chrome.runtime.getURL("Assets/icon-128.png")}" style="width: 20px; height: 20px; margin-left: 5px; vertical-align: middle;" />
-               </a>
-       </div>
-   </div>
-   `},
-   {
-    //ngl no idea why there is two of htesem the ai told me to so i listen.
-       text: "Credits", content: `
-           <div style="padding: 15px; background-color: #2a2b2c; border-radius: 8px;">
-               <h2 style=" margin-bottom: 10px;">RoValra Credits!</h2>
-               <ul style=" margin-top: 10px; padding-left: 0px;">
-                   <li style="margin-bottom: 8px;">The sales and revenue feature is only possible because of <b style="font-weight: bold;">Frames.</b>
-                       <a href="https://github.com/workframes/roblox-owner-counts" target="_blank">GitHub Repo</a>
-                   </li>
-                   <li style="margin-bottom: 8px;">The Region searcher was originally a Python script made by <b style="font-weight: bold;">l5se</b> on Discord, that I recoded in Python and then in JS.</li>
-                   <li style="margin-bottom: 8px;">Thanks to <b style="font-weight: bold;">Aspect</b> for helping me out here and there when I had a bunch of dumb questions or problems.
-                       <a href="https://github.com/Aspectise" target="_blank">GitHub</a>
-                       <a href="https://discord.gg/U75BFsV49z" target="_blank">Discord</a>
-                   </li>
-                   <li style="margin-bottom: 8px;">Thanks to <b style="font-weight: bold;">7_lz</b> on Discord for helping me a bunch when preparing for the Chrome Web Store release. They helped a ton and I'm very thankful.</li>
-                   <li style="margin-bottom: 8px;">And thanks to <b style="font-weight: bold;">Coweggs</b> for coming up with the very funny name that is "RoValra" as a joke that I then ended up using.</li>
-               </ul>
-           </div>
-       `},
-   {
-       text: "Settings", content: ""
-   },
-
-];
-addCustomButton();
-startObserver();
-checkRoValraPage()
+    {
+        text: "Info", content: `
+        <div style="padding: 15px; background-color: #2a2b2c; border-radius: 8px;">
+        <h2 style="; margin-bottom: 10px;">RoValra Infomation!</h2>
+        <p style="">RoValra is an extension that's trying to make basic QoL features free and accessible to everyone, by making everything completely open-source.</p>
+        <div style="margin-top: 5px;">
+            <p style="">This is possible by running everything locally.</p>
+            <div style="margin-top: 5px;">
+            <p style="">If you have any feature suggestions please let me know in my Discord server or via GitHub</p>
+            </div>
+        <div style="margin-top: 10px;">
+                <a href="https://discord.gg/GHd5cSKJRk" target="_blank">Discord Server</a>
+                <a href="https://github.com/NotValra/RoValra" target="_blank">
+                Github Repo
+                <img src="${chrome.runtime.getURL("Assets/icon-128.png")}" style="width: 20px; height: 20px; margin-left: 5px; vertical-align: middle;" />
+                </a>
+        </div>
+    </div>
+    `},
+    {
+     //ngl no idea why there is two of htesem the ai told me to so i listen.
+        text: "Credits", content: `
+            <div style="padding: 15px; background-color: #2a2b2c; border-radius: 8px;">
+                <h2 style=" margin-bottom: 10px;">RoValra Credits!</h2>
+                <ul style=" margin-top: 10px; padding-left: 0px;">
+                    <li style="margin-bottom: 8px;">The sales and revenue feature is only possible because of <b style="font-weight: bold;">Frames.</b>
+                        <a href="https://github.com/workframes/roblox-owner-counts" target="_blank">GitHub Repo</a>
+                    </li>
+                    <li style="margin-bottom: 8px;">The Region searcher was originally a Python script made by <b style="font-weight: bold;">l5se</b> on Discord, that I recoded in Python and then in JS.</li>
+                    <li style="margin-bottom: 8px;">Thanks to <b style="font-weight: bold;">Aspect</b> for helping me out here and there when I had a bunch of dumb questions or problems.
+                        <a href="https://github.com/Aspectise" target="_blank">GitHub</a>
+                        <a href="https://discord.gg/U75BFsV49z" target="_blank">Discord</a>
+                    </li>
+                    <li style="margin-bottom: 8px;">Thanks to <b style="font-weight: bold;">7_lz</b> on Discord for helping me a bunch when preparing for the Chrome Web Store release. They helped a ton and I'm very thankful.</li>
+                    <li style="margin-bottom: 8px;">And thanks to <b style="font-weight: bold;">Coweggs</b> for coming up with the very funny name that is "RoValra" as a joke that I then ended up using.</li>
+                </ul>
+            </div>
+        `},
+    {
+        text: "Settings", content: ""
+    },
+ 
+ ];
+ addCustomButton();
+ startObserver();
+ checkRoValraPage()
