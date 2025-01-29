@@ -45,16 +45,18 @@
 # FAQ
 - **Is this extension a cookie logger?**
     - **No. But dont just take my word for it read the source code yourself.**
+- **Why does this require the cookie permission?**
+    - **Its required to request to APIs like the gamejoin.roblox.com API, it wouldnt work without that permission.**
 - **Does this extension support firefox?**
     - **No, and I sadly dont see myself adding support anytime soon, sorry.**
 - **Is it bannable to use the extension?**
     - **No, This extension follows Roblox's ToS, if Roblox doesnt like a feature being possible they can just patch it.**
 - **Is everything free?**
-    - **Yes, everything is free and will for ever be free**.
+    - **Yes, everything is free and will for ever be free.**.
 - **Why are you making a completely free extension?**
     - **I made this extension for myself to use, and I just made it public cuz why not.**
 - **I have a feature request, where do I request it?**
-    - **You can request it in my [Discord Server](https://discord.gg/GHd5cSKJRk)**
+    - **You can request it in my [Discord Server.](https://discord.gg/GHd5cSKJRk)**
 
 # To do list
 - [x] **~~Adding a user sniper for people that arent on your friends list :)~~ ADDED!**
