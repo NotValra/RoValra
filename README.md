@@ -48,7 +48,7 @@
 - **Why does this require the cookie permission?**
     - **Its required to request to APIs like the gamejoin.roblox.com API, it wouldnt work without that permission.**
 - **Does this extension support firefox?**
-    - **No, and I sadly dont see myself adding support anytime soon, sorry.**
+    - **No, but it might be coming at some point.**
 - **Is it bannable to use the extension?**
     - **No, This extension follows Roblox's ToS, if Roblox doesnt like a feature being possible they can just patch it.**
 - **Is everything free?**
@@ -59,7 +59,9 @@
     - **You can request it in my [Discord Server.](https://discord.gg/GHd5cSKJRk)**
 
 # To do list
-- [x] **~~Adding a user sniper for people that arent on your friends list :)~~ ADDED!**
+- [ ] **Hidden Catalog allowing you to browse up coming unreleased Roblox items (Only a maybe feature)**
+- [ ] **Filter between offline, online, in-game with joins on and just in game, on groups**
+- [ ] **Maybe FireFox support (its not my main focus atm)**
 
 # Known incompatibilies
 <details>
