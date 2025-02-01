@@ -1,6 +1,5 @@
 # RoValra
 **If you like this project, consider giving it a star⭐, it really helps!**\
-**If you really want to support me you can [buy me a coffee](https://buymeacoffee.com/valra)**\
 <img alt="GitHub Downloads (all assets, all releases)" src="https://img.shields.io/github/downloads/NotValra/RoValra/total">
 
 **[Discord Server](https://discord.gg/GHd5cSKJRk)**
