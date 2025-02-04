@@ -60,6 +60,7 @@
 # To do list
 - [ ] **Hidden Catalog allowing you to browse up coming unreleased Roblox items (Only a maybe feature)**
 - [ ] **Filter between offline, online, in-game with joins on and just in game, on groups**
+- [ ] **A feature that would allow you to check if a person with a private inv owns a specific item**
 - [ ] **Maybe FireFox support (its not my main focus atm)**
 
 # Known incompatibilies
