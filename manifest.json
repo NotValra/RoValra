@@ -75,7 +75,8 @@
                 "settings.js",
                 "Assets/icon-128.png",
                 "Games/invite.js",
-                "Games/sniper.js"
+                "Games/sniper.js",
+                "misc/itemChecker.js"
                 
             ],
             "matches": [

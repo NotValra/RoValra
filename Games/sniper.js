@@ -107,16 +107,16 @@ async function fetchUserIdFromUsername(username) {
     return null;
 }
 
-async function fetchServers(placeId, initialImageUrl, updateRequestCount, updateRateLimitCount, onServerFound, onComplete, isCancelledRef, resultsDisplay) {
+async function fetchServers(placeId, initialImageUrl, updateRequestCount, updateRateLimitCount, onServerFound, onComplete, isCancelledRef, resultsDisplay, setRateLimitMessage, nextPageCursor = null) {
     if (!placeId) {
         return;
     }
 
-
-    let nextPageCursor = null;
-    let found = false;
-    let serverCount = 0;
+    let found = (previousSearch.requestId !== null);
+    let serverCount = previousSearch.requestCount || 0;
     let currentRequestCount = 0;
+
+    updateRequestCount(serverCount);
 
     while (!found) {
         if (isCancelledRef.current) {
@@ -167,7 +167,8 @@ async function fetchServers(placeId, initialImageUrl, updateRequestCount, update
                         isRateLimited = true;
                         rateLimitStartTime = Date.now()
                         isRateLimitedOnThisRequest = true
-                        console.warn("Too many server requests, attempting to spam until un-rate-limited.");
+                        //console.warn("Too many server requests, attempting to spam until un-rate-limited.");
+                        setRateLimitMessage("Roblox is rate-limiting the requests. Gonna take a bit.");
                     }
                     const delay = Math.random() * 1000 + 2300;
                     await new Promise(resolve => setTimeout(resolve, delay));
@@ -179,6 +180,7 @@ async function fetchServers(placeId, initialImageUrl, updateRequestCount, update
                     const timeUnRateLimited = (Date.now() - rateLimitStartTime) / 1000
                     isRateLimited = false;
                     rateLimitStartTime = 0;
+                    setRateLimitMessage("");
                 }
 
                 if (!response.ok) {
@@ -194,6 +196,8 @@ async function fetchServers(placeId, initialImageUrl, updateRequestCount, update
                     const thumbnailResult = await fetchThumbnails(data.data, initialImageUrl, updateRateLimitCount, isCancelledRef);
                     if (thumbnailResult && typeof thumbnailResult === 'object' && thumbnailResult.status === "FOUND") {
                         found = true;
+                        previousSearch.requestId = thumbnailResult.requestId;
+                        localStorage.setItem('previousSearch', JSON.stringify(previousSearch));
                         if (onServerFound) {
                             onServerFound(thumbnailResult.requestId);
                         }
@@ -202,10 +206,13 @@ async function fetchServers(placeId, initialImageUrl, updateRequestCount, update
 
                 }
                 nextPageCursor = data.nextPageCursor;
+
                 if (!nextPageCursor) {
+                    previousSearch.nextPageCursor = null;
+                    localStorage.setItem('previousSearch', JSON.stringify(previousSearch));
                     if (!found) {
-                       if(resultsDisplay.querySelector('p') == null) {
-                         const notFoundMessage = document.createElement('p');
+                        if (resultsDisplay.querySelector('p') == null) {
+                            const notFoundMessage = document.createElement('p');
                             notFoundMessage.textContent = "User Not Found";
                             notFoundMessage.style.cssText = `
                                 color: var(--text-color);
@@ -215,13 +222,18 @@ async function fetchServers(placeId, initialImageUrl, updateRequestCount, update
                                 pointer-events: none;
                             `;
                             resultsDisplay.appendChild(notFoundMessage);
-                      }
+                        }
                     }
                     if (onComplete) {
                         onComplete()
                     }
                     return;
                 }
+
+                previousSearch.nextPageCursor = nextPageCursor;
+                previousSearch.requestCount = serverCount;
+                localStorage.setItem('previousSearch', JSON.stringify(previousSearch));
+
                 retries = maxRetries + 1;
             } catch (error) {
                 console.error("Error fetching servers:", error);
@@ -234,6 +246,7 @@ async function fetchServers(placeId, initialImageUrl, updateRequestCount, update
         lastRequestTime = Date.now();
     }
 }
+
 
 
 async function fetchThumbnails(servers, initialImageUrl, updateRateLimitCount, isCancelledRef) {
@@ -415,6 +428,30 @@ async function fetchInitialThumbnail(targetid, updateRateLimitCount, isCancelled
 let overlayData;
 let isSniping = false;
 let isCancelledRef = { current: false };
+function clearPreviousSearch() {
+    localStorage.removeItem('previousSearch');
+    previousSearch = {
+        placeId: null,
+        userId: null,
+        initialImageUrl: null,
+        nextPageCursor: null,
+        requestCount: 0,
+        startTime: 0,
+        requestId: null 
+    };
+}
+
+
+let previousSearch = JSON.parse(localStorage.getItem('previousSearch')) || {
+    placeId: null,
+    userId: null,
+    initialImageUrl: null,
+    nextPageCursor: null,
+    requestCount: 0,
+    startTime: 0,
+    requestId: null 
+};
+
 function createOverlay() {
     const overlay = document.createElement('div');
     overlay.id = 'sniper-overlay';
@@ -470,6 +507,9 @@ function createOverlay() {
             overlayData.startButton.textContent = 'Start Sniper';
             isSniping = false
         }
+        previousSearch.startTime = 0
+        localStorage.setItem('previousSearch', JSON.stringify(previousSearch));
+
     };
     contentBox.appendChild(closeButton);
 
@@ -520,10 +560,11 @@ function createOverlay() {
              background-color: var(--input-background);
              pointer-events: auto;
         `;
+    inputField.value = previousSearch.userId || ''; 
     contentBox.appendChild(inputField);
 
     const requestCountDisplay = document.createElement('p');
-    requestCountDisplay.textContent = 'Servers Searched: 0';
+    requestCountDisplay.textContent = `Servers Searched: ${previousSearch.requestCount || 0}`;
     requestCountDisplay.style.cssText = `
         color: var(--text-color);
         font-size: 14px;
@@ -531,8 +572,6 @@ function createOverlay() {
         pointer-events: none;
     `;
     contentBox.appendChild(requestCountDisplay);
-
-
 
     const elapsedTimeDisplay = document.createElement('p');
     elapsedTimeDisplay.textContent = 'Time Elapsed: 0s';
@@ -544,12 +583,87 @@ function createOverlay() {
     `;
     contentBox.appendChild(elapsedTimeDisplay);
 
+    const rateLimitMessageDisplay = document.createElement('p');
+    rateLimitMessageDisplay.textContent = '';
+    rateLimitMessageDisplay.style.cssText = `
+        color: var(--text-color);
+        font-size: 14px;
+        font-family: 'Gotham Medium', sans-serif;
+        font-weight: bold;
+        pointer-events: none;
+        margin-bottom: 5px;
+    `;
+    contentBox.appendChild(rateLimitMessageDisplay);
+
     const resultsDisplay = document.createElement('div');
-        resultsDisplay.style.cssText = `
+    resultsDisplay.style.cssText = `
     pointer-events: none;
     `;
-    contentBox.appendChild(resultsDisplay);
 
+    if (previousSearch.requestId) {
+        const serverFound = document.createElement('p');
+        serverFound.textContent = "Server Found!"
+        serverFound.style.cssText = `
+            color: var(--text-color);
+            font-size: 16px;
+            font-family: 'Gotham Medium', sans-serif;
+            font-weight: bold;
+            pointer-events: none;
+        `;
+        resultsDisplay.appendChild(serverFound);
+
+        const joinButton = document.createElement('button');
+        joinButton.textContent = 'Join Server';
+        joinButton.style.cssText = `
+          padding: 10px 20px;
+          background-color: var(--join-button-background);
+          color: white;
+          border: none;
+          margin-bottom: 10px;
+          width: 144.469px;
+          border-radius: 4px;
+           cursor: pointer;
+          font-size: 15px;
+          font-weight: 600;
+            transition: background-color 0.3s, transform 0.3s;
+             padding-left: 30px;
+             padding-right: 30px;
+             margin-top: 5px;
+             pointer-events: auto;
+      `;
+
+        joinButton.addEventListener('click', () => {
+            const codeToInject = `
+              (function() {
+                  if (typeof Roblox !== 'undefined' && Roblox.GameLauncher && Roblox.GameLauncher.joinGameInstance) {
+                    Roblox.GameLauncher.joinGameInstance(parseInt('` + previousSearch.placeId + `', 10), String('` + previousSearch.requestId + `'));
+                  } else {
+                    console.error("Roblox.GameLauncher.joinGameInstance is not available in page context.");
+                  }
+                })();
+              `;
+
+            chrome.runtime.sendMessage(
+                { action: "injectScript", codeToInject: codeToInject },
+                (response) => {
+                    if (response && response.success) {
+                        console.log("Successfully joined best server");
+                    } else {
+                        console.error("Failed to join best server:", response?.error || "Unknown error");
+                    }
+                }
+            );
+
+            overlay.style.display = 'none';
+            document.body.style.overflow = 'auto';
+            document.body.style.pointerEvents = 'auto';
+
+        });
+        resultsDisplay.appendChild(joinButton);
+
+    }
+
+    contentBox.appendChild(resultsDisplay);
 
 
     const startButton = document.createElement('button');
@@ -574,17 +688,33 @@ function createOverlay() {
     let rateLimitCount = 0;
     let intervalId;
 
+    const setRateLimitMessage = (message) => {
+        rateLimitMessageDisplay.textContent = message;
+    };
+
     startButton.onclick = async () => {
+        const input = inputField.value;
+        const placeId = getPlaceIdFromUrl();
+        let userId = input
+
         if (isSniping) {
+            isCancelledRef.current = true;
+            startButton.textContent = 'Start Sniper';
+            isSniping = false;
+            previousSearch.startTime = 0
+            localStorage.setItem('previousSearch', JSON.stringify(previousSearch));
             return;
         }
         isCancelledRef.current = false
         isSniping = true;
-        startButton.textContent = 'Sniping User...';
+        startButton.textContent = 'Stop Sniper';
         startTime = Date.now();
-        requestCount = 0;
+        startTime -= (previousSearch.startTime ? previousSearch.startTime - Date.now() : 0);
+        requestCount = previousSearch.requestCount;
         rateLimitCount = 0;
         resultsDisplay.innerHTML = '';
+        setRateLimitMessage("");
+
 
         if (intervalId) {
             clearInterval(intervalId)
@@ -597,37 +727,55 @@ function createOverlay() {
         }, 1000);
 
 
-        const input = inputField.value;
-        const placeId = getPlaceIdFromUrl();
-        let userId = input
+
         if (isNaN(input)) {
             userId = await fetchUserIdFromUsername(input);
         }
+        let startFromPrevious = false;
         if (placeId && userId) {
+
+            if (previousSearch.placeId === placeId && previousSearch.userId === userId && previousSearch.nextPageCursor) {
+                startFromPrevious = true;
+            } else {
+                previousSearch = {
+                    placeId: null,
+                    userId: null,
+                    initialImageUrl: null,
+                    nextPageCursor: null,
+                    requestCount: 0,
+                    startTime: 0,
+                    requestId: null
+                };
+                previousSearch.placeId = placeId;
+                previousSearch.userId = userId;
+            }
+
             fetchInitialThumbnail(userId, () => {
                 rateLimitCount++;
             }, isCancelledRef).then(initialImageUrl => {
                 if (initialImageUrl) {
-                    fetchServers(placeId, initialImageUrl, (count) => {
-                        requestCountDisplay.textContent = `Servers Searched: ${count}`;
-                    }, () => {
-                        rateLimitCount++;
-                    }, (requestId) => {
-                        const serverFound = document.createElement('p');
-                        serverFound.textContent = "Server Found!"
-                        serverFound.style.cssText = `
+                    previousSearch.initialImageUrl = initialImageUrl;
+                    if (startFromPrevious) {
+                        fetchServers(placeId, initialImageUrl, (count) => {
+                            requestCountDisplay.textContent = `Servers Searched: ${count}`;
+                        }, () => {
+                            rateLimitCount++;
+                        }, (requestId) => {
+                            const serverFound = document.createElement('p');
+                            serverFound.textContent = "Server Found!"
+                            serverFound.style.cssText = `
                                 color: var(--text-color);
                                 font-size: 16px;
                                 font-family: 'Gotham Medium', sans-serif;
                                 font-weight: bold;
                                 pointer-events: none;
                             `;
-                        resultsDisplay.appendChild(serverFound);
+                            resultsDisplay.appendChild(serverFound);
 
 
-                        const joinButton = document.createElement('button');
-                        joinButton.textContent = 'Join Server';
-                         joinButton.style.cssText = `
+                            const joinButton = document.createElement('button');
+                            joinButton.textContent = 'Join Server';
+                            joinButton.style.cssText = `
                           padding: 10px 20px;
                           background-color: var(--join-button-background);
                           color: white;
@@ -645,8 +793,8 @@ function createOverlay() {
                              pointer-events: auto;
                       `;
 
-                        joinButton.addEventListener('click', () => {
-                            const codeToInject = `
+                            joinButton.addEventListener('click', () => {
+                                const codeToInject = `
                       (function() {
                           if (typeof Roblox !== 'undefined' && Roblox.GameLauncher && Roblox.GameLauncher.joinGameInstance) {
                             Roblox.GameLauncher.joinGameInstance(parseInt('` + placeId + `', 10), String('` + requestId + `'));
@@ -656,45 +804,111 @@ function createOverlay() {
                         })();
                       `;
 
-                            chrome.runtime.sendMessage(
-                                { action: "injectScript", codeToInject: codeToInject },
-                                (response) => {
-                                    if (response && response.success) {
-                                        console.log("Successfully joined best server");
-                                    } else {
-                                        console.error("Failed to join best server:", response?.error || "Unknown error");
+                                chrome.runtime.sendMessage(
+                                    { action: "injectScript", codeToInject: codeToInject },
+                                    (response) => {
+                                        if (response && response.success) {
+                                            console.log("Successfully joined best server");
+                                        } else {
+                                            console.error("Failed to join best server:", response?.error || "Unknown error");
+                                        }
                                     }
-                                }
-                            );
+                                );
 
+                            });
+                            resultsDisplay.appendChild(joinButton)
                             if (intervalId) {
                                 clearInterval(intervalId)
                                 intervalId = null
                             }
+                            startButton.textContent = 'Start Sniper';
                             isSniping = false;
-
-                        });
-                        resultsDisplay.appendChild(joinButton)
-                         if (intervalId) {
-                            clearInterval(intervalId)
-                            intervalId = null
-                        }
-                        startButton.textContent = 'Start Sniper';
-                    }, () => {
-                         if (intervalId) {
-                            clearInterval(intervalId)
-                            intervalId = null
-                         }
-                        startButton.textContent = 'Start Sniper';
-                        isSniping = false;
-                    }, isCancelledRef, resultsDisplay);
-                } else {
-                  if (intervalId) {
-                    clearInterval(intervalId);
-                    intervalId = null;
+                        }, () => {
+                            if (intervalId) {
+                                clearInterval(intervalId)
+                                intervalId = null
+                            }
+                            startButton.textContent = 'Start Sniper';
+                            isSniping = false;
+                        }, isCancelledRef, resultsDisplay, setRateLimitMessage, previousSearch.nextPageCursor);
                     }
-                     startButton.textContent = 'Start Sniper';
-                     isSniping = false;
+                    else {
+                        fetchServers(placeId, initialImageUrl, (count) => {
+                            requestCountDisplay.textContent = `Servers Searched: ${count}`;
+                        }, () => {
+                            rateLimitCount++;
+                        }, (requestId) => {
+                            const serverFound = document.createElement('p');
+                            serverFound.textContent = "Server Found!"
+                            serverFound.style.cssText = `
+                                color: var(--text-color);
+                                font-size: 16px;
+                                font-family: 'Gotham Medium', sans-serif;
+                                font-weight: bold;
+                                pointer-events: none;
+                            `;
+                            resultsDisplay.appendChild(serverFound);
+
+
+                            const joinButton = document.createElement('button');
+                            joinButton.textContent = 'Join Server';
+                            joinButton.style.cssText = `
+                          padding: 10px 20px;
+                          background-color: var(--join-button-background);
+                          color: white;
+                          border: none;
+                          margin-bottom: 10px;
+                          width: 144.469px;
+                          border-radius: 4px;
+                           cursor: pointer;
+                          font-size: 15px;
+                          font-weight: 600;
+                            transition: background-color 0.3s, transform 0.3s;
+                             padding-left: 30px;
+                             padding-right: 30px;
+                             margin-top: 5px;
+                             pointer-events: auto;
+                      `;
+
+                            joinButton.addEventListener('click', () => {
+                                const codeToInject = `
+                      (function() {
+                          if (typeof Roblox !== 'undefined' && Roblox.GameLauncher && Roblox.GameLauncher.joinGameInstance) {
+                            Roblox.GameLauncher.joinGameInstance(parseInt('` + placeId + `', 10), String('` + requestId + `'));
+                          } else {
+                            console.error("Roblox.GameLauncher.joinGameInstance is not available in page context.");
+                          }
+                        })();
+                      `;
+
+                                chrome.runtime.sendMessage(
+                                    { action: "injectScript", codeToInject: codeToInject },
+                                    (response) => {
+                                        if (response && response.success) {
+                                            console.log("Successfully joined best server");
+                                        } else {
+                                            console.error("Failed to join best server:", response?.error || "Unknown error");
+                                        }
+                                    }
+                                );
+
+                            });
+                            resultsDisplay.appendChild(joinButton)
+                            if (intervalId) {
+                                clearInterval(intervalId)
+                                intervalId = null
+                            }
+                            startButton.textContent = 'Start Sniper';
+                            isSniping = false;
+                        }, () => {
+                            if (intervalId) {
+                                clearInterval(intervalId)
+                                intervalId = null
+                            }
+                            startButton.textContent = 'Start Sniper';
+                            isSniping = false;
+                        }, isCancelledRef, resultsDisplay, setRateLimitMessage);
+                    }
                 }
             });
         } else {
@@ -706,7 +920,7 @@ function createOverlay() {
                 intervalId = null;
             }
             startButton.textContent = 'Start Sniper';
-             isSniping = false;
+            isSniping = false;
         }
     };
 
@@ -720,7 +934,9 @@ function createOverlay() {
     document.body.style.overflow = 'hidden';
     document.body.style.pointerEvents = 'none';
 
-    overlayData = { overlay, requestCountDisplay, startTime, intervalId, startButton };
+    
+
+    overlayData = { overlay, requestCountDisplay, startTime, intervalId, startButton, setRateLimitMessage };
     return overlayData;
 }
 
@@ -760,6 +976,7 @@ function createSniperButton() {
     return sniperButton;
 }
 
+
 function injectButton() {
     let targetElement = document.querySelector("#running-game-instances-container");
     if (!targetElement) {
@@ -792,7 +1009,18 @@ function injectButton() {
     }
 }
 
-function initialize() {
+async function initialize() {
+     const settings = await new Promise((resolve) => {
+        chrome.storage.local.get({ universalSniperEnabled: false }, (result) => {
+            resolve(result);
+        });
+    });
+     if (!settings.universalSniperEnabled) {
+           return;
+        }
+    if (getPlaceIdFromUrl() == null) {
+        clearPreviousSearch()
+    }
     xcsrfToken = fetchXcsrfToken();
     window.addEventListener('themeDetected', (event) => {
         const theme = event.detail.theme;

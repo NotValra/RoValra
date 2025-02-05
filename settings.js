@@ -298,70 +298,73 @@ function startObserver() {
         });
       observer.observe(targetElement, { childList: true, subtree: true });
   }
-const loadSettings = async () => {
+  const loadSettings = async () => {
     return new Promise((resolve, reject) => {
-       chrome.storage.local.get({
-             itemSalesEnabled: true,
-               groupGamesEnabled: true,
-                userGamesEnabled: true,
-               userSniperEnabled: false,
-              regionSelectorEnabled: false,
-                subplacesEnabled: true,
-                   forceR6Enabled: true,
-                      fixR6Enabled: false,
-                      inviteEnabled: false,
-           }, (settings) => {
-                if (chrome.runtime.lastError) {
-                    reject(chrome.runtime.lastError)
-                } else {
-                   resolve(settings);
-               }
-           });
+        chrome.storage.local.get({
+            itemSalesEnabled: true,
+            groupGamesEnabled: true,
+            userGamesEnabled: true,
+            userSniperEnabled: false,
+            universalSniperEnabled: true,
+            regionSelectorEnabled: false,
+            subplacesEnabled: true,
+            forceR6Enabled: true,
+            fixR6Enabled: false,
+            inviteEnabled: false,
+        }, (settings) => {
+            if (chrome.runtime.lastError) {
+                reject(chrome.runtime.lastError)
+            } else {
+                resolve(settings);
+            }
+        });
     });
 
 };
 
 
- const handleSaveSettings = async (itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox) => {
-   try{
-   const settings = {
-        itemSalesEnabled: itemSalesCheckbox.checked,
-       groupGamesEnabled: groupGamesCheckbox.checked,
-       userGamesEnabled: userGamesCheckbox.checked,
-       userSniperEnabled: userSniperCheckbox.checked,
-       regionSelectorEnabled: regionSelectorCheckbox.checked,
-       subplacesEnabled: subplacesCheckbox.checked,
-        forceR6Enabled: forceR6Checkbox.checked,
-       fixR6Enabled: r6FixCheckbox.checked,
-       inviteEnabled: inviteCheckbox.checked,
-   };
-    return new Promise((resolve, reject) => {
-       chrome.storage.local.set(settings, () => {
-        if (chrome.runtime.lastError) {
-               reject(chrome.runtime.lastError);
-          } else {
-               resolve();
-           }
-       });
-   });
+const handleSaveSettings = async (itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, universalSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox) => {
+    try {
+        const settings = {
+            itemSalesEnabled: itemSalesCheckbox.checked,
+            groupGamesEnabled: groupGamesCheckbox.checked,
+            userGamesEnabled: userGamesCheckbox.checked,
+            userSniperEnabled: userSniperCheckbox.checked,
+            universalSniperEnabled: universalSniperCheckbox.checked,
+            regionSelectorEnabled: regionSelectorCheckbox.checked,
+            subplacesEnabled: subplacesCheckbox.checked,
+            forceR6Enabled: forceR6Checkbox.checked,
+            fixR6Enabled: r6FixCheckbox.checked,
+            inviteEnabled: inviteCheckbox.checked,
+        };
+        return new Promise((resolve, reject) => {
+            chrome.storage.local.set(settings, () => {
+                if (chrome.runtime.lastError) {
+                    reject(chrome.runtime.lastError);
+                } else {
+                    resolve();
+                }
+            });
+        });
 
-   } catch (error) {
-   }
+    } catch (error) {
+    }
 };
-const initSettings = async (itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox) => { 
-   const settings = await loadSettings();
+const initSettings = async (itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, universalSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox) => {
+    const settings = await loadSettings();
 
-   if(settings){
+    if (settings) {
         itemSalesCheckbox.checked = settings.itemSalesEnabled;
-       groupGamesCheckbox.checked = settings.groupGamesEnabled;
-       userGamesCheckbox.checked = settings.userGamesEnabled;
-       userSniperCheckbox.checked = settings.userSniperEnabled;
-       regionSelectorCheckbox.checked = settings.regionSelectorEnabled;
-       subplacesCheckbox.checked = settings.subplacesEnabled;
+        groupGamesCheckbox.checked = settings.groupGamesEnabled;
+        userGamesCheckbox.checked = settings.userGamesEnabled;
+        userSniperCheckbox.checked = settings.userSniperEnabled;
+         universalSniperCheckbox.checked = settings.universalSniperEnabled;
+        regionSelectorCheckbox.checked = settings.regionSelectorEnabled;
+        subplacesCheckbox.checked = settings.subplacesEnabled;
         forceR6Checkbox.checked = settings.forceR6Enabled;
-       r6FixCheckbox.checked = settings.fixR6Enabled;
-       inviteCheckbox.checked = settings.inviteEnabled;
-   }
+        r6FixCheckbox.checked = settings.fixR6Enabled;
+        inviteCheckbox.checked = settings.inviteEnabled;
+    }
 };
 
 
@@ -729,7 +732,7 @@ async function checkRoValraPage() {
                 const previouslyActiveButton = buttonContainer.querySelector('button[data-active="true"]');
 
 
-                if (this.dataset.active === 'true') { // Skip deactivation
+                if (this.dataset.active === 'true') {
                     return;
                 }
 
@@ -746,128 +749,147 @@ async function checkRoValraPage() {
 
                 if (item.text === "Settings") {
                     contentContainer.innerHTML = `
-                    <div style="padding: 25px; background-color: #2a2b2c; border-radius: 8px;">
-                    
-                    <h1 style="; margin-bottom: 5px;">Games</h1>
-                    <div class="setting">
-                    <label style="">Enable Region Selector</label>
-                    <p>This lets you select a server in a specific region to join.</p>
-                    <label class="toggle-switch">
-                    <input type="checkbox" id="enableRegionSelector">
-                    <span class="slider"></span>
-                    </label>
-                    <div class="setting-separator"></div>
-                    </div>
-                    <div class="setting">
-                    <label style="">Enable Subplaces</label>
-                    <p>Shows the subplaces of a game.</p>
-                    <label class="toggle-switch">
-                    <input type="checkbox" id="enableSubplaces">
-                    <span class="slider"></span>
-                    </label>
-                    <div class="setting-separator"></div>
-                    </div>
-                     <div class="setting">
-                    <label style="">Enable Universal Server Invites (BETA)</label>
-                     <p>This allows you to invite your friends to the game you're in, without your friend requiring any extension, not even RoValra!</p>
-                     <p>This does require you to have BTRoblox for it to work.</p>
-                    <label class="toggle-switch">
-                    <input type="checkbox" id="enableInvite">
-                    <span class="slider"></span>
-                    </label>
-                    <div class="setting-separator"></div>
-                    </div>
-                    
-                    <h1 style="; margin-top: 0px; margin-bottom: 10px;">Profile</h1>
-                     <div class="setting">
-                    <label style="">Enable Hidden User Games</label>
-                    <p>Shows a users hidden games on their profile.</p>
-                    <label class="toggle-switch">
-                    <input type="checkbox" id="enableUserGames">
-                    <span class="slider"></span>
-                    </label>
-                    <div class="setting-separator"></div>
-                    </div>
-                    <div class="setting">
-                    <label style="">Enable User Sniper</label>
-                    <p>This joins a user instantly when they go into a game, best used for people with a lot of people trying to join them.</p>
-                    <p>It is recommended that you uninstall the microsoft store version of roblox, if you plan to use this feature.</p>
-                    <label class="toggle-switch">
-                    <input type="checkbox" id="enableUserSniper">
-                    <span class="slider"></span>
-                    </label>
-                    <div class="setting-separator"></div>
-                    </div>
-                      <h1 style="; margin-top: 0px; margin-bottom: 10px;">Communities</h1>
-                    <div class="setting">
-                   
-                    <label style="">Enable Hidden Community Games</label>
-                    <p>Shows a communities hidden games.</p>
-                    <label class="toggle-switch">
-                    <input type="checkbox" id="enableGroupGames">
-                    <span class="slider"></span>
-                    </label>
-                    <div class="setting-separator"></div>
-                    </div>
-                    <h1 style="; margin-top: 0px; margin-bottom: 10px;">Items</h1>
-                    <div class="setting">
-                    <label style="">Enable Item Sales</label>
-                    <p>This shows the most up to date sales and revenue data we have.</p>
-                    <p>The sales data is very likely to be inaccurate on items that are for sale, but very likely to be correct on off sale items.</p>
-                    <label class="toggle-switch">
-                    <input type="checkbox" id="enableItemSales">
-                    <span class="slider"></span>
-                    </label>
-                    <div class="setting-separator"></div>
-                    </div>
-                     <h1 style="; margin-top: 0px; margin-bottom: 10px;">Avatar</h1>
-                    <div class="setting">
-                    <label style="">Remove R6 Warning</label>
-                    <p>Removes the R6 warning when switching to R6</p>
-                    <label class="toggle-switch">
-                    <input type="checkbox" id="enableForceR6">
-                    <span class="slider"></span>
-                    </label>
-                    <div class="setting-separator"></div>
-                    </div>
-                    <div class="setting">
-                    <label style="">Enable R6 Fix (BETA)</label>
-                     <p>Stops Roblox from automatically switching your character to R15 when equiping dynamic heads.</p>
-                      <p>This requires you to use the english language on Roblox.</p>
-                    <label class="toggle-switch">
-                    <input type="checkbox" id="enableR6Fix">
-                    <span class="slider"></span>
-                    </label>
-                    <div class="setting-separator"></div>
-                    </div>
-                    </div>
-                    </div>
-                    
-                    `;
+                            <div style="padding: 25px; background-color: #2a2b2c; border-radius: 8px;">
+                            
+                            <h1 style="; margin-bottom: 5px;">Games</h1>
+                            <div class="setting">
+                            <label style="">Enable Region Selector</label>
+                            <p>This lets you select a server in a specific region to join.</p>
+                            <label class="toggle-switch">
+                            <input type="checkbox" id="enableRegionSelector">
+                            <span class="slider"></span>
+                            </label>
+                            <div class="setting-separator"></div>
+                            </div>
+                            <div class="setting">
+                            <label style="">Enable Subplaces</label>
+                            <p>Shows the subplaces of a game.</p>
+                            <label class="toggle-switch">
+                            <input type="checkbox" id="enableSubplaces">
+                            <span class="slider"></span>
+                            </label>
+                            <div class="setting-separator"></div>
+                            </div>
+                             <div class="setting">
+                            <label style="">Enable Universal Server Invites (BETA)</label>
+                             <p>This allows you to invite your friends to the game you're in, without your friend requiring any extension, not even RoValra!</p>
+                             <p>This will replaces RoPros invites.</p>
+                             <p>This does require you to have BTRoblox for it to work.</p>
+                            <label class="toggle-switch">
+                            <input type="checkbox" id="enableInvite">
+                            <span class="slider"></span>
+                            </label>
+                            <div class="setting-separator"></div>
+                            </div>
+                            <div class="setting">
+                            <label style="">Enable Universal User Sniper</label>
+                            <p>This allows you to join a user, without needing to be friends with them.</p>
+                            <p>Only requirement is that you know what game they are playing.</p>
+                            <label class="toggle-switch">
+                            <input type="checkbox" id="enableUniversalSniper">
+                            <span class="slider"></span>
+                            </label>
+                            <div class="setting-separator"></div>
+                            </div>
+                            
+                            <h1 style="; margin-top: 0px; margin-bottom: 10px;">Profile</h1>
+                             <div class="setting">
+                            <label style="">Enable Hidden User Games</label>
+                            <p>Shows a users hidden games on their profile.</p>
+                            <label class="toggle-switch">
+                            <input type="checkbox" id="enableUserGames">
+                            <span class="slider"></span>
+                            </label>
+                            <div class="setting-separator"></div>
+                            </div>
+                            <div class="setting">
+                            <label style="">Enable User Sniper</label>
+                            <p>This joins a user instantly when they go into a game, best used for people with a lot of people trying to join them.</p>
+                            <p>It is recommended that you uninstall the microsoft store version of roblox, if you plan to use this feature.</p>
+                            <p>This feature requires the user to be friends with you or have their joins on. This is not the universal user sniper.</p>
+                            <label class="toggle-switch">
+                            <input type="checkbox" id="enableUserSniper">
+                            <span class="slider"></span>
+                            </label>
+                            <div class="setting-separator"></div>
+                            </div>
+                              <h1 style="; margin-top: 0px; margin-bottom: 10px;">Communities</h1>
+                            <div class="setting">
+                           
+                            <label style="">Enable Hidden Community Games</label>
+                            <p>Shows a communities hidden games.</p>
+                            <label class="toggle-switch">
+                            <input type="checkbox" id="enableGroupGames">
+                            <span class="slider"></span>
+                            </label>
+                            <div class="setting-separator"></div>
+                            </div>
+                            <h1 style="; margin-top: 0px; margin-bottom: 10px;">Items</h1>
+                            <div class="setting">
+                            <label style="">Enable Item Sales</label>
+                            <p>This shows the most up to date sales and revenue data we have.</p>
+                            <p>The sales data is very likely to be inaccurate on items that are for sale, but very likely to be correct on off sale items.</p>
+                            <label class="toggle-switch">
+                            <input type="checkbox" id="enableItemSales">
+                            <span class="slider"></span>
+                            </label>
+                            <div class="setting-separator"></div>
+                            </div>
+                             <h1 style="; margin-top: 0px; margin-bottom: 10px;">Avatar</h1>
+                            <div class="setting">
+                            <label style="">Remove R6 Warning</label>
+                            <p>Removes the R6 warning when switching to R6</p>
+                            <label class="toggle-switch">
+                            <input type="checkbox" id="enableForceR6">
+                            <span class="slider"></span>
+                            </label>
+                            <div class="setting-separator"></div>
+                            </div>
+                            <div class="setting">
+                            <label style="">Enable R6 Fix (BETA)</label>
+                             <p>Stops Roblox from automatically switching your character to R15 when equiping dynamic heads.</p>
+                              <p>This requires you to use the english language on Roblox.</p>
+                            <label class="toggle-switch">
+                            <input type="checkbox" id="enableR6Fix">
+                            <span class="slider"></span>
+                            </label>
+                            <div class="setting-separator"></div>
+                            </div>
+                            </div>
+                            </div>
+                            
+                            `;
+        
                     const itemSalesCheckbox = contentContainer.querySelector('#enableItemSales');
                     const groupGamesCheckbox = contentContainer.querySelector('#enableGroupGames');
                     const userGamesCheckbox = contentContainer.querySelector('#enableUserGames');
                     const userSniperCheckbox = contentContainer.querySelector('#enableUserSniper');
+                    const universalSniperCheckbox = contentContainer.querySelector('#enableUniversalSniper'); 
                     const regionSelectorCheckbox = contentContainer.querySelector('#enableRegionSelector');
                     const subplacesCheckbox = contentContainer.querySelector('#enableSubplaces');
                     const forceR6Checkbox = contentContainer.querySelector('#enableForceR6');
                     const r6FixCheckbox = contentContainer.querySelector('#enableR6Fix');
-                      const inviteCheckbox = contentContainer.querySelector('#enableInvite');
-                    initSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox);
-                    itemSalesCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
-                    groupGamesCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
-                    userGamesCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
-                    userSniperCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
-                    regionSelectorCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
-                    subplacesCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
-                    forceR6Checkbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
-                    r6FixCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
-                     inviteCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
+                    const inviteCheckbox = contentContainer.querySelector('#enableInvite');
+        
+                    initSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, universalSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox);
+        
+                    itemSalesCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, universalSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
+                    groupGamesCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, universalSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
+                    userGamesCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, universalSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
+                    userSniperCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, universalSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
+                    universalSniperCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, universalSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
+                    regionSelectorCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, universalSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
+                    subplacesCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, universalSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
+                    forceR6Checkbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, universalSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
+                    r6FixCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, universalSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
+                    inviteCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, universalSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
+        
                     const regionSelectorCheckboxElement = contentContainer.querySelector('#enableRegionSelector');
+        
                     function toggleOverlayDisable() {
-                        if(regionSelectorCheckboxElement){
-                            if(!regionSelectorCheckboxElement.checked){
-                            } else{
+                        if (regionSelectorCheckboxElement) {
+                            if (!regionSelectorCheckboxElement.checked) {
+                            } else {
                             }
                         }
                     }

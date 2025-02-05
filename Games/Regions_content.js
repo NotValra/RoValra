@@ -3,6 +3,7 @@ function delay(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 // this script might be just a tiny bit badly coded :)
+// I made this when my understanding of making extensions was way worse.
 if (window.location.pathname.includes('/games/')) {
     const url = window.location.href;
     let placeId = null;

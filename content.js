@@ -65,6 +65,7 @@ function getPlaceIdFromUrl() {
                 groupGamesEnabled: true,
                 userGamesEnabled: true,
                 userSniperEnabled: false,
+                universalSniperEnabled: true,
                 regionSelectorEnabled: true,
                 subplacesEnabled: true,
                 forceR6Enabled: true,
@@ -118,17 +119,20 @@ function getPlaceIdFromUrl() {
                 await loadScript('HiddenGames/group_games.js');
             }
         } else if (currentPath.includes('/users/')) {
-            if (settings.userGamesEnabled) {
-                await loadScript('HiddenGames/user_games.js');
-            }
+            await loadScript('HiddenGames/user_games.js');
             if (settings.userSniperEnabled && currentPath.includes('/users/')) {
-                await loadScript('misc/userSniper.js');
+               await loadScript('misc/userSniper.js');
             }
+            await loadScript('misc/itemChecker.js');
+
         }
         else if (currentPath.includes('/games/')) {
             if (settings.subplacesEnabled) {
                 await loadScript('Games/Subplaces.js');
             }
+             if (settings.universalSniperEnabled) {
+                  await loadScript('Games/sniper.js');
+             }
 
         }
         if (currentPath.includes('/my/avatar')) {
