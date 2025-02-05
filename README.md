@@ -5,7 +5,7 @@
 **[Discord Server](https://discord.gg/GHd5cSKJRk)**
 # Chrome Web Store
 **[RoValra](https://chromewebstore.google.com/detail/rovalra/njcickgebhnpgmoodjdgohkclfplejli)**\
-**Chrome web store version is up to date**
+**Chrome web store is likely reviewing 2.1.5**
 
 
 
@@ -26,13 +26,14 @@
 - **Items**
     - **Shows sales and revenue on specific items.**
 - **Profile**
-  - **User Sniper**
   - <details>
-    <summary>User sniper explained.</summary>
+    <summary>User sniper</summary>
     Basically this feature allows you to join anyone with their joins on or whose on ur friends list instantly.
     
     lets say for example you wanna join someone whose streaming a game with viewers, you could just use the snipe feature, and you would almost instantly join (Depending on your pc ofc)
-  </details>
+    </details>
+  - **Check if a user with a private inventory owns a specific item**
+  
 - **Avatar**
     - **Remove R6 Warning**
     - **R6 Fix. Stops Roblox from automatically switching your character to R15 when equipping dynamic heads.**
@@ -60,7 +61,7 @@
 # To do list
 - [ ] **Hidden Catalog allowing you to browse up coming unreleased Roblox items (Only a maybe feature)**
 - [ ] **Filter between offline, online, in-game with joins on and just in game, on groups**
-- [ ] **A feature that would allow you to check if a person with a private inv owns a specific item**
+- [x] **~~A feature that would allow you to check if a person with a private inv owns a specific item~~ Added in 2.1.5**
 - [ ] **Maybe FireFox support (its not my main focus atm)**
 
 # Known incompatibilies
