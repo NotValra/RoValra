@@ -5,7 +5,7 @@
 **[Discord Server](https://discord.gg/GHd5cSKJRk)**
 # Chrome Web Store
 **[RoValra](https://chromewebstore.google.com/detail/rovalra/njcickgebhnpgmoodjdgohkclfplejli)**\
-**Chrome web store is likely reviewing 2.1.5**
+**Chrome web store is up to date!**
 
 
 
