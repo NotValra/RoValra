@@ -62,7 +62,7 @@ Edit: This is not actually the case, it was a bug in my code that made it seem t
     - **You can request it in my [Discord Server.](https://discord.gg/GHd5cSKJRk)**
 
 # To do list
-- [ ] **Finishing my private todo list with around 22 things on it.**
+- [ ] **Finishing my private todo list with around 22 things on it. (4/22 are done)**
 - [ ] **Hidden Catalog allowing you to browse up coming unreleased Roblox items (Only a maybe feature)**
 - [ ] **Filter between offline, online, in-game with joins on and just in game, on groups**
 - [ ] **Maybe FireFox support (its not my main focus atm)**
