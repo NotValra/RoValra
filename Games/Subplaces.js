@@ -325,11 +325,11 @@ async function createSubplacesTab(subplaces) {
 
     function applyTheme() {
         const isDarkMode = currentTheme === 'dark';
-        const backgroundColor = isDarkMode ? 'rgb(57, 59, 61)' : '#fff';
+        const backgroundColor = isDarkMode ? '#272930' : 'rgb(247, 247, 248)';
         const textColor = isDarkMode ? '#ddd' : '#1a1a1a';
-        const searchBarBackgroundColor = isDarkMode ? 'rgb(35, 37, 39)' : '#f0f0f0';
-        const buttonBackgroundColor = isDarkMode ? '#333' : '#e0e0e0';
-        const gameContainerColor = isDarkMode ? 'rgb(57, 59, 61)' : '#fff'
+        const searchBarBackgroundColor = isDarkMode ? 'rgb(29, 30, 31)' : '#f0f0f0';
+        const buttonBackgroundColor = isDarkMode ? '#272930' : '#e0e0e0';
+        const gameContainerColor = isDarkMode ? '#272930' : 'rgb(247, 247, 248)'
         const gameContainerBorder = isDarkMode ? '0px solid #555' : ''
           const searchBarBorder = isDarkMode ? '0px solid #555' : '1px solid #bbb';
            const loadMoreBorder = isDarkMode ? '1px solid #555' : '1px solid #bbb';
@@ -356,7 +356,7 @@ async function createSubplacesTab(subplaces) {
 
         function applyThemeForElement(element) {
            const isDarkMode = currentTheme === 'dark';
-           const gameContainerColor = isDarkMode ? 'rgb(57, 59, 61)' : '#fff';
+           const gameContainerColor = isDarkMode ? '#272930' : 'rgb(247, 247, 248)';
            const gameContainerBorder = isDarkMode ? '0px solid #555' : '';
            const textColor = isDarkMode ? '#ddd' : 'rgb(57, 59, 61)';
             element.style.backgroundColor = gameContainerColor;

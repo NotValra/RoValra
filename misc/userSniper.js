@@ -1,6 +1,6 @@
 if (window.location.pathname.includes('/users/')) {
     (function() {
-    
+
         let isRunning = false;
         let intervalId;
         let isRateLimited = false;
@@ -8,8 +8,8 @@ if (window.location.pathname.includes('/users/')) {
         const requestDelay = 50;
         let hasJoinedGame = false;
         let canMakeRequest = true;
-    
-    
+
+
         function getUserIdFromUrl() {
             const path = window.location.pathname;
             const regex = /^\/(?:[a-z]{2}\/)?users\/(\d+)/;
@@ -21,7 +21,7 @@ if (window.location.pathname.includes('/users/')) {
               return null;
             }
           }
-    
+
         async function sendPresenceRequest(userId) {
             if (isRateLimited || !canMakeRequest) {
                     return;
@@ -77,7 +77,7 @@ if (window.location.pathname.includes('/users/')) {
                 canMakeRequest = true;
             }
         }
-    
+
         function enableForcedHeaders() {
             if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.sendMessage) {
                  chrome.runtime.sendMessage({ action: "enableServerJoinHeaders" }, (response) => {
@@ -98,15 +98,15 @@ if (window.location.pathname.includes('/users/')) {
         }
        function stopPresenceCheck() {
             disableForcedHeaders();
-            button.textContent = 'Snipe User';
+            button.textContent = 'Instant Join';
             clearInterval(intervalId);
             isRunning = false;
             hasJoinedGame = false;
         }
-    
+
        function showConfirmationOverlay(callback) {
             if (document.getElementById('snipe-user-overlay')) return;
-    
+
             const overlay = document.createElement('div');
             overlay.id = 'snipe-user-overlay';
             overlay.style.position = 'fixed';
@@ -119,37 +119,37 @@ if (window.location.pathname.includes('/users/')) {
             overlay.style.justifyContent = 'center';
             overlay.style.alignItems = 'center';
             overlay.style.zIndex = '10000';
-    
+
             const modal = document.createElement('div');
             modal.style.backgroundColor = '#393b3d';
             modal.style.padding = '20px';
             modal.style.borderRadius = '5px';
             modal.style.textAlign = 'center';
             modal.style.boxShadow = "0 4px 6px rgba(0, 0, 0, 0.1)";
-    
+
             const title = document.createElement('h2');
             title.textContent = 'Confirm Action';
             title.style.color = "white";
             title.style.fontWeight = "600";
-    
+
             const message = document.createElement('p');
             message.textContent = 'This will automatically attempt to join the user into a game.';
              message.style.color = "white";
              message.style.fontWeight = "600";
-    
-    
+
+
            const message1 = document.createElement('p');
             message1.textContent = 'This will require the user to have joins on for everyone or have you added.';
            message1.style.color = "white";
            message1.style.fontWeight = "600";
-          
+
           const buttonContainer = document.createElement('div');
             buttonContainer.style.display = 'flex';
             buttonContainer.style.flexDirection = 'row';
              buttonContainer.style.justifyContent = 'center';
            buttonContainer.style.marginTop = '15px'
           buttonContainer.style.gap = '10px'
-    
+
             const confirmButton = document.createElement('button');
             confirmButton.textContent = 'Continue';
             confirmButton.style.padding = "10px 15px";
@@ -173,7 +173,7 @@ if (window.location.pathname.includes('/users/')) {
                 confirmButton.style.borderColor = "#24292e";
                 confirmButton.style.transform = "scale(1.05)";
             });
-    
+
             confirmButton.addEventListener('mouseout', () => {
                 confirmButton.style.backgroundColor = "#24292e";
                 confirmButton.style.borderRadius = "6px";
@@ -203,7 +203,7 @@ if (window.location.pathname.includes('/users/')) {
                 cancelButton.style.borderColor = "#24292e";
                 cancelButton.style.transform = "scale(1.05)";
             });
-    
+
             cancelButton.addEventListener('mouseout', () => {
                 cancelButton.style.backgroundColor = "#24292e";
                  cancelButton.style.borderRadius = "6px";
@@ -218,8 +218,8 @@ if (window.location.pathname.includes('/users/')) {
                 document.body.removeChild(overlay);
                 callback(true);
             });
-    
-    
+
+
             modal.appendChild(title);
             modal.appendChild(message);
               modal.appendChild(message1);
@@ -230,12 +230,13 @@ if (window.location.pathname.includes('/users/')) {
             document.body.appendChild(overlay);
         }
         const button = document.createElement('button');
-        button.textContent = 'Snipe User';
-        button.style.padding = "10px 15px";
+        button.textContent = 'Instant Join';
+        button.style.padding = "10px 16px";
         button.style.backgroundColor = "#24292e";
         button.style.border = "1px solid #444";
         button.style.borderRadius = "6px";
         button.style.cursor = "pointer";
+        button.style.height = "40px";
         button.style.fontSize = "15px";
         button.style.fontWeight = "600";
         button.style.color = "white";
@@ -244,7 +245,7 @@ if (window.location.pathname.includes('/users/')) {
         button.style.minWidth = "50px";
         button.style.textAlign = "center";
         button.style.transition = "background-color 0.3s ease, transform 0.3s ease";
-    
+
         button.addEventListener('mouseover', () => {
             button.style.backgroundColor = "#4c5053";
             button.style.borderRadius = "6px";
@@ -271,9 +272,9 @@ if (window.location.pathname.includes('/users/')) {
                    return;
                 }
              isRunning = !isRunning;
-    
+
             enableForcedHeaders();
-            button.textContent = 'Stop Sniping';
+            button.textContent = 'Stop Joining';
               intervalId = setInterval(async () => {
                   const currentTime = Date.now();
                     if(currentTime - lastRequestTime >= requestDelay){
@@ -285,12 +286,12 @@ if (window.location.pathname.includes('/users/')) {
                 }, 50);
         });
     });
-    
-    
+
+
         function appendButtonToTarget() {
-              const targetElement = document.querySelector('.profile-header-top');
+              const targetElement = document.querySelector('.profile-header-buttons');
               if (targetElement) {
-                targetElement.insertBefore(button, targetElement.firstChild);
+                targetElement.prepend(button); 
             } else {
                 setTimeout(appendButtonToTarget, 100);
             }
@@ -302,7 +303,7 @@ if (window.location.pathname.includes('/users/')) {
         const observer = new MutationObserver(mutations => {
         if (window.location.pathname.includes('/users/')) {
               const userId = window.location.pathname.split('/')[2];
-    
+
               if (userId) {
                      const targetButton = document.querySelector('.btn.btn-secondary.btn-more.follow-button.text-label.ng-binding.ng-scope');
                         if(targetButton && !targetButton.dataset.sniper){
@@ -328,9 +329,9 @@ if (window.location.pathname.includes('/users/')) {
                   }
              }
          });
-    
+
           observer.observe(document.body, { childList: true, subtree: true });
-    
+
     }
-    
+
     applyUserSniper();

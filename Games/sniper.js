@@ -3,7 +3,17 @@ let requestQueue = [];
 let lastRequestTime = 0;
 let isRateLimited = false;
 let rateLimitStartTime = 0;
-let xcsrfToken = null;
+
+let previousSearch = JSON.parse(localStorage.getItem('previousSearch')) || {
+    placeId: null,
+    userId: null,
+    initialImageUrl: null,
+    nextPageCursor: null,
+    requestCount: 0,
+    startTime: 0,
+    requestId: null
+};
+
 
 async function delayRequest() {
     return new Promise(resolve => {
@@ -42,16 +52,7 @@ function getPlaceIdFromUrl() {
     }
 }
 
-function fetchXcsrfToken() {
-    const metaTag = document.querySelector('meta[name="csrf-token"]');
-    if (metaTag) {
-        const token = metaTag.getAttribute('data-token');
-        return token;
-    } else {
-        console.error('Could not find X-CSRF-TOKEN meta tag on the page.');
-        return null;
-    }
-}
+
 async function fetchUserIdFromUsername(username) {
     const url = "https://users.roblox.com/v1/usernames/users";
     let retries = 0
@@ -65,11 +66,10 @@ async function fetchUserIdFromUsername(username) {
                 headers: {
                     "Content-Type": "application/json",
                     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-                    'X-CSRF-TOKEN': xcsrfToken,
                 },
                 body: JSON.stringify({
                     usernames: [username],
-                    excludeBannedUsers: true,
+                    excludeBannedUsers: false,
                 }),
             });
             if (response.status === 429) {
@@ -107,7 +107,7 @@ async function fetchUserIdFromUsername(username) {
     return null;
 }
 
-async function fetchServers(placeId, initialImageUrl, updateRequestCount, updateRateLimitCount, onServerFound, onComplete, isCancelledRef, resultsDisplay, setRateLimitMessage, nextPageCursor = null) {
+async function fetchServers(placeId, initialImageUrl, updateRequestCount, updateRateLimitCount, onServerFound, onComplete, isCancelledRef, setNotFoundMessage, setRateLimitMessage, nextPageCursor = null) {
     if (!placeId) {
         return;
     }
@@ -156,8 +156,6 @@ async function fetchServers(placeId, initialImageUrl, updateRequestCount, update
                 const response = await fetch(url, {
                     headers: {
                         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-                        //"Cache-Control": "no-cache",
-                        'X-CSRF-TOKEN': xcsrfToken,
                     },
                 });
 
@@ -167,7 +165,6 @@ async function fetchServers(placeId, initialImageUrl, updateRequestCount, update
                         isRateLimited = true;
                         rateLimitStartTime = Date.now()
                         isRateLimitedOnThisRequest = true
-                        //console.warn("Too many server requests, attempting to spam until un-rate-limited.");
                         setRateLimitMessage("Roblox is rate-limiting the requests. Gonna take a bit.");
                     }
                     const delay = Math.random() * 1000 + 2300;
@@ -199,6 +196,34 @@ async function fetchServers(placeId, initialImageUrl, updateRequestCount, update
                         previousSearch.requestId = thumbnailResult.requestId;
                         localStorage.setItem('previousSearch', JSON.stringify(previousSearch));
                         if (onServerFound) {
+                            const joinButtonContainer = document.querySelector('#joinButtonContainer');
+                            if (joinButtonContainer) {
+                                const joinButton = joinButtonContainer.querySelector('#joinButton');
+                                if (joinButton) {
+                                    joinButton.onclick = function() {
+                                        const codeToInject = `
+                                          (function() {
+                                              if (typeof Roblox !== 'undefined' && Roblox.GameLauncher && Roblox.GameLauncher.joinGameInstance) {
+                                                Roblox.GameLauncher.joinGameInstance(parseInt('` + placeId + `', 10), String('` + thumbnailResult.requestId + `'));
+                                              } else {
+                                                console.error("Roblox.GameLauncher.joinGameInstance is not available in page context.");
+                                              }
+                                            })();
+                                          `;
+
+                                        chrome.runtime.sendMessage(
+                                            { action: "injectScript", codeToInject: codeToInject },
+                                            (response) => {
+                                                if (response && response.success) {
+                                                    console.log("Successfully joined best server");
+                                                } else {
+                                                    console.error("Failed to join best server:", response?.error || "Unknown error");
+                                                }
+                                            }
+                                        );
+                                    };
+                                }
+                            }
                             onServerFound(thumbnailResult.requestId);
                         }
                         return;
@@ -211,18 +236,7 @@ async function fetchServers(placeId, initialImageUrl, updateRequestCount, update
                     previousSearch.nextPageCursor = null;
                     localStorage.setItem('previousSearch', JSON.stringify(previousSearch));
                     if (!found) {
-                        if (resultsDisplay.querySelector('p') == null) {
-                            const notFoundMessage = document.createElement('p');
-                            notFoundMessage.textContent = "User Not Found";
-                            notFoundMessage.style.cssText = `
-                                color: var(--text-color);
-                                font-size: 16px;
-                                font-family: 'Gotham Medium', sans-serif;
-                                font-weight: bold;
-                                pointer-events: none;
-                            `;
-                            resultsDisplay.appendChild(notFoundMessage);
-                        }
+                        setNotFoundMessage("User Not Found");
                     }
                     if (onComplete) {
                         onComplete()
@@ -294,7 +308,6 @@ async function fetchThumbnails(servers, initialImageUrl, updateRateLimitCount, i
                         headers: {
                             "Content-Type": "application/json",
                             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-                            'X-CSRF-TOKEN': xcsrfToken,
                         },
                         credentials: "include",
                         body: JSON.stringify(batch),
@@ -358,7 +371,7 @@ async function fetchThumbnails(servers, initialImageUrl, updateRateLimitCount, i
     return allThumbnailResponses;
 }
 
-async function fetchInitialThumbnail(targetid, updateRateLimitCount, isCancelledRef) {
+async function fetchInitialThumbnail(targetid, updateRateLimitCount, isCancelledRef, setNoThumbnailMessage) {
     const initialPayload = [
         {
             type: "AvatarHeadshot",
@@ -382,7 +395,6 @@ async function fetchInitialThumbnail(targetid, updateRateLimitCount, isCancelled
                     "Content-Type": "application/json",
                     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
                     "Cache-Control": "no-cache",
-                    'X-CSRF-TOKEN': xcsrfToken,
                 },
                 body: JSON.stringify(initialPayload),
             });
@@ -413,8 +425,14 @@ async function fetchInitialThumbnail(targetid, updateRateLimitCount, isCancelled
             }
 
             const data = await response.json();
-            if (data && data.data && data.data[0] && data.data[0].imageUrl) {
-                return data.data[0].imageUrl;
+            if (data && data.data && data.data[0]) {
+                if (data.data[0].imageUrl) {
+                    return data.data[0].imageUrl;
+                } else if (data.data[0].state === "Blocked") {
+                    return "NO_THUMBNAIL"; 
+                } else {
+                    return null; 
+                }
             } else {
                 return null;
             }
@@ -425,7 +443,7 @@ async function fetchInitialThumbnail(targetid, updateRateLimitCount, isCancelled
     }
 }
 
-let overlayData;
+let sniperUIElements = {};
 let isSniping = false;
 let isCancelledRef = { current: false };
 function clearPreviousSearch() {
@@ -437,283 +455,301 @@ function clearPreviousSearch() {
         nextPageCursor: null,
         requestCount: 0,
         startTime: 0,
-        requestId: null 
+        requestId: null
     };
 }
 
 
-let previousSearch = JSON.parse(localStorage.getItem('previousSearch')) || {
-    placeId: null,
-    userId: null,
-    initialImageUrl: null,
-    nextPageCursor: null,
-    requestCount: 0,
-    startTime: 0,
-    requestId: null 
-};
-
-function createOverlay() {
-    const overlay = document.createElement('div');
-    overlay.id = 'sniper-overlay';
-    overlay.style.cssText = `
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background-color: rgba(0, 0, 0, 0.7);
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          z-index: 1000;
-          pointer-events: auto; /* This is important for the overlay itself to be interactive */
-      `;
-
-    const contentBox = document.createElement('div');
-    contentBox.style.cssText = `
-          background-color: var(--overlay-background);
-          padding: 20px;
-          border-radius: 8px;
-          text-align: center;
-          box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.2);
-          min-width: 400px;
-          position: relative; /* Added to contain close button */
-           pointer-events: auto;
-      `;
-
-    const closeButton = document.createElement('button');
-    closeButton.textContent = 'X';
-    closeButton.style.cssText = `
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            background-color: transparent;
-            color: var(--text-color);
-            border: none;
-            font-size: 16px;
-            cursor: pointer;
-            pointer-events: auto;
-        `;
-    closeButton.onclick = () => {
-        overlay.style.display = 'none';
-        document.body.style.overflow = 'auto';
-        document.body.style.pointerEvents = 'auto';
-        if (overlayData && overlayData.intervalId) {
-            clearInterval(overlayData.intervalId)
-            overlayData.intervalId = null
-        }
-        isCancelledRef.current = true
-        if (overlayData && overlayData.startButton) {
-            overlayData.startButton.textContent = 'Start Sniper';
-            isSniping = false
-        }
-        previousSearch.startTime = 0
-        localStorage.setItem('previousSearch', JSON.stringify(previousSearch));
-
-    };
-    contentBox.appendChild(closeButton);
-
-    const message = document.createElement('p');
-    message.textContent = "This finds the server that the chosen user is in.";
-    message.style.cssText = `
-        color: var(--text-color);
-        font-size: 20px;
-        font-family: 'Gotham Medium', sans-serif;
-        font-weight: bold;
-         margin-bottom: 10px;
-         pointer-events: none;
+function createSniperUI() {
+    const thumbnailImage = document.createElement('img');
+    thumbnailImage.src = 'data:image/svg+xml,%3Csvg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"%3E%3CCircle cx="50" cy="50" r="49" stroke="%23808080" stroke-width="2" stroke-dasharray="6 6"/%3E%3C/svg%3E'; // Default placeholder - grey circle with dashed border
+    thumbnailImage.style.cssText = `
+        width: 55px;
+        height: 55px;
+        border-radius: 50%;
+        margin-right: 15px;
+        object-fit: cover; /* To ensure image fills circle properly */
+        background-color: var(--input-background); /* Match input background if needed */
+        border: var(--input-border); /* Match input border if needed */
     `;
-    contentBox.appendChild(message)
-    const message1 = document.createElement('p');
-    message1.textContent = "This does not require you to be friends with them.";
-    message1.style.cssText = `
-        color: var(--text-color);
-        font-size: 16px;
-        font-family: 'Gotham Medium', sans-serif;
-        font-weight: bold;
-         margin-bottom: 5px;
-        pointer-events: none;
-    `;
-    contentBox.appendChild(message1)
-    const message2 = document.createElement('p');
-    message2.textContent = "Bigger games means it will take longer to search.";
-    message2.style.cssText = `
-        color: var(--text-color);
-        font-size: 16px;
-        font-family: 'Gotham Medium', sans-serif;
-        font-weight: bold;
-         margin-bottom: 15px;
-         pointer-events: none;
-    `;
-    contentBox.appendChild(message2)
 
     const inputField = document.createElement('input');
     inputField.type = 'text';
     inputField.placeholder = 'User ID or Username';
     inputField.style.cssText = `
-            margin-bottom: 15px;
-            padding: 10px;
-            border-radius: 4px;
-            border: 1px solid #ccc;
+            margin-bottom: 0px;
+            padding: 8px;
+            height: 36px;
+            border-radius: 8px; /* Increased border-radius for rounder input */
+            border: var(--input-border);
             font-size: 14px;
-             color: var(--text-color);
+             color: var(--input-text);
              background-color: var(--input-background);
              pointer-events: auto;
+             margin-right: 5px;
         `;
-    inputField.value = previousSearch.userId || ''; 
-    contentBox.appendChild(inputField);
-
-    const requestCountDisplay = document.createElement('p');
-    requestCountDisplay.textContent = `Servers Searched: ${previousSearch.requestCount || 0}`;
-    requestCountDisplay.style.cssText = `
-        color: var(--text-color);
-        font-size: 14px;
-        font-family: 'Gotham Medium', sans-serif;
-        pointer-events: none;
-    `;
-    contentBox.appendChild(requestCountDisplay);
-
-    const elapsedTimeDisplay = document.createElement('p');
-    elapsedTimeDisplay.textContent = 'Time Elapsed: 0s';
-    elapsedTimeDisplay.style.cssText = `
-        color: var(--text-color);
-        font-size: 14px;
-        font-family: 'Gotham Medium', sans-serif;
-         pointer-events: none;
-    `;
-    contentBox.appendChild(elapsedTimeDisplay);
-
-    const rateLimitMessageDisplay = document.createElement('p');
-    rateLimitMessageDisplay.textContent = '';
-    rateLimitMessageDisplay.style.cssText = `
-        color: var(--text-color);
-        font-size: 14px;
-        font-family: 'Gotham Medium', sans-serif;
-        font-weight: bold;
-        pointer-events: none;
-        margin-bottom: 5px;
-    `;
-    contentBox.appendChild(rateLimitMessageDisplay);
-
-    const resultsDisplay = document.createElement('div');
-    resultsDisplay.style.cssText = `
-    pointer-events: none;
-    `;
-
-    if (previousSearch.requestId) {
-        const serverFound = document.createElement('p');
-        serverFound.textContent = "Server Found!"
-        serverFound.style.cssText = `
-            color: var(--text-color);
-            font-size: 16px;
-            font-family: 'Gotham Medium', sans-serif;
-            font-weight: bold;
-            pointer-events: none;
-        `;
-        resultsDisplay.appendChild(serverFound);
-
-        const joinButton = document.createElement('button');
-        joinButton.textContent = 'Join Server';
-        joinButton.style.cssText = `
-          padding: 10px 20px;
-          background-color: var(--join-button-background);
-          color: white;
-          border: none;
-          margin-bottom: 10px;
-          width: 144.469px;
-          border-radius: 4px;
-           cursor: pointer;
-          font-size: 15px;
-          font-weight: 600;
-            transition: background-color 0.3s, transform 0.3s;
-             padding-left: 30px;
-             padding-right: 30px;
-             margin-top: 5px;
-             pointer-events: auto;
-      `;
-
-        joinButton.addEventListener('click', () => {
-            const codeToInject = `
-              (function() {
-                  if (typeof Roblox !== 'undefined' && Roblox.GameLauncher && Roblox.GameLauncher.joinGameInstance) {
-                    Roblox.GameLauncher.joinGameInstance(parseInt('` + previousSearch.placeId + `', 10), String('` + previousSearch.requestId + `'));
-                  } else {
-                    console.error("Roblox.GameLauncher.joinGameInstance is not available in page context.");
-                  }
-                })();
-              `;
-
-            chrome.runtime.sendMessage(
-                { action: "injectScript", codeToInject: codeToInject },
-                (response) => {
-                    if (response && response.success) {
-                        console.log("Successfully joined best server");
-                    } else {
-                        console.error("Failed to join best server:", response?.error || "Unknown error");
-                    }
-                }
-            );
-
-            overlay.style.display = 'none';
-            document.body.style.overflow = 'auto';
-            document.body.style.pointerEvents = 'auto';
-
-        });
-        resultsDisplay.appendChild(joinButton);
-
-    }
-
-    contentBox.appendChild(resultsDisplay);
-
+    inputField.value = previousSearch.userId || '';
 
     const startButton = document.createElement('button');
-    startButton.textContent = 'Start Sniper';
+    startButton.textContent = 'Search';
     startButton.style.cssText = `
-        padding: 10px 20px;
+        padding: 5px 15px;
         background-color: var(--button-background);
-        color: white;
+        color: var(--Start-Sniper);
         border: none;
-        border-radius: 4px;
+        border-radius: 8px; /* Increased border-radius for rounder button */
         cursor: pointer;
-        font-size: 15px;
-        font-weight: 600;
+        font-size: 16px;
+        height: 36px;
+        font-weight: 400;
         transition: background-color 0.3s, transform 0.3s;
-         padding-left: 30px;
-         padding-right: 30px;
-         margin-bottom: 10px;
-          pointer-events: auto;
+         pointer-events: auto;
+         margin-right: 5px;
+         width: 140px; /* Fixed width to accommodate "Stop Searcher" - Increased from 120px */
     `;
+    startButton.classList.add('sniper-button');
+
+    const requestCountLabel = document.createElement('span');
+    requestCountLabel.textContent = 'Servers Searched:';
+    requestCountLabel.style.cssText = `
+        color: var(--text-color-stuff);
+        font-size: 16px;
+        font-family: "Builder Sans", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+        font-weight: 400;
+        pointer-events: none;
+        margin-right: 5px; /* Space between label and number */
+    `;
+    const requestCountNumber = document.createElement('span');
+    requestCountNumber.textContent = `${previousSearch.requestCount || 0}`;
+    requestCountNumber.style.cssText = `
+        color: var(--text-color-stuff);
+        font-size: 16px;
+        font-family: "Builder Sans", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+        font-weight: 400;
+        pointer-events: none;
+    `;
+    const requestCountDisplay = document.createElement('div'); 
+    requestCountDisplay.style.cssText = `
+        display: flex;
+        flex-direction: row; /* Display label and number in a row */
+        align-items: baseline; /* Align text baselines */
+        margin-right: 15px; /* Space between the two displays */
+    `;
+    requestCountDisplay.appendChild(requestCountLabel);
+    requestCountDisplay.appendChild(requestCountNumber);
+
+
+    const elapsedTimeLabel = document.createElement('span');
+    elapsedTimeLabel.textContent = 'Time:';
+    elapsedTimeLabel.style.cssText = `
+        color: var(--text-color-stuff);
+        font-size: 16px;
+        font-family: "Builder Sans", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+        font-weight: 400;
+        pointer-events: none;
+        margin-right: 5px; /* Space between label and number */
+    `;
+    const elapsedTimeNumber = document.createElement('span');
+    elapsedTimeNumber.textContent = '0s';
+    elapsedTimeNumber.style.cssText = `
+        color: var(--text-color-stuff);
+        font-size: 16px;
+        font-family: "Builder Sans", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+        font-weight: 400;
+        pointer-events: none;
+    `;
+    const elapsedTimeDisplay = document.createElement('div'); 
+    elapsedTimeDisplay.style.cssText = `
+        display: flex;
+        flex-direction: row; /* Display label and number in a row */
+        align-items: baseline; /* Align text baselines */
+    `;
+    elapsedTimeDisplay.appendChild(elapsedTimeLabel);
+    elapsedTimeDisplay.appendChild(elapsedTimeNumber);
+
+
+    const displayContainer = document.createElement('div');
+    displayContainer.style.cssText = `
+        display: flex;
+        flex-direction: row; /* Display displays in a row */
+        align-items: baseline; /* Align text baselines of the displays */
+        margin-right: 5px;
+        margin-left: 5px;
+    `;
+    displayContainer.appendChild(requestCountDisplay);
+    displayContainer.appendChild(elapsedTimeDisplay);
+
+
+    return { thumbnailImage, inputField, startButton, requestCountDisplay, elapsedTimeDisplay, displayContainer, requestCountNumber, elapsedTimeNumber };
+}
+
+function applyJoinButtonStyle(joinButton) {
+    const robloxPlayButton = document.querySelector('.btn-common-play-game-lg.btn-primary-md.btn-full-width[data-testid="play-button"]');
+    if (robloxPlayButton) {
+        const computedStyle = window.getComputedStyle(robloxPlayButton);
+        joinButton.style.backgroundColor = computedStyle.backgroundColor;
+        joinButton.style.color = computedStyle.color;
+        joinButton.style.border = computedStyle.border;
+        joinButton.style.borderRadius = computedStyle.borderRadius;
+        joinButton.style.fontSize = computedStyle.fontSize;
+        joinButton.style.fontWeight = computedStyle.fontWeight;
+        joinButton.style.padding = '7px 15px';
+    } else {
+        joinButton.style.backgroundColor = 'var(--join-button-background)';
+        joinButton.style.color = 'white';
+        joinButton.style.padding = '7px 15px';
+    }
+
+    joinButton.style.cursor = 'pointer';
+    joinButton.style.transition = 'background-color 0.3s, transform 0.3s';
+    joinButton.style.pointerEvents = 'auto';
+    joinButton.style.width = '100%';
+    joinButton.style.boxSizing = 'border-box';
+    joinButton.style.textAlign = 'center';
+    joinButton.style.borderRadius = '8px';
+}
+
+async function fetchThemeFromAPI() {
+    try {
+        const response = await fetch('https://apis.roblox.com/user-settings-api/v1/user-settings', {
+            credentials: 'include'
+        });
+        if (!response.ok) {
+            console.error('Failed to fetch theme from API:', response.status, response.statusText);
+            return 'light'; 
+        }
+        const data = await response.json();
+        if (data && data.themeType) {
+            return data.themeType.toLowerCase(); 
+        } else {
+            console.warn('Theme data from API is unexpected:', data);
+            return 'light'; 
+        }
+    } catch (error) {
+        console.error('Error fetching theme from API:', error);
+        return 'light'; 
+    }
+}
+
+
+function injectButton() {
+    let targetElement = document.querySelector("#running-game-instances-container");
+    if (!targetElement) {
+        targetElement = document.querySelector("#running-game-instances-container");
+        if (!targetElement) {
+            console.error("Target element not found to inject button");
+            return
+        }
+    }
+    sniperUIElements = createSniperUI();
+    const { thumbnailImage, inputField, startButton, requestCountDisplay, elapsedTimeDisplay, displayContainer, requestCountNumber, elapsedTimeNumber } = sniperUIElements;
+
+    const buttonContainer = document.createElement('div');
+    buttonContainer.id = 'sniper-button-container'; 
+    buttonContainer.style.cssText = `
+        display: flex; /* keep as row */
+        justify-content: flex-start;
+        align-items: center;
+        margin-bottom: 5px; /* Add some margin below the container */
+    `;
+    buttonContainer.appendChild(thumbnailImage);
+    buttonContainer.appendChild(inputField);
+    buttonContainer.appendChild(startButton);
+    buttonContainer.appendChild(displayContainer); 
+
+    const messageContainer = document.createElement('div');
+    messageContainer.id = 'messageContainer'; 
+    messageContainer.style.cssText = `
+        display: flex;
+        justify-content: center; /* Center the content horizontally */
+        width: 100%; /* Full width of parent container */
+        margin-top: 5px; /* Add some space above the message */
+        color: var(--text-color);
+        font-size: 14px;
+        font-family: "Builder Sans", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+        font-weight: bold;
+        pointer-events: none;
+    `;
+
+
+    const rbxRunningGames = targetElement.querySelector("#rbx-running-games");
+    if (rbxRunningGames) {
+        targetElement.insertBefore(buttonContainer, rbxRunningGames);
+        targetElement.insertBefore(messageContainer, rbxRunningGames); 
+    } else {
+        targetElement.appendChild(buttonContainer);
+        targetElement.appendChild(messageContainer); 
+    }
+
     let startTime = 0;
     let requestCount = 0;
     let rateLimitCount = 0;
     let intervalId;
 
     const setRateLimitMessage = (message) => {
-        rateLimitMessageDisplay.textContent = message;
+        messageContainer.textContent = message;
+        messageContainer.style.color = ''; 
+        messageContainer.style.fontSize = ''; 
     };
+    const setNotFoundMessage = (message) => {
+        messageContainer.textContent = message;
+        messageContainer.style.color = 'rgb(187, 2, 2)'; 
+        messageContainer.style.fontSize = '16px'; 
+    };
+    const setNoThumbnailMessage = (message) => {
+        messageContainer.textContent = message;
+        messageContainer.style.color = 'rgb(187, 2, 2)'; 
+        messageContainer.style.fontSize = '16px'; 
+    };
+    const updateRequestCountDisplay = (count) => {
+        requestCountNumber.textContent = `${count}`; 
+    };
+    const updateElapsedTimeDisplay = (elapsedTime) => {
+        elapsedTimeNumber.textContent = `${elapsedTime}s`; 
+    };
+
 
     startButton.onclick = async () => {
         const input = inputField.value;
         const placeId = getPlaceIdFromUrl();
-        let userId = input
+        let userId = input;
+        messageContainer.textContent = ''; 
+        messageContainer.style.color = ''; 
+        messageContainer.style.fontSize = ''; 
+        thumbnailImage.src = 'data:image/svg+xml,%3Csvg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"%3E%3CCircle cx="50" cy="50" r="49" stroke="%23808080" stroke-width="2" stroke-dasharray="6 6"/%3E%3C/svg%3E'; // Reset to default placeholder on new search
+        const existingJoinButtonContainer = targetElement.querySelector('#joinButtonContainer');
+        if (existingJoinButtonContainer) {
+            targetElement.removeChild(existingJoinButtonContainer);
+        }
 
         if (isSniping) {
             isCancelledRef.current = true;
-            startButton.textContent = 'Start Sniper';
+            startButton.textContent = 'Search';
             isSniping = false;
-            previousSearch.startTime = 0
+            previousSearch.startTime = Date.now();
+            previousSearch.startTime = 0;
             localStorage.setItem('previousSearch', JSON.stringify(previousSearch));
+            if (intervalId) {
+                clearInterval(intervalId);
+                intervalId = null;
+            }
+            messageContainer.textContent = ''; 
             return;
         }
-        isCancelledRef.current = false
+        isCancelledRef.current = false;
         isSniping = true;
-        startButton.textContent = 'Stop Sniper';
-        startTime = Date.now();
-        startTime -= (previousSearch.startTime ? previousSearch.startTime - Date.now() : 0);
+        startButton.textContent = 'Stop Searcher';
+        startTime = previousSearch.startTime ? previousSearch.startTime : Date.now();
+        if (!previousSearch.startTime) {
+            previousSearch.startTime = startTime;
+            localStorage.setItem('previousSearch', JSON.stringify(previousSearch));
+        }
+
         requestCount = previousSearch.requestCount;
         rateLimitCount = 0;
-        resultsDisplay.innerHTML = '';
         setRateLimitMessage("");
+        setNotFoundMessage("");
+        setNoThumbnailMessage(""); 
 
 
         if (intervalId) {
@@ -723,7 +759,7 @@ function createOverlay() {
 
         intervalId = setInterval(() => {
             const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
-            elapsedTimeDisplay.textContent = `Time Elapsed: ${elapsedTime}s`;
+            updateElapsedTimeDisplay(elapsedTime);
         }, 1000);
 
 
@@ -752,57 +788,51 @@ function createOverlay() {
 
             fetchInitialThumbnail(userId, () => {
                 rateLimitCount++;
-            }, isCancelledRef).then(initialImageUrl => {
-                if (initialImageUrl) {
+            }, isCancelledRef, setNoThumbnailMessage).then(initialThumbnailResult => {
+                if (initialThumbnailResult === "NO_THUMBNAIL") {
+                    setNoThumbnailMessage("Sniper won't work on this user because the user has no thumbnail.");
+                    thumbnailImage.src = 'data:image/svg+xml,%3Csvg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"%3E%3CCircle cx="50" cy="50" r="49" stroke="%23808080" stroke-width="2" stroke-dasharray="6 6"/%3E%3C/svg%3E';
+                    if (intervalId) {
+                        clearInterval(intervalId);
+                        intervalId = null;
+                    }
+                    startButton.textContent = 'Search';
+                    isSniping = false;
+                    return;
+                }
+                if (initialThumbnailResult) {
+                    const initialImageUrl = initialThumbnailResult;
                     previousSearch.initialImageUrl = initialImageUrl;
+                    thumbnailImage.src = initialImageUrl;
                     if (startFromPrevious) {
                         fetchServers(placeId, initialImageUrl, (count) => {
-                            requestCountDisplay.textContent = `Servers Searched: ${count}`;
+                            updateRequestCountDisplay(count);
                         }, () => {
                             rateLimitCount++;
                         }, (requestId) => {
-                            const serverFound = document.createElement('p');
-                            serverFound.textContent = "Server Found!"
-                            serverFound.style.cssText = `
-                                color: var(--text-color);
-                                font-size: 16px;
-                                font-family: 'Gotham Medium', sans-serif;
-                                font-weight: bold;
-                                pointer-events: none;
+                            const joinButtonContainer = document.createElement('div');
+                            joinButtonContainer.id = 'joinButtonContainer';
+                            joinButtonContainer.style.cssText = `
+                                display: flex;
+                                justify-content: center;
+                                width: 100%;
+                                margin-top: 5px;
                             `;
-                            resultsDisplay.appendChild(serverFound);
-
-
                             const joinButton = document.createElement('button');
-                            joinButton.textContent = 'Join Server';
-                            joinButton.style.cssText = `
-                          padding: 10px 20px;
-                          background-color: var(--join-button-background);
-                          color: white;
-                          border: none;
-                          margin-bottom: 10px;
-                          width: 144.469px;
-                          border-radius: 4px;
-                           cursor: pointer;
-                          font-size: 15px;
-                          font-weight: 600;
-                            transition: background-color 0.3s, transform 0.3s;
-                             padding-left: 30px;
-                             padding-right: 30px;
-                             margin-top: 5px;
-                             pointer-events: auto;
-                      `;
+                            joinButton.id = 'joinButton';
+                            joinButton.textContent = `Join Server ${requestId}`;
+                            applyJoinButtonStyle(joinButton);
 
-                            joinButton.addEventListener('click', () => {
+                            joinButton.onclick = () => {
                                 const codeToInject = `
-                      (function() {
-                          if (typeof Roblox !== 'undefined' && Roblox.GameLauncher && Roblox.GameLauncher.joinGameInstance) {
-                            Roblox.GameLauncher.joinGameInstance(parseInt('` + placeId + `', 10), String('` + requestId + `'));
-                          } else {
-                            console.error("Roblox.GameLauncher.joinGameInstance is not available in page context.");
-                          }
-                        })();
-                      `;
+                                  (function() {
+                                      if (typeof Roblox !== 'undefined' && Roblox.GameLauncher && Roblox.GameLauncher.joinGameInstance) {
+                                        Roblox.GameLauncher.joinGameInstance(parseInt('` + placeId + `', 10), String('` + requestId + `'));
+                                      } else {
+                                        console.error("Roblox.GameLauncher.joinGameInstance is not available in page context.");
+                                      }
+                                    })();
+                                  `;
 
                                 chrome.runtime.sendMessage(
                                     { action: "injectScript", codeToInject: codeToInject },
@@ -814,72 +844,54 @@ function createOverlay() {
                                         }
                                     }
                                 );
+                            };
 
-                            });
-                            resultsDisplay.appendChild(joinButton)
+                            joinButtonContainer.appendChild(joinButton);
+                            messageContainer.after(joinButtonContainer);
+
                             if (intervalId) {
-                                clearInterval(intervalId)
-                                intervalId = null
+                                clearInterval(intervalId);
+                                intervalId = null;
                             }
-                            startButton.textContent = 'Start Sniper';
+                            startButton.textContent = 'Search';
                             isSniping = false;
                         }, () => {
                             if (intervalId) {
-                                clearInterval(intervalId)
-                                intervalId = null
+                                clearInterval(intervalId);
+                                intervalId = null;
                             }
-                            startButton.textContent = 'Start Sniper';
+                            startButton.textContent = 'Search';
                             isSniping = false;
-                        }, isCancelledRef, resultsDisplay, setRateLimitMessage, previousSearch.nextPageCursor);
+                        }, isCancelledRef, setNotFoundMessage, setRateLimitMessage, previousSearch.nextPageCursor);
                     }
                     else {
                         fetchServers(placeId, initialImageUrl, (count) => {
-                            requestCountDisplay.textContent = `Servers Searched: ${count}`;
+                            updateRequestCountDisplay(count);
                         }, () => {
                             rateLimitCount++;
                         }, (requestId) => {
-                            const serverFound = document.createElement('p');
-                            serverFound.textContent = "Server Found!"
-                            serverFound.style.cssText = `
-                                color: var(--text-color);
-                                font-size: 16px;
-                                font-family: 'Gotham Medium', sans-serif;
-                                font-weight: bold;
-                                pointer-events: none;
+                            const joinButtonContainer = document.createElement('div');
+                            joinButtonContainer.id = 'joinButtonContainer';
+                            joinButtonContainer.style.cssText = `
+                                display: flex;
+                                justify-content: center;
+                                width: 100%;
+                                margin-top: 5px;
                             `;
-                            resultsDisplay.appendChild(serverFound);
-
-
                             const joinButton = document.createElement('button');
-                            joinButton.textContent = 'Join Server';
-                            joinButton.style.cssText = `
-                          padding: 10px 20px;
-                          background-color: var(--join-button-background);
-                          color: white;
-                          border: none;
-                          margin-bottom: 10px;
-                          width: 144.469px;
-                          border-radius: 4px;
-                           cursor: pointer;
-                          font-size: 15px;
-                          font-weight: 600;
-                            transition: background-color 0.3s, transform 0.3s;
-                             padding-left: 30px;
-                             padding-right: 30px;
-                             margin-top: 5px;
-                             pointer-events: auto;
-                      `;
-
-                            joinButton.addEventListener('click', () => {
+                            joinButton.id = 'joinButton';
+                            joinButton.textContent = `Join Server ${requestId}`;
+                            applyJoinButtonStyle(joinButton);
+                            joinButton.onclick = () => {
                                 const codeToInject = `
-                      (function() {
-                          if (typeof Roblox !== 'undefined' && Roblox.GameLauncher && Roblox.GameLauncher.joinGameInstance) {
-                            Roblox.GameLauncher.joinGameInstance(parseInt('` + placeId + `', 10), String('` + requestId + `'));
-                          } else {
-                            console.error("Roblox.GameLauncher.joinGameInstance is not available in page context.");
-                          }
-                        })();
-                      `;
+                                  (function() {
+                                      if (typeof Roblox !== 'undefined' && Roblox.GameLauncher && Roblox.GameLauncher.joinGameInstance) {
+                                        Roblox.GameLauncher.joinGameInstance(parseInt('` + placeId + `', 10), String('` + requestId + `'));
+                                      } else {
+                                        console.error("Roblox.GameLauncher.joinGameInstance is not available in page context.");
+                                      }
+                                    })();
+                                  `;
 
                                 chrome.runtime.sendMessage(
                                     { action: "injectScript", codeToInject: codeToInject },
@@ -891,169 +903,100 @@ function createOverlay() {
                                         }
                                     }
                                 );
+                            };
 
-                            });
-                            resultsDisplay.appendChild(joinButton)
+                            joinButtonContainer.appendChild(joinButton);
+                            messageContainer.after(joinButtonContainer);
+
                             if (intervalId) {
-                                clearInterval(intervalId)
-                                intervalId = null
+                                clearInterval(intervalId);
+                                intervalId = null;
                             }
-                            startButton.textContent = 'Start Sniper';
+                            startButton.textContent = 'Search';
                             isSniping = false;
                         }, () => {
                             if (intervalId) {
-                                clearInterval(intervalId)
-                                intervalId = null
+                                clearInterval(intervalId);
+                                intervalId = null;
                             }
-                            startButton.textContent = 'Start Sniper';
+                            startButton.textContent = 'Search';
                             isSniping = false;
-                        }, isCancelledRef, resultsDisplay, setRateLimitMessage);
+                        }, isCancelledRef, setNotFoundMessage, setRateLimitMessage);
                     }
+                } else {
+                    thumbnailImage.src = 'data:image/svg+xml,%3Csvg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"%3E%3CCircle cx="50" cy="50" r="49" stroke="%23808080" stroke-width="2" stroke-dasharray="6 6"/%3E%3C/svg%3E';
                 }
             });
         } else {
             if (!userId) {
+                setNotFoundMessage("Invalid User ID");
+                const joinButtonContainer = targetElement.querySelector('#joinButtonContainer');
+                if (joinButtonContainer) {
+                    targetElement.removeChild(joinButtonContainer);
+                }
+                thumbnailImage.src = 'data:image/svg+xml,%3Csvg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"%3E%3CCircle cx="50" cy="50" r="49" stroke="%23808080" stroke-width="2" stroke-dasharray="6 6"/%3E%3C/svg%3E';
             }
-            console.error("Invalid User ID or Place ID")
+            console.error("Invalid User ID or Place ID");
             if (intervalId) {
                 clearInterval(intervalId);
                 intervalId = null;
             }
-            startButton.textContent = 'Start Sniper';
+            startButton.textContent = 'Search';
             isSniping = false;
         }
     };
-
-    contentBox.appendChild(startButton);
-    overlay.appendChild(contentBox);
-    document.body.appendChild(overlay);
-
-    overlay.style.display = 'flex';
-
-
-    document.body.style.overflow = 'hidden';
-    document.body.style.pointerEvents = 'none';
-
-    
-
-    overlayData = { overlay, requestCountDisplay, startTime, intervalId, startButton, setRateLimitMessage };
-    return overlayData;
-}
-
-function createSniperButton() {
-    const sniperButton = document.createElement('button');
-    sniperButton.textContent = "User Sniper";
-    sniperButton.style.padding = "10px 15px";
-    sniperButton.style.backgroundColor = 'var(--button-background)';
-    sniperButton.style.border = '1px solid var(--border-color)';
-    sniperButton.style.borderRadius = "6px";
-    sniperButton.style.cursor = "pointer";
-    sniperButton.style.fontSize = "15px";
-    sniperButton.style.height = "44px";
-    sniperButton.style.fontWeight = "600";
-    sniperButton.style.color = 'white';
-    sniperButton.style.transition = "background-color 0.3s ease, transform 0.3s ease";
-
-
-    sniperButton.addEventListener('mouseover', () => {
-        sniperButton.style.backgroundColor = "var(--button-hover-background)";
-        sniperButton.style.borderRadius = "6px";
-        sniperButton.style.borderColor = 'var(--border-color-hover)'
-        sniperButton.style.transform = "scale(1.05)";
-    });
-
-    sniperButton.addEventListener('mouseout', () => {
-        sniperButton.style.backgroundColor = 'var(--button-background)';
-        sniperButton.style.borderRadius = "6px";
-        sniperButton.style.borderColor = 'var(--border-color)';
-        sniperButton.style.transform = "scale(1)";
-    });
-
-    sniperButton.onclick = () => {
-        createOverlay();
-    }
-
-    return sniperButton;
-}
-
-
-function injectButton() {
-    let targetElement = document.querySelector("#running-game-instances-container");
-    if (!targetElement) {
-        targetElement = document.querySelector("#running-game-instances-container");
-        if (!targetElement) {
-            console.error("Target element not found to inject button");
-
-            const allElements = document.querySelectorAll('*');
-            allElements.forEach(element => {
-            });
-            return
-        }
-    }
-    const sniperButton = createSniperButton();
-
-    const buttonContainer = document.createElement('div');
-    buttonContainer.style.cssText = `
-        display: inline-flex;
-        justify-content: flex-start;
-        align-items: center;
-    `;
-    buttonContainer.appendChild(sniperButton);
-
-
-    const rbxRunningGames = targetElement.querySelector("#rbx-running-games");
-    if (rbxRunningGames) {
-        targetElement.insertBefore(buttonContainer, rbxRunningGames);
-    } else {
-        targetElement.appendChild(buttonContainer);
-    }
 }
 
 async function initialize() {
-     const settings = await new Promise((resolve) => {
+    const settings = await new Promise((resolve) => {
         chrome.storage.local.get({ universalSniperEnabled: false }, (result) => {
             resolve(result);
         });
     });
-     if (!settings.universalSniperEnabled) {
-           return;
-        }
+    if (!settings.universalSniperEnabled) {
+        return;
+    }
     if (getPlaceIdFromUrl() == null) {
         clearPreviousSearch()
     }
-    xcsrfToken = fetchXcsrfToken();
-    window.addEventListener('themeDetected', (event) => {
-        const theme = event.detail.theme;
-        updateThemeStyles(theme);
-    });
-    if (xcsrfToken) {
-        injectButton()
-    }
-    const initialTheme = detectTheme();
-    updateThemeStyles(initialTheme);
+
+    injectButton()
+    const theme = await fetchThemeFromAPI();
+    updateThemeStyles(theme);
 }
 
 
 function updateThemeStyles(theme) {
     if (theme === 'dark') {
-          document.documentElement.style.setProperty('--text-color', 'rgb(255, 255, 255)');
-          document.documentElement.style.setProperty('--overlay-background', 'rgb(68, 72, 76)');
-        document.documentElement.style.setProperty('--button-background', 'rgb(36, 41, 46)');
+        document.documentElement.style.setProperty('--text-color', 'rgb(255, 255, 255)');
+        document.documentElement.style.setProperty('--overlay-background', 'rgb(68, 72, 76)');
+        document.documentElement.style.setProperty('--button-background', 'rgba(208, 217, 251, 0.08)');
         document.documentElement.style.setProperty('--button-hover-background', 'rgb(0, 176, 111)');
         document.documentElement.style.setProperty('--border-color', '#444');
-         document.documentElement.style.setProperty('--border-color-hover', '#24292e');
-          document.documentElement.style.setProperty('--input-background', 'rgb(36, 41, 46)');
-           document.documentElement.style.setProperty('--join-button-background', 'rgb(0, 176, 111)');
-    } else {
-         document.documentElement.style.setProperty('--text-color', 'rgb(96, 97, 98)');
-          document.documentElement.style.setProperty('--overlay-background', 'rgb(245, 245, 245)');
-         document.documentElement.style.setProperty('--button-background', 'rgb(96, 97, 98)');
+        document.documentElement.style.setProperty('--border-color-hover', '#24292e');
+        document.documentElement.style.setProperty('--input-background', 'rgba(139, 147, 180, 0.08)');
+        document.documentElement.style.setProperty('--join-button-background', 'rgb(0, 176, 111)');
+        document.documentElement.style.setProperty('--input-border', '1px solid rgba(208, 217, 251, 0.12)');
+        document.documentElement.style.setProperty('--Start-Sniper', 'rgb(247, 247, 248)');
+        document.documentElement.style.setProperty('--input-text', 'rgb(247, 247, 248)');
+        document.documentElement.style.setProperty('--text-color-stuff', 'rgb(213, 215, 221)');
+
+
+    } else if (theme === 'light') {
+        document.documentElement.style.setProperty('--text-color', 'rgb(73, 77, 90)');
+        document.documentElement.style.setProperty('--overlay-background', 'rgb(245, 245, 245)');
+        document.documentElement.style.setProperty('--button-background', 'rgba(27, 37, 75, 0.12)');
         document.documentElement.style.setProperty('--button-hover-background', 'rgb(0, 176, 111)');
         document.documentElement.style.setProperty('--border-color', '#ccc');
-         document.documentElement.style.setProperty('--border-color-hover', '#999');
-         document.documentElement.style.setProperty('--input-background', 'white');
-           document.documentElement.style.setProperty('--join-button-background', 'rgb(0, 176, 111)');
-
+        document.documentElement.style.setProperty('--border-color-hover', '#999');
+        document.documentElement.style.setProperty('--input-background', 'rgba(27, 37, 75, 0.08)');
+        document.documentElement.style.setProperty('--join-button-background', 'rgb(0, 176, 111)');
+        document.documentElement.style.setProperty('--input-border', '1px solid rgba(27, 37, 75, 0.12)');
+        document.documentElement.style.setProperty('--Start-Sniper', 'rgb(32, 34, 39)');
+        document.documentElement.style.setProperty('--input-text', 'rgb(32, 34, 39)');
+        document.documentElement.style.setProperty('--text-color-stuff', 'rgb(57, 59, 61)');
+    } else {
+        updateThemeStyles('light');
     }
 }
 

@@ -1,9 +1,24 @@
 // Dont look at this shit dookie poo po of code
+// Actually you can look at it. i removed the bad parts / useless
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // Starting roblox logic, i would recommend not touching this :)
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     if (message.action === "injectScript") {
       const { codeToInject } = message;
-  
+
       chrome.scripting.executeScript({
         target: { tabId: sender.tab.id },
         world: "MAIN",
@@ -16,7 +31,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
                  } catch(error){
                       console.error("Error in injected script:", error);
                   }
-  
+
               },
         args: [codeToInject],
       })
@@ -27,51 +42,15 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
           console.error("Error injecting script:", error);
           sendResponse({ success: false, error: error.message });
         });
-  
+
       return true;
     }
     return false;
   });
-// this was from back when i was testing stuff, pretty sure its not in use i just dont wanna remove it since if it aint broke dont fix it
-async function updateDeclarativeNetRequestRuleWithCookie(rulesetId) {
-    try {
-      const cookie = await getRobloxCookie();
-      const ruleset = await chrome.declarativeNetRequest.getRules([rulesetId]);
-  
-      if (ruleset.length > 0) {
-        const rule = ruleset[0];
-        if (rule) {
-          const updatedRule = {
-            ...rule,
-            action: {
-              ...rule.action,
-              requestHeaders: rule.action.requestHeaders.map(header => {
-                if (header.header === "Cookie") {
-                  return { ...header, value: `${cookie}` };
-                }
-                return header;
-              })
-            }
-          };
-          await chrome.declarativeNetRequest.updateRules({
-            removeRuleIds: [updatedRule.id],
-            addRules: [updatedRule]
-          });
-          console.log(`Declarative Net Request rule ${rulesetId} updated with cookie`);
-        }
-      } else {
-        console.error(`No rulesets found to update for ${rulesetId}`);
-      }
-    } catch (error) {
-      console.error(`Error getting or updating the ruleset with cookie for ${rulesetId}`, error);
-    }
-  }
-  
   chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
       switch (message.action) {
           case 'enableServerJoinHeaders':
               console.log("enableServerJoinHeaders");
-              await updateDeclarativeNetRequestRuleWithCookie('ruleset_2');
               chrome.declarativeNetRequest.updateEnabledRulesets({
                   enableRulesetIds: ['ruleset_2'],
               });
@@ -84,7 +63,6 @@ async function updateDeclarativeNetRequestRuleWithCookie(rulesetId) {
               break;
           case 'enableUserSniper':
               console.log("enableUserSniper");
-              await updateDeclarativeNetRequestRuleWithCookie('ruleset_1');
               chrome.declarativeNetRequest.updateEnabledRulesets({
                   enableRulesetIds: ['ruleset_1'],
               });
@@ -95,89 +73,6 @@ async function updateDeclarativeNetRequestRuleWithCookie(rulesetId) {
                   disableRulesetIds: ['ruleset_1'],
               });
               break;
-          case "getRobloxCookie":
-              getRobloxCookie()
-                  .then((cookie) => {
-                      sendResponse({ success: true, cookie: cookie });
-                  })
-                  .catch((error) => {
-                      sendResponse({ success: false, message: error });
-                  });
-              return true;
-          // Not in use like almost the entire script
-          case "fetchUserIP": { // This is not in use, the reason why its called "FetchUserIp" is back when it was used. This does not fetch ur ip i just dont wanna remove it since parts of this code i still in use and i cant be bothered
-              try {
-                  const cookie = await getRobloxCookie();
-                  const response = await fetch("", {
-                      headers: {
-                          "Cookie": `${cookie}`
-                      }
-                  });
-                  if (!response.ok) {
-                      throw new Error(`HTTP error! Status: ${response.status}`);
-                  }
-                  const data = await response.json();
-                  if (data && data.ClientIpAddress) {
-                      sendResponse({
-                          success: true,
-                          ip: data.ClientIpAddress
-                      });
-                  } else {
-                      sendResponse({
-                          success: false,
-                          message: "IP address not found in settings"
-                      });
-                  }
-              } catch (error) {
-                  sendResponse({
-                      success: false,
-                      message: error.message
-                  });
-              }
-              return true;
-          }
-          case "initializeServerRegion":
-              try {
-                  const cookie = await getRobloxCookie();
-                  const response = await fetch("", {
-                      headers: {
-                          "Cookie": `${cookie}`
-                      }
-                  });
-                  if (!response.ok) {
-                      throw new Error(`HTTP error! Status: ${response.status}`);
-                  }
-                  const data = await response.json();
-                  if (data && data.ClientIpAddress) {
-                      sendResponse({
-                          success: true,
-                          ip: data.ClientIpAddress,
-                          cookie: cookie
-                      });
-                  } else {
-                      sendResponse({
-                          success: false,
-                          // This is also not in used, it was used to find the closest server to u but its now all running inside of Regions_content.js and its not using ur ip anymore to do it.
-                          message: "IP address not found in settings"
-                      });
-                  }
-              } catch (error) {
-                  sendResponse({
-                      success: false,
-                      message: error.message
-                  });
-              }
-              return true;
-          // this was also from back when it wasnt released on the chrome webstore, ur country code is not being used anymore. Back then it was using a third party api that we are not using anymore.
-          case "fetchCountryCode": {
-            try {
-               const cookie = await getRobloxCookie();
-               sendResponse({ success: true, cookie: cookie });
-             } catch (error) {
-                  sendResponse({ success: false, message: error.message });
-                }
-             return true
-          }
           case "fetchItemData":
               fetch("")
                   .then((response) => response.json())
@@ -199,14 +94,13 @@ async function updateDeclarativeNetRequestRuleWithCookie(rulesetId) {
       }
       return;
   });
-  
-  
+
+// very old github updating logic, ig use it if u want for ur own projects, idk why im keeping it in here but oh well.
   const currentVersion = chrome.runtime.getManifest().version;
   const repoOwner = "";
   const repoName = "";
   const githubApiUrl = ``;
   let isDebugMode = false;
-  //Old updating logic that doesnt matter anymore
   async function fetchLatestRelease() {
       try {
           const response = await fetch(githubApiUrl);
@@ -219,7 +113,7 @@ async function updateDeclarativeNetRequestRuleWithCookie(rulesetId) {
           return null;
       }
   }
-  
+
   async function applyUpdate() {
       const latestVersion = await fetchLatestRelease();
       if (latestVersion && compareVersions(latestVersion, currentVersion) > 0) {
@@ -240,21 +134,21 @@ async function updateDeclarativeNetRequestRuleWithCookie(rulesetId) {
       }
       return 0;
   }
-  
+
   async function checkForUpdates(bypassDoNotShow = false) {
-  
+
       const latestVersion = await fetchLatestRelease();
       chrome.storage.local.get(['doNotShowAgain', 'dismissedVersion'], (result) => {
           if (result.doNotShowAgain === true && result.dismissedVersion === latestVersion && !bypassDoNotShow) {
               return;
           }
-  
+
           if (result.dismissedVersion !== latestVersion)
               chrome.storage.local.remove(['doNotShowAgain', 'dismissedVersion']);
-  
-  
+
+
           if (latestVersion) {
-  
+
               if (isDebugMode || compareVersions(latestVersion, currentVersion) > 0 || bypassDoNotShow) {
                   applyUpdate();
               } else {
@@ -276,34 +170,9 @@ async function updateDeclarativeNetRequestRuleWithCookie(rulesetId) {
               });
           });
           return true;
-          // more cookie logic which im 99% sure isnt in use, now how we do it is just by adding it directly into the api request.
-      } else if (request.action === "getRobloxCookie") {
-          getRobloxCookie()
-              .then(cookie => {
-                  //   sendResponse({ success: true, cookie: cookie });
-                  chrome.tabs.query({
-                      active: true,
-                      currentWindow: true
-                  }, function(tabs) {
-                      chrome.tabs.sendMessage(tabs[0].id, {
-                          action: "cookieUpdate",
-                          cookie: cookie
-                      });
-                  });
-                  sendResponse({
-                      success: true,
-                      message: 'cookie sent to content script'
-                  });
-                  return true
-              })
-              .catch(error => {
-                  sendResponse({
-                      success: false,
-                      message: error
-                  });
-              });
-          return true
-      } else if (request.action === 'resetDoNotShow') {
+      }
+      
+       else if (request.action === 'resetDoNotShow') {
           console.log("resetting do not show");
           chrome.storage.local.remove('doNotShowAgain');
           sendResponse({
@@ -332,7 +201,7 @@ async function updateDeclarativeNetRequestRuleWithCookie(rulesetId) {
       }
       return false;
   });
-  
+
   chrome.runtime.onInstalled.addListener(() => {
       console.log("Extension installed or updated.");
       if (isDebugMode) {
@@ -349,27 +218,14 @@ async function updateDeclarativeNetRequestRuleWithCookie(rulesetId) {
   chrome.action.onClicked.addListener(() => {
       checkForUpdates(true);
   });
-  
+
   chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
       if (changeInfo.status === 'complete' && tab.url && tab.url.includes('roblox.com')) {
           checkForUpdates();
       }
   });
-  
-  // Not updating logic :D
-  // Unsure if this is being used, it might be but its only to send api request with ur cookie which is needed THIS IS HOW APIS WORK.
-  function getRobloxCookie() {
-    return new Promise((resolve, reject) => {
-      chrome.cookies.get({ url: "https://www.roblox.com", name: ".ROBLOSECURITY" }, (cookie) => {
-        if (cookie) {
-          resolve(cookie.value);
-        } else {
-          reject("No .ROBLOSECURITY cookie found");
-        }
-      });
-    });
-  }
-  
+
+
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       if (message.action === "fetchHiddenGames") {
           const userId = message.userId;

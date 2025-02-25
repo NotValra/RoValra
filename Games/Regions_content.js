@@ -1,4 +1,3 @@
-// DONT REMOVE ANYTHING TO DO WITH THE LOCAL ERRORS, YOU ARE GONNA BREAK EVERYTHING IF U DO. ITS WORKING PERFECTLY FINE IDK WHY ITS ERRORING
 function delay(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -16,14 +15,14 @@ if (window.location.pathname.includes('/games/')) {
 
     const defaultRegions = [
         "HK", "FR", "NL", "GB", "AU", "IN", "DE", "PL", "JP", "SG", "BR","EG",
-        "US-AL", "US-AK", "US-AZ", "US-AR", "US-CA", "US-CO", "US-CT", "US-DE", "US-FL", "US-GA", 
-        "US-HI", "US-ID", "US-IL", "US-IN", "US-IA", "US-KS", "US-KY", "US-LA", "US-ME", "US-MD", 
-        "US-MA", "US-MI", "US-MN", "US-MS", "US-MO", "US-MT", "US-NE", "US-NV", "US-NH", "US-NJ", 
-        "US-NM", "US-NY", "US-NC", "US-ND", "US-OH", "US-OK", "US-OR", "US-PA", "US-RI", "US-SC", 
+        "US-AL", "US-AK", "US-AZ", "US-AR", "US-CA", "US-CO", "US-CT", "US-DE", "US-FL", "US-GA",
+        "US-HI", "US-ID", "US-IL", "US-IN", "US-IA", "US-KS", "US-KY", "US-LA", "US-ME", "US-MD",
+        "US-MA", "US-MI", "US-MN", "US-MS", "US-MO", "US-MT", "US-NE", "US-NV", "US-NH", "US-NJ",
+        "US-NM", "US-NY", "US-NC", "US-ND", "US-OH", "US-OK", "US-OR", "US-PA", "US-RI", "US-SC",
         "US-SD", "US-TN", "US-TX", "US-UT", "US-VT", "US-VA", "US-WA", "US-WV", "US-WI", "US-WY"
       ];
-      
-    let serverPopup = null; 
+
+    let serverPopup = null;
     let serverButtonsContainer = null;
     let regionServerMap = {};
     let regionCounts = {};
@@ -43,6 +42,37 @@ if (window.location.pathname.includes('/games/')) {
     let started = 'off';
     let debug_mode = false;
     const isChrome = navigator.userAgent.toLowerCase().indexOf('chrome') !== -1;
+
+    async function detectThemeAPI() {
+        try {
+            const response = await fetch('https://apis.roblox.com/user-settings-api/v1/user-settings', {
+                credentials: 'include'
+            });
+            if (!response.ok) {
+                console.warn("Failed to fetch theme from API.");
+                return 'light'; 
+            }
+            const data = await response.json();
+            if (data && data.themeType) {
+                return data.themeType.toLowerCase();
+            } else {
+                console.warn("Theme type not found in API response.");
+                return 'light'; 
+            }
+        } catch (error) {
+            console.error("Error fetching theme from API:", error);
+            return 'light'; 
+        }
+    }
+
+    function applyTheme(theme) {
+        if (theme === 'dark') {
+            document.body.classList.add('dark-mode');
+        } else {
+            document.body.classList.remove('dark-mode');
+        }
+    }
+
 
     function loadFromBrowserStorage(item, callback_function) {
         chrome.storage.local.get(item, (result) => {
@@ -136,19 +166,20 @@ if (window.location.pathname.includes('/games/')) {
         chrome.storage.local.set(item, callback_function);
     }
     let regionSelectorShowServerListOverlay = true;
+    let regionSelectorEnabled = false;
 
     async function updateRegionSelectorState() {
         const settings = await new Promise((resolve) => {
             chrome.storage.local.get({
                 regionSelectorEnabled: false,
-                showServerListOverlay: true, 
+                showServerListOverlay: true,
             }, (result) => {
                 resolve(result);
             });
         });
 
         regionSelectorEnabled = settings.regionSelectorEnabled;
-        regionSelectorShowServerListOverlay = settings.showServerListOverlay; 
+        regionSelectorShowServerListOverlay = settings.showServerListOverlay;
         if (serverPopup) {
             serverPopup.style.display = regionSelectorEnabled ? '' : 'none';
         }
@@ -156,28 +187,21 @@ if (window.location.pathname.includes('/games/')) {
             serverButtonsContainer.style.display = regionSelectorEnabled ? 'flex' : 'none';
         }
 
-         
+
     }
 
      updateRegionSelectorState()
-   
+
     if (placeId) {
         loadFromBrowserStorage([SERVER_DATA_KEY], (result) => {
                if (result[SERVER_DATA_KEY]) {
                    storedServerData = JSON.parse(result[SERVER_DATA_KEY]);
                }
-               fetchUserLocation();
-               chrome.runtime.sendMessage({
-                   action: "getRobloxCookie"
-               }, (response) => {
-                   if (response.success) {
-                       const robloxCookie = response.cookie;
+               
                         if(regionSelectorEnabled) {
-                            getServerInfo(placeId, robloxCookie, defaultRegions);
+                            getServerInfo(placeId, null, defaultRegions); 
                          }
-                   } else {
-                   }
-               });
+               
            });
     } else {
     }
@@ -197,14 +221,14 @@ async function getServerInfo(placeId, robloxCookie, regions, cursor = null) {
         let newServerCount = 0;
         const BATCH_SIZE = 1;
         let rateLimited = false;
-        
+
             const response = await fetch(url, {
             headers: {
                 "Referer": `https://www.roblox.com/games/${placeId}/`,
                 "Origin": "https://roblox.com",
                 "Cache-Control": "no-cache",
             },
-            credentials: 'include',
+            credentials: 'include', 
         });
         if (response.status === 429) {
             rateLimited = true;
@@ -226,7 +250,7 @@ async function getServerInfo(placeId, robloxCookie, regions, cursor = null) {
         }
 
         for (const server of servers.data) {
-            const promise = handleServer(server, placeId, robloxCookie, regions, newServerCount);
+            const promise = handleServer(server, placeId, robloxCookie, regions, newServerCount); 
             serverPromises.push(promise);
             allServers.push(server);
             isRefreshing = false;
@@ -242,17 +266,17 @@ async function getServerInfo(placeId, robloxCookie, regions, cursor = null) {
           checkInactiveServers(placeId, servers.data.length);
 
          if (servers.nextPageCursor && isRefreshing) {
-             await getServerInfo(placeId, robloxCookie, regions, servers.nextPageCursor)
+             await getServerInfo(placeId, robloxCookie, regions, servers.nextPageCursor) 
           }
-        
-        
+
+
          storeInBrowserStorage({[SERVER_DATA_KEY]: JSON.stringify(storedServerData)});
 
         if (rateLimited) {
             isRefreshing = false;
 
             showRateLimitedMessage();
-            
+
         } else {
              handleRateLimitedState(false)
             updatePopup();
@@ -263,45 +287,13 @@ async function getServerInfo(placeId, robloxCookie, regions, cursor = null) {
     } finally {
     }
 }
-   
-    
 
 
     function showRateLimitedMessage() {
     }
 
-    async function fetchUserLocation(retries = 2) {
-        try {
     
-            if (!robloxCookieResponse || !robloxCookieResponse.success) {
-               
-                if (retries > 0) {
-                    await delay(1000);
-                    return await fetchUserLocation(retries - 1);
-                } else {
-                    return false;
-                }
-            }
-    
-             userLocation = {
-                latitude: 0,
-                longitude: 0,
-              };
-            return true;
-    
-    
-        } catch (error) {
-            if (retries > 0) {
-                await delay(1000);
-                return await fetchUserLocation(retries - 1);
-            }
-           else {
-                return false;
-            }
-        }
-    }
-    
-    
+
 
     // This is honestly most likely not even needed as of writing this i havent tested if it worked without it cuz im lazy
     function getUSStateCoordinates(stateCode) {
@@ -357,11 +349,11 @@ async function getServerInfo(placeId, robloxCookie, regions, cursor = null) {
             WI: { latitude: 44.268543, longitude: -89.616508 },
             WY: { latitude: 42.755966, longitude: -107.302490 },
         };
-    
+
         return usStateCoordinates[stateCode] || null;
     }
-    
-    
+
+
     let serverIpMap = null;
 
     (async () => {
@@ -374,7 +366,7 @@ async function getServerInfo(placeId, robloxCookie, regions, cursor = null) {
 
     let loadingContainer = null;
     let activeRequests = 0;
-    async function handleServer(server, placeId, robloxCookie, regions, newServerCount) {
+    async function handleServer(server, placeId, robloxCookie, regions, newServerCount) { 
         const serverId = server.id;
         activeRequests++;
         try {
@@ -386,7 +378,7 @@ async function getServerInfo(placeId, robloxCookie, regions, cursor = null) {
                         return;
                     }
                 }
-    
+
                 loadingContainer = document.createElement("div");
                 loadingContainer.classList.add("server-buttons-container");
                 loadingContainer.style.display = "flex";
@@ -394,11 +386,12 @@ async function getServerInfo(placeId, robloxCookie, regions, cursor = null) {
                 loadingContainer.style.alignItems = "center";
                 loadingContainer.style.marginTop = "0px";
                 loadingContainer.style.padding = "0px";
-                const isDarkMode = document.body.classList.contains('dark-mode');
-                loadingContainer.style.backgroundColor = isDarkMode ? "#393b3d" : "#fff";
+                const theme = await detectThemeAPI(); 
+                const isDarkMode = theme === 'dark'; 
+                loadingContainer.style.backgroundColor = isDarkMode ? "rgb(39, 41, 48)" : "#fff";
                 loadingContainer.style.borderRadius = "6px";
                 loadingContainer.style.marginBottom = "8px";
-    
+
                 let loadingGif = document.createElement("img");
                 loadingGif.src = "https://images.rbxcdn.com/fab3a9d08d254fef4aea4408d4db1dfe-loading_dark.gif";
                 loadingGif.style.height = "36px";
@@ -407,8 +400,8 @@ async function getServerInfo(placeId, robloxCookie, regions, cursor = null) {
                if (serverPopup)
                    serverPopup.insertBefore(loadingContainer, serverPopup.childNodes[0]);
             }
-    
-    
+
+
             const serverInfo = await fetch(`https://gamejoin.roblox.com/v1/join-game-instance`, {
                 method: 'POST',
                 headers: {
@@ -424,9 +417,9 @@ async function getServerInfo(placeId, robloxCookie, regions, cursor = null) {
                     gameId: serverId,
                     gameJoinAttemptId: serverId,
                 }),
-                credentials: 'include',
+                credentials: 'include', 
             });
-    
+
             const ipData = await serverInfo.json();
             let latitude = null;
             let longitude = null;
@@ -440,23 +433,23 @@ async function getServerInfo(placeId, robloxCookie, regions, cursor = null) {
             if (!ip) {
                 return;
             }
-    
+
             ip = ip.split('.').slice(0, 3).join('.') + '.0';
             let serverLocationData = serverIpMap[ip];
-    
+
             if (!serverLocationData) {
                 serverLocationData = { country: { code: "US" } };
             }
-    
+
             const countryCode = serverLocationData?.country?.code;
             let stateCode = null;
             let regionCode = countryCode;
-    
+
             if (countryCode === "US") {
                 stateCode = serverLocationData.region?.code?.replace(/-\d+$/, '') || null;
                 regionCode = `US-${stateCode}`;
             }
-    
+
             if (!storedServerData[placeId]) {
                 storedServerData[placeId] = {};
             }
@@ -465,9 +458,9 @@ async function getServerInfo(placeId, robloxCookie, regions, cursor = null) {
                 x: 0,
                 y: 0,
             };
-    
+
            let serverData = {};
-    
+
             if (storedServerData[placeId][serverId]) {
                 serverData = storedServerData[placeId][serverId];
                   serverData.f = Math.round(server.fps);
@@ -492,11 +485,11 @@ async function getServerInfo(placeId, robloxCookie, regions, cursor = null) {
                             l: optimizedLocation,
                          };
                       }
-    
+
              }
                storedServerData[placeId][serverId] = serverData;
-    
-    
+
+
             if (regions.includes(regionCode)) {
                 regionCounts[regionCode] = (regionCounts[regionCode] || 0) + 1;
                 regionServerMap[regionCode] = server;
@@ -519,10 +512,10 @@ async function getServerInfo(placeId, robloxCookie, regions, cursor = null) {
         }
             return newServerCount;
     }
-    
-    
-    
-    
+
+
+
+
     function mapStateToRegion(data) {
         if (data && data.l?.c?.includes("US-")) {
            return data.l.c;
@@ -533,15 +526,15 @@ async function getServerInfo(placeId, robloxCookie, regions, cursor = null) {
         if (data && data.l?.c === "US") {
            return data.l.c;
        }
-        
+
        return data?.c;
    }
-    
-    
+
+
     function checkInactiveServers(currentPlaceId, serverCount) {
         const now = Date.now();
-        let fetchedServerIds = new Set(allServers.map(server => server.id)); 
-    
+        let fetchedServerIds = new Set(allServers.map(server => server.id));
+
         if (storedServerData[currentPlaceId]) {
             for (const serverId in storedServerData[currentPlaceId]) {
                 const server = storedServerData[currentPlaceId][serverId];
@@ -566,12 +559,9 @@ async function getServerInfo(placeId, robloxCookie, regions, cursor = null) {
                 }
            }
     }
-    
-    
-    
-   
-        
-    
+
+
+
     async function updatePopup(retries = 5) {
         let serverPopup = document.querySelector(".tab-pane.game-instances.section-content.active");
         if (!serverPopup) {
@@ -584,12 +574,12 @@ async function getServerInfo(placeId, robloxCookie, regions, cursor = null) {
                 return;
             }
         }
-    
+
         const existingButtonContainer = document.querySelector(".server-buttons-container");
         if (existingButtonContainer) {
             existingButtonContainer.remove();
         }
-    
+
         const loadingContainer = document.createElement("div");
         loadingContainer.classList.add("server-buttons-container");
           loadingContainer.style.display = "flex";
@@ -597,19 +587,20 @@ async function getServerInfo(placeId, robloxCookie, regions, cursor = null) {
         loadingContainer.style.alignItems = "center";
         loadingContainer.style.marginTop = "0px";
         loadingContainer.style.padding = "0px";
-            const isDarkMode = document.body.classList.contains('dark-mode');
-        loadingContainer.style.backgroundColor = isDarkMode ? "#393b3d" : "#fff";
+            const theme = await detectThemeAPI(); 
+            const isDarkMode = theme === 'dark'; 
+        loadingContainer.style.backgroundColor = isDarkMode ? "rgb(39, 41, 48)" : "#fff";
         loadingContainer.style.borderRadius = "6px";
            loadingContainer.style.marginBottom = "8px";
-        
+
         const loadingGif = document.createElement("img");
         loadingGif.src = "https://images.rbxcdn.com/fab3a9d08d254fef4aea4408d4db1dfe-loading_dark.gif";
         loadingGif.style.height = "36px";
         loadingGif.style.width = "123px"
     loadingContainer.appendChild(loadingGif);
-    
+
         serverPopup.insertBefore(loadingContainer, serverPopup.childNodes[0]);
-        
+
          const buttonContainer = document.createElement("div");
         buttonContainer.classList.add("server-buttons-container");
         buttonContainer.style.display = "flex";
@@ -617,9 +608,9 @@ async function getServerInfo(placeId, robloxCookie, regions, cursor = null) {
         buttonContainer.style.gap = "5px";
         buttonContainer.style.marginTop = "0px";
         buttonContainer.style.padding = "0px";
-        buttonContainer.style.backgroundColor = isDarkMode ? "#393b3d" : "#fff";
+        buttonContainer.style.backgroundColor = isDarkMode ? "rgb(39, 41, 48)" : "#fff";
         buttonContainer.style.borderRadius = "6px";
-    
+
         buttonContainer.style.marginBottom = "15px";
         const filterButton = document.createElement("div");
         filterButton.style.position = "relative";
@@ -642,8 +633,8 @@ async function getServerInfo(placeId, robloxCookie, regions, cursor = null) {
         filterButtonBtn.style.transition = "background-color 0.3s, transform 0.3s";
         filterButtonBtn.style.transform = "scale(1)";
         filterButtonBtn.style.height = "44px";
-    
-    
+
+
         const dropdownArrow = document.createElement("span");
         dropdownArrow.textContent = "▶";
         dropdownArrow.style.marginLeft = "5px";
@@ -653,8 +644,8 @@ async function getServerInfo(placeId, robloxCookie, regions, cursor = null) {
             filterButtonBtn.style.borderRadius = "6px";
             filterButtonBtn.style.borderColor = isDarkMode ? "#0366d6" : "#1a73e8";
             filterButtonBtn.style.transform = "scale(1.05)";
-    
-    
+
+
         });
         filterButtonBtn.addEventListener("mouseout", () => {
             filterButtonBtn.style.backgroundColor = isDarkMode ? "#0366d6" : "#1a73e8";
@@ -667,14 +658,14 @@ async function getServerInfo(placeId, robloxCookie, regions, cursor = null) {
         dropdownContent.style.position = 'absolute';
         dropdownContent.style.top = 'calc(100% + 3px)';
         dropdownContent.style.left = '0';
-        dropdownContent.style.backgroundColor = isDarkMode ? '#393b3d' : '#f0f0f0';
+        dropdownContent.style.backgroundColor = isDarkMode ? 'rgb(39, 41, 48)' : '#f0f0f0';
         dropdownContent.style.border = isDarkMode ? '1px solid #444' : '1px solid #ddd';
         dropdownContent.style.borderRadius = '6px';
         dropdownContent.style.zIndex = '1001';
         dropdownContent.style.padding = '5px';
         dropdownContent.style.width = '160px';
         dropdownContent.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
-    
+
         const bestPingOption = document.createElement('button');
         bestPingOption.textContent = 'Best Ping';
         bestPingOption.style.display = 'block';
@@ -682,18 +673,18 @@ async function getServerInfo(placeId, robloxCookie, regions, cursor = null) {
         bestPingOption.style.padding = '8px';
         bestPingOption.style.border = 'none';
         bestPingOption.style.backgroundColor = isDarkMode ? '#24292e' : '#fff';
-        bestPingOption.style.color = isDarkMode ? 'white' : 'rgb(57, 59, 61)';
+        bestPingOption.style.color = isDarkMode ? 'white' : 'rgb(39, 41, 48)';
         bestPingOption.style.cursor = 'pointer';
         bestPingOption.style.textAlign = 'left';
         bestPingOption.style.fontSize = '15px';
         bestPingOption.style.fontWeight = '600';
         bestPingOption.style.transition = "background-color 0.3s ease";
-    
-    
+
+
         const bestPingTooltip = document.createElement('div');
         const bestPingTooltipTitle = document.createElement('div');
         bestPingTooltipTitle.style.fontWeight = 'bold';
-    
+
         if (rateLimited) {
             bestPingTooltipTitle.textContent = 'The API is being rate limited!';
         }
@@ -704,7 +695,7 @@ async function getServerInfo(placeId, robloxCookie, regions, cursor = null) {
         } else {
             bestPingTooltipSubtitle.textContent = "Please wait a few seconds before trying again."
         }
-    
+
         bestPingTooltipSubtitle.style.fontSize = '14px'
         bestPingTooltipSubtitle.style.fontWeight = 'bold'
         bestPingTooltip.appendChild(bestPingTooltipSubtitle)
@@ -712,7 +703,7 @@ async function getServerInfo(placeId, robloxCookie, regions, cursor = null) {
         bestPingTooltip.style.left = '105%';
         bestPingTooltip.style.top = '0';
         bestPingTooltip.style.padding = '5px';
-        bestPingTooltip.style.backgroundColor = isDarkMode ? "#212323" : "#fff";
+        bestPingTooltip.style.backgroundColor = isDarkMode ? "rgb(39, 41, 48)" : "#fff";
         bestPingTooltip.style.border = isDarkMode ? "1px solid #444" : "1px solid #ddd";
         bestPingTooltip.style.borderRadius = "6px";
         bestPingTooltip.style.display = 'none';
@@ -720,8 +711,8 @@ async function getServerInfo(placeId, robloxCookie, regions, cursor = null) {
         bestPingTooltip.style.maxWidth = "250px";
         bestPingTooltip.style.maxHeight = "100px";
         bestPingOption.appendChild(bestPingTooltip)
-    
-    
+
+
         if (rateLimited) {
             bestPingOption.style.backgroundColor = "#555";
             bestPingOption.style.border = "1px solid #555";
@@ -735,38 +726,39 @@ async function getServerInfo(placeId, robloxCookie, regions, cursor = null) {
             });
         } else {
             bestPingOption.disabled = false;
-            bestPingOption.style.backgroundColor = isDarkMode ? '#24292e' : '#fff';
+            bestPingOption.style.backgroundColor = isDarkMode ? 'rgba(208, 217, 251, 0.12)' : '#fff';
+            bestPingOption.style.borderRadius = "6px";
             bestPingOption.style.border = "none";
             bestPingOption.style.cursor = "pointer";
             bestPingOption.addEventListener('mouseover', () => {
                 bestPingOption.style.backgroundColor = isDarkMode ? '#4c5053' : '#f0f0f0';
                 bestPingOption.style.borderRadius = "6px";
-                bestPingOption.style.borderColor = isDarkMode ? '#24292e' : '#f0f0f0';
+                bestPingOption.style.borderColor = isDarkMode ? 'rgba(208, 217, 251, 0.12)' : '#f0f0f0';
                 bestPingTooltip.style.display = 'block';
             });
             bestPingOption.addEventListener('mouseout', () => {
-                bestPingOption.style.backgroundColor = isDarkMode ? '#24292e' : '#fff';
+                bestPingOption.style.backgroundColor = isDarkMode ? 'rgba(208, 217, 251, 0.12)' : '#fff';
                 bestPingOption.style.borderRadius = "6px";
                 bestPingOption.style.borderColor = isDarkMode ? '#4c5053' : '#f0f0f0';
                 bestPingTooltip.style.display = 'none';
             });
         }
-        
+
         const refreshButton = document.createElement('button');
         refreshButton.textContent = 'Refresh Servers';
         refreshButton.style.display = 'block';
         refreshButton.style.width = '100%';
         refreshButton.style.padding = '8px';
         refreshButton.style.border = 'none';
-        refreshButton.style.backgroundColor = isDarkMode ? '#24292e' : '#fff';
-        refreshButton.style.color = isDarkMode ? 'white' : 'rgb(57, 59, 61)';
+        refreshButton.style.backgroundColor = isDarkMode ? 'rgba(208, 217, 251, 0.12)' : '#fff';
+        refreshButton.style.color = isDarkMode ? 'white' : 'rgb(39, 41, 48)';
         refreshButton.style.cursor = 'pointer';
         refreshButton.style.marginTop = '5px';
         refreshButton.style.textAlign = 'left';
         refreshButton.style.fontSize = '15px';
         refreshButton.style.fontWeight = '600';
         refreshButton.style.transition = "background-color 0.3s ease";
-    
+
         const refreshTooltip = document.createElement('div');
         const refreshTooltipTitle = document.createElement('div');
         refreshTooltipTitle.style.fontWeight = 'bold';
@@ -780,7 +772,7 @@ async function getServerInfo(placeId, robloxCookie, regions, cursor = null) {
         } else {
              refreshTooltipSubtitle.textContent = "Please wait a few seconds before trying again."
          }
-    
+
         refreshTooltipSubtitle.style.fontSize = '14px'
         refreshTooltipSubtitle.style.fontWeight = 'bold'
         refreshTooltip.appendChild(refreshTooltipSubtitle)
@@ -788,7 +780,7 @@ async function getServerInfo(placeId, robloxCookie, regions, cursor = null) {
         refreshTooltip.style.left = '105%';
         refreshTooltip.style.top = '0';
         refreshTooltip.style.padding = '5px';
-        refreshTooltip.style.backgroundColor = isDarkMode ? "#212323" : "#fff";
+        refreshTooltip.style.backgroundColor = isDarkMode ? "rgb(39, 41, 48)" : "#fff";
         refreshTooltip.style.border = isDarkMode ? "1px solid #444" : "1px solid #ddd";
         refreshTooltip.style.borderRadius = "6px";
         refreshTooltip.style.display = 'none';
@@ -796,26 +788,27 @@ async function getServerInfo(placeId, robloxCookie, regions, cursor = null) {
         refreshTooltip.style.maxWidth = "250px";
         refreshTooltip.style.maxHeight = "100px";
         refreshButton.appendChild(refreshTooltip)
-       
+
 
              refreshButton.disabled = false;
-             refreshButton.style.backgroundColor = isDarkMode ? '#24292e' : '#fff';
+             refreshButton.style.backgroundColor = isDarkMode ? 'rgba(208, 217, 251, 0.12)' : '#fff';
              refreshButton.style.border = "none";
+             refreshButton.style.borderRadius = "6px";
              refreshButton.style.cursor = "pointer";
              refreshButton.addEventListener('mouseover', () => {
                 refreshButton.style.backgroundColor = isDarkMode ? '#4c5053' : '#f0f0f0';
                  refreshButton.style.borderRadius = "6px";
-                 refreshButton.style.borderColor = isDarkMode ? '#24292e' : '#f0f0f0';
+                 refreshButton.style.borderColor = isDarkMode ? 'rgba(208, 217, 251, 0.12)' : '#f0f0f0';
                 refreshTooltip.style.display = 'block';
             });
              refreshButton.addEventListener('mouseout', () => {
-                refreshButton.style.backgroundColor = isDarkMode ? '#24292e' : '#fff';
+                refreshButton.style.backgroundColor = isDarkMode ? 'rgba(208, 217, 251, 0.12)' : '#fff';
                refreshButton.style.borderRadius = "6px";
                 refreshButton.style.borderColor = isDarkMode ? '#4c5053' : '#f0f0f0';
                  refreshTooltip.style.display = 'none';
            });
-        
-      
+
+
                 refreshButton.addEventListener('click', async () => {
                 if (isRefreshing) return;
             isRefreshing = true;
@@ -823,33 +816,24 @@ async function getServerInfo(placeId, robloxCookie, regions, cursor = null) {
               regionServerMap = {};
             regionCounts = {};
 
-            
-            chrome.runtime.sendMessage({
-                    action: "getRobloxCookie"
-                }, (response) => {
-                    if (response.success) {
-                        const robloxCookie = response.cookie;
-                         getServerInfo(placeId, robloxCookie, defaultRegions);
-                       
-                    } else {
-                    }
-                });
+
+           
+                         getServerInfo(placeId, null, defaultRegions);
+
+         
             dropdownContent.style.display = 'none';
             dropdownArrow.textContent = '▶';
         });
 
-              
-        
+
         bestPingOption.addEventListener('click', async () => {
             let bestServerRegion = "N/A";
             let bestServer = null;
-    
-    
-            
-    
-           
-    
-    
+
+
+
+
+
             if (allServers.length > 0 && userLocation) {
                  bestServer = await findBestServer();
                 if (bestServer) {
@@ -860,7 +844,7 @@ async function getServerInfo(placeId, robloxCookie, regions, cursor = null) {
                         }
                     }
                 }
-                
+
            if (bestServer == null || bestServerRegion == "N/A") {
                  if (allServers.length > 0) {
                        if (bestServer) {
@@ -872,12 +856,12 @@ async function getServerInfo(placeId, robloxCookie, regions, cursor = null) {
                         }
                     }
             }
-    
-            
+
+
             if (bestServer) {
                 let serverId = bestServer?.i || bestServer?.id;
                 console.log("Attempting to join best server:", serverId, "of place", placeId);
-            
+
                  const codeToInject = `
                     (function() {
                         if (typeof Roblox !== 'undefined' && Roblox.GameLauncher && Roblox.GameLauncher.joinGameInstance) {
@@ -887,7 +871,7 @@ async function getServerInfo(placeId, robloxCookie, regions, cursor = null) {
                         }
                       })();
                     `;
-            
+
                 chrome.runtime.sendMessage(
                     { action: "injectScript", codeToInject: codeToInject },
                     (response) => {
@@ -906,8 +890,8 @@ async function getServerInfo(placeId, robloxCookie, regions, cursor = null) {
             dropdownContent.style.display = 'none';
             dropdownArrow.textContent = '▶';
         });
-    
-    
+
+
         dropdownContent.appendChild(bestPingOption);
          dropdownContent.appendChild(refreshButton);
         filterButton.appendChild(filterButtonBtn)
@@ -917,12 +901,12 @@ async function getServerInfo(placeId, robloxCookie, regions, cursor = null) {
             dropdownContent.style.display = dropdownContent.style.display === 'none' ? 'block' : 'none';
             dropdownArrow.textContent = dropdownContent.style.display === 'none' ? '▶' : '▼';
         });
-    
+
         document.addEventListener('click', () => {
             dropdownContent.style.display = 'none';
             dropdownArrow.textContent = '▶';
         });
-    
+
         buttonContainer.appendChild(filterButton)
         const uniqueRegions = new Set();
         for (const serverId in storedServerData[placeId]) {
@@ -973,7 +957,7 @@ async function getServerInfo(placeId, robloxCookie, regions, cursor = null) {
                 button.style.fontSize = "15px";
                 button.style.height = "44px";
                 button.style.fontWeight = "600";
-                button.style.color = isDarkMode ? "white" : "rgb(57, 59, 61)";
+                button.style.color = isDarkMode ? "white" : "rgb(39, 41, 48)";
                 button.style.flex = "1";
                 button.style.minWidth = "100px";
                 button.style.margin = "4px";
@@ -988,7 +972,7 @@ async function getServerInfo(placeId, robloxCookie, regions, cursor = null) {
                 button.addEventListener('mouseout', () => {
                     button.style.backgroundColor = isDarkMode ? '#24292e' : '#fff';
                     button.style.borderRadius = "6px";
-                    button.style.borderColor = isDarkMode ? "#4c5053" : "#f0f0f0";
+                    button.style.borderColor = isDarkMode ? '#4c5053' : '#f0f0f0';
                     button.style.transform = "scale(1)";
                 });
                 button.addEventListener("click", () => {
@@ -1002,19 +986,19 @@ async function getServerInfo(placeId, robloxCookie, regions, cursor = null) {
                 regionButtons.push(button);
             }
         }
-        
+
         setTimeout(() => {
             if(loadingContainer)
             loadingContainer.remove();
             serverPopup.insertBefore(buttonContainer, serverPopup.childNodes[0]);
-          
-    
+
+
             const adjustButtonText = () => {
                 let totalWidth = 0;
                 regionButtons.forEach((button) => {
                     totalWidth += button.offsetWidth + 10;
                 });
-        
+
                 if (totalWidth > buttonContainer.offsetWidth) {
                     regionButtons.forEach((button) => {
                         const [region, count] = button.textContent.split(": ");
@@ -1029,8 +1013,8 @@ async function getServerInfo(placeId, robloxCookie, regions, cursor = null) {
                     });
                 }
             };
-    
-    
+
+
             const buttonCheckInterval = setInterval(() => {
                 const checkButtonContainer = document.querySelector('.server-buttons-container');
                 if (checkButtonContainer) {
@@ -1038,7 +1022,7 @@ async function getServerInfo(placeId, robloxCookie, regions, cursor = null) {
                     clearInterval(buttonCheckInterval);
                 }
             }, 1000);
-    
+
             window.addEventListener('resize', adjustButtonText);
         }, 200)
     }
@@ -1054,25 +1038,25 @@ async function getServerInfo(placeId, robloxCookie, regions, cursor = null) {
         const lon1Rad = toRadians(lon1);
         const lat2Rad = toRadians(lat2);
         const lon2Rad = toRadians(lon2);
-    
+
         const latDiff = lat2Rad - lat1Rad;
         const lonDiff = lon2Rad - lon1Rad;
-    
+
         const a = Math.sin(latDiff / 2) * Math.sin(latDiff / 2) +
                   Math.cos(lat1Rad) * Math.cos(lat2Rad) *
                   Math.sin(lonDiff / 2) * Math.sin(lonDiff / 2);
         const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    
+
         const distance = R * c;
         return distance;
     }
-    
-        
+
+
 let isFindingBestServer = false;
 
 async function findBestServer() {
     if (isFindingBestServer) {
-        return; 
+        return;
     }
 
     isFindingBestServer = true;
@@ -1220,7 +1204,7 @@ async function findBestServer() {
 
         const serverScores = await Promise.all(serverScoresPromises);
         const validServerScores = serverScores.filter(result => result.score > 0);
-        
+
          validServerScores.forEach((result) => {
             if (result) {
                 const { server, score } = result;
@@ -1255,7 +1239,7 @@ async function findBestServer() {
        console.error("An error occurred in findBestServer:", error);
         return null;
     } finally {
-       isFindingBestServer = false; 
+       isFindingBestServer = false;
    }
 }
 
@@ -1284,22 +1268,21 @@ async function fetchServerData(serverId) {
         return null;
     }
 }
-        
-            
-    
+
+
         function joinNewestServer() {
             if (!storedServerData[placeId]) {
                 return;
             }
-        
+
             let newestServer = null;
             let secondNewestServer = null;
             let thirdNewestServer = null;
             let newestTimestamp = 0;
             let secondNewestTimestamp = 0;
              let thirdNewestTimestamp = 0;
-        
-        
+
+
             for (const serverId in storedServerData[placeId]) {
                 const server = storedServerData[placeId][serverId];
                 if (server.likelyInactive) {
@@ -1312,7 +1295,7 @@ async function fetchServerData(serverId) {
                     secondNewestServer = newestServer;
                     newestTimestamp = server.t;
                     newestServer = server;
-        
+
                 } else if (server.t > secondNewestTimestamp) {
                        thirdNewestTimestamp = secondNewestTimestamp;
                     thirdNewestServer = secondNewestServer;
@@ -1323,10 +1306,10 @@ async function fetchServerData(serverId) {
                      thirdNewestServer = server;
                 }
             }
-        
-   
+
+
             let serverToJoin = secondNewestServer || thirdNewestServer || newestServer;
-        
+
             if (serverToJoin) {
                 const serverId = serverToJoin.i || serverToJoin.id;
                 if (storedServerData[placeId] && storedServerData[placeId][serverId] && storedServerData[placeId][serverId].likelyInactive) {
@@ -1345,7 +1328,7 @@ async function fetchServerData(serverId) {
                         }
                       })();
                     `;
-            
+
                 chrome.runtime.sendMessage(
                     { action: "injectScript", codeToInject: codeToInject },
                     (response) => {
@@ -1368,7 +1351,7 @@ async function fetchServerData(serverId) {
             renderedServersData: new Map(),
             loading: false,
         };
-        
+
         async function showServerListOverlay(region) {
             serverListState.visibleServerCount = 0;
             serverListState.fetchedServerIds.clear();
@@ -1388,7 +1371,7 @@ async function fetchServerData(serverId) {
             modalOverlay.style.pointerEvents = 'all';
             const body = document.querySelector("body");
             body.style.overflow = "hidden";
-        
+
             const overlay = document.createElement('div');
             overlay.style.position = 'fixed';
             overlay.style.top = '0';
@@ -1398,24 +1381,25 @@ async function fetchServerData(serverId) {
             overlay.style.zIndex = '999';
             overlay.style.pointerEvents = 'none';
             document.body.appendChild(overlay);
-        
+
             const modalContent = document.createElement('div');
-            const isDarkMode = document.body.classList.contains('dark-mode');
-            modalContent.style.backgroundColor = isDarkMode ? '#393b3d' : '#fff';
+            const theme = await detectThemeAPI(); 
+            const isDarkMode = theme === 'dark'; 
+            modalContent.style.backgroundColor = isDarkMode ? 'rgb(39, 41, 48)' : '#fff';
             modalContent.style.padding = '20px';
             modalContent.style.borderRadius = '8px';
             modalContent.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)';
             modalContent.style.textAlign = 'center';
             modalContent.style.maxHeight = '800px';
             modalContent.style.overflowY = 'auto';
-            modalContent.style.color = isDarkMode ? 'white' : 'rgb(57, 59, 61)';
+            modalContent.style.color = isDarkMode ? 'white' : 'rgb(39, 41, 48)';
             modalContent.style.width = '70%';
             modalContent.style.maxWidth = '800px';
-        
+
             const headerContainer = document.createElement('div');
             headerContainer.style.position = 'relative';
             headerContainer.style.top = '0';
-            headerContainer.style.backgroundColor = isDarkMode ? '#393b3d' : '#fff';
+            headerContainer.style.backgroundColor = isDarkMode ? 'rgb(39, 41, 48)' : '#fff';
             headerContainer.style.zIndex = '1002';
             headerContainer.style.paddingBottom = "10px";
             headerContainer.style.width = "100%";
@@ -1423,8 +1407,8 @@ async function fetchServerData(serverId) {
             headerContainer.style.display = 'flex';
             headerContainer.style.alignItems = 'center';
             headerContainer.style.justifyContent = 'space-between';
-        
-        
+
+
             const title = document.createElement('h1');
             const locationData = serverIpMap[region]?.city || region;
             title.textContent = `Servers in ${locationData}`;
@@ -1432,8 +1416,8 @@ async function fetchServerData(serverId) {
             title.style.textAlign = "left";
             title.style.marginLeft = "0px";
             headerContainer.appendChild(title);
-        
-        
+
+
             const closeButton = document.createElement('button');
             closeButton.textContent = 'Close';
             closeButton.style.padding = '8px 12px';
@@ -1457,7 +1441,7 @@ async function fetchServerData(serverId) {
                 closeButton.style.borderRadius = "6px";
                 closeButton.style.borderColor = isDarkMode ? '#b50e1c' : '#d93025';
             });
-        
+
             closeButton.addEventListener('click', () => {
                 modalOverlay.remove();
                 overlay.remove();
@@ -1465,15 +1449,15 @@ async function fetchServerData(serverId) {
                 body.style.pointerEvents = "all";
             });
             headerContainer.appendChild(closeButton);
-        
+
             modalContent.appendChild(headerContainer)
-        
-        
+
+
             const serverList = document.createElement('div');
             serverList.style.display = 'flex';
             serverList.style.flexDirection = 'column';
             serverList.style.gap = '10px';
-        
+
             let servers = [];
             const storedServers = storedServerData[placeId] || {};
             for (const serverId in storedServers) {
@@ -1531,7 +1515,7 @@ async function fetchServerData(serverId) {
                             gameId: serverId,
                             gameJoinAttemptId: serverId,
                         }),
-                        credentials: 'include',
+                        credentials: 'include', 
                     });
                     const ipData = await serverInfo.json();
                     return ipData;
@@ -1539,7 +1523,7 @@ async function fetchServerData(serverId) {
                     return null;
                 }
             }
-        
+
             async function renderServers() {
                 const serversToRender = serverListState.servers.slice(serverListState.visibleServerCount, serverListState.visibleServerCount + serversPerPage);
                 const serverDataPromises = serversToRender.map(async (server) => {
@@ -1555,7 +1539,7 @@ async function fetchServerData(serverId) {
                     serverButton.style.cursor = "pointer";
                     serverButton.style.fontSize = "15px";
                     serverButton.style.fontWeight = "600";
-                    serverButton.style.color = isDarkMode ? 'white' : 'rgb(57, 59, 61)';
+                    serverButton.style.color = isDarkMode ? 'white' : 'rgb(39, 41, 48)';
                     serverButton.style.transition = "background-color 0.3s ease";
                     serverButton.style.display = 'flex';
                     serverButton.style.flexDirection = 'column';
@@ -1638,7 +1622,7 @@ async function fetchServerData(serverId) {
                             } else {
                                 ping = "N/A"
                             }
-        
+
                     const serverIdText = document.createElement('div');
                     serverIdText.textContent = `Server ID: ${serverId}`;
                     serverIdText.style.fontWeight = "bold";
@@ -1690,7 +1674,7 @@ async function fetchServerData(serverId) {
                         serverList.appendChild(button);
                 });
             }
-        
+
             serverList.innerHTML = '';
             await renderServers();
              if (serverListState.servers.length === 0) {
@@ -1736,7 +1720,7 @@ async function fetchServerData(serverId) {
             let bestServer = null;
              if (allServers.length > 0 && userLocation) {
                 bestServer = await findBestServer();
-           
+
             }
             if (bestServer == null) {
                 bestServer = await findBestServer();
@@ -1762,10 +1746,10 @@ async function fetchServerData(serverId) {
                  }
             }
           }
-             
-            
+
+
     }
-        
+
     function joinSpecificServer(serverId) {
         if (storedServerData[placeId] && storedServerData[placeId][serverId] && storedServerData[placeId][serverId].likelyInactive) {
             return;
@@ -1774,7 +1758,7 @@ async function fetchServerData(serverId) {
         if (storedServerData[placeId] && storedServerData[placeId][serverId]) {
             serverIp = Object.keys(serverIpMap).find(ip => serverIpMap[ip]?.country?.code === storedServerData[placeId][serverId].l?.c);
         }
-    
+
         console.log("Attempting to join server:", serverId, "of place", placeId);
         const codeToInject = `
             (function() {
@@ -1785,7 +1769,7 @@ async function fetchServerData(serverId) {
                 }
               })();
             `;
-    
+
         chrome.runtime.sendMessage(
             { action: "injectScript", codeToInject: codeToInject },
             (response) => {
@@ -1814,10 +1798,9 @@ async function fetchServerData(serverId) {
         }
         return `${seconds} sec`;
     }
-    
 
-     
-
-   
-    
+    (async () => {
+        const theme = await detectThemeAPI();
+        applyTheme(theme);
+    })();
 }

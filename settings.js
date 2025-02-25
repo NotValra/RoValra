@@ -1,9 +1,4 @@
-let currentTheme = detectTheme();
- window.addEventListener('themeDetected', (event) => {
-    currentTheme = event.detail.theme;
-    applyTheme();
-});
-
+let currentTheme = 'light'; 
 let observer = null;
 let isChecking = false;
 const checkInterval = 50;
@@ -12,18 +7,70 @@ let isPopoverButtonAdding = false;
 let rovalraButtonAdded = false;
 let isSettingsPage = false;
 
-function applyTheme() {
-    const isDarkMode = currentTheme === 'light';
-    const contentColor = isDarkMode ? 'white' : 'rgb(42, 43, 44)';
-    const textColor = isDarkMode ? 'rgb(57, 59, 61)' : 'rgb(255, 255, 255)';
-    const headerColor = isDarkMode ? '' : 'rgb(40, 40, 40)';
-    const sliderOnBackgroundColor = isDarkMode ? '#444' : '#ddd';  
-    const sliderButtonColor = isDarkMode ? '#24292e' : 'white';
+
+async function fetchThemeFromAPI() {
+    try {
+        const response = await fetch('https://apis.roblox.com/user-settings-api/v1/user-settings', {
+            credentials: 'include'
+        });
+        if (!response.ok) {
+            console.error('Failed to fetch theme from API:', response.status, response.statusText);
+            return 'light'; 
+        }
+        const data = await response.json();
+        if (data && data.themeType) {
+            return data.themeType.toLowerCase(); 
+        } else {
+            console.warn('Theme data from API is unexpected:', data);
+            return 'light'; 
+        }
+    } catch (error) {
+        console.error('Error fetching theme from API:', error);
+        return 'light'; 
+    }
+}
+
+function updateThemeStyles_settingsPage(theme) {
+    const isDarkMode = theme === 'dark';
+    const contentColor = isDarkMode ? 'rgb(42, 43, 44)' : 'white';
+    const textColor = isDarkMode ? 'rgb(255, 255, 255)' : 'rgb(57, 59, 61)';
+    const headerColor = isDarkMode ? 'white' : 'rgb(40, 40, 40)';
+    const sliderOnBackgroundColor = isDarkMode ? '#ddd' : '#444';
+    const sliderOffBackgroundColor = isDarkMode ? '#444' : '#ddd';
+    const sliderButtonColor = isDarkMode ? 'white' : '#24292e';
+    const buttonTextColor = isDarkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgb(57, 59, 61)';
+    const buttonBgColor = isDarkMode ? 'rgb(45, 48, 51)' : 'rgb(242, 244, 245)';
+    const buttonHoverBgColor = isDarkMode ? 'rgb(57, 60, 64)' : 'rgb(224, 226, 227)';
+    const buttonActiveBgColor = isDarkMode ? 'rgb(69, 73, 77)' : 'rgb(210, 212, 213)';
+    const buttonBorder = isDarkMode ? '0px solid rgba(255, 255, 255, 0.1)' : '0 solid rgba(0, 0, 0, 0.1)';
+
+
     const contentContainer = document.querySelector('#content-container');
     const settingsContainer = document.querySelector('#settings-container');
     const uiContainer = document.querySelector('#settings-container > div');
     const tabButtons = document.querySelectorAll('.tab-button');
+    tabButtons.forEach(button => {
+        button.style.color = buttonTextColor;
+        button.style.backgroundColor = buttonBgColor; 
+        button.style.border = buttonBorder;
 
+        if (button.dataset.active === 'true') {
+            button.style.backgroundColor = buttonActiveBgColor; 
+        } else {
+             
+            button.addEventListener('mouseenter', function() {
+                 if (this.dataset.active !== 'true') {
+                    button.style.backgroundColor = buttonHoverBgColor;
+                }
+            });
+             button.addEventListener('mouseleave', function() {
+                 if (this.dataset.active !== 'true') {
+                    button.style.backgroundColor = buttonBgColor; 
+                }
+            });
+        }
+    });
+    
     if (contentContainer) {
         const childDiv = contentContainer.querySelector(':scope > div');
         if (childDiv) {
@@ -39,14 +86,8 @@ function applyTheme() {
     if (uiContainer) {
         uiContainer.style.color = textColor;
     }
-  
-    tabButtons.forEach(button => {
-        if (!isDarkMode) {
-            button.style.setProperty('color', '#fff', 'important');
-        } else {
-            button.style.removeProperty('color');
-        }
-    });
+
+    
 
     const sliders = document.querySelectorAll('.slider');
     sliders.forEach(slider => {
@@ -58,6 +99,86 @@ function applyTheme() {
     sliderButtons.forEach(button => {
         button.style.backgroundColor = sliderButtonColor;
     });
+}
+
+function updateThemeStyles_rovalraPage(theme) {
+    const isDarkMode = theme === 'dark';
+    const contentColor = isDarkMode ? '#2a2b2c' : 'rgb(247, 247, 248)';
+    const textColor = isDarkMode ? 'rgb(189, 190, 190)' : 'rgb(96, 97, 98)';
+    const headerColor = isDarkMode ? '' : 'rgb(40, 40, 40)';
+    const discordLinkColor = isDarkMode ? '#7289da' : '#3479b7';
+    const githubLinkColor = isDarkMode ? '#2dba4e' : '#1e722a';
+
+    const contentContainer = document.querySelector('#content-container');
+    const rovalraHeader = contentContainer?.querySelector('#react-user-account-base > h1');
+
+    if (contentContainer) {
+        contentContainer.style.borderRadius = '8px';
+        contentContainer.style.backgroundColor = contentColor;
+
+        contentContainer.querySelectorAll('div, span, li, b, p, h2, h1, button').forEach(element => {
+            const computedStyle = window.getComputedStyle(element);
+            const elementColor = computedStyle.color;
+            if (elementColor === 'rgb(0, 0, 0)' || elementColor === 'rgb(255, 255, 255)') {
+                element.style.setProperty('color', textColor, 'important');
+            }
+        });
+
+        contentContainer.querySelectorAll('h2').forEach(h2Element => {
+            if(isDarkMode){
+                h2Element.style.setProperty('color', 'white', 'important');
+            } else{
+                h2Element.style.removeProperty('color')
+            }
+        });
+
+        const allLinks = contentContainer.querySelectorAll('a');
+        allLinks.forEach(link => {
+            link.style.setProperty('text-decoration', 'underline', 'important');
+            link.style.setProperty('font-weight', 'bold', 'important');
+             link.style.setProperty('transition', 'color 0.3s ease', 'important');
+
+            link.addEventListener('mouseenter', function() {
+                   const computedColor = window.getComputedStyle(this).color;
+                    const lighterColor = lightenColor(computedColor, 0.2);
+                   this.style.setProperty('color', lighterColor, 'important');
+                });
+                 link.addEventListener('mouseleave', function() {
+                     if (this.href.includes('discord.gg')) {
+                         this.style.setProperty('color', discordLinkColor, 'important');
+                     }
+                     else if(this.href.includes('github.com')) {
+                         this.style.setProperty('color', githubLinkColor, 'important');
+                     } else{
+                         this.style.setProperty('color', 'inherit', 'important');
+                     }
+                 });
+        });
+
+
+        const discordLinks = contentContainer.querySelectorAll('a[href*="discord.gg"]');
+        discordLinks.forEach(link => {
+             link.style.setProperty('color', discordLinkColor, 'important');
+         });
+
+        const githubLinks = contentContainer.querySelectorAll('a[href*="github.com"]');
+        githubLinks.forEach(link => {
+            link.style.setProperty('color', githubLinkColor, 'important');
+        });
+    }
+
+    if (rovalraHeader) {
+        rovalraHeader.style.setProperty('color', headerColor, 'important');
+    }
+}
+
+
+function applyTheme() {
+    if (window.location.href.includes('/RoValra')) {
+        updateThemeStyles_rovalraPage(currentTheme);
+    } else if (isSettingsPage) {
+        updateThemeStyles_settingsPage(currentTheme); 
+    }
 }
 
 function addCustomButton() {
@@ -105,7 +226,7 @@ function addCustomButton() {
     newButtonListItem.setAttribute('role', 'tab');
 
     const newButtonLink = document.createElement('a');
-     newButtonLink.href = 'https://www.roblox.com/RoValra';
+    newButtonLink.href = 'https://www.roblox.com/RoValra';
     newButtonLink.classList.add('menu-option-content');
     newButtonLink.style.cursor = 'pointer';
     newButtonLink.style.display = 'flex';
@@ -126,11 +247,10 @@ function addCustomButton() {
     newButtonLink.appendChild(logo);
     newButtonLink.appendChild(newButtonSpan);
     newButtonListItem.appendChild(newButtonLink);
-     
+
     divider.insertAdjacentElement('afterend', newButtonListItem);
     rovalraButtonAdded = true;
 }
-
 
 function observeContentChanges() {
     const targetNode = document.body;
@@ -146,7 +266,7 @@ function observeContentChanges() {
                     if(addedNode.nodeType === Node.ELEMENT_NODE) {
                         if (addedNode.querySelector('ul.menu-vertical[role="tablist"]')) {
                            addCustomButton();
-                            return; 
+                            return;
                         }
                     }
                 }
@@ -155,7 +275,7 @@ function observeContentChanges() {
 
     });
     observer.observe(targetNode, config);
-    
+
     if (document.querySelector('ul.menu-vertical[role="tablist"]')){
         addCustomButton()
     }
@@ -172,7 +292,7 @@ function addPopoverButton() {
     if (popoverButtonCheckTimeout) {
         clearTimeout(popoverButtonCheckTimeout);
     }
-    
+
     popoverButtonCheckTimeout = setTimeout(() => {
         const popoverMenu = document.getElementById('settings-popover-menu');
         const popover = document.querySelector('.popover-menu.settings-popover');
@@ -199,7 +319,7 @@ function addPopoverButton() {
                 isPopoverButtonAdding = false;
                 return;
             }
-            
+
             const newButtonListItem = document.createElement('li');
             newButtonListItem.classList.add('list-item', 'menu-option');
 
@@ -249,36 +369,36 @@ function startObserver() {
     if (observer) {
       observer.disconnect();
     }
-  
+
     function checkAndAddButtons() {
         const popover = document.querySelector('.popover-menu.settings-popover');
          if (popover && popover.style.display !== 'none' ) {
             return;
           }
-  
+
         if (!isChecking) {
             isChecking = true;
             addCustomButton();
             addPopoverButton();
-  
+
             setTimeout(() => {
                 isChecking = false;
             }, checkInterval);
         }
     }
-  
+
     const targetElement = document.getElementById('navbar-settings');
-  
+
     if (!targetElement) {
         return;
     }
-  
-  
+
+
       observer = new MutationObserver(mutations => {
           for (const mutation of mutations) {
-  
+
              let isDescendant = false;
-  
+
               let currentNode = mutation.target;
                while (currentNode) {
                    if (currentNode === targetElement) {
@@ -287,13 +407,13 @@ function startObserver() {
                    }
                   currentNode = currentNode.parentNode;
                }
-  
+
                if (isDescendant){
                   if (mutation.type === 'childList') {
                       checkAndAddButtons();
                    }
               }
-  
+
           }
         });
       observer.observe(targetElement, { childList: true, subtree: true });
@@ -388,7 +508,7 @@ async function updateContent(buttonInfo, contentContainer, buttonData) {
         }
 
         if (window.location.href.includes('/RoValra')) {
-            contentContainer.querySelectorAll('div, span, li, b').forEach(element => { 
+            contentContainer.querySelectorAll('div, span, li, b').forEach(element => {
                 const computedStyle = window.getComputedStyle(element);
                 const elementColor = computedStyle.color;
                 if (elementColor === 'rgb(0, 0, 0)' || elementColor === 'rgb(255, 255, 255)') {
@@ -803,10 +923,10 @@ async function checkRoValraPage() {
                             <div class="setting-separator"></div>
                             </div>
                             <div class="setting">
-                            <label style="">Enable User Sniper</label>
+                            <label style="">Enable Instant Joiner</label>
                             <p>This joins a user instantly when they go into a game, best used for people with a lot of people trying to join them.</p>
                             <p>It is recommended that you uninstall the microsoft store version of roblox, if you plan to use this feature.</p>
-                            <p>This feature requires the user to be friends with you or have their joins on. This is not the universal user sniper.</p>
+                            <p>This feature requires the user to be friends with you or have their joins on.</p>
                             <label class="toggle-switch">
                             <input type="checkbox" id="enableUserSniper">
                             <span class="slider"></span>
@@ -1010,7 +1130,7 @@ async function updateContent(buttonInfo, contentContainer, buttonData) {
 }
 function applyTheme() {
     const isDarkMode = currentTheme === 'light';
-    const contentColor = isDarkMode ? 'white' : 'rgb(42, 43, 44)';
+    const contentColor = isDarkMode ? 'rgb(247, 247, 248)' : 'rgb(39, 41, 48)';
     const textColor = isDarkMode ? 'rgb(57, 59, 61)' : 'rgb(255, 255, 255)';
     const headerColor = isDarkMode ? '' : 'rgb(40, 40, 40)';
     const sliderOnBackgroundColor = isDarkMode ? '#444' : '#ddd';
@@ -1159,12 +1279,13 @@ function lightenColor(color, percent) {
 
     return `rgb(${r}, ${g}, ${b})`;
 }
+
   
   
 const buttonData = [
     {
         text: "Info", content: `
-        <div style="padding: 15px; background-color: #2a2b2c; border-radius: 8px;">
+        <div style="padding: 15px; border-radius: 8px;">
         <h2 style="; margin-bottom: 10px;">RoValra Infomation!</h2>
         <p style="">RoValra is an extension that's trying to make basic QoL features free and accessible to everyone, by making everything completely open-source.</p>
         <div style="margin-top: 5px;">
@@ -1184,7 +1305,7 @@ const buttonData = [
     {
      //ngl no idea why there is two of htesem the ai told me to so i listen.
         text: "Credits", content: `
-            <div style="padding: 15px; background-color: #2a2b2c; border-radius: 8px;">
+            <div style="padding: 15px; border-radius: 8px;">
                 <h2 style=" margin-bottom: 10px;">RoValra Credits!</h2>
                 <ul style=" margin-top: 10px; padding-left: 0px;">
                     <li style="margin-bottom: 8px;">The sales and revenue feature is only possible because of <b style="font-weight: bold;">Frames.</b>
@@ -1203,8 +1324,15 @@ const buttonData = [
     {
         text: "Settings", content: ""
     },
- 
+
  ];
  addCustomButton();
  startObserver();
  checkRoValraPage()
+
+async function initializeTheme() {
+    currentTheme = await fetchThemeFromAPI();
+    applyTheme();
+}
+
+initializeTheme();

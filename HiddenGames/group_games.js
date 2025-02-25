@@ -80,7 +80,7 @@ function applyTheme() {
                 playerIcon.style.backgroundImage = `url(${likeIconUrl})`;
                 playerIcon.style.backgroundPosition = isDarkMode ? '0px -48px' : '0px -48px';
             }
-            
+
              if (gameName) {
                   gameName.style.color = titleColor;
             }
@@ -96,11 +96,66 @@ function applyTheme() {
             }
         });
     });
+
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const loadMoreButtons = document.querySelectorAll('.load-more-button');
+
+    const buttonTextColor = isDarkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgb(57, 59, 61)';
+    const buttonBgColor = isDarkMode ? 'rgb(45, 48, 51)' : 'rgb(242, 244, 245)';
+    const buttonHoverBgColor = isDarkMode ? 'rgb(57, 60, 64)' : 'rgb(224, 226, 227)';
+    const buttonActiveBgColor = isDarkMode ? 'rgb(69, 73, 77)' : 'rgb(210, 212, 213)'; 
+    const buttonBorder = isDarkMode ? '0px solid rgba(255, 255, 255, 0.1)' : '0 solid rgba(0, 0, 0, 0.1)';
+
+    tabButtons.forEach(button => {
+        button.style.color = buttonTextColor;
+        button.style.backgroundColor = buttonBgColor;
+        button.style.border = buttonBorder;
+
+        if (button.classList.contains('active-tab')) {
+            button.style.backgroundColor = buttonActiveBgColor; 
+        }
+    });
+
+    loadMoreButtons.forEach(button => {
+        button.style.color = buttonTextColor;
+        button.style.backgroundColor = buttonBgColor;
+        button.style.border = buttonBorder;
+         if (button.classList.contains('active-tab')) { 
+            button.style.backgroundColor = buttonActiveBgColor;
+        }
+    });
+
+   
+    tabButtons.forEach(button => {
+        button.addEventListener('mouseover', () => {
+            if (!button.classList.contains('active-tab')) { 
+                button.style.backgroundColor = buttonHoverBgColor;
+            }
+        });
+        button.addEventListener('mouseout', () => {
+            if (!button.classList.contains('active-tab')) { 
+                button.style.backgroundColor = buttonBgColor;
+            }
+        });
+    });
+
+    loadMoreButtons.forEach(button => {
+        button.addEventListener('mouseover', () => {
+             if (!button.classList.contains('active-tab')) { 
+                button.style.backgroundColor = buttonHoverBgColor;
+            }
+        });
+        button.addEventListener('mouseout', () => {
+             if (!button.classList.contains('active-tab')) { 
+                button.style.backgroundColor = buttonBgColor;
+            }
+        });
+    });
 }
 if (window.location.pathname.includes('/communities')) {
     console.log("GROUP!!! i mean community 😔");
       const currentURL = window.location.href;
-      const languageMatch = currentURL.match(/https:\/\/www\.roblox\.com\/([a-z]{2})\//);
+      const languageMatch = currentURL.match(/https:\/\/www\.roblox\.com\/([a-z]{2}\/)/);
       let languagePrefix = '';
         if (languageMatch && languageMatch[0]) {
             languagePrefix = languageMatch[0]
@@ -137,26 +192,35 @@ if (window.location.pathname.includes('/communities')) {
                 return [];
             }
         }
-        
+
         let observer = null;
       let allGamesCache = null;
        let displayedGameCount = 0;
        let loadedGameIds = new Set();
-       let hiddenGames = []; 
-        let hiddenGamesActive = false; 
+       let hiddenGames = [];
+        let hiddenGamesActive = false;
         const applyHiddenGamesLogic = async (retryCount = 0) => {
               if(observer) {
                   observer.disconnect();
               }
-          
+
               if (!allGamesCache) {
                   allGamesCache = await fetchAllGroupGames();
               }
-             
-             const groupGamesContainer = document.querySelector('.group-games');
-            const containerHeader = document.querySelector("#group-container > div > div > div.group-details.col-xs-12.ng-scope.col-sm-9 > div > div:nth-child(3) > div > group-games > div > div.container-header");
+
+             let groupGamesContainer = document.querySelector('.group-games');
+             let containerHeader = document.querySelector("#group-container > div > div > div.group-details.col-xs-12.ng-scope.col-sm-9 > div > group-games > div > div.container-header"); // shit was not being helpful
 
              if (!groupGamesContainer || !containerHeader) {
+                 const groupGamesElement = document.querySelector('group-games[ng-if*="library.currentGroup.areGroupGamesVisible"]');
+                 if (groupGamesElement) {
+                     groupGamesContainer = groupGamesElement.querySelector('.group-games');
+                     containerHeader = groupGamesElement.querySelector('div.section > div.container-header');
+                 }
+             }
+
+
+            if (!groupGamesContainer || !containerHeader) {
                  if(retryCount < 5) {
                      console.log(`Group games container not found, retrying in 1 second, retry count: ${retryCount}`)
                      setTimeout(() => applyHiddenGamesLogic(retryCount + 1), 1000);
@@ -167,7 +231,7 @@ if (window.location.pathname.includes('/communities')) {
                          for (const mutation of mutations) {
                              if (mutation.addedNodes.length) {
                                  for (const node of mutation.addedNodes) {
-                                     if (node.classList && (node.classList.contains('group-games') || (node.id === "group-container" && node.querySelector('.group-games')))) {
+                                     if (node.classList && (node.classList.contains('group-games') || (node.id === "group-container" && node.querySelector('.group-games')) || node.tagName === 'GROUP-GAMES')) {
                                          applyHiddenGamesLogic();
                                          break;
                                      }
@@ -179,10 +243,11 @@ if (window.location.pathname.includes('/communities')) {
                     return;
                  }
                 }
-                
+
                 if (observer) {
                     observer.disconnect();
                  }
+                
 
                     const hiddenGamesContainer = document.createElement('div');
                     hiddenGamesContainer.classList.add('hidden-games-list');
@@ -196,7 +261,7 @@ if (window.location.pathname.includes('/communities')) {
                     hiddenGamesGrid.style.gap = '12px';
                     hiddenGamesGrid.style.marginTop = '5px';
 
-                    const gameLinks = Array.from(groupGamesContainer.querySelectorAll('.game-card a'));
+                    const gameLinks = Array.from(groupGamesContainer.querySelectorAll('ul.game-cards > li.list-item > group-games-item > div.game-card-container > a.game-card-link'));
                     const visibleGameIds = gameLinks.map(link => {
                         try {
                           const url = new URL(link.href);
@@ -232,7 +297,7 @@ if (window.location.pathname.includes('/communities')) {
                      loadMoreButton.style.width = '100%';
 
                     hiddenGamesContainer.appendChild(hiddenGamesGrid);
-                    
+
                      function displayGames(gamesToDisplay) {
                         gamesToDisplay.forEach((game, index) => {
                            const gameId = game.rootPlace?.id;
@@ -273,6 +338,8 @@ if (window.location.pathname.includes('/communities')) {
                                    gameName.style.textAlign = 'left'
                                    gameName.style.marginBottom = '5px'
                                    gameName.style.width = "150px";
+                                   gameName.style.whiteSpace = 'normal'; 
+                                   gameName.style.overflowWrap = 'break-word'; 
                                    const maxLength = 18;
                                     if (gameTitle.length > maxLength) {
                                        gameTitle = gameTitle.substring(0, maxLength - 3) + "...";
@@ -396,15 +463,15 @@ if (window.location.pathname.includes('/communities')) {
                        if (displayedGameCount >= hiddenGames.length) {
                            loadMoreButton.style.display = 'none';
                        }
+                        setTimeout(alignGameRows, 0);
                    }
-
 
                   if (hiddenGames.length === 0) {
                        const noGames = document.createElement('p');
                        noGames.textContent = "No hidden games found.";
                        noGames.style.gridColumn = '1 / -1';
                         hiddenGamesGrid.appendChild(noGames);
-                        loadMoreButton.style.display = 'none'; 
+                        loadMoreButton.style.display = 'none';
                    } else {
                         const initialGames = hiddenGames.slice(0, 12);
                            displayGames(initialGames);
@@ -416,9 +483,43 @@ if (window.location.pathname.includes('/communities')) {
                            }
                             loadMoreButton.addEventListener('click', loadMoreGames);
                    }
-                   
+
                     hiddenGamesContainer.appendChild(loadMoreButton);
-                    groupGamesContainer.parentNode.appendChild(hiddenGamesContainer);
+                    groupGamesContainer.parentNode.insertBefore(hiddenGamesContainer, groupGamesContainer.nextSibling);
+
+                     function alignGameRows() {
+                        const gameContainers = Array.from(hiddenGamesGrid.querySelectorAll('.game-container.shown'));
+                        if (gameContainers.length === 0) return;
+
+                        let currentRowStart = gameContainers[0].offsetTop;
+                        let currentRow = [];
+                        let maxNameHeight = 0;
+
+                        gameContainers.forEach(container => {
+                            if (container.offsetTop !== currentRowStart) {
+                                currentRow.forEach(gameElement => {
+                                    const ratingContainer = gameElement.querySelector('.game-container > div');
+                                    if (ratingContainer) {
+                                        ratingContainer.style.paddingBottom = `${maxNameHeight - gameElement.querySelector('.game-name').offsetHeight}px`;
+                                    }
+                                });
+
+                                currentRowStart = container.offsetTop;
+                                currentRow = [container];
+                                maxNameHeight = container.querySelector('.game-name').offsetHeight;
+                            } else {
+                                currentRow.push(container);
+                                maxNameHeight = Math.max(maxNameHeight, container.querySelector('.game-name').offsetHeight);
+                            }
+                        });
+
+                        currentRow.forEach(gameElement => {
+                            const ratingContainer = gameElement.querySelector('.game-container > div');
+                             if (ratingContainer) {
+                                ratingContainer.style.paddingBottom = `${maxNameHeight - gameElement.querySelector('.game-name').offsetHeight}px`;
+                            }
+                        });
+                    }
 
 
                      const experiencesButton = document.createElement('button');
@@ -431,16 +532,16 @@ if (window.location.pathname.includes('/communities')) {
                     hiddenGamesButton.classList.add('tab-button');
 
                     hiddenGamesButton.addEventListener('click', async () => {
-                        if(hiddenGamesActive) return; 
-                        hiddenGamesActive = true; 
+                        if(hiddenGamesActive) return;
+                        hiddenGamesActive = true;
                         groupGamesContainer.style.display = 'none';
                         hiddenGamesContainer.style.display = 'flex';
                         hiddenGamesGrid.style.display = 'grid';
                         hiddenGamesGrid.innerHTML = '';
                         hiddenGamesButton.classList.add('active-tab');
                         experiencesButton.classList.remove('active-tab');
-                        
-                        const gameLinks = Array.from(groupGamesContainer.querySelectorAll('.game-card a'));
+
+                        const gameLinks = Array.from(groupGamesContainer.querySelectorAll('ul.game-cards > li.list-item > group-games-item > div.game-card-container > a.game-card-link'));
                          const visibleGameIds = gameLinks.map(link => {
                             try {
                                 const url = new URL(link.href);
@@ -502,6 +603,8 @@ if (window.location.pathname.includes('/communities')) {
                                            gameName.style.textAlign = 'left'
                                            gameName.style.marginBottom = '5px'
                                            gameName.style.width = "150px";
+                                           gameName.style.whiteSpace = 'normal'; 
+                                           gameName.style.overflowWrap = 'break-word'; 
                                            const maxLength = 18;
                                            if (gameTitle.length > maxLength) {
                                                gameTitle = gameTitle.substring(0, maxLength - 3) + "...";
@@ -641,6 +744,7 @@ if (window.location.pathname.includes('/communities')) {
                             }
                          applyTheme();
                     });
+                    setTimeout(alignGameRows, 0);
 
 
                     experiencesButton.addEventListener('click', () => {
@@ -652,12 +756,18 @@ if (window.location.pathname.includes('/communities')) {
                         hiddenGamesButton.classList.remove('active-tab');
                     });
 
-                    containerHeader.appendChild(experiencesButton);
-                    containerHeader.appendChild(hiddenGamesButton);
+                   if (containerHeader) {
+                        if (!containerHeader.querySelector('.tab-button')) {
+                            containerHeader.appendChild(experiencesButton);
+                            containerHeader.appendChild(hiddenGamesButton);
+                        }
+                    }
+
+
                      if (currentTheme) {
                             applyTheme();
                      }
-                
+
         }
         const checkUrlAndApply = () => {
           const currentHash = window.location.hash;
@@ -670,8 +780,8 @@ if (window.location.pathname.includes('/communities')) {
           for (const mutation of mutations) {
               if (mutation.addedNodes.length) {
                 for(const node of mutation.addedNodes){
-                   if(node.classList && (node.classList.contains('group-games') || (node.id === "group-container" && node.querySelector('.group-games')))) {
-                       checkUrlAndApply();
+                   if(node.classList && (node.classList.contains('group-games') || (node.id === "group-container" && node.querySelector('.group-games')) || node.tagName === 'GROUP-GAMES')) {
+                       applyHiddenGamesLogic();
                        break;
                    }
                 }
@@ -680,7 +790,7 @@ if (window.location.pathname.includes('/communities')) {
       });
 
           observer.observe(document.body, { childList: true, subtree: true });
-          
+
         window.addEventListener('hashchange', () => {
            checkUrlAndApply();
         });

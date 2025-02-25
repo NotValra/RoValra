@@ -1,99 +1,106 @@
 {
-    "manifest_version": 3,
-    "name": "RoValra - Roblox Improved",
-    "version": "2.1.5",
-    "description": "An extension aiming to provide features that other Roblox extensions pay wall!",
-    "content_scripts": [
+  "manifest_version": 3,
+  "name": "RoValra - Roblox Improved",
+  "version": "2.1.6",
+  "description": "An extension aiming to provide features that other Roblox extensions pay wall!",
+  "content_scripts": [
+
+    {
+      "matches": [
+        "*://*.roblox.com/*"
+      ],
+      "js": ["content.js", "games/Regions_content.js"],
+      "run_at": "document_start",
+      "all_frames": true
+      
+    },
+    {
+      "matches": [
+        "*://*.roblox.com/*"
+      ],
+      "js": ["settings.js",  "games/sniper.js"],
+      "all_frames": true
+     
+    },
+    {
+      "matches": [
+        "*://*.roblox.com/*"
+      ],
+      "js": ["misc/style.js"],
+      "run_at": "document_end",
+      "all_frames": true
+      
+    }
+
+  ],
+  "permissions": [
+    "declarativeNetRequest",
+    "storage",
+    "tabs",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://games.roblox.com/*",
+    "*://*.roblox.com/*",
+    "https://gamejoin.roblox.com/v1/join-game-instance",
+    "https://users.roblox.com/*",
+    "https://raw.githubusercontent.com/"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+
+  "declarative_net_request": {
+    "rule_resources": [
       {
-        "matches": [
-          "*://*.roblox.com/*"
-        ],
-        "js": ["content.js"]
+        "id": "ruleset_1",
+        "enabled": true,
+        "path": "Rules/rules.json"
       },
        {
-            "matches": ["*://*.roblox.com/*"],
-            "js": ["Games/Regions_content.js"]
-        },
-        {
-          "matches": ["*://*.roblox.com/*"],
-          "js": ["settings.js"]
-        },
-        {
-          "matches": ["*://*.roblox.com/*"],
-
-          "js": [ "Games/sniper.js"]
-        }
-    ],
-    "permissions": [
-      "cookies",
-      "declarativeNetRequest",
-      "storage",
-      "tabs",
-      "scripting"
-    ],
-    "host_permissions": [
-      "https://games.roblox.com/*",
-      "*://*.roblox.com/*",
-      "https://gamejoin.roblox.com/v1/join-game-instance",
-      "https://users.roblox.com/*"
-    ],
-    "background": {
-      "service_worker": "background.js"
-    },
-
-    "declarative_net_request": {
-      "rule_resources": [
-        {
-          "id": "ruleset_1",
-          "enabled": true,
-          "path": "Rules/rules.json"
-        },
-         {
-          "id": "ruleset_2",
-          "enabled": false,
-          "path": "Rules/regionRules.json"
-        }
-      ]
-    },
-    "web_accessible_resources": [
-        {
-            "resources": [
-                "HiddenGames/none-btroblox.js",
-                "HiddenGames/group_games.js",
-                "HiddenGames/user_games.js",
-                "misc/userSniper.js",
-                "misc/item_sales_content.js",
-                "misc/style.js",
-                "misc/utils.js",
-                "Games/Regions_content.js",
-                "Games/Subplaces.js",
-                "misc/joinScript.js",
-                "data/ServerList.json",
-                "data/items.json",
-                "Avatar/R6Warning.js",
-                "Avatar/R6Fix.js",
-                "settings.js",
-                "Assets/icon-128.png",
-                "Games/invite.js",
-                "Games/sniper.js",
-                "misc/itemChecker.js"
-                
-            ],
-            "matches": [
-                "https://www.roblox.com/*"
-            ]
-        }
-    ],
-      "action": {
-      "default_icon": {
-        "16": "Assets/icon-16.png",
-        "48": "Assets/icon-48.png",
-        "128": "Assets/icon-128.png"
+        "id": "ruleset_2",
+        "enabled": false,
+        "path": "Rules/regionRules.json"
       }
-    },
-    "icons": {
+    ]
+  },
+  "web_accessible_resources": [
+      {
+          "resources": [
+              "HiddenGames/group_games.js",
+              "HiddenGames/user_games.js",
+              "misc/userSniper.js",
+              "misc/item_sales_content.js",
+              "misc/style.js",
+              "misc/utils.js",
+              "Games/Regions_content.js",
+              "Games/Subplaces.js",
+              "data/ServerList.json",
+              "data/items.json",
+              "Avatar/R6Warning.js",
+              "Avatar/R6Fix.js",
+              "settings.js",
+              "Assets/icon-128.png",
+              "Games/invite.js",
+              "Games/sniper.js",
+              "misc/itemChecker.js"
+
+          ],
+          "matches": [
+              "https://www.roblox.com/*"
+          ]
+      }
+  ],
+    "action": {
+    "default_icon": {
       "16": "Assets/icon-16.png",
       "48": "Assets/icon-48.png",
       "128": "Assets/icon-128.png"
     }
+  },
+  "icons": {
+    "16": "Assets/icon-16.png",
+    "48": "Assets/icon-48.png",
+    "128": "Assets/icon-128.png"
   }
+}
