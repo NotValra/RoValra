@@ -65,7 +65,7 @@ async function fetchUserIdFromUsername(username) {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
                 },
                 body: JSON.stringify({
                     usernames: [username],
@@ -138,7 +138,7 @@ async function fetchServers(placeId, initialImageUrl, updateRequestCount, update
         if (nextPageCursor) {
             url += `&cursor=${nextPageCursor}`;
         }
-
+        
         let retries = 0;
         const maxRetries = 5;
         while (retries <= maxRetries) {
@@ -157,6 +157,7 @@ async function fetchServers(placeId, initialImageUrl, updateRequestCount, update
                     headers: {
                         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
                     },
+                    credentials: "include", // Added this since roblox patched the sniper, ofc if it wasnt patched this wouldnt be here.
                 });
 
 
@@ -429,9 +430,9 @@ async function fetchInitialThumbnail(targetid, updateRateLimitCount, isCancelled
                 if (data.data[0].imageUrl) {
                     return data.data[0].imageUrl;
                 } else if (data.data[0].state === "Blocked") {
-                    return "NO_THUMBNAIL"; 
+                    return "NO_THUMBNAIL";
                 } else {
-                    return null; 
+                    return null;
                 }
             } else {
                 return null;
@@ -528,7 +529,7 @@ function createSniperUI() {
         font-weight: 400;
         pointer-events: none;
     `;
-    const requestCountDisplay = document.createElement('div'); 
+    const requestCountDisplay = document.createElement('div');
     requestCountDisplay.style.cssText = `
         display: flex;
         flex-direction: row; /* Display label and number in a row */
@@ -558,7 +559,7 @@ function createSniperUI() {
         font-weight: 400;
         pointer-events: none;
     `;
-    const elapsedTimeDisplay = document.createElement('div'); 
+    const elapsedTimeDisplay = document.createElement('div');
     elapsedTimeDisplay.style.cssText = `
         display: flex;
         flex-direction: row; /* Display label and number in a row */
@@ -616,18 +617,18 @@ async function fetchThemeFromAPI() {
         });
         if (!response.ok) {
             console.error('Failed to fetch theme from API:', response.status, response.statusText);
-            return 'light'; 
+            return 'light';
         }
         const data = await response.json();
         if (data && data.themeType) {
-            return data.themeType.toLowerCase(); 
+            return data.themeType.toLowerCase();
         } else {
             console.warn('Theme data from API is unexpected:', data);
-            return 'light'; 
+            return 'light';
         }
     } catch (error) {
         console.error('Error fetching theme from API:', error);
-        return 'light'; 
+        return 'light';
     }
 }
 
@@ -644,8 +645,35 @@ function injectButton() {
     sniperUIElements = createSniperUI();
     const { thumbnailImage, inputField, startButton, requestCountDisplay, elapsedTimeDisplay, displayContainer, requestCountNumber, elapsedTimeNumber } = sniperUIElements;
 
+    const sniperHeaderLabel = document.createElement('div');
+    sniperHeaderLabel.textContent = 'User Sniper';
+    sniperHeaderLabel.style.cssText = `
+        color: var(--text-color-header);
+        font-size: 18px;
+        font-family: "Builder Sans", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+        font-weight: bold;
+        margin-bottom: 0px; /* Reduced margin to put warning closer */
+        text-align: left; /* Align text to the left */
+        margin-left: 5px;
+        pointer-events: none;
+    `;
+
+    const sniperWarningLabel = document.createElement('div');
+    sniperWarningLabel.textContent = 'WARNING: Roblox updated making the sniper fail 80% of the time.';
+    sniperWarningLabel.style.cssText = `
+        color: var(--text-color-header); /* Use same color as header for consistency or different color if desired */
+        font-size: 14px; /* Smaller font size for warning */
+        font-family: "Builder Sans", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+        font-weight: normal; /* Or bold if you want it to stand out more */
+        margin-bottom: 5px; /* Space between warning and sniper UI */
+        text-align: left; /* Align text to the left */
+        margin-left: 5px;
+        pointer-events: none;
+    `;
+
+
     const buttonContainer = document.createElement('div');
-    buttonContainer.id = 'sniper-button-container'; 
+    buttonContainer.id = 'sniper-button-container';
     buttonContainer.style.cssText = `
         display: flex; /* keep as row */
         justify-content: flex-start;
@@ -655,10 +683,10 @@ function injectButton() {
     buttonContainer.appendChild(thumbnailImage);
     buttonContainer.appendChild(inputField);
     buttonContainer.appendChild(startButton);
-    buttonContainer.appendChild(displayContainer); 
+    buttonContainer.appendChild(displayContainer);
 
     const messageContainer = document.createElement('div');
-    messageContainer.id = 'messageContainer'; 
+    messageContainer.id = 'messageContainer';
     messageContainer.style.cssText = `
         display: flex;
         justify-content: center; /* Center the content horizontally */
@@ -674,11 +702,15 @@ function injectButton() {
 
     const rbxRunningGames = targetElement.querySelector("#rbx-running-games");
     if (rbxRunningGames) {
+        targetElement.insertBefore(sniperHeaderLabel, rbxRunningGames); 
+        targetElement.insertBefore(sniperWarningLabel, rbxRunningGames); 
         targetElement.insertBefore(buttonContainer, rbxRunningGames);
-        targetElement.insertBefore(messageContainer, rbxRunningGames); 
+        targetElement.insertBefore(messageContainer, rbxRunningGames);
     } else {
+        targetElement.appendChild(sniperHeaderLabel); 
+        targetElement.appendChild(sniperWarningLabel); 
         targetElement.appendChild(buttonContainer);
-        targetElement.appendChild(messageContainer); 
+        targetElement.appendChild(messageContainer);
     }
 
     let startTime = 0;
@@ -688,24 +720,24 @@ function injectButton() {
 
     const setRateLimitMessage = (message) => {
         messageContainer.textContent = message;
-        messageContainer.style.color = ''; 
-        messageContainer.style.fontSize = ''; 
+        messageContainer.style.color = '';
+        messageContainer.style.fontSize = '';
     };
     const setNotFoundMessage = (message) => {
         messageContainer.textContent = message;
-        messageContainer.style.color = 'rgb(187, 2, 2)'; 
-        messageContainer.style.fontSize = '16px'; 
+        messageContainer.style.color = 'rgb(187, 2, 2)';
+        messageContainer.style.fontSize = '16px';
     };
     const setNoThumbnailMessage = (message) => {
         messageContainer.textContent = message;
-        messageContainer.style.color = 'rgb(187, 2, 2)'; 
-        messageContainer.style.fontSize = '16px'; 
+        messageContainer.style.color = 'rgb(187, 2, 2)';
+        messageContainer.style.fontSize = '16px';
     };
     const updateRequestCountDisplay = (count) => {
-        requestCountNumber.textContent = `${count}`; 
+        requestCountNumber.textContent = `${count}`;
     };
     const updateElapsedTimeDisplay = (elapsedTime) => {
-        elapsedTimeNumber.textContent = `${elapsedTime}s`; 
+        elapsedTimeNumber.textContent = `${elapsedTime}s`;
     };
 
 
@@ -713,10 +745,10 @@ function injectButton() {
         const input = inputField.value;
         const placeId = getPlaceIdFromUrl();
         let userId = input;
-        messageContainer.textContent = ''; 
-        messageContainer.style.color = ''; 
-        messageContainer.style.fontSize = ''; 
-        thumbnailImage.src = 'data:image/svg+xml,%3Csvg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"%3E%3CCircle cx="50" cy="50" r="49" stroke="%23808080" stroke-width="2" stroke-dasharray="6 6"/%3E%3C/svg%3E'; // Reset to default placeholder on new search
+        messageContainer.textContent = '';
+        messageContainer.style.color = '';
+        messageContainer.style.fontSize = '';
+        thumbnailImage.src = 'data:image/svg+xml,%3Csvg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"%3E%3CCircle cx="50" cy="50" r="49" stroke="%23808080" stroke-width="2" stroke-dasharray="6 6"/%3E%3C/svg%3E'; 
         const existingJoinButtonContainer = targetElement.querySelector('#joinButtonContainer');
         if (existingJoinButtonContainer) {
             targetElement.removeChild(existingJoinButtonContainer);
@@ -733,7 +765,7 @@ function injectButton() {
                 clearInterval(intervalId);
                 intervalId = null;
             }
-            messageContainer.textContent = ''; 
+            messageContainer.textContent = '';
             return;
         }
         isCancelledRef.current = false;
@@ -749,7 +781,7 @@ function injectButton() {
         rateLimitCount = 0;
         setRateLimitMessage("");
         setNotFoundMessage("");
-        setNoThumbnailMessage(""); 
+        setNoThumbnailMessage("");
 
 
         if (intervalId) {
@@ -980,6 +1012,7 @@ function updateThemeStyles(theme) {
         document.documentElement.style.setProperty('--Start-Sniper', 'rgb(247, 247, 248)');
         document.documentElement.style.setProperty('--input-text', 'rgb(247, 247, 248)');
         document.documentElement.style.setProperty('--text-color-stuff', 'rgb(213, 215, 221)');
+        document.documentElement.style.setProperty('--text-color-header', 'rgb(247, 247, 248)');
 
 
     } else if (theme === 'light') {
@@ -995,6 +1028,7 @@ function updateThemeStyles(theme) {
         document.documentElement.style.setProperty('--Start-Sniper', 'rgb(32, 34, 39)');
         document.documentElement.style.setProperty('--input-text', 'rgb(32, 34, 39)');
         document.documentElement.style.setProperty('--text-color-stuff', 'rgb(57, 59, 61)');
+        document.documentElement.style.setProperty('--text-color-header', 'rgb(32, 34, 39)');
     } else {
         updateThemeStyles('light');
     }

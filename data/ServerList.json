@@ -165,17 +165,17 @@
         "longitude": -122.3255
     },
     "128.116.13.0": {
-        "city": "Amsterdam",
+        "city": "Paris",
         "country": {
-            "name": "Netherlands",
-            "code": "NL"
+            "name": "France",
+            "code": "FR"
         },
         "region": {
-            "name": "Noord-Holland",
-            "code": "NH"
+            "name": "Île-de-France",
+            "code": "IDF"
         },
-         "latitude": 52.367573,
-        "longitude": 4.904139
+        "latitude": 48.856613,
+        "longitude": 2.352222
     },
     "128.116.14.0": {
         "city": "Hong Kong",

@@ -52,7 +52,7 @@ if (window.location.pathname.includes('/users/')) {
                         canMakeRequest = true;
                         return;
                     }
-                  if (!response.ok) {
+                  if (response.ok) {
                       canMakeRequest = true;
                       return;
                    }
@@ -152,7 +152,7 @@ if (window.location.pathname.includes('/users/')) {
 
             const confirmButton = document.createElement('button');
             confirmButton.textContent = 'Continue';
-            confirmButton.style.padding = "10px 15px";
+            confirmButton.style.padding = "8px 15px"; 
             confirmButton.style.backgroundColor = "#24292e";
             confirmButton.style.border = "1px solid #444";
             confirmButton.style.borderRadius = "6px";
@@ -182,7 +182,7 @@ if (window.location.pathname.includes('/users/')) {
             });
            const cancelButton = document.createElement('button');
             cancelButton.textContent = 'Cancel';
-             cancelButton.style.padding = "10px 15px";
+             cancelButton.style.padding = "8px 15px"; 
             cancelButton.style.backgroundColor = "#24292e";
             cancelButton.style.border = "1px solid #444";
             cancelButton.style.borderRadius = "6px";
@@ -231,20 +231,29 @@ if (window.location.pathname.includes('/users/')) {
         }
         const button = document.createElement('button');
         button.textContent = 'Instant Join';
-        button.style.padding = "10px 16px";
+        button.style.padding = "9px 15px"; 
         button.style.backgroundColor = "#24292e";
         button.style.border = "1px solid #444";
         button.style.borderRadius = "6px";
         button.style.cursor = "pointer";
-        button.style.height = "40px";
-        button.style.fontSize = "15px";
-        button.style.fontWeight = "600";
-        button.style.color = "white";
+        button.style.fontSize = "16px"; 
+        button.style.fontWeight = "800"; 
+        button.style.fontStyle = "normal"; 
+        button.style.color = "rgb(229, 229, 230)"; 
+        button.style.lineHeight = "100%";
+        button.style.textTransform = "none";
+        button.style.fontFamily = "Builder Sans,Helvetica Neue,Helvetica,Arial,Lucida Grande,sans-serif"; 
+        button.style.webkitFontSmoothing = "antialiased"; 
         button.style.flexGrow = "1";
         button.style.flexShrink = "1";
         button.style.minWidth = "50px";
         button.style.textAlign = "center";
         button.style.transition = "background-color 0.3s ease, transform 0.3s ease";
+        button.style.whiteSpace = 'normal';
+        button.style.wordWrap = 'break-word';
+        button.style.display = 'inline-block';
+        button.style.width = 'auto';
+
 
         button.addEventListener('mouseover', () => {
             button.style.backgroundColor = "#4c5053";
@@ -291,7 +300,7 @@ if (window.location.pathname.includes('/users/')) {
         function appendButtonToTarget() {
               const targetElement = document.querySelector('.profile-header-buttons');
               if (targetElement) {
-                targetElement.prepend(button); 
+                targetElement.prepend(button);
             } else {
                 setTimeout(appendButtonToTarget, 100);
             }

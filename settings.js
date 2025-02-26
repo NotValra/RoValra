@@ -569,6 +569,7 @@ async function updateContent(buttonInfo, contentContainer, buttonData) {
         contentContainer.innerHTML = '';
     }
     if (currentTheme) {
+        currentTheme = await fetchThemeFromAPI();
         applyTheme();
     }
 }
@@ -1125,6 +1126,7 @@ async function updateContent(buttonInfo, contentContainer, buttonData) {
         contentContainer.innerHTML = '';
     }
     if (currentTheme) {
+        currentTheme = await fetchThemeFromAPI();
         applyTheme();
     }
 }
@@ -1257,6 +1259,7 @@ async function updateContent(buttonInfo, contentContainer, buttonData) {
         contentContainer.innerHTML = '';
     }
     if (currentTheme) {
+        currentTheme = await fetchThemeFromAPI();
         applyTheme();
     }
 }
@@ -1333,6 +1336,7 @@ const buttonData = [
 async function initializeTheme() {
     currentTheme = await fetchThemeFromAPI();
     applyTheme();
+    
 }
 
-initializeTheme();
+initializeTheme()
