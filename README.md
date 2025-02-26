@@ -47,9 +47,6 @@
 # FAQ
 - **Is this extension a cookie logger?**
     - **No. But dont just take my word for it read the source code yourself.**
-- **Why does this require the cookie permission?**
-    - **Its required to request to APIs like the gamejoin.roblox.com API, it wouldnt work without that permission.
-Edit: This is not actually the case, it was a bug in my code that made it seem that way. i will fix it when im back from vacation**
 - **Does this extension support firefox?**
     - **No, but it might be coming at some point.**
 - **Is it bannable to use the extension?**
