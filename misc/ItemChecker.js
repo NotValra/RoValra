@@ -25,8 +25,8 @@
 
         inventoryCheckRunning = true;
 
-        const maxRetries = 10;
-        const retryDelay = 100;
+        const maxRetries = 20; // Increased retries
+        const retryDelay = 200; // Increased retry delay
 
         let inventoryHiddenSpan = null;
 
@@ -40,8 +40,10 @@
                         'div#inventory-container div.section-content-off span[ng-bind="\'Message.UserInventoryHidden\' | translate"].ng-binding'
                     );
                 } else {
+                    // console.log("iframeDocument is null"); // Debug log
                 }
             } catch (error) {
+                // console.error("Error accessing iframe content:", error); // Debug log
             }
         }
         if (!inventoryHiddenSpan) {
@@ -54,6 +56,7 @@
         }
 
         if (inventoryHiddenSpan) {
+            // console.log("Inventory hidden span found."); // Debug log
 
             if (!document.getElementById('item-ownership-checker-container')) {
                 let container = document.createElement('div');
@@ -139,7 +142,7 @@
 
                 input.addEventListener('keydown', function(event) {
                     if (event.key === 'Enter') {
-                        event.preventDefault(); 
+                        event.preventDefault();
                         const itemId = input.value;
                         if (itemId) {
                             checkItemOwnership(itemId);
@@ -153,6 +156,7 @@
                     if (itemId) {
                         checkItemOwnership(itemId);
                     } else {
+                        // console.log("Item ID input is empty."); // Debug log
                     }
                 });
 
@@ -168,16 +172,22 @@
 
                     inventoryHiddenSpan.parentNode.insertBefore(explanationContainer, inventoryHiddenSpan.nextSibling);
                     inventoryHiddenSpan.parentNode.insertBefore(container, explanationContainer.nextSibling);
+                    // console.log("Checker elements added to the page."); // Debug log
                 } else {
-                    document.body.appendChild(explanation);
-                    document.body.appendChild(container);
+                    // console.warn("inventoryHiddenSpan or its parentNode not found when trying to insert checker elements."); // Debug log
+                    document.body.appendChild(explanation); // Fallback, but might not be in the correct place
+                    document.body.appendChild(container); // Fallback, but might not be in the correct place
                 }
+            } else {
+                // console.log("Item ownership checker container already exists."); // Debug log
             }
 
         } else {
+            // console.log(`Inventory hidden span not found, retryCount: ${retryCount}`); // Debug log
             if (retryCount < maxRetries) {
                 setTimeout(() => checkInventoryHidden(retryCount + 1), retryDelay);
             } else {
+                // console.warn("Max retries reached, inventory hidden span still not found."); // Debug log
             }
         }
         inventoryCheckRunning = false;
@@ -338,7 +348,7 @@
         if (theme === 'dark') {
             borderColor = '#666';
             document.documentElement.style.setProperty('--text-color', 'rgb(255, 255, 255) !important');
-            document.documentElement.style.setProperty('--overlay-background', 'rgb(68, 72, 76) !important');
+            document.documentElement.style.setProperty('--overlay-background', 'rgb(39, 41, 48) !important');
             document.documentElement.style.setProperty('--button-background', 'rgb(36, 41, 46) !important');
             document.documentElement.style.setProperty('--button-hover-background', 'rgb(0, 176, 111) !important');
             document.documentElement.style.setProperty('--border-color', '#444 !important');

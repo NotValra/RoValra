@@ -153,7 +153,38 @@ async function createSubplacesTab(subplaces) {
     loadMoreButtonWrapper.style.justifyContent = 'center';
     loadMoreButtonWrapper.appendChild(loadMoreButton);
 
-    function displaySubplaces(gamesToDisplay) {
+    async function fetchThumbnailsInBatch(placeIds) {
+        const batchSize = 10; 
+        const thumbnailUrlMap = new Map();
+        for (let i = 0; i < placeIds.length; i += batchSize) {
+            const currentBatchIds = placeIds.slice(i, i + batchSize);
+            const url = `https://thumbnails.roblox.com/v1/places/gameicons?placeIds=${currentBatchIds.join(',')}&returnPolicy=PlaceHolder&size=150x150&format=Png&isCircular=false`;
+            try {
+                const response = await retryFetch(url);
+                if (!response || !response.ok) {
+                    continue; 
+                }
+                const thumbnailData = await response.json();
+                if (thumbnailData && thumbnailData.data) {
+                    thumbnailData.data.forEach(item => {
+                        if (item.imageUrl) {
+                            thumbnailUrlMap.set(item.targetId, item.imageUrl);
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error("Error fetching thumbnail batch:", error);
+            
+            }
+        }
+        return thumbnailUrlMap;
+    }
+
+
+    async function displaySubplaces(gamesToDisplay) {
+        const placeIdsForThumbnails = gamesToDisplay.map(subplace => subplace.id);
+        const thumbnailUrlMap = await fetchThumbnailsInBatch(placeIdsForThumbnails);
+
         gamesToDisplay.forEach(async (subplace, index) => {
             const gameId = subplace.id;
             if (gameId) {
@@ -206,18 +237,14 @@ async function createSubplacesTab(subplaces) {
                  }
                 gameName.textContent = gameTitle;
 
-                retryFetch(`https://www.roblox.com/item-thumbnails?params=[{"assetId":${gameId}}]`)
-                    .then(response => response ? response.json() : null)
-                    .then(thumbnailData => {
-                        if (thumbnailData && thumbnailData.length > 0 && thumbnailData[0].thumbnailUrl) {
-                            gameImage.src = thumbnailData[0].thumbnailUrl;
-                        } else {
-                            gameImage.src = 'https://t4.rbxcdn.com/f652a7f81606a413f9814925e122a54a';
-                        }
-                    })
-                    .catch(error => {
-                        gameImage.src = 'https://t4.rbxcdn.com/f652a7f81606a413f9814925e122a54a';
-                    });
+
+                const thumbnailUrl = thumbnailUrlMap.get(gameId);
+                if (thumbnailUrl) {
+                    gameImage.src = thumbnailUrl;
+                } else {
+                    gameImage.src = 'https://t4.rbxcdn.com/f652a7f81606a413f9814925e122a54a';
+                }
+
 
                   gameLink.appendChild(gameImage);
                   gameLink.appendChild(gameName);
