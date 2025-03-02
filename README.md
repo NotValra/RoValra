@@ -72,7 +72,7 @@
 </details>
 
 # Known Issues
-- **No Known issues**
+- **When using BTRoblox communities modifications the hidden experiences wont filter out none hidden experiences**
 
 # How to install
 
