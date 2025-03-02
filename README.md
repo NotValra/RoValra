@@ -1,11 +1,12 @@
 # RoValra
-**If you like this project, consider giving it a star⭐, it really helps!**\
+<a href="https://chrome.google.com/webstore/detail/btroblox/hbkpclpemjeibhioopcebchdmohaieln" title="Available in the Chrome Web Store"><img src="/Assets/ChromeWebStore_BadgeWBorder_v2_206x58.png" alt="Available in the Chrome Web Store"></a>\
 <img alt="GitHub Downloads (all assets, all releases)" src="https://img.shields.io/github/downloads/NotValra/RoValra/total">
+- **If you like this project, consider giving it a star⭐, it really helps!**
+
 
 **[Discord Server](https://discord.gg/GHd5cSKJRk)**
-# Chrome Web Store
-**[RoValra](https://chromewebstore.google.com/detail/rovalra/njcickgebhnpgmoodjdgohkclfplejli)**\
-**Chrome web store is up to date!**
+
+
 
 
 
@@ -22,12 +23,12 @@
     - **Join a server in a specific region**
     - **Shows Subplaces of a game**
     - **Universal game invitation link**
-    - **Universal user sniper that does not require you to be friends with them**
+    - **Universal user sniper that does not require you to be friends with them (PATCHED)**
 - **Items**
     - **Shows sales and revenue on specific items.**
 - **Profile**
   - <details>
-    <summary><strong>User sniper</strong></summary>
+    <summary><strong>Instant Joiner</strong></summary>
     <ul>
         <li><strong>Basically this feature allows you to join anyone with their joins on or whose on ur friends list instantly.</strong></li>
     
