@@ -32,7 +32,7 @@
     <ul>
         <li><strong>Basically this feature allows you to join anyone with their joins on or whose on ur friends list instantly.</strong></li>
     
-     <li><strong>lets say for example you wanna join someone whose streaming a game with viewers, you could just use the snipe feature, and you would almost instantly join (Depending on your pc ofc)</strong></li>
+     <li><strong>lets say for example you wanna join someone whose streaming a game with viewers, you could just use the instant join feature, and you would almost instantly join (Depending on your pc ofc)</strong></li>
     </ul>
     </details>
   - **Check if a user with a private inventory owns a specific item**
