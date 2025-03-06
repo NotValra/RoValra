@@ -53,11 +53,13 @@
 - **Is it bannable to use the extension?**
     - **No, This extension follows Roblox's ToS, if Roblox doesnt like a feature being possible they can just patch it.**
 - **Is everything free?**
-    - **Yes, everything is free and will for ever be free.**.
+    - **Yes, everything is free and will forever be free.**
 - **Why are you making a completely free extension?**
     - **I made this extension for myself to use, and I just made it public cuz why not.**
 - **I have a feature request, where do I request it?**
     - **You can request it in my [Discord Server.](https://discord.gg/GHd5cSKJRk)**
+- **Are you actively updating the extension?**
+    - **Yes and no. I only really update / add stuff if I want to or something breaks. Cuz I don't make anything out of this, so I still wanna keep it fun for me.**
 
 # To do list
 - [ ] **Finishing my private todo list with around 22 things on it. (5/22 are done)**
