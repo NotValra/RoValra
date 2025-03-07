@@ -60,6 +60,8 @@
     - **You can request it in my [Discord Server.](https://discord.gg/GHd5cSKJRk)**
 - **Are you actively updating the extension?**
     - **Yes and no. I only really update / add stuff if I want to or something breaks. Cuz I don't make anything out of this, so I still wanna keep it fun for me.**
+- **I have feedback where can I tell you it?**
+    - **You can send the feedback in my [Discord Server](https://discord.gg/GHd5cSKJRk) in the suggestions channel.**
 
 # To do list
 - [ ] **Finishing my private todo list with around 22 things on it. (5/22 are done)**
@@ -83,6 +85,8 @@
 <details>
   <summary>Expand</summary>
 
+- If you want a simple install you can install it on from the [chrome web store.](https://chromewebstore.google.com/detail/RoValra%20-%20Roblox%20Improved/njcickgebhnpgmoodjdgohkclfplejli)
+- Everything below is purely a tutorial on how to install it from GitHub.
 - Enable developer mode on your browser of choice.
 ![image](https://github.com/user-attachments/assets/301ab762-7b3b-4f5f-9eb0-9e7699212546)
 - Unzip the file in [releases](https://github.com/NotValra/Hidden-Games/releases)
