@@ -25,7 +25,7 @@
     - **Universal game invitation link**
     - **Universal user sniper that does not require you to be friends with them (PATCHED)**
 - **Catalog**
-    - **Hidden catalog, which allows you to view Roblox made items before they are on the offical catalog (Still being worked on)**     
+    - **Hidden catalog, which allows you to view Roblox made items before they are on the official catalog (Still being worked on)**     
     - **Shows sales and revenue on specific items.**
 - **Profile**
   - <details>
