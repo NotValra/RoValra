@@ -24,7 +24,8 @@
     - **Shows Subplaces of a game**
     - **Universal game invitation link**
     - **Universal user sniper that does not require you to be friends with them (PATCHED)**
-- **Items**
+- **Catalog**
+    - **Hidden catalog, which allows you to view Roblox made items before they are on the offical catalog (Still being worked on)**     
     - **Shows sales and revenue on specific items.**
 - **Profile**
   - <details>
