@@ -78,8 +78,8 @@
 </details>
 
 # Known Issues
-- **~~When using BTRoblox communities modifications~~ The hidden experiences sometimes wont filter out none hidden experiences**
-- **Sometimes the hidden experiences button isnt being added on communities**
+- **~~When using BTRoblox communities modifications~~ The hidden experiences sometimes wont filter out none hidden experiences FIX COMING NEXT UPDATE**
+- **Sometimes the hidden experiences button isnt being added on communities FIX COMING NEXT UPDATE**
 
 # How to install
 
