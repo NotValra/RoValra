@@ -108,7 +108,7 @@ function getPlaceIdFromUrl() {
 
     if (settings.universalSniperEnabled === undefined) {
         console.warn("universalSniperEnabled setting is undefined, assuming default true for first install.");
-        settings.universalSniperEnabled = true; 
+        settings.universalSniperEnabled = true;
     }
 
 
@@ -159,6 +159,7 @@ function getPlaceIdFromUrl() {
             await loadScript('misc/userSniper.js');
         }
         await loadScript('misc/itemChecker.js');
+        await loadScript('misc/itemCheckerFilters.js');
     } else if (currentPath.includes('/games/')) {
         if (settings.subplacesEnabled) {
             await loadScript('Games/Subplaces.js');
@@ -175,6 +176,10 @@ function getPlaceIdFromUrl() {
             await loadScript('Avatar/R6Fix.js');
         }
     }
+
+    // Load catalog/hiddencatalog.js on every page
+    //await loadScript('catalog/hiddencatalog.js');
+
 
     const theme = await detectTheme();
     dispatchThemeEvent(theme);

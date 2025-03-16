@@ -1,5 +1,9 @@
 (function() {
 
+    if (!window.location.href.includes("profile")) {
+        return;
+    }
+
     let inventoryCheckRunning = false;
     let currentUserId = null;
     let currentDisplayName = null;
@@ -98,7 +102,7 @@
             sortTypeParam = '&SortType=3';
             categoryFilterParam = '';
         } else if (includeLimiteds) {
-            categoryFilterParam = `&CategoryFilter=2`;
+            returnValue = 2;
         }
 
         let allCreatorItemsData = [];
@@ -119,7 +123,7 @@
         }
 
         if (ownershipTextElement && currentDisplayName) {
-            ownershipTextElement.textContent = `Checking items it might take a bit.`;
+            ownershipTextElement.textContent = `Checking items made by ${creatorNameInput.value}, its gonna take a bit.`;
             ownershipTextElement.style.display = 'block';
 
 
@@ -152,10 +156,6 @@
                 }
 
             } catch (error) {
-                if (button2) {
-                    button2.textContent = 'Check Ownership';
-                    button2.disabled = false;
-                }
                 return;
             }
         } while (nextPageCursor);
@@ -165,7 +165,7 @@
         if (creatorItemsData && creatorItemsData.data) {
 
             if (ownershipTextElement && currentDisplayName) {
-                ownershipTextElement.textContent = `Checking ${creatorItemsData.data.length} items it might take a bit.`;
+                ownershipTextElement.textContent = `Checking ${creatorItemsData.data.length} items made by ${creatorNameInput.value}, it might take a bit.`;
             }
 
             const ownershipPromises = creatorItemsData.data.map(item => checkItemOwnership(item, true));
@@ -187,9 +187,10 @@
                 ownershipTextElement.textContent = `${currentDisplayName} owns these items`;
                 ownershipTextElement.style.display = 'block';
                 ownershipTextElement.style.display = 'none';
-            }
 
-            if (tabButtonsContainer) tabButtonsContainer.style.display = 'flex';
+            } else {
+            }
+            tabButtonsContainer.style.display = 'flex';
             if (ownedTabButton) ownedTabButton.click();
         }
 
@@ -448,761 +449,713 @@
     container.style.display = 'flex';
     container.style.flexDirection = 'row';
     container.style.flexWrap = 'wrap';
-    container.style.marginLeft = '0px';
     container.style.gap = '10px';
     container.style.width = '100%';
     container.style.minHeight = '0';
     container.style.overflow = 'visible';
     }
 
-    function isInventoryPage() {
-        return window.location.href.includes("/inventory");
-    }
-
 
     function extractAndLogUserId() {
-        console.log("extractAndLogUserId: Starting"); // ADDED LOG
-        if (window.location.href.includes("/users/")) {
-            const regex = /^\/(?:[a-z]{2}\/)?users\/(\d+)/;
-            const match = window.location.pathname.match(regex);
+    if (window.location.href.includes("/users/")) {
+        const regex = /^\/(?:[a-z]{2}\/)?users\/(\d+)/;
+        const match = window.location.pathname.match(regex);
 
-            if (match) {
-                currentUserId = match[1];
-                console.log("extractAndLogUserId: User ID found:", currentUserId); // ADDED LOG
-                fetchDisplayName(currentUserId);
-            } else {
-                currentUserId = null;
-                currentDisplayName = null;
-                console.log("extractAndLogUserId: No User ID match in URL"); // ADDED LOG
-            }
+        if (match) {
+            currentUserId = match[1];
+            fetchDisplayName(currentUserId);
         } else {
             currentUserId = null;
             currentDisplayName = null;
-            console.log("extractAndLogUserId: Not a user page URL"); // ADDED LOG
         }
-        console.log("extractAndLogUserId: Finished"); // ADDED LOG
+    } else {
+        currentUserId = null;
+        currentDisplayName = null;
+    }
     }
 
     function fetchDisplayName(userId) {
-        console.log("fetchDisplayName: Starting for User ID:", userId); // ADDED LOG
-        const userApiUrl = `https://users.roblox.com/v1/users/${userId}`;
-        fetch(userApiUrl)
-            .then(response => {
-                console.log("fetchDisplayName: Response received, status:", response.status); // ADDED LOG
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(userData => {
-                currentDisplayName = userData.displayName || userData.name || "User";
-                console.log("fetchDisplayName: Display name fetched:", currentDisplayName); // ADDED LOG
-                updateExplanationText();
-            })
-            .catch(error => {
-                console.error("fetchDisplayName: Error fetching display name:", error); // ADDED LOG
-                currentDisplayName = "User";
-                updateExplanationText();
-            });
-         console.log("fetchDisplayName: Function execution continues after fetch"); // ADDED LOG
+    const userApiUrl = `https://users.roblox.com/v1/users/${userId}`;
+    fetch(userApiUrl)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(userData => {
+            currentDisplayName = userData.displayName || userData.name || "User";
+            updateExplanationText();
+        })
+        .catch(error => {
+            currentDisplayName = "User";
+            updateExplanationText();
+        });
     }
 
     function updateExplanationText() {
-        const explanationElement = document.getElementById('item-ownership-explanation-container')?.querySelector('p');
-        if (explanationElement) {
-            explanationElement.textContent = `Enter an item ID to check if ${currentDisplayName} owns it`;
-        }
+    const explanationElement = document.getElementById('item-ownership-explanation-container')?.querySelector('p');
+    if (explanationElement) {
+        explanationElement.textContent = `Enter an item ID to check if ${currentDisplayName} owns it`;
+    }
     }
 
     function checkInventoryHidden(retryCount = 0) {
-        console.log(`checkInventoryHidden: Starting, retryCount: ${retryCount}`); // ADDED LOG
-        if (inventoryCheckRunning) {
-            console.log("checkInventoryHidden: Inventory check already running, exiting"); // ADDED LOG
-            return;
+    if (inventoryCheckRunning) {
+        return;
+    }
+
+    inventoryCheckRunning = true;
+
+    const maxRetries = 20;
+    const retryDelay = 200;
+
+    let inventoryHiddenSpan = null;
+
+    const iframe = document.getElementById('btr-injected-inventory');
+
+    if (iframe) {
+        try {
+            let iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+            if (iframeDocument) {
+                inventoryHiddenSpan = iframeDocument.querySelector(
+                    'div#inventory-container div.section-content-off span[ng-bind="\'Message.UserInventoryHidden\' | translate"].ng-binding'
+                );
+            }
+        } catch (error) {
+        }
+    }
+    if (!inventoryHiddenSpan) {
+        inventoryHiddenSpan = document.querySelector(
+            'div#content div#inventory-container div.section-content-off span[ng-bind="\'Message.UserInventoryHidden\' | translate"].ng-binding'
+        );
+    }
+    if (!inventoryHiddenSpan) {
+        inventoryHiddenSpan = document.querySelector('span[ng-bind="\'Message.UserInventoryHidden\' | translate"].ng-binding');
+    }
+
+    if (inventoryHiddenSpan) {
+        inventoryHiddenParentElement = inventoryHiddenSpan.parentNode;
+
+        resultParentElement = document.querySelector('div.tab-content.rbx-tab-content');
+        if (!resultParentElement) {
+            resultParentElement = inventoryHiddenSpan.parentNode;
         }
 
-        inventoryCheckRunning = true;
+        if (resultParentElement) {
+            resultParentElement.style.display = 'block';
+        }
 
-        const maxRetries = 60; // Increased retry count
-        const retryDelay = 600; // Increased retry delay
 
-        let inventoryHiddenSpan = null;
+        if (!ownedItemsResultContainer) {
+            ownedItemsResultContainer = document.createElement('div');
+            ownedItemsResultContainer.id = 'item-ownership-result-container-owned';
+            resultParentElement.appendChild(ownedItemsResultContainer);
+            applyResultContainerStyles(ownedItemsResultContainer);
+        }
+        if (!unownedItemsResultContainer) {
+            unownedItemsResultContainer = document.createElement('div');
+            unownedItemsResultContainer.id = 'item-ownership-result-container-unowned';
+            resultParentElement.appendChild(unownedItemsResultContainer);
+            applyResultContainerStyles(unownedItemsResultContainer);
+            unownedItemsResultContainer.style.display = 'none';
+        }
 
-        const iframe = document.getElementById('btr-injected-inventory');
 
-        if (iframe) {
-            try {
-                let iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
-                if (iframeDocument) {
-                    inventoryHiddenSpan = iframeDocument.querySelector(
-                        'div#inventory-container div.section-content-off span[ng-bind="\'Message.UserInventoryHidden\' | translate"].ng-binding'
-                    );
+        if (!document.getElementById('item-ownership-checker-container')) {
+             let container = document.createElement('div');
+            container.id = 'item-ownership-checker-container';
+            container.style.marginTop = "10px";
+            container.style.display = 'flex';
+            container.style.flexDirection = 'column';
+            container.style.maxWidth = "340px";
+            container.style.margin = '0 auto';
+
+            tabButtonsContainer = document.createElement('div');
+            tabButtonsContainer.className = 'tab-buttons-container';
+            tabButtonsContainer.style.display = 'none';
+            tabButtonsContainer.style.marginBottom = '10px';
+            tabButtonsContainer.style.justifyContent = 'center';
+            tabButtonsContainer.style.width = '100%';
+            tabButtonsContainer.style.gap = '10px';
+
+
+            ownedTabButton = document.createElement('button');
+            ownedTabButton.type = 'button';
+            ownedTabButton.textContent = 'Owned';
+            ownedTabButton.className = 'tab-button tab-button-active';
+            applyTabButtonStyles(ownedTabButton, true, detectTheme());
+            ownedTabButton.addEventListener('click', () => {
+                if (ownedItemsResultContainer) {
+                    ownedItemsResultContainer.style.display = 'flex';
                 }
-            } catch (error) {
-                console.warn("checkInventoryHidden: Error accessing iframe content:", error); // Log iframe access errors
-            }
-        }
-        if (!inventoryHiddenSpan) {
-            inventoryHiddenSpan = document.querySelector(
-                'div#content div#inventory-container div.section-content-off span[ng-bind="\'Message.UserInventoryHidden\' | translate"].ng-binding'
-            );
-        }
-        if (!inventoryHiddenSpan) {
-            inventoryHiddenSpan = document.querySelector('span[ng-bind="\'Message.UserInventoryHidden\' | translate"].ng-binding');
-        }
+                if (unownedItemsResultContainer) {
+                    unownedItemsResultContainer.style.display = 'none';
+                }
 
-        console.log("checkInventoryHidden: inventoryHiddenSpan:", inventoryHiddenSpan); // ADDED LOG
-
-        if (inventoryHiddenSpan) {
-            console.log("checkInventoryHidden: Inventory hidden span found."); // Log when span is found
-            inventoryHiddenParentElement = inventoryHiddenSpan.parentNode;
-
-            // More robust selector for resultParentElement - try different paths
-            resultParentElement = document.querySelector('div.tab-content.rbx-tab-content') ||
-                                  document.querySelector('div#inventory-container div.section-content') ||
-                                  inventoryHiddenSpan.closest('.section-content-off') || // Try closest parent if none found
-                                  inventoryHiddenSpan.parentNode; // Fallback to parent if all else fails
-
-            if (!resultParentElement) {
-                console.warn("checkInventoryHidden: Could not reliably determine resultParentElement. Using inventoryHiddenParentElement as fallback.");
-                resultParentElement = inventoryHiddenParentElement; // Fallback if still null
-            }
-
-            console.log("checkInventoryHidden: resultParentElement:", resultParentElement); // ADDED LOG
-
-            if (resultParentElement) {
-                resultParentElement.style.display = 'block';
-            }
+                if (resultParentElement && ownedItemsResultContainer && unownedItemsResultContainer) {
+                    resultParentElement.insertBefore(ownedItemsResultContainer, unownedItemsResultContainer);
+                }
 
 
-            if (!ownedItemsResultContainer) {
-                ownedItemsResultContainer = document.createElement('div');
-                ownedItemsResultContainer.id = 'item-ownership-result-container-owned';
-                resultParentElement.appendChild(ownedItemsResultContainer);
-                applyResultContainerStyles(ownedItemsResultContainer);
-            }
-            if (!unownedItemsResultContainer) {
-                unownedItemsResultContainer = document.createElement('div');
-                unownedItemsResultContainer.id = 'item-ownership-result-container-unowned';
-                resultParentElement.appendChild(unownedItemsResultContainer);
-                applyResultContainerStyles(unownedItemsResultContainer);
-                unownedItemsResultContainer.style.display = 'none';
-            }
+                if (ownedTabButton) applyTabButtonStyles(ownedTabButton, true, detectTheme());
+                if (unownedTabButton) applyTabButtonStyles(unownedTabButton, false, detectTheme());
+            });
+            tabButtonsContainer.appendChild(ownedTabButton);
 
-            console.log("checkInventoryHidden: Checking if item-ownership-checker-container exists:", document.getElementById('item-ownership-checker-container')); // ADDED LOG
-            if (!document.getElementById('item-ownership-checker-container')) {
-                console.log("checkInventoryHidden: item-ownership-checker-container does not exist, creating and adding."); // ADDED LOG
-                 let container = document.createElement('div');
-                container.id = 'item-ownership-checker-container';
-                container.style.marginTop = "10px";
-                container.style.display = 'flex';
-                container.style.flexDirection = 'column';
-                container.style.maxWidth = "340px";
-                container.style.margin = '0 auto';
+            unownedTabButton = document.createElement('button');
+            unownedTabButton.type = 'button';
+            unownedTabButton.textContent = 'Unowned';
+            unownedTabButton.className = 'tab-button';
+            applyTabButtonStyles(unownedTabButton, false, detectTheme());
+            unownedTabButton.addEventListener('click', () => {
+                if (ownedItemsResultContainer) {
+                    ownedItemsResultContainer.style.display = 'none';
+                }
+                if (unownedItemsResultContainer) {
+                    unownedItemsResultContainer.style.display = 'flex';
+                }
 
-                tabButtonsContainer = document.createElement('div');
-                tabButtonsContainer.className = 'tab-buttons-container';
-                tabButtonsContainer.style.display = 'none';
-                tabButtonsContainer.style.marginBottom = '10px';
-                tabButtonsContainer.style.justifyContent = 'center';
-                tabButtonsContainer.style.width = '100%';
-                tabButtonsContainer.style.gap = '10px';
+                 if (resultParentElement && ownedItemsResultContainer && unownedItemsResultContainer) {
+                    resultParentElement.insertBefore(unownedItemsResultContainer, ownedItemsResultContainer);
+                }
 
 
-                ownedTabButton = document.createElement('button');
-                ownedTabButton.type = 'button';
-                ownedTabButton.textContent = 'Owned';
-                ownedTabButton.className = 'tab-button tab-button-active';
-                applyTabButtonStyles(ownedTabButton, true, detectTheme());
-                ownedTabButton.addEventListener('click', () => {
-                    if (ownedItemsResultContainer) {
-                        ownedItemsResultContainer.style.display = 'flex';
+                if (ownedTabButton) applyTabButtonStyles(ownedTabButton, false, detectTheme());
+                if (unownedTabButton) applyTabButtonStyles(unownedTabButton, true, detectTheme());
+            });
+            tabButtonsContainer.appendChild(unownedTabButton);
+
+
+
+            let filterDropdownContainer = document.createElement('div');
+    filterDropdownContainer.style.marginBottom = '0px';
+    filterDropdownContainer.style.position = 'relative';
+
+    filterButtonElement = document.createElement('button');
+    filterButtonElement.type = 'button';
+    filterButtonElement.style.marginBottom = '0px'
+    filterButtonElement.style.marginTop = '7px'
+    filterButtonElement.style.borderWidth = '0px'
+    filterButtonElement.className = 'filter-select btn-primary-md';
+    applyFilterButtonStyle(filterButtonElement, detectTheme());
+    applySpecificFilterButtonStyles(filterButtonElement);
+    let filterDisplayText = document.createElement('span');
+    filterDisplayText.className = 'filter-display-text';
+    filterDisplayText.textContent = '';
+
+    const svgIcon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svgIcon.setAttribute("viewBox", "0 0 24 24");
+    svgIcon.setAttribute("width", "20");
+    svgIcon.setAttribute("height", "20");
+
+    const svgPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    svgPath.setAttribute("d", "M14 17a1 1 0 0 1-.707-.293l-4-4a1 1 0 0 1 0-1.414l4-4a1 1 0 1 1 1.414 1.414L11.414 12l3.293 3.293A1 1 0 0 1 14 17z");
+    svgPath.setAttribute("style", "fill:#ffffff");
+
+    const pathScaleFactor = 1.5;
+    const translateX = -4;
+    const translateY = -4;
+
+    svgPath.setAttribute("transform", `scale(${pathScaleFactor}) translate(${translateX}, ${translateY})`);
+
+    svgIcon.appendChild(svgPath);
+
+    svgIcon.style.display = 'inline-block';
+    svgIcon.style.transform = 'rotate(270deg)';
+    svgIcon.style.verticalAlign = 'middle';
+
+
+            filterButtonElement.appendChild(filterDisplayText);
+            filterButtonElement.appendChild(svgIcon);
+            filterDropdownContainer.appendChild(filterButtonElement);
+
+            filterModalContainer = document.createElement('div');
+            filterModalContainer.className = 'filters-modal-container';
+            applyCopiedFilterModalStyles(filterModalContainer, detectTheme());
+            filterModalContainer.style.display = 'none';
+            filterModalContainer.style.left = '50%';
+            filterModalContainer.style.transform = 'translateX(-50%)';
+            filterModalContainer.style.top = '100%';
+
+            let headerContainer = document.createElement('div');
+            headerContainer.className = 'header-container';
+            applyCopiedFilterHeaderStyles(headerContainer, detectTheme());
+            let headerTitle = document.createElement('h3');
+            headerTitle.textContent = 'Filter Items';
+            headerContainer.appendChild(headerTitle);
+            let headerCloseButtonContainer = document.createElement('div');
+            headerCloseButtonContainer.className = 'header-close-button-container';
+            applyHeaderCloseButtonContainerStyles(headerCloseButtonContainer);
+            let headerCloseButton = document.createElement('button');
+            headerCloseButton.type = 'button';
+            headerCloseButton.className = 'header-close-button';
+            headerCloseButton.innerHTML = '<span class="icon-close"></span>';
+            headerCloseButton.style.background = 'transparent';
+            headerCloseButton.style.borderWidth = '0px'
+            headerCloseButton.style.paddingRight = '22px'
+            headerCloseButton.style.marginTop = '22px'
+            headerCloseButtonContainer.appendChild(headerCloseButton);
+            headerContainer.appendChild(headerCloseButtonContainer);
+            filterModalContainer.appendChild(headerContainer);
+
+            let filterOptionsContainer = document.createElement('div');
+            filterOptionsContainer.className = 'filter-options-container';
+            applyCopiedFilterOptionsStyles(filterOptionsContainer, detectTheme());
+
+
+            filterContainerSimple = document.createElement('div');
+            filterContainerSimple.id = 'simplified-filter-container-v7';
+            filterContainerSimple.style.marginTop = '0px';
+            filterContainerSimple.style.padding = '0px 24px';
+            filterContainerSimple.style.backgroundColor = 'transparent';
+
+
+            let inputContainerSimple = document.createElement('div');
+            inputContainerSimple.style.display = 'flex';
+            inputContainerSimple.style.flexDirection = 'column';
+            inputContainerSimple.style.gap = '8px';
+            inputContainerSimple.style.alignItems = 'stretch';
+            inputContainerSimple.style.padding = '12px 0px';
+
+
+            let creatorNameInputContainer = document.createElement('div');
+            creatorNameInputContainer.style.display = 'flex';
+            creatorNameInputContainer.style.flexDirection = 'row';
+            creatorNameInputContainer.style.alignItems = 'center';
+            creatorNameInputContainer.style.gap = '8px';
+
+            creatorNameLabelSimple = document.createElement('label');
+            creatorNameLabelSimple.textContent = 'Creator Name';
+            creatorNameLabelSimple.style.color = document.documentElement.style.getPropertyValue('--filter-input-label-color');
+            creatorNameLabelSimple.style.marginRight = '5px';
+            creatorNameLabelSimple.style.fontSize = '1rem';
+            creatorNameLabelSimple.style.whiteSpace = 'nowrap';
+
+            creatorNameInput = document.createElement('input');
+            creatorNameInput.type = 'text';
+            creatorNameInput.id = 'simplified-creator-name-input-v7';
+            creatorNameInput.className = 'MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputSizeSmall css-vojnal filter-creator-name-input';
+            creatorNameInput.placeholder = 'Creator Name';
+            applyInputStyles(creatorNameInput, detectTheme());
+            creatorNameInput.style.maxWidth = '150px';
+
+            creatorNameInput.addEventListener('input', function(event) {
+                checkApplyButtonState();
+            });
+
+            creatorNameInputContainer.appendChild(creatorNameLabelSimple);
+            creatorNameInputContainer.appendChild(creatorNameInput);
+            inputContainerSimple.appendChild(creatorNameInputContainer);
+
+            let minPriceInputContainer = document.createElement('div');
+            minPriceInputContainer.style.display = 'flex';
+            minPriceInputContainer.style.flexDirection = 'row';
+            minPriceInputContainer.style.alignItems = 'center';
+            minPriceInputContainer.style.gap = '8px';
+
+            let minPriceLabelSimple = document.createElement('label');
+            minPriceLabelSimple.textContent = 'Min Price';
+            minPriceLabelSimple.style.color = document.documentElement.style.getPropertyValue('--filter-input-label-color');
+            minPriceLabelSimple.style.marginRight = '45px';
+            minPriceLabelSimple.style.fontSize = '1rem';
+            minPriceLabelSimple.style.whiteSpace = 'nowrap';
+
+            minPriceInput = document.createElement('input');
+            minPriceInput.type = 'number';
+            minPriceInput.id = 'simplified-min-price-input-v7';
+            minPriceInput.className = 'MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputSizeSmall css-vojnal filter-min-price-input';
+            minPriceInput.placeholder = 'Min Price';
+            applyInputStyles(minPriceInput, detectTheme());
+            minPriceInput.style.maxWidth = '150px';
+
+            minPriceInputContainer.appendChild(minPriceLabelSimple);
+            minPriceInputContainer.appendChild(minPriceInput);
+            inputContainerSimple.appendChild(minPriceInputContainer);
+
+             let limitedsToggleContainer = document.createElement('div');
+            limitedsToggleContainer.style.display = 'flex';
+            limitedsToggleContainer.style.flexDirection = 'row';
+            limitedsToggleContainer.style.alignItems = 'center';
+            limitedsToggleContainer.style.gap = '8px';
+            limitedsToggleContainer.style.marginTop = '12px';
+
+            let limitedsLabelSimple = document.createElement('label');
+            limitedsLabelSimple.textContent = 'Limiteds';
+            limitedsLabelSimple.style.color = document.documentElement.style.getPropertyValue('--filter-input-label-color');
+            limitedsLabelSimple.style.marginRight = '0px';
+            limitedsLabelSimple.style.fontSize = '1rem';
+
+            limitedsToggle = document.createElement('input');
+            limitedsToggle.type = 'checkbox';
+            limitedsToggle.id = 'simplified-limiteds-toggle-v7';
+            limitedsToggle.className = 'filter-limiteds-toggle';
+            limitedsToggle.style.appearance = 'none';
+            limitedsToggle.style.width = '20px';
+            limitedsToggle.style.height = '20px';
+            limitedsToggle.style.marginLeft = 'auto'
+            limitedsToggle.style.backgroundColor = document.documentElement.style.getPropertyValue('--filter-toggle-background');
+            limitedsToggle.style.border = '1px solid ' + document.documentElement.style.getPropertyValue('--filter-toggle-border-color');
+            limitedsToggle.style.borderRadius = '4px';
+            limitedsToggle.style.cursor = 'pointer';
+            limitedsToggle.style.position = 'relative';
+
+
+            limitedsToggle.insertAdjacentHTML('afterbegin', `
+                <style>
+                    #simplified-limiteds-toggle-v7::before {
+                        content: '';
+                        position: absolute;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%) scale(0);
+                        width: 10px;
+                        height: 10px;
+                        background-color: ${document.documentElement.style.getPropertyValue('--filter-toggle-indicator-color')};
+                        border-radius: 2px;
+                        transition: transform 0.2s ease-in-out;
                     }
-                    if (unownedItemsResultContainer) {
-                        unownedItemsResultContainer.style.display = 'none';
+                    #simplified-limiteds-toggle-v7:checked::before {
+                        transform: translate(-50%, -50%) scale(1);
                     }
-
-                    if (resultParentElement && ownedItemsResultContainer && unownedItemsResultContainer) {
-                        resultParentElement.insertBefore(ownedItemsResultContainer, unownedItemsResultContainer);
+                    #simplified-limiteds-toggle-v7:focus {
+                        outline: none;
+                        box-shadow: 0 0 0 2px rgba(51, 95, 255, 0.5);
                     }
+                </style>
+            `);
 
 
-                    if (ownedTabButton) applyTabButtonStyles(ownedTabButton, true, detectTheme());
-                    if (unownedTabButton) applyTabButtonStyles(unownedTabButton, false, detectTheme());
-                });
-                tabButtonsContainer.appendChild(ownedTabButton);
+            limitedsToggle.addEventListener('change', function() {
+            });
 
-                unownedTabButton = document.createElement('button');
-                unownedTabButton.type = 'button';
-                unownedTabButton.textContent = 'Unowned';
-                unownedTabButton.className = 'tab-button';
-                applyTabButtonStyles(unownedTabButton, false, detectTheme());
-                unownedTabButton.addEventListener('click', () => {
-                    if (ownedItemsResultContainer) {
-                        ownedItemsResultContainer.style.display = 'none';
+
+            limitedsToggleContainer.appendChild(limitedsLabelSimple);
+            limitedsToggleContainer.appendChild(limitedsToggle);
+            inputContainerSimple.appendChild(limitedsToggleContainer);
+
+            let recentlyPublishedToggleContainer = document.createElement('div');
+            recentlyPublishedToggleContainer.style.display = 'flex';
+            recentlyPublishedToggleContainer.style.flexDirection = 'row';
+            recentlyPublishedToggleContainer.style.alignItems = 'center';
+            recentlyPublishedToggleContainer.style.gap = '8px';
+            recentlyPublishedToggleContainer.style.marginTop = '12px';
+
+            let recentlyPublishedLabelSimple = document.createElement('label');
+            recentlyPublishedLabelSimple.textContent = 'Recently Published';
+            recentlyPublishedLabelSimple.style.color = document.documentElement.style.getPropertyValue('--filter-input-label-color');
+            recentlyPublishedLabelSimple.style.marginRight = '60px';
+            recentlyPublishedLabelSimple.style.fontSize = '1rem';
+
+            recentlyPublishedToggle = document.createElement('input');
+            recentlyPublishedToggle.type = 'checkbox';
+            recentlyPublishedToggle.id = 'simplified-recently-published-toggle-v7';
+            recentlyPublishedToggle.className = 'filter-recently-published-toggle';
+            recentlyPublishedToggle.style.appearance = 'none';
+            recentlyPublishedToggle.style.width = '20px';
+            recentlyPublishedToggle.style.height = '20px';
+            recentlyPublishedToggle.style.marginLeft = 'auto'
+            recentlyPublishedToggle.style.backgroundColor = document.documentElement.style.getPropertyValue('--filter-toggle-background');
+            recentlyPublishedToggle.style.border = '1px solid ' + document.documentElement.style.getPropertyValue('--filter-toggle-border-color');
+            recentlyPublishedToggle.style.borderRadius = '4px';
+            recentlyPublishedToggle.style.cursor = 'pointer';
+            recentlyPublishedToggle.style.position = 'relative';
+
+
+            recentlyPublishedToggle.insertAdjacentHTML('afterbegin', `
+                <style>
+                    #simplified-recently-published-toggle-v7::before {
+                        content: '';
+                        position: absolute;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%) scale(0);
+                        width: 10px;
+                        height: 10px;
+                        background-color: ${document.documentElement.style.getPropertyValue('--filter-toggle-indicator-color')};
+                        border-radius: 2px;
+                        transition: transform 0.2s ease-in-out;
                     }
-                    if (unownedItemsResultContainer) {
-                        unownedItemsResultContainer.style.display = 'flex';
+                    #simplified-recently-published-toggle-v7:checked::before {
+                        transform: translate(-50%, -50%) scale(1);
                     }
-
-                     if (resultParentElement && ownedItemsResultContainer && unownedItemsResultContainer) {
-                        resultParentElement.insertBefore(unownedItemsResultContainer, ownedItemsResultContainer);
+                    #simplified-recently-published-toggle-v7:focus {
+                        outline: none;
+                        box-shadow: 0 0 0 2px rgba(51, 95, 255, 0.5);
                     }
-
-
-                    if (ownedTabButton) applyTabButtonStyles(ownedTabButton, false, detectTheme());
-                    if (unownedTabButton) applyTabButtonStyles(unownedTabButton, true, detectTheme());
-                });
-                tabButtonsContainer.appendChild(unownedTabButton);
-
-
-
-                let filterDropdownContainer = document.createElement('div');
-        filterDropdownContainer.style.marginBottom = '0px';
-        filterDropdownContainer.style.position = 'relative';
-
-        filterButtonElement = document.createElement('button');
-        filterButtonElement.type = 'button';
-        filterButtonElement.style.marginBottom = '0px'
-        filterButtonElement.style.marginTop = '7px'
-        filterButtonElement.style.borderWidth = '0px'
-        filterButtonElement.className = 'filter-select btn-primary-md';
-        applyFilterButtonStyle(filterButtonElement, detectTheme());
-        applySpecificFilterButtonStyles(filterButtonElement);
-        let filterDisplayText = document.createElement('span');
-        filterDisplayText.className = 'filter-display-text';
-        filterDisplayText.textContent = '';
-
-        const svgIcon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-        svgIcon.setAttribute("viewBox", "0 0 24 24");
-        svgIcon.setAttribute("width", "20");
-        svgIcon.setAttribute("height", "20");
-
-        const svgPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
-        svgPath.setAttribute("d", "M14 17a1 1 0 0 1-.707-.293l-4-4a1 1 0 0 1 0-1.414l4-4a1 1 0 1 1 1.414 1.414L11.414 12l3.293 3.293A1 1 0 0 1 14 17z");
-        svgPath.setAttribute("style", "fill:#ffffff");
-
-        const pathScaleFactor = 1.5;
-        const translateX = -4;
-        const translateY = -4;
-
-        svgPath.setAttribute("transform", `scale(${pathScaleFactor}) translate(${translateX}, ${translateY})`);
-
-        svgIcon.appendChild(svgPath);
-
-        svgIcon.style.display = 'inline-block';
-        svgIcon.style.transform = 'rotate(270deg)';
-        svgIcon.style.verticalAlign = 'middle';
-
-
-                filterButtonElement.appendChild(filterDisplayText);
-                filterButtonElement.appendChild(svgIcon);
-                filterDropdownContainer.appendChild(filterButtonElement);
-
-                filterModalContainer = document.createElement('div');
-                filterModalContainer.className = 'filters-modal-container';
-                applyCopiedFilterModalStyles(filterModalContainer, detectTheme());
-                filterModalContainer.style.display = 'none';
-                filterModalContainer.style.left = '50%';
-                filterModalContainer.style.transform = 'translateX(-50%)';
-                filterModalContainer.style.top = '100%';
-
-                let headerContainer = document.createElement('div');
-                headerContainer.className = 'header-container';
-                applyCopiedFilterHeaderStyles(headerContainer, detectTheme());
-                let headerTitle = document.createElement('h3');
-                headerTitle.textContent = 'Filter Items';
-                headerContainer.appendChild(headerTitle);
-                let headerCloseButtonContainer = document.createElement('div');
-                headerCloseButtonContainer.className = 'header-close-button-container';
-                applyHeaderCloseButtonContainerStyles(headerCloseButtonContainer);
-                let headerCloseButton = document.createElement('button');
-                headerCloseButton.type = 'button';
-                headerCloseButton.className = 'header-close-button';
-                headerCloseButton.innerHTML = '<span class="icon-close"></span>';
-                headerCloseButton.style.background = 'transparent';
-                headerCloseButton.style.borderWidth = '0px'
-                headerCloseButton.style.paddingRight = '22px'
-                headerCloseButton.style.marginTop = '22px'
-                headerCloseButtonContainer.appendChild(headerCloseButton);
-                headerContainer.appendChild(headerCloseButtonContainer);
-                filterModalContainer.appendChild(headerContainer);
-
-                let filterOptionsContainer = document.createElement('div');
-                filterOptionsContainer.className = 'filter-options-container';
-                applyCopiedFilterOptionsStyles(filterOptionsContainer, detectTheme());
-
-
-                filterContainerSimple = document.createElement('div');
-                filterContainerSimple.id = 'simplified-filter-container-v7';
-                filterContainerSimple.style.marginTop = '0px';
-                filterContainerSimple.style.padding = '0px 24px';
-                filterContainerSimple.style.backgroundColor = 'transparent';
-
-
-                let inputContainerSimple = document.createElement('div');
-                inputContainerSimple.style.display = 'flex';
-                inputContainerSimple.style.flexDirection = 'column';
-                inputContainerSimple.style.gap = '8px';
-                inputContainerSimple.style.alignItems = 'stretch';
-                inputContainerSimple.style.padding = '12px 0px';
-
-
-                let creatorNameInputContainer = document.createElement('div');
-                creatorNameInputContainer.style.display = 'flex';
-                creatorNameInputContainer.style.flexDirection = 'row';
-                creatorNameInputContainer.style.alignItems = 'center';
-                creatorNameInputContainer.style.gap = '8px';
-
-                creatorNameLabelSimple = document.createElement('label');
-                creatorNameLabelSimple.textContent = 'Creator Name';
-                creatorNameLabelSimple.style.color = document.documentElement.style.getPropertyValue('--filter-input-label-color');
-                creatorNameLabelSimple.style.marginRight = 'auto';
-                creatorNameLabelSimple.style.fontSize = '1rem';
-                creatorNameLabelSimple.style.whiteSpace = 'nowrap';
-
-                creatorNameInput = document.createElement('input');
-                creatorNameInput.type = 'text';
-                creatorNameInput.id = 'simplified-creator-name-input-v7';
-                creatorNameInput.className = 'MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputSizeSmall css-vojnal filter-creator-name-input';
-                creatorNameInput.placeholder = 'Creator Name';
-                applyInputStyles(creatorNameInput, detectTheme());
-                creatorNameInput.style.maxWidth = '150px';
-
-                creatorNameInput.addEventListener('input', function(event) {
-                    checkApplyButtonState();
-                });
-
-                creatorNameInputContainer.appendChild(creatorNameLabelSimple);
-                creatorNameInputContainer.appendChild(creatorNameInput);
-                inputContainerSimple.appendChild(creatorNameInputContainer);
-
-                let minPriceInputContainer = document.createElement('div');
-                minPriceInputContainer.style.display = 'flex';
-                minPriceInputContainer.style.flexDirection = 'row';
-                minPriceInputContainer.style.alignItems = 'center';
-                minPriceInputContainer.style.gap = '8px';
-
-                let minPriceLabelSimple = document.createElement('label');
-                minPriceLabelSimple.textContent = 'Min Price';
-                minPriceLabelSimple.style.color = document.documentElement.style.getPropertyValue('--filter-input-label-color');
-                minPriceLabelSimple.style.marginRight = 'auto';
-                minPriceLabelSimple.style.fontSize = '1rem';
-                minPriceLabelSimple.style.whiteSpace = 'nowrap';
-
-                minPriceInput = document.createElement('input');
-                minPriceInput.type = 'number';
-                minPriceInput.id = 'simplified-min-price-input-v7';
-                minPriceInput.className = 'MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputSizeSmall css-vojnal filter-min-price-input';
-                minPriceInput.placeholder = 'Min Price';
-                applyInputStyles(minPriceInput, detectTheme());
-                minPriceInput.style.maxWidth = '150px';
-
-                minPriceInputContainer.appendChild(minPriceLabelSimple);
-                minPriceInputContainer.appendChild(minPriceInput);
-                inputContainerSimple.appendChild(minPriceInputContainer);
-
-                 let limitedsToggleContainer = document.createElement('div');
-                limitedsToggleContainer.style.display = 'flex';
-                limitedsToggleContainer.style.flexDirection = 'row';
-                limitedsToggleContainer.style.alignItems = 'center';
-                limitedsToggleContainer.style.gap = '8px';
-                limitedsToggleContainer.style.marginTop = '12px';
-
-                let limitedsLabelSimple = document.createElement('label');
-                limitedsLabelSimple.textContent = 'Limiteds';
-                limitedsLabelSimple.style.color = document.documentElement.style.getPropertyValue('--filter-input-label-color');
-                limitedsLabelSimple.style.marginRight = '0px';
-                limitedsLabelSimple.style.fontSize = '1rem';
-
-                limitedsToggle = document.createElement('input');
-                limitedsToggle.type = 'checkbox';
-                limitedsToggle.id = 'simplified-limiteds-toggle-v7';
-                limitedsToggle.className = 'filter-limiteds-toggle';
-                limitedsToggle.style.appearance = 'none';
-                limitedsToggle.style.width = '20px';
-                limitedsToggle.style.height = '20px';
-                limitedsToggle.style.marginLeft = 'auto'
-                limitedsToggle.style.backgroundColor = document.documentElement.style.getPropertyValue('--filter-toggle-background');
-                limitedsToggle.style.border = '1px solid ' + document.documentElement.style.getPropertyValue('--filter-toggle-border-color');
-                limitedsToggle.style.borderRadius = '4px';
-                limitedsToggle.style.cursor = 'pointer';
-                limitedsToggle.style.position = 'relative';
-
-
-                limitedsToggle.insertAdjacentHTML('afterbegin', `
-                    <style>
-                        #simplified-limiteds-toggle-v7::before {
-                            content: '';
-                            position: absolute;
-                            top: 50%;
-                            left: 50%;
-                            transform: translate(-50%, -50%) scale(0);
-                            width: 10px;
-                            height: 10px;
-                            background-color: ${document.documentElement.style.getPropertyValue('--filter-toggle-indicator-color')};
-                            border-radius: 2px;
-                            transition: transform 0.2s ease-in-out;
-                        }
-                        #simplified-limiteds-toggle-v7:checked::before {
-                            transform: translate(-50%, -50%) scale(1);
-                        }
-                        #simplified-limiteds-toggle-v7:focus {
-                            outline: none;
-                            box-shadow: 0 0 0 2px rgba(51, 95, 255, 0.5);
-                        }
-                    </style>
-                `);
-
-
-                limitedsToggle.addEventListener('change', function() {});
-
-
-                limitedsToggleContainer.appendChild(limitedsLabelSimple);
-                limitedsToggleContainer.appendChild(limitedsToggle);
-                inputContainerSimple.appendChild(limitedsToggleContainer);
-
-                let recentlyPublishedToggleContainer = document.createElement('div');
-                recentlyPublishedToggleContainer.style.display = 'flex';
-                recentlyPublishedToggleContainer.style.flexDirection = 'row';
-                recentlyPublishedToggleContainer.style.alignItems = 'center';
-                recentlyPublishedToggleContainer.style.gap = '8px';
-                recentlyPublishedToggleContainer.style.marginTop = '12px';
-
-                let recentlyPublishedLabelSimple = document.createElement('label');
-                recentlyPublishedLabelSimple.textContent = 'Recently Published';
-                recentlyPublishedLabelSimple.style.color = document.documentElement.style.getPropertyValue('--filter-input-label-color');
-                recentlyPublishedLabelSimple.style.marginRight = '60px';
-                recentlyPublishedLabelSimple.style.fontSize = '1rem';
-
-                recentlyPublishedToggle = document.createElement('input');
-                recentlyPublishedToggle.type = 'checkbox';
-                recentlyPublishedToggle.id = 'simplified-recently-published-toggle-v7';
-                recentlyPublishedToggle.className = 'filter-recently-published-toggle';
-                recentlyPublishedToggle.style.appearance = 'none';
-                recentlyPublishedToggle.style.width = '20px';
-                recentlyPublishedToggle.style.height = '20px';
-                recentlyPublishedToggle.style.marginLeft = 'auto'
-                recentlyPublishedToggle.style.backgroundColor = document.documentElement.style.getPropertyValue('--filter-toggle-background');
-                recentlyPublishedToggle.style.border = '1px solid ' + document.documentElement.style.getPropertyValue('--filter-toggle-border-color');
-                recentlyPublishedToggle.style.borderRadius = '4px';
-                recentlyPublishedToggle.style.cursor = 'pointer';
-                recentlyPublishedToggle.style.position = 'relative';
-
-
-                recentlyPublishedToggle.insertAdjacentHTML('afterbegin', `
-                    <style>
-                        #simplified-recently-published-toggle-v7::before {
-                            content: '';
-                            position: absolute;
-                            top: 50%;
-                            left: 50%;
-                            transform: translate(-50%, -50%) scale(0);
-                            width: 10px;
-                            height: 10px;
-                            background-color: ${document.documentElement.style.getPropertyValue('--filter-toggle-indicator-color')};
-                            border-radius: 2px;
-                            transition: transform 0.2s ease-in-out;
-                        }
-                        #simplified-recently-published-toggle-v7:checked::before {
-                            transform: translate(-50%, -50%) scale(1);
-                        }
-                        #simplified-recently-published-toggle-v7:focus {
-                            outline: none;
-                            box-shadow: 0 0 0 2px rgba(51, 95, 255, 0.5);
-                        }
-                    </style>
-                `);
-
-
-                recentlyPublishedToggle.addEventListener('change', function() {
-                    checkApplyButtonState();
-                });
-
-
-                recentlyPublishedToggleContainer.appendChild(recentlyPublishedLabelSimple);
-                recentlyPublishedToggleContainer.appendChild(recentlyPublishedToggle);
-                inputContainerSimple.appendChild(recentlyPublishedToggleContainer);
-
-                let includeOffsaleToggleContainer = document.createElement('div');
-                includeOffsaleToggleContainer.style.display = 'flex';
-                includeOffsaleToggleContainer.style.flexDirection = 'row';
-                includeOffsaleToggleContainer.style.alignItems = 'center';
-                includeOffsaleToggleContainer.style.gap = '8px';
-                includeOffsaleToggleContainer.style.marginTop = '12px';
-
-                let includeOffsaleLabelSimple = document.createElement('label');
-                includeOffsaleLabelSimple.textContent = 'Include Offsale';
-                includeOffsaleLabelSimple.style.color = document.documentElement.style.getPropertyValue('--filter-input-label-color');
-                includeOffsaleLabelSimple.style.marginRight = '70px';
-                includeOffsaleLabelSimple.style.fontSize = '1rem';
-
-                includeOffsaleToggle = document.createElement('input');
-                includeOffsaleToggle.type = 'checkbox';
-                includeOffsaleToggle.id = 'simplified-include-offsale-toggle-v7';
-                includeOffsaleToggle.className = 'filter-include-offsale-toggle';
-                includeOffsaleToggle.style.appearance = 'none';
-                includeOffsaleToggle.style.width = '20px';
-                includeOffsaleToggle.style.height = '20px';
-                includeOffsaleToggle.style.marginLeft = 'auto'
-                includeOffsaleToggle.style.backgroundColor = document.documentElement.style.getPropertyValue('--filter-toggle-background');
-                includeOffsaleToggle.style.border = '1px solid ' + document.documentElement.style.getPropertyValue('--filter-toggle-border-color');
-                includeOffsaleToggle.style.borderRadius = '4px';
-                includeOffsaleToggle.style.cursor = 'pointer';
-                includeOffsaleToggle.style.position = 'relative';
-                includeOffsaleToggle.checked = true;
-
-                includeOffsaleToggle.insertAdjacentHTML('afterbegin', `
-                    <style>
-                        #simplified-include-offsale-toggle-v7::before {
-                            content: '';
-                            position: absolute;
-                            top: 50%;
-                            left: 50%;
-                            transform: translate(-50%, -50%) scale(0);
-                            width: 10px;
-                            height: 10px;
-                            background-color: ${document.documentElement.style.getPropertyValue('--filter-toggle-indicator-color')};
-                            border-radius: 2px;
-                            transition: transform 0.2s ease-in-out;
-                        }
-                        #simplified-include-offsale-toggle-v7:checked::before {
-                            transform: translate(-50%, -50%) scale(1);
-                        }
-                        #simplified-include-offsale-toggle-v7:focus {
-                            outline: none;
-                            box-shadow: 0 0 0 2px rgba(51, 95, 255, 0.5);
-                        }
-                    </style>
-                `);
-
-                includeOffsaleToggle.addEventListener('change', function() {});
-
-                includeOffsaleToggleContainer.appendChild(includeOffsaleLabelSimple);
-                includeOffsaleToggleContainer.appendChild(includeOffsaleToggle);
-                inputContainerSimple.appendChild(includeOffsaleToggleContainer);
-
-                let limitDropdownContainer = document.createElement('div');
-                limitDropdownContainer.style.display = 'flex';
-                limitDropdownContainer.style.flexDirection = 'row';
-                limitDropdownContainer.style.alignItems = 'center';
-                limitDropdownContainer.style.gap = '8px';
-                limitDropdownContainer.style.marginTop = '12px';
-
-                let limitLabelSimple = document.createElement('label');
-                limitLabelSimple.textContent = 'Limit';
-                limitLabelSimple.style.color = document.documentElement.style.getPropertyValue('--filter-input-label-color');
-                limitLabelSimple.style.marginRight = '175px';
-                limitLabelSimple.style.fontSize = '1rem';
-                limitLabelSimple.style.whiteSpace = 'nowrap';
-
-                limitDropdown = document.createElement('select');
-                limitDropdown.id = 'simplified-limit-dropdown-v7';
-                limitDropdown.className = 'filter-limit-dropdown';
-                applyInputStyles(limitDropdown, detectTheme());
-                limitDropdown.style.maxWidth = '80px';
-                limitDropdown.style.width = 'auto'
-                limitDropdown.style.backgroundimage = '';
-                limitDropdown.style.padding = '6px 10px';
-                limitDropdown.style.appearance = 'none';
-
-
-                const limitValues = [120, 240, 360, 480, 600, 720];
-                limitValues.forEach(value => {
-                    const option = document.createElement('option');
-                    option.value = value;
-                    option.textContent = value;
-                    limitDropdown.appendChild(option);
-                });
-                limitDropdown.value = currentLimit;
-
-
-                limitDropdownContainer.appendChild(limitLabelSimple);
-                limitDropdownContainer.appendChild(limitDropdown);
-                inputContainerSimple.appendChild(limitDropdownContainer);
-
-
-                filterContainerSimple.appendChild(inputContainerSimple);
-
-
-                applyButton = document.createElement('button');
-                applyButton.type = 'button';
-                applyButton.textContent = 'Apply Filter';
-                applyButton.className = 'apply-button btn-primary-md btn-full-width';
-                applyButton.setAttribute('disabled', '');
-                applyButton.style.backgroundColor = document.documentElement.style.getPropertyValue('--button-disabled-background');
-                applyButton.style.color = document.documentElement.style.getPropertyValue('--button-disabled-text');
-                applyButton.style.borderWidth = '0px';
-                applyButton.style.padding = '12px 40px';
-                applyButton.style.borderRadius = '8px';
-                applyButton.style.marginTop = '0px';
-
-
-                applyButton.addEventListener('click', applyFilters);
-
-                filterContainerSimple.appendChild(applyButton);
-                filterOptionsContainer.appendChild(filterContainerSimple);
-
-
-                filterModalContainer.appendChild(filterOptionsContainer);
-                filterDropdownContainer.appendChild(filterModalContainer);
-
-
-                let explanation = document.createElement('p');
-                explanation.textContent = `Enter an item ID to check if ${currentDisplayName || 'this user'} owns it`;
-                explanation.id = 'item-ownership-explanation-text';
-                explanation.style.cssText = `
-                    color: ${document.documentElement.style.getPropertyValue('--text-color')} !important;
-                    font-size: 15px;
-                    font-weight: 500;
-                    font-family: "HCo Gotham SSm", "Helvetica Neue", Helvetica, Arial, "Lucida Grande";
-                    margin-bottom: 0px;
-                `;
-
-
-                let inputGroup = document.createElement('div');
-                inputGroup.className = 'input-group';
-                inputGroup.style.width = '100%';
-                inputGroup.style.borderRadius = '4px';
-                inputGroup.style.overflow = 'hidden';
-
-                let buttonsContainer = document.createElement('div');
-                buttonsContainer.style.display = 'flex';
-                buttonsContainer.style.flexDirection = 'row';
-                buttonsContainer.style.gap = '10px';
-                buttonsContainer.style.alignItems = 'flex-start';
-                buttonsContainer.style.position = 'relative';
-
-                let form = document.createElement('form');
-                form.name = 'search-form';
-                form.action = 'javascript:void(0);';
-                form.style.width = '100%';
-
-                let formHasFeedback = document.createElement('div');
-                formHasFeedback.className = 'form-has-feedback';
-                formHasFeedback.style.width = '100%';
-
-                let input = document.createElement('input');
-                input.id = 'item-ownership-input';
-                input.type = 'search';
-                input.name = 'search-bar';
-                input.dataset.testid = 'item-ownership-input-field';
-                input.className = 'form-control input-field new-input-field';
-                input.placeholder = 'Item ID';
-                input.maxLength = 120;
-                input.autocomplete = 'off';
-                input.autocorrect = 'off';
-                input.autocapitalize = 'off';
-                input.spellcheck = false;
-                input.value = '';
-                input.style.width = '100%';
-                input.style.padding = '5px'
-                input.style.borderRadius = '4px';
-                input.style.boxSizing = 'border-box';
-                input.style.padding = '5px !important';
-
-                formHasFeedback.appendChild(input);
-                form.appendChild(formHasFeedback);
-                inputGroup.appendChild(form);
-
-
-                let buttonListItem = document.createElement('li');
-                buttonListItem.className = 'btn-friends';
-                buttonListItem.style.flexGrow = '1';
-
-                let button2 = document.createElement('button');
-                button2.type = 'button';
-                button2.style.marginTop = '7px';
-                button2.style.paddingLeft = '12px';
-                button2.style.paddingRight = '12px';
-                button2.style.width = '100%';
-                button2.style.boxSizing = 'box-sizing';
-                button2.style.marginBottom = '10px';
-                button2.className = 'btn-control-md item-ownership-button';
-
-
-                const buttonText = document.createTextNode('Check Ownership');
-                button2.appendChild(buttonText);
-                button2.disabled = true;
-
-                buttonListItem.appendChild(button2);
-
-                let fakeCheckButton = document.createElement('button');
-                fakeCheckButton.type = 'button';
-                fakeCheckButton.className = 'btn-control-md item-ownership-button';
-                fakeCheckButton.textContent = 'Check Inventory';
-                fakeCheckButton.style.position = 'absolute';
-                fakeCheckButton.style.left = '-9999px';
-                fakeCheckButton.style.top = '-9999px';
-                buttonListItem.insertBefore(fakeCheckButton, button2);
-
-
-                input.addEventListener('input', function() {
-                    button2.disabled = !input.value.trim();
-                    if (!creatorItemsData) {
-                        button2.textContent = 'Check Ownership';
-                    } else {
-                        button2.textContent = 'Check Single Item';
+                </style>
+            `);
+
+
+            recentlyPublishedToggle.addEventListener('change', function() {
+                checkApplyButtonState();
+            });
+
+
+            recentlyPublishedToggleContainer.appendChild(recentlyPublishedLabelSimple);
+            recentlyPublishedToggleContainer.appendChild(recentlyPublishedToggle);
+            inputContainerSimple.appendChild(recentlyPublishedToggleContainer);
+
+            let includeOffsaleToggleContainer = document.createElement('div');
+            includeOffsaleToggleContainer.style.display = 'flex';
+            includeOffsaleToggleContainer.style.flexDirection = 'row';
+            includeOffsaleToggleContainer.style.alignItems = 'center';
+            includeOffsaleToggleContainer.style.gap = '8px';
+            includeOffsaleToggleContainer.style.marginTop = '12px';
+
+            let includeOffsaleLabelSimple = document.createElement('label');
+            includeOffsaleLabelSimple.textContent = 'Include Offsale';
+            includeOffsaleLabelSimple.style.color = document.documentElement.style.getPropertyValue('--filter-input-label-color');
+            includeOffsaleLabelSimple.style.marginRight = '70px';
+            includeOffsaleLabelSimple.style.fontSize = '1rem';
+
+            includeOffsaleToggle = document.createElement('input');
+            includeOffsaleToggle.type = 'checkbox';
+            includeOffsaleToggle.id = 'simplified-include-offsale-toggle-v7';
+            includeOffsaleToggle.className = 'filter-include-offsale-toggle';
+            includeOffsaleToggle.style.appearance = 'none';
+            includeOffsaleToggle.style.width = '20px';
+            includeOffsaleToggle.style.height = '20px';
+            includeOffsaleToggle.style.marginLeft = 'auto'
+            includeOffsaleToggle.style.backgroundColor = document.documentElement.style.getPropertyValue('--filter-toggle-background');
+            includeOffsaleToggle.style.border = '1px solid ' + document.documentElement.style.getPropertyValue('--filter-toggle-border-color');
+            includeOffsaleToggle.style.borderRadius = '4px';
+            includeOffsaleToggle.style.cursor = 'pointer';
+            includeOffsaleToggle.style.position = 'relative';
+            includeOffsaleToggle.checked = true;
+
+            includeOffsaleToggle.insertAdjacentHTML('afterbegin', `
+                <style>
+                    #simplified-include-offsale-toggle-v7::before {
+                        content: '';
+                        position: absolute;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%) scale(0);
+                        width: 10px;
+                        height: 10px;
+                        background-color: ${document.documentElement.style.getPropertyValue('--filter-toggle-indicator-color')};
+                        border-radius: 2px;
+                        transition: transform 0.2s ease-in-out;
                     }
-                });
+                    #simplified-include-offsale-toggle-v7:checked::before {
+                        transform: translate(-50%, -50%) scale(1);
+                    }
+                    #simplified-include-offsale-toggle-v7:focus {
+                        outline: none;
+                        box-shadow: 0 0 0 2px rgba(51, 95, 255, 0.5);
+                    }
+                </style>
+            `);
 
-                input.addEventListener('keydown', function(event) {
-                    if (event.key === 'Enter') {
-                        event.preventDefault();
-                        if (!button2.disabled) {
-                            const itemId = input.value;
-                                if (itemId) {
-                                if (ownershipTextElement && currentDisplayName) {
-                                    ownershipTextElement.textContent = `Checking ownership for item ID: ${itemId}...`;
-                                    ownershipTextElement.style.display = 'block';
+            includeOffsaleToggle.addEventListener('change', function() {
+            });
 
-                                    ownershipTextElement.style.padding = '5px';
-                                }
-                                checkItemOwnership({id: itemId}).then(ownershipResult => {
-                                    displayOwnershipResult({id: itemId}, ownershipResult, inventoryHiddenParentElement);
-                                })
-                                .catch(error => {
-                                    ownershipTextElement.textContent = "Invalid Item ID";
-                                    ownershipTextElement.style.display = 'block';
-                                    ownershipTextElement.style.color = document.documentElement.style.getPropertyValue('--text-color');
-                                });
+            includeOffsaleToggleContainer.appendChild(includeOffsaleLabelSimple);
+            includeOffsaleToggleContainer.appendChild(includeOffsaleToggle);
+            inputContainerSimple.appendChild(includeOffsaleToggleContainer);
+
+            let limitDropdownContainer = document.createElement('div');
+            limitDropdownContainer.style.display = 'flex';
+            limitDropdownContainer.style.flexDirection = 'row';
+            limitDropdownContainer.style.alignItems = 'center';
+            limitDropdownContainer.style.gap = '8px';
+            limitDropdownContainer.style.marginTop = '12px';
+
+            let limitLabelSimple = document.createElement('label');
+            limitLabelSimple.textContent = 'Limit';
+            limitLabelSimple.style.color = document.documentElement.style.getPropertyValue('--filter-input-label-color');
+            limitLabelSimple.style.marginRight = '175px';
+            limitLabelSimple.style.fontSize = '1rem';
+            limitLabelSimple.style.whiteSpace = 'nowrap';
+
+            limitDropdown = document.createElement('select');
+            limitDropdown.id = 'simplified-limit-dropdown-v7';
+            limitDropdown.className = 'filter-limit-dropdown';
+            applyInputStyles(limitDropdown, detectTheme());
+            limitDropdown.style.maxWidth = '80px';
+            limitDropdown.style.width = 'auto'
+            limitDropdown.style.padding = '6px 10px';
+
+            const limitValues = [120, 240, 360, 480, 600, 720];
+            limitValues.forEach(value => {
+                const option = document.createElement('option');
+                option.value = value;
+                option.textContent = value;
+                limitDropdown.appendChild(option);
+            });
+            limitDropdown.value = currentLimit;
+
+
+            limitDropdownContainer.appendChild(limitLabelSimple);
+            limitDropdownContainer.appendChild(limitDropdown);
+            inputContainerSimple.appendChild(limitDropdownContainer);
+
+
+            filterContainerSimple.appendChild(inputContainerSimple);
+
+
+            applyButton = document.createElement('button');
+            applyButton.type = 'button';
+            applyButton.textContent = 'Apply Filter';
+            applyButton.className = 'apply-button btn-primary-md btn-full-width';
+            applyButton.setAttribute('disabled', '');
+            applyButton.style.backgroundColor = document.documentElement.style.getPropertyValue('--button-disabled-background');
+            applyButton.style.color = document.documentElement.style.getPropertyValue('--button-disabled-text');
+            applyButton.style.borderWidth = '0px';
+            applyButton.style.padding = '12px 40px';
+            applyButton.style.borderRadius = '8px';
+            applyButton.style.marginTop = '0px';
+
+
+            applyButton.addEventListener('click', applyFilters);
+
+            filterContainerSimple.appendChild(applyButton);
+            filterOptionsContainer.appendChild(filterContainerSimple);
+
+
+            filterModalContainer.appendChild(filterOptionsContainer);
+            filterDropdownContainer.appendChild(filterModalContainer);
+
+
+            let explanation = document.createElement('p');
+            explanation.textContent = `Enter an item ID to check if ${currentDisplayName || 'this user'} owns it`;
+            explanation.id = 'item-ownership-explanation-text';
+            explanation.style.cssText = `
+                color: ${document.documentElement.style.getPropertyValue('--text-color')} !important;
+                font-size: 15px;
+                font-weight: 500;
+                font-family: "HCo Gotham SSm", "Helvetica Neue", Helvetica, Arial, "Lucida Grande";
+                margin-bottom: 0px;
+            `;
+
+
+            let inputGroup = document.createElement('div');
+            inputGroup.className = 'input-group';
+            inputGroup.style.width = '100%';
+            inputGroup.style.borderRadius = '4px';
+            inputGroup.style.overflow = 'hidden';
+
+            let buttonsContainer = document.createElement('div');
+            buttonsContainer.style.display = 'flex';
+            buttonsContainer.style.flexDirection = 'row';
+            buttonsContainer.style.gap = '10px';
+            buttonsContainer.style.alignItems = 'flex-start';
+            buttonsContainer.style.position = 'relative';
+
+            let form = document.createElement('form');
+            form.name = 'search-form';
+            form.action = 'javascript:void(0);';
+            form.style.width = '100%';
+
+            let formHasFeedback = document.createElement('div');
+            formHasFeedback.className = 'form-has-feedback';
+            formHasFeedback.style.width = '100%';
+
+            let input = document.createElement('input');
+            input.id = 'item-ownership-input';
+            input.type = 'search';
+            input.name = 'search-bar';
+            input.dataset.testid = 'item-ownership-input-field';
+            input.className = 'form-control input-field new-input-field';
+            input.placeholder = 'Item ID';
+            input.maxLength = 120;
+            input.autocomplete = 'off';
+            input.autocorrect = 'off';
+            input.autocapitalize = 'off';
+            input.spellcheck = false;
+            input.value = '';
+            input.style.width = '100%';
+            input.style.padding = '5px'
+            input.style.borderRadius = '4px';
+            input.style.boxSizing = 'border-box';
+            input.style.padding = '5px !important';
+
+            formHasFeedback.appendChild(input);
+            form.appendChild(formHasFeedback);
+            inputGroup.appendChild(form);
+
+
+            let buttonListItem = document.createElement('li');
+            buttonListItem.className = 'btn-friends';
+            buttonListItem.style.flexGrow = '1';
+
+            let button2 = document.createElement('button');
+            button2.type = 'button';
+            button2.style.marginTop = '7px';
+            button2.style.paddingLeft = '12px';
+            button2.style.paddingRight = '12px';
+            button2.style.width = '100%';
+            button2.style.boxSizing = 'box-sizing';
+            button2.style.marginBottom = '10px';
+            button2.className = 'btn-control-md item-ownership-button';
+
+
+            const buttonText = document.createTextNode('Check Ownership');
+            button2.appendChild(buttonText);
+            button2.disabled = true;
+
+            buttonListItem.appendChild(button2);
+
+            let fakeCheckButton = document.createElement('button');
+            fakeCheckButton.type = 'button';
+            fakeCheckButton.className = 'btn-control-md item-ownership-button';
+            fakeCheckButton.textContent = 'Check Inventory';
+            fakeCheckButton.style.position = 'absolute';
+            fakeCheckButton.style.left = '-9999px';
+            fakeCheckButton.style.top = '-9999px';
+            buttonListItem.insertBefore(fakeCheckButton, button2);
+
+
+            input.addEventListener('input', function() {
+                button2.disabled = !input.value.trim();
+                if (!creatorItemsData) {
+                    button2.textContent = 'Check Ownership';
+                } else {
+                    button2.textContent = 'Check Single Item';
+                }
+            });
+
+            input.addEventListener('keydown', function(event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    if (!button2.disabled) {
+                        const itemId = input.value;
+                            if (itemId) {
+                            if (ownershipTextElement && currentDisplayName) {
+                                ownershipTextElement.textContent = `Checking ownership for item ID: ${itemId}...`;
+                                ownershipTextElement.style.display = 'block';
+
+                                ownershipTextElement.style.padding = '5px';
                             }
-                        }
-                    }
-                });
-
-
-                button2.addEventListener('click', function() {
-                    const itemId = input.value;
-                    const itemIdInput = itemId
-                    const singleItemId = itemIdInput.trim();
-
-                    if (ownershipTextElement && currentDisplayName) {
-                        ownershipTextElement.textContent = `Checking ownership for item ID: ${singleItemId}...`;
-                        ownershipTextElement.style.display = 'block';
-                        ownershipTextElement.style.padding = '5px';
-                    }
-
-
-                    if (creatorItemsData && creatorItemsData.data) {
-                        if (singleItemId) {
-                            checkItemOwnership({id: singleItemId}).then(ownershipResult => {
-                                displayOwnershipResult({id: singleItemId}, ownershipResult, inventoryHiddenParentElement);
+                            checkItemOwnership({id: itemId}).then(ownershipResult => {
+                                displayOwnershipResult({id: itemId}, ownershipResult, inventoryHiddenParentElement);
                             })
                             .catch(error => {
                                 ownershipTextElement.textContent = "Invalid Item ID";
                                 ownershipTextElement.style.display = 'block';
                                 ownershipTextElement.style.color = document.documentElement.style.getPropertyValue('--text-color');
                             });
-                            button2.textContent = 'Check Single Item';
-                        } else {
-                            button2.textContent = 'Check Single Item';
                         }
-                        button2.disabled = false;
                     }
+                }
+            });
 
 
-                    else if (singleItemId) {
+            button2.addEventListener('click', function() {
+                const itemId = input.value;
+                const itemIdInput = itemId
+                const singleItemId = itemIdInput.trim();
+
+                if (ownershipTextElement && currentDisplayName) {
+                    ownershipTextElement.textContent = `Checking ownership for item ID: ${singleItemId}...`;
+                    ownershipTextElement.style.display = 'block';
+                    ownershipTextElement.style.padding = '5px';
+                }
+
+
+                if (creatorItemsData && creatorItemsData.data) {
+                    if (singleItemId) {
                         checkItemOwnership({id: singleItemId}).then(ownershipResult => {
                             displayOwnershipResult({id: singleItemId}, ownershipResult, inventoryHiddenParentElement);
                         })
@@ -1211,70 +1164,80 @@
                             ownershipTextElement.style.display = 'block';
                             ownershipTextElement.style.color = document.documentElement.style.getPropertyValue('--text-color');
                         });
-                         button2.textContent = 'Check Ownership';
+                        button2.textContent = 'Check Single Item';
                     } else {
-                         button2.textContent = 'Check Ownership';
+                        button2.textContent = 'Check Single Item';
                     }
-                     button2.disabled = !singleItemId;
-                });
-
-                ownershipTextElement = document.createElement('p');
-                ownershipTextElement.id = 'item-ownership-result-text';
-                ownershipTextElement.style.cssText = `
-                    color: ${document.documentElement.style.getPropertyValue('--text-success-color')} !important;
-                    font-size: 15px;
-                    font-weight: 500;
-                    font-family: "HCo Gotham SSm", "Helvetica Neue", Helvetica, Arial, "Lucida Grande";
-                    margin-top: 0px;
-                    display: none;
-                    text-align: center;
-                    box-sizing: border-box;
-                    width: 100%;
-                `;
-                container.appendChild(ownershipTextElement);
-
-                buttonsContainer.appendChild(buttonListItem);
-                buttonsContainer.appendChild(filterDropdownContainer);
-
-                container.appendChild(explanation);
-                container.appendChild(inputGroup);
-                container.appendChild(buttonsContainer);
-                container.appendChild(tabButtonsContainer);
-
-                if (inventoryHiddenSpan && inventoryHiddenSpan.parentNode) {
-
-                    let explanationContainer = document.createElement('div');
-                    explanationContainer.appendChild(explanation);
-                    explanationContainer.id = 'item-ownership-explanation-container';
-
-                    inventoryHiddenSpan.parentNode.insertBefore(explanationContainer, inventoryHiddenSpan.nextSibling);
-                    inventoryHiddenSpan.parentNode.insertBefore(container, explanationContainer.nextSibling);
-                    console.log("checkInventoryHidden: Item ownership checker container added to the page."); // Log when container is added
-                } else {
-                    console.warn("checkInventoryHidden: inventoryHiddenSpan or its parentNode not found. Appending to body as fallback."); // Log fallback scenario
-                    document.body.appendChild(explanation);
-                    document.body.appendChild(container);
+                    button2.disabled = false;
                 }
-                applyFilterButtonStyle(filterButtonElement, detectTheme());
-                applySpecificFilterButtonStyles(filterButtonElement);
-                addFilterButtonEvents();
-                addDropdownCloseEvents();
-                addFilterOptionEvents();
 
-                checkApplyButtonState();
+
+                else if (singleItemId) {
+                    checkItemOwnership({id: singleItemId}).then(ownershipResult => {
+                        displayOwnershipResult({id: singleItemId}, ownershipResult, inventoryHiddenParentElement);
+                    })
+                    .catch(error => {
+                        ownershipTextElement.textContent = "Invalid Item ID";
+                        ownershipTextElement.style.display = 'block';
+                        ownershipTextElement.style.color = document.documentElement.style.getPropertyValue('--text-color');
+                    });
+                     button2.textContent = 'Check Ownership';
+                } else {
+                     button2.textContent = 'Check Ownership';
+                }
+                 button2.disabled = !singleItemId;
+            });
+
+             ownershipTextElement = document.createElement('p');
+            ownershipTextElement.id = 'item-ownership-result-text';
+            ownershipTextElement.style.cssText = `
+                color: ${document.documentElement.style.getPropertyValue('--text-success-color')} !important;
+                font-size: 15px;
+                font-weight: 500;
+                font-family: "HCo Gotham SSm", "Helvetica Neue", Helvetica, Arial, "Lucida Grande";
+                margin-top: 0px;
+                display: none;
+                text-align: center;
+                box-sizing: border-box;
+                width: 100%;
+            `;
+            container.appendChild(ownershipTextElement);
+
+            buttonsContainer.appendChild(buttonListItem);
+            buttonsContainer.appendChild(filterDropdownContainer);
+
+            container.appendChild(explanation);
+            container.appendChild(inputGroup);
+            container.appendChild(buttonsContainer);
+            container.appendChild(tabButtonsContainer);
+
+            if (inventoryHiddenSpan && inventoryHiddenSpan.parentNode) {
+
+                let explanationContainer = document.createElement('div');
+                explanationContainer.appendChild(explanation);
+                explanationContainer.id = 'item-ownership-explanation-container';
+
+                inventoryHiddenSpan.parentNode.insertBefore(explanationContainer, inventoryHiddenSpan.nextSibling);
+                inventoryHiddenSpan.parentNode.insertBefore(container, explanationContainer.nextSibling);
             } else {
-                console.log("checkInventoryHidden: Item ownership checker container already exists."); // Log if container already exists
+                document.body.appendChild(explanation);
+                document.body.appendChild(container);
             }
-         } else {
-            console.log(`checkInventoryHidden: Inventory hidden span not found, retry count: ${retryCount}`); // Log when span is not found during retry
-            if (retryCount < maxRetries) {
-                setTimeout(() => checkInventoryHidden(retryCount + 1), retryDelay);
-            } else {
-                console.error("checkInventoryHidden: Max retries reached, inventory hidden span not found. Script may not function correctly."); // Log error if max retries reached
-            }
+            applyFilterButtonStyle(filterButtonElement, detectTheme());
+            applySpecificFilterButtonStyles(filterButtonElement);
+            addFilterButtonEvents();
+            addDropdownCloseEvents();
+            addFilterOptionEvents();
+
+            checkApplyButtonState();
         }
-        inventoryCheckRunning = false;
-        console.log("checkInventoryHidden: Finished"); // ADDED LOG
+     } else {
+        if (retryCount < maxRetries) {
+            setTimeout(() => checkInventoryHidden(retryCount + 1), retryDelay);
+        } else {
+        }
+    }
+    inventoryCheckRunning = false;
     }
 
     function applyTabButtonStyles(button, isActive, theme) {
@@ -1341,14 +1304,6 @@
             color: ${inputPlaceholderColor};
             opacity: 1;
         }
-        select {
-          -webkit-appearance: none;
-          -moz-appearance: none;
-          appearance: none;
-          text-indent: 0.01px;
-          text-overflow: '';
-        }
-
     `;
     document.head.appendChild(styleSheet);
     }
@@ -1388,11 +1343,13 @@
     });
     }
 
-    function addFilterOptionEvents() {}
+    function addFilterOptionEvents() {
+    }
 
 
     function checkItemOwnership(item, silentError = false) {
         const itemId = item.id;
+
     if (!currentUserId) {
         return Promise.reject("No User ID");
     }
@@ -1519,7 +1476,8 @@
                         }
                     });
                 }
-            } catch (error) {}
+            } catch (error) {
+            }
         }
 
         for (let i = 0; i < assetItemIds.length; i += 50) {
@@ -1538,7 +1496,8 @@
                         }
                     });
                 }
-            } catch (error) {}
+            } catch (error) {
+            }
         }
 
         return {thumbnailData: allThumbnailData, itemDetails: allItemDetails};
@@ -1577,7 +1536,8 @@
         const itemDetails = fetchedData.itemDetails;
 
 
-        if (!thumbnailData || !itemDetails) {}
+        if (!thumbnailData || !itemDetails) {
+        }
 
         let hasOwnedItems = false;
         let hasUnownedItems = false;
@@ -1619,7 +1579,8 @@
                 }
                 itemPrice = priceToUse;
 
-            } else {}
+            } else {
+            }
 
 
             const itemCard = document.createElement('div');
@@ -1627,7 +1588,6 @@
             itemCard.style.width = '120px';
             itemCard.style.marginBottom = '10px';
             itemCard.style.marginRight = '10px';
-            itemCard.style.minHeight = '202px'
             itemCard.style.position = 'relative';
 
             const itemLink = document.createElement('a');
@@ -1636,17 +1596,13 @@
             itemLink.href = `${catalogBaseUrl}/${itemId}/${encodeURIComponent(itemName)}`;
             itemLink.target = '_blank';
             itemLink.style.display = 'flex';
-            itemLink.style.maxHeight = '202px'
-            itemLink.style.verticalAlign = 'top';
             itemLink.style.flexDirection = 'column';
             itemLink.style.alignItems= 'center';
             const limitedBadgeContainer = document.createElement('div');
             limitedBadgeContainer.className = 'item-limited-badge-container';
-            limitedBadgeContainer.style.position = 'absolute';
-            limitedBadgeContainer.style.top = 'auto';
-            limitedBadgeContainer.style.marginTop = 'auto';
-            limitedBadgeContainer.style.bottom = '74px';
-            limitedBadgeContainer.style.left = '-5px';
+            limitedBadgeContainer.style.position = 'relative';
+            limitedBadgeContainer.style.bottom = '-126px';
+            limitedBadgeContainer.style.left = '-63px';
             limitedBadgeContainer.style.zIndex = '3';
             itemLink.appendChild(limitedBadgeContainer);
 
@@ -1668,8 +1624,6 @@
                 thumbContainer.src = imageUrl;
                 thumbContainer.className = 'item-card-thumb-container';
                 thumbContainer.style.width = '126px';
-                thumbContainer.style.top = '0px'
-                thumbContainer.style.verticalAlign = 'top';
                 thumbContainer.style.height = '126px';
                 thumbContainer.style.objectFit = 'cover';
                 thumbContainer.style.marginBottom = '5px';
@@ -1802,7 +1756,7 @@
                 const iconSpan = document.createElement('span');
                 iconSpan.className = 'icon-robux-16x16 ng-scope';
                 const priceSpan = document.createElement('span');
-                priceSpan.style.marginLeft = '0px'
+                priceSpan.style.marginLeft = '5px'
                 priceSpan.className = 'text-robux-tile ng-binding';
                 priceSpan.style.fontFamily = 'HCo Gotham SSm, Helvetica Neue, Helvetica, Arial, Lucida Grande, sans-serif';
                 priceSpan.textContent = abbreviateNumber(itemPrice);
@@ -2018,7 +1972,6 @@
     }
 
 
-    console.log("Script started"); // ADDED LOG - Script start verification
     extractAndLogUserId();
 
     let currentTheme = detectTheme();
@@ -2049,17 +2002,7 @@
 
 
     document.addEventListener('DOMContentLoaded', function() {
-        if (isInventoryPage()) {
-            setTimeout(() => {
-                try {
-                    checkInventoryHidden();
-                } catch (error) {
-                    console.error("DOMContentLoaded: Error in checkInventoryHidden:", error); // Error handling in DOMContentLoaded
-                }
-            }, 1000); // Increased delay to 1000ms
-        } else {
-            console.log("Not on inventory page, item ownership checker will not be initialized."); // Log if not on inventory page
-        }
+        setTimeout(() => checkInventoryHidden(), 500);
     });
 
 })();

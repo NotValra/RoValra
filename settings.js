@@ -1,7 +1,6 @@
 let currentTheme = 'light'; 
 let observer = null;
 let isChecking = false;
-const checkInterval = 50;
 let popoverButtonCheckTimeout = null;
 let isPopoverButtonAdding = false;
 let rovalraButtonAdded = false;
@@ -777,6 +776,9 @@ async function checkRoValraPage() {
                             <li style="margin-bottom: 8px; list-style-type: disc; margin-left: 20px;">
                                 Thanks to <b style="font-weight: bold;">7_lz</b> for helping me a bunch when preparing for the Chrome Web Store release. They helped a ton and I'm very thankful.
                             </li>
+                            <li style="margin-bottom: 8px; list-style-type: disc; margin-left: 20px;">
+                                Thanks to <b style="font-weight: bold;">mmfw</b> for making the screenshots on the chrome web store.
+                                   </li>
                              <li style="margin-bottom: 8px; list-style-type: disc; margin-left: 20px;">
                                 Thanks to <b style="font-weight: bold;">Coweggs</b> for coming up with the very funny name that is "RoValra" as a joke that I then ended up using.
                                    </li>
@@ -792,6 +794,10 @@ async function checkRoValraPage() {
                                 <li style="margin-bottom: 8px; list-style-type: disc; margin-left: 20px;">
                                    <a href="https://roqol.io/" target="_blank">RoQoL</a>
                                     <p style="margin-top: 5px;">Adds quite a few nice quality of life changes.</p>
+                               </li>
+                               <li style="margin-bottom: 8px; list-style-type: disc; margin-left: 20px;">
+                                   <a href="https://betterroblox.com/" target="_blank">BetterBlox</a>
+                                    <p style="margin-top: 5px;">This extension brings back last online and more features that no other extension has.</p>
                                </li>
                                
                             </ul>
@@ -892,7 +898,7 @@ async function checkRoValraPage() {
                             <div class="setting-separator"></div>
                             </div>
                              <div class="setting">
-                            <label style="">Enable Universal Server Invites (BETA)</label>
+                            <label style="">Enable Universal Server Invites (Highly buggy)</label>
                              <p>This allows you to invite your friends to the game you're in, without your friend requiring any extension, not even RoValra!</p>
                              <p>This will replaces RoPros invites.</p>
                              <p>This does require you to have BTRoblox for it to work.</p>
