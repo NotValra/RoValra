@@ -66,8 +66,7 @@
 
 # To do list
 - [ ] **Finishing my private todo list with around 22 things on it. (5/22 are done)**
-- [ ] **Hidden Catalog allowing you to browse up coming unreleased Roblox items (Only a maybe feature)**
-- [ ] **Filter between offline, online, in-game with joins on and just in game, on groups**
+- [ ] **Hidden Catalog allowing you to browse up coming unreleased Roblox items. Coming next update!**
 - [ ] **Maybe FireFox support (its not my main focus atm)**
 
 # Known incompatibilies
@@ -97,6 +96,8 @@
 
 # Credits
 - **Sales / revenue thingy: https://github.com/workframes/roblox-owner-counts**
+  
+- **Thanks to mmfw for making the pictures on the chrome web store**
 
 - **Coding: Chatgpt 😘 and little me**
 
