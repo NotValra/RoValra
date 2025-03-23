@@ -65,8 +65,9 @@
     - **You can send the feedback in my [Discord Server](https://discord.gg/GHd5cSKJRk) in the suggestions channel.**
 
 # To do list
-- [ ] **Finishing my private todo list with around 22 things on it. (5/22 are done)**
+- [ ] **Finishing my private todo list with around 22 things on it. (8/22 are done)**
 - [ ] **Hidden Catalog allowing you to browse up coming unreleased Roblox items. Coming next update!**
+- [ ] **Reworked Region selector ui (not my main focus atm)**
 - [ ] **Maybe FireFox support (its not my main focus atm)**
 
 # Known incompatibilies
