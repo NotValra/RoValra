@@ -66,7 +66,7 @@
 
 # To do list
 - [ ] **Finishing my private todo list with around 22 things on it. (8/22 are done)**
-- [ ] **Hidden Catalog allowing you to browse up coming unreleased Roblox items. Coming next update!**
+- [x] **~~Hidden Catalog allowing you to browse up coming unreleased Roblox items.~~ ADDED**
 - [ ] **Reworked Region selector ui (not my main focus atm)**
 - [ ] **Maybe FireFox support (its not my main focus atm)**
 
@@ -78,8 +78,7 @@
 </details>
 
 # Known Issues
-- **~~When using BTRoblox communities modifications~~ The hidden experiences sometimes wont filter out none hidden experiences FIX COMING NEXT UPDATE**
-- **Sometimes the hidden experiences button isnt being added on communities FIX COMING NEXT UPDATE**
+- **No known issues**
 
 # How to install
 
