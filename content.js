@@ -88,6 +88,7 @@ function getPlaceIdFromUrl() {
     let settings;
     try {
         settings = await chrome.storage.local.get({
+            hiddenCatalogEnabled: true,
             itemSalesEnabled: true,
             groupGamesEnabled: true,
             userGamesEnabled: true,
@@ -115,11 +116,26 @@ function getPlaceIdFromUrl() {
     const currentPath = window.location.pathname;
 
     if (settings.regionSelectorFirstTime) {
+        await chrome.storage.local.set({
+            hiddenCatalogEnabled: true,
+            itemSalesEnabled: true,
+            groupGamesEnabled: true,
+            userGamesEnabled: true,
+            userSniperEnabled: false,
+            universalSniperEnabled: true,
+            regionSelectorEnabled: true,
+            subplacesEnabled: true,
+            forceR6Enabled: true,
+            fixR6Enabled: false,
+            inviteEnabled: false,
+            regionSelectorInitialized: false,
+            regionSelectorFirstTime: true, 
+        });
+
         if (settings.regionSelectorEnabled) {
             await loadScript('Games/Regions_content.js', { serverListURL: chrome.runtime.getURL('data/ServerList.json') });
         }
         await chrome.storage.local.set({ regionSelectorEnabled: false, universalSniperEnabled: false,regionSelectorInitialized: 'pendingRefresh', regionSelectorFirstTime: false });
-        window.location.reload();
         return;
     }
 
@@ -130,7 +146,6 @@ function getPlaceIdFromUrl() {
         }
         await chrome.storage.local.set({ regionSelectorEnabled: true, universalSniperEnabled: true });
         setTimeout(() => {
-            window.location.reload();
         }, 100);
         return;
     } else {
@@ -177,8 +192,8 @@ function getPlaceIdFromUrl() {
         }
     }
 
-    // Load catalog/hiddencatalog.js on every page
-    //await loadScript('catalog/hiddencatalog.js');
+    if (settings.hiddenCatalogEnabled) { 
+    }
 
 
     const theme = await detectTheme();

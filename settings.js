@@ -1,4 +1,4 @@
-let currentTheme = 'light'; 
+let currentTheme = 'light';
 let observer = null;
 let isChecking = false;
 let popoverButtonCheckTimeout = null;
@@ -14,18 +14,18 @@ async function fetchThemeFromAPI() {
         });
         if (!response.ok) {
             console.error('Failed to fetch theme from API:', response.status, response.statusText);
-            return 'light'; 
+            return 'light';
         }
         const data = await response.json();
         if (data && data.themeType) {
-            return data.themeType.toLowerCase(); 
+            return data.themeType.toLowerCase();
         } else {
             console.warn('Theme data from API is unexpected:', data);
-            return 'light'; 
+            return 'light';
         }
     } catch (error) {
         console.error('Error fetching theme from API:', error);
-        return 'light'; 
+        return 'light';
     }
 }
 
@@ -50,26 +50,26 @@ function updateThemeStyles_settingsPage(theme) {
     const tabButtons = document.querySelectorAll('.tab-button');
     tabButtons.forEach(button => {
         button.style.color = buttonTextColor;
-        button.style.backgroundColor = buttonBgColor; 
+        button.style.backgroundColor = buttonBgColor;
         button.style.border = buttonBorder;
 
         if (button.dataset.active === 'true') {
-            button.style.backgroundColor = buttonActiveBgColor; 
+            button.style.backgroundColor = buttonActiveBgColor;
         } else {
-             
+
             button.addEventListener('mouseenter', function() {
-                 if (this.dataset.active !== 'true') {
+                if (this.dataset.active !== 'true') {
                     button.style.backgroundColor = buttonHoverBgColor;
                 }
             });
-             button.addEventListener('mouseleave', function() {
-                 if (this.dataset.active !== 'true') {
-                    button.style.backgroundColor = buttonBgColor; 
+            button.addEventListener('mouseleave', function() {
+                if (this.dataset.active !== 'true') {
+                    button.style.backgroundColor = buttonBgColor;
                 }
             });
         }
     });
-    
+
     if (contentContainer) {
         const childDiv = contentContainer.querySelector(':scope > div');
         if (childDiv) {
@@ -86,7 +86,7 @@ function updateThemeStyles_settingsPage(theme) {
         uiContainer.style.color = textColor;
     }
 
-    
+
 
     const sliders = document.querySelectorAll('.slider');
     sliders.forEach(slider => {
@@ -135,30 +135,30 @@ function updateThemeStyles_rovalraPage(theme) {
         allLinks.forEach(link => {
             link.style.setProperty('text-decoration', 'underline', 'important');
             link.style.setProperty('font-weight', 'bold', 'important');
-             link.style.setProperty('transition', 'color 0.3s ease', 'important');
+            link.style.setProperty('transition', 'color 0.3s ease', 'important');
 
             link.addEventListener('mouseenter', function() {
-                   const computedColor = window.getComputedStyle(this).color;
-                    const lighterColor = lightenColor(computedColor, 0.2);
-                   this.style.setProperty('color', lighterColor, 'important');
-                });
-                 link.addEventListener('mouseleave', function() {
-                     if (this.href.includes('discord.gg')) {
-                         this.style.setProperty('color', discordLinkColor, 'important');
-                     }
-                     else if(this.href.includes('github.com')) {
-                         this.style.setProperty('color', githubLinkColor, 'important');
-                     } else{
-                         this.style.setProperty('color', 'inherit', 'important');
-                     }
-                 });
+                const computedColor = window.getComputedStyle(this).color;
+                const lighterColor = lightenColor(computedColor, 0.2);
+                this.style.setProperty('color', lighterColor, 'important');
+            });
+            link.addEventListener('mouseleave', function() {
+                if (this.href.includes('discord.gg')) {
+                    this.style.setProperty('color', discordLinkColor, 'important');
+                }
+                else if(this.href.includes('github.com')) {
+                    this.style.setProperty('color', githubLinkColor, 'important');
+                } else{
+                    this.style.setProperty('color', 'inherit', 'important');
+                }
+            });
         });
 
 
         const discordLinks = contentContainer.querySelectorAll('a[href*="discord.gg"]');
         discordLinks.forEach(link => {
-             link.style.setProperty('color', discordLinkColor, 'important');
-         });
+            link.style.setProperty('color', discordLinkColor, 'important');
+        });
 
         const githubLinks = contentContainer.querySelectorAll('a[href*="github.com"]');
         githubLinks.forEach(link => {
@@ -176,7 +176,7 @@ function applyTheme() {
     if (window.location.href.includes('/RoValra')) {
         updateThemeStyles_rovalraPage(currentTheme);
     } else if (isSettingsPage) {
-        updateThemeStyles_settingsPage(currentTheme); 
+        updateThemeStyles_settingsPage(currentTheme);
     }
 }
 
@@ -264,7 +264,7 @@ function observeContentChanges() {
                 for(const addedNode of mutation.addedNodes) {
                     if(addedNode.nodeType === Node.ELEMENT_NODE) {
                         if (addedNode.querySelector('ul.menu-vertical[role="tablist"]')) {
-                           addCustomButton();
+                            addCustomButton();
                             return;
                         }
                     }
@@ -305,15 +305,15 @@ function addPopoverButton() {
             }
             const existingButtons = popoverMenu.querySelectorAll('li.list-item');
 
-             if (existingButtons.length > 1) {
+            if (existingButtons.length > 1) {
                 for (let i = 1; i < existingButtons.length; i++) {
-                   existingButtons[i].closest('li.list-item').remove();
+                    existingButtons[i].closest('li.list-item').remove();
                 }
             }
-           const existingButton = popoverMenu.querySelector('li.list-item');
+            const existingButton = popoverMenu.querySelector('li.list-item');
             if (existingButton) {
-                 if (observer) {
-                     observer.observe(document.body, { childList: true, subtree: true });
+                if (observer) {
+                    observer.observe(document.body, { childList: true, subtree: true });
                 }
                 isPopoverButtonAdding = false;
                 return;
@@ -347,8 +347,8 @@ function addPopoverButton() {
             newButtonLink.appendChild(newButtonSpan);
             newButtonListItem.appendChild(newButtonLink);
 
-          newButtonLink.addEventListener('click', function () {
-                 const popover = document.querySelector('.popover-menu.settings-popover');
+            newButtonLink.addEventListener('click', function () {
+                const popover = document.querySelector('.popover-menu.settings-popover');
                 if (popover) {
                     popover.style.display = 'none';
                 }
@@ -366,14 +366,14 @@ function addPopoverButton() {
 
 function startObserver() {
     if (observer) {
-      observer.disconnect();
+        observer.disconnect();
     }
 
     function checkAndAddButtons() {
         const popover = document.querySelector('.popover-menu.settings-popover');
-         if (popover && popover.style.display !== 'none' ) {
+        if (popover && popover.style.display !== 'none' ) {
             return;
-          }
+        }
 
         if (!isChecking) {
             isChecking = true;
@@ -393,33 +393,34 @@ function startObserver() {
     }
 
 
-      observer = new MutationObserver(mutations => {
-          for (const mutation of mutations) {
+    observer = new MutationObserver(mutations => {
+        for (const mutation of mutations) {
 
-             let isDescendant = false;
+            let isDescendant = false;
 
-              let currentNode = mutation.target;
-               while (currentNode) {
-                   if (currentNode === targetElement) {
-                       isDescendant = true;
-                       break;
-                   }
-                  currentNode = currentNode.parentNode;
-               }
+            let currentNode = mutation.target;
+            while (currentNode) {
+                if (currentNode === targetElement) {
+                    isDescendant = true;
+                    break;
+                }
+                currentNode = currentNode.parentNode;
+            }
 
-               if (isDescendant){
-                  if (mutation.type === 'childList') {
-                      checkAndAddButtons();
-                   }
-              }
+            if (isDescendant){
+                if (mutation.type === 'childList') {
+                    checkAndAddButtons();
+                }
+            }
 
-          }
-        });
-      observer.observe(targetElement, { childList: true, subtree: true });
-  }
-  const loadSettings = async () => {
+        }
+    });
+    observer.observe(targetElement, { childList: true, subtree: true });
+}
+const loadSettings = async () => {
     return new Promise((resolve, reject) => {
         chrome.storage.local.get({
+            hiddenCatalogEnabled: true, 
             itemSalesEnabled: true,
             groupGamesEnabled: true,
             userGamesEnabled: true,
@@ -442,9 +443,10 @@ function startObserver() {
 };
 
 
-const handleSaveSettings = async (itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, universalSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox) => {
+const handleSaveSettings = async (hiddenCatalogCheckbox, itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, universalSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox) => {
     try {
         const settings = {
+            hiddenCatalogEnabled: hiddenCatalogCheckbox.checked, 
             itemSalesEnabled: itemSalesCheckbox.checked,
             groupGamesEnabled: groupGamesCheckbox.checked,
             userGamesEnabled: userGamesCheckbox.checked,
@@ -469,15 +471,16 @@ const handleSaveSettings = async (itemSalesCheckbox, groupGamesCheckbox, userGam
     } catch (error) {
     }
 };
-const initSettings = async (itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, universalSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox) => {
+const initSettings = async (hiddenCatalogCheckbox, itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, universalSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox) => { 
     const settings = await loadSettings();
 
     if (settings) {
+        hiddenCatalogCheckbox.checked = settings.hiddenCatalogEnabled; 
         itemSalesCheckbox.checked = settings.itemSalesEnabled;
         groupGamesCheckbox.checked = settings.groupGamesEnabled;
         userGamesCheckbox.checked = settings.userGamesEnabled;
         userSniperCheckbox.checked = settings.userSniperEnabled;
-         universalSniperCheckbox.checked = settings.universalSniperEnabled;
+        universalSniperCheckbox.checked = settings.universalSniperEnabled;
         regionSelectorCheckbox.checked = settings.regionSelectorEnabled;
         subplacesCheckbox.checked = settings.subplacesEnabled;
         forceR6Checkbox.checked = settings.forceR6Enabled;
@@ -528,30 +531,30 @@ async function updateContent(buttonInfo, contentContainer, buttonData) {
         allLinks.forEach(link => {
             link.style.setProperty('text-decoration', 'underline', 'important');
             link.style.setProperty('font-weight', 'bold', 'important');
-             link.style.setProperty('transition', 'color 0.3s ease', 'important');
+            link.style.setProperty('transition', 'color 0.3s ease', 'important');
 
             link.addEventListener('mouseenter', function() {
-                   const computedColor = window.getComputedStyle(this).color;
-                    const lighterColor = lightenColor(computedColor, 0.2);
-                   this.style.setProperty('color', lighterColor, 'important');
-                });
-                 link.addEventListener('mouseleave', function() {
-                     if (this.href.includes('discord.gg')) {
-                         this.style.setProperty('color', discordLinkColor, 'important');
-                     }
-                     else if(this.href.includes('github.com')) {
-                         this.style.setProperty('color', githubLinkColor, 'important');
-                     } else{
-                         this.style.setProperty('color', 'inherit', 'important');
-                     }
-                 });
+                const computedColor = window.getComputedStyle(this).color;
+                const lighterColor = lightenColor(computedColor, 0.2);
+                this.style.setProperty('color', lighterColor, 'important');
+            });
+            link.addEventListener('mouseleave', function() {
+                if (this.href.includes('discord.gg')) {
+                    this.style.setProperty('color', discordLinkColor, 'important');
+                }
+                else if(this.href.includes('github.com')) {
+                    this.style.setProperty('color', githubLinkColor, 'important');
+                } else{
+                    this.style.setProperty('color', 'inherit', 'important');
+                }
+            });
         });
 
 
         const discordLinks = contentContainer.querySelectorAll('a[href*="discord.gg"]');
         discordLinks.forEach(link => {
-             link.style.setProperty('color', discordLinkColor, 'important');
-         });
+            link.style.setProperty('color', discordLinkColor, 'important');
+        });
 
         const githubLinks = contentContainer.querySelectorAll('a[href*="github.com"]');
         githubLinks.forEach(link => {
@@ -656,17 +659,17 @@ async function checkRoValraPage() {
                 justify-content: space-between;
                 font-size: 16px;
                 margin: 0 0px;
-                
+
             }
-            
+
             .setting label {
                 flex-grow: 1;
                 margin-right: 5px;
                 font-weight: bold;
-                
+
             }
             .setting p {
-               
+
             }
             .toggle-switch {
                 position: relative;
@@ -681,6 +684,52 @@ async function checkRoValraPage() {
                 width: 0;
                 height: 0;
             }
+            .toggle-switch1 {
+                position: relative;
+                display: inline-block;
+                width: 36px;
+                height: 20px;
+                margin-top: 4px;
+                float: right;
+                display: none;
+            }
+            .toggle-switch1 input {
+                opacity: 0;
+                width: 0;
+                height: 0;
+            }
+                .slider1 {
+                position: absolute;
+                cursor: pointer;
+                top: 0;
+                left: 0;
+                right: 0;
+                background-color: #444;
+                bottom: 0;
+                transition: .4s;
+
+                border-radius: 18px;
+                width: 36px;
+            }
+            .slider1:before {
+                position: absolute;
+                disabled: true;
+                content: "";
+                height: 18px;
+                width: 18px;
+                left: 1px;
+                bottom: 1px;
+                background-color:rgb(255, 255, 255);
+                transition: .4s;
+                border-radius: 50%;
+            }
+            input:checked + .slider1 {
+                background-color: #2EA44F;
+            }
+
+            input:checked + .slider1:before{
+                transform: translateX(16px);
+            }
             .slider {
                 position: absolute;
                 cursor: pointer;
@@ -690,8 +739,8 @@ async function checkRoValraPage() {
                 background-color: #444;
                 bottom: 0;
                 transition: .4s;
-                
-                border-radius: 18px; 
+
+                border-radius: 18px;
                 width: 36px;
             }
             .slider:before {
@@ -708,7 +757,7 @@ async function checkRoValraPage() {
             input:checked + .slider {
                 background-color: #2EA44F;
             }
-            
+
             input:checked + .slider:before{
                 transform: translateX(16px);
             }
@@ -730,7 +779,7 @@ async function checkRoValraPage() {
                 white-space: nowrap;
                 margin-left: 0px;
             }
-            
+
         `;
         document.head.appendChild(style);
         const buttonData = [
@@ -740,7 +789,7 @@ async function checkRoValraPage() {
                    <h2 style="; margin-bottom: 10px;">RoValra Infomation!</h2>
                    <p style="">RoValra is an extension that's trying to make basic quality of life features free and accessible to everyone, by making everything completely open-source.</p>
                    <div style="margin-top: 5px;">
-                       <p style="">This is possible by running everything locally.</p>
+                       <p style="">This is possible by running almost everything locally.</p>
                        <div style="margin-top: 5px;">
                        <p style="">If you have any feature suggestions please let me know in my Discord server or via GitHub</p>
                        <div style="margin-top: 5px;">
@@ -767,12 +816,11 @@ async function checkRoValraPage() {
                             <li style="margin-bottom: 8px; list-style-type: disc; margin-left: 20px;">
                                  Thanks to <b style="font-weight: bold;">Aspect</b> for helping me out here and there when I had a bunch of dumb questions or problems.
                                  <a href="https://github.com/Aspectise" target="_blank">GitHub</a>
-                                 <a href="https://discord.gg/U75BFsV49z" target="_blank">Discord</a>
                            </li>
                            <li style="margin-bottom: 8px; list-style-type: disc; margin-left: 20px;">
                                 Thanks to <b style="font-weight: bold;">l5se</b> for allowing me to use their open source region selector as a template for my extension.
                            </li>
-                            
+
                             <li style="margin-bottom: 8px; list-style-type: disc; margin-left: 20px;">
                                 Thanks to <b style="font-weight: bold;">7_lz</b> for helping me a bunch when preparing for the Chrome Web Store release. They helped a ton and I'm very thankful.
                             </li>
@@ -799,7 +847,7 @@ async function checkRoValraPage() {
                                    <a href="https://betterroblox.com/" target="_blank">BetterBlox</a>
                                     <p style="margin-top: 5px;">This extension brings back last online and more features that no other extension has.</p>
                                </li>
-                               
+
                             </ul>
                          </div>
                     </div>
@@ -864,9 +912,9 @@ async function checkRoValraPage() {
                 }
 
                 if (previouslyActiveButton) {
-                   previouslyActiveButton.style.backgroundColor = 'rgb(57, 59, 61)';
-                   previouslyActiveButton.dataset.active = 'false';
-               }
+                    previouslyActiveButton.style.backgroundColor = 'rgb(57, 59, 61)';
+                    previouslyActiveButton.dataset.active = 'false';
+                }
 
 
                 this.style.backgroundColor = 'rgb(117, 119, 121)';
@@ -877,7 +925,8 @@ async function checkRoValraPage() {
                 if (item.text === "Settings") {
                     contentContainer.innerHTML = `
                             <div style="padding: 25px; background-color: #2a2b2c; border-radius: 8px;">
-                            
+
+                           
                             <h1 style="; margin-bottom: 5px;">Games</h1>
                             <div class="setting">
                             <label style="">Enable Region Selector</label>
@@ -898,13 +947,13 @@ async function checkRoValraPage() {
                             <div class="setting-separator"></div>
                             </div>
                              <div class="setting">
-                            <label style="">Enable Universal Server Invites (Highly buggy)</label>
+                            <label style="">Enable Universal Server Invites (disabled for maintenance)</label>
                              <p>This allows you to invite your friends to the game you're in, without your friend requiring any extension, not even RoValra!</p>
                              <p>This will replaces RoPros invites.</p>
                              <p>This does require you to have BTRoblox for it to work.</p>
-                            <label class="toggle-switch">
+                            <label class="toggle-switch1">
                             <input type="checkbox" id="enableInvite">
-                            <span class="slider"></span>
+                            <span class="slider1"></span>
                             </label>
                             <div class="setting-separator"></div>
                             </div>
@@ -918,7 +967,7 @@ async function checkRoValraPage() {
                             </label>
                             <div class="setting-separator"></div>
                             </div>
-                            
+
                             <h1 style="; margin-top: 0px; margin-bottom: 10px;">Profile</h1>
                              <div class="setting">
                             <label style="">Enable Hidden User Games</label>
@@ -942,7 +991,7 @@ async function checkRoValraPage() {
                             </div>
                               <h1 style="; margin-top: 0px; margin-bottom: 10px;">Communities</h1>
                             <div class="setting">
-                           
+
                             <label style="">Enable Hidden Community Games</label>
                             <p>Shows a communities hidden games.</p>
                             <label class="toggle-switch">
@@ -958,6 +1007,15 @@ async function checkRoValraPage() {
                             <p>The sales data is very likely to be inaccurate on items that are for sale, but very likely to be correct on off sale items.</p>
                             <label class="toggle-switch">
                             <input type="checkbox" id="enableItemSales">
+                            <span class="slider"></span>
+                            </label>
+                            <div class="setting-separator"></div>
+                            </div>
+                             <div class="setting">
+                            <label style="">Enable Hidden Catalog</label>
+                            <p>Shows Roblox made items before they are on the official catalog.</p>
+                            <label class="toggle-switch">
+                            <input type="checkbox" id="enableHiddenCatalog">
                             <span class="slider"></span>
                             </label>
                             <div class="setting-separator"></div>
@@ -984,35 +1042,37 @@ async function checkRoValraPage() {
                             </div>
                             </div>
                             </div>
-                            
+
                             `;
-        
+
+                    const hiddenCatalogCheckbox = contentContainer.querySelector('#enableHiddenCatalog'); 
                     const itemSalesCheckbox = contentContainer.querySelector('#enableItemSales');
                     const groupGamesCheckbox = contentContainer.querySelector('#enableGroupGames');
                     const userGamesCheckbox = contentContainer.querySelector('#enableUserGames');
                     const userSniperCheckbox = contentContainer.querySelector('#enableUserSniper');
-                    const universalSniperCheckbox = contentContainer.querySelector('#enableUniversalSniper'); 
+                    const universalSniperCheckbox = contentContainer.querySelector('#enableUniversalSniper');
                     const regionSelectorCheckbox = contentContainer.querySelector('#enableRegionSelector');
                     const subplacesCheckbox = contentContainer.querySelector('#enableSubplaces');
                     const forceR6Checkbox = contentContainer.querySelector('#enableForceR6');
                     const r6FixCheckbox = contentContainer.querySelector('#enableR6Fix');
                     const inviteCheckbox = contentContainer.querySelector('#enableInvite');
-        
-                    initSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, universalSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox);
-        
-                    itemSalesCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, universalSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
-                    groupGamesCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, universalSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
-                    userGamesCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, universalSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
-                    userSniperCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, universalSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
-                    universalSniperCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, universalSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
-                    regionSelectorCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, universalSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
-                    subplacesCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, universalSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
-                    forceR6Checkbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, universalSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
-                    r6FixCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, universalSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
-                    inviteCheckbox.addEventListener('change', () => handleSaveSettings(itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, universalSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
-        
+
+                    initSettings(hiddenCatalogCheckbox, itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, universalSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox); 
+
+                    hiddenCatalogCheckbox.addEventListener('change', () => handleSaveSettings(hiddenCatalogCheckbox, itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, universalSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox)); 
+                    itemSalesCheckbox.addEventListener('change', () => handleSaveSettings(hiddenCatalogCheckbox, itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, universalSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
+                    groupGamesCheckbox.addEventListener('change', () => handleSaveSettings(hiddenCatalogCheckbox, itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, universalSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
+                    userGamesCheckbox.addEventListener('change', () => handleSaveSettings(hiddenCatalogCheckbox, itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, universalSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
+                    userSniperCheckbox.addEventListener('change', () => handleSaveSettings(hiddenCatalogCheckbox, itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, universalSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
+                    universalSniperCheckbox.addEventListener('change', () => handleSaveSettings(hiddenCatalogCheckbox, itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, universalSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
+                    regionSelectorCheckbox.addEventListener('change', () => handleSaveSettings(hiddenCatalogCheckbox, itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, universalSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
+                    subplacesCheckbox.addEventListener('change', () => handleSaveSettings(hiddenCatalogCheckbox, itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, universalSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
+                    forceR6Checkbox.addEventListener('change', () => handleSaveSettings(hiddenCatalogCheckbox, itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, universalSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
+                    r6FixCheckbox.addEventListener('change', () => handleSaveSettings(hiddenCatalogCheckbox, itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, universalSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
+                    inviteCheckbox.addEventListener('change', () => handleSaveSettings(hiddenCatalogCheckbox, itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, universalSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
+
                     const regionSelectorCheckboxElement = contentContainer.querySelector('#enableRegionSelector');
-        
+
                     function toggleOverlayDisable() {
                         if (regionSelectorCheckboxElement) {
                             if (!regionSelectorCheckboxElement.checked) {
@@ -1070,7 +1130,7 @@ async function updateContent(buttonInfo, contentContainer, buttonData) {
         }
 
         if (window.location.href.includes('/RoValra')) {
-            contentContainer.querySelectorAll('div, span, li, b').forEach(element => { 
+            contentContainer.querySelectorAll('div, span, li, b').forEach(element => {
                 const computedStyle = window.getComputedStyle(element);
                 const elementColor = computedStyle.color;
                 if (elementColor === 'rgb(0, 0, 0)' || elementColor === 'rgb(255, 255, 255)') {
@@ -1092,30 +1152,30 @@ async function updateContent(buttonInfo, contentContainer, buttonData) {
         allLinks.forEach(link => {
             link.style.setProperty('text-decoration', 'underline', 'important');
             link.style.setProperty('font-weight', 'bold', 'important');
-             link.style.setProperty('transition', 'color 0.3s ease', 'important');
+            link.style.setProperty('transition', 'color 0.3s ease', 'important');
 
             link.addEventListener('mouseenter', function() {
-                   const computedColor = window.getComputedStyle(this).color;
-                    const lighterColor = lightenColor(computedColor, 0.2);
-                   this.style.setProperty('color', lighterColor, 'important');
-                });
-                 link.addEventListener('mouseleave', function() {
-                     if (this.href.includes('discord.gg')) {
-                         this.style.setProperty('color', discordLinkColor, 'important');
-                     }
-                     else if(this.href.includes('github.com')) {
-                         this.style.setProperty('color', githubLinkColor, 'important');
-                     } else{
-                         this.style.setProperty('color', 'inherit', 'important');
-                     }
-                 });
+                const computedColor = window.getComputedStyle(this).color;
+                const lighterColor = lightenColor(computedColor, 0.2);
+                this.style.setProperty('color', lighterColor, 'important');
+            });
+            link.addEventListener('mouseleave', function() {
+                if (this.href.includes('discord.gg')) {
+                    this.style.setProperty('color', discordLinkColor, 'important');
+                }
+                else if(this.href.includes('github.com')) {
+                    this.style.setProperty('color', githubLinkColor, 'important');
+                } else{
+                    this.style.setProperty('color', 'inherit', 'important');
+                }
+            });
         });
 
 
         const discordLinks = contentContainer.querySelectorAll('a[href*="discord.gg"]');
         discordLinks.forEach(link => {
-             link.style.setProperty('color', discordLinkColor, 'important');
-         });
+            link.style.setProperty('color', discordLinkColor, 'important');
+        });
 
         const githubLinks = contentContainer.querySelectorAll('a[href*="github.com"]');
         githubLinks.forEach(link => {
@@ -1161,9 +1221,9 @@ function applyTheme() {
         }
     }
     if (uiContainer) {
-         if (window.location.href.includes('/RoValra')) {
-          uiContainer.style.color = textColor;
-         }
+        if (window.location.href.includes('/RoValra')) {
+            uiContainer.style.color = textColor;
+        }
     }
 
     tabButtons.forEach(button => {
@@ -1204,7 +1264,7 @@ async function updateContent(buttonInfo, contentContainer, buttonData) {
         }
 
         if (window.location.href.includes('/RoValra')) {
-            contentContainer.querySelectorAll('div, span, li, b').forEach(element => { 
+            contentContainer.querySelectorAll('div, span, li, b').forEach(element => {
                 const computedStyle = window.getComputedStyle(element);
                 const elementColor = computedStyle.color;
                 if (elementColor === 'rgb(0, 0, 0)' || elementColor === 'rgb(255, 255, 255)') {
@@ -1225,30 +1285,30 @@ async function updateContent(buttonInfo, contentContainer, buttonData) {
         allLinks.forEach(link => {
             link.style.setProperty('text-decoration', 'underline', 'important');
             link.style.setProperty('font-weight', 'bold', 'important');
-             link.style.setProperty('transition', 'color 0.3s ease', 'important');
+            link.style.setProperty('transition', 'color 0.3s ease', 'important');
 
             link.addEventListener('mouseenter', function() {
-                   const computedColor = window.getComputedStyle(this).color;
-                    const lighterColor = lightenColor(computedColor, 0.2);
-                   this.style.setProperty('color', lighterColor, 'important');
-                });
-                 link.addEventListener('mouseleave', function() {
-                     if (this.href.includes('discord.gg')) {
-                         this.style.setProperty('color', discordLinkColor, 'important');
-                     }
-                     else if(this.href.includes('github.com')) {
-                         this.style.setProperty('color', githubLinkColor, 'important');
-                     } else{
-                         this.style.setProperty('color', 'inherit', 'important');
-                     }
-                 });
+                const computedColor = window.getComputedStyle(this).color;
+                const lighterColor = lightenColor(computedColor, 0.2);
+                this.style.setProperty('color', lighterColor, 'important');
+            });
+            link.addEventListener('mouseleave', function() {
+                if (this.href.includes('discord.gg')) {
+                    this.style.setProperty('color', discordLinkColor, 'important');
+                }
+                else if(this.href.includes('github.com')) {
+                    this.style.setProperty('color', githubLinkColor, 'important');
+                } else{
+                    this.style.setProperty('color', 'inherit', 'important');
+                }
+            });
         });
 
 
         const discordLinks = contentContainer.querySelectorAll('a[href*="discord.gg"]');
         discordLinks.forEach(link => {
-             link.style.setProperty('color', discordLinkColor, 'important');
-         });
+            link.style.setProperty('color', discordLinkColor, 'important');
+        });
 
         const githubLinks = contentContainer.querySelectorAll('a[href*="github.com"]');
         githubLinks.forEach(link => {
@@ -1289,8 +1349,7 @@ function lightenColor(color, percent) {
     return `rgb(${r}, ${g}, ${b})`;
 }
 
-  
-  
+
 const buttonData = [
     {
         text: "Info", content: `
@@ -1298,7 +1357,7 @@ const buttonData = [
         <h2 style="; margin-bottom: 10px;">RoValra Infomation!</h2>
         <p style="">RoValra is an extension that's trying to make basic QoL features free and accessible to everyone, by making everything completely open-source.</p>
         <div style="margin-top: 5px;">
-            <p style="">This is possible by running everything locally.</p>
+            <p style="">This is possible by running almost everything locally.</p>
             <div style="margin-top: 5px;">
             <p style="">If you have any feature suggestions please let me know in my Discord server or via GitHub</p>
             </div>
@@ -1312,7 +1371,7 @@ const buttonData = [
     </div>
     `},
     {
-     //ngl no idea why there is two of htesem the ai told me to so i listen.
+        //ngl no idea why there is two of htesem the ai told me to so i listen.
         text: "Credits", content: `
             <div style="padding: 15px; border-radius: 8px;">
                 <h2 style=" margin-bottom: 10px;">RoValra Credits!</h2>
@@ -1323,7 +1382,6 @@ const buttonData = [
                     <li style="margin-bottom: 8px;">The Region searcher was originally a Python script made by <b style="font-weight: bold;">l5se</b> on Discord, that I recoded in Python and then in JS.</li>
                     <li style="margin-bottom: 8px;">Thanks to <b style="font-weight: bold;">Aspect</b> for helping me out here and there when I had a bunch of dumb questions or problems.
                         <a href="https://github.com/Aspectise" target="_blank">GitHub</a>
-                        <a href="https://discord.gg/U75BFsV49z" target="_blank">Discord</a>
                     </li>
                     <li style="margin-bottom: 8px;">Thanks to <b style="font-weight: bold;">7_lz</b> on Discord for helping me a bunch when preparing for the Chrome Web Store release. They helped a ton and I'm very thankful.</li>
                     <li style="margin-bottom: 8px;">And thanks to <b style="font-weight: bold;">Coweggs</b> for coming up with the very funny name that is "RoValra" as a joke that I then ended up using.</li>
@@ -1334,15 +1392,15 @@ const buttonData = [
         text: "Settings", content: ""
     },
 
- ];
- addCustomButton();
- startObserver();
- checkRoValraPage()
+];
+addCustomButton();
+startObserver();
+checkRoValraPage()
 
 async function initializeTheme() {
     currentTheme = await fetchThemeFromAPI();
     applyTheme();
-    
+
 }
 
 initializeTheme()

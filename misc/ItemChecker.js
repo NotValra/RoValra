@@ -75,13 +75,11 @@
     if (!ownedItemsResultContainer) {
         ownedItemsResultContainer = document.createElement('div');
         ownedItemsResultContainer.id = 'item-ownership-result-container-owned';
-        resultParentElement.appendChild(ownedItemsResultContainer);
         applyResultContainerStyles(ownedItemsResultContainer);
     }
     if (!unownedItemsResultContainer) {
         unownedItemsResultContainer = document.createElement('div');
         unownedItemsResultContainer.id = 'item-ownership-result-container-unowned';
-        resultParentElement.appendChild(unownedItemsResultContainer);
         applyResultContainerStyles(unownedItemsResultContainer);
         unownedItemsResultContainer.style.display = 'none';
     }
@@ -461,34 +459,27 @@
 
 
     function extractAndLogUserId() {
-        console.log("extractAndLogUserId: Starting"); // ADDED LOG
         if (window.location.href.includes("/users/")) {
             const regex = /^\/(?:[a-z]{2}\/)?users\/(\d+)/;
             const match = window.location.pathname.match(regex);
 
             if (match) {
                 currentUserId = match[1];
-                console.log("extractAndLogUserId: User ID found:", currentUserId); // ADDED LOG
                 fetchDisplayName(currentUserId);
             } else {
                 currentUserId = null;
                 currentDisplayName = null;
-                console.log("extractAndLogUserId: No User ID match in URL"); // ADDED LOG
             }
         } else {
             currentUserId = null;
             currentDisplayName = null;
-            console.log("extractAndLogUserId: Not a user page URL"); // ADDED LOG
         }
-        console.log("extractAndLogUserId: Finished"); // ADDED LOG
     }
 
     function fetchDisplayName(userId) {
-        console.log("fetchDisplayName: Starting for User ID:", userId); // ADDED LOG
         const userApiUrl = `https://users.roblox.com/v1/users/${userId}`;
         fetch(userApiUrl)
             .then(response => {
-                console.log("fetchDisplayName: Response received, status:", response.status); // ADDED LOG
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
@@ -496,15 +487,13 @@
             })
             .then(userData => {
                 currentDisplayName = userData.displayName || userData.name || "User";
-                console.log("fetchDisplayName: Display name fetched:", currentDisplayName); // ADDED LOG
                 updateExplanationText();
             })
             .catch(error => {
-                console.error("fetchDisplayName: Error fetching display name:", error); // ADDED LOG
+                console.error("fetchDisplayName: Error fetching display name:", error);
                 currentDisplayName = "User";
                 updateExplanationText();
             });
-         console.log("fetchDisplayName: Function execution continues after fetch"); // ADDED LOG
     }
 
     function updateExplanationText() {
@@ -515,60 +504,37 @@
     }
 
     function checkInventoryHidden(retryCount = 0) {
-        console.log(`checkInventoryHidden: Starting, retryCount: ${retryCount}`); // ADDED LOG
         if (inventoryCheckRunning) {
-            console.log("checkInventoryHidden: Inventory check already running, exiting"); // ADDED LOG
             return;
         }
 
         inventoryCheckRunning = true;
 
-        const maxRetries = 60; // Increased retry count
-        const retryDelay = 600; // Increased retry delay
+        const maxRetries = 60;
+        const retryDelay = 600;
 
         let inventoryHiddenSpan = null;
+        let sectionContentOffElement = null;
 
-        const iframe = document.getElementById('btr-injected-inventory');
-
-        if (iframe) {
-            try {
-                let iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
-                if (iframeDocument) {
-                    inventoryHiddenSpan = iframeDocument.querySelector(
-                        'div#inventory-container div.section-content-off span[ng-bind="\'Message.UserInventoryHidden\' | translate"].ng-binding'
-                    );
+        sectionContentOffElement = document.querySelector('div.section-content-off');
+        if (!sectionContentOffElement) {
+            const iframe = document.getElementById('btr-injected-inventory');
+            if (iframe) {
+                try {
+                    let iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+                    if (iframeDocument) {
+                        sectionContentOffElement = iframeDocument.querySelector('div.section-content-off');
+                    }
+                } catch (error) {
+                    console.warn("checkInventoryHidden: Error accessing iframe content for section-content-off:", error);
                 }
-            } catch (error) {
-                console.warn("checkInventoryHidden: Error accessing iframe content:", error); // Log iframe access errors
             }
         }
-        if (!inventoryHiddenSpan) {
-            inventoryHiddenSpan = document.querySelector(
-                'div#content div#inventory-container div.section-content-off span[ng-bind="\'Message.UserInventoryHidden\' | translate"].ng-binding'
-            );
-        }
-        if (!inventoryHiddenSpan) {
-            inventoryHiddenSpan = document.querySelector('span[ng-bind="\'Message.UserInventoryHidden\' | translate"].ng-binding');
-        }
 
-        console.log("checkInventoryHidden: inventoryHiddenSpan:", inventoryHiddenSpan); // ADDED LOG
 
-        if (inventoryHiddenSpan) {
-            console.log("checkInventoryHidden: Inventory hidden span found."); // Log when span is found
-            inventoryHiddenParentElement = inventoryHiddenSpan.parentNode;
+        if (sectionContentOffElement) {
+            resultParentElement = sectionContentOffElement;
 
-            // More robust selector for resultParentElement - try different paths
-            resultParentElement = document.querySelector('div.tab-content.rbx-tab-content') ||
-                                  document.querySelector('div#inventory-container div.section-content') ||
-                                  inventoryHiddenSpan.closest('.section-content-off') || // Try closest parent if none found
-                                  inventoryHiddenSpan.parentNode; // Fallback to parent if all else fails
-
-            if (!resultParentElement) {
-                console.warn("checkInventoryHidden: Could not reliably determine resultParentElement. Using inventoryHiddenParentElement as fallback.");
-                resultParentElement = inventoryHiddenParentElement; // Fallback if still null
-            }
-
-            console.log("checkInventoryHidden: resultParentElement:", resultParentElement); // ADDED LOG
 
             if (resultParentElement) {
                 resultParentElement.style.display = 'block';
@@ -578,20 +544,16 @@
             if (!ownedItemsResultContainer) {
                 ownedItemsResultContainer = document.createElement('div');
                 ownedItemsResultContainer.id = 'item-ownership-result-container-owned';
-                resultParentElement.appendChild(ownedItemsResultContainer);
                 applyResultContainerStyles(ownedItemsResultContainer);
             }
             if (!unownedItemsResultContainer) {
                 unownedItemsResultContainer = document.createElement('div');
                 unownedItemsResultContainer.id = 'item-ownership-result-container-unowned';
-                resultParentElement.appendChild(unownedItemsResultContainer);
                 applyResultContainerStyles(unownedItemsResultContainer);
                 unownedItemsResultContainer.style.display = 'none';
             }
 
-            console.log("checkInventoryHidden: Checking if item-ownership-checker-container exists:", document.getElementById('item-ownership-checker-container')); // ADDED LOG
             if (!document.getElementById('item-ownership-checker-container')) {
-                console.log("checkInventoryHidden: item-ownership-checker-container does not exist, creating and adding."); // ADDED LOG
                  let container = document.createElement('div');
                 container.id = 'item-ownership-checker-container';
                 container.style.marginTop = "10px";
@@ -1231,7 +1193,7 @@
                     box-sizing: border-box;
                     width: 100%;
                 `;
-                container.appendChild(ownershipTextElement);
+
 
                 buttonsContainer.appendChild(buttonListItem);
                 buttonsContainer.appendChild(filterDropdownContainer);
@@ -1240,20 +1202,24 @@
                 container.appendChild(inputGroup);
                 container.appendChild(buttonsContainer);
                 container.appendChild(tabButtonsContainer);
+                container.appendChild(ownershipTextElement); 
 
-                if (inventoryHiddenSpan && inventoryHiddenSpan.parentNode) {
+                if (sectionContentOffElement) {
 
                     let explanationContainer = document.createElement('div');
                     explanationContainer.appendChild(explanation);
                     explanationContainer.id = 'item-ownership-explanation-container';
 
-                    inventoryHiddenSpan.parentNode.insertBefore(explanationContainer, inventoryHiddenSpan.nextSibling);
-                    inventoryHiddenSpan.parentNode.insertBefore(container, explanationContainer.nextSibling);
-                    console.log("checkInventoryHidden: Item ownership checker container added to the page."); // Log when container is added
+                    sectionContentOffElement.appendChild(explanationContainer);
+                    sectionContentOffElement.appendChild(container);
+                    resultParentElement.appendChild(ownedItemsResultContainer); 
+                    resultParentElement.appendChild(unownedItemsResultContainer);
                 } else {
-                    console.warn("checkInventoryHidden: inventoryHiddenSpan or its parentNode not found. Appending to body as fallback."); // Log fallback scenario
+                    console.warn("checkInventoryHidden: sectionContentOffElement not found. Appending to body as fallback.");
                     document.body.appendChild(explanation);
                     document.body.appendChild(container);
+                    document.body.appendChild(ownedItemsResultContainer);
+                    document.body.appendChild(unownedItemsResultContainer);
                 }
                 applyFilterButtonStyle(filterButtonElement, detectTheme());
                 applySpecificFilterButtonStyles(filterButtonElement);
@@ -1263,18 +1229,15 @@
 
                 checkApplyButtonState();
             } else {
-                console.log("checkInventoryHidden: Item ownership checker container already exists."); // Log if container already exists
             }
          } else {
-            console.log(`checkInventoryHidden: Inventory hidden span not found, retry count: ${retryCount}`); // Log when span is not found during retry
             if (retryCount < maxRetries) {
                 setTimeout(() => checkInventoryHidden(retryCount + 1), retryDelay);
             } else {
-                console.error("checkInventoryHidden: Max retries reached, inventory hidden span not found. Script may not function correctly."); // Log error if max retries reached
+                console.error("checkInventoryHidden: Max retries reached, sectionContentOffElement not found. Script may not function correctly.");
             }
         }
         inventoryCheckRunning = false;
-        console.log("checkInventoryHidden: Finished"); // ADDED LOG
     }
 
     function applyTabButtonStyles(button, isActive, theme) {
@@ -1645,8 +1608,8 @@
             limitedBadgeContainer.style.position = 'absolute';
             limitedBadgeContainer.style.top = 'auto';
             limitedBadgeContainer.style.marginTop = 'auto';
-            limitedBadgeContainer.style.bottom = '74px';
-            limitedBadgeContainer.style.left = '-5px';
+            limitedBadgeContainer.style.bottom = '76px';
+            limitedBadgeContainer.style.left = '-3px';
             limitedBadgeContainer.style.zIndex = '3';
             itemLink.appendChild(limitedBadgeContainer);
 
@@ -2018,7 +1981,6 @@
     }
 
 
-    console.log("Script started"); // ADDED LOG - Script start verification
     extractAndLogUserId();
 
     let currentTheme = detectTheme();
@@ -2054,11 +2016,10 @@
                 try {
                     checkInventoryHidden();
                 } catch (error) {
-                    console.error("DOMContentLoaded: Error in checkInventoryHidden:", error); // Error handling in DOMContentLoaded
+                    console.error("DOMContentLoaded: Error in checkInventoryHidden:", error);
                 }
-            }, 1000); // Increased delay to 1000ms
+            }, 1000);
         } else {
-            console.log("Not on inventory page, item ownership checker will not be initialized."); // Log if not on inventory page
         }
     });
 

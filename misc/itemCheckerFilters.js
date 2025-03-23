@@ -102,7 +102,7 @@
             sortTypeParam = '&SortType=3';
             categoryFilterParam = '';
         } else if (includeLimiteds) {
-            returnValue = 2;
+            categoryFilterParam = `&CategoryFilter=2`;
         }
 
         let allCreatorItemsData = [];
@@ -123,7 +123,7 @@
         }
 
         if (ownershipTextElement && currentDisplayName) {
-            ownershipTextElement.textContent = `Checking items made by ${creatorNameInput.value}, its gonna take a bit.`;
+            ownershipTextElement.textContent = `Checking items it might take a bit.`;
             ownershipTextElement.style.display = 'block';
 
 
@@ -165,7 +165,7 @@
         if (creatorItemsData && creatorItemsData.data) {
 
             if (ownershipTextElement && currentDisplayName) {
-                ownershipTextElement.textContent = `Checking ${creatorItemsData.data.length} items made by ${creatorNameInput.value}, it might take a bit.`;
+                ownershipTextElement.textContent = `Checking ${creatorItemsData.data.length} items, it might take a bit.`;
             }
 
             const ownershipPromises = creatorItemsData.data.map(item => checkItemOwnership(item, true));

@@ -1,3 +1,4 @@
+// This script is not in use but i find it funny that its survied for so long so imma make it live for a bit longer
 function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }

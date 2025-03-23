@@ -225,7 +225,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
       }
   });
 
-
+// cant lie no idea why this is here or what its used for
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       if (message.action === "fetchHiddenGames") {
           const userId = message.userId;

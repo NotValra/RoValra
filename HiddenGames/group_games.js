@@ -682,7 +682,7 @@ if (window.location.pathname.includes('/communities')) {
                             players.textContent = playerCount;
                             likes.style.marginRight = '10px';
 
-                        retryFetch(`https://thumbnails.roblox.com/v1/games/icons?universeIds=${universeId}&returnPolicy=PlaceHolder&size=150x150&format=Png&isCircular=false`) 
+                        retryFetch(`https://thumbnails.roblox.com/v1/games/icons?universeIds=${universeId}&returnPolicy=PlaceHolder&size=150x150&format=Png&isCircular=false`)
                             .then(response => response ? response.json() : null)
                             .then(thumbnailData => {
                                 if (thumbnailData && thumbnailData.data && thumbnailData.data.length > 0 && thumbnailData.data[0].imageUrl) {
@@ -769,9 +769,12 @@ if (window.location.pathname.includes('/communities')) {
                 if (!containerHeader.querySelector('.tab-button')) {
                     containerHeader.appendChild(experiencesButton);
                     containerHeader.appendChild(hiddenGamesButton);
+                    console.log("Tab buttons forcefully added to containerHeader."); // Confirmation log
+                } else {
+                  
                 }
             } else {
-                if (retryAttempt < 5) { 
+                if (retryAttempt < 5) {
                     console.log(`Container header not found, retrying button insertion in 1 second, attempt: ${retryAttempt + 1}`);
                     setTimeout(() => createAndInsertButtons(retryAttempt + 1), 1000);
                 } else {
@@ -780,7 +783,7 @@ if (window.location.pathname.includes('/communities')) {
             }
         };
 
-        createAndInsertButtons(); 
+        createAndInsertButtons();
 
         if (currentTheme) {
             applyTheme();
@@ -807,7 +810,9 @@ if (window.location.pathname.includes('/communities')) {
         }
     });
 
-    observer.observe(document.body, { childList: true, subtree: true });
+    setTimeout(() => {
+        observer.observe(document.body, { childList: true, subtree: true });
+    }, 0);
 
     window.addEventListener('hashchange', () => {
         checkUrlAndApply();

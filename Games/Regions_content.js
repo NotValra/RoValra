@@ -3,6 +3,7 @@ function delay(ms) {
 }
 // this script might be just a tiny bit badly coded :)
 // I made this when my understanding of making extensions was way worse.
+// I want to recode this but also its gonna be a pain so im kinda like waiting for a day where i hate my self a lot
 if (window.location.pathname.includes('/games/')) {
     const url = window.location.href;
     let placeId = null;
@@ -12,7 +13,6 @@ if (window.location.pathname.includes('/games/')) {
       if (match && match[1]) {
         placeId = match[1]
      }
-
     const defaultRegions = [
         "HK", "FR", "NL", "GB", "AU", "IN", "DE", "PL", "JP", "SG", "BR","EG",
         "US-AL", "US-AK", "US-AZ", "US-AR", "US-CA", "US-CO", "US-CT", "US-DE", "US-FL", "US-GA",

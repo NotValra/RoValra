@@ -1,18 +1,117 @@
-let checkInterval = setInterval(function() {
-    const robuxButtonContainer = document.getElementById('navigation-robux-container');
+let checkInterval; 
+let currentMode = localStorage.getItem('hiddenCatalogMode') || 'dark';
 
-    if (robuxButtonContainer) {
-        const robuxButtonLink = robuxButtonContainer.querySelector('a.robux-menu-btn');
+const initHiddenCatalog = () => {
+    applyTheme(currentMode);
 
-        if (robuxButtonLink) {
-            robuxButtonLink.textContent = 'Hidden Catalog';
-            robuxButtonLink.href = '/hidden-catalog';
-            robuxButtonLink.target = "_self";
-            clearInterval(checkInterval);
-            removeHiddenCatalogContent();
+    checkInterval = setInterval(function() {
+        const robuxButtonContainer = document.getElementById('navigation-robux-container');
+
+        if (robuxButtonContainer) {
+            const robuxButtonLink = robuxButtonContainer.querySelector('a.robux-menu-btn');
+
+            if (robuxButtonLink) {
+                robuxButtonLink.textContent = 'Hidden Catalog';
+                robuxButtonLink.href = '/hidden-catalog';
+                robuxButtonLink.target = "_self";
+                clearInterval(checkInterval);
+                removeHiddenCatalogContent();
+            }
+        } else {
+        }
+    }, 20);
+};
+
+function applyTheme(mode) {
+    currentMode = mode;
+    localStorage.setItem('hiddenCatalogMode', mode);
+    document.documentElement.setAttribute('data-theme', mode);
+
+    const contentDiv = document.querySelector('.content#content');
+    if (contentDiv) {
+        if (mode === 'light') {
+            contentDiv.classList.add('light-mode');
+            contentDiv.classList.remove('dark-mode');
+        } else {
+            contentDiv.classList.add('dark-mode');
+            contentDiv.classList.remove('light-mode');
         }
     }
-}, 1);
+
+    const header = document.querySelector('.hidden-catalog-header h1');
+    const headerIcon = document.querySelector('.hidden-catalog-header img');
+    if (header) {
+        if (mode === 'light') {
+            header.classList.add('light-mode');
+            header.classList.remove('dark-mode');
+        } else {
+            header.classList.add('dark-mode');
+            header.classList.remove('light-mode');
+        }
+    }
+    if (headerIcon) {
+        if (mode === 'light') {
+            headerIcon.classList.add('light-mode');
+            headerIcon.classList.remove('dark-mode');
+        } else {
+            headerIcon.classList.add('dark-mode');
+            headerIcon.classList.remove('light-mode');
+        }
+    }
+
+    const descriptionElement = document.getElementById('hidden-catalog-description');
+    if (descriptionElement) {
+        if (mode === 'light') {
+            descriptionElement.classList.add('light-mode');
+            descriptionElement.classList.remove('dark-mode');
+        } else {
+            descriptionElement.classList.add('dark-mode');
+            descriptionElement.classList.remove('light-mode');
+        }
+    }
+
+    const itemNames = document.querySelectorAll('.item-name');
+    itemNames.forEach(itemName => {
+        if (mode === 'light') {
+            itemName.classList.add('light-mode');
+            itemName.classList.remove('dark-mode');
+        } else {
+            itemName.classList.add('dark-mode');
+            itemName.classList.remove('light-mode');
+        }
+    });
+    const itemContainers = document.querySelectorAll('.item-container');
+    itemContainers.forEach(itemContainer => {
+        if (mode === 'light') {
+            itemContainer.classList.add('light-mode');
+            itemContainer.classList.remove('dark-mode');
+        } else {
+            itemContainer.classList.add('dark-mode');
+            itemContainer.classList.remove('light-mode');
+        }
+    });
+    const shimmerElements = document.querySelectorAll('.shimmer');
+    shimmerElements.forEach(shimmerElement => {
+        if (mode === 'light') {
+            shimmerElement.classList.add('light-mode');
+            shimmerElement.classList.remove('dark-mode');
+        } else {
+            shimmerElement.classList.add('dark-mode');
+            shimmerElement.classList.remove('light-mode');
+        }
+    });
+     const iconInReviewElements = document.querySelectorAll('.icon-in-review');
+    iconInReviewElements.forEach(iconInReviewElement => {
+        if (mode === 'light') {
+            iconInReviewElement.classList.add('light-mode');
+            iconInReviewElement.classList.remove('dark-mode');
+        } else {
+            iconInReviewElement.classList.add('dark-mode');
+            iconInReviewElement.classList.remove('light-mode');
+        }
+    });
+}
+
 
 function removeHiddenCatalogContent() {
     const isOnHiddenCatalog = window.location.pathname.endsWith('/hidden-catalog');
@@ -22,10 +121,10 @@ function removeHiddenCatalogContent() {
 
         if (contentDiv) {
             contentDiv.innerHTML = '';
-            contentDiv.style.height = '893.938px';
             contentDiv.style.position = 'relative';
 
             const headerContainer = document.createElement('div');
+            headerContainer.className = 'hidden-catalog-header'; 
             headerContainer.style.position = 'absolute';
             headerContainer.style.top = '10px';
             headerContainer.style.left = '20px';
@@ -33,13 +132,14 @@ function removeHiddenCatalogContent() {
             headerContainer.style.display = 'flex';
             headerContainer.style.alignItems = 'center';
 
+
             const header = document.createElement('h1');
             header.textContent = 'Hidden Catalog';
             header.style.fontWeight = '800';
-            header.style.padding = '20px 0px 20px 20px';
+            header.style.padding = '20px 0px 20px 10px';
             header.style.fontSize = '2em';
-            header.style.color = 'white';
             header.style.margin = '0';
+
 
             headerContainer.appendChild(header);
 
@@ -57,14 +157,16 @@ function removeHiddenCatalogContent() {
 
             const descriptionElement = document.createElement('div');
             descriptionElement.id = 'hidden-catalog-description';
-            descriptionElement.style.padding = '20px'
-            descriptionElement.style.color = 'rgb(255, 255, 255)';
+            descriptionElement.style.paddingTop = '20px'
+            descriptionElement.style.paddingBottom = '20px'
+            descriptionElement.style.paddingLeft = '0px'
             descriptionElement.style.marginBottom = '0px';
             descriptionElement.style.marginTop = '50px';
+            descriptionElement.style.marginRight = 'auto';
             descriptionElement.innerHTML = `
                 <p>The Hidden Catalog shows items uploaded by Roblox which are not yet on the marketplace.</p>
                 <p>Keep in mind that some of these items may never be released, as they could have been test uploads by Roblox.</p>
-                <p>Some items might be on Marketplace already. To open the item page you will need RoSeal.</p>
+                <p>Some items might be on Marketplace already. <b>To open the item page you will need <a href="https://www.roseal.live/" target="_blank" style="text-decoration: underline;">RoSeal</a>
             `;
             contentDiv.appendChild(descriptionElement);
 
@@ -84,11 +186,12 @@ async function fetchItemDetails(itemId) {
         }
         return await response.json();
     } catch (error) {
+        console.error("Error fetching item details:", error);
         return null;
     }
 }
 
-function fetchDataFromAPI(retryCount = 0, maxRetries = 1, retryDelay = 1000) {
+function fetchDataFromAPI(retryCount = 0, maxRetries = 3, retryDelay = 100) {
     fetch('https://valraiscool.duckdns.org:7777/items', {headers: {'Accept-Language': 'en-US,en-UK,en;q=0.9'}})
         .then(response => {
             if (!response.ok) {
@@ -102,10 +205,30 @@ function fetchDataFromAPI(retryCount = 0, maxRetries = 1, retryDelay = 1000) {
             }
             return response.json();
         })
-        .then(data => {
-            displayItems(data);
+        .then(async data => { 
+            if (!data || !Array.isArray(data.items)) {
+                console.error('API response is not in the expected format or items array is missing:', data);
+                const contentDiv = document.querySelector('.content#content');
+                if (contentDiv) {
+                    const errorMessageElement = document.createElement('p');
+                    errorMessageElement.style.color = 'red';
+                    errorMessageElement.style.paddingLeft = '20px';
+                    errorMessageElement.textContent = "API returned invalid data format (expected 'items' array). Please try again later.";
+                    contentDiv.appendChild(errorMessageElement);
+                }
+                return;
+            }
+
+            const itemsWithDetails = await Promise.all(
+                data.items.map(async item => {
+                    const details = await fetchItemDetails(item.item_id);
+                    return { ...item, details }; 
+                })
+            );
+            displayItems(itemsWithDetails); 
         })
         .catch(error => {
+            console.error("Error fetching data from API:", error);
             if (error.message === 'Failed to fetch' || error.message.startsWith('Server error') || error.message.startsWith('Rate limit')) {
                 if (retryCount < maxRetries) {
                     const delay = retryDelay * Math.pow(2, retryCount);
@@ -118,7 +241,7 @@ function fetchDataFromAPI(retryCount = 0, maxRetries = 1, retryDelay = 1000) {
                         const errorMessageElement = document.createElement('p');
                         errorMessageElement.style.color = 'red';
                         errorMessageElement.style.paddingLeft = '20px';
-                        errorMessageElement.textContent = "API is rate limited, Please try again later.";
+                        errorMessageElement.textContent = "API error, Please try again in 10 seconds.";
                         contentDiv.appendChild(errorMessageElement);
                     }
                 }
@@ -134,24 +257,8 @@ function fetchDataFromAPI(retryCount = 0, maxRetries = 1, retryDelay = 1000) {
         });
 }
 
-async function fetchThumbnails(assetIds) {
-    const baseUrl = 'https://thumbnails.roblox.com/v1/assets';
-    const assetIdsString = assetIds.join(',');
-    const url = `${baseUrl}?assetIds=${assetIdsString}&returnPolicy=PlaceHolder&size=256x144&format=Png&isCircular=false`;
 
-    try {
-        const response = await fetch(url, {
-            credentials: 'include'
-        });
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status} for thumbnail API`);
-        }
-        const data = await response.json();
-        return data.data;
-    } catch (error) {
-        return [];
-    }
-}
+
 
 function batchArray(array, batchSize) {
     const batchedArray = [];
@@ -161,175 +268,341 @@ function batchArray(array, batchSize) {
     return batchedArray;
 }
 
-async function displayItems(data) {
-    if (!window.location.pathname.endsWith('/hidden-catalog')) {
+async function displayItems(itemsWithDetails) {
+    if (!Array.isArray(itemsWithDetails)) {
+        console.error('displayItems received non-array data:', itemsWithDetails);
         return;
     }
+
 
     const contentDiv = document.querySelector('.content#content');
     if (!contentDiv) {
+        console.warn("displayItems: Content div not found, cannot display items.");
         return;
     }
 
-    const loadingBar = document.createElement('img');
-    loadingBar.src = 'https://images.rbxcdn.com/fab3a9d08d254fef4aea4408d4db1dfe-loading_dark.gif';
-    loadingBar.alt = 'Loading Thumbnails...';
-    loadingBar.id = 'thumbnail-loading-bar';
-    loadingBar.style.display = 'block';
-    loadingBar.style.margin = '20px auto';
-    loadingBar.style.width = '100px';
-    contentDiv.appendChild(loadingBar);
+    contentDiv.style.display = 'flex';
+    contentDiv.style.flexWrap = 'wrap';
+    contentDiv.style.justifyContent = 'center';
+    contentDiv.style.alignItems = 'flex-start';
+    contentDiv.style.gap = '10px';
+    contentDiv.style.padding = '20px';
+    contentDiv.style.marginTop = '20px';
+    contentDiv.style.alignContent = 'flex-start';
+
 
     const itemsContainer = document.createElement('div');
-    itemsContainer.id = 'hidden-catalog-items-container';
     itemsContainer.style.display = 'grid';
-    itemsContainer.style.gridTemplateColumns = 'repeat(auto-fill, minmax(250px, 1fr))';
-    itemsContainer.style.gap = '0px';
-    itemsContainer.style.padding = '20px';
+    itemsContainer.style.gridTemplateColumns = 'repeat(auto-fill, minmax(221.75px, 1fr))';
+    itemsContainer.style.gap = '5px';
+    itemsContainer.style.width = '100%';
+    itemsContainer.style.marginLeft = '30px';
+    contentDiv.appendChild(itemsContainer);
 
-    if (data && data.items) {
-        const itemIds = data.items.map(item => item.item_id);
-        const batchedItemIds = batchArray(itemIds, 50);
+    const assetIdsForThumbnails = itemsWithDetails.map(item => item.item_id); 
 
-        let thumbnailResults = [];
-        for (const batch of batchedItemIds) {
-            const thumbnails = await fetchThumbnails(batch);
-            thumbnailResults = thumbnailResults.concat(thumbnails);
-        }
-
-        const loadingBarElement = document.getElementById('thumbnail-loading-bar');
-        if (loadingBarElement) {
-            const minDisplayTime = 500;
-            const startTime = Date.now();
-
-            const removeLoadingBar = () => {
-                if (loadingBarElement) {
-                    loadingBarElement.remove();
-                }
-            };
-
-            const elapsedTime = Date.now() - startTime;
-            const remainingTime = minDisplayTime - elapsedTime;
-
-            if (remainingTime > 0) {
-                setTimeout(removeLoadingBar, remainingTime);
-            } else {
-                removeLoadingBar();
-            }
-        }
-
-
-        for (const item of data.items) {
-            const itemDetails = await fetchItemDetails(item.item_id);
-            let uploadedDate = 'N/A';
-            let updatedDate = 'N/A';
-
-            if (itemDetails) {
-                const dateOptions = { month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true };
-                uploadedDate = new Date(itemDetails.Created).toLocaleString(undefined, dateOptions);
-                updatedDate = new Date(itemDetails.Updated).toLocaleString(undefined, dateOptions);
-            }
-
-
-            const itemCardContainer = document.createElement('div');
-            itemCardContainer.style.maxWidth = '242.75px';
-            itemCardContainer.classList.add('catalog-item-container');
-
-            const itemCard = document.createElement('div');
-            itemCard.classList.add('item-card-container');
-
-            const itemLink = document.createElement('a');
-            itemLink.href = item.item_url;
-            itemLink.target = '_self';
-            itemLink.classList.add('item-card-link');
-
-            const itemCardLinkDiv1 = document.createElement('div');
-            itemCardLinkDiv1.classList.add('item-card-link');
-
-            const itemCardThumbContainer = document.createElement('div');
-            itemCardThumbContainer.classList.add('item-card-thumb-container');
-            itemCardThumbContainer.style.width = '221.75px';
-            itemCardThumbContainer.style.height = '221.75px';
-            itemCardThumbContainer.dataset.btrOwnedId = item.item_id;
-            itemCardThumbContainer.style.borderRadius = '10px';
-
-            const itemCardThumbContainerInner = document.createElement('div');
-            itemCardThumbContainerInner.classList.add('item-card-thumb-container-inner');
-
-            const thumbnailSpan = document.createElement('span');
-            thumbnailSpan.style.borderRadius = '5px'
-            thumbnailSpan.classList.add('thumbnail-2d-container');
-            const thumbnailIndex = data.items.findIndex(i => i.item_id === item.item_id);
-            const imgElement = document.createElement('img');
-            imgElement.src = thumbnailResults[thumbnailIndex]?.imageUrl || 'https://t6.rbxcdn.com/180DAY-cd1aaca8a8720fbc7192ac1dcdeb00ae';
-            imgElement.alt = item.name;
-            imgElement.title = item.name;
-            imgElement.crossOrigin = 'anonymous';
-
-            thumbnailSpan.appendChild(imgElement);
-            itemCardThumbContainerInner.appendChild(thumbnailSpan);
-            itemCardThumbContainer.appendChild(itemCardThumbContainerInner);
-            itemCardLinkDiv1.appendChild(itemCardThumbContainer);
-
-            const itemCardCaption = document.createElement('div');
-            itemCardCaption.classList.add('item-card-caption');
-
-            const itemCardNameLink = document.createElement('div');
-            itemCardNameLink.classList.add('item-card-name-link');
-
-            const itemCardName = document.createElement('div');
-            itemCardName.classList.add('item-card-name');
-            itemCardName.title = item.name;
-            itemCardName.textContent = item.name;
-            itemCardNameLink.appendChild(itemCardName);
-            itemCardCaption.appendChild(itemCardNameLink);
-
-            const itemCardDates = document.createElement('div');
-            itemCardDates.classList.add('item-card-dates');
-
-            const uploadedDateDiv = document.createElement('div');
-            uploadedDateDiv.classList.add('item-card-date', 'uploaded-date');
-            uploadedDateDiv.style.whiteSpace = 'nowrap';
-            const uploadedDateLabel = document.createElement('span');
-            uploadedDateLabel.textContent = 'Created: ';
-            uploadedDateLabel.style.color = 'rgb(188, 190, 200)';
-            const uploadedDateValue = document.createElement('span');
-            uploadedDateValue.classList.add('date-value');
-            uploadedDateValue.textContent = uploadedDate;
-            uploadedDateValue.style.color = 'rgb(188, 190, 200)';
-            uploadedDateDiv.appendChild(uploadedDateLabel);
-            uploadedDateDiv.appendChild(uploadedDateValue);
-            itemCardDates.appendChild(uploadedDateDiv);
-
-            const updatedDateDiv = document.createElement('div');
-            updatedDateDiv.classList.add('item-card-date', 'updated-date');
-            updatedDateDiv.style.whiteSpace = 'nowrap';
-            const updatedDateLabel = document.createElement('span');
-            updatedDateLabel.textContent = 'Updated: ';
-            updatedDateLabel.style.color = 'rgb(188, 190, 200)';
-            const updatedDateValue = document.createElement('span');
-            updatedDateValue.classList.add('date-value');
-            updatedDateValue.textContent = updatedDate;
-            updatedDateValue.style.color = 'rgb(188, 190, 200)';
-            updatedDateDiv.appendChild(updatedDateLabel);
-            updatedDateDiv.appendChild(updatedDateValue);
-            itemCardDates.appendChild(updatedDateDiv);
-
-
-            itemCardCaption.appendChild(itemCardDates);
-
-
-            itemCardLinkDiv1.appendChild(itemCardCaption);
-            itemLink.appendChild(itemCardLinkDiv1);
-            itemCard.appendChild(itemLink);
-            itemCardContainer.appendChild(itemCard);
-            itemsContainer.appendChild(itemCardContainer);
-        }
-    } else {
-        const noItemsMessage = document.createElement('p');
-        noItemsMessage.textContent = "No items found.";
-        itemsContainer.appendChild(noItemsMessage);
+    if (assetIdsForThumbnails.length === 0) {
+        console.warn("displayItems: No asset IDs to fetch thumbnails for. Check API item data.");
+        return;
     }
 
-    contentDiv.appendChild(itemsContainer);
+    itemsWithDetails.forEach(item => { 
+
+        const itemLink = document.createElement('a');
+        itemLink.className = 'item-container';
+        if (currentMode === 'light') {
+            itemLink.classList.add('light-mode');
+        } else {
+            itemLink.classList.add('dark-mode');
+        }
+        itemLink.style.borderRadius = '8px';
+        itemLink.style.overflow = 'hidden';
+        itemLink.style.display = 'flex';
+        itemLink.style.flexDirection = 'column';
+        itemLink.style.justifyContent = 'space-between';
+        itemLink.style.minHeight = '221.75px';
+        itemLink.style.width = '221.75px';
+        itemLink.style.cursor = 'pointer';
+        itemLink.href = `https://www.roblox.com/catalog/${item.item_id}/${encodeURIComponent(item.name || 'Item')}`;
+
+        const thumbnailContainer = document.createElement('div');
+        thumbnailContainer.className = 'thumbnail-container';
+        thumbnailContainer.style.borderRadius = '8px';
+        thumbnailContainer.style.width = '100%';
+        thumbnailContainer.style.height = '100%';
+        thumbnailContainer.style.display = 'flex';
+        thumbnailContainer.style.justifyContent = 'center';
+        thumbnailContainer.style.alignItems = 'center';
+        thumbnailContainer.style.position = 'relative';
+
+
+        const itemDetailsDiv = document.createElement('div');
+        itemDetailsDiv.className = 'item-details';
+        itemDetailsDiv.style.paddingTop = '10px';
+        itemDetailsDiv.style.paddingBottom = '10px';
+        itemDetailsDiv.style.display = 'flex';
+        itemDetailsDiv.style.flexDirection = 'column';
+        itemDetailsDiv.style.justifyContent = 'space-between';
+        itemDetailsDiv.style.height = '100%';
+
+        const itemName = document.createElement('p');
+        itemName.className = 'item-name';
+        if (currentMode === 'light') {
+            itemName.classList.add('light-mode');
+        } else {
+            itemName.classList.add('dark-mode');
+        }
+        itemName.textContent = item.name || 'Name Unavailable';
+        itemName.style.fontWeight = '600';
+        itemName.style.fontSize = '18px';
+        itemName.style.marginBottom = '5px';
+        itemName.style.overflow = 'hidden';
+        itemName.style.textOverflow = 'ellipsis';
+        itemName.style.whiteSpace = 'nowrap';
+
+        itemDetailsDiv.appendChild(itemName);
+        itemLink.appendChild(thumbnailContainer);
+        itemLink.appendChild(itemDetailsDiv);
+        itemsContainer.appendChild(itemLink);
+    });
+
+    const thumbnailBatches = batchArray(assetIdsForThumbnails, 25);
+
+    let thumbnailData = [];
+    const fetchThumbnails = async () => {
+        try {
+            for (const batch of thumbnailBatches) {
+
+                const assetIdsString = batch.join(',');
+                const thumbnailUrl = `https://thumbnails.roblox.com/v1/assets?assetIds=${assetIdsString}&returnPolicy=PlaceHolder&size=250x250&format=Png&isCircular=false`;
+
+
+                try {
+                    const response = await fetch(thumbnailUrl, {
+                        credentials: 'include'
+                    });
+             
+
+                    if (!response.ok) {
+                        console.error(`displayItems: Inlined Fetch - HTTP error! status: ${response.status} for thumbnail API. URL: ${thumbnailUrl}`);
+                        const errorText = await response.text();
+                        console.error("displayItems: Inlined Fetch - Response Error Text:", errorText);
+                        thumbnailData = thumbnailData.concat(batch.map(() => null));
+                        continue;
+                    }
+
+                    const data = await response.json();
+                    
+
+                    if (data && data.data) {
+                        thumbnailData = thumbnailData.concat(data.data);
+                    } else {
+                        console.warn("displayItems: Inlined Fetch - API response missing 'data' or empty:", data);
+                        thumbnailData = thumbnailData.concat(batch.map(() => null));
+                    }
+
+                } catch (fetchError) {
+                    console.error("displayItems: Inlined Fetch - ERROR in fetch block:", fetchError);
+                    console.error("displayItems: Inlined Fetch - Detailed fetch error:", fetchError.message);
+                    thumbnailData = thumbnailData.concat(batch.map(() => null));
+                }
+            }
+        } catch (error) {
+            console.error("displayItems: Error during thumbnail batch processing loop:", error);
+            console.error("displayItems: Full loop error object:", error);
+            return;
+        }
+
+
+        const itemContainers = document.querySelectorAll('.item-container');
+        itemContainers.forEach((itemLink, index) => {
+            const thumbnailResponse = thumbnailData[index];
+            const thumbnailContainer = itemLink.querySelector('.thumbnail-container');
+            thumbnailContainer.innerHTML = ''; 
+
+            const item = itemsWithDetails[index]; 
+
+            if (item.details && item.details.ProductId !== 0) {
+                const releasedLabel = document.createElement('div');
+                releasedLabel.textContent = 'Released';
+                releasedLabel.className = 'released-label';
+                releasedLabel.style.position = 'absolute';
+                releasedLabel.style.color = 'white';
+                releasedLabel.style.backgroundColor = '#e57b00';
+                releasedLabel.style.top = '5px';
+                releasedLabel.style.left = '5px';
+                releasedLabel.style.padding = '5px';
+                releasedLabel.style.borderRadius = '5px';
+                releasedLabel.style.fontSize = '12px';
+                releasedLabel.style.fontWeight = 'bold';
+                releasedLabel.style.zIndex = '1';
+                thumbnailContainer.appendChild(releasedLabel);
+            }
+
+
+            if (thumbnailResponse && thumbnailResponse.state === "InReview") {
+                thumbnailContainer.style.backgroundColor = ''; 
+                const shimmerDivInReview = document.createElement('div');
+                shimmerDivInReview.className = 'thumbnail-2d-container shimmer';
+                if (currentMode === 'light') {
+                    shimmerDivInReview.classList.add('light-mode');
+                } else {
+                    shimmerDivInReview.classList.add('dark-mode');
+                }
+                shimmerDivInReview.style.height = '221.75px';
+                shimmerDivInReview.style.borderRadius = '8px';
+                thumbnailContainer.appendChild(shimmerDivInReview);
+
+                setTimeout(() => {
+                    thumbnailContainer.innerHTML = '';
+                    if (item.details && item.details.ProductId !== 0) {
+                        const releasedLabel = document.createElement('div');
+                        releasedLabel.textContent = 'Released';
+                        releasedLabel.className = 'released-label';
+                        releasedLabel.style.position = 'absolute';
+                        releasedLabel.style.color = 'white';
+                        releasedLabel.style.backgroundColor = '#e57b00';
+                        releasedLabel.style.top = '5px';
+                        releasedLabel.style.left = '5px';
+                        releasedLabel.style.padding = '5px';
+                        releasedLabel.style.borderRadius = '5px';
+                        releasedLabel.style.fontSize = '12px';
+                        releasedLabel.style.fontWeight = 'bold';
+                        releasedLabel.style.zIndex = '1';
+                        thumbnailContainer.appendChild(releasedLabel);
+                    }
+
+                    const inReviewDiv = document.createElement('div');
+                    inReviewDiv.className = 'thumbnail-2d-container icon-in-review';
+                    if (currentMode === 'light') {
+                        inReviewDiv.classList.add('light-mode');
+                    } else {
+                        inReviewDiv.classList.add('dark-mode');
+                    }
+                    inReviewDiv.style.borderRadius = '8px';
+                    thumbnailContainer.appendChild(inReviewDiv);
+                }, 6000);
+
+            } else if (thumbnailResponse && thumbnailResponse.imageUrl) {
+                thumbnailContainer.style.backgroundColor = 'rgb(78 78 78 / 20%)';
+                const thumbnailUrl = thumbnailResponse.imageUrl;
+                const thumbnailImage = document.createElement('img');
+                thumbnailImage.src = thumbnailUrl;
+                thumbnailImage.alt = item.name;
+                thumbnailImage.className = 'item-thumbnail';
+                thumbnailImage.style.width = '100%';
+                thumbnailImage.style.height = '100%';
+                thumbnailImage.style.display = 'none';
+                thumbnailImage.style.objectFit = 'contain';
+                thumbnailImage.style.borderRadius = '8px';
+
+                const shimmerDivLoading = document.createElement('div');
+                shimmerDivLoading.className = 'thumbnail-2d-container shimmer';
+                if (currentMode === 'light') {
+                    shimmerDivLoading.classList.add('light-mode');
+                } else {
+                    shimmerDivLoading.classList.add('dark-mode');
+                }
+                shimmerDivLoading.style.height = '221.75px';
+                shimmerDivLoading.style.borderRadius = '8px';
+                thumbnailContainer.appendChild(shimmerDivLoading);
+
+
+                thumbnailImage.onload = () => {
+                    shimmerDivLoading.style.display = 'none';
+                    thumbnailImage.style.display = 'block';
+                    if (item.details && item.details.ProductId !== 0) {
+                        const releasedLabel = document.createElement('div');
+                        releasedLabel.textContent = 'Released';
+                        releasedLabel.className = 'released-label';
+                        releasedLabel.style.backgroundColor = '#e57b00';
+                        releasedLabel.style.position = 'absolute';
+                        releasedLabel.style.color = 'white';
+                        releasedLabel.style.top = '5px';
+                        releasedLabel.style.left = '5px';
+                        releasedLabel.style.padding = '5px';
+                        releasedLabel.style.borderRadius = '5px';
+                        releasedLabel.style.fontSize = '12px';
+                        releasedLabel.style.fontWeight = 'bold';
+                        releasedLabel.style.zIndex = '1';
+                        thumbnailContainer.appendChild(releasedLabel);
+                    }
+                };
+                thumbnailImage.onerror = () => {
+                    thumbnailContainer.innerHTML = '';
+                    thumbnailContainer.style.backgroundColor = ''; 
+                    if (item.details && item.details.ProductId !== 0) {
+                        const releasedLabel = document.createElement('div');
+                        releasedLabel.textContent = 'Released';
+                        releasedLabel.className = 'released-label';
+                        releasedLabel.style.position = 'absolute';
+                        releasedLabel.style.top = '5px';
+                        releasedLabel.style.left = '5px';
+                        releasedLabel.style.color = 'white';
+                        releasedLabel.style.backgroundColor = '#e57b00';
+                        releasedLabel.style.padding = '5px';
+                        releasedLabel.style.borderRadius = '5px';
+                        releasedLabel.style.fontSize = '12px';
+                        releasedLabel.style.fontWeight = 'bold';
+                        releasedLabel.style.zIndex = '1';
+                        thumbnailContainer.appendChild(releasedLabel);
+                    }
+                    const shimmerDivFallback = document.createElement('div');
+                    shimmerDivFallback.className = 'thumbnail-2d-container shimmer';
+                    if (currentMode === 'light') {
+                        shimmerDivFallback.classList.add('light-mode');
+                    } else {
+                        shimmerDivFallback.classList.add('dark-mode');
+                    }
+                    shimmerDivFallback.style.height = '221.75px';
+                    shimmerDivFallback.style.borderRadius = '8px';
+                    thumbnailContainer.appendChild(shimmerDivFallback);
+                };
+                thumbnailContainer.appendChild(thumbnailImage);
+
+
+            } else {
+                thumbnailContainer.innerHTML = '';
+                thumbnailContainer.style.backgroundColor = ''; 
+                if (item.details && item.details.ProductId !== 0) {
+                    const releasedLabel = document.createElement('div');
+                    releasedLabel.textContent = 'Released';
+                    releasedLabel.className = 'released-label';
+                    releasedLabel.style.position = 'absolute';
+                    releasedLabel.style.top = '5px';
+                    releasedLabel.style.left = '5px';
+                    releasedLabel.style.backgroundColor = '#e57b00';
+                    releasedLabel.style.padding = '5px';
+                    releasedLabel.style.borderRadius = '5px';
+                    releasedLabel.style.fontSize = '12px';
+                    releasedLabel.style.fontWeight = 'bold';
+                    releasedLabel.style.color = 'white';
+                    releasedLabel.style.zIndex = '1';
+                    thumbnailContainer.appendChild(releasedLabel);
+                }
+                const shimmerDivFallbackNoThumb = document.createElement('div');
+                shimmerDivFallbackNoThumb.className = 'thumbnail-2d-container shimmer';
+                if (currentMode === 'light') {
+                    shimmerDivFallbackNoThumb.classList.add('light-mode');
+                } else {
+                    shimmerDivFallbackNoThumb.classList.add('dark-mode');
+                }
+                shimmerDivFallbackNoThumb.style.height = '221.75px';
+                shimmerDivFallbackNoThumb.style.borderRadius = '8px';
+                thumbnailContainer.appendChild(shimmerDivFallbackNoThumb);
+            }
+        });
+        applyTheme(currentMode);
+    };
+
+    fetchThumbnails(); 
 }
+
+chrome.storage.local.get({ hiddenCatalogEnabled: false }, function(result) {
+    if (result.hiddenCatalogEnabled) {
+        console.log("Hidden Catalog is enabled, initializing...");
+        initHiddenCatalog();
+    } else {
+        console.log("Hidden Catalog is disabled, not initializing.");
+    }
+});
