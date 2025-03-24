@@ -78,7 +78,7 @@
 </details>
 
 # Known Issues
-- **No known issues**
+- **Sometimes different elements of the extension doesnt get added, mostly happens when a page lags**
 
 # How to install
 
