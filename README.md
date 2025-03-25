@@ -78,6 +78,7 @@
 </details>
 
 # Known Issues
+- **Stuff like the region selector and user sniper tries to load no matter the page**
 - **Sometimes different elements of the extension doesnt get added, mostly happens when a page lags**
 
 # How to install
