@@ -9,7 +9,7 @@
       "matches": [
         "*://*.roblox.com/*"
       ],
-      "js": ["content.js", "games/Regions_content.js", "catalog/hiddencatalog.js"],
+      "js": ["content.js", "games/Regions_content.js", "catalog/hiddencatalog.js","misc/itemCheckerFilters.js","misc/itemChecker.js"],
       "run_at": "document_start",
       "all_frames": true
       

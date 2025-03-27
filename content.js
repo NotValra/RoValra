@@ -4,6 +4,8 @@ let roValraLoaded = false;
 
 const loadScript = async (src, dataAttributes = {}) => {
     const startTime = performance.now();
+    //console.log("Loading script:", src, chrome.runtime.getURL(src));
+
     return new Promise((resolve, reject) => {
         const script = document.createElement('script');
         script.src = chrome.runtime.getURL(src);
@@ -14,10 +16,12 @@ const loadScript = async (src, dataAttributes = {}) => {
             const endTime = performance.now();
             const duration = (endTime - startTime).toFixed(2);
             loadedScripts.push({ src, duration });
+            console.log("Script loaded:", src);
             resolve();
         };
         script.onerror = (error) => {
             loadedScripts.push({ src, error: "Failed to load" })
+            console.error("Script failed to load:", src, error);
             reject(error);
         };
         document.head.appendChild(script);
@@ -98,53 +102,34 @@ function getPlaceIdFromUrl() {
             subplacesEnabled: true,
             forceR6Enabled: true,
             fixR6Enabled: false,
-            inviteEnabled: false, 
+            inviteEnabled: false,
             regionSelectorInitialized: false,
-            regionSelectorFirstTime: true, 
+            regionSelectorFirstTime: true,
         });
+        console.log("Settings loaded:", settings); 
     } catch (error) {
         console.error("Error loading settings:", error);
         settings = {};
     }
 
-    if (settings.inviteEnabled === false) { 
-        await chrome.storage.local.set({ inviteEnabled: false }); 
+    const currentPath = window.location.pathname; 
+
+    if (settings.inviteEnabled === false) {
+        await chrome.storage.local.set({ inviteEnabled: false });
     }
-    if (settings.regionSelectorFirstTime === true) { 
-        await chrome.storage.local.set({ regionSelectorFirstTime: true }); 
+    if (settings.regionSelectorFirstTime === true) {
+        await chrome.storage.local.set({ regionSelectorFirstTime: true });
     }
-    if (settings.hiddenCatalogEnabled === true) { 
-        await chrome.storage.local.set({hiddenCatalogEnabled: true }); 
+    if (settings.hiddenCatalogEnabled === true) {
+        await chrome.storage.local.set({ hiddenCatalogEnabled: true });
     }
-    if (settings.regionSelectorEnabled === true) { 
-        await chrome.storage.local.set({regionSelectorEnabled: true }); 
+    if (settings.regionSelectorEnabled === true) {
+        await chrome.storage.local.set({ regionSelectorEnabled: true });
     }
-    if (settings.universalSniperEnabled === true) { 
-        await chrome.storage.local.set({universalSniperEnabled: true }); 
+    if (settings.universalSniperEnabled === true) {
+        await chrome.storage.local.set({ universalSniperEnabled: true });
     }
 
-    if (settings.regionSelectorFirstTime) {
-        if (settings.regionSelectorEnabled) {
-            await loadScript('Games/Regions_content.js', { serverListURL: chrome.runtime.getURL('data/ServerList.json') });
-        }
-        //await chrome.storage.local.set({ regionSelectorEnabled: false, universalSniperEnabled: false,regionSelectorInitialized: 'pendingRefresh', regionSelectorFirstTime: false });
-        return;
-    }
-
-    if (settings.regionSelectorInitialized === 'pendingRefresh') {
-        await chrome.storage.local.set({ regionSelectorInitialized: true, universalSniperEnabled: true });
-        if (settings.regionSelectorEnabled) {
-            await loadScript('Games/Regions_content.js', { serverListURL: chrome.runtime.getURL('data/ServerList.json') });
-        }
-       // await chrome.storage.local.set({ regionSelectorEnabled: true, universalSniperEnabled: true }); 
-        setTimeout(() => {
-        }, 100);
-        return;
-    } else {
-        if (settings.regionSelectorEnabled) {
-            await loadScript('Games/Regions_content.js', { serverListURL: chrome.runtime.getURL('data/ServerList.json') });
-        }
-    }
 
     if (settings.inviteEnabled && currentPath.includes('/games/')) {
         await loadScript('Games/invite.js', { trackedRequests: JSON.stringify(trackedServerRequests) });
@@ -165,8 +150,8 @@ function getPlaceIdFromUrl() {
         if (settings.userSniperEnabled) {
             await loadScript('misc/userSniper.js');
         }
-        await loadScript('misc/itemChecker.js');
-        await loadScript('misc/itemCheckerFilters.js');
+        //await loadScript('misc/itemChecker.js');
+        //await loadScript('misc/itemCheckerFilters.js');
     } else if (currentPath.includes('/games/')) {
         if (settings.subplacesEnabled) {
             await loadScript('Games/Subplaces.js');
@@ -184,8 +169,6 @@ function getPlaceIdFromUrl() {
         }
     }
 
-    if (settings.hiddenCatalogEnabled) {
-    }
 
     const theme = await detectTheme();
     dispatchThemeEvent(theme);
