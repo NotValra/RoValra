@@ -78,8 +78,6 @@
 </details>
 
 # Known Issues
-- **Subplaces and private inventory checker for some reason arent showing, guessing roblox changed something that broke it**
-- **Stuff like the region selector and user sniper tries to load no matter the page**
 - **Sometimes different elements of the extension doesnt get added, mostly happens when a page lags**
 
 # How to install
