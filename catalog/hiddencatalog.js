@@ -1,4 +1,4 @@
-let checkInterval; 
+let checkInterval;
 let currentMode = localStorage.getItem('hiddenCatalogMode') || 'dark';
 
 const initHiddenCatalog = () => {
@@ -8,6 +8,11 @@ const initHiddenCatalog = () => {
         const robuxButtonContainer = document.getElementById('navigation-robux-container');
 
         if (robuxButtonContainer) {
+            if (robuxButtonContainer.style.display === 'none') {
+                robuxButtonContainer.style.display = 'block';
+                console.log("navigation-robux-container display changed to block.");
+            }
+
             const robuxButtonLink = robuxButtonContainer.querySelector('a.robux-menu-btn');
 
             if (robuxButtonLink) {
@@ -16,11 +21,23 @@ const initHiddenCatalog = () => {
                 robuxButtonLink.target = "_self";
                 clearInterval(checkInterval);
                 removeHiddenCatalogContent();
+                removeHomeElement();
             }
         } else {
         }
     }, 20);
 };
+
+function removeHomeElement() {
+    const homeElementToRemove = document.querySelector('li.cursor-pointer.btr-nav-node-header_home.btr-nav-header_home');
+    if (homeElementToRemove) {
+        homeElementToRemove.remove();
+        console.log("Home element removed.");
+    } else {
+        console.log("Home element not found.");
+    }
+}
+
 
 function applyTheme(mode) {
     currentMode = mode;
@@ -124,7 +141,7 @@ function removeHiddenCatalogContent() {
             contentDiv.style.position = 'relative';
 
             const headerContainer = document.createElement('div');
-            headerContainer.className = 'hidden-catalog-header'; 
+            headerContainer.className = 'hidden-catalog-header';
             headerContainer.style.position = 'absolute';
             headerContainer.style.top = '10px';
             headerContainer.style.left = '20px';
@@ -191,7 +208,7 @@ async function fetchItemDetails(itemId) {
     }
 }
 
-function fetchDataFromAPI(retryCount = 0, maxRetries = 3, retryDelay = 100) {
+function fetchDataFromAPI(retryCount = 0, maxRetries = 1, retryDelay = 100) {
     fetch('https://valraiscool.duckdns.org:7777/items', {headers: {'Accept-Language': 'en-US,en-UK,en;q=0.9'}})
         .then(response => {
             if (!response.ok) {
@@ -205,7 +222,7 @@ function fetchDataFromAPI(retryCount = 0, maxRetries = 3, retryDelay = 100) {
             }
             return response.json();
         })
-        .then(async data => { 
+        .then(async data => {
             if (!data || !Array.isArray(data.items)) {
                 console.error('API response is not in the expected format or items array is missing:', data);
                 const contentDiv = document.querySelector('.content#content');
@@ -222,10 +239,10 @@ function fetchDataFromAPI(retryCount = 0, maxRetries = 3, retryDelay = 100) {
             const itemsWithDetails = await Promise.all(
                 data.items.map(async item => {
                     const details = await fetchItemDetails(item.item_id);
-                    return { ...item, details }; 
+                    return { ...item, details };
                 })
             );
-            displayItems(itemsWithDetails); 
+            displayItems(itemsWithDetails);
         })
         .catch(error => {
             console.error("Error fetching data from API:", error);
@@ -299,14 +316,14 @@ async function displayItems(itemsWithDetails) {
     itemsContainer.style.marginLeft = '30px';
     contentDiv.appendChild(itemsContainer);
 
-    const assetIdsForThumbnails = itemsWithDetails.map(item => item.item_id); 
+    const assetIdsForThumbnails = itemsWithDetails.map(item => item.item_id);
 
     if (assetIdsForThumbnails.length === 0) {
         console.warn("displayItems: No asset IDs to fetch thumbnails for. Check API item data.");
         return;
     }
 
-    itemsWithDetails.forEach(item => { 
+    itemsWithDetails.forEach(item => {
 
         const itemLink = document.createElement('a');
         itemLink.className = 'item-container';
@@ -381,7 +398,7 @@ async function displayItems(itemsWithDetails) {
                     const response = await fetch(thumbnailUrl, {
                         credentials: 'include'
                     });
-             
+
 
                     if (!response.ok) {
                         console.error(`displayItems: Inlined Fetch - HTTP error! status: ${response.status} for thumbnail API. URL: ${thumbnailUrl}`);
@@ -392,7 +409,7 @@ async function displayItems(itemsWithDetails) {
                     }
 
                     const data = await response.json();
-                    
+
 
                     if (data && data.data) {
                         thumbnailData = thumbnailData.concat(data.data);
@@ -418,9 +435,9 @@ async function displayItems(itemsWithDetails) {
         itemContainers.forEach((itemLink, index) => {
             const thumbnailResponse = thumbnailData[index];
             const thumbnailContainer = itemLink.querySelector('.thumbnail-container');
-            thumbnailContainer.innerHTML = ''; 
+            thumbnailContainer.innerHTML = '';
 
-            const item = itemsWithDetails[index]; 
+            const item = itemsWithDetails[index];
 
             if (item.details && item.details.ProductId !== 0) {
                 const releasedLabel = document.createElement('div');
@@ -441,7 +458,7 @@ async function displayItems(itemsWithDetails) {
 
 
             if (thumbnailResponse && thumbnailResponse.state === "InReview") {
-                thumbnailContainer.style.backgroundColor = ''; 
+                thumbnailContainer.style.backgroundColor = '';
                 const shimmerDivInReview = document.createElement('div');
                 shimmerDivInReview.className = 'thumbnail-2d-container shimmer';
                 if (currentMode === 'light') {
@@ -530,7 +547,7 @@ async function displayItems(itemsWithDetails) {
                 };
                 thumbnailImage.onerror = () => {
                     thumbnailContainer.innerHTML = '';
-                    thumbnailContainer.style.backgroundColor = ''; 
+                    thumbnailContainer.style.backgroundColor = '';
                     if (item.details && item.details.ProductId !== 0) {
                         const releasedLabel = document.createElement('div');
                         releasedLabel.textContent = 'Released';
@@ -563,7 +580,7 @@ async function displayItems(itemsWithDetails) {
 
             } else {
                 thumbnailContainer.innerHTML = '';
-                thumbnailContainer.style.backgroundColor = ''; 
+                thumbnailContainer.style.backgroundColor = '';
                 if (item.details && item.details.ProductId !== 0) {
                     const releasedLabel = document.createElement('div');
                     releasedLabel.textContent = 'Released';
@@ -595,7 +612,7 @@ async function displayItems(itemsWithDetails) {
         applyTheme(currentMode);
     };
 
-    fetchThumbnails(); 
+    fetchThumbnails();
 }
 
 chrome.storage.local.get({ hiddenCatalogEnabled: false }, function(result) {

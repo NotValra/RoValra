@@ -98,44 +98,36 @@ function getPlaceIdFromUrl() {
             subplacesEnabled: true,
             forceR6Enabled: true,
             fixR6Enabled: false,
-            inviteEnabled: false,
+            inviteEnabled: false, 
             regionSelectorInitialized: false,
-            regionSelectorFirstTime: true,
+            regionSelectorFirstTime: true, 
         });
     } catch (error) {
         console.error("Error loading settings:", error);
         settings = {};
     }
 
-    if (settings.universalSniperEnabled === undefined) {
-        console.warn("universalSniperEnabled setting is undefined, assuming default true for first install.");
-        settings.universalSniperEnabled = true;
+    if (settings.inviteEnabled === false) { 
+        await chrome.storage.local.set({ inviteEnabled: false }); 
+    }
+    if (settings.regionSelectorFirstTime === true) { 
+        await chrome.storage.local.set({ regionSelectorFirstTime: true }); 
+    }
+    if (settings.hiddenCatalogEnabled === true) { 
+        await chrome.storage.local.set({hiddenCatalogEnabled: true }); 
+    }
+    if (settings.regionSelectorEnabled === true) { 
+        await chrome.storage.local.set({regionSelectorEnabled: true }); 
+    }
+    if (settings.universalSniperEnabled === true) { 
+        await chrome.storage.local.set({universalSniperEnabled: true }); 
     }
 
-
-    const currentPath = window.location.pathname;
-
     if (settings.regionSelectorFirstTime) {
-        await chrome.storage.local.set({
-            hiddenCatalogEnabled: true,
-            itemSalesEnabled: true,
-            groupGamesEnabled: true,
-            userGamesEnabled: true,
-            userSniperEnabled: false,
-            universalSniperEnabled: true,
-            regionSelectorEnabled: true,
-            subplacesEnabled: true,
-            forceR6Enabled: true,
-            fixR6Enabled: false,
-            inviteEnabled: false,
-            regionSelectorInitialized: false,
-            regionSelectorFirstTime: true, 
-        });
-
         if (settings.regionSelectorEnabled) {
             await loadScript('Games/Regions_content.js', { serverListURL: chrome.runtime.getURL('data/ServerList.json') });
         }
-        await chrome.storage.local.set({ regionSelectorEnabled: false, universalSniperEnabled: false,regionSelectorInitialized: 'pendingRefresh', regionSelectorFirstTime: false });
+        //await chrome.storage.local.set({ regionSelectorEnabled: false, universalSniperEnabled: false,regionSelectorInitialized: 'pendingRefresh', regionSelectorFirstTime: false });
         return;
     }
 
@@ -144,7 +136,7 @@ function getPlaceIdFromUrl() {
         if (settings.regionSelectorEnabled) {
             await loadScript('Games/Regions_content.js', { serverListURL: chrome.runtime.getURL('data/ServerList.json') });
         }
-        await chrome.storage.local.set({ regionSelectorEnabled: true, universalSniperEnabled: true });
+       // await chrome.storage.local.set({ regionSelectorEnabled: true, universalSniperEnabled: true }); 
         setTimeout(() => {
         }, 100);
         return;
@@ -192,9 +184,8 @@ function getPlaceIdFromUrl() {
         }
     }
 
-    if (settings.hiddenCatalogEnabled) { 
+    if (settings.hiddenCatalogEnabled) {
     }
-
 
     const theme = await detectTheme();
     dispatchThemeEvent(theme);

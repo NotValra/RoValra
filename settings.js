@@ -1000,7 +1000,7 @@ async function checkRoValraPage() {
                             </label>
                             <div class="setting-separator"></div>
                             </div>
-                            <h1 style="; margin-top: 0px; margin-bottom: 10px;">Items</h1>
+                            <h1 style="; margin-top: 0px; margin-bottom: 10px;">Catalog</h1>
                             <div class="setting">
                             <label style="">Enable Item Sales</label>
                             <p>This shows the most up to date sales and revenue data we have.</p>
