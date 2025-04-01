@@ -67,7 +67,7 @@
 # To do list
 - [ ] **Finishing my private todo list with around 22 things on it. (8/22 are done)**
 - [x] **~~Hidden Catalog allowing you to browse up coming unreleased Roblox items.~~ ADDED**
-- [ ] **Reworked Region selector ui (not my main focus atm)**
+- [ ] **Reworked Region selector ui**
 - [ ] **Maybe FireFox support (its not my main focus atm)**
 
 # Known incompatibilies
