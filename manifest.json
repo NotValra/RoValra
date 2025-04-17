@@ -9,7 +9,7 @@
       "matches": [
         "*://*.roblox.com/*"
       ],
-      "js": ["content.js", "games/Regions_content.js", "catalog/hiddencatalog.js","misc/itemCheckerFilters.js","misc/itemChecker.js"],
+      "js": ["content.js", "Games/Regions_content.js", "catalog/hiddencatalog.js","misc/itemCheckerFilters.js","misc/itemChecker.js"],
       "run_at": "document_start",
       "all_frames": true
       
@@ -18,7 +18,7 @@
       "matches": [
         "*://*.roblox.com/*"
       ],
-      "js": ["settings.js",  "games/sniper.js"],
+      "js": ["settings.js",  "Games/sniper.js"],
       "all_frames": true
      
     },
