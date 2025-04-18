@@ -10,7 +10,6 @@ const initHiddenCatalog = () => {
         if (robuxButtonContainer) {
             if (robuxButtonContainer.style.display === 'none') {
                 robuxButtonContainer.style.display = 'block';
-                console.log("navigation-robux-container display changed to block.");
             }
 
             const robuxButtonLink = robuxButtonContainer.querySelector('a.robux-menu-btn');
@@ -23,7 +22,6 @@ const initHiddenCatalog = () => {
                 removeHiddenCatalogContent();
                 removeHomeElement();
             }
-        } else {
         }
     }, 20);
 };
@@ -32,12 +30,8 @@ function removeHomeElement() {
     const homeElementToRemove = document.querySelector('li.cursor-pointer.btr-nav-node-header_home.btr-nav-header_home');
     if (homeElementToRemove) {
         homeElementToRemove.remove();
-        console.log("Home element removed.");
-    } else {
-        console.log("Home element not found.");
     }
 }
-
 
 function applyTheme(mode) {
     currentMode = mode;
@@ -129,7 +123,6 @@ function applyTheme(mode) {
     });
 }
 
-
 function removeHiddenCatalogContent() {
     const isOnHiddenCatalog = window.location.pathname.endsWith('/hidden-catalog');
 
@@ -149,14 +142,12 @@ function removeHiddenCatalogContent() {
             headerContainer.style.display = 'flex';
             headerContainer.style.alignItems = 'center';
 
-
             const header = document.createElement('h1');
             header.textContent = 'Hidden Catalog';
             header.style.fontWeight = '800';
             header.style.padding = '20px 0px 20px 10px';
             header.style.fontSize = '2em';
             header.style.margin = '0';
-
 
             headerContainer.appendChild(header);
 
@@ -203,79 +194,111 @@ async function fetchItemDetails(itemId) {
         }
         return await response.json();
     } catch (error) {
-        console.error("Error fetching item details:", error);
         return null;
     }
 }
 
-function fetchDataFromAPI(retryCount = 0, maxRetries = 1, retryDelay = 100) {
-    fetch('https://valraiscool.duckdns.org:7777/items', {headers: {'Accept-Language': 'en-US,en-UK,en;q=0.9'}})
-        .then(response => {
-            if (!response.ok) {
-                if (response.status >= 500 && response.status < 600) {
-                    throw new Error(`Server error: ${response.status}`);
-                } else if (response.status === 429) {
-                    throw new Error(`Rate limit: ${response.status}`);
-                } else {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-            }
-            return response.json();
-        })
-        .then(async data => {
-            if (!data || !Array.isArray(data.items)) {
-                console.error('API response is not in the expected format or items array is missing:', data);
-                const contentDiv = document.querySelector('.content#content');
-                if (contentDiv) {
-                    const errorMessageElement = document.createElement('p');
-                    errorMessageElement.style.color = 'red';
-                    errorMessageElement.style.paddingLeft = '20px';
-                    errorMessageElement.textContent = "API returned invalid data format (expected 'items' array). Please try again later.";
-                    contentDiv.appendChild(errorMessageElement);
-                }
-                return;
-            }
+async function fetchDataFromAPI(retryCount = 0, maxRetries = 1, retryDelay = 100) {
+    const apiUrl = 'https://catalog.rovalra.com/items';
 
-            const itemsWithDetails = await Promise.all(
-                data.items.map(async item => {
-                    const details = await fetchItemDetails(item.item_id);
-                    return { ...item, details };
-                })
-            );
-            displayItems(itemsWithDetails);
-        })
-        .catch(error => {
-            console.error("Error fetching data from API:", error);
-            if (error.message === 'Failed to fetch' || error.message.startsWith('Server error') || error.message.startsWith('Rate limit')) {
+    const requestHeaders = new Headers();
+    requestHeaders.append('Accept', 'application/json, text/plain, */*');
+    requestHeaders.append('Accept-Language', 'en-US,en-UK,en;q=0.9');
+    requestHeaders.append('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
+
+    try {
+        const response = await fetch(apiUrl, {
+            method: 'GET',
+            headers: requestHeaders,
+            redirect: 'manual',
+            cache: 'no-store'
+        });
+
+        if (response.status >= 300 && response.status < 400) {
+            const locationHeader = response.headers.get('Location');
+            displayApiError(`API request resulted in a redirect loop (initial redirect to: ${locationHeader || 'N/A'}). Cannot load items.`);
+            return;
+        } else if (response.type === 'opaqueredirect') {
+             displayApiError("Error processing API request due to redirects. Check DevTools Network tab.");
+             return;
+        } else if (!response.ok) {
+            const error = new Error(`HTTP error! status: ${response.status}`);
+            error.status = response.status;
+             try { error.responseText = await response.text(); } catch (e) { /* Ignore */ }
+            throw error;
+        }
+
+        const data = await response.json();
+
+        if (!data || !Array.isArray(data.items)) {
+            displayApiError("API returned invalid data format (expected 'items' array). Please try again later.");
+            return;
+        }
+
+        const existingError = document.querySelector('.content#content .api-error-message');
+        if (existingError) existingError.remove();
+
+        const itemsWithDetails = await Promise.all(
+            data.items.map(async item => {
+                if (!item || typeof item.item_id === 'undefined') {
+                    return { ...item, details: null, name: item?.name || 'Invalid Item Data' };
+                }
+                const details = await fetchItemDetails(item.item_id);
+                item.name = item.name || (details ? details.Name : 'Unnamed Item');
+                return { ...item, details };
+            })
+        );
+        displayItems(itemsWithDetails);
+
+    } catch (error) {
+        if (error instanceof TypeError && (error.message.includes('redirect') || error.message.includes('Failed to fetch'))) {
+             displayApiError("Error: The API request resulted in too many redirects (redirect loop). Please inform the site owner or try again later.");
+        } else {
+            const status = error.status;
+
+             if (status === 429 || (status && status >= 500 && status < 600) || (error instanceof TypeError && error.message === 'Failed to fetch')) {
                 if (retryCount < maxRetries) {
                     const delay = retryDelay * Math.pow(2, retryCount);
                     setTimeout(() => {
-                        fetchDataFromAPI(retryCount + 1, maxRetries, retryDelay);
+                         fetchDataFromAPI(retryCount + 1, maxRetries, retryDelay);
                     }, delay);
                 } else {
-                    const contentDiv = document.querySelector('.content#content');
-                    if (contentDiv) {
-                        const errorMessageElement = document.createElement('p');
-                        errorMessageElement.style.color = 'red';
-                        errorMessageElement.style.paddingLeft = '20px';
-                        errorMessageElement.textContent = "API error, Please try again in 10 seconds.";
-                        contentDiv.appendChild(errorMessageElement);
-                    }
+                    let errorMsg = "API error after multiple retries or due to redirect issues. Please try again later.";
+                    displayApiError(errorMsg);
                 }
             } else {
-                const contentDiv = document.querySelector('.content#content');
-                if (contentDiv) {
-                    const errorMessageElement = document.createElement('p');
-                    errorMessageElement.style.color = 'red';
-                    errorMessageElement.textContent = "Error loading Hidden Catalog items.";
-                    contentDiv.appendChild(errorMessageElement);
-                }
+                 let errorMsg = `Error loading Hidden Catalog items (Status: ${status || 'N/A'}).`;
+                 displayApiError(errorMsg);
             }
-        });
+        }
+    }
 }
 
+function displayApiError(message) {
+    const contentDiv = document.querySelector('.content#content');
+    if (contentDiv) {
+        const itemsContainer = contentDiv.querySelector('div[style*="grid"]');
+        if(itemsContainer) itemsContainer.innerHTML = '';
 
+        const existingError = contentDiv.querySelector('.api-error-message');
+        if (existingError) existingError.remove();
 
+        const errorMessageElement = document.createElement('p');
+        errorMessageElement.style.color = 'red';
+        errorMessageElement.style.padding = '20px';
+        errorMessageElement.style.width = '100%';
+        errorMessageElement.style.textAlign = 'center';
+        errorMessageElement.className = 'api-error-message';
+        errorMessageElement.textContent = message;
+
+        const descriptionElement = document.getElementById('hidden-catalog-description');
+         if (descriptionElement) {
+             contentDiv.insertBefore(errorMessageElement, descriptionElement.nextSibling);
+         } else {
+             contentDiv.appendChild(errorMessageElement);
+         }
+    }
+}
 
 function batchArray(array, batchSize) {
     const batchedArray = [];
@@ -287,14 +310,11 @@ function batchArray(array, batchSize) {
 
 async function displayItems(itemsWithDetails) {
     if (!Array.isArray(itemsWithDetails)) {
-        console.error('displayItems received non-array data:', itemsWithDetails);
         return;
     }
 
-
     const contentDiv = document.querySelector('.content#content');
     if (!contentDiv) {
-        console.warn("displayItems: Content div not found, cannot display items.");
         return;
     }
 
@@ -307,7 +327,6 @@ async function displayItems(itemsWithDetails) {
     contentDiv.style.marginTop = '20px';
     contentDiv.style.alignContent = 'flex-start';
 
-
     const itemsContainer = document.createElement('div');
     itemsContainer.style.display = 'grid';
     itemsContainer.style.gridTemplateColumns = 'repeat(auto-fill, minmax(221.75px, 1fr))';
@@ -319,7 +338,6 @@ async function displayItems(itemsWithDetails) {
     const assetIdsForThumbnails = itemsWithDetails.map(item => item.item_id);
 
     if (assetIdsForThumbnails.length === 0) {
-        console.warn("displayItems: No asset IDs to fetch thumbnails for. Check API item data.");
         return;
     }
 
@@ -351,7 +369,6 @@ async function displayItems(itemsWithDetails) {
         thumbnailContainer.style.justifyContent = 'center';
         thumbnailContainer.style.alignItems = 'center';
         thumbnailContainer.style.position = 'relative';
-
 
         const itemDetailsDiv = document.createElement('div');
         itemDetailsDiv.className = 'item-details';
@@ -389,47 +406,34 @@ async function displayItems(itemsWithDetails) {
     const fetchThumbnails = async () => {
         try {
             for (const batch of thumbnailBatches) {
-
                 const assetIdsString = batch.join(',');
                 const thumbnailUrl = `https://thumbnails.roblox.com/v1/assets?assetIds=${assetIdsString}&returnPolicy=PlaceHolder&size=250x250&format=Png&isCircular=false`;
-
 
                 try {
                     const response = await fetch(thumbnailUrl, {
                         credentials: 'include'
                     });
 
-
                     if (!response.ok) {
-                        console.error(`displayItems: Inlined Fetch - HTTP error! status: ${response.status} for thumbnail API. URL: ${thumbnailUrl}`);
-                        const errorText = await response.text();
-                        console.error("displayItems: Inlined Fetch - Response Error Text:", errorText);
                         thumbnailData = thumbnailData.concat(batch.map(() => null));
                         continue;
                     }
 
                     const data = await response.json();
 
-
                     if (data && data.data) {
                         thumbnailData = thumbnailData.concat(data.data);
                     } else {
-                        console.warn("displayItems: Inlined Fetch - API response missing 'data' or empty:", data);
                         thumbnailData = thumbnailData.concat(batch.map(() => null));
                     }
 
                 } catch (fetchError) {
-                    console.error("displayItems: Inlined Fetch - ERROR in fetch block:", fetchError);
-                    console.error("displayItems: Inlined Fetch - Detailed fetch error:", fetchError.message);
                     thumbnailData = thumbnailData.concat(batch.map(() => null));
                 }
             }
         } catch (error) {
-            console.error("displayItems: Error during thumbnail batch processing loop:", error);
-            console.error("displayItems: Full loop error object:", error);
             return;
         }
-
 
         const itemContainers = document.querySelectorAll('.item-container');
         itemContainers.forEach((itemLink, index) => {
@@ -455,7 +459,6 @@ async function displayItems(itemsWithDetails) {
                 releasedLabel.style.zIndex = '1';
                 thumbnailContainer.appendChild(releasedLabel);
             }
-
 
             if (thumbnailResponse && thumbnailResponse.state === "InReview") {
                 thumbnailContainer.style.backgroundColor = '';
@@ -524,7 +527,6 @@ async function displayItems(itemsWithDetails) {
                 shimmerDivLoading.style.borderRadius = '8px';
                 thumbnailContainer.appendChild(shimmerDivLoading);
 
-
                 thumbnailImage.onload = () => {
                     shimmerDivLoading.style.display = 'none';
                     thumbnailImage.style.display = 'block';
@@ -577,7 +579,6 @@ async function displayItems(itemsWithDetails) {
                 };
                 thumbnailContainer.appendChild(thumbnailImage);
 
-
             } else {
                 thumbnailContainer.innerHTML = '';
                 thumbnailContainer.style.backgroundColor = '';
@@ -617,9 +618,6 @@ async function displayItems(itemsWithDetails) {
 
 chrome.storage.local.get({ hiddenCatalogEnabled: false }, function(result) {
     if (result.hiddenCatalogEnabled) {
-        console.log("Hidden Catalog is enabled, initializing...");
         initHiddenCatalog();
-    } else {
-        console.log("Hidden Catalog is disabled, not initializing.");
     }
 });
