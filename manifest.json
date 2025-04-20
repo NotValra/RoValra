@@ -82,7 +82,7 @@
               "Assets/icon-128.png",
               "Games/invite.js",
               "Games/sniper.js",
-              "misc/itemChecker.js",
+              "misc/ItemChecker.js",
               "misc/itemCheckerFilters.js",
               "catalog/hiddencatalog.js"
 
