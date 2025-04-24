@@ -82,7 +82,8 @@
 </details>
 
 # Known Issues
-- **Sometimes different elements of the extension doesnt get added, mostly happens when a page lags**
+- **Hidden Games on user profiles might not show**
+- **Unpending Robux sometimes shows insufficient data even tho there is sufficient data**
 
 # How to install
 
