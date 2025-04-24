@@ -1,3 +1,281 @@
+const REGIONS = {
+    "AUTO": { city: "Nothing Selected", state: null, country: null },
+    "SG": { latitude: 1.3521, longitude: 103.8198, city: "Singapore", state: null, country: "Singapore" },
+    "DE": { latitude: 50.1109, longitude: 8.6821, city: "Frankfurt", state: null, country: "Germany" },
+    "FR": { latitude: 48.8566, longitude: 2.3522, city: "Paris", state: null, country: "France" },
+    "JP": { latitude: 35.6895, longitude: 139.6917, city: "Tokyo", state: null, country: "Japan" },
+    "NL": { latitude: 52.3676, longitude: 4.9041, city: "Amsterdam", state: null, country: "Netherlands" },
+    "US-CA": { latitude: 34.0522, longitude: -118.2437, city: "Los Angeles", state: "California", country: "United States" },
+    "US-VA": { latitude: 38.9577, longitude: -77.1445, city: "Ashburn", state: "Virginia", country: "United States" },
+    "US-IL": { latitude: 41.8781, longitude: -87.6298, city: "Chicago", state: "Illinois", country: "United States" },
+    "US-TX": { latitude: 32.7767, longitude: -96.7970, city: "Dallas", state: "Texas", country: "United States" },
+    "US-FL": { latitude: 25.7617, longitude: -80.1918, city: "Miami", state: "Florida", country: "United States" },
+    "US-NY": { latitude: 40.7128, longitude: -74.0060, city: "New York City", state: "New York", country: "United States" },
+    "AU": { latitude: -33.8688, longitude: 151.2093, city: "Sydney", state: null, country: "Australia" },
+    "GB": { latitude: 51.5074, longitude: -0.1278, city: "London", state: null, country: "United Kingdom" },
+    "IN": { latitude: 19.0760, longitude: 72.8777, city: "Mumbai", state: null, country: "India" }
+};
+
+const SETTINGS_CONFIG = {
+    Catalog: {
+        title: "Catalog",
+        settings: {
+            itemSalesEnabled: {
+                label: "Enable Item Sales",
+                description: ["This shows the most up to date sales and revenue data we have.", 
+                            "The sales data is very likely to be inaccurate on items that are for sale, but very likely to be correct on off sale items."],
+                type: "checkbox",
+                default: true
+            },
+            hiddenCatalogEnabled: {
+                label: "Enable Hidden Catalog",
+                description: ["Shows Roblox made items before they are on the official catalog."],
+                type: "checkbox",
+                default: true
+            }
+        }
+    },
+    Games: {
+        title: "Games",
+        settings: {
+            regionSelectorEnabled: {
+                label: "Enable Region Selector",
+                description: ["This lets you select a server in a specific region to join."],
+                type: "checkbox",
+                default: false,
+                childSettings: {
+                    regionSimpleUi: {
+                        label: "Enable Globe UI",
+                        description: ["This changes the region selector UI to a globe.",
+                                    "WARNING this may be laggy on lower end devices, and the UI is outdated."],
+                        type: "checkbox",
+                        default: false
+                    }
+                    
+                }
+            },
+            PreferredRegionEnabled: {
+                label: "Enable Preferred Join Region",
+                description: ["This adds a play button that joins your preferred region.",
+                            "Works independently whether Region Selector is enabled or not."],
+                type: "checkbox",
+                default: true,
+                robloxPreferredRegion: {
+                    label: "Preferred Join Region",
+                    description: ["Select your preferred region for joining games.",
+                                "This setting works independently of the Region Selector."],
+                    type: "select",
+                    options: "REGIONS",
+                    default: "AUTO"
+                }
+            },
+            subplacesEnabled: {
+                label: "Enable Subplaces",
+                description: ["Shows the subplaces of a game."],
+                type: "checkbox",
+                default: true
+            },
+            inviteEnabled: {
+                label: "Enable Universal Server Invites (disabled for maintenance)",
+                description: ["This allows you to invite your friends to the game you're in, without your friend requiring any extension, not even RoValra!",
+                            "This will replace RoPros invites.",
+                            "This does require you to have BTRoblox for it to work."],
+                type: "checkbox",
+                default: false,
+                disabled: true
+            },
+            universalSniperEnabled: {
+                label: "Enable Universal User Sniper",
+                description: ["This allows you to join a user, without needing to be friends with them.",
+                            "Only requirement is that you know what game they are playing."],
+                type: "checkbox",
+                default: true
+            }
+        }
+    },
+    Profile: {
+        title: "Profile",
+        settings: {
+            userGamesEnabled: {
+                label: "Enable Hidden User Games",
+                description: ["Shows a users hidden games on their profile."],
+                type: "checkbox",
+                default: true
+            },
+            userSniperEnabled: {
+                label: "Enable Instant Joiner",
+                description: ["This joins a user instantly when they go into a game, best used for people with a lot of people trying to join them.",
+                            "It is recommended that you uninstall the microsoft store version of roblox, if you plan to use this feature.",
+                            "This feature requires the user to be friends with you or have their joins on."],
+                type: "checkbox",
+                default: false
+            }
+        }
+    },
+    Communities: {
+        title: "Communities",
+        settings: {
+            groupGamesEnabled: {
+                label: "Enable Hidden Community Games",
+                description: ["Shows a communities hidden games."],
+                type: "checkbox",
+                default: true
+            },
+            pendingRobuxEnabled: {
+                label: "Enable Unpending Robux",
+                description: ["Shows an estimate of how many pending Robux will stop pending within 24 hours.",],
+                type: "checkbox",
+                default: true
+            }
+        }
+    },
+    Avatar: {
+        title: "Avatar",
+        settings: {
+            forceR6Enabled: {
+                label: "Remove R6 Warning",
+                description: ["Removes the R6 warning when switching to R6"],
+                type: "checkbox",
+                default: true
+            },
+            fixR6Enabled: {
+                label: "Enable R6 Fix (BETA)",
+                description: ["Stops Roblox from automatically switching your character to R15 when equiping dynamic heads.",
+                            "This requires you to use the english language on Roblox."],
+                type: "checkbox",
+                default: false
+            }
+        }
+    }
+};
+
+function generateSettingsUI(section) {
+    let html = '';
+    const sectionConfig = SETTINGS_CONFIG[section];
+    
+    if (!sectionConfig) return '';
+
+    for (const [settingName, setting] of Object.entries(sectionConfig.settings)) {
+        html += '<div class="setting">';
+        html += `<label style="">${setting.label}</label>`;
+        
+        setting.description.forEach(desc => {
+            html += `<p>${desc}</p>`;
+        });
+
+        html += generateSettingInput(settingName, setting);
+
+        if (setting.childSettings) {
+            for (const [childName, childSetting] of Object.entries(setting.childSettings)) {
+                html += `
+                    <div class="setting" id="setting-${childName}" style="margin-left: 20px; margin-top: 10px; border-left: 0px solid #eee; padding-left: 15px;">
+                        <label style="">${childSetting.label}</label>
+                        ${childSetting.description.map(desc => `<p>${desc}</p>`).join('')}
+                        ${generateSettingInput(childName, childSetting)}
+                    </div>`;
+            }
+        }
+
+        html += '<div class="setting-separator"></div></div>';
+    }
+
+    return html;
+}
+
+function generateSettingInput(settingName, setting) {
+    if (setting.type === 'checkbox') {
+        const toggleClass = setting.disabled ? 'toggle-switch1' : 'toggle-switch';
+        return `
+            <label class="${toggleClass}">
+                <input type="checkbox" id="${settingName}" data-setting-name="${settingName}"${setting.disabled ? ' disabled' : ''}>
+                <span class="${setting.disabled ? 'slider1' : 'slider'}"></span>
+            </label>`;
+    } else if (setting.type === 'select') {
+        let options = '';
+        if (setting.options === 'REGIONS') {
+            options = Object.keys(REGIONS).map(regionCode =>
+                `<option value="${regionCode}">${getFullRegionName(regionCode)}</option>`
+            ).join('');
+        } else if (Array.isArray(setting.options)) {
+            options = setting.options.map(opt => 
+                `<option value="${opt.value}">${opt.label}</option>`
+            ).join('');
+        }
+        
+        return `
+            <select id="${settingName}" data-setting-name="${settingName}" style="width: 100%; padding: 8px; margin-top: 5px; border-radius: 4px; border: 1px solid #555; background-color: #393b3d; color: #eee;">
+                ${options}
+            </select>`;
+    }
+    return '';
+}
+
+const THEME_CONFIG = {
+    light: {
+        content: 'rgb(247, 247, 248)',
+        text: 'rgb(57, 59, 61)',
+        header: 'rgb(40, 40, 40)',
+        sliderOn: '#444',
+        sliderOff: 'rgba(0, 0, 0, 0.1)',
+        sliderButton: '#24292e',
+        buttonText: 'rgb(57, 59, 61)',
+        buttonBg: 'rgb(242, 244, 245)',
+        buttonHover: 'rgb(224, 226, 227)',
+        buttonActive: 'rgb(210, 212, 213)',
+        buttonBorder: '0 solid rgba(0, 0, 0, 0.1)',
+        discordLink: '#3479b7',
+        githubLink: '#1e722a'
+    },
+    dark: {
+        content: 'rgb(39, 41, 48)',
+        text: 'rgb(189, 190, 190)',
+        header: 'white',
+        sliderOn: '#ddd',
+        sliderOff: 'rgba(0, 0, 0, 0.1)',
+        sliderButton: 'white',
+        buttonText: 'rgba(255, 255, 255, 0.9)',
+        buttonBg: 'rgb(45, 48, 51)',
+        buttonHover: 'rgb(57, 60, 64)',
+        buttonActive: 'rgb(69, 73, 77)',
+        buttonBorder: '0px solid rgba(255, 255, 255, 0.1)',
+        discordLink: '#7289da',
+        githubLink: '#2dba4e'
+    }
+};
+
+let domCache = new Map();
+
+function getElement(selector, parent = document) {
+    if (!domCache.has(selector)) {
+        domCache.set(selector, parent.querySelector(selector));
+    }
+    return domCache.get(selector);
+}
+
+function getElements(selector, parent = document) {
+    const key = `multiple:${selector}`;
+    if (!domCache.has(key)) {
+        domCache.set(key, parent.querySelectorAll(selector));
+    }
+    return domCache.get(key);
+}
+
+function getFullRegionName(regionCode) {
+    const regionData = REGIONS[regionCode];
+    if (!regionData) {
+        return regionCode;
+    }
+    if (regionCode === "AUTO") return regionData.city;
+
+    let parts = [];
+    if (regionData.city && regionData.city !== regionData.country) parts.push(regionData.city);
+    if (regionData.state && regionData.country === "United States") parts.push(regionData.state);
+    if (regionData.country) parts.push(regionData.country);
+    parts = [...new Set(parts.filter(p => p))];
+    if (parts.length > 1 && parts[parts.length - 1] === "United States") parts[parts.length - 1] = "USA";
+    return parts.join(', ') || regionCode;
+}
+
 let currentTheme = 'light';
 let observer = null;
 let isChecking = false;
@@ -5,9 +283,36 @@ let popoverButtonCheckTimeout = null;
 let isPopoverButtonAdding = false;
 let rovalraButtonAdded = false;
 let isSettingsPage = false;
+let settingsSyncInterval = null;
 
+const syncSettingsVisualState = async () => {
+    const settingsContent = document.querySelector('#setting-section-content');
+    if (settingsContent && window.location.href.includes('?rovalra=info')) {
+        await initSettings(settingsContent);
+    }
+};
 
-async function fetchThemeFromAPI() {
+const startSettingsSync = () => {
+    if (settingsSyncInterval) {
+        clearInterval(settingsSyncInterval);
+    }
+    settingsSyncInterval = setInterval(syncSettingsVisualState, 30000);
+};
+
+const stopSettingsSync = () => {
+    if (settingsSyncInterval) {
+        clearInterval(settingsSyncInterval);
+        settingsSyncInterval = null;
+    }
+};
+
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && window.location.href.includes('?rovalra=info')) {
+        syncSettingsVisualState();
+    }
+});
+
+const fetchThemeFromAPI = async () => {
     try {
         const response = await fetch('https://apis.roblox.com/user-settings-api/v1/user-settings', {
             credentials: 'include'
@@ -27,82 +332,96 @@ async function fetchThemeFromAPI() {
         console.error('Error fetching theme from API:', error);
         return 'light';
     }
-}
+};
 
 function updateThemeStyles_settingsPage(theme) {
     const isDarkMode = theme === 'dark';
-    const contentColor = isDarkMode ? 'rgb(42, 43, 44)' : 'white';
-    const textColor = isDarkMode ? 'rgb(255, 255, 255)' : 'rgb(57, 59, 61)';
-    const headerColor = isDarkMode ? 'white' : 'rgb(40, 40, 40)';
-    const sliderOnBackgroundColor = isDarkMode ? '#ddd' : '#444';
-    const sliderOffBackgroundColor = isDarkMode ? '#444' : '#ddd';
-    const sliderButtonColor = isDarkMode ? 'white' : '#24292e';
-    const buttonTextColor = isDarkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgb(57, 59, 61)';
-    const buttonBgColor = isDarkMode ? 'rgb(45, 48, 51)' : 'rgb(242, 244, 245)';
-    const buttonHoverBgColor = isDarkMode ? 'rgb(57, 60, 64)' : 'rgb(224, 226, 227)';
-    const buttonActiveBgColor = isDarkMode ? 'rgb(69, 73, 77)' : 'rgb(210, 212, 213)';
-    const buttonBorder = isDarkMode ? '0px solid rgba(255, 255, 255, 0.1)' : '0 solid rgba(0, 0, 0, 0.1)';
+    
+    const colors = {
+        dark: {
+            button: {
+                base: 'rgb(45, 48, 51)',
+                hover: 'rgb(57, 60, 64)',
+                active: 'rgb(69, 73, 77)',
+                text: 'rgb(230, 230, 230)'
+            },
+            select: {
+                bg: 'rgb(45, 48, 51)',
+                border: 'rgb(69, 73, 77)',
+                text: 'rgb(230, 230, 230)'
+            }
+        },
+        light: {
+            button: {
+                base: 'rgb(242, 244, 245)',
+                hover: 'rgb(234, 236, 237)',
+                active: 'rgb(224, 226, 227)',
+                text: 'rgb(57, 59, 61)'
+            },
+            select: {
+                bg: 'rgb(255, 255, 255)',
+                border: 'rgb(224, 226, 227)',
+                text: 'rgb(57, 59, 61)'
+            }
+        }
+    };
 
-
-    const contentContainer = document.querySelector('#content-container');
-    const settingsContainer = document.querySelector('#settings-container');
-    const uiContainer = document.querySelector('#settings-container > div');
-    const tabButtons = document.querySelectorAll('.tab-button');
-    tabButtons.forEach(button => {
-        button.style.color = buttonTextColor;
-        button.style.backgroundColor = buttonBgColor;
-        button.style.border = buttonBorder;
+    const currentColors = colors[isDarkMode ? 'dark' : 'light'];
+    
+    const buttons = document.querySelectorAll('.setting-section-button');
+    buttons.forEach(button => {
+        Object.assign(button.style, {
+            padding: '10px 16px',
+            borderRadius: '8px',
+            border: 'none',
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontWeight: '500',
+            transition: 'all 0.2s ease',
+            margin: '0 8px 0 0',
+            fontFamily: 'Gotham SSm A, Gotham SSm B, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif',
+            backgroundColor: currentColors.button.base,
+            color: currentColors.button.text
+        });
 
         if (button.dataset.active === 'true') {
-            button.style.backgroundColor = buttonActiveBgColor;
-        } else {
-
-            button.addEventListener('mouseenter', function() {
-                if (this.dataset.active !== 'true') {
-                    button.style.backgroundColor = buttonHoverBgColor;
-                }
-            });
-            button.addEventListener('mouseleave', function() {
-                if (this.dataset.active !== 'true') {
-                    button.style.backgroundColor = buttonBgColor;
-                }
-            });
+            button.style.backgroundColor = currentColors.button.active;
         }
+
+        button.addEventListener('mouseenter', function() {
+            if (this.dataset.active !== 'true') {
+                this.style.backgroundColor = currentColors.button.hover;
+                this.style.transform = 'translateY(-1px)';
+            }
+        });
+
+        button.addEventListener('mouseleave', function() {
+            if (this.dataset.active !== 'true') {
+                this.style.backgroundColor = currentColors.button.base;
+                this.style.transform = 'translateY(0)';
+            }
+        });
     });
 
-    if (contentContainer) {
-        const childDiv = contentContainer.querySelector(':scope > div');
-        if (childDiv) {
-            childDiv.style.backgroundColor = contentColor;
-        }
+    const regionSelect = document.querySelector('#preferredRegionSelect');
+    if (regionSelect) {
+        Object.assign(regionSelect.style, {
+            width: '100%',
+            padding: '10px 12px',
+            borderRadius: '8px',
+            fontSize: '14px',
+            fontFamily: 'Gotham SSm A, Gotham SSm B, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif',
+            transition: 'all 0.2s ease',
+            backgroundColor: currentColors.select.bg,
+            color: currentColors.select.text,
+            border: `1px solid ${currentColors.select.border}`
+        });
     }
-    if (settingsContainer) {
-        const rovalraHeader = settingsContainer.querySelector('#react-user-account-base > h1');
-        if (rovalraHeader) {
-            rovalraHeader.style.color = headerColor;
-        }
-    }
-    if (uiContainer) {
-        uiContainer.style.color = textColor;
-    }
-
-
-
-    const sliders = document.querySelectorAll('.slider');
-    sliders.forEach(slider => {
-        const input = slider.parentNode.querySelector('input');
-        slider.style.backgroundColor = input.checked ? sliderOnBackgroundColor : sliderOffBackgroundColor;
-    });
-
-    const sliderButtons = document.querySelectorAll('.slider:before');
-    sliderButtons.forEach(button => {
-        button.style.backgroundColor = sliderButtonColor;
-    });
 }
 
 function updateThemeStyles_rovalraPage(theme) {
     const isDarkMode = theme === 'dark';
-    const contentColor = isDarkMode ? '#2a2b2c' : 'rgb(247, 247, 248)';
+    const contentColor = isDarkMode ? 'rgb(39, 41, 48)' : 'rgb(247, 247, 248)';
     const textColor = isDarkMode ? 'rgb(189, 190, 190)' : 'rgb(96, 97, 98)';
     const headerColor = isDarkMode ? '' : 'rgb(40, 40, 40)';
     const discordLinkColor = isDarkMode ? '#7289da' : '#3479b7';
@@ -171,6 +490,458 @@ function updateThemeStyles_rovalraPage(theme) {
     }
 }
 
+function applyTheme() {
+    if (window.location.href.includes('/RoValra')) {
+        updateThemeStyles_rovalraPage(currentTheme);
+    } else if (isSettingsPage) {
+        updateThemeStyles_settingsPage(currentTheme);
+    }
+}
+
+function addCustomButton() {
+    if (!window.location.href.startsWith('https://www.roblox.com/my/account')) {
+        return;
+    }
+
+    const menuList = document.querySelector('ul.menu-vertical[role="tablist"]');
+
+    if (!menuList) {
+        addPopoverButton();
+        return;
+    }
+
+    let divider = menuList.querySelector('li.rbx-divider.thick-height');
+
+    if (!divider) {
+        const lastMenuItem = menuList.querySelector('li.menu-option[role="tab"]:last-of-type');
+        if (!lastMenuItem) {
+            addPopoverButton()
+            return
+        }
+        const newDivider = document.createElement('li');
+        newDivider.classList.add('rbx-divider', 'thick-height');
+        newDivider.style.width = '100%';
+        newDivider.style.height = '2px';
+        lastMenuItem.insertAdjacentElement('afterend', newDivider);
+        divider = newDivider;
+
+    } else {
+        divider.style.width = '100%';
+    }
+
+    if (rovalraButtonAdded) {
+        observer.disconnect();
+        return;
+    }
+
+    const existingButton = menuList.querySelector('li.menu-option > a > span.font-caption-header[textContent="RoValra Settings"]');
+    if (existingButton) {
+        return;
+    }
+    const newButtonListItem = document.createElement('li');
+    newButtonListItem.classList.add('menu-option');
+    newButtonListItem.setAttribute('role', 'tab');
+
+    const newButtonLink = document.createElement('a');
+    newButtonLink.href = 'https://www.roblox.com/my/account?rovalra=info#!/info';
+    newButtonLink.classList.add('menu-option-content');
+    newButtonLink.style.cursor = 'pointer';
+    newButtonLink.style.display = 'flex';
+    newButtonLink.style.alignItems = 'center';
+
+    const newButtonSpan = document.createElement('span');
+    newButtonSpan.classList.add('font-caption-header');
+    newButtonSpan.textContent = 'RoValra Settings';
+    newButtonSpan.style.fontSize = '12px'
+
+    const logo = document.createElement('img');
+    logo.src = chrome.runtime.getURL("Assets/icon-128.png");
+    logo.style.width = '15px';
+    logo.style.height = '15px';
+    logo.style.marginRight = '5px';
+    logo.style.verticalAlign = 'middle';
+
+    newButtonLink.appendChild(logo);
+    newButtonLink.appendChild(newButtonSpan);
+    newButtonListItem.appendChild(newButtonLink);
+
+    divider.insertAdjacentElement('afterend', newButtonListItem);
+    rovalraButtonAdded = true;
+}
+
+function observeContentChanges() {
+    const targetNode = document.body;
+    if(!targetNode){
+        return;
+    }
+    const config = { childList: true, subtree: true };
+
+    observer = new MutationObserver(function(mutationsList, observer) {
+        for(const mutation of mutationsList) {
+            if (mutation.type === 'childList') {
+                for(const addedNode of mutation.addedNodes) {
+                    if(addedNode.nodeType === Node.ELEMENT_NODE) {
+                        if (addedNode.querySelector('ul.menu-vertical[role="tablist"]')) {
+                            addCustomButton();
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+    });
+    observer.observe(targetNode, config);
+
+    if (document.querySelector('ul.menu-vertical[role="tablist"]')){
+        addCustomButton()
+    }
+}
+
+function addPopoverButton() {
+    if (isPopoverButtonAdding) {
+        return;
+    }
+
+    isPopoverButtonAdding = true;
+
+    const popoverMenu = document.getElementById('settings-popover-menu');
+    if (!popoverMenu) {
+        isPopoverButtonAdding = false; 
+        return;
+    }
+
+    const existingButton = popoverMenu.querySelector('li.list-item > a > span.font-caption-header[textContent="RoValra Settings"]');
+    if (existingButton) {
+        isPopoverButtonAdding = false;
+        return;
+    }
+
+    const existingButtons = popoverMenu.querySelectorAll('li.list-item');
+    if (existingButtons.length > 1) {
+        for (let i = 1; i < existingButtons.length; i++) {
+            existingButtons[i].remove();
+        }
+    }
+
+    const newButtonListItem = document.createElement('li');
+    newButtonListItem.classList.add('list-item', 'menu-option');
+
+    const newButtonLink = document.createElement('a');
+    newButtonLink.href = 'https://www.roblox.com/my/account?rovalra=info#!/info';
+    newButtonLink.classList.add('menu-option-content');
+    newButtonLink.style.cursor = 'pointer';
+    newButtonLink.style.display = 'flex';
+    newButtonLink.style.alignItems = 'center';
+
+    const newButtonSpan = document.createElement('span');
+    newButtonSpan.classList.add('font-caption-header');
+    newButtonSpan.textContent = 'RoValra Settings';
+    newButtonSpan.style.fontSize = '16px';
+    newButtonSpan.style.marginLeft = '-1px';
+
+    const logo = document.createElement('img');
+    logo.src = chrome.runtime.getURL("Assets/icon-128.png");
+    logo.style.width = '17px';
+    logo.style.height = '17px';
+    logo.style.marginRight = '5px';
+    logo.style.verticalAlign = 'middle';
+
+    newButtonLink.appendChild(logo)
+    newButtonLink.appendChild(newButtonSpan);
+    newButtonListItem.appendChild(newButtonLink);
+
+    newButtonLink.addEventListener('click', function () {
+        const popover = document.querySelector('.popover-menu.settings-popover');
+        if (popover) {
+            popover.style.display = 'none';
+        }
+    });
+    popoverMenu.insertBefore(newButtonListItem, popoverMenu.firstChild);
+
+    isPopoverButtonAdding = false; 
+}
+
+function startObserver() {
+    if (observer) {
+        observer.disconnect();
+    }
+
+    const targetElement = document.getElementById('navbar-settings');
+
+    if (!targetElement) {
+        return;
+    }
+
+    observer = new MutationObserver(mutations => {
+        for (const mutation of mutations) {
+            if (mutation.type === 'childList' || mutation.type === 'subtree') {
+                for (const addedNode of mutation.addedNodes) {
+                    if (addedNode.nodeType === Node.ELEMENT_NODE) {
+                        if (addedNode.id === 'settings-popover-menu' || addedNode.querySelector('#settings-popover-menu')) {
+                            addPopoverButton();
+                            return; 
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    observer.observe(targetElement, { childList: true, subtree: true }); 
+}
+
+const loadSettings = async () => {
+    return new Promise((resolve, reject) => {
+        const defaultSettings = {
+            hiddenCatalogEnabled: true,
+            itemSalesEnabled: true,
+            groupGamesEnabled: true,
+            userGamesEnabled: true,
+            userSniperEnabled: false,
+            universalSniperEnabled: false,
+            regionSelectorEnabled: false,
+            regionSimpleUi: false,
+            PreferredRegionEnabled: true,
+            robloxPreferredRegion: 'AUTO',
+            subplacesEnabled: true,
+            forceR6Enabled: true,
+            fixR6Enabled: false,
+            inviteEnabled: false,
+            pendingRobuxEnabled: true
+        };
+
+        chrome.storage.local.get(defaultSettings, (settings) => {
+            if (chrome.runtime.lastError) {
+                console.error('Failed to load settings:', chrome.runtime.lastError);
+                reject(chrome.runtime.lastError);
+            } else {
+                resolve(settings);
+            }
+        });
+    });
+};
+
+const handleSaveSettings = async (settingName, value) => {
+    if (!settingName) {
+        console.error('No setting name provided');
+        return Promise.reject(new Error('No setting name provided'));
+    }
+
+    try {
+        const settings = {};
+        settings[settingName] = value;
+        
+        return new Promise((resolve, reject) => {
+            chrome.storage.local.set(settings, () => {
+                if (chrome.runtime.lastError) {
+                    console.error('Failed to save setting:', settingName, chrome.runtime.lastError);
+                    reject(chrome.runtime.lastError);
+                } else {
+                    resolve();
+                }
+            });
+        });
+    } catch (error) {
+        console.error(`Error saving setting ${settingName}:`, error);
+        return Promise.reject(error);
+    }
+};
+
+const initSettings = async (settingsContent) => {
+    if (!settingsContent) {
+        console.error("settingsContent is null in initSettings! Check HTML structure.");
+        return; 
+    }
+    const settings = await loadSettings();
+
+    if (settings) {
+        const enableHiddenCatalogCheckbox = settingsContent.querySelector('#enableHiddenCatalog');
+        if (enableHiddenCatalogCheckbox) {
+            enableHiddenCatalogCheckbox.checked = settings.hiddenCatalogEnabled;
+        } else {
+            console.warn("#enableHiddenCatalog not found in settingsContent in initSettings");
+        }
+
+        const enableItemSalesCheckbox = settingsContent.querySelector('#enableItemSales');
+        if (enableItemSalesCheckbox) {
+            enableItemSalesCheckbox.checked = settings.itemSalesEnabled;
+        } else {
+            console.warn("#enableItemSales not found in settingsContent in initSettings");
+        }
+
+        const enableGroupGamesCheckbox = settingsContent.querySelector('#enableGroupGames');
+        if (enableGroupGamesCheckbox) {
+            enableGroupGamesCheckbox.checked = settings.groupGamesEnabled;
+        } else {
+            console.warn("#enableGroupGames not found in settingsContent in initSettings");
+        }
+
+        const enableUserGamesCheckbox = settingsContent.querySelector('#enableUserGames');
+        if (enableUserGamesCheckbox) {
+            enableUserGamesCheckbox.checked = settings.userGamesEnabled;
+        } else {
+            console.warn("#enableUserGames not found in settingsContent in initSettings");
+        }
+
+        const enableUserInstantJoinCheckbox = settingsContent.querySelector('#enableUserInstantJoin');
+        if (enableUserInstantJoinCheckbox) {
+            enableUserInstantJoinCheckbox.checked = settings.userSniperEnabled;
+        } else {
+            console.warn("#enableUserInstantJoin not found in settingsContent in initSettings");
+        }
+
+        const enableUniversalSniperCheckbox = settingsContent.querySelector('#enableUniversalSniper');
+        if (enableUniversalSniperCheckbox) {
+            enableUniversalSniperCheckbox.checked = settings.universalSniperEnabled;
+        } else {
+            console.warn("#enableUniversalSniper not found in settingsContent in initSettings");
+        }
+
+        
+        const enableRegionSelectorCheckbox = settingsContent.querySelector('#enableRegionSelector');
+        if (enableRegionSelectorCheckbox) {
+            enableRegionSelectorCheckbox.checked = settings.regionSelectorEnabled;
+        } else {
+            console.warn("#enableRegionSelector not found in settingsContent in initSettings");
+        }
+
+        const enableSimpleRegionUICheckbox = settingsContent.querySelector('#enableSimpleRegionUI');
+        if (enableSimpleRegionUICheckbox) {
+            enableSimpleRegionUICheckbox.checked = settings.regionSimpleUi;
+        } else {
+            console.warn("#enableSimpleRegionUI not found in settingsContent in initSettings");
+        }
+
+        const enablePreferredRegionCheckbox = settingsContent.querySelector('#enablePreferredRegion');
+        if (enablePreferredRegionCheckbox) {
+            enablePreferredRegionCheckbox.checked = settings.PreferredRegionEnabled;
+        } else {
+            console.warn("#enablePreferredRegion not found in settingsContent in initSettings");
+        }
+
+        const preferredRegionSelect = settingsContent.querySelector('#preferredRegionSelect');
+        if (preferredRegionSelect) {
+            if (preferredRegionSelect.options.length === 0) {
+                Object.keys(REGIONS).forEach(regionCode => {
+                    const option = document.createElement('option');
+                    option.value = regionCode;
+                    option.textContent = getFullRegionName(regionCode);
+                    preferredRegionSelect.appendChild(option);
+                });
+            }
+            preferredRegionSelect.value = settings.robloxPreferredRegion || 'AUTO';
+            
+            preferredRegionSelect.style.display = settings.regionSelectorEnabled ? 'block' : 'none';
+        } else {
+            console.warn("#preferredRegionSelect not found in settingsContent in initSettings");
+        }
+
+        const enableSubplacesCheckbox = settingsContent.querySelector('#enableSubplaces');
+        if (enableSubplacesCheckbox) {
+            enableSubplacesCheckbox.checked = settings.subplacesEnabled;
+        } else {
+            console.warn("#enableSubplaces not found in settingsContent in initSettings");
+        }
+
+        const enableForceR6Checkbox = settingsContent.querySelector('#enableForceR6');
+        if (enableForceR6Checkbox) {
+            enableForceR6Checkbox.checked = settings.forceR6Enabled;
+        } else {
+            console.warn("#enableForceR6 not found in settingsContent in initSettings");
+        }
+
+        const enableR6FixCheckbox = settingsContent.querySelector('#enableR6Fix');
+        if (enableR6FixCheckbox) {
+            enableR6FixCheckbox.checked = settings.fixR6Enabled;
+        } else {
+            console.warn("#enableR6Fix not found in settingsContent in initSettings");
+        }
+
+        const enableInviteCheckbox = settingsContent.querySelector('#enableInvite');
+        if (enableInviteCheckbox) {
+            enableInviteCheckbox.checked = settings.inviteEnabled;
+        } else {
+            console.warn("#enableInvite not found in settingsContent in initSettings");
+        }
+
+        const enablePendingRobuxCheckbox = settingsContent.querySelector('#enablePendingRobux');
+        if (enablePendingRobuxCheckbox) {
+            enablePendingRobuxCheckbox.checked = settings.pendingRobuxEnabled;
+        } else {
+            console.warn("#enablePendingRobux not found in settingsContent in initSettings");
+        }
+    }
+};
+
+async function updateContent(buttonInfo, contentContainer, buttonData) {
+    const isDarkMode = currentTheme === 'dark';
+    const contentColor = isDarkMode ? 'rgb(39, 41, 48)' : 'rgb(247, 247, 248)';
+    const textColor = isDarkMode ? 'rgb(189, 190, 190)' : 'rgb(96, 97, 98)';
+    const headerColor = isDarkMode ? '' : 'rgb(40, 40, 40)';
+    const discordLinkColor = isDarkMode ? '#7289da' : '#3479b7';
+    const githubLinkColor = isDarkMode ? '#2dba4e' : '#1e722a';
+
+    if (typeof buttonInfo === 'object' && buttonInfo !== null && buttonInfo.content) {
+        contentContainer.innerHTML = buttonInfo.content;
+        contentContainer.style.borderRadius = '8px';
+        contentContainer.style.backgroundColor = contentColor;
+
+        if (window.location.href.includes('/RoValra')) {
+            contentContainer.querySelectorAll('div, span, li, b').forEach(element => {
+                const computedStyle = window.getComputedStyle(element);
+                const elementColor = computedStyle.color;
+                if (elementColor === 'rgb(0, 0, 0)' || elementColor === 'rgb(255, 255, 255)') {
+                    element.style.setProperty('color', textColor, 'important');
+                }
+            });
+
+            contentContainer.querySelectorAll('h2').forEach(h2Element => {
+                if(isDarkMode){
+                    h2Element.style.setProperty('color', 'white', 'important');
+                } else{
+                    h2Element.style.removeProperty('color')
+                }
+            });
+        }
+
+        const allLinks = contentContainer.querySelectorAll('a');
+        allLinks.forEach(link => {
+            link.style.setProperty('text-decoration', 'underline', 'important');
+            link.style.setProperty('font-weight', 'bold', 'important');
+            link.style.setProperty('transition', 'color 0.3s ease', 'important');
+
+            link.addEventListener('mouseenter', function() {
+                const computedColor = window.getComputedStyle(this).color;
+                const lighterColor = lightenColor(computedColor, 0.2);
+                this.style.setProperty('color', lighterColor, 'important');
+            });
+            link.addEventListener('mouseleave', function() {
+                if (this.href.includes('discord.gg')) {
+                    this.style.setProperty('color', discordLinkColor, 'important');
+                }
+                else if(this.href.includes('github.com')) {
+                    this.style.setProperty('color', githubLinkColor, 'important');
+                } else{
+                    this.style.setProperty('color', 'inherit', 'important');
+                }
+            });
+        });
+
+        const discordLinks = contentContainer.querySelectorAll('a[href*="discord.gg"]');
+        discordLinks.forEach(link => {
+            link.style.setProperty('color', discordLinkColor, 'important');
+        });
+
+        const githubLinks = contentContainer.querySelectorAll('a[href*="github.com"]');
+        githubLinks.forEach(link => {
+            link.style.setProperty('color', githubLinkColor, 'important');
+        });
+    }
+
+    if (rovalraHeader) {
+        rovalraHeader.style.setProperty('color', headerColor, 'important');
+    }
+}
 
 function applyTheme() {
     if (window.location.href.includes('/RoValra')) {
@@ -225,7 +996,7 @@ function addCustomButton() {
     newButtonListItem.setAttribute('role', 'tab');
 
     const newButtonLink = document.createElement('a');
-    newButtonLink.href = 'https://www.roblox.com/RoValra';
+    newButtonLink.href = 'https://www.roblox.com/my/account?rovalra=info#!/info';
     newButtonLink.classList.add('menu-option-content');
     newButtonLink.style.cursor = 'pointer';
     newButtonLink.style.display = 'flex';
@@ -271,7 +1042,6 @@ function observeContentChanges() {
                 }
             }
         }
-
     });
     observer.observe(targetNode, config);
 
@@ -280,7 +1050,6 @@ function observeContentChanges() {
     }
 }
 
-observeContentChanges();
 function addPopoverButton() {
     if (isPopoverButtonAdding) {
         return;
@@ -288,102 +1057,66 @@ function addPopoverButton() {
 
     isPopoverButtonAdding = true;
 
-    if (popoverButtonCheckTimeout) {
-        clearTimeout(popoverButtonCheckTimeout);
+    const popoverMenu = document.getElementById('settings-popover-menu');
+    if (!popoverMenu) {
+        isPopoverButtonAdding = false; 
+        return;
     }
 
-    popoverButtonCheckTimeout = setTimeout(() => {
-        const popoverMenu = document.getElementById('settings-popover-menu');
-        const popover = document.querySelector('.popover-menu.settings-popover');
-        if (!popoverMenu || (popover && popover.style.display === 'none')) {
-            isPopoverButtonAdding = false;
-            return;
+    const existingButton = popoverMenu.querySelector('li.list-item > a > span.font-caption-header[textContent="RoValra Settings"]');
+    if (existingButton) {
+        isPopoverButtonAdding = false;
+        return;
+    }
+
+    const existingButtons = popoverMenu.querySelectorAll('li.list-item');
+    if (existingButtons.length > 1) {
+        for (let i = 1; i < existingButtons.length; i++) {
+            existingButtons[i].remove();
         }
-        setTimeout(() => {
-            if (observer) {
-                observer.disconnect();
-            }
-            const existingButtons = popoverMenu.querySelectorAll('li.list-item');
+    }
 
-            if (existingButtons.length > 1) {
-                for (let i = 1; i < existingButtons.length; i++) {
-                    existingButtons[i].closest('li.list-item').remove();
-                }
-            }
-            const existingButton = popoverMenu.querySelector('li.list-item');
-            if (existingButton) {
-                if (observer) {
-                    observer.observe(document.body, { childList: true, subtree: true });
-                }
-                isPopoverButtonAdding = false;
-                return;
-            }
+    const newButtonListItem = document.createElement('li');
+    newButtonListItem.classList.add('list-item', 'menu-option');
 
-            const newButtonListItem = document.createElement('li');
-            newButtonListItem.classList.add('list-item', 'menu-option');
+    const newButtonLink = document.createElement('a');
+    newButtonLink.href = 'https://www.roblox.com/my/account?rovalra=info#!/info';
+    newButtonLink.classList.add('menu-option-content');
+    newButtonLink.style.cursor = 'pointer';
+    newButtonLink.style.display = 'flex';
+    newButtonLink.style.alignItems = 'center';
 
-            const newButtonLink = document.createElement('a');
-            newButtonLink.href = 'https://www.roblox.com/RoValra';
-            newButtonLink.classList.add('menu-option-content');
-            newButtonLink.style.cursor = 'pointer';
-            newButtonLink.style.display = 'flex';
-            newButtonLink.style.alignItems = 'center';
+    const newButtonSpan = document.createElement('span');
+    newButtonSpan.classList.add('font-caption-header');
+    newButtonSpan.textContent = 'RoValra Settings';
+    newButtonSpan.style.fontSize = '16px';
+    newButtonSpan.style.marginLeft = '-1px';
 
+    const logo = document.createElement('img');
+    logo.src = chrome.runtime.getURL("Assets/icon-128.png");
+    logo.style.width = '17px';
+    logo.style.height = '17px';
+    logo.style.marginRight = '5px';
+    logo.style.verticalAlign = 'middle';
 
-            const newButtonSpan = document.createElement('span');
-            newButtonSpan.classList.add('font-caption-header');
-            newButtonSpan.textContent = 'RoValra Settings';
-            newButtonSpan.style.fontSize = '16px';
-            newButtonSpan.style.marginLeft = '-1px';
+    newButtonLink.appendChild(logo)
+    newButtonLink.appendChild(newButtonSpan);
+    newButtonListItem.appendChild(newButtonLink);
 
-            const logo = document.createElement('img');
-            logo.src = chrome.runtime.getURL("Assets/icon-128.png");
-            logo.style.width = '17px';
-            logo.style.height = '17px';
-            logo.style.marginRight = '5px';
-            logo.style.verticalAlign = 'middle';
+    newButtonLink.addEventListener('click', function () {
+        const popover = document.querySelector('.popover-menu.settings-popover');
+        if (popover) {
+            popover.style.display = 'none';
+        }
+    });
+    popoverMenu.insertBefore(newButtonListItem, popoverMenu.firstChild);
 
-            newButtonLink.appendChild(logo)
-            newButtonLink.appendChild(newButtonSpan);
-            newButtonListItem.appendChild(newButtonLink);
-
-            newButtonLink.addEventListener('click', function () {
-                const popover = document.querySelector('.popover-menu.settings-popover');
-                if (popover) {
-                    popover.style.display = 'none';
-                }
-            });
-            popoverMenu.insertBefore(newButtonListItem, popoverMenu.firstChild);
-
-            if (observer) {
-                observer.observe(document.body, { childList: true, subtree: true });
-            }
-            isPopoverButtonAdding = false;
-        }, 10);
-    }, 50)
+    isPopoverButtonAdding = false; 
 }
-
 
 function startObserver() {
     if (observer) {
         observer.disconnect();
-    }
-
-    function checkAndAddButtons() {
-        const popover = document.querySelector('.popover-menu.settings-popover');
-        if (popover && popover.style.display !== 'none' ) {
-            return;
-        }
-
-        if (!isChecking) {
-            isChecking = true;
-            addCustomButton();
-            addPopoverButton();
-
-            setTimeout(() => {
-                isChecking = false;
-            }, checkInterval);
-        }
     }
 
     const targetElement = document.getElementById('navbar-settings');
@@ -392,206 +1125,66 @@ function startObserver() {
         return;
     }
 
-
     observer = new MutationObserver(mutations => {
         for (const mutation of mutations) {
-
-            let isDescendant = false;
-
-            let currentNode = mutation.target;
-            while (currentNode) {
-                if (currentNode === targetElement) {
-                    isDescendant = true;
-                    break;
-                }
-                currentNode = currentNode.parentNode;
-            }
-
-            if (isDescendant){
-                if (mutation.type === 'childList') {
-                    checkAndAddButtons();
+            if (mutation.type === 'childList' || mutation.type === 'subtree') {
+                for (const addedNode of mutation.addedNodes) {
+                    if (addedNode.nodeType === Node.ELEMENT_NODE) {
+                        if (addedNode.id === 'settings-popover-menu' || addedNode.querySelector('#settings-popover-menu')) {
+                            addPopoverButton();
+                            return; 
+                        }
+                    }
                 }
             }
-
         }
     });
-    observer.observe(targetElement, { childList: true, subtree: true });
-}
-const loadSettings = async () => {
-    return new Promise((resolve, reject) => {
-        chrome.storage.local.get({
-            hiddenCatalogEnabled: true, 
-            itemSalesEnabled: true,
-            groupGamesEnabled: true,
-            userGamesEnabled: true,
-            userSniperEnabled: false,
-            universalSniperEnabled: true,
-            regionSelectorEnabled: false,
-            subplacesEnabled: true,
-            forceR6Enabled: true,
-            fixR6Enabled: false,
-            inviteEnabled: false,
-        }, (settings) => {
-            if (chrome.runtime.lastError) {
-                reject(chrome.runtime.lastError)
-            } else {
-                resolve(settings);
-            }
-        });
-    });
 
-};
-
-
-const handleSaveSettings = async (hiddenCatalogCheckbox, itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, universalSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox) => {
-    try {
-        const settings = {
-            hiddenCatalogEnabled: hiddenCatalogCheckbox.checked, 
-            itemSalesEnabled: itemSalesCheckbox.checked,
-            groupGamesEnabled: groupGamesCheckbox.checked,
-            userGamesEnabled: userGamesCheckbox.checked,
-            userSniperEnabled: userSniperCheckbox.checked,
-            universalSniperEnabled: universalSniperCheckbox.checked,
-            regionSelectorEnabled: regionSelectorCheckbox.checked,
-            subplacesEnabled: subplacesCheckbox.checked,
-            forceR6Enabled: forceR6Checkbox.checked,
-            fixR6Enabled: r6FixCheckbox.checked,
-            inviteEnabled: inviteCheckbox.checked,
-        };
-        return new Promise((resolve, reject) => {
-            chrome.storage.local.set(settings, () => {
-                if (chrome.runtime.lastError) {
-                    reject(chrome.runtime.lastError);
-                } else {
-                    resolve();
-                }
-            });
-        });
-
-    } catch (error) {
-    }
-};
-const initSettings = async (hiddenCatalogCheckbox, itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, universalSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox) => { 
-    const settings = await loadSettings();
-
-    if (settings) {
-        hiddenCatalogCheckbox.checked = settings.hiddenCatalogEnabled; 
-        itemSalesCheckbox.checked = settings.itemSalesEnabled;
-        groupGamesCheckbox.checked = settings.groupGamesEnabled;
-        userGamesCheckbox.checked = settings.userGamesEnabled;
-        userSniperCheckbox.checked = settings.userSniperEnabled;
-        universalSniperCheckbox.checked = settings.universalSniperEnabled;
-        regionSelectorCheckbox.checked = settings.regionSelectorEnabled;
-        subplacesCheckbox.checked = settings.subplacesEnabled;
-        forceR6Checkbox.checked = settings.forceR6Enabled;
-        r6FixCheckbox.checked = settings.fixR6Enabled;
-        inviteCheckbox.checked = settings.inviteEnabled;
-    }
-};
-
-
-
-async function updateContent(buttonInfo, contentContainer, buttonData) {
-    const isDarkMode = currentTheme === 'dark';
-    const contentColor = isDarkMode ? '#2a2b2c' : '';
-    const textColor = isDarkMode ? 'rgb(189, 190, 190)' : 'rgb(96, 97, 98)';
-    const headerColor = isDarkMode ? '' : 'rgb(40, 40, 40)';
-    const discordLinkColor = isDarkMode ? '#7289da' : '#3479b7';
-    const githubLinkColor = isDarkMode ? '#2dba4e' : '#1e722a';
-
-
-    if (typeof buttonInfo === 'object' && buttonInfo !== null && buttonInfo.content) {
-        contentContainer.innerHTML = buttonInfo.content;
-        contentContainer.style.borderRadius = '8px';
-        if (isDarkMode) {
-            contentContainer.style.backgroundColor = contentColor;
-        } else {
-            contentContainer.style.backgroundColor = '';
-        }
-
-        if (window.location.href.includes('/RoValra')) {
-            contentContainer.querySelectorAll('div, span, li, b').forEach(element => {
-                const computedStyle = window.getComputedStyle(element);
-                const elementColor = computedStyle.color;
-                if (elementColor === 'rgb(0, 0, 0)' || elementColor === 'rgb(255, 255, 255)') {
-                    element.style.setProperty('color', textColor, 'important');
-                }
-            });
-
-            contentContainer.querySelectorAll('h2').forEach(h2Element => {
-                if(isDarkMode){
-                    h2Element.style.setProperty('color', 'white', 'important');
-                } else{
-                    h2Element.style.removeProperty('color')
-                }
-            });
-        }
-
-        const allLinks = contentContainer.querySelectorAll('a');
-        allLinks.forEach(link => {
-            link.style.setProperty('text-decoration', 'underline', 'important');
-            link.style.setProperty('font-weight', 'bold', 'important');
-            link.style.setProperty('transition', 'color 0.3s ease', 'important');
-
-            link.addEventListener('mouseenter', function() {
-                const computedColor = window.getComputedStyle(this).color;
-                const lighterColor = lightenColor(computedColor, 0.2);
-                this.style.setProperty('color', lighterColor, 'important');
-            });
-            link.addEventListener('mouseleave', function() {
-                if (this.href.includes('discord.gg')) {
-                    this.style.setProperty('color', discordLinkColor, 'important');
-                }
-                else if(this.href.includes('github.com')) {
-                    this.style.setProperty('color', githubLinkColor, 'important');
-                } else{
-                    this.style.setProperty('color', 'inherit', 'important');
-                }
-            });
-        });
-
-
-        const discordLinks = contentContainer.querySelectorAll('a[href*="discord.gg"]');
-        discordLinks.forEach(link => {
-            link.style.setProperty('color', discordLinkColor, 'important');
-        });
-
-        const githubLinks = contentContainer.querySelectorAll('a[href*="github.com"]');
-        githubLinks.forEach(link => {
-            link.style.setProperty('color', githubLinkColor, 'important');
-        });
-
-
-
-        const rovalraHeader = contentContainer.querySelector('#react-user-account-base > h1');
-        if (rovalraHeader) {
-            rovalraHeader.style.setProperty('color', headerColor, 'important');
-        }
-    } else {
-        contentContainer.innerHTML = '';
-    }
-    if (currentTheme) {
-        currentTheme = await fetchThemeFromAPI();
-        applyTheme();
-    }
+    observer.observe(targetElement, { childList: true, subtree: true }); 
 }
 
 async function checkRoValraPage() {
-    if (!window.location.href.includes('/RoValra')) {
+    if (!window.location.href.includes('?rovalra=info')) {
         return;
     }
 
     const containerMain = document.querySelector('main.container-main');
-
     if (!containerMain) {
         return;
     }
+
+    const currentHash = window.location.hash.replace('#!/', '').replace('#!', '') || 'info';
+
+    window.removeEventListener('hashchange', handleHashChange);
+    
+    function handleHashChange() {
+        const newHash = window.location.hash.replace('#!/', '').replace('#!', '') || 'info';
+        const targetLink = document.querySelector(`#${newHash} .menu-option-content`);
+        if (targetLink && !targetLink.classList.contains('active')) {
+            document.querySelectorAll('.menu-option-content').forEach(el => {
+                el.classList.remove('active');
+                el.removeAttribute('aria-current');
+            });
+            
+            targetLink.classList.add('active');
+            targetLink.setAttribute('aria-current', 'page');
+            
+            const buttonData = targetLink.closest('li').buttonData;
+            if (buttonData) {
+                const contentContainer = document.querySelector('#content-container');
+                if (contentContainer) {
+                    updateContent(buttonData, contentContainer);
+                }
+            }
+        }
+    }
+    
+    window.addEventListener('hashchange', handleHashChange);
 
     const roproThemeFrame = containerMain.querySelector('#roproThemeFrame');
     let roproThemeFrameHTML = roproThemeFrame ? roproThemeFrame.outerHTML : '';
 
     containerMain.innerHTML = roproThemeFrameHTML;
-
 
     let reactUserAccountBaseDiv = document.createElement('div');
     reactUserAccountBaseDiv.id = 'react-user-account-base'
@@ -618,8 +1211,7 @@ async function checkRoValraPage() {
     applyTheme();
     if (rovalraHeader && rovalraHeader.textContent === 'RoValra Settings' && settingsContainer) {
         contentDiv.style.cssText = `
-            width: 1199px !important;
-            max-width: 1199px !important;
+            width: 100% !important;
             height: auto !important;
             border-radius: 10px !important;
             overflow: hidden !important;
@@ -631,9 +1223,14 @@ async function checkRoValraPage() {
         if (userAccountDiv) {
             userAccountDiv.style.cssText = `
                 display: flex !important;
-                padding-left: 20px !important;
-                padding-right: 20px !important;
-                margin: 0 !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                justify-content: center !important;
+                padding-left: 0px !important;
+                padding-right: 0px !important;
+                margin-left: auto !important;
+                margin-right: auto !important;
+                width: 100% !important;
             `;
             rovalraButtonAdded = false;
         }
@@ -779,13 +1376,31 @@ async function checkRoValraPage() {
                 white-space: nowrap;
                 margin-left: 0px;
             }
+            .setting-section-button {
+                padding: 10px 15px;
+                border-radius: 5px;
+                border: none;
+                cursor: pointer;
+                background-color: rgb(57, 59, 61);;
+                color: rgba(255, 255, 255, 0.9);
+                margin-right: 5px;
+                font-size: 14px;
+            }
+
+            .setting-section-button[data-active="true"] {
+                background-color: rgb(117, 119, 121);
+            }
+            .setting-section-button:hover:not([data-active="true"]) {
+                background-color: rgb(47, 49, 51);;
+            }
+
 
         `;
         document.head.appendChild(style);
         const buttonData = [
             {
                 text: "Info", content: `
-                   <div style="padding: 15px; background-color: #2a2b2c; border-radius: 8px;">
+                   <div style="padding: 15px; border-radius: 8px;">
                    <h2 style="; margin-bottom: 10px;">RoValra Infomation!</h2>
                    <p style="">RoValra is an extension that's trying to make basic quality of life features free and accessible to everyone, by making everything completely open-source.</p>
                    <div style="margin-top: 5px;">
@@ -801,17 +1416,23 @@ async function checkRoValraPage() {
                            Github Repo
                            <img src="${chrome.runtime.getURL("Assets/icon-128.png")}" style="width: 20px; height: 20px; margin-left: 5px; vertical-align: middle;" />
                            </a>
+                           <a href="https://www.roblox.com/games/9676908657/Gamepasses#!/store"style="margin-left: 5px; target="_blank">Support me on Roblox</a>
+
                    </div>
                </div>
                `},
             {
                 text: "Credits", content: `
-                    <div style="padding: 15px; background-color: #2a2b2c; border-radius: 8px;">
+                    <div style="padding: 15px; border-radius: 8px;">
                         <h2 style="margin-bottom: 10px;">RoValra Credits!</h2>
                         <ul style="margin-top: 10px; padding-left: 0px;">
                             <li style="margin-bottom: 8px; list-style-type: disc; margin-left: 20px;">
                                 Thanks to <b style="font-weight: bold;">Frames</b> for somehow getting the Roblox sales and revenue on some items
                                 <a href="https://github.com/workframes/roblox-owner-counts" target="_blank">GitHub Repo</a>
+                            </li>
+                            <li style="margin-bottom: 8px; list-style-type: disc; margin-left: 20px;">
+                                Thanks to <b style="font-weight: bold;">Julia</b> for making a repo with all Roblox server ips
+                                <a href="https://github.com/RoSeal-Extension/Top-Secret-Thing" target="_blank">GitHub Repo</a>
                             </li>
                             <li style="margin-bottom: 8px; list-style-type: disc; margin-left: 20px;">
                                  Thanks to <b style="font-weight: bold;">Aspect</b> for helping me out here and there when I had a bunch of dumb questions or problems.
@@ -853,17 +1474,374 @@ async function checkRoValraPage() {
                     </div>
                 `},
             {
-                text: "Settings", content: ""
+                text: "Settings", content: `
+                <div id="settings-content" style="padding: 15px; background-color:rgba(255, 255, 255, 0); border-radius: 8px;">
+                    <div id="setting-section-buttons" style="display: flex; margin-bottom: 20px;">
+                        </div>
+                    <div id="setting-section-content">
+                    </div>
+                </div>
+                `
             },
         ];
 
         uiContainer.innerHTML = '';
 
-        const buttonContainer = document.createElement('div');
-        buttonContainer.style.display = 'flex';
-        buttonContainer.style.flexDirection = 'column';
-        buttonContainer.style.width = '160px';
-        buttonContainer.style.flexShrink = '0';
+        const menuList = document.createElement('ul');
+        menuList.classList.add('menu-vertical');
+        menuList.setAttribute('role', 'tablist');
+        menuList.style.width = '160px';
+
+        buttonData.forEach((item, index) => {
+            const listItem = document.createElement('li');
+            listItem.id = item.text.toLowerCase();
+            listItem.setAttribute('role', 'tab');
+            listItem.classList.add('menu-option');
+
+            const link = document.createElement('a');
+            link.classList.add('menu-option-content');
+            link.href = `#!/${item.text.toLowerCase()}`;
+
+            if (item.text.toLowerCase() === currentHash) {
+                link.classList.add('active');
+                link.setAttribute('aria-current', 'page');
+            }
+
+            const span = document.createElement('span');
+            span.classList.add('font-caption-header');
+            span.textContent = item.text;
+
+            const subtitle = document.createElement('span');
+            subtitle.classList.add('rbx-tab-subtitle');
+
+            link.appendChild(span);
+            link.appendChild(subtitle);
+            listItem.appendChild(link);
+            menuList.appendChild(listItem);
+
+            link.addEventListener('click', async function(e) {
+                e.preventDefault();
+                
+                const tabName = item.text.toLowerCase();
+                
+                menuList.querySelectorAll('.menu-option-content').forEach(el => {
+                    el.classList.remove('active');
+                    el.removeAttribute('aria-current');
+                });
+
+                this.classList.add('active');
+                this.setAttribute('aria-current', 'page');
+
+                this.closest('li').buttonData = item;
+
+                const newHash = `#!/${tabName}`;
+                if (window.location.hash !== newHash) {
+                    history.pushState(null, '', newHash);
+                }
+
+                if (item.text === "Settings") {
+                    contentContainer.innerHTML = item.content;
+                    const settingsContent = contentContainer.querySelector('#setting-section-content');
+                    const sectionButtonsContainer = contentContainer.querySelector('#setting-section-buttons');
+
+                    const settingSections = [
+                        {
+                            name: "Catalog",
+                            content: `
+                                <div class="setting">
+                                <label style="">Enable Item Sales</label>
+                                <p>This shows the most up to date sales and revenue data we have.</p>
+                                <p>The sales data is very likely to be inaccurate on items that are for sale, but very likely to be correct on off sale items.</p>
+                                <label class="toggle-switch">
+                                <input type="checkbox" id="enableItemSales" data-setting-name="itemSalesEnabled">
+                                <span class="slider"></span>
+                                </label>
+                                <div class="setting-separator"></div>
+                                </div>
+                                 <div class="setting">
+                                <label style="">Enable Hidden Catalog</label>
+                                <p>Shows Roblox made items before they are on the official catalog.</p>
+                                <label class="toggle-switch">
+                                <input type="checkbox" id="enableHiddenCatalog" data-setting-name="hiddenCatalogEnabled">
+                                <span class="slider"></span>
+                                </label>
+                                <div class="setting-separator"></div>
+                                </div>
+                            `
+                        },
+                        {
+                            name: "Games",
+                            content: `
+                                <div class="setting">
+                                    <label style="">Enable Region Selector</label>
+                                    <p>This lets you select a server in a specific region to join.</p>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="enableRegionSelector" data-setting-name="regionSelectorEnabled">
+                                        <span class="slider"></span>
+                                    </label>
+
+                                    <div class="setting" id="setting-region-simple-ui" style="margin-left: 20px; margin-top: 10px; border-left: 0px solid #eee; padding-left: 15px;">
+                                        <label style="">Enable Globe UI</label>
+                                        <p>This changes the region selector UI to a globe.</p>
+                                        <p>WARNING this may be laggy on lower end devices, and the UI is outdated.</p>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" id="enableSimpleRegionUI" data-setting-name="regionSimpleUi">
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+
+                                   
+                                    <div class="setting-separator"></div>
+                                </div>
+                                
+                                 <div class="setting">
+                                    <label style="">Enable Preferred Region</label>
+                                    <p>This adds a small little play button that joins ur preferred region</p>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="enablePreferredRegion" data-setting-name="PreferredRegionEnabled">
+                                        <span class="slider"></span>
+                                    </label>
+                                    
+
+                                    <div id="setting-preferred-region" style="margin-left: 20px; margin-top: 10px; padding-left: 15px;">
+                                        <label for="preferredRegionSelect">Preferred Join Region</label>
+                                        <p>Select the region you'd prefer to join when using the Play button.</p>
+                                        <select id="preferredRegionSelect" data-setting-name="robloxPreferredRegion" style="width: 100%; padding: 8px; margin-top: 5px; border-radius: 4px; border: 1px solid #555; background-color: #393b3d; color: #eee;">
+                                            <option value="AUTO">Nothing Selected</option>
+                                            <option value="SG">Singapore</option>
+                                            <option value="DE">Frankfurt, Germany</option>
+                                            <option value="FR">Paris, France</option>
+                                            <option value="JP">Tokyo, Japan</option>
+                                            <option value="NL">Amsterdam, Netherlands</option>
+                                            <option value="US-CA">Los Angeles, USA</option>
+                                            <option value="US-VA">Ashburn, USA</option>
+                                            <option value="US-IL">Chicago, USA</option>
+                                            <option value="US-TX">Dallas, USA</option>
+                                            <option value="US-FL">Miami, USA</option>
+                                            <option value="US-NY">New York City, USA</option>
+                                            <option value="AU">Sydney, Australia</option>
+                                            <option value="GB">London, UK</option>
+                                            <option value="IN">Mumbai, India</option>
+                                        </select>
+                                    </div>
+                                    <div class="setting-separator"></div>
+                                </div>
+
+
+                                <div class="setting">
+                                    <label style="">Enable Subplaces</label>
+                                    <p>Shows the subplaces of a game.</p>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="enableSubplaces" data-setting-name="subplacesEnabled">
+                                        <span class="slider"></span>
+                                    </label>
+                                    <div class="setting-separator"></div>
+                                </div>
+
+                                <div class="setting">
+                                    <label style="">Enable Universal Server Invites (disabled for maintenance)</label>
+                                    <p>This allows you to invite your friends to the game you're in, without your friend requiring any extension, not even RoValra!</p>
+                                    <p>This will replace RoPros invites.</p>
+                                    <p>This does require you to have BTRoblox for it to work.</p>
+                                    <label class="toggle-switch1">
+                                        <input type="checkbox" id="enableInvite" data-setting-name="inviteEnabled">
+                                        <span class="slider1"></span>
+                                    </label>
+                                    <div class="setting-separator"></div>
+                                </div>
+
+                                <div class="setting">
+                                    <label style="">Enable Universal User Sniper</label>
+                                    <p>This allows you to join a user, without needing to be friends with them.</p>
+                                    <p>Only requirement is that you know what game they are playing.</p>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="enableUniversalSniper" data-setting-name="universalSniperEnabled">
+                                        <span class="slider"></span>
+                                    </label>
+                                    <div class="setting-separator"></div>
+                                </div>
+                            `
+                        },
+                        {
+                            name: "Profile",
+                            content: `
+                                <div class="setting">
+                                <label style="">Enable Hidden User Games</label>
+                                <p>Shows a users hidden games on their profile.</p>
+                                <label class="toggle-switch">
+                                <input type="checkbox" id="enableUserGames" data-setting-name="userGamesEnabled">
+                                <span class="slider"></span>
+                                </label>
+                                <div class="setting-separator"></div>
+                                </div>
+                                <div class="setting">
+                                <label style="">Enable Instant Joiner</label>
+                                <p>This joins a user instantly when they go into a game, best used for people with a lot of people trying to join them.</p>
+                                <p>It is recommended that you uninstall the microsoft store version of roblox, if you plan to use this feature.</p>
+                                <p>This feature requires the user to be friends with you or have their joins on.</p>
+                                <label class="toggle-switch">
+                                <input type="checkbox" id="enableUserInstantJoin" data-setting-name="userSniperEnabled">
+                                <span class="slider"></span>
+                                </label>
+                                <div class="setting-separator"></div>
+                                </div>
+                            `
+                        },
+
+                        {
+                            name: "Communities",
+                            content: `
+                                <div class="setting">
+                                <label style="">Enable Hidden Community Games</label>
+                                <p>Shows a communities hidden games.</p>
+                                <label class="toggle-switch">
+                                <input type="checkbox" id="enableGroupGames" data-setting-name="groupGamesEnabled">
+                                <span class="slider"></span>
+                                </label>
+                                <div class="setting-separator"></div>
+                                </div>
+
+                                <div class="setting">
+                                <label style="">Enable Unpending Robux</label>
+                                <p>Shows an estimate of how many pending Robux will stop pending within 24 or 72 hours.</p>
+                                <label class="toggle-switch">
+                                <input type="checkbox" id="enablePendingRobux" data-setting-name="pendingRobuxEnabled">
+                                <span class="slider"></span>
+                                </label>
+                                <div class="setting-separator"></div>
+                                </div>
+                            `
+                        },
+                        {
+                            name: "Avatar",
+                            content: `
+                                <div class="setting">
+                                <label style="">Remove R6 Warning</label>
+                                <p>Removes the R6 warning when switching to R6</p>
+                                <label class="toggle-switch">
+                                <input type="checkbox" id="enableForceR6" data-setting-name="forceR6Enabled">
+                                <span class="slider"></span>
+                                </label>
+                                <div class="setting-separator"></div>
+                                </div>
+                                <div class="setting">
+                                <label style="">Enable R6 Fix (BETA)</label>
+                                 <p>Stops Roblox from automatically switching your character to R15 when equiping dynamic heads.</p>
+                                  <p>This requires you to use the english language on Roblox.</p>
+                                <label class="toggle-switch">
+                                <input type="checkbox" id="enableR6Fix" data-setting-name="fixR6Enabled">
+                                <span class="slider"></span>
+                                </label>
+                                <div class="setting-separator"></div>
+                                </div>
+                            `
+                        },
+                    ];
+                    
+                    sectionButtonsContainer.innerHTML = '';
+                    settingSections.forEach((section, index) => {
+                        const sectionButton = document.createElement('button');
+                        sectionButton.textContent = section.name;
+                        sectionButton.classList.add('setting-section-button');
+                        sectionButton.dataset.sectionName = section.name;
+                        sectionButton.dataset.active = 'false';
+
+                        sectionButton.addEventListener('click', async () => {
+                            const previouslyActiveSectionButton = sectionButtonsContainer.querySelector('button[data-active="true"]');
+                            if (previouslyActiveSectionButton) {
+                                previouslyActiveSectionButton.dataset.active = 'false';
+                                previouslyActiveSectionButton.style.backgroundColor = 'rgb(57, 59, 61)';
+                            }
+                            sectionButton.dataset.active = 'true';
+                            sectionButton.style.backgroundColor = 'rgb(117, 119, 121)';
+                            settingsContent.innerHTML = section.content;
+                            await initSettings(settingsContent);
+                            initSettings(settingsContent); 
+                            attachSettingListeners(settingsContent); 
+                            applyTheme();
+                        });
+                        sectionButtonsContainer.appendChild(sectionButton);
+                    });
+
+                    const defaultSectionButton = sectionButtonsContainer.querySelector('button:first-child');
+                    if (defaultSectionButton) {
+                        defaultSectionButton.click(); 
+                    }
+
+                    function attachSettingListeners(settingsContent) {
+                        if (!settingsContent) {
+                            console.error("settingsContent is null in attachSettingListeners! Check HTML structure.");
+                            return;
+                        }
+
+                        function updateDependentUiStates() {
+                            const regionSelectorCheckbox = settingsContent.querySelector('#enableRegionSelector');
+                            const simpleUiCheckbox = settingsContent.querySelector('#enableSimpleRegionUI');
+                            const simpleUiSettingDiv = settingsContent.querySelector('#setting-region-simple-ui');
+                            const preferredRegionSelect = settingsContent.querySelector('#preferredRegionSelect');
+                            const preferredRegionSettingDiv = settingsContent.querySelector('#setting-preferred-region');
+
+                            if (regionSelectorCheckbox && simpleUiCheckbox && simpleUiSettingDiv) {
+                                const isRegionSelectorEnabled = regionSelectorCheckbox.checked;
+
+                                // Only disable the Simple UI settings when Region Selector is disabled
+                                simpleUiCheckbox.disabled = !isRegionSelectorEnabled;
+                                if (isRegionSelectorEnabled) {
+                                    simpleUiSettingDiv.classList.remove('disabled-setting');
+                                } else {
+                                    simpleUiSettingDiv.classList.add('disabled-setting');
+                                }
+                            } else {
+                                console.warn("Could not find all required elements for dependent UI state update.", {
+                                    regionSelectorExists: !!regionSelectorCheckbox,
+                                    simpleUiCheckboxExists: !!simpleUiCheckbox,
+                                    simpleUiDivExists: !!simpleUiSettingDiv,
+                                    preferredRegionSelectExists: !!preferredRegionSelect,
+                                    preferredRegionDivExists: !!preferredRegionSettingDiv
+                                });
+                            }
+                        }
+
+                        const checkboxes = settingsContent.querySelectorAll('input[type="checkbox"]');
+                        checkboxes.forEach(checkbox => {
+                            checkbox.removeEventListener('change', handleCheckboxChange);
+                            checkbox.addEventListener('change', handleCheckboxChange);
+                        });
+
+                        const preferredRegionSelect = settingsContent.querySelector('#preferredRegionSelect');
+                        if(preferredRegionSelect) {
+                            preferredRegionSelect.removeEventListener('change', handleSelectChange);
+                            preferredRegionSelect.addEventListener('change', handleSelectChange);
+                        }
+
+                        function handleCheckboxChange(event) {
+                                const settingName = event.target.dataset.settingName;
+                                const value = event.target.checked;
+                                handleSaveSettings(settingName, value);
+                                if (settingName === 'regionSelectorEnabled') {
+                                    updateDependentUiStates();
+                                }
+                        }
+
+                        function handleSelectChange(event) {
+                            const settingName = event.target.dataset.settingName;
+                            const value = event.target.value;
+                            handleSaveSettings(settingName, value);
+                        }
+
+                        updateDependentUiStates();
+
+                    }
+
+                    applyTheme();
+                } else {
+                    await updateContent(item, contentContainer, buttonData);
+                    applyTheme();
+                }
+                applyTheme();
+            });
+        });
+
         const contentContainer = document.createElement('div');
         contentContainer.id = 'content-container';
         contentContainer.style.flex = '1';
@@ -872,235 +1850,39 @@ async function checkRoValraPage() {
         contentContainer.style.paddingLeft = '0px';
         contentContainer.style.zIndex = '1000';
         contentContainer.style.position = 'relative';
-        contentContainer.style.marginLeft = '0px';
-        contentContainer.style.minWidth = '979px';
+        contentContainer.style.marginLeft = '10px';
+        contentContainer.style.maxWidth = '750px';
+        contentContainer.style.minWidth = '750px';
+        contentContainer.style.backgroundColor = currentTheme === 'dark' ? 'rgb(39, 41, 48)' : 'rgb(247, 247, 248)';
 
-        uiContainer.appendChild(buttonContainer);
+        uiContainer.appendChild(menuList);
         uiContainer.appendChild(contentContainer);
 
-
-        buttonData.forEach(item => {
-            const button = document.createElement('button');
-            button.textContent = item.text || item;
-            button.classList.add('tab-button');
-            button.style.paddingLeft = '5px';
-            button.style.paddingRight = '5px';
-            button.style.width = '150px';
-            button.style.height = '35px';
-            button.style.textAlign = 'center';
-            button.style.borderRadius = '4px';
-            button.style.backgroundColor = 'rgb(57, 59, 61)';
-            button.style.marginBottom = '5px';
-            button.dataset.active = 'false';
-
-            button.addEventListener('mouseenter', function () {
-                if (this.dataset.active === 'false') {
-                    this.style.backgroundColor = 'rgb(47, 49, 51)';
-                }
-            });
-            button.addEventListener('mouseleave', function () {
-                if (this.dataset.active === 'false') {
-                    this.style.backgroundColor = 'rgb(57, 59, 61)';
-                }
-            });
-            button.addEventListener('click', async function () {
-                const previouslyActiveButton = buttonContainer.querySelector('button[data-active="true"]');
-
-
-                if (this.dataset.active === 'true') {
-                    return;
-                }
-
-                if (previouslyActiveButton) {
-                    previouslyActiveButton.style.backgroundColor = 'rgb(57, 59, 61)';
-                    previouslyActiveButton.dataset.active = 'false';
-                }
-
-
-                this.style.backgroundColor = 'rgb(117, 119, 121)';
-                this.dataset.active = 'true';
-
-
-
-                if (item.text === "Settings") {
-                    contentContainer.innerHTML = `
-                            <div style="padding: 25px; background-color: #2a2b2c; border-radius: 8px;">
-
-                           
-                            <h1 style="; margin-bottom: 5px;">Games</h1>
-                            <div class="setting">
-                            <label style="">Enable Region Selector</label>
-                            <p>This lets you select a server in a specific region to join.</p>
-                            <label class="toggle-switch">
-                            <input type="checkbox" id="enableRegionSelector">
-                            <span class="slider"></span>
-                            </label>
-                            <div class="setting-separator"></div>
-                            </div>
-                            <div class="setting">
-                            <label style="">Enable Subplaces</label>
-                            <p>Shows the subplaces of a game.</p>
-                            <label class="toggle-switch">
-                            <input type="checkbox" id="enableSubplaces">
-                            <span class="slider"></span>
-                            </label>
-                            <div class="setting-separator"></div>
-                            </div>
-                             <div class="setting">
-                            <label style="">Enable Universal Server Invites (disabled for maintenance)</label>
-                             <p>This allows you to invite your friends to the game you're in, without your friend requiring any extension, not even RoValra!</p>
-                             <p>This will replaces RoPros invites.</p>
-                             <p>This does require you to have BTRoblox for it to work.</p>
-                            <label class="toggle-switch1">
-                            <input type="checkbox" id="enableInvite">
-                            <span class="slider1"></span>
-                            </label>
-                            <div class="setting-separator"></div>
-                            </div>
-                            <div class="setting">
-                            <label style="">Enable Universal User Sniper</label>
-                            <p>This allows you to join a user, without needing to be friends with them.</p>
-                            <p>Only requirement is that you know what game they are playing.</p>
-                            <label class="toggle-switch">
-                            <input type="checkbox" id="enableUniversalSniper">
-                            <span class="slider"></span>
-                            </label>
-                            <div class="setting-separator"></div>
-                            </div>
-
-                            <h1 style="; margin-top: 0px; margin-bottom: 10px;">Profile</h1>
-                             <div class="setting">
-                            <label style="">Enable Hidden User Games</label>
-                            <p>Shows a users hidden games on their profile.</p>
-                            <label class="toggle-switch">
-                            <input type="checkbox" id="enableUserGames">
-                            <span class="slider"></span>
-                            </label>
-                            <div class="setting-separator"></div>
-                            </div>
-                            <div class="setting">
-                            <label style="">Enable Instant Joiner</label>
-                            <p>This joins a user instantly when they go into a game, best used for people with a lot of people trying to join them.</p>
-                            <p>It is recommended that you uninstall the microsoft store version of roblox, if you plan to use this feature.</p>
-                            <p>This feature requires the user to be friends with you or have their joins on.</p>
-                            <label class="toggle-switch">
-                            <input type="checkbox" id="enableUserSniper">
-                            <span class="slider"></span>
-                            </label>
-                            <div class="setting-separator"></div>
-                            </div>
-                              <h1 style="; margin-top: 0px; margin-bottom: 10px;">Communities</h1>
-                            <div class="setting">
-
-                            <label style="">Enable Hidden Community Games</label>
-                            <p>Shows a communities hidden games.</p>
-                            <label class="toggle-switch">
-                            <input type="checkbox" id="enableGroupGames">
-                            <span class="slider"></span>
-                            </label>
-                            <div class="setting-separator"></div>
-                            </div>
-                            <h1 style="; margin-top: 0px; margin-bottom: 10px;">Catalog</h1>
-                            <div class="setting">
-                            <label style="">Enable Item Sales</label>
-                            <p>This shows the most up to date sales and revenue data we have.</p>
-                            <p>The sales data is very likely to be inaccurate on items that are for sale, but very likely to be correct on off sale items.</p>
-                            <label class="toggle-switch">
-                            <input type="checkbox" id="enableItemSales">
-                            <span class="slider"></span>
-                            </label>
-                            <div class="setting-separator"></div>
-                            </div>
-                             <div class="setting">
-                            <label style="">Enable Hidden Catalog</label>
-                            <p>Shows Roblox made items before they are on the official catalog.</p>
-                            <label class="toggle-switch">
-                            <input type="checkbox" id="enableHiddenCatalog">
-                            <span class="slider"></span>
-                            </label>
-                            <div class="setting-separator"></div>
-                            </div>
-                             <h1 style="; margin-top: 0px; margin-bottom: 10px;">Avatar</h1>
-                            <div class="setting">
-                            <label style="">Remove R6 Warning</label>
-                            <p>Removes the R6 warning when switching to R6</p>
-                            <label class="toggle-switch">
-                            <input type="checkbox" id="enableForceR6">
-                            <span class="slider"></span>
-                            </label>
-                            <div class="setting-separator"></div>
-                            </div>
-                            <div class="setting">
-                            <label style="">Enable R6 Fix (BETA)</label>
-                             <p>Stops Roblox from automatically switching your character to R15 when equiping dynamic heads.</p>
-                              <p>This requires you to use the english language on Roblox.</p>
-                            <label class="toggle-switch">
-                            <input type="checkbox" id="enableR6Fix">
-                            <span class="slider"></span>
-                            </label>
-                            <div class="setting-separator"></div>
-                            </div>
-                            </div>
-                            </div>
-
-                            `;
-
-                    const hiddenCatalogCheckbox = contentContainer.querySelector('#enableHiddenCatalog'); 
-                    const itemSalesCheckbox = contentContainer.querySelector('#enableItemSales');
-                    const groupGamesCheckbox = contentContainer.querySelector('#enableGroupGames');
-                    const userGamesCheckbox = contentContainer.querySelector('#enableUserGames');
-                    const userSniperCheckbox = contentContainer.querySelector('#enableUserSniper');
-                    const universalSniperCheckbox = contentContainer.querySelector('#enableUniversalSniper');
-                    const regionSelectorCheckbox = contentContainer.querySelector('#enableRegionSelector');
-                    const subplacesCheckbox = contentContainer.querySelector('#enableSubplaces');
-                    const forceR6Checkbox = contentContainer.querySelector('#enableForceR6');
-                    const r6FixCheckbox = contentContainer.querySelector('#enableR6Fix');
-                    const inviteCheckbox = contentContainer.querySelector('#enableInvite');
-
-                    initSettings(hiddenCatalogCheckbox, itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, universalSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox); 
-
-                    hiddenCatalogCheckbox.addEventListener('change', () => handleSaveSettings(hiddenCatalogCheckbox, itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, universalSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox)); 
-                    itemSalesCheckbox.addEventListener('change', () => handleSaveSettings(hiddenCatalogCheckbox, itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, universalSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
-                    groupGamesCheckbox.addEventListener('change', () => handleSaveSettings(hiddenCatalogCheckbox, itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, universalSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
-                    userGamesCheckbox.addEventListener('change', () => handleSaveSettings(hiddenCatalogCheckbox, itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, universalSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
-                    userSniperCheckbox.addEventListener('change', () => handleSaveSettings(hiddenCatalogCheckbox, itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, universalSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
-                    universalSniperCheckbox.addEventListener('change', () => handleSaveSettings(hiddenCatalogCheckbox, itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, universalSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
-                    regionSelectorCheckbox.addEventListener('change', () => handleSaveSettings(hiddenCatalogCheckbox, itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, universalSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
-                    subplacesCheckbox.addEventListener('change', () => handleSaveSettings(hiddenCatalogCheckbox, itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, universalSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
-                    forceR6Checkbox.addEventListener('change', () => handleSaveSettings(hiddenCatalogCheckbox, itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, universalSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
-                    r6FixCheckbox.addEventListener('change', () => handleSaveSettings(hiddenCatalogCheckbox, itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, universalSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
-                    inviteCheckbox.addEventListener('change', () => handleSaveSettings(hiddenCatalogCheckbox, itemSalesCheckbox, groupGamesCheckbox, userGamesCheckbox, userSniperCheckbox, universalSniperCheckbox, regionSelectorCheckbox, subplacesCheckbox, forceR6Checkbox, r6FixCheckbox, inviteCheckbox));
-
-                    const regionSelectorCheckboxElement = contentContainer.querySelector('#enableRegionSelector');
-
-                    function toggleOverlayDisable() {
-                        if (regionSelectorCheckboxElement) {
-                            if (!regionSelectorCheckboxElement.checked) {
-                            } else {
-                            }
-                        }
+        const tabToMatch = menuList.querySelector(`#${currentHash} .menu-option-content`);
+        if (tabToMatch) {
+            const item = buttonData.find(item => item.text.toLowerCase() === currentHash);
+            if (item) {
+                tabToMatch.classList.add('active');
+                tabToMatch.setAttribute('aria-current', 'page');
+                tabToMatch.closest('li').buttonData = item;
+                
+                const contentContainer = document.querySelector('#content-container');
+                if (contentContainer) {
+                    if (currentHash === 'settings') {
+                        contentContainer.innerHTML = item.content;
+                    } else {
+                        updateContent(item, contentContainer, buttonData);
                     }
-                    regionSelectorCheckboxElement.addEventListener('change', () => {
-                        toggleOverlayDisable();
-                    });
-                    applyTheme();
-                } else {
-                    updateContent(item, contentContainer, buttonData);
-                    applyTheme();
                 }
-                applyTheme();
-            });
-            buttonContainer.appendChild(button);
-        });
-        const infoButton = buttonContainer.querySelector('button:first-child');
-        if (infoButton) {
-            infoButton.style.backgroundColor = 'rgb(117, 119, 121)';
-            infoButton.dataset.active = 'true';
-            applyTheme();
-
+            }
+        } else {
+            const defaultTab = menuList.querySelector('#info .menu-option-content');
+            if (defaultTab) {
+                defaultTab.click();
+            }
         }
-        settingsContainer.insertAdjacentElement("afterbegin", rovalraHeader)
-        updateContent(buttonData[0], contentContainer, buttonData)
+        
+        settingsContainer.insertAdjacentElement("afterbegin", rovalraHeader);
         applyTheme();
     } else {
         contentDiv.style.cssText = '';
@@ -1113,22 +1895,16 @@ async function checkRoValraPage() {
 
 async function updateContent(buttonInfo, contentContainer, buttonData) {
     const isDarkMode = currentTheme === 'dark';
-    const contentColor = isDarkMode ? '#2a2b2c' : '';
+    const contentColor = isDarkMode ? 'rgb(39, 41, 48)' : 'rgb(247, 247, 248)';
     const textColor = isDarkMode ? 'rgb(189, 190, 190)' : 'rgb(96, 97, 98)';
     const headerColor = isDarkMode ? '' : 'rgb(40, 40, 40)';
     const discordLinkColor = isDarkMode ? '#7289da' : '#3479b7';
     const githubLinkColor = isDarkMode ? '#2dba4e' : '#1e722a';
 
-
     if (typeof buttonInfo === 'object' && buttonInfo !== null && buttonInfo.content) {
         contentContainer.innerHTML = buttonInfo.content;
         contentContainer.style.borderRadius = '8px';
-        if (isDarkMode) {
-            contentContainer.style.backgroundColor = contentColor;
-        } else {
-            contentContainer.style.backgroundColor = '';
-        }
-
+        contentContainer.style.backgroundColor = contentColor;
         if (window.location.href.includes('/RoValra')) {
             contentContainer.querySelectorAll('div, span, li, b').forEach(element => {
                 const computedStyle = window.getComputedStyle(element);
@@ -1138,12 +1914,11 @@ async function updateContent(buttonInfo, contentContainer, buttonData) {
                 }
             });
 
-
             contentContainer.querySelectorAll('h2').forEach(h2Element => {
                 if(isDarkMode){
                     h2Element.style.setProperty('color', 'white', 'important');
                 } else{
-                    h2Element.style.removeProperty('color')
+                    h2Element.style.removeProperty('color');
                 }
             });
         }
@@ -1171,7 +1946,6 @@ async function updateContent(buttonInfo, contentContainer, buttonData) {
             });
         });
 
-
         const discordLinks = contentContainer.querySelectorAll('a[href*="discord.gg"]');
         discordLinks.forEach(link => {
             link.style.setProperty('color', discordLinkColor, 'important');
@@ -1182,8 +1956,6 @@ async function updateContent(buttonInfo, contentContainer, buttonData) {
             link.style.setProperty('color', githubLinkColor, 'important');
         });
 
-
-
         const rovalraHeader = contentContainer.querySelector('#react-user-account-base > h1');
         if (rovalraHeader) {
             rovalraHeader.style.setProperty('color', headerColor, 'important');
@@ -1191,164 +1963,27 @@ async function updateContent(buttonInfo, contentContainer, buttonData) {
     } else {
         contentContainer.innerHTML = '';
     }
+    
     if (currentTheme) {
         currentTheme = await fetchThemeFromAPI();
         applyTheme();
     }
 }
-function applyTheme() {
-    const isDarkMode = currentTheme === 'light';
-    const contentColor = isDarkMode ? 'rgb(247, 247, 248)' : 'rgb(39, 41, 48)';
-    const textColor = isDarkMode ? 'rgb(57, 59, 61)' : 'rgb(255, 255, 255)';
-    const headerColor = isDarkMode ? '' : 'rgb(40, 40, 40)';
-    const sliderOnBackgroundColor = isDarkMode ? '#444' : '#ddd';
-    const sliderButtonColor = isDarkMode ? '#24292e' : 'white';
-    const contentContainer = document.querySelector('#content-container');
-    const settingsContainer = document.querySelector('#settings-container');
-    const uiContainer = document.querySelector('#settings-container > div');
-    const tabButtons = document.querySelectorAll('.tab-button');
-
-    if (contentContainer) {
-        const childDiv = contentContainer.querySelector(':scope > div');
-        if (childDiv) {
-            childDiv.style.backgroundColor = contentColor;
-        }
-    }
-    if (settingsContainer) {
-        const rovalraHeader = settingsContainer.querySelector('#react-user-account-base > h1');
-        if (rovalraHeader) {
-            rovalraHeader.style.color = headerColor;
-        }
-    }
-    if (uiContainer) {
-        if (window.location.href.includes('/RoValra')) {
-            uiContainer.style.color = textColor;
-        }
-    }
-
-    tabButtons.forEach(button => {
-        if (!isDarkMode) {
-            button.style.setProperty('color', '#fff', 'important');
-        } else {
-            button.style.removeProperty('color');
-        }
-    });
-
-    const sliders = document.querySelectorAll('.slider');
-    sliders.forEach(slider => {
-        const input = slider.parentNode.querySelector('input');
-        slider.style.backgroundColor = input.checked ? sliderOnBackgroundColor : sliderOffBackgroundColor;
-    });
-
-    const sliderButtons = document.querySelectorAll('.slider:before');
-    sliderButtons.forEach(button => {
-        button.style.backgroundColor = sliderButtonColor;
-    });
-}
-async function updateContent(buttonInfo, contentContainer, buttonData) {
-    const isDarkMode = currentTheme === 'dark';
-    const contentColor = isDarkMode ? '#2a2b2c' : '';
-    const textColor = isDarkMode ? 'rgb(189, 190, 190)' : 'rgb(96, 97, 98)';
-    const headerColor = isDarkMode ? '' : 'rgb(40, 40, 40)';
-    const discordLinkColor = isDarkMode ? '#7289da' : '#3479b7';
-    const githubLinkColor = isDarkMode ? '#2dba4e' : '#1e722a';
-
-
-    if (typeof buttonInfo === 'object' && buttonInfo !== null && buttonInfo.content) {
-        contentContainer.innerHTML = buttonInfo.content;
-        contentContainer.style.borderRadius = '8px';
-        if (isDarkMode) {
-            contentContainer.style.backgroundColor = contentColor;
-        } else {
-            contentContainer.style.backgroundColor = '';
-        }
-
-        if (window.location.href.includes('/RoValra')) {
-            contentContainer.querySelectorAll('div, span, li, b').forEach(element => {
-                const computedStyle = window.getComputedStyle(element);
-                const elementColor = computedStyle.color;
-                if (elementColor === 'rgb(0, 0, 0)' || elementColor === 'rgb(255, 255, 255)') {
-                    element.style.setProperty('color', textColor, 'important');
-                }
-            });
-
-            contentContainer.querySelectorAll('h2').forEach(h2Element => {
-                if(isDarkMode){
-                    h2Element.style.setProperty('color', 'white', 'important');
-                } else{
-                    h2Element.style.removeProperty('color')
-                }
-            });
-        }
-
-        const allLinks = contentContainer.querySelectorAll('a');
-        allLinks.forEach(link => {
-            link.style.setProperty('text-decoration', 'underline', 'important');
-            link.style.setProperty('font-weight', 'bold', 'important');
-            link.style.setProperty('transition', 'color 0.3s ease', 'important');
-
-            link.addEventListener('mouseenter', function() {
-                const computedColor = window.getComputedStyle(this).color;
-                const lighterColor = lightenColor(computedColor, 0.2);
-                this.style.setProperty('color', lighterColor, 'important');
-            });
-            link.addEventListener('mouseleave', function() {
-                if (this.href.includes('discord.gg')) {
-                    this.style.setProperty('color', discordLinkColor, 'important');
-                }
-                else if(this.href.includes('github.com')) {
-                    this.style.setProperty('color', githubLinkColor, 'important');
-                } else{
-                    this.style.setProperty('color', 'inherit', 'important');
-                }
-            });
-        });
-
-
-        const discordLinks = contentContainer.querySelectorAll('a[href*="discord.gg"]');
-        discordLinks.forEach(link => {
-            link.style.setProperty('color', discordLinkColor, 'important');
-        });
-
-        const githubLinks = contentContainer.querySelectorAll('a[href*="github.com"]');
-        githubLinks.forEach(link => {
-            link.style.setProperty('color', githubLinkColor, 'important');
-        });
-
-
-
-        const rovalraHeader = contentContainer.querySelector('#react-user-account-base > h1');
-        if (rovalraHeader) {
-            rovalraHeader.style.setProperty('color', headerColor, 'important');
-        }
-    } else {
-        contentContainer.innerHTML = '';
-    }
-    if (currentTheme) {
-        currentTheme = await fetchThemeFromAPI();
-        applyTheme();
-    }
-}
-
 
 function lightenColor(color, percent) {
     const rgbMatch = color.match(/rgb\((\d+), (\d+), (\d+)\)/);
     if (!rgbMatch) return color;
 
-
     let r = parseInt(rgbMatch[1]);
     let g = parseInt(rgbMatch[2]);
     let b = parseInt(rgbMatch[3]);
-
 
     r = Math.min(255, Math.round(r + (255 - r) * percent));
     g = Math.min(255, Math.round(g + (255 - g) * percent));
     b = Math.min(255, Math.round(b + (255 - b) * percent));
 
-
     return `rgb(${r}, ${g}, ${b})`;
 }
-
 
 const buttonData = [
     {
@@ -1371,7 +2006,6 @@ const buttonData = [
     </div>
     `},
     {
-        //ngl no idea why there is two of htesem the ai told me to so i listen.
         text: "Credits", content: `
             <div style="padding: 15px; border-radius: 8px;">
                 <h2 style=" margin-bottom: 10px;">RoValra Credits!</h2>
@@ -1393,14 +2027,155 @@ const buttonData = [
     },
 
 ];
-addCustomButton();
-startObserver();
-checkRoValraPage()
 
-async function initializeTheme() {
+const settingSections = Object.keys(SETTINGS_CONFIG).map(sectionName => ({
+    name: SETTINGS_CONFIG[sectionName].title,
+    content: generateSettingsUI(sectionName)
+}));
+
+async function initializeExtension() {
     currentTheme = await fetchThemeFromAPI();
     applyTheme();
+    observeContentChanges();
+    startObserver();
+    
+    if (window.location.href.includes('?rovalra=info')) {
+        startSettingsSync();
+    }
 
+    const observer = new MutationObserver((mutations) => {
+        if (mutations.some(mutation => mutation.target.nodeName === 'TITLE')) {
+            if (window.location.href.includes('?rovalra=info')) {
+                startSettingsSync();
+            } else {
+                stopSettingsSync();
+            }
+        }
+    });
+    
+    observer.observe(document.querySelector('head'), { childList: true, subtree: true });
+    
+    checkRoValraPage();
 }
 
-initializeTheme()
+if (document.readyState === 'loading') { 
+    document.addEventListener('DOMContentLoaded', initializeExtension);
+} else {  
+    initializeExtension();
+}
+
+document.addEventListener('click', (event) => {
+    const target = event.target;
+    
+    if (target.matches('.tab-button, .setting-section-button')) {
+        return;
+    }
+
+    if (target.matches('input[type="checkbox"]')) {
+        const settingName = target.dataset.settingName;
+        if (settingName) {
+            handleSaveSettings(settingName, target.checked);
+        }
+    }
+});
+
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+const debouncedApplyTheme = debounce(applyTheme, 250);
+
+const debouncedAddCustomButton = debounce(addCustomButton, 100);
+const debouncedAddPopoverButton = debounce(addPopoverButton, 100);
+
+let cachedThemeColors = {};
+
+function updateThemeCache() {
+    const isDarkMode = currentTheme === 'dark';
+    cachedThemeColors = {
+        content: isDarkMode ? 'rgb(39, 41, 48)' : 'rgb(247, 247, 248)',
+        text: isDarkMode ? 'rgb(189, 190, 190)' : 'rgb(57, 59, 61)',
+        header: isDarkMode ? 'white' : 'rgb(40, 40, 40)',
+        button: isDarkMode ? {
+            text: 'rgba(255, 255, 255, 0.9)',
+            bg: 'rgb(45, 48, 51)',
+            hover: 'rgb(57, 60, 64)',
+            active: 'rgb(69, 73, 77)'
+        } : {
+            text: 'rgb(57, 59, 61)',
+            bg: 'rgb(242, 244, 245)',
+            hover: 'rgb(224, 226, 227)',
+            active: 'rgb(210, 212, 213)'
+        }
+    };
+}
+
+updateThemeCache();
+
+function withErrorHandling(fn, context = '') {
+    return async (...args) => {
+        try {
+            return await fn(...args);
+        } catch (error) {
+            console.error(`Error in ${context}:`, error);
+            return null;
+        }
+    };
+}
+
+const safeLoadSettings = withErrorHandling(loadSettings, 'loadSettings');
+const safeHandleSaveSettings = withErrorHandling(handleSaveSettings, 'handleSaveSettings');
+const safeFetchTheme = withErrorHandling(fetchThemeFromAPI, 'fetchThemeFromAPI');
+
+window.addEventListener('beforeunload', () => {
+    if (observer) {
+        observer.disconnect();
+    }
+    domCache.clear();
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    const PreferredRegionEnabled = document.getElementById('PreferredRegionEnabled');
+    const preferredRegionSelect = document.getElementById('preferredRegionSelect');
+    const regionSettingDiv = document.getElementById('setting-preferred-region');
+
+    function updateRegionSelectVisibility() {
+        if (PreferredRegionEnabled && preferredRegionSelect && regionSettingDiv) {
+            const isEnabled = PreferredRegionEnabled.checked;
+            regionSettingDiv.style.display = isEnabled ? 'block' : 'none';
+            preferredRegionSelect.disabled = !isEnabled;
+        }
+    }
+
+    if (PreferredRegionEnabled) {
+        PreferredRegionEnabled.addEventListener('change', function() {
+            updateRegionSelectVisibility();
+            handleSaveSettings('PreferredRegionEnabled', this.checked);
+        });
+    }
+
+    if (preferredRegionSelect) {
+        preferredRegionSelect.addEventListener('change', function() {
+            handleSaveSettings('robloxPreferredRegion', this.value);
+        });
+
+        if (preferredRegionSelect.options.length === 0) {
+            Object.keys(REGIONS).forEach(regionCode => {
+                const option = document.createElement('option');
+                option.value = regionCode;
+                option.textContent = getFullRegionName(regionCode);
+                preferredRegionSelect.appendChild(option);
+            });
+        }
+    }
+
+    updateRegionSelectVisibility();
+});

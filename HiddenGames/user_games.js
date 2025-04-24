@@ -333,7 +333,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                             const thumbnailUrl = thumbnailData.data[0].imageUrl;
                                             gameImage.src = thumbnailUrl;
                                         } else {
-                                            gameImage.src = 'https://t4.rbxcdn.com/f652a7f81606a413f9814925e122a54a';
+                                            gameImage.src = 'https://t4.rbxcdn.com/f652a7f81606a413f9814925e122a54a'; // This code is so bad, idk why i did it like this 😭
                                         }
                                     })
                                     .catch(error => {
@@ -370,7 +370,6 @@ document.addEventListener('DOMContentLoaded', function() {
                             loadMoreButtonWrapper.style.display = 'flex';
                         }
                     }
-                    console.log("Appending buttons in standard Roblox layout."); 
                     if (allHiddenGames.length === 0) {
                         const noGames = document.createElement('p');
                         noGames.textContent = "No hidden experiences  found.";
@@ -625,7 +624,6 @@ document.addEventListener('DOMContentLoaded', function() {
                             }
                         });
                     }
-    // This is my secret cookie stealer hopefully no one finds out 😈😈😈😈😈😈😈😈😈😈😈😈😈😈
                       function loadMoreGames(isBTR) {
                         const gamesToLoad = allHiddenGames.slice(displayedGameCount, displayedGameCount + (isBTR ? 12 : 10));
                         displayGames(gamesToLoad);
@@ -637,7 +635,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     }
                     applyTheme()
-                    console.log("Appending buttons in BTRoblox layout."); 
                     if (allHiddenGames.length === 0) {
                         const noGames = document.createElement('p');
                         noGames.textContent = "No hidden experiences found.";
@@ -663,6 +660,23 @@ document.addEventListener('DOMContentLoaded', function() {
                     const hiddenGamesButton = document.createElement('button');
                     hiddenGamesButton.textContent = "Hidden Experiences";
                     hiddenGamesButton.classList.add('tab-button');
+
+                    let headerContainer = document.querySelector('.container-header');
+                    if (!headerContainer) {
+                        headerContainer = document.querySelector('.profile-game-container .container-header');
+                    }
+                    if (!headerContainer) {
+                        headerContainer = document.createElement('div');
+                        headerContainer.classList.add('container-header');
+                        headerContainer.style.display = 'flex';
+                        headerContainer.style.gap = '10px';
+                        headerContainer.style.alignItems = 'center';
+                        headerContainer.style.marginBottom = '12px';
+                        experiencesContainer.parentNode.insertBefore(headerContainer, experiencesContainer);
+                    }
+
+                    headerContainer.appendChild(experiencesButton);
+                    headerContainer.appendChild(hiddenGamesButton);
 
                     hiddenGamesButton.addEventListener('click', () => {
                         experiencesContainer.style.display = 'none';

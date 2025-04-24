@@ -1,8 +1,71 @@
-// yes it is normal that this is erroring in the console, I just cant be bothered fixing it since it still works
-let currentTheme = 'light';
+let currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+let subplacesContentDiv = null;
+let searchBar = null;
+let loadMoreButton = null;
+let subplacesContainer = null;
+
+function applyTheme() {
+    const isDarkMode = currentTheme === 'dark';
+    const backgroundColor = isDarkMode ? '#272930' : 'rgb(247, 247, 248)';
+    const textColor = isDarkMode ? '#ddd' : '#1a1a1a';
+    const searchBarBackgroundColor = isDarkMode ? 'rgb(29, 30, 31)' : '#f0f0f0';
+    const buttonBackgroundColor = isDarkMode ? '#272930' : '#e0e0e0';
+    const gameContainerColor = isDarkMode ? '#272930' : 'rgb(247, 247, 248)';
+    const gameContainerBorder = isDarkMode ? '0px solid #555' : '';
+    const searchBarBorder = isDarkMode ? '0px solid #555' : '1px solid #bbb';
+    const loadMoreBorder = isDarkMode ? '1px solid #555' : '1px solid #bbb';
+
+    if (subplacesContentDiv) {
+        subplacesContentDiv.style.backgroundColor = backgroundColor;
+        if (searchBar) {
+            searchBar.style.backgroundColor = searchBarBackgroundColor;
+            searchBar.style.color = textColor;
+            searchBar.style.border = searchBarBorder;
+        }
+        if (loadMoreButton) {
+            loadMoreButton.style.backgroundColor = buttonBackgroundColor;
+            loadMoreButton.style.color = textColor;
+            loadMoreButton.style.border = loadMoreBorder;
+        }
+        if (subplacesContainer) {
+            subplacesContainer.querySelectorAll('.game-container').forEach(container => {
+                container.style.backgroundColor = gameContainerColor;
+                container.style.border = gameContainerBorder;
+            });
+            subplacesContainer.querySelectorAll('.game-name').forEach(gameName => {
+                gameName.style.color = textColor;
+            });
+            subplacesContainer.querySelectorAll('p').forEach(p => {
+                p.style.color = textColor;
+            });
+        }
+    }
+}
+
+const themeObserver = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+        if (mutation.attributeName === 'data-theme') {
+            currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+            applyTheme();
+        }
+    });
+});
+
+themeObserver.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['data-theme']
+});
+
 window.addEventListener('themeDetected', (event) => {
     currentTheme = event.detail.theme;
-    //applyTheme();
+    applyTheme();
+});
+
+// yes it is normal that this is erroring in the console, I just cant be bothered fixing it since it still works
+// Edit i think i fixed erroring i cant remember help me
+window.addEventListener('themeDetected', (event) => {
+    currentTheme = event.detail.theme;
+    applyTheme();
 });
 
 function extractPlaceId() {
@@ -93,14 +156,14 @@ async function createSubplacesTab(subplaces) {
       <a class="rbx-tab-heading">
           <span class="text-lead">Subplaces</span>
       </a>
-  `;
+    `;
     horizontalTabs.appendChild(subplaceTab);
 
-    const subplacesContentDiv = document.createElement('div');
+    subplacesContentDiv = document.createElement('div');
     subplacesContentDiv.className = 'tab-pane';
     subplacesContentDiv.id = 'subplaces';
 
-    const searchBar = document.createElement('input');
+    searchBar = document.createElement('input');
     searchBar.type = 'text';
     searchBar.placeholder = 'Search subplaces...';
     searchBar.className = 'subplace-search';
@@ -119,7 +182,7 @@ async function createSubplacesTab(subplaces) {
     });
     subplacesContentDiv.appendChild(searchBar);
 
-    const subplacesContainer = document.createElement('div');
+    subplacesContainer = document.createElement('div');
     subplacesContainer.classList.add('subplaces-list');
     subplacesContainer.style.display = 'grid';
     subplacesContainer.style.gridTemplateColumns = 'repeat(auto-fill, minmax(150px, 1fr))';
@@ -130,7 +193,7 @@ async function createSubplacesTab(subplaces) {
     let displayedSubplaceCount = 0;
     let allDisplayed = false;
 
-    const loadMoreButton = document.createElement('button');
+    loadMoreButton = document.createElement('button');
     loadMoreButton.textContent = 'Load More';
     loadMoreButton.classList.add('load-more-button', 'tab-button');
     loadMoreButton.style.display = 'none';
@@ -173,13 +236,11 @@ async function createSubplacesTab(subplaces) {
                     });
                 }
             } catch (error) {
-                console.error("Error fetching thumbnail batch:", error);
             
             }
         }
         return thumbnailUrlMap;
     }
-
 
     async function displaySubplaces(gamesToDisplay) {
         const placeIdsForThumbnails = gamesToDisplay.map(subplace => subplace.id);
@@ -195,24 +256,13 @@ async function createSubplacesTab(subplaces) {
                 gameElement.style.padding = '0px';
                 gameElement.style.borderRadius = '8px';
 
-               const currentURL = window.location.href;
-                const languageMatch = currentURL.match(/https:\/\/www\.roblox\.com\/([a-z]{2})\//);
-                let languagePrefix = '';
-
-                if (languageMatch && languageMatch[1]) {
-                  languagePrefix = languageMatch[0];
-                }
-
-
-                 const gameLink = document.createElement('a');
-                  gameLink.href = `https://www.roblox.com/games/${gameId}`;
+                const gameLink = document.createElement('a');
+                gameLink.href = `https://www.roblox.com/games/${gameId}`;
                 gameLink.style.textDecoration = 'none';
                 gameLink.style.display = 'block';
-                 gameLink.style.width = '100%';
+                gameLink.style.width = '100%';
                 gameLink.style.height = '100%';
-                gameElement.appendChild(gameLink)
-
-
+                gameElement.appendChild(gameLink);
 
                 const gameImage = document.createElement('img');
                 gameImage.style.alignSelf = 'center';
@@ -255,8 +305,9 @@ async function createSubplacesTab(subplaces) {
                 gameImage.addEventListener('mouseleave', () => {
                     gameImage.style.filter = 'brightness(1)';
                 });
+                
+                applyThemeForElement(gameElement);
             };
-                applyThemeForElement();
         })
     }
 
@@ -350,51 +401,21 @@ async function createSubplacesTab(subplaces) {
     }
 
 
-    function applyTheme() {
+    function applyThemeForElement(element) {
+        if (!element) return; 
         const isDarkMode = currentTheme === 'dark';
-        const backgroundColor = isDarkMode ? '#272930' : 'rgb(247, 247, 248)';
-        const textColor = isDarkMode ? '#ddd' : '#1a1a1a';
-        const searchBarBackgroundColor = isDarkMode ? 'rgb(29, 30, 31)' : '#f0f0f0';
-        const buttonBackgroundColor = isDarkMode ? '#272930' : '#e0e0e0';
-        const gameContainerColor = isDarkMode ? '#272930' : 'rgb(247, 247, 248)'
-        const gameContainerBorder = isDarkMode ? '0px solid #555' : ''
-          const searchBarBorder = isDarkMode ? '0px solid #555' : '1px solid #bbb';
-           const loadMoreBorder = isDarkMode ? '1px solid #555' : '1px solid #bbb';
-
-        subplacesContentDiv.style.backgroundColor = backgroundColor;
-        searchBar.style.backgroundColor = searchBarBackgroundColor;
-        searchBar.style.color = textColor;
-        searchBar.style.border = searchBarBorder;
-        loadMoreButton.style.backgroundColor = buttonBackgroundColor;
-        loadMoreButton.style.color = textColor;
-           loadMoreButton.style.border = loadMoreBorder;
-           subplacesContainer.querySelectorAll('.game-container').forEach(container => {
-            container.style.backgroundColor = gameContainerColor;
-           container.style.border = gameContainerBorder;
-         });
-         subplacesContainer.querySelectorAll('.game-name').forEach(gameName => {
-           gameName.style.color = textColor;
-        });
-          subplacesContainer.querySelectorAll('p').forEach(p => {
-          p.style.color = textColor;
-       })
-
+        const gameContainerColor = isDarkMode ? '#272930' : 'rgb(247, 247, 248)';
+        const gameContainerBorder = isDarkMode ? '0px solid #555' : '';
+        const textColor = isDarkMode ? '#ddd' : 'rgb(57, 59, 61)';
+        element.style.backgroundColor = gameContainerColor;
+        element.style.border = gameContainerBorder;
+        const gameName = element.querySelector('.game-name');
+        if (gameName) {
+            gameName.style.color = textColor;
+        }
     }
 
-        function applyThemeForElement(element) {
-           const isDarkMode = currentTheme === 'dark';
-           const gameContainerColor = isDarkMode ? '#272930' : 'rgb(247, 247, 248)';
-           const gameContainerBorder = isDarkMode ? '0px solid #555' : '';
-           const textColor = isDarkMode ? '#ddd' : 'rgb(57, 59, 61)';
-            element.style.backgroundColor = gameContainerColor;
-             element.style.border = gameContainerBorder;
-            const gameName = element.querySelector('.game-name');
-             if (gameName) {
-                gameName.style.color = textColor;
-            }
-        }
-
-        let contentSection = document.querySelector('.tab-content.rbx-tab-content.section');
+    let contentSection = document.querySelector('.tab-content.rbx-tab-content.section');
     if (!contentSection) {
         contentSection = document.querySelector('.tab-content.rbx-tab-content');
     }
@@ -414,10 +435,10 @@ async function createSubplacesTab(subplaces) {
         subplacesContentDiv.classList.add('active');
     });
 
-       applyTheme()
-        subplacesContainer.querySelectorAll('.game-container').forEach(container => {
-            applyThemeForElement(container);
-         });
+    applyTheme();
+    subplacesContainer.querySelectorAll('.game-container').forEach(container => {
+        applyThemeForElement(container);
+    });
 
 }
 

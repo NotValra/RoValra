@@ -76,7 +76,6 @@ fetch(itemsURL)
                             callback(element);
                         } else if (retries >= maxRetries) {
                             clearInterval(interval);
-                            console.log(`Element with selector "${selector}" not found after ${maxRetries} retries.`);
                         }
                         retries++;
                     }, retryInterval);

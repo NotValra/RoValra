@@ -153,7 +153,6 @@ function applyTheme() {
     });
 }
 if (window.location.pathname.includes('/communities')) {
-    console.log("GROUP!!! i mean community 😔");
     const currentURL = window.location.href;
     const languageMatch = currentURL.match(/https:\/\/www\.roblox\.com\/([a-z]{2}\/)/);
     let languagePrefix = '';
@@ -222,11 +221,9 @@ if (window.location.pathname.includes('/communities')) {
 
             if (!groupGamesContainer || !containerHeader) {
                 if (retryCount < 5) {
-                    console.log(`Group games container not found, retrying in 1 second, retry count: ${retryCount}`)
                     setTimeout(() => applyHiddenGamesLogic(retryCount + 1), 1000);
                     return;
                 } else {
-                    console.log("Group likely aint got games, or the container disappeared, will try again when the container pops back up");
                     observer = new MutationObserver(mutations => {
                         for (const mutation of mutations) {
                             if (mutation.addedNodes.length) {
@@ -769,16 +766,13 @@ if (window.location.pathname.includes('/communities')) {
                 if (!containerHeader.querySelector('.tab-button')) {
                     containerHeader.appendChild(experiencesButton);
                     containerHeader.appendChild(hiddenGamesButton);
-                    console.log("Tab buttons forcefully added to containerHeader."); // Confirmation log
                 } else {
                   
                 }
             } else {
                 if (retryAttempt < 5) {
-                    console.log(`Container header not found, retrying button insertion in 1 second, attempt: ${retryAttempt + 1}`);
                     setTimeout(() => createAndInsertButtons(retryAttempt + 1), 1000);
                 } else {
-                    console.warn("Failed to insert tab buttons after multiple retries. Container header not consistently found.");
                 }
             }
         };

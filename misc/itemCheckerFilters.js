@@ -1,5 +1,4 @@
 (function() {
-
     if (!window.location.href.includes("profile")) {
         return;
     }
@@ -29,7 +28,6 @@
     let ownedTabButton = null;
     let unownedTabButton = null;
     let tabButtonsContainer = null;
-
 
     const checkApplyButtonState = () => {
     if (!applyButton) return;
@@ -71,10 +69,8 @@
     filterButtonElement.classList.remove('filter-button-active');
     creatorItemsData = null;
 
-
     const button2 = document.querySelector('.item-ownership-button');
     let resultContainer = resultParentElement.querySelector('#item-ownership-result-container');
-
 
     if (!ownedItemsResultContainer) {
         ownedItemsResultContainer = document.createElement('div');
@@ -89,7 +85,6 @@
         applyResultContainerStyles(unownedItemsResultContainer);
         unownedItemsResultContainer.style.display = 'none';
     }
-
 
     if (currentFilter === "Creator Name" && (creatorName || includeRecentlyPublished)) {
         let returnValue = 1;
@@ -110,7 +105,6 @@
         let pageCount = 0;
         let totalItemsFetched = 0;
 
-
         if (button2) {
             button2.disabled = true;
             button2.textContent = 'Checking Ownership...';
@@ -125,7 +119,6 @@
         if (ownershipTextElement && currentDisplayName) {
             ownershipTextElement.textContent = `Checking items it might take a bit.`;
             ownershipTextElement.style.display = 'block';
-
 
             ownershipTextElement.style.padding = '5px';
         }
@@ -194,19 +187,15 @@
             if (ownedTabButton) ownedTabButton.click();
         }
 
-
     } else {
          if (button2) {
             button2.textContent = 'Check Ownership';
         }
     }
 
-
     };
 
-
     const delay = (ms) => new Promise(res => setTimeout(res, ms));
-
 
     function applyCopiedFilterModalStyles(modal, theme) {
         if (!modal) return;
@@ -281,7 +270,6 @@
         'min-height': '40px',
         'position': 'relative'
     };
-
 
     for (const styleProp in styles) {
         header.style[styleProp] = styles[styleProp];
@@ -403,7 +391,6 @@
     container.style.padding = '0 24px';
     }
 
-
     function applyCopiedCreatorNameOptionStyles(creatorNameOption, theme) {
     if (!creatorNameOption) return;
 
@@ -454,7 +441,6 @@
     container.style.minHeight = '0';
     container.style.overflow = 'visible';
     }
-
 
     function extractAndLogUserId() {
     if (window.location.href.includes("/users/")) {
@@ -546,7 +532,6 @@
             resultParentElement.style.display = 'block';
         }
 
-
         if (!ownedItemsResultContainer) {
             ownedItemsResultContainer = document.createElement('div');
             ownedItemsResultContainer.id = 'item-ownership-result-container-owned';
@@ -560,7 +545,6 @@
             applyResultContainerStyles(unownedItemsResultContainer);
             unownedItemsResultContainer.style.display = 'none';
         }
-
 
         if (!document.getElementById('item-ownership-checker-container')) {
              let container = document.createElement('div');
@@ -579,7 +563,6 @@
             tabButtonsContainer.style.width = '100%';
             tabButtonsContainer.style.gap = '10px';
 
-
             ownedTabButton = document.createElement('button');
             ownedTabButton.type = 'button';
             ownedTabButton.textContent = 'Owned';
@@ -596,7 +579,6 @@
                 if (resultParentElement && ownedItemsResultContainer && unownedItemsResultContainer) {
                     resultParentElement.insertBefore(ownedItemsResultContainer, unownedItemsResultContainer);
                 }
-
 
                 if (ownedTabButton) applyTabButtonStyles(ownedTabButton, true, detectTheme());
                 if (unownedTabButton) applyTabButtonStyles(unownedTabButton, false, detectTheme());
@@ -620,13 +602,10 @@
                     resultParentElement.insertBefore(unownedItemsResultContainer, ownedItemsResultContainer);
                 }
 
-
                 if (ownedTabButton) applyTabButtonStyles(ownedTabButton, false, detectTheme());
                 if (unownedTabButton) applyTabButtonStyles(unownedTabButton, true, detectTheme());
             });
             tabButtonsContainer.appendChild(unownedTabButton);
-
-
 
             let filterDropdownContainer = document.createElement('div');
     filterDropdownContainer.style.marginBottom = '0px';
@@ -665,7 +644,6 @@
     svgIcon.style.transform = 'rotate(270deg)';
     svgIcon.style.verticalAlign = 'middle';
 
-
             filterButtonElement.appendChild(filterDisplayText);
             filterButtonElement.appendChild(svgIcon);
             filterDropdownContainer.appendChild(filterButtonElement);
@@ -703,13 +681,11 @@
             filterOptionsContainer.className = 'filter-options-container';
             applyCopiedFilterOptionsStyles(filterOptionsContainer, detectTheme());
 
-
             filterContainerSimple = document.createElement('div');
             filterContainerSimple.id = 'simplified-filter-container-v7';
             filterContainerSimple.style.marginTop = '0px';
             filterContainerSimple.style.padding = '0px 24px';
             filterContainerSimple.style.backgroundColor = 'transparent';
-
 
             let inputContainerSimple = document.createElement('div');
             inputContainerSimple.style.display = 'flex';
@@ -717,7 +693,6 @@
             inputContainerSimple.style.gap = '8px';
             inputContainerSimple.style.alignItems = 'stretch';
             inputContainerSimple.style.padding = '12px 0px';
-
 
             let creatorNameInputContainer = document.createElement('div');
             creatorNameInputContainer.style.display = 'flex';
@@ -800,7 +775,6 @@
             limitedsToggle.style.cursor = 'pointer';
             limitedsToggle.style.position = 'relative';
 
-
             limitedsToggle.insertAdjacentHTML('afterbegin', `
                 <style>
                     #simplified-limiteds-toggle-v7::before {
@@ -825,10 +799,8 @@
                 </style>
             `);
 
-
             limitedsToggle.addEventListener('change', function() {
             });
-
 
             limitedsToggleContainer.appendChild(limitedsLabelSimple);
             limitedsToggleContainer.appendChild(limitedsToggle);
@@ -861,7 +833,6 @@
             recentlyPublishedToggle.style.cursor = 'pointer';
             recentlyPublishedToggle.style.position = 'relative';
 
-
             recentlyPublishedToggle.insertAdjacentHTML('afterbegin', `
                 <style>
                     #simplified-recently-published-toggle-v7::before {
@@ -886,11 +857,9 @@
                 </style>
             `);
 
-
             recentlyPublishedToggle.addEventListener('change', function() {
                 checkApplyButtonState();
             });
-
 
             recentlyPublishedToggleContainer.appendChild(recentlyPublishedLabelSimple);
             recentlyPublishedToggleContainer.appendChild(recentlyPublishedToggle);
@@ -986,14 +955,11 @@
             });
             limitDropdown.value = currentLimit;
 
-
             limitDropdownContainer.appendChild(limitLabelSimple);
             limitDropdownContainer.appendChild(limitDropdown);
             inputContainerSimple.appendChild(limitDropdownContainer);
 
-
             filterContainerSimple.appendChild(inputContainerSimple);
-
 
             applyButton = document.createElement('button');
             applyButton.type = 'button';
@@ -1007,16 +973,13 @@
             applyButton.style.borderRadius = '8px';
             applyButton.style.marginTop = '0px';
 
-
             applyButton.addEventListener('click', applyFilters);
 
             filterContainerSimple.appendChild(applyButton);
             filterOptionsContainer.appendChild(filterContainerSimple);
 
-
             filterModalContainer.appendChild(filterOptionsContainer);
             filterDropdownContainer.appendChild(filterModalContainer);
-
 
             let explanation = document.createElement('p');
             explanation.textContent = `Enter an item ID to check if ${currentDisplayName || 'this user'} owns it`;
@@ -1028,7 +991,6 @@
                 font-family: "HCo Gotham SSm", "Helvetica Neue", Helvetica, Arial, "Lucida Grande";
                 margin-bottom: 0px;
             `;
-
 
             let inputGroup = document.createElement('div');
             inputGroup.className = 'input-group';
@@ -1075,7 +1037,6 @@
             form.appendChild(formHasFeedback);
             inputGroup.appendChild(form);
 
-
             let buttonListItem = document.createElement('li');
             buttonListItem.className = 'btn-friends';
             buttonListItem.style.flexGrow = '1';
@@ -1089,7 +1050,6 @@
             button2.style.boxSizing = 'box-sizing';
             button2.style.marginBottom = '10px';
             button2.className = 'btn-control-md item-ownership-button';
-
 
             const buttonText = document.createTextNode('Check Ownership');
             button2.appendChild(buttonText);
@@ -1105,7 +1065,6 @@
             fakeCheckButton.style.left = '-9999px';
             fakeCheckButton.style.top = '-9999px';
             buttonListItem.insertBefore(fakeCheckButton, button2);
-
 
             input.addEventListener('input', function() {
                 button2.disabled = !input.value.trim();
@@ -1141,7 +1100,6 @@
                 }
             });
 
-
             button2.addEventListener('click', function() {
                 const itemId = input.value;
                 const itemIdInput = itemId
@@ -1152,7 +1110,6 @@
                     ownershipTextElement.style.display = 'block';
                     ownershipTextElement.style.padding = '5px';
                 }
-
 
                 if (creatorItemsData && creatorItemsData.data) {
                     if (singleItemId) {
@@ -1170,7 +1127,6 @@
                     }
                     button2.disabled = false;
                 }
-
 
                 else if (singleItemId) {
                     checkItemOwnership({id: singleItemId}).then(ownershipResult => {
@@ -1247,7 +1203,6 @@
     const buttonTextColor = document.documentElement.style.getPropertyValue('--tab-button-text-color');
     const buttonBorderColor = document.documentElement.style.getPropertyValue('--tab-button-border-color');
 
-
     button.style.backgroundColor = buttonBackgroundColor;
     button.style.color = buttonTextColor;
     button.style.border = '0px solid ' + buttonBorderColor;
@@ -1264,14 +1219,12 @@
     button.style.flexBasis = '0';
     }
 
-
     function applyInputStyles(inputElement, theme) {
     const isDark = theme === 'dark';
     const inputBackgroundColor = document.documentElement.style.getPropertyValue('--filter-input-background');
     const inputBorderColor = document.documentElement.style.getPropertyValue('--filter-input-border-color');
     const inputTextColor = document.documentElement.style.getPropertyValue('--filter-input-text-color');
     const inputPlaceholderColor = document.documentElement.style.getPropertyValue('--filter-input-placeholder-color');
-
 
     inputElement.style.webkitTextSizeAdjust = '100%';
     inputElement.style.backgroundImage = '';
@@ -1307,7 +1260,6 @@
     `;
     document.head.appendChild(styleSheet);
     }
-
 
     function addFilterButtonEvents() {
     if (!filterButtonElement || !filterModalContainer) return;
@@ -1345,7 +1297,6 @@
 
     function addFilterOptionEvents() {
     }
-
 
     function checkItemOwnership(item, silentError = false) {
         const itemId = item.id;
@@ -1426,7 +1377,6 @@
         }
     }
 
-
     async function displayOwnershipResult(itemIdentifier, ownershipResult, resultParentElement) {
         ownershipTextElement.style.display = 'block';
 
@@ -1441,7 +1391,6 @@
             ownershipTextElement.style.color = document.documentElement.style.getPropertyValue('--text-color');
         }
     }
-
 
     async function fetchItemDetailsAndThumbnails(itemsWithOwnerShip) {
         const bundleItemIds = [];
@@ -1521,7 +1470,6 @@
         }
     }
 
-
     async function displayBatchOwnershipResults(itemsWithOwnerShip, resultParentElement) {
 
         if (!ownedItemsResultContainer || !unownedItemsResultContainer) {
@@ -1534,7 +1482,6 @@
         const fetchedData = await fetchItemDetailsAndThumbnails(itemsWithOwnerShip);
         const thumbnailData = fetchedData.thumbnailData;
         const itemDetails = fetchedData.itemDetails;
-
 
         if (!thumbnailData || !itemDetails) {
         }
@@ -1552,9 +1499,7 @@
             const itemDetail = itemDetails[itemId];
             let itemPrice = item.lowestPrice;
 
-
             if (itemDetail) {
-
 
                 let priceToUse = null;
 
@@ -1582,7 +1527,6 @@
             } else {
             }
 
-
             const itemCard = document.createElement('div');
             itemCard.className = 'item-card-container';
             itemCard.style.width = '120px';
@@ -1606,7 +1550,6 @@
             limitedBadgeContainer.style.zIndex = '3';
             itemLink.appendChild(limitedBadgeContainer);
 
-
             if (item.itemRestrictions && (item.itemRestrictions.includes("LimitedUnique") || item.itemRestrictions.includes("Collectible"))) {
                 const limitedBadge = document.createElement('span');
                 limitedBadge.className = 'restriction-icon icon-limited-unique-label';
@@ -1628,7 +1571,6 @@
                 thumbContainer.style.objectFit = 'cover';
                 thumbContainer.style.marginBottom = '5px';
 
-
                 thumbContainer.onerror = () => {
                     const placeholderDiv = document.createElement('div');
                     placeholderDiv.className = 'item-card-thumb-container';
@@ -1640,7 +1582,6 @@
                     itemLink.replaceChild(placeholderDiv, thumbContainer);
                     thumbContainer = placeholderDiv;
                 };
-
 
             } else {
                 thumbContainer = document.createElement('div');
@@ -1665,7 +1606,6 @@
             iconContainer.style.justifyContent = 'center';
             iconContainer.style.alignItems = 'center';
             iconContainer.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
-
 
             const icon = document.createElement('img');
             icon.style.width = '100%';
@@ -1701,7 +1641,6 @@
                 copiesBadge.style.zIndex = '2';
                 itemCard.appendChild(copiesBadge);
             }
-
 
             const itemNameDiv = document.createElement('div');
             itemNameDiv.className = 'item-card-name';
@@ -1762,7 +1701,6 @@
                 priceSpan.textContent = abbreviateNumber(itemPrice);
                 priceSpan.style.color = document.documentElement.style.getPropertyValue('--text-color');
 
-
                 priceDiv.appendChild(iconSpan);
                 priceDiv.appendChild(priceSpan);
                 itemLink.appendChild(priceDiv);
@@ -1772,7 +1710,6 @@
                 priceDiv.style.position = 'relative';
                 priceDiv.style.marginRight = 'auto';
                 priceDiv.style.textAlign = 'left';
-
 
                 const priceSpan = document.createElement('span');
                 priceSpan.style.fontSize = '12px'
@@ -1787,7 +1724,6 @@
                 itemLink.appendChild(priceDiv)
             }
 
-
             itemCard.appendChild(itemLink);
 
             if (isOwned) {
@@ -1798,7 +1734,6 @@
                 hasUnownedItems = true;
             }
 
-
         });
 
         if (!hasOwnedItems) {
@@ -1808,7 +1743,6 @@
             unownedItemsResultContainer.appendChild(createNoItemsMessageElement(currentTheme));
         }
         }
-
 
     updateThemeStyles(detectTheme());
 
@@ -1868,7 +1802,6 @@
         document.documentElement.style.setProperty('--item-unowned-icon-color', 'red');
         document.documentElement.style.setProperty('--filter-input-placeholder-color', 'rgba(213, 215, 221, 0.7)');
 
-
     } else {
         borderColor = '#ddd';
         document.documentElement.style.setProperty('--text-color', 'rgb(96, 97, 98) !important');
@@ -1923,7 +1856,6 @@
         document.documentElement.style.setProperty('--item-unowned-icon-color', 'red');
         document.documentElement.style.setProperty('--filter-input-placeholder-color', 'rgba(96, 97, 98, 0.7)');
 
-
     }
     document.documentElement.style.setProperty('--input-border-color', borderColor + ' !important');
     }
@@ -1931,7 +1863,6 @@
     function detectTheme() {
         return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     }
-
 
     function observeAndApplyStyles() {
     const targetNode = document.body;
@@ -1971,7 +1902,6 @@
         return (number / 1000000000).toFixed(1) + "B+";
     }
 
-
     extractAndLogUserId();
 
     let currentTheme = detectTheme();
@@ -1986,7 +1916,6 @@
         applyFilterButtonStyle(initialFilterButton, currentTheme);
     }
 
-
     setTimeout(() => {
         currentTheme = detectTheme();
         updateThemeStyles(currentTheme);
@@ -2000,9 +1929,8 @@
     observeAndApplyStyles()
     }, 100);
 
-
     document.addEventListener('DOMContentLoaded', function() {
-        setTimeout(() => checkInventoryHidden(), 500);
+        setTimeout(() => checkInventoryHidden(), 5000);
     });
 
 })();

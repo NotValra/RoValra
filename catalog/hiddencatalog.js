@@ -174,7 +174,7 @@ function removeHiddenCatalogContent() {
             descriptionElement.innerHTML = `
                 <p>The Hidden Catalog shows items uploaded by Roblox which are not yet on the marketplace.</p>
                 <p>Keep in mind that some of these items may never be released, as they could have been test uploads by Roblox.</p>
-                <p>Some items might be on Marketplace already. <b>To open the item page you will need <a href="https://www.roseal.live/" target="_blank" style="text-decoration: underline;">RoSeal</a>
+                <p><b>To open the item page you will need <a href="https://www.roseal.live/" target="_blank" style="text-decoration: underline;">RoSeal</a>
             `;
             contentDiv.appendChild(descriptionElement);
 
@@ -216,10 +216,10 @@ async function fetchDataFromAPI(retryCount = 0, maxRetries = 1, retryDelay = 100
 
         if (response.status >= 300 && response.status < 400) {
             const locationHeader = response.headers.get('Location');
-            displayApiError(`API request resulted in a redirect loop (initial redirect to: ${locationHeader || 'N/A'}). Cannot load items.`);
+            displayApiError(`API request error`);
             return;
         } else if (response.type === 'opaqueredirect') {
-             displayApiError("Error processing API request due to redirects. Check DevTools Network tab.");
+             displayApiError("Api error");
              return;
         } else if (!response.ok) {
             const error = new Error(`HTTP error! status: ${response.status}`);
@@ -238,21 +238,34 @@ async function fetchDataFromAPI(retryCount = 0, maxRetries = 1, retryDelay = 100
         const existingError = document.querySelector('.content#content .api-error-message');
         if (existingError) existingError.remove();
 
-        const itemsWithDetails = await Promise.all(
-            data.items.map(async item => {
-                if (!item || typeof item.item_id === 'undefined') {
-                    return { ...item, details: null, name: item?.name || 'Invalid Item Data' };
-                }
-                const details = await fetchItemDetails(item.item_id);
-                item.name = item.name || (details ? details.Name : 'Unnamed Item');
-                return { ...item, details };
-            })
-        );
+        const items = data.items;
+        const batchSize = 20;
+        const itemsWithDetails = [];
+
+        for (let i = 0; i < items.length; i += batchSize) {
+            const batch = items.slice(i, i + batchSize);
+            const batchResults = await Promise.all(
+                batch.map(async item => {
+                    if (!item || typeof item.item_id === 'undefined') {
+                        return { ...item, details: null, name: item?.name || 'Invalid Item Data' };
+                    }
+                    const details = await fetchItemDetails(item.item_id);
+                    item.name = item.name || (details ? details.Name : 'Unnamed Item');
+                    return { ...item, details };
+                })
+            );
+            itemsWithDetails.push(...batchResults);
+
+            if (i + batchSize < items.length) {
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+        }
+
         displayItems(itemsWithDetails);
 
     } catch (error) {
         if (error instanceof TypeError && (error.message.includes('redirect') || error.message.includes('Failed to fetch'))) {
-             displayApiError("Error: The API request resulted in too many redirects (redirect loop). Please inform the site owner or try again later.");
+             displayApiError("Error: The API request errored, please try again later");
         } else {
             const status = error.status;
 
@@ -263,7 +276,7 @@ async function fetchDataFromAPI(retryCount = 0, maxRetries = 1, retryDelay = 100
                          fetchDataFromAPI(retryCount + 1, maxRetries, retryDelay);
                     }, delay);
                 } else {
-                    let errorMsg = "API error after multiple retries or due to redirect issues. Please try again later.";
+                    let errorMsg = "API error";
                     displayApiError(errorMsg);
                 }
             } else {
@@ -370,6 +383,35 @@ async function displayItems(itemsWithDetails) {
         thumbnailContainer.style.alignItems = 'center';
         thumbnailContainer.style.position = 'relative';
 
+        const initialShimmer = document.createElement('div');
+        initialShimmer.className = 'thumbnail-2d-container shimmer';
+        if (currentMode === 'light') {
+            initialShimmer.classList.add('light-mode');
+        } else {
+            initialShimmer.classList.add('dark-mode');
+        }
+        initialShimmer.style.height = '221.75px';
+        initialShimmer.style.borderRadius = '8px';
+        initialShimmer.style.width = '100%';
+        thumbnailContainer.appendChild(initialShimmer);
+
+        if (item.details && item.details.ProductId !== 0) {
+            const releasedLabel = document.createElement('div');
+            releasedLabel.textContent = 'Released';
+            releasedLabel.className = 'released-label';
+            releasedLabel.style.position = 'absolute';
+            releasedLabel.style.color = 'white';
+            releasedLabel.style.backgroundColor = '#e57b00';
+            releasedLabel.style.top = '5px';
+            releasedLabel.style.left = '5px';
+            releasedLabel.style.padding = '5px';
+            releasedLabel.style.borderRadius = '5px';
+            releasedLabel.style.fontSize = '12px';
+            releasedLabel.style.fontWeight = 'bold';
+            releasedLabel.style.zIndex = '1';
+            thumbnailContainer.appendChild(releasedLabel);
+        }
+
         const itemDetailsDiv = document.createElement('div');
         itemDetailsDiv.className = 'item-details';
         itemDetailsDiv.style.paddingTop = '10px';
@@ -386,15 +428,63 @@ async function displayItems(itemsWithDetails) {
         } else {
             itemName.classList.add('dark-mode');
         }
-        itemName.textContent = item.name || 'Name Unavailable';
+
+        const nameContainer = document.createElement('div');
+        nameContainer.style.display = 'flex';
+        nameContainer.style.flexDirection = 'column';
+        nameContainer.style.gap = '2px';
+        nameContainer.style.position = 'relative';
+
+        const displayName = item.name || 'Name Unavailable';
+        itemName.textContent = displayName;
+
+        const toggleButton = document.createElement('button');
+        toggleButton.style.position = 'absolute';
+        toggleButton.style.right = '5px';
+        toggleButton.style.top = '0';
+        toggleButton.style.padding = '2px 5px';
+        toggleButton.style.fontSize = '13px';
+        toggleButton.style.cursor = 'pointer';
+        toggleButton.style.backgroundColor = 'transparent';
+        toggleButton.style.border = '0px solid #666';
+        toggleButton.style.borderRadius = '0px';
+        toggleButton.style.color = '#666';
+        toggleButton.textContent = '↺';
+        toggleButton.title = 'Toggle original name';
+
+        if (item.details && item.details.Name && item.details.Name !== item.name) {
+            itemName.textContent = item.details.Name;
+            
+            let showingUpdated = true;
+            toggleButton.onclick = (e) => {
+                e.preventDefault(); 
+                e.stopPropagation(); 
+                if (showingUpdated) {
+                    itemName.textContent = displayName;
+                    toggleButton.style.backgroundColor = 'transparent';
+                    toggleButton.style.color = '#fff';
+                } else {
+                    itemName.textContent = item.details.Name;
+                    toggleButton.style.backgroundColor = 'transparent';
+                    toggleButton.style.color = '#666';
+                }
+                showingUpdated = !showingUpdated;
+            };
+            
+            nameContainer.appendChild(toggleButton);
+        } 
+
+        nameContainer.appendChild(itemName);
+
         itemName.style.fontWeight = '600';
         itemName.style.fontSize = '18px';
-        itemName.style.marginBottom = '5px';
+        itemName.style.marginBottom = '0px';
+        itemName.style.paddingRight = '25px'; 
         itemName.style.overflow = 'hidden';
         itemName.style.textOverflow = 'ellipsis';
         itemName.style.whiteSpace = 'nowrap';
 
-        itemDetailsDiv.appendChild(itemName);
+        itemDetailsDiv.appendChild(nameContainer);
         itemLink.appendChild(thumbnailContainer);
         itemLink.appendChild(itemDetailsDiv);
         itemsContainer.appendChild(itemLink);

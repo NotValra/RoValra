@@ -404,20 +404,20 @@
         "longitude": 21.017532
     },
     "128.116.32.0": {
-        "city": "Secaucus",
+        "city": "New York City",
         "country": {
             "name": "United States",
             "code": "US"
         },
          "region": {
-            "name": "New Jersey",
-            "code": "NJ"
+            "name": "New York",
+            "code": "NY"
         },
          "latitude": 40.7875,
         "longitude": -74.0575
     },
     "128.116.33.0": {
-         "city": "Slough",
+         "city": "London",
         "country": {
             "name": "United Kingdom",
             "code": "GB"
@@ -684,19 +684,6 @@
         },
         "latitude": 39.0438,
         "longitude": -77.4949
-    },
-    "128.116.54.0": {
-         "city": "Amsterdam",
-        "country": {
-            "name": "Netherlands",
-            "code": "NL"
-        },
-         "region": {
-            "name": "Noord-Holland",
-            "code": "NH"
-        },
-         "latitude": 52.367573,
-        "longitude": 4.904139
     },
     "128.116.55.0": {
          "city": "Tokyo",
@@ -1013,6 +1000,15 @@
          "latitude": 1.3521,
         "longitude": 103.8198
     },
+    "128.116.54.0": {
+         "city": "Singapore",
+          "country": {
+            "name": "Singapore",
+            "code": "SG"
+        },
+         "latitude": 1.3521,
+        "longitude": 103.8198
+    },
    "128.116.80.0": {
         "city": "Ashburn",
          "country": {
@@ -1122,7 +1118,7 @@
          "country": {
             "name": "United States",
             "code": "US"
-        
+
         },
          "region": {
             "name": "Illinois",
@@ -1629,5 +1625,317 @@
         },
          "latitude": 25.7617,
         "longitude": -80.1918
+    },
+    "3.219.29.0": {
+        "city": "Ashburn",
+        "country": {
+            "name": "United States",
+            "code": "US"
+        },
+        "region": {
+            "name": "Virginia",
+            "code": "VA"
+        },
+        "latitude": 39.0437,
+        "longitude": -77.4875
+    },
+    "44.215.104.0": {
+        "city": "Ashburn",
+        "country": {
+            "name": "United States",
+            "code": "US"
+        },
+        "region": {
+            "name": "Virginia",
+            "code": "VA"
+        },
+        "latitude": 39.0437,
+        "longitude": -77.4875
+    },
+    "100.24.9.0": {
+        "city": "Ashburn",
+        "country": {
+            "name": "United States",
+            "code": "US"
+        },
+        "region": {
+            "name": "Virginia",
+            "code": "VA"
+        },
+        "latitude": 39.0437,
+        "longitude": -77.4875
+    },
+    "107.23.244.0": {
+        "city": "Ashburn",
+        "country": {
+            "name": "United States",
+            "code": "US"
+        },
+        "region": {
+            "name": "Virginia",
+            "code": "VA"
+        },
+        "latitude": 39.0437,
+        "longitude": -77.4875
+    },
+    "54.221.47.0": {
+        "city": "Ashburn",
+        "country": {
+            "name": "United States",
+            "code": "US"
+        },
+        "region": {
+            "name": "Virginia",
+            "code": "VA"
+        },
+        "latitude": 39.0437,
+        "longitude": -77.4875
+    },
+    "3.219.30.0": {
+        "city": "Ashburn",
+        "country": {
+            "name": "United States",
+            "code": "US"
+        },
+        "region": {
+            "name": "Virginia",
+            "code": "VA"
+        },
+        "latitude": 39.0437,
+        "longitude": -77.4875
+    },
+    "34.207.68.0": {
+        "city": "Ashburn",
+        "country": {
+            "name": "United States",
+            "code": "US"
+        },
+        "region": {
+            "name": "Virginia",
+            "code": "VA"
+        },
+        "latitude": 39.0437,
+        "longitude": -77.4875
+    },
+    "3.94.84.0": {
+        "city": "Ashburn",
+        "country": {
+            "name": "United States",
+            "code": "US"
+        },
+        "region": {
+            "name": "Virginia",
+            "code": "VA"
+        },
+        "latitude": 39.0437,
+        "longitude": -77.4875
+    },
+    "54.211.2.0": {
+        "city": "Ashburn",
+        "country": {
+            "name": "United States",
+            "code": "US"
+        },
+        "region": {
+            "name": "Virginia",
+            "code": "VA"
+        },
+        "latitude": 39.0437,
+        "longitude": -77.4875
+    },
+    "3.86.208.0": {
+        "city": "Ashburn",
+        "country": {
+            "name": "United States",
+            "code": "US"
+        },
+        "region": {
+            "name": "Virginia",
+            "code": "VA"
+        },
+        "latitude": 39.0437,
+        "longitude": -77.4875
+    },
+    "3.239.163.0": {
+        "city": "Ashburn",
+        "country": {
+            "name": "United States",
+            "code": "US"
+        },
+        "region": {
+            "name": "Virginia",
+            "code": "VA"
+        },
+        "latitude": 39.0437,
+        "longitude": -77.4875
+    },
+    "35.175.144.0": {
+        "city": "Ashburn",
+        "country": {
+            "name": "United States",
+            "code": "US"
+        },
+        "region": {
+            "name": "Virginia",
+            "code": "VA"
+        },
+        "latitude": 39.0437,
+        "longitude": -77.4875
+    },
+    "13.218.132.0": {
+        "city": "Ashburn",
+        "country": {
+            "name": "United States",
+            "code": "US"
+        },
+        "region": {
+            "name": "Virginia",
+            "code": "VA"
+        },
+        "latitude": 39.0437,
+        "longitude": -77.4875
+    },
+    "35.171.25.0": {
+        "city": "Ashburn",
+        "country": {
+            "name": "United States",
+            "code": "US"
+        },
+        "region": {
+            "name": "Virginia",
+            "code": "VA"
+        },
+        "latitude": 39.0437,
+        "longitude": -77.4875
+    },
+    "44.204.107.0": {
+        "city": "Ashburn",
+        "country": {
+            "name": "United States",
+            "code": "US"
+        },
+        "region": {
+            "name": "Virginia",
+            "code": "VA"
+        },
+        "latitude": 39.0437,
+        "longitude": -77.4875
+    },
+    "44.223.72.0": {
+        "city": "Ashburn",
+        "country": {
+            "name": "United States",
+            "code": "US"
+        },
+        "region": {
+            "name": "Virginia",
+            "code": "VA"
+        },
+        "latitude": 39.0437,
+        "longitude": -77.4875
+    },
+    "18.206.149.0": {
+        "city": "Ashburn",
+        "country": {
+            "name": "United States",
+            "code": "US"
+        },
+        "region": {
+            "name": "Virginia",
+            "code": "VA"
+        },
+        "latitude": 39.0437,
+        "longitude": -77.4875
+    },
+    "54.234.116.0": {
+        "city": "Ashburn",
+        "country": {
+            "name": "United States",
+            "code": "US"
+        },
+        "region": {
+            "name": "Virginia",
+            "code": "VA"
+        },
+        "latitude": 39.0437,
+        "longitude": -77.4875
+    },
+    "13.218.27.0": {
+        "city": "Ashburn",
+        "country": {
+            "name": "United States",
+            "code": "US"
+        },
+        "region": {
+            "name": "Virginia",
+            "code": "VA"
+        },
+        "latitude": 39.0437,
+        "longitude": -77.4875
+    },
+    "3.88.70.0": {
+        "city": "Ashburn",
+        "country": {
+            "name": "United States",
+            "code": "US"
+        },
+        "region": {
+            "name": "Virginia",
+            "code": "VA"
+        },
+        "latitude": 39.0437,
+        "longitude": -77.4875
+    },
+    "3.91.86.0": {
+        "city": "Ashburn",
+        "country": {
+            "name": "United States",
+            "code": "US"
+        },
+        "region": {
+            "name": "Virginia",
+            "code": "VA"
+        },
+        "latitude": 39.0437,
+        "longitude": -77.4875
+    },
+    "3.90.224.0": {
+        "city": "Ashburn",
+        "country": {
+            "name": "United States",
+            "code": "US"
+        },
+        "region": {
+            "name": "Virginia",
+            "code": "VA"
+        },
+        "latitude": 39.0437,
+        "longitude": -77.4875
+    },
+    "54.159.196.0": {
+        "city": "Ashburn",
+        "country": {
+            "name": "United States",
+            "code": "US"
+        },
+        "region": {
+            "name": "Virginia",
+            "code": "VA"
+        },
+        "latitude": 39.0437,
+        "longitude": -77.4875
+    },
+    "54.225.40.0": {
+        "city": "Ashburn",
+        "country": {
+            "name": "United States",
+            "code": "US"
+        },
+        "region": {
+            "name": "Virginia",
+            "code": "VA"
+        },
+        "latitude": 39.0437,
+        "longitude": -77.4875
     }
 }

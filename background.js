@@ -9,11 +9,6 @@
 
 
 
-
-
-
-
-
 // Starting roblox logic, i would recommend not touching this :)
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     if (message.action === "injectScript") {
@@ -29,7 +24,6 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
                      document.documentElement.appendChild(script);
                      script.remove();
                  } catch(error){
-                      console.error("Error in injected script:", error);
                   }
 
               },
@@ -39,7 +33,6 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
           sendResponse({ success: true });
         })
         .catch((error) => {
-          console.error("Error injecting script:", error);
           sendResponse({ success: false, error: error.message });
         });
 
@@ -50,25 +43,21 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
   chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
       switch (message.action) {
           case 'enableServerJoinHeaders':
-              console.log("enableServerJoinHeaders");
               chrome.declarativeNetRequest.updateEnabledRulesets({
                   enableRulesetIds: ['ruleset_2'],
               });
               break;
           case 'disableServerJoinHeaders':
-              console.log("disableServerJoinHeaders");
               chrome.declarativeNetRequest.updateEnabledRulesets({
                   disableRulesetIds: ['ruleset_2'],
               });
               break;
           case 'enableUserSniper':
-              console.log("enableUserSniper");
               chrome.declarativeNetRequest.updateEnabledRulesets({
                   enableRulesetIds: ['ruleset_1'],
               });
               break;
           case 'disableUserSniper':
-              console.log("disableUserSniper");
               chrome.declarativeNetRequest.updateEnabledRulesets({
                   disableRulesetIds: ['ruleset_1'],
               });
@@ -173,7 +162,6 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
       }
       
        else if (request.action === 'resetDoNotShow') {
-          console.log("resetting do not show");
           chrome.storage.local.remove('doNotShowAgain');
           sendResponse({
               message: 'do not show reset'
@@ -189,7 +177,6 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
           return true;
       } else if (request.action === 'setDoNotShowAgain') {
           const latestVersion = request.latestVersion;
-          console.log("setting do not show again preference", latestVersion);
           chrome.storage.local.set({
               doNotShowAgain: true,
               dismissedVersion: latestVersion
@@ -203,16 +190,12 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
   });
 
   chrome.runtime.onInstalled.addListener(() => {
-      console.log("Extension installed or updated.");
       if (isDebugMode) {
-          console.log("resetting do not show");
-          console.log(typeof localStorage);
           chrome.storage.local.remove('doNotShowAgain');
       }
       checkForUpdates();
   });
   chrome.runtime.onStartup.addListener(() => {
-      console.log("Extension started.");
       checkForUpdates();
       });
   chrome.action.onClicked.addListener(() => {

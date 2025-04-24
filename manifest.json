@@ -1,37 +1,32 @@
 {
   "manifest_version": 3,
   "name": "RoValra - Roblox Improved",
-  "version": "2.1.7.6",
+  "version": "2.1.8",
   "description": "An extension aiming to provide features that other Roblox extensions pay wall!",
   "content_scripts": [
-
     {
       "matches": [
         "*://*.roblox.com/*"
       ],
-      "js": ["content.js", "Games/Regions_content.js", "catalog/hiddencatalog.js","misc/itemCheckerFilters.js","misc/ItemChecker.js"],
+      "js": ["content.js", "catalog/hiddencatalog.js","misc/pages.js","settings.js"],
       "run_at": "document_start",
       "all_frames": true
-      
     },
     {
       "matches": [
         "*://*.roblox.com/*"
       ],
-      "js": ["settings.js",  "Games/sniper.js"],
+      "js": ["Games/sniper.js"],
       "all_frames": true
-     
     },
     {
       "matches": [
         "*://*.roblox.com/*"
       ],
-      "js": ["misc/style.js"],
+      "js": ["Games/Regions_content.js", "misc/style.js", "Games/RegionPlayButton.js","misc/itemCheckerFilters.js","misc/ItemChecker.js", "Games/Regions_contentSimple.js"],
       "run_at": "document_end",
       "all_frames": true
-      
     }
-
   ],
   "permissions": [
     "declarativeNetRequest",
@@ -48,7 +43,6 @@
   "background": {
     "service_worker": "background.js"
   },
-
   "declarative_net_request": {
     "rule_resources": [
       {
@@ -76,6 +70,7 @@
               "Games/Subplaces.js",
               "data/ServerList.json",
               "data/items.json",
+              "data/countries.json",
               "Avatar/R6Warning.js",
               "Avatar/R6Fix.js",
               "settings.js",
@@ -84,9 +79,9 @@
               "Games/sniper.js",
               "misc/ItemChecker.js",
               "misc/itemCheckerFilters.js",
-              "catalog/hiddencatalog.js"
-
-
+              "catalog/hiddencatalog.js",
+              "Games/Regions_contentSimple.js",
+              "misc/pendingRobux.js"
           ],
           "matches": [
               "https://www.roblox.com/*"

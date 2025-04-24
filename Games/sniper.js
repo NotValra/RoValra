@@ -201,28 +201,7 @@ async function fetchServers(placeId, initialImageUrl, updateRequestCount, update
                             if (joinButtonContainer) {
                                 const joinButton = joinButtonContainer.querySelector('#joinButton');
                                 if (joinButton) {
-                                    joinButton.onclick = function() {
-                                        const codeToInject = `
-                                          (function() {
-                                              if (typeof Roblox !== 'undefined' && Roblox.GameLauncher && Roblox.GameLauncher.joinGameInstance) {
-                                                Roblox.GameLauncher.joinGameInstance(parseInt('` + placeId + `', 10), String('` + thumbnailResult.requestId + `'));
-                                              } else {
-                                                console.error("Roblox.GameLauncher.joinGameInstance is not available in page context.");
-                                              }
-                                            })();
-                                          `;
-
-                                        chrome.runtime.sendMessage(
-                                            { action: "injectScript", codeToInject: codeToInject },
-                                            (response) => {
-                                                if (response && response.success) {
-                                                    console.log("Successfully joined best server");
-                                                } else {
-                                                    console.error("Failed to join best server:", response?.error || "Unknown error");
-                                                }
-                                            }
-                                        );
-                                    };
+                                    
                                 }
                             }
                             onServerFound(thumbnailResult.requestId);
@@ -463,7 +442,7 @@ function clearPreviousSearch() {
 
 function createSniperUI() {
     const thumbnailImage = document.createElement('img');
-    thumbnailImage.src = 'data:image/svg+xml,%3Csvg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"%3E%3CCircle cx="50" cy="50" r="49" stroke="%23808080" stroke-width="2" stroke-dasharray="6 6"/%3E%3C/svg%3E'; // Default placeholder - grey circle with dashed border
+    thumbnailImage.src = 'data:image/svg+xml,%3Csvg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"%3E%3CCircle cx="50" cy="50" r="49" stroke="%23808080" stroke-width="2" stroke-dasharray="6 6"/%3E%3C/svg%3E'; 
     thumbnailImage.style.cssText = `
         width: 55px;
         height: 55px;
@@ -634,14 +613,15 @@ async function fetchThemeFromAPI() {
 
 
 function injectButton() {
-    let targetElement = document.querySelector("#running-game-instances-container");
+    let targetElement = document.querySelector("#rbx-public-running-games");
     if (!targetElement) {
-        targetElement = document.querySelector("#running-game-instances-container");
+        targetElement = document.querySelector("#rbx-running-game-instances-container");
         if (!targetElement) {
             console.error("Target element not found to inject button");
-            return
+            return;
         }
     }
+
     sniperUIElements = createSniperUI();
     const { thumbnailImage, inputField, startButton, requestCountDisplay, elapsedTimeDisplay, displayContainer, requestCountNumber, elapsedTimeNumber } = sniperUIElements;
 
@@ -652,8 +632,8 @@ function injectButton() {
         font-size: 18px;
         font-family: "Builder Sans", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
         font-weight: bold;
-        margin-bottom: 0px; /* Reduced margin to put warning closer */
-        text-align: left; /* Align text to the left */
+        margin-bottom: 0px;
+        text-align: left;
         margin-left: 5px;
         pointer-events: none;
     `;
@@ -661,24 +641,23 @@ function injectButton() {
     const sniperWarningLabel = document.createElement('div');
     sniperWarningLabel.textContent = 'WARNING: Roblox updated making the sniper fail 80% of the time.';
     sniperWarningLabel.style.cssText = `
-        color: var(--text-color-header); /* Use same color as header for consistency or different color if desired */
-        font-size: 14px; /* Smaller font size for warning */
+        color: var(--text-color-header);
+        font-size: 14px;
         font-family: "Builder Sans", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
-        font-weight: normal; /* Or bold if you want it to stand out more */
-        margin-bottom: 5px; /* Space between warning and sniper UI */
-        text-align: left; /* Align text to the left */
+        font-weight: normal;
+        margin-bottom: 5px;
+        text-align: left;
         margin-left: 5px;
         pointer-events: none;
     `;
 
-
     const buttonContainer = document.createElement('div');
     buttonContainer.id = 'sniper-button-container';
     buttonContainer.style.cssText = `
-        display: flex; /* keep as row */
+        display: flex;
         justify-content: flex-start;
         align-items: center;
-        margin-bottom: 5px; /* Add some margin below the container */
+        margin-bottom: 5px;
     `;
     buttonContainer.appendChild(thumbnailImage);
     buttonContainer.appendChild(inputField);
@@ -689,9 +668,9 @@ function injectButton() {
     messageContainer.id = 'messageContainer';
     messageContainer.style.cssText = `
         display: flex;
-        justify-content: center; /* Center the content horizontally */
-        width: 100%; /* Full width of parent container */
-        margin-top: 5px; /* Add some space above the message */
+        justify-content: center;
+        width: 100%;
+        margin-top: 5px;
         color: var(--text-color);
         font-size: 14px;
         font-family: "Builder Sans", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
@@ -699,19 +678,10 @@ function injectButton() {
         pointer-events: none;
     `;
 
-
-    const rbxRunningGames = targetElement.querySelector("#rbx-running-games");
-    if (rbxRunningGames) {
-        targetElement.insertBefore(sniperHeaderLabel, rbxRunningGames); 
-        targetElement.insertBefore(sniperWarningLabel, rbxRunningGames); 
-        targetElement.insertBefore(buttonContainer, rbxRunningGames);
-        targetElement.insertBefore(messageContainer, rbxRunningGames);
-    } else {
-        targetElement.appendChild(sniperHeaderLabel); 
-        targetElement.appendChild(sniperWarningLabel); 
-        targetElement.appendChild(buttonContainer);
-        targetElement.appendChild(messageContainer);
-    }
+    targetElement.insertBefore(messageContainer, targetElement.firstChild);
+    targetElement.insertBefore(buttonContainer, messageContainer);
+    targetElement.insertBefore(sniperWarningLabel, buttonContainer);
+    targetElement.insertBefore(sniperHeaderLabel, sniperWarningLabel);
 
     let startTime = 0;
     let requestCount = 0;
@@ -855,28 +825,10 @@ function injectButton() {
                             joinButton.textContent = `Join Server ${requestId}`;
                             applyJoinButtonStyle(joinButton);
 
-                            joinButton.onclick = () => {
-                                const codeToInject = `
-                                  (function() {
-                                      if (typeof Roblox !== 'undefined' && Roblox.GameLauncher && Roblox.GameLauncher.joinGameInstance) {
-                                        Roblox.GameLauncher.joinGameInstance(parseInt('` + placeId + `', 10), String('` + requestId + `'));
-                                      } else {
-                                        console.error("Roblox.GameLauncher.joinGameInstance is not available in page context.");
-                                      }
-                                    })();
-                                  `;
+                           
 
-                                chrome.runtime.sendMessage(
-                                    { action: "injectScript", codeToInject: codeToInject },
-                                    (response) => {
-                                        if (response && response.success) {
-                                            console.log("Successfully joined best server");
-                                        } else {
-                                            console.error("Failed to join best server:", response?.error || "Unknown error");
-                                        }
-                                    }
-                                );
-                            };
+                               
+                         
 
                             joinButtonContainer.appendChild(joinButton);
                             messageContainer.after(joinButtonContainer);
@@ -980,23 +932,52 @@ function injectButton() {
 }
 
 async function initialize() {
-    const settings = await new Promise((resolve) => {
-        chrome.storage.local.get({ universalSniperEnabled: false }, (result) => {
-            resolve(result);
+    let universalSniperEnabled = true; 
+    
+    if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+        const settings = await new Promise((resolve) => {
+            chrome.storage.local.get({ universalSniperEnabled: true }, (result) => {
+                resolve(result);
+            });
         });
-    });
-    if (!settings.universalSniperEnabled) {
+        universalSniperEnabled = settings.universalSniperEnabled;
+    }
+
+    if (!universalSniperEnabled) {
         return;
     }
+
     if (getPlaceIdFromUrl() == null) {
         clearPreviousSearch()
     }
 
-    injectButton()
-    const theme = await fetchThemeFromAPI();
-    updateThemeStyles(theme);
-}
+    let attempts = 0;
+    const maxAttempts = 300; 
+    const startTime = performance.now();
 
+    function checkForElement(timestamp) {
+        const targetElement = document.querySelector("#rbx-public-running-games") || 
+                            document.querySelector("#rbx-running-game-instances-container");
+        
+        if (targetElement) {
+            injectButton();
+            fetchThemeFromAPI().then(theme => {
+                updateThemeStyles(theme);
+            });
+            return;
+        }
+
+        attempts++;
+        
+        if (attempts < maxAttempts) {
+            requestAnimationFrame(checkForElement);
+        } else {
+            console.warn("Could not find target element after 10 seconds");
+        }
+    }
+
+    requestAnimationFrame(checkForElement);
+}
 
 function updateThemeStyles(theme) {
     if (theme === 'dark') {
