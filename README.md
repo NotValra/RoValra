@@ -21,6 +21,7 @@
 
 # Features
 - **Games**
+    - **Join preffered region play button**
     - **Shows hidden games on profiles and groups**
     - **Join a server in a specific region**
     - **Shows Subplaces of a game**
@@ -43,6 +44,8 @@
 - **Avatar**
     - **Remove R6 Warning**
     - **R6 Fix. Stops Roblox from automatically switching your character to R15 when equipping dynamic heads.**
+- **Misc**
+    - **Shows an estimated for how many Robux will stop pending within 24 hours** 
 
 
 
