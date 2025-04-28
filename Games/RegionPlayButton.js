@@ -51,6 +51,7 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
             let isCurrentlyFetchingData = false;
             let serverIpMapLoaded = false;
             let userRequestedStop = false; 
+            let keepOverlayOpen = false;
 
             let csrfToken = null; 
             let csrfFetchAttempted = false; 
@@ -257,7 +258,7 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
 
                 const heading = document.createElement('h2'); heading.textContent = 'Select Your Preferred Server Region'; modalContent.appendChild(heading);
                 const explanation = document.createElement('p');
-                explanation.innerHTML = `Please select the server region closest to you for the best connection.<br><br><strong>Note:</strong> This can always be changed later by clicking the button again if no region is set.`; modalContent.appendChild(explanation);
+                explanation.innerHTML = `Please select the server region closest to you for the best connection.<br><br><strong>Note:</strong> This can always be changed later in settings.`; modalContent.appendChild(explanation);
 
                 const label = document.createElement('label'); label.setAttribute('for', `${MODAL_ID}-select`); label.textContent = 'Preferred Region:'; modalContent.appendChild(label);
                 const select = document.createElement('select'); select.id = `${MODAL_ID}-select`;
@@ -360,6 +361,10 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
                 backdrop.classList.add('visible');
             }
             function hideLoadingOverlay() { 
+                if (keepOverlayOpen) {
+                    return; 
+                }
+                
                 const overlay = document.getElementById(LOADING_OVERLAY_ID);
                 const backdrop = document.getElementById(`${LOADING_OVERLAY_ID}-backdrop`);
 
@@ -371,6 +376,10 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
                 }
 
                  setTimeout(() => {
+                    if (keepOverlayOpen) {
+                        return; 
+                    }
+                    
                     const currentOverlay = document.getElementById(LOADING_OVERLAY_ID);
                     if (currentOverlay && !currentOverlay.classList.contains('visible')) {
                         currentOverlay.remove();
@@ -742,18 +751,26 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
                     if (!userRequestedStop) { 
                         const overlayText = document.getElementById(`${LOADING_OVERLAY_ID}-text`);
                         const dotsContainer = document.getElementById(`${LOADING_OVERLAY_ID}-dots`);
+                        keepOverlayOpen = true; 
 
                         if (overlayText) {
                             overlayText.textContent = `No servers found in ${getFullLocationName(targetRegionCode)}.`;
                             if (dotsContainer) {
                                 dotsContainer.style.display = 'none'; 
-                            } else {
+                            }
+                            
+                            const closeButton = document.getElementById(`${LOADING_OVERLAY_ID}-close-button`);
+                            if (closeButton) {
+                                closeButton.addEventListener('click', () => {
+                                    keepOverlayOpen = false;
+                                    hideLoadingOverlay();
+                                }, { once: true });
                             }
                         } else {
+                            keepOverlayOpen = false;
                             alert(`Could not find any available servers in your preferred region (${getFullLocationName(targetRegionCode)}) after searching. Overlay might have closed unexpectedly.`);
                             hideLoadingOverlay();
                         }
-                    } else {
                     }
                     return; 
                 }
@@ -839,6 +856,7 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
 
                 userRequestedStop = false;
                 isCurrentlyFetchingData = true; 
+                keepOverlayOpen = false; 
                 showLoadingOverlay(); 
 
                 try {
@@ -862,7 +880,31 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
                          }
 
                          if (rateLimited && !userRequestedStop) { console.warn("Custom Button Extension: Proceeding after refresh, but rate limiting occurred during fetch. Data might be incomplete."); }
-                         if (!serverDataLoaded && !userRequestedStop) { throw new Error("Failed to load server data even after refresh."); }
+                         if (!serverDataLoaded && !userRequestedStop) { 
+                             keepOverlayOpen = true;
+                             const overlayText = document.getElementById(`${LOADING_OVERLAY_ID}-text`);
+                             const dotsContainer = document.getElementById(`${LOADING_OVERLAY_ID}-dots`);
+                             
+                             if (overlayText) {
+                                 overlayText.textContent = "No servers found.";
+                                 if (dotsContainer) {
+                                     dotsContainer.style.display = 'none';
+                                 }
+                                 
+                                 const closeButton = document.getElementById(`${LOADING_OVERLAY_ID}-close-button`);
+                                 if (closeButton) {
+                                     closeButton.addEventListener('click', () => {
+                                         keepOverlayOpen = false;
+                                         hideLoadingOverlay();
+                                     }, { once: true });
+                                 }
+                             } else {
+                                 keepOverlayOpen = false;
+                               
+                                 hideLoadingOverlay();
+                             }
+                             return;
+                         }
                     } else {
                          if (userLocation) {
                              allServers.forEach(server => {
@@ -883,11 +925,14 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
 
                 } catch (error) {
                      if (!userRequestedStop) {
+                         keepOverlayOpen = false;
                          alert(`An error occurred while trying to join the server: ${error.message || 'Unknown error'}. Please check the console for details.`);
                      }
                 }
                 finally {
-                     hideLoadingOverlay();
+                     if (!keepOverlayOpen) { 
+                         hideLoadingOverlay();
+                     }
                      isCurrentlyFetchingData = false; 
                      userRequestedStop = false;
                 }

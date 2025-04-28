@@ -2,7 +2,31 @@ let trackedServerRequests = [];
 let loadedScripts = [];
 let roValraLoaded = false;
 
-// Add preload hints for scripts we know we'll need
+const URL_MATCHERS = {
+    CATALOG: /^\/(?:[a-z]{2}\/)?catalog/,
+    BUNDLES: /^\/(?:[a-z]{2}\/)?bundles/,
+    COMMUNITIES: /^\/(?:[a-z]{2}\/)?communities/,
+    USERS: /^\/(?:[a-z]{2}\/)?users\//,
+    GAMES: /^\/(?:[a-z]{2}\/)?games\//,
+    AVATAR: /^\/(?:[a-z]{2}\/)?my\/avatar/
+};
+
+const PAGE_SETTINGS_MAP = {
+    CATALOG: ['itemSalesEnabled'],
+    BUNDLES: ['itemSalesEnabled'],
+    COMMUNITIES: ['groupGamesEnabled', 'pendingRobuxEnabled'],
+    USERS: ['userGamesEnabled', 'userSniperEnabled'],
+    GAMES: ['subplacesEnabled', 'universalSniperEnabled', 'inviteEnabled'],
+    AVATAR: ['forceR6Enabled', 'fixR6Enabled']
+};
+
+const getCurrentPathType = (path) => {
+    for (const [type, regex] of Object.entries(URL_MATCHERS)) {
+        if (regex.test(path)) return type;
+    }
+    return null;
+};
+
 const addPreloadHints = () => {
     if (!document.head) {
         document.addEventListener('DOMContentLoaded', addPreloadHints);
@@ -65,9 +89,6 @@ const loadScript = async (src, dataAttributes = {}) => {
             script.dataset[key] = dataAttributes[key];
         }
         
-        let retryCount = 0;
-        const maxRetries = 2;
-        
         const loadHandler = () => {
             const endTime = performance.now();
             const duration = (endTime - startTime).toFixed(2);
@@ -77,19 +98,12 @@ const loadScript = async (src, dataAttributes = {}) => {
             resolve();
         };
         
-        const errorHandler = async (error) => {
-            if (retryCount < maxRetries) {
-                retryCount++;
-                console.warn(`Retrying script load (${retryCount}/${maxRetries}):`, src);
-                await new Promise(r => setTimeout(r, 100 * retryCount));
-                script.src = scriptUrl + '?retry=' + retryCount; // Cache busting
-            } else {
-                loadedScripts.push({ src, error: "Failed to load after " + maxRetries + " attempts" });
-                console.error("Script failed to load:", src, error);
-                script.removeEventListener('load', loadHandler);
-                script.removeEventListener('error', errorHandler);
-                reject(error);
-            }
+        const errorHandler = (error) => {
+            loadedScripts.push({ src, error: "Failed to load" });
+            console.error("Script failed to load:", src, error);
+            script.removeEventListener('load', loadHandler);
+            script.removeEventListener('error', errorHandler);
+            reject(error);
         };
         
         script.addEventListener('load', loadHandler);
@@ -147,138 +161,111 @@ function getPlaceIdFromUrl() {
     
     addPreloadHints();
 
+    const currentPath = window.location.pathname;
+    const pathType = getCurrentPathType(currentPath);
+    
+    const requiredSettings = pathType ? PAGE_SETTINGS_MAP[pathType] : [];
+    const defaultSettings = {
+        hiddenCatalogEnabled: true,
+        itemSalesEnabled: true,
+        groupGamesEnabled: true,
+        userGamesEnabled: true,
+        userSniperEnabled: false,
+        universalSniperEnabled: true,
+        regionSelectorEnabled: true,
+        subplacesEnabled: true,
+        forceR6Enabled: true,
+        fixR6Enabled: false,
+        inviteEnabled: false,
+        regionSelectorInitialized: false,
+        regionSelectorFirstTime: true,
+        regionSimpleUi: false,
+        pendingRobuxEnabled: true,
+        PreferredRegionEnabled: true,
+        privateInventoryEnabled: true,
+    };
+
+    const settingsToLoad = {
+        ...defaultSettings,
+        ...Object.fromEntries(requiredSettings.map(key => [key, defaultSettings[key]]))
+    };
+
     const [settings, theme] = await Promise.all([
-        chrome.storage.local.get({
-            hiddenCatalogEnabled: true,
-            itemSalesEnabled: true,
-            groupGamesEnabled: true,
-            userGamesEnabled: true,
-            userSniperEnabled: false,
-            universalSniperEnabled: false,
-            regionSelectorEnabled: true,
-            subplacesEnabled: true,
-            forceR6Enabled: true,
-            fixR6Enabled: false,
-            inviteEnabled: false,
-            regionSelectorInitialized: false,
-            regionSelectorFirstTime: true,
-            regionSimpleUi: false,
-            pendingRobuxEnabled: true,
-            PreferredRegionEnabled: true,
-        }),
+        chrome.storage.local.get(settingsToLoad).then(savedSettings => ({
+            ...defaultSettings,
+            ...savedSettings
+        })),
         detectTheme()
     ]).catch(error => {
         console.error("Error in initial loading:", error);
-        return [{}];
+        return [settingsToLoad, 'light'];
     });
-    // There must be a better way to do this hehe
-    if (settings.inviteEnabled === false) {
-        await chrome.storage.local.set({ inviteEnabled: false });
-    }
-    if (settings.regionSelectorFirstTime === true) {
-        await chrome.storage.local.set({ regionSelectorFirstTime: true });
-    }
-    if (settings.hiddenCatalogEnabled === true) {
-        await chrome.storage.local.set({ hiddenCatalogEnabled: true });
-    }
-    if (settings.regionSelectorEnabled === true) {
-        await chrome.storage.local.set({ regionSelectorEnabled: true });
-    }
-    if (settings.universalSniperEnabled === true) {
-        await chrome.storage.local.set({ universalSniperEnabled: true });
-    }
 
-    if (settings.subplacesEnabled === true) {
-        await chrome.storage.local.set({ subplacesEnabled: true });
-    }
-    if (settings.forceR6Enabled === true) {
-        await chrome.storage.local.set({ forceR6Enabled: true });
-    }
-    if (settings.fixR6Enabled === true) {
-        await chrome.storage.local.set({ fixR6Enabled: true });
-    }
-    if (settings.userSniperEnabled === true) {
-        await chrome.storage.local.set({ userSniperEnabled: true });
-    }
-    if (settings.pendingRobuxEnabled === true) {
-        await chrome.storage.local.set({ pendingRobuxEnabled: true });
-    }
-    if (settings.PreferredRegionEnabled === true) {
-        await chrome.storage.local.set({ PreferredRegionEnabled: true });
-    }
-    if (settings.regionSimpleUi === true) {
-        await chrome.storage.local.set({ regionSimpleUi: true });
-    }
-    if (settings.regionSelectorInitialized === true) {
-        await chrome.storage.local.set({ regionSelectorInitialized: true });
+    const settingsToUpdate = {};
+    for (const [key, value] of Object.entries(settings)) {
+        if (defaultSettings[key] === true && value === true) {
+            settingsToUpdate[key] = true;
+        }
     }
     
-    if (settings.itemSalesEnabled === true) {
-        await chrome.storage.local.set({ itemSalesEnabled: true });
+    if (Object.keys(settingsToUpdate).length > 0) {
+        chrome.storage.local.set(settingsToUpdate).catch(error => {
+            console.error("Error saving settings:", error);
+        });
     }
-    if (settings.groupGamesEnabled === true) {
-        await chrome.storage.local.set({ groupGamesEnabled: true });
-    }
-    if (settings.userGamesEnabled === true) {
-        await chrome.storage.local.set({ userGamesEnabled: true });
-    }
-    if (settings.inviteEnabled === true) {
-        await chrome.storage.local.set({ inviteEnabled: true });
-    }
-   
 
-    const currentPath = window.location.pathname;
-    
     const scriptPromises = [];
     
-    if (settings.inviteEnabled && currentPath.includes('/games/')) {
-        scriptPromises.push(loadScript('Games/invite.js', { trackedRequests: JSON.stringify(trackedServerRequests) }));
+    switch (pathType) {
+        case 'CATALOG':
+        case 'BUNDLES':
+            if (settings.itemSalesEnabled) {
+                scriptPromises.push(loadScript('misc/item_sales_content.js', { itemsUrl: chrome.runtime.getURL('data/items.json') }));
+            }
+            break;
+        case 'COMMUNITIES':
+            if (settings.groupGamesEnabled) {
+                scriptPromises.push(loadScript('HiddenGames/group_games.js'));
+            }
+            if (settings.pendingRobuxEnabled) {
+                scriptPromises.push(loadScript('misc/pendingRobux.js'));
+            }
+            break;
+        case 'USERS':
+            if (settings.userGamesEnabled) {
+                scriptPromises.push(loadScript('HiddenGames/user_games.js'));
+            }
+            if (settings.userSniperEnabled) {
+                scriptPromises.push(loadScript('misc/userSniper.js'));
+            }
+            break;
+        case 'GAMES':
+            if (settings.subplacesEnabled) {
+                scriptPromises.push(loadScript('Games/Subplaces.js'));
+            }
+            if (settings.universalSniperEnabled) {
+                scriptPromises.push(loadScript('Games/sniper.js'));
+            }
+            if (settings.inviteEnabled) {
+                scriptPromises.push(loadScript('Games/invite.js', { trackedRequests: JSON.stringify(trackedServerRequests) }));
+            }
+            break;
+        case 'AVATAR':
+            if (settings.forceR6Enabled) {
+                scriptPromises.push(loadScript('Avatar/R6Warning.js'));
+            }
+            if (settings.fixR6Enabled) {
+                scriptPromises.push(loadScript('Avatar/R6Fix.js'));
+            }
+            break;
     }
 
-    if (currentPath.includes('/catalog') || currentPath.includes('/bundles')) {
-        if (settings.itemSalesEnabled) {
-            scriptPromises.push(loadScript('misc/item_sales_content.js', { itemsUrl: chrome.runtime.getURL('data/items.json') }));
-        }
-    } else if (currentPath.includes('/communities')) {
-        if (settings.groupGamesEnabled) {
-            scriptPromises.push(loadScript('HiddenGames/group_games.js'));
-        }
-        if (settings.pendingRobuxEnabled) {
-            scriptPromises.push(loadScript('misc/pendingRobux.js'));
-        }
-    } else if (currentPath.includes('/users/')) {
-        if (settings.userGamesEnabled) {
-            scriptPromises.push(loadScript('HiddenGames/user_games.js'));
-        }
-        if (settings.userSniperEnabled) {
-            scriptPromises.push(loadScript('misc/userSniper.js'));
-        }
-    } else if (currentPath.includes('/games/')) {
-        if (settings.subplacesEnabled) {
-            scriptPromises.push(loadScript('Games/Subplaces.js'));
-        }
-        if (settings.universalSniperEnabled) {
-            scriptPromises.push(loadScript('Games/sniper.js'));
-        }
-    }
-
-    if (currentPath.includes('/my/avatar')) {
-        if (settings.forceR6Enabled) {
-            scriptPromises.push(loadScript('Avatar/R6Warning.js'));
-        }
-        if (settings.fixR6Enabled) {
-            scriptPromises.push(loadScript('Avatar/R6Fix.js'));
-        }
-    }
-
+    await loadScript('misc/style.js');
     
-
     await Promise.all(scriptPromises).catch(error => console.error("Error loading scripts:", error));
 
     dispatchThemeEvent(theme);
     document.body.classList.toggle('dark-mode', theme === 'dark');
-
-    await loadScript('misc/style.js');
 
     const loadEndTime = performance.now();
     const totalLoadDuration = (loadEndTime - loadStartTime).toFixed(2);

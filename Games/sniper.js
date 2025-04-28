@@ -615,7 +615,7 @@ async function fetchThemeFromAPI() {
 function injectButton() {
     let targetElement = document.querySelector("#rbx-public-running-games");
     if (!targetElement) {
-        targetElement = document.querySelector("#rbx-running-game-instances-container");
+        targetElement = document.querySelector("#running-game-instances-container");
         if (!targetElement) {
             console.error("Target element not found to inject button");
             return;
@@ -825,10 +825,20 @@ function injectButton() {
                             joinButton.textContent = `Join Server ${requestId}`;
                             applyJoinButtonStyle(joinButton);
 
-                           
-
-                               
-                         
+                            joinButton.onclick = () => {
+                                try {
+                                    if (typeof Roblox !== 'undefined' && Roblox.GameLauncher && Roblox.GameLauncher.joinGameInstance) {
+                                        Roblox.GameLauncher.joinGameInstance(parseInt(placeId, 10), String(requestId));
+                                        console.log("Attempting to join server:", requestId);
+                                    } else {
+                                        console.error("Roblox.GameLauncher.joinGameInstance is not available");
+                                        alert("Unable to join server: Roblox launcher not available");
+                                    }
+                                } catch (error) {
+                                    console.error("Failed to join server:", error);
+                                    alert("Error joining server: " + error.message);
+                                }
+                            };
 
                             joinButtonContainer.appendChild(joinButton);
                             messageContainer.after(joinButtonContainer);
@@ -867,26 +877,18 @@ function injectButton() {
                             joinButton.textContent = `Join Server ${requestId}`;
                             applyJoinButtonStyle(joinButton);
                             joinButton.onclick = () => {
-                                const codeToInject = `
-                                  (function() {
-                                      if (typeof Roblox !== 'undefined' && Roblox.GameLauncher && Roblox.GameLauncher.joinGameInstance) {
-                                        Roblox.GameLauncher.joinGameInstance(parseInt('` + placeId + `', 10), String('` + requestId + `'));
-                                      } else {
-                                        console.error("Roblox.GameLauncher.joinGameInstance is not available in page context.");
-                                      }
-                                    })();
-                                  `;
-
-                                chrome.runtime.sendMessage(
-                                    { action: "injectScript", codeToInject: codeToInject },
-                                    (response) => {
-                                        if (response && response.success) {
-                                            console.log("Successfully joined best server");
-                                        } else {
-                                            console.error("Failed to join best server:", response?.error || "Unknown error");
-                                        }
+                                try {
+                                    if (typeof Roblox !== 'undefined' && Roblox.GameLauncher && Roblox.GameLauncher.joinGameInstance) {
+                                        Roblox.GameLauncher.joinGameInstance(parseInt(placeId, 10), String(requestId));
+                                        console.log("Attempting to join server:", requestId);
+                                    } else {
+                                        console.error("Roblox.GameLauncher.joinGameInstance is not available");
+                                        alert("Unable to join server: Roblox launcher not available");
                                     }
-                                );
+                                } catch (error) {
+                                    console.error("Failed to join server:", error);
+                                    alert("Error joining server: " + error.message);
+                                }
                             };
 
                             joinButtonContainer.appendChild(joinButton);
@@ -956,10 +958,13 @@ async function initialize() {
     const startTime = performance.now();
 
     function checkForElement(timestamp) {
-        const targetElement = document.querySelector("#rbx-public-running-games") || 
-                            document.querySelector("#rbx-running-game-instances-container");
+        const publicRunningGames = document.querySelector("#rbx-public-running-games");
+        const runningGameInstances = document.querySelector("#running-game-instances-container");
         
-        if (targetElement) {
+        const isPublicRunningGamesReady = publicRunningGames !== null;
+        const isRunningGameInstancesReady = runningGameInstances !== null && runningGameInstances.children.length > 0;
+        
+        if (isPublicRunningGamesReady || isRunningGameInstancesReady) {
             injectButton();
             fetchThemeFromAPI().then(theme => {
                 updateThemeStyles(theme);

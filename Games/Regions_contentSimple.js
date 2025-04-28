@@ -53,6 +53,8 @@ chrome.storage.local.get({ regionSelectorEnabled: false, showServerListOverlay: 
             let serverScores = {};
             let isRefreshing = false;
             let rateLimited = false;
+            let nextPageCursor = null;
+            let regionSpecificServers = {}; 
 
             let isFetchingServersForRegion = {}; 
             let isSearchingMoreRegions = false;
@@ -81,6 +83,11 @@ chrome.storage.local.get({ regionSelectorEnabled: false, showServerListOverlay: 
             let activeRequests = 0;
 
             let currentTheme = null; 
+
+            let thumbnailCache = new Map();
+            let serverEntryCache = new Map();
+            const BATCH_SIZE = 8; 
+            const THUMBNAIL_BATCH_SIZE = 50;
 
             
 
@@ -163,7 +170,7 @@ chrome.storage.local.get({ regionSelectorEnabled: false, showServerListOverlay: 
             }
 
 
-            async function getServerInfo(placeId, robloxCookie, regions, initialCall = true) {
+            async function getServerInfo(placeId, robloxCookie, regions, initialCall = true, cursor = null, specificRegion = null) {
                 const MAX_RETRIES = 5; 
                 const INITIAL_BACKOFF_MS = 2000; 
                 const BACKOFF_FACTOR = 2; 
@@ -183,13 +190,16 @@ chrome.storage.local.get({ regionSelectorEnabled: false, showServerListOverlay: 
             
                 try {
                     if (initialCall) {
-                        allServers = [];
-                        regionCounts = {};
-                        serverLocations = {};
-                    } else {
-                        allServers = [];
-                        regionCounts = {};
-                        serverLocations = {};
+                        if (!specificRegion) {
+                            allServers = [];
+                            regionCounts = {};
+                            serverLocations = {};
+                            regionSpecificServers = {};
+                            nextPageCursor = null;
+                        } else {
+                            regionSpecificServers[specificRegion] = [];
+                            regionCounts[specificRegion] = 0;
+                        }
                     }
                     await updatePopup(); 
             
@@ -198,7 +208,10 @@ chrome.storage.local.get({ regionSelectorEnabled: false, showServerListOverlay: 
                         let response = null;
             
                         try {
-                            const url = `https://games.roblox.com/v1/games/${placeId}/servers/Public?excludeFullGames=true&limit=100`;
+                            let url = `https://games.roblox.com/v1/games/${placeId}/servers/Public?excludeFullGames=true&limit=100`;
+                            if (cursor) {
+                                url += `&cursor=${cursor}`;
+                            }
             
                             response = await fetch(url, {
                                 headers: { 'Accept': 'application/json' },
@@ -210,15 +223,29 @@ chrome.storage.local.get({ regionSelectorEnabled: false, showServerListOverlay: 
                                 handleRateLimitedState(false); 
             
                                 const servers = await response.json();
+                                nextPageCursor = servers.nextPageCursor;
             
                                 if (!servers.data || servers.data.length === 0) {
-                                    allServers = [];
+                                    if (initialCall && !specificRegion) {
+                                        allServers = [];
+                                    }
                                 } else {
                                     const currentBatchServers = servers.data;
-                                    allServers = currentBatchServers; 
-            
+                                    
+                                    currentBatchServers.forEach(server => {
+                                        server._uniqueId = Date.now() + "_" + Math.random().toString(36).substr(2, 9);
+                                    });
+                                    
+                                    if (initialCall && !specificRegion) {
+                                        allServers = currentBatchServers;
+                                    } else {
+                                        const existingIds = new Set(allServers.map(s => s.id));
+                                        const newServers = currentBatchServers.filter(s => !existingIds.has(s.id));
+                                        allServers = [...allServers, ...newServers];
+                                    }
+
                                     const serverPromises = currentBatchServers.map(server =>
-                                        handleServer(server, placeId, robloxCookie, regions)
+                                        handleServer(server, placeId, robloxCookie, regions, specificRegion)
                                             .catch(err => {
                                                 return null;
                                             })
@@ -254,8 +281,12 @@ chrome.storage.local.get({ regionSelectorEnabled: false, showServerListOverlay: 
                         }
                     } 
             
-                    if (!success && rateLimited) {
-                    } else if (!success && !rateLimited) {
+                    if (specificRegion) {
+                        updateRegionSpecificCache(specificRegion);
+                    } else {
+                        Object.keys(regionCounts).forEach(region => {
+                            updateRegionSpecificCache(region);
+                        });
                     }
             
                 } catch (outerError) {
@@ -265,6 +296,14 @@ chrome.storage.local.get({ regionSelectorEnabled: false, showServerListOverlay: 
                     handleRateLimitedState(rateLimited);
                     await updatePopup(); 
                 }
+            }
+
+            function updateRegionSpecificCache(region) {
+                if (!region) return;
+                
+                regionSpecificServers[region] = allServers.filter(server => 
+                    serverLocations[server.id]?.c === region
+                );
             }
 
 
@@ -347,7 +386,7 @@ chrome.storage.local.get({ regionSelectorEnabled: false, showServerListOverlay: 
             
             someActionThatNeedsCsrf();
 
-            async function handleServer(server, placeId, robloxCookie, targetRegions) {
+            async function handleServer(server, placeId, robloxCookie, targetRegions, specificRegion = null) {
                  if (!server || !server.id) {
                     return null;
                 }
@@ -359,6 +398,15 @@ chrome.storage.local.get({ regionSelectorEnabled: false, showServerListOverlay: 
                     if (cachedRegionCode) {
                         if (cachedRegionCode !== "??") {
                             regionCounts[cachedRegionCode] = (regionCounts[cachedRegionCode] || 0) + 1;
+                            
+                            if (specificRegion && cachedRegionCode === specificRegion) {
+                                if (!regionSpecificServers[specificRegion]) {
+                                    regionSpecificServers[specificRegion] = [];
+                                }
+                                if (!regionSpecificServers[specificRegion].some(s => s.id === serverId)) {
+                                    regionSpecificServers[specificRegion].push(server);
+                                }
+                            }
                         }
                         return cachedRegionCode;
                     }
@@ -548,46 +596,76 @@ chrome.storage.local.get({ regionSelectorEnabled: false, showServerListOverlay: 
                         return null;
                     }
 
-                     await Promise.all(combinedServers.map(async server => {
-                         const serverId = server.id;
-                         if (server.calculatedPing === undefined || isNaN(server.calculatedPing) || server.calculatedPing === Infinity) {
-                             const locationInfo = serverLocations[serverId]?.l;
-                             if (locationInfo && typeof locationInfo.latitude === 'number') {
-                                 const distance = calculateDistance(userLocation.latitude, userLocation.longitude, locationInfo.latitude, locationInfo.longitude);
-                                 server.calculatedPing = !isNaN(distance) ? Math.round(distance * 0.1) : Infinity;
-                             } else {
-                                 server.calculatedPing = Infinity;
-                             }
-                         }
-                     }));
-
-
-                    const serverScoresResults = combinedServers.map(server => {
+                    const serverScoresPromises = combinedServers.map(async server => {
                         const serverId = server.id;
-                        let ping = server.calculatedPing ?? Infinity;
+                        let serverLat = 0;
+                        let serverLon = 0;
+                        
+                        const locationInfo = serverLocations[serverId]?.l;
+                        if (locationInfo && typeof locationInfo.latitude === 'number') {
+                            serverLat = locationInfo.latitude;
+                            serverLon = locationInfo.longitude;
+                        }
+                        
+                        if (isNaN(serverLat) || isNaN(serverLon) || serverLat === 0 || serverLon === 0) {
+                            return { server, score: 0, serverId };
+                        }
+                        
+                        const distance = calculateDistance(
+                            userLocation.latitude,
+                            userLocation.longitude,
+                            serverLat,
+                            serverLon
+                        );
+                        
+                        if (isNaN(distance)) {
+                            return { server, score: 0, serverId };
+                        }
+                        
+                        server.calculatedPing = Math.round(distance * 0.05);
+                        let ping = server.calculatedPing;
                         let fps = server.fps || 0;
-                        const MAX_PING = 300;
-                        const MAX_FPS = 60;
-                        const pingScore = Math.max(0, 1 - (Math.min(ping, MAX_PING) / MAX_PING));
-                        const fpsScore = fps > 0 ? Math.max(0, fps / MAX_FPS) : 0.5;
-                        const pingWeight = fps > 0 ? 0.6 : 1.0;
-                        const fpsWeight = fps > 0 ? 0.4 : 0.0;
-                        const score = (pingWeight * pingScore) + (fpsWeight * fpsScore);
-                        if (ping === Infinity) return { server, score: -Infinity, serverId };
+                        
+                        ping = typeof ping === 'number' && !isNaN(ping) ? ping : 0;
+                        fps = typeof fps === 'number' && !isNaN(fps) ? fps : 0;
+                        
+                        if (isNaN(fps) || fps < 0) {
+                            fps = 0;
+                        }
+                        
+                        if (isNaN(ping) || ping < 0) {
+                            ping = 0;
+                        }
+                        
+                        const normalizedFPS = fps / 60;
+                        const pingFactor = Math.max(0, 1 - (ping / 1000)); 
+                        const clampedFPS = Math.max(0, Math.min(1, normalizedFPS));
+                        
+                        const fpsWeight = 0.4;
+                        const pingWeight = 0.6;
+                        const score = (pingWeight * pingFactor) + (fpsWeight * clampedFPS);
+                        
                         return { server, score, serverId };
                     });
 
-                    const validServers = serverScoresResults.filter(result => result && result.score > -Infinity);
+                    const serverScores = await Promise.all(serverScoresPromises);
+                    const validServerScores = serverScores.filter(result => result.score > 0);
 
-                     if (validServers.length === 0) {
-                         combinedServers.sort((a, b) => (b.playing || 0) - (a.playing || 0));
-                         isFindingBestServer = false;
-                         return combinedServers.length > 0 ? combinedServers[0] : null;
-                     }
-
-                    validServers.sort((a, b) => b.score - a.score);
-                    bestServer = validServers[0].server;
-                    bestScore = validServers[0].score;
+                    if (validServerScores.length === 0) {
+                        combinedServers.sort((a, b) => (b.playing || 0) - (a.playing || 0));
+                        isFindingBestServer = false;
+                        return combinedServers.length > 0 ? combinedServers[0] : null;
+                    }
+                    
+                    validServerScores.forEach((result) => {
+                        if (result) {
+                            const { server, score } = result;
+                            if (score > bestScore) {
+                                bestScore = score;
+                                bestServer = server;
+                            }
+                        }
+                    });
 
                     isFindingBestServer = false;
                     return bestServer;
@@ -657,7 +735,9 @@ chrome.storage.local.get({ regionSelectorEnabled: false, showServerListOverlay: 
                              const serverLoc = serverLocations[serverId]?.l;
                              if (serverLoc && typeof serverLoc.latitude === 'number') {
                                   const distance = calculateDistance(userLocation.latitude, userLocation.longitude, serverLoc.latitude, serverLoc.longitude);
-                                  if (!isNaN(distance)) ipData.calculatedPing = Math.round(distance * 0.1);
+                                  if (!isNaN(distance)) {
+                                      ipData.calculatedPing = Math.round(distance * 0.05);
+                                  }
                              }
                          }
                     }
@@ -701,23 +781,35 @@ chrome.storage.local.get({ regionSelectorEnabled: false, showServerListOverlay: 
                     const regionServerScores = regionServers.map(server => {
                         const serverId = server.id;
             
-                      
+                        if (server.calculatedPing === undefined || isNaN(server.calculatedPing) || server.calculatedPing === Infinity) {
+                            const serverLoc = serverLocations[server.id]?.l;
+                            if (serverLoc && typeof serverLoc.latitude === 'number') {
+                                const dist = calculateDistance(userLocation.latitude, userLocation.longitude, serverLoc.latitude, serverLoc.longitude);
+                                if (!isNaN(dist)) {
+                                    server.calculatedPing = Math.round(dist * 0.05);
+                                } else {
+                                    server.calculatedPing = Infinity;
+                                }
+                            } else {
+                                server.calculatedPing = Infinity;
+                            }
+                        }
+                        
                         let ping = server.calculatedPing ?? Infinity;
-            
                         let fps = server.fps || 0;
-                        const MAX_PING = 300; const MAX_FPS = 60; 
             
                         if (ping === Infinity) {
                             return { server, score: -Infinity };
                         }
             
-                        const pingScore = Math.max(0, 1 - (Math.min(ping, MAX_PING) / MAX_PING));
-                        const fpsScore = fps > 0 ? Math.max(0, fps / MAX_FPS) : 0.5; 
-            
-                        const pingWeight = fps > 0 ? 0.6 : 1.0;
-                        const fpsWeight = fps > 0 ? 0.4 : 0.0;
-            
-                        const score = (pingWeight * pingScore) + (fpsWeight * fpsScore);
+                        const normalizedFPS = fps / 60;
+                        const pingFactor = Math.max(0, 1 - (ping / 1000)); 
+                        const clampedFPS = Math.max(0, Math.min(1, normalizedFPS));
+                        
+                        const fpsWeight = 0.4;
+                        const pingWeight = 0.6;
+                        
+                        const score = (pingWeight * pingFactor) + (fpsWeight * clampedFPS);
             
                         return { server, score };
                     });
@@ -796,12 +888,12 @@ chrome.storage.local.get({ regionSelectorEnabled: false, showServerListOverlay: 
                     const tokenBatch = tokens.slice(i, i + batchSize);
                     if (tokenBatch.length === 0) continue;
                     const requests = tokenBatch.map(token => ({
-                         requestId: `${token}::AvatarHeadshot:150x150:png:regular`,
+                         requestId: `${token}::AvatarHeadshot:48x48:webp:regular`,
                          type: "AvatarHeadShot",
                          targetId: 0,
                          token: token,
-                         format: "png",
-                         size: "150x150"
+                         format: "webp",
+                         size: "48x48"
                     }));
                     const fetchPromise = fetch(baseUrl, {
                         method: 'POST',
@@ -883,6 +975,7 @@ async function updatePopup(retries = 5) {
         const regionDropdown = document.getElementById('regionDropdown');
         const regionListContainer = document.getElementById('rovalra-region-list-container');
         const refreshButton = regionDropdown?.querySelector('button[title="Refresh Server List"]');
+        const loadMoreButton = regionDropdown?.querySelector('button[title="Load More Servers"]');
 
         if (regionListContainer && !regionListContainer.dataset.scrollListenerAttached) {
              addScrollListenerToListContainer(regionListContainer);
@@ -904,6 +997,11 @@ async function updatePopup(retries = 5) {
                         refreshButton.style.color = (isRefreshing || rateLimited) ? (isDarkMode ? '#888' : '#999') : (isDarkMode ? '#ccc' : '#555');
                         refreshButton.disabled = isRefreshing || rateLimited;
                         refreshButton.style.cursor = (isRefreshing || rateLimited) ? 'not-allowed' : 'pointer';
+                    }
+                    if (loadMoreButton) {
+                        loadMoreButton.style.color = (isRefreshing || rateLimited || !nextPageCursor) ? (isDarkMode ? '#888' : '#999') : (isDarkMode ? '#ccc' : '#555');
+                        loadMoreButton.disabled = isRefreshing || rateLimited || !nextPageCursor;
+                        loadMoreButton.style.cursor = (isRefreshing || rateLimited || !nextPageCursor) ? 'not-allowed' : 'pointer';
                     }
                     const icon = headerContainer.querySelector('img');
                     if(icon && icon.alt === "RoValra Icon") { }
@@ -994,6 +1092,9 @@ async function updatePopup(retries = 5) {
     titleText.textContent = "RoValra Region Selector";
     titleText.style.cssText = `color: ${isDarkMode ? 'white' : 'rgb(39, 41, 48)'}; font-size: 16px; font-weight: 700; margin: 0; flex-grow: 1;`;
 
+    const buttonContainer = document.createElement('div');
+    buttonContainer.style.cssText = `display: flex; gap: 5px;`;
+
     const refreshButton = document.createElement('button');
     refreshButton.innerHTML = '↻';
     refreshButton.title = 'Refresh Server List';
@@ -1010,11 +1111,39 @@ async function updatePopup(retries = 5) {
             refreshButton.style.color = isDarkMode ? '#888' : '#999';
             const listContainer = document.getElementById('rovalra-region-list-container');
             if(listContainer) { listContainer.innerHTML = `<div style="text-align:center; padding: 20px; color: ${isDarkMode ? '#aaa' : '#666'};">Refreshing...</div>`; }
-            await getServerInfo(placeId, null, defaultRegions, false);
+            await getServerInfo(placeId, null, defaultRegions, true);
         }
     };
 
-    headerContainer.append(iconImage, titleText, refreshButton);
+    const loadMoreButton = document.createElement('button');
+    loadMoreButton.innerHTML = `<svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M21 21L16.65 16.65M11 6C13.7614 6 16 8.23858 16 11M19 11C19 15.4183 15.4183 19 11 19C6.58172 19 3 15.4183 3 11C3 6.58172 6.58172 3 11 3C15.4183 3 19 6.58172 19 11Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>`;
+    loadMoreButton.title = 'Load More Servers';
+    loadMoreButton.style.cssText = `
+        background: none; border: none;
+        color: ${(nextPageCursor) ? (isDarkMode ? '#ccc' : '#555') : (isDarkMode ? '#888' : '#999')};
+        font-size: 18px; cursor: ${(nextPageCursor) ? 'pointer' : 'not-allowed'}; padding: 0 5px;
+        width: 26px;
+        height: 26px;
+    `;
+    loadMoreButton.disabled = !nextPageCursor;
+    loadMoreButton.onclick = async (e) => {
+        e.stopPropagation();
+        if (!isRefreshing && !rateLimited && nextPageCursor) {
+            loadMoreButton.disabled = true;
+            loadMoreButton.style.cursor = 'wait';
+            loadMoreButton.style.color = isDarkMode ? '#888' : '#999';
+            await getServerInfo(placeId, null, defaultRegions, false, nextPageCursor);
+            loadMoreButton.disabled = !nextPageCursor;
+            loadMoreButton.style.cursor = nextPageCursor ? 'pointer' : 'not-allowed';
+            loadMoreButton.style.color = (nextPageCursor) ? (isDarkMode ? '#ccc' : '#555') : (isDarkMode ? '#888' : '#999');
+        }
+    };
+
+    buttonContainer.appendChild(loadMoreButton);
+    buttonContainer.appendChild(refreshButton);
+    headerContainer.append(iconImage, titleText, buttonContainer);
     regionDropdown.appendChild(headerContainer);
 
     const regionListContainer = document.createElement('div');
@@ -1064,6 +1193,10 @@ async function updatePopup(retries = 5) {
     refreshButton.disabled = isRefreshing || rateLimited;
     refreshButton.style.cursor = (isRefreshing || rateLimited) ? 'not-allowed' : 'pointer';
     refreshButton.style.color = (isRefreshing || rateLimited) ? (isDarkMode ? '#888' : '#999') : (isDarkMode ? '#ccc' : '#555');
+    
+    loadMoreButton.disabled = isRefreshing || rateLimited || !nextPageCursor;
+    loadMoreButton.style.cursor = (isRefreshing || rateLimited || !nextPageCursor) ? 'not-allowed' : 'pointer';
+    loadMoreButton.style.color = (isRefreshing || rateLimited || !nextPageCursor) ? (isDarkMode ? '#888' : '#999') : (isDarkMode ? '#ccc' : '#555');
 
 } 
 
@@ -1139,17 +1272,61 @@ async function populateRegionList(listContainer) {
 
     for (const continent in groupedRegions) {
         groupedRegions[continent].sort((a, b) => {
+            if (a.code === "BR") return 1;
+            if (b.code === "BR") return -1;
+            
             if (a.count > 0 && b.count === 0) return -1;
             if (a.count === 0 && b.count > 0) return 1;
+            
+            if (userLocation && typeof userLocation.latitude === 'number' && typeof userLocation.longitude === 'number') {
+                const coordsA = regionCoordinates[a.code];
+                const coordsB = regionCoordinates[b.code];
+                
+                if (coordsA && coordsB) {
+                    const distanceA = calculateDistance(
+                        userLocation.latitude, 
+                        userLocation.longitude, 
+                        coordsA.latitude, 
+                        coordsA.longitude
+                    );
+                    
+                    const distanceB = calculateDistance(
+                        userLocation.latitude, 
+                        userLocation.longitude, 
+                        coordsB.latitude, 
+                        coordsB.longitude
+                    );
+                    
+                    if (!isNaN(distanceA) && !isNaN(distanceB)) {
+                        return distanceA - distanceB; 
+                    }
+                }
+            }
+            
             return a.name.localeCompare(b.name);
         });
     }
 
     const sortedContinents = Object.keys(groupedRegions).sort((a, b) => {
+        const hasRegionBR_A = groupedRegions[a].some(region => region.code === "BR");
+        const hasRegionBR_B = groupedRegions[b].some(region => region.code === "BR");
+        
+        if (hasRegionBR_A && !hasRegionBR_B) return 1; 
+        if (!hasRegionBR_A && hasRegionBR_B) return -1; 
+        
         if (a === "Unknown" && b !== "Unknown") return 1;
         if (a !== "Unknown" && b === "Unknown") return -1;
         if (a === "Unknown" && b === "Unknown") return 0;
-
+        
+        if (userLocation && typeof userLocation.latitude === 'number' && typeof userLocation.longitude === 'number') {
+            const avgDistanceA = calculateAverageDistanceForContinent(groupedRegions[a], userLocation);
+            const avgDistanceB = calculateAverageDistanceForContinent(groupedRegions[b], userLocation);
+            
+            if (!isNaN(avgDistanceA) && !isNaN(avgDistanceB)) {
+                return avgDistanceA - avgDistanceB;
+            }
+        }
+        
         const totalServersA = groupedRegions[a].reduce((sum, region) => sum + region.count, 0);
         const totalServersB = groupedRegions[b].reduce((sum, region) => sum + region.count, 0);
 
@@ -1159,6 +1336,31 @@ async function populateRegionList(listContainer) {
         return a.localeCompare(b);
     });
 
+    function calculateAverageDistanceForContinent(regions, userLoc) {
+        if (!regions || !regions.length || !userLoc) return NaN;
+        
+        let totalDistance = 0;
+        let countWithCoords = 0;
+        
+        for (const region of regions) {
+            const coords = regionCoordinates[region.code];
+            if (coords && typeof coords.latitude === 'number' && typeof coords.longitude === 'number') {
+                const distance = calculateDistance(
+                    userLoc.latitude, 
+                    userLoc.longitude, 
+                    coords.latitude, 
+                    coords.longitude
+                );
+                
+                if (!isNaN(distance)) {
+                    totalDistance += distance;
+                    countWithCoords++;
+                }
+            }
+        }
+        
+        return countWithCoords > 0 ? totalDistance / countWithCoords : NaN;
+    }
 
     let totalServersFound = regionsData.reduce((sum, region) => sum + region.count, 0) + unknownServerCount;
     if (sortedContinents.length === 0 && unknownServerCount === 0 && !isRefreshing) {
@@ -1300,7 +1502,20 @@ async function populateRegionList(listContainer) {
 
                 try {
 
-                    serverListState = { ...serverListState, visibleServerCount: 0, fetchedServerIds: new Set(), renderedServerIds: new Set(), servers: [], loading: false, renderedServersData: new Map() };
+                    serverListState = { 
+                        ...serverListState, 
+                        visibleServerCount: 0, 
+                        fetchedServerIds: new Set(), 
+                        renderedServerIds: new Set(), 
+                        servers: [], 
+                        loading: false, 
+                        renderedServersData: new Map(),
+                        virtualized: true, 
+                        viewportHeight: 0,
+                        itemHeight: 175, 
+                        visibleRange: { start: 0, end: 0 },
+                        currentRegion: region
+                    };
 
                     modalOverlay = document.createElement('div');
                     modalOverlay.id = 'rovalra-server-list-overlay';
@@ -1358,6 +1573,8 @@ async function populateRegionList(listContainer) {
                         };
                         controlsContainer.appendChild(sortDropdown);
 
+                    
+
                     const closeModal = () => {
                             const overlay = document.getElementById('rovalra-server-list-overlay');
                             if (overlay) {
@@ -1405,33 +1622,55 @@ async function populateRegionList(listContainer) {
                     modalOverlay.style.opacity = '1';
                     modalContent.style.transform = 'scale(1)';
 
-                    let serversInRegion = allServers.filter(server => serverLocations[server.id]?.c === region);
+                    if (!regionSpecificServers[region] || regionSpecificServers[region].length === 0) {
+                        const focusButton = document.createElement('button');
+                        focusButton.id = 'focus-region-button';
+                        focusButton.textContent = 'Focus on this region';
+                        focusButton.style.cssText = `
+                            padding: 6px 15px; border-radius: 6px; cursor: pointer; 
+                            font-size: 14px; font-weight: 600;
+                            background-color: ${isDarkMode ? '#2a8c3a' : '#2a8c3a'}; 
+                            border: none;
+                            color: white; 
+                            transition: background-color 0.2s ease;
+                        `;
+                        focusButton.onclick = async () => {
+                            focusButton.disabled = true;
+                            focusButton.textContent = 'Loading...';
+                            focusButton.style.opacity = '0.6';
+                            
+                            await getServerInfo(placeId, null, [region], true, null, region);
+                            
+                            let serversInRegion = regionSpecificServers[region] || [];
+                            if (serversInRegion.length === 0) {
+                                serversInRegion = allServers.filter(server => serverLocations[server.id]?.c === region);
+                            }
+                            
+                            serverListState.servers = serversInRegion;
+                            await sortServers();
+                            await renderFullServerList();
+                            
+                            focusButton.disabled = false;
+                            focusButton.textContent = 'Focus on this region';
+                            focusButton.style.opacity = '1';
+                        };
+                        controlsContainer.appendChild(focusButton);
+                    }
+
+                    let serversInRegion = regionSpecificServers[region] || allServers.filter(server => serverLocations[server.id]?.c === region);
 
                     if (serversInRegion.length === 0) {
                         serverList.innerHTML = `<p style="text-align:center; padding: 40px 0; font-weight:bold; color:${isDarkMode ? '#aaa' : '#666'};">No servers found in this region. Try refreshing.</p>`;
                     } else {
                         serverListState.servers = serversInRegion;
                         await sortServers();
+                        
+                        serverListState.viewportHeight = window.innerHeight * 0.7; 
+                        setupVirtualizedRendering(serverListArea, serverList);
+                        
                         await renderFullServerList();
-
-                        const serversPerPage = 15;
-                        const handler = debounce(async () => {
-                            if (serverListState.loading) return;
-                            const el = document.getElementById('rovalra-server-list-content-area');
-                            if (!el) return;
-                            if (el.scrollHeight - el.scrollTop - el.clientHeight < 300 && serverListState.visibleServerCount < serverListState.servers.length) {
-                                serverListState.loading = true;
-                                const indicator = document.createElement('p'); indicator.id = 'rovalra-loading-more';
-                                indicator.textContent = 'Loading more...'; indicator.style.cssText=`text-align: center; padding: 15px; color: ${isDarkMode ? '#888' : '#777'};`;
-                                document.getElementById('rovalra-actual-server-list')?.appendChild(indicator);
-                                await appendServers(serversPerPage);
-                                document.getElementById('rovalra-loading-more')?.remove();
-                                serverListState.loading = false;
-                                }
-                        }, 150);
-                        serverListScrollHandlerRef = handler;
-                        serverListArea.addEventListener('scroll', serverListScrollHandlerRef);
                     }
+                    
                     modalOverlay.onclick = (event) => { if (event.target === modalOverlay) closeModal(); };
 
                 } catch (error) {
@@ -1446,283 +1685,495 @@ async function populateRegionList(listContainer) {
                 }
             }
 
-            async function appendServers(count) {
-                const listElement = document.getElementById('rovalra-actual-server-list'); if (!listElement) return;
-                const isDarkMode = currentTheme === 'dark';
-                const startIndex = serverListState.visibleServerCount;
-                const endIndex = Math.min(startIndex + count, serverListState.servers.length);
-                const serversToRender = serverListState.servers.slice(startIndex, endIndex);
-                if (serversToRender.length === 0) return;
+            function setupVirtualizedRendering(scrollContainer, contentContainer) {
+                return;
+            }
 
-                const allTokens = serversToRender.flatMap(server => server.playerTokens || []);
-                const uniqueTokens = [...new Set(allTokens)].filter(token => token);
-                const thumbnailUrls = uniqueTokens.length > 0 ? await fetchThumbnailsBatch(uniqueTokens) : {};
-
-                const serverEntriesPromises = serversToRender.map(async (server) => {
-                    const serverId = server.id;
-                    if (serverListState.renderedServerIds.has(serverId)) return null;
-
-                    const serverEntry = document.createElement('div');
-                    serverEntry.className = 'server-entry';
-                    serverEntry.dataset.serverId = serverId;
-                    serverEntry.style.cssText = `
-                        background-color: ${isDarkMode ? 'rgb(45, 48, 53)' : '#ffffff'};
-                        border: 0px solid ${isDarkMode ? 'rgba(255, 255, 255, 0.1)' : '#e0e0e0'};
-                        border-radius: 8px;
-                        padding: 15px 20px;
-                        display: flex; flex-direction: column;
-                        gap: 12px;
-                        color: ${isDarkMode ? '#e0e0e0' : '#333333'};
-                    `;
-
-                    const profilePicturesRow = document.createElement('div');
-                    profilePicturesRow.className = 'profile-pictures-row';
-                    profilePicturesRow.style.cssText = `
-                        display: flex; flex-wrap: wrap; gap: 6px;
-                        min-height: 40px;
-                        align-items: center;
-                    `;
-
-                    const playerTokens = server.playerTokens || [];
-                    const maxThumbnails = 5;
-                    const playersToShow = Math.min(server.playing || 0, playerTokens.length, maxThumbnails);
-                    const thumbnailSize = '40px';
-
-                    for (let i = 0; i < playersToShow; i++) {
-                        const token = playerTokens[i];
-                        if (!token) continue;
-                        const profileImg = document.createElement('img');
-                        profileImg.className = 'profile-thumbnail';
-                        profileImg.style.cssText = `
-                            width: 60px; height: 60px;
-                            border-radius: 50%; background-color: ${isDarkMode ? '#555' : '#bbb'};
-                            object-fit: cover; vertical-align: middle;
-                            border: 0px solid ${isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'};
-                        `;
-                        profileImg.src = thumbnailUrls[token] || `https://trm.roblox.com/images/headshot-player.png`;
-                        profileImg.alt = `Player ${i+1}`;
-                        profileImg.title = `Player ${i+1}`;
-                        profilePicturesRow.appendChild(profileImg);
-                    }
-
-                    if (server.playing > maxThumbnails) {
-                        const plusCount = document.createElement('div');
-                        plusCount.className = 'plus-count';
-                        plusCount.style.cssText = `
-                            width: 60px; height: 60px;
-                            border-radius: 50%;
-                            background-color: ${isDarkMode ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.08)'};
-                            color: ${isDarkMode ? '#b0b0b0' : '#555'};
-                            display: flex; justify-content: center; align-items: center;
-                            font-size: 16px;
-                            font-weight: 600;
-                            border: 0px solid ${isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'};
-                        `;
-                        plusCount.textContent = `+${server.playing - maxThumbnails}`;
-                        plusCount.title = `${server.playing - maxThumbnails} more players`;
-                        profilePicturesRow.appendChild(plusCount);
-                    } else if (server.playing === 0 && playerTokens.length === 0) {
-                        const noPlayersText = document.createElement('div');
-                        noPlayersText.textContent = 'No players online';
-                        noPlayersText.style.cssText = `
-                            font-size: 14px; color: ${isDarkMode ? '#888' : '#777'}; font-style: italic;
-                            padding: 8px 0;
-                            line-height: ${thumbnailSize};
-                        `;
-                        profilePicturesRow.appendChild(noPlayersText);
-                    }
-                    serverEntry.appendChild(profilePicturesRow);
-
-                    const infoSection = document.createElement('div');
-                    infoSection.className = 'info-section';
-                    infoSection.style.cssText = `display: flex; flex-direction: column; gap: 4px;`;
-
-                    const playerCountText = document.createElement('div');
-                    playerCountText.className = 'player-count-text';
-                    playerCountText.innerHTML = `<span style="font-weight: bold;">${server.playing || 0}</span> of ${server.maxPlayers || '?'} people max`;
-                    playerCountText.style.cssText = `font-size: 16px; font-weight: 600; color: ${isDarkMode ? '#d0d0d0' : '#444'};`;
-
-                    const pingContainer = document.createElement('div');
-                    pingContainer.className = 'ping-container';
-                    pingContainer.style.cssText = 'display: flex; align-items: center; gap: 5px; font-size: 15px; vertical-align: middle;';
-
-                    let pingValue = server.calculatedPing;
-                    let pingDisplay = "Ping: ?";
-                    let pingColor = isDarkMode ? '#aaa' : '#666';
-
-                    if (pingValue !== undefined && !isNaN(pingValue) && pingValue !== Infinity) {
-                        pingDisplay = `Ping: ${Math.round(pingValue)}ms`;
-                        if (pingValue < 80) pingColor = isDarkMode ? '#77cc77' : '#28a745';
-                        else if (pingValue < 150) pingColor = isDarkMode ? '#dddd77' : '#ffc107';
-                        else pingColor = isDarkMode ? '#ff8888' : '#dc3545';
-                    }
-
-                    const pingText = document.createElement('span');
-                    pingText.textContent = pingDisplay;
-                    pingText.style.color = pingColor;
-
-                    pingContainer.appendChild(pingText);
-
-                    if (pingValue !== undefined && !isNaN(pingValue) && pingValue !== Infinity) {
-                        const pingTooltipIcon = document.createElement('span');
-                        pingTooltipIcon.innerHTML = '<svg fill="rgb(170, 170, 170)" height="200px" width="200px" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 29.536 29.536" xml:space="preserve"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g> <path d="M14.768,0C6.611,0,0,6.609,0,14.768c0,8.155,6.611,14.767,14.768,14.767s14.768-6.612,14.768-14.767 C29.535,6.609,22.924,0,14.768,0z M14.768,27.126c-6.828,0-12.361-5.532-12.361-12.359c0-6.828,5.533-12.362,12.361-12.362 c6.826,0,12.359,5.535,12.359,12.362C27.127,21.594,21.594,27.126,14.768,27.126z"></path> <path d="M14.385,19.337c-1.338,0-2.289,0.951-2.289,2.34c0,1.336,0.926,2.339,2.289,2.339c1.414,0,2.314-1.003,2.314-2.339 C16.672,20.288,15.771,19.337,14.385,19.337z"></path> <path d="M14.742,6.092c-1.824,0-3.34,0.513-4.293,1.053l0.875,2.804c0.668-0.462,1.697-0.772,2.545-0.772 c1.285,0.027,1.879,0.644,1.879,1.543c0,0.85-0.67,1.697-1.494,2.701c-1.156,1.364-1.594,2.701-1.516,4.012l0.025,0.669h3.42 v-0.463c-0.025-1.158,0.387-2.162,1.311-3.215c0.979-1.08,2.211-2.366,2.211-4.321C19.705,7.968,18.139,6.092,14.742,6.092z"></path> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> </g> </g></svg>';
-                        pingTooltipIcon.className = 'ping-tooltip-icon';
-                        pingTooltipIcon.style.cursor = 'pointer';
-                        pingTooltipIcon.style.position = 'relative';
-                        pingTooltipIcon.style.display = 'inline-flex';
-                        pingTooltipIcon.style.alignItems = 'center';
-                        pingTooltipIcon.style.marginLeft = '3px';
-
-                        const svgElement = pingTooltipIcon.querySelector('svg');
-                        if (svgElement) {
-                            svgElement.style.height = '14px';
-                            svgElement.style.width = '14px';
-                            svgElement.style.verticalAlign = 'middle';
-                            svgElement.style.fill = isDarkMode ? '#aaa' : '#777';
-                        }
-
-                        const pingTooltip = document.createElement('div');
-                        pingTooltip.className = 'ping-tooltip';
-                        pingTooltip.textContent = 'The ping is an approximation and may not be entirely accurate.';
-                        pingTooltip.style.position = 'absolute';
-                        pingTooltip.style.backgroundColor = isDarkMode ? 'rgba(40, 40, 40, 0.95)' : 'rgba(240, 240, 240, 0.95)';
-                        pingTooltip.style.color = isDarkMode ? '#eee' : '#333';
-                        pingTooltip.style.padding = '8px 10px';
-                        pingTooltip.style.borderRadius = '5px';
-                        pingTooltip.style.fontSize = '12px';
-                        pingTooltip.style.zIndex = '1001';
-                        pingTooltip.style.left = '50%';
-                        pingTooltip.style.bottom = '120%';
-                        pingTooltip.style.transform = 'translateX(-50%)';
-                        pingTooltip.style.marginBottom = '6px';
-                        pingTooltip.style.whiteSpace = 'normal';
-                        pingTooltip.style.width = '180px';
-                        pingTooltip.style.textAlign = 'center';
-                        pingTooltip.style.display = 'none';
-                        pingTooltip.style.boxShadow = '0 2px 5px rgba(0,0,0,0.2)';
-                        pingTooltip.style.pointerEvents = 'none';
-
-                        pingTooltipIcon.appendChild(pingTooltip);
-
-                        pingTooltipIcon.addEventListener('mouseover', () => { pingTooltip.style.display = 'block'; });
-                        pingTooltipIcon.addEventListener('mouseout', () => { pingTooltip.style.display = 'none'; });
-
-                        pingContainer.appendChild(pingTooltipIcon);
-                    }
-
-                    infoSection.appendChild(playerCountText);
-                    infoSection.appendChild(pingContainer);
-                    serverEntry.appendChild(infoSection);
-
-                    const bottomRow = document.createElement('div');
-                    bottomRow.className = 'bottom-row';
-                    bottomRow.style.cssText = 'display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 5px;';
-
-                    const buttonsContainer = document.createElement('div');
-                    buttonsContainer.style.cssText = 'display: flex; gap: 8px;';
-
-                    const joinButton = document.createElement('button');
-                    joinButton.textContent = 'Join';
-                    joinButton.className = 'server-button join-button';
-                    joinButton.style.cssText = `
-                        background-color: #3975e0;
-                        color: white; border: none;
-                        border-radius: 6px;
-                        padding: 8px 18px;
-                        font-size: 14px;
-                        font-weight: 600; cursor: pointer;
-                        transition: background-color 0.2s ease;
-                    `;
-                    joinButton.disabled = server.playing >= server.maxPlayers;
-                    if (joinButton.disabled) {
-                        joinButton.style.opacity = '0.6';
-                        joinButton.style.cursor = 'not-allowed';
-                        joinButton.style.backgroundColor = isDarkMode ? '#555' : '#ccc';
-                    } else {
-                        joinButton.onmouseover = () => { joinButton.style.backgroundColor = '#4d8cf1'; };
-                        joinButton.onmouseout = () => { joinButton.style.backgroundColor = '#3975e0'; };
-                        joinButton.onclick = () => {
-                            joinSpecificServer(serverId);
-
-                            const overlay = document.getElementById('rovalra-server-list-overlay');
-                            if (overlay) {
-                                const actualCloseButton = overlay.querySelector('#rovalra-overlay-close-button');
-                                if (actualCloseButton) {
-                                    actualCloseButton.click();
-                                } else {
-                                    overlay.remove();
-                                    document.body.style.overflow = "auto";
-                                }
-                            }
-                        };
-                    }
-
-                    const shareButton = document.createElement('button');
-                    shareButton.textContent = 'Share';
-                    shareButton.className = 'server-button share-button';
-                    const shareNormalStyle = `
-                        background-color: ${isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.06)'};
-                        color: ${isDarkMode ? '#c0c0c0' : '#444'};
-                        border: 0px solid ${isDarkMode ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.1)'};
-                        border-radius: 6px;
-                        padding: 7px 16px;
-                        font-size: 14px;
-                        font-weight: 600; cursor: pointer;
-                        transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
-                    `;
-                    shareButton.style.cssText = shareNormalStyle;
-                    shareButton.onclick = () => {
-                        const link = `roblox://experiences/start?placeId=${placeId}&gameInstanceId=${serverId}`;
-                        navigator.clipboard.writeText(link).then(() => {
-                            shareButton.textContent = 'Copied!';
-                            shareButton.style.backgroundColor=isDarkMode?'#3a7':'#afc'; shareButton.style.borderColor=isDarkMode?'#4b8':'#bge'; shareButton.style.color=isDarkMode?'white':'#141';
-                            setTimeout(() => { shareButton.textContent = 'Share'; shareButton.style.cssText = shareNormalStyle; }, 1500);
-                        }).catch(err => {
-                            shareButton.textContent = 'Error!'; shareButton.style.backgroundColor=isDarkMode?'#a55':'#fcc'; shareButton.style.borderColor=isDarkMode?'#b66':'#ebb'; shareButton.style.color=isDarkMode?'white':'#411';
-                            setTimeout(()=>{shareButton.textContent = 'Share'; shareButton.style.cssText = shareNormalStyle;}, 1500);
-                        });
-                    };
-                    buttonsContainer.append(joinButton, shareButton);
-
-                    const serverIdDisplay = document.createElement('div');
-                    serverIdDisplay.className = 'server-id-display';
-                    serverIdDisplay.style.cssText = `
-                        text-align: right;
-                        font-size: 12px;
-                        font-weight: 500;
-                        color: ${isDarkMode ? '#888' : '#777'};
-                        font-family: monospace;
-                        overflow: hidden;
-                        white-space: nowrap;
-                    `;
-                    serverIdDisplay.textContent = `ID: ${serverId}`;
-                    serverIdDisplay.title = serverId;
-
-                    bottomRow.append(buttonsContainer, serverIdDisplay);
-                    serverEntry.appendChild(bottomRow);
-
-                    serverListState.renderedServerIds.add(serverId);
-                    return serverEntry;
-                });
-
-                const serverEntries = (await Promise.all(serverEntriesPromises)).filter(Boolean);
-                serverEntries.forEach(entry => listElement.appendChild(entry));
-                serverListState.visibleServerCount += serverEntries.length;
+            async function renderVisibleServers(container, startIndex, endIndex) {
+                await renderFullServerList();
             }
 
             async function renderFullServerList() {
-                const listElement = document.getElementById('rovalra-actual-server-list'); if (!listElement) return; const isDarkMode = currentTheme === 'dark';
+                const listElement = document.getElementById('rovalra-actual-server-list');
+                if (!listElement) return;
+                
+                const isDarkMode = currentTheme === 'dark';
                 listElement.innerHTML = '';
                 serverListState.visibleServerCount = 0;
                 serverListState.renderedServerIds.clear();
                 serverListState.loading = false;
 
-                    if (serverListState.servers.length === 0) {
-                        listElement.innerHTML = `<p style="text-align:center; padding: 40px 0; font-weight:bold; color:${isDarkMode ? '#aaa' : '#666'};">No active servers found in this region.</p>`;
-                    } else {
-                        await appendServers(15);
-                        document.getElementById('rovalra-server-list-content-area')?.scrollTo(0, 0);
+                if (serverListState.servers.length === 0) {
+                    listElement.innerHTML = `<p style="text-align:center; padding: 40px 0; font-weight:bold; color:${isDarkMode ? '#aaa' : '#666'};">No active servers found in this region.</p>`;
+                    return;
+                }
+                
+                const loadingPlaceholder = document.createElement('div');
+                loadingPlaceholder.style.cssText = `
+                    text-align: center;
+                    padding: 20px;
+                    color: ${isDarkMode ? '#aaa' : '#666'};
+                `;
+                loadingPlaceholder.textContent = 'Loading servers...';
+                listElement.appendChild(loadingPlaceholder);
+
+                setTimeout(async () => {
+                    try {
+                        const initialServers = serverListState.servers.slice(0, BATCH_SIZE);
+                        
+                        const allTokens = initialServers.flatMap(server => server.playerTokens || []);
+                        const uniqueTokens = [...new Set(allTokens)].filter(token => token);
+                        
+                        const tokenBatches = [];
+                        for (let i = 0; i < uniqueTokens.length; i += THUMBNAIL_BATCH_SIZE) {
+                            tokenBatches.push(uniqueTokens.slice(i, i + THUMBNAIL_BATCH_SIZE));
+                        }
+                        
+                        const thumbnailPromises = tokenBatches.map(batch => fetchThumbnailsBatch(batch));
+                        const thumbnailResults = await Promise.all(thumbnailPromises);
+                        
+                        const thumbnailUrls = thumbnailResults.reduce((acc, result) => ({ ...acc, ...result }), {});
+                        
+                        Object.entries(thumbnailUrls).forEach(([token, url]) => {
+                            thumbnailCache.set(token, url);
+                        });
+                        
+                        const fragment = document.createDocumentFragment();
+                        const serverEntries = [];
+                        
+                        for (const server of initialServers) {
+                            const serverId = server.id;
+                            if (serverListState.renderedServerIds.has(serverId)) continue;
+                            
+                            let serverEntry = serverEntryCache.get(serverId);
+                            if (!serverEntry) {
+                                serverEntry = createServerEntryElement(server, thumbnailUrls, isDarkMode);
+                                serverEntryCache.set(serverId, serverEntry);
+                            }
+                            
+                            serverEntries.push(serverEntry);
+                            serverListState.renderedServerIds.add(serverId);
+                        }
+                        
+                        serverEntries.forEach(entry => fragment.appendChild(entry));
+                        
+                        listElement.innerHTML = '';
+                        listElement.appendChild(fragment);
+                        serverListState.visibleServerCount = initialServers.length;
+                        
+                        if (serverListState.servers.length > BATCH_SIZE) {
+                            addLoadMoreButton(listElement, isDarkMode);
+                        }
+                        
+                    } catch (error) {
+                        console.error('Error loading initial servers:', error);
+                        loadingPlaceholder.textContent = 'Error loading servers. Please try again.';
                     }
+                }, 0);
+            }
+
+            function addLoadMoreButton(listElement, isDarkMode) {
+                const loadMoreButton = document.createElement('button');
+                loadMoreButton.textContent = 'Load More Servers';
+                loadMoreButton.style.cssText = `
+                    margin: 15px auto;
+                    padding: 8px 16px;
+                    background-color: ${isDarkMode ? '#3975e0' : '#3975e0'};
+                    color: white;
+                    border: none;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    font-size: 14px;
+                    font-weight: 600;
+                    display: block;
+                    transition: opacity 0.2s ease;
+                `;
+                
+                let isLoading = false;
+                
+                loadMoreButton.onclick = async () => {
+                    if (isLoading) return;
+                    isLoading = true;
+                    loadMoreButton.style.opacity = '0.7';
+                    loadMoreButton.textContent = 'Loading...';
+                    
+                    try {
+                        const nextBatch = serverListState.servers.slice(
+                            serverListState.visibleServerCount,
+                            serverListState.visibleServerCount + BATCH_SIZE
+                        );
+                        
+                        if (nextBatch.length > 0) {
+                            const nextTokens = nextBatch.flatMap(server => server.playerTokens || []);
+                            const uniqueTokens = [...new Set(nextTokens)].filter(token => token);
+                            
+                            const uncachedTokens = uniqueTokens.filter(token => !thumbnailCache.has(token));
+                            let nextThumbnailUrls = {};
+                            
+                            if (uncachedTokens.length > 0) {
+                                const tokenBatches = [];
+                                for (let i = 0; i < uncachedTokens.length; i += THUMBNAIL_BATCH_SIZE) {
+                                    tokenBatches.push(uncachedTokens.slice(i, i + THUMBNAIL_BATCH_SIZE));
+                                }
+                                
+                                const thumbnailPromises = tokenBatches.map(batch => fetchThumbnailsBatch(batch));
+                                const thumbnailResults = await Promise.all(thumbnailPromises);
+                                
+                                nextThumbnailUrls = thumbnailResults.reduce((acc, result) => ({ ...acc, ...result }), {});
+                                Object.entries(nextThumbnailUrls).forEach(([token, url]) => {
+                                    thumbnailCache.set(token, url);
+                                });
+                            }
+                            
+                            const nextFragment = document.createDocumentFragment();
+                            const serverEntries = [];
+                            
+                            for (const server of nextBatch) {
+                                const serverId = server.id;
+                                if (serverListState.renderedServerIds.has(serverId)) continue;
+                                
+                                let serverEntry = serverEntryCache.get(serverId);
+                                if (!serverEntry) {
+                                    serverEntry = createServerEntryElement(server, { ...thumbnailCache, ...nextThumbnailUrls }, isDarkMode);
+                                    serverEntryCache.set(serverId, serverEntry);
+                                }
+                                
+                                serverEntries.push(serverEntry);
+                                serverListState.renderedServerIds.add(serverId);
+                            }
+                            
+                            serverEntries.forEach(entry => nextFragment.appendChild(entry));
+                            
+                            listElement.insertBefore(nextFragment, loadMoreButton);
+                            serverListState.visibleServerCount += nextBatch.length;
+                            
+                            if (serverListState.visibleServerCount >= serverListState.servers.length) {
+                                loadMoreButton.remove();
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Error loading more servers:', error);
+                        loadMoreButton.textContent = 'Error loading more servers';
+                    } finally {
+                        isLoading = false;
+                        loadMoreButton.style.opacity = '1';
+                        loadMoreButton.textContent = 'Load More Servers';
+                    }
+                };
+                
+                listElement.appendChild(loadMoreButton);
+            }
+
+            function clearServerCaches() {
+                thumbnailCache.clear();
+                serverEntryCache.clear();
+            }
+
+            function cleanupServerList() {
+                clearServerCaches();
+                serverListState.renderedServerIds.clear();
+                serverListState.visibleServerCount = 0;
+            }
+
+            const style = document.createElement('style');
+            style.textContent = `
+                .server-entry {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 12px;
+                    padding: 15px 20px;
+                    margin-bottom: 15px;
+                    border-radius: 8px;
+                }
+
+                .server-entry.dark {
+                    background-color: rgb(45, 48, 53);
+                    color: #e0e0e0;
+                }
+
+                .server-entry.light {
+                    background-color: #ffffff;
+                    color: #333333;
+                }
+
+                .profile-pictures-row {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 6px;
+                    min-height: 40px;
+                    align-items: center;
+                }
+
+                .profile-thumbnail {
+                    width: 55px;
+                    height: 55px;
+                    border-radius: 50%;
+                    object-fit: cover;
+                    vertical-align: middle;
+                    background-color: #555;
+                }
+
+                .plus-count {
+                    width: 55px;
+                    height: 55px;
+                    border-radius: 50%;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    font-size: 14px;
+                    font-weight: 600;
+                }
+
+                .plus-count.dark {
+                    background-color: rgba(255, 255, 255, 0.15);
+                    color: #b0b0b0;
+                }
+
+                .plus-count.light {
+                    background-color: rgba(0, 0, 0, 0.08);
+                    color: #555;
+                }
+
+                .info-section {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 4px;
+                }
+
+                .player-count-text {
+                    font-size: 16px;
+                    font-weight: 600;
+                }
+
+                .player-count-text.dark {
+                    color: #d0d0d0;
+                }
+
+                .player-count-text.light {
+                    color: #444;
+                }
+
+                .ping-container {
+                    display: flex;
+                    align-items: center;
+                    gap: 5px;
+                    font-size: 15px;
+                    vertical-align: middle;
+                }
+
+                .bottom-row {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    gap: 10px;
+                    margin-top: 5px;
+                }
+
+                .buttons-container {
+                    display: flex;
+                    gap: 8px;
+                }
+
+                .server-button {
+                    border-radius: 6px;
+                    padding: 8px 18px;
+                    font-size: 14px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: background-color 0.2s ease;
+                }
+
+                .join-button {
+                    background-color: #3975e0;
+                    color: white;
+                    border: none;
+                }
+
+                .join-button:disabled {
+                    opacity: 0.6;
+                    cursor: not-allowed;
+                }
+
+                .join-button:disabled.dark {
+                    background-color: #555;
+                }
+
+                .join-button:disabled.light {
+                    background-color: #ccc;
+                }
+
+                .share-button {
+                    background-color: rgba(255, 255, 255, 0.1);
+                    color: #c0c0c0;
+                    border: none;
+                }
+
+                .share-button.light {
+                    background-color: rgba(0, 0, 0, 0.06);
+                    color: #444;
+                }
+
+                .server-id-display {
+                    text-align: right;
+                    font-size: 3px;
+                    font-weight: 500;
+                    font-family: monospace;
+                    overflow: hidden;
+                    white-space: nowrap;
+                }
+
+                .server-id-display.dark {
+                    color: #888;
+                }
+
+                .server-id-display.light {
+                    color: #777;
+                }
+            `;
+            document.head.appendChild(style);
+
+            function createServerEntryElement(server, thumbnailUrls, isDarkMode) {
+                const serverId = server.id;
+                
+                const serverEntry = document.createElement('div');
+                serverEntry.className = `server-entry ${isDarkMode ? 'dark' : 'light'}`;
+                serverEntry.dataset.serverId = serverId;
+                
+                const profilePicturesRow = document.createElement('div');
+                profilePicturesRow.className = 'profile-pictures-row';
+                
+                const playerTokens = server.playerTokens || [];
+                const maxThumbnails = 5;
+                const playersToShow = Math.min(server.playing || 0, playerTokens.length, maxThumbnails);
+                
+                for (let i = 0; i < playersToShow; i++) {
+                    const token = playerTokens[i];
+                    if (!token) continue;
+                    const profileImg = document.createElement('img');
+                    profileImg.className = 'profile-thumbnail';
+                    profileImg.src = thumbnailUrls[token] || `https://tr.rbxcdn.com/53eb9b17fe1432a809c73a13889b5006/150/150/Image/Png`;
+                    profileImg.alt = `Player ${i+1}`;
+                    profileImg.title = `Player ${i+1}`;
+                    profilePicturesRow.appendChild(profileImg);
+                }
+                
+                if (server.playing > maxThumbnails) {
+                    const plusCount = document.createElement('div');
+                    plusCount.className = `plus-count ${isDarkMode ? 'dark' : 'light'}`;
+                    plusCount.textContent = `+${server.playing - maxThumbnails}`;
+                    plusCount.title = `${server.playing - maxThumbnails} more players`;
+                    profilePicturesRow.appendChild(plusCount);
+                } else if (server.playing === 0 && playerTokens.length === 0) {
+                    const noPlayersText = document.createElement('div');
+                    noPlayersText.textContent = 'No players online';
+                    noPlayersText.style.cssText = `
+                        font-size: 14px;
+                        color: ${isDarkMode ? '#888' : '#777'};
+                        font-style: italic;
+                        padding: 8px 0;
+                        line-height: 60px;
+                    `;
+                    profilePicturesRow.appendChild(noPlayersText);
+                }
+                serverEntry.appendChild(profilePicturesRow);
+                
+                const infoSection = document.createElement('div');
+                infoSection.className = 'info-section';
+
+                const playerCountText = document.createElement('div');
+                playerCountText.className = `player-count-text ${isDarkMode ? 'dark' : 'light'}`;
+                playerCountText.innerHTML = `<span style="">${server.playing || 0}</span> of ${server.maxPlayers || '?'} people max`;
+
+                const pingContainer = document.createElement('div');
+                pingContainer.className = 'ping-container';
+
+                let pingValue = server.calculatedPing;
+                let pingDisplay = "Ping: ?";
+                let pingColor = isDarkMode ? '#aaa' : '#666';
+
+                if (pingValue !== undefined && !isNaN(pingValue) && pingValue !== Infinity) {
+                    pingDisplay = `Ping: ${Math.round(pingValue)}ms`;
+                    if (pingValue < 80) pingColor = isDarkMode ? '#77cc77' : '#28a745';
+                    else if (pingValue < 150) pingColor = isDarkMode ? '#dddd77' : '#ffc107';
+                    else pingColor = isDarkMode ? '#ff8888' : '#dc3545';
+                }
+
+                const pingText = document.createElement('span');
+                pingText.textContent = pingDisplay;
+                pingText.style.color = pingColor;
+
+                pingContainer.appendChild(pingText);
+                infoSection.appendChild(playerCountText);
+                infoSection.appendChild(pingContainer);
+                serverEntry.appendChild(infoSection);
+
+                const bottomRow = document.createElement('div');
+                bottomRow.className = 'bottom-row';
+
+                const buttonsContainer = document.createElement('div');
+                buttonsContainer.className = 'buttons-container';
+
+                const joinButton = document.createElement('button');
+                joinButton.textContent = 'Join';
+                joinButton.className = `server-button join-button ${isDarkMode ? 'dark' : 'light'}`;
+                joinButton.disabled = server.playing >= server.maxPlayers;
+                if (!joinButton.disabled) {
+                    joinButton.onclick = () => {
+                        joinSpecificServer(serverId);
+                        const overlay = document.getElementById('rovalra-server-list-overlay');
+                        if (overlay) {
+                            const actualCloseButton = overlay.querySelector('#rovalra-overlay-close-button');
+                            if (actualCloseButton) {
+                                actualCloseButton.click();
+                            } else {
+                                overlay.remove();
+                                document.body.style.overflow = "auto";
+                            }
+                        }
+                    };
+                }
+
+                const shareButton = document.createElement('button');
+                shareButton.textContent = 'Share';
+                shareButton.className = `server-button share-button ${isDarkMode ? 'dark' : 'light'}`;
+                shareButton.onclick = () => {
+                    const link = `roblox://experiences/start?placeId=${placeId}&gameInstanceId=${serverId}`;
+                    navigator.clipboard.writeText(link).then(() => {
+                        shareButton.textContent = 'Copied!';
+                        shareButton.style.backgroundColor = isDarkMode ? '#3a7' : '#afc';
+                        shareButton.style.borderColor = isDarkMode ? '#4b8' : '#bge';
+                        shareButton.style.color = isDarkMode ? 'white' : '#141';
+                        setTimeout(() => { 
+                            shareButton.textContent = 'Share'; 
+                            shareButton.className = `server-button share-button ${isDarkMode ? 'dark' : 'light'}`;
+                        }, 1500);
+                    }).catch(err => {
+                        shareButton.textContent = 'Error!';
+                        shareButton.style.backgroundColor = isDarkMode ? '#a55' : '#fcc';
+                        shareButton.style.borderColor = isDarkMode ? '#b66' : '#ebb';
+                        shareButton.style.color = isDarkMode ? 'white' : '#411';
+                        setTimeout(() => {
+                            shareButton.textContent = 'Share';
+                            shareButton.className = `server-button share-button ${isDarkMode ? 'dark' : 'light'}`;
+                        }, 1500);
+                    });
+                };
+
+                buttonsContainer.append(joinButton, shareButton);
+
+                const serverIdDisplay = document.createElement('div');
+                serverIdDisplay.className = `server-id-display ${isDarkMode ? 'dark' : 'light'}`;
+                serverIdDisplay.textContent = `ID: ${serverId}`;
+                serverIdDisplay.title = serverId;
+
+                bottomRow.append(buttonsContainer, serverIdDisplay);
+                serverEntry.appendChild(bottomRow);
+                
+                return serverEntry;
+            }
+
+            async function appendServers(count) {
+                return;
             }
 
              async function sortServers() {
@@ -1732,7 +2183,11 @@ async function populateRegionList(listContainer) {
                           const serverLoc = serverLocations[server.id]?.l;
                           if (userLocation && serverLoc && typeof serverLoc.latitude === 'number') {
                               const dist = calculateDistance(userLocation.latitude, userLocation.longitude, serverLoc.latitude, serverLoc.longitude);
-                              server.calculatedPing = !isNaN(dist) ? Math.round(dist * 0.1) : Infinity;
+                              if (!isNaN(dist)) {
+                                  server.calculatedPing = Math.round(dist * 0.05);
+                              } else {
+                                  server.calculatedPing = Infinity;
+                              }
                           } else { server.calculatedPing = Infinity; }
                       }
                   }));

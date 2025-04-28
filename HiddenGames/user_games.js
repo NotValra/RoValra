@@ -592,7 +592,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 players.textContent = playerCount
                                   likes.style.marginRight = '10px'
                                 applyTheme()
-                                retryFetch(`https://thumbnails.roblox.com/v1/games/icons?universeIds=${universeId}&returnPolicy=PlaceHolder&size=150x150&format=Png&isCircular=false`) // Modified API here
+                                retryFetch(`https://thumbnails.roblox.com/v1/games/icons?universeIds=${universeId}&returnPolicy=PlaceHolder&size=150x150&format=Png&isCircular=false`) 
                                     .then(response => response ? response.json() : null)
                                     .then(thumbnailData => {
 

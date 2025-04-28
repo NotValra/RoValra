@@ -104,4 +104,6 @@ if (window.location.href === 'https://www.roblox.com/cats') {
     window.location.href = 'https://fishstrap.app';
 } else if (window.location.href === 'https://www.roblox.com/rovalra') {
     window.location.href = 'https://rovalra.com';
+} else if (window.location.href === 'https://www.roblox.com/adminpanel') {
+    window.location.href = 'https://www.rovalra.com/adminpanel';
 }

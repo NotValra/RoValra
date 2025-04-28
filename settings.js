@@ -60,13 +60,15 @@ const SETTINGS_CONFIG = {
                             "Works independently whether Region Selector is enabled or not."],
                 type: "checkbox",
                 default: true,
-                robloxPreferredRegion: {
-                    label: "Preferred Join Region",
-                    description: ["Select your preferred region for joining games.",
-                                "This setting works independently of the Region Selector."],
-                    type: "select",
-                    options: "REGIONS",
-                    default: "AUTO"
+                childSettings: {
+                    robloxPreferredRegion: {
+                        label: "Preferred Join Region",
+                        description: ["Select your preferred region for joining games.",
+                                    "This setting works independently of the Region Selector."],
+                        type: "select",
+                        options: "REGIONS",
+                        default: "AUTO"
+                    }
                 }
             },
             subplacesEnabled: {
@@ -109,6 +111,12 @@ const SETTINGS_CONFIG = {
                             "This feature requires the user to be friends with you or have their joins on."],
                 type: "checkbox",
                 default: false
+            },
+            privateInventoryEnabled: {
+                label: "Enable Private Inventory Viewer",
+                description: ["This allows you to view a users private inventory, by scanning a lot of items at once, to check if they own them."],
+                type: "checkbox",
+                default: true,
             }
         }
     },
@@ -698,8 +706,9 @@ const loadSettings = async () => {
             groupGamesEnabled: true,
             userGamesEnabled: true,
             userSniperEnabled: false,
-            universalSniperEnabled: false,
-            regionSelectorEnabled: false,
+            privateInventoryEnabled: true,
+            universalSniperEnabled: true,
+            regionSelectorEnabled: true,
             regionSimpleUi: false,
             PreferredRegionEnabled: true,
             robloxPreferredRegion: 'AUTO',
@@ -755,120 +764,47 @@ const initSettings = async (settingsContent) => {
     const settings = await loadSettings();
 
     if (settings) {
-        const enableHiddenCatalogCheckbox = settingsContent.querySelector('#enableHiddenCatalog');
-        if (enableHiddenCatalogCheckbox) {
-            enableHiddenCatalogCheckbox.checked = settings.hiddenCatalogEnabled;
-        } else {
-            console.warn("#enableHiddenCatalog not found in settingsContent in initSettings");
-        }
+        // Dynamically find all settings from SETTINGS_CONFIG and set their values
+        for (const sectionName in SETTINGS_CONFIG) {
+            const section = SETTINGS_CONFIG[sectionName];
+            for (const [settingName, setting] of Object.entries(section.settings)) {
+                const element = settingsContent.querySelector(`#${settingName}`);
+                if (element) {
+                    if (setting.type === 'checkbox') {
+                        element.checked = settings[settingName] !== undefined ? settings[settingName] : setting.default;
+                    } else if (setting.type === 'select') {
+                        element.value = settings[settingName] || setting.default;
+                    }
+                } else {
+                    console.warn(`#${settingName} not found in settingsContent in initSettings`);
+                }
 
-        const enableItemSalesCheckbox = settingsContent.querySelector('#enableItemSales');
-        if (enableItemSalesCheckbox) {
-            enableItemSalesCheckbox.checked = settings.itemSalesEnabled;
-        } else {
-            console.warn("#enableItemSales not found in settingsContent in initSettings");
-        }
+                // Handle child settings if they exist
+                if (setting.childSettings) {
+                    for (const [childName, childSetting] of Object.entries(setting.childSettings)) {
+                        const childElement = settingsContent.querySelector(`#${childName}`);
+                        if (childElement) {
+                            if (childSetting.type === 'checkbox') {
+                                childElement.checked = settings[childName] !== undefined ? settings[childName] : childSetting.default;
+                            } else if (childSetting.type === 'select') {
+                                childElement.value = settings[childName] || childSetting.default;
 
-        const enableGroupGamesCheckbox = settingsContent.querySelector('#enableGroupGames');
-        if (enableGroupGamesCheckbox) {
-            enableGroupGamesCheckbox.checked = settings.groupGamesEnabled;
-        } else {
-            console.warn("#enableGroupGames not found in settingsContent in initSettings");
-        }
-
-        const enableUserGamesCheckbox = settingsContent.querySelector('#enableUserGames');
-        if (enableUserGamesCheckbox) {
-            enableUserGamesCheckbox.checked = settings.userGamesEnabled;
-        } else {
-            console.warn("#enableUserGames not found in settingsContent in initSettings");
-        }
-
-        const enableUserInstantJoinCheckbox = settingsContent.querySelector('#enableUserInstantJoin');
-        if (enableUserInstantJoinCheckbox) {
-            enableUserInstantJoinCheckbox.checked = settings.userSniperEnabled;
-        } else {
-            console.warn("#enableUserInstantJoin not found in settingsContent in initSettings");
-        }
-
-        const enableUniversalSniperCheckbox = settingsContent.querySelector('#enableUniversalSniper');
-        if (enableUniversalSniperCheckbox) {
-            enableUniversalSniperCheckbox.checked = settings.universalSniperEnabled;
-        } else {
-            console.warn("#enableUniversalSniper not found in settingsContent in initSettings");
-        }
-
-        
-        const enableRegionSelectorCheckbox = settingsContent.querySelector('#enableRegionSelector');
-        if (enableRegionSelectorCheckbox) {
-            enableRegionSelectorCheckbox.checked = settings.regionSelectorEnabled;
-        } else {
-            console.warn("#enableRegionSelector not found in settingsContent in initSettings");
-        }
-
-        const enableSimpleRegionUICheckbox = settingsContent.querySelector('#enableSimpleRegionUI');
-        if (enableSimpleRegionUICheckbox) {
-            enableSimpleRegionUICheckbox.checked = settings.regionSimpleUi;
-        } else {
-            console.warn("#enableSimpleRegionUI not found in settingsContent in initSettings");
-        }
-
-        const enablePreferredRegionCheckbox = settingsContent.querySelector('#enablePreferredRegion');
-        if (enablePreferredRegionCheckbox) {
-            enablePreferredRegionCheckbox.checked = settings.PreferredRegionEnabled;
-        } else {
-            console.warn("#enablePreferredRegion not found in settingsContent in initSettings");
-        }
-
-        const preferredRegionSelect = settingsContent.querySelector('#preferredRegionSelect');
-        if (preferredRegionSelect) {
-            if (preferredRegionSelect.options.length === 0) {
-                Object.keys(REGIONS).forEach(regionCode => {
-                    const option = document.createElement('option');
-                    option.value = regionCode;
-                    option.textContent = getFullRegionName(regionCode);
-                    preferredRegionSelect.appendChild(option);
-                });
+                                // Special handling for region select
+                                if (childName === 'robloxPreferredRegion' && childElement.options.length === 0) {
+                                    Object.keys(REGIONS).forEach(regionCode => {
+                                        const option = document.createElement('option');
+                                        option.value = regionCode;
+                                        option.textContent = getFullRegionName(regionCode);
+                                        childElement.appendChild(option);
+                                    });
+                                }
+                            }
+                        } else {
+                            console.warn(`#${childName} not found in settingsContent in initSettings`);
+                        }
+                    }
+                }
             }
-            preferredRegionSelect.value = settings.robloxPreferredRegion || 'AUTO';
-            
-            preferredRegionSelect.style.display = settings.regionSelectorEnabled ? 'block' : 'none';
-        } else {
-            console.warn("#preferredRegionSelect not found in settingsContent in initSettings");
-        }
-
-        const enableSubplacesCheckbox = settingsContent.querySelector('#enableSubplaces');
-        if (enableSubplacesCheckbox) {
-            enableSubplacesCheckbox.checked = settings.subplacesEnabled;
-        } else {
-            console.warn("#enableSubplaces not found in settingsContent in initSettings");
-        }
-
-        const enableForceR6Checkbox = settingsContent.querySelector('#enableForceR6');
-        if (enableForceR6Checkbox) {
-            enableForceR6Checkbox.checked = settings.forceR6Enabled;
-        } else {
-            console.warn("#enableForceR6 not found in settingsContent in initSettings");
-        }
-
-        const enableR6FixCheckbox = settingsContent.querySelector('#enableR6Fix');
-        if (enableR6FixCheckbox) {
-            enableR6FixCheckbox.checked = settings.fixR6Enabled;
-        } else {
-            console.warn("#enableR6Fix not found in settingsContent in initSettings");
-        }
-
-        const enableInviteCheckbox = settingsContent.querySelector('#enableInvite');
-        if (enableInviteCheckbox) {
-            enableInviteCheckbox.checked = settings.inviteEnabled;
-        } else {
-            console.warn("#enableInvite not found in settingsContent in initSettings");
-        }
-
-        const enablePendingRobuxCheckbox = settingsContent.querySelector('#enablePendingRobux');
-        if (enablePendingRobuxCheckbox) {
-            enablePendingRobuxCheckbox.checked = settings.pendingRobuxEnabled;
-        } else {
-            console.warn("#enablePendingRobux not found in settingsContent in initSettings");
         }
     }
 };
@@ -940,6 +876,13 @@ async function updateContent(buttonInfo, contentContainer, buttonData) {
 
     if (rovalraHeader) {
         rovalraHeader.style.setProperty('color', headerColor, 'important');
+    }
+
+    if (buttonInfo.text === "Settings") {
+        const settingSections = Object.keys(SETTINGS_CONFIG).map(sectionName => ({
+            name: SETTINGS_CONFIG[sectionName].title,
+            content: generateSettingsUI(sectionName)
+        }));
     }
 }
 
@@ -1544,199 +1487,10 @@ async function checkRoValraPage() {
                     const settingsContent = contentContainer.querySelector('#setting-section-content');
                     const sectionButtonsContainer = contentContainer.querySelector('#setting-section-buttons');
 
-                    const settingSections = [
-                        {
-                            name: "Catalog",
-                            content: `
-                                <div class="setting">
-                                <label style="">Enable Item Sales</label>
-                                <p>This shows the most up to date sales and revenue data we have.</p>
-                                <p>The sales data is very likely to be inaccurate on items that are for sale, but very likely to be correct on off sale items.</p>
-                                <label class="toggle-switch">
-                                <input type="checkbox" id="enableItemSales" data-setting-name="itemSalesEnabled">
-                                <span class="slider"></span>
-                                </label>
-                                <div class="setting-separator"></div>
-                                </div>
-                                 <div class="setting">
-                                <label style="">Enable Hidden Catalog</label>
-                                <p>Shows Roblox made items before they are on the official catalog.</p>
-                                <label class="toggle-switch">
-                                <input type="checkbox" id="enableHiddenCatalog" data-setting-name="hiddenCatalogEnabled">
-                                <span class="slider"></span>
-                                </label>
-                                <div class="setting-separator"></div>
-                                </div>
-                            `
-                        },
-                        {
-                            name: "Games",
-                            content: `
-                                <div class="setting">
-                                    <label style="">Enable Region Selector</label>
-                                    <p>This lets you select a server in a specific region to join.</p>
-                                    <label class="toggle-switch">
-                                        <input type="checkbox" id="enableRegionSelector" data-setting-name="regionSelectorEnabled">
-                                        <span class="slider"></span>
-                                    </label>
-
-                                    <div class="setting" id="setting-region-simple-ui" style="margin-left: 20px; margin-top: 10px; border-left: 0px solid #eee; padding-left: 15px;">
-                                        <label style="">Enable Globe UI</label>
-                                        <p>This changes the region selector UI to a globe.</p>
-                                        <p>WARNING this may be laggy on lower end devices, and the UI is outdated.</p>
-                                        <label class="toggle-switch">
-                                            <input type="checkbox" id="enableSimpleRegionUI" data-setting-name="regionSimpleUi">
-                                            <span class="slider"></span>
-                                        </label>
-                                    </div>
-
-                                   
-                                    <div class="setting-separator"></div>
-                                </div>
-                                
-                                 <div class="setting">
-                                    <label style="">Enable Preferred Region</label>
-                                    <p>This adds a small little play button that joins ur preferred region</p>
-                                    <label class="toggle-switch">
-                                        <input type="checkbox" id="enablePreferredRegion" data-setting-name="PreferredRegionEnabled">
-                                        <span class="slider"></span>
-                                    </label>
-                                    
-
-                                    <div id="setting-preferred-region" style="margin-left: 20px; margin-top: 10px; padding-left: 15px;">
-                                        <label for="preferredRegionSelect">Preferred Join Region</label>
-                                        <p>Select the region you'd prefer to join when using the Play button.</p>
-                                        <select id="preferredRegionSelect" data-setting-name="robloxPreferredRegion" style="width: 100%; padding: 8px; margin-top: 5px; border-radius: 4px; border: 1px solid #555; background-color: #393b3d; color: #eee;">
-                                            <option value="AUTO">Nothing Selected</option>
-                                            <option value="SG">Singapore</option>
-                                            <option value="DE">Frankfurt, Germany</option>
-                                            <option value="FR">Paris, France</option>
-                                            <option value="JP">Tokyo, Japan</option>
-                                            <option value="NL">Amsterdam, Netherlands</option>
-                                            <option value="US-CA">Los Angeles, USA</option>
-                                            <option value="US-VA">Ashburn, USA</option>
-                                            <option value="US-IL">Chicago, USA</option>
-                                            <option value="US-TX">Dallas, USA</option>
-                                            <option value="US-FL">Miami, USA</option>
-                                            <option value="US-NY">New York City, USA</option>
-                                            <option value="AU">Sydney, Australia</option>
-                                            <option value="GB">London, UK</option>
-                                            <option value="IN">Mumbai, India</option>
-                                        </select>
-                                    </div>
-                                    <div class="setting-separator"></div>
-                                </div>
-
-
-                                <div class="setting">
-                                    <label style="">Enable Subplaces</label>
-                                    <p>Shows the subplaces of a game.</p>
-                                    <label class="toggle-switch">
-                                        <input type="checkbox" id="enableSubplaces" data-setting-name="subplacesEnabled">
-                                        <span class="slider"></span>
-                                    </label>
-                                    <div class="setting-separator"></div>
-                                </div>
-
-                                <div class="setting">
-                                    <label style="">Enable Universal Server Invites (disabled for maintenance)</label>
-                                    <p>This allows you to invite your friends to the game you're in, without your friend requiring any extension, not even RoValra!</p>
-                                    <p>This will replace RoPros invites.</p>
-                                    <p>This does require you to have BTRoblox for it to work.</p>
-                                    <label class="toggle-switch1">
-                                        <input type="checkbox" id="enableInvite" data-setting-name="inviteEnabled">
-                                        <span class="slider1"></span>
-                                    </label>
-                                    <div class="setting-separator"></div>
-                                </div>
-
-                                <div class="setting">
-                                    <label style="">Enable Universal User Sniper</label>
-                                    <p>This allows you to join a user, without needing to be friends with them.</p>
-                                    <p>Only requirement is that you know what game they are playing.</p>
-                                    <label class="toggle-switch">
-                                        <input type="checkbox" id="enableUniversalSniper" data-setting-name="universalSniperEnabled">
-                                        <span class="slider"></span>
-                                    </label>
-                                    <div class="setting-separator"></div>
-                                </div>
-                            `
-                        },
-                        {
-                            name: "Profile",
-                            content: `
-                                <div class="setting">
-                                <label style="">Enable Hidden User Games</label>
-                                <p>Shows a users hidden games on their profile.</p>
-                                <label class="toggle-switch">
-                                <input type="checkbox" id="enableUserGames" data-setting-name="userGamesEnabled">
-                                <span class="slider"></span>
-                                </label>
-                                <div class="setting-separator"></div>
-                                </div>
-                                <div class="setting">
-                                <label style="">Enable Instant Joiner</label>
-                                <p>This joins a user instantly when they go into a game, best used for people with a lot of people trying to join them.</p>
-                                <p>It is recommended that you uninstall the microsoft store version of roblox, if you plan to use this feature.</p>
-                                <p>This feature requires the user to be friends with you or have their joins on.</p>
-                                <label class="toggle-switch">
-                                <input type="checkbox" id="enableUserInstantJoin" data-setting-name="userSniperEnabled">
-                                <span class="slider"></span>
-                                </label>
-                                <div class="setting-separator"></div>
-                                </div>
-                            `
-                        },
-
-                        {
-                            name: "Communities",
-                            content: `
-                                <div class="setting">
-                                <label style="">Enable Hidden Community Games</label>
-                                <p>Shows a communities hidden games.</p>
-                                <label class="toggle-switch">
-                                <input type="checkbox" id="enableGroupGames" data-setting-name="groupGamesEnabled">
-                                <span class="slider"></span>
-                                </label>
-                                <div class="setting-separator"></div>
-                                </div>
-
-                                <div class="setting">
-                                <label style="">Enable Unpending Robux</label>
-                                <p>Shows an estimate of how many pending Robux will stop pending within 24 or 72 hours.</p>
-                                <label class="toggle-switch">
-                                <input type="checkbox" id="enablePendingRobux" data-setting-name="pendingRobuxEnabled">
-                                <span class="slider"></span>
-                                </label>
-                                <div class="setting-separator"></div>
-                                </div>
-                            `
-                        },
-                        {
-                            name: "Avatar",
-                            content: `
-                                <div class="setting">
-                                <label style="">Remove R6 Warning</label>
-                                <p>Removes the R6 warning when switching to R6</p>
-                                <label class="toggle-switch">
-                                <input type="checkbox" id="enableForceR6" data-setting-name="forceR6Enabled">
-                                <span class="slider"></span>
-                                </label>
-                                <div class="setting-separator"></div>
-                                </div>
-                                <div class="setting">
-                                <label style="">Enable R6 Fix (BETA)</label>
-                                 <p>Stops Roblox from automatically switching your character to R15 when equiping dynamic heads.</p>
-                                  <p>This requires you to use the english language on Roblox.</p>
-                                <label class="toggle-switch">
-                                <input type="checkbox" id="enableR6Fix" data-setting-name="fixR6Enabled">
-                                <span class="slider"></span>
-                                </label>
-                                <div class="setting-separator"></div>
-                                </div>
-                            `
-                        },
-                    ];
+                    const settingSections = Object.keys(SETTINGS_CONFIG).map(sectionName => ({
+                        name: SETTINGS_CONFIG[sectionName].title,
+                        content: generateSettingsUI(sectionName)
+                    }));
                     
                     sectionButtonsContainer.innerHTML = '';
                     settingSections.forEach((section, index) => {
@@ -1775,30 +1529,31 @@ async function checkRoValraPage() {
                         }
 
                         function updateDependentUiStates() {
-                            const regionSelectorCheckbox = settingsContent.querySelector('#enableRegionSelector');
-                            const simpleUiCheckbox = settingsContent.querySelector('#enableSimpleRegionUI');
-                            const simpleUiSettingDiv = settingsContent.querySelector('#setting-region-simple-ui');
-                            const preferredRegionSelect = settingsContent.querySelector('#preferredRegionSelect');
-                            const preferredRegionSettingDiv = settingsContent.querySelector('#setting-preferred-region');
-
-                            if (regionSelectorCheckbox && simpleUiCheckbox && simpleUiSettingDiv) {
-                                const isRegionSelectorEnabled = regionSelectorCheckbox.checked;
-
-                                // Only disable the Simple UI settings when Region Selector is disabled
-                                simpleUiCheckbox.disabled = !isRegionSelectorEnabled;
-                                if (isRegionSelectorEnabled) {
-                                    simpleUiSettingDiv.classList.remove('disabled-setting');
-                                } else {
-                                    simpleUiSettingDiv.classList.add('disabled-setting');
+                            // Dynamically find all parent settings that have child settings
+                            for (const sectionName in SETTINGS_CONFIG) {
+                                const section = SETTINGS_CONFIG[sectionName];
+                                for (const [settingName, setting] of Object.entries(section.settings)) {
+                                    if (setting.childSettings) {
+                                        const parentCheckbox = settingsContent.querySelector(`#${settingName}`);
+                                        if (parentCheckbox) {
+                                            const isParentEnabled = parentCheckbox.checked;
+                                            
+                                            for (const [childName, childSetting] of Object.entries(setting.childSettings)) {
+                                                const childSettingDiv = settingsContent.querySelector(`#setting-${childName}`);
+                                                const childInput = settingsContent.querySelector(`#${childName}`);
+                                                
+                                                if (childSettingDiv && childInput) {
+                                                    childInput.disabled = !isParentEnabled;
+                                                    if (isParentEnabled) {
+                                                        childSettingDiv.classList.remove('disabled-setting');
+                                                    } else {
+                                                        childSettingDiv.classList.add('disabled-setting');
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
-                            } else {
-                                console.warn("Could not find all required elements for dependent UI state update.", {
-                                    regionSelectorExists: !!regionSelectorCheckbox,
-                                    simpleUiCheckboxExists: !!simpleUiCheckbox,
-                                    simpleUiDivExists: !!simpleUiSettingDiv,
-                                    preferredRegionSelectExists: !!preferredRegionSelect,
-                                    preferredRegionDivExists: !!preferredRegionSettingDiv
-                                });
                             }
                         }
 
@@ -1808,19 +1563,17 @@ async function checkRoValraPage() {
                             checkbox.addEventListener('change', handleCheckboxChange);
                         });
 
-                        const preferredRegionSelect = settingsContent.querySelector('#preferredRegionSelect');
-                        if(preferredRegionSelect) {
-                            preferredRegionSelect.removeEventListener('change', handleSelectChange);
-                            preferredRegionSelect.addEventListener('change', handleSelectChange);
-                        }
+                        const selects = settingsContent.querySelectorAll('select');
+                        selects.forEach(select => {
+                            select.removeEventListener('change', handleSelectChange);
+                            select.addEventListener('change', handleSelectChange);
+                        });
 
                         function handleCheckboxChange(event) {
-                                const settingName = event.target.dataset.settingName;
-                                const value = event.target.checked;
-                                handleSaveSettings(settingName, value);
-                                if (settingName === 'regionSelectorEnabled') {
-                                    updateDependentUiStates();
-                                }
+                            const settingName = event.target.dataset.settingName;
+                            const value = event.target.checked;
+                            handleSaveSettings(settingName, value);
+                            updateDependentUiStates();
                         }
 
                         function handleSelectChange(event) {
@@ -2023,9 +1776,15 @@ const buttonData = [
             </div>
         `},
     {
-        text: "Settings", content: ""
+        text: "Settings", content: `
+        <div id="settings-content" style="padding: 15px; background-color:rgba(255, 255, 255, 0); border-radius: 8px;">
+            <div id="setting-section-buttons" style="display: flex; margin-bottom: 20px;">
+                </div>
+            <div id="setting-section-content">
+            </div>
+        </div>
+        `
     },
-
 ];
 
 const settingSections = Object.keys(SETTINGS_CONFIG).map(sectionName => ({

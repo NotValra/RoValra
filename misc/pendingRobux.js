@@ -343,7 +343,10 @@ function storeResults(groupId, results) {
     RobloxUnpendingEstimatorData = {
         timestamp: Date.now(),
         groupId: groupId,
-        estimatedRobux: results.estimatedRobux,
+        estimatedRobux: {
+            amount: results.amount,
+            hasEnoughData: results.hasEnoughData
+        },
         pendingDays: results.pendingDays,
         lastCalculation: results.lastCalculation
     };
@@ -438,7 +441,7 @@ function injectResultElement(targetElement, result) {
     if (!result.hasEnoughData) {
         estimatorRow.innerHTML = `
             <td class="unpending-sales">
-                <span class="ng-binding">Unpending Robux within 24 hrs</span>
+                <span class="ng-binding">Unpending Robux tomorrow</span>
                 <span class="icon-moreinfo"; margin-left: 4px; opacity: 1; font-size: 12px;">
                     <span class="tooltip-text">Not enough transaction history to make an accurate estimate. Please wait for more transactions to complete.</span>
                 </span>
@@ -451,9 +454,9 @@ function injectResultElement(targetElement, result) {
         const timeWindow = result.timeWindow || 24;
         estimatorRow.innerHTML = `
             <td class="unpending-sales">
-                <span class="ng-binding">Unpending Robux within ${timeWindow} hrs</span>
+                <span class="ng-binding">Unpending Robux tomorrow</span>
                 <span class="icon-moreinfo"; margin-left: 4px; opacity: 1; font-size: 12px;">
-                    <span class="tooltip-text">This is an estimate of how many Robux from your pending balance will become available within the next ${timeWindow} hours, based on your transaction data${timeWindow === 72 ? ' (extended window due to low transaction volume)' : ''}. The actual amount may vary.</span>
+                    <span class="tooltip-text">This is an estimate of how many Robux from your pending balance will become available tomorrow, based on your transaction data. The actual amount may vary.</span>
                 </span>
             </td>
             <td class="icon-robux-container">
@@ -496,7 +499,7 @@ function injectResultElement(targetElement, result) {
                 const estimatedResult = calculateUnpendingRobux(allFetchedTransactions, inferredDays);
 
                 storeResults(GROUP_ID, {
-                    estimatedRobux: estimatedResult.amount,
+                    amount: estimatedResult.amount,
                     hasEnoughData: estimatedResult.hasEnoughData,
                     pendingDays: inferredDays,
                     lastCalculation: new Date().toISOString()
@@ -510,7 +513,7 @@ function injectResultElement(targetElement, result) {
 
         setInterval(() => {
             const targetElement = document.querySelector(TARGET_ELEMENT_SELECTOR);
-            if (targetElement && !document.querySelector('.unpending-estimator-result')) {
+            if (targetElement && !document.querySelector('.estimator-row')) {
                 const storedResults = getStoredResults();
                 if (storedResults) {
                     injectResultElement(targetElement, storedResults.estimatedRobux);
