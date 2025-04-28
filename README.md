@@ -82,11 +82,7 @@
 </details>
 
 # Known Issues
-- **Hidden Games on user profiles might not show**
-- **Unpending Robux sometimes shows insufficient data even tho there is sufficient data**
-- **The preffered region play button, closes almost instantly after not finding a server in the right region**
-- **The preffered region play button thinks it errors when trying to use it on a singleplayer game**
-
+- no known issues.
 # How to install
 
 <details>
