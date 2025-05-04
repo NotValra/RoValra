@@ -1,7 +1,6 @@
 chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
     if (result.PreferredRegionEnabled) {
         if (window.location.pathname.includes('/games/')) {
-        if (document.querySelector("#game-details-play-button-container > button.btn-common-play-game-unplayable-lg.btn-primary-md.btn-full-width").getAttribute("data-testid") == "play-unplayable-button") {
         if (window.myCustomButtonExtensionInitialized) {
         } else {
             window.myCustomButtonExtensionInitialized = true;
@@ -1161,4 +1160,4 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
         const existingButton = document.getElementById(newButtonId);
         if (existingButton) existingButton.remove();
     }
-}}});
+}});
