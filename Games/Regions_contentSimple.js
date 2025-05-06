@@ -18,7 +18,7 @@ chrome.storage.local.get({ regionSelectorEnabled: false, showServerListOverlay: 
             }
             let defaultRegions = [
                 "SG", "DE", "FR", "JP", "BR", "NL",
-                "US-CA", "US-VA", "US-IL", "US-TX", "US-FL", "US-NY",
+                "US-CA", "US-VA", "US-IL", "US-TX", "US-FL", "US-NY", "US-WA",
                 "AU", "GB", "IN"
             ];
 
@@ -27,9 +27,9 @@ chrome.storage.local.get({ regionSelectorEnabled: false, showServerListOverlay: 
                 "DE": { latitude: 50.1109, longitude: 8.6821, city: "Frankfurt", state: null, country: "Germany" }, 
                 "FR": { latitude: 48.8566, longitude: 2.3522, city: "Paris", state: null, country: "France" }, 
                 "JP": { latitude: 35.6895, longitude: 139.6917, city: "Tokyo", state: null, country: "Japan" },
-                "BR": { latitude: -14.2350, longitude: -51.9253, city: "Removed by Roblox", state: null, country: "Brazil" }, 
+                "BR": { latitude: -14.2350, longitude: -51.9253, city: "Coming early 2026", state: null, country: "Brazil" }, 
                 "NL": { latitude: 52.3676, longitude: 4.9041, city: "Amsterdam", state: null, country: "Netherlands" },
-                "US-CA": { latitude: 34.0522, longitude: -118.2437, city: "Los Angeles", state: "California", country: "United States" }, 
+                "US-CA": { latitude: 34.0522, longitude: -118.2437, city: "LA", state: "California", country: "United States" }, 
                 "US-VA": { latitude: 38.9577, longitude: -77.1445, city: "Ashburn", state: "Virginia", country: "United States" },
                 "US-IL": { latitude: 41.8781, longitude: -87.6298, city: "Chicago", state: "Illinois", country: "United States" }, 
                 "US-TX": { latitude: 32.7767, longitude: -96.7970, city: "Dallas", state: "Texas", country: "United States" }, 

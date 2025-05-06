@@ -183,6 +183,7 @@ function getPlaceIdFromUrl() {
         pendingRobuxEnabled: true,
         PreferredRegionEnabled: true,
         privateInventoryEnabled: true,
+        ServerdataEnabled: true
     };
 
     const settingsToLoad = {

@@ -20,7 +20,7 @@ chrome.storage.local.get({
     }
     let defaultRegions = [ 
         "SG", "DE", "FR", "JP", "BR", "NL",
-        "US-CA", "US-VA", "US-IL", "US-TX", "US-FL", "US-NY",
+        "US-CA", "US-VA", "US-IL", "US-TX", "US-FL", "US-NY", "US-WA",
         "AU", "GB", "IN"
     ];
 
@@ -37,6 +37,7 @@ chrome.storage.local.get({
         "US-TX": { latitude: 32.7767, longitude: -96.7970, city: "Dallas", state: "Texas", country: "United States" }, 
         "US-FL": { latitude: 25.7617, longitude: -80.1918, city: "Miami", state: "Florida", country: "United States" }, 
         "US-NY": { latitude: 40.7128, longitude: -74.0060, city: "New York City", state: "New York", country: "United States" }, 
+        "US-WA": { latitude: 47.6062, longitude: -122.3321, city: "Seattle", state: "Washington", country: "United States" }, 
         "AU": { latitude: -33.8688, longitude: 151.2093, city: "Sydney", state: null, country: "Australia" }, 
         "GB": { latitude: 51.5074, longitude: -0.1278, city: "London", state: null, country: "United Kingdom" }, 
         "IN": { latitude: 19.0760, longitude: 72.8777, city: "Mumbai", state: null, country: "India" }  

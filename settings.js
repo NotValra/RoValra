@@ -11,6 +11,7 @@ const REGIONS = {
     "US-TX": { latitude: 32.7767, longitude: -96.7970, city: "Dallas", state: "Texas", country: "United States" },
     "US-FL": { latitude: 25.7617, longitude: -80.1918, city: "Miami", state: "Florida", country: "United States" },
     "US-NY": { latitude: 40.7128, longitude: -74.0060, city: "New York City", state: "New York", country: "United States" },
+    "US-WA": { latitude: 47.6062, longitude: -122.3321, city: "Seattle", state: "Washington", country: "United States" }, 
     "AU": { latitude: -33.8688, longitude: 151.2093, city: "Sydney", state: null, country: "Australia" },
     "GB": { latitude: 51.5074, longitude: -0.1278, city: "London", state: null, country: "United Kingdom" },
     "IN": { latitude: 19.0760, longitude: 72.8777, city: "Mumbai", state: null, country: "India" }
@@ -154,6 +155,43 @@ const SETTINGS_CONFIG = {
                 default: false
             }
         }
+    },
+    Miscellaneous: {
+        title: "Miscellaneous",
+        settings: {
+            ServerdataEnabled: {
+                label: "Send Server ids to RoValras api",
+                description: ["This feature is here since im trying to figure out how well my server handles stuff like this.",
+                    "No personal data is sent, not even user id or username, only the server ids and the place id that ur client found",
+                    "This might be come a permanent feature if this test is successful.",
+                    "Leaving this setting on will help me develop the extension."
+                ],
+                type: "checkbox",
+                default: true
+            },
+            revertLogo: {
+                label: "Change the app launching icon",
+                description: ["This changes the icon that shows when you join a game.",
+                    "Old icon is the icon it had before they changed it to the new app client icon.",
+                    "And ofc custom icon is any image you want."
+                ],
+                type: "select",
+                options: [
+                    { value: 'NEW', label: 'Off' },
+                    { value: 'OLD', label: 'Old icon' },
+                    { value: 'CUSTOM', label: 'Custom icon' }
+                ],
+                default: 'NEW'
+            },
+            customLogoData: {
+                label: "Custom icon",
+                description: ["Upload your custom image."],
+                type: "file",
+                default: null
+            }
+            
+        }
+        
     }
 };
 
@@ -171,15 +209,19 @@ function generateSettingsUI(section) {
             html += `<p>${desc}</p>`;
         });
 
-        html += generateSettingInput(settingName, setting);
+        html += generateSettingInput(settingName, setting, sectionConfig.settings); 
 
         if (setting.childSettings) {
             for (const [childName, childSetting] of Object.entries(setting.childSettings)) {
+                const isConditional = childSetting.condition;
+                const displayStyle = isConditional ? 'display: none;' : ''; 
+                
+
                 html += `
-                    <div class="setting" id="setting-${childName}" style="margin-left: 20px; margin-top: 10px; border-left: 0px solid #eee; padding-left: 15px;">
+                    <div class="setting" id="setting-${childName}" style="margin-left: 20px; margin-top: 10px; border-left: 0px solid #eee; padding-left: 15px; ${displayStyle}">
                         <label style="">${childSetting.label}</label>
                         ${childSetting.description.map(desc => `<p>${desc}</p>`).join('')}
-                        ${generateSettingInput(childName, childSetting)}
+                        ${generateSettingInput(childName, childSetting, setting.childSettings)}
                     </div>`;
             }
         }
@@ -190,7 +232,7 @@ function generateSettingsUI(section) {
     return html;
 }
 
-function generateSettingInput(settingName, setting) {
+function generateSettingInput(settingName, setting, allSettingsInSection) {
     if (setting.type === 'checkbox') {
         const toggleClass = setting.disabled ? 'toggle-switch1' : 'toggle-switch';
         return `
@@ -214,6 +256,13 @@ function generateSettingInput(settingName, setting) {
             <select id="${settingName}" data-setting-name="${settingName}" style="width: 100%; padding: 8px; margin-top: 5px; border-radius: 4px; border: 1px solid #555; background-color: #393b3d; color: #eee;">
                 ${options}
             </select>`;
+    } else if (setting.type === 'file') {
+        return `
+            <div id="file-input-container-${settingName}" style="margin-top: 5px;">
+                <input type="file" id="${settingName}" data-setting-name="${settingName}" accept="image/*" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #555; background-color: #393b3d; color: #eee;">
+                <img id="preview-${settingName}" src="#" alt="Image Preview" style="max-width: 96px; max-height: 96px; margin-top: 10px; display: none; border-radius: 4px; border: 1px solid #555;"/>
+                <button id="clear-${settingName}" data-setting-name="${settingName}" style="margin-top: 5px; padding: 6px 10px; border-radius: 4px; border: 1px solid #555; background-color: #c0392b; color: white; cursor: pointer; display: none;">Clear Custom Logo</button>
+            </div>`;
     }
     return '';
 }
@@ -361,10 +410,10 @@ function updateThemeStyles_settingsPage(theme) {
         },
         light: {
             button: {
-                base: 'rgb(242, 244, 245)',
-                hover: 'rgb(234, 236, 237)',
-                active: 'rgb(224, 226, 227)',
-                text: 'rgb(57, 59, 61)'
+                base: 'rgb(227, 230, 232)', 
+                hover: 'rgb(218, 221, 224)', 
+                active: 'rgb(204, 208, 212)', 
+                text: 'rgb(36, 41, 45)'    
             },
             select: {
                 bg: 'rgb(255, 255, 255)',
@@ -379,15 +428,6 @@ function updateThemeStyles_settingsPage(theme) {
     const buttons = document.querySelectorAll('.setting-section-button');
     buttons.forEach(button => {
         Object.assign(button.style, {
-            padding: '10px 16px',
-            borderRadius: '8px',
-            border: 'none',
-            cursor: 'pointer',
-            fontSize: '14px',
-            fontWeight: '500',
-            transition: 'all 0.2s ease',
-            margin: '0 8px 0 0',
-            fontFamily: 'Gotham SSm A, Gotham SSm B, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif',
             backgroundColor: currentColors.button.base,
             color: currentColors.button.text
         });
@@ -498,7 +538,10 @@ function updateThemeStyles_rovalraPage(theme) {
     }
 }
 
-function applyTheme() {
+async function applyTheme() {
+    const latestTheme = await fetchThemeFromAPI(); 
+    currentTheme = latestTheme; 
+
     if (window.location.href.includes('/RoValra')) {
         updateThemeStyles_rovalraPage(currentTheme);
     } else if (isSettingsPage) {
@@ -716,7 +759,10 @@ const loadSettings = async () => {
             forceR6Enabled: true,
             fixR6Enabled: false,
             inviteEnabled: false,
-            pendingRobuxEnabled: true
+            pendingRobuxEnabled: true,
+            ServerdataEnabled: true,
+            revertLogo: 'NEW',
+            customLogoData: null 
         };
 
         chrome.storage.local.get(defaultSettings, (settings) => {
@@ -740,6 +786,9 @@ const handleSaveSettings = async (settingName, value) => {
         const settings = {};
         settings[settingName] = value;
         
+        if (settingName === 'customLogoData' && value === null) {
+        }
+
         return new Promise((resolve, reject) => {
             chrome.storage.local.set(settings, () => {
                 if (chrome.runtime.lastError) {
@@ -764,7 +813,6 @@ const initSettings = async (settingsContent) => {
     const settings = await loadSettings();
 
     if (settings) {
-        // Dynamically find all settings from SETTINGS_CONFIG and set their values
         for (const sectionName in SETTINGS_CONFIG) {
             const section = SETTINGS_CONFIG[sectionName];
             for (const [settingName, setting] of Object.entries(section.settings)) {
@@ -774,12 +822,45 @@ const initSettings = async (settingsContent) => {
                         element.checked = settings[settingName] !== undefined ? settings[settingName] : setting.default;
                     } else if (setting.type === 'select') {
                         element.value = settings[settingName] || setting.default;
+                    } else if (setting.type === 'file') {
+                        const previewElement = settingsContent.querySelector(`#preview-${settingName}`);
+                        const clearButton = settingsContent.querySelector(`#clear-${settingName}`);
+
+                        if (settingName === 'customLogoData') {
+                            const currentRevertLogoValue = settings['revertLogo'];
+                            const currentCustomLogoData = settings[settingName];
+
+                            if (previewElement) {
+                                if (currentCustomLogoData) { 
+                                    previewElement.src = currentCustomLogoData;
+                                    previewElement.style.display = 'block';
+                                    if (clearButton) clearButton.style.display = 'inline-block';
+                                } else if (currentRevertLogoValue === 'CUSTOM') { 
+                                    previewElement.src = chrome.runtime.getURL("Assets/icon-128.png");
+                                    previewElement.style.display = 'block';
+                                    if (clearButton) clearButton.style.display = 'none'; 
+                                } else { 
+                                    previewElement.src = '#';
+                                    previewElement.style.display = 'none';
+                                    if (clearButton) clearButton.style.display = 'none';
+                                }
+                            }
+                        } else { 
+                            if (previewElement && settings[settingName]) {
+                                previewElement.src = settings[settingName];
+                                previewElement.style.display = 'block';
+                                if (clearButton) clearButton.style.display = 'inline-block';
+                            } else if (previewElement) {
+                                previewElement.src = '#'; 
+                                previewElement.style.display = 'none';
+                                if (clearButton) clearButton.style.display = 'none';
+                            }
+                        }
                     }
                 } else {
-                    console.warn(`#${settingName} not found in settingsContent in initSettings`);
+                    console.warn(`#${settingName} not found in settingsContent in initSettings for section ${sectionName}`);
                 }
 
-                // Handle child settings if they exist
                 if (setting.childSettings) {
                     for (const [childName, childSetting] of Object.entries(setting.childSettings)) {
                         const childElement = settingsContent.querySelector(`#${childName}`);
@@ -789,7 +870,6 @@ const initSettings = async (settingsContent) => {
                             } else if (childSetting.type === 'select') {
                                 childElement.value = settings[childName] || childSetting.default;
 
-                                // Special handling for region select
                                 if (childName === 'robloxPreferredRegion' && childElement.options.length === 0) {
                                     Object.keys(REGIONS).forEach(regionCode => {
                                         const option = document.createElement('option');
@@ -797,6 +877,17 @@ const initSettings = async (settingsContent) => {
                                         option.textContent = getFullRegionName(regionCode);
                                         childElement.appendChild(option);
                                     });
+                                }
+                            } else if (childSetting.type === 'file') {
+                                const previewElement = settingsContent.querySelector(`#preview-${childName}`);
+                                const clearButton = settingsContent.querySelector(`#clear-${childName}`);
+                                if (previewElement && settings[childName]) {
+                                    previewElement.src = settings[childName];
+                                    previewElement.style.display = 'block';
+                                    if(clearButton) clearButton.style.display = 'inline-block';
+                                } else if (previewElement) {
+                                    previewElement.style.display = 'none';
+                                    if(clearButton) clearButton.style.display = 'none';
                                 }
                             }
                         } else {
@@ -806,6 +897,7 @@ const initSettings = async (settingsContent) => {
                 }
             }
         }
+        updateConditionalSettingsVisibility(settingsContent, settings);
     }
 };
 
@@ -886,210 +978,12 @@ async function updateContent(buttonInfo, contentContainer, buttonData) {
     }
 }
 
-function applyTheme() {
-    if (window.location.href.includes('/RoValra')) {
-        updateThemeStyles_rovalraPage(currentTheme);
-    } else if (isSettingsPage) {
-        updateThemeStyles_settingsPage(currentTheme);
-    }
-}
-
-function addCustomButton() {
-    if (!window.location.href.startsWith('https://www.roblox.com/my/account')) {
-        return;
-    }
-
-    const menuList = document.querySelector('ul.menu-vertical[role="tablist"]');
-
-    if (!menuList) {
-        addPopoverButton();
-        return;
-    }
-
-    let divider = menuList.querySelector('li.rbx-divider.thick-height');
-
-    if (!divider) {
-        const lastMenuItem = menuList.querySelector('li.menu-option[role="tab"]:last-of-type');
-        if (!lastMenuItem) {
-            addPopoverButton()
-            return
-        }
-        const newDivider = document.createElement('li');
-        newDivider.classList.add('rbx-divider', 'thick-height');
-        newDivider.style.width = '100%';
-        newDivider.style.height = '2px';
-        lastMenuItem.insertAdjacentElement('afterend', newDivider);
-        divider = newDivider;
-
-    } else {
-        divider.style.width = '100%';
-    }
-
-    if (rovalraButtonAdded) {
-        observer.disconnect();
-        return;
-    }
-
-    const existingButton = menuList.querySelector('li.menu-option > a > span.font-caption-header[textContent="RoValra Settings"]');
-    if (existingButton) {
-        return;
-    }
-    const newButtonListItem = document.createElement('li');
-    newButtonListItem.classList.add('menu-option');
-    newButtonListItem.setAttribute('role', 'tab');
-
-    const newButtonLink = document.createElement('a');
-    newButtonLink.href = 'https://www.roblox.com/my/account?rovalra=info#!/info';
-    newButtonLink.classList.add('menu-option-content');
-    newButtonLink.style.cursor = 'pointer';
-    newButtonLink.style.display = 'flex';
-    newButtonLink.style.alignItems = 'center';
-
-    const newButtonSpan = document.createElement('span');
-    newButtonSpan.classList.add('font-caption-header');
-    newButtonSpan.textContent = 'RoValra Settings';
-    newButtonSpan.style.fontSize = '12px'
-
-    const logo = document.createElement('img');
-    logo.src = chrome.runtime.getURL("Assets/icon-128.png");
-    logo.style.width = '15px';
-    logo.style.height = '15px';
-    logo.style.marginRight = '5px';
-    logo.style.verticalAlign = 'middle';
-
-    newButtonLink.appendChild(logo);
-    newButtonLink.appendChild(newButtonSpan);
-    newButtonListItem.appendChild(newButtonLink);
-
-    divider.insertAdjacentElement('afterend', newButtonListItem);
-    rovalraButtonAdded = true;
-}
-
-function observeContentChanges() {
-    const targetNode = document.body;
-    if(!targetNode){
-        return;
-    }
-    const config = { childList: true, subtree: true };
-
-    observer = new MutationObserver(function(mutationsList, observer) {
-        for(const mutation of mutationsList) {
-            if (mutation.type === 'childList') {
-                for(const addedNode of mutation.addedNodes) {
-                    if(addedNode.nodeType === Node.ELEMENT_NODE) {
-                        if (addedNode.querySelector('ul.menu-vertical[role="tablist"]')) {
-                            addCustomButton();
-                            return;
-                        }
-                    }
-                }
-            }
-        }
-    });
-    observer.observe(targetNode, config);
-
-    if (document.querySelector('ul.menu-vertical[role="tablist"]')){
-        addCustomButton()
-    }
-}
-
-function addPopoverButton() {
-    if (isPopoverButtonAdding) {
-        return;
-    }
-
-    isPopoverButtonAdding = true;
-
-    const popoverMenu = document.getElementById('settings-popover-menu');
-    if (!popoverMenu) {
-        isPopoverButtonAdding = false; 
-        return;
-    }
-
-    const existingButton = popoverMenu.querySelector('li.list-item > a > span.font-caption-header[textContent="RoValra Settings"]');
-    if (existingButton) {
-        isPopoverButtonAdding = false;
-        return;
-    }
-
-    const existingButtons = popoverMenu.querySelectorAll('li.list-item');
-    if (existingButtons.length > 1) {
-        for (let i = 1; i < existingButtons.length; i++) {
-            existingButtons[i].remove();
-        }
-    }
-
-    const newButtonListItem = document.createElement('li');
-    newButtonListItem.classList.add('list-item', 'menu-option');
-
-    const newButtonLink = document.createElement('a');
-    newButtonLink.href = 'https://www.roblox.com/my/account?rovalra=info#!/info';
-    newButtonLink.classList.add('menu-option-content');
-    newButtonLink.style.cursor = 'pointer';
-    newButtonLink.style.display = 'flex';
-    newButtonLink.style.alignItems = 'center';
-
-    const newButtonSpan = document.createElement('span');
-    newButtonSpan.classList.add('font-caption-header');
-    newButtonSpan.textContent = 'RoValra Settings';
-    newButtonSpan.style.fontSize = '16px';
-    newButtonSpan.style.marginLeft = '-1px';
-
-    const logo = document.createElement('img');
-    logo.src = chrome.runtime.getURL("Assets/icon-128.png");
-    logo.style.width = '17px';
-    logo.style.height = '17px';
-    logo.style.marginRight = '5px';
-    logo.style.verticalAlign = 'middle';
-
-    newButtonLink.appendChild(logo)
-    newButtonLink.appendChild(newButtonSpan);
-    newButtonListItem.appendChild(newButtonLink);
-
-    newButtonLink.addEventListener('click', function () {
-        const popover = document.querySelector('.popover-menu.settings-popover');
-        if (popover) {
-            popover.style.display = 'none';
-        }
-    });
-    popoverMenu.insertBefore(newButtonListItem, popoverMenu.firstChild);
-
-    isPopoverButtonAdding = false; 
-}
-
-function startObserver() {
-    if (observer) {
-        observer.disconnect();
-    }
-
-    const targetElement = document.getElementById('navbar-settings');
-
-    if (!targetElement) {
-        return;
-    }
-
-    observer = new MutationObserver(mutations => {
-        for (const mutation of mutations) {
-            if (mutation.type === 'childList' || mutation.type === 'subtree') {
-                for (const addedNode of mutation.addedNodes) {
-                    if (addedNode.nodeType === Node.ELEMENT_NODE) {
-                        if (addedNode.id === 'settings-popover-menu' || addedNode.querySelector('#settings-popover-menu')) {
-                            addPopoverButton();
-                            return; 
-                        }
-                    }
-                }
-            }
-        }
-    });
-
-    observer.observe(targetElement, { childList: true, subtree: true }); 
-}
-
 async function checkRoValraPage() {
     if (!window.location.href.includes('?rovalra=info')) {
+        isSettingsPage = false;
         return;
     }
+    isSettingsPage = true;
 
     const containerMain = document.querySelector('main.container-main');
     if (!containerMain) {
@@ -1151,7 +1045,7 @@ async function checkRoValraPage() {
     reactUserAccountBaseDiv.appendChild(settingsContainer)
     contentDiv.appendChild(userAccountDiv)
     containerMain.appendChild(contentDiv);
-    applyTheme();
+    await applyTheme(); 
     if (rovalraHeader && rovalraHeader.textContent === 'RoValra Settings' && settingsContainer) {
         contentDiv.style.cssText = `
             width: 100% !important;
@@ -1192,6 +1086,12 @@ async function checkRoValraPage() {
         settingsContainer.style.position = 'relative';
         settingsContainer.style.overflow = 'visible'
         const style = document.createElement('style');
+
+        const isInitiallyDark = currentTheme === 'dark';
+        const initialButtonBg = isInitiallyDark ? 'rgb(45, 48, 51)' : 'rgb(227, 230, 232)';
+        const initialButtonText = isInitiallyDark ? 'rgb(230, 230, 230)' : 'rgb(36, 41, 45)';
+        const initialButtonActiveBg = isInitiallyDark ? 'rgb(69, 73, 77)' : 'rgb(204, 208, 212)';
+
         style.textContent = `
             .setting {
                 display: flex;
@@ -1320,22 +1220,23 @@ async function checkRoValraPage() {
                 margin-left: 0px;
             }
             .setting-section-button {
-                padding: 10px 15px;
-                border-radius: 5px;
+                padding: 10px 16px;
+                border-radius: 8px;
                 border: none;
                 cursor: pointer;
-                background-color: rgb(57, 59, 61);;
-                color: rgba(255, 255, 255, 0.9);
-                margin-right: 5px;
+                background-color: ${initialButtonBg};
+                color: ${initialButtonText};
+                margin: 0 8px 0 0;
                 font-size: 14px;
+                font-weight: bold;
+                font-family: Gotham SSm A, Gotham SSm B, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+                transition: all 0.1s ease;
             }
 
             .setting-section-button[data-active="true"] {
-                background-color: rgb(117, 119, 121);
+                background-color: ${initialButtonActiveBg};
             }
-            .setting-section-button:hover:not([data-active="true"]) {
-                background-color: rgb(47, 49, 51);;
-            }
+            /* Static hover rule was removed, JS handles it dynamically based on theme */
 
 
         `;
@@ -1504,15 +1405,14 @@ async function checkRoValraPage() {
                             const previouslyActiveSectionButton = sectionButtonsContainer.querySelector('button[data-active="true"]');
                             if (previouslyActiveSectionButton) {
                                 previouslyActiveSectionButton.dataset.active = 'false';
-                                previouslyActiveSectionButton.style.backgroundColor = 'rgb(57, 59, 61)';
+                                previouslyActiveSectionButton.style.backgroundColor = currentTheme === 'dark' ? 'rgb(57, 59, 61)' : 'rgb(227, 230, 232)';
                             }
                             sectionButton.dataset.active = 'true';
-                            sectionButton.style.backgroundColor = 'rgb(117, 119, 121)';
+                            sectionButton.style.backgroundColor = currentTheme === 'dark' ? 'rgb(69, 73, 77)' : 'rgb(204, 208, 212)';
                             settingsContent.innerHTML = section.content;
-                            await initSettings(settingsContent);
-                            initSettings(settingsContent); 
+                            await initSettings(settingsContent); 
                             attachSettingListeners(settingsContent); 
-                            applyTheme();
+                            await applyTheme(); 
                         });
                         sectionButtonsContainer.appendChild(sectionButton);
                     });
@@ -1529,7 +1429,6 @@ async function checkRoValraPage() {
                         }
 
                         function updateDependentUiStates() {
-                            // Dynamically find all parent settings that have child settings
                             for (const sectionName in SETTINGS_CONFIG) {
                                 const section = SETTINGS_CONFIG[sectionName];
                                 for (const [settingName, setting] of Object.entries(section.settings)) {
@@ -1569,29 +1468,80 @@ async function checkRoValraPage() {
                             select.addEventListener('change', handleSelectChange);
                         });
 
+                        const fileInputs = settingsContent.querySelectorAll('input[type="file"]');
+                        fileInputs.forEach(fileInput => {
+                            fileInput.removeEventListener('change', handleFileChange);
+                            fileInput.addEventListener('change', handleFileChange);
+
+                            const settingName = fileInput.dataset.settingName;
+                            const clearButton = settingsContent.querySelector(`#clear-${settingName}`);
+                            if (clearButton) {
+                                clearButton.removeEventListener('click', handleClearFile);
+                                clearButton.addEventListener('click', handleClearFile);
+                            }
+                        });
+
+
                         function handleCheckboxChange(event) {
                             const settingName = event.target.dataset.settingName;
                             const value = event.target.checked;
                             handleSaveSettings(settingName, value);
-                            updateDependentUiStates();
+                            loadSettings().then(settings => updateConditionalSettingsVisibility(settingsContent, settings));
                         }
 
                         function handleSelectChange(event) {
                             const settingName = event.target.dataset.settingName;
                             const value = event.target.value;
                             handleSaveSettings(settingName, value);
+                            if (settingName === 'revertLogo') {
+                                 loadSettings().then(settings => updateConditionalSettingsVisibility(settingsContent, settings));
+                            }
                         }
 
-                        updateDependentUiStates();
+                        function handleFileChange(event) {
+                            const settingName = event.target.dataset.settingName;
+                            const file = event.target.files[0];
+                            const preview = settingsContent.querySelector(`#preview-${settingName}`);
+                            const clearButton = settingsContent.querySelector(`#clear-${settingName}`);
 
+                            if (file) {
+                                const reader = new FileReader();
+                                reader.onload = function(e) {
+                                    handleSaveSettings(settingName, e.target.result);
+                                    if (preview) {
+                                        preview.src = e.target.result;
+                                        preview.style.display = 'block';
+                                    }
+                                    if (clearButton) clearButton.style.display = 'inline-block';
+                                }
+                                reader.readAsDataURL(file);
+                            }
+                        }
+                        
+                        function handleClearFile(event) {
+                            const settingName = event.target.dataset.settingName;
+                            const fileInput = settingsContent.querySelector(`#${settingName}`);
+                            const preview = settingsContent.querySelector(`#preview-${settingName}`);
+                            const clearButton = event.target;
+
+                            handleSaveSettings(settingName, null).then(() => {
+                                if (fileInput) fileInput.value = ''; 
+                                if (preview) {
+                                    preview.src = '#';
+                                    preview.style.display = 'none';
+                                }
+                                if (clearButton) clearButton.style.display = 'none';
+                            });
+                        }
+
+                        loadSettings().then(settings => updateConditionalSettingsVisibility(settingsContent, settings));
                     }
 
-                    applyTheme();
+                    await applyTheme(); 
                 } else {
                     await updateContent(item, contentContainer, buttonData);
-                    applyTheme();
+                    await applyTheme(); 
                 }
-                applyTheme();
             });
         });
 
@@ -1636,90 +1586,13 @@ async function checkRoValraPage() {
         }
         
         settingsContainer.insertAdjacentElement("afterbegin", rovalraHeader);
-        applyTheme();
+        await applyTheme();
     } else {
         contentDiv.style.cssText = '';
         const userAccountDiv = contentDiv.querySelector('.row.page-content.new-username-pwd-rule#user-account')
         if(userAccountDiv){
             userAccountDiv.style.cssText = '';
         }
-    }
-}
-
-async function updateContent(buttonInfo, contentContainer, buttonData) {
-    const isDarkMode = currentTheme === 'dark';
-    const contentColor = isDarkMode ? 'rgb(39, 41, 48)' : 'rgb(247, 247, 248)';
-    const textColor = isDarkMode ? 'rgb(189, 190, 190)' : 'rgb(96, 97, 98)';
-    const headerColor = isDarkMode ? '' : 'rgb(40, 40, 40)';
-    const discordLinkColor = isDarkMode ? '#7289da' : '#3479b7';
-    const githubLinkColor = isDarkMode ? '#2dba4e' : '#1e722a';
-
-    if (typeof buttonInfo === 'object' && buttonInfo !== null && buttonInfo.content) {
-        contentContainer.innerHTML = buttonInfo.content;
-        contentContainer.style.borderRadius = '8px';
-        contentContainer.style.backgroundColor = contentColor;
-        if (window.location.href.includes('/RoValra')) {
-            contentContainer.querySelectorAll('div, span, li, b').forEach(element => {
-                const computedStyle = window.getComputedStyle(element);
-                const elementColor = computedStyle.color;
-                if (elementColor === 'rgb(0, 0, 0)' || elementColor === 'rgb(255, 255, 255)') {
-                    element.style.setProperty('color', textColor, 'important');
-                }
-            });
-
-            contentContainer.querySelectorAll('h2').forEach(h2Element => {
-                if(isDarkMode){
-                    h2Element.style.setProperty('color', 'white', 'important');
-                } else{
-                    h2Element.style.removeProperty('color');
-                }
-            });
-        }
-
-        const allLinks = contentContainer.querySelectorAll('a');
-        allLinks.forEach(link => {
-            link.style.setProperty('text-decoration', 'underline', 'important');
-            link.style.setProperty('font-weight', 'bold', 'important');
-            link.style.setProperty('transition', 'color 0.3s ease', 'important');
-
-            link.addEventListener('mouseenter', function() {
-                const computedColor = window.getComputedStyle(this).color;
-                const lighterColor = lightenColor(computedColor, 0.2);
-                this.style.setProperty('color', lighterColor, 'important');
-            });
-            link.addEventListener('mouseleave', function() {
-                if (this.href.includes('discord.gg')) {
-                    this.style.setProperty('color', discordLinkColor, 'important');
-                }
-                else if(this.href.includes('github.com')) {
-                    this.style.setProperty('color', githubLinkColor, 'important');
-                } else{
-                    this.style.setProperty('color', 'inherit', 'important');
-                }
-            });
-        });
-
-        const discordLinks = contentContainer.querySelectorAll('a[href*="discord.gg"]');
-        discordLinks.forEach(link => {
-            link.style.setProperty('color', discordLinkColor, 'important');
-        });
-
-        const githubLinks = contentContainer.querySelectorAll('a[href*="github.com"]');
-        githubLinks.forEach(link => {
-            link.style.setProperty('color', githubLinkColor, 'important');
-        });
-
-        const rovalraHeader = contentContainer.querySelector('#react-user-account-base > h1');
-        if (rovalraHeader) {
-            rovalraHeader.style.setProperty('color', headerColor, 'important');
-        }
-    } else {
-        contentContainer.innerHTML = '';
-    }
-    
-    if (currentTheme) {
-        currentTheme = await fetchThemeFromAPI();
-        applyTheme();
     }
 }
 
@@ -1793,8 +1666,7 @@ const settingSections = Object.keys(SETTINGS_CONFIG).map(sectionName => ({
 }));
 
 async function initializeExtension() {
-    currentTheme = await fetchThemeFromAPI();
-    applyTheme();
+    await applyTheme(); 
     observeContentChanges();
     startObserver();
     
@@ -1814,7 +1686,7 @@ async function initializeExtension() {
     
     observer.observe(document.querySelector('head'), { childList: true, subtree: true });
     
-    checkRoValraPage();
+    await checkRoValraPage(); 
 }
 
 if (document.readyState === 'loading') { 
@@ -1938,3 +1810,65 @@ document.addEventListener('DOMContentLoaded', function() {
 
     updateRegionSelectVisibility();
 });
+
+function updateConditionalSettingsVisibility(settingsContent, currentSettings) {
+    if (!settingsContent || !currentSettings) {
+        return;
+    }
+
+    for (const sectionName in SETTINGS_CONFIG) {
+        const sectionConfig = SETTINGS_CONFIG[sectionName];
+        for (const [settingName, settingDef] of Object.entries(sectionConfig.settings)) {
+            const parentValue = currentSettings[settingName]; 
+
+            if (settingDef.childSettings) {
+                const parentElement = settingsContent.querySelector(`#${settingName}`);
+                let isParentConsideredActive = false;
+
+                if (parentElement) {
+                    if (settingDef.type === 'checkbox') {
+                        isParentConsideredActive = parentElement.checked; 
+                    } else if (settingDef.type === 'select') {
+                        
+                        isParentConsideredActive = true; 
+                    }
+                }
+
+                for (const [childName, childDef] of Object.entries(settingDef.childSettings)) {
+                    const childSettingDiv = settingsContent.querySelector(`#setting-${childName}`); 
+                    const childInputElement = settingsContent.querySelector(`#${childName}`);
+
+                    if (childSettingDiv && childInputElement) {
+                        let showChild = isParentConsideredActive;
+                      
+                        childSettingDiv.style.display = showChild ? '' : 'none'; 
+                        childInputElement.disabled = !showChild;
+                        if (showChild) {
+                            childSettingDiv.classList.remove('disabled-setting');
+                        } else {
+                            childSettingDiv.classList.add('disabled-setting');
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    const revertLogoValue = currentSettings.revertLogo; 
+    
+    const customLogoDataInput = settingsContent.querySelector('#customLogoData'); 
+    const customLogoDataSettingWrapper = customLogoDataInput ? customLogoDataInput.closest('.setting') : null;
+
+    if (customLogoDataSettingWrapper) {
+        const isCustomLogoMode = revertLogoValue === 'CUSTOM';
+        customLogoDataSettingWrapper.style.display = isCustomLogoMode ? '' : 'none'; 
+        if (customLogoDataInput) {
+            customLogoDataInput.disabled = !isCustomLogoMode;
+        }
+        if (isCustomLogoMode) {
+            customLogoDataSettingWrapper.classList.remove('disabled-setting');
+        } else {
+            customLogoDataSettingWrapper.classList.add('disabled-setting');
+        }
+    }
+}
