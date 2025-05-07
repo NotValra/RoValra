@@ -83,7 +83,6 @@
 
 # Known Issues
 - **In rare cases it shows unowned items under the owned tab when viewing private inventories**
-- **On the region selector some regions doesnt show unless a server was found in that region**
 # How to install
 
 <details>
