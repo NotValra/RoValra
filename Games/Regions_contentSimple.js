@@ -353,7 +353,7 @@ chrome.storage.local.get({ regionSelectorEnabled: false, showServerListOverlay: 
                     } else {
                         const metaToken = document.querySelector('meta[name="csrf-token"]');
                         if (metaToken) {
-                            const metaContent = metaToken.getAttribute('content');
+                            const metaContent = metaToken.getAttribute('data-token');
                             csrfToken = metaContent;
                             return csrfToken;
                         }
@@ -363,7 +363,7 @@ chrome.storage.local.get({ regionSelectorEnabled: false, showServerListOverlay: 
                 } catch (error) {
                     const metaToken = document.querySelector('meta[name="csrf-token"]');
                     if (metaToken) {
-                        const metaContent = metaToken.getAttribute('content');
+                        const metaContent = metaToken.getAttribute('data-token');
                        
                         csrfToken = metaContent;
                         return csrfToken;
