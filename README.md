@@ -72,6 +72,7 @@
 # To do list
 - [x] **~~Hidden Catalog allowing you to browse up coming unreleased Roblox items.~~ ADDED**
 - [x] **~~Reworked Region selector ui~~ ADDED**
+- [ ] **Big region selector improvements and server uptime**
 - [ ] **Maybe FireFox support (its not my main focus atm)**
 
 # Known incompatibilies
