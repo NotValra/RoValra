@@ -68,6 +68,8 @@
     - **Yes and no. I only really update / add stuff if I want to or something breaks. Cuz I don't make anything out of this, so I still wanna keep it fun for me.**
 - **I have feedback where can I tell you it?**
     - **You can send the feedback in my [Discord Server](https://discord.gg/GHd5cSKJRk) in the suggestions channel.**
+- **If I suggest a feature and it gets added will I be credited?**
+    - **No sadly not, most of the features in the extension are suggestions made by people, and the credits page would be way too long. Tho i might do it at some point**
 
 # To do list
 - [x] **~~Hidden Catalog allowing you to browse up coming unreleased Roblox items.~~ ADDED**
@@ -103,7 +105,7 @@
   
 - **Thanks to mmfw for making the pictures on the chrome web store**
 
-- **Coding: Chatgpt 😘 and little me**
+- **Coding: Chatgpt (more like gemini but what ever) 😘 and little me**
 
 - **Region searcher, orginally a python script made by l5se on dc that I improved in python and then recoded to add to my extension (with premission)**
 
