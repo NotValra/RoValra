@@ -71,7 +71,7 @@
 - **If I suggest a feature and it gets added will I be credited?**
     - **No sadly not, most of the features in the extension are suggestions made by people, and the credits page would be way too long. Tho i might do it at some point**
 - **Is this extension ever going paid?**
-    - **No, I dont wanna make this extension paid since I dont pay anything to run it.**
+    - **No, I dont wanna make this extension paid since I dont pay anything to run it. This also means no features will be locked behind a paywall.**
 
 # To do list
 - [x] **~~Hidden Catalog allowing you to browse up coming unreleased Roblox items.~~ ADDED**
