@@ -72,6 +72,8 @@
     - **No sadly not, most of the features in the extension are suggestions made by people, and the credits page would be way too long. Tho i might do it at some point**
 - **Is this extension ever going paid?**
     - **No, I dont wanna make this extension paid since I dont pay anything to run it. This also means no features will be locked behind a paywall.**
+- **Is this an add on to bloxstrap / fishstrap?**
+    - **No and Yes, the extension isnt an add on to bloxstrap/fishstrap but you can get a boot theme which is themed around RoValra. Links to the theme: **[Fishstraps discord](https://discord.com/channels/1299397064165429360/1355098180810707044)** **[Bloxstraps discord](https://discord.com/channels/1099468797410283540/1356294984554516562)****
 
 # To do list
 - [x] **~~Hidden Catalog allowing you to browse up coming unreleased Roblox items.~~ ADDED**
