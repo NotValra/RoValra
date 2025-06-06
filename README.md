@@ -114,7 +114,7 @@
 
 - **Coding: Chatgpt (more like gemini but what ever) 😘 and little me**
 
-- **Region searcher, orginally a python script made by l5se on dc that I improved in python and then recoded to add to my extension (with premission)**
+- **Region searcher, orginally a python script made by l5se on dc that I improved in python and then recoded to add to my extension (with permission)**
 
 - **Extra coding help when chatgpt and me didnt know how: [Aspect](https://github.com/Aspectise)**
   
