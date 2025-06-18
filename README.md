@@ -110,7 +110,7 @@
 # Credits
 - **Sales / revenue thingy: https://github.com/workframes/roblox-owner-counts**
   
-- **Thanks to mmfw for making the pictures on the chrome web store**
+- **Thanks to mmfw for making the pictures on the chrome web store and general help with UI design of the extension.**
 
 - **Coding: Chatgpt (more like gemini but what ever) 😘 and little me**
 
