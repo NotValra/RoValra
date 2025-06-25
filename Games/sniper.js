@@ -591,23 +591,19 @@ function applyJoinButtonStyle(joinButton) {
 
 async function fetchThemeFromAPI() {
     try {
-        const response = await fetch('https://apis.roblox.com/user-settings-api/v1/user-settings', {
-            credentials: 'include'
-        });
-        if (!response.ok) {
-            console.error('Failed to fetch theme from API:', response.status, response.statusText);
-            return 'light';
+        const bodyElement = document.querySelector('body.rbx-body');
+        if (bodyElement) {
+            if (bodyElement.classList.contains('dark-theme')) {
+                return 'dark';
+            } else if (bodyElement.classList.contains('light-theme')) {
+                return 'light';
+            }
         }
-        const data = await response.json();
-        if (data && data.themeType) {
-            return data.themeType.toLowerCase();
-        } else {
-            console.warn('Theme data from API is unexpected:', data);
-            return 'light';
-        }
-    } catch (error) {
-        console.error('Error fetching theme from API:', error);
+        console.warn('Theme class not found on body element, defaulting to light.');
         return 'light';
+    } catch (error) {
+        console.error('Error fetching theme from body element:', error);
+        return 'light'; 
     }
 }
 
@@ -639,12 +635,35 @@ function injectButton() {
     `;
 
     const sniperWarningLabel = document.createElement('div');
-    sniperWarningLabel.textContent = 'WARNING: Roblox updated making the sniper fail 80% of the time.';
-    sniperWarningLabel.style.cssText = `
+    
+    const warningFirstLine = document.createElement('div');
+    warningFirstLine.textContent = 'WARNING: Roblox updated making the sniper fail 80% of the time.';
+    warningFirstLine.style.cssText = `
         color: var(--text-color-header);
         font-size: 14px;
         font-family: "Builder Sans", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
         font-weight: normal;
+        margin-bottom: 3px;
+        text-align: left;
+        pointer-events: none;
+    `;
+    
+    const warningSecondLine = document.createElement('div');
+    warningSecondLine.textContent = 'If you dont want people using this against you, then turn your joins to "no one" that will prevent people from sniping you.';
+    warningSecondLine.style.cssText = `
+        color: var(--text-color-header);
+        font-size: 14px;
+        font-family: "Builder Sans", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+        font-weight: normal;
+        margin-bottom: 5px;
+        text-align: left;
+        pointer-events: none;
+    `;
+    
+    sniperWarningLabel.appendChild(warningFirstLine);
+    sniperWarningLabel.appendChild(warningSecondLine);
+    
+    sniperWarningLabel.style.cssText = `
         margin-bottom: 5px;
         text-align: left;
         margin-left: 5px;
@@ -829,7 +848,6 @@ function injectButton() {
                                 try {
                                     if (typeof Roblox !== 'undefined' && Roblox.GameLauncher && Roblox.GameLauncher.joinGameInstance) {
                                         Roblox.GameLauncher.joinGameInstance(parseInt(placeId, 10), String(requestId));
-                                        console.log("Attempting to join server:", requestId);
                                     } else {
                                         console.error("Roblox.GameLauncher.joinGameInstance is not available");
                                         alert("Unable to join server: Roblox launcher not available");
@@ -880,7 +898,6 @@ function injectButton() {
                                 try {
                                     if (typeof Roblox !== 'undefined' && Roblox.GameLauncher && Roblox.GameLauncher.joinGameInstance) {
                                         Roblox.GameLauncher.joinGameInstance(parseInt(placeId, 10), String(requestId));
-                                        console.log("Attempting to join server:", requestId);
                                     } else {
                                         console.error("Roblox.GameLauncher.joinGameInstance is not available");
                                         alert("Unable to join server: Roblox launcher not available");

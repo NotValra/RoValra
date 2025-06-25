@@ -74,10 +74,10 @@ if (window.location.href === 'https://www.roblox.com/cats') {
                 })
                 .catch(error => {
                     console.error("Error processing cat image promises:", error);
-                    contentDiv.textContent = "Failed to load cat images.";
+                    contentDiv.textContent = "Failed to load cat images :CCCCCCCCC";
                 });
         } else {
-            console.warn("Content div NOT found even after polling. Page structure might be very different or loading issues.");
+            console.warn("Content div NOT found even after polling. Likely the page structure has changed.");
         }
     };
 
@@ -104,6 +104,8 @@ if (window.location.href === 'https://www.roblox.com/cats') {
     window.location.href = 'https://fishstrap.app';
 } else if (window.location.href === 'https://www.roblox.com/rovalra') {
     window.location.href = 'https://rovalra.com';
-} else if (window.location.href === 'https://www.roblox.com/adminpanel') {
-    window.location.href = 'https://www.rovalra.com/adminpanel';
+} else if (window.location.href === 'https://www.roblox.com/roseal') {
+    window.location.href = 'https://www.roseal.live';
+} else if (window.location.href === 'https://www.roblox.com/rokitty') {
+    window.location.href = 'https://www.rokitty.app';
 }

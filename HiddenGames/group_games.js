@@ -108,47 +108,42 @@ function applyTheme() {
 
     tabButtons.forEach(button => {
         button.style.color = buttonTextColor;
-        button.style.backgroundColor = buttonBgColor;
+        button.style.backgroundColor = button.classList.contains('active-tab') ? buttonActiveBgColor : buttonBgColor;
         button.style.border = buttonBorder;
 
-        if (button.classList.contains('active-tab')) {
+        button.addEventListener('mouseover', () => {
+            if (!button.classList.contains('active-tab')) {
+                button.style.backgroundColor = buttonHoverBgColor;
+            }
+        });
+        button.addEventListener('mouseout', () => {
+            if (!button.classList.contains('active-tab')) {
+                button.style.backgroundColor = buttonBgColor;
+            } else {
+                button.style.backgroundColor = buttonActiveBgColor;
+            }
+        });
+
+        button.addEventListener('click', () => {
+            tabButtons.forEach(btn => {
+                btn.classList.remove('active-tab');
+                btn.style.backgroundColor = buttonBgColor;
+            });
+            button.classList.add('active-tab');
             button.style.backgroundColor = buttonActiveBgColor;
-        }
+        });
     });
 
     loadMoreButtons.forEach(button => {
         button.style.color = buttonTextColor;
         button.style.backgroundColor = buttonBgColor;
         button.style.border = buttonBorder;
-        if (button.classList.contains('active-tab')) {
-            button.style.backgroundColor = buttonActiveBgColor;
-        }
-    });
 
-
-    tabButtons.forEach(button => {
         button.addEventListener('mouseover', () => {
-            if (!button.classList.contains('active-tab')) {
-                button.style.backgroundColor = buttonHoverBgColor;
-            }
+            button.style.backgroundColor = buttonHoverBgColor;
         });
         button.addEventListener('mouseout', () => {
-            if (!button.classList.contains('active-tab')) {
-                button.style.backgroundColor = buttonBgColor;
-            }
-        });
-    });
-
-    loadMoreButtons.forEach(button => {
-        button.addEventListener('mouseover', () => {
-            if (!button.classList.contains('active-tab')) {
-                button.style.backgroundColor = buttonHoverBgColor;
-            }
-        });
-        button.addEventListener('mouseout', () => {
-            if (!button.classList.contains('active-tab')) {
-                button.style.backgroundColor = buttonBgColor;
-            }
+            button.style.backgroundColor = buttonBgColor;
         });
     });
 }

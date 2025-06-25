@@ -174,6 +174,7 @@ function removeHiddenCatalogContent() {
             descriptionElement.innerHTML = `
                 <p>The Hidden Catalog shows items uploaded by Roblox which are not yet on the marketplace.</p>
                 <p>Keep in mind that some of these items may never be released, as they could have been test uploads by Roblox.</p>
+                <p>Most items will not have a thumbnail / mesh while being on the hidden catalog.</p>
                 <p><b>To open the item page you will need <a href="https://www.roseal.live/" target="_blank" style="text-decoration: underline;">RoSeal</a>
             `;
             contentDiv.appendChild(descriptionElement);
@@ -199,6 +200,9 @@ async function fetchItemDetails(itemId) {
 }
 
 async function fetchDataFromAPI(retryCount = 0, maxRetries = 1, retryDelay = 100) {
+    // You are allowed to use this API for personal projects only which is limited to open source projects on GitHub, they must be free and you must credit the RoValra repo.
+    // You are not allowed to use the API for projects on the chrome web store or any other extension store. If you want to use the API for a website dm be on discord: Valra and we can figure something out.
+    // If you want to use the API for something thats specifically said isnt allowed or you might be unsure if its allowed, please dm me on discord: Valra, Ill be happy to check out your stuff and maybe allow you to use it for your project.
     const apiUrl = 'https://catalog.rovalra.com/items';
 
     const requestHeaders = new Headers();

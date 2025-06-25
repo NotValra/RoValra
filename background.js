@@ -2,7 +2,7 @@
 // Actually you can look at it. i removed the bad parts / useless
 
 
-
+//Felt like adding a random comment here cuz im very stable ROREGION STILL SUCKS ASSSSS
 
 
 
@@ -245,3 +245,4 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
               .catch(error => console.error('Error fetching hidden games:', error));
       }
   });
+

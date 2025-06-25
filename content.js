@@ -8,7 +8,8 @@ const URL_MATCHERS = {
     COMMUNITIES: /^\/(?:[a-z]{2}\/)?communities/,
     USERS: /^\/(?:[a-z]{2}\/)?users\//,
     GAMES: /^\/(?:[a-z]{2}\/)?games\//,
-    AVATAR: /^\/(?:[a-z]{2}\/)?my\/avatar/
+    AVATAR: /^\/(?:[a-z]{2}\/)?my\/avatar/,
+    TRANSACTIONS: /^\/(?:[a-z]{2}\/)?transactions/
 };
 
 const PAGE_SETTINGS_MAP = {
@@ -17,7 +18,8 @@ const PAGE_SETTINGS_MAP = {
     COMMUNITIES: ['groupGamesEnabled', 'pendingRobuxEnabled'],
     USERS: ['userGamesEnabled', 'userSniperEnabled'],
     GAMES: ['subplacesEnabled', 'universalSniperEnabled', 'inviteEnabled'],
-    AVATAR: ['forceR6Enabled', 'fixR6Enabled']
+    AVATAR: ['forceR6Enabled', 'fixR6Enabled'],
+    TRANSACTIONS: ['pendingRobuxEnabled']
 };
 
 const getCurrentPathType = (path) => {
@@ -111,10 +113,11 @@ const loadScript = async (src, dataAttributes = {}) => {
         document.head.appendChild(script);
     });
 };
-
+// Getting the theme is totally not all over the place in this extension trust me bro
+// COFFEEEEEEEEEEE
 const detectTheme = async () => {
     try {
-        const response = await fetch('https://apis.roblox.com/user-settings-api/v1/user-settings', {
+        const response = await fetch('https://accountsettings.roblox.com/v1/themes/user', {
             credentials: 'include'
         });
         if (!response.ok) throw new Error('API request failed');
@@ -176,14 +179,19 @@ function getPlaceIdFromUrl() {
         subplacesEnabled: true,
         forceR6Enabled: true,
         fixR6Enabled: false,
-        inviteEnabled: false,
+        inviteEnabled: true,
         regionSelectorInitialized: false,
         regionSelectorFirstTime: true,
         regionSimpleUi: false,
         pendingRobuxEnabled: true,
         PreferredRegionEnabled: true,
         privateInventoryEnabled: true,
-        ServerdataEnabled: true
+        ServerdataEnabled: true,
+        botdataEnabled: true,
+        showfullserveridEnabled: true,
+        enableFriendservers: true,
+        privateserverlink: true,
+        pendingrobuxtrans: true,
     };
 
     const settingsToLoad = {
@@ -230,6 +238,7 @@ function getPlaceIdFromUrl() {
             }
             if (settings.pendingRobuxEnabled) {
                 scriptPromises.push(loadScript('misc/pendingRobux.js'));
+                
             }
             break;
         case 'USERS':
@@ -244,12 +253,13 @@ function getPlaceIdFromUrl() {
             if (settings.subplacesEnabled) {
                 scriptPromises.push(loadScript('Games/Subplaces.js'));
             }
+           
             if (settings.universalSniperEnabled) {
                 scriptPromises.push(loadScript('Games/sniper.js'));
             }
-            if (settings.inviteEnabled) {
-                scriptPromises.push(loadScript('Games/invite.js', { trackedRequests: JSON.stringify(trackedServerRequests) }));
-            }
+            
+            scriptPromises.push(loadScript('Games/invite.js'));
+            
             break;
         case 'AVATAR':
             if (settings.forceR6Enabled) {
@@ -259,8 +269,14 @@ function getPlaceIdFromUrl() {
                 scriptPromises.push(loadScript('Avatar/R6Fix.js'));
             }
             break;
+        case 'TRANSACTIONS':
+            if (settings.pendingrobuxtrans) {
+                scriptPromises.push(loadScript('misc/pendingRobuxTrans.js'));
+            }
+            
+            break;
     }
-
+    
     await loadScript('misc/style.js');
     
     await Promise.all(scriptPromises).catch(error => console.error("Error loading scripts:", error));

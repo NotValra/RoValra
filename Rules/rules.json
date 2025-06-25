@@ -16,5 +16,24 @@
         "urlFilter": "https://gamejoin.roblox.com/v1/join-game-instance",
         "resourceTypes": ["xmlhttprequest"]
       }
+    },
+     {
+      "id": 2,
+      "priority": 2,
+      "action": {
+        "type": "modifyHeaders",
+        "requestHeaders": [
+          {
+            "header": "User-Agent",
+            "operation": "set",
+            "value": "Roblox/WinInet"
+          }
+        ]
+      },
+      "condition": {
+        "urlFilter": "https://gamejoin.roblox.com/v1/play-with-user",
+        "resourceTypes": ["xmlhttprequest"]
+      }
     }
-  ]
+   
+]

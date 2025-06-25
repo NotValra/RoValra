@@ -71,6 +71,12 @@ function applyTheme() {
     const titleColor = isDarkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgb(57, 59, 61)';
 
 
+    const buttonTextColor = isDarkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgb(57, 59, 61)';
+    const buttonBgColor = isDarkMode ? 'rgb(45, 48, 51)' : 'rgb(242, 244, 245)';
+    const buttonHoverBgColor = isDarkMode ? 'rgb(57, 60, 64)' : 'rgb(224, 226, 227)';
+    const buttonActiveBgColor = isDarkMode ? 'rgb(69, 73, 77)' : 'rgb(210, 212, 213)';
+    const buttonBorder = isDarkMode ? '0px solid rgba(255, 255, 255, 0.1)' : '0 solid rgba(0, 0, 0, 0.1)';
+
     const hiddenGamesContainers = document.querySelectorAll('.hidden-games-list');
     hiddenGamesContainers.forEach(hiddenGamesContainer => {
         const gameElements = hiddenGamesContainer.querySelectorAll('.game-container');
@@ -104,7 +110,61 @@ function applyTheme() {
                 players.style.color = countColor;
             }
         });
+        
+        const noGames = hiddenGamesContainer.querySelector('p');
+        if (noGames) {
+            noGames.style.color = titleColor;
+            noGames.style.textAlign = 'center';
+            noGames.style.width = '100%';
+            noGames.style.padding = '20px 0';
+        }
     });
+
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const loadMoreButtons = document.querySelectorAll('.load-more-button');
+
+    tabButtons.forEach(button => {
+        button.style.color = buttonTextColor;
+        button.style.backgroundColor = button.classList.contains('active-tab') ? buttonActiveBgColor : buttonBgColor;
+        button.style.border = buttonBorder;
+
+        button.addEventListener('mouseover', () => {
+            if (!button.classList.contains('active-tab')) {
+                button.style.backgroundColor = buttonHoverBgColor;
+            }
+        });
+        button.addEventListener('mouseout', () => {
+            if (!button.classList.contains('active-tab')) {
+                button.style.backgroundColor = buttonBgColor;
+            } else {
+                button.style.backgroundColor = buttonActiveBgColor;
+            }
+        });
+
+        button.addEventListener('click', () => {
+            tabButtons.forEach(btn => {
+                btn.classList.remove('active-tab');
+                btn.style.backgroundColor = buttonBgColor;
+            });
+            button.classList.add('active-tab');
+            button.style.backgroundColor = buttonActiveBgColor;
+        });
+    });
+
+    loadMoreButtons.forEach(button => {
+        button.style.color = buttonTextColor;
+        button.style.backgroundColor = buttonBgColor;
+        button.style.border = buttonBorder;
+
+        button.addEventListener('mouseover', () => {
+            button.style.backgroundColor = buttonHoverBgColor;
+        });
+        button.addEventListener('mouseout', () => {
+            button.style.backgroundColor = buttonBgColor;
+        });
+    });
+
+    return likeIconUrl;
 }
 
 document.addEventListener('DOMContentLoaded', function() { 
@@ -143,10 +203,32 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                     
                     if (!containerHeader) {
-                        containerHeader = document.querySelector("#creations > div.profile-game.ng-scope.section  .container-header");
+                        containerHeader = document.querySelector("#creations > div.profile-game.ng-scope.section .container-header");
                     }
-
-
+                    
+                    if (!containerHeader) {
+                        containerHeader = document.querySelector(".profile-game.section > div.container-header");
+                    }
+                    
+                    if (!containerHeader) {
+                        containerHeader = document.querySelector("#creations .container-header");
+                    }
+                    
+                    if (!containerHeader) {
+                        const gameSection = document.querySelector('.profile-game.section') || 
+                                         document.querySelector('#creations') || 
+                                         document.querySelector('.profile-game');
+                        
+                        if (gameSection) {
+                            containerHeader = document.createElement('div');
+                            containerHeader.classList.add('container-header');
+                            containerHeader.style.display = 'flex';
+                            containerHeader.style.alignItems = 'center';
+                            containerHeader.style.margin = '12px 0';
+                            containerHeader.style.padding = '0 12px';
+                            gameSection.insertBefore(containerHeader, gameSection.firstChild);
+                        }
+                    }
                     const profileGameSection = document.querySelector('.profile-game.section.ng-scope');
                     if (profileGameSection) {
                         profileGameSection.style.marginBottom = '0';
@@ -165,7 +247,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     hiddenGamesContainer.style.gridTemplateColumns = 'repeat(auto-fill, minmax(150px, 1fr))';
                     hiddenGamesContainer.style.gap = '12px';
                     hiddenGamesContainer.style.marginTop = '5px';
-                    hiddenGamesContainer.style.marginLeft = '-100px';
+                    hiddenGamesContainer.style.width = '100%';
+                    hiddenGamesContainer.style.boxSizing = 'border-box';
+                    hiddenGamesContainer.style.padding = '0 10px';
+                    hiddenGamesContainer.style.overflowX = 'hidden';
 
 
 
@@ -183,21 +268,20 @@ document.addEventListener('DOMContentLoaded', function() {
                     const loadMoreButton = document.createElement('button');
                     loadMoreButton.textContent = 'Load More';
                     loadMoreButton.classList.add('load-more-button', 'tab-button');
-                    loadMoreButton.style.display = 'inline-block';
-                    loadMoreButton.style.position = 'relative';
-                    loadMoreButton.style.bottom = '0';
-                    loadMoreButton.style.marginTop = '5px';
-                    loadMoreButton.style.paddingLeft = '0px';
-                    loadMoreButton.style.paddingRight = '0px';
                     loadMoreButton.style.display = 'block';
+                    loadMoreButton.style.position = 'relative';
+                    loadMoreButton.style.padding = '8px 16px';
+                    loadMoreButton.style.borderRadius = '8px';
+                    loadMoreButton.style.cursor = 'pointer';
+                    loadMoreButton.style.transition = 'background-color 0.2s ease';
+                    loadMoreButton.style.margin = '12px auto';
                     loadMoreButton.style.minWidth = '120px';
-                    loadMoreButton.style.textAlign = 'center';
+
                     const loadMoreButtonWrapper = document.createElement('div');
-                    loadMoreButtonWrapper.style.width = '1200px';
+                    loadMoreButtonWrapper.style.width = '100%';
                     loadMoreButtonWrapper.style.display = 'flex';
-                    loadMoreButtonWrapper.style.paddingLeft = '0px';
-                    loadMoreButtonWrapper.style.paddingRight = '500px';
                     loadMoreButtonWrapper.style.justifyContent = 'center';
+                    loadMoreButtonWrapper.style.padding = '0 10px';
                     loadMoreButtonWrapper.appendChild(loadMoreButton);
 
 
@@ -207,6 +291,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     const { likeMap, playerMap } = await fetchGameDetails(allHiddenGames)
                     // Ik ik there is 2 of these functions, Well i got it working ok??? i dont wanna fix something i that doesnt change anything 😠
+                    // wawa wa im going insane wa wa wa wa idek what code this is i gotta start writing stuff manually more, ALSO ROREGION SUCKS STRAIGHT ASSSSSSSS
                     function displayGames(gamesToDisplay) {
                         gamesToDisplay.forEach((game, index) => {
                             const gameId = game.rootPlace?.id;
@@ -372,10 +457,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                     if (allHiddenGames.length === 0) {
                         const noGames = document.createElement('p');
-                        noGames.textContent = "No hidden experiences  found.";
+                        noGames.textContent = "No hidden experiences found.";
                         noGames.style.gridColumn = '1 / -1';
+                        noGames.style.textAlign = 'center';
+                        noGames.style.width = '100%';
+                        noGames.style.padding = '20px 0';
+                        noGames.style.margin = '0';
+                        noGames.style.fontSize = '16px';
                         hiddenGamesContainer.appendChild(noGames);
-                        loadMoreButtonWrapper.style.display = 'none'
+                         loadMoreButtonWrapper.style.display = 'none'
                     } else {
                         loadMoreGames(false);
                          if(displayedGameCount < allHiddenGames.length){
@@ -388,31 +478,47 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
 
 
-                    const gamesButton = document.createElement('button');
-                    gamesButton.textContent = "Experiences";
-                    gamesButton.classList.add('tab-button', 'active-tab');
+                    const experiencesButton = document.createElement('button');
+                    experiencesButton.textContent = "Experiences";
+                    experiencesButton.classList.add('tab-button', 'active-tab');
+                    experiencesButton.style.padding = '8px 16px';
+                    experiencesButton.style.borderRadius = '8px';
+                    experiencesButton.style.cursor = 'pointer';
+                    experiencesButton.style.transition = 'background-color 0.2s ease';
+                    experiencesButton.style.margin = '0 4px';
+                    experiencesButton.style.fontWeight = 'bold';
+                    experiencesButton.style.minWidth = '120px';
+                    experiencesButton.style.outline = 'none';
 
                     const hiddenGamesButton = document.createElement('button');
                     hiddenGamesButton.textContent = "Hidden Experiences";
                     hiddenGamesButton.classList.add('tab-button');
+                    hiddenGamesButton.style.padding = '8px 16px';
+                    hiddenGamesButton.style.borderRadius = '8px';
+                    hiddenGamesButton.style.cursor = 'pointer'; 
+                    hiddenGamesButton.style.transition = 'background-color 0.2s ease';
+                    hiddenGamesButton.style.margin = '0 4px';
+                    hiddenGamesButton.style.fontWeight = 'bold';
+                    hiddenGamesButton.style.minWidth = '120px';
+                    hiddenGamesButton.style.outline = 'none';
                     hiddenGamesButton.addEventListener('click', () => {
                         switcherContainer.style.display = 'none';
                         hiddenGamesWrapper.style.display = 'flex';
                         hiddenGamesButton.classList.add('active-tab');
-                        gamesButton.classList.remove('active-tab');
+                        experiencesButton.classList.remove('active-tab');
                         if (allHiddenGames.length > 0 && displayedGameCount < allHiddenGames.length)
                             loadMoreButtonWrapper.style.display = 'flex';
                           applyTheme();
                     });
-                    gamesButton.addEventListener('click', () => {
+                    experiencesButton.addEventListener('click', () => {
                         switcherContainer.style.display = 'block';
                         hiddenGamesWrapper.style.display = 'none';
-                        gamesButton.classList.add('active-tab');
+                        experiencesButton.classList.add('active-tab');
                         hiddenGamesButton.classList.remove('active-tab');
                          loadMoreButtonWrapper.style.display = 'none'
                     });
                     if (containerHeader) {
-                        containerHeader.appendChild(gamesButton);
+                        containerHeader.appendChild(experiencesButton);
                         containerHeader.appendChild(hiddenGamesButton);
                         containerHeader.appendChild(hiddenGamesWrapper);
                     } else {
@@ -444,6 +550,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     hiddenGamesContainer.style.gridTemplateColumns = 'repeat(auto-fill, minmax(150px, 1fr))';
                     hiddenGamesContainer.style.gap = '12px';
                     hiddenGamesContainer.style.marginTop = '5px';
+                    hiddenGamesContainer.style.width = '100%';
+                    hiddenGamesContainer.style.boxSizing = 'border-box';
+                    hiddenGamesContainer.style.padding = '0 10px';
+                    hiddenGamesContainer.style.overflowX = 'hidden';
 
                     const gameLinks = Array.from(
                         experiencesContainer.querySelectorAll('a[href^="https://www.roblox.com/games/"]')
@@ -460,20 +570,20 @@ document.addEventListener('DOMContentLoaded', function() {
                     const loadMoreButton = document.createElement('button');
                     loadMoreButton.textContent = 'Load More';
                     loadMoreButton.classList.add('load-more-button', 'tab-button');
-                    loadMoreButton.style.display = 'none';
-                    loadMoreButton.style.position = 'relative';
-                    loadMoreButton.style.bottom = '0';
-                    loadMoreButton.style.marginTop = '5px';
-                    loadMoreButton.style.paddingLeft = '0px';
-                    loadMoreButton.style.paddingRight = '0px';
                     loadMoreButton.style.display = 'block';
+                    loadMoreButton.style.position = 'relative';
+                    loadMoreButton.style.padding = '8px 16px';
+                    loadMoreButton.style.borderRadius = '8px';
+                    loadMoreButton.style.cursor = 'pointer';
+                    loadMoreButton.style.transition = 'background-color 0.2s ease';
+                    loadMoreButton.style.margin = '12px auto';
                     loadMoreButton.style.minWidth = '120px';
-                    loadMoreButton.style.textAlign = 'center';
+
                     const loadMoreButtonWrapper = document.createElement('div');
                     loadMoreButtonWrapper.style.width = '100%';
                     loadMoreButtonWrapper.style.display = 'flex';
                     loadMoreButtonWrapper.style.justifyContent = 'center';
-                      loadMoreButtonWrapper.style.paddingRight = '10px';
+                    loadMoreButtonWrapper.style.padding = '0 10px';
                     loadMoreButtonWrapper.appendChild(loadMoreButton);
 
                     hiddenGamesWrapper.appendChild(hiddenGamesContainer);
@@ -558,7 +668,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 likeIcon.style.listStyleImage = 'none';
                                 likeIcon.style.listStylePosition = 'outside';
                                 likeIcon.style.listStyleType = 'none';
-                                likeIcon.style.marginRight = '5px'
+                                 likeIcon.style.marginRight = '5px'
 
                                 const playerIcon = document.createElement('span');
                                 playerIcon.style.boxSizing = 'border-box';
@@ -639,6 +749,11 @@ document.addEventListener('DOMContentLoaded', function() {
                         const noGames = document.createElement('p');
                         noGames.textContent = "No hidden experiences found.";
                         noGames.style.gridColumn = '1 / -1';
+                        noGames.style.textAlign = 'center';
+                        noGames.style.width = '100%';
+                        noGames.style.padding = '20px 0';
+                        noGames.style.margin = '0';
+                        noGames.style.fontSize = '16px';
                         hiddenGamesContainer.appendChild(noGames);
                          loadMoreButtonWrapper.style.display = 'none'
                     } else {
@@ -669,9 +784,13 @@ document.addEventListener('DOMContentLoaded', function() {
                         headerContainer = document.createElement('div');
                         headerContainer.classList.add('container-header');
                         headerContainer.style.display = 'flex';
-                        headerContainer.style.gap = '10px';
+                        headerContainer.style.gap = '8px';
                         headerContainer.style.alignItems = 'center';
-                        headerContainer.style.marginBottom = '12px';
+                        headerContainer.style.marginBottom = '16px';
+                        headerContainer.style.gap = '8px';
+                        headerContainer.style.alignItems = 'center';
+                        headerContainer.style.marginBottom = '16px';
+                        headerContainer.style.paddingLeft = '4px';
                         experiencesContainer.parentNode.insertBefore(headerContainer, experiencesContainer);
                     }
 

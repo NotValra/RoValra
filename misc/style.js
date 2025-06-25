@@ -1,5 +1,6 @@
 const style = document.createElement('style');
 style.textContent = `
+    
     .tab-button {
         margin-left: 10px;
         padding: 5px 10px;

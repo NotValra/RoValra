@@ -5,7 +5,7 @@ if (window.location.pathname.includes('/users/')) {
         let intervalId;
         let isRateLimited = false;
         let lastRequestTime = 0;
-        const requestDelay = 50;
+        const requestDelay = 10;
         let hasJoinedGame = false;
         let canMakeRequest = true;
 
@@ -61,6 +61,7 @@ if (window.location.pathname.includes('/users/')) {
                       const presence = data.userPresences[0];
                       if (presence.placeId && presence.gameId) {
                           if (!hasJoinedGame) {
+                            //Using deep links to join the game faster. I AM NOT DUMBBBBBBBBBBBBBBBBB LALALLALALALALALALALALALALALALALALA
                               const joinURL = `roblox://experiences/start?placeId=${presence.placeId}&gameInstanceId=${presence.gameId}`;
                              window.location.href = joinURL; 
                              hasJoinedGame = true;

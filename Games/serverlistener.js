@@ -23,7 +23,9 @@ chrome.storage.local.get({ ServerdataEnabled: false}, function(settings) {
         
         
         try {
-            // If you find any vulns in this api please report them to me on discord: Valra
+             // You are allowed to use this API for personal projects only which is limited to open source projects on GitHub, they must be free and you must credit the RoValra repo.
+            // You are not allowed to use the API for projects on the chrome web store or any other extension store. If you want to use the API for a website dm be on discord: Valra and we can figure something out.
+            // If you want to use the API for something thats specifically said isnt allowed or you might be unsure if its allowed, please dm me on discord: Valra, Ill be happy to check out your stuff and maybe allow you to use it for your project.
             const apiResponse = await fetch('https://apis.rovalra.com/process_servers', {
                 method: 'POST',
                 headers: {
@@ -70,7 +72,7 @@ chrome.storage.local.get({ ServerdataEnabled: false}, function(settings) {
                         
                         if (serverIds.length > 0) {
                             
-                            await sendToLocalAPI(placeId, serverIds, 'fetch');
+await sendToLocalAPI(placeId, serverIds, 'fetch');
                         }
                     } else {
                     }
@@ -131,7 +133,7 @@ chrome.storage.local.get({ ServerdataEnabled: false}, function(settings) {
                             
                             if (serverIds.length > 0) {
                                 
-                                sendToLocalAPI(placeId, serverIds, 'xhr');
+sendToLocalAPI(placeId, serverIds, 'xhr');
                             }
                         }
                     } catch (error) {

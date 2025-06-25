@@ -3,44 +3,49 @@ function delay(ms) {
 }
 
 chrome.storage.local.get({
-    regionSelectorEnabled: false, 
-    regionSimpleUi: false         
+    regionSelectorEnabled: false,
+    regionSimpleUi: false
 }, function(settings) {
     if (settings.regionSelectorEnabled && settings.regionSimpleUi) {
-        if (window.location.pathname.includes('/games/')) {
-         
+    regionSelectorEnabled = settings.regionSelectorEnabled;
+
+    if (window.location.pathname.includes('/games/')) {
+
     const url = window.location.href;
     let placeId = null;
-    const regex = /https:\/\/www\.roblox\.com\/(?:[a-z]{2}\/)?games\/(\d+)/;
+    const regex = /roblox\.com\/(?:[a-z]{2}\/)?games\/(\d+)/;
     const match = url.match(regex);
 
 
     if (match && match[1]) {
         placeId = match[1]
     }
-    let defaultRegions = [ 
+    let defaultRegions = [
         "SG", "DE", "FR", "JP", "BR", "NL",
-        "US-CA", "US-VA", "US-IL", "US-TX", "US-FL", "US-NY", "US-WA",
+        "US-CA", "US-VA", "US-IL", "US-TX", "US-FL", "US-NY", "US-WA", "US-NJ", "US-OR", "US-OH",
         "AU", "GB", "IN"
     ];
 
     const regionCoordinates = {
-        "SG": { latitude: 1.3521, longitude: 103.8198, city: "Singapore", state: null, country: "Singapore" }, 
-        "DE": { latitude: 50.1109, longitude: 8.6821, city: "Frankfurt", state: null, country: "Germany" }, 
-        "FR": { latitude: 48.8566, longitude: 2.3522, city: "Paris", state: null, country: "France" }, 
-        "JP": { latitude: 35.6895, longitude: 139.6917, city: "Tokyo", state: null, country: "Japan" }, 
-        "BR": { latitude: -14.2350, longitude: -51.9253, city: "Brazil", state: null, country: "Brazil" }, 
-        "NL": { latitude: 52.3676, longitude: 4.9041, city: "Amsterdam", state: null, country: "Netherlands" }, 
-        "US-CA": { latitude: 34.0522, longitude: -118.2437, city: "Los Angeles", state: "California", country: "United States" }, 
-        "US-VA": { latitude: 38.9577, longitude: -77.1445, city: "Ashburn", state: "Virginia", country: "United States" }, 
-        "US-IL": { latitude: 41.8781, longitude: -87.6298, city: "Chicago", state: "Illinois", country: "United States" }, 
-        "US-TX": { latitude: 32.7767, longitude: -96.7970, city: "Dallas", state: "Texas", country: "United States" }, 
-        "US-FL": { latitude: 25.7617, longitude: -80.1918, city: "Miami", state: "Florida", country: "United States" }, 
-        "US-NY": { latitude: 40.7128, longitude: -74.0060, city: "New York City", state: "New York", country: "United States" }, 
-        "US-WA": { latitude: 47.6062, longitude: -122.3321, city: "Seattle", state: "Washington", country: "United States" }, 
-        "AU": { latitude: -33.8688, longitude: 151.2093, city: "Sydney", state: null, country: "Australia" }, 
-        "GB": { latitude: 51.5074, longitude: -0.1278, city: "London", state: null, country: "United Kingdom" }, 
-        "IN": { latitude: 19.0760, longitude: 72.8777, city: "Mumbai", state: null, country: "India" }  
+        "SG": { latitude: 1.2897, longitude: 103.8501, city: "Singapore", state: null, country: "Singapore" },
+        "DE": { latitude: 50.1155, longitude: 8.6842, city: "Frankfurt", state: null, country: "Germany" },
+        "FR": { latitude: 48.8534, longitude: 2.3488, city: "Paris", state: null, country: "France" },
+        "JP": { latitude: 35.6895, longitude: 139.6917, city: "Tokyo", state: null, country: "Japan" },
+        "BR": { latitude: -14.2350, longitude: -51.9253, city: "Brazil", state: null, country: "Brazil" },
+        "NL": { latitude: 52.3740, longitude: 4.8897, city: "Amsterdam", state: null, country: "Netherlands" },
+        "US-CA": { latitude: 34.0522, longitude: -118.2437, city: "Los Angeles", state: "California", country: "United States" },
+        "US-VA": { latitude: 39.0437, longitude: -77.4875, city: "Ashburn", state: "Virginia", country: "United States" },
+        "US-IL": { latitude: 41.8500, longitude: -87.6500, city: "Chicago", state: "Illinois", country: "United States" },
+        "US-TX": { latitude: 32.7831, longitude: -96.8067, city: "Dallas", state: "Texas", country: "United States" },
+        "US-FL": { latitude: 25.7743, longitude: -80.1937, city: "Miami", state: "Florida", country: "United States" },
+        "US-NY": { latitude: 40.7128, longitude: -74.0060, city: "New York City", state: "New York", country: "United States" },
+        "US-WA": { latitude: 47.6062, longitude: -122.3321, city: "Seattle", state: "Washington", country: "United States" },
+        "AU": { latitude: -33.8678, longitude: 151.2073, city: "Sydney", state: null, country: "Australia" },
+        "GB": { latitude: 51.5130, longitude: -0.0800, city: "London", state: null, country: "United Kingdom" },
+        "IN": { latitude: 19.0728, longitude: 72.8826, city: "Mumbai", state: null, country: "India" },
+        "US-NJ": { latitude: 40.7895, longitude: -74.0565, city: "Secaucus", state: "New Jersey", country: "United States" },
+        "US-OR": { latitude: 45.8399, longitude: -119.7006, city: "Boardman", state: "Oregon", country: "United States" },
+        "US-OH": { latitude: 39.9612, longitude: -82.9988, city: "Columbus", state: "Ohio", country: "United States" }
     };
 
 
@@ -52,17 +57,17 @@ chrome.storage.local.get({
     let serverLocations = {};
     let userLocation = null;
     let serverScores = {};
-    
+
     let isRefreshing = false;
     let rateLimited = false;
-    let regionMarkerVisibility = {}; 
-    let waterData = null; 
+    let regionMarkerVisibility = {};
+    let waterData = null;
     defaultRegions.forEach(region => {
         regionMarkerVisibility[region] = true;
     });
-    regionMarkerVisibility["BR"] = false; 
+    regionMarkerVisibility["BR"] = false;
 
-    let isFetchingServersForRegion = {}; 
+    let isFetchingServersForRegion = {};
     let isSearchingMoreRegions = false;
 
 
@@ -73,40 +78,34 @@ chrome.storage.local.get({
     const isChrome = navigator.userAgent.toLowerCase().indexOf('chrome') !== -1;
     let regionSelectorShowServerListOverlay = true;
     let regionSelectorEnabled = false;
-    let regionButtonAdded = false; 
-    let prioritizedRegion = null; 
-    let lastHoveredRegion = null; 
-    let hoveredRegion = null;  
-    let globeInitialized = false; 
+    let regionButtonAdded = false;
+    let prioritizedRegion = null;
+    let lastHoveredRegion = null;
+    let hoveredRegion = null;
+    let globeInitialized = false;
     let isDragging = false;
     let serverListState = {
         visibleServerCount: 0,
         fetchedServerIds: new Set(),
         renderedServerIds: new Set(),
-        servers: [], 
+        servers: [],
         renderedServersData: new Map(),
         loading: false,
-        currentSort: 'ping_lowest' 
+        currentSort: 'ping_lowest'
     };
 
-
+    let currentTheme;
     async function detectThemeAPI() {
-        try {
-            const response = await fetch('https://apis.roblox.com/user-settings-api/v1/user-settings', {
-                credentials: 'include'
-            });
-            if (!response.ok) {
-                return 'light';
-            }
-            const data = await response.json();
-            if (data && data.themeType) {
-                return data.themeType.toLowerCase();
-            } else {
-                return 'light';
-            }
-        } catch (error) {
-            return 'light';
+        if (currentTheme) return currentTheme;
+
+        if (document.body.classList.contains('dark-theme')) {
+            currentTheme = 'dark';
+        } else if (document.body.classList.contains('light-theme')) {
+            currentTheme = 'light';
+        } else {
+            currentTheme = document.body.classList.contains('dark-theme') ? 'dark' : 'light';
         }
+        return currentTheme;
     }
 
 
@@ -194,24 +193,43 @@ chrome.storage.local.get({
         regionSelectorShowServerListOverlay = settings.showServerListOverlay;
     }
 
-    updateRegionSelectorState()
-
+    updateRegionSelectorState().then(() => {
     if (placeId) {
-        if (regionSelectorEnabled) {
-            getServerInfo(placeId, null, defaultRegions); 
-        }
+
     } else {
+    }
+    });
+
+    if (false) {
     }
 
     function handleRateLimitedState(limited) {
         rateLimited = limited;
     }
 
+    let hasSearchedRegionsOnce = false;
+
     async function getServerInfo(placeId, robloxCookie, regions, cursor = null) {
-        let url = `https://games.roblox.com/v1/games/${placeId}/servers/Public?excludeFullGames=true&excludeFullGames=true&limit=100`;
+        if (hasSearchedRegionsOnce) {
+            return;
+        }
+        hasSearchedRegionsOnce = true;
+
+
+
+        const regionDropdown = document.getElementById('regionDropdown');
+        if (regionDropdown && regionDropdown.style.display !== 'flex') {
+            isRefreshing = false;
+            return;
+        }
+
+
+        let url = `https://games.roblox.com/v1/games/${placeId}/servers/Public?excludeFullGames=true&limit=100`;
         if (cursor) {
             url += `&cursor=${cursor}`;
         }
+
+
         try {
             let totalRequests = 0;
             let serverPromises = [];
@@ -230,27 +248,34 @@ chrome.storage.local.get({
                 rateLimited = true;
                 isRefreshing = false;
                 handleRateLimitedState(true)
-                await new Promise(resolve => setTimeout(resolve, 5000)); 
-                await getServerInfo(placeId, robloxCookie, regions, cursor); 
-                return; 
+                await new Promise(resolve => setTimeout(resolve, 5000));
+                await getServerInfo(placeId, robloxCookie, regions, cursor);
+                return;
             }
             if (!response.ok) {
                 const errorDetails = await response.text();
+                isRefreshing = false;
                 return;
             }
 
             const servers = await response.json();
+
             if (!servers.data || servers.data.length === 0) {
                 isRefreshing = false;
                 return;
             }
 
             for (const server of servers.data) {
+                if (regionDropdown && regionDropdown.style.display !== 'flex') {
+                    isRefreshing = false;
+                    return;
+                }
+
                 const promise = handleServer(server, placeId, robloxCookie, regions, newServerCount);
                 serverPromises.push(promise);
                 allServers.push(server);
-                isRefreshing = false;
             }
+            isRefreshing = false;
 
             while (serverPromises.length > 0) {
                 const batch = serverPromises.splice(0, BATCH_SIZE);
@@ -269,7 +294,7 @@ chrome.storage.local.get({
                 isRefreshing = false;
             } else {
                 handleRateLimitedState(false)
-                updatePopup(); 
+                updatePopup();
             }
         } catch (error) {
             isRefreshing = false;
@@ -335,17 +360,119 @@ chrome.storage.local.get({
         return usStateCoordinates[stateCode] || null;
     }
 
+    function getStateCodeFromRegion(regionName) {
+        if (!regionName) return null;
+
+        const stateNameToCode = {
+            'alabama': 'AL',
+            'alaska': 'AK',
+            'arizona': 'AZ',
+            'arkansas': 'AR',
+            'california': 'CA',
+            'colorado': 'CO',
+            'connecticut': 'CT',
+            'delaware': 'DE',
+            'florida': 'FL',
+            'georgia': 'GA',
+            'hawaii': 'HI',
+            'idaho': 'ID',
+            'illinois': 'IL',
+            'indiana': 'IN',
+            'iowa': 'IA',
+            'kansas': 'KS',
+            'kentucky': 'KY',
+            'louisiana': 'LA',
+            'maine': 'ME',
+            'maryland': 'MD',
+            'massachusetts': 'MA',
+            'michigan': 'MI',
+            'minnesota': 'MN',
+            'mississippi': 'MS',
+            'missouri': 'MO',
+            'montana': 'MT',
+            'nebraska': 'NE',
+            'nevada': 'NV',
+            'new hampshire': 'NH',
+            'new jersey': 'NJ',
+            'new mexico': 'NM',
+            'new york': 'NY',
+            'north carolina': 'NC',
+            'north dakota': 'ND',
+            'ohio': 'OH',
+            'oklahoma': 'OK',
+            'oregon': 'OR',
+            'pennsylvania': 'PA',
+            'rhode island': 'RI',
+            'south carolina': 'SC',
+            'south dakota': 'SD',
+            'tennessee': 'TN',
+            'texas': 'TX',
+            'utah': 'UT',
+            'vermont': 'VT',
+            'virginia': 'VA',
+            'washington': 'WA',
+            'west virginia': 'WV',
+            'wisconsin': 'WI',
+            'wyoming': 'WY'
+        };
+
+        const cleanedName = regionName.toLowerCase().trim();
+
+        if (stateNameToCode[cleanedName]) {
+            return stateNameToCode[cleanedName];
+        }
+
+        for (const [stateName, stateCode] of Object.entries(stateNameToCode)) {
+            if (cleanedName.includes(stateName)) {
+                return stateCode;
+            }
+        }
+
+        if (cleanedName.includes('va') || cleanedName.includes('ashburn')) {
+            return 'VA';
+        }
+        if (cleanedName.includes('ca') || cleanedName.includes('los angeles') || cleanedName.includes('san francisco')) {
+            return 'CA';
+        }
+        if (cleanedName.includes('ny') || cleanedName.includes('new york')) {
+            return 'NY';
+        }
+        if (cleanedName.includes('tx') || cleanedName.includes('dallas')) {
+            return 'TX';
+        }
+        if (cleanedName.includes('il') || cleanedName.includes('chicago')) {
+            return 'IL';
+        }
+        if (cleanedName.includes('fl') || cleanedName.includes('miami')) {
+            return 'FL';
+        }
+        if (cleanedName.includes('wa') || cleanedName.includes('seattle')) {
+            return 'WA';
+        }
+        if (cleanedName.includes('nj') || cleanedName.includes('secaucus')) {
+            return 'NJ';
+        }
+        if (cleanedName.includes('or') || cleanedName.includes('boardman')) {
+            return 'OR';
+        }
+        if (cleanedName.includes('oh') || cleanedName.includes('columbus')) {
+            return 'OH';
+        }
+
+        return null;
+    }
+
 
     let serverIpMap = null;
-    let countryData = null; 
-    let countryPaths = []; 
-    let preProcessedCountryData = null; 
+    let countryData = null;
+    let countryPaths = [];
+    let preProcessedCountryData = null;
 
     function preprocessCountryData(data) {
         const processedFeatures = data.features.map(feature => {
             if (feature.geometry && feature.geometry.coordinates) {
                 const geometryType = feature.geometry.type;
-                let coordinates = JSON.parse(JSON.stringify(feature.geometry.coordinates)); 
+                let coordinates = JSON.parse(JSON.stringify(feature.geometry.coordinates));
 
                 function flipCoordinates(coords) {
                     if (Array.isArray(coords[0]) && typeof coords[0][0] === 'number') {
@@ -359,7 +486,7 @@ chrome.storage.local.get({
                         }
                     }
                 }
-                flipCoordinates(coordinates); 
+                flipCoordinates(coordinates);
 
                 return {
                     ...feature,
@@ -376,17 +503,24 @@ chrome.storage.local.get({
 
 
     (async () => {
-        serverIpMap = await fetch(chrome.runtime.getURL("data/ServerList.json"))
-            .then(response => response.json())
-            .catch(error => {
-                return {};
-            });
+        try {
+            const response = await fetch(chrome.runtime.getURL("data/ServerList.json"));
+            const serverListData = await response.json();
+
+            if (Array.isArray(serverListData)) {
+                serverIpMap = serverListData;
+            } else {
+                serverIpMap = serverListData;
+            }
+        } catch (error) {
+            serverIpMap = {};
+        }
 
         countryData = await fetch(chrome.runtime.getURL("data/countries.json"))
             .then(response => response.json())
             .then(data => {
-                preProcessedCountryData = preprocessCountryData(data); 
-                return data; 
+                preProcessedCountryData = preprocessCountryData(data);
+                return data;
             })
             .catch(error => {
                 return null;
@@ -395,13 +529,11 @@ chrome.storage.local.get({
 
 
     let activeRequests = 0;
-    async function handleServer(server, placeId, robloxCookie, regions, newServerCount) {
+    async function handleServer(server, placeId, robloxCookie, regions, newServerCount = 0) {
 
         const serverId = server.id;
         activeRequests++;
         try {
-
-
             const serverInfo = await fetch(`https://gamejoin.roblox.com/v1/join-game-instance`, {
                 method: 'POST',
                 headers: {
@@ -410,6 +542,7 @@ chrome.storage.local.get({
                     "Accept-Language": "en,en-US;q=0.9",
                     "Referer": `https://www.roblox.com/games/${placeId}/`,
                     "Origin": "https://roblox.com",
+                    "Content-Type": "application/x-www-form-urlencoded"
                 },
                 body: new URLSearchParams({
                     placeId: placeId,
@@ -429,28 +562,53 @@ chrome.storage.local.get({
                 longitude = sessionData?.Longitude;
             } catch (e) {
             }
-            let ip = ipData?.joinScript?.UdmuxEndpoints?.[0]?.Address;
-            if (!ip) {
-                return;
-            }
 
-            ip = ip.split('.').slice(0, 3).join('.') + '.0';
-            let serverLocationData = serverIpMap[ip];
-
-            if (!serverLocationData) {
-                serverLocationData = { country: { code: "US" } };
-            }
-
-            const countryCode = serverLocationData?.country?.code;
+            let countryCode = null;
             let stateCode = null;
-            let regionCode = countryCode;
+            let regionCode = null;
 
-            if (countryCode === "US") {
-                stateCode = serverLocationData.region?.code?.replace(/-\d+$/, '') || null;
-                regionCode = `US-${stateCode}`;
+            const dataCenterId = ipData?.joinScript?.DataCenterId;
+
+            if (dataCenterId && Array.isArray(serverIpMap)) {
+                const dataCenter = serverIpMap.find(dc => dc.dataCenterId === dataCenterId);
+
+                if (dataCenter) {
+                    countryCode = dataCenter.location.country;
+
+                    if (countryCode === "US") {
+                        stateCode = getStateCodeFromRegion(dataCenter.location.region);
+                        regionCode = `US-${stateCode}`;
+                    } else {
+                        regionCode = countryCode;
+                    }
+                }
             }
 
-            const optimizedLocation = { 
+            if (!regionCode) {
+                let ip = ipData?.joinScript?.UdmuxEndpoints?.[0]?.Address;
+                if (!ip) {
+                    return;
+                }
+
+                ip = ip.split('.').slice(0, 3).join('.') + '.0';
+
+                let serverLocationData = !Array.isArray(serverIpMap) ? serverIpMap[ip] : null;
+
+                if (!serverLocationData) {
+                    serverLocationData = { country: { code: "US" } };
+                }
+
+                countryCode = serverLocationData?.country?.code;
+
+                if (countryCode === "US") {
+                    stateCode = serverLocationData.region?.code?.replace(/-\d+$/, '') || null;
+                    regionCode = `US-${stateCode}`;
+                } else {
+                    regionCode = countryCode;
+                }
+            }
+
+            const optimizedLocation = {
                 c: countryCode === "US" ? stateCode : regionCode,
                 x: 0,
                 y: 0,
@@ -460,11 +618,20 @@ chrome.storage.local.get({
             if (regions.includes(regionCode)) {
                 regionCounts[regionCode] = (regionCounts[regionCode] || 0) + 1;
                 regionServerMap[regionCode] = server;
+            } else {
+
+                if (regionCode && regionCode.startsWith('US-') && stateCode) {
+                    const anyUSRegion = regions.find(r => r.startsWith('US-'));
+                    if (anyUSRegion) {
+                        regionCounts[regionCode] = (regionCounts[regionCode] || 0) + 1;
+                        regionServerMap[regionCode] = server;
+                    }
+                }
             }
             if (regionCode === "BR") {
                 regionMarkerVisibility["BR"] = true;
             }
-            serverLocations[serverId] = { 
+            serverLocations[serverId] = {
                 c: regionCode,
                 l: optimizedLocation
             };
@@ -492,7 +659,6 @@ chrome.storage.local.get({
         if (data && data.l?.c === "US") {
             return data.l.c;
         }
-
         return data?.c;
     }
 
@@ -536,7 +702,6 @@ chrome.storage.local.get({
 
         try {
             if (!userLocation || typeof userLocation.latitude !== 'number' || typeof userLocation.longitude !== 'number' || userLocation.latitude === 0 || userLocation.longitude === 0 || isNaN(userLocation.latitude) || isNaN(userLocation.longitude)) {
-                console.error("User location not found or is invalid.");
                 return null;
             }
 
@@ -565,7 +730,7 @@ chrome.storage.local.get({
                         serverLat = serverLocationData?.latitude || 0;
                         serverLon = serverLocationData?.longitude || 0;
                     }
-                } else if (serverLocations[server.id]?.l) { 
+                } else if (serverLocations[server.id]?.l) {
                     const serverIP = Object.keys(serverIpMap).find(ip => {
                         const serverAddress = serverLocations[server.id]?.l
                         if (serverAddress) {
@@ -593,8 +758,8 @@ chrome.storage.local.get({
                 }
                 serverScores[serverId].serverLat = serverLat;
                 serverScores[serverId].serverLon = serverLon;
-                let fps = server.fps; 
-                let ping = server.ping; 
+                let fps = server.fps;
+                let ping = server.ping;
 
 
                 if (isNaN(serverLat) || isNaN(serverLon) || serverLat === 0 || serverLon === 0) {
@@ -659,7 +824,6 @@ chrome.storage.local.get({
             let serverId = bestServer?.id;
             return bestServer;
         } catch (error) {
-            console.error("An error occurred in findBestServer:", error);
             return null;
         } finally {
             isFindingBestServer = false;
@@ -685,7 +849,9 @@ chrome.storage.local.get({
                 }),
                 credentials: 'include',
             });
+
             const ipData = await serverInfo.json();
+
             return ipData;
         } catch (error) {
             return null;
@@ -746,7 +912,6 @@ chrome.storage.local.get({
                 (response) => {
                     if (response && response.success) {
                     } else {
-                        console.error("Failed to join best server in region", region, ":", response?.error || "Unknown error");
                     }
                 }
             );
@@ -771,9 +936,7 @@ chrome.storage.local.get({
             { action: "injectScript", codeToInject: codeToInject },
             (response) => {
                 if (response && response.success) {
-                    console.log("Successfully joined server");
                 } else {
-                    console.error("Failed to join server:", response?.error || "Unknown error");
                 }
             }
         );
@@ -782,7 +945,7 @@ chrome.storage.local.get({
     function getFullLocationName(region) {
         const regionData = regionCoordinates[region];
         if (!regionData) {
-            return region; 
+            return region;
         }
 
         let locationString = "";
@@ -795,7 +958,7 @@ chrome.storage.local.get({
             } else if (regionData.city) {
                 locationString += `${regionData.city}`;
             }
-            locationString += `, USA`; 
+            locationString += `, USA`;
         } else {
             if (regionData.city) {
                 locationString += regionData.city;
@@ -805,7 +968,7 @@ chrome.storage.local.get({
             } else if (regionData.country) {
                 locationString += regionData.country;
             } else {
-                locationString += region; 
+                locationString += region;
             }
         }
         return locationString;
@@ -824,9 +987,9 @@ chrome.storage.local.get({
 
 
     let lastCacheKey = null;
-    let cachedProjections = new Map(); 
+    let cachedProjections = new Map();
 
-    const projectionCache = new Map(); 
+    const projectionCache = new Map();
     function project(point3D, rotationX, rotationY, horizontalMarkerOffset, zoomLevel) {
         const cacheKey = `${point3D.x},${point3D.y},${point3D.z},${rotationX},${rotationY},${horizontalMarkerOffset},${zoomLevel}`;
         if (projectionCache.has(cacheKey)) {
@@ -862,10 +1025,10 @@ chrome.storage.local.get({
 
 
 
-    let lastUpdateTime = 0; 
-    const targetUpdateFPS =60; 
-    const updateInterval = 1000 / targetUpdateFPS; 
-    const fixedHitRadius = 10; 
+    let lastUpdateTime = 0;
+    const targetUpdateFPS =60;
+    const updateInterval = 1000 / targetUpdateFPS;
+    const fixedHitRadius = 10;
 
     let lastRotationX = null;
     let lastRotationY = null;
@@ -873,29 +1036,29 @@ chrome.storage.local.get({
     let lastRegionMarkerVisibility = {};
 
     let drawnCountryPaths = [];
-    const MIN_DISTANCE_BETWEEN_COUNTRIES = 0; 
+    const MIN_DISTANCE_BETWEEN_COUNTRIES = 0;
 
 
     function updateGlobeVisualization(
         canvas, context, countryData,
         rotationX, rotationY, globeRadius, globeCenterX, globeCenterY,
         isDarkMode, zoomLevel, regionMarkers,
-        mouseX, mouseY, 
+        mouseX, mouseY,
         hoveredRegion,
-        lastDrawnMouseX, lastDrawnMouseY, 
-        setLastDrawnMouseX, setLastDrawnMouseY 
+        lastDrawnMouseX, lastDrawnMouseY,
+        setLastDrawnMouseX, setLastDrawnMouseY
     ) {
 
         let shouldRedraw = false;
 
         if (lastRotationX === null || lastRotationY === null || lastZoomLevel === null) {
-            shouldRedraw = true; 
+            shouldRedraw = true;
         } else if (rotationX !== lastRotationX || rotationY !== lastRotationY || zoomLevel !== lastZoomLevel) {
-            shouldRedraw = true; 
+            shouldRedraw = true;
         } else if (hoveredRegion !== lastHoveredRegion) {
-            shouldRedraw = true; 
+            shouldRedraw = true;
         } else if (isDragging) {
-             shouldRedraw = true; 
+             shouldRedraw = true;
         } else {
             for (const region in regionMarkerVisibility) {
                 if (regionMarkerVisibility[region] !== lastRegionMarkerVisibility[region]) {
@@ -910,7 +1073,7 @@ chrome.storage.local.get({
 
 
         if (!shouldRedraw) {
-            return; 
+            return;
         }
 
         lastRotationX = rotationX;
@@ -918,8 +1081,8 @@ chrome.storage.local.get({
         lastZoomLevel = zoomLevel;
         lastRegionMarkerVisibility = { ...regionMarkerVisibility };
         lastHoveredRegion = hoveredRegion;
-        setLastDrawnMouseX(mouseX); 
-        setLastDrawnMouseY(mouseY); 
+        setLastDrawnMouseX(mouseX);
+        setLastDrawnMouseY(mouseY);
 
         context.clearRect(0, 0, canvas.width, canvas.height);
         projectionCache.clear();
@@ -969,7 +1132,7 @@ chrome.storage.local.get({
 
             const projectedCenter = project(flippedPoint, rotationX, rotationY + rotationYOffset, horizontalMarkerOffsetValue, zoomLevel);
 
-            if (projectedCenter.z >= 0) { 
+            if (projectedCenter.z >= 0) {
 
                 const circleRadius = 0.04 / zoomLevel;
 
@@ -1005,21 +1168,21 @@ chrome.storage.local.get({
             draw3DTooltip(context, tooltipData.x, tooltipData.y, tooltipData.text, isDarkMode);
         }
     }
-     
+
     function updateTooltipPosition(mouseX, mouseY, hoveredRegion, regionMarkers, regionCounts, getFullLocationName) {
         if (!hoveredRegion) {
-            return null; 
+            return null;
         }
 
         const regionName = getFullLocationName(hoveredRegion);
         const serverCount = regionCounts[hoveredRegion] || 0;
         const tooltipText = `${regionName}\n${serverCount} servers`;
 
-        const estimatedTooltipWidth = 0; 
-        const estimatedTooltipHeight = 20; 
+        const estimatedTooltipWidth = 0;
+        const estimatedTooltipHeight = 20;
 
-        const tooltipX = mouseX - (estimatedTooltipWidth / 2); 
-        const tooltipY = mouseY - (estimatedTooltipHeight / 2); 
+        const tooltipX = mouseX - (estimatedTooltipWidth / 2);
+        const tooltipY = mouseY - (estimatedTooltipHeight / 2);
 
         return {
             x: tooltipX,
@@ -1028,7 +1191,7 @@ chrome.storage.local.get({
         };
     }
    function draw3DTooltip(context, x, y, text, isDarkMode) {
-       context.save(); 
+       context.save();
 
        const paddingX = 8;
        const paddingY = 5;
@@ -1046,15 +1209,15 @@ chrome.storage.local.get({
            textWidth = Math.max(textWidth, context.measureText(line).width);
        }
        const tooltipWidth = textWidth + 2 * paddingX;
-       const tooltipHeight = lines.length * (fontSize * 1.2) + 2 * paddingY; 
+       const tooltipHeight = lines.length * (fontSize * 1.2) + 2 * paddingY;
 
-       const tooltipX = x - tooltipWidth / 2; 
-       const tooltipY = y - tooltipHeight;      
+       const tooltipX = x - tooltipWidth / 2;
+       const tooltipY = y - tooltipHeight;
 
        const backgroundColor = isDarkMode ? '#222' : '#f0f0f0';
        const gradient = context.createLinearGradient(tooltipX, tooltipY, tooltipX + tooltipWidth, tooltipY + tooltipHeight);
-       gradient.addColorStop(0, isDarkMode ? '#333' : '#fafafa'); 
-       gradient.addColorStop(1, backgroundColor);                
+       gradient.addColorStop(0, isDarkMode ? '#333' : '#fafafa');
+       gradient.addColorStop(1, backgroundColor);
 
        context.fillStyle = gradient;
 
@@ -1067,20 +1230,20 @@ chrome.storage.local.get({
        context.roundRect(tooltipX, tooltipY, tooltipWidth, tooltipHeight, borderRadius);
        context.fill();
 
-       context.shadowColor = 'transparent'; 
+       context.shadowColor = 'transparent';
        context.strokeStyle = isDarkMode ? '#555' : '#ccc';
        context.lineWidth = 1;
        context.stroke();
 
        context.fillStyle = isDarkMode ? '#eee' : '#333';
-       context.textBaseline = 'top'; 
+       context.textBaseline = 'top';
        let currentY = tooltipY + paddingY;
        for (const line of lines) {
            context.fillText(line, x, currentY);
-           currentY += fontSize * 1.2; 
+           currentY += fontSize * 1.2;
        }
 
-       context.restore(); 
+       context.restore();
    }
 
 
@@ -1094,7 +1257,7 @@ chrome.storage.local.get({
             const lat = polygonRing[i][1];
             const point3D = latLonToVector3(lat, lon);
             const projectedPoint = project(point3D, rotationX, rotationY, 0, zoomLevel);
-            if (projectedPoint.z >= 0) { 
+            if (projectedPoint.z >= 0) {
                 sumX += projectedPoint.x;
                 sumY += projectedPoint.y;
                 visiblePointCount++;
@@ -1104,23 +1267,23 @@ chrome.storage.local.get({
         if (visiblePointCount > 0) {
             return { x: sumX / visiblePointCount, y: sumY / visiblePointCount };
         } else {
-            return null; 
+            return null;
         }
     }
 
 
     function isOverlapping(projectedCenter, drawnPaths, minDistance) {
-        if (!projectedCenter) return false; 
+        if (!projectedCenter) return false;
         for (const drawnPathCenter of drawnPaths) {
-            if (!drawnPathCenter) continue; 
+            if (!drawnPathCenter) continue;
             const dx = projectedCenter.x - drawnPathCenter.x;
             const dy = projectedCenter.y - drawnPathCenter.y;
             const distance = Math.sqrt(dx * dx + dy * dy);
             if (distance < minDistance) {
-                return true; 
+                return true;
             }
         }
-        return false; 
+        return false;
     }
 
 
@@ -1129,19 +1292,19 @@ chrome.storage.local.get({
         let localX, localY;
 
         if (Math.abs(normal.y) > 0.9) {
-            localX = {x: 1, y: 0, z: 0}; 
+            localX = {x: 1, y: 0, z: 0};
             localY = normalizeVector(crossProduct(normal, localX));
         } else {
-            localY = {x: 0, y: 1, z: 0}; 
-            localX = normalizeVector(crossProduct(localY, normal)); 
-            localY = normalizeVector(crossProduct(normal, localX)); 
+            localY = {x: 0, y: 1, z: 0};
+            localX = normalizeVector(crossProduct(localY, normal));
+            localY = normalizeVector(crossProduct(normal, localX));
         }
 
 
         const localPoint = {
             x: Math.cos(angle) * radius,
             y: Math.sin(angle) * radius,
-            z: 0 
+            z: 0
         };
 
         const worldPoint = {
@@ -1197,7 +1360,7 @@ chrome.storage.local.get({
     }
 
 
-    function drawWaterPath(context, polygonCoordinates, rotationX, rotationY, globeRadius, globeCenterX, globeCenterY, isDarkMode, zoomLevel) { 
+    function drawWaterPath(context, polygonCoordinates, rotationX, rotationY, globeRadius, globeCenterX, globeCenterY, isDarkMode, zoomLevel) {
     }
     function drawCountryPath(context, polygonCoordinates, rotationX, rotationY, globeRadius, globeCenterX, globeCenterY, isDarkMode, zoomLevel, drawOutlines = true) {
         context.save();
@@ -1220,13 +1383,13 @@ chrome.storage.local.get({
                 projectedPoints.push(project(point3D, rotationX, rotationY, 0, zoomLevel));
             }
 
-            if (projectedPoints.length < 2) continue; 
+            if (projectedPoints.length < 2) continue;
 
-            let pathStarted = false; 
+            let pathStarted = false;
 
             for (let i = 0; i < projectedPoints.length; i++) {
                 const currentPoint = projectedPoints[i];
-                const nextPointIndex = (i + 1) % projectedPoints.length; 
+                const nextPointIndex = (i + 1) % projectedPoints.length;
                 const nextPoint = projectedPoints[nextPointIndex];
 
                 if (currentPoint.z >= 0 && nextPoint.z >= 0) {
@@ -1239,7 +1402,7 @@ chrome.storage.local.get({
                 } else {
                     if (pathStarted) {
                         context.stroke();
-                        pathStarted = false; 
+                        pathStarted = false;
                     }
                 }
             }
@@ -1266,12 +1429,12 @@ chrome.storage.local.get({
             if (tokenBatch.length === 0) continue;
 
             const requests = tokenBatch.map((token, index) => ({
-                requestId: `0:${token}:AvatarHeadshot:96x96:webp:regular`, 
+                requestId: `0:${token}:AvatarHeadshot:96x96:webp:regular`,
                 type: "AvatarHeadShot",
-                targetId: 0, 
+                targetId: 0,
                 token: token,
                 format: "png",
-                size: "150x150" 
+                size: "150x150"
             }));
 
             const requestPayload = JSON.stringify(requests);
@@ -1284,8 +1447,7 @@ chrome.storage.local.get({
                 body: requestPayload
             }).then(response => {
                 if (!response.ok) {
-                    console.error('Thumbnail batch request failed:', response.status, response.statusText);
-                    return []; 
+                    return [];
                 }
                 return response.json();
             }).then(data => {
@@ -1295,13 +1457,11 @@ chrome.storage.local.get({
                         if (thumbnailData.imageUrl) {
                             thumbnailMap[token] = thumbnailData.imageUrl;
                         } else {
-                            console.warn(`No image URL for token: ${token}`, thumbnailData);
-                            thumbnailMap[token] = null; 
+                            thumbnailMap[token] = null;
                         }
                     });
                 }
             }).catch(error => {
-                console.error('Error fetching thumbnail batch:', error);
             });
             allRequests.push(fetchPromise);
         }
@@ -1324,7 +1484,7 @@ chrome.storage.local.get({
 
         let existingRegionButton = gameTitleContainer.querySelector("#regionDropdownButton");
         if (existingRegionButton) {
-            return; 
+            return;
         }
 
         const theme = await detectThemeAPI();
@@ -1335,8 +1495,8 @@ chrome.storage.local.get({
         regionDropdownButton.textContent = 'Regions';
 
         const globeSVG = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-        globeSVG.setAttribute("width", "17"); 
-        globeSVG.setAttribute("height", "17"); 
+        globeSVG.setAttribute("width", "17");
+        globeSVG.setAttribute("height", "17");
         globeSVG.setAttribute("viewBox", "0 0 24 24");
         globeSVG.setAttribute("fill", "none");
         globeSVG.setAttribute("xmlns", "http://www.w3.org/2000/svg");
@@ -1387,49 +1547,49 @@ chrome.storage.local.get({
         regionDropdown.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
         regionDropdown.style.zIndex = '9999';
         regionDropdown.style.padding = '5px';
-        regionDropdown.style.minWidth = '550px'; 
-        regionDropdown.style.maxWidth = '650px'; 
-        regionDropdown.style.height = '550px'; 
-        regionDropdown.style.display = 'none'; 
-        regionDropdown.style.flexDirection = 'column'; 
+        regionDropdown.style.minWidth = '550px';
+        regionDropdown.style.maxWidth = '650px';
+        regionDropdown.style.height = '550px';
+        regionDropdown.style.display = 'none';
+        regionDropdown.style.flexDirection = 'column';
         regionDropdown.style.overflow = 'hidden';
         regionDropdown.style.justifyContent = 'center';
         regionDropdown.style.alignItems = 'center';
 
 
-        const explanationContainer = document.createElement('div'); 
-        explanationContainer.style.display = 'flex'; 
-        explanationContainer.style.alignItems = 'center'; 
-        explanationContainer.style.justifyContent = 'center'; 
-        explanationContainer.style.marginBottom = '10px'; 
+        const explanationContainer = document.createElement('div');
+        explanationContainer.style.display = 'flex';
+        explanationContainer.style.alignItems = 'center';
+        explanationContainer.style.justifyContent = 'center';
+        explanationContainer.style.marginBottom = '10px';
 
         const iconImage = document.createElement('img');
         iconImage.src = chrome.runtime.getURL("Assets/icon-128.png");
-        iconImage.alt = "RoValra Icon"; 
-        iconImage.style.width = '20px'; 
-        iconImage.style.height = '20px'; 
-        iconImage.style.marginLeft = '5px'; 
+        iconImage.alt = "RoValra Icon";
+        iconImage.style.width = '20px';
+        iconImage.style.height = '20px';
+        iconImage.style.marginLeft = '5px';
 
         const explanationText = document.createElement('p');
         explanationText.textContent = "RoValra Region Selector";
         explanationText.style.color = isDarkMode ? 'white' : 'rgb(39, 41, 48)';
-        explanationText.style.textAlign = 'center'; 
+        explanationText.style.textAlign = 'center';
         explanationText.style.fontSize = '20px';
         explanationText.style.fontWeight = '700';
         explanationText.style.fontFamily = 'Builder Sans';
-        explanationText.style.marginBottom = '0'; 
+        explanationText.style.marginBottom = '0';
 
-        explanationContainer.appendChild(explanationText); 
-        explanationContainer.appendChild(iconImage); 
+        explanationContainer.appendChild(explanationText);
+        explanationContainer.appendChild(iconImage);
 
-        regionDropdown.appendChild(explanationContainer); 
+        regionDropdown.appendChild(explanationContainer);
 
 
         const canvas = document.createElement('canvas');
         canvas.width = 500;
         canvas.height = 500;
         const context = canvas.getContext('2d');
-        regionDropdown.appendChild(canvas); 
+        regionDropdown.appendChild(canvas);
 
 
         let regionMarkers = defaultRegions.map(region => {
@@ -1440,8 +1600,8 @@ chrome.storage.local.get({
 
 
         function initializeGlobe() {
-            if (globeInitialized) return; 
-    
+            if (globeInitialized) return;
+
             const globeRadius = 250;
             const globeCenterX = 250;
             const globeCenterY = 250;
@@ -1454,41 +1614,41 @@ chrome.storage.local.get({
             let rotationSpeedY = 0.001;
             let storedRotationSpeedY = rotationSpeedY;
             const rotationEasingFactor = 0.15;
-    
-            let mouseX = 0; 
-            let mouseY = 0; 
-            let lastDrawnMouseX = -1; 
-            let lastDrawnMouseY = -1; 
-    
-            countryPaths = []; 
-    
+
+            let mouseX = 0;
+            let mouseY = 0;
+            let lastDrawnMouseX = -1;
+            let lastDrawnMouseY = -1;
+
+            countryPaths = [];
+
             function animateGlobe() {
                 const now = performance.now();
                 const elapsed = now - lastUpdateTime;
-    
+
                 rotationX += (targetRotationX - rotationX) * rotationEasingFactor;
                 rotationY += (targetRotationY - rotationY) * rotationEasingFactor;
-    
+
                 updateGlobeVisualization(
                     canvas, context, countryData,
                     rotationX, rotationY, globeRadius, globeCenterX, globeCenterY,
                     isDarkMode, zoomLevel, regionMarkers,
-                    mouseX, mouseY, 
+                    mouseX, mouseY,
                     hoveredRegion,
-                    lastDrawnMouseX, lastDrawnMouseY, 
-                    (newX) => { lastDrawnMouseX = newX; }, 
-                    (newY) => { lastDrawnMouseY = newY; }  
+                    lastDrawnMouseX, lastDrawnMouseY,
+                    (newX) => { lastDrawnMouseX = newX; },
+                    (newY) => { lastDrawnMouseY = newY; }
                 );
                 lastUpdateTime = now;
-    
+
                 requestAnimationFrame(animateGlobe);
             }
-    
+
             lastUpdateTime = performance.now();
             animateGlobe();
-    
+
             let possibleClick = false;
-    
+
             function handleDocumentMouseMove(event) {
                 if (!isDragging) return;
                 possibleClick = false;
@@ -1505,19 +1665,19 @@ chrome.storage.local.get({
                 startDragX = currentX;
                 startDragY = currentY;
             }
-    
+
             function handleDocumentMouseUp(event) {
                 if (!isDragging) return;
                 isDragging = false;
                 canvas.style.cursor = 'pointer';
                 event.stopPropagation();
                 document.removeEventListener('mousemove', handleDocumentMouseMove);
-    
+
                 if (possibleClick) {
                     const rect = canvas.getBoundingClientRect();
                     const clickMouseX = event.clientX - rect.left;
                     const clickMouseY = event.clientY - rect.top;
-                    const currentMarkers = regionMarkers.filter(markerData => regionMarkerVisibility[markerData.region]); 
+                    const currentMarkers = regionMarkers.filter(markerData => regionMarkerVisibility[markerData.region]);
                     for (const markerData of currentMarkers) {
                         if (markerData.hitArea2D && markerData.projected3DPosition && markerData.projected3DPosition.z >= 0) {
                             const dx = clickMouseX - markerData.hitArea2D.x;
@@ -1525,8 +1685,9 @@ chrome.storage.local.get({
                             const distance = Math.sqrt(dx * dx + dy * dy);
                             if (distance < markerData.hitArea2D.radius) {
                                 regionDropdown.style.display = 'none';
+                                isRefreshing = false;
                                 showRegionServerListOverlay(markerData.region);
-                                possibleClick = false; 
+                                possibleClick = false;
                                 break;
                             }
                         }
@@ -1534,7 +1695,7 @@ chrome.storage.local.get({
                 }
                 possibleClick = false;
             }
-    
+
             canvas.addEventListener('mousedown', (event) => {
                 if (event.button !== 0) return;
                 isDragging = true;
@@ -1545,15 +1706,15 @@ chrome.storage.local.get({
                 document.addEventListener('mousemove', handleDocumentMouseMove);
                 document.addEventListener('mouseup', handleDocumentMouseUp, { once: true });
             });
-    
+
             canvas.addEventListener('mousemove', (event) => {
-                if (isDragging) return; 
+                if (isDragging) return;
 
                 const rect = canvas.getBoundingClientRect();
                 mouseX = event.clientX - rect.left;
                 mouseY = event.clientY - rect.top;
 
-                let foundRegion = null; 
+                let foundRegion = null;
                 const visibleMarkers = regionMarkers.filter(markerData => regionMarkerVisibility[markerData.region]);
 
                 for (const markerData of visibleMarkers) {
@@ -1563,18 +1724,18 @@ chrome.storage.local.get({
                         const distance = Math.sqrt(dx * dx + dy * dy);
 
                         if (distance < markerData.hitArea2D.radius) {
-                            foundRegion = markerData.region; 
-                            break; 
+                            foundRegion = markerData.region;
+                            break;
                         }
                     }
                 }
 
                 if (hoveredRegion !== foundRegion) {
                     hoveredRegion = foundRegion;
-                    prioritizedRegion = hoveredRegion; 
+                    prioritizedRegion = hoveredRegion;
                 }
             });
-    
+
             canvas.addEventListener('wheel', (event) => {
                 event.preventDefault();
                 const zoomSpeed = 0.1;
@@ -1582,7 +1743,7 @@ chrome.storage.local.get({
                 let newZoomLevel = zoomLevel * zoomFactor;
                 zoomLevel = Math.max(1.0, Math.min(newZoomLevel, 3.0));
             });
-    
+
              canvas.addEventListener('mouseleave', () => {
                  if (!isDragging) {
                     if (hoveredRegion !== null || prioritizedRegion !== null) {
@@ -1594,32 +1755,80 @@ chrome.storage.local.get({
                     }
                  }
              });
-    
+
             canvas.addEventListener('mouseover', () => {
             });
-    
+
             globeInitialized = true;
         }
 
 
         regionDropdownButton.addEventListener('click', (event) => {
             event.stopPropagation();
+
+            const isCurrentlyHidden = !globeInitialized || regionDropdown.style.display !== 'flex';
+
             if (!globeInitialized) {
-                regionDropdown.style.display = 'flex'; 
+                regionDropdown.style.display = 'flex';
                 setTimeout(() => {
-                    initializeGlobe(); 
+                    initializeGlobe();
                 }, 200);
+
+                if (placeId && !isRefreshing && !rateLimited) {
+                    isRefreshing = true;
+                    getServerInfo(placeId, null, defaultRegions);
+
+                    if (!window.serverRefreshInterval) {
+                        window.serverRefreshInterval = setInterval(() => {
+                            if (!isRefreshing && !rateLimited && regionDropdown.style.display === 'flex') {
+                                isRefreshing = true;
+                                getServerInfo(placeId, null, defaultRegions);
+                            } else if (regionDropdown.style.display !== 'flex') {
+                            }
+                        }, 30000);
+                    }
+                }
             } else {
                 mouseX = 0;
                 mouseY = 0;
                 hoveredRegion = null;
                 prioritizedRegion = null;
                 lastHoveredRegion = null;
-                
-                regionDropdown.style.display = regionDropdown.style.display === 'flex' ? 'none' : 'flex'; 
-                
-                if (regionDropdown.style.display === 'flex') {
+
+                regionDropdown.style.display = isCurrentlyHidden ? 'flex' : 'none';
+
+                if (isCurrentlyHidden) {
                     updateGlobe();
+
+                    if (placeId && !isRefreshing && !rateLimited) {
+                        if (!allServers.length) {
+                            isRefreshing = true;
+                            getServerInfo(placeId, null, defaultRegions);
+                        } else {
+                            if (!isRefreshing && !rateLimited) {
+                                isRefreshing = true;
+                                getServerInfo(placeId, null, defaultRegions);
+                            }
+                        }
+
+                        if (!window.serverRefreshInterval) {
+                            window.serverRefreshInterval = setInterval(() => {
+                                if (!isRefreshing && !rateLimited && regionDropdown.style.display === 'flex') {
+                                    isRefreshing = true;
+                                    getServerInfo(placeId, null, defaultRegions);
+                                } else if (regionDropdown.style.display !== 'flex') {
+                                }
+                            }, 30000);
+                        }
+                    }
+                } else {
+
+                    if (window.serverRefreshInterval) {
+                        clearInterval(window.serverRefreshInterval);
+                        window.serverRefreshInterval = null;
+                    }
+
+                    isRefreshing = false;
                 }
             }
         });
@@ -1659,10 +1868,10 @@ chrome.storage.local.get({
 
 
     async function showRegionServerListOverlay(region) {
-        if (isFetchingServersForRegion[region]) { 
+        if (isFetchingServersForRegion[region]) {
             return;
         }
-        isFetchingServersForRegion[region] = true; 
+        isFetchingServersForRegion[region] = true;
 
         serverListState.visibleServerCount = 0;
         serverListState.fetchedServerIds.clear();
@@ -1695,7 +1904,7 @@ chrome.storage.local.get({
         overlay.style.pointerEvents = 'none';
         document.body.appendChild(overlay);
 
-        let modalContent = document.createElement('div'); 
+        let modalContent = document.createElement('div');
         const theme = await detectThemeAPI();
         const isDarkMode = theme === 'dark';
         modalContent.style.backgroundColor = isDarkMode ? 'rgb(18, 18, 21)' : '#fff';
@@ -1725,7 +1934,7 @@ chrome.storage.local.get({
         const abortController = new AbortController();
 
         const title = document.createElement('h1');
-        const locationData = getFullLocationName(region); 
+        const locationData = getFullLocationName(region);
         title.textContent = `Servers in ${locationData}`;
         title.style.marginBottom = '0px';
         title.style.textAlign = "left";
@@ -1756,11 +1965,11 @@ chrome.storage.local.get({
             optionElement.textContent = option.text;
             sortDropdown.appendChild(optionElement);
         });
-        sortDropdown.value = serverListState.currentSort; 
+        sortDropdown.value = serverListState.currentSort;
         sortDropdown.addEventListener('change', (event) => {
             serverListState.currentSort = event.target.value;
             sortServers();
-            renderFullServerList(); 
+            renderFullServerList();
         });
         headerContainer.appendChild(sortDropdown);
 
@@ -1792,14 +2001,17 @@ chrome.storage.local.get({
         let serverListScrollHandler;
 
         closeButton.addEventListener('click', () => {
-            abortController.abort(); 
+            abortController.abort();
             modalOverlay.remove();
             overlay.remove();
             body.style.overflow = "auto";
             body.style.pointerEvents = "all";
-            isFetchingServersForRegion[region] = false; 
+            isFetchingServersForRegion[region] = false;
+
+            isRefreshing = false;
+
             if (modalContent && serverListScrollHandler) {
-                modalContent.removeEventListener('scroll', serverListScrollHandler); 
+                modalContent.removeEventListener('scroll', serverListScrollHandler);
             }
         });
         headerContainer.appendChild(closeButton);
@@ -1812,14 +2024,14 @@ chrome.storage.local.get({
         serverList.style.flexDirection = 'column';
         serverList.style.gap = '10px';
 
-        serverList.innerHTML = `<p style="text-align:center;font-weight:bold;color:${isDarkMode ? 'white' : '#24292e'};">Searching for servers in ${getFullLocationName(region)}...</p>`; 
+        serverList.innerHTML = `<p style="text-align:center;font-weight:bold;color:${isDarkMode ? 'white' : '#24292e'};">Searching for servers in ${getFullLocationName(region)}...</p>`;
 
-        modalContent.appendChild(serverList); 
+        modalContent.appendChild(serverList);
         modalOverlay.appendChild(modalContent);
         document.body.appendChild(modalOverlay);
 
         let servers = [];
-        for (const server of allServers) { 
+        for (const server of allServers) {
             let currentRegion = mapStateToRegion(serverLocations[server.id]);
             if (currentRegion === region) {
                 servers.push(server);
@@ -1827,47 +2039,47 @@ chrome.storage.local.get({
         }
 
         if (servers.length === 0) {
-            serverList.innerHTML = `<p style="text-align:center;font-weight:bold;color:${isDarkMode ? 'white' : '#24292e'};">No active servers in this region.</p>`; 
+            serverList.innerHTML = `<p style="text-align:center;font-weight:bold;color:${isDarkMode ? 'white' : '#24292e'};">No active servers in this region.</p>`;
             modalContent.appendChild(serverList)
             modalOverlay.appendChild(modalContent);
             document.body.appendChild(modalOverlay);
             modalContent.addEventListener('scroll', serverListScrollHandler);
-            modalOverlay.addEventListener('click', (event) => { 
+            modalOverlay.addEventListener('click', (event) => {
                 if (event.target === modalOverlay) {
-                    abortController.abort(); 
+                    abortController.abort();
                     modalOverlay.remove();
                     overlay.remove();
                     body.style.overflow = "auto";
                     body.style.pointerEvents = "all";
-                    isFetchingServersForRegion[region] = false; 
+                    isFetchingServersForRegion[region] = false;
                     if (modalContent && serverListScrollHandler) {
-                        modalContent.removeEventListener('scroll', serverListScrollHandler); 
+                        modalContent.removeEventListener('scroll', serverListScrollHandler);
                     }
                 }
             });
             const Body = document.querySelector("body");
             Body.style.pointerEvents = "none";
             serverListState.visibleServerCount = 0;
-            isFetchingServersForRegion[region] = false; 
-            return; 
+            isFetchingServersForRegion[region] = false;
+            return;
         }
         serverListState.servers = servers;
-        sortServers(); 
+        sortServers();
         const serversPerPage = 20;
 
 
-        async function appendServers() { 
+        async function appendServers() {
             const serversToRender = serverListState.servers.slice(serverListState.visibleServerCount, serverListState.visibleServerCount + serversPerPage);
             const serverDataPromises = serversToRender.map(async (server) => {
                 const serverId = server.id;
                 if (serverListState.renderedServerIds.has(serverId)) {
-                    return serverListState.renderedServersData.get(serverId); 
+                    return serverListState.renderedServersData.get(serverId);
                 }
-    
-                const serverEntry = document.createElement('div'); 
-                serverEntry.className = 'server-entry'; 
-                let isServerUnknownPing = false; 
-    
+
+                const serverEntry = document.createElement('div');
+                serverEntry.className = 'server-entry';
+                let isServerUnknownPing = false;
+
                 serverEntry.style.backgroundColor = isDarkMode ? '#24292e' : 'rgb(247, 247, 248)';
                 serverEntry.style.border = isDarkMode ? '0px solid #444' : '#ddd';
                 serverEntry.style.borderRadius = '6px';
@@ -1876,9 +2088,9 @@ chrome.storage.local.get({
                 serverEntry.style.display = 'flex';
                 serverEntry.style.flexDirection = 'column';
                 serverEntry.style.alignItems = 'stretch';
-                serverEntry.style.position = ''; 
-    
-    
+                serverEntry.style.position = '';
+
+
                 const profilePicturesRow = document.createElement('div');
                 profilePicturesRow.className = 'profile-pictures-row';
                 profilePicturesRow.style.display = 'flex';
@@ -1928,8 +2140,8 @@ chrome.storage.local.get({
                     profilePicturesRow.appendChild(profileCirclePlaceholder);
                 }
                 serverEntry.appendChild(profilePicturesRow);
-    
-    
+
+
                 const serverInfoRow = document.createElement('div');
                 serverInfoRow.className = 'server-info-row';
                 serverInfoRow.style.display = 'flex';
@@ -1949,7 +2161,7 @@ chrome.storage.local.get({
                 pingContainer.style.gap = '3px';
                 const pingText = document.createElement('div');
                 pingText.className = 'ping-text';
-    
+
                 const serverData = await fetchServerData(serverId);
                 let pingValue = "Unknown";
                 try {
@@ -1957,39 +2169,51 @@ chrome.storage.local.get({
                     userLat = sessionData?.Latitude;
                     userLon = sessionData?.Longitude;
                 } catch (e) {}
-                if (serverData?.joinScript?.UdmuxEndpoints?.length > 0) {
-                    const serverIp = serverData?.joinScript?.UdmuxEndpoints[0]?.Address
+                const dataCenterId = serverData?.joinScript?.DataCenterId;
+                let serverLat = 0;
+                let serverLon = 0;
+
+                if (dataCenterId && Array.isArray(serverIpMap)) {
+                    const dataCenter = serverIpMap.find(dc => dc.dataCenterId === dataCenterId);
+
+                    if (dataCenter && dataCenter.location && dataCenter.location.latLong) {
+                        serverLat = parseFloat(dataCenter.location.latLong[0]);
+                        serverLon = parseFloat(dataCenter.location.latLong[1]);
+                    }
+                }
+
+                if (serverLat === 0 && serverLon === 0 && serverData?.joinScript?.UdmuxEndpoints?.length > 0) {
+                    const serverIp = serverData?.joinScript?.UdmuxEndpoints[0]?.Address;
                     if (serverIp) {
                         const serverIP = serverIp.split('.').slice(0, 3).join('.') + '.0';
-                        const clientAddress = serverData?.joinScript?.MachineAddress
-                        const serverLocationData = serverIpMap[serverIP]
-                        const serverLat = serverLocationData?.latitude || 0;
-                        const serverLon = serverLocationData?.longitude || 0;
-                        if (clientAddress) {
-                            const distance = calculateDistance(
-                                userLat,
-                                userLon,
-                                serverLat,
-                                serverLon
-                            );
-                            const calculatedPing = Math.round((distance / 3000) * 100)
-                            pingValue = `${calculatedPing}ms`;
-                        } else {
-                            pingValue = "Unknown"
-                        }
+                        const serverLocationData = !Array.isArray(serverIpMap) ? serverIpMap[serverIP] : null;
+                        serverLat = serverLocationData?.latitude || 0;
+                        serverLon = serverLocationData?.longitude || 0;
                     }
-                } else {
-                    pingValue = "Unknown"
                 }
-    
+
+                const clientAddress = serverData?.joinScript?.MachineAddress;
+                if (clientAddress && serverLat !== 0 && serverLon !== 0) {
+                    const distance = calculateDistance(
+                        userLat,
+                        userLon,
+                        serverLat,
+                        serverLon
+                    );
+                    const calculatedPing = Math.round((distance / 3000) * 100);
+                    pingValue = `${calculatedPing}ms`;
+                } else {
+                    pingValue = "Unknown";
+                }
+
                 if (pingValue === "Unknown") {
                     isServerUnknownPing = true;
                 }
-    
+
                 if (isServerUnknownPing) {
-                    return null; 
+                    return null;
                 }
-    
+
                 playerCountText.textContent = `${server.playing} of ${server.maxPlayers} people max`;
                 serverDetails.appendChild(playerCountText);
                 server.calculatedPing = pingValue === "Unknown" ? Infinity : parseInt(pingValue.replace('ms', ''));
@@ -2028,18 +2252,17 @@ chrome.storage.local.get({
                 pingTooltip.style.textAlign = 'center';
                 pingTooltip.style.display = 'none';
                 pingTooltipIcon.appendChild(pingTooltip);
-                pingContainer.appendChild(pingTooltipIcon);
                 pingTooltipIcon.addEventListener('mouseover', () => { pingTooltip.style.display = 'block'; });
                 pingTooltipIcon.addEventListener('mouseout', () => { pingTooltip.style.display = 'none'; });
                 serverDetails.appendChild(pingContainer);
-    
+
                 const regionText = document.createElement('div');
                 regionText.className = 'region-text';
                 serverDetails.appendChild(regionText);
                 serverInfoRow.appendChild(serverDetails);
                 serverEntry.appendChild(serverInfoRow);
-    
-    
+
+
                 const bottomRow = document.createElement('div');
                 bottomRow.className = 'bottom-row';
                 bottomRow.style.display = 'flex';
@@ -2082,7 +2305,6 @@ chrome.storage.local.get({
                     shareButton.textContent = 'Copied';
                     setTimeout(() => { shareButton.textContent = 'Share'; }, 5000);
                     }).catch(err => {
-                        console.error('Failed to copy link: ', err);
                         alert('Failed to copy server link to clipboard.');
                         setTimeout(() => { shareButton.textContent = 'Share'; }, 5000);
                     });
@@ -2099,13 +2321,13 @@ chrome.storage.local.get({
                 bottomRow.appendChild(shareButton);
                 bottomRow.appendChild(serverIdUptime);
                 serverEntry.appendChild(bottomRow);
-    
-    
+
+
                 let isFull = false;
                 let isInvalid = false;
                 let isShutDown = false;
                 if (isFull || isInvalid || isShutDown) return null;
-    
+
                 serverListState.renderedServerIds.add(serverId);
                 serverListState.fetchedServerIds.add(serverId)
                 serverListState.renderedServersData.set(serverId, serverEntry);
@@ -2114,15 +2336,15 @@ chrome.storage.local.get({
             const serverEntries = await Promise.all(serverDataPromises);
             const filteredServerEntries = serverEntries.filter(entry => entry !== null);
             filteredServerEntries.forEach(entry => {
-                serverList.appendChild(entry); 
+                serverList.appendChild(entry);
             });
         }
-        async function renderFullServerList() { 
-            serverList.innerHTML = ''; 
-            serverListState.visibleServerCount = 0; 
-            serverListState.renderedServerIds.clear(); 
-            serverListState.renderedServersData.clear(); 
-            await appendServers(); 
+        async function renderFullServerList() {
+            serverList.innerHTML = '';
+            serverListState.visibleServerCount = 0;
+            serverListState.renderedServerIds.clear();
+            serverListState.renderedServersData.clear();
+            await appendServers();
         }
 
 
@@ -2136,19 +2358,19 @@ chrome.storage.local.get({
                 } else if (sortValue === 'players_lowest') {
                     return a.playing - b.playing;
                 }
-                return 0; 
+                return 0;
             });
         }
 
 
-        renderFullServerList(); 
+        renderFullServerList();
 
 
         modalContent.appendChild(serverList)
         modalOverlay.appendChild(modalContent);
         document.body.appendChild(modalOverlay);
 
-        serverListScrollHandler = async () => { 
+        serverListScrollHandler = async () => {
             if (serverListState.loading) return;
             const scrollTop = modalContent.scrollTop;
             const scrollHeight = modalContent.scrollHeight;
@@ -2156,23 +2378,23 @@ chrome.storage.local.get({
             if (scrollHeight - scrollTop - clientHeight < 300) {
                 serverListState.loading = true;
                 serverListState.visibleServerCount += serversPerPage;
-                await appendServers(); 
+                await appendServers();
                 serverListState.loading = false;
             }
         };
 
 
         modalContent.addEventListener('scroll', serverListScrollHandler);
-        modalOverlay.addEventListener('click', (event) => { 
+        modalOverlay.addEventListener('click', (event) => {
             if (event.target === modalOverlay) {
-                abortController.abort(); 
+                abortController.abort();
                 modalOverlay.remove();
                 overlay.remove();
                 body.style.overflow = "auto";
                 body.style.pointerEvents = "all";
-                isFetchingServersForRegion[region] = false; 
+                isFetchingServersForRegion[region] = false;
                 if (modalContent && serverListScrollHandler) {
-                    modalContent.removeEventListener('scroll', serverListScrollHandler); 
+                    modalContent.removeEventListener('scroll', serverListScrollHandler);
                 }
             }
         });
@@ -2182,9 +2404,9 @@ chrome.storage.local.get({
         serverListState.visibleServerCount = 0;
     }
 
-    async function fetchRegionServersWithCursor(placeId, region, cursor = null, modalOverlay, abortSignal) { 
+    async function fetchRegionServersWithCursor(placeId, region, cursor = null, modalOverlay, abortSignal) {
         if (!document.body.contains(modalOverlay)) {
-            return { servers: [], nextPageCursor: null }; 
+            return { servers: [], nextPageCursor: null };
         }
         let url = `https://games.roblox.com/v1/games/${placeId}/servers/Public?excludeFullGames=true&limit=100`;
         if (cursor) {
@@ -2198,11 +2420,10 @@ chrome.storage.local.get({
                     "Cache-Control": "no-cache",
                 },
                 credentials: 'include',
-                signal: abortSignal 
+                signal: abortSignal
             });
             if (!response.ok) {
                 const errorDetails = await response.text();
-                console.error("Failed to fetch server list with cursor:", response.status, errorDetails);
                 return { servers: [], nextPageCursor: null };
             }
             const serversData = await response.json();
@@ -2211,26 +2432,30 @@ chrome.storage.local.get({
             }
 
             let regionSpecificServers = [];
-        const serverPromises = serversData.data.map(async server => { 
-        await handleServer(server, placeId, defaultRegions, 0); 
-        let currentRegion = mapStateToRegion(serverLocations[server.id]); 
-        if (currentRegion === region) {
-            regionSpecificServers.push(server);
-        }
-        });
-            await Promise.all(serverPromises); 
+            const serverPromises = serversData.data.map(async server => {
+                try {
+                    await handleServer(server, placeId, null, defaultRegions, 0);
+
+                    let currentRegion = mapStateToRegion(serverLocations[server.id]);
+
+                    if (currentRegion === region) {
+                        regionSpecificServers.push(server);
+                    }
+                } catch (err) {
+                }
+            });
+            await Promise.all(serverPromises);
 
             return { servers: regionSpecificServers, nextPageCursor: serversData.nextPageCursor };
         } catch (error) {
             if (error.name === 'AbortError') {
-                return { servers: [], nextPageCursor: null }; 
+                return { servers: [], nextPageCursor: null };
             }
-            console.error("Error in fetchRegionServersWithCursor:", error);
             return { servers: [], nextPageCursor: null };
         } finally {
-            isFetchingServersForRegion[region] = false; 
+            isFetchingServersForRegion[region] = false;
             if (!document.body.contains(modalOverlay)) {
-                return { servers: [], nextPageCursor: null }; 
+                return { servers: [], nextPageCursor: null };
             }
         }
     }
@@ -2239,23 +2464,23 @@ chrome.storage.local.get({
         if (isSearchingMoreRegions) return;
         isSearchingMoreRegions = true;
 
-        const allRegionCodes = Object.keys(regionCoordinates); 
+        const allRegionCodes = Object.keys(regionCoordinates);
 
         let newRegionsFound = false;
         for (const regionCode of allRegionCodes) {
-            if (!defaultRegions.includes(regionCode)) { 
-                await getServerInfo(placeId, null, [regionCode]); 
+            if (!defaultRegions.includes(regionCode)) {
+                await getServerInfo(placeId, null, [regionCode]);
                 if (regionCounts[regionCode] > 0) {
-                    defaultRegions.push(regionCode); 
-                    regionMarkerVisibility[regionCode] = true; 
+                    defaultRegions.push(regionCode);
+                    regionMarkerVisibility[regionCode] = true;
                     newRegionsFound = true;
                 }
             }
         }
 
         if (newRegionsFound) {
-            updateGlobeVisualization(canvas, context, countryData, lastRotationX, lastRotationY, 250, 250, 250, await detectThemeAPI() === 'dark', lastZoomLevel, regionMarkers, tooltip, mouseX, mouseY, lastHoveredRegion); 
-            updatePopup(); 
+            updateGlobeVisualization(canvas, context, countryData, lastRotationX, lastRotationY, 250, 250, 250, await detectThemeAPI() === 'dark', lastZoomLevel, regionMarkers, tooltip, mouseX, mouseY, lastHoveredRegion);
+            updatePopup();
         } else {
         }
         isSearchingMoreRegions = false;
@@ -2264,13 +2489,14 @@ chrome.storage.local.get({
 
     (async () => {
         const theme = await detectThemeAPI();
-        applyTheme(theme);
-        if (placeId && regionSelectorEnabled) { 
-            getServerInfo(placeId, null, defaultRegions); 
+        if (typeof applyTheme === 'function') {
+            applyTheme(theme);
         }
-        updatePopup(); 
 
-    })();
+        if (typeof updatePopup === 'function') {
+            updatePopup();
         }
+    })();
+
     }
-})
+}});

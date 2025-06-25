@@ -1,5 +1,14 @@
 (function() {
+    function isOnSupportedPage() {
+        const url = window.location.href;
+        return url.includes("/users/") && (url.includes("/profile") || url.includes("/inventory"));
+    }
+    
     const checkStorageAndRun = async () => {
+        if (!isOnSupportedPage()) {
+            return;
+        }
+        
         try {
             if (typeof chrome !== 'undefined' && chrome.storage) {
                 chrome.storage.local.get(['privateInventoryEnabled'], function(result) {
@@ -456,7 +465,11 @@
         }
 
         function isInventoryPage() {
-            return window.location.href.includes("/inventory");
+            return window.location.href.includes("/users/") && window.location.href.includes("/inventory");
+        }
+
+        function isProfilePage() {
+            return window.location.href.includes("/users/") && window.location.href.includes("/profile");
         }
 
         function extractAndLogUserId() {
@@ -518,6 +531,14 @@
             let sectionContentOffElement = null;
 
             sectionContentOffElement = document.querySelector('div.section-content-off');
+            
+            if (!sectionContentOffElement && isProfilePage()) {
+                const profileInventoryContainer = document.querySelector('.profile-inventory-container');
+                if (profileInventoryContainer) {
+                    sectionContentOffElement = profileInventoryContainer.querySelector('.section-content-off');
+                }
+            }
+            
             if (!sectionContentOffElement) {
                 const iframe = document.getElementById('btr-injected-inventory');
                 if (iframe) {
@@ -950,6 +971,7 @@
                     limitDropdown.style.backgroundimage = '';
                     limitDropdown.style.padding = '6px 10px';
                     limitDropdown.style.appearance = 'none';
+                    limitDropdown.style.border = `1px solid ${document.documentElement.style.getPropertyValue('--filter-input-border-color')}`;
 
                     const limitValues = [120, 240, 360, 480, 600, 720];
                     limitValues.forEach(value => {
@@ -1204,6 +1226,15 @@
             inventoryCheckRunning = false;
         }
 
+        function updateDropdownBorders() {
+            const dropdowns = document.querySelectorAll('select.filter-limit-dropdown');
+            const borderColor = document.documentElement.style.getPropertyValue('--filter-input-border-color');
+            
+            dropdowns.forEach(dropdown => {
+                dropdown.style.border = `1px solid ${borderColor}`;
+            });
+        }
+
         function applyTabButtonStyles(button, isActive, theme) {
             const isDark = theme === 'dark';
             const activeColor = 'rgb(51, 95, 255)';
@@ -1249,7 +1280,7 @@
             inputElement.style.borderRadius = '8px';
             inputElement.style.backgroundColor = inputBackgroundColor;
             inputElement.style.border = `1px solid ${inputBorderColor}`;
-            inputElement.style.borderColor = inputBackgroundColor;
+            inputElement.style.borderColor = inputBorderColor;
             inputElement.style.fontSize = '1rem';
             inputElement.style.boxSizing = 'border-box';
             inputElement.style.width = '100%';
@@ -1792,7 +1823,7 @@
                 document.documentElement.style.setProperty('--filter-button-active-text', 'rgba(208, 217, 251, 0.12)');
                 document.documentElement.style.setProperty('--filter-input-label-color', 'rgb(255, 255, 255)');
                 document.documentElement.style.setProperty('--filter-input-background', 'rgba(18, 18, 21, 0.8)');
-                document.documentElement.style.setProperty('--filter-input-border-color', 'rgba(18, 18, 21, 0.8)');
+                document.documentElement.style.setProperty('--filter-input-border-color', 'rgb(73, 77, 90)');
                 document.documentElement.style.setProperty('--filter-input-text-color', 'rgb(213, 215, 221)');
                 document.documentElement.style.setProperty('--filter-toggle-background', 'rgb(73, 77, 90)');
                 document.documentElement.style.setProperty('--filter-toggle-border-color', 'rgb(68, 68, 68)');
@@ -1802,13 +1833,13 @@
                 document.documentElement.style.setProperty('--tab-button-border-color', '#444');
                 document.documentElement.style.setProperty('--button-primary-background', 'rgb(51, 95, 255)');
                 document.documentElement.style.setProperty('--button-primary-text', 'white');
-                document.documentElement.style.setProperty('--button-disabled-background', '#6c757d');
-                document.documentElement.style.setProperty('--button-disabled-text', 'white');
+                document.documentElement.style.setProperty('--button-disabled-background', '#e1e1e1');
+                document.documentElement.style.setProperty('--button-disabled-text', '#999');
                 document.documentElement.style.setProperty('--text-success-color', 'green');
-                document.documentElement.style.setProperty('--item-offsale-color', 'rgb(188, 190, 200)');
+                document.documentElement.style.setProperty('--item-offsale-color', '#6c757d');
                 document.documentElement.style.setProperty('--item-owned-icon-color', 'green');
                 document.documentElement.style.setProperty('--item-unowned-icon-color', 'red');
-                document.documentElement.style.setProperty('--filter-input-placeholder-color', 'rgba(213, 215, 221, 0.7)');
+                document.documentElement.style.setProperty('--filter-input-placeholder-color', 'rgba(0, 0, 0, 0.4)');
             } else {
                 borderColor = '#ddd';
                 document.documentElement.style.setProperty('--text-color', 'rgb(96, 97, 98) !important');
@@ -1836,25 +1867,25 @@
                 document.documentElement.style.setProperty('--modal-header-background', 'rgb(255, 255, 255)');
                 document.documentElement.style.setProperty('--modal-options-text-color', '#666');
                 document.documentElement.style.setProperty('--modal-options-background', 'rgb(255, 255, 255)');
-                document.documentElement.style.setProperty('--filter-option-button-text-color', 'white');
-                document.documentElement.style.setProperty('--filter-option-button-hover-background', 'rgba(255, 255, 255, 0.08)');
-                document.documentElement.style.setProperty('--filter-button-background', 'rgb(36, 41, 46)');
-                document.documentElement.style.setProperty('--filter-button-text', 'rgb(255, 255, 255)');
-                document.documentElement.style.setProperty('--filter-button-border-color', '#444');
-                document.documentElement.style.setProperty('--filter-button-active-background', 'white');
-                document.documentElement.style.setProperty('--filter-button-active-text', 'rgba(208, 217, 251, 0.12)');
-                document.documentElement.style.setProperty('--filter-input-label-color', 'rgb(255, 255, 255)');
-                document.documentElement.style.setProperty('--filter-input-background', 'rgba(18, 18, 21, 0.8)');
-                document.documentElement.style.setProperty('--filter-input-border-color', 'rgba(18, 18, 21, 0.8)');
-                document.documentElement.style.setProperty('--filter-input-text-color', 'rgb(213, 215, 221)');
-                document.documentElement.style.setProperty('--filter-toggle-background', 'rgb(73, 77, 90)');
-                document.documentElement.style.setProperty('--filter-toggle-border-color', 'rgb(68, 68, 68)');
-                document.documentElement.style.setProperty('--filter-toggle-indicator-color', 'white');
+                document.documentElement.style.setProperty('--filter-option-button-text-color', '#333');
+                document.documentElement.style.setProperty('--filter-option-button-hover-background', 'rgba(0, 0, 0, 0.05)');
+                document.documentElement.style.setProperty('--filter-button-background', 'rgba(27,37,75,.12)');
+                document.documentElement.style.setProperty('--filter-button-text', '#333');
+                document.documentElement.style.setProperty('--filter-button-border-color', '#ccc');
+                document.documentElement.style.setProperty('--filter-button-active-background', 'rgb(51, 95, 255)');
+                document.documentElement.style.setProperty('--filter-button-active-text', 'white');
+                document.documentElement.style.setProperty('--filter-input-label-color', '#333');
+                document.documentElement.style.setProperty('--filter-input-background', '#fff');
+                document.documentElement.style.setProperty('--filter-input-border-color', '#ccc');
+                document.documentElement.style.setProperty('--filter-input-text-color', '#333');
+                document.documentElement.style.setProperty('--filter-toggle-background', '#fff');
+                document.documentElement.style.setProperty('--filter-toggle-border-color', '#ccc');
+                document.documentElement.style.setProperty('--filter-toggle-indicator-color', 'rgb(51, 95, 255)');
                 document.documentElement.style.setProperty('--tab-button-background', 'rgb(240, 240, 240)');
                 document.documentElement.style.setProperty('--tab-button-text-color', '#333');
                 document.documentElement.style.setProperty('--tab-button-border-color', '#ccc');
                 document.documentElement.style.setProperty('--button-primary-background', 'rgb(51, 95, 255)');
-                document.documentElement.setProperty('--button-primary-text', 'white');
+                document.documentElement.style.setProperty('--button-primary-text', 'white');
                 document.documentElement.style.setProperty('--button-disabled-background', '#d3d3d3');
                 document.documentElement.style.setProperty('--button-disabled-text', '#777');
                 document.documentElement.style.setProperty('--text-success-color', 'green');
@@ -1864,9 +1895,37 @@
                 document.documentElement.style.setProperty('--filter-input-placeholder-color', 'rgba(96, 97, 98, 0.7)');
             }
             document.documentElement.style.setProperty('--input-border-color', borderColor + ' !important');
+            
+            setTimeout(updateDropdownBorders, 0);
         }
 
         function detectTheme() {
+            const bodyElement = document.body;
+            if (bodyElement) {
+                const bodyBgColor = window.getComputedStyle(bodyElement).backgroundColor;
+                if (bodyBgColor) {
+                    const rgb = bodyBgColor.match(/\d+/g);
+                    if (rgb && rgb.length >= 3) {
+                        const brightness = (parseInt(rgb[0]) * 299 + parseInt(rgb[1]) * 587 + parseInt(rgb[2]) * 114) / 1000;
+                        if (brightness < 128) {
+                            return 'dark';
+                        } else {
+                            return 'light';
+                        }
+                    }
+                }
+                
+                if (bodyElement.classList.contains('dark-theme') || 
+                    document.documentElement.classList.contains('dark-theme')) {
+                    return 'dark';
+                }
+                
+                if (bodyElement.classList.contains('light-theme') || 
+                    document.documentElement.classList.contains('light-theme')) {
+                    return 'light';
+                }
+            }
+            
             return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
         }
 
@@ -1897,6 +1956,15 @@
 
             const observer = new MutationObserver(callback);
             observer.observe(targetNode, config);
+        }
+
+        function updateDropdownBorders() {
+            const dropdowns = document.querySelectorAll('select.filter-limit-dropdown');
+            const borderColor = document.documentElement.style.getPropertyValue('--filter-input-border-color');
+            
+            dropdowns.forEach(dropdown => {
+                dropdown.style.border = `1px solid ${borderColor}`;
+            });
         }
 
         function abbreviateNumber(number) {
@@ -1931,6 +1999,8 @@
             if (initialFilterButton) {
                 applyFilterButtonStyle(initialFilterButton, currentTheme);
             }
+            
+            updateDropdownBorders();
 
             observeAndApplyStyles()
         }, 100);
@@ -1939,12 +2009,21 @@
             const observer = new MutationObserver((mutationsList, observerInstance) => {
                 for (const mutation of mutationsList) {
                     if (mutation.type === 'childList') {
-                        if (isInventoryPage()) {
+                        if (isInventoryPage() || isProfilePage()) {
                             const sectionContentOff = document.querySelector('div.section-content-off');
                             if (sectionContentOff) {
                                 observerInstance.disconnect();
                                 checkInventoryHidden();
                                 return;
+                            }
+                            const profileInventoryContainer = document.querySelector('.profile-inventory-container');
+                            if (profileInventoryContainer) {
+                                const profileSectionOff = profileInventoryContainer.querySelector('.section-content-off');
+                                if (profileSectionOff) {
+                                    observerInstance.disconnect();
+                                    checkInventoryHidden();
+                                    return;
+                                }
                             }
                             const iframe = document.getElementById('btr-injected-inventory');
                             if (iframe) {
@@ -1970,7 +2049,7 @@
             observer.observe(document.body, { childList: true, subtree: true });
         }
 
-        if (isInventoryPage()) {
+        if (isInventoryPage() || isProfilePage()) {
             waitForInventorySection();
         }
     };

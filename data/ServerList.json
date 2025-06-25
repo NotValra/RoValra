@@ -1,1941 +1,1190 @@
-{
-    "128.116.0.0": {
-        "city": "Hong Kong",
-        "country": {
-            "name": "Hong Kong",
-            "code": "HK"
-        },
-         "latitude": 22.396428,
-        "longitude": 114.109497
-    },
-    "128.116.1.0": {
-        "city": "Los Angeles",
-        "country": {
-            "name": "United States",
-            "code": "US"
-        },
-        "region": {
-            "name": "California",
-            "code": "CA"
-        },
-         "latitude": 34.0522,
-        "longitude": -118.2437
-    },
-    "128.116.2.0": {
-        "city": "Warsaw",
-        "country": {
-            "name": "Poland",
-            "code": "PL"
-        },
-        "region": {
-            "name": "Mazowieckie",
-            "code": "14"
-        },
-          "latitude": 52.237049,
-        "longitude": 21.017532
-    },
-    "128.116.3.0": {
-        "city": "Warsaw",
-        "country": {
-            "name": "Poland",
-            "code": "PL"
-        },
-        "region": {
-            "name": "Mazowieckie",
-            "code": "14"
-        },
-         "latitude": 52.237049,
-        "longitude": 21.017532
-    },
-    "128.116.4.0": {
-        "city": "Paris",
-        "country": {
-            "name": "France",
-            "code": "FR"
-        },
-        "region": {
-            "name": "Île-de-France",
-            "code": "IDF"
-        },
-         "latitude": 48.856613,
-        "longitude": 2.352222
-    },
-    "128.116.5.0": {
-        "city": "Frankfurt am Main",
-        "country": {
-            "name": "Germany",
-            "code": "DE"
-        },
-        "region": {
-            "name": "Hessen",
-            "code": "HE"
-        },
-        "latitude": 50.110924,
-        "longitude": 8.682127
-    },
-    "128.116.6.0": {
-        "city": "Tokyo",
-        "country": {
-            "name": "Japan",
-            "code": "JP"
-        },
-        "region": {
-            "name": "Tokyo",
-            "code": "13"
-        },
-        "latitude": 35.689487,
-        "longitude": 139.691711
-    },
-    "128.116.7.0": {
-        "city": "Mumbai",
-        "country": {
-            "name": "India",
-            "code": "IN"
-        },
-        "region": {
-            "name": "Mahārāshtra",
-            "code": "MH"
-        },
-         "latitude": 19.076090,
-        "longitude": 72.877426
-    },
-    "128.116.8.0": {
-        "city": "Frankfurt am Main",
-        "country": {
-            "name": "Germany",
-            "code": "DE"
-        },
-        "region": {
-            "name": "Hessen",
-            "code": "HE"
-        },
-           "latitude": 50.110924,
-        "longitude": 8.682127
-    },
-    "128.116.9.0": {
-        "city": "Mumbai",
-        "country": {
-            "name": "India",
-            "code": "IN"
-        },
-        "region": {
-            "name": "Mahārāshtra",
-            "code": "MH"
-        },
-        "latitude": 19.076090,
-        "longitude": 72.877426
-    },
-    "128.116.10.0": {
-        "city": "Ashburn",
-        "country": {
-            "name": "United States",
-            "code": "US"
-        },
-        "region": {
-            "name": "Virginia",
-            "code": "VA"
-        },
-        "latitude": 39.0438,
-        "longitude": -77.4949
-    },
-    "128.116.11.0": {
-         "city": "Ashburn",
-        "country": {
-            "name": "United States",
-            "code": "US"
-        },
-        "region": {
-            "name": "Virginia",
-            "code": "VA"
-        },
-        "latitude": 39.0438,
-        "longitude": -77.4949
-    },
-    "128.116.12.0": {
-        "city": "San Mateo",
-        "country": {
-            "name": "United States",
-            "code": "US"
-        },
-         "region": {
-            "name": "California",
-            "code": "CA"
-        },
-         "latitude": 37.5630,
-        "longitude": -122.3255
-    },
-    "128.116.13.0": {
-        "city": "Paris",
-        "country": {
-            "name": "France",
-            "code": "FR"
-        },
-        "region": {
-            "name": "Île-de-France",
-            "code": "IDF"
-        },
-        "latitude": 48.856613,
-        "longitude": 2.352222
-    },
-    "128.116.14.0": {
-        "city": "Hong Kong",
-        "country": {
-            "name": "Hong Kong",
-            "code": "HK"
-        },
-         "latitude": 22.396428,
-        "longitude": 114.109497
-    },
-    "128.116.15.0": {
-        "city": "Secaucus",
-         "country": {
-            "name": "United States",
-            "code": "US"
-        },
-        "region": {
-            "name": "New Jersey",
-            "code": "NJ"
-        },
-        "latitude": 40.7875,
-        "longitude": -74.0575
-    },
-    "128.116.16.0": {
-        "city": "Secaucus",
-         "country": {
-            "name": "United States",
-            "code": "US"
-        },
-        "region": {
-            "name": "New Jersey",
-            "code": "NJ"
-        },
-         "latitude": 40.7875,
-        "longitude": -74.0575
-    },
-    "128.116.17.0": {
-       "city": "Secaucus",
-         "country": {
-            "name": "United States",
-            "code": "US"
-        },
-         "region": {
-            "name": "New Jersey",
-            "code": "NJ"
-        },
-         "latitude": 40.7875,
-        "longitude": -74.0575
-    },
-    "128.116.18.0": {
-       "city": "Miami",
-         "country": {
-            "name": "United States",
-            "code": "US"
-        },
-        "region": {
-            "name": "Florida",
-            "code": "FL"
-        },
-         "latitude": 25.7617,
-        "longitude": -80.1918
-    },
-    "128.116.19.0": {
-        "city": "Paris",
-        "country": {
-            "name": "France",
-            "code": "FR"
-        },
-        "region": {
-            "name": "Île-de-France",
-            "code": "IDF"
-        },
-        "latitude": 48.856613,
-        "longitude": 2.352222
-    },
-    "128.116.20.0": {
-        "city": "Paris",
-        "country": {
-            "name": "France",
-            "code": "FR"
-        },
-        "region": {
-            "name": "Île-de-France",
-            "code": "IDF"
-        },
-         "latitude": 48.856613,
-        "longitude": 2.352222
-    },
-    "128.116.21.0": {
-        "city": "Amsterdam",
-        "country": {
-            "name": "Netherlands",
-            "code": "NL"
-        },
-        "region": {
-            "name": "Noord-Holland",
-            "code": "NH"
-        },
-         "latitude": 52.367573,
-        "longitude": 4.904139
-    },
-    "128.116.22.0": {
-        "city": "Atlanta",
-        "country": {
-            "name": "United States",
-            "code": "US"
-        },
-        "region": {
-            "name": "Georgia",
-            "code": "GA"
-        },
-        "latitude": 33.7490,
-        "longitude": -84.3880
-    },
-    "128.116.23.0": {
-        "city": "Secaucus",
-        "country": {
-            "name": "United States",
-            "code": "US"
-        },
-        "region": {
-            "name": "New Jersey",
-            "code": "NJ"
-        },
-        "latitude": 40.7875,
-        "longitude": -74.0575
-    },
-    "128.116.24.0": {
-         "city": "Atlanta",
-        "country": {
-            "name": "United States",
-            "code": "US"
-        },
-       "region": {
-            "name": "Georgia",
-            "code": "GA"
-        },
-         "latitude": 33.7490,
-        "longitude": -84.3880
-    },
-    "128.116.25.0": {
-       "city": "Atlanta",
-         "country": {
-            "name": "United States",
-            "code": "US"
-        },
-         "region": {
-            "name": "Georgia",
-            "code": "GA"
-        },
-        "latitude": 33.7490,
-        "longitude": -84.3880
-    },
-    "128.116.26.0": {
-         "city": "Paris",
-        "country": {
-            "name": "France",
-            "code": "FR"
-        },
-        "region": {
-            "name": "Île-de-France",
-            "code": "IDF"
-        },
-         "latitude": 48.856613,
-        "longitude": 2.352222
-    },
-    "128.116.27.0": {
-        "city": "Chicago",
-         "country": {
-            "name": "United States",
-            "code": "US"
-        },
-         "region": {
-            "name": "Illinois",
-            "code": "IL"
-        },
-         "latitude": 41.8781,
-        "longitude": -87.6298
-    },
-    "128.116.28.0": {
-        "city": "Chicago",
-         "country": {
-            "name": "United States",
-            "code": "US"
-        },
-         "region": {
-            "name": "Illinois",
-            "code": "IL"
-        },
-         "latitude": 41.8781,
-        "longitude": -87.6298
-    },
-    "128.116.29.0": {
-       "city": "Chicago",
-         "country": {
-            "name": "United States",
-            "code": "US"
-        },
-         "region": {
-            "name": "Illinois",
-            "code": "IL"
-        },
-         "latitude": 41.8781,
-        "longitude": -87.6298
-    },
-    "128.116.30.0": {
-       "city": "Hong Kong",
-        "country": {
-            "name": "Hong Kong",
-            "code": "HK"
-        },
-        "latitude": 22.396428,
-        "longitude": 114.109497
-    },
-    "128.116.31.0": {
-         "city": "Warsaw",
-        "country": {
-            "name": "Poland",
-            "code": "PL"
-        },
-        "region": {
-            "name": "Mazowieckie",
-            "code": "14"
-        },
-        "latitude": 52.237049,
-        "longitude": 21.017532
-    },
-    "128.116.32.0": {
-        "city": "New York City",
-        "country": {
-            "name": "United States",
-            "code": "US"
-        },
-         "region": {
-            "name": "New York",
-            "code": "NY"
-        },
-         "latitude": 40.7875,
-        "longitude": -74.0575
-    },
-    "128.116.33.0": {
-         "city": "London",
-        "country": {
-            "name": "United Kingdom",
-            "code": "GB"
-        },
-         "region": {
-            "name": "England",
-            "code": "ENG"
-        },
-          "latitude": 51.513569,
-       "longitude": -0.595842
-    },
-    "128.116.34.0": {
-        "city": "Chicago",
-         "country": {
-            "name": "United States",
-            "code": "US"
-        },
-       "region": {
-            "name": "Illinois",
-            "code": "IL"
-        },
-         "latitude": 41.8781,
-        "longitude": -87.6298
-    },
-    "128.116.35.0": {
-        "city": "Slough",
-        "country": {
-            "name": "United Kingdom",
-            "code": "GB"
-        },
-        "region": {
-            "name": "England",
-            "code": "ENG"
-        },
-         "latitude": 51.513569,
-       "longitude": -0.595842
-    },
-    "128.116.36.0": {
-       "city": "Slough",
-         "country": {
-            "name": "United Kingdom",
-            "code": "GB"
-        },
-          "region": {
-            "name": "England",
-            "code": "ENG"
-        },
-          "latitude": 51.513569,
-       "longitude": -0.595842
-    },
-    "128.116.37.0": {
-        "city": "Miami",
-        "country": {
-            "name": "United States",
-            "code": "US"
-        },
-        "region": {
-            "name": "Florida",
-            "code": "FL"
-        },
-         "latitude": 25.7617,
-        "longitude": -80.1918
-    },
-     "128.116.38.0": {
-        "city": "Miami",
-        "country": {
-            "name": "United States",
-            "code": "US"
-        },
-        "region": {
-            "name": "Florida",
-            "code": "FL"
-        },
-        "latitude": 25.7617,
-        "longitude": -80.1918
-    },
-    "128.116.39.0": {
-        "city": "Frankfurt am Main",
-         "country": {
-            "name": "Germany",
-            "code": "DE"
-        },
-         "region": {
-            "name": "Hessen",
-            "code": "HE"
-        },
-          "latitude": 50.110924,
-        "longitude": 8.682127
-    },
-    "128.116.40.0": {
-          "city": "Frankfurt am Main",
-        "country": {
-            "name": "Germany",
-            "code": "DE"
-        },
-          "region": {
-            "name": "Hessen",
-            "code": "HE"
-        },
-         "latitude": 50.110924,
-        "longitude": 8.682127
-    },
-    "128.116.41.0": {
-         "city": "Frankfurt am Main",
-         "country": {
-            "name": "Germany",
-            "code": "DE"
-        },
-         "region": {
-            "name": "Hessen",
-            "code": "HE"
-        },
-          "latitude": 50.110924,
-        "longitude": 8.682127
-    },
-    "128.116.42.0": {
-       "city": "Frankfurt am Main",
-         "country": {
-            "name": "Germany",
-            "code": "DE"
-        },
-          "region": {
-            "name": "Hessen",
-            "code": "HE"
-        },
-        "latitude": 50.110924,
-        "longitude": 8.682127
-    },
-     "128.116.43.0": {
-         "city": "Frankfurt am Main",
-        "country": {
-            "name": "Germany",
-            "code": "DE"
-        },
-         "region": {
-            "name": "Hessen",
-            "code": "HE"
-        },
-          "latitude": 50.110924,
-        "longitude": 8.682127
-    },
-    "128.116.44.0": {
-       "city": "Frankfurt am Main",
-         "country": {
-            "name": "Germany",
-            "code": "DE"
-        },
-       "region": {
-            "name": "Hessen",
-            "code": "HE"
-        },
-         "latitude": 50.110924,
-        "longitude": 8.682127
-    },
-   "128.116.45.0": {
-        "city": "Miami",
-          "country": {
-            "name": "United States",
-            "code": "US"
-        },
-         "region": {
-            "name": "Florida",
-            "code": "FL"
-        },
-         "latitude": 25.7617,
-        "longitude": -80.1918
-    },
-   "128.116.46.0": {
-        "city": "Chicago",
-        "country": {
-            "name": "United States",
-            "code": "US"
-        },
-         "region": {
-            "name": "Illinois",
-            "code": "IL"
-        },
-         "latitude": 41.8781,
-        "longitude": -87.6298
-    },
-    "128.116.47.0": {
-       "city": "Chicago",
-        "country": {
-            "name": "United States",
-            "code": "US"
-        },
-       "region": {
-            "name": "Illinois",
-            "code": "IL"
-        },
-         "latitude": 41.8781,
-        "longitude": -87.6298
-    },
-   "128.116.48.0": {
-        "city": "Chicago",
-         "country": {
-            "name": "United States",
-            "code": "US"
-        },
-         "region": {
-            "name": "Illinois",
-            "code": "IL"
-        },
-        "latitude": 41.8781,
-        "longitude": -87.6298
-    },
-   "128.116.49.0": {
-      "city": "Los Angeles",
-        "country": {
-            "name": "United States",
-            "code": "US"
-        },
-         "region": {
-            "name": "California",
-            "code": "CA"
-        },
-        "latitude": 34.0522,
-        "longitude": -118.2437
-    },
-    "128.116.50.0": {
-       "city": "Singapore",
-       "country": {
-            "name": "Singapore",
-            "code": "SG"
-        },
-         "latitude": 1.3521,
-        "longitude": 103.8198
-    },
-   "128.116.51.0": {
-       "city": "Sydney",
-         "country": {
-            "name": "Australia",
-            "code": "AU"
-        },
-          "region": {
-            "name": "New South Wales",
-            "code": "NSW"
-        },
-         "latitude": -33.8688,
-        "longitude": 151.2093
-    },
-    "128.116.52.0": {
-        "city": "Ashburn",
-        "country": {
-            "name": "United States",
-            "code": "US"
-        },
-        "region": {
-            "name": "Virginia",
-            "code": "VA"
-        },
-         "latitude": 39.0438,
-        "longitude": -77.4949
-    },
-    "128.116.53.0": {
-        "city": "Ashburn",
-         "country": {
-            "name": "United States",
-            "code": "US"
-        },
-        "region": {
-            "name": "Virginia",
-            "code": "VA"
-        },
-        "latitude": 39.0438,
-        "longitude": -77.4949
-    },
-    "128.116.55.0": {
-         "city": "Tokyo",
-        "country": {
-            "name": "Japan",
-            "code": "JP"
-        },
-        "region": {
-            "name": "Tokyo",
-            "code": "13"
-        },
-         "latitude": 35.689487,
-        "longitude": 139.691711
-    },
-    "128.116.56.0": {
-         "city": "Ashburn",
-          "country": {
-            "name": "United States",
-            "code": "US"
-        },
-        "region": {
-            "name": "Virginia",
-            "code": "VA"
-        },
-        "latitude": 39.0438,
-        "longitude": -77.4949
-    },
-   "128.116.57.0": {
-       "city": "San Jose",
-         "country": {
-            "name": "United States",
-            "code": "US"
-        },
-          "region": {
-            "name": "California",
-            "code": "CA"
-        },
-         "latitude": 37.3382,
-        "longitude": -121.8863
-    },
-     "128.116.58.0": {
-       "city": "Tokyo",
-         "country": {
-            "name": "Japan",
-            "code": "JP"
-        },
-         "region": {
-            "name": "Tokyo",
-            "code": "13"
-        },
-         "latitude": 35.689487,
-        "longitude": 139.691711
-    },
-    "128.116.59.0": {
-       "city": "Tokyo",
-         "country": {
-            "name": "Japan",
-            "code": "JP"
-        },
-         "region": {
-            "name": "Tokyo",
-            "code": "13"
-        },
-         "latitude": 35.689487,
-        "longitude": 139.691711
-    },
-   "128.116.60.0": {
-        "city": "Tokyo",
-         "country": {
-            "name": "Japan",
-            "code": "JP"
-        },
-        "region": {
-            "name": "Tokyo",
-            "code": "13"
-        },
-          "latitude": 35.689487,
-        "longitude": 139.691711
-    },
-   "128.116.61.0": {
-         "city": "San Mateo",
-         "country": {
-            "name": "United States",
-            "code": "US"
-        },
-         "region": {
-            "name": "California",
-            "code": "CA"
-        },
-         "latitude": 37.5630,
-        "longitude": -122.3255
-    },
-    "128.116.62.0": {
-       "city": "Seattle",
-         "country": {
-            "name": "United States",
-            "code": "US"
-        },
-         "region": {
-            "name": "Washington",
-            "code": "WA"
-        },
-        "latitude": 47.6062,
-        "longitude": -122.3321
-    },
-    "128.116.63.0": {
-       "city": "Los Angeles",
-         "country": {
-            "name": "United States",
-            "code": "US"
-        },
-          "region": {
-            "name": "California",
-            "code": "CA"
-        },
-         "latitude": 34.0522,
-        "longitude": -118.2437
-    },
-    "128.116.64.0": {
-        "city": "San Mateo",
-         "country": {
-            "name": "United States",
-            "code": "US"
-        },
-          "region": {
-            "name": "California",
-            "code": "CA"
-        },
-         "latitude": 37.5630,
-        "longitude": -122.3255
-    },
-    "128.116.65.0": {
-        "city": "Secaucus",
-        "country": {
-            "name": "United States",
-            "code": "US"
-        },
-        "region": {
-            "name": "New Jersey",
-            "code": "NJ"
-        },
-         "latitude": 40.7875,
-        "longitude": -74.0575
-    },
-    "128.116.66.0": {
-        "city": "Secaucus",
-          "country": {
-            "name": "United States",
-            "code": "US"
-        },
-         "region": {
-            "name": "New Jersey",
-            "code": "NJ"
-        },
-        "latitude": 40.7875,
-        "longitude": -74.0575
-    },
-   "128.116.67.0": {
-       "city": "San Jose",
-         "country": {
-            "name": "United States",
-            "code": "US"
-        },
-        "region": {
-            "name": "California",
-            "code": "CA"
-        },
-        "latitude": 37.3382,
-        "longitude": -121.8863
-    },
-    "128.116.68.0": {
-      "city": "Santa Clara",
-       "country": {
-            "name": "United States",
-            "code": "US"
-        },
-         "region": {
-            "name": "California",
-            "code": "CA"
-        },
-          "latitude": 37.3541,
-        "longitude": -121.9552
-    },
-    "128.116.69.0": {
-        "city": "Santa Clara",
-        "country": {
-            "name": "United States",
-            "code": "US"
-        },
-          "region": {
-            "name": "California",
-            "code": "CA"
-        },
-        "latitude": 37.3541,
-        "longitude": -121.9552
-    },
-     "128.116.70.0": {
-        "city": "Ashburn",
-          "country": {
-            "name": "United States",
-            "code": "US"
-        },
-         "region": {
-            "name": "Virginia",
-            "code": "VA"
-        },
-        "latitude": 39.0438,
-        "longitude": -77.4949
-    },
-     "128.116.71.0": {
-        "city": "Ashburn",
-          "country": {
-            "name": "United States",
-            "code": "US"
-        },
-         "region": {
-            "name": "Virginia",
-            "code": "VA"
-        },
-         "latitude": 39.0438,
-        "longitude": -77.4949
-    },
-    "128.116.72.0": {
-         "city": "Slough",
-         "country": {
-            "name": "United Kingdom",
-            "code": "GB"
-        },
-         "region": {
-            "name": "England",
-            "code": "ENG"
-        },
-          "latitude": 51.513569,
-       "longitude": -0.595842
-    },
-    "128.116.73.0": {
-         "city": "Slough",
-         "country": {
-            "name": "United Kingdom",
-            "code": "GB"
-        },
-        "region": {
-            "name": "England",
-            "code": "ENG"
-        },
-         "latitude": 51.513569,
-       "longitude": -0.595842
-    },
-     "128.116.74.0": {
-        "city": "Ashburn",
-          "country": {
-            "name": "United States",
-            "code": "US"
-        },
-         "region": {
-            "name": "Virginia",
-            "code": "VA"
-        },
-         "latitude": 39.0438,
-        "longitude": -77.4949
-    },
-    "128.116.75.0": {
-       "city": "Ashburn",
-         "country": {
-            "name": "United States",
-            "code": "VA"
+[
+    {
+        "dataCenterId": 295,
+        "location": {
+            "city": "Singapore",
+            "region": "Singapore",
+            "country": "SG",
+            "latLong": [
+                "1.2897",
+                "103.8501"
+            ]
         }
     },
-    "128.116.76.0": {
-       "city": "Ashburn",
-         "country": {
-            "name": "United States",
-            "code": "US"
-        },
-        "region": {
-            "name": "Virginia",
-            "code": "VA"
-        },
-        "latitude": 39.0438,
-        "longitude": -77.4949
-    },
-    "128.116.77.0": {
-        "city": "Ashburn",
-         "country": {
-            "name": "United States",
-            "code": "US"
-        },
-         "region": {
-            "name": "Virginia",
-            "code": "VA"
-        },
-         "latitude": 39.0438,
-        "longitude": -77.4949
-    },
-    "128.116.78.0": {
-       "city": "Ashburn",
-         "country": {
-            "name": "United States",
-            "code": "US"
-        },
-         "region": {
-            "name": "Virginia",
-            "code": "VA"
-        },
-        "latitude": 39.0438,
-        "longitude": -77.4949
-    },
-   "128.116.79.0": {
-         "city": "Singapore",
-          "country": {
-            "name": "Singapore",
-            "code": "SG"
-        },
-         "latitude": 1.3521,
-        "longitude": 103.8198
-    },
-    "128.116.54.0": {
-         "city": "Singapore",
-          "country": {
-            "name": "Singapore",
-            "code": "SG"
-        },
-         "latitude": 1.3521,
-        "longitude": 103.8198
-    },
-   "128.116.80.0": {
-        "city": "Ashburn",
-         "country": {
-            "name": "United States",
-            "code": "US"
-        },
-        "region": {
-            "name": "Virginia",
-            "code": "VA"
-        },
-         "latitude": 39.0438,
-        "longitude": -77.4949
-    },
-     "128.116.81.0": {
-       "city": "Santa Clara",
-         "country": {
-            "name": "United States",
-            "code": "US"
-        },
-         "region": {
-            "name": "California",
-            "code": "CA"
-        },
-          "latitude": 37.3541,
-        "longitude": -121.9552
-    },
-   "128.116.82.0": {
-        "city": "Tokyo",
-        "country": {
-            "name": "Japan",
-            "code": "JP"
-        },
-         "region": {
-            "name": "Tokyo",
-            "code": "13"
-        },
-        "latitude": 35.689487,
-        "longitude": 139.691711
-    },
-    "128.116.83.0": {
-         "city": "Tokyo",
-        "country": {
-            "name": "Japan",
-            "code": "JP"
-        },
-         "region": {
-            "name": "Tokyo",
-            "code": "13"
-        },
-         "latitude": 35.689487,
-        "longitude": 139.691711
-    },
-    "128.116.84.0": {
-          "city": "Elk Grove Village",
-           "country": {
-            "name": "United States",
-            "code": "US"
-        },
-         "region": {
-            "name": "Illinois",
-            "code": "IL"
-        },
-        "latitude": 42.0069,
-        "longitude": -87.9846
-    },
-   "128.116.85.0": {
-        "city": "Miami",
-        "country": {
-            "name": "United States",
-            "code": "US"
-        },
-          "region": {
-            "name": "Florida",
-            "code": "FL"
-        },
-          "latitude": 25.7617,
-        "longitude": -80.1918
-    },
-    "128.116.86.0": {
-        "city": "San Mateo",
-          "country": {
-            "name": "United States",
-            "code": "US"
-        },
-         "region": {
-            "name": "California",
-            "code": "CA"
-        },
-        "latitude": 37.5630,
-        "longitude": -122.3255
-    },
-    "128.116.87.0": {
-         "city": "Ashburn",
-         "country": {
-            "name": "United States",
-            "code": "US"
-        },
-         "region": {
-            "name": "Virginia",
-            "code": "VA"
-        },
-         "latitude": 39.0438,
-        "longitude": -77.4949
-    },
-    "128.116.88.0": {
-        "city": "Elk Grove Village",
-         "country": {
-            "name": "United States",
-            "code": "US"
-
-        },
-         "region": {
-            "name": "Illinois",
-            "code": "IL"
-        },
-         "latitude": 42.0069,
-        "longitude": -87.9846
-    },
-     "128.116.89.0": {
-        "city": "Slough",
-         "country": {
-            "name": "United Kingdom",
-            "code": "GB"
-        },
-        "region": {
-            "name": "England",
-            "code": "ENG"
-        },
-          "latitude": 51.513569,
-       "longitude": -0.595842
-    },
-    "128.116.90.0": {
-          "city": "San Mateo",
-         "country": {
-            "name": "United States",
-            "code": "US"
-        },
-         "region": {
-            "name": "California",
-            "code": "CA"
-        },
-         "latitude": 37.5630,
-        "longitude": -122.3255
-    },
-    "128.116.91.0": {
-        "city": "San Mateo",
-          "country": {
-            "name": "United States",
-            "code": "US"
-        },
-          "region": {
-            "name": "California",
-            "code": "CA"
-        },
-        "latitude": 37.5630,
-        "longitude": -122.3255
-    },
-    "128.116.92.0": {
-         "city": "San Mateo",
-         "country": {
-            "name": "United States",
-            "code": "US"
-        },
-         "region": {
-            "name": "California",
-            "code": "CA"
-        },
-        "latitude": 37.5630,
-        "longitude": -122.3255
-    },
-     "128.116.93.0": {
-         "city": "San Mateo",
-        "country": {
-            "name": "United States",
-            "code": "US"
-        },
-         "region": {
-            "name": "California",
-            "code": "CA"
-        },
-        "latitude": 37.5630,
-        "longitude": -122.3255
-    },
-    "128.116.94.0": {
-          "city": "San Mateo",
-         "country": {
-            "name": "United States",
-            "code": "US"
-        },
-         "region": {
-            "name": "California",
-            "code": "CA"
-        },
-        "latitude": 37.5630,
-        "longitude": -122.3255
-    },
-   "128.116.95.0": {
-        "city": "Dallas",
-         "country": {
-            "name": "United States",
-            "code": "US"
-        },
-         "region": {
-            "name": "Texas",
-            "code": "TX"
-        },
-        "latitude": 32.7767,
-        "longitude": -96.7970
-    },
-    "128.116.96.0": {
-        "city": "Ashburn",
-         "country": {
-            "name": "United States",
-            "code": "US"
-        },
-          "region": {
-            "name": "Virginia",
-            "code": "VA"
-        },
-        "latitude": 39.0438,
-        "longitude": -77.4949
-    },
-     "128.116.97.0": {
-         "city": "Singapore",
-        "country": {
-            "name": "Singapore",
-            "code": "SG"
-        },
-        "latitude": 1.3521,
-        "longitude": 103.8198
-    },
-    "128.116.98.0": {
-       "city": "San Mateo",
-          "country": {
-            "name": "United States",
-            "code": "US"
-        },
-        "region": {
-            "name": "California",
-            "code": "CA"
-        },
-         "latitude": 37.5630,
-        "longitude": -122.3255
-    },
-    "128.116.99.0": {
-       "city": "Atlanta",
-         "country": {
-            "name": "United States",
-            "code": "US"
-        },
-         "region": {
-            "name": "Georgia",
-            "code": "GA"
-        },
-        "latitude": 33.7490,
-        "longitude": -84.3880
-    },
-     "128.116.100.0": {
-        "city": "San Mateo",
-        "country": {
-            "name": "United States",
-            "code": "US"
-        },
-        "region": {
-            "name": "California",
-            "code": "CA"
-        },
-         "latitude": 37.5630,
-        "longitude": -122.3255
-    },
-    "128.116.101.0": {
-         "city": "Chicago",
-        "country": {
-            "name": "United States",
-            "code": "US"
-        },
-         "region": {
-            "name": "Illinois",
-            "code": "IL"
-        },
-         "latitude": 41.8781,
-        "longitude": -87.6298
-    },
-     "128.116.102.0": {
-        "city": "Ashburn",
-         "country": {
-            "name": "United States",
-            "code": "US"
-        },
-         "region": {
-            "name": "Virginia",
-            "code": "VA"
-        },
-         "latitude": 39.0438,
-        "longitude": -77.4949
-    },
-    "128.116.103.0": {
-         "city": "San Mateo",
-         "country": {
-            "name": "United States",
-            "code": "US"
-        },
-          "region": {
-            "name": "California",
-            "code": "CA"
-        },
-         "latitude": 37.5630,
-        "longitude": -122.3255
-    },
-     "128.116.104.0": {
-        "city": "Mumbai",
-        "country": {
-            "name": "India",
-            "code": "IN"
-        },
-         "region": {
-            "name": "Mahārāshtra",
-            "code": "MH"
-        },
-         "latitude": 19.076090,
-        "longitude": 72.877426
-    },
-   "128.116.105.0": {
-        "city": "Santa Clara",
-         "country": {
-            "name": "United States",
-            "code": "US"
-        },
-        "region": {
-            "name": "California",
-            "code": "CA"
-        },
-         "latitude": 37.3541,
-        "longitude": -121.9552
-    },
-  "128.116.106.0": {
-        "city": "San Mateo",
-         "country": {
-            "name": "United States",
-            "code": "US"
-        },
-        "region": {
-            "name": "California",
-            "code": "CA"
-        },
-         "latitude": 37.5630,
-        "longitude": -122.3255
-    },
-   "128.116.107.0": {
-         "city": "San Mateo",
-         "country": {
-            "name": "United States",
-            "code": "US"
-        },
-         "region": {
-            "name": "California",
-            "code": "CA"
-        },
-        "latitude": 37.5630,
-        "longitude": -122.3255
-    },
-    "128.116.108.0": {
-        "city": "San Mateo",
-        "country": {
-            "name": "United States",
-            "code": "US"
-        },
-        "region": {
-            "name": "California",
-            "code": "CA"
-        },
-         "latitude": 37.5630,
-        "longitude": -122.3255
-    },
-   "128.116.109.0": {
-         "city": "San Mateo",
-         "country": {
-            "name": "United States",
-            "code": "US"
-        },
-         "region": {
-            "name": "California",
-            "code": "CA"
-        },
-        "latitude": 37.5630,
-        "longitude": -122.3255
-    },
-  "128.116.110.0": {
-        "city": "San Mateo",
-        "country": {
-            "name": "United States",
-            "code": "US"
-        },
-         "region": {
-            "name": "California",
-            "code": "CA"
-        },
-         "latitude": 37.5630,
-        "longitude": -122.3255
-    },
-     "128.116.111.0": {
-        "city": "San Mateo",
-        "country": {
-            "name": "United States",
-            "code": "US"
-        },
-         "region": {
-            "name": "California",
-            "code": "CA"
-        },
-        "latitude": 37.5630,
-        "longitude": -122.3255
-    },
-     "128.116.112.0": {
-        "city": "Chicago",
-         "country": {
-            "name": "United States",
-            "code": "US"
-        },
-          "region": {
-            "name": "Illinois",
-            "code": "IL"
-        },
-         "latitude": 41.8781,
-        "longitude": -87.6298
-    },
-    "128.116.113.0": {
-         "city": "Chicago",
-         "country": {
-            "name": "United States",
-            "code": "US"
-        },
-          "region": {
-            "name": "Illinois",
-            "code": "IL"
-        },
-         "latitude": 41.8781,
-        "longitude": -87.6298
-    },
-    "128.116.114.0": {
-        "city": "Ashburn",
-         "country": {
-            "name": "United States",
-            "code": "US"
-        },
-         "region": {
-            "name": "Virginia",
-            "code": "VA"
-        },
-        "latitude": 39.0438,
-        "longitude": -77.4949
-    },
-    "128.116.115.0": {
-        "city": "Seattle",
-         "country": {
-            "name": "United States",
-            "code": "US"
-        },
-          "region": {
-            "name": "Washington",
-            "code": "WA"
-        },
-        "latitude": 47.6062,
-        "longitude": -122.3321
-    },
-    "128.116.116.0": {
-        "city": "Los Angeles",
-         "country": {
-            "name": "United States",
-            "code": "US"
-        },
-         "region": {
-            "name": "California",
-            "code": "CA"
-        },
-          "latitude": 34.0522,
-        "longitude": -118.2437
-    },
-    "128.116.117.0": {
-         "city": "San Jose",
-          "country": {
-            "name": "United States",
-            "code": "US"
-        },
-          "region": {
-            "name": "California",
-            "code": "CA"
-        },
-        "latitude": 37.3382,
-        "longitude": -121.8863
-    },
-    "128.116.118.0": {
-        "city": "Hong Kong",
-         "country": {
-            "name": "Hong Kong",
-            "code": "HK"
-        },
-         "latitude": 22.396428,
-        "longitude": 114.109497
-    },
-     "128.116.119.0": {
-         "city": "Slough",
-         "country": {
-            "name": "United Kingdom",
-            "code": "GB"
-        },
-         "region": {
-            "name": "England",
-            "code": "ENG"
-        },
-         "latitude": 51.513569,
-       "longitude": -0.595842
-    },
-  "128.116.120.0": {
-         "city": "Tokyo",
-         "country": {
-            "name": "Japan",
-            "code": "JP"
-        },
-         "region": {
-            "name": "Tokyo",
-            "code": "13"
-        },
-         "latitude": 35.689487,
-        "longitude": 139.691711
-    },
-     "128.116.121.0": {
-         "city": "Amsterdam",
-         "country": {
-            "name": "Netherlands",
-            "code": "NL"
-        },
-         "region": {
-            "name": "Noord-Holland",
-            "code": "NH"
-        },
-          "latitude": 52.367573,
-        "longitude": 4.904139
-    },
-   "128.116.122.0": {
-         "city": "Paris",
-         "country": {
-            "name": "France",
-            "code": "FR"
-        },
-         "region": {
-            "name": "Île-de-France",
-            "code": "IDF"
-        },
-       "latitude": 48.856613,
-        "longitude": 2.352222
-    },
-    "128.116.123.0": {
-       "city": "Frankfurt am Main",
-         "country": {
-            "name": "Germany",
-            "code": "DE"
-        },
-         "region": {
-            "name": "Hessen",
-            "code": "HE"
-        },
-         "latitude": 50.110924,
-        "longitude": 8.682127
-    },
-     "128.116.124.0": {
-         "city": "Warsaw",
-         "country": {
-            "name": "Poland",
-            "code": "PL"
-        },
-        "region": {
-            "name": "Mazowieckie",
-            "code": "14"
-        },
-        "latitude": 52.237049,
-        "longitude": 21.017532
-    },
-    "128.116.125.0": {
-         "city": "San Mateo",
-         "country": {
-            "name": "United States",
-            "code": "US"
-        },
-         "region": {
-            "name": "California",
-            "code": "CA"
-        },
-         "latitude": 37.5630,
-        "longitude": -122.3255
-    },
-    "128.116.126.0": {
-        "city": "Secaucus",
-          "country": {
-            "name": "United States",
-            "code": "US"
-        },
-        "region": {
-            "name": "New Jersey",
-            "code": "NJ"
-        },
-        "latitude": 40.7875,
-        "longitude": -74.0575
-    },
-    "128.116.127.0": {
-        "city": "Miami",
-         "country": {
-            "name": "United States",
-            "code": "US"
-        },
-        "region": {
-            "name": "Florida",
-            "code": "FL"
-        },
-         "latitude": 25.7617,
-        "longitude": -80.1918
-    },
-    "3.219.29.0": {
-        "city": "Ashburn",
-        "country": {
-            "name": "United States",
-            "code": "US"
-        },
-        "region": {
-            "name": "Virginia",
-            "code": "VA"
-        },
-        "latitude": 39.0437,
-        "longitude": -77.4875
-    },
-    "44.215.104.0": {
-        "city": "Ashburn",
-        "country": {
-            "name": "United States",
-            "code": "US"
-        },
-        "region": {
-            "name": "Virginia",
-            "code": "VA"
-        },
-        "latitude": 39.0437,
-        "longitude": -77.4875
-    },
-    "100.24.9.0": {
-        "city": "Ashburn",
-        "country": {
-            "name": "United States",
-            "code": "US"
-        },
-        "region": {
-            "name": "Virginia",
-            "code": "VA"
-        },
-        "latitude": 39.0437,
-        "longitude": -77.4875
-    },
-    "107.23.244.0": {
-        "city": "Ashburn",
-        "country": {
-            "name": "United States",
-            "code": "US"
-        },
-        "region": {
-            "name": "Virginia",
-            "code": "VA"
-        },
-        "latitude": 39.0437,
-        "longitude": -77.4875
-    },
-    "54.221.47.0": {
-        "city": "Ashburn",
-        "country": {
-            "name": "United States",
-            "code": "US"
-        },
-        "region": {
-            "name": "Virginia",
-            "code": "VA"
-        },
-        "latitude": 39.0437,
-        "longitude": -77.4875
-    },
-    "3.219.30.0": {
-        "city": "Ashburn",
-        "country": {
-            "name": "United States",
-            "code": "US"
-        },
-        "region": {
-            "name": "Virginia",
-            "code": "VA"
-        },
-        "latitude": 39.0437,
-        "longitude": -77.4875
-    },
-    "34.207.68.0": {
-        "city": "Ashburn",
-        "country": {
-            "name": "United States",
-            "code": "US"
-        },
-        "region": {
-            "name": "Virginia",
-            "code": "VA"
-        },
-        "latitude": 39.0437,
-        "longitude": -77.4875
-    },
-    "3.94.84.0": {
-        "city": "Ashburn",
-        "country": {
-            "name": "United States",
-            "code": "US"
-        },
-        "region": {
-            "name": "Virginia",
-            "code": "VA"
-        },
-        "latitude": 39.0437,
-        "longitude": -77.4875
-    },
-    "54.211.2.0": {
-        "city": "Ashburn",
-        "country": {
-            "name": "United States",
-            "code": "US"
-        },
-        "region": {
-            "name": "Virginia",
-            "code": "VA"
-        },
-        "latitude": 39.0437,
-        "longitude": -77.4875
-    },
-    "3.86.208.0": {
-        "city": "Ashburn",
-        "country": {
-            "name": "United States",
-            "code": "US"
-        },
-        "region": {
-            "name": "Virginia",
-            "code": "VA"
-        },
-        "latitude": 39.0437,
-        "longitude": -77.4875
-    },
-    "3.239.163.0": {
-        "city": "Ashburn",
-        "country": {
-            "name": "United States",
-            "code": "US"
-        },
-        "region": {
-            "name": "Virginia",
-            "code": "VA"
-        },
-        "latitude": 39.0437,
-        "longitude": -77.4875
-    },
-    "35.175.144.0": {
-        "city": "Ashburn",
-        "country": {
-            "name": "United States",
-            "code": "US"
-        },
-        "region": {
-            "name": "Virginia",
-            "code": "VA"
-        },
-        "latitude": 39.0437,
-        "longitude": -77.4875
-    },
-    "13.218.132.0": {
-        "city": "Ashburn",
-        "country": {
-            "name": "United States",
-            "code": "US"
-        },
-        "region": {
-            "name": "Virginia",
-            "code": "VA"
-        },
-        "latitude": 39.0437,
-        "longitude": -77.4875
-    },
-    "35.171.25.0": {
-        "city": "Ashburn",
-        "country": {
-            "name": "United States",
-            "code": "US"
-        },
-        "region": {
-            "name": "Virginia",
-            "code": "VA"
-        },
-        "latitude": 39.0437,
-        "longitude": -77.4875
-    },
-    "44.204.107.0": {
-        "city": "Ashburn",
-        "country": {
-            "name": "United States",
-            "code": "US"
-        },
-        "region": {
-            "name": "Virginia",
-            "code": "VA"
-        },
-        "latitude": 39.0437,
-        "longitude": -77.4875
-    },
-    "44.223.72.0": {
-        "city": "Ashburn",
-        "country": {
-            "name": "United States",
-            "code": "US"
-        },
-        "region": {
-            "name": "Virginia",
-            "code": "VA"
-        },
-        "latitude": 39.0437,
-        "longitude": -77.4875
-    },
-    "18.206.149.0": {
-        "city": "Ashburn",
-        "country": {
-            "name": "United States",
-            "code": "US"
-        },
-        "region": {
-            "name": "Virginia",
-            "code": "VA"
-        },
-        "latitude": 39.0437,
-        "longitude": -77.4875
-    },
-    "54.234.116.0": {
-        "city": "Ashburn",
-        "country": {
-            "name": "United States",
-            "code": "US"
-        },
-        "region": {
-            "name": "Virginia",
-            "code": "VA"
-        },
-        "latitude": 39.0437,
-        "longitude": -77.4875
-    },
-    "13.218.27.0": {
-        "city": "Ashburn",
-        "country": {
-            "name": "United States",
-            "code": "US"
-        },
-        "region": {
-            "name": "Virginia",
-            "code": "VA"
-        },
-        "latitude": 39.0437,
-        "longitude": -77.4875
-    },
-    "3.88.70.0": {
-        "city": "Ashburn",
-        "country": {
-            "name": "United States",
-            "code": "US"
-        },
-        "region": {
-            "name": "Virginia",
-            "code": "VA"
-        },
-        "latitude": 39.0437,
-        "longitude": -77.4875
-    },
-    "3.91.86.0": {
-        "city": "Ashburn",
-        "country": {
-            "name": "United States",
-            "code": "US"
-        },
-        "region": {
-            "name": "Virginia",
-            "code": "VA"
-        },
-        "latitude": 39.0437,
-        "longitude": -77.4875
-    },
-    "3.90.224.0": {
-        "city": "Ashburn",
-        "country": {
-            "name": "United States",
-            "code": "US"
-        },
-        "region": {
-            "name": "Virginia",
-            "code": "VA"
-        },
-        "latitude": 39.0437,
-        "longitude": -77.4875
-    },
-    "54.159.196.0": {
-        "city": "Ashburn",
-        "country": {
-            "name": "United States",
-            "code": "US"
-        },
-        "region": {
-            "name": "Virginia",
-            "code": "VA"
-        },
-        "latitude": 39.0437,
-        "longitude": -77.4875
-    },
-    "54.225.40.0": {
-        "city": "Ashburn",
-        "country": {
-            "name": "United States",
-            "code": "US"
-        },
-        "region": {
-            "name": "Virginia",
-            "code": "VA"
-        },
-        "latitude": 39.0437,
-        "longitude": -77.4875
+    {
+        "dataCenterId": 299,
+        "location": {
+            "city": "Ashburn",
+            "region": "Virginia",
+            "country": "US",
+            "latLong": [
+                "39.0437",
+                "-77.4875"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 302,
+        "location": {
+            "city": "London",
+            "region": "England",
+            "country": "GB",
+            "latLong": [
+                "51.5130",
+                "-0.0800"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 306,
+        "location": {
+            "city": "Chicago",
+            "region": "Illinois",
+            "country": "US",
+            "latLong": [
+                "41.8500",
+                "-87.6500"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 332,
+        "location": {
+            "city": "Miami",
+            "region": "Florida",
+            "country": "US",
+            "latLong": [
+                "25.7743",
+                "-80.1937"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 335,
+        "location": {
+            "city": "Chicago",
+            "region": "Illinois",
+            "country": "US",
+            "latLong": [
+                "41.8500",
+                "-87.6500"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 337,
+        "location": {
+            "city": "Tokyo",
+            "region": "Tokyo",
+            "country": "JP",
+            "latLong": [
+                "35.6895",
+                "139.6917"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 352,
+        "location": {
+            "city": "Frankfurt am Main",
+            "region": "Hesse",
+            "country": "DE",
+            "latLong": [
+                "50.1155",
+                "8.6842"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 359,
+        "location": {
+            "city": "Mumbai",
+            "region": "Maharashtra",
+            "country": "IN",
+            "latLong": [
+                "19.0728",
+                "72.8826"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 363,
+        "location": {
+            "city": "Ashburn",
+            "region": "Virginia",
+            "country": "US",
+            "latLong": [
+                "39.0437",
+                "-77.4875"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 365,
+        "location": {
+            "city": "Los Angeles",
+            "region": "California",
+            "country": "US",
+            "latLong": [
+                "34.0522",
+                "-118.2437"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 366,
+        "location": {
+            "city": "Ashburn",
+            "region": "Virginia",
+            "country": "US",
+            "latLong": [
+                "39.0437",
+                "-77.4875"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 369,
+        "location": {
+            "city": "Sydney",
+            "region": "New South Wales",
+            "country": "AU",
+            "latLong": [
+                "-33.8678",
+                "151.2073"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 370,
+        "location": {
+            "city": "Los Angeles",
+            "region": "California",
+            "country": "US",
+            "latLong": [
+                "34.0522",
+                "-118.2437"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 372,
+        "location": {
+            "city": "Singapore",
+            "region": "Singapore",
+            "country": "SG",
+            "latLong": [
+                "1.2897",
+                "103.8501"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 374,
+        "location": {
+            "city": "Miami",
+            "region": "Florida",
+            "country": "US",
+            "latLong": [
+                "25.7743",
+                "-80.1937"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 375,
+        "location": {
+            "city": "Dallas",
+            "region": "Texas",
+            "country": "US",
+            "latLong": [
+                "32.7831",
+                "-96.8067"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 377,
+        "location": {
+            "city": "Tokyo",
+            "region": "Tokyo",
+            "country": "JP",
+            "latLong": [
+                "35.6895",
+                "139.6917"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 378,
+        "location": {
+            "city": "Frankfurt am Main",
+            "region": "Hesse",
+            "country": "DE",
+            "latLong": [
+                "50.1155",
+                "8.6842"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 380,
+        "location": {
+            "city": "Los Angeles",
+            "region": "California",
+            "country": "US",
+            "latLong": [
+                "34.0522",
+                "-118.2437"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 386,
+        "location": {
+            "city": "Ashburn",
+            "region": "Virginia",
+            "country": "US",
+            "latLong": [
+                "39.0437",
+                "-77.4875"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 387,
+        "location": {
+            "city": "Secaucus",
+            "region": "New Jersey",
+            "country": "US",
+            "latLong": [
+                "40.7895",
+                "-74.0565"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 388,
+        "location": {
+            "city": "Amsterdam",
+            "region": "North Holland",
+            "country": "NL",
+            "latLong": [
+                "52.3740",
+                "4.8897"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 397,
+        "location": {
+            "city": "Los Angeles",
+            "region": "California",
+            "country": "US",
+            "latLong": [
+                "34.0522",
+                "-118.2437"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 401,
+        "location": {
+            "city": "Ashburn",
+            "region": "Virginia",
+            "country": "US",
+            "latLong": [
+                "39.0437",
+                "-77.4875"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 403,
+        "location": {
+            "city": "Los Angeles",
+            "region": "California",
+            "country": "US",
+            "latLong": [
+                "34.0522",
+                "-118.2437"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 404,
+        "location": {
+            "city": "Los Angeles",
+            "region": "California",
+            "country": "US",
+            "latLong": [
+                "34.0522",
+                "-118.2437"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 405,
+        "location": {
+            "city": "Los Angeles",
+            "region": "California",
+            "country": "US",
+            "latLong": [
+                "34.0522",
+                "-118.2437"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 412,
+        "location": {
+            "city": "Los Angeles",
+            "region": "California",
+            "country": "US",
+            "latLong": [
+                "34.0522",
+                "-118.2437"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 413,
+        "location": {
+            "city": "Los Angeles",
+            "region": "California",
+            "country": "US",
+            "latLong": [
+                "34.0522",
+                "-118.2437"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 414,
+        "location": {
+            "city": "Los Angeles",
+            "region": "California",
+            "country": "US",
+            "latLong": [
+                "34.0522",
+                "-118.2437"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 415,
+        "location": {
+            "city": "Los Angeles",
+            "region": "California",
+            "country": "US",
+            "latLong": [
+                "34.0522",
+                "-118.2437"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 416,
+        "location": {
+            "city": "Singapore",
+            "region": "Singapore",
+            "country": "SG",
+            "latLong": [
+                "1.2897",
+                "103.8501"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 417,
+        "location": {
+            "city": "Singapore",
+            "region": "Singapore",
+            "country": "SG",
+            "latLong": [
+                "1.2897",
+                "103.8501"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 418,
+        "location": {
+            "city": "Ashburn",
+            "region": "Virginia",
+            "country": "US",
+            "latLong": [
+                "39.0437",
+                "-77.4875"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 425,
+        "location": {
+            "city": "Tokyo",
+            "region": "Tokyo",
+            "country": "JP",
+            "latLong": [
+                "35.6895",
+                "139.6917"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 426,
+        "location": {
+            "city": "Ashburn",
+            "region": "Virginia",
+            "country": "US",
+            "latLong": [
+                "39.0437",
+                "-77.4875"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 427,
+        "location": {
+            "city": "Ashburn",
+            "region": "Virginia",
+            "country": "US",
+            "latLong": [
+                "39.0437",
+                "-77.4875"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 428,
+        "location": {
+            "city": "Ashburn",
+            "region": "Virginia",
+            "country": "US",
+            "latLong": [
+                "39.0437",
+                "-77.4875"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 429,
+        "location": {
+            "city": "Los Angeles",
+            "region": "California",
+            "country": "US",
+            "latLong": [
+                "34.0522",
+                "-118.2437"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 430,
+        "location": {
+            "city": "Singapore",
+            "region": "Singapore",
+            "country": "SG",
+            "latLong": [
+                "1.2897",
+                "103.8501"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 431,
+        "location": {
+            "city": "Seattle",
+            "region": "Washington",
+            "country": "US",
+            "latLong": [
+                "47.6062",
+                "-122.3321"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 432,
+        "location": {
+            "city": "Miami",
+            "region": "Florida",
+            "country": "US",
+            "latLong": [
+                "25.7743",
+                "-80.1937"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 433,
+        "location": {
+            "city": "Miami",
+            "region": "Florida",
+            "country": "US",
+            "latLong": [
+                "25.7743",
+                "-80.1937"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 434,
+        "location": {
+            "city": "Miami",
+            "region": "Florida",
+            "country": "US",
+            "latLong": [
+                "25.7743",
+                "-80.1937"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 436,
+        "location": {
+            "city": "Los Angeles",
+            "region": "California",
+            "country": "US",
+            "latLong": [
+                "34.0522",
+                "-118.2437"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 437,
+        "location": {
+            "city": "Paris",
+            "region": "Île-de-France",
+            "country": "FR",
+            "latLong": [
+                "48.8534",
+                "2.3488"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 438,
+        "location": {
+            "city": "Ashburn",
+            "region": "Virginia",
+            "country": "US",
+            "latLong": [
+                "39.0437",
+                "-77.4875"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 439,
+        "location": {
+            "city": "Ashburn",
+            "region": "Virginia",
+            "country": "US",
+            "latLong": [
+                "39.0437",
+                "-77.4875"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 440,
+        "location": {
+            "city": "Singapore",
+            "region": "Singapore",
+            "country": "SG",
+            "latLong": [
+                "1.2897",
+                "103.8501"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 441,
+        "location": {
+            "city": "Singapore",
+            "region": "Singapore",
+            "country": "SG",
+            "latLong": [
+                "1.2897",
+                "103.8501"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 442,
+        "location": {
+            "city": "Reston",
+            "region": "Virginia",
+            "country": "US",
+            "latLong": [
+                "38.9687",
+                "-77.3411"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 447,
+        "location": {
+            "city": "Los Angeles",
+            "region": "California",
+            "country": "US",
+            "latLong": [
+                "34.0522",
+                "-118.2437"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 448,
+        "location": {
+            "city": "Paris",
+            "region": "Île-de-France",
+            "country": "FR",
+            "latLong": [
+                "48.8534",
+                "2.3488"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 449,
+        "location": {
+            "city": "London",
+            "region": "England",
+            "country": "GB",
+            "latLong": [
+                "51.5130",
+                "-0.0800"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 450,
+        "location": {
+            "city": "Sydney",
+            "region": "New South Wales",
+            "country": "AU",
+            "latLong": [
+                "-33.8678",
+                "151.2073"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 455,
+        "location": {
+            "city": "Singapore",
+            "region": "Singapore",
+            "country": "SG",
+            "latLong": [
+                "1.2897",
+                "103.8501"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 456,
+        "location": {
+            "city": "Singapore",
+            "region": "Singapore",
+            "country": "SG",
+            "latLong": [
+                "1.2897",
+                "103.8501"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 457,
+        "location": {
+            "city": "Frankfurt am Main",
+            "region": "Hesse",
+            "country": "DE",
+            "latLong": [
+                "50.1155",
+                "8.6842"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 458,
+        "location": {
+            "city": "Frankfurt am Main",
+            "region": "Hesse",
+            "country": "DE",
+            "latLong": [
+                "50.1155",
+                "8.6842"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 460,
+        "location": {
+            "city": "Seattle",
+            "region": "Washington",
+            "country": "US",
+            "latLong": [
+                "47.6062",
+                "-122.3321"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 462,
+        "location": {
+            "city": "Singapore",
+            "region": "Singapore",
+            "country": "SG",
+            "latLong": [
+                "1.2897",
+                "103.8501"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 463,
+        "location": {
+            "city": "Chicago",
+            "region": "Illinois",
+            "country": "US",
+            "latLong": [
+                "41.8500",
+                "-87.6500"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 464,
+        "location": {
+            "city": "Chicago",
+            "region": "Illinois",
+            "country": "US",
+            "latLong": [
+                "41.8500",
+                "-87.6500"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 465,
+        "location": {
+            "city": "Singapore",
+            "region": "Singapore",
+            "country": "SG",
+            "latLong": [
+                "1.2897",
+                "103.8501"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 468,
+        "location": {
+            "city": "Chicago",
+            "region": "Illinois",
+            "country": "US",
+            "latLong": [
+                "41.8500",
+                "-87.6500"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 471,
+        "location": {
+            "city": "Sydney",
+            "region": "New South Wales",
+            "country": "AU",
+            "latLong": [
+                "-33.8678",
+                "151.2073"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 474,
+        "location": {
+            "city": "Reston",
+            "region": "Virginia",
+            "country": "US",
+            "latLong": [
+                "38.9687",
+                "-77.3411"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 475,
+        "location": {
+            "city": "Ashburn",
+            "region": "Virginia",
+            "country": "US",
+            "latLong": [
+                "39.0437",
+                "-77.4875"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 476,
+        "location": {
+            "city": "Ashburn",
+            "region": "Virginia",
+            "country": "US",
+            "latLong": [
+                "39.0437",
+                "-77.4875"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 477,
+        "location": {
+            "city": "Ashburn",
+            "region": "Virginia",
+            "country": "US",
+            "latLong": [
+                "39.0437",
+                "-77.4875"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 478,
+        "location": {
+            "city": "Ashburn",
+            "region": "Virginia",
+            "country": "US",
+            "latLong": [
+                "39.0437",
+                "-77.4875"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 479,
+        "location": {
+            "city": "Ashburn",
+            "region": "Virginia",
+            "country": "US",
+            "latLong": [
+                "39.0437",
+                "-77.4875"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 480,
+        "location": {
+            "city": "Ashburn",
+            "region": "Virginia",
+            "country": "US",
+            "latLong": [
+                "39.0437",
+                "-77.4875"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 481,
+        "location": {
+            "city": "Ashburn",
+            "region": "Virginia",
+            "country": "US",
+            "latLong": [
+                "39.0437",
+                "-77.4875"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 482,
+        "location": {
+            "city": "Ashburn",
+            "region": "Virginia",
+            "country": "US",
+            "latLong": [
+                "39.0437",
+                "-77.4875"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 485,
+        "location": {
+            "city": "Ashburn",
+            "region": "Virginia",
+            "country": "US",
+            "latLong": [
+                "39.0437",
+                "-77.4875"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 486,
+        "location": {
+            "city": "Ashburn",
+            "region": "Virginia",
+            "country": "US",
+            "latLong": [
+                "39.0437",
+                "-77.4875"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 487,
+        "location": {
+            "city": "Seattle",
+            "region": "Washington",
+            "country": "US",
+            "latLong": [
+                "47.5413",
+                "-122.3129"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 491,
+        "location": {
+            "city": "Ashburn",
+            "region": "Virginia",
+            "country": "US",
+            "latLong": [
+                "39.0437",
+                "-77.4875"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 493,
+        "location": {
+            "city": "Boardman",
+            "region": "Oregon",
+            "country": "US",
+            "latLong": [
+                "45.8399",
+                "-119.7006"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 494,
+        "location": {
+            "city": "Boardman",
+            "region": "Oregon",
+            "country": "US",
+            "latLong": [
+                "45.8399",
+                "-119.7006"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 495,
+        "location": {
+            "city": "Boardman",
+            "region": "Oregon",
+            "country": "US",
+            "latLong": [
+                "45.8399",
+                "-119.7006"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 496,
+        "location": {
+            "city": "Boardman",
+            "region": "Oregon",
+            "country": "US",
+            "latLong": [
+                "45.8399",
+                "-119.7006"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 497,
+        "location": {
+            "city": "Boardman",
+            "region": "Oregon",
+            "country": "US",
+            "latLong": [
+                "45.8399",
+                "-119.7006"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 498,
+        "location": {
+            "city": "Columbus",
+            "region": "Ohio",
+            "country": "US",
+            "latLong": [
+                "39.9612",
+                "-82.9988"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 499,
+        "location": {
+            "city": "Columbus",
+            "region": "Ohio",
+            "country": "US",
+            "latLong": [
+                "39.9612",
+                "-82.9988"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 500,
+        "location": {
+            "city": "Columbus",
+            "region": "Ohio",
+            "country": "US",
+            "latLong": [
+                "39.9612",
+                "-82.9988"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 501,
+        "location": {
+            "city": "Columbus",
+            "region": "Ohio",
+            "country": "US",
+            "latLong": [
+                "39.9612",
+                "-82.9988"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 502,
+        "location": {
+            "city": "Columbus",
+            "region": "Ohio",
+            "country": "US",
+            "latLong": [
+                "39.9612",
+                "-82.9988"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 504,
+        "location": {
+            "city": "Ashburn",
+            "region": "Virginia",
+            "country": "US",
+            "latLong": [
+                "39.0437",
+                "-77.4875"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 505,
+        "location": {
+            "city": "Ashburn",
+            "region": "Virginia",
+            "country": "US",
+            "latLong": [
+                "39.0437",
+                "-77.4875"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 506,
+        "location": {
+            "city": "Ashburn",
+            "region": "Virginia",
+            "country": "US",
+            "latLong": [
+                "39.0437",
+                "-77.4875"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 507,
+        "location": {
+            "city": "Ashburn",
+            "region": "Virginia",
+            "country": "US",
+            "latLong": [
+                "39.0437",
+                "-77.4875"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 508,
+        "location": {
+            "city": "Ashburn",
+            "region": "Virginia",
+            "country": "US",
+            "latLong": [
+                "39.0437",
+                "-77.4875"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 509,
+        "location": {
+            "city": "Ashburn",
+            "region": "Virginia",
+            "country": "US",
+            "latLong": [
+                "39.0437",
+                "-77.4875"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 510,
+        "location": {
+            "city": "Ashburn",
+            "region": "Virginia",
+            "country": "US",
+            "latLong": [
+                "39.0437",
+                "-77.4875"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 511,
+        "location": {
+            "city": "Ashburn",
+            "region": "Virginia",
+            "country": "US",
+            "latLong": [
+                "39.0437",
+                "-77.4875"
+            ]
+        }
+    },
+    {
+        "dataCenterId": 512,
+        "location": {
+            "city": "Frankfurt am Main",
+            "region": "Hesse",
+            "country": "DE",
+            "latLong": [
+                "50.1155",
+                "8.6842"
+            ]
+        }
     }
-}
+]
