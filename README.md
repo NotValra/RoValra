@@ -78,11 +78,11 @@
 # To do list
 - [x] **~~Hidden Catalog allowing you to browse up coming unreleased Roblox items.~~ ADDED**
 - [x] **~~Reworked Region selector ui~~ ADDED**
-- [ ] **Feature showing if a game is botted or not**
-- [ ] **Fixing the invite system**
-- [ ] **Roblox server list improvements**
-- [ ] **Big region selector improvements and server uptime**
-- [ ] **Maybe FireFox support (its not my main focus atm)**
+- [x] **~~Feature showing if a game is botted or not~~ ADDED**
+- [x] **~~Fixing the invite system~~ ADDED**
+- [x] **~~Roblox server list improvements~~ ADDED**
+- [x] **~~Big region selector improvements and server uptime~~ ADDED**
+- [x] **Maybe FireFox support (its not my main focus atm)**
 
 # Known incompatibilies
 <details>
