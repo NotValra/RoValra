@@ -82,7 +82,7 @@
 - [x] **~~Fixing the invite system~~ ADDED**
 - [x] **~~Roblox server list improvements~~ ADDED**
 - [x] **Big region selector improvements and server uptime**
-- [x] **Maybe FireFox support (its not my main focus atm)**
+- [ ] **Maybe FireFox support (its not my main focus atm)**
 
 # Known incompatibilies
 <details>
