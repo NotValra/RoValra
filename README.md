@@ -128,5 +128,5 @@
   
 - **Extensions logo is gilbert, which is a fish I caught in [Fisch](https://www.roblox.com/games/16732694052/Fisch)**
 - **7_lz on dc helped me a lot with the process of switching away from third party APIs by providing me with the json and just general help**
-- **Thanks to Julia for creating a Github repo that documented all the Roblox datacenter ips, which helped me find some that were missing https://github.com/RoSeal-Extension/Top-Secret-Thing**
+- **Thanks to Julia for creating a Github repo that documented all the Roblox datacenter ips, which i now use for my region selector https://github.com/RoSeal-Extension/Top-Secret-Thing**
 - **Credit to coweggs on dc for coming up with the name RoValra, it was just too funny I had to use it**
