@@ -27,6 +27,11 @@
     - **Shows Subplaces of a game**
     - **Universal game invitation link**
     - **Universal user sniper that does not require you to be friends with them (PATCHED)**
+    - **Bot detector, shows if a game is botted**
+    - **Shows full server id in the server list**
+    - **Copy deeplink for friends servers and shows if they are playing in a private server**
+    - **Quick invite link copy for private servers**
+    - **Quick Regenarate invite link for private servers**
 - **Catalog**
     - **Hidden catalog, which allows you to view Roblox made items before they are on the official catalog.**     
     - **Shows sales and revenue on specific items.**
@@ -45,7 +50,10 @@
     - **Remove R6 Warning**
     - **R6 Fix. Stops Roblox from automatically switching your character to R15 when equipping dynamic heads.**
 - **Misc**
-    - **Shows an estimated for how many Robux will stop pending within 24 hours** 
+    - **Shows an estimated for how many Robux will stop pending within 24 hours**
+- **Fun stuff**
+    - **All ban reasons on Roblox**
+    - **All ban durations on Roblox**
 
 
 
