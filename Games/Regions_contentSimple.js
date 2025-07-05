@@ -497,7 +497,7 @@ function stopRateLimitCheck() {
                     } else {
                         const metaToken = document.querySelector('meta[name="csrf-token"]');
                         if (metaToken) {
-                            const metaContent = metaToken.getAttribute('content');
+                            const metaContent = metaToken.getAttribute('data-token');
                             csrfToken = metaContent;
                             return csrfToken;
                         }
@@ -507,7 +507,7 @@ function stopRateLimitCheck() {
                 } catch (error) {
                     const metaToken = document.querySelector('meta[name="csrf-token"]');
                     if (metaToken) {
-                        const metaContent = metaToken.getAttribute('content');
+                        const metaContent = metaToken.getAttribute('data-token');
                        
                         csrfToken = metaContent;
                         return csrfToken;
