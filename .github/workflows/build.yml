@@ -46,14 +46,15 @@ jobs:
 
       - name: Build Firefox ZIP
         run: |
-          mkdir firefox-extension
-          cp -r Assets Avatar catalog data Games HiddenGames misc Rules firefox-extension/
-          cp background.js browser-polyfill.js content.js settings.js firefox-extension/
-          cp manifest-firefox.json firefox-extension/manifest.json
-          cp README.md LICENSE FIREFOX_INSTALLATION.md firefox-extension/
-          cd firefox-extension
+          mkdir temp-firefox
+          cp -r Assets Avatar catalog data Games HiddenGames misc Rules temp-firefox/
+          cp background.js browser-polyfill.js content.js settings.js temp-firefox/
+          cp manifest-firefox.json temp-firefox/manifest.json
+          cp README.md LICENSE FIREFOX_INSTALLATION.md temp-firefox/
+          cd temp-firefox
           zip -r ../rovalra-firefox.zip .
           cd ..
+          rm -rf temp-firefox
 
       - name: Upload Firefox Artifact
         uses: actions/upload-artifact@v4
