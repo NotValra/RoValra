@@ -252,7 +252,7 @@ function getPlaceIdFromUrl() {
         case 'GAMES':
             if (settings.subplacesEnabled) {
                 scriptPromises.push(loadScript('Games/Subplaces.js'));
-            }
+            } 
            
             if (settings.universalSniperEnabled) {
                 scriptPromises.push(loadScript('Games/sniper.js'));
