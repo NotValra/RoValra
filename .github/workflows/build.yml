@@ -44,11 +44,16 @@ jobs:
       - name: Set up zip
         run: sudo apt-get update && sudo apt-get install -y zip
 
-      - name: Make build-firefox-direct.sh executable
-        run: chmod +x build-firefox-direct.sh
-
       - name: Build Firefox ZIP
-        run: ./build-firefox-direct.sh
+        run: |
+          mkdir firefox-build
+          cp -r Assets Avatar catalog data Games HiddenGames misc Rules firefox-build/
+          cp background.js browser-polyfill.js content.js settings.js firefox-build/
+          cp manifest-firefox.json firefox-build/manifest.json
+          cp README.md LICENSE FIREFOX_INSTALLATION.md firefox-build/
+          cd firefox-build
+          zip -r ../rovalra-firefox.zip .
+          cd ..
 
       - name: Upload Firefox Artifact
         uses: actions/upload-artifact@v4
