@@ -11,7 +11,7 @@ const REGIONS = {
     "US-TX": { latitude: 32.7767, longitude: -96.7970, city: "Dallas", state: "Texas", country: "United States" },
     "US-FL": { latitude: 25.7617, longitude: -80.1918, city: "Miami", state: "Florida", country: "United States" },
     "US-NY": { latitude: 40.7128, longitude: -74.0060, city: "New York City", state: "New York", country: "United States" },
-    "US-WA": { latitude: 47.6062, longitude: -122.3321, city: "Seattle", state: "Washington", country: "United States" }, 
+    "US-WA": { latitude: 47.6062, longitude: -122.3321, city: "Seattle", state: "Washington", country: "United States" },
     "AU": { latitude: -33.8688, longitude: 151.2093, city: "Sydney", state: null, country: "Australia" },
     "GB": { latitude: 51.5074, longitude: -0.1278, city: "London", state: null, country: "United Kingdom" },
     "IN": { latitude: 19.0760, longitude: 72.8777, city: "Mumbai", state: null, country: "India" }
@@ -20,7 +20,7 @@ const REGIONS = {
 let cachedTheme = null;
 let themeLastFetched = 0;
 // This shit useless at this point but OH WELLLLLLL!!!!!!
-const THEME_CACHE_DURATION = 24 * 60 * 60 * 1000; 
+const THEME_CACHE_DURATION = 24 * 60 * 60 * 1000;
 
 const REGION_CONTINENTS = {
     "North America": ["US-CA", "US-VA", "US-IL", "US-TX", "US-FL", "US-NY", "US-WA"],
@@ -35,8 +35,8 @@ const SETTINGS_CONFIG = {
         settings: {
             itemSalesEnabled: {
                 label: "Enable Item Sales",
-                description: ["This shows the most up to date sales and revenue data we have.", 
-                            "The sales data is very likely to be inaccurate on items that are for sale, but very likely to be correct on off sale items."],
+                description: ["This shows the most up to date sales and revenue data we have.",
+                    "The sales data is very likely to be inaccurate on items that are for sale, but very likely to be correct on off sale items."],
                 type: "checkbox",
                 default: true
             },
@@ -60,17 +60,17 @@ const SETTINGS_CONFIG = {
                     regionSimpleUi: {
                         label: "Enable Globe UI",
                         description: ["This changes the region selector UI to a globe.",
-                                    "{{red WARNING}} this may be laggy on lower end devices, and the UI is outdated and lacking features."],
+                            "{{red WARNING}} this may be laggy on lower end devices, and the UI is outdated and lacking features."],
                         type: "checkbox",
                         default: false
                     }
-                    
+
                 }
             },
             PreferredRegionEnabled: {
                 label: "Enable Preferred Join Region",
                 description: ["This adds a play button that joins your preferred region.",
-                            "Works independently whether Region Selector is enabled or not."],
+                    "Works independently whether Region Selector is enabled or not."],
                 type: "checkbox",
                 default: true,
                 childSettings: {
@@ -86,7 +86,7 @@ const SETTINGS_CONFIG = {
             botdataEnabled: {
                 label: "Enable Bot Data",
                 description: ["Shows if a game has a lot of bots.",
-                            "It doesn't show the amount of bots, since the sample size is too small to give an accurate number."],
+                    "It doesn't show the amount of bots, since the sample size is too small to give an accurate number."],
                 type: "checkbox",
                 default: true
             },
@@ -99,8 +99,8 @@ const SETTINGS_CONFIG = {
             inviteEnabled: {
                 label: "Enable Universal Server Invites",
                 description: ["This allows you to invite your friends to the game you're in, without your friend requiring any extension, not even RoValra!",
-                            "You can copy the link by pressing on the `Copy Join Link` button.",
-                        "This will remove the RoPro share button for the 'Servers' section.",],
+                    "You can copy the link by pressing on the `Copy Join Link` button.",
+                    "This will remove the RoPro share button for the 'Servers' section.",],
                 type: "checkbox",
                 default: true
             },
@@ -120,7 +120,7 @@ const SETTINGS_CONFIG = {
                     "It also adds a copy join link button if a friend isnt in a private server.",
                     "This will remove the RoPro share button for the 'Servers My Friends Are In' section.",
                 ],
-                type: "checkbox",   
+                type: "checkbox",
                 default: true
             },
             privateserverlink: {
@@ -130,14 +130,14 @@ const SETTINGS_CONFIG = {
                 ],
                 type: "checkbox",
                 default: true
-                
+
             },
             universalSniperEnabled: {
                 label: "Enable Universal User Sniper",
                 description: ["This allows you to join a user, without needing to be friends with them.",
-                            "Only requirement is that you know what game they are playing.",
-                        "**If you don't want users using this to join you, you can change your joins to no one.**",
-                         "keep in mind having joins to no one might not fully prevent users from joining you depending on what bypass users are using."],
+                    "Only requirement is that you know what game they are playing.",
+                    "**If you don't want users using this to join you, you can change your joins to no one.**",
+                    "keep in mind having joins to no one might not fully prevent users from joining you depending on what bypass users are using."],
                 type: "checkbox",
                 default: true
             }
@@ -155,10 +155,10 @@ const SETTINGS_CONFIG = {
             userSniperEnabled: {
                 label: "Enable Instant Joiner",
                 description: ["This joins a user instantly when they go into a game, best used for people with a lot of people trying to join them.",
-                            "### Requirements",
-                            "- It is **strongly recommended** that you uninstall the Microsoft Store version of Roblox",
-                            "- This feature requires the user to be friends with you or have their joins enabled"
-                           ],
+                    "### Requirements",
+                    "- It is **strongly recommended** that you uninstall the Microsoft Store version of Roblox",
+                    "- This feature requires the user to be friends with you or have their joins enabled"
+                ],
                 type: "checkbox",
                 default: false
             },
@@ -200,7 +200,7 @@ const SETTINGS_CONFIG = {
                 label: "Enable R6 Fix",
                 description: ["{{green Beta Feature}}",
                     "Stops Roblox from automatically switching your character to R15 when equiping dynamic heads.",
-                            "This requires you to use the english language on Roblox."],
+                    "This requires you to use the english language on Roblox."],
                 type: "checkbox",
                 default: false
             }
@@ -249,208 +249,208 @@ const SETTINGS_CONFIG = {
                 type: "file",
                 default: null
             }
-            
+
         }
-        
+
     },
     FunStuff: {
         title: "Fun Stuff",
         settings: {
             bandurationsEnabled: {
                 label: "All possible ban durations",
-                
+
                 description: [
-"**This does not include voice chat bans.**",
-"**Any text saying 'Note:' is a note added by Valra to explain stuff better.**",
-"- Banned for 1 Day",
-"- Banned for 3 Days",
-"- Banned for 7 Days",
-"- Banned for 14 Days",
-"- Account Deleted",
-"• Warning",
-"• Banned for 6 Months",
-"• Banned for 1 Year",
-"• Note: the stuff below are not bans but instead Roblox telling you what will happen if you do it again, this doesn't always show when you get banned.",
-"• This stuff below is called a 'Forshadow ban'",
-"• If you violate the Community Standards again, your account may be suspended in the future. ",
-"• If you violate the Community Standards again, your account may be suspended for at least 1 day.",
-"• If you violate the Community Standards again, your account may be suspended for at least 3 days.",
-"• If you violate the Community Standards again, your account may be suspended for at least 7 days.",
-"• If you violate the Community Standards again, your account may be permanently banned from Roblox.",
-"- Note: 2 days, 1 hour, 3 hours, 6 hours and 12 hours bans might not be in use.",
-"• Banned for 2 Days",
-"• Banned for 3 Hours",
-"• Banned for 6 Hours",
-"• Banned for 12 Hours",
-"• Banned for 1 Hour",
-"• Account Terminated",
-"• Banned for 60 Days",],
-                    default: null,
-                },
-                
-            
-           BanReasons: {
+                    "**This does not include voice chat bans.**",
+                    "**Any text saying 'Note:' is a note added by Valra to explain stuff better.**",
+                    "- Banned for 1 Day",
+                    "- Banned for 3 Days",
+                    "- Banned for 7 Days",
+                    "- Banned for 14 Days",
+                    "- Account Deleted",
+                    "• Warning",
+                    "• Banned for 6 Months",
+                    "• Banned for 1 Year",
+                    "• Note: the stuff below are not bans but instead Roblox telling you what will happen if you do it again, this doesn't always show when you get banned.",
+                    "• This stuff below is called a 'Forshadow ban'",
+                    "• If you violate the Community Standards again, your account may be suspended in the future. ",
+                    "• If you violate the Community Standards again, your account may be suspended for at least 1 day.",
+                    "• If you violate the Community Standards again, your account may be suspended for at least 3 days.",
+                    "• If you violate the Community Standards again, your account may be suspended for at least 7 days.",
+                    "• If you violate the Community Standards again, your account may be permanently banned from Roblox.",
+                    "- Note: 2 days, 1 hour, 3 hours, 6 hours and 12 hours bans might not be in use.",
+                    "• Banned for 2 Days",
+                    "• Banned for 3 Hours",
+                    "• Banned for 6 Hours",
+                    "• Banned for 12 Hours",
+                    "• Banned for 1 Hour",
+                    "• Account Terminated",
+                    "• Banned for 60 Days",],
+                default: null,
+            },
+
+
+            BanReasons: {
                 label: "All possible ban reasons on Roblox, some ban reasons have been censored by Valra.",
                 description: [
-"**All ban reasons are 100% confirmed**",
-"**Keep in mind these are ban reasons, which is basically categories each ban might fall into.**",
-"**Any text saying 'Note:' is a note added by Valra to explain stuff better.**",
-"- None (Note: Likely a place holder ban reason)",
-"- Profanity",
-"- Harassment",
-"- Spam",
-"- Advertisement",
-"• Scamming",
-"• Adult Content",
-"• Inappropriate",
-"• Privacy",
-"• Unclassified Mild",
-"• BlockedContent",
-"• Minor Swearing",
-"• Distorted Audio",
-"• Loud Earbleeders",
-"• Players Screaming into Microphone",
-"• Swearing",
-"• P####graphic Sounds",
-"• Explicit S##ual References and Innuendo",
-"• Dr## and Alc###l References",
-"• Discriminatory or N##i Content",
-"• Dating Imagery",
-"• Discriminatory Content",
-"• Dr##s, Alc###l",
-"• DMCA",
-"• Explicit N####y/P##n",
-"• Gang Images",
-"• N###s",
-"• Personal Attack/Harassment/Bullying",
-"• Red Armbands (Not N###s) ",
-"• Suggestive/S##ualized Imagery",
-"• S####de/Self-####",
-"• Clickbait Ads",
-"• Inappropriate Content",
-"• Not Related to Roblox",
-"• Off-Site Links",
-"• Hidden Message Clothing",
-"• None of the Above",
-"• Account Theft",
-"• Asset Ownership",
-"• Billing",
-"• Compromised Account",
-"• Copyright/DMCA",
-"• Derogatory/Harassment",
-"• Depressive",
-"• Discriminatory",
-"• Exploiting",
-"• Text Filter / Profanity",
-"• Gr###ing",
-"• Illicit Substance",
-"• Malicious",
-"• Misleading",
-"• Dating",
-"• Phishing/Scam",
-"• Real Info",
-"• RMT (Note: Real money transaction)",
-"• S##ual/Adult Content",
-"• Shock",
-"• Threats",
-"• Real-Life Tragedy",
-"• Politics",
-"• Encouraging Dangerous Behavior",
-"• Other",
-"• Dating and Romantic Content",
-"• S##ual Content",
-"• Directing Users Off-Platform",
-"• Privacy: Asking for PII",
-"• Privacy: Giving PII",
-"• Impersonation",
-"• Extortion and Blackmail",
-"• Illegal and Regulated Content",
-"• Misusing Roblox Systems",
-"• Political Content",
-"• T###orism/Extremism",
-"• Child Endangerment",
-"• Real-Life Threats",
-"• Cheat and Exploits",
-"• Seeking S##ual Content",
-"• Disruptive Audio",
-"• Contests and Sweepstakes",
-"• Threats or Abuse of Roblox Employees or Affiliates",
-"• Roblox Economy",
-"• IRL Dangerous Activities",
-"• Intellectual Property Violation",
-"• Off Platform Speech and Behavior",
-"• Violent Content and Gore",
-"• Advertising",
-"• Chargeback",
-"• DMCA Early Legal Strike",
-"• DMCA Final Legal Strike",
-"• You created or used an account to avoid an enforcement action taken against another account determined from your account information, such as your account email, phone number, or other information (Note: This is not a ban reason this is a modarator note)",
-"• Trademark Violation",
-"• Roblox does not permit using third-parties to buy, sell, or trade Robux, promotional codes that falsely appear to be from Roblox Corporation, or inappropriate use of the community payout system. (Note: This is not a ban reason this is a modarator note)",
-"- Note: Fun fact the 'using third-parties to buy, sell, or trade Robux' modarator are called 'Virtual Casino' bans in the code"],
-               
+                    "**All ban reasons are 100% confirmed**",
+                    "**Keep in mind these are ban reasons, which is basically categories each ban might fall into.**",
+                    "**Any text saying 'Note:' is a note added by Valra to explain stuff better.**",
+                    "- None (Note: Likely a place holder ban reason)",
+                    "- Profanity",
+                    "- Harassment",
+                    "- Spam",
+                    "- Advertisement",
+                    "• Scamming",
+                    "• Adult Content",
+                    "• Inappropriate",
+                    "• Privacy",
+                    "• Unclassified Mild",
+                    "• BlockedContent",
+                    "• Minor Swearing",
+                    "• Distorted Audio",
+                    "• Loud Earbleeders",
+                    "• Players Screaming into Microphone",
+                    "• Swearing",
+                    "• P####graphic Sounds",
+                    "• Explicit S##ual References and Innuendo",
+                    "• Dr## and Alc###l References",
+                    "• Discriminatory or N##i Content",
+                    "• Dating Imagery",
+                    "• Discriminatory Content",
+                    "• Dr##s, Alc###l",
+                    "• DMCA",
+                    "• Explicit N####y/P##n",
+                    "• Gang Images",
+                    "• N###s",
+                    "• Personal Attack/Harassment/Bullying",
+                    "• Red Armbands (Not N###s) ",
+                    "• Suggestive/S##ualized Imagery",
+                    "• S####de/Self-####",
+                    "• Clickbait Ads",
+                    "• Inappropriate Content",
+                    "• Not Related to Roblox",
+                    "• Off-Site Links",
+                    "• Hidden Message Clothing",
+                    "• None of the Above",
+                    "• Account Theft",
+                    "• Asset Ownership",
+                    "• Billing",
+                    "• Compromised Account",
+                    "• Copyright/DMCA",
+                    "• Derogatory/Harassment",
+                    "• Depressive",
+                    "• Discriminatory",
+                    "• Exploiting",
+                    "• Text Filter / Profanity",
+                    "• Gr###ing",
+                    "• Illicit Substance",
+                    "• Malicious",
+                    "• Misleading",
+                    "• Dating",
+                    "• Phishing/Scam",
+                    "• Real Info",
+                    "• RMT (Note: Real money transaction)",
+                    "• S##ual/Adult Content",
+                    "• Shock",
+                    "• Threats",
+                    "• Real-Life Tragedy",
+                    "• Politics",
+                    "• Encouraging Dangerous Behavior",
+                    "• Other",
+                    "• Dating and Romantic Content",
+                    "• S##ual Content",
+                    "• Directing Users Off-Platform",
+                    "• Privacy: Asking for PII",
+                    "• Privacy: Giving PII",
+                    "• Impersonation",
+                    "• Extortion and Blackmail",
+                    "• Illegal and Regulated Content",
+                    "• Misusing Roblox Systems",
+                    "• Political Content",
+                    "• T###orism/Extremism",
+                    "• Child Endangerment",
+                    "• Real-Life Threats",
+                    "• Cheat and Exploits",
+                    "• Seeking S##ual Content",
+                    "• Disruptive Audio",
+                    "• Contests and Sweepstakes",
+                    "• Threats or Abuse of Roblox Employees or Affiliates",
+                    "• Roblox Economy",
+                    "• IRL Dangerous Activities",
+                    "• Intellectual Property Violation",
+                    "• Off Platform Speech and Behavior",
+                    "• Violent Content and Gore",
+                    "• Advertising",
+                    "• Chargeback",
+                    "• DMCA Early Legal Strike",
+                    "• DMCA Final Legal Strike",
+                    "• You created or used an account to avoid an enforcement action taken against another account determined from your account information, such as your account email, phone number, or other information (Note: This is not a ban reason this is a modarator note)",
+                    "• Trademark Violation",
+                    "• Roblox does not permit using third-parties to buy, sell, or trade Robux, promotional codes that falsely appear to be from Roblox Corporation, or inappropriate use of the community payout system. (Note: This is not a ban reason this is a modarator note)",
+                    "- Note: Fun fact the 'using third-parties to buy, sell, or trade Robux' modarator are called 'Virtual Casino' bans in the code"],
+
                 default: null
             },
             appealstuff: {
-            label: "Appeals related stuff",
-            description: ["**Appeal Outcomes & Decisions**",
-                "- Appeal denied",
-"- We have reviewed your appeal. This activity is still in violation of Roblox Community Standards.",
-"- Appeal accepted",
-"- We have reviewed your appeal. This activity is not in violation of Roblox Community Standards. Any consequence related to this activity is reversed.",
-"- We have reviewed your appeal. This activity is still in violation of Roblox Community Standards. However, we’ve updated the violation category.",
-"**Appeal Instructions & Information**",
-"- Appeal something not shown",
-"- Request Appeal",
-"- Additional info (optional)",
-"- You can appeal by {date}",
-"- View past violations and manage your appeals. All content and behavior must adhere to the {link}Roblox Community\nStandards{linkEnd}.",
-"- Reviews are based on {link}Roblox Community Standards{linkEnd}",
-"- Learn more about appeals {link}here{linkEnd}.",
-"**Error Messages & Support Fallbacks**",
-"- Appeals information not found",
-"- If you would like to appeal something not shown here please visit {link}Support{linkEnd}",
-"- You've reached the maximum number of appeals. You may no longer appeal this {assetType}."
-],
-            default: null,
-        },
+                label: "Appeals related stuff",
+                description: ["**Appeal Outcomes & Decisions**",
+                    "- Appeal denied",
+                    "- We have reviewed your appeal. This activity is still in violation of Roblox Community Standards.",
+                    "- Appeal accepted",
+                    "- We have reviewed your appeal. This activity is not in violation of Roblox Community Standards. Any consequence related to this activity is reversed.",
+                    "- We have reviewed your appeal. This activity is still in violation of Roblox Community Standards. However, we’ve updated the violation category.",
+                    "**Appeal Instructions & Information**",
+                    "- Appeal something not shown",
+                    "- Request Appeal",
+                    "- Additional info (optional)",
+                    "- You can appeal by {date}",
+                    "- View past violations and manage your appeals. All content and behavior must adhere to the {link}Roblox Community\nStandards{linkEnd}.",
+                    "- Reviews are based on {link}Roblox Community Standards{linkEnd}",
+                    "- Learn more about appeals {link}here{linkEnd}.",
+                    "**Error Messages & Support Fallbacks**",
+                    "- Appeals information not found",
+                    "- If you would like to appeal something not shown here please visit {link}Support{linkEnd}",
+                    "- You've reached the maximum number of appeals. You may no longer appeal this {assetType}."
+                ],
+                default: null,
+            },
             captcha: {
                 label: "All the places where you can get a captcha on Roblox",
                 description: ["- sign up"
-                , "- login"
-                , "- change password"
-                , "- redeeming a gift card"
-                , "- submitting a support ticket"
-                , "- buying an item (speculation, might have been removed)"
-                , "- posting on a group wall (likely gonna be the same for group forum posts)"
-                , "- joining a group"
-                , "- 'generic challange' no idea what they mean by that."
-                , "- following a user"
-                , "- uploading 'clothing asset' could also be the same for any asset but im unsure"
-                , "- posting a comment on an asset (comments on assets have been removed)"
+                    , "- login"
+                    , "- change password"
+                    , "- redeeming a gift card"
+                    , "- submitting a support ticket"
+                    , "- buying an item (speculation, might have been removed)"
+                    , "- posting on a group wall (likely gonna be the same for group forum posts)"
+                    , "- joining a group"
+                    , "- 'generic challange' no idea what they mean by that."
+                    , "- following a user"
+                    , "- uploading 'clothing asset' could also be the same for any asset but im unsure"
+                    , "- posting a comment on an asset (comments on assets have been removed)"
                 ],
                 default: null
             }
-            
+
         }
-        
+
     }
 }
 
 function generateSettingsUI(section) {
     let html = '';
     const sectionConfig = SETTINGS_CONFIG[section];
-    
+
     if (!sectionConfig) return '';
 
     for (const [settingName, setting] of Object.entries(sectionConfig.settings)) {
         html += '<div class="setting">';
         html += '<div class="setting-controls">';
         html += `<label>${setting.label}</label>`;
-        html += generateSettingInput(settingName, setting, sectionConfig.settings); 
+        html += generateSettingInput(settingName, setting, sectionConfig.settings);
         html += '</div>';
-        html += '<div class="setting-label-divider"></div>'; 
-        
+        html += '<div class="setting-label-divider"></div>';
+
         setting.description.forEach(desc => {
             html += `<div class="setting-description">${parseMarkdown(desc)}</div>`;
         });
@@ -466,8 +466,8 @@ function generateSettingsUI(section) {
         if (setting.childSettings) {
             for (const [childName, childSetting] of Object.entries(setting.childSettings)) {
                 const isConditional = childSetting.condition;
-                const displayStyle = isConditional ? 'display: none;' : ''; 
-                
+                const displayStyle = isConditional ? 'display: none;' : '';
+
                 html += '<div class="child-setting-separator"></div>';
                 html += ` 
                     <div class="child-setting-item" id="setting-${childName}" style="${displayStyle}">
@@ -542,7 +542,7 @@ function generateSettingInput(settingName, setting, allSettingsInSection) {
         } else {
             initialSelectStyles = "padding: 8px; border-radius: 4px; border: 1px solid #555; background-color: #393b3d; color: #eee;";
         }
-        
+
         return `
             <select id="${settingName}" data-setting-name="${settingName}" class="setting-select-input" style="${initialSelectStyles}">
                 ${optionsHtml}
@@ -597,21 +597,21 @@ const THEME_CONFIG = {
 
 function parseMarkdown(text) {
     if (!text) return '';
-    
+
     text = text.replace(/\\([*_`~\[\]])/g, '$1');
-    
+
     text = text.replace(/(\*\*|__)(.*?)\1/g, '<strong>$2</strong>');
-    
+
     text = text.replace(/(\*|_)(.*?)\1/g, '<em>$2</em>');
-    
+
     text = text.replace(/~~(.*?)~~/g, '<s>$1</s>');
-    
+
     text = text.replace(/```(.*?)```/gs, (match, content) => {
         return `<pre><code>${content.trim()}</code></pre>`;
     });
-    
+
     text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
-    
+
     text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, text, url) => {
         let linkClass = '';
         if (url.includes('discord.gg')) {
@@ -623,20 +623,20 @@ function parseMarkdown(text) {
         }
         return `<a href="${url}" target="_blank" class="${linkClass}">${text}</a>`;
     });
-    
+
     text = text.replace(/\{\{(#[0-9a-fA-F]{3,6}|red|green|blue|yellow|orange|purple|gray|black|white) (.*?)\}\}/g, (match, color, content) => {
         return `<span style="color:${color};">${content}</span>`;
     });
-    
-   
+
+
     if (text.match(/^[\s]*[-*+][\s]/)) {
         return `<li class="bullet-item">${text.replace(/^[\s]*[-*+][\s]/, '')}</li>`;
     }
-    
+
     if (text.match(/^[\s]*\d+\.[\s]/)) {
         return `<li>${text.replace(/^[\s]*\d+\.[\s]/, '')}</li>`;
     }
-    
+
     if (text.match(/^[\s]*•[\s]/)) {
         return `<li class="bullet-item">${text.replace(/^[\s]*•[\s]/, '')}</li>`;
     }
@@ -651,11 +651,11 @@ function parseMarkdown(text) {
     if (text.match(/^>\s/)) {
         return `<blockquote>${text.replace(/^>\s/, '')}</blockquote>`;
     }
-    
+
     text = text.replace(/\{link\}(.*?)\{linkEnd\}/g, (match, content) => {
         let linkClass = 'rovalra-link';
         let href = '#';
-        
+
         if (content.toLowerCase().includes('roblox community standards')) {
             linkClass = 'rovalra-roblox-link';
             href = 'https://en.help.roblox.com/hc/en-us/articles/203313410-Roblox-Community-Standards';
@@ -666,10 +666,10 @@ function parseMarkdown(text) {
             linkClass = 'rovalra-roblox-link';
             href = 'https://en.help.roblox.com/hc/en-us/articles/360000375686-Appeal-Process';
         }
-        
+
         return `<a href="${href}" target="_blank" class="${linkClass}">${content}</a>`;
     });
-    
+
     return text;
 }
 
@@ -719,14 +719,14 @@ const syncSettingsVisualState = async () => {
     const settingsContent = document.querySelector('#setting-section-content');
     if (settingsContent && window.location.href.includes('?rovalra=info')) {
         await initSettings(settingsContent);
-        
+
         if (settingsSyncInterval && cachedTheme && (Date.now() - themeLastFetched) < THEME_CACHE_DURATION) {
             const isDarkMode = cachedTheme === 'dark';
             updateThemeStyles_settingsPage(cachedTheme);
-            
+
             const settingBackgroundColor = isDarkMode ? 'rgb(39, 41, 48)' : 'rgb(240, 240, 240)';
             const childSettingBackgroundColor = isDarkMode ? 'rgb(52, 55, 58)' : 'rgb(230, 230, 230)';
-            
+
             document.querySelectorAll('.setting').forEach(setting => {
                 if (setting.id && setting.id.startsWith('setting-')) {
                     setting.style.backgroundColor = childSettingBackgroundColor;
@@ -734,7 +734,7 @@ const syncSettingsVisualState = async () => {
                     setting.style.backgroundColor = settingBackgroundColor;
                 }
             });
-            
+
             if (window.location.href.includes('/RoValra')) {
                 updateThemeStyles_rovalraPage(cachedTheme);
             }
@@ -791,7 +791,7 @@ const fetchThemeFromAPI = async () => {
 
 function updateThemeStyles_settingsPage(theme) {
     const isDarkMode = theme === 'dark';
-    
+
     const colors = {
         dark: {
             button: {
@@ -813,10 +813,10 @@ function updateThemeStyles_settingsPage(theme) {
         },
         light: {
             button: {
-                base: 'rgb(227, 230, 232)', 
-                hover: 'rgb(218, 221, 224)', 
-                active: 'rgb(204, 208, 212)', 
-                text: 'rgb(36, 41, 45)'    
+                base: 'rgb(227, 230, 232)',
+                hover: 'rgb(218, 221, 224)',
+                active: 'rgb(204, 208, 212)',
+                text: 'rgb(36, 41, 45)'
             },
             select: {
                 bg: 'rgb(255, 255, 255)',
@@ -832,7 +832,7 @@ function updateThemeStyles_settingsPage(theme) {
     };
 
     const currentColors = colors[isDarkMode ? 'dark' : 'light'];
-    
+
     const buttons = document.querySelectorAll('.setting-section-button');
     buttons.forEach(button => {
         Object.assign(button.style, {
@@ -844,14 +844,14 @@ function updateThemeStyles_settingsPage(theme) {
             button.style.backgroundColor = currentColors.button.active;
         }
 
-        button.addEventListener('mouseenter', function() {
+        button.addEventListener('mouseenter', function () {
             if (this.dataset.active !== 'true') {
                 this.style.backgroundColor = currentColors.button.hover;
                 this.style.transform = 'translateY(-1px)';
             }
         });
 
-        button.addEventListener('mouseleave', function() {
+        button.addEventListener('mouseleave', function () {
             if (this.dataset.active !== 'true') {
                 this.style.backgroundColor = currentColors.button.base;
                 this.style.transform = 'translateY(0)';
@@ -953,7 +953,7 @@ function updateThemeStyles_rovalraPage(theme) {
                 }
                 link.style.setProperty('color', initialColor, 'important');
 
-                link.addEventListener('mouseenter', function() {
+                link.addEventListener('mouseenter', function () {
                     let baseHoverColorForLighten;
                     const currentHostname = this.hostname ? this.hostname.toLowerCase() : '';
                     if (currentHostname === 'discord.gg') baseHoverColorForLighten = discordLinkColor;
@@ -969,7 +969,7 @@ function updateThemeStyles_rovalraPage(theme) {
                     }
                 });
 
-                link.addEventListener('mouseleave', function() {
+                link.addEventListener('mouseleave', function () {
                     let restoreColor;
                     const currentHostname = this.hostname ? this.hostname.toLowerCase() : '';
                     if (currentHostname === 'discord.gg') restoreColor = discordLinkColor;
@@ -995,18 +995,18 @@ async function applyTheme() {
         } else {
             currentTheme = latestTheme;
         }
-        
+
         updateThemeCache();
-        
+
         const isDarkMode = currentTheme === 'dark';
-        
+
         const updateAllThemeElements = () => {
             if (isSettingsPage) {
                 updateThemeStyles_settingsPage(currentTheme);
-                
+
                 const settingBackgroundColor = isDarkMode ? 'rgb(39, 41, 48)' : 'rgb(240, 240, 240)';
                 const childSettingBackgroundColor = isDarkMode ? 'rgb(52, 55, 58)' : 'rgb(230, 230, 230)';
-                
+
                 document.querySelectorAll('.setting').forEach(setting => {
                     if (setting.id && setting.id.startsWith('setting-')) {
                         setting.style.backgroundColor = childSettingBackgroundColor;
@@ -1015,11 +1015,11 @@ async function applyTheme() {
                     }
                 });
             }
-            
+
             if (window.location.href.includes('/RoValra')) {
                 updateThemeStyles_rovalraPage(currentTheme);
             }
-            
+
             document.querySelectorAll('[data-theme-dependent]').forEach(element => {
                 const elementType = element.dataset.themeDependent;
                 if (elementType === 'button') {
@@ -1030,11 +1030,11 @@ async function applyTheme() {
         };
 
         updateAllThemeElements();
-        
+
         setTimeout(updateAllThemeElements, 100);
-        
+
         setTimeout(updateAllThemeElements, 500);
-        
+
     } catch (error) {
         console.error('Error applying theme:', error);
         updateThemeCache();
@@ -1114,16 +1114,16 @@ function addCustomButton() {
 
 function observeContentChanges() {
     const targetNode = document.body;
-    if(!targetNode){
+    if (!targetNode) {
         return;
     }
     const config = { childList: true, subtree: true };
 
-    observer = new MutationObserver(function(mutationsList, observer) {
-        for(const mutation of mutationsList) {
+    observer = new MutationObserver(function (mutationsList, observer) {
+        for (const mutation of mutationsList) {
             if (mutation.type === 'childList') {
-                for(const addedNode of mutation.addedNodes) {
-                    if(addedNode.nodeType === Node.ELEMENT_NODE) {
+                for (const addedNode of mutation.addedNodes) {
+                    if (addedNode.nodeType === Node.ELEMENT_NODE) {
                         if (addedNode.querySelector('ul.menu-vertical[role="tablist"]')) {
                             addCustomButton();
                             return;
@@ -1135,7 +1135,7 @@ function observeContentChanges() {
     });
     observer.observe(targetNode, config);
 
-    if (document.querySelector('ul.menu-vertical[role="tablist"]')){
+    if (document.querySelector('ul.menu-vertical[role="tablist"]')) {
         addCustomButton()
     }
 }
@@ -1149,7 +1149,7 @@ function addPopoverButton() {
 
     const popoverMenu = document.getElementById('settings-popover-menu');
     if (!popoverMenu) {
-        isPopoverButtonAdding = false; 
+        isPopoverButtonAdding = false;
         return;
     }
 
@@ -1201,7 +1201,7 @@ function addPopoverButton() {
     });
     popoverMenu.insertBefore(newButtonListItem, popoverMenu.firstChild);
 
-    isPopoverButtonAdding = false; 
+    isPopoverButtonAdding = false;
 }
 
 function startObserver() {
@@ -1222,7 +1222,7 @@ function startObserver() {
                     if (addedNode.nodeType === Node.ELEMENT_NODE) {
                         if (addedNode.id === 'settings-popover-menu' || addedNode.querySelector('#settings-popover-menu')) {
                             addPopoverButton();
-                            return; 
+                            return;
                         }
                     }
                 }
@@ -1230,7 +1230,7 @@ function startObserver() {
         }
     });
 
-    observer.observe(targetElement, { childList: true, subtree: true }); 
+    observer.observe(targetElement, { childList: true, subtree: true });
 }
 
 const loadSettings = async () => {
@@ -1285,7 +1285,7 @@ const handleSaveSettings = async (settingName, value) => {
     try {
         const settings = {};
         settings[settingName] = value;
-        
+
         if (settingName === 'customLogoData' && value === null) {
         }
 
@@ -1308,7 +1308,7 @@ const handleSaveSettings = async (settingName, value) => {
 const initSettings = async (settingsContent) => {
     if (!settingsContent) {
         console.error("settingsContent is null in initSettings! Check HTML structure.");
-        return; 
+        return;
     }
     const settings = await loadSettings();
 
@@ -1331,27 +1331,27 @@ const initSettings = async (settingsContent) => {
                             const currentCustomLogoData = settings[settingName];
 
                             if (previewElement) {
-                                if (currentCustomLogoData) { 
+                                if (currentCustomLogoData) {
                                     previewElement.src = currentCustomLogoData;
                                     previewElement.style.display = 'block';
                                     if (clearButton) clearButton.style.display = 'inline-block';
-                                } else if (currentRevertLogoValue === 'CUSTOM') { 
+                                } else if (currentRevertLogoValue === 'CUSTOM') {
                                     previewElement.src = chrome.runtime.getURL("Assets/icon-128.png");
                                     previewElement.style.display = 'block';
-                                    if (clearButton) clearButton.style.display = 'none'; 
-                                } else { 
+                                    if (clearButton) clearButton.style.display = 'none';
+                                } else {
                                     previewElement.src = '#';
                                     previewElement.style.display = 'none';
                                     if (clearButton) clearButton.style.display = 'none';
                                 }
                             }
-                        } else { 
+                        } else {
                             if (previewElement && settings[settingName]) {
                                 previewElement.src = settings[settingName];
                                 previewElement.style.display = 'block';
                                 if (clearButton) clearButton.style.display = 'inline-block';
                             } else if (previewElement) {
-                                previewElement.src = '#'; 
+                                previewElement.src = '#';
                                 previewElement.style.display = 'none';
                                 if (clearButton) clearButton.style.display = 'none';
                             }
@@ -1384,10 +1384,10 @@ const initSettings = async (settingsContent) => {
                                 if (previewElement && settings[childName]) {
                                     previewElement.src = settings[childName];
                                     previewElement.style.display = 'block';
-                                    if(clearButton) clearButton.style.display = 'inline-block';
+                                    if (clearButton) clearButton.style.display = 'inline-block';
                                 } else if (previewElement) {
                                     previewElement.style.display = 'none';
-                                    if(clearButton) clearButton.style.display = 'none';
+                                    if (clearButton) clearButton.style.display = 'none';
                                 }
                             }
                         } else {
@@ -1403,7 +1403,7 @@ const initSettings = async (settingsContent) => {
 
 async function updateContent(buttonInfo, contentContainer, buttonData) {
     const isDarkMode = currentTheme === 'dark';
-    const themeColors = THEME_CONFIG[currentTheme] || THEME_CONFIG.light; 
+    const themeColors = THEME_CONFIG[currentTheme] || THEME_CONFIG.light;
 
     const textColor = themeColors.text;
     const headerColor = themeColors.header;
@@ -1418,7 +1418,7 @@ async function updateContent(buttonInfo, contentContainer, buttonData) {
                         <div id="info-credits-background-wrapper" style="padding: 15px; background-color: ${cachedThemeColors.content}; margin-bottom: 15px;">${buttonInfo.content}</div>
                     </div>
                 </div>`;
-            contentContainer.style.backgroundColor = 'rgb(transparent)'; 
+            contentContainer.style.backgroundColor = 'rgb(transparent)';
         } else {
             contentContainer.innerHTML = buttonInfo.content;
             contentContainer.style.backgroundColor = 'rgb(transparent)';
@@ -1427,7 +1427,7 @@ async function updateContent(buttonInfo, contentContainer, buttonData) {
 
         if (window.location.href.includes('/RoValra')) {
             const contentQueryRoot = (buttonInfo.text.toLowerCase() === "info" || buttonInfo.text.toLowerCase() === "credits")
-                ? contentContainer.querySelector('#info-credits-background-wrapper') || contentContainer 
+                ? contentContainer.querySelector('#info-credits-background-wrapper') || contentContainer
                 : contentContainer;
 
             if (contentQueryRoot) {
@@ -1438,11 +1438,11 @@ async function updateContent(buttonInfo, contentContainer, buttonData) {
                         link.style.setProperty('font-weight', 'bold', 'important');
                         link.style.setProperty('transition', 'color 0.3s ease', 'important');
 
-                        link.addEventListener('mouseenter', function() {
+                        link.addEventListener('mouseenter', function () {
                             const lighterDiscordColor = lightenColor(discordColor, 0.15);
                             this.style.setProperty('color', lighterDiscordColor, 'important');
                         });
-                        link.addEventListener('mouseleave', function() {
+                        link.addEventListener('mouseleave', function () {
                             this.style.setProperty('color', discordColor, 'important');
                         });
                     });
@@ -1453,11 +1453,11 @@ async function updateContent(buttonInfo, contentContainer, buttonData) {
                         link.style.setProperty('font-weight', 'bold', 'important');
                         link.style.setProperty('transition', 'color 0.3s ease', 'important');
 
-                        link.addEventListener('mouseenter', function() {
+                        link.addEventListener('mouseenter', function () {
                             const lighterGithubColor = lightenColor(githubColor, 0.15);
                             this.style.setProperty('color', lighterGithubColor, 'important');
                         });
-                        link.addEventListener('mouseleave', function() {
+                        link.addEventListener('mouseleave', function () {
                             this.style.setProperty('color', githubColor, 'important');
                         });
                     });
@@ -1469,11 +1469,11 @@ async function updateContent(buttonInfo, contentContainer, buttonData) {
                         link.style.setProperty('font-weight', 'bold', 'important');
                         link.style.setProperty('transition', 'color 0.3s ease', 'important');
 
-                        link.addEventListener('mouseenter', function() {
+                        link.addEventListener('mouseenter', function () {
                             const lighterReviewColor = lightenColor(reviewColor, 0.15);
                             this.style.setProperty('color', lighterReviewColor, 'important');
                         });
-                        link.addEventListener('mouseleave', function() {
+                        link.addEventListener('mouseleave', function () {
                             this.style.setProperty('color', reviewColor, 'important');
                         });
                     });
@@ -1482,10 +1482,10 @@ async function updateContent(buttonInfo, contentContainer, buttonData) {
                         if (element.tagName === 'A' && (element.classList.contains('rovalra-discord-link') || element.classList.contains('rovalra-github-link') || element.classList.contains('rovalra-review-link'))) {
                             return;
                         }
-                        
+
                         const computedStyle = window.getComputedStyle(element);
                         const elementColor = computedStyle.color;
-                        
+
                         if (element.tagName === 'H2') {
                             element.style.setProperty('color', headerColor, 'important');
                         } else if (elementColor === 'rgb(0, 0, 0)' || elementColor === 'rgb(255, 255, 255)') {
@@ -1522,18 +1522,18 @@ async function checkRoValraPage() {
     }
 
     async function loadTabContent(hashKey) {
-        if (!hashKey) hashKey = 'info'; 
+        if (!hashKey) hashKey = 'info';
         document.querySelectorAll('#unified-menu .menu-option-content').forEach(el => {
             el.classList.remove('active');
             el.removeAttribute('aria-current');
         });
 
-      
+
         let targetMenuLink = document.querySelector(`#unified-menu li[id="${hashKey.toLowerCase()}-tab"] a.menu-option-content`);
         if (!targetMenuLink) {
-             targetMenuLink = document.querySelector(`#unified-menu li[data-text="${hashKey}"] a.menu-option-content, #unified-menu li[data-section="${hashKey}"] a.menu-option-content`);
+            targetMenuLink = document.querySelector(`#unified-menu li[data-text="${hashKey}"] a.menu-option-content, #unified-menu li[data-section="${hashKey}"] a.menu-option-content`);
         }
-        if (!targetMenuLink && (hashKey.toLowerCase() === 'info' || hashKey.toLowerCase() === 'credits')){
+        if (!targetMenuLink && (hashKey.toLowerCase() === 'info' || hashKey.toLowerCase() === 'credits')) {
             targetMenuLink = document.querySelector(`#unified-menu li[data-text="${hashKey.charAt(0).toUpperCase() + hashKey.slice(1)}"] a.menu-option-content`);
         }
 
@@ -1545,7 +1545,7 @@ async function checkRoValraPage() {
             console.warn(`Menu link for hashKey "${hashKey}" not found. Attempting to default to info tab.`);
             const infoLink = document.querySelector(`#unified-menu li[id="info-tab"] a.menu-option-content`);
             if (infoLink) {
-                document.querySelectorAll('#unified-menu .menu-option-content').forEach(el => {el.classList.remove('active'); el.removeAttribute('aria-current');}); // Clear others
+                document.querySelectorAll('#unified-menu .menu-option-content').forEach(el => { el.classList.remove('active'); el.removeAttribute('aria-current'); }); // Clear others
                 infoLink.classList.add('active');
                 infoLink.setAttribute('aria-current', 'page');
             }
@@ -1561,17 +1561,17 @@ async function checkRoValraPage() {
         const settingsConfigKey = hashKey;
 
         if (lowerHashKey === "info" || lowerHashKey === "credits") {
-            contentContainer.style.backgroundColor = 'rgb(transparent)';  
+            contentContainer.style.backgroundColor = 'rgb(transparent)';
             const buttonInfo = buttonData.find(b => b.text.toLowerCase() === lowerHashKey);
             if (buttonInfo) {
-                updateContent(buttonInfo, contentContainer, buttonData); 
+                updateContent(buttonInfo, contentContainer, buttonData);
             } else {
                 console.error(`Button data for "${lowerHashKey}" not found.`);
                 const infoButtonFallback = buttonData.find(b => b.text.toLowerCase() === "info");
-                if(infoButtonFallback) updateContent(infoButtonFallback, contentContainer, buttonData);
+                if (infoButtonFallback) updateContent(infoButtonFallback, contentContainer, buttonData);
             }
-        } else if (SETTINGS_CONFIG[settingsConfigKey]) { 
-            contentContainer.style.backgroundColor = 'rgb(transparent)'; 
+        } else if (SETTINGS_CONFIG[settingsConfigKey]) {
+            contentContainer.style.backgroundColor = 'rgb(transparent)';
             contentContainer.innerHTML = `
                 <div id="settings-content" style="padding: 0; background-color: transparent;">
                     <div id="setting-section-content" style="padding: 5px;">
@@ -1591,7 +1591,7 @@ async function checkRoValraPage() {
                 updateContent(infoButtonData, contentContainer, buttonData);
                 const infoLinkFallback = document.querySelector(`#unified-menu li[id="info-tab"] a.menu-option-content`);
                 if (infoLinkFallback && !infoLinkFallback.classList.contains('active')) {
-                     document.querySelectorAll('#unified-menu .menu-option-content').forEach(el => {
+                    document.querySelectorAll('#unified-menu .menu-option-content').forEach(el => {
                         el.classList.remove('active'); el.removeAttribute('aria-current');
                     });
                     infoLinkFallback.classList.add('active');
@@ -1609,8 +1609,8 @@ async function checkRoValraPage() {
         const currentHash = window.location.hash.replace('#!/', '').replace('#!', '') || 'info';
         await loadTabContent(currentHash);
     }
-    
-    window.removeEventListener('hashchange', newHandleHashChange); 
+
+    window.removeEventListener('hashchange', newHandleHashChange);
     window.addEventListener('hashchange', newHandleHashChange);
 
     const roproThemeFrame = containerMain.querySelector('#roproThemeFrame');
@@ -1647,7 +1647,7 @@ async function checkRoValraPage() {
         uiContainer.style.cssText = 'display: flex; flex-direction: row; gap: 10px; align-items: flex-start; position: relative; overflow: auto; width: auto; justify-content: flex-start;';
         settingsContainer.appendChild(uiContainer);
         settingsContainer.style.cssText = 'display: block; position: relative; overflow: visible;';
-        
+
         const style = document.createElement('style');
         const isInitiallyDark = currentTheme === 'dark';
         const initialButtonBg = isInitiallyDark ? 'rgb(45, 48, 51)' : 'rgb(227, 230, 232)';
@@ -1797,7 +1797,7 @@ async function checkRoValraPage() {
         `;
         document.head.appendChild(style);
 
-        uiContainer.innerHTML = ''; 
+        uiContainer.innerHTML = '';
 
         const createUnifiedMenu = () => {
             const menuList = document.createElement('ul');
@@ -1840,8 +1840,8 @@ async function checkRoValraPage() {
             Object.keys(SETTINGS_CONFIG).forEach(sectionName => {
                 const section = SETTINGS_CONFIG[sectionName];
                 const listItem = document.createElement('li');
-                listItem.id = `${sectionName.toLowerCase()}-tab`; 
-                listItem.dataset.section = sectionName; 
+                listItem.id = `${sectionName.toLowerCase()}-tab`;
+                listItem.dataset.section = sectionName;
                 listItem.setAttribute('role', 'tab');
                 listItem.classList.add('menu-option');
 
@@ -1856,7 +1856,7 @@ async function checkRoValraPage() {
                 listItem.appendChild(link);
                 menuList.appendChild(listItem);
 
-                link.addEventListener('click', async function(e) {
+                link.addEventListener('click', async function (e) {
                     e.preventDefault();
                     document.querySelectorAll('#unified-menu .menu-option-content').forEach(el => {
                         el.classList.remove('active');
@@ -1867,7 +1867,7 @@ async function checkRoValraPage() {
 
                     const newHash = `#!/${sectionName.toLowerCase()}`;
                     if (window.location.hash !== newHash) {
-                         history.pushState(null, '', newHash);
+                        history.pushState(null, '', newHash);
                     }
 
                     const contentContainerElement = document.querySelector('#content-container');
@@ -1896,12 +1896,12 @@ async function checkRoValraPage() {
         contentContainer.style.paddingLeft = '0px';
         contentContainer.style.zIndex = '1000';
         contentContainer.style.position = 'relative';
-        contentContainer.style.marginTop = '7px';  
+        contentContainer.style.marginTop = '7px';
         contentContainer.style.maxWidth = '750px';
         contentContainer.style.minWidth = '750px';
         contentContainer.style.backgroundColor = currentTheme === 'dark' ? 'rgb(0)' : 'rgb(0)';
 
-        uiContainer.appendChild(unifiedMenu); 
+        uiContainer.appendChild(unifiedMenu);
         uiContainer.appendChild(contentContainer);
 
         currentHash = window.location.hash.replace('#!/', '').replace('#!', '') || 'info';
@@ -1916,13 +1916,13 @@ async function checkRoValraPage() {
                 defaultTab.click();
             }
         }
-        
+
         settingsContainer.insertAdjacentElement("afterbegin", rovalraHeader);
         await applyTheme();
     } else {
         contentDiv.style.cssText = '';
         const userAccountDiv = contentDiv.querySelector('.row.page-content.new-username-pwd-rule#user-account')
-        if(userAccountDiv){
+        if (userAccountDiv) {
             userAccountDiv.style.cssText = '';
         }
     }
@@ -1996,6 +1996,9 @@ const buttonData = [
                     <li style="margin-bottom: 8px; list-style-type: disc; margin-left: 20px;">
                         Thanks to <b style="font-weight: bold;">Coweggs</b> for coming up with the very funny name that is "RoValra" as a joke that I then ended up using.
                            </li>
+                    <li style="margin-bottom: 8px; list-style-type: disc; margin-left: 20px;">
+                        Thanks to <b style="font-weight: bold;">AromaXR</b> for implementing proper support for Firefox.
+                           </li>
                 </ul>
                  <div style="margin-top: 20px; border-top: 1px solid #444; padding-top: 10px;">
                     <h2 style="margin-bottom: 5px;">Extensions</h2>
@@ -2038,12 +2041,12 @@ async function initializeExtension() {
     await applyTheme();
     observeContentChanges();
     startObserver();
-    setupThemeMutationObserver(); 
-    
+    setupThemeMutationObserver();
+
     if (window.location.href.includes('?rovalra=info')) {
         startSettingsSync();
     }
-    
+
     const observer = new MutationObserver((mutations) => {
         if (mutations.some(mutation => mutation.target.nodeName === 'TITLE')) {
             if (window.location.href.includes('?rovalra=info')) {
@@ -2053,21 +2056,21 @@ async function initializeExtension() {
             }
         }
     });
-    
+
     observer.observe(document.querySelector('head'), { childList: true, subtree: true });
-    
-    await checkRoValraPage(); 
+
+    await checkRoValraPage();
 }
 
-if (document.readyState === 'loading') { 
+if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initializeExtension);
-} else {  
+} else {
     initializeExtension();
 }
 
 document.addEventListener('click', (event) => {
     const target = event.target;
-    
+
     if (target.matches('.tab-button, .setting-section-button')) {
         return;
     }
@@ -2101,35 +2104,35 @@ document.addEventListener('click', (event) => {
 
 document.addEventListener('change', (event) => {
     const target = event.target;
-    
+
     if (target.matches('input[type="file"]')) {
         const settingName = target.dataset.settingName;
         if (settingName && target.files && target.files[0]) {
             const file = target.files[0];
             const reader = new FileReader();
-            
+
             reader.onload = (e) => {
                 const dataUrl = e.target.result;
-                
+
                 const previewElement = document.querySelector(`#preview-${settingName}`);
                 const clearButton = document.querySelector(`#clear-${settingName}`);
-                
+
                 if (previewElement) {
                     previewElement.src = dataUrl;
                     previewElement.style.display = 'block';
                 }
-                
+
                 if (clearButton) {
                     clearButton.style.display = 'inline-block';
                 }
-                
+
                 handleSaveSettings(settingName, dataUrl).then(() => {
                     console.log(`${settingName} saved successfully`);
                 }).catch((error) => {
                     console.error(`Error saving ${settingName}:`, error);
                 });
             };
-            
+
             reader.readAsDataURL(file);
         }
     }
@@ -2137,7 +2140,7 @@ document.addEventListener('change', (event) => {
 
 document.addEventListener('click', (event) => {
     const target = event.target;
-    
+
     if (target.id && target.id.startsWith('clear-')) {
         const settingName = target.dataset.settingName;
         if (settingName) {
@@ -2145,15 +2148,15 @@ document.addEventListener('click', (event) => {
             if (fileInput) {
                 fileInput.value = '';
             }
-            
+
             const previewElement = document.querySelector(`#preview-${settingName}`);
             if (previewElement) {
                 previewElement.src = '#';
                 previewElement.style.display = 'none';
             }
-            
+
             target.style.display = 'none';
-            
+
             handleSaveSettings(settingName, null).then(() => {
                 console.log(`${settingName} cleared successfully`);
             }).catch((error) => {
@@ -2226,7 +2229,7 @@ window.addEventListener('beforeunload', () => {
     domCache.clear();
 });
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const PreferredRegionEnabled = document.getElementById('PreferredRegionEnabled');
     const preferredRegionSelect = document.getElementById('preferredRegionSelect');
     const regionSettingDiv = document.getElementById('setting-preferred-region');
@@ -2234,22 +2237,22 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateRegionSelectVisibility() {
         if (PreferredRegionEnabled && regionSettingDiv) {
             const isEnabled = PreferredRegionEnabled.checked;
-            regionSettingDiv.style.display = isEnabled ? 'flex' : 'none'; 
-            if(preferredRegionSelect){ 
-                 preferredRegionSelect.disabled = !isEnabled;
+            regionSettingDiv.style.display = isEnabled ? 'flex' : 'none';
+            if (preferredRegionSelect) {
+                preferredRegionSelect.disabled = !isEnabled;
             }
         }
     }
 
     if (PreferredRegionEnabled) {
-        PreferredRegionEnabled.addEventListener('change', function() {
+        PreferredRegionEnabled.addEventListener('change', function () {
             updateRegionSelectVisibility();
             handleSaveSettings('PreferredRegionEnabled', this.checked);
         });
     }
 
     if (preferredRegionSelect) {
-        preferredRegionSelect.addEventListener('change', function() {
+        preferredRegionSelect.addEventListener('change', function () {
             handleSaveSettings('robloxPreferredRegion', this.value);
         });
 
@@ -2304,7 +2307,7 @@ function updateConditionalSettingsVisibility(settingsContent, currentSettings) {
                             childSettingDiv.classList.add('disabled-setting');
                             childSettingDiv.style.opacity = '0.5';
                             childSettingDiv.style.pointerEvents = 'none';
-                            
+
                             childSettingDiv.querySelectorAll('input, select, button').forEach(el => {
                                 el.disabled = true;
                             });
@@ -2313,7 +2316,7 @@ function updateConditionalSettingsVisibility(settingsContent, currentSettings) {
                             childSettingDiv.classList.remove('disabled-setting');
                             childSettingDiv.style.opacity = '1';
                             childSettingDiv.style.pointerEvents = 'auto';
-                            
+
                             childSettingDiv.querySelectorAll('input, select, button').forEach(el => {
                                 el.disabled = false;
                             });
@@ -2337,7 +2340,7 @@ function updateConditionalSettingsVisibility(settingsContent, currentSettings) {
             customLogoDataSettingWrapper.classList.add('disabled-setting');
             customLogoDataSettingWrapper.style.opacity = '0.5';
             customLogoDataSettingWrapper.style.pointerEvents = 'none';
-            
+
             customLogoDataSettingWrapper.querySelectorAll('input, select, button').forEach(el => {
                 el.disabled = true;
             });
@@ -2348,7 +2351,7 @@ function updateConditionalSettingsVisibility(settingsContent, currentSettings) {
             customLogoDataSettingWrapper.classList.remove('disabled-setting');
             customLogoDataSettingWrapper.style.opacity = '1';
             customLogoDataSettingWrapper.style.pointerEvents = 'auto';
-            
+
             customLogoDataSettingWrapper.querySelectorAll('input, select, button').forEach(el => {
                 el.disabled = false;
             });
@@ -2359,7 +2362,7 @@ function updateConditionalSettingsVisibility(settingsContent, currentSettings) {
 function setupThemeMutationObserver() {
     const themeObserver = new MutationObserver((mutations) => {
         let shouldUpdateTheme = false;
-        
+
         for (const mutation of mutations) {
             if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
                 for (const node of mutation.addedNodes) {
@@ -2372,19 +2375,19 @@ function setupThemeMutationObserver() {
                 }
             }
         }
-        
+
         if (shouldUpdateTheme) {
             debouncedApplyTheme();
         }
     });
-    
+
     themeObserver.observe(document.body, {
         childList: true,
         subtree: true,
         attributes: true,
         attributeFilter: ['class', 'style']
     });
-    
+
     return themeObserver;
 }
 
