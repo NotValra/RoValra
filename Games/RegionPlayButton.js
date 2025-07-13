@@ -4,7 +4,8 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
         if (window.myCustomButtonExtensionInitialized) {
         } else {
             window.myCustomButtonExtensionInitialized = true;
-            window.lastJoinedServerId = null;
+
+            const joinedServerIds = new Set();
 
             const targetContainerId = 'game-details-play-button-container';
             const referenceButtonSelector = 'button.random-server-join-button';
@@ -20,8 +21,8 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
             const PREFERRED_REGION_STORAGE_KEY = 'robloxPreferredRegion';
             const SERVER_IP_MAP_URL = chrome.runtime.getURL('data/ServerList.json');
             const LOADING_OVERLAY_ID = 'my-extension-loading-overlay';
-            const MAX_SERVER_PAGES = 20;            const REGIONS = {
-
+            const MAX_SERVER_PAGES = 20;
+            const REGIONS = {
                 "SG": { latitude: 1.3521, longitude: 103.8198, city: "Singapore", state: null, country: "Singapore" },
                 "DE": { latitude: 50.1109, longitude: 8.6821, city: "Frankfurt", state: null, country: "Germany" },
                 "FR": { latitude: 48.8566, longitude: 2.3522, city: "Paris", state: null, country: "France" },
@@ -37,8 +38,6 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
                 "AU": { latitude: -33.8688, longitude: 151.2093, city: "Sydney", state: null, country: "Australia" },
                 "GB": { latitude: 51.5074, longitude: -0.1278, city: "London", state: null, country: "United Kingdom" },
                 "IN": { latitude: 19.0760, longitude: 72.8777, city: "Mumbai", state: null, country: "India" },
-
-
                 "US-NJ": { latitude: 40.7895, longitude: -74.0565, city: "Secaucus", state: "New Jersey", country: "United States" },
                 "US-OR": { latitude: 45.8400, longitude: -119.7012, city: "Boardman", state: "Oregon", country: "United States" },
                 "US-OH": { latitude: 39.9612, longitude: -82.9988, city: "Columbus", state: "Ohio", country: "United States" }
@@ -46,15 +45,12 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
 
             let newButtonAdded = false;
             let targetButtonHidden = false;
-            let lastJoinedServerId = null;
 
-            let allServers = [];
             let serverLocations = {};
             let userLocation = null;
-            let isRefreshing = false;
+            let isRefreshing = false; 
             let rateLimited = false;
             let serverIpMap = null;
-            let serverDataLoaded = false;
             let isCurrentlyFetchingData = false;
             let serverIpMapLoaded = false;
             let userRequestedStop = false;
@@ -93,7 +89,6 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
                 }
                 return img;
             }
-
             function injectCustomCSS() {
                  const styleId = 'my-custom-ui-styles';
                 if (document.getElementById(styleId)) return;
@@ -190,58 +185,55 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
                 document.head.appendChild(style);
              }
             injectCustomCSS();
-
             function checkContainerStyle(container) {
                 if (!container) return false;
                 const style = window.getComputedStyle(container);
                 return style.display === 'flex';
              }
+            function findAndHideButton(container) {
+                if (!container) {
+                    return false;
+                }
+                if (targetButtonHidden) return true;
 
-                        function findAndHideButton(container) {
-                            if (!container) {
-                                return false;
-                            }
-                            if (targetButtonHidden) return true;
+                if (!referenceButtonSelector) {
+                    return false;
+                }
+                const referenceButton = container.querySelector(referenceButtonSelector);
+                if (!referenceButton) {
+                    return false;
+                }
 
-                            if (!referenceButtonSelector) {
-                                return false;
-                            }
-                            const referenceButton = container.querySelector(referenceButtonSelector);
-                            if (!referenceButton) {
-                                return false;
-                            }
+                if (!buttonToHideSelector) {
+                    return false;
+                }
 
-                            if (!buttonToHideSelector) {
-                                return false;
-                            }
+                const buttonToHide = container.querySelector(buttonToHideSelector);
 
-                            const buttonToHide = container.querySelector(buttonToHideSelector);
+                if (!buttonToHide) {
+                    return false;
+                }
 
-                            if (!buttonToHide) {
-                                return false;
-                            }
+                if (buttonToHide === referenceButton) {
+                    return false;
+                }
+                if (buttonToHide.id === newButtonId) {
+                    return false;
+                }
 
-                            if (buttonToHide === referenceButton) {
-                                return false;
-                            }
-                            if (buttonToHide.id === newButtonId) {
-                                return false;
-                            }
+                buttonToHide.style.setProperty('display', 'none', 'important');
+                buttonToHide.style.setProperty('width', '0', 'important');
+                buttonToHide.style.setProperty('min-width', '0', 'important');
+                buttonToHide.style.setProperty('padding', '0', 'important');
+                buttonToHide.style.setProperty('margin', '0', 'important');
+                buttonToHide.style.setProperty('border', 'none', 'important');
+                buttonToHide.style.setProperty('visibility', 'hidden', 'important');
+                buttonToHide.setAttribute('aria-hidden', 'true');
+                buttonToHide.tabIndex = -1;
 
-                            buttonToHide.style.setProperty('display', 'none', 'important');
-                            buttonToHide.style.setProperty('width', '0', 'important');
-                            buttonToHide.style.setProperty('min-width', '0', 'important');
-                            buttonToHide.style.setProperty('padding', '0', 'important');
-                            buttonToHide.style.setProperty('margin', '0', 'important');
-                            buttonToHide.style.setProperty('border', 'none', 'important');
-                            buttonToHide.style.setProperty('visibility', 'hidden', 'important');
-                            buttonToHide.setAttribute('aria-hidden', 'true');
-                            buttonToHide.tabIndex = -1;
-
-                            targetButtonHidden = true;
-                            return true;
-                        }
-
+                targetButtonHidden = true;
+                return true;
+            }
             function updateButtonTooltip(buttonElement, regionCode) {
                  if (!buttonElement) return;
                 const tooltipSpan = buttonElement.querySelector('.my-extension-custom-tooltip');
@@ -256,7 +248,6 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
                 }
                 tooltipSpan.innerHTML = tooltipHTML;
             }
-
             function showRegionSelectionModal(buttonToUpdate) {
                 if (document.getElementById(`${MODAL_ID}-overlay`)) { return; }
 
@@ -308,7 +299,6 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
 
                 overlay.addEventListener('click', (event) => { if (event.target === overlay) closeModal(); });
              }
-
             function showLoadingOverlay() {
                 let overlay = document.getElementById(LOADING_OVERLAY_ID);
                 let backdrop = document.getElementById(`${LOADING_OVERLAY_ID}-backdrop`);
@@ -397,7 +387,7 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
                     }
                  }, 350);
             }
-
+            
             function delay(ms) {  return new Promise(resolve => setTimeout(resolve, ms)); }
             function getPlaceIdFromUrl() {
                 const regex = /https:\/\/www\.roblox\.com\/(?:[a-z]{2}\/)?games\/(\d+)/;
@@ -419,62 +409,19 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
                 if (parts.length > 1 && parts[parts.length-1] === "United States") parts[parts.length-1] = "USA";
                 return parts.join(', ') || regionCode;
             }
-
-
             function getStateCodeFromRegion(regionName) {
                 const stateMap = {
-                    'Alabama': 'AL',
-                    'Alaska': 'AK',
-                    'Arizona': 'AZ',
-                    'Arkansas': 'AR',
-                    'California': 'CA',
-                    'Colorado': 'CO',
-                    'Connecticut': 'CT',
-                    'Delaware': 'DE',
-                    'Florida': 'FL',
-                    'Georgia': 'GA',
-                    'Hawaii': 'HI',
-                    'Idaho': 'ID',
-                    'Illinois': 'IL',
-                    'Indiana': 'IN',
-                    'Iowa': 'IA',
-                    'Kansas': 'KS',
-                    'Kentucky': 'KY',
-                    'Louisiana': 'LA',
-                    'Maine': 'ME',
-                    'Maryland': 'MD',
-                    'Massachusetts': 'MA',
-                    'Michigan': 'MI',
-                    'Minnesota': 'MN',
-                    'Mississippi': 'MS',
-                    'Missouri': 'MO',
-                    'Montana': 'MT',
-                    'Nebraska': 'NE',
-                    'Nevada': 'NV',
-                    'New Hampshire': 'NH',
-                    'New Jersey': 'NJ',
-                    'New Mexico': 'NM',
-                    'New York': 'NY',
-                    'North Carolina': 'NC',
-                    'North Dakota': 'ND',
-                    'Ohio': 'OH',
-                    'Oklahoma': 'OK',
-                    'Oregon': 'OR',
-                    'Pennsylvania': 'PA',
-                    'Rhode Island': 'RI',
-                    'South Carolina': 'SC',
-                    'South Dakota': 'SD',
-                    'Tennessee': 'TN',
-                    'Texas': 'TX',
-                    'Utah': 'UT',
-                    'Vermont': 'VT',
-                    'Virginia': 'VA',
-                    'Washington': 'WA',
-                    'West Virginia': 'WV',
-                    'Wisconsin': 'WI',
-                    'Wyoming': 'WY'
+                    'Alabama': 'AL', 'Alaska': 'AK', 'Arizona': 'AZ', 'Arkansas': 'AR', 'California': 'CA',
+                    'Colorado': 'CO', 'Connecticut': 'CT', 'Delaware': 'DE', 'Florida': 'FL', 'Georgia': 'GA',
+                    'Hawaii': 'HI', 'Idaho': 'ID', 'Illinois': 'IL', 'Indiana': 'IN', 'Iowa': 'IA', 'Kansas': 'KS',
+                    'Kentucky': 'KY', 'Louisiana': 'LA', 'Maine': 'ME', 'Maryland': 'MD', 'Massachusetts': 'MA',
+                    'Michigan': 'MI', 'Minnesota': 'MN', 'Mississippi': 'MS', 'Missouri': 'MO', 'Montana': 'MT',
+                    'Nebraska': 'NE', 'Nevada': 'NV', 'New Hampshire': 'NH', 'New Jersey': 'NJ', 'New Mexico': 'NM',
+                    'New York': 'NY', 'North Carolina': 'NC', 'North Dakota': 'ND', 'Ohio': 'OH', 'Oklahoma': 'OK',
+                    'Oregon': 'OR', 'Pennsylvania': 'PA', 'Rhode Island': 'RI', 'South Carolina': 'SC',
+                    'South Dakota': 'SD', 'Tennessee': 'TN', 'Texas': 'TX', 'Utah': 'UT', 'Vermont': 'VT',
+                    'Virginia': 'VA', 'Washington': 'WA', 'West Virginia': 'WV', 'Wisconsin': 'WI', 'Wyoming': 'WY'
                 };
-
                 return stateMap[regionName] || regionName.substring(0, 2).toUpperCase();
             }
             function calculateDistance(lat1, lon1, lat2, lon2) {
@@ -486,19 +433,14 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
                 }
                 const R = 6371;
                 const toRadians = (degrees) => degrees * Math.PI / 180;
-
                 const dLat = toRadians(lat2 - lat1); const dLon = toRadians(lon2 - lon1);
                 const rLat1 = toRadians(lat1); const rLat2 = toRadians(lat2);
-
-                const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                          Math.cos(rLat1) * Math.cos(rLat2) *
-                          Math.sin(dLon / 2) * Math.sin(dLon / 2);
+                const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(rLat1) * Math.cos(rLat2) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
                 const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
                 return R * c;
             }
             async function getCsrfToken() {
                 if (csrfToken) return csrfToken;
-
                 if (csrfFetchAttempted) {
                     const metaToken = document.querySelector('meta[name="csrf-token"]');
                     if (metaToken) {
@@ -507,7 +449,6 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
                     }
                     return null;
                 }
-
                 csrfFetchAttempted = true;
                 try {
                     const response = await fetch('https://auth.roblox.com/v2/logout', {
@@ -516,37 +457,27 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
                     const token = response.headers.get('x-csrf-token');
                     if (token) { csrfToken = token; return token; }
                     else { console.warn(`Custom Button Extension: Fetch to logout endpoint did not return a CSRF token (Status: ${response.status}). Trying meta tag...`); }
-                } catch (error) {
-                }
-
+                } catch (error) { }
                 const metaToken = document.querySelector('meta[name="csrf-token"]');
                 if (metaToken) {
                     const metaContent = metaToken.getAttribute('content');
                     if (metaContent) {  csrfToken = metaContent; return csrfToken; }
                 }
-
-
                 csrfToken = null;
                 return null;
-             }            async function loadServerIpMapIfNeeded() {
+             }
+            async function loadServerIpMapIfNeeded() {
                 if (serverIpMapLoaded) return true;
                 if (!SERVER_IP_MAP_URL) { console.error("Custom Button Extension: Server IP Map URL is not configured."); return false; }
-
                 try {
                     const response = await fetch(SERVER_IP_MAP_URL);
                     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-
                     const serverListData = await response.json();
-
-
                     if (Array.isArray(serverListData)) {
                         serverIpMap = serverListData;
                     } else {
-
                         serverIpMap = serverListData;
-
                     }
-
                     serverIpMapLoaded = true;
                     return true;
                 } catch (error) {
@@ -556,160 +487,10 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
                     return false;
                 }
              }
-            async function _internal_getServerInfo(placeId, targetRegionCode) {
-                const MAX_RETRIES_PER_PAGE = 3;
-                const INITIAL_DELAY_MS = 1000;
-                const BACKOFF_FACTOR = 2;
-                const MAX_DELAY_MS = 15000;
 
-                if (isRefreshing) {
-                    return;
-                }
-                if (!placeId) {
-                    return;
-                }
-                 if (!targetRegionCode) {
-                     return;
-                 }
-
-                isRefreshing = true;
-                serverDataLoaded = false;
-                rateLimited = false;
-                let pageCount = 0;
-                let targetRegionServerFound = false;
-
-                try {
-                    allServers = [];
-                    serverLocations = {};
-
-                    const mapReady = await loadServerIpMapIfNeeded();
-                    if (!mapReady) {
-                        isRefreshing = false;
-                        return;
-                    }
-                    const initialToken = await getCsrfToken();
-                    if (!initialToken) {
-                        isRefreshing = false;
-                        return;
-                    }
-
-                    let nextCursor = null;
-                    let fetchComplete = false;
-
-                    while (!fetchComplete && pageCount < MAX_SERVER_PAGES) {
-
-                        if (userRequestedStop) {
-                            fetchComplete = true;
-                            break;
-                        }
-
-                        pageCount++;
-                        let attempts = 0;
-                        let currentDelay = INITIAL_DELAY_MS;
-                        let pageFetchSuccess = false;
-                        let newServersOnThisPage = [];
-
-                        let url = `https://games.roblox.com/v1/games/${placeId}/servers/Public?excludeFullGames=true&limit=100`;
-                        if (nextCursor) {
-                            url += `&cursor=${encodeURIComponent(nextCursor)}`;
-                        }
-
-                        while (attempts < MAX_RETRIES_PER_PAGE && !pageFetchSuccess) {
-
-                            if (userRequestedStop) {
-                                fetchComplete = true;
-                                pageFetchSuccess = false;
-                                break;
-                            }
-
-                            try {
-                                const response = await fetch(url, { headers: { 'Accept': 'application/json' }, credentials: 'include' });
-
-                                if (response.ok) {
-                                    const serversData = await response.json();
-                                    newServersOnThisPage = serversData.data || [];
-                                    if (newServersOnThisPage.length > 0) {
-                                        allServers = allServers.concat(newServersOnThisPage);
-                                        const serverPromises = newServersOnThisPage.map(server => _internal_handleServer(server, placeId).catch(err => {
-                                        }));
-                                        await Promise.all(serverPromises);
-
-                                        for (const server of newServersOnThisPage) {
-                                             if (userRequestedStop) break;
-                                             if (serverLocations[server.id]?.c === targetRegionCode) {
-                                                 targetRegionServerFound = true;
-                                                 break;
-                                             }
-                                        }
-                                    }
-                                    nextCursor = serversData.nextPageCursor;
-                                    pageFetchSuccess = true;
-
-                                     if (userRequestedStop) { fetchComplete = true; break; }
-                                    if (!nextCursor) { fetchComplete = true; }
-
-                                } else if (response.status === 429) {
-                                    attempts++;
-                                    rateLimited = true;
-                                    if (attempts >= MAX_RETRIES_PER_PAGE) { console.error("Custom Button Extension: Max retries reached due to rate limiting."); fetchComplete = true; break; }
-
-                                    if (userRequestedStop) {  fetchComplete = true; break; }
-                                    await delay(currentDelay);
-                                    currentDelay = Math.min(currentDelay * BACKOFF_FACTOR, MAX_DELAY_MS);                                } else if (response.status === 500) {
-                                    console.error("Custom Button Extension: Roblox API returned 500 status code");
-                                    const textElement = document.getElementById(`${LOADING_OVERLAY_ID}-text`);
-                                    if (textElement) textElement.textContent = 'Error, Roblox might be down.';
-                                    const dots = document.getElementById(`${LOADING_OVERLAY_ID}-dots`);
-                                    if (dots) dots.style.display = 'none';
-                                    keepOverlayOpen = true;
-                                    fetchComplete = true;
-                                    break;
-                                } else {
-                                    fetchComplete = true; break;
-                                }
-                            } catch (fetchError) {
-                                attempts++;
-                                if (attempts >= MAX_RETRIES_PER_PAGE) { console.error("Custom Button Extension: Max retries reached due to network errors."); fetchComplete = true; break; }
-
-                                if (userRequestedStop) { fetchComplete = true; break; }
-                                await delay(currentDelay);
-                                currentDelay = Math.min(currentDelay * BACKOFF_FACTOR, MAX_DELAY_MS);
-                            }
-                        }
-
-                        if (userRequestedStop) {
-                            fetchComplete = true;
-                            break;
-                        }
-
-                        if (!pageFetchSuccess) { console.error(`Custom Button Extension: Failed to fetch page ${pageCount} after retries. Stopping refresh.`); fetchComplete = true; }
-
-                    }
-
-                    if (userRequestedStop) {
-                         serverDataLoaded = false;
-                    } else {
-                         serverDataLoaded = allServers.length > 0;
-                         if (targetRegionServerFound) {  }
-                         else if (pageCount >= MAX_SERVER_PAGES) { console.warn(`Custom Button Extension: Reached maximum page limit (${MAX_SERVER_PAGES}) without finding target region ${targetRegionCode}.`); }
-                         else if (!fetchComplete) { }
-                         else { }
-                    }
-
-                } catch (error) {
-                    serverDataLoaded = allServers.length > 0 && !userRequestedStop;
-                }
-                finally {
-
-                    isRefreshing = false;
-
-                }
-            }
             async function _internal_handleServer(server, placeId) {
                 const serverId = server?.id; if (!serverId) return;
-
                 if (userRequestedStop) return;
-
                 if (serverLocations[serverId] && serverLocations[serverId].l !== undefined) {
                      if (userLocation && serverLocations[serverId].l) {
                          const dist = calculateDistance(userLocation.latitude, userLocation.longitude, serverLocations[serverId].l.latitude, serverLocations[serverId].l.longitude);
@@ -717,48 +498,33 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
                      } else { server.calculatedPing = Infinity; }
                      return;
                 }
-
                 let regionCode = "??";
                 let serverLat = null, serverLon = null;
                 serverLocations[serverId] = { c: "??", l: null };
                 server.calculatedPing = Infinity;
-
                 try {
                     if (userRequestedStop) return;
-
                     let currentCsrfToken = await getCsrfToken();
                     if (!currentCsrfToken) {
                          csrfToken = null; csrfFetchAttempted = false;
                          currentCsrfToken = await getCsrfToken();
                          if (!currentCsrfToken) { console.error(`Custom Button Extension: Cannot fetch join info for server ${serverId}: CSRF token missing after retry.`); return; }
                     }
-
                      if (userRequestedStop) return;
-
                     const serverInfoResponse = await fetch(`https://gamejoin.roblox.com/v1/join-game-instance`, {
                         method: 'POST',
-                        headers: {
-                            "Accept": "application/json", "Content-Type": "application/json",
-                            "Referer": `https://www.roblox.com/games/${placeId}/`, "Origin": "https://www.roblox.com",
-                            "X-Csrf-Token": currentCsrfToken,
-                        },
-                        body: JSON.stringify({
-                            placeId: parseInt(placeId, 10), isTeleport: false, gameId: serverId,
-                            gameJoinAttemptId: crypto.randomUUID(),
-                        }),
+                        headers: { "Accept": "application/json", "Content-Type": "application/json", "Referer": `https://www.roblox.com/games/${placeId}/`, "Origin": "https://www.roblox.com", "X-Csrf-Token": currentCsrfToken, },
+                        body: JSON.stringify({ placeId: parseInt(placeId, 10), isTeleport: false, gameId: serverId, gameJoinAttemptId: crypto.randomUUID(), }),
                         credentials: 'include',
                     });
-
                     if (!serverInfoResponse.ok) {
-                         if (serverInfoResponse.status === 403) {
-                             csrfToken = null; csrfFetchAttempted = false;
-                         }
+                         if (serverInfoResponse.status === 403) { csrfToken = null; csrfFetchAttempted = false; }
                          else if (serverInfoResponse.status === 429) { console.warn(`Custom Button Extension: Rate limited fetching join info for server ${serverId}.`); }
                          else { console.warn(`Custom Button Extension: Failed to get join info for server ${serverId}. Status: ${serverInfoResponse.status}`); }
                         return;
                     }
-
-                    const serverInfo = await serverInfoResponse.json();                    if (userRequestedStop) return;
+                    const serverInfo = await serverInfoResponse.json();
+                    if (userRequestedStop) return;
                     if (serverInfo?.message === "You need to purchase access to this game before you can play.") {
                         const overlayText = document.getElementById(`${LOADING_OVERLAY_ID}-text`);
                         overlayText.textContent = `You need to buy the game to view regions.`;
@@ -772,23 +538,15 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
                               }
                          }
                     } catch (e) { }
-
-
                     const dataCenterId = serverInfo?.joinScript?.DataCenterId;
-
                     if (dataCenterId && Array.isArray(serverIpMap)) {
-
                         const dataCenter = serverIpMap.find(dc => dc.dataCenterId === dataCenterId);
-
                         if (dataCenter) {
                             const countryCode = dataCenter.location.country;
-
-
                             if (dataCenter.location.latLong && dataCenter.location.latLong.length === 2) {
                                 serverLat = parseFloat(dataCenter.location.latLong[0]);
                                 serverLon = parseFloat(dataCenter.location.latLong[1]);
                             }
-
                             if (countryCode === "US" && dataCenter.location.region) {
                                 const stateCode = getStateCodeFromRegion(dataCenter.location.region);
                                 regionCode = `US-${stateCode}`;
@@ -801,20 +559,16 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
                             regionCode = "??";
                         }
                     } else {
-
                         const ipAddress = serverInfo?.joinScript?.UdmuxEndpoints?.[0]?.Address;
-
                         if (!ipAddress) {
                             regionCode = "??";
                         } else {
                             const normalizedIp = ipAddress.split('.').slice(0, 3).join('.') + '.0';
                             const serverLocationData = serverIpMap && !Array.isArray(serverIpMap) ? serverIpMap[normalizedIp] : null;
-
                             if (serverLocationData) {
                                 const countryCode = serverLocationData?.country?.code;
                                 serverLat = serverLocationData?.latitude;
                                 serverLon = serverLocationData?.longitude;
-
                                 if (countryCode === "US" && serverLocationData.region?.code) {
                                     const stateCode = serverLocationData.region.code.replace(/-\d+$/, '');
                                     regionCode = `US-${stateCode}`;
@@ -827,129 +581,136 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
                                 regionCode = "??";
                             }
                         }
-                    }                    serverLocations[serverId] = {
+                    }
+                    serverLocations[serverId] = {
                         c: regionCode,
                         l: (typeof serverLat === 'number' && typeof serverLon === 'number') ? { latitude: serverLat, longitude: serverLon } : null,
                         dcid: serverInfo?.joinScript?.DataCenterId
                     };
-
                     if (userLocation && serverLocations[serverId].l) {
                         const distance = calculateDistance(userLocation.latitude, userLocation.longitude, serverLat, serverLon);
                         server.calculatedPing = !isNaN(distance) ? Math.round(distance * 0.1) : Infinity;
                     } else { server.calculatedPing = Infinity; }
-
                 } catch (error) {
-                     if (!userRequestedStop) {
-                     }
+                     if (!userRequestedStop) { }
                      serverLocations[serverId] = { c: "??", l: null }; server.calculatedPing = Infinity;
                 }
             }
-            async function joinSpecificRegion(targetRegionCode, placeId) {
-                let bestServer = null;
-                let showNotFoundMessagePermanently = false;
 
-                if (userRequestedStop) {
-                    return;
-                }
+            
+            async function findAndJoinServerProcess(placeId, targetRegionCode) {
+                const MAX_RETRIES_PER_PAGE = 3;
+                const INITIAL_DELAY_MS = 1000;
+                const BACKOFF_FACTOR = 2;
+                const MAX_DELAY_MS = 15000;
 
-                if (!serverDataLoaded) {
-                     if (!userRequestedStop) {
-                        alert(`Failed to load server information. Roblox servers might be busy or unavailable. Please try again later.`);
-                     }
-                    return;
-                }
+                rateLimited = false;
+                serverLocations = {}; 
 
-                if (allServers.length === 0) {
-                     if (!userRequestedStop) {
-                         alert(`Could not find any servers listed for this game.`);
-                     }
-                    return;
-                }
+                try {
+                    const mapReady = await loadServerIpMapIfNeeded();
+                    if (!mapReady) return { joined: false, error: 'map_load_failed' };
 
-                const regionServers = allServers.filter(server => {
-                    const loc = serverLocations[server.id];
-                    return loc && loc.c === targetRegionCode;
-                });
+                    const initialToken = await getCsrfToken();
+                    if (!initialToken) return { joined: false, error: 'csrf_failed' };
 
-                if (regionServers.length === 0) {
-                    if (!userRequestedStop) {
-                        const overlayText = document.getElementById(`${LOADING_OVERLAY_ID}-text`);
-                        const dotsContainer = document.getElementById(`${LOADING_OVERLAY_ID}-dots`);
-                        keepOverlayOpen = true;
+                    let nextCursor = null;
+                    let pageCount = 0;
+                    let fetchComplete = false;
 
-                        if (overlayText) {
-                            overlayText.textContent = `No servers found in ${getFullLocationName(targetRegionCode)}.`;
-                            if (dotsContainer) {
-                                dotsContainer.style.display = 'none';
+                    while (!fetchComplete && pageCount < MAX_SERVER_PAGES) {
+                        if (userRequestedStop) return { joined: false, stopped: true };
+
+                        pageCount++;
+                        let attempts = 0;
+                        let currentDelay = INITIAL_DELAY_MS;
+                        let pageFetchSuccess = false;
+                        let serversOnThisPage = [];
+                        let pageData = null;
+
+                        let url = `https://games.roblox.com/v1/games/${placeId}/servers/Public?excludeFullGames=true&limit=100`;
+                        if (nextCursor) url += `&cursor=${encodeURIComponent(nextCursor)}`;
+
+                        while (attempts < MAX_RETRIES_PER_PAGE && !pageFetchSuccess) {
+                            if (userRequestedStop) return { joined: false, stopped: true };
+                            try {
+                                const response = await fetch(url, { headers: { 'Accept': 'application/json' }, credentials: 'include' });
+                                if (response.ok) {
+                                    pageData = await response.json();
+                                    serversOnThisPage = pageData.data || [];
+                                    pageFetchSuccess = true;
+                                } else if (response.status === 429) {
+                                    rateLimited = true;
+                                    await delay(currentDelay);
+                                    currentDelay = Math.min(currentDelay * BACKOFF_FACTOR, MAX_DELAY_MS);
+                                } else {
+                                    throw new Error(`API Error: ${response.status}`);
+                                }
+                            } catch (fetchError) {
+                                await delay(currentDelay);
+                                currentDelay = Math.min(currentDelay * BACKOFF_FACTOR, MAX_DELAY_MS);
                             }
-
-                            const closeButton = document.getElementById(`${LOADING_OVERLAY_ID}-close-button`);
-                            if (closeButton) {
-                                closeButton.addEventListener('click', () => {
-                                    keepOverlayOpen = false;
-                                    hideLoadingOverlay();
-                                }, { once: true });
-                            }
-                        } else {
-                            keepOverlayOpen = false;
-                            alert(`Could not find any available servers in your preferred region (${getFullLocationName(targetRegionCode)}) after searching. Overlay might have closed unexpectedly.`);
-                            hideLoadingOverlay();
+                            attempts++;
                         }
+
+                        if (!pageFetchSuccess) {
+                             console.error(`Custom Button Extension: Failed to fetch page ${pageCount}. Stopping search.`);
+                             return { joined: false, error: 'page_fetch_failed' };
+                        }
+
+                        if (serversOnThisPage.length > 0) {
+                            const serverPromises = serversOnThisPage.map(server => _internal_handleServer(server, placeId));
+                            await Promise.all(serverPromises);
+
+                            const regionServers = serversOnThisPage.filter(s => serverLocations[s.id]?.c === targetRegionCode);
+                            const availableServers = regionServers.filter(s => !joinedServerIds.has(s.id));
+
+                            if (availableServers.length > 0) {
+                                let bestServer = null;
+                                let bestScore = -Infinity;
+
+                                availableServers.forEach(server => {
+                                    if (server.playing >= server.maxPlayers) return;
+
+                                    const ping = server.calculatedPing ?? Infinity;
+                                    const players = server.playing ?? 0;
+                                    const maxPlayers = server.maxPlayers ?? Infinity;
+                                    let score = 0;
+
+                                    if (ping !== Infinity && ping >= 0) {
+                                        score = (500 - Math.min(ping, 500)) * 10;
+                                        if (maxPlayers > 0 && players > 0) {
+                                            score += (players / maxPlayers) * 50;
+                                        }
+                                    } else {
+                                        score = -Infinity;
+                                    }
+
+                                    if (score > bestScore) {
+                                        bestScore = score;
+                                        bestServer = server;
+                                    }
+                                });
+
+                                if (bestServer) {
+                                    joinSpecificServer(placeId, bestServer.id);
+                                    return { joined: true }; 
+                                }
+                            }
+                        }
+
+                        nextCursor = pageData.nextPageCursor;
+                        if (!nextCursor) fetchComplete = true;
                     }
-                    return;
-                }
 
-                let bestScore = -Infinity;
+                    return { joined: false };
 
-                regionServers.forEach(server => {
-                    if (server.id === lastJoinedServerId) {
-                        return;
-                    }
-
-                    if (server.calculatedPing === undefined) {
-                         const serverLoc = serverLocations[server.id]?.l;
-                         if (userLocation && serverLoc) {
-                             const dist = calculateDistance(userLocation.latitude, userLocation.longitude, serverLoc.latitude, serverLoc.longitude);
-                             server.calculatedPing = !isNaN(dist) ? Math.round(dist * 0.1) : Infinity;
-                         } else { server.calculatedPing = Infinity; }
-                    }
-
-                    const ping = server.calculatedPing ?? Infinity;
-                    const players = server.playing ?? 0;
-                    const maxPlayers = server.maxPlayers ?? Infinity;
-
-                    if (players >= maxPlayers) {
-                         return;
-                    }
-
-                    let score = 0;
-                    if (ping !== Infinity && ping >= 0) {
-                         score = (500 - Math.min(ping, 500)) * 10;
-
-                         if (maxPlayers > 0 && players > 0) {
-                             score += (players / maxPlayers) * 50;
-                         }
-                    } else {
-                         score = -Infinity;
-                    }
-
-                    if (score > bestScore) {
-                         bestScore = score;
-                         bestServer = server;
-                    }
-                });
-
-                if (bestServer && bestServer.id) {
-                    hideLoadingOverlay();
-                    joinSpecificServer(placeId, bestServer.id);
-                } else {
-                     if (!userRequestedStop) {
-                         alert(`Found servers in ${getFullLocationName(targetRegionCode)}, but none seem suitable (they might be full or have issues). Please try again later.`);
-                         hideLoadingOverlay();
-                     } else {
-                    }
+                } catch (error) {
+                    console.error("Custom Button Extension: Error during server search process:", error);
+                    return { joined: false, error: 'unknown' };
                 }
             }
+
             function joinSpecificServer(placeId, serverId) {
                 const safePlaceId = String(placeId); const safeServerId = String(serverId);
                 if (!/^\d+$/.test(safePlaceId) || !/^[0-9a-fA-F-]+$/.test(safeServerId)) {
@@ -957,7 +718,7 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
                     return;
                 }
 
-
+                joinedServerIds.add(safeServerId);
 
                 const codeToInject = `
                     (function() {
@@ -974,18 +735,14 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
                         alert("Error communicating with the extension's background process. Please try reloading the extension or browser.");
                         return;
                     }
-                    if (response && response.success) {
-                        lastJoinedServerId = safeServerId;
-                    } else {
+                    if (response && !response.success) {
                         alert(`Error initiating join: ${response?.error || 'Unknown error. Check console for details.'}`);
                     }
                 });
             }
-            async function performJoinAction(regionCode) {
-                const regionInfo = REGIONS[regionCode] || { city: regionCode, country: "Unknown" };
-                if (isCurrentlyFetchingData) { return; }
 
-                serverDataLoaded = false;
+            async function performJoinAction(regionCode) {
+                if (isCurrentlyFetchingData) return;
 
                 userRequestedStop = false;
                 isCurrentlyFetchingData = true;
@@ -994,75 +751,35 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
 
                 try {
                     const placeId = getPlaceIdFromUrl();
-                    if (!placeId) { console.error("Custom Button Extension: Could not determine Place ID."); throw new Error("Missing Place ID"); }
+                    if (!placeId) throw new Error("Missing Place ID");
 
-                    let needsRefresh = !serverDataLoaded || rateLimited;
-                    if (serverDataLoaded && !needsRefresh) {
-                         const regionExistsInCache = allServers.some(server => serverLocations[server.id]?.c === regionCode);
-                         if (!regionExistsInCache) {
-                             needsRefresh = true;
-                         } else {
-                         }
-                    }
+                    const result = await findAndJoinServerProcess(placeId, regionCode);
 
-                    if (needsRefresh) {
-                        await _internal_getServerInfo(placeId, regionCode);
-
-                         if (userRequestedStop) {
-                             return;
-                         }
-
-                         if (rateLimited && !userRequestedStop) { console.warn("Custom Button Extension: Proceeding after refresh, but rate limiting occurred during fetch. Data might be incomplete."); }
-                         if (!serverDataLoaded && !userRequestedStop) {
-                             keepOverlayOpen = true;
-                             const overlayText = document.getElementById(`${LOADING_OVERLAY_ID}-text`);
-                             const dotsContainer = document.getElementById(`${LOADING_OVERLAY_ID}-dots`);
-
-                             if (overlayText) {
-                                 overlayText.textContent = "No servers found.";
-                                 if (dotsContainer) {
-                                     dotsContainer.style.display = 'none';
-                                 }
-
-                                 const closeButton = document.getElementById(`${LOADING_OVERLAY_ID}-close-button`);
-                                 if (closeButton) {
-                                     closeButton.addEventListener('click', () => {
-                                         keepOverlayOpen = false;
-                                         hideLoadingOverlay();
-                                     }, { once: true });
-                                 }
-                             } else {
-                                 keepOverlayOpen = false;
-
-                                 hideLoadingOverlay();
-                             }
-                             return;
-                         }
+                    if (userRequestedStop || result.stopped) {
+                    } else if (result.joined) {
                     } else {
-                         if (userLocation) {
-                             allServers.forEach(server => {
-                                 const loc = serverLocations[server.id];
-                                 if (loc?.l && server.calculatedPing === Infinity) {
-                                     const dist = calculateDistance(userLocation.latitude, userLocation.longitude, loc.l.latitude, loc.l.longitude);
-                                     server.calculatedPing = !isNaN(dist) ? Math.round(dist * 0.1) : Infinity;
-                                 }
-                             });
-                         }
-                    }
+                        keepOverlayOpen = true;
+                        const overlayText = document.getElementById(`${LOADING_OVERLAY_ID}-text`);
+                        const dotsContainer = document.getElementById(`${LOADING_OVERLAY_ID}-dots`);
+                        if (overlayText) {
+                            overlayText.textContent = `No available servers found in ${getFullLocationName(regionCode)}.`;
+                            if (dotsContainer) dotsContainer.style.display = 'none';
 
-                    if (userRequestedStop) {
-                        return;
+                            const closeButton = document.getElementById(`${LOADING_OVERLAY_ID}-close-button`);
+                            if (closeButton) {
+                                closeButton.addEventListener('click', () => {
+                                    keepOverlayOpen = false;
+                                    hideLoadingOverlay();
+                                }, { once: true });
+                            }
+                        }
                     }
-
-                    await joinSpecificRegion(regionCode, placeId);
 
                 } catch (error) {
                      if (!userRequestedStop) {
-                         keepOverlayOpen = false;
-                         alert(`An error occurred while trying to join the server: ${error.message || 'Unknown error'}. Please check the console for details.`);
+                         alert(`An error occurred: ${error.message || 'Unknown error'}.`);
                      }
-                }
-                finally {
+                } finally {
                      if (!keepOverlayOpen) {
                          hideLoadingOverlay();
                      }
@@ -1072,76 +789,53 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
              }
 
             async function addCustomButton(container) {
-                if (!container) {
-                    return false;
-                }
-
+                if (!container) return false;
                 const unplayableButtonSelector = 'button.btn-common-play-game-unplayable-lg.btn-primary-md.btn-full-width[disabled][data-testid="play-unplayable-button"]';
-                if (document.querySelector(unplayableButtonSelector)) {
-                    return false;
-                }
-
-                if (newButtonAdded) {
-                    return true;
-                }
+                if (document.querySelector(unplayableButtonSelector)) return false;
+                if (newButtonAdded) return true;
                 if (document.getElementById(newButtonId)) {
                     newButtonAdded = true;
                     return true;
                 }
-
                 const loadingSpinnerSelector = 'span.spinner.spinner-default';
-                if (container.querySelector(loadingSpinnerSelector)) {
-                    return false;
-                }
+                if (container.querySelector(loadingSpinnerSelector)) return false;
 
                 try {
                     const computedStyle = window.getComputedStyle(container);
                     let styleChanged = false;
-
                     if (computedStyle.display !== 'flex') {
                         container.style.setProperty('display', 'flex', 'important');
                         styleChanged = true;
                     }
-
                     if (computedStyle.flexDirection !== 'row') {
                         container.style.setProperty('flex-direction', 'row', 'important');
                         styleChanged = true;
                     }
-
-                    if (styleChanged) {
-                    } else {
-                    }
-                } catch (styleError) {
-                }
+                } catch (styleError) {}
                 let referenceNode = null;
                 if (referenceButtonSelector) {
                     referenceNode = container.querySelector(referenceButtonSelector);
                 }
-
                 const newButton = document.createElement('button');
                 newButton.type = 'button';
                 newButton.id = newButtonId;
                 newButton.classList.add('btn-primary-md', CUSTOM_BUTTON_CLASS);
                 newButton.setAttribute('aria-label', newButtonAriaLabel);
-
                 const svgIcon = createGlobeSVG();
-                if (svgIcon) { newButton.appendChild(svgIcon); }
-                else { console.error("Custom Button Extension: Failed to create SVG icon."); newButton.textContent = "RG"; }
-
+                if (svgIcon) newButton.appendChild(svgIcon);
+                else { newButton.textContent = "RG"; }
                 const tooltipSpan = document.createElement('span');
                 tooltipSpan.classList.add('my-extension-custom-tooltip');
                 newButton.appendChild(tooltipSpan);
-
                 try {
                     const storageResult = await chrome.storage.local.get(PREFERRED_REGION_STORAGE_KEY);
                     updateButtonTooltip(newButton, storageResult[PREFERRED_REGION_STORAGE_KEY]);
                 } catch (error) {
                     updateButtonTooltip(newButton, null);
                 }
-
                 newButton.addEventListener('click', async (event) => {
                     event.stopPropagation();
-                    if (isCurrentlyFetchingData) {  return; }
+                    if (isCurrentlyFetchingData) return;
                     try {
                         const storageResult = await chrome.storage.local.get(PREFERRED_REGION_STORAGE_KEY);
                         const currentSavedRegion = storageResult[PREFERRED_REGION_STORAGE_KEY];
@@ -1155,18 +849,14 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
                          showRegionSelectionModal(newButton);
                     }
                 });
-
                 try {
                     if (document.getElementById(newButtonId)) {
                         newButtonAdded = true;
                         return true;
                     }
-
                     container.appendChild(newButton);
-
                     newButtonAdded = true;
                     return true;
-
                 } catch (error) {
                     newButtonAdded = false;
                     const failedButton = document.getElementById(newButtonId);
@@ -1176,56 +866,34 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
                     return false;
                 }
             }
-
             let observer = null;
-
             const observerCallback = (mutationsList, obs) => {
                  if (newButtonAdded && targetButtonHidden) {
-                    if (observer) {
-                        obs.disconnect();
-                        observer = null;
-                    }
+                    if (observer) { obs.disconnect(); observer = null; }
                     return;
                  }
-
                 const container = document.getElementById(targetContainerId);
                 if (container) {
                     let containerReady = checkContainerStyle(container);
-
-                    if (!targetButtonHidden) {
-                        findAndHideButton(container);
-                    }
-
-                    if (!newButtonAdded && containerReady) {
-                        addCustomButton(container).catch(err => console.error("Error adding button from observer (direct find):", err));
-                    }
-
-                    if (newButtonAdded && targetButtonHidden && observer) {
-                        obs.disconnect();
-                        observer = null;
-                    }
-
+                    if (!targetButtonHidden) findAndHideButton(container);
+                    if (!newButtonAdded && containerReady) addCustomButton(container).catch(err => console.error("Error adding button from observer (direct find):", err));
+                    if (newButtonAdded && targetButtonHidden && observer) { obs.disconnect(); observer = null; }
                 } else {
                      for (const mutation of mutationsList) {
                          if (mutation.type === 'childList') {
                              for (const node of mutation.addedNodes) {
                                   if (node.nodeType !== Node.ELEMENT_NODE) continue;
-
                                   let foundContainer = null;
                                   if (node.id === targetContainerId) {
                                       foundContainer = node;
                                   } else if (typeof node.querySelector === 'function') {
                                        foundContainer = node.querySelector(`#${targetContainerId}`);
                                   }
-
                                    if (foundContainer) {
                                        let containerReady = checkContainerStyle(foundContainer);
                                        if (!targetButtonHidden) findAndHideButton(foundContainer);
                                        if (!newButtonAdded && containerReady) addCustomButton(foundContainer).catch(err => console.error("Error adding button from mutation:", err));
-
-                                       if (newButtonAdded && targetButtonHidden && observer) {
-                                           obs.disconnect(); observer = null; return;
-                                       }
+                                       if (newButtonAdded && targetButtonHidden && observer) { obs.disconnect(); observer = null; return; }
                                        break;
                                    }
                              }
@@ -1235,23 +903,14 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
                              if (maybeContainer && checkContainerStyle(maybeContainer)) {
                                  if (!targetButtonHidden) findAndHideButton(maybeContainer);
                                  if (!newButtonAdded) addCustomButton(maybeContainer).catch(err => console.error("Error adding button from attribute mutation:", err));
-                                 if (newButtonAdded && targetButtonHidden && observer) {
-                                     obs.disconnect(); observer = null; return;
-                                 }
+                                 if (newButtonAdded && targetButtonHidden && observer) { obs.disconnect(); observer = null; return; }
                              }
                          }
                      }
                 }
             };
-
             observer = new MutationObserver(observerCallback);
-            observer.observe(document.body, {
-                childList: true,
-                subtree: true,
-                attributes: true,
-                attributeFilter: ['style', 'class']
-            });
-
+            observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['style', 'class'] });
             setTimeout(() => {
                 if (!observer) return;
                 const initialContainer = document.getElementById(targetContainerId);
@@ -1259,41 +918,23 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
                     let containerReady = checkContainerStyle(initialContainer);
                     if (!targetButtonHidden) findAndHideButton(initialContainer);
                     if (!newButtonAdded && containerReady) addCustomButton(initialContainer).catch(err => console.error("Error adding button from initial check:", err));
-                    if (newButtonAdded && targetButtonHidden && observer) {
-                         observer.disconnect(); observer = null;
-                    } else if (!newButtonAdded || !targetButtonHidden) {
-                    }
+                    if (newButtonAdded && targetButtonHidden && observer) { observer.disconnect(); observer = null; }
                 }
              }, 500);
-
             setTimeout(() => {
                 if (observer) {
                     observer.disconnect(); observer = null;
-
                     const finalContainer = document.getElementById(targetContainerId);
                     if (finalContainer) {
                          let containerReady = checkContainerStyle(finalContainer);
-                         if(!targetButtonHidden) {
-                             findAndHideButton(finalContainer);
-                         }
-                         if(!newButtonAdded && containerReady) {
-                             addCustomButton(finalContainer)
-
-                                .catch(err => console.error("Error adding button from final attempt:", err));
-                         }
-
-                         if (newButtonAdded && targetButtonHidden);
-                         else if (newButtonAdded) console.warn("Custom Button Extension: Final check - Button added, but target button was not hidden (may not exist or selector invalid).");
-                         else if (targetButtonHidden) console.warn("Custom Button Extension: Final check - Target button hidden, but custom button failed to add.");
-                         else console.error("Custom Button Extension: Final check - Failed to add custom button and hide target button.");
-
+                         if(!targetButtonHidden) findAndHideButton(finalContainer);
+                         if(!newButtonAdded && containerReady) addCustomButton(finalContainer).catch(err => console.error("Error adding button from final attempt:", err));
                     } else {
                          newButtonAdded = false;
                          targetButtonHidden = false;
                     }
                 }
              }, 20000);
-
         }
     } else {
         const existingButton = document.getElementById(newButtonId);

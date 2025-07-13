@@ -108,4 +108,6 @@ if (window.location.href === 'https://www.roblox.com/cats') {
     window.location.href = 'https://www.roseal.live';
 } else if (window.location.href === 'https://www.roblox.com/rokitty') {
     window.location.href = 'https://www.rokitty.app';
+} else if (window.location.href === 'https://www.roblox.com/roqol') {
+    window.location.href = 'https://roqol.io/';
 }

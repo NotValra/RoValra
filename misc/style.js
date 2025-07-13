@@ -1,6 +1,7 @@
+// I dont like this script, i dont like doign stuff like this i dont like hazelnut
 const style = document.createElement('style');
 style.textContent = `
-    
+   
     .tab-button {
         margin-left: 10px;
         padding: 5px 10px;

@@ -28,7 +28,10 @@
     };
 
     const initializeScript = () => {
+        // thats a lot of stuff
         let inventoryCheckRunning = false;
+        let isInitialized = false
+        let uiAdded = false;
         let currentUserId = null;
         let currentDisplayName = null;
         let inventoryHiddenParentElement = null;
@@ -518,9 +521,10 @@
         }
 
         function checkInventoryHidden(retryCount = 0) {
-            if (inventoryCheckRunning) {
+             if (isInitialized || inventoryCheckRunning) {
                 return;
             }
+            isInitialized = true; 
 
             inventoryCheckRunning = true;
 
@@ -530,12 +534,12 @@
             let inventoryHiddenSpan = null;
             let sectionContentOffElement = null;
 
-            sectionContentOffElement = document.querySelector('div.section-content-off');
+            sectionContentOffElement = document.querySelector('div.section-content-off:not(.btr-section-content-off)');
             
             if (!sectionContentOffElement && isProfilePage()) {
                 const profileInventoryContainer = document.querySelector('.profile-inventory-container');
                 if (profileInventoryContainer) {
-                    sectionContentOffElement = profileInventoryContainer.querySelector('.section-content-off');
+                    sectionContentOffElement = profileInventoryContainer.querySelector('.section-content-off:not(.btr-section-content-off)');
                 }
             }
             
@@ -545,7 +549,7 @@
                     try {
                         let iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
                         if (iframeDocument) {
-                            sectionContentOffElement = iframeDocument.querySelector('div.section-content-off');
+                            sectionContentOffElement = iframeDocument.querySelector('div.section-content-off:not(.btr-section-content-off)');
                         }
                     } catch (error) {
                         console.warn("checkInventoryHidden: Error accessing iframe content for section-content-off:", error);
@@ -2007,42 +2011,19 @@
 
         function waitForInventorySection() {
             const observer = new MutationObserver((mutationsList, observerInstance) => {
-                for (const mutation of mutationsList) {
-                    if (mutation.type === 'childList') {
-                        if (isInventoryPage() || isProfilePage()) {
-                            const sectionContentOff = document.querySelector('div.section-content-off');
-                            if (sectionContentOff) {
-                                observerInstance.disconnect();
-                                checkInventoryHidden();
-                                return;
-                            }
-                            const profileInventoryContainer = document.querySelector('.profile-inventory-container');
-                            if (profileInventoryContainer) {
-                                const profileSectionOff = profileInventoryContainer.querySelector('.section-content-off');
-                                if (profileSectionOff) {
-                                    observerInstance.disconnect();
-                                    checkInventoryHidden();
-                                    return;
-                                }
-                            }
-                            const iframe = document.getElementById('btr-injected-inventory');
-                            if (iframe) {
-                                try {
-                                    let iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
-                                    if (iframeDocument) {
-                                        const sectionContentOffInFrame = iframeDocument.querySelector('div.section-content-off');
-                                        if (sectionContentOffInFrame) {
-                                            observerInstance.disconnect();
-                                            checkInventoryHidden();
-                                            return;
-                                        }
-                                    }
-                                } catch (error) {
-                                    console.warn("waitForInventorySection: Error accessing iframe content:", error);
-                                }
-                            }
-                        }
-                    }
+               
+                if (uiAdded) {
+                    observerInstance.disconnect();
+                    return;
+                }
+
+                const targetElement = document.querySelector('div.section-content-off:not(.btr-section-content-off)');
+
+                if (targetElement) {
+                    
+                    uiAdded = true;
+                    observerInstance.disconnect();
+                    checkInventoryHidden();
                 }
             });
 
