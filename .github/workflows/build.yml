@@ -20,13 +20,26 @@ jobs:
 
       - name: Build Chrome ZIP
         run: |
-          mkdir chrome-build
-          cp -r Assets Avatar catalog data Games HiddenGames misc Rules chrome-build/
-          cp background.js browser-polyfill.js content.js manifest.json settings.js chrome-build/
-          cp README.md LICENSE chrome-build/
-          cd chrome-build
+          # Clean up any existing ZIP files
+          rm -f rovalra-chrome.zip
+          
+          # Create temporary directory
+          mkdir temp-chrome
+          cp -r Assets Avatar catalog data Games HiddenGames misc Rules temp-chrome/
+          cp background.js browser-polyfill.js content.js manifest.json settings.js temp-chrome/
+          cp README.md LICENSE temp-chrome/
+          
+          # Create ZIP from inside temp directory (contents only, not the folder)
+          cd temp-chrome
           zip -r ../rovalra-chrome.zip .
           cd ..
+          
+          # Clean up temp directory
+          rm -rf temp-chrome
+          
+          # Verify ZIP structure
+          echo "Chrome ZIP contents:"
+          unzip -l rovalra-chrome.zip | head -10
 
       - name: Upload Chrome Artifact
         uses: actions/upload-artifact@v4
