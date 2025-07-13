@@ -1,0 +1,57 @@
+name: Build Extensions
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-chrome:
+    name: Build Chrome Extension
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up zip
+        run: sudo apt-get update && sudo apt-get install -y zip
+
+      - name: Build Chrome ZIP
+        run: |
+          mkdir chrome-build
+          cp -r Assets Avatar catalog data Games HiddenGames misc Rules chrome-build/
+          cp background.js browser-polyfill.js content.js manifest.json settings.js chrome-build/
+          cp README.md LICENSE chrome-build/
+          cd chrome-build
+          zip -r ../rovalra-chrome.zip .
+          cd ..
+
+      - name: Upload Chrome Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: rovalra-chrome
+          path: rovalra-chrome.zip
+
+  build-firefox:
+    name: Build Firefox Extension
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up zip
+        run: sudo apt-get update && sudo apt-get install -y zip
+
+      - name: Make build-firefox-direct.sh executable
+        run: chmod +x build-firefox-direct.sh
+
+      - name: Build Firefox ZIP
+        run: ./build-firefox-direct.sh
+
+      - name: Upload Firefox Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: rovalra-firefox
+          path: rovalra-firefox.zip 

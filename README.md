@@ -65,7 +65,7 @@
 - **Is this extension a cookie logger?**
     - **No. But dont just take my word for it read the source code yourself.**
 - **Does this extension support firefox?**
-    - **No, but it might be coming at some point.**
+    - **Yes! Firefox support has been added. See [FIREFOX_INSTALLATION.md](FIREFOX_INSTALLATION.md) for installation instructions.**
 - **Is it bannable to use the extension?**
     - **No, This extension follows Roblox's ToS, if Roblox doesnt like a feature being possible they can just patch it.**
 - **Is everything free?**
@@ -92,7 +92,13 @@
 - [x] **~~Fixing the invite system~~ ADDED**
 - [x] **~~Roblox server list improvements~~ ADDED**
 - [ ] **Big region selector improvements and server uptime**
-- [ ] **Maybe FireFox support (its not my main focus atm)**
+- [x] **~~FireFox support~~ ADDED**
+
+# Browser Compatibility
+- **Chrome/Chromium-based browsers**: Fully supported
+- **Firefox**: Fully supported (Firefox 109.0+)
+- **Edge**: Fully supported
+- **Safari**: Not supported (WebExtensions API not available)
 
 # Known incompatibilies
 <details>
