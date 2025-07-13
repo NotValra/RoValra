@@ -15,33 +15,46 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up zip
+      - name: Install zip
         run: sudo apt-get update && sudo apt-get install -y zip
 
-      - name: Build Chrome ZIP
+      - name: Build Chrome Extension
         run: |
-          # Clean up any existing ZIP files
-          rm -f rovalra-chrome.zip
+          echo "Building Chrome extension..."
           
-          # Create temporary directory
-          mkdir temp-chrome
-          cp -r Assets Avatar catalog data Games HiddenGames misc Rules temp-chrome/
-          cp background.js browser-polyfill.js content.js manifest.json settings.js temp-chrome/
-          cp README.md LICENSE temp-chrome/
+          # Create temporary build directory
+          mkdir chrome-temp
           
-          # Create ZIP from inside temp directory (contents only, not the folder)
-          cd temp-chrome
+          # Copy all extension files
+          cp -r Assets chrome-temp/
+          cp -r Avatar chrome-temp/
+          cp -r catalog chrome-temp/
+          cp -r data chrome-temp/
+          cp -r Games chrome-temp/
+          cp -r HiddenGames chrome-temp/
+          cp -r misc chrome-temp/
+          cp -r Rules chrome-temp/
+          cp background.js chrome-temp/
+          cp browser-polyfill.js chrome-temp/
+          cp content.js chrome-temp/
+          cp manifest.json chrome-temp/
+          cp settings.js chrome-temp/
+          cp README.md chrome-temp/
+          cp LICENSE chrome-temp/
+          
+          # Create ZIP from inside temp directory (files at root, not in subfolder)
+          cd chrome-temp
           zip -r ../rovalra-chrome.zip .
           cd ..
           
           # Clean up temp directory
-          rm -rf temp-chrome
+          rm -rf chrome-temp
           
-          # Verify ZIP structure
+          # Verify ZIP contents
           echo "Chrome ZIP contents:"
-          unzip -l rovalra-chrome.zip | head -10
+          unzip -l rovalra-chrome.zip | head -15
 
-      - name: Upload Chrome Artifact
+      - name: Upload Chrome Extension
         uses: actions/upload-artifact@v4
         with:
           name: rovalra-chrome
@@ -54,34 +67,49 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up zip
+      - name: Install zip
         run: sudo apt-get update && sudo apt-get install -y zip
 
-      - name: Build Firefox ZIP
+      - name: Build Firefox Extension
         run: |
-          # Clean up any existing ZIP files
-          rm -f rovalra-firefox.zip
+          echo "Building Firefox extension..."
           
-          # Create temporary directory
-          mkdir temp-firefox
-          cp -r Assets Avatar catalog data Games HiddenGames misc Rules temp-firefox/
-          cp background.js browser-polyfill.js content.js settings.js temp-firefox/
-          cp manifest-firefox.json temp-firefox/manifest.json
-          cp README.md LICENSE FIREFOX_INSTALLATION.md temp-firefox/
+          # Create temporary build directory
+          mkdir firefox-temp
           
-          # Create ZIP from inside temp directory (contents only, not the folder)
-          cd temp-firefox
+          # Copy all extension files
+          cp -r Assets firefox-temp/
+          cp -r Avatar firefox-temp/
+          cp -r catalog firefox-temp/
+          cp -r data firefox-temp/
+          cp -r Games firefox-temp/
+          cp -r HiddenGames firefox-temp/
+          cp -r misc firefox-temp/
+          cp -r Rules firefox-temp/
+          cp background.js firefox-temp/
+          cp browser-polyfill.js firefox-temp/
+          cp content.js firefox-temp/
+          cp settings.js firefox-temp/
+          cp README.md firefox-temp/
+          cp LICENSE firefox-temp/
+          cp FIREFOX_INSTALLATION.md firefox-temp/
+          
+          # Use Firefox manifest (V2) instead of Chrome manifest (V3)
+          cp manifest-firefox.json firefox-temp/manifest.json
+          
+          # Create ZIP from inside temp directory (files at root, not in subfolder)
+          cd firefox-temp
           zip -r ../rovalra-firefox.zip .
           cd ..
           
           # Clean up temp directory
-          rm -rf temp-firefox
+          rm -rf firefox-temp
           
-          # Verify ZIP structure
-          echo "ZIP contents:"
-          unzip -l rovalra-firefox.zip | head -10
+          # Verify ZIP contents
+          echo "Firefox ZIP contents:"
+          unzip -l rovalra-firefox.zip | head -15
 
-      - name: Upload Firefox Artifact
+      - name: Upload Firefox Extension
         uses: actions/upload-artifact@v4
         with:
           name: rovalra-firefox
