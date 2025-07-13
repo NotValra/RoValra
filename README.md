@@ -138,3 +138,4 @@
 - **7_lz on dc helped me a lot with the process of switching away from third party APIs by providing me with the json and just general help**
 - **Thanks to Julia for creating a Github repo that documented all the Roblox datacenter ips, which i now use for my region selector https://github.com/RoSeal-Extension/Top-Secret-Thing**
 - **Credit to coweggs on dc for coming up with the name RoValra, it was just too funny I had to use it**
+- **Credit to AromaXR for implementing Firefox support**
