@@ -46,15 +46,27 @@ jobs:
 
       - name: Build Firefox ZIP
         run: |
+          # Clean up any existing ZIP files
+          rm -f rovalra-firefox.zip
+          
+          # Create temporary directory
           mkdir temp-firefox
           cp -r Assets Avatar catalog data Games HiddenGames misc Rules temp-firefox/
           cp background.js browser-polyfill.js content.js settings.js temp-firefox/
           cp manifest-firefox.json temp-firefox/manifest.json
           cp README.md LICENSE FIREFOX_INSTALLATION.md temp-firefox/
+          
+          # Create ZIP from inside temp directory (contents only, not the folder)
           cd temp-firefox
           zip -r ../rovalra-firefox.zip .
           cd ..
+          
+          # Clean up temp directory
           rm -rf temp-firefox
+          
+          # Verify ZIP structure
+          echo "ZIP contents:"
+          unzip -l rovalra-firefox.zip | head -10
 
       - name: Upload Firefox Artifact
         uses: actions/upload-artifact@v4
