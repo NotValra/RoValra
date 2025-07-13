@@ -46,12 +46,12 @@ jobs:
 
       - name: Build Firefox ZIP
         run: |
-          mkdir firefox-build
-          cp -r Assets Avatar catalog data Games HiddenGames misc Rules firefox-build/
-          cp background.js browser-polyfill.js content.js settings.js firefox-build/
-          cp manifest-firefox.json firefox-build/manifest.json
-          cp README.md LICENSE FIREFOX_INSTALLATION.md firefox-build/
-          cd firefox-build
+          mkdir firefox-extension
+          cp -r Assets Avatar catalog data Games HiddenGames misc Rules firefox-extension/
+          cp background.js browser-polyfill.js content.js settings.js firefox-extension/
+          cp manifest-firefox.json firefox-extension/manifest.json
+          cp README.md LICENSE FIREFOX_INSTALLATION.md firefox-extension/
+          cd firefox-extension
           zip -r ../rovalra-firefox.zip .
           cd ..
 

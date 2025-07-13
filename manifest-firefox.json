@@ -47,15 +47,7 @@
   "permissions": [
     "storage",
     "tabs",
-    "webRequest",
-    "webRequestBlocking",
-    "<all_urls>"
-  ],
-  "host_permissions": [
-    "https://games.roblox.com/*",
-    "*://*.roblox.com/*",
-    "https://gamejoin.roblox.com/v1/join-game-instance",
-    "https://users.roblox.com/*"
+    "*://*.roblox.com/*"
   ],
   "web_accessible_resources": [
     "HiddenGames/group_games.js",
