@@ -1,0 +1,94 @@
+name: Build Extensions
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-chrome:
+    name: Build Chrome Extension
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build Chrome Extension
+        run: |
+          echo "Building Chrome extension..."
+          
+          # Create Chrome extension directory
+          mkdir rovalra-chrome
+          
+          # Copy all extension files
+          cp -r Assets rovalra-chrome/
+          cp -r Avatar rovalra-chrome/
+          cp -r catalog rovalra-chrome/
+          cp -r data rovalra-chrome/
+          cp -r Games rovalra-chrome/
+          cp -r HiddenGames rovalra-chrome/
+          cp -r misc rovalra-chrome/
+          cp -r Rules rovalra-chrome/
+          cp background.js rovalra-chrome/
+          cp browser-polyfill.js rovalra-chrome/
+          cp content.js rovalra-chrome/
+          cp manifest.json rovalra-chrome/
+          cp settings.js rovalra-chrome/
+          cp README.md rovalra-chrome/
+          cp LICENSE rovalra-chrome/
+          
+          # Verify directory contents
+          echo "Chrome extension contents:"
+          ls -la rovalra-chrome/
+
+      - name: Upload Chrome Extension
+        uses: actions/upload-artifact@v4
+        with:
+          name: rovalra-chrome
+          path: rovalra-chrome/
+
+  build-firefox:
+    name: Build Firefox Extension
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build Firefox Extension
+        run: |
+          echo "Building Firefox extension..."
+          
+          # Create Firefox extension directory
+          mkdir rovalra-firefox
+          
+          # Copy all extension files
+          cp -r Assets rovalra-firefox/
+          cp -r Avatar rovalra-firefox/
+          cp -r catalog rovalra-firefox/
+          cp -r data rovalra-firefox/
+          cp -r Games rovalra-firefox/
+          cp -r HiddenGames rovalra-firefox/
+          cp -r misc rovalra-firefox/
+          cp -r Rules rovalra-firefox/
+          cp background.js rovalra-firefox/
+          cp browser-polyfill.js rovalra-firefox/
+          cp content.js rovalra-firefox/
+          cp settings.js rovalra-firefox/
+          cp README.md rovalra-firefox/
+          cp LICENSE rovalra-firefox/
+          cp FIREFOX_INSTALLATION.md rovalra-firefox/
+          
+          # Use Firefox manifest (V2) instead of Chrome manifest (V3)
+          cp manifest-firefox.json rovalra-firefox/manifest.json
+          
+          # Verify directory contents
+          echo "Firefox extension contents:"
+          ls -la rovalra-firefox/
+
+      - name: Upload Firefox Extension
+        uses: actions/upload-artifact@v4
+        with:
+          name: rovalra-firefox
+          path: rovalra-firefox/ 

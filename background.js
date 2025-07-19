@@ -1,3 +1,7 @@
+// Browser compatibility layer for Firefox support
+// Load the polyfill script
+importScripts('./browser-polyfill.js');
+
 // Dont look at this shit dookie poo po of code
 // Actually you can look at it. i removed the bad parts / useless
 

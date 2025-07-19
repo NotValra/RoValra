@@ -7,7 +7,7 @@
       "matches": [
         "*://*.roblox.com/*"
       ],
-      "js": ["content.js", "catalog/hiddencatalog.js","misc/pages.js","settings.js"],
+      "js": ["browser-polyfill.js", "content.js", "catalog/hiddencatalog.js","misc/pages.js","settings.js"],
       "run_at": "document_start",
       "all_frames": true
     },    {
@@ -58,6 +58,12 @@
     "tabs",
     "scripting"
   ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "rovalra@extension.com",
+      "strict_min_version": "109.0"
+    }
+  },
   "host_permissions": [
     "https://games.roblox.com/*",
     "*://*.roblox.com/*",
@@ -83,7 +89,7 @@
   },  "web_accessible_resources": [
       {
           "resources": [
-        
+              "browser-polyfill.js",
               "HiddenGames/group_games.js",
               "HiddenGames/user_games.js",
               "misc/userSniper.js",
