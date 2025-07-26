@@ -3,6 +3,8 @@
 
 - **ROREGION IS NOT MADE OR CONTROLLED BY ME, THEY ARE USING ROVALRAS SOURCE CODE FOR THEIR EXTENSION**
 
+- **I wanna make it clear, I havent stopped developing RoValra, im just taking a break. The harassment from the guy behind RoRegion has really been hitting hard lately. Plus I have been having fun with other projects**
+
 <a href="https://chromewebstore.google.com/detail/RoValra%20-%20Roblox%20Improved/njcickgebhnpgmoodjdgohkclfplejli" title="Available in the Chrome Web Store"><img src="/Assets/ChromeWebStore_BadgeWBorder_v2_206x58.png" alt="Available in the Chrome Web Store"></a>\
 <img alt="GitHub Downloads (all assets, all releases)" src="https://img.shields.io/github/downloads/NotValra/RoValra/total">
 - **If you like this project, consider giving it a star⭐, it really helps!**
