@@ -1,4 +1,4 @@
-### Updated Privacy Policy for RoValra Chrome Extension
+**Privacy Policy for RoValra Chrome Extension**
 
 **Effective Date:** 8/14/25
 
