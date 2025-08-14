@@ -23,6 +23,9 @@
 
 # Features
 - **Games**
+    - **Server Uptime**
+    - **Server list filter**
+    - **Shows A servers region and uptime in the server list**
     - **Join preffered region play button**
     - **Shows hidden games on profiles and groups**
     - **Join a server in a specific region**
@@ -31,7 +34,7 @@
     - **Universal user sniper that does not require you to be friends with them (PATCHED)**
     - **Bot detector, shows if a game is botted**
     - **Shows full server id in the server list**
-    - **Copy deeplink for friends servers and shows if they are playing in a private server**
+    - **Copy deeplink for friends servers**
     - **Quick invite link copy for private servers**
     - **Quick Regenarate invite link for private servers**
 - **Catalog**
@@ -53,6 +56,7 @@
     - **R6 Fix. Stops Roblox from automatically switching your character to R15 when equipping dynamic heads.**
 - **Misc**
     - **Shows an estimated for how many Robux will stop pending within 24 hours**
+    - **CSS Fixes for the Roblox Website**
 - **Fun stuff**
     - **All ban reasons on Roblox**
     - **All ban durations on Roblox**
