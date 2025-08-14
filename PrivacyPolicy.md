@@ -1,6 +1,6 @@
-**Privacy Policy for RoValra Chrome Extension**
+### Updated Privacy Policy for RoValra Chrome Extension
 
-**Effective Date:** 4/20/25
+**Effective Date:** 8/14/25
 
 **Introduction**
 
@@ -10,15 +10,11 @@ This Privacy Policy describes how the RoValra Chrome extension ("the Extension")
 
 RoValra does **not** collect, store, or transmit any personally identifiable information (PII) from users. This includes, but is not limited to, names, email addresses, browsing history, or any other data that could be used to identify you. The Extension primarily interacts with Roblox's services and APIs, a developer-controlled API, and potentially other third-party APIs as detailed in the **Third-Party Services** section.
 
-**Use of IP Address and Geolocation (Client-Side)**
+**Optional Data Sharing**
 
-The Extension utilizes your IP address and geolocation information **only on your local device** to interact with the Roblox platform. This enhances the functionality of the extension by allowing it to find the appropriate Roblox servers based on your location.
+For certain features, the Extension sends specific, non-personal data—namely PlaceIds and serverIds—to a developer-controlled API. This data is used to enhance the functionality of the extension. 
 
-**Important points about IP/geolocation usage:**
-
-*   **No server storage:** Your IP address and geolocation data are processed entirely within your browser and **are not sent to or stored on any external servers controlled by us or third parties.**
-*   **Client-side only:** All processing of IP/geolocation data is done within your browser window and does not leave your local system.
-*   **Limited Functionality:** The information is used exclusively to interact with Roblox’s API and provide the intended functionality of the extension.
+This feature is **completely optional** and can be turned off at any point in the extension's settings. When this feature is active, only the PlaceId and serverId are transmitted. No data that could link a user to this information, such as an IP address or user ID, is sent or logged.
 
 **Data Security**
 
@@ -29,10 +25,10 @@ As the extension does not store or transmit your personal data to external serve
 To provide its features, RoValra interacts with several Application Programming Interfaces (APIs):
 
 1.  **Roblox's APIs:** Essential for interacting with the Roblox platform itself.
-2.  **Developer-Controlled API (Valra):** An API managed by the RoValra developer, used solely to retrieve specific data necessary for certain extension features.
+2.  **Developer-Controlled API (Valra):** An API managed by the RoValra developer, used to retrieve specific data necessary for certain extension features. As mentioned in the **Optional Data Sharing** section, for some features, PlaceIds and serverIds are sent to this API.
 3.  **Other Third-Party APIs:** The Extension may interact with other external APIs not controlled by Roblox or the developer (Valra). These are used strictly to *retrieve* information required for specific features (e.g., fetching public data relevant to the extension's purpose).
 
-**Crucially, the interaction with all APIs listed above is limited to *retrieving* information.** **No personally identifiable information (PII), IP address, geolocation, or any other user-specific data is sent from the Extension to any of these APIs (Roblox, Valra, or other third parties).** Data flow is one-way: the Extension requests public or necessary functional data *from* these services; it does not send your data *to* them.
+Crucially, the interaction with all APIs listed above is limited to *retrieving* information, with the explicit, optional exception of sending PlaceIds and serverIds as described above. **No personally identifiable information (PII), IP address, geolocation, or any other user-specific data is sent from the Extension to any of these APIs (Roblox, Valra, or other third parties).** Data flow is primarily one-way: the Extension requests public or necessary functional data *from* these services; it does not send your personal data *to* them.
 
 **Data Retention**
 
@@ -51,4 +47,3 @@ We may update this Privacy Policy from time to time. Any changes will be posted 
 If you have any questions or concerns about this Privacy Policy, you can contact us at:
 
 RoValraContact@gmail.com
-
