@@ -29,98 +29,83 @@
         return size;
     }
 
-    function checkAndFixOldIcons() {
-        const oldIcons = document.querySelectorAll(`.${newClassName}`);
-        oldIcons.forEach(icon => {
-            const size = getLogoSize(icon);
-            icon.style.width = size.width;
-            icon.style.height = size.height;
-            icon.style.objectFit = "contain";
-            icon.style.backgroundSize = "contain";
-        });
-
-        setTimeout(checkAndFixOldIcons, 1000);
-    }
-
     function applyOldLogo() {
-        const containerElement = document.getElementById("simplemodal-container");
-        if (containerElement) {
-            const spanElement = containerElement.querySelector(originalSelector);
-            if (spanElement) {
-                spanElement.className = newClassName;
-                const size = getLogoSize(spanElement);
-                spanElement.style.width = size.width;
-                spanElement.style.height = size.height;
+        const targets = [
+            document.getElementById("simplemodal-container")?.querySelector(originalSelector),
+            document.querySelector(newSelector)
+        ].filter(Boolean); 
+
+        for (const element of targets) {
+            if (element && element.id !== customLogoId) {
+                element.className = newClassName;
+                const size = getLogoSize(element);
+                element.style.width = size.width;
+                element.style.height = size.height;
+                element.style.objectFit = "contain";
+                element.style.backgroundSize = "contain";
                 return true;
             }
         }
-
-        const muiElement = document.querySelector(newSelector);
-        if (muiElement) {
-            muiElement.className = newClassName;
-            const size = getLogoSize(muiElement);
-            muiElement.style.width = size.width;
-            muiElement.style.height = size.height;
-            
-            muiElement.style.objectFit = "contain";
-            muiElement.style.backgroundSize = "contain";
-            return true;
-        }
-
         return false;
     }
 
     function applyCustomLogo(imageData) {
-        const containerElement = document.getElementById("simplemodal-container");
-        if (containerElement) {
-            const spanElement = containerElement.querySelector(originalSelector);
-            if (spanElement) {
+        const targets = [
+            document.getElementById("simplemodal-container")?.querySelector(originalSelector),
+            document.querySelector(newSelector)
+        ].filter(Boolean);
+        
+        let applied = false;
+
+        for (const element of targets) {
+            if (element) {
+                if (element.id === customLogoId) {
+                    const size = getLogoSize(element);
+                    element.style.width = size.width;
+                    element.style.height = size.height;
+                    applied = true;
+                    continue;
+                }
+
                 const img = document.createElement("img");
                 img.id = customLogoId;
                 img.src = imageData;
                 
-                const size = getLogoSize(spanElement);
+                const size = getLogoSize(element);
                 img.style.width = size.width; 
                 img.style.height = size.height;
                 img.style.objectFit = "contain"; 
                 
-                spanElement.replaceWith(img);
-                return true;
-            }
-            if (containerElement.querySelector(`#${customLogoId}`)) {
-                return true; 
+                element.replaceWith(img);
+                applied = true;
             }
         }
+        return applied;
+    }
 
-        const muiElement = document.querySelector(newSelector);
-        if (muiElement) {
-            const parentElement = muiElement.parentElement;
-            if (parentElement && parentElement.querySelector(`#${customLogoId}`)) {
-                return true;
+    function handleLogoMutation(mutationHandler, targetSelectors) {
+        return function(mutationsList) {
+            for (const mutation of mutationsList) {
+                if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+                    let foundRelevantNode = false;
+
+                    for (const node of mutation.addedNodes) {
+                        if (node.nodeType === 1) { 
+                            if (targetSelectors.some(selector => node.matches(selector) || node.querySelector(selector))) {
+                                foundRelevantNode = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (foundRelevantNode) {
+                        if (mutationHandler()) {
+                            break;
+                        }
+                    }
+                }
             }
-            
-            const img = document.createElement("img");
-            img.id = customLogoId;
-            img.src = imageData;
-            
-            const size = getLogoSize(muiElement);
-            img.style.width = size.width; 
-            img.style.height = size.height;
-            img.style.objectFit = "contain"; 
-            
-            muiElement.replaceWith(img);
-            return true;
-        }
-
-        const existingLogo = document.getElementById(customLogoId);
-        if (existingLogo) {
-            const size = getLogoSize(existingLogo);
-            existingLogo.style.width = size.width;
-            existingLogo.style.height = size.height;
-            return true;
-        }
-
-        return false;
+        };
     }
 
     function initRevertLogo() {
@@ -128,44 +113,27 @@
             const revertLogoSetting = settings.revertLogo;
             const customLogoData = settings.customLogoData;
 
+            let mutationHandler;
+            const targetSelectors = [originalSelector, newSelector];
+            
             if (revertLogoSetting === 'OLD') {
-                const callback = function(mutationsList, observerInstance) {
-                    if (applyOldLogo()) {
-                    }
-                };
-                const observer = new MutationObserver(callback);
-                const config = { childList: true, subtree: true };
-                if (!applyOldLogo()) {
-                }
-                observer.observe(document.body, config);
-                
-                checkAndFixOldIcons();
+                mutationHandler = applyOldLogo;
             } else if (revertLogoSetting === 'CUSTOM') {
-                let logoToApply = null;
-                if (customLogoData) {
-                    logoToApply = customLogoData;
-                } else {
-                    logoToApply = chrome.runtime.getURL("Assets/icon-128.png");
-                }
-
-                if (logoToApply) {
-                    const callback = function(mutationsList, observerInstance) {
-                        if (applyCustomLogo(logoToApply)) {
-                        }
-                    };
-                    const observer = new MutationObserver(callback);
-                    const config = { childList: true, subtree: true };
-                    if (!applyCustomLogo(logoToApply)) {
-                    }
-                    observer.observe(document.body, config);
-                } else {
-                }
-            } else if (revertLogoSetting === 'NEW') {
+                let logoToApply = customLogoData || chrome.runtime.getURL("Assets/icon-128.png");
+                mutationHandler = () => applyCustomLogo(logoToApply);
+            } else {
+                return;
             }
+
+            mutationHandler();
+
+            const observerCallback = handleLogoMutation(mutationHandler, targetSelectors);
+            const observer = new MutationObserver(observerCallback);
+            const config = { childList: true, subtree: true };
+
+            observer.observe(document.body, config);
         });
     }
-
-    let observerInstance;
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initRevertLogo);

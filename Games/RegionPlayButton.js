@@ -1,6 +1,5 @@
 chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
     if (result.PreferredRegionEnabled) {
-        if (window.location.pathname.includes('/games/')) {
         if (window.myCustomButtonExtensionInitialized) {
         } else {
             window.myCustomButtonExtensionInitialized = true;
@@ -19,36 +18,16 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
             const CUSTOM_BUTTON_CLASS = 'my-extension-custom-button';
             const MODAL_ID = 'my-region-selection-modal';
             const PREFERRED_REGION_STORAGE_KEY = 'robloxPreferredRegion';
-            const SERVER_IP_MAP_URL = chrome.runtime.getURL('data/ServerList.json');
             const LOADING_OVERLAY_ID = 'my-extension-loading-overlay';
             const MAX_SERVER_PAGES = 20;
-            const REGIONS = {
-                "SG": { latitude: 1.3521, longitude: 103.8198, city: "Singapore", state: null, country: "Singapore" },
-                "DE": { latitude: 50.1109, longitude: 8.6821, city: "Frankfurt", state: null, country: "Germany" },
-                "FR": { latitude: 48.8566, longitude: 2.3522, city: "Paris", state: null, country: "France" },
-                "JP": { latitude: 35.6895, longitude: 139.6917, city: "Tokyo", state: null, country: "Japan" },
-                "NL": { latitude: 52.3676, longitude: 4.9041, city: "Amsterdam", state: null, country: "Netherlands" },
-                "US-CA": { latitude: 34.0522, longitude: -118.2437, city: "Los Angeles", state: "California", country: "United States" },
-                "US-VA": { latitude: 38.9577, longitude: -77.4875, city: "Ashburn", state: "Virginia", country: "United States" },
-                "US-IL": { latitude: 41.8781, longitude: -87.6298, city: "Chicago", state: "Illinois", country: "United States" },
-                "US-TX": { latitude: 32.7767, longitude: -96.7970, city: "Dallas", state: "Texas", country: "United States" },
-                "US-FL": { latitude: 25.7743, longitude: -80.1937, city: "Miami", state: "Florida", country: "United States" },
-                "US-NY": { latitude: 40.7128, longitude: -74.0060, city: "New York City", state: "New York", country: "United States" },
-                "US-WA": { latitude: 47.6062, longitude: -122.3321, city: "Seattle", state: "Washington", country: "United States" },
-                "AU": { latitude: -33.8688, longitude: 151.2093, city: "Sydney", state: null, country: "Australia" },
-                "GB": { latitude: 51.5074, longitude: -0.1278, city: "London", state: null, country: "United Kingdom" },
-                "IN": { latitude: 19.0760, longitude: 72.8777, city: "Mumbai", state: null, country: "India" },
-                "US-NJ": { latitude: 40.7895, longitude: -74.0565, city: "Secaucus", state: "New Jersey", country: "United States" },
-                "US-OR": { latitude: 45.8400, longitude: -119.7012, city: "Boardman", state: "Oregon", country: "United States" },
-                "US-OH": { latitude: 39.9612, longitude: -82.9988, city: "Columbus", state: "Ohio", country: "United States" }
-            };
+            let REGIONS = {};
 
             let newButtonAdded = false;
             let targetButtonHidden = false;
 
             let serverLocations = {};
             let userLocation = null;
-            let isRefreshing = false; 
+            let isRefreshing = false;
             let rateLimited = false;
             let serverIpMap = null;
             let isCurrentlyFetchingData = false;
@@ -58,6 +37,60 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
 
             let csrfToken = null;
             let csrfFetchAttempted = false;
+
+            const regionsPromise = fetchRegions();
+
+            async function fetchRegions() {
+                if (Object.keys(REGIONS).length > 0) return;
+
+                try {
+                    const waitForElement = selector => new Promise(resolve => {
+                        const el = document.querySelector(selector);
+                        if (el) return resolve(el);
+                        const observer = new MutationObserver(() => {
+                            const el = document.querySelector(selector);
+                            if (el) {
+                                resolve(el);
+                                observer.disconnect();
+                            }
+                        });
+                        observer.observe(document.body, { childList: true, subtree: true });
+                    });
+
+                    const dataStorageElement = await waitForElement('#rovalra-datacenter-data-storage');
+                    if (!dataStorageElement) {
+                         throw new Error("Data storage element '#rovalra-datacenter-data-storage' not found.");
+                    }
+
+                    const data = JSON.parse(dataStorageElement.textContent);
+                    const newRegions = {};
+                    for (const region of data) {
+                        const location = region.location;
+                        const country = location.country;
+                        const city = location.city;
+                        const state = location.region;
+                        const lat = parseFloat(location.latLong[0]);
+                        const lon = parseFloat(location.latLong[1]);
+
+                        let regionCode = country;
+                        if (country === 'US') {
+                            regionCode = `US-${getStateCodeFromRegion(state)}`;
+                        }
+
+                        newRegions[regionCode] = {
+                            latitude: lat,
+                            longitude: lon,
+                            city: city,
+                            state: state,
+                            country: country
+                        };
+                    }
+                    REGIONS = newRegions;
+                } catch (error) {
+                    console.error("Error loading regions from data storage element:", error);
+                }
+            }
+
 
             function createGlobeSVG() {
                 const isDarkMode = document.body.classList.contains('dark-theme') || document.documentElement.classList.contains('dark-theme');
@@ -248,8 +281,10 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
                 }
                 tooltipSpan.innerHTML = tooltipHTML;
             }
-            function showRegionSelectionModal(buttonToUpdate) {
+            async function showRegionSelectionModal(buttonToUpdate) {
                 if (document.getElementById(`${MODAL_ID}-overlay`)) { return; }
+                
+                await regionsPromise;
 
                 const overlay = document.createElement('div'); overlay.id = `${MODAL_ID}-overlay`;
                 const modalContent = document.createElement('div'); modalContent.id = `${MODAL_ID}-content`;
@@ -387,7 +422,7 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
                     }
                  }, 350);
             }
-            
+
             function delay(ms) {  return new Promise(resolve => setTimeout(resolve, ms)); }
             function getPlaceIdFromUrl() {
                 const regex = /https:\/\/www\.roblox\.com\/(?:[a-z]{2}\/)?games\/(\d+)/;
@@ -456,7 +491,7 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
                     });
                     const token = response.headers.get('x-csrf-token');
                     if (token) { csrfToken = token; return token; }
-                    else { console.warn(`Custom Button Extension: Fetch to logout endpoint did not return a CSRF token (Status: ${response.status}). Trying meta tag...`); }
+                    else { console.warn(`[Region Play Button] Fetch to logout endpoint did not return a CSRF token (Status: ${response.status}). Trying meta tag...`); }
                 } catch (error) { }
                 const metaToken = document.querySelector('meta[name="csrf-token"]');
                 if (metaToken) {
@@ -466,31 +501,83 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
                 csrfToken = null;
                 return null;
              }
+
             async function loadServerIpMapIfNeeded() {
                 if (serverIpMapLoaded) return true;
-                if (!SERVER_IP_MAP_URL) { console.error("Custom Button Extension: Server IP Map URL is not configured."); return false; }
-                try {
-                    const response = await fetch(SERVER_IP_MAP_URL);
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                    const serverListData = await response.json();
-                    if (Array.isArray(serverListData)) {
-                        serverIpMap = serverListData;
-                    } else {
-                        serverIpMap = serverListData;
+
+                const stateKey = 'myPreferredRegionDatacenterState';
+                const promiseKey = 'myPreferredRegionDatacenterPromise';
+
+                if (window[stateKey] === 'complete') {
+                    serverIpMap = await window[promiseKey];
+                    serverIpMapLoaded = true;
+                    return true;
+                }
+                if (window[stateKey] === 'fetching') {
+                    serverIpMap = await window[promiseKey];
+                    serverIpMapLoaded = !!serverIpMap;
+                    return serverIpMapLoaded;
+                }
+
+                window[stateKey] = 'fetching';
+                window[promiseKey] = new Promise(async (resolve, reject) => {
+                    try {
+                        const waitForElement = selector => new Promise(resolve => {
+                            const el = document.querySelector(selector);
+                            if (el) return resolve(el);
+                            const observer = new MutationObserver(() => {
+                                const el = document.querySelector(selector);
+                                if (el) {
+                                    resolve(el);
+                                    observer.disconnect();
+                                }
+                            });
+                            observer.observe(document.body, { childList: true, subtree: true });
+                        });
+
+                        const dataStorageElement = await waitForElement('#rovalra-datacenter-data-storage');
+                        if (!dataStorageElement) {
+                             throw new Error("Data storage element '#rovalra-datacenter-data-storage' not found.");
+                        }
+
+                        const serverListData = JSON.parse(dataStorageElement.textContent);
+                        const map = {};
+                        if (Array.isArray(serverListData)) {
+                            serverListData.forEach(dc => {
+                                if (dc.dataCenterIds && Array.isArray(dc.dataCenterIds) && dc.location) {
+                                    dc.dataCenterIds.forEach(id => {
+                                        map[id] = dc.location;
+                                    });
+                                }
+                            });
+                        }
+
+                        window[stateKey] = 'complete';
+                        resolve(map);
+
+                    } catch (error) {
+                        console.error("[Region Play Button] Failed to load datacenter map from storage element.", error);
+                        delete window[stateKey];
+                        delete window[promiseKey];
+                        reject(error);
                     }
+                });
+
+                try {
+                    serverIpMap = await window[promiseKey];
                     serverIpMapLoaded = true;
                     return true;
                 } catch (error) {
-                    console.error("Custom Button Extension: Error loading ServerList.json:", error);
                     serverIpMap = {};
                     serverIpMapLoaded = false;
                     return false;
                 }
-             }
+            }
 
             async function _internal_handleServer(server, placeId) {
                 const serverId = server?.id; if (!serverId) return;
                 if (userRequestedStop) return;
+
                 if (serverLocations[serverId] && serverLocations[serverId].l !== undefined) {
                      if (userLocation && serverLocations[serverId].l) {
                          const dist = calculateDistance(userLocation.latitude, userLocation.longitude, serverLocations[serverId].l.latitude, serverLocations[serverId].l.longitude);
@@ -498,18 +585,21 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
                      } else { server.calculatedPing = Infinity; }
                      return;
                 }
+
                 let regionCode = "??";
                 let serverLat = null, serverLon = null;
                 serverLocations[serverId] = { c: "??", l: null };
                 server.calculatedPing = Infinity;
+
                 try {
                     if (userRequestedStop) return;
                     let currentCsrfToken = await getCsrfToken();
                     if (!currentCsrfToken) {
                          csrfToken = null; csrfFetchAttempted = false;
                          currentCsrfToken = await getCsrfToken();
-                         if (!currentCsrfToken) { console.error(`Custom Button Extension: Cannot fetch join info for server ${serverId}: CSRF token missing after retry.`); return; }
+                         if (!currentCsrfToken) { console.error(`[Region Play Button] Cannot fetch join info for server ${serverId}: CSRF token missing after retry.`); return; }
                     }
+
                      if (userRequestedStop) return;
                     const serverInfoResponse = await fetch(`https://gamejoin.roblox.com/v1/join-game-instance`, {
                         method: 'POST',
@@ -517,17 +607,20 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
                         body: JSON.stringify({ placeId: parseInt(placeId, 10), isTeleport: false, gameId: serverId, gameJoinAttemptId: crypto.randomUUID(), }),
                         credentials: 'include',
                     });
+
                     if (!serverInfoResponse.ok) {
                          if (serverInfoResponse.status === 403) { csrfToken = null; csrfFetchAttempted = false; }
-                         else if (serverInfoResponse.status === 429) { console.warn(`Custom Button Extension: Rate limited fetching join info for server ${serverId}.`); }
-                         else { console.warn(`Custom Button Extension: Failed to get join info for server ${serverId}. Status: ${serverInfoResponse.status}`); }
+                         else if (serverInfoResponse.status === 429) { console.warn(`[Region Play Button] Rate limited fetching join info for server ${serverId}.`); }
+                         else { console.warn(`[Region Play Button] Failed to get join info for server ${serverId}. Status: ${serverInfoResponse.status}`); }
                         return;
                     }
+
                     const serverInfo = await serverInfoResponse.json();
                     if (userRequestedStop) return;
+
                     if (serverInfo?.message === "You need to purchase access to this game before you can play.") {
                         const overlayText = document.getElementById(`${LOADING_OVERLAY_ID}-text`);
-                        overlayText.textContent = `You need to buy the game to view regions.`;
+                        if(overlayText) overlayText.textContent = `You need to buy the game to view regions.`;
                     }
                     try {
                          const sessionData = JSON.parse(serverInfo?.joinScript?.SessionId || '{}');
@@ -538,55 +631,36 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
                               }
                          }
                     } catch (e) { }
+
                     const dataCenterId = serverInfo?.joinScript?.DataCenterId;
-                    if (dataCenterId && Array.isArray(serverIpMap)) {
-                        const dataCenter = serverIpMap.find(dc => dc.dataCenterId === dataCenterId);
-                        if (dataCenter) {
-                            const countryCode = dataCenter.location.country;
-                            if (dataCenter.location.latLong && dataCenter.location.latLong.length === 2) {
-                                serverLat = parseFloat(dataCenter.location.latLong[0]);
-                                serverLon = parseFloat(dataCenter.location.latLong[1]);
-                            }
-                            if (countryCode === "US" && dataCenter.location.region) {
-                                const stateCode = getStateCodeFromRegion(dataCenter.location.region);
-                                regionCode = `US-${stateCode}`;
-                            } else if (countryCode) {
-                                regionCode = countryCode;
-                            } else {
-                                regionCode = "??";
-                            }
+
+                    if (dataCenterId && serverIpMap && serverIpMap[dataCenterId]) {
+                        const locationData = serverIpMap[dataCenterId];
+
+                        if (locationData.latLong && locationData.latLong.length === 2) {
+                            serverLat = parseFloat(locationData.latLong[0]);
+                            serverLon = parseFloat(locationData.latLong[1]);
+                        }
+
+                        const countryCode = locationData.country;
+                        if (countryCode === "US" && locationData.region) {
+                            const stateCode = getStateCodeFromRegion(locationData.region);
+                            regionCode = `US-${stateCode}`;
+                        } else if (countryCode) {
+                            regionCode = countryCode;
                         } else {
                             regionCode = "??";
                         }
                     } else {
-                        const ipAddress = serverInfo?.joinScript?.UdmuxEndpoints?.[0]?.Address;
-                        if (!ipAddress) {
-                            regionCode = "??";
-                        } else {
-                            const normalizedIp = ipAddress.split('.').slice(0, 3).join('.') + '.0';
-                            const serverLocationData = serverIpMap && !Array.isArray(serverIpMap) ? serverIpMap[normalizedIp] : null;
-                            if (serverLocationData) {
-                                const countryCode = serverLocationData?.country?.code;
-                                serverLat = serverLocationData?.latitude;
-                                serverLon = serverLocationData?.longitude;
-                                if (countryCode === "US" && serverLocationData.region?.code) {
-                                    const stateCode = serverLocationData.region.code.replace(/-\d+$/, '');
-                                    regionCode = `US-${stateCode}`;
-                                } else if (countryCode) {
-                                    regionCode = countryCode;
-                                } else {
-                                    regionCode = "??";
-                                }
-                            } else {
-                                regionCode = "??";
-                            }
-                        }
+                        regionCode = "??";
                     }
+
                     serverLocations[serverId] = {
                         c: regionCode,
                         l: (typeof serverLat === 'number' && typeof serverLon === 'number') ? { latitude: serverLat, longitude: serverLon } : null,
                         dcid: serverInfo?.joinScript?.DataCenterId
                     };
+
                     if (userLocation && serverLocations[serverId].l) {
                         const distance = calculateDistance(userLocation.latitude, userLocation.longitude, serverLat, serverLon);
                         server.calculatedPing = !isNaN(distance) ? Math.round(distance * 0.1) : Infinity;
@@ -597,7 +671,7 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
                 }
             }
 
-            
+
             async function findAndJoinServerProcess(placeId, targetRegionCode) {
                 const MAX_RETRIES_PER_PAGE = 3;
                 const INITIAL_DELAY_MS = 1000;
@@ -605,11 +679,14 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
                 const MAX_DELAY_MS = 15000;
 
                 rateLimited = false;
-                serverLocations = {}; 
+                serverLocations = {};
 
                 try {
                     const mapReady = await loadServerIpMapIfNeeded();
-                    if (!mapReady) return { joined: false, error: 'map_load_failed' };
+                    if (!mapReady) {
+                        console.error("[Region Play Button] Failed to load the datacenter map. Aborting search.");
+                        return { joined: false, error: 'map_load_failed' };
+                    }
 
                     const initialToken = await getCsrfToken();
                     if (!initialToken) return { joined: false, error: 'csrf_failed' };
@@ -654,7 +731,7 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
                         }
 
                         if (!pageFetchSuccess) {
-                             console.error(`Custom Button Extension: Failed to fetch page ${pageCount}. Stopping search.`);
+                             console.error(`[Region Play Button] Failed to fetch page ${pageCount}. Stopping search.`);
                              return { joined: false, error: 'page_fetch_failed' };
                         }
 
@@ -694,7 +771,7 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
 
                                 if (bestServer) {
                                     joinSpecificServer(placeId, bestServer.id);
-                                    return { joined: true }; 
+                                    return { joined: true };
                                 }
                             }
                         }
@@ -706,7 +783,7 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
                     return { joined: false };
 
                 } catch (error) {
-                    console.error("Custom Button Extension: Error during server search process:", error);
+                    console.error("[Region Play Button] Error during server search process:", error);
                     return { joined: false, error: 'unknown' };
                 }
             }
@@ -828,6 +905,7 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
                 tooltipSpan.classList.add('my-extension-custom-tooltip');
                 newButton.appendChild(tooltipSpan);
                 try {
+                    await regionsPromise;
                     const storageResult = await chrome.storage.local.get(PREFERRED_REGION_STORAGE_KEY);
                     updateButtonTooltip(newButton, storageResult[PREFERRED_REGION_STORAGE_KEY]);
                 } catch (error) {
@@ -839,6 +917,9 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
                     try {
                         const storageResult = await chrome.storage.local.get(PREFERRED_REGION_STORAGE_KEY);
                         const currentSavedRegion = storageResult[PREFERRED_REGION_STORAGE_KEY];
+                        
+                        await regionsPromise;
+
                         if (currentSavedRegion && REGIONS[currentSavedRegion]) {
                             await performJoinAction(currentSavedRegion);
                         } else {
@@ -937,7 +1018,7 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
              }, 20000);
         }
     } else {
-        const existingButton = document.getElementById(newButtonId);
+        const existingButton = document.getElementById('join-preferred-region');
         if (existingButton) existingButton.remove();
     }
-}});
+});

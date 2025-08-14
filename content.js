@@ -17,8 +17,8 @@ const PAGE_SETTINGS_MAP = {
     BUNDLES: ['itemSalesEnabled'],
     COMMUNITIES: ['groupGamesEnabled', 'pendingRobuxEnabled'],
     USERS: ['userGamesEnabled', 'userSniperEnabled'],
-    GAMES: ['subplacesEnabled', 'universalSniperEnabled', 'inviteEnabled'],
-    AVATAR: ['forceR6Enabled', 'fixR6Enabled'],
+    GAMES: ['subplacesEnabled', 'universalSniperEnabled', 'inviteEnabled', "serverUptimeServerLocationEnabled", "ServerlistmodificationsEnabled", "TotalServersEnabled", "ServerFilterEnabled"],
+    AVATAR: ['forceR6Enabled'],
     TRANSACTIONS: ['pendingRobuxEnabled']
 };
 
@@ -42,7 +42,6 @@ const addPreloadHints = () => {
         'HiddenGames/user_games.js',
         'HiddenGames/group_games.js',
         'Avatar/R6Warning.js',
-        'Avatar/R6Fix.js',
         'misc/userSniper.js',
         'misc/item_sales_content.js',
         'misc/pendingRobux.js',
@@ -174,15 +173,10 @@ function getPlaceIdFromUrl() {
         groupGamesEnabled: true,
         userGamesEnabled: true,
         userSniperEnabled: false,
-        universalSniperEnabled: true,
-        regionSelectorEnabled: true,
+        universalSniperEnabled: false,
         subplacesEnabled: true,
         forceR6Enabled: true,
-        fixR6Enabled: false,
         inviteEnabled: true,
-        regionSelectorInitialized: false,
-        regionSelectorFirstTime: true,
-        regionSimpleUi: false,
         pendingRobuxEnabled: true,
         PreferredRegionEnabled: true,
         privateInventoryEnabled: true,
@@ -192,6 +186,11 @@ function getPlaceIdFromUrl() {
         enableFriendservers: true,
         privateserverlink: true,
         pendingrobuxtrans: true,
+        serverUptimeServerLocationEnabled: true,
+        ServerlistmodificationsEnabled: true,
+        TotalServersEnabled: true,
+        ServerFilterEnabled: true,
+        cssfixesEnabled: true,
     };
 
     const settingsToLoad = {
@@ -265,9 +264,7 @@ function getPlaceIdFromUrl() {
             if (settings.forceR6Enabled) {
                 scriptPromises.push(loadScript('Avatar/R6Warning.js'));
             }
-            if (settings.fixR6Enabled) {
-                scriptPromises.push(loadScript('Avatar/R6Fix.js'));
-            }
+          
             break;
         case 'TRANSACTIONS':
             if (settings.pendingrobuxtrans) {

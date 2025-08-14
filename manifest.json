@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "RoValra - Roblox Improved",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "description": "An extension aiming to provide features that other Roblox extensions pay wall!",
   "content_scripts": [    {
       "matches": [
@@ -15,7 +15,7 @@
         "*://*.roblox.com/*/games/*",
         "*://*.roblox.com/games/*"
       ],
-      "js": ["Games/serverid.js",  "Games/serverlistener.js",  "Games/botDetector.js" ],
+      "js": ["Games/serverid.js",  "Games/serverlistener.js",  "Games/botDetector.js"],
       "run_at": "document_start",
       "all_frames": true
     },    {
@@ -31,7 +31,7 @@
          "*://*.roblox.com/*/games/*",
         "*://*.roblox.com/games/*"
       ],
-      "js": ["Games/Regions_content.js", "Games/RegionPlayButton.js", "Games/Regions_contentSimple.js"],
+      "js": ["Games/RegionPlayButton.js", "Games/Regions_contentSimple.js", "Games/serveruptime.js" ],
       "run_at": "document_end",
       "all_frames": true
     },
@@ -49,6 +49,15 @@
         "*://*.roblox.com/users/*"
       ],
       "js": ["misc/ItemChecker.js"],
+      "run_at": "document_end",
+      "all_frames": true
+    },
+     {
+      "matches": [
+         "*://*.roblox.com/*/users/*",
+        "*://*.roblox.com/users/*"
+      ],
+      "js": ["misc/cssfixes.js"],
       "run_at": "document_end",
       "all_frames": true
     }
@@ -92,11 +101,9 @@
               "misc/utils.js",
               "Games/Regions_content.js",
               "Games/Subplaces.js",
-              "data/ServerList.json",
               "data/items.json",
               "data/countries.json",
               "Avatar/R6Warning.js",
-              "Avatar/R6Fix.js",
               "settings.js",
               "Assets/icon-128.png",
               "Games/invite.js",
@@ -108,7 +115,26 @@
               "misc/pendingRobuxTrans.js",
               "Games/botDetector.js",
               "Games/inject.js",
-              "Games/invite.js"
+              "Games/invite.js",
+              "Games/serveruptime.js",
+              "data/Three.js",
+              "data/OrbitControls.js",
+              "data/globe_initializer.js" ,
+              "data/map_dark.png",
+              "data/map_light.png",
+              "Assets/germany.png",
+              "Assets/brazil.png",
+              "Assets/france.png",
+              "Assets/netherlands.png",
+              "Assets/japan.png",
+              "Assets/singapore.png",
+              "Assets/unitedstates.png",
+              "Assets/unitedkingdom.png",
+              "Assets/india.png",
+              "Assets/australia.png",
+              "Assets/unknown.png",
+              "Assets/RegionSelectorPicture.png",
+              "misc/cssfixes.js"
           ],
           "matches": [
               "https://www.roblox.com/*"

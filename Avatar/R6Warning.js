@@ -1,65 +1,80 @@
 (function() {
-    const currentURL = window.location.href;
-      const avatarPathRegex = /\/my\/avatar$/;
-      if (!avatarPathRegex.test(currentURL)) {
-          return;
-      }
-  
-      let observer;
-      let modalDetected = false;
-      let lastModal = null;
-  
-      function setupObserver() {
-          modalDetected = false;
-          lastModal = null;
-          observer = new MutationObserver(mutations => {
-              for (const mutation of mutations) {
-                  if (mutation.type === 'childList') {
-                      mutation.addedNodes.forEach(node => {
-                          if (node.nodeType === 1 && node.classList.contains('modal-dialog')) {
-                              if (node !== lastModal) {
-                                  attemptClickButton();
-                                  lastModal = node;
-                                  modalDetected = true;
-                              }
-                          }
-                          if (node.nodeType === 1) {
-                              const modalElements = node.querySelectorAll('.modal-dialog');
-                              if (modalElements.length > 0) {
-                                  const modal = modalElements[0];
-                                  if (modal !== lastModal) {
-                                      attemptClickButton();
-                                      lastModal = modal;
-                                      modalDetected = true;
-                                  }
-                              }
-                          }
-                      });
-                  }
-                  if (mutation.type === 'attributes') {
-                      if (mutation.target.nodeType === 1 && mutation.target.classList.contains('modal-dialog')) {
-                          if (mutation.target !== lastModal) {
-                              attemptClickButton();
-                              lastModal = mutation.target;
-                              modalDetected = true;
-                          }
-                      }
-                  }
-              }
-          });
-          observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
-      }
-  
-      function attemptClickButton() {
-          const button = document.getElementById('submit');
-          if (button) {
-              button.click();
-              observer.disconnect();
-              setTimeout(setupObserver, 500);
-          } else {
-              setTimeout(setupObserver, 500);
-          }
-      }
-  
-      setupObserver();
-  })();
+    const muiModalSelector = 'div[role="presentation"].MuiDialog-root';
+    const uibModalSelector = 'div[uib-modal-window="modal-window"]';
+
+    const buttonTextToFind = 'switch';
+    const buttonIdToFind = 'submit';
+    const maxCycles = 50;
+
+    let observer;
+
+    function setupObserver() {
+        if (observer) {
+            observer.disconnect();
+        }
+
+        observer = new MutationObserver((mutations) => {
+            for (const mutation of mutations) {
+                if (mutation.addedNodes.length === 0) continue;
+
+                for (const node of mutation.addedNodes) {
+                    if (node.nodeType !== Node.ELEMENT_NODE) continue;
+
+                    let foundModal = null;
+
+                    if (node.matches(muiModalSelector) || node.matches(uibModalSelector)) {
+                        foundModal = node;
+                    } else {
+                        foundModal = node.querySelector(muiModalSelector) || node.querySelector(uibModalSelector);
+                    }
+
+                    if (foundModal) {
+                        observer.disconnect();
+                        foundModal.style.display = 'none';
+                        findAndClickInModal(foundModal);
+                        return;
+                    }
+                }
+            }
+        });
+
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+    }
+
+    function findAndClickInModal(modalRootNode) {
+        let cycles = 0;
+        let animationFrameId;
+
+        function checkAndClick() {
+            if (cycles >= maxCycles) {
+                setupObserver(); 
+                cancelAnimationFrame(animationFrameId);
+                return;
+            }
+
+            let targetButton = modalRootNode.querySelector(`button#${buttonIdToFind}`);
+
+            if (!targetButton) {
+                const allButtons = modalRootNode.querySelectorAll('button');
+                targetButton = Array.from(allButtons).find(btn => btn.textContent.trim().toLowerCase() === buttonTextToFind);
+            }
+
+
+            if (targetButton && !targetButton.disabled) {
+                targetButton.click();
+                setTimeout(setupObserver, 500); 
+                cancelAnimationFrame(animationFrameId);
+            } else {
+                cycles++;
+                animationFrameId = requestAnimationFrame(checkAndClick);
+            }
+        }
+
+        animationFrameId = requestAnimationFrame(checkAndClick);
+    }
+
+    setupObserver();
+})();

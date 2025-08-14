@@ -1,24 +1,13 @@
-const REGIONS = {
-    "AUTO": { city: "Nothing Selected", state: null, country: null },
-    "SG": { latitude: 1.3521, longitude: 103.8198, city: "Singapore", state: null, country: "Singapore" },
-    "DE": { latitude: 50.1109, longitude: 8.6821, city: "Frankfurt", state: null, country: "Germany" },
-    "FR": { latitude: 48.8566, longitude: 2.3522, city: "Paris", state: null, country: "France" },
-    "JP": { latitude: 35.6895, longitude: 139.6917, city: "Tokyo", state: null, country: "Japan" },
-    "BR": { latitude: -14.2350, longitude: -51.9253, city: "Coming early 2026", state: null, country: "Brazil" },
-    "NL": { latitude: 52.3676, longitude: 4.9041, city: "Amsterdam", state: null, country: "Netherlands" },
-    "US-CA": { latitude: 34.0522, longitude: -118.2437, city: "LA", state: "California", country: "United States" },
-    "US-VA": { latitude: 38.9577, longitude: -77.4875, city: "Ashburn", state: "Virginia", country: "United States" },
-    "US-IL": { latitude: 41.8781, longitude: -87.6298, city: "Chicago", state: "Illinois", country: "United States" },
-    "US-TX": { latitude: 32.7767, longitude: -96.7970, city: "Dallas", state: "Texas", country: "United States" },
-    "US-FL": { latitude: 25.7743, longitude: -80.1937, city: "Miami", state: "Florida", country: "United States" },
-    "US-NY": { latitude: 40.7128, longitude: -74.0060, city: "NYC", state: "New York", country: "United States" },
-    "US-WA": { latitude: 47.6062, longitude: -122.3321, city: "Seattle", state: "Washington", country: "United States" },
-    "AU": { latitude: -33.8688, longitude: 151.2093, city: "Sydney", state: null, country: "Australia" },
-    "GB": { latitude: 51.5074, longitude: -0.1278, city: "London", state: null, country: "United Kingdom" },
-    "IN": { latitude: 19.0760, longitude: 72.8777, city: "Mumbai", state: null, country: "India" },
-    "US-NJ": { latitude: 40.7895, longitude: -74.0565, city: "Secaucus", state: "New Jersey", country: "United States" },
-    "US-OR": { latitude: 45.8400, longitude: -119.7012, city: "Boardman", state: "Oregon", country: "United States" },
-    "US-OH": { latitude: 39.9612, longitude: -82.9988, city: "Columbus", state: "Ohio", country: "United States" }
+
+let REGIONS = {};
+let REGION_CONTINENTS = {};
+
+const COUNTRY_TO_CONTINENT = {
+    'SG': 'Asia', 'JP': 'Asia', 'IN': 'Asia',
+    'DE': 'Europe', 'FR': 'Europe', 'NL': 'Europe', 'GB': 'Europe',
+    'US': 'North America',
+    'AU': 'Oceania',
+    'BR': 'South America'
 };
 
 let cachedTheme = null;
@@ -26,13 +15,67 @@ let themeLastFetched = 0;
 // This shit useless at this point but OH WELLLLLLL!!!!!!
 const THEME_CACHE_DURATION = 24 * 60 * 60 * 1000; 
 
-const REGION_CONTINENTS = {
-    "Asia": ["SG", "JP", "IN"],
-    "Europe": ["DE", "FR", "NL", "GB"],
-    "North America": ["US-CA", "US-VA", "US-IL", "US-TX", "US-FL", "US-NY", "US-WA", "US-NJ", "US-OR", "US-OH"],
-    "Oceania": ["AU"],
-    "South America": ["BR"]
-};
+async function fetchAndProcessRegions() {
+    const newRegions = {
+        "AUTO": { city: "Nothing Selected", state: null, country: null, latitude: null, longitude: null }
+    };
+    const newRegionContinents = {};
+
+    try {
+        // You are allowed to use this API for personal projects only which is limited to open source projects on GitHub, they must be free and you must credit the RoValra repo.
+        // You are not allowed to use the API for projects on the chrome web store or any other extension store. If you want to use the API for a website dm be on discord: Valra and we can figure something out.
+        // If you want to use the API for something thats specifically said isnt allowed or you might be unsure if its allowed, please dm me on discord: Valra, Ill be happy to check out your stuff and maybe allow you to use it for your project.
+        const response = await fetch('https://apis.rovalra.com/datacenters');
+        if (!response.ok) {
+            throw new Error(`Failed to fetch regions: ${response.status}`);
+        }
+        const data = await response.json();
+
+        for (const item of data) {
+            const loc = item.location;
+            if (!loc || !loc.country || !loc.latLong || loc.latLong.length !== 2) {
+                continue; 
+            }
+
+            const countryCode = loc.country;
+            const state = loc.region;
+            let regionCode = countryCode;
+
+            if (countryCode === 'US' && state) {
+                const stateCode = getStateCodeFromRegion(state); 
+                if (stateCode) {
+                    regionCode = `US-${stateCode}`;
+                }
+            }
+            
+            if (!newRegions[regionCode]) {
+                newRegions[regionCode] = {
+                    latitude: parseFloat(loc.latLong[0]),
+                    longitude: parseFloat(loc.latLong[1]),
+                    city: loc.city,
+                    state: state,
+                    country: countryCode
+                };
+
+                const continent = COUNTRY_TO_CONTINENT[countryCode];
+                if (continent) {
+                    if (!newRegionContinents[continent]) {
+                        newRegionContinents[continent] = [];
+                    }
+                    newRegionContinents[continent].push(regionCode);
+                }
+            }
+        }
+    } catch (error) {
+        console.error("Could not fetch dynamic regions. The region selector may be incomplete.", error);
+    }
+    
+
+
+    REGIONS = newRegions;
+    REGION_CONTINENTS = newRegionContinents;
+}
+
 
 const SETTINGS_CONFIG = {
     Catalog: {
@@ -57,22 +100,7 @@ const SETTINGS_CONFIG = {
     Games: {
         title: "Games",
         settings: {
-            regionSelectorEnabled: {
-                label: "Enable Region Selector",
-                description: ["This lets you select a server in a specific region to join."],
-                type: "checkbox",
-                default: false,
-                childSettings: {
-                    regionSimpleUi: {
-                        label: "Enable Globe UI",
-                        description: ["This changes the region selector UI to a globe.",
-                                    "{{red WARNING}} this may be laggy on lower end devices, and the UI is outdated and lacking features."],
-                        type: "checkbox",
-                        default: false
-                    }
-                    
-                }
-            },
+
             PreferredRegionEnabled: {
                 label: "Enable Preferred Join Region",
                 description: ["This adds a play button that joins your preferred region.",
@@ -91,7 +119,7 @@ const SETTINGS_CONFIG = {
             },
             botdataEnabled: {
                 label: "Enable Bot Data",
-                description: ["Shows if a game has a lot of bots.",
+                description: ["Shows if a game has a lot of bots in the description of the game.",
                             "It doesn't show the amount of bots, since the sample size is too small to give an accurate number."],
                 type: "checkbox",
                 default: true
@@ -102,50 +130,83 @@ const SETTINGS_CONFIG = {
                 type: "checkbox",
                 default: true
             },
-            inviteEnabled: {
-                label: "Enable Universal Server Invites",
-                description: ["This allows you to invite your friends to the game you're in, without your friend requiring any extension, not even RoValra!",
-                            "You can copy the link by pressing on the `Copy Join Link` button.",
-                        "This will remove the RoPro share button for the 'Servers' section.",],
+            TotalServersEnabled: { 
+                label: "Enable Total Servers",
+                description: ["This shows the total amount of servers a game has."],
                 type: "checkbox",
                 default: true
             },
-            showfullserveridEnabled: {
-                label: "Enable Show Full Server ID",
-                description: ["This shows the full server id in the server list.",
-                    "May cause issues with the UI if you have RoPro Plus Server Uptime.",
-                    "Unless you have BTRoblox too. (The normal roblox website is made in interesting ways)"
-                ],
+            ServerFilterEnabled: {
+                label: "Enable Server Filters",
+                description: ["This adds a filter to the server list.",
+                     "allowing you to filter servers by region, uptime and server size.",
+                    "**It is highly recommended that the 'Server List Modifications' and 'Server Uptime And Server Location' settings are enabled for this to work correctly.**"],
                 type: "checkbox",
-                default: true
+                default: true,
             },
-            enableFriendservers: {
-                label: "Enable Servers My Friends Are In modifications",
-                description: ["This adds a few modifications to the servers my friends are in section.",
-                    "It adds text saying if a friend is in a private server.",
-                    "It also adds a copy join link button if a friend isnt in a private server.",
-                    "This will remove the RoPro share button for the 'Servers My Friends Are In' section.",
-                ],
-                type: "checkbox",   
-                default: true
-            },
-            privateserverlink: {
-                label: "Enable Quick Private Server Invite Link",
-                description: ["This adds a button allowing you to copy your private server invite link without needing to open the configure page.",
-                    "This also adds a button allowing you to quickly generate a new private server link"
-                ],
+            ServerlistmodificationsEnabled: {
+                label: "Enable Server List Modifications",
+                description: ["This adds a bunch of modifications to the server list.",
+                    "When this is enabled it will remove the following features from other extensions:",
+                    "- RoPro Share Button",
+                    "- RoPro Server Uptime (RoPro Plus)",
+                    "- RoPro Server Location (RoPro Plus)",
+                    "- BTRoblox Region",
+                    "- BTRoblox Ping",
+                    "- BetterBlox Server List Enhancements",
+                    "These features were removed to prevent conflicts with RoValra.",
+                    "This feature does not work with **'RoSeal Beta's Server List'** When RoSeal fully releases the server list, support will be added.",
+                ], 
                 type: "checkbox",
-                default: true
-                
+                default: true,
+                childSettings: {
+                serverUptimeServerLocationEnabled: {
+                    label: "Enable Server Uptime, Server Location And Queue Size",
+                    description: ["This shows a servers uptime, region and queue size in the server list.",
+                        "Keep in mind not all servers will have uptime data, but a lot do."
+                    ],
+                    type: "checkbox",
+                    default: true,
+                },
+                inviteEnabled: {
+                    label: "Enable Universal Server Invites",
+                    description: ["This allows you to invite your friends to the game you're in, without your friend requiring any extension, not even RoValra!",
+                                "You can copy the link by pressing on the `Share` button."],
+                    type: "checkbox",
+                    default: true
+                },
+                showfullserveridEnabled: {
+                    label: "Enable Show Full Server ID",
+                    description: ["This shows the full server id in the server list."],
+                    type: "checkbox",
+                    default: true
+                },
+                enableFriendservers: {
+                    label: "Enable Servers My Friends Are In modifications",
+                    description: ["This adds a `Share` button to the 'Servers My Friends Are In'",
+                        "*IM NOT ABOUT TO CALL THAT 'Servers My Connections Are In'*"
+                    ],
+                    type: "checkbox",   
+                    default: true
+                },
+                privateserverlink: {
+                    label: "Enable Quick Private Server Invite Link",
+                    description: ["This adds a button allowing you to copy your private server invite link without needing to open the configure page.",
+                        "This also adds a button allowing you to quickly generate a new private server link"
+                    ],
+                    type: "checkbox",
+                    default: true
+                },
+                },
             },
             universalSniperEnabled: {
                 label: "Enable Universal User Sniper",
-                description: ["This allows you to join a user, without needing to be friends with them.",
-                            "Only requirement is that you know what game they are playing.",
-                        "**If you don't want users using this to join you, you can change your joins to no one.**",
-                         "keep in mind having joins to no one might not fully prevent users from joining you depending on what bypass users are using."],
+                description: ["{{red WARNING}} This Feature is not supported anymore, And will not be receiving updates.",
+                    "I regret adding this feature cuz of stalkers, so I decided to drop support for it. But the feature is here to stay for now...",
+                    "This allows you to join a user, without needing to be friends with them.",
+                        "**If you don't want users using this to join you, you can change your joins to no one.**"],
                 type: "checkbox",
-                default: true
+                default: false
             }
         }
     },
@@ -201,14 +262,6 @@ const SETTINGS_CONFIG = {
                 description: ["Removes the R6 warning when switching to R6"],
                 type: "checkbox",
                 default: true
-            },
-            fixR6Enabled: {
-                label: "Enable R6 Fix",
-                description: ["{{green Beta Feature}}",
-                    "Stops Roblox from automatically switching your character to R15 when equiping dynamic heads.",
-                            "This requires you to use the english language on Roblox."],
-                type: "checkbox",
-                default: false
             }
         }
     },
@@ -216,12 +269,24 @@ const SETTINGS_CONFIG = {
         title: "Miscellaneous",
         settings: {
             ServerdataEnabled: {
-                label: "Send Server ids to RoValras api",
-                description: ["This feature is here since im trying to figure out how well my server handles stuff like this.",
-                    "No personal data is sent, not even user id or username, only the server ids and the place id that ur client found",
-                    "This might be come a permanent feature if this test is successful.",
-                    "Leaving this setting on will help me develop the extension."
+                label: "Send Server Ids And Place Ids To RoValras Api",
+                description: ["This feature sends server ids and place ids to RoValras api, when you browse the site.",
+                    "This data is used for the server uptime and the Total Servers features.",
+                    "Leaving this feature on will help improve the Server Uptime and Total Servers features.",
+                    "**No personal data is sent, not even user id or username, only the server ids and the place id.**",
+                    "**No data that can be used to link the server ids / place ids to you is sent or logged.**"
                 ],
+                type: "checkbox",
+                default: true
+            },
+            cssfixesEnabled: {
+                label: "Enable CSS Fixes",
+                description: ["This feature has CSS fixes for the Roblox website.",
+                    "CSS fixes this feature does:",
+                    "- Fixes the avatar icon on profile getting squished.",
+                    "More to come when I notice some issues that annoys me :)"
+                ],
+
                 type: "checkbox",
                 default: true
             },
@@ -422,7 +487,8 @@ const SETTINGS_CONFIG = {
         },
             captcha: {
                 label: "All the places where you can get a captcha on Roblox",
-                description: ["- sign up"
+                description: ["Roblox im still mad that you denied my captcha bypass just to fix it a few weeks later 😡😡😡😡😡"
+                ,"- sign up"
                 , "- login"
                 , "- change password"
                 , "- redeeming a gift card"
@@ -661,7 +727,7 @@ function parseMarkdown(text) {
     text = text.replace(/\{link\}(.*?)\{linkEnd\}/g, (match, content) => {
         let linkClass = 'rovalra-link';
         let href = '#';
-        
+        // What in the gemini
         if (content.toLowerCase().includes('roblox community standards')) {
             linkClass = 'rovalra-roblox-link';
             href = 'https://en.help.roblox.com/hc/en-us/articles/203313410-Roblox-Community-Standards';
@@ -710,6 +776,23 @@ function getFullRegionName(regionCode) {
     parts = [...new Set(parts.filter(p => p))];
     if (parts.length > 1 && parts[parts.length - 1] === "United States") parts[parts.length - 1] = "USA";
     return parts.join(', ') || regionCode;
+}
+
+function getStateCodeFromRegion(regionName) {
+    const stateMap = {
+        'Alabama': 'AL', 'Alaska': 'AK', 'Arizona': 'AZ', 'Arkansas': 'AR', 'California': 'CA',
+        'Colorado': 'CO', 'Connecticut': 'CT', 'Delaware': 'DE', 'Florida': 'FL', 'Georgia': 'GA',
+        'Hawaii': 'HI', 'Idaho': 'ID', 'Illinois': 'IL', 'Indiana': 'IN', 'Iowa': 'IA', 'Kansas': 'KS',
+        'Kentucky': 'KY', 'Louisiana': 'LA', 'Maine': 'ME', 'Maryland': 'MD', 'Massachusetts': 'MA',
+        'Michigan': 'MI', 'Minnesota': 'MN', 'Mississippi': 'MS', 'Missouri': 'MO', 'Montana': 'MT',
+        'Nebraska': 'NE', 'Nevada': 'NV', 'New Hampshire': 'NH', 'New Jersey': 'NJ', 'New Mexico': 'NM',
+        'New York': 'NY', 'North Carolina': 'NC', 'North Dakota': 'ND', 'Ohio': 'OH', 'Oklahoma': 'OK',
+        'Oregon': 'OR', 'Pennsylvania': 'PA', 'Rhode Island': 'RI', 'South Carolina': 'SC',
+        'South Dakota': 'SD', 'Tennessee': 'TN', 'Texas': 'TX', 'Utah': 'UT', 'Vermont': 'VT',
+        'Virginia': 'VA', 'Washington': 'WA', 'West Virginia': 'WV', 'Wisconsin': 'WI', 'Wyoming': 'WY',
+        'Hesse': 'HE'
+    };
+    return stateMap[regionName] || null;
 }
 
 let currentTheme = 'light';
@@ -1248,14 +1331,11 @@ const loadSettings = async () => {
             userGamesEnabled: true,
             userSniperEnabled: false,
             privateInventoryEnabled: true,
-            universalSniperEnabled: true,
-            regionSelectorEnabled: true,
-            regionSimpleUi: false,
+            universalSniperEnabled: false,
             PreferredRegionEnabled: true,
             robloxPreferredRegion: 'AUTO',
             subplacesEnabled: true,
             forceR6Enabled: true,
-            fixR6Enabled: false,
             inviteEnabled: true,
             pendingRobuxEnabled: true,
             ServerdataEnabled: true,
@@ -1269,6 +1349,11 @@ const loadSettings = async () => {
             appealstuff: true,
             privateserverlink: true,
             pendingrobuxtrans: true,
+            serverUptimeServerLocationEnabled: true,
+            ServerlistmodificationsEnabled: true,
+            TotalServersEnabled: true,
+            ServerFilterEnabled: true,
+            cssfixesEnabled: true
         };
 
         chrome.storage.local.get(defaultSettings, (settings) => {
@@ -1364,7 +1449,7 @@ const initSettings = async (settingsContent) => {
                         }
                     }
                 } else {
-                    console.warn(`#${settingName} not found in settingsContent in initSettings for section ${sectionName}`);
+                  //  console.warn(`#${settingName} not found in settingsContent in initSettings for section ${sectionName}`);
                 }
 
                 if (setting.childSettings) {
@@ -1397,7 +1482,7 @@ const initSettings = async (settingsContent) => {
                                 }
                             }
                         } else {
-                            console.warn(`#${childName} not found in settingsContent in initSettings`);
+                          //  console.warn(`#${childName} not found in settingsContent in initSettings`);
                         }
                     }
                 }
@@ -1551,7 +1636,7 @@ async function checkRoValraPage() {
             console.warn(`Menu link for hashKey "${hashKey}" not found. Attempting to default to info tab.`);
             const infoLink = document.querySelector(`#unified-menu li[id="info-tab"] a.menu-option-content`);
             if (infoLink) {
-                document.querySelectorAll('#unified-menu .menu-option-content').forEach(el => {el.classList.remove('active'); el.removeAttribute('aria-current');}); // Clear others
+                document.querySelectorAll('#unified-menu .menu-option-content').forEach(el => {el.classList.remove('active'); el.removeAttribute('aria-current');});
                 infoLink.classList.add('active');
                 infoLink.setAttribute('aria-current', 'page');
             }
@@ -1771,7 +1856,15 @@ async function checkRoValraPage() {
             a.rovalra-roblox-link:hover {
                 color: ${isInitiallyDark ? '#d44de6' : '#d44de6'} !important;
             }
-            
+            a.rovalra-tiktok-link {
+                color: ${isInitiallyDark ? '#b91e4dff' : '#b91e4dff'} !important;
+                text-decoration: underline !important;
+                font-weight: bold !important;
+                transition: color 0.3s ease !important;
+            }
+            a.rovalra-tiktok-link:hover {
+                color: ${isInitiallyDark ? '#d82359ff' : '#d82359ff'} !important;
+            }
             a.rovalra-github-link {
                 color: ${isInitiallyDark ? '#2dba4e' : '#1e722a'} !important;
                 text-decoration: underline !important;
@@ -1959,6 +2052,10 @@ const buttonData = [
         <div style="margin-top: 5px;">
             <p style="">This is possible by running almost everything locally.</p>
             <div style="margin-top: 5px;">
+            <p style="">And the server side features doesn't cost me anything to run which is why I can afford to make this free.</p>
+            <div style="margin-top: 5px;">
+            <p style="">WE ALL LOVE GILBERT</p>
+            <div style="margin-top: 5px;">
             <p style="">If you have any feature suggestions please let me know in my Discord server or via GitHub</p>
             <div style="margin-top: 5px;">
             <p style="">If you like this extension please consider <a href="https://chromewebstore.google.com/detail/rovalra-roblox-improved/njcickgebhnpgmoodjdgohkclfplejli/reviews" target="_blank" class="rovalra-review-link">leaving a review</a>, it helps a lot ❤️</p>
@@ -1970,6 +2067,7 @@ const buttonData = [
                 <img src="${chrome.runtime.getURL("Assets/icon-128.png")}" style="width: 20px; height: 20px; margin-right: 0px; vertical-align: middle;" />
                 </a>
                 <a href="https://www.roblox.com/games/9676908657/Gamepasses#!/store" target="_blank" class="rovalra-roblox-link">Support Me on Roblox</a>
+                <a href="https://www.tiktok.com/@valrawantbanana" target="_blank" class="rovalra-tiktok-link">TikTok: ValraWantBanana</a>
         </div>
     </div>
     `},
@@ -1983,7 +2081,7 @@ const buttonData = [
                         <a href="https://github.com/workframes/roblox-owner-counts" target="_blank" class="rovalra-github-link">GitHub Repo</a>
                     </li>
                     <li style="margin-bottom: 8px; list-style-type: disc; margin-left: 20px;">
-                        Thanks to <b style="font-weight: bold;">Julia</b> for making a repo with all Roblox server ips which I now use to get the regions
+                        Thanks to <b style="font-weight: bold;">Julia</b> for making a repo with all Roblox server datacenters which I used to use to get the regions, but now I switched to my own api.
                         <a href="https://github.com/RoSeal-Extension/Top-Secret-Thing" target="_blank" class="rovalra-github-link">GitHub Repo</a>
                     </li>
                     <li style="margin-bottom: 8px; list-style-type: disc; margin-left: 20px;">
@@ -2006,7 +2104,8 @@ const buttonData = [
                 </ul>
                  <div style="margin-top: 20px; border-top: 1px solid #444; padding-top: 10px;">
                     <h2 style="margin-bottom: 5px;">Extensions</h2>
-                    <p style="margin-bottom: 10px; font-size: 16px;">Valra's personal favorite extensions</p>
+                    <p style="margin-bottom: 5px; font-size: 16px;">Valra's personal favorite extensions</p>
+                    <p style="margin-bottom: 5px; font-size: 16px;">These extensions didn't pay or ask to be featured here.</p>
                     <ul style="margin-top: 10px; padding-left: 0px;">
                         <li style="margin-bottom: 8px; list-style-type: disc; margin-left: 20px;">
                             <b style="font-weight: bold;">RoSeal</b> adds so many good QoL features that I can't live without it.
@@ -2042,6 +2141,10 @@ const settingSections = Object.keys(SETTINGS_CONFIG).map(sectionName => ({
 }));
 
 async function initializeExtension() {
+    if (window.location.href.includes('?rovalra=info')) {
+        await fetchAndProcessRegions();
+    }
+    
     await applyTheme();
     observeContentChanges();
     startObserver();
@@ -2054,6 +2157,7 @@ async function initializeExtension() {
     const observer = new MutationObserver((mutations) => {
         if (mutations.some(mutation => mutation.target.nodeName === 'TITLE')) {
             if (window.location.href.includes('?rovalra=info')) {
+                
                 startSettingsSync();
             } else {
                 stopSettingsSync();
@@ -2394,5 +2498,3 @@ function setupThemeMutationObserver() {
     
     return themeObserver;
 }
-
-// AWOOOGGAAAAAAAAA
