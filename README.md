@@ -91,7 +91,7 @@
 - [x] **~~Feature showing if a game is botted or not~~ ADDED**
 - [x] **~~Fixing the invite system~~ ADDED**
 - [x] **~~Roblox server list improvements~~ ADDED**
-- [ ] **Big region selector improvements and server uptime (Hopefully coming next update)**
+- [x] **~~Big region selector improvements and server uptime~~ ADDED**
 - [ ] **Maybe FireFox support (For now check the forks, Remember to verify the source code.)**
 
 # Known incompatibilies
