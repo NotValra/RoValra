@@ -52,7 +52,6 @@
   
 - **Avatar**
     - **Remove R6 Warning**
-    - **R6 Fix. Stops Roblox from automatically switching your character to R15 when equipping dynamic heads.**
 - **Misc**
     - **Shows an estimated for how many Robux will stop pending within 24 hours**
     - **CSS Fixes for the Roblox Website**
