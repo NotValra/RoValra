@@ -31,7 +31,6 @@
     - **Join a server in a specific region**
     - **Shows Subplaces of a game**
     - **Universal game invitation link**
-    - **Universal user sniper that does not require you to be friends with them (PATCHED)**
     - **Bot detector, shows if a game is botted**
     - **Shows full server id in the server list**
     - **Copy deeplink for friends servers**
