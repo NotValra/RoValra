@@ -23,6 +23,7 @@
 - **Games**
     - **Server Uptime**
     - **Server list filter**
+    - **Shows Total Servers in a game**
     - **Shows A servers region and uptime in the server list**
     - **Join preffered region play button**
     - **Shows hidden games on profiles and groups**
