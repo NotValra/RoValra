@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "RoValra - Roblox Improved",
-  "version": "2.2.2",
+  "version": "2.2.30",
   "description": "An extension aiming to provide features that other Roblox extensions pay wall!",
   "content_scripts": [    {
       "matches": [
@@ -134,7 +134,8 @@
               "Assets/australia.png",
               "Assets/unknown.png",
               "Assets/RegionSelectorPicture.png",
-              "misc/cssfixes.js"
+              "misc/cssfixes.js",
+              "data/ServerList.json"
           ],
           "matches": [
               "https://www.roblox.com/*"

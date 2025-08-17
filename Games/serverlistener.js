@@ -55,8 +55,7 @@ chrome.storage.local.get({ ServerdataEnabled: false }, function(settings) {
                                 const serverIds = data.data
                                     .slice(0, 50)
                                     .map(server => server.id);
-
-                                await sendToLocalAPI(placeId, serverIds, 'fetch');
+                                sendToLocalAPI(placeId, serverIds, 'fetch');
                             }
                         } catch (error) {
                         }

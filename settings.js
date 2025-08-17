@@ -15,22 +15,126 @@ let themeLastFetched = 0;
 // This shit useless at this point but OH WELLLLLLL!!!!!!
 const THEME_CACHE_DURATION = 24 * 60 * 60 * 1000; 
 
+
+async function loadRegionsFromStorage() {
+    return new Promise(resolve => {
+        chrome.storage.local.get(['cachedRegions', 'cachedRegionContinents'], (result) => {
+            if (result.cachedRegions && result.cachedRegionContinents) {
+                REGIONS = result.cachedRegions;
+                REGION_CONTINENTS = result.cachedRegionContinents;
+                console.log("RoValra: Loaded regions from local storage cache.");
+            } else {
+                REGIONS = { "AUTO": { city: "Nothing Selected", state: null, country: null, latitude: null, longitude: null } };
+                REGION_CONTINENTS = {};
+            }
+            resolve();
+        });
+    });
+}
+
+async function saveRegionsToStorage(regionsToSave, continentsToSave) {
+    chrome.storage.local.set({
+        'cachedRegions': regionsToSave,
+        'cachedRegionContinents': continentsToSave
+    }, () => {
+        console.log("RoValra: Region data has been cached to local storage.");
+    });
+}
+
+
+
+async function updateRegionDropdownUI() {
+    const regionSelect = document.getElementById('robloxPreferredRegion');
+    if (!regionSelect) {
+        return;
+    }
+
+    const settings = await loadSettings();
+    const savedRegion = settings.robloxPreferredRegion || 'AUTO';
+
+    regionSelect.innerHTML = ''; 
+
+    let optionsHtml = `<option value="AUTO">${getFullRegionName("AUTO") || "Nothing Selected"}</option>`;
+    const allRegionCodesInConfig = Object.keys(REGIONS).filter(rc => rc !== "AUTO");
+    const categorizedRegionCodes = new Set();
+
+    for (const continentName in REGION_CONTINENTS) {
+        const regionsInContinent = REGION_CONTINENTS[continentName];
+        if (regionsInContinent && regionsInContinent.length > 0) {
+            let continentOptions = '';
+            regionsInContinent.forEach(regionCode => {
+                if (REGIONS[regionCode]) {
+                    continentOptions += `<option value="${regionCode}">${getFullRegionName(regionCode)}</option>`;
+                    categorizedRegionCodes.add(regionCode);
+                }
+            });
+            if (continentOptions) {
+                optionsHtml += `<optgroup label="${continentName}">${continentOptions}</optgroup>`;
+            }
+        }
+    }
+
+    const otherRegions = allRegionCodesInConfig.filter(rc => !categorizedRegionCodes.has(rc));
+    if (otherRegions.length > 0) {
+        let otherOptions = '';
+        otherRegions.forEach(regionCode => {
+            otherOptions += `<option value="${regionCode}">${getFullRegionName(regionCode)}</option>`;
+        });
+        if (otherOptions) {
+            optionsHtml += `<optgroup label="Other Regions">${otherOptions}</optgroup>`;
+        }
+    }
+    
+    regionSelect.innerHTML = optionsHtml;
+
+    if (Array.from(regionSelect.options).some(opt => opt.value === savedRegion)) {
+        regionSelect.value = savedRegion;
+    }
+}
+
+
+
 async function fetchAndProcessRegions() {
     const newRegions = {
         "AUTO": { city: "Nothing Selected", state: null, country: null, latitude: null, longitude: null }
     };
     const newRegionContinents = {};
+    let data;
 
     try {
-        // You are allowed to use this API for personal projects only which is limited to open source projects on GitHub, they must be free and you must credit the RoValra repo.
-        // You are not allowed to use the API for projects on the chrome web store or any other extension store. If you want to use the API for a website dm be on discord: Valra and we can figure something out.
-        // If you want to use the API for something thats specifically said isnt allowed or you might be unsure if its allowed, please dm me on discord: Valra, Ill be happy to check out your stuff and maybe allow you to use it for your project.
-        const response = await fetch('https://apis.rovalra.com/datacenters');
-        if (!response.ok) {
-            throw new Error(`Failed to fetch regions: ${response.status}`);
-        }
-        const data = await response.json();
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 8000); 
 
+        const response = await fetch('https://apis.rovalra.com/datacenters', {
+            signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+            throw new Error(`API request failed with status ${response.status}`);
+        }
+        
+        data = await response.json();
+        console.log("RoValra: Successfully fetched regions from the dynamic API.");
+
+    } catch (error) {
+        console.error("RoValra: Could not fetch dynamic regions from API, using fallback.", error.name === 'AbortError' ? 'Request timed out.' : error.message);
+
+        try {
+            const fallbackUrl = chrome.runtime.getURL('data/ServerList.json');
+            const response = await fetch(fallbackUrl);
+            if (!response.ok) {
+                throw new Error(`Fallback file request failed with status ${response.status}`);
+            }
+            data = await response.json();
+        } catch (fallbackError) {
+            console.error("RoValra Critical: Could not fetch regions from API or load the fallback file.", fallbackError);
+            return;
+        }
+    }
+
+    if (data) {
         for (const item of data) {
             const loc = item.location;
             if (!loc || !loc.country || !loc.latLong || loc.latLong.length !== 2) {
@@ -66,15 +170,18 @@ async function fetchAndProcessRegions() {
                 }
             }
         }
-    } catch (error) {
-        console.error("Could not fetch dynamic regions. The region selector may be incomplete.", error);
     }
     
-
-
     REGIONS = newRegions;
     REGION_CONTINENTS = newRegionContinents;
+
+    await saveRegionsToStorage(newRegions, newRegionContinents);
+
+    if(window.location.href.includes('?rovalra=info')) {
+        await updateRegionDropdownUI();
+    }
 }
+
 
 
 const SETTINGS_CONFIG = {
@@ -1606,7 +1713,7 @@ async function checkRoValraPage() {
         return;
     }
     isSettingsPage = true;
-
+    fetchAndProcessRegions();
     const containerMain = document.querySelector('main.container-main');
     if (!containerMain) {
         return;
@@ -1674,6 +1781,7 @@ async function checkRoValraPage() {
             if (settingsContentElement) {
                 initSettings(settingsContentElement);
                 await applyTheme();
+                await updateRegionDropdownUI();
             }
         } else {
             console.warn("Unknown hashKey for content:", hashKey, "Falling back to info page.");
@@ -2141,9 +2249,9 @@ const settingSections = Object.keys(SETTINGS_CONFIG).map(sectionName => ({
 }));
 
 async function initializeExtension() {
-    if (window.location.href.includes('?rovalra=info')) {
-        await fetchAndProcessRegions();
-    }
+    await loadRegionsFromStorage();
+
+
     
     await applyTheme();
     observeContentChanges();

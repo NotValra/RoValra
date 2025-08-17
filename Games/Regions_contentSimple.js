@@ -201,7 +201,9 @@
 
             regionListContainer.innerHTML = `
                 <div style="text-align: center; padding: 5px; color: ${isDarkMode ? '#aaa' : '#666'};">
-                    <p style="margin: 5px 0 10px 0; font-size: 16px;">Region selector moved to the server list</p>
+                    <p style="margin: 5px 0 10px 0; font-size: 16px;">The advanced region selector moved to the server list</p>
+                    <p style="margin: 5px 0 10px 0; font-size: 14px;">Use the preferred region play button for a quick region selector instead.</p>
+                    <p style="margin: 5px 0 10px 0; font-size: 14px;">Which can be found right beside the normal play button.</p>
                     <img src="${imageUrl}" alt="Region selector has moved" style="width: 95%; border-radius: 4px; display: block; margin: 0 auto;">
                     <p style="font-size: 12px; color: ${isDarkMode ? '#888' : '#999'}; margin-top: 10px;">
                         This notice will be removed after ${formattedDate}.

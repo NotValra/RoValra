@@ -175,72 +175,87 @@ async function displayUptime(server, uptimeValue) {
 }
 
 
-    async function loadServerIpMap() {
-        if (window.rovalraDatacenterState === 'complete') {
-            serverIpMap = await window.rovalraDatacenterPromise;
-            return;
-        }
-        if (window.rovalraDatacenterState === 'fetching') {
-            serverIpMap = await window.rovalraDatacenterPromise;
-            return;
-        }
+    function updateAllServerRegions() {
+        serverLocations = {}; 
+        
+        const allServers = document.querySelectorAll('.rbx-public-game-server-item, .rbx-private-game-server-item, .rbx-friends-game-server-item');
+        allServers.forEach(server => {
+            const serverId = server.getAttribute('data-rovalra-serverid');
+            if (serverId && serverId !== 'null') {
+                server.querySelector('.rovalra-region-info')?.remove();
+                server.querySelector('.rovalra-server-full-info')?.remove();
+                
 
-        window.rovalraDatacenterState = 'fetching';
-
-        window.rovalraDatacenterPromise = new Promise(async (resolve, reject) => {
-            try {
-                // You are allowed to use this API for personal projects only which is limited to open source projects on GitHub, they must be free and you must credit the RoValra repo.
-                // You are not allowed to use the API for projects on the chrome web store or any other extension store. If you want to use the API for a website dm be on discord: Valra and we can figure something out.
-                // If you want to use the API for something thats specifically said isnt allowed or you might be unsure if its allowed, please dm me on discord: Valra, Ill be happy to check out your stuff and maybe allow you to use it for your project.
-                const response = await fetch('https://apis.rovalra.com/datacenters');
-                if (response.status === 429) {
-                    setTimeout(() => {
-                        loadServerIpMap().then(resolve).catch(reject);
-                    }, 5000);
-                    return;
-                }
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const serverListData = await response.json();
-
-                let dataElement = document.getElementById('rovalra-datacenter-data-storage');
-                if (!dataElement) {
-                    dataElement = document.createElement('script');
-                    dataElement.id = 'rovalra-datacenter-data-storage';
-                    dataElement.type = 'application/json';
-                    (document.head || document.documentElement).appendChild(dataElement);
-                }
-                dataElement.textContent = JSON.stringify(serverListData);
-
-                const map = {};
-                if (Array.isArray(serverListData)) {
-                    serverListData.forEach(dc => {
-                        if (dc.dataCenterIds && Array.isArray(dc.dataCenterIds) && dc.location) {
-                            dc.dataCenterIds.forEach(id => {
-                                map[id] = dc.location;
-                            });
-                        }
-                    });
-                }
-
-                window.rovalraDatacenterState = 'complete';
-                resolve(map);
-
-            } catch (error) {
-                delete window.rovalraDatacenterState;
-                delete window.rovalraDatacenterPromise;
-                reject(error);
+                fetchAndDisplayRegion(server, serverId);
             }
         });
+    }
+
+    async function loadServerIpMap() {
+        if (window.rovalraDatacenterState) return; 
+        window.rovalraDatacenterState = 'loading_fallback';
+
+        const processAndStoreData = (serverListData) => {
+            let dataElement = document.getElementById('rovalra-datacenter-data-storage');
+            if (!dataElement) {
+                dataElement = document.createElement('script');
+                dataElement.id = 'rovalra-datacenter-data-storage';
+                dataElement.type = 'application/json';
+                (document.head || document.documentElement).appendChild(dataElement);
+            }
+            dataElement.textContent = JSON.stringify(serverListData);
+
+            const map = {};
+            if (Array.isArray(serverListData)) {
+                serverListData.forEach(dc => {
+                    if (dc.dataCenterIds && Array.isArray(dc.dataCenterIds) && dc.location) {
+                        dc.dataCenterIds.forEach(id => {
+                            map[id] = dc.location;
+                        });
+                    }
+                });
+            }
+            serverIpMap = map; 
+        };
 
         try {
-            serverIpMap = await window.rovalraDatacenterPromise;
-        } catch (error) {
-            serverIpMap = {};
+            const fallbackUrl = chrome.runtime.getURL('data/ServerList.json');
+            const fallbackResponse = await fetch(fallbackUrl);
+            if (!fallbackResponse.ok) throw new Error(`Status: ${fallbackResponse.status}`);
+            const localData = await fallbackResponse.json();
+            processAndStoreData(localData);
+            window.rovalraDatacenterState = 'fallback_loaded';
+        } catch (e) {
+            console.error("Could not load local fallback ServerList.json", e);
+            serverIpMap = {}; 
+        }
+
+        window.rovalraDatacenterState = 'fetching_api';
+        const API_TIMEOUT = 8000; 
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
+
+            const apiResponse = await fetch('https://apis.rovalra.com/datacenters', {
+                signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+
+            if (!apiResponse.ok) throw new Error(`API returned status: ${apiResponse.status}`);
+            
+            const apiData = await apiResponse.json();
+            processAndStoreData(apiData); 
+            
+            updateAllServerRegions();
+
+        } catch (e) {
+
+            console.warn(`RoValra API failed or timed out (${e.message}). Using fallback server data.`);
+        } finally {
+            window.rovalraDatacenterState = 'complete'; 
         }
     }
+    
     async function getGlobalCsrfToken() {
         if (csrfToken) return csrfToken;
         try {
@@ -1781,13 +1796,15 @@ function cleanupNode(node) {
         observer.observe(targetNode, config);
     }
 
-    loadServerIpMap().then(() => {
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initializeMasterObserver);
-        } else {
-            initializeMasterObserver();
-        }
-    });
+
+    loadServerIpMap();
+
+ 
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeMasterObserver);
+    } else {
+        initializeMasterObserver();
+    }
 }
 chrome.storage.local.get([
     'inviteEnabled',
@@ -1809,35 +1826,10 @@ chrome.storage.local.get([
 
     } else {
         async function loadServerIpMap() {
-        if (window.rovalraDatacenterState === 'complete') {
-            serverIpMap = await window.rovalraDatacenterPromise;
-            return;
-        }
-        if (window.rovalraDatacenterState === 'fetching') {
-            serverIpMap = await window.rovalraDatacenterPromise;
-            return;
-        }
+            if (window.rovalraDatacenterState) return; 
+            window.rovalraDatacenterState = 'loading_fallback';
 
-        window.rovalraDatacenterState = 'fetching';
-
-        window.rovalraDatacenterPromise = new Promise(async (resolve, reject) => {
-            try {
-                // You are allowed to use this API for personal projects only which is limited to open source projects on GitHub, they must be free and you must credit the RoValra repo.
-                // You are not allowed to use the API for projects on the chrome web store or any other extension store. If you want to use the API for a website dm be on discord: Valra and we can figure something out.
-                // If you want to use the API for something thats specifically said isnt allowed or you might be unsure if its allowed, please dm me on discord: Valra, Ill be happy to check out your stuff and maybe allow you to use it for your project.
-                const response = await fetch('https://apis.rovalra.com/datacenters');
-                if (response.status === 429) {
-                    setTimeout(() => {
-                        loadServerIpMap().then(resolve).catch(reject);
-                    }, 5000);
-                    return;
-                }
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const serverListData = await response.json();
-
+            const processAndStoreData = (serverListData) => {
                 let dataElement = document.getElementById('rovalra-datacenter-data-storage');
                 if (!dataElement) {
                     dataElement = document.createElement('script');
@@ -1857,23 +1849,45 @@ chrome.storage.local.get([
                         }
                     });
                 }
+                serverIpMap = map; 
+            };
 
-                window.rovalraDatacenterState = 'complete';
-                resolve(map);
-
-            } catch (error) {
-                delete window.rovalraDatacenterState;
-                delete window.rovalraDatacenterPromise;
-                reject(error);
+            try {
+                const fallbackUrl = chrome.runtime.getURL('data/ServerList.json');
+                const fallbackResponse = await fetch(fallbackUrl);
+                if (!fallbackResponse.ok) throw new Error(`Status: ${fallbackResponse.status}`);
+                const localData = await fallbackResponse.json();
+                processAndStoreData(localData);
+                window.rovalraDatacenterState = 'fallback_loaded';
+            } catch (e) {
+                console.error("Could not load local fallback ServerList.json", e);
+                serverIpMap = {}; 
             }
-        });
 
-        try {
-            serverIpMap = await window.rovalraDatacenterPromise;
-        } catch (error) {
-            serverIpMap = {};
+            window.rovalraDatacenterState = 'fetching_api';
+            const API_TIMEOUT = 8000; 
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
+
+                const apiResponse = await fetch('https://apis.rovalra.com/datacenters', {
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+
+                if (!apiResponse.ok) throw new Error(`API returned status: ${apiResponse.status}`);
+                
+                const apiData = await apiResponse.json();
+                processAndStoreData(apiData);
+                
+                console.log("RoValra background datacenter map loaded successfully.");
+
+            } catch (e) {
+                console.warn(`RoValra API failed or timed out (${e.message}). Using fallback server data.`);
+            } finally {
+                window.rovalraDatacenterState = 'complete'; 
+            }
         }
-    }
-    loadServerIpMap();
+        loadServerIpMap();
     }
 });

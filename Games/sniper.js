@@ -1,3 +1,6 @@
+// I hate stalkers.... Idek why I didnt think this would be used for stalking when i added it.
+
+
 const REQUEST_LIMIT = 5;
 let requestQueue = [];
 let lastRequestTime = 0;

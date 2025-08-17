@@ -37,7 +37,8 @@ class BotDetector {
         this.suspiciousServers = 0;
         this.globalBotHashes = new Set();
         this.requestIntercepted = false;
-        
+        this.initialScanComplete = false;
+
         if (window.location.href.includes('/games/')) {
             const placeId = getPlaceIdFromUrl(window.location.href);
             if (placeId) {
@@ -185,6 +186,9 @@ class BotDetector {
     }
 
     async fetchServerData(placeId) {
+        if (this.initialScanComplete) {
+            return;
+        }
         try {
             if (this.requestIntercepted) {
                 return;
@@ -427,10 +431,12 @@ class BotDetector {
             const botPercentage = (this.totalBotsFound / this.totalPlayersProcessed) * 100;
             
             this.updateBotStats();
-            
+            this.initialScanComplete = true; 
+
             setTimeout(() => {
                 this.requestIntercepted = false;
-            }, 10000);        } catch (error) {
+            }, 10000);
+        } catch (error) {
             this.requestIntercepted = false;
         }
     }

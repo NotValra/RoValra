@@ -306,7 +306,7 @@
     let preFetchedServerCounts = null;
     let preFetchedJoinStatus = null; 
     let isPreFetchingGlobeData = false;
-
+    let rovalraApiDataPromise = null;
     async function getGlobalCsrfToken() {
         if (csrfToken) return csrfToken;
         try {
@@ -1222,7 +1222,53 @@ async function applyFilter(filterAction, filterValue = null, isReset = false) {
             }
         }
     }
+async function getRovalraApiData(placeId) {
+    if (!placeId) return null;
 
+    if (rovalraApiDataPromise) {
+        return rovalraApiDataPromise;
+    }
+
+    rovalraApiDataPromise = new Promise(async (resolve, reject) => {
+        const controller = new AbortController();
+        const signal = controller.signal;
+
+        const timeoutId = setTimeout(() => {
+            controller.abort();
+        }, 7000); 
+
+        try {
+            // You are allowed to use this API for personal projects only which is limited to open source projects on GitHub, they must be free and you must credit the RoValra repo.
+            // You are not allowed to use the API for projects on the chrome web store or any other extension store. If you want to use the API for a website dm be on discord: Valra and we can figure something out.
+            // If you want to use the API for something thats specifically said isnt allowed or you might be unsure if its allowed, please dm me on discord: Valra, Ill be happy to check out your stuff and maybe allow you to use it for your project.
+            const response = await fetch(`https://apis.rovalra.com/get_server_counts_by_region?place_id=${placeId}`, {
+                signal 
+            });
+            
+            clearTimeout(timeoutId);
+
+            if (!response.ok) {
+                throw new Error(`API request failed with status: ${response.status}`);
+            }
+            const data = await response.json();
+            if (data.status !== 'success' || !data.counts) {
+                throw new Error("API returned an error or invalid data.");
+            }
+            resolve(data);
+        } catch (error) {
+            clearTimeout(timeoutId);
+            rovalraApiDataPromise = null;
+            
+            if (error.name === 'AbortError') {
+                reject(new Error("RoValra API request timed out."));
+            } else {
+                reject(error);
+            }
+        }
+    });
+    
+    return rovalraApiDataPromise;
+}
 async function clearFilter() {
     if (currentFetchController) {
         currentFetchController.abort();
@@ -1256,23 +1302,18 @@ async function preFetchGlobeData() {
     if (isPreFetchingGlobeData || preFetchedJoinStatus) {
         return;
     }
-
     isPreFetchingGlobeData = true;
 
     const checkJoinability = async () => {
         let targetServerId = null;
-
         try {
-            const serverListUrl = `https://games.roblox.com/v1/games/${gameId}/servers/Public?limit=10&sortOrder=1`; 
+            const serverListUrl = `https://games.roblox.com/v1/games/${gameId}/servers/Public?limit=10&sortOrder=1`;
             const response = await fetch(serverListUrl, { credentials: 'include' });
-
             if (response.ok) {
                 const pageData = await response.json();
                 if (pageData && pageData.data) {
                     const suitableServer = pageData.data.find(server => server.playing < server.maxPlayers);
-                    if (suitableServer) {
-                        targetServerId = suitableServer.id;
-                    }
+                    if (suitableServer) targetServerId = suitableServer.id;
                 }
             }
         } catch (error) {
@@ -1299,16 +1340,11 @@ async function preFetchGlobeData() {
                 credentials: 'include',
             });
             const serverInfo = await response.json();
-
             if (serverInfo && serverInfo.status === 12) {
                 const message = serverInfo.message || "";
-                if (message.includes("Cannot join this non-root place")) {
-                    preFetchedJoinStatus = 'RESTRICTED';
-                } else if (message.includes("You need to purchase access")) {
-                    preFetchedJoinStatus = 'PAID_ACCESS';
-                } else {
-                    preFetchedJoinStatus = 'SUCCESS';
-                }
+                if (message.includes("Cannot join this non-root place")) preFetchedJoinStatus = 'RESTRICTED';
+                else if (message.includes("You need to purchase access")) preFetchedJoinStatus = 'PAID_ACCESS';
+                else preFetchedJoinStatus = 'SUCCESS';
             } else {
                 preFetchedJoinStatus = 'SUCCESS';
             }
@@ -1316,30 +1352,8 @@ async function preFetchGlobeData() {
             preFetchedJoinStatus = 'UNKNOWN';
         }
     };
-    // This is a funny name 😝
-    const fetchFakeCounts = async () => {
-        try {
-            if (gameId) {
-                // You are allowed to use this API for personal projects only which is limited to open source projects on GitHub, they must be free and you must credit the RoValra repo.
-                // You are not allowed to use the API for projects on the chrome web store or any other extension store. If you want to use the API for a website dm be on discord: Valra and we can figure something out.
-                // If you want to use the API for something thats specifically said isnt allowed or you might be unsure if its allowed, please dm me on discord: Valra, Ill be happy to check out your stuff and maybe allow you to use it for your project.
-                const response = await fetch(`https://apis.rovalra.com/get_server_counts_by_region?place_id=${gameId}`);
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.status === 'success' && data.counts && data.counts.regions) {
-                        const normalizedCounts = {};
-                        for (const key in data.counts.regions) {
-                            normalizedCounts[key.toUpperCase()] = data.counts.regions[key];
-                        }
-                        preFetchedServerCounts = normalizedCounts;
-                    }
-                }
-            }
-        } catch (e) {
-        }
-    };
 
-    await Promise.all([checkJoinability(), fetchFakeCounts()]);
+    await checkJoinability();
     
     isPreFetchingGlobeData = false;
 }
@@ -1726,30 +1740,6 @@ async function initGlobe() {
         await injectScript('data/OrbitControls.js');
         await injectScript('data/globe_initializer.js');
 
-        if (preFetchedServerCounts) {
-            initialApiServerCounts = preFetchedServerCounts;
-        } else {
-            try {
-                if (gameId) {
-                    // You are allowed to use this API for personal projects only which is limited to open source projects on GitHub, they must be free and you must credit the RoValra repo.
-                    // You are not allowed to use the API for projects on the chrome web store or any other extension store. If you want to use the API for a website dm be on discord: Valra and we can figure something out.
-                    // If you want to use the API for something thats specifically said isnt allowed or you might be unsure if its allowed, please dm me on discord: Valra, Ill be happy to check out your stuff and maybe allow you to use it for your project.
-                    const response = await fetch(`https://apis.rovalra.com/get_server_counts_by_region?place_id=${gameId}`);
-                    if (response.ok) {
-                        const data = await response.json();
-                        if (data.status === 'success' && data.counts && data.counts.regions) {
-                            const normalizedCounts = {};
-                            for (const key in data.counts.regions) {
-                                normalizedCounts[key.toUpperCase()] = data.counts.regions[key];
-                            }
-                            initialApiServerCounts = normalizedCounts;
-                        }
-                    }
-                }
-            } catch (e) {
-            }
-        }
-
         const currentTheme = detectTheme();
         const mapTextureFile = currentTheme === 'dark' ? 'data/map_dark.png' : 'data/map_light.png';
         const finalMapUrl = chrome.runtime.getURL(mapTextureFile);
@@ -1763,10 +1753,26 @@ async function initGlobe() {
         };
         document.dispatchEvent(new CustomEvent('initRovalraGlobe', { detail: initialEventData }));
 
+        const fetchApiCountsInBackground = async () => {
+            try {
+                const data = await getRovalraApiData(gameId);
+                if (data && data.counts && data.counts.regions) {
+                    const normalizedCounts = {};
+                    for (const key in data.counts.regions) {
+                        normalizedCounts[key.toUpperCase()] = data.counts.regions[key];
+                    }
+                    initialApiServerCounts = normalizedCounts;
+                }
+            } catch (e) {
+            }
+        };
+
+
+        fetchApiCountsInBackground();
+
         if (!updateListenerAttached) {
             document.addEventListener('rovalraUpdateGlobeCounts', (e) => {
                 latestServerCounts = e.detail;
-
                 document.dispatchEvent(new CustomEvent('rovalraGlobe_UpdateData', {
                     detail: { serverCounts: latestServerCounts }
                 }));
@@ -1792,11 +1798,8 @@ async function initGlobe() {
                 }
 
                 if (foundRegion) {
-                    currentHoveredRegion = foundRegion;
-
                     const realServerCount = latestServerCounts[foundRegion.code] || 0;
                     const dcCount = dataCenterCounts[foundRegion.code] || 0;
-
                     const countryCode = foundRegion.code.split('-')[0].toUpperCase();
                     const stateCodeKey = foundRegion.state ? `${countryCode}-${foundRegion.state.toUpperCase()}` : null;
 
@@ -1823,16 +1826,11 @@ async function initGlobe() {
                        tooltipEl.innerHTML = newTooltipHTML;
                     }
                 }
-            } else {
-                currentHoveredRegion = null;
             }
         });
 
         tooltipObserver.observe(tooltipEl, {
-            attributes: true,
-            attributeFilter: ['style'],
-            childList: true,
-            subtree: true
+            attributes: true, attributeFilter: ['style'], childList: true, subtree: true
         });
 
     } catch (error) {
@@ -1897,48 +1895,44 @@ async function initGlobalStatsBar() {
 
     header.insertAdjacentElement('afterend', statsBar);
 
-    try {
-        const placeId = serverListContainer.dataset.placeid;
-        if (!placeId) throw new Error("Could not find data-placeid attribute.");
-        // You are allowed to use this API for personal projects only which is limited to open source projects on GitHub, they must be free and you must credit the RoValra repo.
-        // You are not allowed to use the API for projects on the chrome web store or any other extension store. If you want to use the API for a website dm be on discord: Valra and we can figure something out.
-        // If you want to use the API for something thats specifically said isnt allowed or you might be unsure if its allowed, please dm me on discord: Valra, Ill be happy to check out your stuff and maybe allow you to use it for your project.
-        const response = await fetch(`https://apis.rovalra.com/get_server_counts_by_region?place_id=${placeId}`);
-        if (!response.ok) {
-            throw new Error(`API request failed with status: ${response.status}`);
-        }
+   (async () => {
+        try {
+            const placeId = serverListContainer.dataset.placeid;
+            if (!placeId) throw new Error("Could not find data-placeid attribute.");
 
-        const data = await response.json();
-        if (data.status !== 'success' || !data.counts) {
-            throw new Error("API returned an error or invalid data.");
-        }
+            const data = await getRovalraApiData(placeId);
 
-        const counts = data.counts;
-        const hasRegions = counts.regions && Object.keys(counts.regions).length > 0;
-        if (counts.total_servers === 0 || !hasRegions) {
-            statsBar.remove();
-            return;
-        }
+            if (!data || data.status !== 'success' || !data.counts) {
+                throw new Error("API returned an error or invalid data.");
+            }
 
-        const createStatItem = (icon, label, value) => `
-            <div class="rovalra-stat-item">
-                <div class="stat-icon">${icon}</div>
-                <div class="stat-text">
-                    <span class="stat-value">${value.toLocaleString()}</span>
-                    <span class="stat-label">${label}</span>
-                </div>
-            </div>`;
+            const counts = data.counts;
+            const hasRegions = counts.regions && Object.keys(counts.regions).length > 0;
+            if (counts.total_servers === 0 || !hasRegions) {
+                statsBar.remove();
+                return;
+            }
 
-        const totalIcon = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            const createStatItem = (icon, label, value) => `
+                <div class="rovalra-stat-item">
+                    <div class="stat-icon">${icon}</div>
+                    <div class="stat-text">
+                        <span class="stat-value">${value.toLocaleString()}</span>
+                        <span class="stat-label">${label}</span>
+                    </div>
+                </div>`;
+
+            const totalIcon = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M6 6H6.01M6 18H6.01M5.2 10H18.8C19.9201 10 20.4802 10 20.908 9.78201C21.2843 9.59027 21.5903 9.28431 21.782 8.90798C22 8.48016 22 7.92011 22 6.8V5.2C22 4.0799 22 3.51984 21.782 3.09202C21.5903 2.71569 21.2843 2.40973 20.908 2.21799C20.4802 2 19.9201 2 18.8 2H5.2C4.07989 2 3.51984 2 3.09202 2.21799C2.71569 2.40973 2.40973 2.71569 2.21799 3.09202C2 3.51984 2 4.07989 2 5.2V6.8C2 7.92011 2 8.48016 2.21799 8.90798C2.40973 9.28431 2.71569 9.59027 3.09202 9.78201C3.51984 10 4.0799 10 5.2 10ZM5.2 22H18.8C19.9201 22 20.4802 22 20.908 21.782C21.2843 21.5903 21.5903 21.2843 21.782 20.908C22 20.4802 22 19.9201 22 18.8V17.2C22 16.0799 22 15.5198 21.782 15.092C21.5903 14.7157 21.2843 14.4097 20.908 14.218C20.4802 14 19.9201 14 18.8 14H5.2C4.07989 14 3.51984 14 3.09202 14.218C2.71569 14.4097 2.40973 14.7157 2.21799 15.092C2 15.5198 2 16.0799 2 17.2V18.8C2 19.9201 2 20.4802 2.21799 20.908C2.40973 21.2843 2.71569 21.5903 3.09202 21.782C3.51984 22 4.0799 22 5.2 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>`;
-    
-        const statsHTML = createStatItem(totalIcon, 'Total Servers', counts.total_servers);
-        statsBar.innerHTML = statsHTML;
+        
+            const statsHTML = createStatItem(totalIcon, 'Total Servers', counts.total_servers);
+            statsBar.innerHTML = statsHTML;
 
-    } catch (error) {
-        statsBar.remove(); 
-    }
+        } catch (error) {
+            statsBar.remove(); 
+        }
+    })(); 
 }
 
 
