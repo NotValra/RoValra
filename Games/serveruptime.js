@@ -1937,64 +1937,101 @@ async function initGlobalStatsBar() {
 
 
     async function init() {
-        if (typeof chrome === 'undefined' || !chrome.runtime || !chrome.runtime.id) {
+       if (typeof chrome === 'undefined' || !chrome.runtime || !chrome.runtime.id) {
+        if (typeof pageObserver !== 'undefined' && pageObserver) {
+            pageObserver.disconnect();
+        }
+        return;
+    }
+    // R​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​o​​​​​​​---V​​​​​​​​a​​​​​​​​​​​​​​​​​​​​​​​a​​​​​​​​​lra
+    let settings;
+    try {
+        settings = await new Promise((resolve, reject) => {
+            chrome.storage.local.get(['ServerFilterEnabled'], result => {
+                if (chrome.runtime.lastError) {
+                    return reject(chrome.runtime.lastError);
+                }
+                resolve(result);
+            });
+        });
+    } catch (error) {
+        if (error.message.includes('Extension context invalidated')) {
             if (typeof pageObserver !== 'undefined' && pageObserver) {
                 pageObserver.disconnect();
             }
-            return;
-        }
-        // R​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​o​​​​​​​---V​​​​​​​​a​​​​​​​​​​​​​​​​​​​​​​​a​​​​​​​​​lra
-        let settings;
-        try {
-            settings = await new Promise((resolve, reject) => {
-                chrome.storage.local.get(['ServerFilterEnabled'], result => {
-                    if (chrome.runtime.lastError) {
-                        return reject(chrome.runtime.lastError);
-                    }
-                    resolve(result);
-                });
-            });
-        } catch (error) {
-            if (error.message.includes('Extension context invalidated')) {
-                if (typeof pageObserver !== 'undefined' && pageObserver) {
-                    pageObserver.disconnect();
-                }
-            } else {
-            }
-            return; 
-        }
-
-        if (settings.ServerFilterEnabled !== true) {
-            return;
-        }
-
-
-        const placeIdMatch = window.location.pathname.match(/\/games\/(\d+)\//);
-        if (placeIdMatch) {
-            gameId = placeIdMatch[1];
         } else {
-            return;
         }
+        return;
+    }
 
-        await loadServerIpMap();
+    if (settings.ServerFilterEnabled !== true) {
+        return;
+    }
 
-        let targetHeader = null;
-        const allHeaders = document.querySelectorAll('.server-list-container-header');
-        for (const header of allHeaders) {
-            const h2 = header.querySelector('h2.server-list-header');
-            if (h2 && h2.textContent.trim() === 'Other Servers') {
-                targetHeader = header;
-                break;
-            }
+
+    const placeIdMatch = window.location.pathname.match(/\/games\/(\d+)\//);
+    if (placeIdMatch) {
+        gameId = placeIdMatch[1];
+    } else {
+        return;
+    }
+
+    await loadServerIpMap();
+
+    // --- START: MODIFIED LOGIC ---
+
+    const runningGamesContainer = document.getElementById('rbx-public-running-games');
+    if (!runningGamesContainer) {
+        console.log('RoValra: Main container with ID "rbx-public-running-games" was not found. Aborting init.');
+        return;
+    }
+
+    // Check if our filter is already on the page to prevent re-injection
+    if (runningGamesContainer.querySelector('.filter-dropdown-container')) {
+        return;
+    }
+
+    // Find a stable element to determine where to insert our UI.
+    // The refresh button is a good candidate.
+    const refreshButton = runningGamesContainer.querySelector('.rbx-refresh');
+    const robloxFilter = runningGamesContainer.querySelector('.rbx-filter');
+
+    // Determine the exact element to insert our filter BEFORE.
+    const insertionPoint = robloxFilter || refreshButton;
+
+    if (insertionPoint && insertionPoint.parentNode) {
+        // THIS IS THE KEY FIX:
+        // Get the parent directly from the element we are inserting before.
+        // This guarantees the parent-child relationship is valid.
+        const parentNode = insertionPoint.parentNode;
+
+        const filterDropdown = createDropdown();
+        const filterButton = filterDropdown.querySelector('button');
+
+        // Style our button to look like the others
+        if (refreshButton) {
+            filterButton.className = refreshButton.className;
+            originalRefreshButtonClickHandler = refreshButton.onclick;
+        } else {
+            filterButton.className = "btn-control-xs btn-more";
         }
+        filterButton.classList.add('filter-button-alignment');
+        filterButton.classList.remove('rbx-refresh');
 
-        reorderFilterIfNecessary();
+        // Perform the insertion on the GUARANTEED correct parent.
+        parentNode.insertBefore(filterDropdown, insertionPoint);
+        console.log("RoValra: Filter UI successfully inserted.");
+
+    } else {
+        console.log("RoValra: Could not find a suitable insertion point (Roblox filter or refresh button).");
+    }
+
+    // This function can be called after insertion to ensure correct visual order if needed.
+    reorderFilterIfNecessary();
 
         if (!targetHeader || targetHeader.querySelector('.filter-dropdown-container')) return;
 
-        const robloxFilter = targetHeader.querySelector('.rbx-filter');
         refreshButton = targetHeader.querySelector('.rbx-refresh');
-        const insertionPoint = robloxFilter || refreshButton;
 
         if (insertionPoint) {
             const filterDropdown = createDropdown();
