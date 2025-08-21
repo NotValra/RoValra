@@ -33,6 +33,8 @@
     - **Bot detector, shows if a game is botted**
     - **Shows full server id in the server list**
     - **Copy deeplink for friends servers**
+    - **Bulk setting private servers inactive or active.**
+    - **Quick play button, with preferred region support.**
     - **Quick invite link copy for private servers**
     - **Quick Regenarate invite link for private servers**
 - **Catalog**
