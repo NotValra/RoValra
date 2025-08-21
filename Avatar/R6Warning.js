@@ -30,8 +30,9 @@
 
                     if (foundModal) {
                         observer.disconnect();
+                        const originalDisplay = foundModal.style.display;
                         foundModal.style.display = 'none';
-                        findAndClickInModal(foundModal);
+                        findAndClickInModal(foundModal, originalDisplay);
                         return;
                     }
                 }
@@ -44,13 +45,14 @@
         });
     }
 
-    function findAndClickInModal(modalRootNode) {
+    function findAndClickInModal(modalRootNode, originalDisplay) {
         let cycles = 0;
         let animationFrameId;
 
         function checkAndClick() {
             if (cycles >= maxCycles) {
-                setupObserver(); 
+                modalRootNode.style.display = originalDisplay; 
+                setupObserver();
                 cancelAnimationFrame(animationFrameId);
                 return;
             }
@@ -65,7 +67,7 @@
 
             if (targetButton && !targetButton.disabled) {
                 targetButton.click();
-                setTimeout(setupObserver, 500); 
+                setTimeout(setupObserver, 500);
                 cancelAnimationFrame(animationFrameId);
             } else {
                 cycles++;

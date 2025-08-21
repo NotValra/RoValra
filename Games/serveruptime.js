@@ -1,3 +1,4 @@
+
 (function() {
     'use strict';
 
@@ -280,7 +281,8 @@
     let gameId = '';
     const MAX_RETRIES = 10;
     const MAX_API_REQUESTS = 9;
-
+    let unfilteredServerListForCurrentFilter = [];
+    let refilterController;
     let allFetchedServers = [];
     let displayedServerCount = 0;
     const BATCH_SIZE = 10;
@@ -289,6 +291,8 @@
     let originalRefreshButtonClickHandler = null;
     let currentlyDisplayedServers = [];
     let originalServerElements = [];
+    let currentActiveFilter = null;
+    let currentFilterValue = null;
 
     let currentFetchController;
     let backgroundRegionFetchController = null;
@@ -655,6 +659,7 @@ async function startSequentialRegionFetch(signal) {
                     url.searchParams.set('excludeFullGames', 'true');
                     url.searchParams.set('cursor', globeSearchState.cursor);
 
+
                     const pageData = await fetchPage(url.href, signal, globeStatusCallback);
 
                     if (pageData && pageData.data && pageData.data.length > 0) {
@@ -799,6 +804,8 @@ async function renderNextBatchOfServers() {
         serverListContainer.appendChild(createServerCard(server, thumbnailMap, isFallbackCard));
     });
 
+    setTimeout(removeUnavailableServers, 100);
+
     displayedServerCount += batchToRender.length;
 
     let existingButton = document.getElementById('rovalra-load-more-btn');
@@ -909,6 +916,33 @@ function createServerCard(server, thumbnailMap, isFallbackCard = false) {
         await renderNextBatchOfServers();
     }
 
+async function isServerFull(serverId, signal) {
+    try {
+        const token = await getGlobalCsrfToken();
+        if (!token) return false; 
+
+        const response = await fetch(`https://gamejoin.roblox.com/v1/join-game-instance`, {
+            method: 'POST',
+            headers: { "Accept": "application/json", "Content-Type": "application/json", "X-Csrf-Token": token },
+            body: JSON.stringify({ placeId: parseInt(gameId, 10), gameId: serverId, gameJoinAttemptId: createUUID() }),
+            credentials: 'include',
+            signal: signal
+        });
+
+        if (!response.ok) {
+            return false;
+        }
+
+        const joinInfo = await response.json();
+        return joinInfo.status === 22; 
+    } catch (error) {
+        if (error.name === 'AbortError') {
+            throw error;
+        }
+        return false;
+    }
+}
+
 async function applyFilter(filterAction, filterValue = null, isReset = false) {
     if (currentFetchController) {
         currentFetchController.abort();
@@ -919,9 +953,17 @@ async function applyFilter(filterAction, filterValue = null, isReset = false) {
     const paginationContainer = document.querySelector('.rbx-running-games-footer');
     let clearButton = document.getElementById('rovalra-clear-filter-btn');
     const serverListContainer = document.querySelector('#rbx-public-game-server-item-container');
+    const sortSelect = document.getElementById('sort-select');
+    
+    currentActiveFilter = filterAction;
+    currentFilterValue = filterValue;
 
     if (isReset) {
         isFilterActive = false;
+        currentActiveFilter = null;
+        currentFilterValue = null;
+        unfilteredServerListForCurrentFilter = [];
+        if (sortSelect) sortSelect.disabled = false;
         document.body.classList.remove('rovalra-filter-active');
         if (serverListContainer) {
             serverListContainer.removeAttribute('data-rovalra-filter-active'); 
@@ -991,9 +1033,12 @@ async function applyFilter(filterAction, filterValue = null, isReset = false) {
         const params = new URLSearchParams({ limit: '100' });
         let isSinglePageFilter = false; 
 
+        if (sortSelect) sortSelect.disabled = false;
+
         switch (filterAction) {
             case 'filterByRegion': {
                 let targetRegionCode = filterValue;
+                const sortOrder = sortSelect && sortSelect.value === 'Asc' ? '1' : '2';
 
                 const initiallyFoundServers = allFetchedServers.filter(server => {
                     const cachedRegion = serverLocationsCache[server.id];
@@ -1001,15 +1046,21 @@ async function applyFilter(filterAction, filterValue = null, isReset = false) {
                 });
 
                 if (initiallyFoundServers.length > 0) {
+                     if (sortOrder === '1') {
+                        initiallyFoundServers.sort((a, b) => a.playing - b.playing);
+                    } else {
+                        initiallyFoundServers.sort((a, b) => b.playing - a.playing);
+                    }
                     updateStatusMessage(`Found ${initiallyFoundServers.length} cached servers for ${targetRegionCode}.`, false);
                     await setupAndRenderServers(initiallyFoundServers);
                 } else {
-                    await continuouslySearchForRegion(targetRegionCode, signal);
+                    await continuouslySearchForRegion(targetRegionCode, signal, sortOrder);
                 }
                 return;
             }
             case 'oldestServers':
             case 'newestServers': {
+                if (sortSelect) sortSelect.disabled = true;
                 const filterName = filterAction === 'newestServers' ? 'newest' : 'oldest';
                 // You are allowed to use this API for personal projects only which is limited to open source projects on GitHub, they must be free and you must credit the RoValra repo.
                 // You are not allowed to use the API for projects on the chrome web store or any other extension store. If you want to use the API for a website dm be on discord: Valra and we can figure something out.
@@ -1028,12 +1079,30 @@ async function applyFilter(filterAction, filterValue = null, isReset = false) {
                     const { servers: robloxApiServers } = await fetchPaginatedServers(`${baseUrl}?sortOrder=2&limit=100`, false, false, signal);
 
                     const robloxServerMap = new Map(robloxApiServers.map(s => [s.id, s]));
-                    const mergedServerList = rovalraServers.map(rovalraServer => {
+                    let mergedServerList = rovalraServers.map(rovalraServer => {
                         const fullData = robloxServerMap.get(rovalraServer.server_id);
                         return fullData || rovalraServer;
                     });
+                    
+                    unfilteredServerListForCurrentFilter = [...mergedServerList];
+                    
+                    const excludeFullCheckbox = document.getElementById('filter-checkbox');
+                    const excludeFull = excludeFullCheckbox && excludeFullCheckbox.checked;
 
-                    await setupAndRenderServers(mergedServerList);
+                    if (excludeFull) {
+                        updateStatusMessage(`Excluding full servers (checking ${mergedServerList.length} servers)...`, true);
+                        const joinableServers = [];
+                        for (const server of mergedServerList) {
+                            if (signal.aborted) break;
+                            const serverId = server.id || server.server_id;
+                            if (!(await isServerFull(serverId, signal))) {
+                                joinableServers.push(server);
+                            }
+                        }
+                        await setupAndRenderServers(joinableServers);
+                    } else {
+                        await setupAndRenderServers(mergedServerList);
+                    }
 
                 } catch (err) {
                     if (err.name !== 'AbortError') {
@@ -1132,96 +1201,106 @@ async function applyFilter(filterAction, filterValue = null, isReset = false) {
         updateStatusMessage(`Error: ${error.message}`, false);
     }
 }
-    async function continuouslySearchForRegion(targetRegionCode, signal) {
-        const serverListContainer = document.querySelector('#rbx-public-game-server-item-container');
-        if (!serverListContainer) return;
+async function continuouslySearchForRegion(targetRegionCode, signal, sortOrder = '2') {
+    const serverListContainer = document.querySelector('#rbx-public-game-server-item-container');
+    if (!serverListContainer) return;
 
-        const baseUrl = `https://games.roblox.com/v1/games/${gameId}/servers/Public`;
-        let hasNextPage = !globeSearchState.completed;
-        let requestCount = 0;
-        const foundServersList = [];
-        const VERIFICATION_ATTEMPTS = 3;
-        const VERIFICATION_DELAY = 1000;
+    const baseUrl = `https://games.roblox.com/v1/games/${gameId}/servers/Public`;
+    let hasNextPage = !globeSearchState.completed;
+    let requestCount = 0;
+    const foundServersList = [];
+    const VERIFICATION_ATTEMPTS = 3;
+    const VERIFICATION_DELAY = 1000;
 
-        updateStatusMessage(`Searching for servers in ${targetRegionCode}... This may take a moment.`, true);
+    updateStatusMessage(`Searching for servers in ${targetRegionCode}... This may take a moment.`, true);
 
-        while (hasNextPage && !signal.aborted) {
-            try {
-                updateStatusMessage(`Searching page ${requestCount + 1} for ${targetRegionCode}... Found: ${foundServersList.length}`, true);
+    while (hasNextPage && !signal.aborted) {
+        try {
+            updateStatusMessage(`Searching page ${requestCount + 1} for ${targetRegionCode}... Found: ${foundServersList.length}`, true);
 
-                const url = new URL(baseUrl);
-                url.searchParams.set('limit', '100');
-                url.searchParams.set('sortOrder', '2');
-                url.searchParams.set('cursor', globeSearchState.cursor);
+            const url = new URL(baseUrl);
+            url.searchParams.set('limit', '100');
+            url.searchParams.set('sortOrder', sortOrder);
+            url.searchParams.set('cursor', globeSearchState.cursor);
 
-                const pageData = await fetchPage(url.href, signal);
-                requestCount++;
+            const pageData = await fetchPage(url.href, signal);
+            requestCount++;
 
-                if (pageData && pageData.data && pageData.data.length > 0) {
-                    const serversOnPage = pageData.data;
+            if (pageData && pageData.data && pageData.data.length > 0) {
+                const serversOnPage = pageData.data;
 
-                    for (const server of serversOnPage) {
-                        if (signal.aborted) break;
-                        const region = await getServerRegion(server.id, signal);
-                        if (!allFetchedServers.some(s => s.id === server.id)) {
-                            allFetchedServers.push(server);
-                        }
-                        if (region && region === targetRegionCode) {
-                            if (!foundServersList.some(s => s.id === server.id)) {
-                                foundServersList.push(server);
-                            }
+                for (const server of serversOnPage) {
+                    if (signal.aborted) break;
+                    const region = await getServerRegion(server.id, signal);
+                    if (!allFetchedServers.some(s => s.id === server.id)) {
+                        allFetchedServers.push(server);
+                    }
+                    if (region && region === targetRegionCode) {
+                        if (!foundServersList.some(s => s.id === server.id)) {
+                            foundServersList.push(server);
                         }
                     }
+                }
 
-                    if (pageData.nextPageCursor) {
-                        globeSearchState.cursor = pageData.nextPageCursor;
-                        hasNextPage = true;
-                        if (foundServersList.length > 0) {
-                             await setupAndRenderServers(foundServersList);
-                             updateStatusMessage(`Searching page ${requestCount + 1} for ${targetRegionCode}... Found: ${foundServersList.length}`, true);
+                if (pageData.nextPageCursor) {
+                    globeSearchState.cursor = pageData.nextPageCursor;
+                    hasNextPage = true;
+                    if (foundServersList.length > 0) {
+                        if (sortOrder === '1') {
+                            foundServersList.sort((a, b) => a.playing - b.playing);
+                        } else {
+                            foundServersList.sort((a, b) => b.playing - a.playing);
                         }
-                        await delay(1000); 
-                    } else {
-                        let foundNewCursor = false;
-                        for (let i = 0; i < VERIFICATION_ATTEMPTS; i++) {
-                            if (signal.aborted) break;
-                            await delay(VERIFICATION_DELAY);
-                            const verificationPageData = await fetchPage(url.href, signal);
-                            if (verificationPageData && verificationPageData.nextPageCursor) {
-                                globeSearchState.cursor = verificationPageData.nextPageCursor;
-                                foundNewCursor = true;
-                                break;
-                            }
-                        }
-                        hasNextPage = foundNewCursor;
-                        if (!hasNextPage) {
-                            globeSearchState.completed = true;
-                        }
+                        await setupAndRenderServers(foundServersList);
+                        updateStatusMessage(`Searching page ${requestCount + 1} for ${targetRegionCode}... Found: ${foundServersList.length}`, true);
                     }
+                    await delay(1000); 
                 } else {
-                    hasNextPage = false;
-                    globeSearchState.completed = true;
+                    let foundNewCursor = false;
+                    for (let i = 0; i < VERIFICATION_ATTEMPTS; i++) {
+                        if (signal.aborted) break;
+                        await delay(VERIFICATION_DELAY);
+                        const verificationPageData = await fetchPage(url.href, signal);
+                        if (verificationPageData && verificationPageData.nextPageCursor) {
+                            globeSearchState.cursor = verificationPageData.nextPageCursor;
+                            foundNewCursor = true;
+                            break;
+                        }
+                    }
+                    hasNextPage = foundNewCursor;
+                    if (!hasNextPage) {
+                        globeSearchState.completed = true;
+                    }
                 }
-            } catch (error) {
-                if (error.name === 'AbortError') {
-                    return;
-                }
-                updateStatusMessage("An error occurred while searching for servers.", false);
+            } else {
+                hasNextPage = false;
+                globeSearchState.completed = true;
+            }
+        } catch (error) {
+            if (error.name === 'AbortError') {
                 return;
             }
-        }
-
-        if (!signal.aborted) {
-            if (foundServersList.length > 0) {
-                await setupAndRenderServers(foundServersList);
-            } else {
-                const endMessage = globeSearchState.completed
-                    ? `Search complete. All servers have been checked. No servers were found in ${targetRegionCode}.`
-                    : `No servers found in ${targetRegionCode} after searching ${requestCount} pages. You can try again to search further.`;
-                updateStatusMessage(endMessage, false);
-            }
+            updateStatusMessage("An error occurred while searching for servers.", false);
+            return;
         }
     }
+
+    if (!signal.aborted) {
+        if (foundServersList.length > 0) {
+            if (sortOrder === '1') {
+                foundServersList.sort((a, b) => a.playing - b.playing);
+            } else {
+                foundServersList.sort((a, b) => b.playing - a.playing);
+            }
+            await setupAndRenderServers(foundServersList);
+        } else {
+            const endMessage = globeSearchState.completed
+                ? `Search complete. All servers have been checked. No servers were found in ${targetRegionCode}.`
+                : `No servers found in ${targetRegionCode} after searching ${requestCount} pages. You can try again to search further.`;
+            updateStatusMessage(endMessage, false);
+        }
+    }
+}
 async function getRovalraApiData(placeId) {
     if (!placeId) return null;
 
@@ -1834,7 +1913,7 @@ async function initGlobe() {
         });
 
     } catch (error) {
-        globeContainer.innerHTML = `<div class="rovalra-stats-loader text-error">Error initializing globe.<br>Check console for details.</div>`;
+        globeContainer.innerHTML = `<div class="rovalra-stats-loader text-error">Error initializing globe.</div>`;
     }
 }
 }
@@ -1891,7 +1970,7 @@ async function initGlobalStatsBar() {
     const theme = detectTheme();
     const statsBar = document.createElement('div');
     statsBar.className = `rovalra-region-stats-bar ${theme}`;
-    statsBar.innerHTML = `<div class="rovalra-stats-loader"></span> Loading server stats...</div>`;
+    statsBar.innerHTML = `<div class="rovalra-stats-loader"></span>Loading servers...</div>`;
 
     header.insertAdjacentElement('afterend', statsBar);
 
@@ -1935,15 +2014,63 @@ async function initGlobalStatsBar() {
     })(); 
 }
 
+    function reorderFilterIfNecessary() {
+        const ourFilter = document.querySelector('.filter-dropdown-container');
+        if (!ourFilter) return;
+        const parentHeader = ourFilter.parentElement;
+        const robloxFilter = parentHeader?.querySelector('.rbx-filter');
+        if (!robloxFilter) return;
+        if (robloxFilter.previousSibling !== ourFilter) {
+            parentHeader.insertBefore(ourFilter, robloxFilter);
+        }
+    }
+
+    function removeUnavailableServers() {
+        if (!isFilterActive) {
+            return;
+        }
+
+        const serverListContainer = document.querySelector('#rbx-public-game-server-item-container');
+        if (!serverListContainer) {
+            return;
+        }
+
+        const serverCards = serverListContainer.querySelectorAll('.rbx-public-game-server-item');
+        serverCards.forEach(card => {
+            const joinButton = card.querySelector('.game-server-join-btn');
+            
+            if (joinButton && joinButton.disabled && joinButton.textContent.trim() === 'Server is Unavailable') {
+                card.remove();
+            }
+        });
+    }
+
+    function setupUnavailableServerObserver() {
+        const runningGamesContainer = document.getElementById('rbx-public-running-games');
+        
+        if (!runningGamesContainer || runningGamesContainer.dataset.unavailableObserverAttached) {
+            return;
+        }
+        runningGamesContainer.dataset.unavailableObserverAttached = 'true';
+
+        const observer = new MutationObserver(() => {
+            setTimeout(removeUnavailableServers, 100);
+        });
+
+        observer.observe(runningGamesContainer, {
+            childList: true,
+            subtree: true,
+        });
+    }
 
     async function init() {
-       if (typeof chrome === 'undefined' || !chrome.runtime || !chrome.runtime.id) {
+    if (typeof chrome === 'undefined' || !chrome.runtime || !chrome.runtime.id) {
         if (typeof pageObserver !== 'undefined' && pageObserver) {
             pageObserver.disconnect();
         }
         return;
     }
-    // R​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​o​​​​​​​---V​​​​​​​​a​​​​​​​​​​​​​​​​​​​​​​​a​​​​​​​​​lra
+
     let settings;
     try {
         settings = await new Promise((resolve, reject) => {
@@ -1959,15 +2086,13 @@ async function initGlobalStatsBar() {
             if (typeof pageObserver !== 'undefined' && pageObserver) {
                 pageObserver.disconnect();
             }
-        } else {
-        }
+        } else {}
         return;
     }
 
     if (settings.ServerFilterEnabled !== true) {
         return;
     }
-
 
     const placeIdMatch = window.location.pathname.match(/\/games\/(\d+)\//);
     if (placeIdMatch) {
@@ -1978,37 +2103,26 @@ async function initGlobalStatsBar() {
 
     await loadServerIpMap();
 
-    // --- START: MODIFIED LOGIC ---
-
     const runningGamesContainer = document.getElementById('rbx-public-running-games');
     if (!runningGamesContainer) {
-        console.log('RoValra: Main container with ID "rbx-public-running-games" was not found. Aborting init.');
         return;
     }
 
-    // Check if our filter is already on the page to prevent re-injection
+    setupUnavailableServerObserver();
+
     if (runningGamesContainer.querySelector('.filter-dropdown-container')) {
         return;
     }
 
-    // Find a stable element to determine where to insert our UI.
-    // The refresh button is a good candidate.
     const refreshButton = runningGamesContainer.querySelector('.rbx-refresh');
     const robloxFilter = runningGamesContainer.querySelector('.rbx-filter');
-
-    // Determine the exact element to insert our filter BEFORE.
     const insertionPoint = robloxFilter || refreshButton;
 
     if (insertionPoint && insertionPoint.parentNode) {
-        // THIS IS THE KEY FIX:
-        // Get the parent directly from the element we are inserting before.
-        // This guarantees the parent-child relationship is valid.
         const parentNode = insertionPoint.parentNode;
-
         const filterDropdown = createDropdown();
         const filterButton = filterDropdown.querySelector('button');
 
-        // Style our button to look like the others
         if (refreshButton) {
             filterButton.className = refreshButton.className;
             originalRefreshButtonClickHandler = refreshButton.onclick;
@@ -2018,46 +2132,64 @@ async function initGlobalStatsBar() {
         filterButton.classList.add('filter-button-alignment');
         filterButton.classList.remove('rbx-refresh');
 
-        // Perform the insertion on the GUARANTEED correct parent.
         parentNode.insertBefore(filterDropdown, insertionPoint);
-        console.log("RoValra: Filter UI successfully inserted.");
 
-    } else {
-        console.log("RoValra: Could not find a suitable insertion point (Roblox filter or refresh button).");
+        const filterCheckbox = document.getElementById('filter-checkbox');
+        if (filterCheckbox && !filterCheckbox.dataset.rovalraListenerAttached) {
+            filterCheckbox.dataset.rovalraListenerAttached = 'true';
+            filterCheckbox.addEventListener('change', async () => {
+                if (!isFilterActive || (currentActiveFilter !== 'newestServers' && currentActiveFilter !== 'oldestServers')) {
+                    return;
+                }
+
+                if (refilterController) {
+                    refilterController.abort();
+                }
+                refilterController = new AbortController();
+                const signal = refilterController.signal;
+
+                const shouldExcludeFull = filterCheckbox.checked;
+
+                if (shouldExcludeFull) {
+                    updateStatusMessage(`Excluding full servers (re-filtering ${unfilteredServerListForCurrentFilter.length} servers)...`, true);
+                    
+                    const checkPromises = unfilteredServerListForCurrentFilter.map(async (server) => {
+                        if (signal.aborted) return null;
+                        const serverId = server.id || server.server_id;
+                        const isFull = await isServerFull(serverId, signal);
+                        return isFull ? null : server;
+                    });
+
+                    try {
+                        const results = await Promise.all(checkPromises);
+                        if (signal.aborted) return;
+                        const nonFullServers = results.filter(server => server !== null);
+                        await setupAndRenderServers(nonFullServers);
+                    } catch (error) {
+                        if (error.name !== 'AbortError') {
+                            updateStatusMessage('Error re-filtering servers.', false);
+                        }
+                    }
+
+                } else {
+                    updateStatusMessage('Showing all available servers...', false);
+                    await setupAndRenderServers([...unfilteredServerListForCurrentFilter]);
+                }
+            });
+        }
     }
-
-    // This function can be called after insertion to ensure correct visual order if needed.
-    reorderFilterIfNecessary();
-
-        if (!targetHeader || targetHeader.querySelector('.filter-dropdown-container')) return;
-
-        refreshButton = targetHeader.querySelector('.rbx-refresh');
-
-        if (insertionPoint) {
-            const filterDropdown = createDropdown();
-            const filterButton = filterDropdown.querySelector('button');
-            if (refreshButton) {
-                filterButton.className = refreshButton.className;
-                originalRefreshButtonClickHandler = refreshButton.onclick;
-            } else {
-                filterButton.className = "btn-control-xs btn-more";
+    const sortSelect = document.getElementById('sort-select');
+    if (sortSelect && !sortSelect.dataset.rovalraListenerAttached) {
+        sortSelect.dataset.rovalraListenerAttached = 'true';
+        sortSelect.addEventListener('change', () => {
+            if (isFilterActive && currentActiveFilter === 'filterByRegion') {
+                applyFilter('filterByRegion', currentFilterValue);
             }
-            filterButton.classList.add('filter-button-alignment');
-            filterButton.classList.remove('rbx-refresh');
-            targetHeader.insertBefore(filterDropdown, insertionPoint);
-        }
+        });
     }
 
-    function reorderFilterIfNecessary() {
-        const ourFilter = document.querySelector('.filter-dropdown-container');
-        if (!ourFilter) return;
-        const parentHeader = ourFilter.parentElement;
-        const robloxFilter = parentHeader?.querySelector('.rbx-filter');
-        if (!robloxFilter) return;
-        if (robloxFilter.previousSibling !== ourFilter) {
-            parentHeader.insertBefore(ourFilter, robloxFilter);
-        }
-    }
+    reorderFilterIfNecessary();
+}
 
     window.addEventListener('click', () => {
         document.querySelector('.rovalra-filter-dropdown-content.show')?.classList.remove('show');

@@ -65,6 +65,9 @@ async function fetchServerUptime(placeId, serverIdsToFetch) {
     if (validServerIds.length === 0) return;
 
     try {
+        // You are allowed to use this API for personal projects only which is limited to open source projects on GitHub, they must be free and you must credit the RoValra repo.
+        // You are not allowed to use the API for projects on the chrome web store or any other extension store. If you want to use the API for a website dm be on discord: Valra and we can figure something out.
+        // If you want to use the API for something thats specifically said isnt allowed or you might be unsure if its allowed, please dm me on discord: Valra, Ill be happy to check out your stuff and maybe allow you to use it for your project.
         const response = await fetch('https://apis.rovalra.com/get_server_details', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -235,7 +238,9 @@ async function displayUptime(server, uptimeValue) {
         try {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
-
+            // You are allowed to use this API for personal projects only which is limited to open source projects on GitHub, they must be free and you must credit the RoValra repo.
+            // You are not allowed to use the API for projects on the chrome web store or any other extension store. If you want to use the API for a website dm be on discord: Valra and we can figure something out.
+            // If you want to use the API for something thats specifically said isnt allowed or you might be unsure if its allowed, please dm me on discord: Valra, Ill be happy to check out your stuff and maybe allow you to use it for your project.
             const apiResponse = await fetch('https://apis.rovalra.com/datacenters', {
                 signal: controller.signal
             });
@@ -250,7 +255,6 @@ async function displayUptime(server, uptimeValue) {
 
         } catch (e) {
 
-            console.warn(`RoValra API failed or timed out (${e.message}). Using fallback server data.`);
         } finally {
             window.rovalraDatacenterState = 'complete'; 
         }
@@ -1869,7 +1873,9 @@ chrome.storage.local.get([
             try {
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
-
+                // You are allowed to use this API for personal projects only which is limited to open source projects on GitHub, they must be free and you must credit the RoValra repo.
+                // You are not allowed to use the API for projects on the chrome web store or any other extension store. If you want to use the API for a website dm be on discord: Valra and we can figure something out.
+                // If you want to use the API for something thats specifically said isnt allowed or you might be unsure if its allowed, please dm me on discord: Valra, Ill be happy to check out your stuff and maybe allow you to use it for your project.
                 const apiResponse = await fetch('https://apis.rovalra.com/datacenters', {
                     signal: controller.signal
                 });
@@ -1880,10 +1886,8 @@ chrome.storage.local.get([
                 const apiData = await apiResponse.json();
                 processAndStoreData(apiData);
                 
-                console.log("RoValra background datacenter map loaded successfully.");
 
             } catch (e) {
-                console.warn(`RoValra API failed or timed out (${e.message}). Using fallback server data.`);
             } finally {
                 window.rovalraDatacenterState = 'complete'; 
             }

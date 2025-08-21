@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "RoValra - Roblox Improved",
-  "version": "2.2.31",
+  "version": "2.3",
   "description": "An extension aiming to provide features that other Roblox extensions pay wall!",
   "content_scripts": [    {
       "matches": [
@@ -39,7 +39,7 @@
       "matches": [
         "*://*.roblox.com/*"
       ],
-      "js": ["Games/revertlogo.js"],
+      "js": ["Games/revertlogo.js", "Games/quickplay.js"],
       "run_at": "document_end",
       "all_frames": true
     },
@@ -48,7 +48,7 @@
          "*://*.roblox.com/*/users/*",
         "*://*.roblox.com/users/*"
       ],
-      "js": ["misc/ItemChecker.js"],
+      "js": ["misc/ItemChecker.js", "Profile/RoValraBadges.js", "Profile/privateserver.js"],
       "run_at": "document_end",
       "all_frames": true
     },
@@ -59,6 +59,15 @@
       ],
       "js": ["misc/cssfixes.js"],
       "run_at": "document_end",
+      "all_frames": true
+    },
+    {
+      "matches": [
+         "*://*.roblox.com/*/home/*",
+        "*://*.roblox.com/home/*"
+      ],
+      "js": ["misc/cssfixes.js"],
+      "run_at": "document_start",
       "all_frames": true
     }
   ],  "permissions": [
@@ -135,7 +144,12 @@
               "Assets/unknown.png",
               "Assets/RegionSelectorPicture.png",
               "misc/cssfixes.js",
-              "data/ServerList.json"
+              "data/ServerList.json",
+              "misc/40method.js",
+              "Games/quickplay.js",
+              "Profile/RoValraBadges.js",
+              "Assets/return_request.png",
+              "Assets/fishstrap.png"
           ],
           "matches": [
               "https://www.roblox.com/*"
@@ -154,5 +168,4 @@
     "48": "Assets/icon-48.png",
     "128": "Assets/icon-128.png"
   }
-
 }

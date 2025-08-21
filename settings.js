@@ -22,7 +22,6 @@ async function loadRegionsFromStorage() {
             if (result.cachedRegions && result.cachedRegionContinents) {
                 REGIONS = result.cachedRegions;
                 REGION_CONTINENTS = result.cachedRegionContinents;
-                console.log("RoValra: Loaded regions from local storage cache.");
             } else {
                 REGIONS = { "AUTO": { city: "Nothing Selected", state: null, country: null, latitude: null, longitude: null } };
                 REGION_CONTINENTS = {};
@@ -37,7 +36,6 @@ async function saveRegionsToStorage(regionsToSave, continentsToSave) {
         'cachedRegions': regionsToSave,
         'cachedRegionContinents': continentsToSave
     }, () => {
-        console.log("RoValra: Region data has been cached to local storage.");
     });
 }
 
@@ -116,7 +114,6 @@ async function fetchAndProcessRegions() {
         }
         
         data = await response.json();
-        console.log("RoValra: Successfully fetched regions from the dynamic API.");
 
     } catch (error) {
         console.error("RoValra: Could not fetch dynamic regions from API, using fallback.", error.name === 'AbortError' ? 'Request timed out.' : error.message);
@@ -198,9 +195,11 @@ const SETTINGS_CONFIG = {
             },
             hiddenCatalogEnabled: {
                 label: "Enable Hidden Catalog",
-                description: ["Shows Roblox made items before they are on the official catalog."],
+                description: ["Shows Roblox made items before they are on the official catalog.",
+                    "{{red WARNING}} Roblox patched this, but this will still be updated manually if stuff leaks."
+                ],
                 type: "checkbox",
-                default: true
+                default: false
             }
         }
     },
@@ -209,20 +208,30 @@ const SETTINGS_CONFIG = {
         settings: {
 
             PreferredRegionEnabled: {
-                label: "Enable Preferred Join Region",
+                label: "Enable Preferred Region Play Button",
                 description: ["This adds a play button that joins your preferred region.",
-                            "Works independently whether Region Selector is enabled or not."],
+                            "This also automatically serverhops",
+                        "If you have this enabled and Quick Play Button there will be a Preferred Region quick play button "],
                 type: "checkbox",
                 default: true,
                 childSettings: {
                     robloxPreferredRegion: {
-                        label: "Preferred Join Region",
+                        label: "Preferred Region",
                         description: ["Select your preferred region for joining games."],
                         type: "select",
                         options: "REGIONS",
                         default: "AUTO"
                     }
                 }
+            },
+            QuickPlayEnable: {
+                label: "Enable Quick Play Button",
+                description: ["This will add a quick play button to games so you can quickly join the game without opening the game page.",
+                    "If you have Preferred Region Play Button enabled it will also add a Preferred Region quick play button to quickly join your preferred region.",
+                    "This is made to look like the Official Roblox Clients quick play button."
+                ],
+                type: "checkbox",
+                default: true,
             },
             botdataEnabled: {
                 label: "Enable Bot Data",
@@ -336,11 +345,27 @@ const SETTINGS_CONFIG = {
                 type: "checkbox",
                 default: false
             },
+            PrivateServerBulkEnabled: {
+                label: "Enable Private Server bulk Removal",
+                description: ["This will add a toggle to the private server inventory tab that allows you to easy set a bunch of private servers as inactive",
+                    "This also works for setting inactive private servers as active"
+                ],
+                type: "checkbox",
+                default: true
+            },
             privateInventoryEnabled: {
                 label: "Enable Private Inventory Viewer",
                 description: ["This allows you to view a users private inventory, by scanning a lot of items at once, to check if they own them."],
                 type: "checkbox",
                 default: true,
+            },
+            RoValraBadgesEnable: {
+                label: "Enable RoValra Badges",
+                description: ["This adds custom RoValra related badges to the Roblox Badges for specific users profiles",
+                    "The list of users will expand, this is mostly just a silly feature."
+                ],
+                type: "checkbox",
+                defautl: true,
             }
         }
     },
@@ -616,56 +641,65 @@ const SETTINGS_CONFIG = {
     }
 }
 
-function generateSettingsUI(section) {
+function generateSingleSettingHTML(settingName, setting) {
     let html = '';
-    const sectionConfig = SETTINGS_CONFIG[section];
-    
-    if (!sectionConfig) return '';
+    html += `<div class="setting" id="setting-container-${settingName}">`;
+    html += '<div class="setting-controls">';
+    html += `<label>${setting.label}</label>`;
+    html += generateSettingInput(settingName, setting);
+    html += '</div>';
+    html += '<div class="setting-label-divider"></div>';
 
-    for (const [settingName, setting] of Object.entries(sectionConfig.settings)) {
-        html += '<div class="setting">';
-        html += '<div class="setting-controls">';
-        html += `<label>${setting.label}</label>`;
-        html += generateSettingInput(settingName, setting, sectionConfig.settings); 
-        html += '</div>';
-        html += '<div class="setting-label-divider"></div>'; 
-        
+    if (setting.description) {
         setting.description.forEach(desc => {
             html += `<div class="setting-description">${parseMarkdown(desc)}</div>`;
         });
+    }
 
-        if (setting.type === 'file' && settingName === 'customLogoData') {
-            html += `
-                <div class="file-preview-clear-container" style="margin-top: 10px;"> 
-                    <img id="preview-${settingName}" src="#" alt="Image Preview" style="max-width: 96px; max-height: 96px; display: none; border-radius: 4px; border: 1px solid #555; margin-bottom: 5px;"/>
-                    <button id="clear-${settingName}" data-setting-name="${settingName}" style="padding: 6px 10px; border-radius: 4px; border: 1px solid #555; background-color: #c0392b; color: white; cursor: pointer; display: none;">Clear Custom Logo</button>
+    if (setting.type === 'file' && settingName === 'customLogoData') {
+        html += `
+            <div class="file-preview-clear-container" style="margin-top: 10px;"> 
+                <img id="preview-${settingName}" src="#" alt="Image Preview" style="max-width: 96px; max-height: 96px; display: none; border-radius: 4px; border: 1px solid #555; margin-bottom: 5px;"/>
+                <button id="clear-${settingName}" data-setting-name="${settingName}" style="padding: 6px 10px; border-radius: 4px; border: 1px solid #555; background-color: #c0392b; color: white; cursor: pointer; display: none;">Clear Custom Logo</button>
+            </div>`;
+    }
+
+    if (setting.childSettings) {
+        for (const [childName, childSetting] of Object.entries(setting.childSettings)) {
+            const isConditional = childSetting.condition;
+            const displayStyle = isConditional ? 'display: none;' : '';
+
+            html += '<div class="child-setting-separator"></div>';
+            html += ` 
+                <div class="child-setting-item" id="setting-${childName}" style="${displayStyle}">
+                    <div class="setting-controls">`;
+            html += `<label>${childSetting.label}</label>`;
+            html += generateSettingInput(childName, childSetting);
+            html += `</div>`;
+            html += `<div class="setting-label-divider"></div>
+                    ${childSetting.description.map(desc => `<div class="setting-description">${parseMarkdown(desc)}</div>`).join('')}
+                    
                 </div>`;
         }
+    }
 
-        if (setting.childSettings) {
-            for (const [childName, childSetting] of Object.entries(setting.childSettings)) {
-                const isConditional = childSetting.condition;
-                const displayStyle = isConditional ? 'display: none;' : ''; 
-                
-                html += '<div class="child-setting-separator"></div>';
-                html += ` 
-                    <div class="child-setting-item" id="setting-${childName}" style="${displayStyle}">
-                        <div class="setting-controls">`;
-                html += `<label>${childSetting.label}</label>`;
-                html += generateSettingInput(childName, childSetting, setting.childSettings);
-                html += `</div>`;
-                html += `<div class="setting-label-divider"></div>
-                        ${childSetting.description.map(desc => `<div class="setting-description">${parseMarkdown(desc)}</div>`).join('')}
-                        
-                    </div>`;
-            }
-        }
+    html += '<div class="setting-separator"></div></div>';
+    return html;
+}
 
-        html += '<div class="setting-separator"></div></div>';
+function generateSettingsUI(section) {
+    let html = '';
+    const sectionConfig = SETTINGS_CONFIG[section];
+
+    if (!sectionConfig) return '';
+
+    for (const [settingName, setting] of Object.entries(sectionConfig.settings)) {
+        html += generateSingleSettingHTML(settingName, setting);
     }
 
     return html;
 }
+
 
 function generateSettingInput(settingName, setting, allSettingsInSection) {
     if (setting.type === 'checkbox') {
@@ -921,7 +955,7 @@ const syncSettingsVisualState = async () => {
             updateThemeStyles_settingsPage(cachedTheme);
             
             const settingBackgroundColor = isDarkMode ? 'rgb(39, 41, 48)' : 'rgb(240, 240, 240)';
-            const childSettingBackgroundColor = isDarkMode ? 'rgb(52, 55, 58)' : 'rgb(230, 230, 230)';
+            const childSettingBackgroundColor = isDarkMode ? 'rgb(39, 41, 48)' : 'rgb(240, 240, 240)';
             
             document.querySelectorAll('.setting').forEach(setting => {
                 if (setting.id && setting.id.startsWith('setting-')) {
@@ -1005,6 +1039,11 @@ function updateThemeStyles_settingsPage(theme) {
                 bg: 'rgb(45, 48, 51)',
                 border: 'rgb(69, 73, 77)',
                 text: 'rgb(230, 230, 230)'
+            },
+            searchInput: {
+                 bg: 'rgb(45, 48, 51)',
+                 border: 'rgb(69, 73, 77)',
+                 text: 'rgb(230, 230, 230)'
             }
         },
         light: {
@@ -1020,6 +1059,11 @@ function updateThemeStyles_settingsPage(theme) {
                 text: 'rgb(57, 59, 61)'
             },
             fileInput: {
+                bg: 'rgb(255, 255, 255)',
+                border: 'rgb(204, 208, 212)',
+                text: 'rgb(57, 59, 61)'
+            },
+            searchInput: {
                 bg: 'rgb(255, 255, 255)',
                 border: 'rgb(204, 208, 212)',
                 text: 'rgb(57, 59, 61)'
@@ -1079,7 +1123,17 @@ function updateThemeStyles_settingsPage(theme) {
             border: `1px solid ${currentColors.fileInput.border}`
         });
     });
+
+    const searchInput = document.getElementById('settings-search-input');
+    if (searchInput) {
+        Object.assign(searchInput.style, {
+            backgroundColor: currentColors.searchInput.bg,
+            color: currentColors.searchInput.text,
+            border: `1px solid ${currentColors.searchInput.border}`
+        });
+    }
 }
+
 
 function updateThemeStyles_rovalraPage(theme) {
     const isDarkMode = theme === 'dark';
@@ -1201,7 +1255,7 @@ async function applyTheme() {
                 updateThemeStyles_settingsPage(currentTheme);
                 
                 const settingBackgroundColor = isDarkMode ? 'rgb(39, 41, 48)' : 'rgb(240, 240, 240)';
-                const childSettingBackgroundColor = isDarkMode ? 'rgb(52, 55, 58)' : 'rgb(230, 230, 230)';
+                const childSettingBackgroundColor = isDarkMode ? 'rgb(39, 41, 48)' : 'rgb(240, 240, 240)';
                 
                 document.querySelectorAll('.setting').forEach(setting => {
                     if (setting.id && setting.id.startsWith('setting-')) {
@@ -1432,7 +1486,7 @@ function startObserver() {
 const loadSettings = async () => {
     return new Promise((resolve, reject) => {
         const defaultSettings = {
-            hiddenCatalogEnabled: true,
+            hiddenCatalogEnabled: false,
             itemSalesEnabled: true,
             groupGamesEnabled: true,
             userGamesEnabled: true,
@@ -1460,7 +1514,12 @@ const loadSettings = async () => {
             ServerlistmodificationsEnabled: true,
             TotalServersEnabled: true,
             ServerFilterEnabled: true,
-            cssfixesEnabled: true
+            cssfixesEnabled: true,
+            SaveRobuxEnabled: false,
+            RoValraBadgesEnable: true,
+            ShowBadgesEverywhere: false,
+            QuickPlayEnable: true,
+            PrivateServerBulkEnabled: true
         };
 
         chrome.storage.local.get(defaultSettings, (settings) => {
@@ -1707,6 +1766,132 @@ async function updateContent(buttonInfo, contentContainer, buttonData) {
     }
 }
 
+
+function getLevenshteinDistance(a, b) {
+    if (a.length === 0) return b.length;
+    if (b.length === 0) return a.length;
+
+    const matrix = Array(b.length + 1).fill(null).map(() => Array(a.length + 1).fill(null));
+
+    for (let i = 0; i <= a.length; i += 1) {
+        matrix[0][i] = i;
+    }
+
+    for (let j = 0; j <= b.length; j += 1) {
+        matrix[j][0] = j;
+    }
+
+    for (let j = 1; j <= b.length; j += 1) {
+        for (let i = 1; i <= a.length; i += 1) {
+            const indicator = a[i - 1] === b[j - 1] ? 0 : 1;
+            matrix[j][i] = Math.min(
+                matrix[j][i - 1] + 1,       
+                matrix[j - 1][i] + 1,       
+                matrix[j - 1][i - 1] + indicator, 
+            );
+        }
+    }
+
+    return matrix[b.length][a.length];
+}
+
+
+async function handleSearch(event) {
+    const query = event.target.value.toLowerCase().trim();
+    const contentContainer = document.querySelector('#content-container');
+
+    if (!contentContainer) return;
+
+    document.querySelectorAll('#unified-menu .menu-option-content').forEach(el => {
+        el.classList.remove('active');
+        el.removeAttribute('aria-current');
+    });
+
+    if (query.length < 2) {
+        contentContainer.innerHTML = `<div id="settings-content" style="padding: 15px; text-align: center;">Please enter at least 2 characters to search.</div>`;
+        await applyTheme();
+        return;
+    }
+
+    const searchResults = [];
+    const queryNoSpaces = query.replace(/\s+/g, '');
+
+    for (const categoryName in SETTINGS_CONFIG) {
+        const category = SETTINGS_CONFIG[categoryName];
+        for (const [settingName, settingDef] of Object.entries(category.settings)) {
+            const label = (Array.isArray(settingDef.label) ? settingDef.label.join(' ') : settingDef.label || '').toLowerCase();
+            const description = (settingDef.description || []).join(' ').toLowerCase();
+            const fullText = `${label} ${description}`;
+            const fullTextNoSpaces = fullText.replace(/\s+/g, '');
+
+            let isMatch = false;
+
+            if (fullText.includes(query)) {
+                isMatch = true;
+            }
+            else if (fullTextNoSpaces.includes(queryNoSpaces)) {
+                isMatch = true;
+            }
+            else {
+                const words = fullText.split(/\s+/);
+                const threshold = query.length > 5 ? 2 : 1; 
+                for (const word of words) {
+                    if (getLevenshteinDistance(query, word) <= threshold) {
+                        isMatch = true;
+                        break;
+                    }
+                }
+            }
+            
+            if (!isMatch && settingDef.childSettings) {
+                 for (const [childName, childDef] of Object.entries(settingDef.childSettings)) {
+                    const childLabel = (Array.isArray(childDef.label) ? childDef.label.join(' ') : childDef.label || '').toLowerCase();
+                    const childDescription = (childDef.description || []).join(' ').toLowerCase();
+                    const childFullText = `${childLabel} ${childDescription}`;
+
+                    if(childFullText.includes(query)){
+                        isMatch = true;
+                        break;
+                    }
+                 }
+            }
+
+
+            if (isMatch) {
+                if (!searchResults.some(res => res.name === settingName)) {
+                    searchResults.push({ category: category.title, name: settingName, config: settingDef });
+                }
+            }
+        }
+    }
+
+    if (searchResults.length === 0) {
+        contentContainer.innerHTML = `<div id="settings-content" style="padding: 15px; text-align: center;">No settings found for "${query}".</div>`;
+    } else {
+        const groupedResults = searchResults.reduce((acc, setting) => {
+            if (!acc[setting.category]) {
+                acc[setting.category] = [];
+            }
+            acc[setting.category].push(setting);
+            return acc;
+        }, {});
+
+        let html = '<div id="setting-section-content" style="padding: 5px;">';
+        for (const categoryTitle in groupedResults) {
+            html += `<h2 class="settings-category-header" style="margin-left: 5px; margin-bottom: 10px;">${categoryTitle}</h2>`;
+            for (const setting of groupedResults[categoryTitle]) {
+                html += generateSingleSettingHTML(setting.name, setting.config);
+            }
+        }
+        html += '</div>';
+        contentContainer.innerHTML = html;
+    }
+    
+    await initSettings(contentContainer);
+    await applyTheme();
+}
+
+
 async function checkRoValraPage() {
     if (!window.location.href.includes('?rovalra=info')) {
         isSettingsPage = false;
@@ -1753,6 +1938,11 @@ async function checkRoValraPage() {
         if (!contentContainer) {
             console.error("Content container not found in loadTabContent.");
             return;
+        }
+
+        const searchInput = document.getElementById('settings-search-input');
+        if (searchInput) {
+            searchInput.value = '';
         }
 
         const lowerHashKey = hashKey.toLowerCase();
@@ -1805,204 +1995,308 @@ async function checkRoValraPage() {
     }
 
     async function newHandleHashChange() {
-        const currentHash = window.location.hash.replace('#!/', '').replace('#!', '') || 'info';
-        await loadTabContent(currentHash);
-    }
-    
-    window.removeEventListener('hashchange', newHandleHashChange); 
-    window.addEventListener('hashchange', newHandleHashChange);
+    const currentHash = window.location.hash.replace('#!/', '').replace('#!', '') || 'info';
+    await loadTabContent(currentHash);
+}
 
-    const roproThemeFrame = containerMain.querySelector('#roproThemeFrame');
-    let roproThemeFrameHTML = roproThemeFrame ? roproThemeFrame.outerHTML : '';
-    containerMain.innerHTML = roproThemeFrameHTML;
+window.removeEventListener('hashchange', newHandleHashChange);
+window.addEventListener('hashchange', newHandleHashChange);
 
-    let reactUserAccountBaseDiv = document.createElement('div');
-    reactUserAccountBaseDiv.id = 'react-user-account-base';
-    let contentDiv = document.createElement('div');
-    contentDiv.classList.add('content');
-    contentDiv.id = 'content';
-    let userAccountDiv = document.createElement('div');
-    userAccountDiv.classList.add('row', 'page-content', 'new-username-pwd-rule');
-    userAccountDiv.id = 'user-account';
-    let rovalraHeader = document.createElement('h1');
-    rovalraHeader.textContent = 'RoValra Settings';
-    let settingsContainer = document.createElement('div');
-    settingsContainer.id = 'settings-container';
+const roproThemeFrame = containerMain.querySelector('#roproThemeFrame');
+let roproThemeFrameHTML = roproThemeFrame ? roproThemeFrame.outerHTML : '';
+containerMain.innerHTML = roproThemeFrameHTML;
 
-    userAccountDiv.appendChild(reactUserAccountBaseDiv);
-    reactUserAccountBaseDiv.appendChild(rovalraHeader);
-    reactUserAccountBaseDiv.appendChild(settingsContainer);
-    contentDiv.appendChild(userAccountDiv);
-    containerMain.appendChild(contentDiv);
+let reactUserAccountBaseDiv = document.createElement('div');
+reactUserAccountBaseDiv.id = 'react-user-account-base';
+let contentDiv = document.createElement('div');
+contentDiv.classList.add('content');
+contentDiv.id = 'content';
+let userAccountDiv = document.createElement('div');
+userAccountDiv.classList.add('row', 'page-content', 'new-username-pwd-rule');
+userAccountDiv.id = 'user-account';
 
-    if (rovalraHeader && rovalraHeader.textContent === 'RoValra Settings' && settingsContainer) {
-        contentDiv.style.cssText = `width: 100% !important; height: auto !important; border-radius: 10px !important; overflow: hidden !important; padding-bottom: 25px !important; padding-top: 25px !important; min-height: 800px !important; position: relative !important;`;
-        if (userAccountDiv) {
-            userAccountDiv.style.cssText = `display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; padding-left: 0px !important; padding-right: 0px !important; margin-left: auto !important; margin-right: auto !important; width: 100% !important;`;
-            rovalraButtonAdded = false;
+
+let headerContainer = document.createElement('div');
+headerContainer.style.cssText = 'display: flex; align-items: center; justify-content: center; margin-bottom: 20px;'; 
+
+let rovalraIcon = document.createElement('img');
+rovalraIcon.src = chrome.runtime.getURL("Assets/icon-128.png");
+rovalraIcon.style.cssText = 'width: 35px; height: 35px; margin-left: 5px; cursor: default; user-select: none;';
+
+let rovalraIconClickCount = 0;
+let devTabAdded = false;
+
+rovalraIcon.addEventListener('click', () => {
+    rovalraIconClickCount++;
+    if (rovalraIconClickCount >= 10 && !devTabAdded) {
+        devTabAdded = true;
+
+        SETTINGS_CONFIG.Developer = {
+            title: "Developer",
+            settings: {
+                info: {
+                    label: ["Developer Settings"],
+                    description: ["{{red ONLY ENABLE THESE FEATURES IF YOU KNOW WHAT YOU'RE DOING!}}",
+                        "**These are features in development that are not yet ready for public release.**",
+                        "Some features may be completely broken, contain bugs, or may not work as described yet."
+                    ]
+                   
+                },
+                SaveRobuxEnabled: {
+                label: ["Save 40% Robux when buying items."],
+                description: ["{{red THIS FEATURE DOES NOT GIVE YOU ROBUX BACK YET!}}",
+                    "So dont use this expecting to get 40% Robux back when buying stuff, that will only work at full release."
+                ],
+                type: "checkbox",
+                default: false
+                },
+                ShowBadgesEverywhere: {
+                    label: "Shows the custom RoValra Badges on any profile",
+                    description: ["This includes the creator badge and all custom Roblox Badges."],
+                     type: "checkbox",
+                    default: false
+                }
+                
+            }
+        };
+
+        const menuList = document.getElementById('unified-menu');
+        if (menuList) {
+            const sectionName = "Developer";
+            const section = SETTINGS_CONFIG[sectionName];
+
+            const listItem = document.createElement('li');
+            listItem.id = `${sectionName.toLowerCase()}-tab`;
+            listItem.dataset.section = sectionName;
+            listItem.setAttribute('role', 'tab');
+            listItem.classList.add('menu-option');
+
+            const link = document.createElement('a');
+            link.classList.add('menu-option-content');
+            link.href = `#!/${sectionName.toLowerCase()}`;
+
+            const span = document.createElement('span');
+            span.classList.add('font-caption-header');
+            span.textContent = section.title;
+            link.appendChild(span);
+            listItem.appendChild(link);
+            menuList.appendChild(listItem);
+
+            link.addEventListener('click', async function(e) {
+                e.preventDefault();
+                document.querySelectorAll('#unified-menu .menu-option-content').forEach(el => {
+                    el.classList.remove('active');
+                    el.removeAttribute('aria-current');
+                });
+                this.classList.add('active');
+                this.setAttribute('aria-current', 'page');
+
+                const newHash = `#!/${sectionName.toLowerCase()}`;
+                if (window.location.hash !== newHash) {
+                    history.pushState(null, '', newHash);
+                }
+
+                const contentContainerElement = document.querySelector('#content-container');
+                if (contentContainerElement) {
+                    contentContainerElement.innerHTML = `
+                        <div id="settings-content" style="padding: 0; background-color: transparent;">
+                            <div id="setting-section-content" style="padding: 5px;">
+                                ${generateSettingsUI(sectionName)}
+                            </div>
+                        </div>
+                    `;
+                    initSettings(contentContainerElement.querySelector('#setting-section-content'));
+                    await applyTheme();
+                }
+            });
+            link.click();
         }
-        rovalraHeader.remove();
-        const uiContainer = document.createElement('div');
-        uiContainer.style.cssText = 'display: flex; flex-direction: row; gap: 10px; align-items: flex-start; position: relative; overflow: auto; width: auto; justify-content: flex-start;';
-        settingsContainer.appendChild(uiContainer);
-        settingsContainer.style.cssText = 'display: block; position: relative; overflow: visible;';
+    }
+});
+
+
+let rovalraHeader = document.createElement('h1');
+rovalraHeader.textContent = 'RoValra Settings';
+rovalraHeader.style.margin = '0'; 
+
+headerContainer.appendChild(rovalraHeader);
+rovalraHeader.appendChild(rovalraIcon);
+let settingsContainer = document.createElement('div');
+settingsContainer.id = 'settings-container';
+
+userAccountDiv.appendChild(reactUserAccountBaseDiv);
+reactUserAccountBaseDiv.appendChild(headerContainer);
+reactUserAccountBaseDiv.appendChild(settingsContainer);
+contentDiv.appendChild(userAccountDiv);
+containerMain.appendChild(contentDiv);
+
+if (rovalraHeader && rovalraHeader.textContent === 'RoValra Settings' && settingsContainer) {
+    contentDiv.style.cssText = `width: 100% !important; height: auto !important; border-radius: 10px !important; overflow: hidden !important; padding-bottom: 25px !important; padding-top: 25px !important; min-height: 800px !important; position: relative !important;`;
+    if (userAccountDiv) {
+        userAccountDiv.style.cssText = `display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; padding-left: 0px !important; padding-right: 0px !important; margin-left: auto !important; margin-right: auto !important; width: 100% !important;`;
+        rovalraButtonAdded = false;
+    }
+
+    
+
+    const uiContainer = document.createElement('div');
+    uiContainer.style.cssText = 'display: flex; flex-direction: row; gap: 10px; align-items: flex-start; position: relative; overflow: auto; width: auto; justify-content: flex-start;';
+    settingsContainer.appendChild(uiContainer);
+    settingsContainer.style.cssText = 'display: block; position: relative; overflow: visible;';
+
+    const style = document.createElement('style');
+    const isInitiallyDark = currentTheme === 'dark';
+    const initialButtonBg = isInitiallyDark ? 'rgb(45, 48, 51)' : 'rgb(227, 230, 232)';
+    const initialButtonText = isInitiallyDark ? 'rgb(230, 230, 230)' : 'rgb(36, 41, 45)';
+    const initialButtonActiveBg = isInitiallyDark ? 'rgb(69, 73, 77)' : 'rgb(204, 208, 212)';
+    style.textContent = `
+        .setting { display: flex; flex-direction: column; justify-content: space-between; font-size: 16px; margin: 0 0 15px 0; background-color: ${isInitiallyDark ? 'rgb(39, 41, 48)' : 'rgb(240, 240, 240)'}; border-radius: 0px; padding: 15px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); }
+        .setting-controls { display: flex; align-items: center; margin-bottom: 8px; }
+        .setting-controls > label { margin-right: 10px; font-weight: bold; }
+        .child-setting-item { display: flex; flex-direction: column; margin-left: 10px; margin-top: 5px; padding-top: 0px; }
+        .child-setting-separator { height: 1px; background-color: rgba(128, 128, 128, 0.2); margin-top: 10px; margin-bottom: 10px; }
+        .setting-description { margin-bottom: 10px; }
+        .setting-description strong { font-weight: bold; }
+        .setting-description em { font-style: italic; }
+        .setting-description code { font-family: monospace; padding: 2px 4px; background-color: ${isInitiallyDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)'}; border-radius: 3px; }
+        .setting-description pre { background-color: ${isInitiallyDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)'}; padding: 8px; border-radius: 4px; overflow-x: auto; margin: 8px 0; }
+        .setting-description a { color: ${isInitiallyDark ? '#7289da' : '#3479b7'}; text-decoration: underline; }
+        .setting-description blockquote { padding-left: 10px; border-left: 3px solid ${isInitiallyDark ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.2)'}; margin: 8px 0; font-style: italic; }
+        .setting-description hr { border: none; border-top: 1px solid ${isInitiallyDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)'}; margin: 8px 0; }
+        .setting-description s { text-decoration: line-through; }
+        .setting-description .markdown-header { margin: 10px 0 5px 0; font-weight: bold; }
+        .setting-description h1.markdown-header { font-size: 1.8em; }
+        .setting-description h2.markdown-header { font-size: 1.5em; }
+        .setting-description h3.markdown-header { font-size: 1.3em; }
+        .setting-description h4.markdown-header { font-size: 1.1em; }
+        .setting-description h5.markdown-header, .setting-description h6.markdown-header { font-size: 1em; }
+        .setting-description ul, .setting-description ol { margin-left: 20px; padding-left: 0; list-style-position: outside; }
+        .setting-description li { margin-bottom: 4px; position: relative; }
+        .setting-description li:before { content: ""; display: none; }
+        .setting-description li li { margin-left: 20px; }
+        .setting-description li.bullet-item { 
+            list-style-type: none; 
+            margin-left: 20px; 
+            position: relative; 
+            padding-left: 15px;
+        }
+        .setting-description li.bullet-item:before { 
+            content: "•"; 
+            display: inline-block; 
+            position: absolute; 
+            left: 0px; 
+            color: inherit; 
+            font-size: 1.2em;
+            line-height: 1em;
+            top: -0.05em;
+        }
+        .setting-description li.bullet-item li.bullet-item {
+            margin-left: 15px;
+        }
+        .setting-description li.bullet-item li.bullet-item:before {
+            content: "◦";
+            font-size: 1.1em;
+        }
+        .setting-label-divider { 
+            height: 0;
+            border-top: 1px solid rgba(128, 128, 128, 0.3);
+            margin-top: 0px; 
+            margin-bottom: 8px; 
+            transform: translateZ(0);
+            -webkit-transform: translateZ(0);
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            box-sizing: border-box;
+            -webkit-box-sizing: border-box;
+            position: relative;
+            z-index: 1;
+        }
+        .toggle-switch { position: relative; display: inline-block; width: 42px; height: 24px; flex-shrink: 0; margin-left: auto; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-switch1 { position: relative; display: inline-block; width: 42px; height: 24px; display: none; flex-shrink: 0; margin-left: auto; }
+        .toggle-switch1 input { opacity: 0; width: 0; height: 0; }
+        .slider1 { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; background-color: #444; bottom: 0; transition: .4s; border-radius: 12px; width: 42px; }
+        .slider1:before { position: absolute; disabled: true; content: ""; height: 20px; width: 20px; left: 2px; bottom: 2px; background-color:rgb(255, 255, 255); transition: .4s; border-radius: 50%; }
+        input:checked + .slider1 { background-color: #2EA44F; }
+        input:checked + .slider1:before { transform: translateX(18px); }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; background-color: #444; bottom: 0; transition: .4s; border-radius: 12px; width: 42px; }
+        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 2px; bottom: 2px; background-color:rgb(255, 255, 255); transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: #2EA44F; }
+        input:checked + .slider:before { transform: translateX(18px); }
+        .setting-select-input { padding: 8px; border-radius: 4px; border: 1px solid #555; background-color: #393b3d; color: #eee; max-width: 200px; flex-shrink: 0; margin-left: auto; }
+        .setting-file-input-container { display: flex; flex-direction: column; align-items: flex-start; max-width: 250px; flex-shrink: 0; margin-left: auto; }
+        .setting-file-input { padding: 8px; border-radius: 4px; max-width: 230px; }
+        .setting-separator { display: none; }
+        .disabled-setting { opacity: 0.5; pointer-events: none; }
+        .disabled-setting label { color: #777; }
+        .disabled-setting p { color: #777; }
+        .tab-button { white-space: nowrap; margin-left: 0px; }
+        .setting-section-button { padding: 10px 16px; border-radius: 8px; border: none; cursor: pointer; background-color: ${initialButtonBg}; color: ${initialButtonText}; margin: 0 8px 0 0; font-size: 14px; font-weight: bold; font-family: Gotham SSm A, Gotham SSm B, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif; transition: all 0.1s ease; }
+        .setting-section-button[data-active="true"] { background-color: ${initialButtonActiveBg}; }
+        .back-to-main { display: flex; align-items: center; padding: 10px 16px; margin-bottom: 15px; border-radius: 8px; border: none; cursor: pointer; background-color: ${initialButtonBg}; color: ${initialButtonText}; font-size: 14px; font-weight: bold; font-family: Gotham SSm A, Gotham SSm B, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif; transition: all 0.1s ease; }
+        .back-to-main:hover { background-color: ${isInitiallyDark ? 'rgb(57, 60, 64)' : 'rgb(218, 221, 224)'}; transform: translateY(-1px); }
+        .child-setting-item .toggle-switch, .child-setting-item .toggle-switch1 { margin-right: 20px; }
         
-        const style = document.createElement('style');
-        const isInitiallyDark = currentTheme === 'dark';
-        const initialButtonBg = isInitiallyDark ? 'rgb(45, 48, 51)' : 'rgb(227, 230, 232)';
-        const initialButtonText = isInitiallyDark ? 'rgb(230, 230, 230)' : 'rgb(36, 41, 45)';
-        const initialButtonActiveBg = isInitiallyDark ? 'rgb(69, 73, 77)' : 'rgb(204, 208, 212)';
-        style.textContent = `
-            .setting { display: flex; flex-direction: column; justify-content: space-between; font-size: 16px; margin: 0 0 15px 0; background-color: ${isInitiallyDark ? 'rgb(39, 41, 48)' : 'rgb(240, 240, 240)'}; border-radius: 0px; padding: 15px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); }
-            .setting-controls { display: flex; align-items: center; margin-bottom: 8px; }
-            .setting-controls > label { margin-right: 10px; font-weight: bold; }
-            .child-setting-item { display: flex; flex-direction: column; margin-left: 10px; margin-top: 5px; padding-top: 0px; }
-            .child-setting-separator { height: 1px; background-color: rgba(128, 128, 128, 0.2); margin-top: 10px; margin-bottom: 10px; }
-            /* Markdown styles */
-            .setting-description { margin-bottom: 10px; }
+        a.rovalra-discord-link {
+            color: ${isInitiallyDark ? '#7289da' : '#3479b7'} !important;
+            text-decoration: underline !important;
+            font-weight: bold !important;
+            transition: color 0.3s ease !important;
+        }
+        a.rovalra-discord-link:hover {
+            color: ${isInitiallyDark ? '#8ba1e0' : '#4a8bc7'} !important;
+        }
+        
+        a.rovalra-roblox-link {
+            color: ${isInitiallyDark ? '#c13ad9' : '#c13ad9'} !important;
+            text-decoration: underline !important;
+            font-weight: bold !important;
+            transition: color 0.3s ease !important;
+        }
+        a.rovalra-roblox-link:hover {
+            color: ${isInitiallyDark ? '#d44de6' : '#d44de6'} !important;
+        }
+        a.rovalra-tiktok-link {
+            color: ${isInitiallyDark ? '#b91e4dff' : '#b91e4dff'} !important;
+            text-decoration: underline !important;
+            font-weight: bold !important;
+            transition: color 0.3s ease !important;
+        }
+        a.rovalra-tiktok-link:hover {
+            color: ${isInitiallyDark ? '#d82359ff' : '#d82359ff'} !important;
+        }
+        a.rovalra-github-link {
+            color: ${isInitiallyDark ? '#2dba4e' : '#1e722a'} !important;
+            text-decoration: underline !important;
+            font-weight: bold !important;
+            transition: color 0.3s ease !important;
+        }
+        a.rovalra-github-link:hover {
+            color: ${isInitiallyDark ? '#3edb5e' : '#2e823a'} !important;
+        }
+        
+        a.rovalra-review-link {
+            color: ${isInitiallyDark ? '#42a5f5' : '#1976d2'} !important;
+            text-decoration: underline !important;
+            font-weight: bold !important;
+            transition: color 0.3s ease !important;
+        }
+        a.rovalra-review-link:hover {
+            color: ${isInitiallyDark ? '#64b5f6' : '#2196f3'} !important;
+        }
 
-            .setting-description strong { font-weight: bold; }
-            .setting-description em { font-style: italic; }
-            .setting-description code { font-family: monospace; padding: 2px 4px; background-color: ${isInitiallyDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)'}; border-radius: 3px; }
-            .setting-description pre { background-color: ${isInitiallyDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)'}; padding: 8px; border-radius: 4px; overflow-x: auto; margin: 8px 0; }
-            .setting-description a { color: ${isInitiallyDark ? '#7289da' : '#3479b7'}; text-decoration: underline; }
-            .setting-description blockquote { padding-left: 10px; border-left: 3px solid ${isInitiallyDark ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.2)'}; margin: 8px 0; font-style: italic; }
-            .setting-description hr { border: none; border-top: 1px solid ${isInitiallyDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)'}; margin: 8px 0; }
-            .setting-description s { text-decoration: line-through; }
-            .setting-description .markdown-header { margin: 10px 0 5px 0; font-weight: bold; }
-            .setting-description h1.markdown-header { font-size: 1.8em; }
-            .setting-description h2.markdown-header { font-size: 1.5em; }
-            .setting-description h3.markdown-header { font-size: 1.3em; }
-            .setting-description h4.markdown-header { font-size: 1.1em; }
-            .setting-description h5.markdown-header, .setting-description h6.markdown-header { font-size: 1em; }
-            .setting-description ul, .setting-description ol { margin-left: 20px; padding-left: 0; list-style-position: outside; }
-            .setting-description li { margin-bottom: 4px; position: relative; }
-            .setting-description li:before { content: ""; display: none; }
-            .setting-description li li { margin-left: 20px; }
-            /* Special styling for bullet points (dots) */
-            .setting-description li.bullet-item { 
-                list-style-type: none; 
-                margin-left: 20px; 
-                position: relative; 
-                padding-left: 15px;
-            }
-            .setting-description li.bullet-item:before { 
-                content: "•"; 
-                display: inline-block; 
-                position: absolute; 
-                left: 0px; 
-                color: inherit; 
-                font-size: 1.2em;
-                line-height: 1em;
-                top: -0.05em;
-            }
-            .setting-description li.bullet-item li.bullet-item {
-                margin-left: 15px;
-            }
-            .setting-description li.bullet-item li.bullet-item:before {
-                content: "◦";
-                font-size: 1.1em;
-            }
-            .setting-label-divider { 
-                height: 0;
-                border-top: 1px solid rgba(128, 128, 128, 0.3);
-                margin-top: 0px; 
-                margin-bottom: 8px; 
-                transform: translateZ(0);
-                -webkit-transform: translateZ(0);
-                backface-visibility: hidden;
-                -webkit-backface-visibility: hidden;
-                box-sizing: border-box;
-                -webkit-box-sizing: border-box;
-                position: relative;
-                z-index: 1;
-            }
-            /* Removed .setting p style in favor of .setting-description styles */
-            .toggle-switch { position: relative; display: inline-block; width: 42px; height: 24px; flex-shrink: 0; margin-left: auto; }
-            .toggle-switch input { opacity: 0; width: 0; height: 0; }
-            .toggle-switch1 { position: relative; display: inline-block; width: 42px; height: 24px; display: none; flex-shrink: 0; margin-left: auto; }
-            .toggle-switch1 input { opacity: 0; width: 0; height: 0; }
-            .slider1 { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; background-color: #444; bottom: 0; transition: .4s; border-radius: 12px; width: 42px; }
-            .slider1:before { position: absolute; disabled: true; content: ""; height: 20px; width: 20px; left: 2px; bottom: 2px; background-color:rgb(255, 255, 255); transition: .4s; border-radius: 50%; }
-            input:checked + .slider1 { background-color: #2EA44F; }
-            input:checked + .slider1:before { transform: translateX(18px); }
-            .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; background-color: #444; bottom: 0; transition: .4s; border-radius: 12px; width: 42px; }
-            .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 2px; bottom: 2px; background-color:rgb(255, 255, 255); transition: .4s; border-radius: 50%; }
-            input:checked + .slider { background-color: #2EA44F; }
-            input:checked + .slider:before { transform: translateX(18px); }
-            .setting-select-input { padding: 8px; border-radius: 4px; border: 1px solid #555; background-color: #393b3d; color: #eee; max-width: 200px; flex-shrink: 0; margin-left: auto; }
-            .setting-file-input-container { display: flex; flex-direction: column; align-items: flex-start; max-width: 250px; flex-shrink: 0; margin-left: auto; }
-            .setting-file-input { padding: 8px; border-radius: 4px; max-width: 230px; }
-            .setting-separator { display: none; }
-            .disabled-setting { opacity: 0.5; pointer-events: none; }
-            .disabled-setting label { color: #777; }
-            .disabled-setting p { color: #777; }
-            .tab-button { white-space: nowrap; margin-left: 0px; }
-            .setting-section-button { padding: 10px 16px; border-radius: 8px; border: none; cursor: pointer; background-color: ${initialButtonBg}; color: ${initialButtonText}; margin: 0 8px 0 0; font-size: 14px; font-weight: bold; font-family: Gotham SSm A, Gotham SSm B, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif; transition: all 0.1s ease; }
-            .setting-section-button[data-active="true"] { background-color: ${initialButtonActiveBg}; }
-            .back-to-main { display: flex; align-items: center; padding: 10px 16px; margin-bottom: 15px; border-radius: 8px; border: none; cursor: pointer; background-color: ${initialButtonBg}; color: ${initialButtonText}; font-size: 14px; font-weight: bold; font-family: Gotham SSm A, Gotham SSm B, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif; transition: all 0.1s ease; }
-            .back-to-main:hover { background-color: ${isInitiallyDark ? 'rgb(57, 60, 64)' : 'rgb(218, 221, 224)'}; transform: translateY(-1px); }
-            .child-setting-item .toggle-switch, .child-setting-item .toggle-switch1 { margin-right: 20px; }
-            
-            /* Force link colors */
-            a.rovalra-discord-link {
-                color: ${isInitiallyDark ? '#7289da' : '#3479b7'} !important;
-                text-decoration: underline !important;
-                font-weight: bold !important;
-                transition: color 0.3s ease !important;
-            }
-            a.rovalra-discord-link:hover {
-                color: ${isInitiallyDark ? '#8ba1e0' : '#4a8bc7'} !important;
-            }
-            
-            a.rovalra-roblox-link {
-                color: ${isInitiallyDark ? '#c13ad9' : '#c13ad9'} !important;
-                text-decoration: underline !important;
-                font-weight: bold !important;
-                transition: color 0.3s ease !important;
-            }
-            a.rovalra-roblox-link:hover {
-                color: ${isInitiallyDark ? '#d44de6' : '#d44de6'} !important;
-            }
-            a.rovalra-tiktok-link {
-                color: ${isInitiallyDark ? '#b91e4dff' : '#b91e4dff'} !important;
-                text-decoration: underline !important;
-                font-weight: bold !important;
-                transition: color 0.3s ease !important;
-            }
-            a.rovalra-tiktok-link:hover {
-                color: ${isInitiallyDark ? '#d82359ff' : '#d82359ff'} !important;
-            }
-            a.rovalra-github-link {
-                color: ${isInitiallyDark ? '#2dba4e' : '#1e722a'} !important;
-                text-decoration: underline !important;
-                font-weight: bold !important;
-                transition: color 0.3s ease !important;
-            }
-            a.rovalra-github-link:hover {
-                color: ${isInitiallyDark ? '#3edb5e' : '#2e823a'} !important;
-            }
-            
-            a.rovalra-review-link {
-                color: ${isInitiallyDark ? '#42a5f5' : '#1976d2'} !important;
-                text-decoration: underline !important;
-                font-weight: bold !important;
-                transition: color 0.3s ease !important;
-            }
-            a.rovalra-review-link:hover {
-                color: ${isInitiallyDark ? '#64b5f6' : '#2196f3'} !important;
-            }
+        a.rovalra-extension-link {
+            color: ${isInitiallyDark ? '#4a9eff' : '#0066cc'} !important;
+            text-decoration: underline !important;
+            font-weight: bold !important;
+            transition: color 0.3s ease !important;
+        }
+        a.rovalra-extension-link:hover {
+            color: ${isInitiallyDark ? '#6db3ff' : '#1a75ff'} !important;
+        }
+    `;
 
-            a.rovalra-extension-link {
-                color: ${isInitiallyDark ? '#4a9eff' : '#0066cc'} !important;
-                text-decoration: underline !important;
-                font-weight: bold !important;
-                transition: color 0.3s ease !important;
-            }
-            a.rovalra-extension-link:hover {
-                color: ${isInitiallyDark ? '#6db3ff' : '#1a75ff'} !important;
-            }
-        `;
+    
         document.head.appendChild(style);
 
         uiContainer.innerHTML = ''; 
@@ -2044,8 +2338,31 @@ async function checkRoValraPage() {
             separator.style.cssText = 'height: 1px; background-color: rgba(128, 128, 128, 0.3); margin: 10px 0;';
             separator.setAttribute('role', 'separator');
             menuList.appendChild(separator);
+            
+            const searchListItem = document.createElement('li');
+            searchListItem.id = 'search-tab';
+            searchListItem.className = 'menu-option';
+            searchListItem.style.padding = '0px 0px 0px 0px';
+            searchListItem.style.marginBottom = '10px'
+            const searchInput = document.createElement('input');
+            searchInput.type = 'search';
+            searchInput.id = 'settings-search-input';
+            searchInput.placeholder = 'Search Settings...';
+            searchInput.style.cssText = 'width: 89%; padding: 8px; border-radius: 0px; font-size: 14px;';
+            searchInput.addEventListener('input', debounce(handleSearch, 300));
+            searchInput.addEventListener('focus', () => {
+                document.querySelectorAll('#unified-menu .menu-option-content').forEach(el => {
+                    el.classList.remove('active');
+                    el.removeAttribute('aria-current');
+                });
+                history.pushState(null, '', `#!/search`);
+            });
+            searchListItem.appendChild(searchInput);
+            menuList.appendChild(searchListItem);
+
 
             Object.keys(SETTINGS_CONFIG).forEach(sectionName => {
+                if (sectionName === "Developer" && !devTabAdded) return; 
                 const section = SETTINGS_CONFIG[sectionName];
                 const listItem = document.createElement('li');
                 listItem.id = `${sectionName.toLowerCase()}-tab`; 
@@ -2077,19 +2394,8 @@ async function checkRoValraPage() {
                     if (window.location.hash !== newHash) {
                          history.pushState(null, '', newHash);
                     }
-
-                    const contentContainerElement = document.querySelector('#content-container');
-                    if (contentContainerElement) {
-                        contentContainerElement.innerHTML = `
-                            <div id="settings-content" style="padding: 0; background-color: transparent;">
-                                <div id="setting-section-content" style="padding: 5px;">
-                                    ${generateSettingsUI(sectionName)}
-                                </div>
-                            </div>
-                        `;
-                        initSettings(contentContainerElement.querySelector('#setting-section-content'));
-                        await applyTheme();
-                    }
+                    
+                    await loadTabContent(sectionName);
                 });
             });
             return menuList;

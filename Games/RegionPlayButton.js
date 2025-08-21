@@ -5,7 +5,7 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
             window.myCustomButtonExtensionInitialized = true;
 
             const joinedServerIds = new Set();
-
+            // Cough cough gemini is good at naming elements cough cough
             const targetContainerId = 'game-details-play-button-container';
             const referenceButtonSelector = 'button.random-server-join-button';
             const buttonToHideSelector = 'button.random-server-button';
@@ -37,6 +37,10 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
 
             let csrfToken = null;
             let csrfFetchAttempted = false;
+
+            const countryToContinentMap = { 'US': 'Americas', 'CA': 'Americas', 'BR': 'Americas', 'MX': 'Americas', 'DE': 'Europe', 'GB': 'Europe', 'FR': 'Europe', 'NL': 'Europe', 'JP': 'Asia', 'SG': 'Asia', 'KR': 'Asia', 'IN': 'Asia', 'AU': 'Oceania', 'ZA': 'Africa' };
+            function getContinent(countryCode) { return countryToContinentMap[countryCode] || 'Other'; }
+
 
             const regionsPromise = fetchRegions();
 
@@ -82,7 +86,7 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
                             longitude: lon,
                             city: city,
                             state: state,
-                            country: country
+                            country: location.countryName || country
                         };
                     }
                     REGIONS = newRegions;
@@ -93,32 +97,22 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
 
 
             function createGlobeSVG() {
-                const isDarkMode = document.body.classList.contains('dark-theme') || document.documentElement.classList.contains('dark-theme');
-                const globeSVG = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-                globeSVG.setAttribute("width", "30"); globeSVG.setAttribute("height", "30");
-                globeSVG.setAttribute("viewBox", "0 0 24 24"); globeSVG.setAttribute("fill", "none");
-                globeSVG.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-                const pathSVG = document.createElementNS("http://www.w3.org/2000/svg", "path");
-                pathSVG.setAttribute("d", "M15 2.4578C14.053 2.16035 13.0452 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12C22 10.2847 21.5681 8.67022 20.8071 7.25945M17 5.75H17.005M10.5001 21.8883L10.5002 19.6849C10.5002 19.5656 10.5429 19.4502 10.6205 19.3596L13.1063 16.4594C13.3106 16.2211 13.2473 15.8556 12.9748 15.6999L10.1185 14.0677C10.0409 14.0234 9.97663 13.9591 9.93234 13.8814L8.07046 10.6186C7.97356 10.4488 7.78657 10.3511 7.59183 10.3684L2.06418 10.8607M21 6C21 8.20914 19 10 17 12C15 10 13 8.20914 13 6C13 3.79086 14.7909 2 17 2C19.2091 2 21 3.79086 21 6ZM17.25 5.75C17.25 5.88807 17.1381 6 17 6C16.8619 6 16.75 5.88807 16.75 5.75C16.75 5.61193 16.8619 5.5 17 5.5C17.1381 5.5 17.25 5.61193 17.25 5.75Z");
-                pathSVG.setAttribute("stroke", "white");
-                pathSVG.setAttribute("stroke-width", "2");
-                pathSVG.setAttribute("stroke-linecap", "round");
-                pathSVG.setAttribute("stroke-linejoin", "round");
-                globeSVG.appendChild(pathSVG);
-                return globeSVG;
-             }
+                const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+                svg.setAttribute("width", "33");
+                svg.setAttribute("height", "33");
+                svg.setAttribute("viewBox", "0 0 24 24");
+                svg.setAttribute("fill", "none");
+                svg.innerHTML = `<path d="M15 2.4578C14.053 2.16035 13.0452 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12C22 10.2847 21.5681 8.67022 20.8071 7.25945M17 5.75H17.005M10.5001 21.8883L10.5002 19.6849C10.5002 19.5656 10.5429 19.4502 10.6205 19.3596L13.1063 16.4594C13.3106 16.2211 13.2473 15.8556 12.9748 15.6999L10.1185 14.0677C10.0409 14.0234 9.97663 13.9591 9.93234 13.8814L8.07046 10.6186C7.97356 10.4488 7.78657 10.3511 7.59183 10.3684L2.06418 10.8607M21 6C21 8.20914 19 10 17 12C15 10 13 8.20914 13 6C13 3.79086 14.7909 2 17 2C19.2091 2 21 3.79086 21 6ZM17.25 5.75C17.25 5.88807 17.1381 6 17 6C16.8619 6 16.75 5.88807 16.75 5.75C16.75 5.61193 16.8619 5.5 17 5.5C17.1381 5.5 17.25 5.61193 17.25 5.75Z" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>`;
+                return svg;
+            }
             function createRobloxLogoIMG() {
                 const img = document.createElement('img');
                 try {
-                    const imageUrl = chrome.runtime.getURL("Assets/icon-128.png");
-                    if (imageUrl) {
-                        img.src = imageUrl;
-                        img.alt = "Roblox Logo";
-                    } else {
-                        throw new Error("URL was null or empty");
-                    }
-                } catch (error) {
-                    img.alt = "Error loading logo";
+                    img.src = chrome.runtime.getURL("Assets/icon-128.png");
+                    img.alt = "Logo";
+                } catch (e) {
+                    console.error("Could not load extension icon for modal.");
+                    img.alt = "Error";
                 }
                 return img;
             }
@@ -128,88 +122,91 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
 
                 const css = `
                     .${CUSTOM_BUTTON_CLASS} {
-                        position: relative;
-                        overflow: visible;
+                        position: relative; overflow: visible;
                         width: ${NEW_BUTTON_WIDTH}px !important; height: ${NEW_BUTTON_HEIGHT}px !important;
                         margin-left: ${NEW_BUTTON_MARGIN_LEFT}px !important; margin-right: ${NEW_BUTTON_MARGIN_RIGHT}px !important;
                         padding: 0 !important; display: flex !important; align-items: center !important;
                         justify-content: center !important; flex-shrink: 0 !important; visibility: visible !important;
                         opacity: 1 !important; order: 0; border: none !important;
-                        background-color: rgb(51, 95, 255) !important;
-                        color: white !important;
-                        cursor: pointer; border-radius: 8px;
+                        background-color: rgb(51, 95, 255) !important; color: white !important;
+                        cursor: pointer; border-radius: 12px;
+                        transition: background-color 0.2s;
+                    }
+                    .${CUSTOM_BUTTON_CLASS}:hover {
+                        background-color: rgba(41, 82, 233, 1) !important;
                     }
                     .${CUSTOM_BUTTON_CLASS} svg path { stroke: white !important; }
                     .my-extension-custom-tooltip {
-                        position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: 8px; background-color: #232527; color: #FFFFFF; padding: 6px 10px; border-radius: 0; font-size: 13px; font-family: "Gotham SSm A", "Gotham SSm B", Arial, sans-serif; font-weight: 500; text-align: center; z-index: 10005; visibility: hidden; opacity: 0; transition: opacity 0.15s ease, visibility 0s ease 0.15s; pointer-events: none; white-space: pre-wrap;min-width: 150px;
+                        position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: 8px; background-color: #232527; color: #FFFFFF; padding: 6px 10px; border-radius: 6px; font-size: 13px; font-family: "Gotham SSm A", "Gotham SSm B", Arial, sans-serif; font-weight: 500; text-align: center; z-index: 10005; visibility: hidden; opacity: 0; transition: opacity 0.15s ease, visibility 0s ease 0.15s; pointer-events: none; white-space: pre-wrap;min-width: 150px;
                         max-width: 250px;
                     }
                     .${CUSTOM_BUTTON_CLASS}:hover .my-extension-custom-tooltip {
                         visibility: visible; opacity: 1; transition: opacity 0.15s ease, visibility 0s ease 0s;
                     }
+                    :root {
+                        --modal-bg-light: #FFFFFF; --modal-text-light: #1E2024; --modal-subtext-light: #5F6368; --modal-border-light: #E0E0E0; --modal-input-bg-light: #F1F3F4; --modal-input-text-light: #202124; --modal-btn-secondary-bg-light: #E8EAED; --modal-btn-secondary-text-light: #3C4043; --modal-btn-secondary-hover-light: #D2D5D9;
+                        --modal-bg-dark: #2D2F34; --modal-text-dark: #E8EAED; --modal-subtext-dark: #9AA0A6; --modal-border-dark: #5F6368; --modal-input-bg-dark: #3C4043; --modal-input-text-dark: #E8EAED; --modal-btn-secondary-bg-dark: #5F6368; --modal-btn-secondary-text-dark: #E8EAED; --modal-btn-secondary-hover-dark: #72777D;
+                    }
+                    #${MODAL_ID}-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); display: flex; align-items: center; justify-content: center; z-index: 10001; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; }
+                    #${MODAL_ID}-overlay.visible { opacity: 1; visibility: visible; }
+                    #${MODAL_ID}-content { background-color: var(--modal-bg-light); color: var(--modal-text-light); padding: 0; border-radius: 12px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); max-width: 500px; width: 90%; text-align: left; position: relative; transform: scale(0.95); opacity: 0; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.2s ease; }
+                    #${MODAL_ID}-overlay.visible #${MODAL_ID}-content { transform: scale(1); opacity: 1; }
+                    .my-modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid var(--modal-border-light); }
+                    .my-modal-header h2 { margin: 0; font-size: 1.4em; font-weight: 600; }
+                    .my-modal-body { padding: 24px; }
+                    .my-modal-body p { margin: 0 0 20px 0; line-height: 1.6; color: var(--modal-subtext-light); }
+                    .my-modal-footer { padding: 16px 24px; display: flex; justify-content: flex-end; gap: 12px; border-top: 1px solid var(--modal-border-light); }
+                    .my-modal-footer button { padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer; font-size: 0.95em; font-weight: 600; transition: background-color 0.2s ease, box-shadow 0.2s ease; }
+                    .my-modal-footer button.save-button { background-color: rgb(51, 95, 255); color: white; }
+                    .my-modal-footer button.save-button:hover { background-color: rgb(31, 75, 235); box-shadow: 0 2px 8px rgba(51, 95, 255, 0.3); }
+                    .my-modal-footer button.close-button { background-color: var(--modal-btn-secondary-bg-light); color: var(--modal-btn-secondary-text-light); }
+                    .my-modal-footer button.close-button:hover { background-color: var(--modal-btn-secondary-hover-light); }
+                    .my-modal-header .close-icon { background: transparent; border: none; font-size: 28px; line-height: 1; cursor: pointer; color: var(--modal-subtext-light); padding: 0; }
+                    .custom-select-wrapper { position: relative; }
+                    .custom-select-wrapper select { appearance: none; -webkit-appearance: none; width: 100%; padding: 12px 40px 12px 16px; border: 1px solid var(--modal-border-light); border-radius: 8px; background-color: var(--modal-input-bg-light); color: var(--modal-input-text-light); font-size: 1.05em; cursor: pointer; }
+                    .custom-select-wrapper::after { content: '▼'; font-size: 14px; color: var(--modal-subtext-light); position: absolute; right: 16px; top: 50%; transform: translateY(-50%); pointer-events: none; }
+                    body.dark-theme #${MODAL_ID}-content { background-color: var(--modal-bg-dark); color: var(--modal-text-dark); }
+                    body.dark-theme .my-modal-header { border-bottom-color: var(--modal-border-dark); }
+                    body.dark-theme .my-modal-body p { color: var(--modal-subtext-dark); }
+                    body.dark-theme .custom-select-wrapper select { background-color: var(--modal-input-bg-dark); color: var(--modal-input-text-dark); border-color: var(--modal-border-dark); }
+                    body.dark-theme .custom-select-wrapper::after { color: var(--modal-subtext-dark); }
+                    body.dark-theme .my-modal-footer { border-top-color: var(--modal-border-dark); }
+                    body.dark-theme .my-modal-footer button.close-button { background-color: var(--modal-btn-secondary-bg-dark); color: var(--modal-btn-secondary-text-dark); }
+                    body.dark-theme .my-modal-footer button.close-button:hover { background-color: var(--modal-btn-secondary-hover-dark); }
 
-                    #${MODAL_ID}-overlay {
-                        position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); display: flex; align-items: center; justify-content: center; z-index: 10000;
-                    }
-                    #${MODAL_ID}-content {
-                        background-color: #fff; color: #333; padding: 30px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); max-width: 500px; width: 90%; text-align: left; position: relative;
-                    }
-                    body.dark-theme #${MODAL_ID}-content, html.dark-theme #${MODAL_ID}-content { background-color: #232527; color: #ccc; }
-                    body.dark-theme #${MODAL_ID}-content select, html.dark-theme #${MODAL_ID}-content select,
-                    body.dark-theme #${MODAL_ID}-content button, html.dark-theme #${MODAL_ID}-content button { background-color: #393b3d; color: #eee; border-color: #555; }
-                    body.dark-theme #${MODAL_ID}-content button:hover, html.dark-theme #${MODAL_ID}-content button:hover { background-color: #4a4c4e; }
-                    #${MODAL_ID}-content h2 { margin-top: 0; margin-bottom: 15px; font-size: 1.5em; color: inherit; }
-                    #${MODAL_ID}-content p { margin-bottom: 20px; line-height: 1.6; font-size: 1em; color: inherit; }
-                    #${MODAL_ID}-content label { display: block; margin-bottom: 8px; font-weight: bold; font-size: 0.9em; color: inherit; }
-                    #${MODAL_ID}-content select { width: 100%; padding: 10px; margin-bottom: 20px; border: 1px solid #ccc; border-radius: 4px; font-size: 1em; background-color: #fff; color: #333; }
-                    #${MODAL_ID}-content button.save-button {
-                        background-color: rgb(51, 95, 255); color: white; border: none; padding: 12px 20px; border-radius: 5px; cursor: pointer; font-size: 1em; transition: background-color 0.2s ease; float: right;
-                    }
-                    #${MODAL_ID}-content button.save-button:hover { background-color: rgb(31, 75, 235); }
-                    #${MODAL_ID}-content button.close-button {
-                        background-color: #aaa; color: white; border: none; padding: 12px 20px; border-radius: 5px; cursor: pointer; font-size: 1em; transition: background-color 0.2s ease; margin-right: 10px; float: right;
-                    }
-                    #${MODAL_ID}-content button.close-button:hover { background-color: #888; }
-                    #${MODAL_ID}-content::after { content: ""; display: table; clear: both; }
-
-                    #${LOADING_OVERLAY_ID}-backdrop {
-                        position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.75); z-index: 10000; visibility: hidden; opacity: 0; transition: opacity 0.3s ease, visibility 0s ease 0.3s;
-                    }
-                    #${LOADING_OVERLAY_ID}-backdrop.visible { visibility: visible; opacity: 1; transition: opacity 0.3s ease, visibility 0s ease 0s; }
-                    #${LOADING_OVERLAY_ID} {
-                        position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.95); width: auto; min-width: 350px; padding: 30px 40px; border-radius: 0; background-color: rgb(39, 41, 48); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10001; color: #E1E1E1; font-family: "Gotham SSm A", "Gotham SSm B", Arial, sans-serif; visibility: hidden; opacity: 0; transition: opacity 0.3s ease, visibility 0s ease 0.3s, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 3px 20px rgba(0, 0, 0, 0.2);
-                    }
-                    #${LOADING_OVERLAY_ID}.visible { visibility: visible; opacity: 1; transform: translate(-50%, -50%) scale(1); transition: opacity 0.3s ease, visibility 0s ease 0s, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-                    #${LOADING_OVERLAY_ID}-logo { margin-bottom: 18px; }
-                    #${LOADING_OVERLAY_ID}-logo img { width: 75px; height: 75px; }
-                    #${LOADING_OVERLAY_ID}-text { font-size: 1.15em; font-weight: 500; margin-bottom: 22px; color: #d0d0d0; text-align: center; }
+                    #${LOADING_OVERLAY_ID}-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.75); z-index: 10000; visibility: hidden; opacity: 0; transition: opacity 0.3s ease; }
+                    #${LOADING_OVERLAY_ID}-backdrop.visible { visibility: visible; opacity: 1; }
+                    #${LOADING_OVERLAY_ID} { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.95); min-width: 350px; padding: 30px 40px; border-radius: 8px; background-color: rgb(39, 41, 48); display: flex; flex-direction: column; align-items: center; z-index: 10001; color: #E1E1E1; visibility: hidden; opacity: 0; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+                    #${LOADING_OVERLAY_ID}.visible { visibility: visible; opacity: 1; transform: translate(-50%, -50%) scale(1); }
+                    #${LOADING_OVERLAY_ID}-logo img { width: 75px; height: 75px; margin-bottom: 18px; }
+                    #${LOADING_OVERLAY_ID}-text { font-size: 1.15em; font-weight: 500; margin-bottom: 22px; text-align: center; }
                     #${LOADING_OVERLAY_ID}-dots { display: flex; justify-content: center; gap: 10px; }
                     .${LOADING_OVERLAY_ID}-dot { width: 13px; height: 13px; background-color: #808080; border-radius: 3px; animation: ${LOADING_OVERLAY_ID}-pulse 1.4s infinite ease-in-out both; }
-                    .${LOADING_OVERLAY_ID}-dot:nth-child(1) { animation-delay: -0.32s; }
-                    .${LOADING_OVERLAY_ID}-dot:nth-child(2) { animation-delay: -0.16s; }
-                    .${LOADING_OVERLAY_ID}-dot:nth-child(3) { animation-delay: 0s; }
-                    @keyframes ${LOADING_OVERLAY_ID}-pulse { 0%, 80%, 100% { background-color: #666666; } 40% { background-color: #a0a0a0; } }
+                    .${LOADING_OVERLAY_ID}-dot:nth-child(1) { animation-delay: -0.32s; } .${LOADING_OVERLAY_ID}-dot:nth-child(2) { animation-delay: -0.16s; }
+                    @keyframes ${LOADING_OVERLAY_ID}-pulse { 0%, 80%, 100% { transform: scale(0.8); background-color: #666; } 40% { transform: scale(1.0); background-color: #a0a0a0; } }
+                    #${LOADING_OVERLAY_ID}-close-button { position: absolute; top: 10px; right: 12px; background: transparent; border: none; color: #aaa; font-size: 28px; line-height: 1; cursor: pointer; }
 
-                    #${LOADING_OVERLAY_ID}-close-button {
-                        position: absolute;
-                        top: 10px;
-                        right: 12px;
-                        background: transparent;
-                        border: none;
-                        color: #aaa;
-                        font-size: 28px;
-                        font-weight: bold;
-                        line-height: 1;
-                        padding: 5px;
-                        cursor: pointer;
-                        transition: color 0.2s ease;
-                        z-index: 10002;
+                    body:not(.dark-theme) .my-extension-custom-tooltip {
+                        background-color: var(--modal-bg-light, #FFFFFF);
+                        color: var(--modal-text-light, #1E2024);
+                        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                        border: 1px solid var(--modal-border-light, #E0E0E0);
                     }
-                    #${LOADING_OVERLAY_ID}-close-button:hover {
-                        color: #fff;
+                    body:not(.dark-theme) #${LOADING_OVERLAY_ID} {
+                        background-color: var(--modal-bg-light);
+                        color: var(--modal-text-light);
+                        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
                     }
-                    #${LOADING_OVERLAY_ID}-close-button:active {
-                        transform: scale(0.95);
+                    body:not(.dark-theme) #${LOADING_OVERLAY_ID}-close-button {
+                        color: var(--modal-subtext-light);
+                    }
+                    body:not(.dark-theme) .${LOADING_OVERLAY_ID}-dot {
+                        animation-name: ${LOADING_OVERLAY_ID}-pulse-light;
+                        background-color: #E8EAED;
+                    }
+                    @keyframes ${LOADING_OVERLAY_ID}-pulse-light {
+                        0%, 80%, 100% { transform: scale(0.8); background-color: #D2D5D9; }
+                        40% { transform: scale(1.0); background-color: #9AA0A6; }
                     }
                 `;
 
@@ -282,145 +279,77 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
                 tooltipSpan.innerHTML = tooltipHTML;
             }
             async function showRegionSelectionModal(buttonToUpdate) {
-                if (document.getElementById(`${MODAL_ID}-overlay`)) { return; }
-                
+                if (document.getElementById(`${MODAL_ID}-overlay`)) return;
                 await regionsPromise;
 
-                const overlay = document.createElement('div'); overlay.id = `${MODAL_ID}-overlay`;
-                const modalContent = document.createElement('div'); modalContent.id = `${MODAL_ID}-content`;
-
-                const heading = document.createElement('h2'); heading.textContent = 'Select Your Preferred Server Region'; modalContent.appendChild(heading);
-                const explanation = document.createElement('p');
-                explanation.innerHTML = `Please select the server region closest to you for the best connection.<br><br><strong>Note:</strong> This can always be changed later in settings.`; modalContent.appendChild(explanation);
-
-                const label = document.createElement('label'); label.setAttribute('for', `${MODAL_ID}-select`); label.textContent = 'Preferred Region:'; modalContent.appendChild(label);
-                const select = document.createElement('select'); select.id = `${MODAL_ID}-select`;
-
-                const defaultOption = document.createElement('option'); defaultOption.value = ""; defaultOption.textContent = "-- Please choose a region --"; defaultOption.disabled = true; defaultOption.selected = true; select.appendChild(defaultOption);
-
-                for (const key in REGIONS) {
-                    if (Object.hasOwnProperty.call(REGIONS, key)) {
-                        const region = REGIONS[key]; const option = document.createElement('option'); option.value = key;
-                        let displayText = `${region.city}`; if (region.state) displayText += `, ${region.state}`; displayText += ` (${region.country})`; option.textContent = displayText;
-                        select.appendChild(option);
-                    }
-                }
-                modalContent.appendChild(select);
-
-                const closeModal = () => { const modalOverlay = document.getElementById(`${MODAL_ID}-overlay`); if (modalOverlay) { modalOverlay.remove();} };
-
-                const saveButton = document.createElement('button'); saveButton.textContent = 'Save Preference'; saveButton.classList.add('save-button'); saveButton.type = 'button';
-                saveButton.addEventListener('click', async () => {
-                    const selectedRegion = select.value;
-                    if (selectedRegion && REGIONS[selectedRegion]) {
-                        try {
-                            await chrome.storage.local.set({ [PREFERRED_REGION_STORAGE_KEY]: selectedRegion });
-                            if (buttonToUpdate) {
-                                updateButtonTooltip(buttonToUpdate, selectedRegion);
-                            }
-                            closeModal();
-                        } catch (error) {
-                            alert("Error saving preference. Please try again.");
-                        }
-                    } else {
-                    }
+                const groupedRegions = {};
+                const continentOrder = ['Americas', 'Europe', 'Asia', 'Oceania', 'Africa', 'Other'];
+                Object.keys(REGIONS).sort((a, b) => (REGIONS[a].country || '').localeCompare(REGIONS[b].country || '') || (REGIONS[a].state || '').localeCompare(REGIONS[b].state || '') || (REGIONS[a].city || '').localeCompare(REGIONS[b].city || '')).forEach(key => {
+                    const region = REGIONS[key], countryCode = key.split('-')[0], continent = getContinent(countryCode);
+                    if (!groupedRegions[continent]) groupedRegions[continent] = [];
+                    let text = `${region.city}${region.state && region.country === 'United States' ? `, ${region.state}` : ''} (${region.country})`;
+                    groupedRegions[continent].push({ key, text });
                 });
-                modalContent.appendChild(saveButton);
+                let optionsHtml = continentOrder.map(continent => groupedRegions[continent] ? `<optgroup label="${continent}">${groupedRegions[continent].map(r => `<option value="${r.key}">${r.text}</option>`).join('')}</optgroup>` : '').join('');
 
-                const closeButton = document.createElement('button'); closeButton.textContent = 'Close'; closeButton.classList.add('close-button'); closeButton.type = 'button';
-                closeButton.addEventListener('click', closeModal); modalContent.appendChild(closeButton);
+                const overlay = document.createElement('div');
+                overlay.id = `${MODAL_ID}-overlay`;
+                overlay.innerHTML = `<div id="${MODAL_ID}-content">
+                    <div class="my-modal-header"><h2>Select Preferred Region</h2><button class="close-icon">&times;</button></div>
+                    <div class="my-modal-body"><p>Choose the server region closest to you for the best connection.</p><label for="${MODAL_ID}-select">Preferred Region</label><div class="custom-select-wrapper"><select id="${MODAL_ID}-select"><option value="" disabled selected>-- Please choose a region --</option>${optionsHtml}</select></div></div>
+                    <div class="my-modal-footer"><button class="close-button">Close</button><button class="save-button">Save</button></div>
+                </div>`;
+                document.body.appendChild(overlay);
+                requestAnimationFrame(() => overlay.classList.add('visible'));
 
-                overlay.appendChild(modalContent); document.body.appendChild(overlay);
+                const closeModal = () => { overlay.classList.remove('visible'); overlay.addEventListener('transitionend', () => overlay.remove(), { once: true }); };
+                const content = overlay.querySelector(`#${MODAL_ID}-content`);
 
-                overlay.addEventListener('click', (event) => { if (event.target === overlay) closeModal(); });
+                content.querySelector('.save-button').onclick = async () => {
+                    const val = content.querySelector('select').value;
+                    if (val) {
+                        await chrome.storage.local.set({ [PREFERRED_REGION_STORAGE_KEY]: val });
+                        if (buttonToUpdate) {
+                            updateButtonTooltip(buttonToUpdate, val);
+                        }
+                        closeModal();
+                    }
+                };
+                content.querySelector('.close-button').onclick = closeModal;
+                content.querySelector('.close-icon').onclick = closeModal;
+                overlay.onclick = e => { if (e.target === overlay) closeModal(); };
              }
             function showLoadingOverlay() {
-                let overlay = document.getElementById(LOADING_OVERLAY_ID);
                 let backdrop = document.getElementById(`${LOADING_OVERLAY_ID}-backdrop`);
-
                 if (!backdrop) {
                     backdrop = document.createElement('div');
                     backdrop.id = `${LOADING_OVERLAY_ID}-backdrop`;
                     document.body.appendChild(backdrop);
                 }
-
+                let overlay = document.getElementById(LOADING_OVERLAY_ID);
                 if (!overlay) {
                     overlay = document.createElement('div');
                     overlay.id = LOADING_OVERLAY_ID;
-
-                    const closeButton = document.createElement('button');
-                    closeButton.id = `${LOADING_OVERLAY_ID}-close-button`;
-                    closeButton.textContent = '✕';
-                    closeButton.setAttribute('aria-label', 'Cancel Server Search');
-                    closeButton.addEventListener('click', (event) => {
-                        event.stopPropagation();
-                        userRequestedStop = true;
-                        isCurrentlyFetchingData = false;
-                        hideLoadingOverlay();
-                    });
-                    overlay.appendChild(closeButton);
-
-                    const logoContainer = document.createElement('div');
-                    logoContainer.id = `${LOADING_OVERLAY_ID}-logo`;
-                    logoContainer.appendChild(createRobloxLogoIMG());
-                    overlay.appendChild(logoContainer);
-
-                    const text = document.createElement('p');
-                    text.id = `${LOADING_OVERLAY_ID}-text`;
-                    text.textContent = 'Searching For Servers';
-                    overlay.appendChild(text);
-
-                    const dotsContainer = document.createElement('div');
-                    dotsContainer.id = `${LOADING_OVERLAY_ID}-dots`;
-                    for (let i = 0; i < 3; i++) {
-                        const dot = document.createElement('div');
-                        dot.classList.add(`${LOADING_OVERLAY_ID}-dot`);
-                        dotsContainer.appendChild(dot);
-                    }
-                    overlay.appendChild(dotsContainer);
-
+                    overlay.innerHTML = `
+                        <button id="${LOADING_OVERLAY_ID}-close-button" aria-label="Cancel Server Search">✕</button>
+                        <div id="${LOADING_OVERLAY_ID}-logo"></div>
+                        <p id="${LOADING_OVERLAY_ID}-text">Searching For Servers...</p>
+                        <div id="${LOADING_OVERLAY_ID}-dots"><div class="${LOADING_OVERLAY_ID}-dot"></div><div class="${LOADING_OVERLAY_ID}-dot"></div><div class="${LOADING_OVERLAY_ID}-dot"></div></div>`;
                     document.body.appendChild(overlay);
+                    document.getElementById(`${LOADING_OVERLAY_ID}-logo`).appendChild(createRobloxLogoIMG());
+                    document.getElementById(`${LOADING_OVERLAY_ID}-close-button`).onclick = () => { userRequestedStop = true; hideLoadingOverlay(); };
                 }
-
-                const textElement = document.getElementById(`${LOADING_OVERLAY_ID}-text`);
-                if (textElement) textElement.textContent = 'Searching For Servers';
-                const dots = document.getElementById(`${LOADING_OVERLAY_ID}-dots`);
-                if (dots) dots.style.display = 'flex';
-
-                void overlay.offsetWidth;
-                void backdrop.offsetWidth;
-                overlay.classList.add('visible');
-                backdrop.classList.add('visible');
+                document.getElementById(`${LOADING_OVERLAY_ID}-text`).textContent = 'Searching For Servers...';
+                document.getElementById(`${LOADING_OVERLAY_ID}-dots`).style.display = 'flex';
+                requestAnimationFrame(() => { backdrop.classList.add('visible'); overlay.classList.add('visible'); });
             }
             function hideLoadingOverlay() {
-                if (keepOverlayOpen) {
-                    return;
-                }
-
+                if (keepOverlayOpen) return;
                 const overlay = document.getElementById(LOADING_OVERLAY_ID);
                 const backdrop = document.getElementById(`${LOADING_OVERLAY_ID}-backdrop`);
-
-                if (overlay) {
-                    overlay.classList.remove('visible');
-                }
-                if (backdrop) {
-                    backdrop.classList.remove('visible');
-                }
-
-                 setTimeout(() => {
-                    if (keepOverlayOpen) {
-                        return;
-                    }
-
-                    const currentOverlay = document.getElementById(LOADING_OVERLAY_ID);
-                    if (currentOverlay && !currentOverlay.classList.contains('visible')) {
-                        currentOverlay.remove();
-                    }
-                    const currentBackdrop = document.getElementById(`${LOADING_OVERLAY_ID}-backdrop`);
-                     if (currentBackdrop && !currentBackdrop.classList.contains('visible')) {
-                        currentBackdrop.remove();
-                    }
-                 }, 350);
+                if (overlay) overlay.classList.remove('visible');
+                if (backdrop) backdrop.classList.remove('visible');
+                isCurrentlyFetchingData = false;
             }
 
             function delay(ms) {  return new Promise(resolve => setTimeout(resolve, ms)); }
@@ -457,7 +386,7 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
                     'South Dakota': 'SD', 'Tennessee': 'TN', 'Texas': 'TX', 'Utah': 'UT', 'Vermont': 'VT',
                     'Virginia': 'VA', 'Washington': 'WA', 'West Virginia': 'WV', 'Wisconsin': 'WI', 'Wyoming': 'WY'
                 };
-                return stateMap[regionName] || regionName.substring(0, 2).toUpperCase();
+                return stateMap[regionName] || (regionName ? regionName.substring(0, 2).toUpperCase() : '');
             }
             function calculateDistance(lat1, lon1, lat2, lon2) {
                  if (lat1 === null || lon1 === null || lat2 === null || lon2 === null ||
@@ -836,19 +765,12 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
                     } else if (result.joined) {
                     } else {
                         keepOverlayOpen = true;
-                        const overlayText = document.getElementById(`${LOADING_OVERLAY_ID}-text`);
-                        const dotsContainer = document.getElementById(`${LOADING_OVERLAY_ID}-dots`);
-                        if (overlayText) {
-                            overlayText.textContent = `No available servers found in ${getFullLocationName(regionCode)}.`;
-                            if (dotsContainer) dotsContainer.style.display = 'none';
-
-                            const closeButton = document.getElementById(`${LOADING_OVERLAY_ID}-close-button`);
-                            if (closeButton) {
-                                closeButton.addEventListener('click', () => {
-                                    keepOverlayOpen = false;
-                                    hideLoadingOverlay();
-                                }, { once: true });
-                            }
+                        const textEl = document.getElementById(`${LOADING_OVERLAY_ID}-text`);
+                        const locationName = getFullLocationName(regionCode);
+                        if (textEl) {
+                            textEl.textContent = `No available servers found in ${locationName}.`;
+                            document.getElementById(`${LOADING_OVERLAY_ID}-dots`).style.display = 'none';
+                            document.getElementById(`${LOADING_OVERLAY_ID}-close-button`).onclick = () => { keepOverlayOpen = false; hideLoadingOverlay(); };
                         }
                     }
 

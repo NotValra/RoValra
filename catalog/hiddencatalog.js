@@ -1,3 +1,5 @@
+// IT WAS A GOOD RUN 💔💔💔💔💔
+
 let checkInterval;
 let currentMode = localStorage.getItem('hiddenCatalogMode') || 'dark';
 

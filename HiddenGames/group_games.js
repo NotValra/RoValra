@@ -207,7 +207,13 @@ if (window.location.pathname.includes('/communities')) {
             loadMoreButton.textContent = 'Load More';
             loadMoreButton.classList.add('load-more-button');
             hiddenGamesContainer.append(hiddenGamesGrid, loadMoreButton);
-            groupGamesContainer.parentNode.insertBefore(hiddenGamesContainer, groupGamesContainer.nextSibling);
+            
+            const section = groupGamesContainer.querySelector('.section');
+            if (section) {
+                section.appendChild(hiddenGamesContainer); // No more bug
+            } else {
+                groupGamesContainer.parentNode.insertBefore(hiddenGamesContainer, groupGamesContainer.nextSibling); // Fallback but bug :C
+            }
 
             const updateLoadMoreButtonWidth = () => { if (hiddenGamesGrid.offsetWidth > 0) loadMoreButton.style.width = `${hiddenGamesGrid.offsetWidth}px`; };
             window.addEventListener('resize', updateLoadMoreButtonWidth);

@@ -45,6 +45,7 @@ const addPreloadHints = () => {
         'misc/userSniper.js',
         'misc/item_sales_content.js',
         'misc/pendingRobux.js',
+        'misc/40method.js',
     ];
     
     const modulePreloadScripts = [
@@ -168,7 +169,7 @@ function getPlaceIdFromUrl() {
     
     const requiredSettings = pathType ? PAGE_SETTINGS_MAP[pathType] : [];
     const defaultSettings = {
-        hiddenCatalogEnabled: true,
+        hiddenCatalogEnabled: false,
         itemSalesEnabled: true,
         groupGamesEnabled: true,
         userGamesEnabled: true,
@@ -191,6 +192,11 @@ function getPlaceIdFromUrl() {
         TotalServersEnabled: true,
         ServerFilterEnabled: true,
         cssfixesEnabled: true,
+        SaveRobuxEnabled: false,
+        RoValraBadgesEnable: true,
+        ShowBadgesEverywhere: false,
+        QuickPlayEnable: true,
+        PrivateServerBulkEnabled: true
     };
 
     const settingsToLoad = {
@@ -229,6 +235,10 @@ function getPlaceIdFromUrl() {
         case 'BUNDLES':
             if (settings.itemSalesEnabled) {
                 scriptPromises.push(loadScript('misc/item_sales_content.js', { itemsUrl: chrome.runtime.getURL('data/items.json') }));
+            }
+            if (settings.SaveRobuxEnabled) {
+                scriptPromises.push(loadScript('misc/40method.js'));
+
             }
             break;
         case 'COMMUNITIES':

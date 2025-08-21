@@ -100,6 +100,7 @@ if (window.location.href === 'https://www.roblox.com/cats') {
             }
         }, 10000); 
     }
+//I got lazy with easter eggs after the first one.
 } else if (window.location.href === 'https://www.roblox.com/fishstrap') {
     window.location.href = 'https://fishstrap.app';
 } else if (window.location.href === 'https://www.roblox.com/rovalra') {
