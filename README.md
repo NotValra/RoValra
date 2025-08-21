@@ -36,7 +36,7 @@
     - **Quick invite link copy for private servers**
     - **Quick Regenarate invite link for private servers**
 - **Catalog**
-    - **Hidden catalog, which allows you to view Roblox made items before they are on the official catalog.**     
+    - **Hidden catalog, which allows you to view Roblox made items before they are on the official catalog. (PATCHED 😭)**     
     - **Shows sales and revenue on specific items.**
 - **Profile**
   - <details>
