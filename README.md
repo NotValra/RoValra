@@ -23,6 +23,9 @@
 - **Games**
     - **Server Uptime**
     - **Server list filter**
+    - **Server version**
+    - **Shows the current version a game is on**
+    - **Shows the oldest version of a game an active server is running**
     - **Shows Total Servers in a game**
     - **Shows A servers region and uptime in the server list**
     - **Join preffered region play button**
