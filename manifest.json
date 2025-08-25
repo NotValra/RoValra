@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "RoValra - Roblox Improved",
-  "version": "2.3",
+  "version": "2.3.1",
   "description": "An extension aiming to provide features that other Roblox extensions pay wall!",
   "content_scripts": [    {
       "matches": [
@@ -63,17 +63,17 @@
     },
     {
       "matches": [
-         "*://*.roblox.com/*/home/*",
-        "*://*.roblox.com/home/*"
+         "*://*.roblox.com/*/catalog/*",
+        "*://*.roblox.com/catalog/*"
       ],
-      "js": ["misc/cssfixes.js"],
+      "js": ["misc/40method.js"],
       "run_at": "document_start",
       "all_frames": true
     }
   ],  "permissions": [
     "declarativeNetRequest",
     "storage",
-    "tabs",
+    
     "scripting"
   ],
   "host_permissions": [
@@ -131,17 +131,6 @@
               "data/globe_initializer.js" ,
               "data/map_dark.png",
               "data/map_light.png",
-              "Assets/germany.png",
-              "Assets/brazil.png",
-              "Assets/france.png",
-              "Assets/netherlands.png",
-              "Assets/japan.png",
-              "Assets/singapore.png",
-              "Assets/unitedstates.png",
-              "Assets/unitedkingdom.png",
-              "Assets/india.png",
-              "Assets/australia.png",
-              "Assets/unknown.png",
               "Assets/RegionSelectorPicture.png",
               "misc/cssfixes.js",
               "data/ServerList.json",

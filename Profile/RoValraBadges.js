@@ -106,6 +106,64 @@ if (typeof window.myCustomIconInjector === 'undefined') {
       }
     }
 
+    function addContributorIcon() {
+        const parentContainer = document.querySelector('.profile-header-title-container');
+
+        if (parentContainer && !document.querySelector('.contributor-icon-container')) {
+            const premiumBadge = document.querySelector('.profile-header-premium-badge');
+            const iconContainer = document.createElement('div');
+            iconContainer.className = 'contributor-icon-container';
+            iconContainer.style.position = 'relative';
+            iconContainer.style.display = 'inline-flex';
+            iconContainer.style.alignItems = 'center';
+            iconContainer.style.marginLeft = '0px';
+
+            const icon = document.createElement('img');
+            icon.src = chrome.runtime.getURL('Assets/icon-128.png');
+            icon.className = 'my-contributor-profile-icon';
+            icon.style.width = '30px';
+            icon.style.height = '30px';
+            icon.style.cursor = 'default';
+            icon.style.filter = 'sepia(80%) saturate(300%) brightness(90%) hue-rotate(-20deg)';
+
+
+            let clickCount = 0;
+            icon.addEventListener('click', () => {
+                clickCount++;
+                if (clickCount >= 10) {
+                    createConfetti(icon, chrome.runtime.getURL('Assets/icon-128.png'));
+                    clickCount = 0;
+                }
+            });
+
+            const tooltip = document.createElement('span');
+            tooltip.textContent = 'RoValra contributor';
+            tooltip.style.visibility = 'hidden';
+            tooltip.style.width = '140px';
+            tooltip.style.backgroundColor = 'black';
+            tooltip.style.color = '#fff';
+            tooltip.style.textAlign = 'center';
+            tooltip.style.borderRadius = '6px';
+            tooltip.style.padding = '5px 0';
+            tooltip.style.position = 'absolute';
+            tooltip.style.zIndex = '1';
+            tooltip.style.bottom = '-200%';
+            tooltip.style.left = '50%';
+            tooltip.style.marginLeft = '-70px';
+
+            iconContainer.addEventListener('mouseover', () => { tooltip.style.visibility = 'visible'; });
+            iconContainer.addEventListener('mouseout', () => { tooltip.style.visibility = 'hidden'; });
+
+            iconContainer.appendChild(icon);
+            iconContainer.appendChild(tooltip);
+
+            if (premiumBadge) {
+                parentContainer.insertBefore(iconContainer, premiumBadge);
+            } else {
+                parentContainer.appendChild(iconContainer);
+            }
+        }
+    }
 
     function addGilbertBadge() {
         const badgesList = document.querySelector('#roblox-badges-container .badge-list');
@@ -172,14 +230,23 @@ if (typeof window.myCustomIconInjector === 'undefined') {
 
 
     function applyProfileModifications() {
+        const specialUserIds = ['1337447242', '109176680', '795922138', '8345351117']; // Contributors. if you feel like you deserve this badge lmk. Feature suggestions or bug reports dont quality for it, unless done a lot ig
+
         chrome.storage.local.get(['ShowBadgesEverywhere', 'RoValraBadgesEnable'], function(result) {
+            const currentUrl = window.location.href;
+
+            const isSpecialUser = specialUserIds.some(id => currentUrl.includes(id));
+
+            if (isSpecialUser) {
+                addContributorIcon(); 
+            }
+
             if (result.ShowBadgesEverywhere === true) {
                 addCustomIcon();
                 addGilbertBadge();
                 addRatBadge();
+                
             } else {
-                const currentUrl = window.location.href;
-
                 if (currentUrl.includes('447170745')) {
                     addCustomIcon();
                 }

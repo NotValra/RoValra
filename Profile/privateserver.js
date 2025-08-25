@@ -1,3 +1,5 @@
+// No idea why gemini chose to use these element names lol
+// Gemini thought i was making btroblox for some reason... BTROBLOX USES GEMINI CONFIRMED?!?!??!
 const INACTIVE_MAIN_BUTTON_ID = 'btr-bulk-inactivate-btn';
 const SET_INACTIVE_BTN_ID = 'btr-set-inactive-btn';
 const ACTIVE_MAIN_BUTTON_ID = 'btr-bulk-activate-btn';
@@ -5,7 +7,7 @@ const SET_ACTIVE_BTN_ID = 'btr-set-active-btn';
 const SELECT_ALL_BTN_ID = 'btr-select-all-btn';
 
 const FILTERED_LIST_ID = 'btr-filtered-assets-list';
-const CONFIRMATION_MODAL_ID = 'btr-confirmation-modal';
+const CONFIRMATION_MODAL_ID = 'test-confirmation-modal';
 const RESULTS_MODAL_ID = 'btr-results-modal';
 const PROGRESS_TEXT_ID = 'btr-progress-text';
 const PROGRESS_RESULTS_ID = 'btr-progress-results';
@@ -32,7 +34,7 @@ function applyButtonStyling(button, isSecondary = false) {
     const borderColor = isDarkMode ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.1)';
 
     button.style.position = 'absolute';
-    button.style.top = '-40px';
+    button.style.top = '0px'; 
     if (button.id === INACTIVE_MAIN_BUTTON_ID) button.style.right = '130px';
     if (button.id === ACTIVE_MAIN_BUTTON_ID) button.style.right = '0px';
     if (button.id === SET_INACTIVE_BTN_ID) button.style.right = '285px';
@@ -71,7 +73,7 @@ function injectCss() {
         .server-checkbox:checked::before { transform: rotate(45deg) scale(1); }
         #${FILTERED_LIST_ID} .list-item { cursor: pointer; }
         .btr-no-servers-message { text-align: center; padding: 40px 20px; color: var(--text-secondary); font-size: 16px; font-style: italic; }
-        #${CONFIRMATION_MODAL_ID}, #${RESULTS_MODAL_ID} { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+        #${CONFIRMATION_MODAL_ID}, #${RESULTS_MODAL_ID} { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 10000; }
         .modal-content { background-color: #fff; color: #000; padding: 25px; border-radius: 8px; text-align: center; width: 450px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); position: relative; }
         #${RESULTS_MODAL_ID} .modal-content { min-height: 250px; display: flex; flex-direction: column; justify-content: center; }
         .modal-content h3 { margin-top: 0; }
@@ -116,8 +118,27 @@ async function processServerRequest(selectedItems, isActive) {
     const csrfToken = csrfTokenMeta.dataset.token;
     let isCancelled = false;
 
+    const existingModal = document.getElementById(RESULTS_MODAL_ID);
+    if (existingModal) {
+        existingModal.remove();
+    }
+
     const resultsModal = document.createElement('div');
     resultsModal.id = RESULTS_MODAL_ID;
+
+    resultsModal.style.cssText = `
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        background-color: rgba(0, 0, 0, 0.75) !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        z-index: 2147483647 !important;
+    `;
+
     resultsModal.innerHTML = `
         <div class="modal-content ${currentTheme === 'dark' ? 'dark' : ''}">
             <div id="${PROGRESS_TEXT_ID}">Starting...</div>
@@ -126,7 +147,8 @@ async function processServerRequest(selectedItems, isActive) {
             <div class="btr-modal-footer"></div>
         </div>
     `;
-    document.body.appendChild(resultsModal);
+    
+    document.documentElement.appendChild(resultsModal);
 
     const progressText = resultsModal.querySelector(`#${PROGRESS_TEXT_ID}`);
     const resultsContainer = resultsModal.querySelector(`#${PROGRESS_RESULTS_ID}`);
@@ -135,7 +157,7 @@ async function processServerRequest(selectedItems, isActive) {
     
     const cancelButton = document.createElement('button');
     cancelButton.textContent = 'Cancel';
-    applyButtonStyling(cancelButton);
+    applyButtonStyling(cancelButton); 
     cancelButton.className = 'btr-button-primary-inactive';
     cancelButton.style.position = 'static';
     cancelButton.style.padding = '8px 24px';
@@ -211,7 +233,7 @@ async function processServerRequest(selectedItems, isActive) {
     const closeButton = document.createElement('button');
     closeButton.textContent = 'Close';
     closeButton.className = 'btr-button-primary-active';
-    applyButtonStyling(closeButton);
+    applyButtonStyling(closeButton); 
     closeButton.style.position = 'static';
     closeButton.style.padding = '8px 24px';
     closeButton.onclick = () => { resultsModal.remove(); updateButtonStates(); };
@@ -222,13 +244,33 @@ async function processServerRequest(selectedItems, isActive) {
 
 function showConfirmationModal(selectedItems, isActive) {
     const action = isActive ? 'active' : 'inactive';
+    
+    const existingModal = document.getElementById(CONFIRMATION_MODAL_ID);
+    if (existingModal) {
+        existingModal.remove();
+    }
+
     const modal = document.createElement('div');
     modal.id = CONFIRMATION_MODAL_ID;
+
+    modal.style.cssText = `
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        background-color: rgba(0, 0, 0, 0.75) !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        z-index: 2147483647 !important;
+    `;
+
     modal.innerHTML = `
         <div class="modal-content ${currentTheme === 'dark' ? 'dark' : ''}">
             <h3>Confirm Action</h3>
             <p>You are about to set ${selectedItems.length} private server(s) as ${action}.</p>
-            <p>${isActive ? 'This will make the private server joinable.' : 'This will make the private server unjoinable'}</p>
+            <p>${isActive ? 'This will make the private server joinable.' : 'This will make the private server unjoinable.'}</p>
             <p>You can always change this back later.</p>
             <div class="modal-buttons">
                 <button class="modal-cancel-btn">Cancel</button>
@@ -236,7 +278,9 @@ function showConfirmationModal(selectedItems, isActive) {
             </div>
         </div>
     `;
-    document.body.appendChild(modal);
+    
+    document.documentElement.appendChild(modal);
+
     modal.querySelector('.modal-cancel-btn').addEventListener('click', () => modal.remove());
     modal.querySelector('.modal-confirm-btn').addEventListener('click', () => {
         modal.remove();
@@ -398,28 +442,75 @@ function handleBulkAction(isActive) {
 function handlePageUpdate() {
     const currentUrl = window.location.href;
     const isCorrectPage = (currentUrl.includes("private-servers") || currentUrl.includes("my-private-servers")) && !currentUrl.includes("other-private-servers");
-    if (!isCorrectPage) { cleanupUI(); return; }
+    if (!isCorrectPage) {
+        cleanupUI();
+        return;
+    }
 
+    const headerContainer = document.querySelector(".container-header");
     const assetsListElement = document.getElementById("assetsItems");
-    if (!assetsListElement) return;
-    const parentContainer = assetsListElement.parentElement;
-    if (!parentContainer) return;
-    parentContainer.style.position = 'relative';
+    if (!headerContainer || !assetsListElement) {
+        return;
+    }
 
-    if (document.getElementById(INACTIVE_MAIN_BUTTON_ID)) return;
+    if (document.getElementById(INACTIVE_MAIN_BUTTON_ID)) {
+        return;
+    }
 
-    const mainButtonInactive = document.createElement("button"); mainButtonInactive.id = INACTIVE_MAIN_BUTTON_ID; mainButtonInactive.textContent = "Bulk Inactivate"; parentContainer.appendChild(mainButtonInactive);
-    const setInactiveButton = document.createElement("button"); setInactiveButton.id = SET_INACTIVE_BTN_ID; setInactiveButton.textContent = "Set Inactive"; setInactiveButton.style.display = 'none'; setInactiveButton.className = 'btr-button-primary-inactive'; parentContainer.appendChild(setInactiveButton);
-    const mainButtonActive = document.createElement("button"); mainButtonActive.id = ACTIVE_MAIN_BUTTON_ID; mainButtonActive.textContent = "Bulk Activate"; parentContainer.appendChild(mainButtonActive);
-    const setActiveButton = document.createElement("button"); setActiveButton.id = SET_ACTIVE_BTN_ID; setActiveButton.textContent = "Set Active"; setActiveButton.style.display = 'none'; setActiveButton.className = 'btr-button-primary-active'; parentContainer.appendChild(setActiveButton);
-    const selectAllButton = document.createElement("button"); selectAllButton.id = SELECT_ALL_BTN_ID; selectAllButton.textContent = "Select All"; selectAllButton.style.display = 'none'; parentContainer.appendChild(selectAllButton);
-    
+    const buttonWrapper = document.createElement('div');
+    buttonWrapper.style.display = 'flex';
+    buttonWrapper.style.justifyContent = 'flex-end'; 
+    buttonWrapper.style.gap = '8px'; 
+    buttonWrapper.style.bottom = '5px'; 
+    buttonWrapper.style.left = '-8px';
+    buttonWrapper.style.position = 'relative';
+    headerContainer.appendChild(buttonWrapper);
+
+    const mainButtonInactive = document.createElement("button");
+    mainButtonInactive.id = INACTIVE_MAIN_BUTTON_ID;
+    mainButtonInactive.textContent = "Bulk Inactivate";
+    buttonWrapper.appendChild(mainButtonInactive);
+
+    const setInactiveButton = document.createElement("button");
+    setInactiveButton.id = SET_INACTIVE_BTN_ID;
+    setInactiveButton.textContent = "Set Inactive";
+    setInactiveButton.style.display = 'none';
+    setInactiveButton.className = 'btr-button-primary-inactive';
+    buttonWrapper.appendChild(setInactiveButton);
+
+    const mainButtonActive = document.createElement("button");
+    mainButtonActive.id = ACTIVE_MAIN_BUTTON_ID;
+    mainButtonActive.textContent = "Bulk Activate";
+    buttonWrapper.appendChild(mainButtonActive);
+
+    const setActiveButton = document.createElement("button");
+    setActiveButton.id = SET_ACTIVE_BTN_ID;
+    setActiveButton.textContent = "Set Active";
+    setActiveButton.style.display = 'none';
+    setActiveButton.className = 'btr-button-primary-active';
+    buttonWrapper.appendChild(setActiveButton);
+
+    const selectAllButton = document.createElement("button");
+    selectAllButton.id = SELECT_ALL_BTN_ID;
+    selectAllButton.textContent = "Select All";
+    selectAllButton.style.display = 'none';
+    buttonWrapper.appendChild(selectAllButton);
+
     [mainButtonInactive, setInactiveButton, mainButtonActive, setActiveButton, selectAllButton].forEach((btn) => {
         applyButtonStyling(btn);
+        btn.style.position = 'static';
+        btn.style.top = 'auto';
+        btn.style.right = 'auto';
     });
 
-    setInactiveButton.addEventListener('click', () => { const selected = Array.from(document.querySelectorAll('.server-checkbox:checked')); if (selected.length > 0) showConfirmationModal(selected, false); });
-    setActiveButton.addEventListener('click', () => { const selected = Array.from(document.querySelectorAll('.server-checkbox:checked')); if (selected.length > 0) showConfirmationModal(selected, true); });
+    setInactiveButton.addEventListener('click', () => {
+        const selected = Array.from(document.querySelectorAll('.server-checkbox:checked'));
+        if (selected.length > 0) showConfirmationModal(selected, false);
+    });
+    setActiveButton.addEventListener('click', () => {
+        const selected = Array.from(document.querySelectorAll('.server-checkbox:checked'));
+        if (selected.length > 0) showConfirmationModal(selected, true);
+    });
     selectAllButton.addEventListener('click', handleSelectAll);
     mainButtonInactive.addEventListener('click', () => handleBulkAction(false));
     mainButtonActive.addEventListener('click', () => handleBulkAction(true));

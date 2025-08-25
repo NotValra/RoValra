@@ -299,8 +299,22 @@ if (window.location.pathname.includes('/users/')) {
 
 
         function appendButtonToTarget() {
-              const targetElement = document.querySelector('.profile-header-buttons');
-              if (targetElement) {
+            const metaElement = document.querySelector('meta[name="user-data"]');
+            if (!metaElement) {
+                setTimeout(appendButtonToTarget, 100);
+                return;
+            }
+
+            const loggedInUserId = parseInt(metaElement.getAttribute('data-userid'), 10);
+            
+            const profileUserId = getUserIdFromUrl();
+
+            if (loggedInUserId === profileUserId) {
+                return; 
+            }
+
+            const targetElement = document.querySelector('.profile-header-buttons');
+            if (targetElement) {
                 targetElement.prepend(button);
             } else {
                 setTimeout(appendButtonToTarget, 100);

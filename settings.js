@@ -1,19 +1,16 @@
 
 let REGIONS = {};
 let REGION_CONTINENTS = {};
-
-const COUNTRY_TO_CONTINENT = {
-    'SG': 'Asia', 'JP': 'Asia', 'IN': 'Asia',
-    'DE': 'Europe', 'FR': 'Europe', 'NL': 'Europe', 'GB': 'Europe',
-    'US': 'North America',
-    'AU': 'Oceania',
-    'BR': 'South America'
+// this script sucks
+const COUNTRY_CONTINENT_MAP = {
+    'AF': 'Asia', 'AX': 'Europe', 'AL': 'Europe', 'DZ': 'Africa', 'AS': 'Oceania', 'AD': 'Europe', 'AO': 'Africa', 'AI': 'North America', 'AQ': 'Antarctica', 'AG': 'North America', 'AR': 'South America', 'AM': 'Asia', 'AW': 'North America', 'AU': 'Oceania', 'AT': 'Europe', 'AZ': 'Asia', 'BS': 'North America', 'BH': 'Asia', 'BD': 'Asia', 'BB': 'North America', 'BY': 'Europe', 'BE': 'Europe', 'BZ': 'North America', 'BJ': 'Africa', 'BM': 'North America', 'BT': 'Asia', 'BO': 'South America', 'BQ': 'North America', 'BA': 'Europe', 'BW': 'Africa', 'BV': 'Antarctica', 'BR': 'South America', 'IO': 'Asia', 'BN': 'Asia', 'BG': 'Europe', 'BF': 'Africa', 'BI': 'Africa', 'CV': 'Africa', 'KH': 'Asia', 'CM': 'Africa', 'CA': 'North America', 'KY': 'North America', 'CF': 'Africa', 'TD': 'Africa', 'CL': 'South America', 'CN': 'Asia', 'CX': 'Asia', 'CC': 'Asia', 'CO': 'South America', 'KM': 'Africa', 'CG': 'Africa', 'CD': 'Africa', 'CK': 'Oceania', 'CR': 'North America', 'CI': 'Africa', 'HR': 'Europe', 'CU': 'North America', 'CW': 'North America', 'CY': 'Asia', 'CZ': 'Europe', 'DK': 'Europe', 'DJ': 'Africa', 'DM': 'North America', 'DO': 'North America', 'EC': 'South America', 'EG': 'Africa', 'SV': 'North America', 'GQ': 'Africa', 'ER': 'Africa', 'EE': 'Europe', 'SZ': 'Africa', 'ET': 'Africa', 'FK': 'South America', 'FO': 'Europe', 'FJ': 'Oceania', 'FI': 'Europe', 'FR': 'Europe', 'GF': 'South America', 'PF': 'Oceania', 'TF': 'Antarctica', 'GA': 'Africa', 'GM': 'Africa', 'GE': 'Asia', 'DE': 'Europe', 'GH': 'Africa', 'GI': 'Europe', 'GR': 'Europe', 'GL': 'North America', 'GD': 'North America', 'GP': 'North America', 'GU': 'Oceania', 'GT': 'North America', 'GG': 'Europe', 'GN': 'Africa', 'GW': 'Africa', 'GY': 'South America', 'HT': 'North America', 'HM': 'Antarctica', 'VA': 'Europe', 'HN': 'North America', 'HK': 'Asia', 'HU': 'Europe', 'IS': 'Europe', 'IN': 'Asia', 'ID': 'Asia', 'IR': 'Asia', 'IQ': 'Asia', 'IE': 'Europe', 'IM': 'Europe', 'IL': 'Asia', 'IT': 'Europe', 'JM': 'North America', 'JP': 'Asia', 'JE': 'Europe', 'JO': 'Asia', 'KZ': 'Asia', 'KE': 'Africa', 'KI': 'Oceania', 'KP': 'Asia', 'KR': 'Asia', 'KW': 'Asia', 'KG': 'Asia', 'LA': 'Asia', 'LV': 'Europe', 'LB': 'Asia', 'LS': 'Africa', 'LR': 'Africa', 'LY': 'Africa', 'LI': 'Europe', 'LT': 'Europe', 'LU': 'Europe', 'MO': 'Asia', 'MG': 'Africa', 'MW': 'Africa', 'MY': 'Asia', 'MV': 'Asia', 'ML': 'Africa', 'MT': 'Europe', 'MH': 'Oceania', 'MQ': 'North America', 'MR': 'Africa', 'MU': 'Africa', 'YT': 'Africa', 'MX': 'North America', 'FM': 'Oceania', 'MD': 'Europe', 'MC': 'Europe', 'MN': 'Asia', 'ME': 'Europe', 'MS': 'North America', 'MA': 'Africa', 'MZ': 'Africa', 'MM': 'Asia', 'NA': 'Africa', 'NR': 'Oceania', 'NP': 'Asia', 'NL': 'Europe', 'NC': 'Oceania', 'NZ': 'Oceania', 'NI': 'North America', 'NE': 'Africa', 'NG': 'Africa', 'NU': 'Oceania', 'NF': 'Oceania', 'MK': 'Europe', 'MP': 'Oceania', 'NO': 'Europe', 'OM': 'Asia', 'PK': 'Asia', 'PW': 'Oceania', 'PS': 'Asia', 'PA': 'North America', 'PG': 'Oceania', 'PY': 'South America', 'PE': 'South America', 'PH': 'Asia', 'PN': 'Oceania', 'PL': 'Europe', 'PT': 'Europe', 'PR': 'North America', 'QA': 'Asia', 'RE': 'Africa', 'RO': 'Europe', 'RU': 'Europe', 'RW': 'Africa', 'BL': 'North America', 'SH': 'Africa', 'KN': 'North America', 'LC': 'North America', 'MF': 'North America', 'PM': 'North America', 'VC': 'North America', 'WS': 'Oceania', 'SM': 'Europe', 'ST': 'Africa', 'SA': 'Asia', 'SN': 'Africa', 'RS': 'Europe', 'SC': 'Africa', 'SL': 'Africa', 'SG': 'Asia', 'SX': 'North America', 'SK': 'Europe', 'SI': 'Europe', 'SB': 'Oceania', 'SO': 'Africa', 'ZA': 'Africa', 'GS': 'Antarctica', 'SS': 'Africa', 'ES': 'Europe', 'LK': 'Asia', 'SD': 'Africa', 'SR': 'South America', 'SJ': 'Europe', 'SE': 'Europe', 'CH': 'Europe', 'SY': 'Asia', 'TW': 'Asia', 'TJ': 'Asia', 'TZ': 'Africa', 'TH': 'Asia', 'TL': 'Asia', 'TG': 'Africa', 'TK': 'Oceania', 'TO': 'Oceania', 'TT': 'North America', 'TN': 'Africa', 'TR': 'Asia', 'TM': 'Asia', 'TC': 'North America', 'TV': 'Oceania', 'UG': 'Africa', 'UA': 'Europe', 'AE': 'Asia', 'GB': 'Europe', 'US': 'North America', 'UM': 'Oceania', 'UY': 'South America', 'UZ': 'Asia', 'VU': 'Oceania', 'VE': 'South America', 'VN': 'Asia', 'VG': 'North America', 'VI': 'North America', 'WF': 'Oceania', 'EH': 'Africa', 'YE': 'Asia', 'ZM': 'Africa', 'ZW': 'Africa'
 };
 
 let cachedTheme = null;
 let themeLastFetched = 0;
 // This shit useless at this point but OH WELLLLLLL!!!!!!
 const THEME_CACHE_DURATION = 24 * 60 * 60 * 1000; 
+const ROVALRA_SETTINGS_UUID = 'a1b2c3d4-e5f6-7890-1234-567890abcdef'; // This is used for exporting and importing just to verify that we are importing rovalra settings and not a random json
 
 
 async function loadRegionsFromStorage() {
@@ -140,13 +137,16 @@ async function fetchAndProcessRegions() {
 
             const countryCode = loc.country;
             const state = loc.region;
+            const city = loc.city;
             let regionCode = countryCode;
 
-            if (countryCode === 'US' && state) {
-                const stateCode = getStateCodeFromRegion(state); 
-                if (stateCode) {
-                    regionCode = `US-${stateCode}`;
-                }
+            if (countryCode === 'US' && state && city) {
+                const stateCode = getStateCodeFromRegion(state);
+                const cityCode = city.replace(/\s+/g, '').toUpperCase();
+                regionCode = `US-${stateCode}-${cityCode}`;
+            } else if (countryCode === 'US' && state) {
+                const stateCode = getStateCodeFromRegion(state);
+                regionCode = `US-${stateCode}`;
             }
             
             if (!newRegions[regionCode]) {
@@ -158,7 +158,7 @@ async function fetchAndProcessRegions() {
                     country: countryCode
                 };
 
-                const continent = COUNTRY_TO_CONTINENT[countryCode];
+                const continent = COUNTRY_CONTINENT_MAP[countryCode] || 'Other';
                 if (continent) {
                     if (!newRegionContinents[continent]) {
                         newRegionContinents[continent] = [];
@@ -252,68 +252,56 @@ const SETTINGS_CONFIG = {
                 type: "checkbox",
                 default: true
             },
+            GameVersionEnabled: {
+                label: "Enable Game version",
+                description: ["This shows the current version a game is on.",
+                    "Useful for developers."
+                ],
+                type: "checkbox",
+                default: true
+            },
+            OldestVersionEnabled: {
+                label: "Enable Oldest Server Version",
+                description: ["This shows the oldest game version that servers are still running on.",
+                    "Useful for developers."
+                ],
+                type: "checkbox",
+                default: true
+            },
             ServerFilterEnabled: {
                 label: "Enable Server Filters",
                 description: ["This adds a filter to the server list.",
                      "allowing you to filter servers by region, uptime and server size.",
-                    "**It is highly recommended that the 'Server List Modifications' and 'Server Uptime And Server Location' settings are enabled for this to work correctly.**"],
+                    "**It is highly recommended that the 'Server List Modifications' setting is enabled for this to work correctly.**"],
                 type: "checkbox",
                 default: true,
             },
             ServerlistmodificationsEnabled: {
                 label: "Enable Server List Modifications",
-                description: ["This adds a bunch of modifications to the server list.",
+                description: ["This adds all of these different features to the server list:",
+                    "- Server Uptime Estimation",
+                    "- Server Version",
+                    "- Server Region",
+                    "- Queue Size",
+                    "- Invite Link",
+                    "- Full Serverid",
+                    "- And all the previous mentioned modifications also apply to the 'Servers My Friends are in'",
                     "When this is enabled it will remove the following features from other extensions:",
                     "- RoPro Share Button",
                     "- RoPro Server Uptime (RoPro Plus)",
                     "- RoPro Server Location (RoPro Plus)",
-                    "- BTRoblox Region",
-                    "- BTRoblox Ping",
-                    "- BetterBlox Server List Enhancements",
                     "These features were removed to prevent conflicts with RoValra.",
-                    "This feature does not work with **'RoSeal Beta's Server List'** When RoSeal fully releases the server list, support will be added.",
+                    "RoSeal 2.1s server list will overwrite this feature since it does basically the same.",
                 ], 
                 type: "checkbox",
                 default: true,
-                childSettings: {
-                serverUptimeServerLocationEnabled: {
-                    label: "Enable Server Uptime, Server Location And Queue Size",
-                    description: ["This shows a servers uptime, region and queue size in the server list.",
-                        "Keep in mind not all servers will have uptime data, but a lot do."
-                    ],
-                    type: "checkbox",
-                    default: true,
-                },
-                inviteEnabled: {
-                    label: "Enable Universal Server Invites",
-                    description: ["This allows you to invite your friends to the game you're in, without your friend requiring any extension, not even RoValra!",
-                                "You can copy the link by pressing on the `Share` button."],
-                    type: "checkbox",
-                    default: true
-                },
-                showfullserveridEnabled: {
-                    label: "Enable Show Full Server ID",
-                    description: ["This shows the full server id in the server list."],
-                    type: "checkbox",
-                    default: true
-                },
-                enableFriendservers: {
-                    label: "Enable Servers My Friends Are In modifications",
-                    description: ["This adds a `Share` button to the 'Servers My Friends Are In'",
-                        "*IM NOT ABOUT TO CALL THAT 'Servers My Connections Are In'*"
-                    ],
-                    type: "checkbox",   
-                    default: true
-                },
-                privateserverlink: {
-                    label: "Enable Quick Private Server Invite Link",
-                    description: ["This adds a button allowing you to copy your private server invite link without needing to open the configure page.",
-                        "This also adds a button allowing you to quickly generate a new private server link"
-                    ],
-                    type: "checkbox",
-                    default: true
-                },
-                },
+
+            },
+            PrivateQuickLinkCopy: {
+                label: "Enable Quick Private server link copy and genarating.",
+                description: ["{{orange This feature has been disabled for maintenance}}",
+                    "This allows you to quickly copy a private server link or genarate a new private server link"
+                ]
             },
             universalSniperEnabled: {
                 label: "Enable Universal User Sniper",
@@ -347,7 +335,7 @@ const SETTINGS_CONFIG = {
             },
             PrivateServerBulkEnabled: {
                 label: "Enable Private Server bulk Removal",
-                description: ["This will add a toggle to the private server inventory tab that allows you to easy set a bunch of private servers as inactive",
+                description: ["This will add a toggle to the private server inventory tab that allows you to easily set a bunch of private servers as inactive",
                     "This also works for setting inactive private servers as active"
                 ],
                 type: "checkbox",
@@ -933,7 +921,12 @@ function getStateCodeFromRegion(regionName) {
         'Virginia': 'VA', 'Washington': 'WA', 'West Virginia': 'WV', 'Wisconsin': 'WI', 'Wyoming': 'WY',
         'Hesse': 'HE'
     };
-    return stateMap[regionName] || null;
+    
+    if (!regionName) {
+        return null;
+    }
+
+    return stateMap[regionName] || regionName.substring(0, 2).toUpperCase();
 }
 
 let currentTheme = 'light';
@@ -1025,8 +1018,8 @@ function updateThemeStyles_settingsPage(theme) {
     const colors = {
         dark: {
             button: {
-                base: 'rgb(45, 48, 51)',
-                hover: 'rgb(57, 60, 64)',
+                base: 'rgba(187, 194, 209, 0.12)',
+                hover: 'rgba(62, 64, 68, 1)209, 0.12)',
                 active: 'rgb(69, 73, 77)',
                 text: 'rgb(230, 230, 230)'
             },
@@ -1043,7 +1036,8 @@ function updateThemeStyles_settingsPage(theme) {
             searchInput: {
                  bg: 'rgb(45, 48, 51)',
                  border: 'rgb(69, 73, 77)',
-                 text: 'rgb(230, 230, 230)'
+                 text: 'rgb(230, 230, 230)',
+                 focusBorder: 'rgb(88, 166, 255)'
             }
         },
         light: {
@@ -1066,7 +1060,8 @@ function updateThemeStyles_settingsPage(theme) {
             searchInput: {
                 bg: 'rgb(255, 255, 255)',
                 border: 'rgb(204, 208, 212)',
-                text: 'rgb(57, 59, 61)'
+                text: 'rgb(57, 59, 61)',
+                focusBorder: 'rgb(0, 120, 215)'
             }
         }
     };
@@ -1132,6 +1127,11 @@ function updateThemeStyles_settingsPage(theme) {
             border: `1px solid ${currentColors.searchInput.border}`
         });
     }
+    
+    document.documentElement.style.setProperty(
+        '--rovalra-search-focus-border', 
+        currentColors.searchInput.focusBorder
+    );
 }
 
 
@@ -1519,7 +1519,9 @@ const loadSettings = async () => {
             RoValraBadgesEnable: true,
             ShowBadgesEverywhere: false,
             QuickPlayEnable: true,
-            PrivateServerBulkEnabled: true
+            PrivateServerBulkEnabled: true,
+            GameVersionEnabled: true,
+            OldestVersionEnabled: true
         };
 
         chrome.storage.local.get(defaultSettings, (settings) => {
@@ -2150,6 +2152,14 @@ if (rovalraHeader && rovalraHeader.textContent === 'RoValra Settings' && setting
     const initialButtonText = isInitiallyDark ? 'rgb(230, 230, 230)' : 'rgb(36, 41, 45)';
     const initialButtonActiveBg = isInitiallyDark ? 'rgb(69, 73, 77)' : 'rgb(204, 208, 212)';
     style.textContent = `
+        #settings-search-input { 
+            transition: border-color 0.2s ease-in-out; 
+        }
+        #settings-search-input:focus {
+            outline: none;
+            border-color: var(--rovalra-search-focus-border, #0078d4); 
+        }
+
         .setting { display: flex; flex-direction: column; justify-content: space-between; font-size: 16px; margin: 0 0 15px 0; background-color: ${isInitiallyDark ? 'rgb(39, 41, 48)' : 'rgb(240, 240, 240)'}; border-radius: 0px; padding: 15px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); }
         .setting-controls { display: flex; align-items: center; margin-bottom: 8px; }
         .setting-controls > label { margin-right: 10px; font-weight: bold; }
@@ -2308,6 +2318,29 @@ if (rovalraHeader && rovalraHeader.textContent === 'RoValra Settings' && setting
             menuList.setAttribute('role', 'tablist');
             menuList.style.width = '160px';
 
+            const searchListItem = document.createElement('li');
+            searchListItem.id = 'search-tab';
+            searchListItem.className = 'menu-option';
+            searchListItem.style.padding = '0px';
+            searchListItem.style.marginBottom = '10px';
+
+            const searchInput = document.createElement('input');
+            searchInput.type = 'search';
+            searchInput.id = 'settings-search-input';
+            searchInput.placeholder = 'Search Settings...';
+            searchInput.style.cssText = 'width: 89%; padding: 8px; border-radius: 0px; font-size: 14px;';
+            searchInput.addEventListener('input', debounce(handleSearch, 300));
+            searchInput.addEventListener('focus', () => {
+                document.querySelectorAll('#unified-menu .menu-option-content').forEach(el => {
+                    el.classList.remove('active');
+                    el.removeAttribute('aria-current');
+                });
+                history.pushState(null, '', `#!/search`);
+            });
+            searchListItem.appendChild(searchInput);
+            menuList.appendChild(searchListItem);
+
+
             const staticItems = buttonData.filter(item => item.text === "Info" || item.text === "Credits");
             staticItems.forEach(item => {
                 const listItem = document.createElement('li');
@@ -2339,27 +2372,6 @@ if (rovalraHeader && rovalraHeader.textContent === 'RoValra Settings' && setting
             separator.setAttribute('role', 'separator');
             menuList.appendChild(separator);
             
-            const searchListItem = document.createElement('li');
-            searchListItem.id = 'search-tab';
-            searchListItem.className = 'menu-option';
-            searchListItem.style.padding = '0px 0px 0px 0px';
-            searchListItem.style.marginBottom = '10px'
-            const searchInput = document.createElement('input');
-            searchInput.type = 'search';
-            searchInput.id = 'settings-search-input';
-            searchInput.placeholder = 'Search Settings...';
-            searchInput.style.cssText = 'width: 89%; padding: 8px; border-radius: 0px; font-size: 14px;';
-            searchInput.addEventListener('input', debounce(handleSearch, 300));
-            searchInput.addEventListener('focus', () => {
-                document.querySelectorAll('#unified-menu .menu-option-content').forEach(el => {
-                    el.classList.remove('active');
-                    el.removeAttribute('aria-current');
-                });
-                history.pushState(null, '', `#!/search`);
-            });
-            searchListItem.appendChild(searchInput);
-            menuList.appendChild(searchListItem);
-
 
             Object.keys(SETTINGS_CONFIG).forEach(sectionName => {
                 if (sectionName === "Developer" && !devTabAdded) return; 
@@ -2457,6 +2469,93 @@ function lightenColor(color, percent) {
     return `rgb(${r}, ${g}, ${b})`;
 }
 
+
+async function exportSettings() {
+    try {
+        chrome.storage.local.get(null, (allSettings) => {
+            if (chrome.runtime.lastError) {
+                console.error('Failed to export settings:', chrome.runtime.lastError);
+                alert('Error exporting settings. Check the console for details.');
+                return;
+            }
+
+            delete allSettings.cachedRegions;
+            delete allSettings.cachedRegionContinents;
+
+            const settingsToExport = {
+                rovalra_uuid: ROVALRA_SETTINGS_UUID,
+                settings: allSettings
+            };
+
+            const blob = new Blob([JSON.stringify(settingsToExport, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'RoValra_Exported_Settings.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        });
+    } catch (error) {
+        console.error('Error in exportSettings:', error);
+        alert('An unexpected error occurred during export.');
+    }
+}
+
+async function importSettings() {
+    try {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.json';
+
+        input.onchange = e => {
+            const file = e.target.files[0];
+            if (!file) {
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = readerEvent => {
+                try {
+                    const content = readerEvent.target.result;
+                    const importedData = JSON.parse(content);
+
+                    if (importedData.rovalra_uuid !== ROVALRA_SETTINGS_UUID) {
+                        // Let me be lazy smh
+                        alert('This does not appear to be a valid RoValra settings file.');
+                        return;
+                    }
+
+                    if (importedData.settings && typeof importedData.settings === 'object') {
+                        chrome.storage.local.set(importedData.settings, () => {
+                            if (chrome.runtime.lastError) {
+                                console.error('Failed to import settings:', chrome.runtime.lastError);
+                                alert('Error importing settings. Check the console for details.');
+                            } else {
+                                location.reload();
+                            }
+                        });
+                    } else {
+                        alert('The settings file is malformed.');
+                    }
+                } catch (error) {
+                    console.error('Error parsing or processing settings file:', error);
+                    alert('Could not read the settings file. It might be corrupted or in the wrong format.');
+                }
+            };
+            reader.readAsText(file);
+        };
+
+        input.click();
+    } catch (error) {
+        console.error('Error in importSettings:', error);
+        alert('An unexpected error occurred during import.');
+    }
+}
+
+
+
 const buttonData = [
     {
         text: "Info", content: `
@@ -2468,13 +2567,17 @@ const buttonData = [
             <div style="margin-top: 5px;">
             <p style="">And the server side features doesn't cost me anything to run which is why I can afford to make this free.</p>
             <div style="margin-top: 5px;">
+            <p style="">This extension is also a project to learn, so a lot of stuff might change or get reworked overtime as I learn more.</p>
+            <div style="margin-top: 5px;">
             <p style="">WE ALL LOVE GILBERT</p>
             <div style="margin-top: 5px;">
             <p style="">If you have any feature suggestions please let me know in my Discord server or via GitHub</p>
             <div style="margin-top: 5px;">
+            <p style="">If you find any bugs let me know in my Discord server or via GitHub</p>
+            <div style="margin-top: 5px;">
             <p style="">If you like this extension please consider <a href="https://chromewebstore.google.com/detail/rovalra-roblox-improved/njcickgebhnpgmoodjdgohkclfplejli/reviews" target="_blank" class="rovalra-review-link">leaving a review</a>, it helps a lot ❤️</p>
             </div>
-        <div style="margin-top: 10px;">
+        <div style="margin-top: 10px; margin-bottom: 20px;">
                 <a href="https://discord.gg/GHd5cSKJRk" target="_blank" class="rovalra-discord-link">Discord Server</a>
                 <a href="https://github.com/NotValra/RoValra" target="_blank" class="rovalra-github-link">
                 Github Repo
@@ -2482,6 +2585,10 @@ const buttonData = [
                 </a>
                 <a href="https://www.roblox.com/games/9676908657/Gamepasses#!/store" target="_blank" class="rovalra-roblox-link">Support Me on Roblox</a>
                 <a href="https://www.tiktok.com/@valrawantbanana" target="_blank" class="rovalra-tiktok-link">TikTok: ValraWantBanana</a>
+        </div>
+        <div style="border-top: 1px solid rgba(128, 128, 128, 0.3); padding-top: 15px;">
+            <button id="export-rovalra-settings" class="setting-section-button" style="margin-right: 10px;">Export Settings</button>
+            <button id="import-rovalra-settings" class="setting-section-button">Import Settings</button>
         </div>
     </div>
     `},
@@ -2548,7 +2655,48 @@ const buttonData = [
         `
     },
 ];
+document.addEventListener('click', (event) => {
+    const target = event.target;
+    
+    if (target.id === 'export-rovalra-settings') {
+        exportSettings();
+        return;
+    }
+    if (target.id === 'import-rovalra-settings') {
+        importSettings();
+        return;
+    }
+    
+    if (target.matches('.tab-button, .setting-section-button')) {
+        return;
+    }
 
+    if (target.matches('input[type="checkbox"]')) {
+        const settingName = target.dataset.settingName;
+        if (settingName) {
+            handleSaveSettings(settingName, target.checked).then(() => {
+                const settingsContent = document.querySelector('#setting-section-content');
+                if (settingsContent) {
+                    loadSettings().then(currentSettings => {
+                        updateConditionalSettingsVisibility(settingsContent, currentSettings);
+                    });
+                }
+            });
+        }
+    } else if (target.matches('select')) {
+        const settingName = target.dataset.settingName;
+        if (settingName) {
+            handleSaveSettings(settingName, target.value).then(() => {
+                const settingsContent = document.querySelector('#setting-section-content');
+                if (settingsContent) {
+                    loadSettings().then(currentSettings => {
+                        updateConditionalSettingsVisibility(settingsContent, currentSettings);
+                    });
+                }
+            });
+        }
+    }
+});
 const settingSections = Object.keys(SETTINGS_CONFIG).map(sectionName => ({
     name: SETTINGS_CONFIG[sectionName].title,
     content: generateSettingsUI(sectionName)

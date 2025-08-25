@@ -1,4 +1,5 @@
 // Very work in progress, not done yet.
+// If you wanna gamble to see if it works or not then buy stuff using this feature and make sure to be in the "Valra" Group. if it works you should get paid out the 40% in like 2 weeks to a month. And if it doesnt work then thats kinda the gamble u take but at full release it needs to consistently work lol
 const detectAndAddSaveButton = () => {
     console.log("Starting to detect the purchase modal.");
 
@@ -44,13 +45,9 @@ const addSaveButton = (modal) => {
     const currentUrl = window.location.href;
     const urlParts = currentUrl.match(/(?:catalog|bundles)\/(\d+)/);
     let assetId = null;
-    let purchaseType = '1'; 
 
     if (urlParts && urlParts[1]) {
         assetId = urlParts[1];
-        if (currentUrl.includes('/bundles/')) {
-            purchaseType = '3';
-        }
     }
 
     if (!assetId) {
@@ -74,16 +71,20 @@ const addSaveButton = (modal) => {
             saveButton.textContent = 'Launching...';
 
             const placeId = 17222553211; // for now we use a set place id, but a user will be able to use their own place id
-
-            const launchData = `${assetId}`;
-
-
-            window.open(`roblox://placeId=${placeId}&launchData=${launchData}`);
+            const joinData = {
+                launchData: assetId
+            };
             
-            console.log("Attempting to launch Roblox with URL:", launchUrl);
+            const codeToInject = `if (typeof Roblox.GameLauncher.joinMultiplayerGame === 'function') { Roblox.GameLauncher.joinMultiplayerGame(${placeId}, false, false, null, null, ${JSON.stringify(joinData)}); }`;
+            
+            console.log("Sending script to inject:", codeToInject);
 
-            setTimeout(() => {
-            }, 2000); 
+            if (typeof chrome !== 'undefined' && chrome.runtime) {
+                chrome.runtime.sendMessage({ action: "injectScript", codeToInject });
+            } else {
+                console.error("Chrome runtime is not available to send message.");
+            }
+
 
             setTimeout(() => {
                 saveButton.textContent = `Save ${savings} Robux`;

@@ -184,19 +184,33 @@ const initHiddenGamesFeature = (profileGameSection) => {
     }
     profileGameSection.dataset.hiddenGamesInitialized = 'true';
 
-    fetch(`https://games.roblox.com/v2/users/${userId}/games?accessFilter=2&limit=50&sortOrder=Desc`)
+    fetch(`https://inventory.roblox.com/v1/users/${userId}/places/inventory?itemsPerPage=100&placesTab=Created`)
         .then(response => {
             if (!response) throw new Error("Initial fetch returned null, likely due to network errors or retries failing.");
             return response.json();
         })
         .then(async initialData => {
-            let allGames = initialData.data || [];
+            let allGames = (initialData.data || []).map(game => ({
+                id: game.universeId,
+                name: game.name,
+                rootPlace: {
+                    id: game.placeId
+                }
+            }));
             let nextCursor = initialData.nextPageCursor;
+
             while (nextCursor) {
-                const nextResponse = await fetch(`https://games.roblox.com/v2/users/${userId}/games?accessFilter=2&limit=50&sortOrder=Desc&cursor=${nextCursor}`);
+                const nextResponse = await fetch(`https://inventory.roblox.com/v1/users/${userId}/places/inventory?itemsPerPage=100&placesTab=Created&cursor=${nextCursor}`);
                 const nextData = await nextResponse.json();
                 if (nextData && nextData.data) {
-                    allGames = allGames.concat(nextData.data);
+                    const mappedData = nextData.data.map(game => ({
+                        id: game.universeId,
+                        name: game.name,
+                        rootPlace: {
+                            id: game.placeId
+                        }
+                    }));
+                    allGames = allGames.concat(mappedData);
                     nextCursor = nextData.nextPageCursor;
                 } else {
                     nextCursor = null;
@@ -229,7 +243,10 @@ const initHiddenGamesFeature = (profileGameSection) => {
                 }
 
                 if (containerHeader) {
-                    containerHeader.innerHTML = '';
+                    const experiencesHeader = containerHeader.querySelector('h3[ng-non-bindable]');
+                    if (experiencesHeader) {
+                        experiencesHeader.remove();
+                    }
                     containerHeader.style.gap = '8px';
                 }
 
@@ -265,20 +282,31 @@ const initHiddenGamesFeature = (profileGameSection) => {
                 let displayedGameCount = 0;
                 const loadMoreButton = document.createElement('button');
                 loadMoreButton.textContent = 'Load More';
-                loadMoreButton.classList.add('load-more-button', 'tab-button');
-                loadMoreButton.style.display = 'block';
-                loadMoreButton.style.position = 'relative';
-                loadMoreButton.style.padding = '8px 16px';
-                loadMoreButton.style.borderRadius = '8px';
-                loadMoreButton.style.cursor = 'pointer';
-                loadMoreButton.style.transition = 'background-color 0.2s ease';
-                loadMoreButton.style.margin = '12px auto';
-                loadMoreButton.style.minWidth = '120px';
+                loadMoreButton.className = 'load-more-button tab-button';
+                
+                Object.assign(loadMoreButton.style, {
+                    boxSizing: 'border-box',
+                    border: '1px solid transparent',
+                    margin: '20px auto',
+                    padding: '0 16px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    minWidth: '120px',
+                    height: '36px',
+                    width: 'auto',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    textAlign: 'center',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    transition: 'background-color 0.2s, border-color 0.2s'
+                });
+
                 const loadMoreButtonWrapper = document.createElement('div');
                 loadMoreButtonWrapper.style.width = '100%';
                 loadMoreButtonWrapper.style.display = 'flex';
                 loadMoreButtonWrapper.style.justifyContent = 'center';
-                loadMoreButtonWrapper.style.padding = '0 10px';
                 loadMoreButtonWrapper.appendChild(loadMoreButton);
                 hiddenGamesWrapper.appendChild(hiddenGamesContainer);
                 const {
@@ -468,6 +496,7 @@ const initHiddenGamesFeature = (profileGameSection) => {
                 experiencesButton.style.fontWeight = 'bold';
                 experiencesButton.style.minWidth = '120px';
                 experiencesButton.style.outline = 'none';
+                
                 const hiddenGamesButton = document.createElement('button');
                 hiddenGamesButton.textContent = "Hidden Experiences";
                 hiddenGamesButton.classList.add('tab-button');
@@ -479,6 +508,7 @@ const initHiddenGamesFeature = (profileGameSection) => {
                 hiddenGamesButton.style.fontWeight = 'bold';
                 hiddenGamesButton.style.minWidth = '120px';
                 hiddenGamesButton.style.outline = 'none';
+                
                 hiddenGamesButton.addEventListener('click', () => {
                     switcherContainer.style.display = 'none';
                     hiddenGamesWrapper.style.display = 'flex';
@@ -510,14 +540,35 @@ const initHiddenGamesFeature = (profileGameSection) => {
                 const experiencesButton = document.createElement('button');
                 experiencesButton.textContent = "Experiences";
                 experiencesButton.classList.add('tab-button', 'active-tab');
+                
+                experiencesButton.style.padding = '8px 16px';
+                experiencesButton.style.borderRadius = '8px';
+                experiencesButton.style.cursor = 'pointer';
+                experiencesButton.style.transition = 'background-color 0.2s ease';
+                experiencesButton.style.fontWeight = 'bold';
+                experiencesButton.style.minWidth = '120px';
+                experiencesButton.style.outline = 'none';
+                
                 const hiddenGamesButton = document.createElement('button');
                 hiddenGamesButton.textContent = "Hidden Experiences";
                 hiddenGamesButton.classList.add('tab-button');
+
+                hiddenGamesButton.style.padding = '8px 16px';
+                hiddenGamesButton.style.borderRadius = '8px';
+                hiddenGamesButton.style.cursor = 'pointer';
+                hiddenGamesButton.style.transition = 'background-color 0.2s ease';
+                hiddenGamesButton.style.fontWeight = 'bold';
+                hiddenGamesButton.style.minWidth = '120px';
+                hiddenGamesButton.style.outline = 'none';
+                
                 buttonContainer.appendChild(experiencesButton);
                 buttonContainer.appendChild(hiddenGamesButton);
                 let containerHeader = profileGameSection.querySelector('.container-header');
                 if (containerHeader) {
-                    containerHeader.innerHTML = '';
+                    const experiencesHeader = containerHeader.querySelector('h3[ng-non-bindable]');
+                    if (experiencesHeader) {
+                        experiencesHeader.remove();
+                    }
                     containerHeader.style.justifyContent = 'flex-start';
                     containerHeader.appendChild(buttonContainer);
                 }
@@ -544,24 +595,7 @@ const initHiddenGamesFeature = (profileGameSection) => {
                     const gameId = game.rootPlace?.id;
                     return gameId && !visibleGameIds.includes(gameId.toString());
                 });
-                let displayedGameCount = 0;
-                const loadMoreButton = document.createElement('button');
-                loadMoreButton.textContent = 'Load More';
-                loadMoreButton.classList.add('load-more-button', 'tab-button');
-                loadMoreButton.style.display = 'block';
-                loadMoreButton.style.position = 'relative';
-                loadMoreButton.style.padding = '8px 16px';
-                loadMoreButton.style.borderRadius = '8px';
-                loadMoreButton.style.cursor = 'pointer';
-                loadMoreButton.style.transition = 'background-color 0.2s ease';
-                loadMoreButton.style.margin = '12px auto';
-                loadMoreButton.style.minWidth = '120px';
-                const loadMoreButtonWrapper = document.createElement('div');
-                loadMoreButtonWrapper.style.width = '100%';
-                loadMoreButtonWrapper.style.display = 'flex';
-                loadMoreButtonWrapper.style.justifyContent = 'center';
-                loadMoreButtonWrapper.style.padding = '0 10px';
-                loadMoreButtonWrapper.appendChild(loadMoreButton);
+
                 hiddenGamesWrapper.appendChild(hiddenGamesContainer);
                 const {
                     likeMap,
@@ -671,17 +705,7 @@ const initHiddenGamesFeature = (profileGameSection) => {
                         }
                     });
                 }
-
-                function loadMoreGames(isBTR) {
-                    const gamesToLoad = allHiddenGames.slice(displayedGameCount, displayedGameCount + (isBTR ? 12 : 10));
-                    displayGames(gamesToLoad);
-                    displayedGameCount += gamesToLoad.length;
-                    if (displayedGameCount >= allHiddenGames.length) {
-                        loadMoreButtonWrapper.style.display = 'none';
-                    } else {
-                        loadMoreButtonWrapper.style.display = 'flex';
-                    }
-                }
+                
                 applyTheme()
                 if (allHiddenGames.length === 0) {
                     const noGames = document.createElement('p');
@@ -693,29 +717,20 @@ const initHiddenGamesFeature = (profileGameSection) => {
                     noGames.style.margin = '0';
                     noGames.style.fontSize = '16px';
                     hiddenGamesContainer.appendChild(noGames);
-                    loadMoreButtonWrapper.style.display = 'none'
                 } else {
-                    loadMoreGames(true);
-                    if (displayedGameCount < allHiddenGames.length) {
-                        loadMoreButtonWrapper.style.display = 'flex';
-                    }
-                    loadMoreButton.addEventListener('click', () => loadMoreGames(true));
+                    displayGames(allHiddenGames);
                 }
-                if (allHiddenGames.length > 0) {
-                    hiddenGamesWrapper.appendChild(loadMoreButtonWrapper)
-                }
+
                 profileGameSection.appendChild(hiddenGamesWrapper);
                 const gridView = profileGameSection.querySelector('.game-grid');
                 const slideshowView = profileGameSection.querySelector('#games-switcher');
                 const pagers = profileGameSection.querySelectorAll('.btr-pager-holder, .load-more-button');
+                
                 hiddenGamesButton.addEventListener('click', () => {
                     if (gridView) gridView.style.display = 'none';
                     if (slideshowView) slideshowView.style.display = 'none';
                     pagers.forEach(p => p.style.display = 'none');
                     hiddenGamesWrapper.style.display = 'flex';
-                    if (allHiddenGames.length > 0 && displayedGameCount < allHiddenGames.length) {
-                        loadMoreButtonWrapper.style.display = 'flex';
-                    }
                     applyTheme();
                 });
                 experiencesButton.addEventListener('click', () => {
@@ -723,7 +738,6 @@ const initHiddenGamesFeature = (profileGameSection) => {
                     if (slideshowView) slideshowView.style.display = '';
                     pagers.forEach(p => p.style.display = '');
                     hiddenGamesWrapper.style.display = 'none';
-                    loadMoreButtonWrapper.style.display = 'none';
                     applyTheme();
                 });
             }

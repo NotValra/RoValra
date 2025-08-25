@@ -2,6 +2,7 @@
     const newClassName = "icon-logo-r-95";
     const originalSelector = "span.app-icon-bluebg.app-icon-windows.app-icon-size-96";
     const newSelector = "div.MuiGrid-root div.app-icon-bluebg.app-icon-windows";
+    const rosealStartup = '.app-icon-windows.app-icon-bluebg'
     const muiDialogSelector = "div.MuiPaper-root.MuiDialog-paper";
     const customLogoId = "rovalra-custom-logo";
 
@@ -32,7 +33,8 @@
     function applyOldLogo() {
         const targets = [
             document.getElementById("simplemodal-container")?.querySelector(originalSelector),
-            document.querySelector(newSelector)
+            document.querySelector(newSelector),
+            document.querySelector(rosealStartup)
         ].filter(Boolean); 
 
         for (const element of targets) {
@@ -52,7 +54,8 @@
     function applyCustomLogo(imageData) {
         const targets = [
             document.getElementById("simplemodal-container")?.querySelector(originalSelector),
-            document.querySelector(newSelector)
+            document.querySelector(newSelector),
+            document.querySelector(rosealStartup)
         ].filter(Boolean);
         
         let applied = false;
@@ -114,7 +117,7 @@
             const customLogoData = settings.customLogoData;
 
             let mutationHandler;
-            const targetSelectors = [originalSelector, newSelector];
+            const targetSelectors = [originalSelector, newSelector, rosealStartup];
             
             if (revertLogoSetting === 'OLD') {
                 mutationHandler = applyOldLogo;

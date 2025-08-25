@@ -212,7 +212,7 @@ if (window.location.pathname.includes('/communities')) {
             if (section) {
                 section.appendChild(hiddenGamesContainer); // No more bug
             } else {
-                groupGamesContainer.parentNode.insertBefore(hiddenGamesContainer, groupGamesContainer.nextSibling); // Fallback but bug :C
+                groupGamesContainer.parentNode.insertBefore(hiddenGamesContainer, groupGamesContainer.nextSibling); // Fallback but bug :C 
             }
 
             const updateLoadMoreButtonWidth = () => { if (hiddenGamesGrid.offsetWidth > 0) loadMoreButton.style.width = `${hiddenGamesGrid.offsetWidth}px`; };

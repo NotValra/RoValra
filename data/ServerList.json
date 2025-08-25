@@ -70,6 +70,27 @@
     },
     {
         "dataCenterIds": [
+            25775,
+            25776,
+            25777,
+            25778,
+            25779,
+            25781,
+            25782,
+            25783
+        ],
+        "location": {
+            "city": "Dublin",
+            "region": "Leinster",
+            "country": "IE",
+            "latLong": [
+                "53.3331",
+                "-6.2489"
+            ]
+        }
+    },
+    {
+        "dataCenterIds": [
             359,
             518,
             519,
@@ -338,6 +359,24 @@
             "latLong": [
                 "40.7143",
                 "-74.006"
+            ]
+        }
+    },
+    {
+        "dataCenterIds": [
+            25785,
+            25787,
+            25788,
+            25789,
+            25790
+        ],
+        "location": {
+            "city": "San Jose",
+            "region": "California",
+            "country": "US",
+            "latLong": [
+                "37.3394",
+                "-121.895"
             ]
         }
     },
