@@ -196,7 +196,7 @@ const SETTINGS_CONFIG = {
             hiddenCatalogEnabled: {
                 label: "Enable Hidden Catalog",
                 description: ["Shows Roblox made items before they are on the official catalog.",
-                    "{{red WARNING}} Roblox patched this, but this will still be updated manually if stuff leaks."
+                    "{{red WARNING}} Roblox patched this, but then unpatched it, so it might get patched again at any point."
                 ],
                 type: "checkbox",
                 default: false

@@ -175,7 +175,7 @@ function removeHiddenCatalogContent() {
             descriptionElement.style.marginRight = 'auto';
             descriptionElement.innerHTML = `
                 <p>The Hidden Catalog shows items uploaded by Roblox which are not yet on the marketplace.</p>
-                <p><b>Roblox patched this💔</p>
+                <p><b>Roblox patched this💔 Update: Roblox unpatched this ❤️‍🩹</p>
                 <p>Keep in mind that some of these items may never be released, as they could have been test uploads by Roblox.</p>
                 <p>Most items will not have a thumbnail / mesh while being on the hidden catalog.</p>
                 <p><b>To open the item page you will need <a href="https://www.roseal.live/" target="_blank" style="text-decoration: underline;">RoSeal</a>

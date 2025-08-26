@@ -271,8 +271,8 @@ function initializeExtensionFeatures() {
                     server.style.display = 'none';
                 }
 
-                if (serverInfo.joinScript?.placeVersion) {
-                    displayPlaceVersion(server, serverInfo.joinScript.placeVersion);
+                if (serverInfo.joinScript?.PlaceVersion) {
+                    displayPlaceVersion(server, serverInfo.joinScript.PlaceVersion);
                 }
 
                 let fullRegionName = "Unknown Region";
