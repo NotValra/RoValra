@@ -2622,6 +2622,9 @@ const buttonData = [
                     <li style="margin-bottom: 8px; list-style-type: disc; margin-left: 20px;">
                         Thanks to <b style="font-weight: bold;">Coweggs</b> for coming up with the very funny name that is "RoValra" as a joke that I then ended up using.
                            </li>
+                    <li style="margin-bottom: 8px; list-style-type: disc; margin-left: 20px;">
+                        Thanks to <b style="font-weight: bold;">WoozyNate</b> for making the amazing game called fisch, which is where Gilbert (the logo) is from <3
+                           </li>
                 </ul>
                  <div style="margin-top: 20px; border-top: 1px solid #444; padding-top: 10px;">
                     <h2 style="margin-bottom: 5px;">Extensions</h2>

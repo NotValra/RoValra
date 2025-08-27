@@ -1,5 +1,6 @@
 // Very work in progress, not done yet.
 // If you wanna gamble to see if it works or not then buy stuff using this feature and make sure to be in the "Valra" Group. if it works you should get paid out the 40% in like 2 weeks to a month. And if it doesnt work then thats kinda the gamble u take but at full release it needs to consistently work lol
+
 const detectAndAddSaveButton = () => {
     console.log("Starting to detect the purchase modal.");
 
@@ -18,6 +19,7 @@ const detectAndAddSaveButton = () => {
                 if (modal && !modal.querySelector('.btn-save-robux')) {
                     console.log("Purchase modal found. Proceeding to add the 'Save Robux' button.");
                     addSaveButton(modal);
+                    observer.disconnect();
                     console.log("Observer disconnected after finding the modal.");
                     return;
                 }
@@ -74,9 +76,9 @@ const addSaveButton = (modal) => {
             const joinData = {
                 launchData: assetId
             };
-            
+
             const codeToInject = `if (typeof Roblox.GameLauncher.joinMultiplayerGame === 'function') { Roblox.GameLauncher.joinMultiplayerGame(${placeId}, false, false, null, null, ${JSON.stringify(joinData)}); }`;
-            
+
             console.log("Sending script to inject:", codeToInject);
 
             if (typeof chrome !== 'undefined' && chrome.runtime) {
@@ -104,5 +106,14 @@ const addSaveButton = (modal) => {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
-    detectAndAddSaveButton();
+    if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+        chrome.storage.local.get('SaveRobuxEnabled', (result) => {
+            if (result.SaveRobuxEnabled === true) {
+                detectAndAddSaveButton();
+            } else {
+            }
+        });
+    } else {
+        console.error("Chrome storage API is not available. This script must be run as a Chrome extension.");
+    }
 });

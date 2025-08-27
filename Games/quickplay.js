@@ -16,8 +16,8 @@ chrome.storage.local.get({ QuickPlayEnable: false }, (settings) => {
             function injectStyles() {
                 const style = document.createElement('style');
                 style.textContent = `
-                    .scroller-new { z-index: 10000 !Important; }
-                    .scroller {z-index: 10000 !Important; }
+                    .scroller-new { z-index: 5 !Important; }
+                    .scroller {z-index: 5 !Important; }
                     a.game-tile-styles.game-card-link { position: relative; display: block; z-index: 2; transform: translateZ(0); }
                     a.game-tile-styles.game-card-link:hover { z-index: 3; }
                     a.game-tile-styles.game-card-link::after { content: ''; position: absolute; top: -2.5%; left: -2.5%; width: 105%; height: 105%; z-index: 1; }
