@@ -138,7 +138,7 @@ chrome.storage.local.get({ QuickPlayEnable: false }, (settings) => {
             }
 
             const PREFERRED_REGION_STORAGE_KEY = 'robloxPreferredRegion';
-            const MAX_SERVER_PAGES = 20;
+            const MAX_SERVER_PAGES = Infinity;
             const MODAL_ID = 'my-region-selection-modal';
             const LOADING_OVERLAY_ID = 'my-extension-loading-overlay';
 
@@ -596,4 +596,5 @@ function processDataPayload(data) {
         // hard coding was not a good idea... It worked out ig wow wee woo i cnat wait to spent years future proofing the extension AHHHHH
         waitForElement('#games-carousel, .game-home-page-container, #game-discovery-page, .game-grid, .games-list-container, .container-list.games-detail, .group-experiences-container, .hlist.game-cards', initializeQuickPlay);
     }
+
 });
