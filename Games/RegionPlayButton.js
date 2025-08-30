@@ -26,7 +26,7 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
     const MODAL_ID = 'my-region-selection-modal';
     const PREFERRED_REGION_STORAGE_KEY = 'robloxPreferredRegion';
     const LOADING_OVERLAY_ID = 'my-extension-loading-overlay';
-    const MAX_SERVER_PAGES = 20;
+    const MAX_SERVER_PAGES = Infinity;
     let REGIONS = {};
 
     let newButtonAdded = false;
@@ -937,4 +937,5 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
             tryInitialSetup();
         }
     }, 15000);
+
 });
