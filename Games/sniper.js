@@ -451,9 +451,9 @@ function createSniperUI() {
         height: 55px;
         border-radius: 50%;
         margin-right: 15px;
-        object-fit: cover; /* To ensure image fills circle properly */
-        background-color: var(--input-background); /* Match input background if needed */
-        border: var(--input-border); /* Match input border if needed */
+        object-fit: cover; 
+        background-color: var(--input-background); 
+        border: var(--input-border); 
     `;
 
     const inputField = document.createElement('input');
@@ -463,7 +463,7 @@ function createSniperUI() {
             margin-bottom: 0px;
             padding: 8px;
             height: 36px;
-            border-radius: 8px; /* Increased border-radius for rounder input */
+            border-radius: 8px; 
             border: var(--input-border);
             font-size: 14px;
              color: var(--input-text);
@@ -480,7 +480,7 @@ function createSniperUI() {
         background-color: var(--button-background);
         color: var(--Start-Sniper);
         border: none;
-        border-radius: 8px; /* Increased border-radius for rounder button */
+        border-radius: 8px; 
         cursor: pointer;
         font-size: 16px;
         height: 36px;
@@ -488,7 +488,7 @@ function createSniperUI() {
         transition: background-color 0.3s, transform 0.3s;
          pointer-events: auto;
          margin-right: 5px;
-         width: 140px; /* Fixed width to accommodate "Stop Searcher" - Increased from 120px */
+         width: 140px; 
     `;
     startButton.classList.add('sniper-button');
 
@@ -500,7 +500,7 @@ function createSniperUI() {
         font-family: "Builder Sans", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
         font-weight: 400;
         pointer-events: none;
-        margin-right: 5px; /* Space between label and number */
+        margin-right: 5px; 
     `;
     const requestCountNumber = document.createElement('span');
     requestCountNumber.textContent = `${previousSearch.requestCount || 0}`;
@@ -514,9 +514,9 @@ function createSniperUI() {
     const requestCountDisplay = document.createElement('div');
     requestCountDisplay.style.cssText = `
         display: flex;
-        flex-direction: row; /* Display label and number in a row */
-        align-items: baseline; /* Align text baselines */
-        margin-right: 15px; /* Space between the two displays */
+        flex-direction: row; 
+        align-items: baseline;
+        margin-right: 15px; 
     `;
     requestCountDisplay.appendChild(requestCountLabel);
     requestCountDisplay.appendChild(requestCountNumber);
@@ -530,7 +530,7 @@ function createSniperUI() {
         font-family: "Builder Sans", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
         font-weight: 400;
         pointer-events: none;
-        margin-right: 5px; /* Space between label and number */
+        margin-right: 5px; 
     `;
     const elapsedTimeNumber = document.createElement('span');
     elapsedTimeNumber.textContent = '0s';
@@ -544,8 +544,8 @@ function createSniperUI() {
     const elapsedTimeDisplay = document.createElement('div');
     elapsedTimeDisplay.style.cssText = `
         display: flex;
-        flex-direction: row; /* Display label and number in a row */
-        align-items: baseline; /* Align text baselines */
+        flex-direction: row; 
+        align-items: baseline; 
     `;
     elapsedTimeDisplay.appendChild(elapsedTimeLabel);
     elapsedTimeDisplay.appendChild(elapsedTimeNumber);
@@ -554,8 +554,8 @@ function createSniperUI() {
     const displayContainer = document.createElement('div');
     displayContainer.style.cssText = `
         display: flex;
-        flex-direction: row; /* Display displays in a row */
-        align-items: baseline; /* Align text baselines of the displays */
+        flex-direction: row; 
+        align-items: baseline; 
         margin-right: 5px;
         margin-left: 5px;
     `;
@@ -612,6 +612,16 @@ async function fetchThemeFromAPI() {
 
 
 function injectButton() {
+    const removalDate = new Date();
+    removalDate.setDate(removalDate.getDate() + 14); // Sets the removal date to yesterday
+
+    const currentDate = new Date();
+
+    // If the current date is on or after the removal date, do not inject the UI
+    if (currentDate >= removalDate) {
+        return;
+    }
+
     let targetElement = document.querySelector("#rbx-public-running-games");
     if (!targetElement) {
         targetElement = document.querySelector("#running-game-instances-container");
@@ -621,8 +631,9 @@ function injectButton() {
         }
     }
 
+    // The rest of your injectButton function remains the same...
     sniperUIElements = createSniperUI();
-    const { thumbnailImage, inputField, startButton, requestCountDisplay, elapsedTimeDisplay, displayContainer, requestCountNumber, elapsedTimeNumber } = sniperUIElements;
+    const { thumbnailImage, inputField, startButton, displayContainer } = sniperUIElements;
 
     const sniperHeaderLabel = document.createElement('div');
     sniperHeaderLabel.textContent = 'User Sniper';
@@ -631,46 +642,9 @@ function injectButton() {
         font-size: 18px;
         font-family: "Builder Sans", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
         font-weight: bold;
-        margin-bottom: 0px;
+        margin-bottom: 10px;
         text-align: left;
         margin-left: 5px;
-        pointer-events: none;
-    `;
-
-    const sniperWarningLabel = document.createElement('div');
-    
-    const warningFirstLine = document.createElement('div');
-    warningFirstLine.textContent = 'WARNING: Roblox updated making the sniper fail 80% of the time.';
-    warningFirstLine.style.cssText = `
-        color: var(--text-color-header);
-        font-size: 14px;
-        font-family: "Builder Sans", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
-        font-weight: normal;
-        margin-bottom: 3px;
-        text-align: left;
-        pointer-events: none;
-    `;
-    
-    const warningSecondLine = document.createElement('div');
-    warningSecondLine.textContent = 'If you dont want people using this against you, then turn your joins to "no one" that will prevent people from sniping you.';
-    warningSecondLine.style.cssText = `
-        color: var(--text-color-header);
-        font-size: 14px;
-        font-family: "Builder Sans", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
-        font-weight: normal;
-        margin-bottom: 5px;
-        text-align: left;
-        pointer-events: none;
-    `;
-    
-    sniperWarningLabel.appendChild(warningFirstLine);
-    sniperWarningLabel.appendChild(warningSecondLine);
-    
-    sniperWarningLabel.style.cssText = `
-        margin-bottom: 5px;
-        text-align: left;
-        margin-left: 5px;
-        pointer-events: none;
     `;
 
     const buttonContainer = document.createElement('div');
@@ -697,261 +671,64 @@ function injectButton() {
         font-size: 14px;
         font-family: "Builder Sans", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
         font-weight: bold;
+    `;
+
+    const disabledUIContainer = document.createElement('div');
+    disabledUIContainer.style.cssText = `
+        position: relative;
+        padding: 10px;
+        border-radius: 8px;
+        background-color: var(--overlay-background);
         pointer-events: none;
     `;
 
-    targetElement.insertBefore(messageContainer, targetElement.firstChild);
-    targetElement.insertBefore(buttonContainer, messageContainer);
-    targetElement.insertBefore(sniperWarningLabel, buttonContainer);
-    targetElement.insertBefore(sniperHeaderLabel, sniperWarningLabel);
+    const formattedDate = removalDate.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
 
-    let startTime = 0;
-    let requestCount = 0;
-    let rateLimitCount = 0;
-    let intervalId;
-
-    const setRateLimitMessage = (message) => {
-        messageContainer.textContent = message;
-        messageContainer.style.color = '';
-        messageContainer.style.fontSize = '';
-    };
-    const setNotFoundMessage = (message) => {
-        messageContainer.textContent = message;
-        messageContainer.style.color = 'rgb(187, 2, 2)';
-        messageContainer.style.fontSize = '16px';
-    };
-    const setNoThumbnailMessage = (message) => {
-        messageContainer.textContent = message;
-        messageContainer.style.color = 'rgb(187, 2, 2)';
-        messageContainer.style.fontSize = '16px';
-    };
-    const updateRequestCountDisplay = (count) => {
-        requestCountNumber.textContent = `${count}`;
-    };
-    const updateElapsedTimeDisplay = (elapsedTime) => {
-        elapsedTimeNumber.textContent = `${elapsedTime}s`;
-    };
-
-
-    startButton.onclick = async () => {
-        const input = inputField.value;
-        const placeId = getPlaceIdFromUrl();
-        let userId = input;
-        messageContainer.textContent = '';
-        messageContainer.style.color = '';
-        messageContainer.style.fontSize = '';
-        thumbnailImage.src = 'data:image/svg+xml,%3Csvg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"%3E%3CCircle cx="50" cy="50" r="49" stroke="%23808080" stroke-width="2" stroke-dasharray="6 6"/%3E%3C/svg%3E'; 
-        const existingJoinButtonContainer = targetElement.querySelector('#joinButtonContainer');
-        if (existingJoinButtonContainer) {
-            targetElement.removeChild(existingJoinButtonContainer);
-        }
-
-        if (isSniping) {
-            isCancelledRef.current = true;
-            startButton.textContent = 'Search';
-            isSniping = false;
-            previousSearch.startTime = Date.now();
-            previousSearch.startTime = 0;
-            localStorage.setItem('previousSearch', JSON.stringify(previousSearch));
-            if (intervalId) {
-                clearInterval(intervalId);
-                intervalId = null;
-            }
-            messageContainer.textContent = '';
-            return;
-        }
-        isCancelledRef.current = false;
-        isSniping = true;
-        startButton.textContent = 'Stop Searcher';
-        startTime = previousSearch.startTime ? previousSearch.startTime : Date.now();
-        if (!previousSearch.startTime) {
-            previousSearch.startTime = startTime;
-            localStorage.setItem('previousSearch', JSON.stringify(previousSearch));
-        }
-
-        requestCount = previousSearch.requestCount;
-        rateLimitCount = 0;
-        setRateLimitMessage("");
-        setNotFoundMessage("");
-        setNoThumbnailMessage("");
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        color: var(--text-color-header);
+        text-align: center;
+        z-index: 10;
+        background-color: rgba(0, 0, 0, 0.6);
+        border-radius: 8px;
+        pointer-events: auto;
+    `;
+    
+    overlay.innerHTML = `
+        <div style="font-size: 22px; font-weight: bold;">User Sniping Has Been Completely Patched by Roblox</div>
+        <div style="font-size: 16px; margin-top: 8px;">don't shoot the messenger🥺</div>
+        <div style="font-size: 14px; margin-top: 20px; opacity: 0.8;">This will be removed on ${formattedDate}.</div>
+    `;
 
 
-        if (intervalId) {
-            clearInterval(intervalId)
-            intervalId = null;
-        }
+    inputField.disabled = true;
+    startButton.disabled = true;
+    startButton.style.cursor = 'not-allowed';
+    startButton.onclick = null; 
 
-        intervalId = setInterval(() => {
-            const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
-            updateElapsedTimeDisplay(elapsedTime);
-        }, 1000);
+    disabledUIContainer.appendChild(sniperHeaderLabel);
+    disabledUIContainer.appendChild(buttonContainer);
+    disabledUIContainer.appendChild(messageContainer);
+    disabledUIContainer.appendChild(overlay);
 
+    targetElement.insertBefore(disabledUIContainer, targetElement.firstChild);
 
-
-        if (isNaN(input)) {
-            userId = await fetchUserIdFromUsername(input);
-        }
-        let startFromPrevious = false;
-        if (placeId && userId) {
-
-            if (previousSearch.placeId === placeId && previousSearch.userId === userId && previousSearch.nextPageCursor) {
-                startFromPrevious = true;
-            } else {
-                previousSearch = {
-                    placeId: null,
-                    userId: null,
-                    initialImageUrl: null,
-                    nextPageCursor: null,
-                    requestCount: 0,
-                    startTime: 0,
-                    requestId: null
-                };
-                previousSearch.placeId = placeId;
-                previousSearch.userId = userId;
-            }
-
-            fetchInitialThumbnail(userId, () => {
-                rateLimitCount++;
-            }, isCancelledRef, setNoThumbnailMessage).then(initialThumbnailResult => {
-                if (initialThumbnailResult === "NO_THUMBNAIL") {
-                    setNoThumbnailMessage("Sniper won't work on this user because the user has no thumbnail.");
-                    thumbnailImage.src = 'data:image/svg+xml,%3Csvg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"%3E%3CCircle cx="50" cy="50" r="49" stroke="%23808080" stroke-width="2" stroke-dasharray="6 6"/%3E%3C/svg%3E';
-                    if (intervalId) {
-                        clearInterval(intervalId);
-                        intervalId = null;
-                    }
-                    startButton.textContent = 'Search';
-                    isSniping = false;
-                    return;
-                }
-                if (initialThumbnailResult) {
-                    const initialImageUrl = initialThumbnailResult;
-                    previousSearch.initialImageUrl = initialImageUrl;
-                    thumbnailImage.src = initialImageUrl;
-                    if (startFromPrevious) {
-                        fetchServers(placeId, initialImageUrl, (count) => {
-                            updateRequestCountDisplay(count);
-                        }, () => {
-                            rateLimitCount++;
-                        }, (requestId) => {
-                            const joinButtonContainer = document.createElement('div');
-                            joinButtonContainer.id = 'joinButtonContainer';
-                            joinButtonContainer.style.cssText = `
-                                display: flex;
-                                justify-content: center;
-                                width: 100%;
-                                margin-top: 5px;
-                            `;
-                            const joinButton = document.createElement('button');
-                            joinButton.id = 'joinButton';
-                            joinButton.textContent = `Join Server ${requestId}`;
-                            applyJoinButtonStyle(joinButton);
-
-                            joinButton.onclick = () => {
-                                try {
-                                    if (typeof Roblox !== 'undefined' && Roblox.GameLauncher && Roblox.GameLauncher.joinGameInstance) {
-                                        Roblox.GameLauncher.joinGameInstance(parseInt(placeId, 10), String(requestId));
-                                    } else {
-                                        console.error("Roblox.GameLauncher.joinGameInstance is not available");
-                                        alert("Unable to join server: Roblox launcher not available");
-                                    }
-                                } catch (error) {
-                                    console.error("Failed to join server:", error);
-                                    alert("Error joining server: " + error.message);
-                                }
-                            };
-
-                            joinButtonContainer.appendChild(joinButton);
-                            messageContainer.after(joinButtonContainer);
-
-                            if (intervalId) {
-                                clearInterval(intervalId);
-                                intervalId = null;
-                            }
-                            startButton.textContent = 'Search';
-                            isSniping = false;
-                        }, () => {
-                            if (intervalId) {
-                                clearInterval(intervalId);
-                                intervalId = null;
-                            }
-                            startButton.textContent = 'Search';
-                            isSniping = false;
-                        }, isCancelledRef, setNotFoundMessage, setRateLimitMessage, previousSearch.nextPageCursor);
-                    }
-                    else {
-                        fetchServers(placeId, initialImageUrl, (count) => {
-                            updateRequestCountDisplay(count);
-                        }, () => {
-                            rateLimitCount++;
-                        }, (requestId) => {
-                            const joinButtonContainer = document.createElement('div');
-                            joinButtonContainer.id = 'joinButtonContainer';
-                            joinButtonContainer.style.cssText = `
-                                display: flex;
-                                justify-content: center;
-                                width: 100%;
-                                margin-top: 5px;
-                            `;
-                            const joinButton = document.createElement('button');
-                            joinButton.id = 'joinButton';
-                            joinButton.textContent = `Join Server ${requestId}`;
-                            applyJoinButtonStyle(joinButton);
-                            joinButton.onclick = () => {
-                                try {
-                                    if (typeof Roblox !== 'undefined' && Roblox.GameLauncher && Roblox.GameLauncher.joinGameInstance) {
-                                        Roblox.GameLauncher.joinGameInstance(parseInt(placeId, 10), String(requestId));
-                                    } else {
-                                        console.error("Roblox.GameLauncher.joinGameInstance is not available");
-                                        alert("Unable to join server: Roblox launcher not available");
-                                    }
-                                } catch (error) {
-                                    console.error("Failed to join server:", error);
-                                    alert("Error joining server: " + error.message);
-                                }
-                            };
-
-                            joinButtonContainer.appendChild(joinButton);
-                            messageContainer.after(joinButtonContainer);
-
-                            if (intervalId) {
-                                clearInterval(intervalId);
-                                intervalId = null;
-                            }
-                            startButton.textContent = 'Search';
-                            isSniping = false;
-                        }, () => {
-                            if (intervalId) {
-                                clearInterval(intervalId);
-                                intervalId = null;
-                            }
-                            startButton.textContent = 'Search';
-                            isSniping = false;
-                        }, isCancelledRef, setNotFoundMessage, setRateLimitMessage);
-                    }
-                } else {
-                    thumbnailImage.src = 'data:image/svg+xml,%3Csvg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"%3E%3CCircle cx="50" cy="50" r="49" stroke="%23808080" stroke-width="2" stroke-dasharray="6 6"/%3E%3C/svg%3E';
-                }
-            });
-        } else {
-            if (!userId) {
-                setNotFoundMessage("Invalid User ID");
-                const joinButtonContainer = targetElement.querySelector('#joinButtonContainer');
-                if (joinButtonContainer) {
-                    targetElement.removeChild(joinButtonContainer);
-                }
-                thumbnailImage.src = 'data:image/svg+xml,%3Csvg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"%3E%3CCircle cx="50" cy="50" r="49" stroke="%23808080" stroke-width="2" stroke-dasharray="6 6"/%3E%3C/svg%3E';
-            }
-            console.error("Invalid User ID or Place ID");
-            if (intervalId) {
-                clearInterval(intervalId);
-                intervalId = null;
-            }
-            startButton.textContent = 'Search';
-            isSniping = false;
-        }
-    };
+    startButton.onclick = null;
 }
+
 
 async function initialize() {
     let universalSniperEnabled = true; 

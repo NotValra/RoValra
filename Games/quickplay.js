@@ -296,16 +296,29 @@ function processDataPayload(data) {
                     }
                 } catch (error) { }
             }
-
+            let emulateFallback = false;
             async function findAndJoinServerProcess(placeId, targetRegionCode) {
+                if (emulateFallback) {
+                    console.log("[Quick Play] Fallback emulation is active. Skipping primary API.");
+                    await Promise.all([dataPromise, getCsrfToken()]); 
+                    return await findAndJoinServerFallback(placeId, targetRegionCode);
+                }
+
                 serverLocations = {};
                 await Promise.all([dataPromise, getCsrfToken()]);
                 let nextCursor = null, pageCount = 0;
-                while (pageCount++ < MAX_SERVER_PAGES && !userRequestedStop) {
+                let joined = false; 
+
+                while (pageCount++ < MAX_SERVER_PAGES && !userRequestedStop && !joined) {
                     try {
                         let url = `https://games.roblox.com/v1/games/${placeId}/servers/Public?excludeFullGames=true&limit=100${nextCursor ? `&cursor=${encodeURIComponent(nextCursor)}` : ''}`;
                         const response = await fetch(url, { credentials: 'include' });
-                        if (!response.ok) { await new Promise(r => setTimeout(r, 2000)); continue; }
+                        
+                        if (!response.ok) {
+                            console.warn("[Quick Play] Primary API request failed. Switching to fallback.");
+                            return await findAndJoinServerFallback(placeId, targetRegionCode);
+                        }
+
                         const pageData = await response.json();
                         const servers = pageData.data || [];
                         if (servers.length > 0) {
@@ -316,17 +329,72 @@ function processDataPayload(data) {
                                 if (bestServer) {
                                     joinedServerIds.add(bestServer.id);
                                     launchGame(placeId, bestServer.id);
-                                    return { joined: true };
+                                    joined = true; 
                                 }
                             }
                         }
                         if (!pageData.nextPageCursor) break;
                         nextCursor = pageData.nextPageCursor;
-                    } catch (e) { break; }
+                    } catch (e) {
+                        console.error("[Quick Play] Error in primary API loop, switching to fallback.", e);
+                        return await findAndJoinServerFallback(placeId, targetRegionCode);
+                    }
                 }
-                return { joined: false };
+
+                if (!joined && !userRequestedStop) {
+                    console.log("[Quick Play] No servers found with primary API. Switching to fallback.");
+                    return await findAndJoinServerFallback(placeId, targetRegionCode);
+                }
+
+                return { joined };
+            }
+            async function findAndJoinServerFallback(placeId, targetRegionCode) {
+            let cursor = 0;
+            
+            while (cursor !== null) {
+                if (userRequestedStop) return { joined: false, stopped: true };
+
+                const url = `https://apis.rovalra.com/v1/get_servers_in_region?place_id=${placeId}&region=${targetRegionCode}&cursor=${cursor}`;
+
+                try {
+                    const response = await fetch(url);
+                    if (!response.ok) {
+                        console.error("[Quick Play Fallback] API request failed:", response.status);
+                        return { joined: false, error: 'fallback_api_error' };
+                    }
+
+                    const data = await response.json();
+                    if (data.status !== 'success' || !Array.isArray(data.servers)) {
+                        cursor = null; 
+                        continue;
+                    }
+
+                    const serversFromApi = data.servers.map(s => ({ id: s.server_id }));
+                    
+                    const potentialServers = serversFromApi.filter(s => !joinedServerIds.has(s.id));
+
+                    for (const server of potentialServers) {
+                        if (userRequestedStop) return { joined: false, stopped: true };
+                        
+                        await _internal_handleServer(server, placeId);
+
+                        if (serverLocations[server.id]?.c === targetRegionCode) {
+                            joinedServerIds.add(server.id);
+                            launchGame(placeId, server.id);
+                            return { joined: true }; 
+                        }
+                    }
+                    
+                    cursor = data.next_cursor !== undefined ? data.next_cursor : null;
+
+                } catch (error) {
+                    console.error("[Quick Play Fallback] Error during fallback process:", error);
+                    cursor = null; 
+                }
             }
 
+            return { joined: false }; 
+        }
             async function performJoinAction(placeId, regionCode) {
                 if (isCurrentlyFetchingData) return;
                 userRequestedStop = false;

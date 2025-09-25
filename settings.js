@@ -302,15 +302,6 @@ const SETTINGS_CONFIG = {
                 description: ["{{orange This feature has been disabled for maintenance}}",
                     "This allows you to quickly copy a private server link or genarate a new private server link"
                 ]
-            },
-            universalSniperEnabled: {
-                label: "Enable Universal User Sniper",
-                description: ["{{red WARNING}} This Feature is not supported anymore, And will not be receiving updates.",
-                    "I regret adding this feature cuz of stalkers, so I decided to drop support for it. But the feature is here to stay for now...",
-                    "This allows you to join a user, without needing to be friends with them.",
-                        "**If you don't want users using this to join you, you can change your joins to no one.**"],
-                type: "checkbox",
-                default: false
             }
         }
     },

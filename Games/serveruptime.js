@@ -288,11 +288,9 @@
     document.head.appendChild(styleSheet);
 
     const menuItems = [
-        { label: 'Player Count', group: 'Sort by', action: 'togglePlayerCount', svg: '<path fill="none" d="M22 21V19C22 17.1362 20.7252 15.5701 19 15.126M15.5 3.29076C16.9659 3.88415 18 5.32131 18 7C18 8.67869 16.9659 10.1159 15.5 10.7092M17 21C17 19.1362 17 18.2044 16.6955 17.4693C16.2895 16.4892 15.5108 15.7105 14.5307 15.3045C13.7956 15 12.8638 15 11 15H8C6.13623 15 5.20435 15 4.46927 15.3045C3.48915 15.7105 2.71046 16.4892 2.30448 17.4693C2 18.2044 2 19.1362 2 21M13.5 7C13.5 9.20914 11.7091 11 9.5 11C7.29086 11 5.5 9.20914 5.5 7C5.5 4.79086 7.29086 3 9.5 3C11.7091 3 13.5 4.79086 13.5 7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>' },
-        { label: 'Available Space', group: 'Sort by', action: 'availableSpace', svg: '<path fill="none" d="M8.4 3H4.6C4.03995 3 3.75992 3 3.54601 3.10899C3.35785 3.20487 3.20487 3.35785 3.10899 3.54601C3 3.75992 3 4.03995 3 4.6V8.4C3 8.96005 3 9.24008 3.10899 9.45399C3.20487 9.64215 3.35785 9.79513 3.54601 9.89101C3.75992 10 4.03995 10 4.6 10H8.4C8.96005 10 9.24008 10 9.45399 9.89101C9.64215 9.79513 9.79513 9.64215 9.89101 9.45399C10 9.24008 10 8.96005 10 8.4V4.6C10 4.03995 10 3.75992 9.89101 3.54601C9.79513 3.35785 9.64215 3.20487 9.45399 3.10899C9.24008 3 8.96005 3 8.4 3Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path fill="none" d="M19.4 3H15.6C15.0399 3 14.7599 3 14.546 3.10899C14.3578 3.20487 14.2049 3.35785 14.109 3.54601C14 3.75992 14 4.03995 14 4.6V8.4C14 8.96005 14 9.24008 14.109 9.45399C14.2049 9.64215 14.3578 9.79513 14.546 9.89101C14.7599 10 15.0399 10 15.6 10H19.4C19.9601 10 20.2401 10 20.454 9.89101C20.6422 9.79513 20.7951 9.64215 20.891 9.45399C21 9.24008 21 8.96005 21 8.4V4.6C21 4.03995 21 3.75992 20.891 3.54601C20.7951 3.35785 20.6422 3.20487 20.454 3.10899C20.2401 3 19.9601 3 19.4 3Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path fill="none" d="M19.4 14H15.6C15.0399 14 14.7599 14 14.546 14.109C14.3578 14.2049 14.2049 14.3578 14.109 14.546C14 14.7599 14 15.0399 14 15.6V19.4C14 19.9601 14 20.2401 14.109 20.454C14.2049 20.6422 14.3578 20.7951 14.546 20.891C14.7599 21 15.0399 21 15.6 21H19.4C19.9601 21 20.2401 21 20.454 20.891C20.6422 20.7951 20.7951 20.6422 20.891 20.454C21 20.2401 21 19.9601 21 19.4V15.6C21 15.0399 21 14.7599 20.891 14.546C20.7951 14.3578 20.6422 14.2049 20.454 14.109C20.2401 14 19.9601 14 19.4 14Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path fill="none" d="M8.4 14H4.6C4.03995 14 3.75992 14 3.54601 14.109C3.35785 14.2049 3.20487 14.3578 3.10899 14.546C3 14.7599 3 15.0399 3 15.6V19.4C3 19.9601 3 20.2401 3.10899 20.454C3.20487 20.6422 3.35785 20.7951 3.54601 20.891C3.75992 21 4.03995 21 4.6 21H8.4C8.96005 21 9.24008 21 9.45399 20.891C9.64215 20.7951 9.79513 20.6422 9.89101 20.454C10 20.2401 10 19.9601 10 19.4V15.6C10 15.0399 10 14.7599 9.89101 14.546C9.79513 14.3578 9.64215 14.2049 9.45399 14.109C9.24008 14 8.96005 14 8.4 14Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>' },
-        { label: 'Smallest Servers', group: 'Sort by', action: 'smallestServers', svg: '<path fill="none" d="M12 6C12.5523 6 13 5.55228 13 5C13 4.44772 12.5523 4 12 4C11.4477 4 11 4.44772 11 5C11 5.55228 11.4477 6 12 6Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path fill="none" d="M12 13C12.5523 13 13 12.5523 13 12C13 11.4477 12.5523 11 12 11C11.4477 11 11 11.4477 11 12C11 12.5523 11.4477 13 12 13Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path fill="none" d="M12 20C12.5523 20 13 19.5523 13 19C13 18.4477 12.5523 18 12 18C11.4477 18 11 18.4477 11 19C11 19.5523 11.4477 20 12 20Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path fill="none" d="M19 6C19.5523 6 20 5.55228 20 5C20 4.44772 19.5523 4 19 4C18.4477 4 18 4.44772 18 5C18 5.55228 18.4477 6 19 6Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path fill="none" d="M19 13C19.5523 13 20 12.5523 20 12C20 11.4477 19.5523 11 19 11C18.4477 11 18 11.4477 18 12C18 12.5523 18.4477 13 19 13Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path fill="none" d="M19 20C19.5523 20 20 19.5523 20 19C20 18.4477 19.5523 18 19 18C18.4477 18 18 18.4477 18 19C18 19.5523 18.4477 20 19 20Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path fill="none" d="M5 6C5.55228 6 6 5.55228 6 5C6 4.44772 5.55228 4 5 4C4.44772 4 4 4.44772 4 5C4 5.55228 4.44772 6 5 6Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path fill="none" d="M5 13C5.55228 13 6 12.5523 6 12C6 11.4477 5.55228 11 5 11C4.44772 11 4 11.4477 4 12C4 12.5523 4.44772 13 5 13Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path fill="none" d="M5 20C5.55228 20 6 19.5523 6 19C6 18.4477 5.55228 18 5 18C4.44772 18 4 18.4477 4 19C4 19.5523 4.44772 20 5 20Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>' },
-        { label: 'Random Shuffle', group: 'Sort by', action: 'randomShuffle', svg: '<path fill="none" d="M16.25 7.75H16.255M16.25 11.75H16.255M16.25 16.25H16.255M7.75 7.75H7.755M7.75 11.75H7.755M7.75 16.25H7.755M7.8 21H16.2C17.8802 21 18.7202 21 19.362 20.673C19.9265 20.3854 20.3854 19.9265 20.673 19.362C21 18.7202 21 17.8802 21 16.2V7.8C21 6.11984 21 5.27976 20.673 4.63803C20.3854 4.07354 19.9265 3.6146 19.362 3.32698C18.7202 3 17.8802 3 16.2 3H7.8C6.11984 3 5.27976 3 4.63803 3.32698C4.07354 3.6146 3.6146 4.07354 3.32698 4.63803C3 5.27976 3 6.11984 3 7.8V16.2C3 17.8802 3 18.7202 3.32698 19.362C3.6146 19.9265 4.07354 20.3854 4.63803 20.673C5.27976 21 6.11984 21 7.8 21ZM16.5 7.75C16.5 7.88807 16.3881 8 16.25 8C16.1119 8 16 7.88807 16 7.75C16 7.61193 16.1119 7.5 16.25 7.5C16.3881 7.5 16.5 7.61193 16.5 7.75ZM16.5 11.75C16.5 11.8881 16.3881 12 16.25 12C16.1119 12 16 11.8881 16 11.75C16 11.6119 16.1119 11.5 16.25 11.5C16.3881 11.5 16.5 11.6119 16.5 11.75ZM16.5 16.25C16.5 16.3881 16.3881 16.5 16.25 16.5C16.1119 16.5 16 16.3881 16 16.25C16 16.1119 16.1119 16 16.25 16C16.3881 16 16.5 16.1119 16.5 16.25ZM8 7.75C8 7.88807 7.88807 8 7.75 8C7.61193 8 7.5 7.88807 7.5 7.75C7.5 7.61193 7.61193 7.5 7.75 7.5C7.88807 7.5 8 7.61193 8 7.75ZM8 11.75C8 11.8881 7.88807 12 7.75 12C7.61193 12 7.5 11.8881 7.5 11.75C7.5 11.6119 7.61193 11.5 7.75 11.5C7.88807 11.5 8 11.6119 8 11.75ZM8 16.25C8 16.3881 7.88807 16.5 7.75 16.5C7.61193 16.5 7.5 16.3881 7.5 16.25C7.5 16.1119 7.61193 16 7.75 16C7.88807 16 8 16.1119 8 16.25Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>' },
-        { label: 'Server Region', group: 'Filter by', action: 'toggleServerRegion', svg: '<path fill="none" d="M15 2.4578C14.053 2.16035 13.0452 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12C22 10.2847 21.5681 8.67022 20.8071 7.25945M17 5.75H17.005M10.5001 21.8883L10.5002 19.6849C10.5002 19.5656 10.5429 19.4502 10.6205 19.3596L13.1063 16.4594C13.3106 16.2211 13.2473 15.8556 12.9748 15.6999L10.1185 14.0677C10.0409 14.0234 9.97663 13.9591 9.93234 13.8814L8.07046 10.6186C7.97356 10.4488 7.78657 10.3511 7.59183 10.3684L2.06418 10.8607M21 6C21 8.20914 19 10 17 12C15 10 13 8.20914 13 6C13 3.79086 14.7909 2 17 2C19.2091 2 21 3.79086 21 6ZM17.25 5.75C17.25 5.88807 17.1381 6 17 6C16.8619 6 16.75 5.88807 16.75 5.75C16.75 5.61193 16.8619 5.5 17 5.5C17.1381 5.5 17.25 5.61193 17.25 5.75Z"  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'},
+
+        
+        { label: 'Server Region', group: 'Filter by', action: 'toggleServerRegion', svg: '<path fill="none" d="M15 2.4578C14.053 2.16035 13.0452 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12C22 10.2847 21.5681 8.67022 20.8071 7.25945M17 5.75H17.005M10.5001 21.8883L10.5002 19.6849C10.5002 19.5656 10.5429 19.4502 10.6205 19.3596L13.1063 16.4594C13.3106 16.2211 13.2473 15.8556 12.9748 15.6999L10.1185 14.0677C10.0409 14.0234 9.97663 13.9591 9.93234 13.8814L8.07046 10.6186C7.97356 10.4488 7.78657 10.3511 7.59183 10.3684L2.06418 10.8607M21 6C21 8.20914 19 10 17 12C15 10 13 8.20914 13 6C13 3.79086 14.7909 2 17 2C19.2091 2 21 3.79086 21 6ZM17.25 5.75C17.25 5.88807 17.1381 6 17 6C16.8619 6 16.75 5.88807 16.75 5.75C16.75 5.61193 16.8619 5.5 17 5.5C17.1381 5.5 17.25 5.61193 17.25 5.75Z"  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>' },
         { label: 'Newest Servers', group: 'Filter by', action: 'newestServers', svg: '<path fill="none" d="M4.5 22V17M4.5 7V2M2 4.5H7M2 19.5H7M13 3L11.2658 7.50886C10.9838 8.24209 10.8428 8.60871 10.6235 8.91709C10.4292 9.1904 10.1904 9.42919 9.91709 9.62353C9.60871 9.8428 9.24209 9.98381 8.50886 10.2658L4 12L8.50886 13.7342C9.24209 14.0162 9.60871 14.1572 9.91709 14.3765C10.1904 14.5708 10.4292 14.8096 10.6235 15.0829C10.8428 15.3913 10.9838 15.7579 11.2658 16.4911L13 21L14.7342 16.4911C15.0162 15.7579 15.1572 15.3913 15.3765 15.0829C15.5708 14.8096 15.8096 14.5708 16.0829 14.3765C16.3913 14.1572 16.7579 14.0162 17.4911 13.7342L22 12L17.4911 10.2658C16.7579 9.98381 16.3913 9.8428 16.0829 9.62353C15.8096 9.42919 15.5708 9.1904 15.3765 8.91709C15.1572 8.60871 15.0162 8.24209 14.7342 7.50886L13 3Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>' },
         { label: 'Oldest Servers', group: 'Filter by', action: 'oldestServers', svg: '<path fill="none" d="M12 2.25V4.75M12 18V22M5.75 12H2.25M21.25 12H19.75M18.4571 18.4571L17.75 17.75M18.6642 5.41579L17.25 6.83M4.92157 19.0784L7.75 16.25M5.12868 5.20868L7.25 7.33" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>' },
     ];
@@ -635,12 +633,21 @@ function processApiData(apiData) {
         };
     }
 
+    let emulateRobloxApiFailureForGlobe = false; 
+    let rovalraFallbackListenerAttached = false;
+    let isGlobeFallbackActive = false; 
+async function fetchAndDisplayServersFromRovalra(regionCode) {
+    closeAllPanels(); 
+    
+    await applyFilter('filterByRegionRovalra', regionCode);
+}
 async function startSequentialRegionFetch(signal) {
     const statusContainer = document.getElementById('rovalra-globe-status-container');
     const VERIFICATION_ATTEMPTS = 3;
     const VERIFICATION_DELAY = 1000;
     const MAX_RETRIES = 5;
     const RETRY_DELAY = 3000;
+    const FALLBACK_THRESHOLD = 0.85;
 
     const globeStatusCallback = (message) => {
         if (statusContainer) {
@@ -656,6 +663,63 @@ async function startSequentialRegionFetch(signal) {
             regionFilterItem.querySelector('.spinner')?.remove();
         }
     };
+    
+    if (isGlobeFallbackActive) {
+        if (statusContainer) {
+            statusContainer.innerHTML = `<span>Roblox API unavailable. Using RoValra data.</span>`;
+        }
+        try {
+            const rovalraData = await getRovalraApiData(gameId);
+            if (rovalraData && rovalraData.counts && rovalraData.counts.detailed_regions) {
+                const rovalraCounts = {};
+                const apiData = rovalraData.counts.detailed_regions;
+
+                const reverseRegionMap = {};
+                 for (const continent in REGIONS) {
+                    for (const internalRegionKey in REGIONS[continent]) {
+                        const regionInfo = REGIONS[continent][internalRegionKey];
+                        const countryCode = internalRegionKey.split('-')[0].toUpperCase();
+                        let apiRegionKey = countryCode;
+                        if (regionInfo.state) {
+                            apiRegionKey = `${countryCode}-${regionInfo.state.toUpperCase().replace(/\s+/g, ' ')}`;
+                        }
+                        if (!reverseRegionMap[apiRegionKey]) reverseRegionMap[apiRegionKey] = [];
+                        reverseRegionMap[apiRegionKey].push({ city: regionInfo.city, internalKey: internalRegionKey });
+                    }
+                }
+
+                for (const apiRegionKey in apiData) {
+                    if (reverseRegionMap[apiRegionKey]) {
+                        const apiCityData = apiData[apiRegionKey].cities;
+                        for (const apiCityName in apiCityData) {
+                            const matchingInternalRegion = reverseRegionMap[apiRegionKey].find(info => info.city.toLowerCase() === apiCityName.toLowerCase());
+                            if (matchingInternalRegion) {
+                                rovalraCounts[matchingInternalRegion.internalKey] = apiCityData[apiCityName];
+                            }
+                        }
+                    }
+                }
+                
+                document.dispatchEvent(new CustomEvent('rovalraGlobe_ActivateFallback', { detail: { serverCounts: rovalraCounts } }));
+                
+                if (!rovalraFallbackListenerAttached) {
+                    document.addEventListener('rovalra_globePointClicked', (e) => {
+                        if (e.detail && e.detail.regionCode) {
+                            fetchAndDisplayServersFromRovalra(e.detail.regionCode);
+                        }
+                    });
+                    rovalraFallbackListenerAttached = true;
+                }
+            } else {
+                 if (statusContainer) statusContainer.innerHTML = '<span>RoValra backup data is also unavailable.</span>';
+            }
+        } catch (error) {
+            if (statusContainer) statusContainer.innerHTML = '<span>Error fetching RoValra backup data.</span>';
+        }
+        removeSpinner();
+        return;
+    }
+
 
     if (globeSearchState.completed) {
         if (statusContainer) {
@@ -677,6 +741,80 @@ async function startSequentialRegionFetch(signal) {
     if (statusContainer) {
         statusContainer.innerHTML = '<span>Searching for servers...</span>';
         statusContainer.classList.remove('rovalra-hidden');
+    }
+
+    if (!globeSearchState.cursor) {
+        const baseUrl = `https://games.roblox.com/v1/games/${gameId}/servers/Public`;
+        const initialCheckUrl = new URL(baseUrl);
+        initialCheckUrl.searchParams.set('limit', '10');
+        initialCheckUrl.searchParams.set('sortOrder', '2');
+        
+        let initialPageData;
+        try {
+            initialPageData = await fetchPage(initialCheckUrl.href, signal, () => {});
+        } catch (e) {
+            initialPageData = null;
+        }
+
+        if (emulateRobloxApiFailureForGlobe || !initialPageData || !initialPageData.data || initialPageData.data.length === 0) {
+            emulateRobloxApiFailureForGlobe = false;
+            isGlobeFallbackActive = true; 
+
+            if (statusContainer) {
+                statusContainer.innerHTML = `<span>Roblox API unavailable. Using RoValra data.</span>`;
+            }
+
+            try {
+                const rovalraData = await getRovalraApiData(gameId);
+                if (rovalraData && rovalraData.counts && rovalraData.counts.detailed_regions) {
+                    const rovalraCounts = {};
+                    const apiData = rovalraData.counts.detailed_regions;
+
+                    const reverseRegionMap = {};
+                     for (const continent in REGIONS) {
+                        for (const internalRegionKey in REGIONS[continent]) {
+                            const regionInfo = REGIONS[continent][internalRegionKey];
+                            const countryCode = internalRegionKey.split('-')[0].toUpperCase();
+                            let apiRegionKey = countryCode;
+                            if (regionInfo.state) {
+                                apiRegionKey = `${countryCode}-${regionInfo.state.toUpperCase().replace(/\s+/g, ' ')}`;
+                            }
+                            if (!reverseRegionMap[apiRegionKey]) reverseRegionMap[apiRegionKey] = [];
+                            reverseRegionMap[apiRegionKey].push({ city: regionInfo.city, internalKey: internalRegionKey });
+                        }
+                    }
+
+                    for (const apiRegionKey in apiData) {
+                        if (reverseRegionMap[apiRegionKey]) {
+                            const apiCityData = apiData[apiRegionKey].cities;
+                            for (const apiCityName in apiCityData) {
+                                const matchingInternalRegion = reverseRegionMap[apiRegionKey].find(info => info.city.toLowerCase() === apiCityName.toLowerCase());
+                                if (matchingInternalRegion) {
+                                    rovalraCounts[matchingInternalRegion.internalKey] = apiCityData[apiCityName];
+                                }
+                            }
+                        }
+                    }
+                    
+                    document.dispatchEvent(new CustomEvent('rovalraGlobe_ActivateFallback', { detail: { serverCounts: rovalraCounts } }));
+                    
+                    if (!rovalraFallbackListenerAttached) {
+                        document.addEventListener('rovalra_globePointClicked', (e) => {
+                            if (e.detail && e.detail.regionCode) {
+                                fetchAndDisplayServersFromRovalra(e.detail.regionCode);
+                            }
+                        });
+                        rovalraFallbackListenerAttached = true;
+                    }
+                } else {
+                     if (statusContainer) statusContainer.innerHTML = '<span>RoValra backup data is also unavailable.</span>';
+                }
+            } catch (error) {
+                if (statusContainer) statusContainer.innerHTML = '<span>Error fetching RoValra backup data.</span>';
+            }
+            removeSpinner();
+            return;
+        }
     }
 
     try {
@@ -795,11 +933,67 @@ async function startSequentialRegionFetch(signal) {
                 hasNextPage = false;
             }
         }
-
+        
+       
         if (!hasNextPage && !signal.aborted) {
-            globeSearchState.completed = true;
-            if (statusContainer) {
-                statusContainer.innerHTML = '<span>Searched All Servers</span>';
+            let rovalraData;
+            try {
+                rovalraData = await getRovalraApiData(gameId);
+            } catch (e) {
+                rovalraData = null;
+            }
+
+            const rovalraTotalServerCount = rovalraData?.counts?.total_servers;
+
+            if (rovalraTotalServerCount && (allFetchedServers.length < rovalraTotalServerCount * FALLBACK_THRESHOLD)) {
+                isGlobeFallbackActive = true;
+                if (statusContainer) {
+                    statusContainer.innerHTML = '<span>Roblox API incomplete. Using RoValra data.</span>';
+                }
+                
+                const rovalraCounts = {};
+                const apiData = rovalraData.counts.detailed_regions;
+                const reverseRegionMap = {};
+                 for (const continent in REGIONS) {
+                    for (const internalRegionKey in REGIONS[continent]) {
+                        const regionInfo = REGIONS[continent][internalRegionKey];
+                        const countryCode = internalRegionKey.split('-')[0].toUpperCase();
+                        let apiRegionKey = countryCode;
+                        if (regionInfo.state) {
+                            apiRegionKey = `${countryCode}-${regionInfo.state.toUpperCase().replace(/\s+/g, ' ')}`;
+                        }
+                        if (!reverseRegionMap[apiRegionKey]) reverseRegionMap[apiRegionKey] = [];
+                        reverseRegionMap[apiRegionKey].push({ city: regionInfo.city, internalKey: internalRegionKey });
+                    }
+                }
+                for (const apiRegionKey in apiData) {
+                    if (reverseRegionMap[apiRegionKey]) {
+                        const apiCityData = apiData[apiRegionKey].cities;
+                        for (const apiCityName in apiCityData) {
+                            const matchingInternalRegion = reverseRegionMap[apiRegionKey].find(info => info.city.toLowerCase() === apiCityName.toLowerCase());
+                            if (matchingInternalRegion) {
+                                rovalraCounts[matchingInternalRegion.internalKey] = apiCityData[apiCityName];
+                            }
+                        }
+                    }
+                }
+                
+                document.dispatchEvent(new CustomEvent('rovalraGlobe_ActivateFallback', { detail: { serverCounts: rovalraCounts } }));
+                
+                if (!rovalraFallbackListenerAttached) {
+                    document.addEventListener('rovalra_globePointClicked', (e) => {
+                        if (e.detail && e.detail.regionCode) {
+                            fetchAndDisplayServersFromRovalra(e.detail.regionCode);
+                        }
+                    });
+                    rovalraFallbackListenerAttached = true;
+                }
+                
+            } else {
+                globeSearchState.completed = true;
+                if (statusContainer) {
+                    statusContainer.innerHTML = '<span>Searched All Servers</span>';
+                }
             }
             removeSpinner();
         }
@@ -896,17 +1090,33 @@ async function renderNextBatchOfServers() {
     let existingButton = document.getElementById('rovalra-load-more-btn');
     if (existingButton) existingButton.remove();
 
-    if (isFilterActive && displayedServerCount < currentlyDisplayedServers.length) {
+
+    let shouldShowLoadMore = false;
+    if (currentActiveFilter === 'filterByRegionRovalra') {
+        if (rovalraNextCursor !== null) {
+            shouldShowLoadMore = true;
+        }
+    } else {
+        if (isFilterActive && displayedServerCount < currentlyDisplayedServers.length) {
+            shouldShowLoadMore = true;
+        }
+    }
+
+    if (shouldShowLoadMore) {
         const loadMoreButton = document.createElement('button');
         loadMoreButton.id = 'rovalra-load-more-btn';
         loadMoreButton.textContent = 'Load More';
         loadMoreButton.className = 'btn-control-sm rbx-upgrade-now-button';
 
-        loadMoreButton.addEventListener('click', () => {
-             loadMoreButton.innerHTML = '<span class="spinner spinner-default"></span>';
-             loadMoreButton.disabled = true;
-             renderNextBatchOfServers();
-        });
+        if (currentActiveFilter === 'filterByRegionRovalra') {
+            loadMoreButton.addEventListener('click', handleLoadMoreRovalra);
+        } else {
+            loadMoreButton.addEventListener('click', () => {
+                 loadMoreButton.innerHTML = '<span class="spinner spinner-default"></span>';
+                 loadMoreButton.disabled = true;
+                 renderNextBatchOfServers();
+            });
+        }
 
         if (containerParent) {
             containerParent.appendChild(loadMoreButton);
@@ -962,7 +1172,7 @@ function createServerCard(server, thumbnailMap, isFallbackCard = false) {
         playerThumbnailsContainerHTML = `
             <div class="player-thumbnails-container" style="display: flex; align-items: center; justify-content: center; padding: 0px;">
                 <div style="background-color: rgba(0,0,0,0.2); border-radius: 6px; padding: 8px 12px; text-align: center;">
-                    <span style="color: var(--text-secondary); font-size: 12px; font-weight: 500;">Player info not available.</span>
+                    <span style="color: var(--text-secondary); font-size: 11.5px; font-weight: 500;">Player info not available.<br>This is a Roblox limitation.</span>
                 </div>
             </div>`;
         serverDetailsHTML = `<div class="text-info rbx-game-status rbx-public-game-server-status text-overflow">Player count unknown</div>
@@ -1042,6 +1252,81 @@ function toggleServerListOptions(hide) {
     if (collapseButton) {
         collapseButton.style.display = newDisplayStyle;
     }
+    }
+    
+    let rovalraNextCursor = null;
+async function handleLoadMoreRovalra() {
+    const loadMoreButton = document.getElementById('rovalra-load-more-btn');
+    if (!loadMoreButton || rovalraNextCursor === null) {
+        if(loadMoreButton) loadMoreButton.remove();
+        return;
+    }
+
+    loadMoreButton.innerHTML = '<span class="spinner spinner-default"></span>';
+    loadMoreButton.disabled = true;
+
+    try {
+        const apiRegionCode = getRovalraApiRegionCode(currentFilterValue);
+        if (!apiRegionCode) {
+            throw new Error(`Could not determine API region for ${currentFilterValue}`);
+        }
+
+        // You are allowed to use this API for personal projects only which is limited to open source projects on GitHub, they must be free and you must credit the RoValra repo.
+        // You are not allowed to use the API for projects on the chrome web store or any other extension store. If you want to use the API for a website dm be on discord: Valra and we can figure something out.
+        // If you want to use the API for something thats specifically said isnt allowed or you might be unsure if its allowed, please dm me on discord: Valra, Ill be happy to check out your stuff and maybe allow you to use it for your project.
+        const rovalraEndpoint = `https://apis.rovalra.com/v1/get_servers_in_region?place_id=${gameId}&region=${apiRegionCode}&cursor=${rovalraNextCursor}`;
+        
+        const response = await fetch(rovalraEndpoint);
+        if (!response.ok) throw new Error('Failed to fetch next page from RoValra');
+        const data = await response.json();
+
+        if (data.status === 'success' && Array.isArray(data.servers) && data.servers.length > 0) {
+            const transformedServers = data.servers.map(server => ({
+                id: server.server_id,
+                playing: 'N/A',
+                maxPlayers: 'N/A',
+                playerTokens: undefined
+            }));
+
+            currentlyDisplayedServers.push(...transformedServers);
+            rovalraNextCursor = data.next_cursor || null;
+            await renderNextBatchOfServers();
+            
+        } else {
+             rovalraNextCursor = null;
+             if (loadMoreButton) loadMoreButton.remove();
+        }
+
+    } catch (error) {
+        console.error("Error loading more servers from RoValra:", error);
+        if (loadMoreButton) {
+             loadMoreButton.textContent = 'Error. Try Again';
+             loadMoreButton.disabled = false;
+        }
+    }
+}
+
+function getRovalraApiRegionCode(internalRegionCode) {
+    if (!internalRegionCode) return null;
+
+    const parts = internalRegionCode.split('-');
+    const country = parts[0];
+
+    if (country.toUpperCase() !== 'US') {
+        return country.toUpperCase();
+    }
+
+    for (const continent in REGIONS) {
+        if (REGIONS[continent][internalRegionCode]) {
+            const regionInfo = REGIONS[continent][internalRegionCode];
+            if (regionInfo.state) {
+                return `US-${regionInfo.state.toUpperCase().replace(/\s+/g, ' ')}`;
+            }
+            break;
+        }
+    }
+    
+    return 'US'; 
 }
 async function applyFilter(filterAction, filterValue = null, isReset = false) {
     const refreshButton = document.querySelector('#rbx-public-running-games .server-list-container-header .rbx-refresh');
@@ -1191,8 +1476,51 @@ async function applyFilter(filterAction, filterValue = null, isReset = false) {
         if (sortSelect) sortSelect.disabled = false;
 
         switch (filterAction) {
+            case 'filterByRegionRovalra':
+                {
+                    const internalRegionCode = filterValue;
+                    const apiRegionCode = getRovalraApiRegionCode(internalRegionCode);
+
+                    if (!apiRegionCode) {
+                        throw new Error(`Could not determine API region for ${internalRegionCode}`);
+                    }
+
+                    updateStatusMessage(`Loading servers for ${apiRegionCode} from RoValra...`, true);
+
+                    try {
+                        rovalraNextCursor = 0; 
+                        const rovalraEndpoint = `https://apis.rovalra.com/v1/get_servers_in_region?place_id=${gameId}&region=${apiRegionCode}&cursor=${rovalraNextCursor}`;
+                        
+                        const response = await fetch(rovalraEndpoint, { signal });
+                        if (!response.ok) throw new Error(`RoValra region API failed with status ${response.status}`);
+                        const data = await response.json();
+
+                        if (data.status !== 'success' || !Array.isArray(data.servers)) {
+                            throw new Error('Invalid response from RoValra region API');
+                        }
+                        
+                        rovalraNextCursor = data.next_cursor || null;
+
+                        const transformedServers = data.servers.map(server => ({
+                            id: server.server_id,
+                            playing: 'N/A',
+                            maxPlayers: 'N/A',
+                            playerTokens: undefined
+                        }));
+                        
+                        await setupAndRenderServers(transformedServers);
+
+                    } catch (err) {
+                        if (err.name !== 'AbortError') {
+                            updateStatusMessage(`Error: ${err.message}`, false);
+                        }
+                    }
+                    return;
+                }
+
             case 'filterByRegion':
                 {
+                    rovalraNextCursor = null; 
                     let targetRegionCode = filterValue;
                     const sortOrder = sortSelect && sortSelect.value === 'Asc' ? '1' : '2';
 
@@ -1217,6 +1545,7 @@ async function applyFilter(filterAction, filterValue = null, isReset = false) {
             case 'oldestServers':
             case 'newestServers':
                 {
+                    rovalraNextCursor = null;
                     if (sortSelect) {
                         sortSelect.disabled = true;
 
@@ -1237,9 +1566,6 @@ async function applyFilter(filterAction, filterValue = null, isReset = false) {
                     }
 
                     const filterName = filterAction === 'newestServers' ? 'newest' : 'oldest';
-                    // You are allowed to use this API for personal projects only which is limited to open source projects on GitHub, they must be free and you must credit the RoValra repo.
-                    // You are not allowed to use the API for projects on the chrome web store or any other extension store. If you want to use the API for a website dm be on discord: Valra and we can figure something out.
-                    // If you want to use the API for something thats specifically said isnt allowed or you might be unsure if its allowed, please dm me on discord: Valra, Ill be happy to check out your stuff and maybe allow you to use it for your project.
                     const rovalraEndpoint = `https://apis.rovalra.com/get_${filterName}_version_servers?place_id=${gameId}`;
 
                     try {
@@ -1291,87 +1617,91 @@ async function applyFilter(filterAction, filterValue = null, isReset = false) {
                     return;
                 }
 
-            case 'smallestServers':
-                params.set('sortOrder', '1');
-                isSinglePageFilter = true;
-                break;
-            case 'availableSpace':
-                params.set('sortOrder', '2');
-                params.set('excludeFullGames', 'true');
-                isSinglePageFilter = true;
-                break;
-            case 'playerCount':
-                params.set('sortOrder', '2');
-                isSinglePageFilter = true;
-                break;
-            case 'filterByMaxPlayers':
-                {
-                    const maxAllowedPlayers = parseInt(filterValue, 10);
-                    const foundServers = [];
-                    let cursor = '';
-                    let hasNextPage = true;
-                    let requestCount = 0;
-                    let foundTargetServer = false;
-
-                    const searchUrl = new URL(baseUrl);
-                    searchUrl.searchParams.set('sortOrder', '1');
-                    searchUrl.searchParams.set('limit', '100');
-
-                    updateStatusMessage(`Searching for servers with ${maxAllowedPlayers} or fewer players...`, true);
-
-                    while (hasNextPage && requestCount < MAX_API_REQUESTS && !signal.aborted) {
-                        searchUrl.searchParams.set('cursor', cursor);
-                        const pageData = await fetchPage(searchUrl.href, signal);
-
-                        if (pageData && pageData.data && pageData.data.length > 0) {
-                            let pageContainedServerTooLarge = false;
-                            for (const server of pageData.data) {
-                                if (server.playing <= maxAllowedPlayers) {
-                                    if (!foundServers.some(s => s.id === server.id)) {
-                                        foundServers.push(server);
-                                    }
-                                    if (server.playing === maxAllowedPlayers) {
-                                        foundTargetServer = true;
-                                    }
-                                } else {
-                                    pageContainedServerTooLarge = true;
-                                }
-                            }
-
-                            updateStatusMessage(`Found ${foundServers.length} servers... continuing search. (Page ${requestCount})`, true);
-
-                            cursor = pageData.nextPageCursor;
-                            hasNextPage = !!cursor;
-
-                            if (foundTargetServer && pageContainedServerTooLarge) {
-                                hasNextPage = false;
-                            }
-
-                        } else {
-                            hasNextPage = false;
-                        }
-
-                        if (hasNextPage) await delay(1000);
-                    }
-
-                    foundServers.sort((a, b) => b.playing - a.playing);
-                    await setupAndRenderServers(foundServers);
-                    return;
-                }
-            case 'randomShuffle':
-                {
-                    ({
-                        servers
-                    } = await fetchPaginatedServers(`${baseUrl}?sortOrder=2&limit=100`, false, false, signal));
-                    for (let i = servers.length - 1; i > 0; i--) {
-                        const j = Math.floor(Math.random() * (i + 1));
-                        [servers[i], servers[j]] = [servers[j], servers[i]];
-                    }
-                    await setupAndRenderServers(servers);
-                    return;
-                }
             default:
-                params.set('sortOrder', '2');
+                rovalraNextCursor = null;
+                switch (filterAction) {
+                    case 'smallestServers':
+                        params.set('sortOrder', '1');
+                        isSinglePageFilter = true;
+                        break;
+                    case 'availableSpace':
+                        params.set('sortOrder', '2');
+                        params.set('excludeFullGames', 'true');
+                        isSinglePageFilter = true;
+                        break;
+                    case 'playerCount':
+                        params.set('sortOrder', '2');
+                        isSinglePageFilter = true;
+                        break;
+                    case 'filterByMaxPlayers':
+                        {
+                            const maxAllowedPlayers = parseInt(filterValue, 10);
+                            const foundServers = [];
+                            let cursor = '';
+                            let hasNextPage = true;
+                            let requestCount = 0;
+                            let foundTargetServer = false;
+
+                            const searchUrl = new URL(baseUrl);
+                            searchUrl.searchParams.set('sortOrder', '1');
+                            searchUrl.searchParams.set('limit', '100');
+
+                            updateStatusMessage(`Searching for servers with ${maxAllowedPlayers} or fewer players...`, true);
+
+                            while (hasNextPage && requestCount < MAX_API_REQUESTS && !signal.aborted) {
+                                searchUrl.searchParams.set('cursor', cursor);
+                                const pageData = await fetchPage(searchUrl.href, signal);
+
+                                if (pageData && pageData.data && pageData.data.length > 0) {
+                                    let pageContainedServerTooLarge = false;
+                                    for (const server of pageData.data) {
+                                        if (server.playing <= maxAllowedPlayers) {
+                                            if (!foundServers.some(s => s.id === server.id)) {
+                                                foundServers.push(server);
+                                            }
+                                            if (server.playing === maxAllowedPlayers) {
+                                                foundTargetServer = true;
+                                            }
+                                        } else {
+                                            pageContainedServerTooLarge = true;
+                                        }
+                                    }
+
+                                    updateStatusMessage(`Found ${foundServers.length} servers... continuing search. (Page ${requestCount})`, true);
+
+                                    cursor = pageData.nextPageCursor;
+                                    hasNextPage = !!cursor;
+
+                                    if (foundTargetServer && pageContainedServerTooLarge) {
+                                        hasNextPage = false;
+                                    }
+
+                                } else {
+                                    hasNextPage = false;
+                                }
+
+                                if (hasNextPage) await delay(1000);
+                            }
+
+                            foundServers.sort((a, b) => b.playing - a.playing);
+                            await setupAndRenderServers(foundServers);
+                            return;
+                        }
+                    case 'randomShuffle':
+                        {
+                            ({
+                                servers
+                            } = await fetchPaginatedServers(`${baseUrl}?sortOrder=2&limit=100`, false, false, signal));
+                            for (let i = servers.length - 1; i > 0; i--) {
+                                const j = Math.floor(Math.random() * (i + 1));
+                                [servers[i], servers[j]] = [servers[j], servers[i]];
+                            }
+                            await setupAndRenderServers(servers);
+                            return;
+                        }
+                    default:
+                        params.set('sortOrder', '2');
+                }
         }
 
         ({
@@ -1621,7 +1951,35 @@ async function preFetchGlobeData() {
     
     isPreFetchingGlobeData = false;
 }
+function closeAllPanels(except = []) {
+    const dropdownContent = document.querySelector('.rovalra-filter-dropdown-content');
+    const playerCountPanel = document.getElementById('rovalra-player-count-panel');
+    const globePanel = document.getElementById('rovalra-globe-panel');
 
+    const exceptions = Array.isArray(except) ? except : [except];
+
+    if (dropdownContent && !exceptions.includes('dropdown')) {
+        dropdownContent.classList.remove('show');
+    }
+    if (playerCountPanel && !exceptions.includes('player')) {
+        playerCountPanel.classList.remove('show');
+        document.querySelector('[data-action="togglePlayerCount"]')?.classList.remove('active');
+    }
+    if (globePanel && !exceptions.includes('region')) {
+        if (globePanel.classList.contains('show')) {
+            globePanel.classList.remove('show');
+            isGlobeOpen = false;
+            if (backgroundRegionFetchController && !backgroundRegionFetchController.signal.aborted) {
+                backgroundRegionFetchController.abort();
+            }
+            const regionFilterItem = document.querySelector('[data-action="toggleServerRegion"]');
+            if (regionFilterItem) {
+                regionFilterItem.querySelector('.spinner')?.remove();
+            }
+        }
+        document.querySelector('[data-action="toggleServerRegion"]')?.classList.remove('active');
+    }
+}
 function createDropdown() {
     const theme = detectTheme();
 
@@ -1717,33 +2075,6 @@ function createDropdown() {
             listContainer.appendChild(link);
         });
     }
-
-    const closeAllPanels = (except = []) => {
-        const exceptions = Array.isArray(except) ? except : [except];
-
-        if (!exceptions.includes('dropdown')) {
-            dropdownContent.classList.remove('show');
-        }
-        if (!exceptions.includes('player')) {
-            playerCountPanel.classList.remove('show');
-            document.querySelector('[data-action="togglePlayerCount"]')?.classList.remove('active');
-        }
-        if (!exceptions.includes('region')) {
-            const globePanel = document.getElementById('rovalra-globe-panel');
-            if (globePanel && globePanel.classList.contains('show')) {
-                globePanel.classList.remove('show');
-                isGlobeOpen = false;
-                if (backgroundRegionFetchController && !backgroundRegionFetchController.signal.aborted) {
-                    backgroundRegionFetchController.abort();
-                }
-                const regionFilterItem = document.querySelector('[data-action="toggleServerRegion"]');
-                if (regionFilterItem) {
-                    regionFilterItem.querySelector('.spinner')?.remove();
-                }
-            }
-            document.querySelector('[data-action="toggleServerRegion"]')?.classList.remove('active');
-        }
-    };
 
     button.addEventListener('click', e => {
         e.stopPropagation();
@@ -1844,6 +2175,7 @@ function createDropdown() {
 
     return mainContainer;
 }
+    
 function createGlobePanel(container) {
     const theme = detectTheme();
     const globePanel = document.createElement('div');
@@ -1990,6 +2322,7 @@ function createGlobePanel(container) {
 
 async function initGlobe() {
     let initialApiServerCounts = {};
+    let isFallbackModeActive = false;
 
     const injectScript = (filePath) => new Promise((resolve, reject) => {
         const script = document.createElement('script');
@@ -2073,6 +2406,14 @@ async function initGlobe() {
                     detail: { serverCounts: latestServerCounts }
                 }));
             });
+
+            document.addEventListener('rovalraGlobe_ActivateFallback', (e) => {
+                isFallbackModeActive = true; 
+                const { serverCounts } = e.detail;
+                document.dispatchEvent(new CustomEvent('rovalraGlobe_UpdateData', { 
+                    detail: { serverCounts } 
+                }));
+            });
             updateListenerAttached = true;
         }
 
@@ -2094,19 +2435,24 @@ async function initGlobe() {
                 }
 
                 if (foundRegion) {
-                    const realServerCount = latestServerCounts[foundRegion.code] || 0;
                     const dcCount = dataCenterCounts[foundRegion.code] || 0;
-                    
                     const apiCount = initialApiServerCounts[foundRegion.code] || 0;
-
                     const flagCountryCode = foundRegion.code.split('-')[0].toLowerCase();
                     const flagUrl = `https://flagcdn.com/w20/${flagCountryCode}.png`;
                     const flagHTML = `<img src="${flagUrl}" class="flag-icon" alt="${flagCountryCode.toUpperCase()} Flag">`;
                     const locationName = getLocationName(foundRegion);
 
+                    let serversLine = '';
+                    if (isFallbackModeActive) {
+                        serversLine = `Servers: ${apiCount.toLocaleString()}`;
+                    } else {
+                        const realServerCount = latestServerCounts[foundRegion.code] || 0;
+                        serversLine = `Servers: ${realServerCount.toLocaleString()} / ${apiCount.toLocaleString()}`;
+                    }
+
                     const newTooltipHTML = `
                         <div class="tooltip-line">${flagHTML}<span>${locationName}</span></div>
-                        Servers: ${realServerCount} / ${apiCount}<br>
+                        ${serversLine}<br>
                         Data Centers: ${dcCount}
                     `;
 

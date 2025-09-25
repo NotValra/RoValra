@@ -655,8 +655,19 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
             server.calculatedPing = Infinity;
         }
     }
-
+    let emulateFallback = false; 
     async function findAndJoinServerProcess(placeId, targetRegionCode) {
+
+        if (emulateFallback) {
+            console.log("[Region Play Button] Fallback emulation is active. Skipping primary API.");
+            const mapReady = await loadServerIpMapIfNeeded();
+            if (!mapReady) return { joined: false, error: 'map_load_failed' };
+            const initialToken = await getCsrfToken();
+            if (!initialToken) return { joined: false, error: 'csrf_failed' };
+
+            return await findAndJoinServerFallback(placeId, targetRegionCode);
+        }
+
         const MAX_RETRIES_PER_PAGE = 3;
         const INITIAL_DELAY_MS = 1000;
         const BACKOFF_FACTOR = 2;
@@ -674,8 +685,9 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
 
             let nextCursor = null;
             let pageCount = 0;
+            let joined = false; 
 
-            while (pageCount < MAX_SERVER_PAGES) {
+            while (pageCount < MAX_SERVER_PAGES && !joined) {
                 if (userRequestedStop) return { joined: false, stopped: true };
 
                 pageCount++;
@@ -709,7 +721,8 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
                 }
 
                 if (!pageFetchSuccess) {
-                    return { joined: false, error: 'page_fetch_failed' };
+                    console.log("[Region Play Button] Primary API failed. Switching to fallback.");
+                    return await findAndJoinServerFallback(placeId, targetRegionCode);
                 }
 
                 const serversOnThisPage = pageData.data || [];
@@ -727,7 +740,6 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
 
                         availableServers.forEach(server => {
                             if (server.playing >= server.maxPlayers) return;
-
                             const ping = server.calculatedPing ?? Infinity;
                             const players = server.playing ?? 0;
                             const maxPlayers = server.maxPlayers ?? Infinity;
@@ -743,7 +755,7 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
 
                         if (bestServer) {
                             joinSpecificServer(placeId, bestServer.id);
-                            return { joined: true };
+                            joined = true; 
                         }
                     }
                 }
@@ -752,11 +764,75 @@ chrome.storage.local.get(['PreferredRegionEnabled'], function(result) {
                 if (!nextCursor) break;
             }
 
-            return { joined: false };
+            if (!joined) {
+                console.log("[Region Play Button] No servers found with primary API. Switching to fallback.");
+                return await findAndJoinServerFallback(placeId, targetRegionCode);
+            }
+
+            return { joined };
         } catch (error) {
             console.error("[Region Play Button] Error during server search process:", error);
             return { joined: false, error: 'unknown' };
         }
+    }
+        
+    async function findAndJoinServerFallback(placeId, targetRegionCode) {
+        let cursor = 0;
+        let joined = false;
+
+        while (cursor !== null && !joined) {
+            if (userRequestedStop) return { joined: false, stopped: true };
+
+            const url = `https://apis.rovalra.com/v1/get_servers_in_region?place_id=${placeId}&region=${targetRegionCode}&cursor=${cursor}`;
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    console.error("[Region Play Button] Fallback API request failed with status:", response.status);
+                    return { joined: false, error: 'fallback_api_error' };
+                }
+
+                const data = await response.json();
+                if (data.status !== 'success' || !Array.isArray(data.servers)) {
+                    cursor = null;
+                    continue;
+                }
+
+                const serversFromApi = data.servers.map(s => ({ id: s.server_id }));
+
+                const potentialServers = serversFromApi.filter(s => !joinedServerIds.has(s.id));
+
+                if (potentialServers.length > 0) {
+                    
+                    await Promise.all(potentialServers.map(server => _internal_handleServer(server, placeId)));
+
+                    const availableServers = potentialServers.filter(s =>
+                        serverLocations[s.id]?.c === targetRegionCode &&
+                        (s.calculatedPing ?? Infinity) !== Infinity 
+                    );
+
+                    if (availableServers.length > 0) {
+                        
+                        const bestServer = availableServers.reduce((best, current) => {
+                            return (current.calculatedPing < best.calculatedPing) ? current : best;
+                        });
+
+                        if (bestServer) {
+                            joinSpecificServer(placeId, bestServer.id);
+                            joined = true; 
+                        }
+                    }
+                }
+
+                cursor = data.next_cursor !== undefined ? data.next_cursor : null;
+
+            } catch (error) {
+                console.error("[Region Play Button] Error during fallback process:", error);
+                cursor = null; 
+            }
+        }
+
+        return { joined }; 
     }
 
     function joinSpecificServer(placeId, serverId) {

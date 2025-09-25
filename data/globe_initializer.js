@@ -8,6 +8,7 @@
     let lastCameraPosition = null;
     let lastControlsTarget = null;
     let easterEggActive = false;
+    let isFallbackModeActive = false; // Flag to track if we are using RoValra's API as a backup
 
     document.addEventListener('initRovalraGlobe', (e) => {
         const {
@@ -233,6 +234,32 @@
             });
         });
 
+        // --- START OF MODIFICATION ---
+        // Listen for the fallback event from the main script
+        document.addEventListener('rovalraGlobe_ActivateFallback', (e) => {
+            if (easterEggActive) return;
+            const { serverCounts } = e.detail;
+            if (!serverCounts) return;
+
+            isFallbackModeActive = true;
+            serverCountsData = serverCounts;
+
+            // Update markers to be active based on RoValra's data
+            markers.forEach(marker => {
+                const { code } = marker.userData;
+                const count = serverCountsData[code];
+                const hasServers = typeof count === 'number' && count > 0;
+                const targetTexture = hasServers ? activeMarkerTexture : inactiveMarkerTexture;
+
+                marker.children.forEach(child => {
+                    if (child.material && child.material.map) {
+                        child.material.map = targetTexture;
+                    }
+                });
+            });
+        });
+        // --- END OF MODIFICATION ---
+
         document.addEventListener('rovalraGlobe_UpdateData', (e) => {
             if (easterEggActive) return;
             const {
@@ -353,13 +380,20 @@
             }
         }
 
+        // --- START OF MODIFICATION ---
+        // Modify onClick to handle both normal and fallback modes
         function onClick(event) {
             if (intersected && intersected.userData.code) {
                 const regionCode = intersected.userData.code;
                 const count = serverCountsData[regionCode];
                 const hasServers = typeof count === 'number' && count > 0;
+
+                // This condition now works for both modes because serverCountsData is updated correctly
                 if ((hasServers || easterEggActive) && regionCode !== 'BR') {
-                    document.dispatchEvent(new CustomEvent('rovalraRegionSelected', {
+                    // Dispatch a different event when in fallback mode
+                    const eventName = isFallbackModeActive ? 'rovalra_globePointClicked' : 'rovalraRegionSelected';
+                    
+                    document.dispatchEvent(new CustomEvent(eventName, {
                         detail: {
                             regionCode: regionCode
                         }
@@ -367,6 +401,7 @@
                 }
             }
         }
+        // --- END OF MODIFICATION ---
 
         const clock = new THREE.Clock();
         const cameraPosNorm = new THREE.Vector3();
