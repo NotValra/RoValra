@@ -98,7 +98,8 @@
 - [x] **~~Fixing the invite system~~ ADDED**
 - [x] **~~Roblox server list improvements~~ ADDED**
 - [x] **~~Big region selector improvements and server uptime~~ ADDED**
-- [ ] **Reworking a lot of how the extension functions for future proofing**
+- [ ] **Reworking a lot of how the extension functions for future proofing** *Cooking with this one*
+- [ ] **Finish v2.4 before GTA 6**
 - [ ] **Maybe FireFox support (For now check the forks, Remember to verify the source code.)**
 
 # Known incompatibilies
