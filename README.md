@@ -1,6 +1,6 @@
 # RoValra
 
-## Dont upload any ports of RoValra on to Firefox or any other extension store* 
+## Dont upload any ports of RoValra on to Firefox or any other extension store
 **I am porting it officially soon. You uploading it to an extension store makes it harder for me to port it, and it is a violation of most extension stores ToS from what I understand.**\
 *I never expected to have to actually say this, but it now happenened twice*
 
