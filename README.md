@@ -1,4 +1,9 @@
 # RoValra
+
+## Dont upload any ports of RoValra on to Firefox or any other extension store* 
+**I am porting it officially soon. You uploading it to an extension store makes it harder for me to port it, and it is a violation of most extension stores ToS from what I understand.**\
+*I never expected to have to actually say this, but it now happenened twice*
+
 - **Only Official Website https://rovalra.com**
 
 <a href="https://chromewebstore.google.com/detail/RoValra%20-%20Roblox%20Improved/njcickgebhnpgmoodjdgohkclfplejli" title="Available in the Chrome Web Store"><img src="/Assets/ChromeWebStore_BadgeWBorder_v2_206x58.png" alt="Available in the Chrome Web Store"></a>\
