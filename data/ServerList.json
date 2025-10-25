@@ -395,5 +395,20 @@
                 "-122.3321"
             ]
         }
+    },
+    {
+        "dataCenterIds": [
+            25774,
+            25796
+        ],
+        "location": {
+            "city": "São Paulo",
+            "region": "São Paulo",
+            "country": "BR",
+            "latLong": [
+                "-23.5475",
+                "-46.6361"
+            ]
+        }
     }
 ]
