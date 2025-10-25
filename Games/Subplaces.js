@@ -32,6 +32,7 @@
             } catch (error) {
                 isInitialized = false;
             }
+            replaceJoinButton();
         }
 
         const pageObserver = new MutationObserver((mutations, observer) => {
@@ -113,6 +114,32 @@
             const match = window.location.href.match(/games\/(\d+)/);
             return match ? match[1] : null;
         }
+
+        function waitForElement(selector, callback) {
+            const observer = new MutationObserver(() => {
+            const btn = document.querySelector(selector);
+            if (btn) {
+                observer.disconnect();
+                callback(btn);
+            }
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
+    }
+
+        function replaceJoinButton() {
+            waitForElement('.game-details-play-button-container button', (joinButton) => {
+            // Remove existing listeners (if any)
+            const newButton = joinButton.cloneNode(true);
+            joinButton.parentNode.replaceChild(newButton, joinButton);
+            let placeId = extractPlaceId();
+            if (!placeId) return;
+
+            newButton.addEventListener('click', function(event) {
+                event.preventDefault();
+                Roblox.GameLauncher.joinMultiplayerGame(placeId);
+        });
+        });
+    }
 
         const retryFetch = async (url, retries = 3, delay = 2000) => {
             for (let i = 0; i < retries; i++) {
