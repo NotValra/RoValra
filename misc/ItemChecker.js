@@ -1531,6 +1531,12 @@
             let hasUnownedItems = false;
             const currentTheme = detectTheme();
 
+            const sanitizeHTML = (str) => {
+                const temp = document.createElement('div');
+                temp.textContent = str;
+                return temp.innerHTML;
+            };
+
             itemsWithOwnerShip.forEach(({item, owned, apiResponse}) => {
                 let itemName = item.name;
                 const isOwned = owned;
@@ -1688,7 +1694,7 @@
 
                 const itemNameDiv = document.createElement('div');
                 itemNameDiv.className = 'item-card-name';
-                itemNameDiv.title = itemName;
+                itemNameDiv.title = sanitizeHTML(itemName);
                 itemNameDiv.style.textAlign = 'left';
                 itemNameDiv.style.marginRight = 'auto';
                 itemNameDiv.style.fontSize = '15px';
@@ -1697,7 +1703,7 @@
                 itemNameDiv.style.fontFamily = 'Builder Sans';
                 itemNameDiv.style.color = document.documentElement.style.getPropertyValue('--text-color');
                 const itemNameSpan = document.createElement('span');
-                itemNameSpan.className = 'ng-binding';
+                itemNameSpan.className = 'ng-binding'; 
                 itemNameSpan.textContent = itemName;
                 itemNameSpan.style.overflowWrap = 'break-word';
                 itemNameSpan.style.wordBreak = 'break-word';

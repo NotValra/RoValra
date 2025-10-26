@@ -578,7 +578,6 @@ function processDataPayload(data) {
                             serverButton.onclick = async (e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
-                                // regex that supports both /games/PLACEID/ and https://www.roblox.com/games/refer?PlaceId=PLACEID
                                 const match = gameLink.href.match(/(?:\/games\/(\d+)\/)|(?:[?&]PlaceId=(\d+))/);
                                 const matchedPlaceId = match ? (match[1] || match[2]) : null;
                                 if (!matchedPlaceId) return;
