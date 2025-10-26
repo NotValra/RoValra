@@ -613,11 +613,10 @@ async function fetchThemeFromAPI() {
 
 function injectButton() {
     const removalDate = new Date();
-    removalDate.setDate(removalDate.getDate() + 14); // Sets the removal date to yesterday
+    removalDate.setDate(removalDate.getDate() + 14);
 
     const currentDate = new Date();
 
-    // If the current date is on or after the removal date, do not inject the UI
     if (currentDate >= removalDate) {
         return;
     }
@@ -631,7 +630,6 @@ function injectButton() {
         }
     }
 
-    // The rest of your injectButton function remains the same...
     sniperUIElements = createSniperUI();
     const { thumbnailImage, inputField, startButton, displayContainer } = sniperUIElements;
 

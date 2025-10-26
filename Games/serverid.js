@@ -341,9 +341,7 @@ function initializeExtensionFeatures() {
         } else if (uptimeValue === 'N/A') {
             uptimeString = 'N/A';
         } else if (typeof uptimeValue === 'number' && uptimeValue >= 0) {
-            if (uptimeValue < 3600) {
-                uptimeString = 'New Server';
-            } else {
+            
                 let remainingSeconds = uptimeValue;
                 const days = Math.floor(remainingSeconds / 86400);
                 remainingSeconds %= 86400;
@@ -355,7 +353,7 @@ function initializeExtensionFeatures() {
                 if (hours > 0) parts.push(`${hours}h`);
                 if (minutes > 0) parts.push(`${minutes}m~`);
                 uptimeString = parts.join(' ') || '0m~';
-            }
+            
         } else {
             uptimeString = 'Error';
         }
