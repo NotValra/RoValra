@@ -105,7 +105,7 @@
 - [x] **~~Big region selector improvements and server uptime~~ ADDED**
 - [ ] **Reworking a lot of how the extension functions for future proofing** *Cooking with this one*
 - [ ] **Finish v2.4 before GTA 6**
-- [ ] **Maybe FireFox support (For now check the forks, Remember to verify the source code.)**
+- [ ] **FireFox support, Any extension currently on the firefox store claiming to be RoValra are fakes. (For now check the forks, Remember to verify the source code.)**
 
 # Known incompatibilies
 <details>
