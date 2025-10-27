@@ -59,6 +59,12 @@ class BotDetector {
         
         if (!placeId) return;
 
+        const sanitizeHTML = (str) => {
+            const temp = document.createElement('div');
+            temp.textContent = str;
+            return temp.innerHTML;
+        };
+
         const isLightTheme = document.body.classList.contains('light-theme');
         const tooltipBgColor = isLightTheme ? 'rgb(255, 255, 255)' : 'rgb(18, 18, 21)';
         const tooltipTextColor = isLightTheme ? 'rgb(25, 25, 25)' : 'rgb(213, 215, 221)';
@@ -127,7 +133,8 @@ class BotDetector {
             ((this.totalBotsFound / this.totalPlayersProcessed) * 100) : 0;
             
         const gameNameElement = document.querySelector('.game-name');
-        const gameName = gameNameElement ? gameNameElement.textContent.trim().split('\n')[0] : 'This game';
+        const rawGameName = gameNameElement ? gameNameElement.textContent.trim().split('\n')[0] : 'This game';
+        const gameName = sanitizeHTML(rawGameName);
 
         const createTooltip = (content) => {
             const tooltip = document.createElement('div');

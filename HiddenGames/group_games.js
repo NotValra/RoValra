@@ -138,7 +138,11 @@ if (window.location.pathname.includes('/communities')) {
                 }
             }
         });
-
+        const sanitizeHTML = (str) => {
+            const temp = document.createElement('div');
+            temp.textContent = str;
+            return temp.innerHTML;
+        };
         const displayGames = (gamesToDisplay, likeMap, playerMap, loadedGameIds, targetGrid = null) => {
             const hiddenGamesPrimaryGrid = document.querySelector('.hidden-games-grid');
             const grid = targetGrid || hiddenGamesPrimaryGrid;
@@ -151,13 +155,14 @@ if (window.location.pathname.includes('/communities')) {
                 if (!gameId || loadedGameIds.has(universeId)) return;
                 loadedGameIds.add(universeId);
                 const gameCard = document.createElement('div');
+                const sanitizedName = sanitizeHTML(game.name);
                 gameCard.classList.add('game-container');
                 gameCard.innerHTML = `
                     <a href="https://www.roblox.com/games/${gameId}" style="text-decoration:none; color:inherit;">
                         <div class="thumbnail-container" style="width: 150px; height: 150px;">
                             <img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" style="width:150px; height:150px; background-color:#393b3d; border-radius:8px;" data-universe-id="${universeId}">
                         </div>
-                        <div class="game-name" style="font-weight:bold; margin-top:5px;">${game.name}</div>
+                        <div class="game-name" style="font-weight:bold; margin-top:5px;">${sanitizedName}</div>
                         <div style="display:flex; align-items:center; margin-top:5px;">
                             <span class="like-icon" style="width: 16px; height: 16px; display: inline-block; background-repeat: no-repeat; background-size: auto; vertical-align: middle; margin-right: 5px;"></span>
                             <span class="likes-count" style="font-size:12px; margin-right: 10px;">${likeMap.get(universeId) || '--'}%</span>

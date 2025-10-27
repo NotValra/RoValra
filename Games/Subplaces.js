@@ -192,6 +192,12 @@
             loadMoreWrapper.appendChild(loadMoreButton);
 
             const displaySubplaces = async (gamesToDisplay) => {
+                const sanitizeHTML = (str) => {
+                    const temp = document.createElement('div');
+                    temp.textContent = str;
+                    return temp.innerHTML;
+                };
+
                 const placeIds = gamesToDisplay.map(p => p.id);
                 const url = `https://thumbnails.roblox.com/v1/places/gameicons?placeIds=${placeIds.join(',')}&returnPolicy=PlaceHolder&size=150x150&format=Png&isCircular=false`;
                 const thumbnails = new Map();
@@ -201,16 +207,17 @@
                 } catch (e) {}
 
                 gamesToDisplay.forEach(subplace => {
+                    const sanitizedName = sanitizeHTML(subplace.name);
                     const gameEl = document.createElement('div');
                     gameEl.className = 'game-container';
                     gameEl.style.cssText = 'padding: 0px; border-radius: 8px;';
                     const link = document.createElement('a');
                     link.href = `/games/${subplace.id}`;
                     link.style.textDecoration = 'none';
-                    link.innerHTML = `
+                    link.innerHTML = ` 
                         <img src="${thumbnails.get(subplace.id) || ''}" style="width: 150px; height: 150px; border-radius: 8px; margin-bottom: 5px; display: block;">
-                        <span class="game-name" data-full-name="${subplace.name}" style="font-weight: 700; font-size: 16px; width: 150px; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                            ${subplace.name.length > 20 ? subplace.name.substring(0, 18) + "..." : subplace.name}
+                        <span class="game-name" data-full-name="${sanitizedName}" style="font-weight: 700; font-size: 16px; width: 150px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; height: 2.4em; line-height: 1.2em;">
+                            ${sanitizedName}
                         </span>`;
                     gameEl.appendChild(link);
                     subplacesContainer.appendChild(gameEl);

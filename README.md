@@ -1,4 +1,9 @@
 # RoValra
+
+## Dont upload any ports of RoValra on to Firefox or any other extension store
+**I am porting it officially soon. You uploading it to an extension store makes it harder for me to port it, and it is a violation of most extension stores ToS from what I understand.**\
+*I never expected to have to actually say this, but it now happenened twice*
+
 - **Only Official Website https://rovalra.com**
 
 <a href="https://chromewebstore.google.com/detail/RoValra%20-%20Roblox%20Improved/njcickgebhnpgmoodjdgohkclfplejli" title="Available in the Chrome Web Store"><img src="/Assets/ChromeWebStore_BadgeWBorder_v2_206x58.png" alt="Available in the Chrome Web Store"></a>\
@@ -98,8 +103,9 @@
 - [x] **~~Fixing the invite system~~ ADDED**
 - [x] **~~Roblox server list improvements~~ ADDED**
 - [x] **~~Big region selector improvements and server uptime~~ ADDED**
-- [ ] **Reworking a lot of how the extension functions for future proofing**
-- [ ] **Maybe FireFox support (For now check the forks, Remember to verify the source code.)**
+- [ ] **Reworking a lot of how the extension functions for future proofing** *Cooking with this one*
+- [ ] **Finish v2.4 before GTA 6**
+- [ ] **FireFox support, Any extension currently on the firefox store claiming to be RoValra are fakes. (For now check the forks, Remember to verify the source code.)**
 
 # Known incompatibilies
 <details>

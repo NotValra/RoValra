@@ -314,6 +314,12 @@ const initHiddenGamesFeature = (profileGameSection) => {
                     playerMap
                 } = await fetchGameDetails(allHiddenGames)
 
+                const sanitizeHTML = (str) => {
+                    const temp = document.createElement('div');
+                    temp.textContent = str;
+                    return temp.innerHTML;
+                };
+
                 function displayGames(gamesToDisplay) {
                     gamesToDisplay.forEach((game, index) => {
                         const gameId = game.rootPlace?.id;
@@ -339,7 +345,7 @@ const initHiddenGamesFeature = (profileGameSection) => {
                             gameImage.style.marginBottom = '5px';
                             gameImage.style.transition = 'filter 0.5s ease';
                             const gameName = document.createElement('span');
-                            let gameTitle = game.name;
+                            let gameTitle = sanitizeHTML(game.name);
                             gameName.classList.add('game-name');
                             gameName.setAttribute('data-full-name', gameTitle)
                             gameName.style.fontWeight = '700';
