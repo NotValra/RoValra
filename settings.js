@@ -322,7 +322,7 @@ const SETTINGS_CONFIG = {
                             "- This feature requires the user to be friends with you or have their joins enabled"
                            ],
                 type: "checkbox",
-                default: false
+                default: true
             },
             PrivateServerBulkEnabled: {
                 label: "Enable Private Server bulk Removal",
@@ -1481,7 +1481,7 @@ const loadSettings = async () => {
             itemSalesEnabled: true,
             groupGamesEnabled: true,
             userGamesEnabled: true,
-            userSniperEnabled: false,
+            userSniperEnabled: true,
             privateInventoryEnabled: true,
             universalSniperEnabled: false,
             PreferredRegionEnabled: true,
