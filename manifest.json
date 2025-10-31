@@ -73,7 +73,6 @@
   ],  "permissions": [
     "declarativeNetRequest",
     "storage",
-    
     "scripting"
   ],
   "host_permissions": [
@@ -83,7 +82,22 @@
     "https://users.roblox.com/*"
   ],
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "background.js",
+    "scripts": ["background.js"],
+    "declarative_net_request": {
+    "rule_resources": [
+      {
+        "id": "ruleset_1",
+        "enabled": true,
+        "path": "Rules/rules.json"
+      },
+       {
+        "id": "ruleset_2",
+        "enabled": false,
+        "path": "Rules/regionRules.json"
+      }
+    ]
+  }
   },
   "declarative_net_request": {
     "rule_resources": [
@@ -145,6 +159,12 @@
           ]
       }
   ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "rovalra@rovalra.com",
+      "strict_min_version": "109.0"
+    }
+  },
     "action": {
     "default_icon": {
       "16": "Assets/icon-16.png",
