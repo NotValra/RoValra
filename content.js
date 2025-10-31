@@ -96,7 +96,6 @@ const addPreloadHints = () => {
         'HiddenGames/user_games.js',
         'HiddenGames/group_games.js',
         'Avatar/R6Warning.js',
-        'misc/userSniper.js',
         'misc/item_sales_content.js',
         'misc/pendingRobux.js',
         //'misc/40method.js',
@@ -235,7 +234,7 @@ function getPlaceIdFromUrl() {
         itemSalesEnabled: true,
         groupGamesEnabled: true,
         userGamesEnabled: true,
-        userSniperEnabled: false,
+        userSniperEnabled: true,
         universalSniperEnabled: false,
         subplacesEnabled: true,
         forceR6Enabled: true,
@@ -318,9 +317,7 @@ function getPlaceIdFromUrl() {
             if (settings.userGamesEnabled) {
                 scriptPromises.push(loadScript('HiddenGames/user_games.js'));
             }
-            if (settings.userSniperEnabled) {
-                scriptPromises.push(loadScript('misc/userSniper.js'));
-            }
+
             break;
         case 'GAMES':
             if (settings.subplacesEnabled) {

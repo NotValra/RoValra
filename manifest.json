@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "RoValra - Roblox Improved",
-  "version": "2.3.1.9",
+  "version": "2.3.2",
   "description": "An extension aiming to provide features that other Roblox extensions pay wall!",
   "content_scripts": [    {
       "matches": [
@@ -57,7 +57,7 @@
          "*://*.roblox.com/*/users/*",
         "*://*.roblox.com/users/*"
       ],
-      "js": ["misc/cssfixes.js"],
+      "js": ["misc/cssfixes.js", "misc/userSniper.js"],
       "run_at": "document_end",
       "all_frames": true
     },

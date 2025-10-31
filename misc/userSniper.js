@@ -1,5 +1,7 @@
-if (window.location.pathname.includes('/users/')) {
-    (function() {
+chrome.storage.local.get({ userSniperEnabled: true }, function(settings) {
+    if (settings.userSniperEnabled) {
+        if (window.location.pathname.includes('/users/')) {
+            (function() {
 
         let isRunning = false;
         let intervalId;
@@ -61,9 +63,10 @@ if (window.location.pathname.includes('/users/')) {
                       const presence = data.userPresences[0];
                       if (presence.placeId && presence.gameId) {
                           if (!hasJoinedGame) {
-                            //Using deep links to join the game faster. I AM NOT DUMBBBBBBBBBBBBBBBBB LALALLALALALALALALALALALALALALALALA
-                              const joinURL = `roblox://experiences/start?placeId=${presence.placeId}&gameInstanceId=${presence.gameId}`;
-                             window.location.href = joinURL; 
+                            const codeToInject = `Roblox.GameLauncher.joinGameInstance(parseInt('${presence.placeId}', 10), '${presence.gameId}')`;
+                            if (typeof chrome !== 'undefined' && chrome.runtime) {
+                                chrome.runtime.sendMessage({ action: "injectScript", codeToInject });
+                            }
                              hasJoinedGame = true;
                                stopPresenceCheck();
                             } else{
@@ -255,38 +258,38 @@ if (window.location.pathname.includes('/users/')) {
         button.style.display = 'inline-block';
         button.style.width = 'auto';
 
-
         button.addEventListener('mouseover', () => {
             button.style.backgroundColor = "#4c5053";
             button.style.borderRadius = "6px";
             button.style.borderColor = "#24292e";
             button.style.transform = "scale(1.05)";
         });
+
         button.addEventListener('mouseout', () => {
             button.style.backgroundColor = "#24292e";
             button.style.borderRadius = "6px";
             button.style.borderColor = "#4c5053";
             button.style.transform = "scale(1)";
         });
-        button.addEventListener('click', async () => {
+
+        async function handleButtonClick() {
             const userId = getUserIdFromUrl();
             if (!userId) {
                 return;
             }
             if (isRunning) {
-                 stopPresenceCheck();
-                 return;
+                stopPresenceCheck();
+                return;
             }
-             showConfirmationOverlay(confirmation => {
-                 if (!confirmation) {
-                   return;
+            showConfirmationOverlay(confirmation => {
+                if (!confirmation) {
+                    return;
                 }
-             isRunning = !isRunning;
-
-            enableForcedHeaders();
-            button.textContent = 'Stop Joining';
-              intervalId = setInterval(async () => {
-                  const currentTime = Date.now();
+                isRunning = !isRunning;
+                enableForcedHeaders();
+                button.textContent = 'Stop Joining';
+                intervalId = setInterval(async () => {
+                    const currentTime = Date.now();
                     if(currentTime - lastRequestTime >= requestDelay){
                       const response = await sendPresenceRequest(userId);
                       if (response) {
@@ -294,9 +297,10 @@ if (window.location.pathname.includes('/users/')) {
                      lastRequestTime = currentTime;
                    }
                 }, 50);
-        });
-    });
+            });
+        }
 
+        button.addEventListener('click', handleButtonClick);
 
         function appendButtonToTarget() {
             const metaElement = document.querySelector('meta[name="user-data"]');
@@ -313,11 +317,23 @@ if (window.location.pathname.includes('/users/')) {
                 return; 
             }
 
-            const targetElement = document.querySelector('.profile-header-buttons');
-            if (targetElement) {
-                targetElement.prepend(button);
+            const target1 = document.querySelector('.profile-header-buttons');
+            const target2 = document.querySelector('.buttons-show-on-desktop');
+
+            let buttonAppended = false;
+            if (target1) {
+                target1.prepend(button);
+                buttonAppended = true;
+            }
+            if (target2) {
+                const buttonClone = button.cloneNode(true);
+                buttonClone.addEventListener('click', handleButtonClick);
+                target2.prepend(buttonClone);
+                buttonAppended = true;
+            }
+            if (!buttonAppended) {
+                setTimeout(appendButtonToTarget, 1000);
             } else {
-                setTimeout(appendButtonToTarget, 100);
             }
         }
         appendButtonToTarget();
@@ -358,4 +374,9 @@ if (window.location.pathname.includes('/users/')) {
 
     }
 
-    applyUserSniper();
+        applyUserSniper();
+
+    
+
+    }
+});
