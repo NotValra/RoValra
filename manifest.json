@@ -99,7 +99,6 @@
       "strict_min_version": "109.0"
     }
   },
-    "action": {
   "action": {
     "default_popup": "public/Assets/popup/popup.html",
 
@@ -114,4 +113,5 @@
     "48": "public/Assets/icon-48.png",
     "128": "public/Assets/icon-128.png"
   }
+
 }
