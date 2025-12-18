@@ -5,11 +5,11 @@ import { detectTheme, dispatchThemeEvent } from './core/theme.js';
 
 // Site wide
 import { init as initOnboarding } from './features/onboarding/onboarding.js';
-import { init as initWhatAmIJoining } from './features/Games/revertlogo.js';
+import { init as initWhatAmIJoining } from './features/games/revertlogo.js';
 import { init as initEasterEggLinks } from './features/sitewide/easterEggs/links.js';
 import { init as initCssFixes } from './features/sitewide/cssfixes.js';
 import { init as initHiddenCatalog } from './features/catalog/hiddenCatalog.js';
-import { init as initServerListener } from './features/Games/serverlistener.js';
+import { init as initServerListener } from './features/games/serverlistener.js';
 import { init as initVideoTest } from './features/developer/videotest.js';
 
 // Avatar
@@ -22,9 +22,9 @@ import { init as init40Method } from './features/catalog/40method.js';
 import { init as initDependencies} from './features/catalog/depenencies.js';
 // Games
 import { init as initBotDetector } from './features/games/about/botDetector.js';
-import { init as initQuickPlay } from './features/Games/quickplay.js';
+import { init as initQuickPlay } from './features/games/quickplay.js';
 import { init as initServerList } from './features/games/serverlist/serverlist.js';
-import { init as initRegionPlayButton } from './features/Games/RegionPlayButton.js';
+import { init as initRegionPlayButton } from './features/games/RegionPlayButton.js';
 import { init as initSubplaces } from './features/games/tab/Subplaces.js';
 import { initServerIdExtraction } from './core/games/servers/serverids.js';
 import { init as initGameTrailers } from './features/games/thumbnails/gametrailers.js';
@@ -41,8 +41,8 @@ import { init as initDonationLink } from './features/profile/header/donationlink
 import { init as initRap } from './features/profile/header/rap.js';
 import { init as initInstantJoiner } from './features/profile/header/instantjoiner.js';
 //import { init as initItemChecker } from './features/Profile/ItemChecker.js';
-import { init as initOutfits } from './features/Profile/outfits.js';
-import { init as initPrivateServers } from './features/Profile/privateserver.js';
+import { init as initOutfits } from './features/profile/outfits.js';
+import { init as initPrivateServers } from './features/profile/privateserver.js';
 import { init as initRovalraBadges } from './features/profile/header/RoValraBadges.js';
 import { init as initUserGames } from './features/profile/hiddengames.js';
 
