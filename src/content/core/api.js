@@ -1,0 +1,145 @@
+// All api requests should go through this script
+
+import { getCsrfToken } from './utils.js';
+
+const activeRequests = new Map();
+
+
+function getRequestKey({ endpoint, subdomain = 'apis', method = 'GET', isRovalraApi = false, body = null }) {
+    const bodyStr = body && typeof body === 'object' ? JSON.stringify(body) : (body || '');
+    return `${isRovalraApi}|${subdomain}|${endpoint}|${method.toUpperCase()}|${bodyStr}`;
+}
+
+
+function checkSimulatedDowntime() {
+    return new Promise((resolve) => {
+        if (typeof chrome === 'undefined' || !chrome.storage || !chrome.storage.local) {
+            resolve(false);
+            return;
+        }
+        chrome.storage.local.get(['simulateRoValraServerErrors'], (result) => {
+            resolve(!!result.simulateRoValraServerErrors);
+        });
+    });
+}
+
+
+export async function callRobloxApi(options) {
+    const requestKey = getRequestKey(options);
+
+
+    const shouldCache = !options.noCache && options.subdomain !== 'gamejoin';
+
+    if (shouldCache && activeRequests.has(requestKey)) {
+        const originalResponse = await activeRequests.get(requestKey);
+        const clonedResponse = originalResponse.clone();
+
+
+        if (options.subdomain === 'games' && options.endpoint.includes('/servers/') && !options.isRovalraApi) {
+        }
+
+        return clonedResponse;
+    }
+
+    const requestPromise = (async () => {
+        const {
+            endpoint,
+            subdomain = 'apis',
+            method = 'GET',
+            isRovalraApi = false,
+            headers = {},
+            body = null
+        } = options;
+
+        if (isRovalraApi) {
+            const isDowntimeSimulated = await checkSimulatedDowntime();
+            if (isDowntimeSimulated) {
+                console.warn(`RoValra API: [SIMULATION] 500 Error for ${endpoint}`);
+                return new Response(JSON.stringify({
+                    errors: [{ code: 500, message: "Simulated Internal Server Error" }]
+                }), { status: 500, statusText: "Internal Server Error", headers: { "Content-Type": "application/json" } });
+            }
+        }
+
+        const baseUrl = isRovalraApi ? 'https://apis.rovalra.com' : `https://${subdomain}.roblox.com`;
+        const fullUrl = `${baseUrl}${endpoint}`;
+        const isMutatingMethod = ['POST', 'PATCH', 'DELETE'].includes(method.toUpperCase());
+        
+        const credentials = options.credentials ?? (isRovalraApi ? 'omit' : 'include');
+
+        const fetchOptions = {
+            method,
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                ...headers
+            },
+            credentials
+        };
+
+        if (body) {
+            fetchOptions.body = typeof body === 'string' ? body : JSON.stringify(body);
+        }
+
+        if (isMutatingMethod) {
+            const csrfToken = await getCsrfToken();
+            if (!csrfToken) throw new Error('CSRF token is required but could not be obtained.');
+            fetchOptions.headers['X-CSRF-TOKEN'] = csrfToken;
+        }
+
+        let response = await fetch(fullUrl, fetchOptions);
+
+        if (response.status === 403 && isMutatingMethod) {
+            const newCsrfToken = response.headers.get('x-csrf-token');
+            if (newCsrfToken) {
+                if (typeof getCsrfToken.setToken === 'function') getCsrfToken.setToken(newCsrfToken);
+                fetchOptions.headers['X-CSRF-TOKEN'] = newCsrfToken;
+                response = await fetch(fullUrl, fetchOptions);
+            }
+        }
+
+        if (!response.ok) {
+            console.error(`RoValra API: Request to ${fullUrl} failed with status ${response.status}.`);
+        }
+
+        return response;
+    })();
+
+
+    if (shouldCache) {
+        activeRequests.set(requestKey, requestPromise);
+        requestPromise.finally(() => activeRequests.delete(requestKey));
+    }
+
+    const originalResponse = await requestPromise;
+    const clonedResponse = originalResponse.clone();
+
+    if (options.subdomain === 'games' && options.endpoint.includes('/servers/') && !options.isRovalraApi) {
+        try {
+            const monitorClone = clonedResponse.clone();
+            const fullUrl = `https://${options.subdomain || 'games'}.roblox.com${options.endpoint}`;
+            
+            monitorClone.json().then(data => {
+                document.dispatchEvent(new CustomEvent('rovalra-game-servers-response', {
+                    detail: { url: fullUrl, data: data }
+                }));
+            }).catch(() => {});
+        } catch (e) {
+            console.warn('RoValra API: Monitor hook failed', e);
+        }
+    }
+
+    return clonedResponse;
+}
+
+export async function callRobloxApiUnsafe(options) {
+    return callRobloxApi(options);
+}
+
+export async function callRobloxApiJson(options) {
+    const response = await callRobloxApi(options);
+    if (!response.ok) {
+        throw new Error(`API request failed with status ${response.status}`);
+    }
+    return await response.json();
+}

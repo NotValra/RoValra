@@ -1,0 +1,17 @@
+{
+  "name": "rovalra",
+  "version": "2.4.0",
+  "description": "An extension aiming to provide features that other Roblox extensions pay wall!",
+  "private": true,
+  "scripts": {
+    "build": "npm run clean && node build.js",
+    "clean": "rimraf dist"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0",
+    "rimraf": "^5.0.5"
+  },
+  "dependencies": {
+    "marked": "^13.0.2"
+  }
+}

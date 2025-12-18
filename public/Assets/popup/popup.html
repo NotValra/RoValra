@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>RoValra</title>
+    <meta charset="UTF-8">
+    <style>
+        :root {
+            --dark-bg: #0a0a0a;
+            --text-color: #ffffff;
+            --text-muted: #a0a0a0;
+
+            --glass-backdrop-filter: blur(3px);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.027);
+            --glass-box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        body {
+            width: 280px;
+            padding: 30px 20px 20px 20px;
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-color);
+
+            border-radius: 20px;
+            overflow: hidden;
+
+            position: relative;
+            margin: 0;
+            box-sizing: border-box;
+        }
+
+        .background-wrapper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .background {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 200%;
+            height: 200%;
+            transform: translate(-50%, -50%) rotate(-15deg);
+            background-image: url("data:image/svg+xml,%3Csvg width='88' height='88' viewBox='0 0 88 88' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M44 0L0 0L0 44H44V0ZM16.0001 28V16H28V28H16.0001Z' fill='%23D9D9D9' fill-opacity='0.03'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M88 44H44V88H88V44ZM60.0001 72V60H72V72H60.0001Z' fill='%23D9D9D9' fill-opacity='0.03'/%3E%3Cpath d='M16.0001 60L16.0001 72H28L28 60H16.0001Z' fill='%23D9D9D9' fill-opacity='0.03'/%3E%3Cpath d='M60.0001 16V28L72 28V16H60.0001Z' fill='%23D9D9D9' fill-opacity='0.03'/%3E%3C/svg%3E");
+            opacity: 0.5;
+            animation: slide 20s linear infinite;
+        }
+
+        .gradient-mask {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(10, 10, 10, 0) 0%, var(--dark-bg) 90%);
+        }
+
+        @keyframes slide {
+            from {
+                background-position: 0 0;
+            }
+
+            to {
+                background-position: -88px -88px;
+            }
+        }
+
+        .header {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 5px;
+        }
+
+        .svg-container {
+            width: 100%;
+            max-width: 220px;
+        }
+
+        .description {
+            font-size: 14px;
+            text-align: center;
+            margin-bottom: 25px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .fancy-button {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            box-sizing: border-box;
+            margin-bottom: 12px;
+            padding: 12px 20px;
+
+            border-radius: 20px;
+            background: linear-gradient(135deg, rgba(255, 107.88, 107.88, 0.05) 0%, rgba(255, 162.01, 104.21, 0.05) 1%, rgba(255, 232.75, 106.66, 0.05) 47%, rgba(106.68, 255, 255, 0.05) 99%, rgba(200.17, 105.45, 255, 0.05) 100%), rgba(255, 255, 255, 0.1);
+            backdrop-filter: var(--glass-backdrop-filter);
+            -webkit-backdrop-filter: var(--glass-backdrop-filter);
+            border: var(--glass-border);
+            background-blend-mode: linear-burn, normal;
+            box-shadow: 0px 0px 13.8px rgba(255, 255, 255, 0.11) inset, var(--glass-box-shadow);
+
+            color: var(--text-color);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            overflow: hidden;
+            transition: transform 0.3s ease, color 0.3s ease;
+        }
+
+        .fancy-button:hover {
+            transform: scale(1.03);
+            color: rgba(0, 0, 0, 0.7);
+        }
+
+        .fancy-button::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            border-radius: 20px;
+            background: linear-gradient(135deg, rgba(255, 107.88, 107.88, 0.50) 0%, rgba(255, 162.01, 104.21, 0.50) 20%, rgba(255, 232.75, 106.66, 0.50) 47%, rgba(106.68, 255, 255, 0.50) 73%, rgba(200.17, 105.45, 255, 0.50) 100%), white;
+            background-blend-mode: linear-burn, normal;
+            box-shadow: 0px 0px 13.8px rgba(255, 255, 255, 0.28) inset;
+            backdrop-filter: blur(16.75px);
+            -webkit-backdrop-filter: blur(16.75px);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 0;
+        }
+
+        .fancy-button:hover::before {
+            opacity: 1;
+        }
+
+        .fancy-button-text-wrapper {
+            position: relative;
+            z-index: 1;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .footer-links a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+            color: var(--text-muted);
+        }
+
+        .footer-links a:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            transform: scale(1.1);
+        }
+
+        .footer-links svg {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="background-wrapper">
+        <div class="background"></div>
+        <div class="gradient-mask"></div>
+    </div>
+
+    <div class="header">
+        <div class="svg-container">
+            <svg class="svg-base" viewBox="0 0 696 123" preserveAspectRatio="xMidYMid meet" fill="none"
+                xmlns="http://www.w3.org/2000/svg">
+                <path
+                    d="M90.8844 76.8L117.914 121H84.7644L60.2844 79.01H27.9844V121H0.444375V1.99999H65.8944C92.2444 1.99999 111.624 12.54 111.624 40.42C111.624 56.4 102.954 67.62 90.8844 73.74V76.8ZM67.9344 27.84H27.9844V53.17H67.9344C78.4744 53.17 83.9144 48.24 83.9144 40.42C83.9144 32.09 78.4744 27.84 67.9344 27.84ZM177.699 122.7C142.679 122.7 124.149 103.83 124.149 75.78C124.149 47.56 142.679 28.69 177.699 28.69C212.549 28.69 231.079 47.56 231.079 75.78C231.079 103.83 212.549 122.7 177.699 122.7ZM177.699 98.73C195.719 98.73 204.219 89.55 204.219 75.78C204.219 61.84 195.719 52.66 177.699 52.66C159.849 52.66 151.009 61.84 151.009 75.78C151.009 89.55 159.849 98.73 177.699 98.73ZM310.991 121H274.441L226.161 1.99999H255.911L290.931 95.16H294.161L329.351 1.99999H359.101L310.991 121ZM390.622 122.7C368.182 122.7 355.092 110.29 355.092 94.31C355.092 74.42 370.562 66.09 397.422 66.09H427.172V65.75C426.322 53.85 419.182 49.09 404.902 49.09C393.682 49.09 381.442 51.98 367.332 58.95L357.982 40.93C371.922 33.79 387.222 28.69 404.902 28.69C430.232 28.69 452.672 37.87 452.672 70.17V121H427.172V109.61L423.942 108.93C416.122 116.92 405.412 122.7 390.622 122.7ZM395.722 103.32C407.962 103.32 420.202 97.2 427.172 89.89V85.13H397.082C385.182 85.13 380.932 88.7 380.932 94.14C380.932 100.09 385.862 103.32 395.722 103.32ZM497.255 121H470.735V0.299994H497.255V121ZM542.411 121H515.891V30.39H542.411V44.16L545.641 45.18C550.571 34.47 559.581 28.69 574.541 28.69C580.151 28.69 585.251 29.37 590.181 30.56V56.06C584.401 54.53 576.071 53.17 568.761 53.17C555.501 53.17 547.851 58.61 542.411 65.07V121ZM633.503 122.7C611.063 122.7 597.973 110.29 597.973 94.31C597.973 74.42 613.443 66.09 640.303 66.09H670.053V65.75C669.203 53.85 662.063 49.09 647.783 49.09C636.563 49.09 624.323 51.98 610.213 58.95L600.863 40.93C614.803 33.79 630.103 28.69 647.783 28.69C673.113 28.69 695.553 37.87 695.553 70.17V121H670.053V109.61L666.823 108.93C659.003 116.92 648.293 122.7 633.503 122.7ZM638.603 103.32C650.843 103.32 663.083 97.2 670.053 89.89V85.13H639.963C628.063 85.13 623.813 88.7 623.813 94.14C623.813 100.09 628.743 103.32 638.603 103.32Z"
+                    fill="url(#paint0_linear_popup)" />
+                <defs>
+                    <linearGradient id="paint0_linear_popup" x1="25.0235" y1="21.9148" x2="364.985" y2="383.07"
+                        gradientUnits="userSpaceOnUse">
+                        <stop stop-color="#FF6C6C" />
+                        <stop offset="0.205" stop-color="#FFA268" />
+                        <stop offset="0.47" stop-color="#FFE96B" />
+                        <stop offset="0.73" stop-color="#6BFFFF" />
+                        <stop offset="1" stop-color="#C869FF" />
+                    </linearGradient>
+                </defs>
+            </svg>
+        </div>
+    </div>
+
+    <p class="description">A forever free Roblox Extension!</p>
+
+    <a href="#" id="settings-link" class="fancy-button">
+        <span class="fancy-button-text-wrapper">Extension Settings</span>
+    </a>
+
+    <a href="#" id="donate-link" class="fancy-button">
+        <span class="fancy-button-text-wrapper">Donate</span>
+    </a>
+
+    <div class="footer-links">
+        <!-- 3. Fixed Discord SVG (24x24 viewBox to match GitHub) -->
+        <a href="#" id="discord-link" title="Join our Discord">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path
+                    d="M19.27 5.33C17.94 4.71 16.5 4.26 15 4a.09.09 0 0 0-.07.03c-.18.33-.39.76-.53 1.09a16.09 16.09 0 0 0-4.8 0c-.14-.34-.35-.76-.54-1.09c-.01-.02-.04-.03-.07-.03c-1.5.26-2.93.71-4.27 1.33c-.01 0-.02.01-.03.02c-2.72 4.07-3.47 8.03-3.1 11.95c0 .02.01.04.03.05c1.8 1.32 3.53 2.12 5.2 2.65c.03.01.06 0 .07-.02c.4-.55.76-1.13 1.07-1.74c.02-.04 0-.08-.04-.09c-.57-.22-1.11-.48-1.64-.78c-.04-.02-.04-.08.01-.11c.11-.08.22-.17.33-.25c.02-.02.05-.02.07-.01c3.44 1.57 7.15 1.57 10.55 0c.02-.01.05-.01.07.01c.11.09.22.17.33.26c.04.03.04.09-.01.11c-.52.31-1.07.56-1.64.78c-.04.01-.05.06-.04.09c.32.61.68 1.19 1.07 1.74c.03.01.06.02.09.01c1.72-.53 3.45-1.33 5.25-2.65c.02-.01.03-.03.03-.05c.44-4.53-.73-8.46-3.1-11.95c-.01-.01-.02-.02-.04-.02zM8.52 14.91c-1.03 0-1.89-.95-1.89-2.12s.84-2.12 1.89-2.12c1.06 0 1.9.96 1.89 2.12c0 1.17-.84 2.12-1.89 2.12zm6.97 0c-1.03 0-1.89-.95-1.89-2.12s.84-2.12 1.89-2.12c1.06 0 1.9.96 1.89 2.12c0 1.17-.85 2.12-1.89 2.12z" />
+            </svg>
+        </a>
+        <a href="#" id="github-link" title="View on GitHub">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path
+                    d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.91 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+            </svg>
+        </a>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+
+</html>

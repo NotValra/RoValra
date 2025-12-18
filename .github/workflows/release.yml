@@ -1,0 +1,38 @@
+name: Build and Package Only
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build-and-package:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build extension
+        run: npm run build
+
+      - name: Package extension
+        run: |
+          cd dist
+          zip -r ../rovalra-${{ github.ref_name }}.zip .
+
+      - name: Upload ZIP for Manual Download
+        uses: actions/upload-artifact@v4
+        with:
+          name: rovalra-build-files
+          path: rovalra-*.zip
+          retention-days: 5

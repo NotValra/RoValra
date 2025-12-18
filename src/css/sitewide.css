@@ -1,0 +1,21 @@
+/* This will be used cross the extension in a future update, too lazy to make everything use it now. */
+
+:root:has(.dark-theme),
+:root.dark-theme,
+:root[color-scheme=dark],
+:root:has(meta[name=theme-color][content="#111216"]) {
+    --rovalra-main-text-color: #f7f7f8;
+    --rovalra-secondary-text-color: #d5d7dd;
+    --rovalra-container-background-color: #272930;
+
+}
+
+:root:has(.light-theme),
+:root.light-theme,
+:root[color-scheme=light],
+:root:has(meta[name=theme-color][content="#F9F9F9"]) {
+    --rovalra-main-text-color: #202227;
+    --rovalra-secondary-text-color: #494d5a;
+    --rovalra-container-background-color: #f7f7f8;
+
+}

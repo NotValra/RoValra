@@ -6,8 +6,10 @@
 
 - **Only Official Website https://rovalra.com**
 
-<a href="https://chromewebstore.google.com/detail/RoValra%20-%20Roblox%20Improved/njcickgebhnpgmoodjdgohkclfplejli" title="Available in the Chrome Web Store"><img src="/Assets/ChromeWebStore_BadgeWBorder_v2_206x58.png" alt="Available in the Chrome Web Store"></a>\
+[Chrome webstore](https://chromewebstore.google.com/detail/RoValra%20-%20Roblox%20Improved/njcickgebhnpgmoodjdgohkclfplejli)
+
 <img alt="GitHub Downloads (all assets, all releases)" src="https://img.shields.io/github/downloads/NotValra/RoValra/total">
+
 - **If you like this project, consider giving it a star⭐, it really helps!**
 
 
@@ -20,11 +22,13 @@
 ## Sections
 - [**Features**](https://github.com/NotValra/RoValra?tab=readme-ov-file#features)
 - [**FAQ**](https://github.com/NotValra/RoValra?tab=readme-ov-file#FAQ)
-- [**Known incompatibilies**](https://github.com/NotValra/RoValra?tab=readme-ov-file#known-incompatibilies)
 - [**How to install**](https://github.com/NotValra/RoValra?tab=readme-ov-file#how-to-install)
 - [**Credits**](https://github.com/NotValra/RoValra?tab=readme-ov-file#credits) 
 
 # Features
+
+**This does not include features in 2.4**
+
 - **Games**
     - **Server Uptime**
     - **Server list filter**
@@ -107,20 +111,19 @@
 - [ ] **Finish v2.4 before GTA 6**
 - [ ] **FireFox support, Any extension currently on the firefox store claiming to be RoValra are fakes. (For now check the forks, Remember to verify the source code.)**
 
-# Known incompatibilies
-<details>
-  <summary>Expand</summary>
-  
-- **The hidden games of groups bugs out a bit if you use [RoSeal](https://chromewebstore.google.com/detail/roseal-augmented-roblox-e/hfjngafpndganmdggnapblamgbfjhnof?hl=en) with the "Seamless navigation of communities" setting on.**
-</details>
 
-# Known Issues
-- **In rare cases it shows unowned items under the owned tab when viewing private inventories**
 # How to install
 
 <details>
   <summary>Expand</summary>
+  
+- Building and installing 2.4
+- npm install
+- npm run build
+- Import "dist" in your borwser
 
+
+- **None building install guide:**
 - If you want a simple install you can install it on from the [chrome web store.](https://chromewebstore.google.com/detail/RoValra%20-%20Roblox%20Improved/njcickgebhnpgmoodjdgohkclfplejli)
 - Everything below is purely a tutorial on how to install it from GitHub.
 - Enable developer mode on your browser of choice.
