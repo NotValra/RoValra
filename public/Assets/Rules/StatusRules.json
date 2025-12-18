@@ -1,0 +1,13 @@
+[
+    {
+        "id": 1,
+        "priority": 1,
+        "action": {
+    "type": "block"
+},
+        "condition": {
+            "urlFilter": "https://apis.roblox.com/user-heartbeats-api/pulse",
+            "resourceTypes": ["xmlhttprequest"]
+        }
+    }
+]

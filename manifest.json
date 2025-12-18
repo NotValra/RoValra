@@ -1,79 +1,33 @@
 {
   "manifest_version": 3,
   "name": "RoValra - Roblox Improved",
-  "version": "2.3.2",
+  "version": "2.4",
   "description": "An extension aiming to provide features that other Roblox extensions pay wall!",
-  "content_scripts": [    {
+  "content_scripts": [
+    {
       "matches": [
         "*://*.roblox.com/*"
       ],
-      "js": ["content.js", "catalog/hiddencatalog.js","misc/pages.js","settings.js"],
+      "js": ["intercept.js"],
       "run_at": "document_start",
-      "all_frames": true
-    },    {
-    "matches": [
-        "*://*.roblox.com/*/games/*",
-        "*://*.roblox.com/games/*"
-      ],
-      "js": ["Games/serverid.js",  "Games/serverlistener.js",  "Games/botDetector.js"],
-      "run_at": "document_start",
-      "all_frames": true
-    },    {
-      "matches": [
-       "*://*.roblox.com/*/games/*",
-        "*://*.roblox.com/games/*"
-      ],
-      "js": ["Games/sniper.js"],
-      "all_frames": true
-    },
-    {
-      "matches": [
-         "*://*.roblox.com/*/games/*",
-        "*://*.roblox.com/games/*"
-      ],
-      "js": ["Games/RegionPlayButton.js", "Games/Regions_contentSimple.js", "Games/serveruptime.js" ],
-      "run_at": "document_end",
-      "all_frames": true
+      "world": "MAIN",
+      "all_frames": false
     },
     {
       "matches": [
         "*://*.roblox.com/*"
       ],
-      "js": ["Games/revertlogo.js", "Games/quickplay.js"],
-      "run_at": "document_end",
-      "all_frames": true
-    },
-    {
-      "matches": [
-         "*://*.roblox.com/*/users/*",
-        "*://*.roblox.com/users/*"
+      "js": [
+        "content.js"
       ],
-      "js": ["misc/ItemChecker.js", "Profile/RoValraBadges.js", "Profile/privateserver.js"],
-      "run_at": "document_end",
-      "all_frames": true
-    },
-     {
-      "matches": [
-         "*://*.roblox.com/*/users/*",
-        "*://*.roblox.com/users/*"
-      ],
-      "js": ["misc/cssfixes.js", "misc/userSniper.js"],
-      "run_at": "document_end",
-      "all_frames": true
-    },
-    {
-      "matches": [
-         "*://*.roblox.com/*/catalog/*",
-        "*://*.roblox.com/catalog/*"
-      ],
-      "js": ["misc/40method.js"],
+      "css": ["css/sitewide.css"],
       "run_at": "document_start",
       "all_frames": true
     }
-  ],  "permissions": [
+  ],
+  "permissions": [
     "declarativeNetRequest",
     "storage",
-    
     "scripting"
   ],
   "host_permissions": [
@@ -85,77 +39,57 @@
   "background": {
     "service_worker": "background.js"
   },
+  "optional_permissions": [
+    "tabs",
+    "webNavigation"
+
+  ],
   "declarative_net_request": {
     "rule_resources": [
       {
         "id": "ruleset_1",
         "enabled": true,
-        "path": "Rules/rules.json"
+        "path": "public/Assets/Rules/rules.json"
       },
-       {
-        "id": "ruleset_2",
+      {
+        "id": "ruleset_status",
         "enabled": false,
-        "path": "Rules/regionRules.json"
+        "path": "public/Assets/Rules/StatusRules.json"
+      },
+      {
+        "id": "ruleset_3",
+        "enabled": false,
+        "path": "public/Assets/Rules/beta-rules.json"
       }
     ]
   },  "web_accessible_resources": [
       {
           "resources": [
-        
-              "HiddenGames/group_games.js",
-              "HiddenGames/user_games.js",
-              "misc/userSniper.js",
-              "misc/item_sales_content.js",
-              "misc/style.js",
-              "misc/utils.js",
-              "Games/Regions_content.js",
-              "Games/Subplaces.js",
-              "data/items.json",
-              "data/countries.json",
-              "Avatar/R6Warning.js",
-              "settings.js",
-              "Assets/icon-128.png",
-              "Games/invite.js",
-              "Games/sniper.js",
-              "misc/ItemChecker.js",
-              "catalog/hiddencatalog.js",
-              "Games/Regions_contentSimple.js",
-              "misc/pendingRobux.js",
-              "misc/pendingRobuxTrans.js",
-              "Games/botDetector.js",
-              "Games/inject.js",
-              "Games/invite.js",
-              "Games/serveruptime.js",
-              "data/Three.js",
-              "data/OrbitControls.js",
-              "data/globe_initializer.js" ,
-              "data/map_dark.png",
-              "data/map_light.png",
-              "Assets/RegionSelectorPicture.png",
-              "misc/cssfixes.js",
-              "data/ServerList.json",
-              "misc/40method.js",
-              "Games/quickplay.js",
-              "Profile/RoValraBadges.js",
-              "Assets/return_request.png",
-              "Assets/fishstrap.png"
+            "ffmpeg/*",
+            "public/Assets/*",
+            "public/data/*",
+            "Assets/data/serverid_extractor.js",
+            "data/*",
+            "intercept.js"
           ],
           "matches": [
-              "https://www.roblox.com/*"
+              "https://www.roblox.com/*",
+              "*://*.roblox.com/*"
           ]
       }
   ],
-    "action": {
+  "action": {
+    "default_popup": "public/Assets/popup/popup.html",
+
     "default_icon": {
-      "16": "Assets/icon-16.png",
-      "48": "Assets/icon-48.png",
-      "128": "Assets/icon-128.png"
+      "16": "public/Assets/icon-16.png",
+      "48": "public/Assets/icon-48.png",
+      "128": "public/Assets/icon-128.png"
     }
   },
   "icons": {
-    "16": "Assets/icon-16.png",
-    "48": "Assets/icon-48.png",
-    "128": "Assets/icon-128.png"
+    "16": "public/Assets/icon-16.png",
+    "48": "public/Assets/icon-48.png",
+    "128": "public/Assets/icon-128.png"
   }
-
 }
