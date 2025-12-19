@@ -123,7 +123,7 @@ export async function checkRoValraPage() {
         };
     };
 
-    const { rovalraHeader, settingsContainer } = buildSettingsPage({
+    const { rovalraHeader, settingsContainer } = await buildSettingsPage({
         handleSearch: (event) => handleSearch(event, regionData.regions),
         debounce: debouncedSearch,
         loadTabContent,

@@ -149,7 +149,7 @@ class HiddenGamesManager {
                 { value: 'default', label: 'Recently Updated' },
                 { value: 'likes', label: 'Likes' },
                 { value: 'players', label: 'Players' },
-                { value: 'name', label: 'Name (A-Z)' }
+                { value: 'name', label: 'Name (Z-A)' }
             ],
             initialValue: 'default',
             onValueChange: (v) => { this.filters.sort = v; this.applyFilters(); }

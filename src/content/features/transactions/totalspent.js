@@ -602,26 +602,29 @@ function onElementFound(container) {
                             hasNextPage = false;
                         }
                     } catch (error) {
-                        if (error.status === 429) { 
+                        if (error.status === 429 || error.message?.includes('429')) { 
                             if (!state.isRateLimited) { state.isRateLimited = true; updateOverlay(); }
                             const waitUntil = Date.now() + (5 * 1000); 
                             while (Date.now() < waitUntil) {
                                 if (state.status !== CALCULATION_STATE.RUNNING) throw new PausedException("Paused during rate-limit wait.");
                                 await new Promise(resolve => setTimeout(resolve, 250));
                             }
+                            if (state.isRateLimited) { 
+                                state.isRateLimited = false; updateOverlay(); 
+                            }
                             continue;
-                        }
-                        if (error.status === 500) { 
+                        } else { 
                             state.retryCount++;
-                            if (state.retryCount >= MAX_RETRIES) throw new Error("Roblox servers are having issues.");
-                            const waitUntil = Date.now() + (1000 * state.retryCount);
+                            if (state.retryCount > 5) {
+                                throw new Error(`Failed after multiple retries. Last error: ${error.message || 'Unknown'}`);
+                            }
+                            const waitUntil = Date.now() + 1000;
                             while (Date.now() < waitUntil) {
                                 if (state.status !== CALCULATION_STATE.RUNNING) throw new PausedException("Paused during retry wait.");
                                 await new Promise(resolve => setTimeout(resolve, 250));
                             }
                             continue; 
                         }
-                        throw error;
                     }
                 }
             }

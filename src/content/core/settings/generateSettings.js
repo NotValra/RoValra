@@ -4,6 +4,7 @@ import { getFullRegionName, REGIONS, getContinent } from '../regions.js';
 import { getCurrentTheme, THEME_CONFIG } from '../theme.js';
 import { createDropdown } from '../ui/dropdown.js';
 import { createFileUpload } from '../ui/fileupload.js';
+import { createPill } from '../ui/general/pill.js';
 import { handleSaveSettings } from './handlesettings.js';
 import { createStyledInput } from '../ui/catalog/input.js'; 
 
@@ -190,6 +191,19 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
     const label = document.createElement('label');
     label.textContent = setting.label;
     controlsContainer.appendChild(label);
+    
+    if (setting.experimental) {
+        const experimentalPill = createPill('Experimental', setting.experimental, 'experimental');
+        controlsContainer.appendChild(experimentalPill);
+    }
+    if (setting.beta) {
+        const betaPill = createPill('Beta', setting.beta, 'beta');
+        controlsContainer.appendChild(betaPill);
+    }
+    if (setting.deprecated) {
+        const deprecatedPill = createPill('Deprecated', setting.deprecated, 'deprecated');
+        controlsContainer.appendChild(deprecatedPill);
+    }
 
     const inputElement = generateSettingInput(settingName, setting, REGIONS);
     controlsContainer.appendChild(inputElement);
@@ -252,6 +266,19 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
             const childLabel = document.createElement('label');
             childLabel.textContent = childSetting.label;
             childControls.appendChild(childLabel);
+            
+            if (childSetting.experimental) {
+                const experimentalPill = createPill('Experimental', childSetting.experimental, 'experimental');
+                childControls.appendChild(experimentalPill);
+            }
+            if (childSetting.beta) {
+                const betaPill = createPill('Beta', childSetting.beta, 'beta');
+                childControls.appendChild(betaPill);
+            }
+            if (childSetting.deprecated) {
+                const deprecatedPill = createPill('Deprecated', childSetting.deprecated, 'deprecated');
+                childControls.appendChild(deprecatedPill);
+            }
 
             const childInput = generateSettingInput(childName, childSetting, REGIONS);
             childControls.appendChild(childInput);

@@ -51,7 +51,7 @@ class BotDetector {
         if (!placeId) return;
 
         const isLightTheme = document.body.classList.contains('light-theme');
-        const tooltipTextColor = isLightTheme ? 'rgb(25, 25, 25)' : 'rgb(213, 215, 221)';
+        const tooltipTextColor = "var(--rovalra-secondary-text-color)";
 
         let statsContainer = document.querySelector('.bot-stats-container');
         if (!statsContainer) {
@@ -59,7 +59,6 @@ class BotDetector {
             statsContainer.className = 'bot-stats-container';
             statsContainer.style.cssText = `
                 display: flex;
-                margin-left: 12px;
                 font-size: 14px;
                 align-items: center;
                 width: 100%;
@@ -79,7 +78,7 @@ class BotDetector {
         if (botPercentage > 20) {
             statsContainer.innerHTML = `
                 <div style="display: flex; align-items: center; gap: 4px; color: ${tooltipTextColor};">
-                    <span style="font-weight: 500;"><span style="color: ${isLightTheme ? 'rgb(25, 25, 25)' : 'rgb(247, 247, 248)'};">${gameName}</span> has a lot of bots</span>
+                    <span style="font-weight: 500;"><span style="color: var(--rovalra-main-text-color)">${gameName}</span> has a lot of bots</span>
                     <i class="icon-moreinfo"></i>
                 </div>
             `;
@@ -88,7 +87,7 @@ class BotDetector {
         } else if (botPercentage > BOT_PERCENTAGE_THRESHOLD) {
             statsContainer.innerHTML = `
                 <div style="display: flex; align-items: center; gap: 4px; color: ${tooltipTextColor};">
-                    <span style="font-weight: 500;"><span style="color: ${isLightTheme ? 'rgb(25, 25, 25)' : 'rgb(247, 247, 248)'};">${gameName}</span> has some bots but mostly real players</span>
+                    <span style="font-weight: 500;"><span style="color: var(--rovalra-main-text-color);">${gameName}</span> has some bots but mostly real players</span>
                     <i class="icon-moreinfo"></i>
                 </div>
             `;
@@ -128,7 +127,6 @@ class BotDetector {
                 this.scanServers(placeId, servers);
             }
         } catch (error) {
-            // Error handling suppressed
         }
     }
 
@@ -228,7 +226,6 @@ class BotDetector {
                         await new Promise(resolve => setTimeout(resolve, 1000));
                     }
                 } catch (batchError) {
-                    // Error handling suppressed
                 }
             }
             

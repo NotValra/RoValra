@@ -479,10 +479,12 @@ async function setupHoverCard(gameLink, settings) {
     gameLink.classList.add('game-tile-styles');
     const isSpecialLayout = gameLink.closest('.featured-game-container, .featured-grid-item-container');
 
-    const hoverBg = document.createElement('div');
-    hoverBg.className = 'hover-background';
-    gameLink.appendChild(hoverBg);
-
+    if (!isSpecialLayout) {
+        const hoverBg = document.createElement('div');
+        hoverBg.className = 'hover-background';
+        gameLink.appendChild(hoverBg);
+    }
+    
     const overlay = document.createElement('div');
     overlay.className = 'play-button-overlay';
     const wrapper = document.createElement('div');
@@ -593,6 +595,9 @@ function initializeQuickPlay() {
         robloxPreferredRegion: 'AUTO'
     }, (settings) => {
         const onCardFound = (gameLink) => {
+            if (gameLink.closest('[data-testid="event-experience-link"]')) {
+                return;
+            }
             if (gameLink.classList.contains(PROCESSED_MARKER_CLASS)) return;
             gameLink.classList.add(PROCESSED_MARKER_CLASS);
             
@@ -637,7 +642,7 @@ a.game-tile-styles.game-card-link:hover .quick-play-original-stats.game-card-fri
 a.game-tile-styles.game-card-link.quick-play-hover-active .quick-play-original-stats.game-card-friend-info { transform: translateY(-30px); }
 a.game-tile-styles.game-card-link:hover .quick-play-original-stats.game-card-info:not(.game-card-friend-info),
 a.game-tile-styles.game-card-link.quick-play-hover-active .quick-play-original-stats.game-card-info:not(.game-card-friend-info) { transform: translateY(-25px); }
-.play-button-overlay { display: flex; flex-direction: column; position: absolute; bottom: 0px; left: 4px; right: 4px; z-index: 10; opacity: 0; gap: 0px; transform: translateY(8px); transition: opacity 0.2s ease-out, transform 0.2s ease-out; pointer-events: none; }
+.play-button-overlay { display: flex; flex-direction: column; position: absolute; bottom: 0px; left: 0px; right: 0px; z-index: 10; opacity: 0; gap: 0px; transform: translateY(0px); transition: opacity 0.2s ease-out, transform 0.2s ease-out; pointer-events: none; }
 a.game-tile-styles.game-card-link:hover .play-button-overlay, a.game-tile-styles.game-card-link.quick-play-hover-active .play-button-overlay { opacity: 1; transform: translateY(0); transition-delay: 0.1s; }
 .play-buttons-wrapper { display: flex; gap: 4px; width: 100%; }
 .play-game-button, .server-browser-button, .private-servers-button { pointer-events: auto; background-color: rgb(51, 95, 255); color: white; border: none; padding: 4px; line-height: 0; border-radius: 6px; cursor: pointer; transition: background-color 0.2s; display: flex; align-items: center; justify-content: center; height: 28px; }

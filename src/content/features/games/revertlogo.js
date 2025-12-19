@@ -419,6 +419,15 @@ function initializeJoinDialogEnhancer() {
 
                             if (response && response.ok) {
                                 const data = await response.json();
+
+                                if (data?.status === 12 || (data?.message && data.message.includes("non-root place"))) {
+                                    showLoadingOverlayResult(data.message || "Cannot join: Non-root place restrictions.", { 
+                                        text: "Close", 
+                                        onClick: () => closeInterface(true) 
+                                    });
+                                    return; 
+                                }
+
                                 if (data?.joinScript) {
                                     joinApiResponse = data;
                                     break;

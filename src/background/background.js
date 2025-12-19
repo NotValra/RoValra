@@ -75,6 +75,7 @@ function getDefaultSettings() {
         EnableVideoTest: false,
         EnableGameTrailer: true,
         Enableautoplay: true,
+        alwaysShowDeveloperSettings: false
     };
 }
 

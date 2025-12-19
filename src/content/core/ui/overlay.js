@@ -29,7 +29,7 @@ function injectOverlayCss() {
 }
 
 
-export function createOverlay({ title, bodyContent, actions = [], maxWidth = '550px', maxHeight = 'none', showLogo = false, preventBackdropClose = false }) {
+export function createOverlay({ title, bodyContent, actions = [], maxWidth = '550px', maxHeight = 'none', showLogo = false, preventBackdropClose = false, onClose }) {
     injectOverlayCss();
 
     const overlay = document.createElement('div');
@@ -101,6 +101,9 @@ export function createOverlay({ title, bodyContent, actions = [], maxWidth = '55
     const close = () => {
         overlay.remove();
         document.body.style.overflow = '';
+        if (typeof onClose === 'function') {
+            onClose();
+        }
     };
 
     const closeButton = createCloseButton({ onClick: close });
