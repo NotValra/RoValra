@@ -20,8 +20,9 @@ export const SETTINGS_CONFIG = {
             hiddenCatalogEnabled: {
                 label: "Hidden Catalog",
                 description: ["Shows Roblox made items before they are on the official catalog.",
-                    "{{WARNING red}} This has now been patched by Roblox, but you can still see previous hidden items.",
+                    
                 ],
+                deprecated: "Patched by Roblox",
                 type: "checkbox",
                 default: false
             },
@@ -29,9 +30,11 @@ export const SETTINGS_CONFIG = {
                 label: "Save 10%-40% Robux on Purchases",
                 description: ["This adds a button allowing you to save 40% on items on the catalog and 10% on gamepasses",
                     "Keep in mind a group is required for this to work.",
-                    "**WARNING this currently uses a method that could have a slight risk of an account ban.** In full release it will be changed."
+                    "**WARNING this currently uses a method that could have a slight risk of an account ban.** In full release it will be changed.",
+                    "**USE AT YOUR OWN RISK**"
                 ],
                 type: "checkbox",
+                beta: "Currently in a prerelease state.",
                 default: false,
                 childSettings: {
                     RobuxPlaceId: {
@@ -344,16 +347,18 @@ export const SETTINGS_CONFIG = {
             pendingRobuxEnabled: {
                 label: "Unpending Robux",
                 description: ["Shows an estimate of how many pending Robux will stop pending within 24 hours.",],
+                experimental: "May be inaccurate",
                 type: "checkbox",
                 default: true
             },
             antibotsEnabled: {
                 label: "Anti-Bot Members",
-                description: ["{{Experimental Feature green}}",
+                description: [
                     "This adds a button that will allow you to scan all members in a community for bots.",
                     "If there is any bots it will allow you to quickly ban or kick them.",
                     "This calculates bots by similar avatars and display names, so it may not be 100% accurate."
                 ],
+                experimental: "May be buggy",
                 type: "checkbox",
                 default: true
             },
@@ -397,7 +402,17 @@ export const SETTINGS_CONFIG = {
                 description: ["This calculates the total amount of Robux and money you have spent on your account based on your transaction history."],
                 type: "checkbox",
                 default: true
-            }
+            },
+            pendingrobuxtrans: {
+
+                label: "Unpending Robux Transactions",
+                description: ["This estimates how many Robux will stop pending in 24 hours.",
+
+                ],
+                experimental: "May be inaccurate",
+                type: "checkbox",
+                default: true
+            },
         }
     },
     Miscellaneous: {
@@ -448,16 +463,7 @@ export const SETTINGS_CONFIG = {
                 type: "checkbox",
                 default: true
             },
-            pendingrobuxtrans: {
 
-                label: "Unpending Robux Transactions",
-                description: ["This estimates how many Robux will stop pending in 24 hours.",
-                    "This feature is experimental since I couldn't test it myself, but it should work fine."
-                ],
-
-                type: "checkbox",
-                default: true
-            },
             revertLogo: {
                 label: "Change the app launch icon",
                 description: ["This changes the icon that shows when you join a game.",
@@ -479,7 +485,7 @@ export const SETTINGS_CONFIG = {
                         description: [
                             "Compresses the image to reduce storage space (max 512px, JPEG 80% quality for photos, PNG for transparent images).",
                             "Disable this to keep full quality and transparency, but it may use more storage space.",
-                            "{{WARNING orange}} Uncompressed images must still be under 1MB."
+                            "Uncompressed images must still be under 1MB."
                         ],
                         type: "checkbox",
                         default: true
@@ -499,7 +505,6 @@ export const SETTINGS_CONFIG = {
                 description: [
                     "Makes you appear as offline to you and other people.",
                     "This is useful if you want to appear offline while still allowing connections to join you in experiences, since the official offline status by Roblox does not allow this.",
-                    "This may take a few minutes to update after turning on the feature.",
                     "Joining an experience will overwrite this status.",
                     "This may take a few minutes to actually change your status to offline after turning on the feature."
                     

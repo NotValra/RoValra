@@ -219,7 +219,7 @@ const UI = {
                 { value: 'default', label: 'Recently Updated' },
                 { value: 'likes', label: 'Likes' },
                 { value: 'players', label: 'Players' },
-                { value: 'name', label: 'Name (A-Z)' }
+                { value: 'name', label: 'Name (Z-A)' }
             ],
             initialValue: 'default',
             onValueChange: (v) => onFilterChange('sort', v)
@@ -340,19 +340,20 @@ class HiddenGamesManager {
             await Api.enrichGameData(this.allGames, this.cache);
         }
 
-        let sorted = [...this.allGames];
         const { sort, order } = this.filters;
+        const orderMultiplier = order === 'desc' ? -1 : 1;
+        let sorted = [...this.allGames];
         
         if (sort === 'likes') {
-            sorted.sort((a, b) => (this.cache.likes.get(b.id)?.ratio || 0) - (this.cache.likes.get(a.id)?.ratio || 0));
+            sorted.sort((a, b) => ((this.cache.likes.get(b.id)?.ratio || 0) - (this.cache.likes.get(a.id)?.ratio || 0)) * orderMultiplier);
         } else if (sort === 'players') {
-            sorted.sort((a, b) => (this.cache.players.get(b.id) || 0) - (this.cache.players.get(a.id) || 0));
+            sorted.sort((a, b) => ((this.cache.players.get(b.id) || 0) - (this.cache.players.get(a.id) || 0)) * orderMultiplier);
         } else if (sort === 'name') {
-            sorted.sort((a, b) => a.name.localeCompare(b.name));
-        }
-        
-        if ((order === 'asc' && sort !== 'name') || (order === 'desc' && sort === 'name')) {
-            sorted.reverse();
+            sorted.sort((a, b) => a.name.localeCompare(b.name) * (order === 'asc' ? 1 : -1));
+        } else { 
+            if (order === 'asc') {
+                sorted.reverse();
+            }
         }
 
         this.processedGames = sorted;

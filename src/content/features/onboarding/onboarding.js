@@ -42,12 +42,11 @@ export function init() {
                 actions: [gotItButton],
                 maxWidth: '550px',
                 showLogo: true,
-                preventBackdropClose: true, 
-                onClose: acknowledgeOnboarding 
+                preventBackdropClose: true,
+                onClose: acknowledgeOnboarding
             });
 
             gotItButton.addEventListener('click', () => {
-                acknowledgeOnboarding();
                 close();
             });
         }

@@ -132,6 +132,16 @@ export async function init() {
                 }
             } while (nextCursor);
 
+            allSubplaces.sort((a, b) => {
+                if (a.isRootPlace && !b.isRootPlace) {
+                    return -1;
+                }
+                if (!a.isRootPlace && b.isRootPlace) {
+                    return 1;
+                }
+                return 0;
+            });
+
             return allSubplaces;
         };
 
@@ -212,7 +222,18 @@ export async function init() {
             nameSpan.dataset.fullName = subplace.name;
             nameSpan.title = subplace.name;
             nameSpan.textContent = subplace.name;
-            link.append(thumbContainer, nameSpan);
+
+            const detailsContainer = document.createElement('div');
+            detailsContainer.appendChild(nameSpan);
+
+            if (subplace.isRootPlace) {
+                const rootLabel = document.createElement('p');
+                rootLabel.textContent = 'Root Place';
+                rootLabel.style.cssText = 'font-size: 13px; color: var(--rovalra-secondary-text-color); margin-top: 4px;';
+                detailsContainer.appendChild(rootLabel);
+            }
+
+            link.append(thumbContainer, detailsContainer);
 
             card.appendChild(link);
             return card;
@@ -324,7 +345,6 @@ export async function init() {
             }
         };
 
-        // --- MAIN INITIALIZATION LOGIC ---
 
         const initializeSubplacesFeature = async (tabContainer) => {
             if (tabContainer.dataset.rovalraSubplacesInitialized === 'true') {

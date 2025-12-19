@@ -4,7 +4,7 @@ let rovalraButtonAdded = false;
 
 
 export function addCustomButton(debouncedAddPopoverButton) {
-    if (!window.location.href.includes('/my/account') || window.location.href.includes('?rovalra=info')) {
+    if (!window.location.href.includes('/my/account') || window.location.href.includes('?rovalra=')) {
         return;
     }
 
