@@ -14,8 +14,9 @@ export const SETTINGS_CONFIG = {
                     "The sales data is very likely to be inaccurate on items that are for sale, but very likely to be correct on off-sale items.",
                     "Keep in mind this was leaked data from around half a year ago. A lot of data is inaccurate and a lot of items don't have data."
                 ],
+                deprecated: "Sale stats are very old and now inaccurate.",
                 type: "checkbox",
-                default: true
+                default: false
             },
             hiddenCatalogEnabled: {
                 label: "Hidden Catalog",
@@ -105,7 +106,7 @@ export const SETTINGS_CONFIG = {
             },
             whatamIJoiningEnabled: {
                 label: "What Am I Joining",
-                description: ["This shows the server ID, region, player count (if available), if it's a private server, and more info about the server you are joining when joining a game.",
+                description: ["This shows the server ID, region, if it's a private server, and more info about the server you are joining when joining a game.",
 ],
                 type: "checkbox",
                 default: true,
@@ -114,8 +115,8 @@ export const SETTINGS_CONFIG = {
                     AlwaysGetInfo: {
                         label: "Always Get Server Info",
                         description: ["This will always get the server info, even if no server data is available.",
-                            "This works by overwriting any attempt to join a game without any server data, and then it will get a server and make you join that.",
-                        "This will not be able to get player count or server performance."],
+                            "It has a very small change to get inaccurate information."
+                        ],
                         type: "checkbox",
                         default: true
                     }
@@ -147,19 +148,19 @@ export const SETTINGS_CONFIG = {
             },
             subplacesEnabled: {
                 label: "Subplaces",
-                description: ["Shows the subplaces of a game."],
+                description: ["Shows the subplaces of an experience."],
                 type: "checkbox",
                 default: true
             },
             TotalServersEnabled: {
                 label: "Total Servers",
-                description: ["This shows the total amount of servers a game has."],
+                description: ["This shows the total amount of servers RoValra is tracking under that experience."],
                 type: "checkbox",
                 default: true
             },
             GameVersionEnabled: {
                 label: "Game Version",
-                description: ["This shows the current version a game is on.",
+                description: ["This shows the current version an experience is on.",
                     "Useful for developers."
                 ],
                 type: "checkbox",
@@ -167,7 +168,7 @@ export const SETTINGS_CONFIG = {
             },
             OldestVersionEnabled: {
                 label: "Oldest Server Version",
-                description: ["This shows the oldest game version that servers are still running on.",
+                description: ["This shows the oldest place version that servers are still running on.",
                     "Useful for developers."
                 ],
                 type: "checkbox",
@@ -271,11 +272,10 @@ export const SETTINGS_CONFIG = {
                 label: "Instant Joiner",
                 description: ["This joins a user instantly when they go into a game, best used for people with a lot of people trying to join them.",
                     "### Requirements",
-                    "- It is **strongly recommended** that you uninstall the Microsoft Store version of Roblox",
                     "- This feature requires the user to have their joins enabled for everyone or for you to be friends with them."
                 ],
                 type: "checkbox",
-                default: false,
+                default: true,
                 childSettings: {
                     deeplinkEnabled: {
                         label: "Join through deeplinks",
@@ -425,6 +425,7 @@ export const SETTINGS_CONFIG = {
                     "If you don't know what a memory leak is or you don't feel like Roblox is using too much memory, you can leave this off.",
                     "**This will prompt you to enable the 'webNavigation' permission for the feature to work.**"
                 ],
+                experimental: "May cause some issues.",
                 type: "checkbox",
                 default: false,
                 requiredPermissions: ["webNavigation"],
@@ -478,7 +479,7 @@ export const SETTINGS_CONFIG = {
                         description: ["Upload your custom image. Maximum file size is 1MB."],
                         type: "file",
                         default: null,
-                        compressSettingName: "compressCustomLogo" // This setting controls compression
+                        compressSettingName: "compressCustomLogo" 
                     },
                     compressCustomLogo: {
                         label: "Compress Custom Icon",
@@ -498,8 +499,34 @@ export const SETTINGS_CONFIG = {
 
     },
     AntiAccountTracking: {
-        title: "Anti Account Tracking",
+        title: "Privacy",
         settings: {
+            streamermode: {
+                label: "Streamer Mode",
+                description: ["This feature hides information that you most likely don't wanna accidently show on something like a live stream.",
+                    
+                ],
+                type: "checkbox",
+                default: false,
+                experimental: "This may cause some issues since it tricks Roblox into thinking your private info is something it isn't.",
+                childSettings: {
+                    settingsPageInfo: {
+                        label: "Hide Private Information on the settings page",
+                        description: ["This visually replaces your Email, Phone Number and account location with 'RoValra Streamer Mode Enabled'",
+                            "And completely hides your Age Group and Birthday."],
+                        type: "checkbox",
+                        default: true,
+                    },
+                    hideRobux: {
+                        label: "Hide Robux",
+                        description: ["Simply hides your Robux by changing it to 'Hidden'",
+                            "This does not hide your Robux on purchase prompts."
+                        ],
+                        type: "checkbox",
+                        default: false,
+                    }
+                }
+            },
             spoofAsOffline: {
                 label: "Spoof status as Offline",
                 description: [

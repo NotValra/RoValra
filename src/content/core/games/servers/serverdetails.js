@@ -476,6 +476,8 @@ export async function fetchServerUptime(placeId, serverIds, serverLocations, ser
 
             if (place_version) serverVersionsCache[server_id] = place_version;
 
+            const versionToDisplay = place_version || serverVersionsCache[server_id];
+
             let uptime = 'N/A';
             if (first_seen) {
                 const date = new Date(first_seen.endsWith('Z') ? first_seen : first_seen + 'Z');
@@ -494,7 +496,7 @@ export async function fetchServerUptime(placeId, serverIds, serverLocations, ser
             const serverEls = document.querySelectorAll(`[data-rovalra-serverid="${server_id}"]`);
             
             serverEls.forEach(serverEl => {
-                displayPlaceVersion(serverEl, place_version, serverLocations);
+                displayPlaceVersion(serverEl, versionToDisplay, serverLocations);
                 displayUptime(serverEl, uptime, serverLocations);
                 if (regionStr) {
                     displayRegion(serverEl, regionStr, serverLocations);

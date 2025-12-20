@@ -11,6 +11,7 @@ import { init as initCssFixes } from './features/sitewide/cssfixes.js';
 import { init as initHiddenCatalog } from './features/catalog/hiddenCatalog.js';
 import { init as initServerListener } from './features/games/serverlistener.js';
 import { init as initVideoTest } from './features/developer/videotest.js';
+import { init as initStreamerMode } from './features/sitewide/streamermode.js';
 
 // Avatar
 import { init as initAvatarFilters } from './features/avatar/filters.js';
@@ -56,7 +57,7 @@ const featureRoutes = [
   // Generic features that run on most pages
   {
     paths: ['*'],
-    features: [initSettingsPage, initQuickPlay, initEasterEggLinks, initCssFixes, initWhatAmIJoining, initHiddenCatalog, initServerListener, initOnboarding, initVideoTest],
+    features: [initSettingsPage, initQuickPlay, initEasterEggLinks, initCssFixes, initWhatAmIJoining, initHiddenCatalog, initServerListener, initOnboarding, initVideoTest, initStreamerMode],
   },
   // Catalog and bundle pages
   {
