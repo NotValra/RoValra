@@ -31,6 +31,8 @@ let antiBotState = {
     scrollListener: null
 };
 
+let isInitialized = false;
+
 async function getFeatureSettings() {
     return new Promise((resolve) => {
         if (chrome && chrome.storage && chrome.storage.local) {
@@ -252,6 +254,8 @@ async function processMembers(actionType) {
     const startTime = Date.now();
     
     for (let i = 0; i < totalMembers; i++) {
+        if (!window.rovalra.ui.actionOverlay || !document.body.contains(overlayEl)) return;
+
         const member = membersToAction[i];
         const user = member.user;
         let success = false;
@@ -262,17 +266,30 @@ async function processMembers(actionType) {
         
         if(statusText) statusText.textContent = `Processing ${i + 1} of ${totalMembers}: ${user.displayName}... ETA: ${remainingTime}s`;
 
-        try {
-            if (actionType === 'ban') {
-                await banUser(groupId, user.userId);
-            } else if (actionType === 'kick') {
-                await kickUser(groupId, user.userId);
+        let retries = 0;
+        while (true) {
+            if (!window.rovalra.ui.actionOverlay || !document.body.contains(overlayEl)) return;
+            try {
+                if (actionType === 'ban') {
+                    await banUser(groupId, user.userId);
+                } else if (actionType === 'kick') {
+                    await kickUser(groupId, user.userId);
+                }
+                success = true;
+                break;
+            } catch (error) {
+                if (error && (error.status == 429 || (error.message && error.message.includes('429')))) {
+                    retries++;
+                    const delay = Math.min(retries, 10);
+                    if (statusText) statusText.textContent = `Rate limited. Retrying in ${delay}s...`;
+                    await new Promise(r => setTimeout(r, 1000 * delay));
+                    continue;
+                }
+                let reason = error.message || 'Unknown Error';
+                if (error.status) reason = `API Error ${error.status}`;
+                failedMembers.push({ user, reason });
+                break;
             }
-            success = true;
-        } catch (error) {
-            let reason = error.message || 'Unknown Error';
-            if (error.status) reason = `API Error ${error.status}`;
-            failedMembers.push({ user, reason });
         }
 
         if (success) {
@@ -409,6 +426,8 @@ async function addFeatureButtons(searchContainer) {
     if (document.getElementById('rovalra-button-container')) return;
 
     const settings = await getFeatureSettings();
+    if (document.getElementById('rovalra-button-container')) return;
+
     if (!settings.antibotsEnabled && !settings.QuickActionsEnabled) return;
 
     const buttonContainer = document.createElement('div');
@@ -447,6 +466,7 @@ async function addFeatureButtons(searchContainer) {
         parentContainer.style.display = 'flex';
         parentContainer.style.alignItems = 'center';
         const spacer = document.createElement('div');
+        spacer.id = 'rovalra-button-spacer';
         spacer.style.flexGrow = '1';
         parentContainer.insertBefore(spacer, searchContainer);
         parentContainer.insertBefore(buttonContainer, searchContainer);
@@ -585,7 +605,6 @@ async function addFeatureButtons(searchContainer) {
         if (!loader) {
             loader = document.createElement('div');
             loader.className = 'rovalra-loading-more';
-            loader.innerHTML = DOMPurify.sanitize('<span class="spinner spinner-default"></span> <span>Loading more...</span>');
             quickBanListContainer.appendChild(loader);
         }
 
@@ -680,7 +699,6 @@ async function addFeatureButtons(searchContainer) {
                 const pct = totalGroupMembers > 0 ? Math.round((loadedMemberCount / totalGroupMembers) * 100) : 0;
                 membersTitleElement.innerHTML = DOMPurify.sanitize(`
                     <div style="display:flex; align-items:center; gap:10px;">
-                        <span class="spinner spinner-default" style="width:20px;height:20px;"></span>
                         <span>Scanned: ${loadedMemberCount} (${pct}%) | Analyzed: ${processedImageCount}</span>
                     </div>`);
             };
@@ -758,7 +776,7 @@ async function addFeatureButtons(searchContainer) {
                         break; 
                     }
                 }
-                if (membersTitleElement) membersTitleElement.innerHTML = `<span class="spinner spinner-default"></span> Finalizing analysis...`;
+                if (membersTitleElement) membersTitleElement.innerHTML = `<span class="spinner spinner-dots" style="width:24px;height:24px;"></span> Finalizing analysis...`;
                 await Promise.all(imageProcessingTasks);
 
                 if (signal.aborted) throw new Error('Aborted');
@@ -822,19 +840,10 @@ async function addFeatureButtons(searchContainer) {
                         This will select approximately <span id="rovalra-score-ban-count">0</span> members.
                     </div>
                 </div>
-                <div id="rovalra-score-action-container"></div>
             `);
 
-            let selectedAction = 'ban';
-            const actionDropdown = createDropdown({
-                items: [{ value: 'ban', label: 'Ban' }, { value: 'kick', label: 'Kick' }],
-                initialValue: 'ban',
-                onValueChange: (value) => { selectedAction = value; }
-            });
-            bodyContainer.querySelector('#rovalra-score-action-container').appendChild(actionDropdown.element);
-
-            const btnConfirm = createBtnControl('Confirm', 'btn-alert-md');
-            const btnCancel = createBtnControl('Cancel', 'btn-secondary-md');
+            const btnConfirm = createBtn('Confirm', 'btn-alert-md');
+            const btnCancel = createBtn('Cancel', 'btn-secondary-md');
 
             const overlayInstance = createOverlay({
                 title: 'Ban/Kick by Score',
@@ -863,8 +872,7 @@ async function addFeatureButtons(searchContainer) {
                 const matches = overlayInstance._tempMatches || [];
                 if (matches.length > 0) {
                     overlayInstance.close();
-                    membersToAction = matches;
-                    showDoubleConfirmOverlay(selectedAction, true);
+                    showActionOverlay(matches, true);
                 }
             };
 
@@ -989,6 +997,7 @@ let isAntiBotScriptActive = false;
 
 function handleContainerRemoval() {
     document.getElementById('rovalra-button-container')?.remove();
+    document.getElementById('rovalra-button-spacer')?.remove();
 }
 
 function antiBotsFullCleanup() {
@@ -1021,6 +1030,9 @@ async function checkUrlAndManageState() {
 }
 
 export function init() {
+    if (isInitialized) return;
+    isInitialized = true;
+
     injectUiCss();
     if (!window.rovalra) window.rovalra = {};
     if (!window.rovalra.ui) window.rovalra.ui = {};

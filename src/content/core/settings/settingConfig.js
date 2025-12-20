@@ -358,7 +358,7 @@ export const SETTINGS_CONFIG = {
                     "If there is any bots it will allow you to quickly ban or kick them.",
                     "This calculates bots by similar avatars and display names, so it may not be 100% accurate."
                 ],
-                experimental: "May be buggy",
+                experimental: "Takes ages since Roblox has heavy rate limits.",
                 type: "checkbox",
                 default: true
             },
