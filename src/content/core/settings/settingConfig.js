@@ -512,7 +512,7 @@ export const SETTINGS_CONFIG = {
                 childSettings: {
                     settingsPageInfo: {
                         label: "Hide Private Information on the settings page",
-                        description: ["This visually replaces your Email, Phone Number and account location with 'RoValra Streamer Mode Enabled'",
+                        description: ["This visually replaces your Email, Phone Number, Sessions and account location with 'RoValra Streamer Mode Enabled'",
                             "And completely hides your Age Group and Birthday."],
                         type: "checkbox",
                         default: true,

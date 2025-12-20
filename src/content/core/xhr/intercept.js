@@ -34,14 +34,13 @@
         const [url, config] = args;
         let response = await originalFetch(...args);
         
-        if (streamerModeEnabled && settingsPageInfoEnabled && typeof url === 'string' && (url.includes('/my/settings/json') || url.includes('accountinformation.roblox.com/v1/phone') || url.includes('users.roblox.com/v1/birthdate') || url.includes('apis.roblox.com/age-verification-service/v1/age-verification/verified-age') || url.includes('accountsettings.roblox.com/v1/account/settings/account-country') || url.includes('apis.roblox.com/user-settings-api/v1/account-insights/age-group'))) {
+        if (streamerModeEnabled && settingsPageInfoEnabled && typeof url === 'string' && (url.includes('/my/settings/json') || url.includes('accountinformation.roblox.com/v1/phone') || url.includes('users.roblox.com/v1/birthdate') || url.includes('apis.roblox.com/age-verification-service/v1/age-verification/verified-age') || url.includes('accountsettings.roblox.com/v1/account/settings/account-country') || url.includes('apis.roblox.com/user-settings-api/v1/account-insights/age-group') || url.includes('apis.roblox.com/token-metadata-service/v1/sessions'))) {
             try {
                 const clone = response.clone();
                 const data = await clone.json();
                 
                 if (url.includes('/my/settings/json')) {
                     data.UserEmail = "RoValra Streamer Mode Enabled";
-                    data.UserEmailVerified = true;
                 }
                 if (url.includes('accountinformation.roblox.com/v1/phone')) {
                     data.countryCode = "RoValra Streamer Mode Enabled";
@@ -54,7 +53,6 @@
                     data.birthYear = 0;
                 }
                 if (url.includes('apis.roblox.com/age-verification-service/v1/age-verification/verified-age')) {
-                    data.isVerified = true;
                     data.verifiedAge = 0;
                     data.isSeventeenPlus = false;
                 }
@@ -62,11 +60,27 @@
                     if (data.value) {
                         data.value.countryName = "RoValra Streamer Mode Enabled";
                         data.value.localizedName = "RoValra Streamer Mode Enabled";
-                        data.value.countryId = 1;
                     }
                 }
                 if (url.includes('apis.roblox.com/user-settings-api/v1/account-insights/age-group')) {
                     data.ageGroupTranslationKey = "RoValra Streamer Mode Enabled";
+                }
+                if (url.includes('apis.roblox.com/token-metadata-service/v1/sessions')) {
+                    if (data.sessions && Array.isArray(data.sessions)) {
+                        data.sessions.forEach(session => {
+                            if (session.location) {
+                                session.location.city = "";
+                                session.location.subdivision = "";
+                                session.location.country = "To view your sessions please disable \"RoValra streamer mode\"";
+                            }
+                            if (session.agent) {
+                                session.agent.os = "RoValra streamer mode enabled";
+                                session.agent.type = "App";
+                            }
+                            session.lastAccessedTimestampEpochMilliseconds = "0";
+                            session.lastAccessedIp = "Hidden";
+                        });
+                    }
                 }
 
                 const newHeaders = new Headers(response.headers);
@@ -142,6 +156,9 @@
                 if (url.includes('apis.roblox.com/user-settings-api/v1/account-insights/age-group')) {
                     this._rovalra_spoof_age_group = true;
                 }
+                if (url.includes('apis.roblox.com/token-metadata-service/v1/sessions')) {
+                    this._rovalra_spoof_sessions = true;
+                }
             }
         }
 
@@ -151,7 +168,7 @@
     XMLHttpRequest.prototype.send = function(...args) {
         const xhr = this;
 
-        if (xhr._rovalra_spoof_settings || xhr._rovalra_spoof_phone || xhr._rovalra_spoof_birthdate || xhr._rovalra_spoof_age || xhr._rovalra_spoof_country || xhr._rovalra_spoof_age_group) {
+        if (xhr._rovalra_spoof_settings || xhr._rovalra_spoof_phone || xhr._rovalra_spoof_birthdate || xhr._rovalra_spoof_age || xhr._rovalra_spoof_country || xhr._rovalra_spoof_age_group || xhr._rovalra_spoof_sessions) {
             Object.defineProperty(xhr, 'responseText', {
                 configurable: true,
                 get: function() {
@@ -188,6 +205,23 @@
                         }
                         if (xhr._rovalra_spoof_age_group) {
                             data.ageGroupTranslationKey = "RoValra Streamer Mode Enabled";
+                        }
+                        if (xhr._rovalra_spoof_sessions) {
+                            if (data.sessions && Array.isArray(data.sessions)) {
+                                data.sessions.forEach(session => {
+                                    if (session.location) {
+                                        session.location.city = "";
+                                        session.location.subdivision = "";
+                                        session.location.country = "To view your sessions please disable \"RoValra streamer mode\"";
+                                    }
+                                    if (session.agent) {
+                                        session.agent.os = "RoValra streamer mode enabled";
+                                        session.agent.type = "App";
+                                    }
+                                    session.lastAccessedTimestampEpochMilliseconds = "0";
+                                    session.lastAccessedIp = "Hidden";
+                                });
+                            }
                         }
                         return JSON.stringify(data);
                     } catch (e) {
@@ -230,6 +264,30 @@
                         }
                         if (xhr._rovalra_spoof_age_group) {
                             original.ageGroupTranslationKey = "RoValra Streamer Mode Enabled";
+                        }
+                        if (xhr._rovalra_spoof_sessions) {
+                            if (original.sessions && Array.isArray(original.sessions)) {
+                                const modifiedSessions = original.sessions.map(session => {
+                                    const newSession = Object.assign({}, session);
+                                    if (newSession.location) {
+                                        newSession.location = Object.assign({}, newSession.location, {
+                                            city: "",
+                                            subdivision: "",
+                                            country: "To view your sessions please disable \"RoValra streamer mode\""
+                                        });
+                                    }
+                                    if (newSession.agent) {
+                                        newSession.agent = Object.assign({}, newSession.agent, {
+                                            os: "RoValra streamer mode enabled",
+                                            type: "App"
+                                        });
+                                    }
+                                    newSession.lastAccessedTimestampEpochMilliseconds = "0";
+                                    newSession.lastAccessedIp = "Hidden";
+                                    return newSession;
+                                });
+                                return Object.assign({}, original, { sessions: modifiedSessions });
+                            }
                         }
                         return original;
                     }
