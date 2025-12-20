@@ -2,6 +2,7 @@ import { observeElement } from '../../../core/observer.js';
 import { addTooltip } from '../../../core/ui/tooltip.js';
 import { createConfetti } from '../../../core/fun/confetti.js';
 import { BADGE_CONFIG } from '../../../core/configs/badges.js';
+import DOMPurify from 'dompurify';
 
 
 function createHeaderBadge(parentContainer, badge) {
@@ -70,7 +71,7 @@ function createProfileBadge(badgeList, badge) {
     const nameContainer = document.createElement('span');
     nameContainer.className = 'item-name-container text-overflow';
     nameContainer.style.textAlign = 'left'; 
-    nameContainer.innerHTML = `<span class="font-header-2 text-overflow item-name">${badge.name}</span>`;
+    nameContainer.innerHTML = DOMPurify.sanitize(`<span class="font-header-2 text-overflow item-name">${badge.name}</span>`);
 
     badgeLink.append(thumbSpan, nameContainer);
     badgeItem.appendChild(badgeLink);

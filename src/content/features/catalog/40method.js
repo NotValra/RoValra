@@ -13,6 +13,7 @@ import { createSpinner } from '../../core/ui/spinner.js';
 import { createStyledInput } from '../../core/ui/catalog/input.js';
 
 import { fetchThumbnails } from '../../core/thumbnail/thumbnails.js';
+import DOMPurify from 'dompurify';
 
 
 
@@ -151,7 +152,7 @@ const createAndShowPopup = (onSave) => {
     }
 
     const bodyContent = document.createElement('div');
-    bodyContent.innerHTML = `
+    bodyContent.innerHTML = DOMPurify.sanitize(`
         <div id="sr-view-main">
             <h4 class="text font-header-2" style="margin:0 0 12px 0;">Set Up an Experience</h4>
             <p class="text font-body" style="margin: 0 0 10px 0; line-height:1.4;">
@@ -260,7 +261,7 @@ const createAndShowPopup = (onSave) => {
                 <button class="btn-secondary-md btn-min-width" id="sr-permission-error-back-btn" style="flex: 1;">Back to Group Selection</button>
             </div>
         </div>
-    `;
+    `);
 
     const saveBtn = document.createElement('button');
     saveBtn.textContent = 'Save & Continue';
@@ -392,7 +393,7 @@ const createAndShowPopup = (onSave) => {
             } catch {}
         } catch (error) {
             console.error('RoValra: Failed to fetch groups:', error);
-            groupDropdownContainer.innerHTML = '<div class="text font-body" style="color: var(--rovalra-overlay-text-secondary);">Failed to load groups. Please refresh and try again.</div>';
+            groupDropdownContainer.innerHTML = DOMPurify.sanitize('<div class="text font-body" style="color: var(--rovalra-overlay-text-secondary);">Failed to load groups. Please refresh and try again.</div>');
         }
     };
     
@@ -454,7 +455,7 @@ const createAndShowPopup = (onSave) => {
             existingGames = data.data || [];
 
             if (existingGames.length === 0) {
-                loadingGames.innerHTML = '<p class="text font-body">No experiences found for this group.</p>';
+                loadingGames.innerHTML = DOMPurify.sanitize('<p class="text font-body">No experiences found for this group.</p>');
                 return;
             }
 
@@ -474,7 +475,7 @@ const createAndShowPopup = (onSave) => {
         } catch (error) {
             console.error('Failed to load games:', error);
             if (!viewPermissionError.classList.contains('sr-hidden')) return;
-            loadingGames.innerHTML = '<p class="text font-body">Failed to load games. Please try again.</p>';
+            loadingGames.innerHTML = DOMPurify.sanitize('<p class="text font-body">Failed to load games. Please try again.</p>');
         }
     });
 
@@ -507,7 +508,7 @@ const createAndShowPopup = (onSave) => {
                 gameCard.style.backgroundColor = 'rgba(0, 167, 111, 0.1)';
             }
 
-            gameCard.innerHTML = `
+            gameCard.innerHTML = DOMPurify.sanitize(`
                 <div style="width: 100px; height: 100px; background: #bdbebe; border-radius: 4px; overflow: hidden; position: relative;">
                     ${game.thumbnailUrl ? `
                         <img src="${game.thumbnailUrl}" alt="${game.name}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;">
@@ -515,7 +516,7 @@ const createAndShowPopup = (onSave) => {
                 </div>
                 <div class="text font-body" style="margin-top: 8px; font-weight: 600; font-size: 14px; width: 100px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; word-break: break-word;" title="${game.name}">${game.name}</div>
                 <div class="text font-body" style="font-size: 12px; opacity: 0.7; width: 100px;">ID: ${game.rootPlaceId}</div>
-            `;
+            `);
 
             gameCard.addEventListener('click', () => {
                 selectedGameIndex = i;
@@ -804,7 +805,7 @@ const removeRobloxJoinDialog = () => {
 
 const showSuccessNotification = (robuxSaved, gameName, isDonating = false) => {
     const bodyContent = document.createElement('div');
-    bodyContent.innerHTML = `
+    bodyContent.innerHTML = DOMPurify.sanitize(`
         <div style="padding: 20px; text-align: center;">
             <div style="font-size: 48px; margin-bottom: 16px;">✓</div>
             <h3 class="text font-header-2" style="margin: 0 0 12px 0;">Purchase Successful!</h3>
@@ -827,7 +828,7 @@ const showSuccessNotification = (robuxSaved, gameName, isDonating = false) => {
                 You can close the Roblox client now.
             </p>
         </div>
-    `;
+    `);
 
     const { overlay, close } = createOverlay({
         title: 'Purchase Successful',
@@ -850,7 +851,7 @@ const showFailureNotification = (errorDetails) => {
     }
     
     const bodyContent = document.createElement('div');
-    bodyContent.innerHTML = `
+    bodyContent.innerHTML = DOMPurify.sanitize(`
         <div style="padding: 20px; text-align: center;">
             <div style="font-size: 48px; margin-bottom: 16px; color: #d32f2f;">✗</div>
             <h3 class="text font-header-2" style="margin: 0 0 12px 0; color: #d32f2f;">Purchase Failed</h3>
@@ -866,7 +867,7 @@ const showFailureNotification = (errorDetails) => {
                 Please try again or report it in the RoValra Discord server if the issue persists.
             </p>
         </div>
-    `;
+    `);
 
     const { overlay, close } = createOverlay({
         title: 'Purchase Failed',
@@ -920,7 +921,7 @@ const showInitialConfirmation = async (savedPlaceId, useRoValraGroup) => {
     
     const confirmBody = document.createElement('div');
     confirmBody.style.cssText = 'padding: 10px 0;';
-    confirmBody.innerHTML = `
+    confirmBody.innerHTML = DOMPurify.sanitize(`
         <div style="padding: 16px 0; margin-bottom: 16px; text-align: center; border-bottom: 1px solid rgb(73, 77, 90);">
             <div class="text font-body" style="margin-bottom: 4px; font-weight: 600;">${isDonating ? 'ESTIMATED COMMISSION' : 'ESTIMATED SAVINGS'}</div>
             <div class="text font-body" style="font-size: 14px; opacity: .85;">Catalog items: 40% • Game passes: 10%</div>
@@ -961,7 +962,7 @@ const showInitialConfirmation = async (savedPlaceId, useRoValraGroup) => {
                 <strong>Important:</strong> Don't close Roblox until you see the success message.
             </div>
         </div>
-    `;
+    `);
 
     const confirmBtn = document.createElement('button');
     confirmBtn.textContent = 'Got It';
@@ -1098,13 +1099,13 @@ const executeCartPurchase = async (cartItems, totalPrice) => {
     
     if (itemsToPurchase.length === 0) {
         const errorBody = document.createElement('div');
-        errorBody.innerHTML = `
+        errorBody.innerHTML = DOMPurify.sanitize(`
             <div style="padding: 20px; text-align: center;">
                 <div style="font-size: 48px; margin-bottom: 16px;">✓</div>
                 <h3 class="text font-header-2" style="margin: 0 0 12px 0;">All Items Already Owned</h3>
                 <p class="text font-body" style="margin: 0;">You already own all ${cartItems.length} items in your cart. No purchase needed!</p>
             </div>
-        `;
+        `);
         const { overlay, close } = createOverlay({
             title: 'Already Owned',
             bodyContent: errorBody,
@@ -1140,7 +1141,7 @@ const executeCartPurchase = async (cartItems, totalPrice) => {
     
     const finalConfirmBody = document.createElement('div');
     finalConfirmBody.style.cssText = 'padding: 0;';
-    finalConfirmBody.innerHTML = `
+    finalConfirmBody.innerHTML = DOMPurify.sanitize(`
         <div style="padding: 12px 0 8px; text-align: center; border-bottom: 1px solid rgb(73, 77, 90);">
             <div class="text font-body" style="font-size: 16px; font-weight: 700;">Cart Purchase Summary</div>
             ${isDonating ? '<div class="text font-body" style="margin-top: 4px; font-size: 12px;">❤️ Donating to RoValra ❤️</div>' : ''}
@@ -1193,7 +1194,7 @@ const executeCartPurchase = async (cartItems, totalPrice) => {
             </div>
         </div>
         ${robuxAfterPurchase < 0 ? '<div style="padding: 8px; border-radius: 4px; background: rgba(211, 47, 47, 0.1); margin-bottom: 8px; border: 1px solid rgba(211, 47, 47, 0.3);"><span class="text font-body" style="color: #d32f2f; font-weight: 600; font-size: 13px;">⚠️ Insufficient Balance</span></div>' : ''}
-    `;
+    `);
 
     const finalConfirmBtn = document.createElement('button');
     finalConfirmBtn.textContent = 'Confirm Cart Purchase';
@@ -1241,14 +1242,14 @@ const executeCartPurchase = async (cartItems, totalPrice) => {
     }
 
     const bodyContent = document.createElement('div');
-    bodyContent.innerHTML = `
+    bodyContent.innerHTML = DOMPurify.sanitize(`
         <div style="padding: 20px; text-align: center;">
             <div id="progress-spinner" style="margin: 0 auto 16px;"></div>
             <h3 id="progress-title" class="text font-header-2" style="margin: 0 0 8px 0;">Processing Cart</h3>
             <p id="progress-text" class="text font-body" style="margin: 0;">Initializing...</p>
             <div id="progress-items" style="margin-top: 16px; text-align: left;"></div>
         </div>
-    `;
+    `);
 
     const progressSpinnerContainer = bodyContent.querySelector('#progress-spinner');
     if (progressSpinnerContainer) {
@@ -1379,24 +1380,24 @@ const executeCartPurchase = async (cartItems, totalPrice) => {
                 await execute40MethodPurchase(item.id, item.price, false, false, { name: item.name, thumbnail: item.thumbnail }, true, sharedSession);
                 results.push({ item: item.name, success: true });
                 
-                progressItems.innerHTML += `<div class="text font-body" style="padding: 4px 0; color: #28a745;">✓ ${item.name}</div>`;
+                progressItems.insertAdjacentHTML('beforeend', DOMPurify.sanitize(`<div class="text font-body" style="padding: 4px 0; color: #28a745;">✓ ${item.name}</div>`));
             } catch (error) {
                 const errorMsg = error.message === 'Purchase cancelled' ? 'Cancelled' : error.message;
                 results.push({ item: item.name, success: false, error: errorMsg });
-                progressItems.innerHTML += `<div class="text font-body" style="padding: 4px 0; color: #d32f2f;">✗ ${item.name} - ${errorMsg}</div>`;
+                progressItems.insertAdjacentHTML('beforeend', DOMPurify.sanitize(`<div class="text font-body" style="padding: 4px 0; color: #d32f2f;">✗ ${item.name} - ${errorMsg}</div>`));
             }
         }
     } catch (error) {
         closeProcessing();
         console.error('RoValra: Cart purchase session setup failed:', error);
         const errorBody = document.createElement('div');
-        errorBody.innerHTML = `
+        errorBody.innerHTML = DOMPurify.sanitize(`
             <div style="padding: 20px; text-align: center;">
                 <div style="font-size: 48px; margin-bottom: 16px; color: #d32f2f;">✗</div>
                 <h3 class="text font-header-2" style="margin: 0 0 12px 0; color: #d32f2f;">Setup Failed</h3>
                 <p class="text font-body" style="margin: 0;">Failed to set up game session. Please try again.</p>
             </div>
-        `;
+        `);
         createOverlay({
             title: 'Error',
             bodyContent: errorBody,
@@ -1412,7 +1413,7 @@ const executeCartPurchase = async (cartItems, totalPrice) => {
     const failCount = results.length - successCount;
     
     const resultsBody = document.createElement('div');
-    resultsBody.innerHTML = `
+    resultsBody.innerHTML = DOMPurify.sanitize(`
         <div style="padding: 20px; text-align: center;">
             <div style="font-size: 48px; margin-bottom: 16px;">${failCount === 0 ? '✓' : '⚠️'}</div>
             <h3 class="text font-header-2" style="margin: 0 0 12px 0;">Cart Purchase ${failCount === 0 ? 'Complete' : 'Partially Complete'}</h3>
@@ -1424,7 +1425,7 @@ const executeCartPurchase = async (cartItems, totalPrice) => {
             </div>
             <p class="text font-body" style="margin: 0;">${isDonating ? 'donated to RoValra' : 'saved (approximate)'}</p>
         </div>
-    `;
+    `);
 
     const { overlay: resultsOverlay, close: closeResults } = createOverlay({
         title: 'Purchase Complete',
@@ -1553,7 +1554,7 @@ const execute40MethodPurchase = async (itemId, robuxPrice, isGamePass = false, i
     
     if (alreadyOwned && !isCartItem) {
         const ownedBody = document.createElement('div');
-        ownedBody.innerHTML = `
+        ownedBody.innerHTML = DOMPurify.sanitize(`
             <div style="padding: 20px; text-align: center;">
                 <div style="font-size: 48px; margin-bottom: 16px;">✓</div>
                 <h3 class="text font-header-2" style="margin: 0 0 12px 0;">Already Owned</h3>
@@ -1561,7 +1562,7 @@ const execute40MethodPurchase = async (itemId, robuxPrice, isGamePass = false, i
                 <p class="text font-body" style="margin: 0; font-weight: 600;">${itemName}</p>
                 <p class="text font-body" style="margin: 12px 0 0 0; opacity: 0.7;">No purchase needed!</p>
             </div>
-        `;
+        `);
         const { overlay, close } = createOverlay({
             title: 'Already Owned',
             bodyContent: ownedBody,
@@ -1713,7 +1714,7 @@ const execute40MethodPurchase = async (itemId, robuxPrice, isGamePass = false, i
         
         const finalConfirmBody = document.createElement('div');
         finalConfirmBody.style.cssText = 'padding: 0;';
-        finalConfirmBody.innerHTML = `
+        finalConfirmBody.innerHTML = DOMPurify.sanitize(`
             <div style="padding: 12px 0 8px; text-align: center; border-bottom: 1px solid rgb(73, 77, 90);">
                 <div class="text font-body" style="font-size: 16px; font-weight: 700;">Purchase Summary</div>
                 ${isDonating ? '<div class="text font-body" style="margin-top: 4px; font-size: 12px;">❤️ Donating to RoValra ❤️</div>' : ''}
@@ -1766,7 +1767,7 @@ const execute40MethodPurchase = async (itemId, robuxPrice, isGamePass = false, i
                 </div>
             </div>
             ${robuxAfterPurchase < 0 ? '<div style="padding: 8px; border-radius: 4px; background: rgba(211, 47, 47, 0.1); margin-bottom: 8px; border: 1px solid rgba(211, 47, 47, 0.3);"><span class="text font-body" style="color: #d32f2f; font-weight: 600; font-size: 13px;">⚠️ Insufficient Balance</span></div>' : ''}
-        `;
+        `);
 
         const finalConfirmBtn = document.createElement('button');
         finalConfirmBtn.textContent = 'Confirm Purchase';
@@ -1816,7 +1817,7 @@ const execute40MethodPurchase = async (itemId, robuxPrice, isGamePass = false, i
 
     ensureNotCancelled();
     const bodyContent = document.createElement('div');
-    bodyContent.innerHTML = `
+    bodyContent.innerHTML = DOMPurify.sanitize(`
         <div style="padding: 20px; text-align: center;">
             <div id="progress-spinner" style="margin: 0 auto 16px;"></div>
             <h3 id="progress-title" class="text font-header-2" style="margin: 0 0 8px 0;">Preparing Purchase</h3>
@@ -1825,7 +1826,7 @@ const execute40MethodPurchase = async (itemId, robuxPrice, isGamePass = false, i
                 <div class="text font-body">This may take a bit...</div>
             </div>
         </div>
-    `;
+    `);
 
     const progressSpinnerContainer = bodyContent.querySelector('#progress-spinner');
     if (progressSpinnerContainer) {
@@ -2260,14 +2261,14 @@ const addSaveButton = (modal) => {
             
             if (isMismatch) {
                 const errorBody = document.createElement('div');
-                errorBody.innerHTML = `
+                errorBody.innerHTML = DOMPurify.sanitize(`
                     <div style="padding: 20px; text-align: center;">
                         <div style="font-size: 48px; margin-bottom: 16px; color: #d32f2f;">⚠️</div>
                         <h3 class="text font-header-2" style="margin: 0 0 12px 0; color: #d32f2f;">Cart Mismatch Detected</h3>
                         <p class="text font-body" style="margin: 0 0 12px 0;">The items in your purchase modal don't match what's in your cart.</p>
                         <p class="text font-body" style="margin: 0;">Please refresh the page and try again. If this issue persists, please report it in the RoValra Discord server.</p>
                     </div>
-                `;
+                `);
                 const { overlay, close } = createOverlay({
                     title: 'Purchase Error',
                     bodyContent: errorBody,

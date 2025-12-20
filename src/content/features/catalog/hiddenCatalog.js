@@ -2,6 +2,7 @@ import { observeElement } from '../../core/observer.js';
 import { callRobloxApiJson } from '../../core/api.js';
 import { getAssets } from '../../core/assets.js';
 import { fetchThumbnails } from '../../core/thumbnail/thumbnails.js';
+import DOMPurify from 'dompurify';
 
 let currentMode = 'dark';
 
@@ -372,13 +373,13 @@ export async function removeHiddenCatalogContent() {
     desc.id = 'hidden-catalog-description';
     desc.style.paddingTop = '10px';
     desc.style.paddingBottom = '20px';
-    desc.innerHTML = `
+    desc.innerHTML = DOMPurify.sanitize(`
         <p>The Hidden Catalog shows items uploaded by Roblox which are not yet on the marketplace.</p>
         <p><b>Roblox has patched this...</p>
         <p>Keep in mind that some of these items may never be released, as they could have been test uploads by Roblox.</p>
         <p>Most items will not have a thumbnail / mesh while being on the hidden catalog.</p>
         <p><b>To open the item page you will need <a href="https://www.roseal.live/" target="_blank" style="text-decoration: underline; color: inherit;">RoSeal</a></b></p>
-    `;
+    `);
     contentDiv.appendChild(desc);
 
     const items = await fetchDataFromAPI(1, 24);

@@ -4,6 +4,7 @@ import { callRobloxApiJson } from '../../core/api.js';
 import { createRadioButton } from '../../core/ui/general/radio.js';
 import { createOverlay } from '../../core/ui/overlay.js';
 import { fetchThumbnails, createThumbnailElement } from '../../core/thumbnail/thumbnails.js';
+import DOMPurify from 'dompurify';
 
 
 
@@ -123,7 +124,7 @@ async function showActionOverlay(selectedMembers, isFromBotScan = false) {
     membersToAction = selectedMembers;
 
     const bodyContainer = document.createElement('div');
-    bodyContainer.innerHTML = `
+    bodyContainer.innerHTML = DOMPurify.sanitize(`
         <div class="rovalra-action-description">Review ${selectedMembers.length} selected members:</div>
         <ul class="rovalra-action-summary-list">
             ${selectedMembers.map(m => `<li>${m.user.displayName} (@${m.user.username})</li>`).join('')}
@@ -136,7 +137,7 @@ async function showActionOverlay(selectedMembers, isFromBotScan = false) {
                 <div class="rovalra-action-progress-bar"></div>
             </div>
         </div>
-    `;
+    `);
 
     const btnBan = createBtn('Ban Members', 'btn-alert-md');
     const btnKick = createBtn('Kick Members', 'btn-control-md');
@@ -186,7 +187,7 @@ function showDoubleConfirmOverlay(actionType, isFromBotScan) {
         message += `<br><br><div class="rovalra-ban-warning" style="margin-top:0;"><strong>Reminder:</strong> Verify bot scores before banning.</div>`;
     }
 
-    bodyContent.innerHTML = `<div id="rovalra-double-confirm-message" style="text-align:center; font-size:16px;">${message}</div>`;
+    bodyContent.innerHTML = DOMPurify.sanitize(`<div id="rovalra-double-confirm-message" style="text-align:center; font-size:16px;">${message}</div>`);
 
     const btnConfirm = createBtn(`Yes, ${actionType.charAt(0).toUpperCase() + actionType.slice(1)}`, 'btn-alert-md');
     const btnCancel = createBtn('Cancel', 'btn-secondary-md');
@@ -294,7 +295,7 @@ async function processMembers(actionType) {
     let finalMessage = `${successCount} of ${totalMembers} members were successfully ${actionType}ed.`;
     if (failedMembers.length > 0) finalMessage += `\n${failedMembers.length} failed.`;
     
-    if(statusText) statusText.innerHTML = finalMessage.replace('\n', '<br>');
+    if(statusText) statusText.innerHTML = DOMPurify.sanitize(finalMessage.replace('\n', '<br>'));
     
     const cancelBtn = overlayEl.querySelector('.rovalra-action-cancel-btn');
     if(cancelBtn) {
@@ -584,7 +585,7 @@ async function addFeatureButtons(searchContainer) {
         if (!loader) {
             loader = document.createElement('div');
             loader.className = 'rovalra-loading-more';
-            loader.innerHTML = '<span class="spinner spinner-default"></span> <span>Loading more...</span>';
+            loader.innerHTML = DOMPurify.sanitize('<span class="spinner spinner-default"></span> <span>Loading more...</span>');
             quickBanListContainer.appendChild(loader);
         }
 
@@ -613,7 +614,7 @@ async function addFeatureButtons(searchContainer) {
                 equalizeCardHeights(quickBanListContainer);
                 if (membersTitleElement) membersTitleElement.textContent = `Select Members for Action (${quickActionState.members.length} Loaded)`;
             } else if (quickActionState.members.length === 0) {
-                quickBanListContainer.innerHTML = `<div style="text-align: center; padding: 20px;">No members found.</div>`;
+                quickBanListContainer.innerHTML = DOMPurify.sanitize(`<div style="text-align: center; padding: 20px;">No members found.</div>`);
             }
         } catch (e) {
             loader.remove();
@@ -677,11 +678,11 @@ async function addFeatureButtons(searchContainer) {
             const updateLoadingStatus = () => {
                 if (!membersTitleElement) return;
                 const pct = totalGroupMembers > 0 ? Math.round((loadedMemberCount / totalGroupMembers) * 100) : 0;
-                membersTitleElement.innerHTML = `
+                membersTitleElement.innerHTML = DOMPurify.sanitize(`
                     <div style="display:flex; align-items:center; gap:10px;">
                         <span class="spinner spinner-default" style="width:20px;height:20px;"></span>
                         <span>Scanned: ${loadedMemberCount} (${pct}%) | Analyzed: ${processedImageCount}</span>
-                    </div>`;
+                    </div>`);
             };
 
             const imageProcessingTasks = [];
@@ -794,7 +795,7 @@ async function addFeatureButtons(searchContainer) {
                     };
                     window.addEventListener('scroll', antiBotState.scrollListener);
                 } else {
-                    botMemberListContainer.innerHTML = `<div style="text-align: center; padding: 20px;">No bots detected.</div>`;
+                    botMemberListContainer.innerHTML = DOMPurify.sanitize(`<div style="text-align: center; padding: 20px;">No bots detected.</div>`);
                 }
 
             } catch (e) {
@@ -813,8 +814,7 @@ async function addFeatureButtons(searchContainer) {
         banByScoreButton.onclick = () => {
             if (antiBotState.likelyBotsCache.length === 0) return;
 
-            const bodyContainer = document.createElement('div');
-            bodyContainer.innerHTML = `
+            const bodyContainer = document.createElement('div'); bodyContainer.innerHTML = DOMPurify.sanitize(`
                 <div class="rovalra-score-selector-container">
                     <label>Minimum Bot Score: <span id="rovalra-score-value">50</span></label>
                     <input type="range" id="rovalra-score-slider" class="rovalra-slider" min="20" max="100" value="50">
@@ -823,7 +823,7 @@ async function addFeatureButtons(searchContainer) {
                     </div>
                 </div>
                 <div id="rovalra-score-action-container"></div>
-            `;
+            `);
 
             let selectedAction = 'ban';
             const actionDropdown = createDropdown({

@@ -1,4 +1,6 @@
 // used to create Robloxs tooltip with an attempted fix for the arrow that didnt exactly work out that well
+import DOMPurify from 'dompurify';
+
 export function addTooltip(parent, text, options = {}) {
     const { position = 'bottom', container = document.body } = options;
     let tooltipElement = null;
@@ -16,7 +18,7 @@ export function addTooltip(parent, text, options = {}) {
 
         const inner = document.createElement('div');
         inner.className = 'tooltip-inner';
-        inner.innerHTML = text; 
+        inner.innerHTML = DOMPurify.sanitize(text); 
 
 
         tooltipElement.append(arrow, inner);

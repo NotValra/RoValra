@@ -5,6 +5,7 @@ import { createDropdown } from '../../core/ui/dropdown.js';
 import { createShimmerGrid } from '../../core/ui/shimmer.js';
 import { fetchThumbnails as fetchThumbnailsBatch, createThumbnailElement } from '../../core/thumbnail/thumbnails.js';
 import { callRobloxApiJson } from '../../core/api.js';
+import DOMPurify from 'dompurify';
 
 const PAGE_SIZE = 50;
 const ACCESS_FILTER = { ALL: 1, PUBLIC: 2 };
@@ -125,7 +126,7 @@ const createGameCard = (game, likeMap, playerMap, thumbnailCache) => {
                 el('div', 'game-card-thumb-container', {}, [thumbnail]),
                 el('div', 'game-card-name game-name-title', { title: game.name, textContent: game.name })
             ]),
-            el('div', 'game-card-info', { innerHTML: infoContent })
+            el('div', 'game-card-info', { innerHTML: DOMPurify.sanitize(infoContent) })
         ])
     ]);
 };
@@ -197,7 +198,7 @@ class HiddenGamesManager {
         });
 
         if (this.allGames.length === 0) {
-            this.elements.list.innerHTML = `<p class="btr-no-servers-message">This group has no hidden experiences.</p>`;
+            this.elements.list.innerHTML = DOMPurify.sanitize(`<p class="btr-no-servers-message">This group has no hidden experiences.</p>`);
             this.elements.filters.style.display = 'none';
         } else {
             this.applyFilters();
@@ -253,7 +254,7 @@ class HiddenGamesManager {
         const gamesToShow = this.filteredGames.slice(0, this.displayedCount);
 
         if (gamesToShow.length === 0) {
-            this.elements.list.innerHTML = `<p class="btr-no-servers-message">No hidden experiences match the current filters.</p>`;
+            this.elements.list.innerHTML = DOMPurify.sanitize(`<p class="btr-no-servers-message">No hidden experiences match the current filters.</p>`);
             return;
         }
 
@@ -267,7 +268,7 @@ class HiddenGamesManager {
     async loadMore() {
         if (this.isLoading || this.isPaginating || this.displayedCount >= this.filteredGames.length) return;
         this.isPaginating = true;
-        this.elements.loader.innerHTML = `<p class="rovalra-loading-text">Loading more games...</p>`;
+        this.elements.loader.innerHTML = DOMPurify.sanitize(`<p class="rovalra-loading-text">Loading more games...</p>`);
 
         const nextBatch = this.filteredGames.slice(this.displayedCount, this.displayedCount + PAGE_SIZE);
         if (nextBatch.length > 0) {

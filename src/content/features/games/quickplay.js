@@ -9,6 +9,7 @@ import { createButton } from '../../core/ui/buttons.js';
 import { addTooltip as attachTooltip } from '../../core/ui/tooltip.js';
 import { performJoinAction, getSavedPreferredRegion } from '../../core/preferredregion.js';
 import { fetchThumbnails } from '../../core/thumbnail/thumbnails.js';
+import DOMPurify from 'dompurify';
 
 
 const PROCESSED_MARKER_CLASS = 'rovalra-quickplay-processed';
@@ -212,7 +213,7 @@ async function fetchAndDisplayPrivateServers(placeId, loadMore = false, nextPage
 
     try {
         if (!loadMore) {
-            State.privateServersContainer.innerHTML = `<p style="color: ${isDark ? '#fff' : '#000'}; text-align: center; padding: 10px 0;">Loading...</p>`;
+            State.privateServersContainer.innerHTML = DOMPurify.sanitize(`<p style="color: ${isDark ? '#fff' : '#000'}; text-align: center; padding: 10px 0;">Loading...</p>`);
             
             if (State.privateServerList.has(placeId)) {
                 const cached = State.privateServerList.get(placeId);
@@ -239,7 +240,7 @@ async function fetchAndDisplayPrivateServers(placeId, loadMore = false, nextPage
 
             if (res.status === 429) {
                 if (!loadMore) {
-                    State.privateServersContainer.innerHTML = `<p style="color: ${isDark ? '#fff' : '#000'}; text-align: center; padding: 10px 0;">Rate limited. Retrying...</p>`;
+                    State.privateServersContainer.innerHTML = DOMPurify.sanitize(`<p style="color: ${isDark ? '#fff' : '#000'}; text-align: center; padding: 10px 0;">Rate limited. Retrying...</p>`);
                 }
                 
                 await new Promise(resolve => setTimeout(resolve, retryDelay));
@@ -282,7 +283,7 @@ async function fetchAndDisplayPrivateServers(placeId, loadMore = false, nextPage
 
     } catch (e) {
         if (State.activePlaceId === placeId) {
-            State.privateServersContainer.innerHTML = `<p style="text-align: center;">Could not load servers.</p>`;
+            State.privateServersContainer.innerHTML = DOMPurify.sanitize(`<p style="text-align: center;">Could not load servers.</p>`);
         }
     } finally {
         State.isLoadingPrivateServers = false;
@@ -309,15 +310,18 @@ function renderPrivateServers(placeId, servers, nextPageCursor, thumbnails, appe
         el.className = 'private-server-item';
 
         const thumbUrl = thumbnails[server.owner.id];
-        el.innerHTML = `
-            <a href="https://www.roblox.com/users/${server.owner.id}/profile" target="_blank" class="private-server-owner-thumb-link" onclick="event.stopPropagation()">
+        el.innerHTML = DOMPurify.sanitize(`
+            <a href="https://www.roblox.com/users/${server.owner.id}/profile" target="_blank" class="private-server-owner-thumb-link">
                 <img class="private-server-owner-thumb" src="${thumbUrl || ''}">
             </a>
             <div class="private-server-info">
                 <span class="private-server-name" title="${server.name}">${server.name}</span>
                 <span class="private-server-players">${server.players.length} / ${server.maxPlayers}</span>
             </div>
-        `;
+        `);
+
+        const thumbLink = el.querySelector('.private-server-owner-thumb-link');
+        if (thumbLink) thumbLink.addEventListener('click', (e) => e.stopPropagation());
 
         if (server.owner.id === State.currentUserId) {
             const actions = document.createElement('div');
@@ -363,7 +367,7 @@ function renderPrivateServers(placeId, servers, nextPageCursor, thumbnails, appe
 
         const joinBtn = document.createElement('button');
         joinBtn.className = 'private-server-join-btn';
-        joinBtn.innerHTML = `<span class="icon-common-play"></span>`;
+        joinBtn.innerHTML = DOMPurify.sanitize(`<span class="icon-common-play"></span>`);
         joinBtn.onclick = (e) => {
             e.preventDefault(); e.stopPropagation();
             launchPrivateGame(placeId, server.accessCode, server.vipServerId);
@@ -508,7 +512,7 @@ async function setupHoverCard(gameLink, settings) {
 
     const playBtn = document.createElement('button');
     playBtn.className = 'play-game-button';
-    playBtn.innerHTML = `<span class="icon-common-play"></span>`;
+    playBtn.innerHTML = DOMPurify.sanitize(`<span class="icon-common-play"></span>`);
     
     if (settings.PreferredRegionEnabled && settings.playbuttonpreferredregionenabled) {
         playBtn.onclick = handlePreferredJoin;

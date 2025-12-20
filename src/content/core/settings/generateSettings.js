@@ -7,6 +7,7 @@ import { createFileUpload } from '../ui/fileupload.js';
 import { createPill } from '../ui/general/pill.js';
 import { handleSaveSettings } from './handlesettings.js';
 import { createStyledInput } from '../ui/catalog/input.js'; 
+import DOMPurify from 'dompurify';
 
 
 export function findSettingConfig(settingName) {
@@ -30,9 +31,9 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
         const toggleClass = setting.disabled ? 'toggle-switch1' : 'toggle-switch';
         const label = document.createElement('label');
         label.className = toggleClass;
-        label.innerHTML = `
+        label.innerHTML = DOMPurify.sanitize(`
             <input type="checkbox" id="${settingName}" data-setting-name="${settingName}"${setting.disabled ? ' disabled' : ''}>
-            <span class="${setting.disabled ? 'slider1' : 'slider'}"></span>`;
+            <span class="${setting.disabled ? 'slider1' : 'slider'}"></span>`);
         return label;
     } else if (setting.type === 'select') {
         let dropdownOptions = [];
@@ -158,7 +159,7 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
         const wrapper = document.createElement('div');
         wrapper.className = 'rovalra-number-input-wrapper';
         wrapper.style.cssText = 'display: flex; align-items: center; gap: 12px; margin-left: auto;';
-        wrapper.innerHTML = `
+        wrapper.innerHTML = DOMPurify.sanitize(`
             <div class="rovalra-number-input-container" style="display: flex; align-items: center; gap: 8px; background-color: var(--surface-default); padding: 4px; border-radius: 8px;">
                 <button type="button" class="rovalra-number-input-btn btn-control-xs" data-action="decrement" data-target="${settingName}" style="width: 32px; height: 32px; padding: 0; line-height: 0; border: none;">
                     <svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1phnduy" focusable="false" aria-hidden="true" viewBox="0 0 24 24" style="width: 20px; height: 20px; fill: var(--icon-default);"><path d="M19 13H5v-2h14z"></path></svg>
@@ -173,7 +174,7 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
             <label class="toggle-switch">
                 <input type="checkbox" id="${settingName}-enabled" data-setting-name="${settingName}-enabled" data-controls-setting="${settingName}">
                 <span class="slider"></span>
-            </label>`;
+            </label>`);
         return wrapper;
     }
     return document.createElement('div'); 
@@ -218,7 +219,7 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
         descriptions.forEach(desc => {
             const descElement = document.createElement('div');
             descElement.className = 'setting-description';
-            descElement.innerHTML = parseMarkdown(desc, themeColors);
+            descElement.innerHTML = DOMPurify.sanitize(parseMarkdown(desc, themeColors));
             settingContainer.appendChild(descElement);
         });
     }
@@ -296,7 +297,7 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
                 childDescriptions.forEach(desc => {
                     const childDescElement = document.createElement('div');
                     childDescElement.className = 'setting-description';
-                    childDescElement.innerHTML = parseMarkdown(desc, themeColors);
+                    childDescElement.innerHTML = DOMPurify.sanitize(parseMarkdown(desc, themeColors));
                     childContainer.appendChild(childDescElement);
                 });
             }
