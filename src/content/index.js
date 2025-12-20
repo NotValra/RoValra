@@ -42,7 +42,7 @@ import { init as initAntiBots } from './features/groups/Antibots.js';
 import { init as initDonationLink } from './features/profile/header/donationlink.js';
 import { init as initRap } from './features/profile/header/rap.js';
 import { init as initInstantJoiner } from './features/profile/header/instantjoiner.js';
-//import { init as initItemChecker } from './features/Profile/ItemChecker.js';
+import { init as initItemChecker } from './features/profile/ItemChecker.js';
 import { init as initOutfits } from './features/profile/outfits.js';
 import { init as initPrivateServers } from './features/profile/privateserver.js';
 import { init as initRovalraBadges } from './features/profile/header/RoValraBadges.js';
@@ -100,7 +100,7 @@ const featureRoutes = [
       initDonationLink,
       initRap,
       initInstantJoiner,
-      //initItemChecker,
+      initItemChecker,
       initOutfits,
       initPrivateServers,
       initRovalraBadges,
