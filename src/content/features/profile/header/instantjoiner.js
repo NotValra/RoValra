@@ -4,6 +4,7 @@ import { createSearchInput } from '../../../core/ui/general/gameInput.js';
 import { createSquareButton } from '../../../core/ui/profile/header/squarebutton.js';
 import { launchGame } from '../../../core/utils/launcher.js';
 import { callRobloxApi } from '../../../core/api.js';
+import DOMPurify from 'dompurify';
 
 export function init() {
     chrome.storage.local.get({ userSniperEnabled: false, deeplinkEnabled: true }, function(settings) {
@@ -130,11 +131,11 @@ export function init() {
 
             const description = document.createElement('p');
             description.className = 'text-body';
-            description.innerHTML = `
+            description.innerHTML = DOMPurify.sanitize(`
                 This will automatically attempts to join the user as soon as they get into an experience.
                 <br><br>
                 This requires the user to have their joins enabled for everyone or for you to be friends with them.
-            `;
+            `);
 
             let selectedGame = null;
 

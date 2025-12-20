@@ -2,6 +2,7 @@
 
 import { createThumbnailElement } from '../../thumbnail/thumbnails.js';
 import { addTooltip } from '../tooltip.js';
+import DOMPurify from 'dompurify';
 let isCssInjected = false;
 
 
@@ -82,12 +83,12 @@ export function createItemCard(item, thumbnailCache, config = {}) {
         const serialVisibilityClass = hideSerial ? 'hover-reveal' : 'always-visible';
         const serialIconElement = document.createElement('div');
         serialIconElement.className = `rovalra-serial-container ${serialVisibilityClass}`;
-        serialIconElement.innerHTML = `
+        serialIconElement.innerHTML = DOMPurify.sanitize(`
             <div class="rovalra-serial-star">
                 <span class="icon-shop-limited"></span>
             </div>
             <span class="rovalra-serial-number">#${item.serialNumber.toLocaleString()}</span>
-        `;
+        `);
         thumbContainer.appendChild(serialIconElement);
     }
 
@@ -97,7 +98,7 @@ export function createItemCard(item, thumbnailCache, config = {}) {
     limitedIconElement.className = item.serialNumber !== null ? 'icon-label icon-limited-unique-label' : 'icon-label icon-limited-label';
     thumbContainer.appendChild(limitedIconElement);
 
-    card.innerHTML = `
+    card.innerHTML = DOMPurify.sanitize(`
         <a href="${itemUrl}" target="_blank" rel="noopener noreferrer" class="rovalra-item-card-link">
             <!-- Thumbnail container will be injected here -->
             <div class="rovalra-item-name" title="${item.name}">${item.name}</div>
@@ -106,7 +107,7 @@ export function createItemCard(item, thumbnailCache, config = {}) {
                 <span>${rap}</span>
             </div>
         </a>
-    `;
+    `);
     card.querySelector('a').prepend(thumbContainer);
     return card;
 }

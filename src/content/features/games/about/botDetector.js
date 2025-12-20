@@ -1,6 +1,7 @@
 import { callRobloxApi } from '../../../core/api.js';
 import { observeElement } from '../../../core/observer.js';
 import { addTooltip } from '../../../core/ui/tooltip.js';
+import DOMPurify from 'dompurify';
 
 const MAX_SERVERS_TO_CHECK = 50;
 const BOT_PERCENTAGE_THRESHOLD = 10;
@@ -76,21 +77,21 @@ class BotDetector {
         const tooltipText = `Bots are accounts running automated scripts to farm items. A single user can sometimes run 50+ bots.\n\nKeep in mind that this is not a fault of the game developers. This information can be inaccurate if an experience is mainly played by new Roblox accounts.`;
 
         if (botPercentage > 20) {
-            statsContainer.innerHTML = `
+            statsContainer.innerHTML = DOMPurify.sanitize(`
                 <div style="display: flex; align-items: center; gap: 4px; color: ${tooltipTextColor};">
                     <span style="font-weight: 500;"><span style="color: var(--rovalra-main-text-color)">${gameName}</span> has a lot of bots</span>
                     <i class="icon-moreinfo"></i>
                 </div>
-            `;
+            `);
             const infoIcon = statsContainer.querySelector('.icon-moreinfo');
             addTooltip(infoIcon, tooltipText, { position: 'top' });
         } else if (botPercentage > BOT_PERCENTAGE_THRESHOLD) {
-            statsContainer.innerHTML = `
+            statsContainer.innerHTML = DOMPurify.sanitize(`
                 <div style="display: flex; align-items: center; gap: 4px; color: ${tooltipTextColor};">
                     <span style="font-weight: 500;"><span style="color: var(--rovalra-main-text-color);">${gameName}</span> has some bots but mostly real players</span>
                     <i class="icon-moreinfo"></i>
                 </div>
-            `;
+            `);
             const infoIcon = statsContainer.querySelector('.icon-moreinfo');
             addTooltip(infoIcon, tooltipText, { position: 'top' });
         } else {

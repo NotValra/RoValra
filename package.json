@@ -12,6 +12,7 @@
     "rimraf": "^5.0.5"
   },
   "dependencies": {
+    "dompurify": "^3.2.4",
     "marked": "^13.0.2"
   }
 }

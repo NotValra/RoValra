@@ -5,6 +5,7 @@ import { callRobloxApi } from '../../core/api.js';
 import { getAssets } from '../../core/assets.js';
 import { fetchThumbnails } from '../../core/thumbnail/thumbnails.js';
 import { createRadioButton } from '../../core/ui/general/radio.js';
+import DOMPurify from 'dompurify';
 
 const INACTIVE_MAIN_BUTTON_ID = 'rovalra-bulk-inactivate-btn';
 const SET_INACTIVE_BTN_ID = 'rovalra-set-inactive-btn';
@@ -134,7 +135,7 @@ async function processServerRequest(selectedItems, isActive) {
         errorLog.forEach(err => {
             const errorItem = document.createElement('li');
             const gameUrl = `https://www.roblox.com/games/${err.placeId}`;
-            errorItem.innerHTML = `<a href="${gameUrl}" target="_blank" rel="noopener noreferrer">${err.name}</a>: ${err.reason}`;
+            errorItem.innerHTML = DOMPurify.sanitize(`<a href="${gameUrl}" target="_blank" rel="noopener noreferrer">${err.name}</a>: ${err.reason}`);
             errorList.appendChild(errorItem);
         });
         resultBody.appendChild(errorList);
@@ -323,7 +324,7 @@ function handleBulkAction(isActive) {
                 const priceDisplay = server.priceInRobux ? `<span class="icon-robux-16x16"></span><span class="text-robux-tile ng-binding">${server.priceInRobux}</span>` : `<span class="text-overflow font-caption-body ng-binding ng-scope text-robux-tile">Free</span>`;
                 const listItem = document.createElement('li');
                 listItem.className = 'list-item item-card ng-scope place-item selectable-item-card';
-                listItem.innerHTML = `<div class="item-card-container"><div class="item-card-link"><div class="item-card-thumb-container"><span class="thumbnail-2d-container"><img src="${thumbnailUrl}" alt="${server.name}" title="${server.name}"></span></div><div class="item-card-name" title="${server.name}"><span class="ng-binding">${server.name}</span></div></div><div class="text-overflow item-card-label ng-scope"><span class="ng-binding">By </span><a class="creator-name text-overflow text-link ng-binding" href="https://www.roblox.com/users/${server.ownerId}/profile" target="_blank" rel="noopener noreferrer">@${server.ownerName}</a></div><div class="text-overflow item-card-price ng-scope">${priceDisplay}</div></div>`;
+                listItem.innerHTML = DOMPurify.sanitize(`<div class="item-card-container"><div class="item-card-link"><div class="item-card-thumb-container"><span class="thumbnail-2d-container"><img src="${thumbnailUrl}" alt="${server.name}" title="${server.name}"></span></div><div class="item-card-name" title="${server.name}"><span class="ng-binding">${server.name}</span></div></div><div class="text-overflow item-card-label ng-scope"><span class="ng-binding">By </span><a class="creator-name text-overflow text-link ng-binding" href="https://www.roblox.com/users/${server.ownerId}/profile" target="_blank" rel="noopener noreferrer">@${server.ownerName}</a></div><div class="text-overflow item-card-price ng-scope">${priceDisplay}</div></div>`);
                 
                 const radio = createRadioButton();
                 radio.dataset.serverId = server.privateServerId;

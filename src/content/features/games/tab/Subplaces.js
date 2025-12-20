@@ -2,6 +2,7 @@ import { fetchThumbnails as fetchThumbnailsBatch, createThumbnailElement } from 
 import { callRobloxApi } from '../../../core/api.js';
 import { observeElement } from '../../../core/observer.js';
 import { createStyledInput } from '../../../core/ui/catalog/input.js';
+import DOMPurify from 'dompurify';
 
 const PAGE_SIZE = 12;
 
@@ -375,7 +376,7 @@ export async function init() {
                     if (universeDetails && universeDetails.rootPlaceId && universeDetails.rootPlaceId.toString() !== placeId) {
                         
                         const rootPlaceData = subplaces.find(p => p.isRootPlace);
-                        const rootPlaceName = rootPlaceData ? rootPlaceData.name : "the main experience";
+                        const rootPlaceName = DOMPurify.sanitize(rootPlaceData ? rootPlaceData.name : "the main experience");
                         const rootPlaceId = universeDetails.rootPlaceId;
                         const joinData = await checkSubplaceJoinability(placeId);
                         

@@ -1,4 +1,5 @@
 import { fetchThumbnails } from '../../../core/thumbnail/thumbnails.js';
+import { launchGame } from '../../../core/utils/launcher.js';
 import { initServerIdExtraction } from '../../../core/games/servers/serverids.js';
 import { loadDatacenterMap } from '../../../core/regions.js';
 import { initGlobalStatsBar } from '../../../core/games/servers/serverstats.js';
@@ -7,6 +8,7 @@ import { initRegionFilters } from '../../../core/games/servers/filters/regionfil
 import { initUptimeFilters } from '../../../core/games/servers/filters/uptimefilters.js';
 import { initVersionFilters } from '../../../core/games/servers/filters/versionfilters.js';
 import { createButton } from '../../../core/ui/buttons.js';
+import DOMPurify from 'dompurify';
 import {
     enhanceServer,
     displayPerformance,
@@ -126,7 +128,7 @@ function createClearButton(container) {
 
     const btn = createButton('Clear', 'secondary');
     btn.classList.add('filter-button-alignment');
-    btn.innerHTML = `<span>Clear</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6L18 18"/></svg>`;
+    btn.innerHTML = DOMPurify.sanitize(`<span>Clear</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6L18 18"/></svg>`);
     
     btn.addEventListener('click', () => {
          clearAllFilters();
@@ -247,7 +249,7 @@ function manageLoadMoreButton(nextCursor, regionCode) {
         loadMoreButton.style.cursor = "pointer";
 
         loadMoreButton.addEventListener('click', () => {
-            loadMoreButton.innerHTML = '<span class="spinner spinner-default"></span>';
+            loadMoreButton.innerHTML = DOMPurify.sanitize('<span class="spinner spinner-default"></span>');
             loadMoreButton.disabled = true;
             document.dispatchEvent(new CustomEvent('rovalraRequestRegionServers', { 
                 detail: { regionCode, cursor: nextCursor } 
@@ -406,16 +408,22 @@ export async function createServerCardFromRobloxApi(server, placeId) {
             <div class="text-info rbx-game-status rbx-public-game-server-status text-overflow">${server.playing} of ${server.maxPlayers} people max</div>
             <div class="server-player-count-gauge border"><div class="gauge-inner-bar border" style="width: ${ (server.playing / server.maxPlayers) * 100}%;"></div></div>`;
 
-        const joinButtonHTML = placeId ? `<button type="button" class="btn-full-width btn-control-xs rbx-public-game-server-join game-server-join-btn btn-primary-md btn-min-width" onclick="Roblox.GameLauncher.joinGameInstance(${placeId}, '${serverId}')">Join</button>` : '';
-
-        serverItem.innerHTML = `
+        serverItem.innerHTML = DOMPurify.sanitize(`
             <div class="card-item card-item-public-server">
                 ${playerThumbnailsContainerHTML}
                 <div class="rbx-public-game-server-details game-server-details">
                     ${serverDetailsHTML}
-                    ${joinButtonHTML}
                 </div>
-            </div>`;
+            </div>`);
+
+        if (placeId) {
+            const detailsDiv = serverItem.querySelector('.game-server-details');
+            const joinBtn = document.createElement('button');
+            joinBtn.className = 'btn-full-width btn-control-xs rbx-public-game-server-join game-server-join-btn btn-primary-md btn-min-width';
+            joinBtn.textContent = 'Join';
+            joinBtn.onclick = () => launchGame(placeId, serverId);
+            detailsDiv.appendChild(joinBtn);
+        }
 
         try { serverItem._rovalraApiData = server; serverItem.setAttribute('data-rovalra-api', '1'); } catch (e) {}
 
@@ -449,16 +457,22 @@ export function createServerCardFromApi(server, placeId = '') {
         const serverDetailsHTML = `
             <div class="text-info rbx-game-status rbx-public-game-server-status text-overflow">Player count unknown</div>`;
 
-        const joinButtonHTML = placeId ? `<button type="button" class="btn-full-width btn-control-xs rbx-public-game-server-join game-server-join-btn btn-primary-md btn-min-width" onclick="Roblox.GameLauncher.joinGameInstance(${placeId}, '${serverId}')">Join</button>` : '';
-
-        serverItem.innerHTML = `
+        serverItem.innerHTML = DOMPurify.sanitize(`
             <div class="card-item card-item-public-server">
                 ${playerThumbnailsContainerHTML}
                 <div class="rbx-public-game-server-details game-server-details">
                     ${serverDetailsHTML}
-                    ${joinButtonHTML}
                 </div>
-            </div>`;
+            </div>`);
+
+        if (placeId) {
+            const detailsDiv = serverItem.querySelector('.game-server-details');
+            const joinBtn = document.createElement('button');
+            joinBtn.className = 'btn-full-width btn-control-xs rbx-public-game-server-join game-server-join-btn btn-primary-md btn-min-width';
+            joinBtn.textContent = 'Join';
+            joinBtn.onclick = () => launchGame(placeId, serverId);
+            detailsDiv.appendChild(joinBtn);
+        }
 
         try { serverItem._rovalraApiData = server; serverItem.setAttribute('data-rovalra-api', '1'); } catch (e) {}
         return serverItem;

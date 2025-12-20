@@ -6,6 +6,7 @@ import { fetchThumbnails as fetchThumbnailsBatch } from '../../core/thumbnail/th
 import { createSquareButton } from '../../core/ui/profile/header/squarebutton.js';
 import { createScrollButtons } from '../../core/ui/general/scrollButtons.js';
 import { createButton } from '../../core/ui/buttons.js';
+import DOMPurify from 'dompurify';
 
 export function init() {
     chrome.storage.local.get('useroutfitsEnabled', function(data) {
@@ -267,7 +268,7 @@ export function init() {
                     return Math.max(1, itemsPerRow * rowsPerPage);
                 };
 
-                itemsContainer.innerHTML = `<p style="color: ${theme.textSecondary}; font-style: italic; text-align: center;">Loading items...</p>`;
+                itemsContainer.innerHTML = DOMPurify.sanitize(`<p style="color: ${theme.textSecondary}; font-style: italic; text-align: center;">Loading items...</p>`);
                 itemsContainer.style.display = 'flex';
                 itemsContainer.style.flexWrap = 'wrap';
                 itemsContainer.style.justifyContent = 'center'; 
@@ -361,7 +362,7 @@ export function init() {
                         }
 
                         if (!assets || assets.length === 0) {
-                            itemsContainer.innerHTML = '<p style="font-style: italic; text-align: center;">This outfit has no items.</p>';
+                            itemsContainer.innerHTML = DOMPurify.sanitize('<p style="font-style: italic; text-align: center;">This outfit has no items.</p>');
                             itemsContainer.style.display = 'block';
                             paginationContainer.style.visibility = 'hidden';
                             return;
@@ -625,7 +626,7 @@ export function init() {
                         if (selectedOutfitId !== outfit.id) return;
                         renderOutfitDetails(newOutfitData);
                     } catch (error) {
-                        itemsContainer.innerHTML = `<p style="color: ${theme.textSecondary}; font-style: italic; text-align: center; margin-right: auto; margin-left: auto;">Could not load items.</p>`;
+                        itemsContainer.innerHTML = DOMPurify.sanitize(`<p style="color: ${theme.textSecondary}; font-style: italic; text-align: center; margin-right: auto; margin-left: auto;">Could not load items.</p>`);
                     }
                 }
                 if (shimmerPlaceholder.parentNode) {

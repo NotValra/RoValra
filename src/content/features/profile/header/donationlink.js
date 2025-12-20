@@ -4,6 +4,7 @@ import { launchMultiplayerGame } from '../../../core/utils/launcher.js';
 import { getUsernameFromPageData } from '../../../core/utils.js';
 import { getOrCreateRovalraContainer } from './rap.js';
 import { createProfileHeaderButton } from '../../../core/ui/profile/header/button.js';
+import DOMPurify from 'dompurify';
 
 function addDonationButton(observedElement) {
     const buttonIdentifier = 'rovalra-donation-button';
@@ -20,7 +21,7 @@ function addDonationButton(observedElement) {
         }
 
         const bodyContent = document.createElement('div');
-        bodyContent.innerHTML = `
+        bodyContent.innerHTML = DOMPurify.sanitize(`
             <p style="line-height: 1.6; white-space: pre-line; font-size: 14px; font-weight: 600;">
                 This will launch "PLS DONATE" where you can give an offline donation.
 
@@ -28,7 +29,7 @@ function addDonationButton(observedElement) {
 
                 Upon joining, the "Offline Donations" UI will appear with their username pre-filled. Simply click the gift button to open their stand and purchase a gamepass to donate.
             </p>
-        `;
+        `);
 
         const continueButton = document.createElement('button');
         continueButton.innerText = 'Join Pls Donate';
