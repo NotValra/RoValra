@@ -213,12 +213,15 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
     divider.className = 'setting-label-divider';
     settingContainer.appendChild(divider);
 
-    setting.description?.forEach(desc => {
-        const descElement = document.createElement('div');
-        descElement.className = 'setting-description';
-        descElement.innerHTML = parseMarkdown(desc, themeColors);
-        settingContainer.appendChild(descElement);
-    });
+    if (setting.description) {
+        const descriptions = Array.isArray(setting.description) ? setting.description : [String(setting.description)];
+        descriptions.forEach(desc => {
+            const descElement = document.createElement('div');
+            descElement.className = 'setting-description';
+            descElement.innerHTML = parseMarkdown(desc, themeColors);
+            settingContainer.appendChild(descElement);
+        });
+    }
 
     if (setting.type === 'file') {
         const uploadElement = inputElement;
@@ -288,12 +291,15 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
             childDivider.className = 'setting-label-divider';
             childContainer.appendChild(childDivider);
 
-            childSetting.description?.forEach(desc => {
-                const childDescElement = document.createElement('div');
-                childDescElement.className = 'setting-description';
-                childDescElement.innerHTML = parseMarkdown(desc, themeColors);
-                childContainer.appendChild(childDescElement);
-            });
+            if (childSetting.description) {
+                const childDescriptions = Array.isArray(childSetting.description) ? childSetting.description : [String(childSetting.description)];
+                childDescriptions.forEach(desc => {
+                    const childDescElement = document.createElement('div');
+                    childDescElement.className = 'setting-description';
+                    childDescElement.innerHTML = parseMarkdown(desc, themeColors);
+                    childContainer.appendChild(childDescElement);
+                });
+            }
             
             if (childSetting.type === 'file') {
                 const uploadElement = childInput;

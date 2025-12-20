@@ -1,12 +1,12 @@
 
 function getDefaultSettings() {
-    // This object should be kept in sync with the defaults in settings.js
+    // This object should be kept in sync with the defaults in settingConfig.js
     return {
         hiddenCatalogEnabled: false,
-        itemSalesEnabled: true,
+        itemSalesEnabled: false,
         groupGamesEnabled: true,
         userGamesEnabled: true,
-        userSniperEnabled: false,
+        userSniperEnabled: true,
         privateInventoryEnabled: true,
         PreferredRegionEnabled: true,
         robloxPreferredRegion: 'AUTO',
@@ -75,7 +75,10 @@ function getDefaultSettings() {
         EnableVideoTest: false,
         EnableGameTrailer: true,
         Enableautoplay: true,
-        alwaysShowDeveloperSettings: false
+        alwaysShowDeveloperSettings: false,
+        streamermode: false,
+        settingsPageInfo: true,
+        hideRobux: false
     };
 }
 
