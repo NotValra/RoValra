@@ -371,6 +371,7 @@ function addDeveloperTab({ menuList, loadTabContent, renderMobileDropdown }) {
                 description: ["This enables the 'Impersonate User' option on peoples profile, used by Roblox internally.",
                     "Pressing the 'Impersonate User' option does nothing other than error unless you are authorized to use it"
                 ],
+                deprecated: "Roblox removed it with the new profile overhaul",
                 type: "checkbox",
                 default: false
             },
