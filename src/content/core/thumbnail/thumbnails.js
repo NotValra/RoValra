@@ -47,6 +47,7 @@ async function fetchBatchData(batch, type, size, isCircular, signal, noCache = f
         'AvatarHeadshot': { path: '/v1/users/avatar-headshot', idParam: 'userIds' },
         'GameIcon': { path: '/v1/games/icons', idParam: 'universeIds' },
         'Asset': { path: '/v1/assets', idParam: 'assetIds' },
+        'BundleThumbnail': { path: '/v1/bundles/thumbnails', idParam: 'bundleIds' },
         'PlaceIcon': { path: '/v1/places/gameicons', idParam: 'placeIds' },
         'UserOutfit': { path: '/v1/users/outfits', idParam: 'userOutfitIds' }
     };
