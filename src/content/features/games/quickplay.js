@@ -141,7 +141,13 @@ async function isVipServerActive(vipServerId) {
     if (State.privateServerStatus.has(vipServerId)) return State.privateServerStatus.get(vipServerId);
     try {
         const res = await callRobloxApi({ subdomain: 'games', endpoint: `/v1/vip-servers/${vipServerId}` });
-        const isActive = res.ok && (await res.json()).active === true;
+        if (!res.ok) {
+            State.privateServerStatus.set(vipServerId, false);
+            return false;
+        }
+        const data = await res.json();
+        const isExpired = data.subscription?.expired === true;
+        const isActive = data.active === true && !isExpired;
         State.privateServerStatus.set(vipServerId, isActive);
         return isActive;
     } catch {
