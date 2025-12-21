@@ -259,7 +259,20 @@ async function createStatsBarUI(serverListContainer) {
         statsContainer.appendChild(oldestVersionBar);
     }
     
-    header.insertAdjacentElement('afterend', statsContainer);
+    if (serverListContainer.closest('#roseal-running-game-instances-container')) {
+        const controls = document.getElementById('rovalra-main-controls');
+        const options = serverListContainer.querySelector('.server-list-options');
+        
+        if (controls && serverListContainer.contains(controls)) {
+            controls.insertAdjacentElement('afterend', statsContainer);
+        } else if (options) {
+            options.insertAdjacentElement('afterend', statsContainer);
+        } else {
+            serverListContainer.appendChild(statsContainer);
+        }
+    } else {
+        header.insertAdjacentElement('afterend', statsContainer);
+    }
 }
 
 

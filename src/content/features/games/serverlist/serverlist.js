@@ -35,7 +35,7 @@ const SHARED_STYLES = `
         display: flex;
         align-items: center;
         flex: 1; 
-        margin-left: 16px; 
+        margin-left: 5px; 
         gap: 10px; 
         flex-wrap: nowrap;
     }
@@ -110,7 +110,13 @@ function createFilterUI(parentContainer) {
 
     const container = document.createElement('div');
     container.id = 'rovalra-main-controls';
-    parentContainer.appendChild(container);
+    if (parentContainer.closest('#roseal-running-game-instances-container')) {
+        parentContainer.insertAdjacentElement('afterend', container);
+        container.style.marginTop = '5px';
+        container.style.marginBottom = '5px';
+    } else {
+        parentContainer.appendChild(container);
+    }
     _state.elements.container = container;
 
     try { if (typeof initVersionFilters === 'function') initVersionFilters(); } catch (e) {}
