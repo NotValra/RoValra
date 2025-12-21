@@ -415,13 +415,24 @@ chrome.storage.local.get({
                         { id: 'rovalra-filter-limited', type: 'toggle', label: 'Limiteds' }
                     ];
 
-                    container.appendChild(createAvatarFilterUI({
+                    const filterUI = createAvatarFilterUI({
                         avatarFiltersEnabled: showFilters, 
                         searchbarEnabled: showSearch,
                         onApply: applyAllFilters,
                         onSearch: () => triggerDomUpdate(),
                         filterConfig: showFilters ? filterConfig : []
-                    }));
+                    });
+
+                    const creatorInput = filterUI.querySelector('#rovalra-creator-name');
+                    if (creatorInput) {
+                        ['keydown', 'keypress', 'keyup', 'input', 'change', 'focus', 'focusin', 'click', 'mousedown'].forEach(evt => {
+                            creatorInput.addEventListener(evt, (e) => {
+                                e.stopPropagation();
+                            });
+                        });
+                    }
+
+                    container.appendChild(filterUI);
                     
                     activeTab.prepend(container);
                 }

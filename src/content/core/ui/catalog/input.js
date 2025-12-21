@@ -19,7 +19,7 @@ function injectInputCss() {
             height: 40px;
         }
         .rovalra-catalog-input-label {
-            color: var(--text-secondary);
+            color: var(--rovalra-secondary-text-color);
             font-family: "Builder Sans", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
             font-weight: 400;
             font-size: 1rem;
@@ -33,7 +33,7 @@ function injectInputCss() {
             pointer-events: none;
             z-index: 1; 
         }
-        .rovalra-catalog-input-field.input-field {
+        .rovalra-catalog-input-field {
             background-color: transparent !important;
             border: none !important;
             
@@ -41,8 +41,12 @@ function injectInputCss() {
             box-shadow: none !important;
             width: 100%;
             height: 40px;
-            padding: 18.5px 14px;
+            padding: 8px 14px;
             position: relative;
+            color: var(--rovalra-main-text-color) !important;
+            font-family: "Builder Sans", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif !important;
+            font-size: 16px !important;
+            box-sizing: border-box !important;
         }
         
         .rovalra-catalog-input-field::-webkit-search-decoration,
@@ -52,7 +56,7 @@ function injectInputCss() {
             display: none;
         }
 
-        .rovalra-catalog-input-field.input-field[readonly] {
+        .rovalra-catalog-input-field[readonly] {
             cursor: text !important;
             background-color: transparent !important;
         }
@@ -76,7 +80,6 @@ function injectInputCss() {
             transition: max-width 200ms cubic-bezier(0.0, 0, 0.2, 1) 0ms;
             line-height: 23px;
             height: 11px;
-            background-color: var(--surface-default); 
             max-width: 0.01px;
             background-color: transparent; 
             transition: background-color 200ms ease; 
@@ -93,7 +96,6 @@ function injectInputCss() {
             transform-origin: top left; 
         }
         .rovalra-catalog-input-label.Mui-focused {
-            color: var(--text-link); 
         }
         .rovalra-catalog-input-base.Mui-focused .rovalra-catalog-input-fieldset {
             border: 2px solid rgb(51, 95, 255); 
@@ -101,7 +103,6 @@ function injectInputCss() {
         .rovalra-catalog-input-label.MuiInputLabel-shrink ~ .rovalra-catalog-input-base .rovalra-catalog-input-legend {
 
             max-width: calc(100% * 0.70 + 0px);
-            background-color: var(--surface-default);
         }
     `;
     document.head.appendChild(style);
@@ -112,7 +113,7 @@ export function createStyledInput({ id, label = '', placeholder = ' ' }) {
     injectInputCss();
 
     const container = document.createElement('div');
-    container.className = 'rovalra-catalog-input-wrapper form-group';
+    container.className = 'rovalra-catalog-input-wrapper';
 
     const inputBase = document.createElement('div');
     inputBase.className = 'rovalra-catalog-input-base';
@@ -124,7 +125,7 @@ export function createStyledInput({ id, label = '', placeholder = ' ' }) {
     
     input.name = id; 
     
-    input.className = 'rovalra-catalog-input-field form-control input-field';
+    input.className = 'rovalra-catalog-input-field';
     input.placeholder = placeholder;
     // THIS IS SO FUN!
     input.setAttribute('autocomplete', 'off'); 
@@ -137,7 +138,6 @@ export function createStyledInput({ id, label = '', placeholder = ' ' }) {
     input.setAttribute('data-bwignore', 'true'); 
     input.setAttribute('data-form-type', 'other'); 
     
-    input.readOnly = true;
 
     const labelElement = document.createElement('label');
     labelElement.htmlFor = id;
@@ -162,7 +162,6 @@ export function createStyledInput({ id, label = '', placeholder = ' ' }) {
     };
 
     input.addEventListener('focus', () => {
-        input.readOnly = false;
         
         labelElement.classList.add('Mui-focused');
         inputBase.classList.add('Mui-focused'); 
@@ -172,7 +171,6 @@ export function createStyledInput({ id, label = '', placeholder = ' ' }) {
     });
 
     input.addEventListener('blur', () => {
-        input.readOnly = true;
 
         labelElement.classList.remove('Mui-focused');
         container.classList.remove('Mui-focused'); 
