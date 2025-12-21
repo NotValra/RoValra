@@ -34,10 +34,11 @@ import { init as initGameBanner } from './core/ui/games/banner.js';
 import { init as bannertest } from './features/games/banner.js'
 // transactions
 import { init as initTotalSpent } from './features/transactions/totalspent.js';
-
+import { init as initPendingRobuxTrans } from './features/transactions/pendingRobuxTrans.js';
 // group
 import { init as initHiddenGroupGames } from './features/groups/hiddenGroupGames.js';
 import { init as initAntiBots } from './features/groups/Antibots.js';
+import { init as initPendingRobux } from './features/groups/pendingRobux.js';
 // Profile
 import { init as initDonationLink } from './features/profile/header/donationlink.js';
 import { init as initRap } from './features/profile/header/rap.js';
@@ -72,7 +73,7 @@ const featureRoutes = [
   // Group pages
   {
     paths: ['/communities/'],
-    features: [initHiddenGroupGames, initAntiBots],
+    features: [initHiddenGroupGames, initAntiBots, initPendingRobux],
   },
   // Game pages
   {
@@ -109,7 +110,7 @@ const featureRoutes = [
   },
 
   // Transactions page
-  { paths: ['/transactions'], features: [initTotalSpent] },
+  { paths: ['/transactions'], features: [initTotalSpent, initPendingRobuxTrans] },
 ];
 
 

@@ -347,9 +347,9 @@ export const SETTINGS_CONFIG = {
             pendingRobuxEnabled: {
                 label: "Unpending Robux",
                 description: ["Shows an estimate of how many pending Robux will stop pending within 24 hours.",],
-                experimental: "May be inaccurate",
+                experimental: "May be inaccurate. And will take ages depending on the amount of sales",
                 type: "checkbox",
-                default: true
+                default: false
             },
             antibotsEnabled: {
                 label: "Anti-Bot Members",
@@ -409,9 +409,9 @@ export const SETTINGS_CONFIG = {
                 description: ["This estimates how many Robux will stop pending in 24 hours.",
 
                 ],
-                experimental: "May be inaccurate",
+                experimental: "May be inaccurate. And will take ages depending on the amount of sales",
                 type: "checkbox",
-                default: true
+                default: false
             },
         }
     },
