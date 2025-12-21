@@ -22,12 +22,12 @@ function injectPillCss() {
 
         .rovalra-pill.experimental {
             background-color: rgb(2, 170, 81);
-            color: var(--rovalra-main-text-color);
+            color: #FFFFFF;
         }
 
         .rovalra-pill.beta {
             background-color: rgb(51, 95, 255);
-            color: var(--rovalra-main-text-color);
+            color: #FFFFFF;
         }
 
         .rovalra-pill.deprecated {
