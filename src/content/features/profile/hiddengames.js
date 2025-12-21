@@ -403,6 +403,11 @@ export function init() {
         let isFetching = false;
         let isUpdating = false;
 
+        const handleButtonClick = async () => {
+            const games = await fetchGamesOnce();
+            new HiddenGamesManager(games).openOverlay();
+        };
+
         const fetchGamesOnce = async () => {
             if (cachedGames !== null) return cachedGames;
             if (isFetching) {
@@ -430,10 +435,6 @@ export function init() {
             isUpdating = true;
 
             try {
-                const games = await fetchGamesOnce();
-
-                if (!creationsTab.classList.contains('active')) return;
-
                 const placeholder = document.querySelector('.placeholder-games');
                 if (placeholder) {
                     const isPlaceholderVisible = placeholder.style.display !== 'none' && !placeholder.classList.contains('ng-hide');
@@ -444,9 +445,7 @@ export function init() {
 
                         const placeholderHeader = placeholder.querySelector('.container-header');
                         if (placeholderHeader && !placeholderHeader.querySelector('.hidden-games-button')) {
-                            UI.injectButton(placeholderHeader, () => {
-                                new HiddenGamesManager(games).openOverlay();
-                            });
+                            UI.injectButton(placeholderHeader, handleButtonClick);
                         }
                         return; 
                     }
@@ -474,16 +473,12 @@ export function init() {
 
                 if (hasHeader) {
                     if (!hasHeader.querySelector('.hidden-games-button')) {
-                        UI.injectButton(hasHeader, () => {
-                            new HiddenGamesManager(games).openOverlay();
-                        });
+                        UI.injectButton(hasHeader, handleButtonClick);
                     }
                 } else if (!hasGames && !hasText) {
                     if (!activeContent.querySelector('.rovalra-empty-state')) {
                         activeContent.innerHTML = ''; 
-                        activeContent.appendChild(UI.createEmptyState(() => {
-                            new HiddenGamesManager(games).openOverlay();
-                        }));
+                        activeContent.appendChild(UI.createEmptyState(handleButtonClick));
                     }
                 }
             } finally {
@@ -517,6 +512,10 @@ export function init() {
                 childList: true, 
                 subtree: true 
             });
+        });
+
+        observeElement('.btr-profile-right .profile-game .container-header', (header) => {
+            UI.injectButton(header, handleButtonClick);
         });
     });
 }
