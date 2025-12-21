@@ -19,7 +19,7 @@ import { init as initAvatarFilters } from './features/avatar/filters.js';
 import { init as initR6Warning } from './features/avatar/R6Warning.js';
 
 // Catalog
-//import { init as initItemSales } from './features/catalog/sales.js';
+import { init as initItemSales } from './features/catalog/itemsales.js';
 import { init as init40Method } from './features/catalog/40method.js';
 import { init as initDependencies} from './features/catalog/depenencies.js';
 // Games
@@ -64,7 +64,7 @@ const featureRoutes = [
   // Catalog and bundle pages
   {
     paths: ['/catalog', '/bundles', '/game-pass'],
-    features: [init40Method],
+    features: [init40Method, initItemSales],
   },
     {
     paths: ['/catalog', '/bundles'],
