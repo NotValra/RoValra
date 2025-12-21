@@ -254,7 +254,7 @@ function createGlobePanel(container) {
     const panel = document.createElement('div');
     panel.id = 'rovalra-globe-panel';
     panel.className = theme;
-    panel.innerHTML = DOMPurify.sanitize(`<div class="rovalra-globe-header ${theme}"><img src="${assets.rovalraIcon}" class="rovalra-header-logo" title="RoValra" id="rovalra-easter-egg-trigger" alt="Logo"><div id="rovalra-header-title" style="font-weight:bold;">RoValra Region Selector</div></div><div id="rovalra-globe-container"></div>`);
+    panel.innerHTML = `<div class="rovalra-globe-header ${theme}"><img src="${assets.rovalraIcon}" class="rovalra-header-logo" title="RoValra" id="rovalra-easter-egg-trigger" alt="Logo"><div id="rovalra-header-title" style="font-weight:bold;">RoValra Region Selector</div></div><div id="rovalra-globe-container"></div>`;
     container.appendChild(panel);
 
     const globeContainer = panel.querySelector('#rovalra-globe-container');
@@ -366,7 +366,7 @@ function populateRegionSidePanel(container, theme) {
             const row = document.createElement('a');
             row.className = `rovalra-side-panel-item ${theme}`;
             row.dataset.regionCode = item.code;
-            row.innerHTML = DOMPurify.sanitize(`<div><strong>${item.label}</strong><span class="country"> ${item.subLabel}</span></div><div class="rovalra-region-count ${theme}">${item.count}</div>`);
+            row.innerHTML = DOMPurify.sanitize(`<div><strong>${item.label}</strong><span class="country"> ${item.subLabel}</span></div><div class="rovalra-region-count ${theme}">${item.count}</div>`, { ADD_ATTR: ['class', 'style'], ADD_URI_SCHEMES: ['data', 'blob'] });
             addTooltip(row, `Filter by ${item.label} (${item.count} servers)`, { position: 'left' });
             row.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -494,7 +494,7 @@ function handleGlobeHover(e) {
     const dcCount = State.dataCenterCounts[regionCode] || 0;
     let flagSrc = State.flags[countryCode];
     if (!flagSrc) { flagSrc = `https://flagcdn.com/w40/${countryCode}.png`; cacheFlag(countryCode); }
-    tooltip.innerHTML = DOMPurify.sanitize(`<div style="display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 2px;"><img src="${flagSrc}" style="width: 20px; height: 13px; border-radius: 2px;"><span style="font-weight: 600; font-size: 12px; color: #eee;">${city}</span></div><div style="display: flex; flex-direction: column; align-items: center; gap: 0px; font-size: 11px; color: #ccc; border-top: 1px solid rgba(255,255,255,0.15); padding-top: 3px; width: 100%;"><span>Servers: <b style="color:#fff;">${serverCount.toLocaleString()}</b></span>${dcCount > 0 ? `<span>Datacenters: <b style="color:#fff;">${dcCount.toLocaleString()}</b></span>` : ''}</div>`);
+    tooltip.innerHTML = `<div style="display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 2px;"><img src="${flagSrc}" style="width: 20px; height: 13px; border-radius: 2px;"><span style="font-weight: 600; font-size: 12px; color: #eee;">${city}</span></div><div style="display: flex; flex-direction: column; align-items: center; gap: 0px; font-size: 11px; color: #ccc; border-top: 1px solid rgba(255,255,255,0.15); padding-top: 3px; width: 100%;"><span>Servers: <b style="color:#fff;">${serverCount.toLocaleString()}</b></span>${dcCount > 0 ? `<span>Datacenters: <b style="color:#fff;">${dcCount.toLocaleString()}</b></span>` : ''}</div>`;
     tooltip.style.left = `${x}px`; tooltip.style.top = `${y}px`; tooltip.style.display = 'flex';
 }
 
