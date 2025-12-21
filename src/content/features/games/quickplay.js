@@ -639,12 +639,12 @@ const CSS_STYLES = `
 a.game-tile-styles.game-card-link { position: relative; display: block; z-index: 2; transform: translateZ(0); }
 a.game-tile-styles.game-card-link:hover { z-index: 2; }
 a.game-tile-styles.game-card-link::after { content: ''; position: absolute; top: -2.5%; left: -2.5%; width: 105%; height: 105%; z-index: 1; }
-a.game-tile-styles.game-card-link::before, .hover-background { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; border-radius: 12px; opacity: 0; transition: opacity 0.15s ease-out, transform 0.15s ease-out; pointer-events: none; will-change: transform, opacity; }
+a.game-tile-styles.game-card-link::before, .hover-background { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; border-radius: 12px !Important; opacity: 0; transition: opacity 0.15s ease-out, top 0.15s ease-out, left 0.15s ease-out, right 0.15s ease-out, bottom 0.15s ease-out; pointer-events: none; will-change: opacity, top, left, right, bottom; }
 a.game-tile-styles.game-card-link::before { box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3); z-index: -2; }
-.hover-background { background-color: rgb(39, 41, 48); transform: scale(1); z-index: -1; }
+.hover-background { background-color: rgb(39, 41, 48); z-index: -1; }
 body:not(.dark-theme) .hover-background { background-color: rgb(247, 247, 248); }
-a.game-tile-styles.game-card-link:hover::before, a.game-tile-styles.game-card-link.quick-play-hover-active::before { opacity: 1; }
-a.game-tile-styles.game-card-link:hover .hover-background, a.game-tile-styles.game-card-link.quick-play-hover-active .hover-background { opacity: 1; transform: scale(1.05); }
+a.game-tile-styles.game-card-link:hover::before, a.game-tile-styles.game-card-link.quick-play-hover-active::before { opacity: 1; top: -5px; left: -5px; right: -5px; bottom: -5px; }
+a.game-tile-styles.game-card-link:hover .hover-background, a.game-tile-styles.game-card-link.quick-play-hover-active .hover-background { opacity: 1; top: -5px; left: -5px; right: -5px; bottom: -5px; }
 a.game-tile-styles.game-card-link:hover .game-card-name, a.game-tile-styles.game-card-link.quick-play-hover-active .game-card-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
 a.game-tile-styles.game-card-link:hover .game-card-native-ad, a.game-tile-styles.game-card-link.quick-play-hover-active .game-card-native-ad { display: none; }
 .quick-play-original-stats { z-index: 5; transition: transform 0.15s ease-out; will-change: transform; }
