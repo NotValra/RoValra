@@ -128,6 +128,11 @@ export function createAvatarFilterUI({ avatarFiltersEnabled, searchbarEnabled, o
                         placeholder: config.placeholder || ' '
                     });
                     styledInput.type = config.type;
+                    if (config.type === 'number') {
+                        styledInput.addEventListener('keydown', (e) => {
+                            if (['e', 'E'].includes(e.key)) e.preventDefault();
+                        });
+                    }
                     if (config.min !== undefined) styledInput.min = config.min;
 
                     label.remove();
