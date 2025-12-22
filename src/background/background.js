@@ -78,7 +78,10 @@ function getDefaultSettings() {
         alwaysShowDeveloperSettings: false,
         streamermode: false,
         settingsPageInfo: true,
-        hideRobux: false
+        hideRobux: false,
+        RegionFiltersEnabled: true,
+        UptimeFiltersEnabled: true,
+        VersionFiltersEnabled: true,
     };
 }
 

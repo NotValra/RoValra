@@ -82,6 +82,30 @@ export async function callRobloxApi(options) {
             fetchOptions.body = typeof body === 'string' ? body : JSON.stringify(body);
         }
 
+        if (isRovalraApi) {
+            let lastResponse;
+            for (let attempt = 0; attempt < 4; attempt++) { 
+                try {
+                    lastResponse = await fetch(fullUrl, fetchOptions);
+                    if (lastResponse.ok) {
+                        return lastResponse; 
+                    }
+                } catch (error) {
+                    if (attempt === 3) {
+                        console.error(`RoValra API: Request to ${fullUrl} failed after multiple retries.`, error);
+                        throw error;
+                    }
+                }
+                if (attempt < 3) {
+                    await new Promise(res => setTimeout(res, 1000));
+                }
+            }
+            if (!lastResponse.ok) {
+                console.error(`RoValra API: Request to ${fullUrl} failed with status ${lastResponse.status} after multiple retries.`);
+            }
+            return lastResponse;
+        }
+
         if (isMutatingMethod) {
             const csrfToken = await getCsrfToken();
             if (!csrfToken) throw new Error('CSRF token is required but could not be obtained.');
