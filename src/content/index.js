@@ -61,14 +61,15 @@ const featureRoutes = [
     paths: ['*'],
     features: [initSettingsPage, initQuickPlay, initEasterEggLinks, initCssFixes, initWhatAmIJoining, initHiddenCatalog, initServerListener, initOnboarding, initVideoTest, initStreamerMode, initMarkDownTest],
   },
+// pretty much just the 40% method
+  {
+    paths: ['/catalog', '/bundles', '/game-pass', '/games'],
+    features: [init40Method],
+  },
   // Catalog and bundle pages
   {
-    paths: ['/catalog', '/bundles', '/game-pass'],
-    features: [init40Method, initItemSales],
-  },
-    {
     paths: ['/catalog', '/bundles'],
-    features: [initDependencies],
+    features: [initDependencies, initItemSales],
   },
   // Group pages
   {

@@ -11,9 +11,7 @@ export const SETTINGS_CONFIG = {
             itemSalesEnabled: {
                 label: "Item Sales",
                 description: ["This shows the most up to date sales and revenue data we have.",
-                    "The sales data is very likely to be inaccurate on items that are for sale, but very likely to be correct on off-sale items.",
-                    "Keep in mind this was leaked data from around half a year ago. A lot of data is inaccurate and a lot of items don't have data."
-                ],
+                    "The sales data is very likely to be inaccurate on items that are for sale, but very likely to be correct on off-sale items."                ],
                 deprecated: "Sale stats are very old and now inaccurate.",
                 type: "checkbox",
                 default: false

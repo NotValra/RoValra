@@ -49,7 +49,8 @@ async function fetchBatchData(batch, type, size, isCircular, signal, noCache = f
         'Asset': { path: '/v1/assets', idParam: 'assetIds' },
         'BundleThumbnail': { path: '/v1/bundles/thumbnails', idParam: 'bundleIds' },
         'PlaceIcon': { path: '/v1/places/gameicons', idParam: 'placeIds' },
-        'UserOutfit': { path: '/v1/users/outfits', idParam: 'userOutfitIds' }
+        'UserOutfit': { path: '/v1/users/outfits', idParam: 'userOutfitIds' },
+        'GamePass': { path: '/v1/game-passes', idParam: 'gamePassIds' }
     };
 
     const mapping = endpointMapping[type];
