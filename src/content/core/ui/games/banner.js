@@ -1,6 +1,7 @@
 // Creates a banner on game pages with markdown support
 import { parseMarkdown } from '../../utils/markdown.js';
 import { observeElement, startObserving } from '../../observer.js';
+import DOMPurify from 'dompurify';
 
 let isInitialized = false;
 
@@ -27,8 +28,8 @@ export function init() {
                     fontSize = '16px';
                 }
 
-                const parsedTitle = parseMarkdown(title);
-                const parsedDescription = parseMarkdown(description);
+                const parsedTitle = DOMPurify.sanitize(parseMarkdown(title));
+                const parsedDescription = DOMPurify.sanitize(parseMarkdown(description));
 
                 const entry = document.createElement('div');
                 entry.style.cssText = `
@@ -43,7 +44,7 @@ export function init() {
                 let iconContent = '';
                 if(iconHtml) {
                     const tempDiv = document.createElement('div');
-                    tempDiv.innerHTML = iconHtml;
+                    tempDiv.innerHTML = DOMPurify.sanitize(iconHtml);
                     const svgElement = tempDiv.querySelector('svg');
 
                     if (svgElement) {

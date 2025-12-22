@@ -5,6 +5,7 @@ import { createShimmerGrid } from '../../core/ui/shimmer.js';
 import { createOverlay } from '../../core/ui/overlay.js';
 import { fetchThumbnails as fetchThumbnailsBatch, createThumbnailElement } from '../../core/thumbnail/thumbnails.js';
 import { callRobloxApi } from '../../core/api.js';
+import DOMPurify from 'dompurify';
 
 const CONFIG = {
     PAGE_SIZE: 50,
@@ -179,7 +180,7 @@ const UI = {
         card.className = 'game-card-container';
         Object.assign(card.style, { justifySelf: 'center', width: '150px', height: '240px' });
 
-        card.innerHTML = `
+        card.innerHTML = DOMPurify.sanitize(`
             <a class="game-card-link" href="${ENDPOINTS.GAME_LINK(game.rootPlace.id)}" style="display: flex; flex-direction: column; height: 100%; justify-content: space-between;">
                 <div>
                     <div class="game-card-thumb-container"></div>
@@ -193,7 +194,7 @@ const UI = {
                     <span class="info-label playing-counts-label" title="${playerCount.toLocaleString()}">${playerCount.toLocaleString()}</span>
                 </div>
             </a>
-        `;
+        `);
 
         const thumbContainer = card.querySelector('.game-card-thumb-container');
         thumbContainer.appendChild(createThumbnailElement(thumbnailData, game.name, 'game-card-thumb'));
@@ -209,7 +210,7 @@ const UI = {
         const createFilterSection = (label, element) => {
             const div = document.createElement('div');
             div.style.cssText = 'display: flex; flex-direction: column; gap: 4px;';
-            div.innerHTML = `<label style="font-size: 12px; font-weight: 500; color: var(--rovalra-overlay-text-secondary);">${label}</label>`;
+            div.innerHTML = DOMPurify.sanitize(`<label style="font-size: 12px; font-weight: 500; color: var(--rovalra-overlay-text-secondary);">${label}</label>`);
             div.appendChild(element);
             return div;
         };
@@ -219,7 +220,7 @@ const UI = {
                 { value: 'default', label: 'Recently Updated' },
                 { value: 'likes', label: 'Likes' },
                 { value: 'players', label: 'Players' },
-                { value: 'name', label: 'Name (A-Z)' }
+                { value: 'name', label: 'Name (Z-A)' }
             ],
             initialValue: 'default',
             onValueChange: (v) => onFilterChange('sort', v)
@@ -308,7 +309,7 @@ class HiddenGamesManager {
         });
 
         if (this.allGames.length === 0) {
-            this.elements.list.innerHTML = `<p class="btr-no-servers-message">This user has no hidden experiences.</p>`;
+            this.elements.list.innerHTML = DOMPurify.sanitize(`<p class="btr-no-servers-message">This user has no hidden experiences.</p>`);
             this.elements.filterPanel.style.display = 'none';
             return;
         }
@@ -340,19 +341,20 @@ class HiddenGamesManager {
             await Api.enrichGameData(this.allGames, this.cache);
         }
 
-        let sorted = [...this.allGames];
         const { sort, order } = this.filters;
+        const orderMultiplier = order === 'desc' ? -1 : 1;
+        let sorted = [...this.allGames];
         
         if (sort === 'likes') {
-            sorted.sort((a, b) => (this.cache.likes.get(b.id)?.ratio || 0) - (this.cache.likes.get(a.id)?.ratio || 0));
+            sorted.sort((a, b) => ((this.cache.likes.get(b.id)?.ratio || 0) - (this.cache.likes.get(a.id)?.ratio || 0)) * orderMultiplier);
         } else if (sort === 'players') {
-            sorted.sort((a, b) => (this.cache.players.get(b.id) || 0) - (this.cache.players.get(a.id) || 0));
+            sorted.sort((a, b) => ((this.cache.players.get(b.id) || 0) - (this.cache.players.get(a.id) || 0)) * orderMultiplier);
         } else if (sort === 'name') {
-            sorted.sort((a, b) => a.name.localeCompare(b.name));
-        }
-        
-        if ((order === 'asc' && sort !== 'name') || (order === 'desc' && sort === 'name')) {
-            sorted.reverse();
+            sorted.sort((a, b) => a.name.localeCompare(b.name) * (order === 'asc' ? 1 : -1));
+        } else { 
+            if (order === 'asc') {
+                sorted.reverse();
+            }
         }
 
         this.processedGames = sorted;
@@ -360,7 +362,7 @@ class HiddenGamesManager {
         
         this.elements.list.innerHTML = '';
         if (this.processedGames.length === 0) {
-            this.elements.list.innerHTML = `<p class="btr-no-servers-message">No experiences match filters.</p>`;
+            this.elements.list.innerHTML = DOMPurify.sanitize(`<p class="btr-no-servers-message">No experiences match filters.</p>`);
         } else {
             await this.loadMore();
         }
@@ -369,7 +371,7 @@ class HiddenGamesManager {
     async loadMore() {
         if (this.visibleCount >= this.processedGames.length || this.elements.loader.innerHTML !== '') return;
 
-        this.elements.loader.innerHTML = `<p class="rovalra-loading-text">Loading...</p>`;
+        this.elements.loader.innerHTML = DOMPurify.sanitize(`<p class="rovalra-loading-text">Loading...</p>`);
         
         const nextBatch = this.processedGames.slice(this.visibleCount, this.visibleCount + CONFIG.PAGE_SIZE);
         
@@ -401,6 +403,11 @@ export function init() {
         let isFetching = false;
         let isUpdating = false;
 
+        const handleButtonClick = async () => {
+            const games = await fetchGamesOnce();
+            new HiddenGamesManager(games).openOverlay();
+        };
+
         const fetchGamesOnce = async () => {
             if (cachedGames !== null) return cachedGames;
             if (isFetching) {
@@ -428,10 +435,6 @@ export function init() {
             isUpdating = true;
 
             try {
-                const games = await fetchGamesOnce();
-
-                if (!creationsTab.classList.contains('active')) return;
-
                 const placeholder = document.querySelector('.placeholder-games');
                 if (placeholder) {
                     const isPlaceholderVisible = placeholder.style.display !== 'none' && !placeholder.classList.contains('ng-hide');
@@ -442,9 +445,7 @@ export function init() {
 
                         const placeholderHeader = placeholder.querySelector('.container-header');
                         if (placeholderHeader && !placeholderHeader.querySelector('.hidden-games-button')) {
-                            UI.injectButton(placeholderHeader, () => {
-                                new HiddenGamesManager(games).openOverlay();
-                            });
+                            UI.injectButton(placeholderHeader, handleButtonClick);
                         }
                         return; 
                     }
@@ -472,16 +473,12 @@ export function init() {
 
                 if (hasHeader) {
                     if (!hasHeader.querySelector('.hidden-games-button')) {
-                        UI.injectButton(hasHeader, () => {
-                            new HiddenGamesManager(games).openOverlay();
-                        });
+                        UI.injectButton(hasHeader, handleButtonClick);
                     }
                 } else if (!hasGames && !hasText) {
                     if (!activeContent.querySelector('.rovalra-empty-state')) {
                         activeContent.innerHTML = ''; 
-                        activeContent.appendChild(UI.createEmptyState(() => {
-                            new HiddenGamesManager(games).openOverlay();
-                        }));
+                        activeContent.appendChild(UI.createEmptyState(handleButtonClick));
                     }
                 }
             } finally {
@@ -515,6 +512,10 @@ export function init() {
                 childList: true, 
                 subtree: true 
             });
+        });
+
+        observeElement('.btr-profile-right .profile-game .container-header', (header) => {
+            UI.injectButton(header, handleButtonClick);
         });
     });
 }

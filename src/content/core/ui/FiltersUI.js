@@ -5,7 +5,27 @@ import { createRadioButton } from './general/radio.js';
 import { createStyledInput } from './catalog/input.js';
 
 
+function injectStyles() {
+    if (document.getElementById('rovalra-filters-ui-styles')) return;
+    const style = document.createElement('style');
+    style.id = 'rovalra-filters-ui-styles';
+    style.textContent = `
+        #rovalra-fx-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 8px;
+        }
+        #rovalra-fx-dropdown[data-state="open"] {
+            display: block;
+        }
+    `;
+    document.head.appendChild(style);
+}
+
 export function createAvatarFilterUI({ avatarFiltersEnabled, searchbarEnabled, onApply, onSearch, filterConfig = [] }) {
+    injectStyles();
     const container = document.createElement('div');
     container.id = 'rovalra-fx-container';
     Object.assign(container.style, {
@@ -42,6 +62,7 @@ export function createAvatarFilterUI({ avatarFiltersEnabled, searchbarEnabled, o
         dropdown.style.minWidth = '340px';
         dropdown.style.maxHeight = 'none'; 
         dropdown.style.zIndex = '10010';
+        dropdown.setAttribute('data-state', 'closed');
 
 
         dropdown.addEventListener('click', (e) => {
@@ -107,6 +128,11 @@ export function createAvatarFilterUI({ avatarFiltersEnabled, searchbarEnabled, o
                         placeholder: config.placeholder || ' '
                     });
                     styledInput.type = config.type;
+                    if (config.type === 'number') {
+                        styledInput.addEventListener('keydown', (e) => {
+                            if (['e', 'E'].includes(e.key)) e.preventDefault();
+                        });
+                    }
                     if (config.min !== undefined) styledInput.min = config.min;
 
                     label.remove();
@@ -117,14 +143,17 @@ export function createAvatarFilterUI({ avatarFiltersEnabled, searchbarEnabled, o
                 case 'toggle':
                     inputControl = createRadioButton({ 
                         id: config.id,
-                        onChange: config.isMaster ? (isChecked) => {
-                            config.controls?.forEach(controlledId => {
-                                const controlledElement = document.getElementById(controlledId);
-                                if (controlledElement) {
-                                    controlledElement.style.display = isChecked ? 'flex' : 'none';
-                                }
-                            });
-                        } : null
+                        onChange: (isChecked) => {
+                            if (config.onChange) config.onChange(isChecked);
+                            if (config.isMaster) {
+                                config.controls?.forEach(controlledId => {
+                                    const controlledElement = document.getElementById(controlledId);
+                                    if (controlledElement) {
+                                        controlledElement.style.display = isChecked ? 'flex' : 'none';
+                                    }
+                                });
+                            }
+                        }
                     });
                     break;
                 case 'dropdown':
@@ -188,10 +217,14 @@ export function createAvatarFilterUI({ avatarFiltersEnabled, searchbarEnabled, o
         applyBtn.style.borderWidth = '0px';
         applyBtn.style.color = 'white';
         
-        applyBtn.onclick = () => {
-            if (onApply) onApply();
+        applyBtn.onclick = async () => {
+            if (onApply) {
+                const result = await onApply();
+                if (result === false) return;
+            }
             dropdown.setAttribute('data-state', 'closed');
             toggleButton.setAttribute('data-state', 'closed');
+            toggleButton.classList.remove('filter-button-active');
         };
         filterOptionsContainer.appendChild(applyBtn);
 

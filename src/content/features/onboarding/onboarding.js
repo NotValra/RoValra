@@ -1,6 +1,7 @@
 import { createOverlay } from '../../core/ui/overlay.js';
 import { createButton } from '../../core/ui/buttons.js';
 import { getAssets } from '../../core/assets.js';
+import DOMPurify from 'dompurify';
 
 export function init() {
     chrome.storage.local.get({ onboardingShown: false }, function(settings) {
@@ -42,12 +43,11 @@ export function init() {
                 actions: [gotItButton],
                 maxWidth: '550px',
                 showLogo: true,
-                preventBackdropClose: true, 
-                onClose: acknowledgeOnboarding 
+                preventBackdropClose: true,
+                onClose: acknowledgeOnboarding
             });
 
             gotItButton.addEventListener('click', () => {
-                acknowledgeOnboarding();
                 close();
             });
         }

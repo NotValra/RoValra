@@ -5,7 +5,19 @@ import { applyTheme } from '../../../features/settings/index.js';
 import { createDropdown } from '../../ui/dropdown.js'; 
 
 
-export function buildSettingsPage({ handleSearch, debounce, loadTabContent, buttonData, REGIONS, initSettings }) {
+function ensureDeveloperSettings() {
+    if (!SETTINGS_CONFIG.Developer) {
+        addDeveloperTab({});
+    }
+}
+
+export async function buildSettingsPage({ handleSearch, debounce, loadTabContent, buttonData, REGIONS, initSettings }) {
+    const settings = await new Promise(resolve => {
+        chrome.storage.local.get('alwaysShowDeveloperSettings', resolve);
+    });
+
+    let devTabAdded = settings.alwaysShowDeveloperSettings === true;
+    if (devTabAdded) ensureDeveloperSettings();
     const assets = getAssets();
     const containerMain = document.querySelector('main.container-main');
     if (!containerMain) {
@@ -149,14 +161,12 @@ export function buildSettingsPage({ handleSearch, debounce, loadTabContent, butt
         overflow-y: auto; 
         overflow-x: auto; 
         padding-left: 0px; 
-        z-index: 1000; 
         position: relative; 
         margin-top: 7px; 
         background-color: transparent; 
         min-width: 0;
     `;
 
-    let devTabAdded = false;
     const unifiedMenu = createUnifiedMenu({ handleSearch, debounce, buttonData, devTabAdded, loadTabContent, REGIONS, initSettings });
 
     rovalraIcon.addEventListener('click', () => {
@@ -166,6 +176,7 @@ export function buildSettingsPage({ handleSearch, debounce, loadTabContent, butt
 
         if (rovalraIconClickCount >= 10 && !devTabAdded) {
             devTabAdded = true;
+            ensureDeveloperSettings();
             addDeveloperTab({ 
                 REGIONS, 
                 initSettings, 
@@ -333,15 +344,22 @@ function createSidebarItem(sectionName, title, loadTabContent) {
     return listItem;
 }
 
-function addDeveloperTab({ REGIONS, initSettings, menuList, loadTabContent, renderMobileDropdown }) {
+function addDeveloperTab({ menuList, loadTabContent, renderMobileDropdown }) {
     SETTINGS_CONFIG.Developer = {
         title: "Developer",
         settings: {
             info: {
                 label: ["Developer Settings"],
                 description: ["These are featured used mostly to develop rovalra, if you don't know what your doing dont touch them."],
-                type: "YOUR MOM!!!!!"
+                type: "yay"
             },
+            alwaysShowDeveloperSettings: {
+                label: ["Always show developer settings tab"],
+                description: ["This will make the developer settings tab always show. So you dont have to do the easter egg every time."],
+                type: "checkbox",
+                default: false
+                    
+                },
             EnablebannerTest: {
                 label: ["Banner test"],
                 description: ["This adds a test banner to experiences"],
@@ -353,6 +371,7 @@ function addDeveloperTab({ REGIONS, initSettings, menuList, loadTabContent, rend
                 description: ["This enables the 'Impersonate User' option on peoples profile, used by Roblox internally.",
                     "Pressing the 'Impersonate User' option does nothing other than error unless you are authorized to use it"
                 ],
+                deprecated: "Roblox removed it with the new profile overhaul",
                 type: "checkbox",
                 default: false
             },
@@ -429,7 +448,6 @@ export function injectSettingsStyles() {
         #rovalra-mobile-menu-container {
             display: none;
             margin-bottom: 20px;
-            z-index: 2000;
             position: relative;
         }
 

@@ -4,8 +4,10 @@ import { getFullRegionName, REGIONS, getContinent } from '../regions.js';
 import { getCurrentTheme, THEME_CONFIG } from '../theme.js';
 import { createDropdown } from '../ui/dropdown.js';
 import { createFileUpload } from '../ui/fileupload.js';
+import { createPill } from '../ui/general/pill.js';
 import { handleSaveSettings } from './handlesettings.js';
 import { createStyledInput } from '../ui/catalog/input.js'; 
+import DOMPurify from 'dompurify';
 
 
 export function findSettingConfig(settingName) {
@@ -29,9 +31,9 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
         const toggleClass = setting.disabled ? 'toggle-switch1' : 'toggle-switch';
         const label = document.createElement('label');
         label.className = toggleClass;
-        label.innerHTML = `
+        label.innerHTML = DOMPurify.sanitize(`
             <input type="checkbox" id="${settingName}" data-setting-name="${settingName}"${setting.disabled ? ' disabled' : ''}>
-            <span class="${setting.disabled ? 'slider1' : 'slider'}"></span>`;
+            <span class="${setting.disabled ? 'slider1' : 'slider'}"></span>`);
         return label;
     } else if (setting.type === 'select') {
         let dropdownOptions = [];
@@ -157,7 +159,7 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
         const wrapper = document.createElement('div');
         wrapper.className = 'rovalra-number-input-wrapper';
         wrapper.style.cssText = 'display: flex; align-items: center; gap: 12px; margin-left: auto;';
-        wrapper.innerHTML = `
+        wrapper.innerHTML = DOMPurify.sanitize(`
             <div class="rovalra-number-input-container" style="display: flex; align-items: center; gap: 8px; background-color: var(--surface-default); padding: 4px; border-radius: 8px;">
                 <button type="button" class="rovalra-number-input-btn btn-control-xs" data-action="decrement" data-target="${settingName}" style="width: 32px; height: 32px; padding: 0; line-height: 0; border: none;">
                     <svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1phnduy" focusable="false" aria-hidden="true" viewBox="0 0 24 24" style="width: 20px; height: 20px; fill: var(--icon-default);"><path d="M19 13H5v-2h14z"></path></svg>
@@ -172,7 +174,7 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
             <label class="toggle-switch">
                 <input type="checkbox" id="${settingName}-enabled" data-setting-name="${settingName}-enabled" data-controls-setting="${settingName}">
                 <span class="slider"></span>
-            </label>`;
+            </label>`);
         return wrapper;
     }
     return document.createElement('div'); 
@@ -190,6 +192,19 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
     const label = document.createElement('label');
     label.textContent = setting.label;
     controlsContainer.appendChild(label);
+    
+    if (setting.experimental) {
+        const experimentalPill = createPill('Experimental', setting.experimental, 'experimental');
+        controlsContainer.appendChild(experimentalPill);
+    }
+    if (setting.beta) {
+        const betaPill = createPill('Beta', setting.beta, 'beta');
+        controlsContainer.appendChild(betaPill);
+    }
+    if (setting.deprecated) {
+        const deprecatedPill = createPill('Deprecated', setting.deprecated, 'deprecated');
+        controlsContainer.appendChild(deprecatedPill);
+    }
 
     const inputElement = generateSettingInput(settingName, setting, REGIONS);
     controlsContainer.appendChild(inputElement);
@@ -199,12 +214,15 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
     divider.className = 'setting-label-divider';
     settingContainer.appendChild(divider);
 
-    setting.description?.forEach(desc => {
-        const descElement = document.createElement('div');
-        descElement.className = 'setting-description';
-        descElement.innerHTML = parseMarkdown(desc, themeColors);
-        settingContainer.appendChild(descElement);
-    });
+    if (setting.description) {
+        const descriptions = Array.isArray(setting.description) ? setting.description : [String(setting.description)];
+        descriptions.forEach(desc => {
+            const descElement = document.createElement('div');
+            descElement.className = 'setting-description';
+            descElement.innerHTML = DOMPurify.sanitize(parseMarkdown(desc, themeColors));
+            settingContainer.appendChild(descElement);
+        });
+    }
 
     if (setting.type === 'file') {
         const uploadElement = inputElement;
@@ -252,6 +270,19 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
             const childLabel = document.createElement('label');
             childLabel.textContent = childSetting.label;
             childControls.appendChild(childLabel);
+            
+            if (childSetting.experimental) {
+                const experimentalPill = createPill('Experimental', childSetting.experimental, 'experimental');
+                childControls.appendChild(experimentalPill);
+            }
+            if (childSetting.beta) {
+                const betaPill = createPill('Beta', childSetting.beta, 'beta');
+                childControls.appendChild(betaPill);
+            }
+            if (childSetting.deprecated) {
+                const deprecatedPill = createPill('Deprecated', childSetting.deprecated, 'deprecated');
+                childControls.appendChild(deprecatedPill);
+            }
 
             const childInput = generateSettingInput(childName, childSetting, REGIONS);
             childControls.appendChild(childInput);
@@ -261,12 +292,15 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
             childDivider.className = 'setting-label-divider';
             childContainer.appendChild(childDivider);
 
-            childSetting.description?.forEach(desc => {
-                const childDescElement = document.createElement('div');
-                childDescElement.className = 'setting-description';
-                childDescElement.innerHTML = parseMarkdown(desc, themeColors);
-                childContainer.appendChild(childDescElement);
-            });
+            if (childSetting.description) {
+                const childDescriptions = Array.isArray(childSetting.description) ? childSetting.description : [String(childSetting.description)];
+                childDescriptions.forEach(desc => {
+                    const childDescElement = document.createElement('div');
+                    childDescElement.className = 'setting-description';
+                    childDescElement.innerHTML = DOMPurify.sanitize(parseMarkdown(desc, themeColors));
+                    childContainer.appendChild(childDescElement);
+                });
+            }
             
             if (childSetting.type === 'file') {
                 const uploadElement = childInput;

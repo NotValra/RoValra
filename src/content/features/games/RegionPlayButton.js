@@ -1,6 +1,7 @@
 import { observeElement } from '../../core/observer.js';
 import { addTooltip } from '../../core/ui/tooltip.js';
 import { performJoinAction, getSavedPreferredRegion } from '../../core/preferredregion.js';
+import DOMPurify from 'dompurify';
 
 const targetContainerIdSelector = '#game-details-play-button-container';
 const playButtonSelector = 'button[data-testid="play-button"]';
@@ -118,7 +119,7 @@ async function updateButtonTooltip(button) {
              tooltipText = `Join Preferred Region<br><b>${regionName}</b>`;
         }
 
-        addTooltip(button, tooltipText, { position: 'top' });
+        addTooltip(button, DOMPurify.sanitize(tooltipText), { position: 'top' });
         
     } catch (e) {
         addTooltip(button, "Join Preferred Region", { position: 'top' });

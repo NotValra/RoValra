@@ -1,6 +1,7 @@
 // Creates roblox overlay
 import { createCloseButton } from './closeButton.js';
 import { createAssetIcon } from './general/toast.js';
+import DOMPurify from 'dompurify';
 
 function injectOverlayCss() {
     const styleId = 'rovalra-global-overlay-style';
@@ -29,7 +30,7 @@ function injectOverlayCss() {
 }
 
 
-export function createOverlay({ title, bodyContent, actions = [], maxWidth = '550px', maxHeight = 'none', showLogo = false, preventBackdropClose = false }) {
+export function createOverlay({ title, bodyContent, actions = [], maxWidth = '550px', maxHeight = 'none', showLogo = false, preventBackdropClose = false, onClose }) {
     injectOverlayCss();
 
     const overlay = document.createElement('div');
@@ -79,7 +80,7 @@ export function createOverlay({ title, bodyContent, actions = [], maxWidth = '55
 
     if (typeof bodyContent === 'string') {
         const bodyContentContainer = document.createElement('div');
-        bodyContentContainer.innerHTML = bodyContent;
+        bodyContentContainer.innerHTML = DOMPurify.sanitize(bodyContent);
         body.appendChild(bodyContentContainer);
     } else if (bodyContent instanceof HTMLElement) {
         body.appendChild(bodyContent);
@@ -101,6 +102,9 @@ export function createOverlay({ title, bodyContent, actions = [], maxWidth = '55
     const close = () => {
         overlay.remove();
         document.body.style.overflow = '';
+        if (typeof onClose === 'function') {
+            onClose();
+        }
     };
 
     const closeButton = createCloseButton({ onClick: close });

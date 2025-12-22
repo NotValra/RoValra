@@ -1,19 +1,19 @@
 
 function getDefaultSettings() {
-    // This object should be kept in sync with the defaults in settings.js
+    // This object should be kept in sync with the defaults in settingConfig.js
     return {
         hiddenCatalogEnabled: false,
-        itemSalesEnabled: true,
+        itemSalesEnabled: false,
         groupGamesEnabled: true,
         userGamesEnabled: true,
-        userSniperEnabled: false,
+        userSniperEnabled: true,
         privateInventoryEnabled: true,
         PreferredRegionEnabled: true,
         robloxPreferredRegion: 'AUTO',
         subplacesEnabled: true,
         forceR6Enabled: true,
         inviteEnabled: true,
-        pendingRobuxEnabled: true,
+        pendingRobuxEnabled: false,
         ServerdataEnabled: true,
         revertLogo: false,
         customLogoData: null,
@@ -24,7 +24,7 @@ function getDefaultSettings() {
         bandurationsEnabled: true,
         appealstuff: true,
         privateserverlink: true,
-        pendingrobuxtrans: true,
+        pendingrobuxtrans: false,
         serverUptimeServerLocationEnabled: true,
         ServerlistmodificationsEnabled: true,
         TotalServersEnabled: true,
@@ -59,7 +59,7 @@ function getDefaultSettings() {
         deeplinkEnabled: false, 
         eastereggslinksEnabled: true,
         giantInvisibleLink: true,
-        SaveLotsRobuxEnabled: false,
+        SaveLotsRobuxEnabled: true,
         simulateRoValraServerErrors: false,
         onboardingShown: false,
         totalspentEnabled: true,
@@ -75,6 +75,13 @@ function getDefaultSettings() {
         EnableVideoTest: false,
         EnableGameTrailer: true,
         Enableautoplay: true,
+        alwaysShowDeveloperSettings: false,
+        streamermode: false,
+        settingsPageInfo: true,
+        hideRobux: false,
+        RegionFiltersEnabled: true,
+        UptimeFiltersEnabled: true,
+        VersionFiltersEnabled: true,
     };
 }
 
@@ -339,65 +346,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 }
             });
             return true; 
-
-        case 'corsFetch':
-            handleCorsFetch(request, sendResponse);
-            return true; 
         
     }
     return [
-        "injectScript", "fetchItemData", "fetchHiddenGames", "corsFetch"
+        "injectScript", "fetchItemData", "fetchHiddenGames"
     ].includes(request.action);
 });
-
-
-async function handleCorsFetch(request, sendResponse) {
-    const { url, options = {} } = request;
-
-    try {
-
-        const response = await fetch(url, {
-            method: options.method || 'GET',
-            headers: options.headers || {},
-            body: options.body || undefined,
-            credentials: options.credentials || 'include', 
-            mode: 'cors', 
-            cache: options.cache || 'default',
-            redirect: options.redirect || 'follow'
-        });
-
-        const contentType = response.headers.get('content-type') || '';
-        let data;
-
-        if (contentType.includes('application/json')) {
-            data = await response.json();
-        } else {
-            data = await response.text();
-        }
-
-        const headers = {};
-        response.headers.forEach((value, key) => {
-            headers[key] = value;
-        });
-
-        sendResponse({
-            success: true,
-            ok: response.ok,
-            status: response.status,
-            statusText: response.statusText,
-            headers: headers,
-            data: data
-        });
-
-
-    } catch (error) {
-        console.error(`RoValra CORS Proxy: Failed to fetch ${url}:`, error);
-        sendResponse({
-            success: false,
-            error: error.message || 'Unknown error occurred during CORS fetch'
-        });
-    }
-}
 
 chrome.storage.local.get('MemoryleakFixEnabled', (result) => {
     if (result.MemoryleakFixEnabled) {

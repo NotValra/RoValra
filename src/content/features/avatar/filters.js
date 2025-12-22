@@ -2,15 +2,18 @@ import { checkAssetsInBatch } from '../../core/utils/assetStreamer.js';
 import { observeElement } from '../../core/observer.js';
 import { createAvatarFilterUI } from '../../core/ui/FiltersUI.js';
 
-chrome.storage.local.get({
-    avatarFiltersEnabled: false,
-    searchbarEnabled: false
-}, (settings) => {
-    if (!settings.avatarFiltersEnabled && !settings.searchbarEnabled) {
-        return;
-    } else {
-        (function() {
-            'use strict';
+export function init() {
+    if (!window.location.pathname.includes('/my/avatar')) return;
+
+    chrome.storage.local.get({
+        avatarFiltersEnabled: false,
+        searchbarEnabled: false
+    }, (settings) => {
+        if (!settings.avatarFiltersEnabled && !settings.searchbarEnabled) {
+            return;
+        } else {
+            (function() {
+                'use strict';
 
             const CATALOG_BATCH_SIZE = 100;
             const TRANSPARENT_PIXEL = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
@@ -415,13 +418,24 @@ chrome.storage.local.get({
                         { id: 'rovalra-filter-limited', type: 'toggle', label: 'Limiteds' }
                     ];
 
-                    container.appendChild(createAvatarFilterUI({
+                    const filterUI = createAvatarFilterUI({
                         avatarFiltersEnabled: showFilters, 
                         searchbarEnabled: showSearch,
                         onApply: applyAllFilters,
                         onSearch: () => triggerDomUpdate(),
                         filterConfig: showFilters ? filterConfig : []
-                    }));
+                    });
+
+                    const creatorInput = filterUI.querySelector('#rovalra-creator-name');
+                    if (creatorInput) {
+                        ['keydown', 'keypress', 'keyup', 'input', 'change', 'focus', 'focusin', 'click', 'mousedown'].forEach(evt => {
+                            creatorInput.addEventListener(evt, (e) => {
+                                e.stopPropagation();
+                            });
+                        });
+                    }
+
+                    container.appendChild(filterUI);
                     
                     activeTab.prepend(container);
                 }
@@ -589,6 +603,5 @@ chrome.storage.local.get({
 
         })();
     }
-});
-
-export function init() {}
+    });
+}

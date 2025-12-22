@@ -22,7 +22,7 @@
 ## Sections
 - [**Features**](https://github.com/NotValra/RoValra?tab=readme-ov-file#features)
 - [**FAQ**](https://github.com/NotValra/RoValra?tab=readme-ov-file#FAQ)
-- [**How to install**](https://github.com/NotValra/RoValra?tab=readme-ov-file#how-to-install)
+- [**How to install / build**](https://github.com/NotValra/RoValra?tab=readme-ov-file#how-to-install)
 - [**Credits**](https://github.com/NotValra/RoValra?tab=readme-ov-file#credits) 
 
 # Features
@@ -123,7 +123,7 @@
 - Import "dist" in your borwser
 
 
-- **None building install guide:**
+- **None building install guide / after its built:**
 - If you want a simple install you can install it on from the [chrome web store.](https://chromewebstore.google.com/detail/RoValra%20-%20Roblox%20Improved/njcickgebhnpgmoodjdgohkclfplejli)
 - Everything below is purely a tutorial on how to install it from GitHub.
 - Enable developer mode on your browser of choice.

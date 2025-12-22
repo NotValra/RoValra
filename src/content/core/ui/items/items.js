@@ -2,6 +2,7 @@
 
 import { createThumbnailElement } from '../../thumbnail/thumbnails.js';
 import { addTooltip } from '../tooltip.js';
+import DOMPurify from 'dompurify';
 let isCssInjected = false;
 
 
@@ -59,8 +60,18 @@ export function createItemCard(item, thumbnailCache, config = {}) {
     card.className = 'rovalra-item-card';
 
     const thumbData = thumbnailCache.get(item.assetId);
-    const itemUrl = `https://www.roblox.com/catalog/${item.assetId}/`;
-    const rap = item.recentAveragePrice ? item.recentAveragePrice.toLocaleString() : 'N/A';
+    const itemType = item.itemType || 'Asset';
+    const itemUrl = itemType === 'Bundle' 
+        ? `https://www.roblox.com/bundles/${item.assetId}/`
+        : `https://www.roblox.com/catalog/${item.assetId}/`;
+    
+    let priceHtml;
+    if (item.priceText) {
+        priceHtml = `<span>${item.priceText}</span>`;
+    } else {
+        const rap = (typeof item.recentAveragePrice === 'number') ? item.recentAveragePrice.toLocaleString() : 'N/A';
+        priceHtml = `<span class="icon-robux-16x16"></span><span>${rap}</span>`;
+    }
 
     const thumbContainer = document.createElement('div');
     thumbContainer.className = 'rovalra-item-thumb-container';
@@ -82,31 +93,45 @@ export function createItemCard(item, thumbnailCache, config = {}) {
         const serialVisibilityClass = hideSerial ? 'hover-reveal' : 'always-visible';
         const serialIconElement = document.createElement('div');
         serialIconElement.className = `rovalra-serial-container ${serialVisibilityClass}`;
-        serialIconElement.innerHTML = `
+        serialIconElement.innerHTML = DOMPurify.sanitize(`
             <div class="rovalra-serial-star">
                 <span class="icon-shop-limited"></span>
             </div>
             <span class="rovalra-serial-number">#${item.serialNumber.toLocaleString()}</span>
-        `;
+        `);
         thumbContainer.appendChild(serialIconElement);
     }
 
     thumbContainer.appendChild(thumbnailElement);
 
-    const limitedIconElement = document.createElement('span');
-    limitedIconElement.className = item.serialNumber !== null ? 'icon-label icon-limited-unique-label' : 'icon-label icon-limited-label';
-    thumbContainer.appendChild(limitedIconElement);
+    let showLimitedIcon = true;
+    let isUnique = false;
 
-    card.innerHTML = `
+    if (Array.isArray(item.itemRestrictions)) {
+        const hasLimited = item.itemRestrictions.includes('Limited');
+        const hasLimitedUnique = item.itemRestrictions.includes('LimitedUnique');
+        const hasCollectible = item.itemRestrictions.includes('Collectible');
+        showLimitedIcon = hasLimited || hasLimitedUnique || hasCollectible;
+        isUnique = hasLimitedUnique || hasCollectible;
+    } else {
+        isUnique = item.serialNumber != null;
+    }
+
+    if (showLimitedIcon) {
+        const limitedIconElement = document.createElement('span');
+        limitedIconElement.className = isUnique ? 'icon-label icon-limited-unique-label' : 'icon-label icon-limited-label';
+        thumbContainer.appendChild(limitedIconElement);
+    }
+
+    card.innerHTML = DOMPurify.sanitize(`
         <a href="${itemUrl}" target="_blank" rel="noopener noreferrer" class="rovalra-item-card-link">
             <!-- Thumbnail container will be injected here -->
             <div class="rovalra-item-name" title="${item.name}">${item.name}</div>
             <div class="rovalra-item-rap">
-                <span class="icon-robux-16x16"></span>
-                <span>${rap}</span>
+                ${priceHtml}
             </div>
         </a>
-    `;
+    `);
     card.querySelector('a').prepend(thumbContainer);
     return card;
 }

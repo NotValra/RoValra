@@ -7,6 +7,7 @@ import { addTooltip } from '../../../ui/tooltip.js';
 import { getStateCodeFromRegion } from '../../../preferredregion.js';
 import { createButton } from '../../../ui/buttons.js';
 import { createDropdown } from '../../../ui/dropdown.js';
+import DOMPurify from 'dompurify';
 
 const DEFAULT_PLACE_ID = window.ROVALRA_PLACE_ID;
 const GLOBE_DRAG_THRESHOLD = 6;
@@ -112,7 +113,7 @@ const State = {
     scanCursor: null,
     scanCompleted: false,
     localServersByRegion: {},
-    globe: { assetsLoaded: false, initDispatched: false, pointerDown: false, pointerDragged: false, startX: 0, startY: 0, lastDragTime: 0 }
+    globe: { assetsLoaded: false, initDispatched: false, pointerDown: false, pointerDragged: false, startX: 0, startY: 0, lastDragTime: 0, countriesDataPromise: null, scriptPromise: null, resourcesPreloaded: false }
 };
 
 const normalizeKey = (s) => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, '');
@@ -295,12 +296,32 @@ function setupGlobePointerEvents() {
     container.addEventListener('click', e => e.stopPropagation());
 }
 
+async function preloadGlobeResources() {
+    if (State.globe.resourcesPreloaded) return;
+    State.globe.resourcesPreloaded = true;
+    const assets = getAssets();
+    if (!State.globe.countriesDataPromise) {
+        State.globe.countriesDataPromise = fetch(assets.countriesJson).then(r => r.json()).catch(() => null);
+    }
+    if (!State.globe.scriptPromise && !State.globe.assetsLoaded) {
+        State.globe.scriptPromise = injectScript(assets.globeInitializer).then(() => {
+            State.globe.assetsLoaded = true;
+        }).catch(() => {});
+    }
+}
+
 async function ensureGlobeInitialized(theme) {
     if (State.globe.initDispatched) return;
+    preloadGlobeResources();
     const assets = getAssets();
-    if (!State.globe.assetsLoaded) { try { await injectScript(assets.globeInitializer); State.globe.assetsLoaded = true; } catch (e) { return; } }
+    
+    if (State.globe.scriptPromise) await State.globe.scriptPromise;
+    else if (!State.globe.assetsLoaded) { try { await injectScript(assets.globeInitializer); State.globe.assetsLoaded = true; } catch (e) { return; } }
+
     let countriesData = null;
-    try { const response = await fetch(assets.countriesJson); countriesData = await response.json(); } catch (err) {}
+    if (State.globe.countriesDataPromise) countriesData = await State.globe.countriesDataPromise;
+    else try { const response = await fetch(assets.countriesJson); countriesData = await response.json(); } catch (err) {}
+
     const mapUrl = theme === 'dark' ? assets.mapDark : assets.mapLight;
     State.activeServerCounts = buildServerCountsMap(State.apiCounts || {});
     document.dispatchEvent(new CustomEvent('initRovalraGlobe', { detail: { REGIONS: State.regions, mapUrl: mapUrl, countriesData: countriesData, theme, serverCounts: State.activeServerCounts, dataCenterCounts: State.dataCenterCounts } }));
@@ -345,7 +366,7 @@ function populateRegionSidePanel(container, theme) {
             const row = document.createElement('a');
             row.className = `rovalra-side-panel-item ${theme}`;
             row.dataset.regionCode = item.code;
-            row.innerHTML = `<div><strong>${item.label}</strong><span class="country"> ${item.subLabel}</span></div><div class="rovalra-region-count ${theme}">${item.count}</div>`;
+            row.innerHTML = DOMPurify.sanitize(`<div><strong>${item.label}</strong><span class="country"> ${item.subLabel}</span></div><div class="rovalra-region-count ${theme}">${item.count}</div>`, { ADD_ATTR: ['class', 'style'], ADD_URI_SCHEMES: ['data', 'blob'] });
             addTooltip(row, `Filter by ${item.label} (${item.count} servers)`, { position: 'left' });
             row.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -375,6 +396,9 @@ function createRegionDropdownWidget(container) {
     const listContainer = sidePanel.querySelector('.rovalra-side-panel-list');
     createGlobePanel(wrapper);
     wrapper.appendChild(sidePanel);
+
+    btn.addEventListener('mouseenter', () => preloadGlobeResources());
+    setTimeout(() => preloadGlobeResources(), 2000);
 
     btn.addEventListener('click', e => {
         e.stopPropagation();

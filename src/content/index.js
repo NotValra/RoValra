@@ -11,13 +11,15 @@ import { init as initCssFixes } from './features/sitewide/cssfixes.js';
 import { init as initHiddenCatalog } from './features/catalog/hiddenCatalog.js';
 import { init as initServerListener } from './features/games/serverlistener.js';
 import { init as initVideoTest } from './features/developer/videotest.js';
+import { init as initStreamerMode } from './features/sitewide/streamermode.js';
+import { init as initMarkDownTest } from './features/developer/markdowntest.js'
 
 // Avatar
 import { init as initAvatarFilters } from './features/avatar/filters.js';
 import { init as initR6Warning } from './features/avatar/R6Warning.js';
 
 // Catalog
-//import { init as initItemSales } from './features/catalog/sales.js';
+import { init as initItemSales } from './features/catalog/itemsales.js';
 import { init as init40Method } from './features/catalog/40method.js';
 import { init as initDependencies} from './features/catalog/depenencies.js';
 // Games
@@ -32,15 +34,16 @@ import { init as initGameBanner } from './core/ui/games/banner.js';
 import { init as bannertest } from './features/games/banner.js'
 // transactions
 import { init as initTotalSpent } from './features/transactions/totalspent.js';
-
+import { init as initPendingRobuxTrans } from './features/transactions/pendingRobuxTrans.js';
 // group
 import { init as initHiddenGroupGames } from './features/groups/hiddenGroupGames.js';
 import { init as initAntiBots } from './features/groups/Antibots.js';
+import { init as initPendingRobux } from './features/groups/pendingRobux.js';
 // Profile
 import { init as initDonationLink } from './features/profile/header/donationlink.js';
 import { init as initRap } from './features/profile/header/rap.js';
 import { init as initInstantJoiner } from './features/profile/header/instantjoiner.js';
-//import { init as initItemChecker } from './features/Profile/ItemChecker.js';
+import { init as initItemChecker } from './features/profile/ItemChecker.js';
 import { init as initOutfits } from './features/profile/outfits.js';
 import { init as initPrivateServers } from './features/profile/privateserver.js';
 import { init as initRovalraBadges } from './features/profile/header/RoValraBadges.js';
@@ -56,21 +59,22 @@ const featureRoutes = [
   // Generic features that run on most pages
   {
     paths: ['*'],
-    features: [initSettingsPage, initQuickPlay, initEasterEggLinks, initCssFixes, initWhatAmIJoining, initHiddenCatalog, initServerListener, initOnboarding, initVideoTest],
+    features: [initSettingsPage, initQuickPlay, initEasterEggLinks, initCssFixes, initWhatAmIJoining, initHiddenCatalog, initServerListener, initOnboarding, initVideoTest, initStreamerMode, initMarkDownTest],
+  },
+// pretty much just the 40% method
+  {
+    paths: ['/catalog', '/bundles', '/game-pass', '/games'],
+    features: [init40Method],
   },
   // Catalog and bundle pages
   {
-    paths: ['/catalog', '/bundles', '/game-pass'],
-    features: [init40Method],
-  },
-    {
     paths: ['/catalog', '/bundles'],
-    features: [initDependencies],
+    features: [initDependencies, initItemSales],
   },
   // Group pages
   {
     paths: ['/communities/'],
-    features: [initHiddenGroupGames, initAntiBots],
+    features: [initHiddenGroupGames, initAntiBots, initPendingRobux],
   },
   // Game pages
   {
@@ -98,7 +102,7 @@ const featureRoutes = [
       initDonationLink,
       initRap,
       initInstantJoiner,
-      //initItemChecker,
+      initItemChecker,
       initOutfits,
       initPrivateServers,
       initRovalraBadges,
@@ -107,7 +111,7 @@ const featureRoutes = [
   },
 
   // Transactions page
-  { paths: ['/transactions'], features: [initTotalSpent] },
+  { paths: ['/transactions'], features: [initTotalSpent, initPendingRobuxTrans] },
 ];
 
 

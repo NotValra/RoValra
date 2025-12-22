@@ -5,6 +5,7 @@ import { observeElement, startObserving } from '../../core/observer.js';
 import { callRobloxApi } from '../../core/api.js';
 import { fetchThumbnails, createThumbnailElement } from '../../core/thumbnail/thumbnails.js';
 import { getAssets } from '../../core/assets.js'; 
+import DOMPurify from 'dompurify';
 
 
 const THUMBNAIL_SIZE = '150x150';
@@ -289,7 +290,7 @@ async function mountDependencyScanner(favButton) {
                 badgeHtml = `<img src="${assets.verifiedBadge}" title="Verified Badge" alt="Verified Badge" class="verified-badge-container">`;
             }
             
-            creatorText.innerHTML = `By <a href="${creatorUrl}" class="creator-name text-link">${details.creatorName} ${badgeHtml}</a>`;
+            creatorText.innerHTML = DOMPurify.sanitize(`By <a href="${creatorUrl}" class="creator-name text-link">${details.creatorName} ${badgeHtml}</a>`);
             
             creatorDiv.appendChild(creatorText);
             secondary.appendChild(creatorDiv);

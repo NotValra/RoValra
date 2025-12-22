@@ -2,6 +2,7 @@
 import { createOverlay } from '../overlay.js';
 import { createSpinner } from '../spinner.js';
 import { getAssets } from '../../assets.js';
+import DOMPurify from 'dompurify';
 
 
 const modalStyles = `
@@ -269,7 +270,7 @@ export function hideLoadingOverlay(force = false) {
 }
 
 export function updateLoadingOverlayText(text) {
-    if (activeInstance?.textElement) activeInstance.textElement.innerHTML = text;
+    if (activeInstance?.textElement) activeInstance.textElement.innerHTML = DOMPurify.sanitize(text);
 }
 
 export function updateServerInfo(gameName, iconUrl, detailsHtml) {
@@ -300,7 +301,7 @@ export function updateServerInfo(gameName, iconUrl, detailsHtml) {
     if (detailsHtml) {
         const detailsList = document.createElement('ul');
         detailsList.className = 'rovalra-details-list';
-        detailsList.innerHTML = detailsHtml;
+        detailsList.innerHTML = DOMPurify.sanitize(detailsHtml);
         container.appendChild(detailsList);
     }
 

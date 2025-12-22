@@ -4,6 +4,7 @@ import { callRobloxApi } from './api.js';
 import { launchGame, launchMultiplayerGame } from './utils/launcher.js';
 import { getUserLocation } from './utils/location.js'; 
 import { getRegionData, getFullRegionName } from './regions.js';
+import DOMPurify from 'dompurify';
 import { showLoadingOverlay, hideLoadingOverlay, updateLoadingOverlayText, showLoadingOverlayResult } from './ui/startModal/gamelaunchmodal.js';
 
 const PREFERRED_REGION_STORAGE_KEY = 'robloxPreferredRegion';
@@ -171,7 +172,7 @@ async function findServerViaRovalraApi(placeId, universeId, preferredRegionCode,
             
             if (rovalraRegionCode) {
                 targetableRegions = [rovalraRegionCode];
-                if (citySpecificWarning) updateLoadingOverlayText(`Searching in ${getFullRegionName(preferredRegionCode).split(',')[0]}...`);
+                if (citySpecificWarning) updateLoadingOverlayText(DOMPurify.sanitize(`Searching in ${getFullRegionName(preferredRegionCode).split(',')[0]}...`));
             }
         } else {
             if (availableRovalraRegions.length === 0) return { joined: false };
@@ -313,15 +314,14 @@ export async function performJoinAction(placeId, universeId, preferredRegionCode
 
 
         if (!userRequestedStop) {
-            updateLoadingOverlayText(`Searching in ${shortTargetName}...`);
+            updateLoadingOverlayText(DOMPurify.sanitize(`Searching in ${shortTargetName}...`));
             const rovalraResult = await findServerViaRovalraApi(placeId, universeId, preferredRegionCode, failedRegionNames);
             joined = rovalraResult.joined;
         }
 
-
         if (!joined && !userRequestedStop) {
  
-            updateLoadingOverlayText(`Region API unavailable. Scanning for ${shortTargetName}...`);
+            updateLoadingOverlayText(DOMPurify.sanitize(`Region API unavailable. Scanning for ${shortTargetName}...`));
             
             let nextCursor = null;
             let pageCount = 0;
@@ -384,9 +384,9 @@ export async function performJoinAction(placeId, universeId, preferredRegionCode
                             try { bestName = getFullRegionName(bestServerRegionCode); } catch(e) {}
                             
                             if (bestServerTier === 0) {
-                                updateLoadingOverlayText(`Found ${bestName}! Joining...`);
+                                updateLoadingOverlayText(DOMPurify.sanitize(`Found ${bestName}! Joining...`));
                             } else {
-                                updateLoadingOverlayText(`Found: ${bestName}. Continuing search for ${shortTargetName}...`);
+                                updateLoadingOverlayText(DOMPurify.sanitize(`Found: ${bestName}. Continuing search for ${shortTargetName}...`));
                             }
                         }
 
@@ -444,9 +444,9 @@ export async function performJoinAction(placeId, universeId, preferredRegionCode
                 try { foundRegionName = getFullRegionName(bestServerRegionCode); } catch(e) {}
                 
                 showLoadingOverlayResult(
-                    `Could not find server in ${shortTargetName}.`,
+                    DOMPurify.sanitize(`Could not find server in ${shortTargetName}.`),
                     { 
-                        text: `Join ${foundRegionName}`, 
+                        text: DOMPurify.sanitize(`Join ${foundRegionName}`), 
                         onClick: () => {
                             hideLoadingOverlay(true);
                             joinedServerIds.add(bestServerFoundSoFar.id);

@@ -4,6 +4,7 @@ import { callRobloxApiJson } from '../../core/api.js';
 import { createRadioButton } from '../../core/ui/general/radio.js';
 import { createOverlay } from '../../core/ui/overlay.js';
 import { fetchThumbnails, createThumbnailElement } from '../../core/thumbnail/thumbnails.js';
+import DOMPurify from 'dompurify';
 
 
 
@@ -29,6 +30,8 @@ let antiBotState = {
     renderCursor: 0,
     scrollListener: null
 };
+
+let isInitialized = false;
 
 async function getFeatureSettings() {
     return new Promise((resolve) => {
@@ -123,7 +126,7 @@ async function showActionOverlay(selectedMembers, isFromBotScan = false) {
     membersToAction = selectedMembers;
 
     const bodyContainer = document.createElement('div');
-    bodyContainer.innerHTML = `
+    bodyContainer.innerHTML = DOMPurify.sanitize(`
         <div class="rovalra-action-description">Review ${selectedMembers.length} selected members:</div>
         <ul class="rovalra-action-summary-list">
             ${selectedMembers.map(m => `<li>${m.user.displayName} (@${m.user.username})</li>`).join('')}
@@ -136,7 +139,7 @@ async function showActionOverlay(selectedMembers, isFromBotScan = false) {
                 <div class="rovalra-action-progress-bar"></div>
             </div>
         </div>
-    `;
+    `);
 
     const btnBan = createBtn('Ban Members', 'btn-alert-md');
     const btnKick = createBtn('Kick Members', 'btn-control-md');
@@ -186,7 +189,7 @@ function showDoubleConfirmOverlay(actionType, isFromBotScan) {
         message += `<br><br><div class="rovalra-ban-warning" style="margin-top:0;"><strong>Reminder:</strong> Verify bot scores before banning.</div>`;
     }
 
-    bodyContent.innerHTML = `<div id="rovalra-double-confirm-message" style="text-align:center; font-size:16px;">${message}</div>`;
+    bodyContent.innerHTML = DOMPurify.sanitize(`<div id="rovalra-double-confirm-message" style="text-align:center; font-size:16px;">${message}</div>`);
 
     const btnConfirm = createBtn(`Yes, ${actionType.charAt(0).toUpperCase() + actionType.slice(1)}`, 'btn-alert-md');
     const btnCancel = createBtn('Cancel', 'btn-secondary-md');
@@ -251,6 +254,8 @@ async function processMembers(actionType) {
     const startTime = Date.now();
     
     for (let i = 0; i < totalMembers; i++) {
+        if (!window.rovalra.ui.actionOverlay || !document.body.contains(overlayEl)) return;
+
         const member = membersToAction[i];
         const user = member.user;
         let success = false;
@@ -261,17 +266,30 @@ async function processMembers(actionType) {
         
         if(statusText) statusText.textContent = `Processing ${i + 1} of ${totalMembers}: ${user.displayName}... ETA: ${remainingTime}s`;
 
-        try {
-            if (actionType === 'ban') {
-                await banUser(groupId, user.userId);
-            } else if (actionType === 'kick') {
-                await kickUser(groupId, user.userId);
+        let retries = 0;
+        while (true) {
+            if (!window.rovalra.ui.actionOverlay || !document.body.contains(overlayEl)) return;
+            try {
+                if (actionType === 'ban') {
+                    await banUser(groupId, user.userId);
+                } else if (actionType === 'kick') {
+                    await kickUser(groupId, user.userId);
+                }
+                success = true;
+                break;
+            } catch (error) {
+                if (error && (error.status == 429 || (error.message && error.message.includes('429')))) {
+                    retries++;
+                    const delay = Math.min(retries, 10);
+                    if (statusText) statusText.textContent = `Rate limited. Retrying in ${delay}s...`;
+                    await new Promise(r => setTimeout(r, 1000 * delay));
+                    continue;
+                }
+                let reason = error.message || 'Unknown Error';
+                if (error.status) reason = `API Error ${error.status}`;
+                failedMembers.push({ user, reason });
+                break;
             }
-            success = true;
-        } catch (error) {
-            let reason = error.message || 'Unknown Error';
-            if (error.status) reason = `API Error ${error.status}`;
-            failedMembers.push({ user, reason });
         }
 
         if (success) {
@@ -294,7 +312,7 @@ async function processMembers(actionType) {
     let finalMessage = `${successCount} of ${totalMembers} members were successfully ${actionType}ed.`;
     if (failedMembers.length > 0) finalMessage += `\n${failedMembers.length} failed.`;
     
-    if(statusText) statusText.innerHTML = finalMessage.replace('\n', '<br>');
+    if(statusText) statusText.innerHTML = DOMPurify.sanitize(finalMessage.replace('\n', '<br>'));
     
     const cancelBtn = overlayEl.querySelector('.rovalra-action-cancel-btn');
     if(cancelBtn) {
@@ -408,6 +426,8 @@ async function addFeatureButtons(searchContainer) {
     if (document.getElementById('rovalra-button-container')) return;
 
     const settings = await getFeatureSettings();
+    if (document.getElementById('rovalra-button-container')) return;
+
     if (!settings.antibotsEnabled && !settings.QuickActionsEnabled) return;
 
     const buttonContainer = document.createElement('div');
@@ -446,6 +466,7 @@ async function addFeatureButtons(searchContainer) {
         parentContainer.style.display = 'flex';
         parentContainer.style.alignItems = 'center';
         const spacer = document.createElement('div');
+        spacer.id = 'rovalra-button-spacer';
         spacer.style.flexGrow = '1';
         parentContainer.insertBefore(spacer, searchContainer);
         parentContainer.insertBefore(buttonContainer, searchContainer);
@@ -584,7 +605,6 @@ async function addFeatureButtons(searchContainer) {
         if (!loader) {
             loader = document.createElement('div');
             loader.className = 'rovalra-loading-more';
-            loader.innerHTML = '<span class="spinner spinner-default"></span> <span>Loading more...</span>';
             quickBanListContainer.appendChild(loader);
         }
 
@@ -613,7 +633,7 @@ async function addFeatureButtons(searchContainer) {
                 equalizeCardHeights(quickBanListContainer);
                 if (membersTitleElement) membersTitleElement.textContent = `Select Members for Action (${quickActionState.members.length} Loaded)`;
             } else if (quickActionState.members.length === 0) {
-                quickBanListContainer.innerHTML = `<div style="text-align: center; padding: 20px;">No members found.</div>`;
+                quickBanListContainer.innerHTML = DOMPurify.sanitize(`<div style="text-align: center; padding: 20px;">No members found.</div>`);
             }
         } catch (e) {
             loader.remove();
@@ -677,11 +697,10 @@ async function addFeatureButtons(searchContainer) {
             const updateLoadingStatus = () => {
                 if (!membersTitleElement) return;
                 const pct = totalGroupMembers > 0 ? Math.round((loadedMemberCount / totalGroupMembers) * 100) : 0;
-                membersTitleElement.innerHTML = `
+                membersTitleElement.innerHTML = DOMPurify.sanitize(`
                     <div style="display:flex; align-items:center; gap:10px;">
-                        <span class="spinner spinner-default" style="width:20px;height:20px;"></span>
                         <span>Scanned: ${loadedMemberCount} (${pct}%) | Analyzed: ${processedImageCount}</span>
-                    </div>`;
+                    </div>`);
             };
 
             const imageProcessingTasks = [];
@@ -757,7 +776,7 @@ async function addFeatureButtons(searchContainer) {
                         break; 
                     }
                 }
-                if (membersTitleElement) membersTitleElement.innerHTML = `<span class="spinner spinner-default"></span> Finalizing analysis...`;
+                if (membersTitleElement) membersTitleElement.innerHTML = `<span class="spinner spinner-dots" style="width:24px;height:24px;"></span> Finalizing analysis...`;
                 await Promise.all(imageProcessingTasks);
 
                 if (signal.aborted) throw new Error('Aborted');
@@ -794,7 +813,7 @@ async function addFeatureButtons(searchContainer) {
                     };
                     window.addEventListener('scroll', antiBotState.scrollListener);
                 } else {
-                    botMemberListContainer.innerHTML = `<div style="text-align: center; padding: 20px;">No bots detected.</div>`;
+                    botMemberListContainer.innerHTML = DOMPurify.sanitize(`<div style="text-align: center; padding: 20px;">No bots detected.</div>`);
                 }
 
             } catch (e) {
@@ -813,8 +832,7 @@ async function addFeatureButtons(searchContainer) {
         banByScoreButton.onclick = () => {
             if (antiBotState.likelyBotsCache.length === 0) return;
 
-            const bodyContainer = document.createElement('div');
-            bodyContainer.innerHTML = `
+            const bodyContainer = document.createElement('div'); bodyContainer.innerHTML = DOMPurify.sanitize(`
                 <div class="rovalra-score-selector-container">
                     <label>Minimum Bot Score: <span id="rovalra-score-value">50</span></label>
                     <input type="range" id="rovalra-score-slider" class="rovalra-slider" min="20" max="100" value="50">
@@ -822,19 +840,10 @@ async function addFeatureButtons(searchContainer) {
                         This will select approximately <span id="rovalra-score-ban-count">0</span> members.
                     </div>
                 </div>
-                <div id="rovalra-score-action-container"></div>
-            `;
+            `);
 
-            let selectedAction = 'ban';
-            const actionDropdown = createDropdown({
-                items: [{ value: 'ban', label: 'Ban' }, { value: 'kick', label: 'Kick' }],
-                initialValue: 'ban',
-                onValueChange: (value) => { selectedAction = value; }
-            });
-            bodyContainer.querySelector('#rovalra-score-action-container').appendChild(actionDropdown.element);
-
-            const btnConfirm = createBtnControl('Confirm', 'btn-alert-md');
-            const btnCancel = createBtnControl('Cancel', 'btn-secondary-md');
+            const btnConfirm = createBtn('Confirm', 'btn-alert-md');
+            const btnCancel = createBtn('Cancel', 'btn-secondary-md');
 
             const overlayInstance = createOverlay({
                 title: 'Ban/Kick by Score',
@@ -863,8 +872,7 @@ async function addFeatureButtons(searchContainer) {
                 const matches = overlayInstance._tempMatches || [];
                 if (matches.length > 0) {
                     overlayInstance.close();
-                    membersToAction = matches;
-                    showDoubleConfirmOverlay(selectedAction, true);
+                    showActionOverlay(matches, true);
                 }
             };
 
@@ -989,6 +997,7 @@ let isAntiBotScriptActive = false;
 
 function handleContainerRemoval() {
     document.getElementById('rovalra-button-container')?.remove();
+    document.getElementById('rovalra-button-spacer')?.remove();
 }
 
 function antiBotsFullCleanup() {
@@ -1021,6 +1030,9 @@ async function checkUrlAndManageState() {
 }
 
 export function init() {
+    if (isInitialized) return;
+    isInitialized = true;
+
     injectUiCss();
     if (!window.rovalra) window.rovalra = {};
     if (!window.rovalra.ui) window.rovalra.ui = {};

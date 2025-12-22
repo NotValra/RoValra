@@ -9,6 +9,7 @@ import { createButton } from '../../core/ui/buttons.js';
 import { addTooltip as attachTooltip } from '../../core/ui/tooltip.js';
 import { performJoinAction, getSavedPreferredRegion } from '../../core/preferredregion.js';
 import { fetchThumbnails } from '../../core/thumbnail/thumbnails.js';
+import DOMPurify from 'dompurify';
 
 
 const PROCESSED_MARKER_CLASS = 'rovalra-quickplay-processed';
@@ -140,7 +141,13 @@ async function isVipServerActive(vipServerId) {
     if (State.privateServerStatus.has(vipServerId)) return State.privateServerStatus.get(vipServerId);
     try {
         const res = await callRobloxApi({ subdomain: 'games', endpoint: `/v1/vip-servers/${vipServerId}` });
-        const isActive = res.ok && (await res.json()).active === true;
+        if (!res.ok) {
+            State.privateServerStatus.set(vipServerId, false);
+            return false;
+        }
+        const data = await res.json();
+        const isExpired = data.subscription?.expired === true;
+        const isActive = data.active === true && !isExpired;
         State.privateServerStatus.set(vipServerId, isActive);
         return isActive;
     } catch {
@@ -212,7 +219,7 @@ async function fetchAndDisplayPrivateServers(placeId, loadMore = false, nextPage
 
     try {
         if (!loadMore) {
-            State.privateServersContainer.innerHTML = `<p style="color: ${isDark ? '#fff' : '#000'}; text-align: center; padding: 10px 0;">Loading...</p>`;
+            State.privateServersContainer.innerHTML = DOMPurify.sanitize(`<p style="color: ${isDark ? '#fff' : '#000'}; text-align: center; padding: 10px 0;">Loading...</p>`);
             
             if (State.privateServerList.has(placeId)) {
                 const cached = State.privateServerList.get(placeId);
@@ -239,7 +246,7 @@ async function fetchAndDisplayPrivateServers(placeId, loadMore = false, nextPage
 
             if (res.status === 429) {
                 if (!loadMore) {
-                    State.privateServersContainer.innerHTML = `<p style="color: ${isDark ? '#fff' : '#000'}; text-align: center; padding: 10px 0;">Rate limited. Retrying...</p>`;
+                    State.privateServersContainer.innerHTML = DOMPurify.sanitize(`<p style="color: ${isDark ? '#fff' : '#000'}; text-align: center; padding: 10px 0;">Rate limited. Retrying...</p>`);
                 }
                 
                 await new Promise(resolve => setTimeout(resolve, retryDelay));
@@ -282,7 +289,7 @@ async function fetchAndDisplayPrivateServers(placeId, loadMore = false, nextPage
 
     } catch (e) {
         if (State.activePlaceId === placeId) {
-            State.privateServersContainer.innerHTML = `<p style="text-align: center;">Could not load servers.</p>`;
+            State.privateServersContainer.innerHTML = DOMPurify.sanitize(`<p style="text-align: center;">Could not load servers.</p>`);
         }
     } finally {
         State.isLoadingPrivateServers = false;
@@ -309,15 +316,18 @@ function renderPrivateServers(placeId, servers, nextPageCursor, thumbnails, appe
         el.className = 'private-server-item';
 
         const thumbUrl = thumbnails[server.owner.id];
-        el.innerHTML = `
-            <a href="https://www.roblox.com/users/${server.owner.id}/profile" target="_blank" class="private-server-owner-thumb-link" onclick="event.stopPropagation()">
+        el.innerHTML = DOMPurify.sanitize(`
+            <a href="https://www.roblox.com/users/${server.owner.id}/profile" target="_blank" class="private-server-owner-thumb-link">
                 <img class="private-server-owner-thumb" src="${thumbUrl || ''}">
             </a>
             <div class="private-server-info">
                 <span class="private-server-name" title="${server.name}">${server.name}</span>
                 <span class="private-server-players">${server.players.length} / ${server.maxPlayers}</span>
             </div>
-        `;
+        `);
+
+        const thumbLink = el.querySelector('.private-server-owner-thumb-link');
+        if (thumbLink) thumbLink.addEventListener('click', (e) => e.stopPropagation());
 
         if (server.owner.id === State.currentUserId) {
             const actions = document.createElement('div');
@@ -363,7 +373,7 @@ function renderPrivateServers(placeId, servers, nextPageCursor, thumbnails, appe
 
         const joinBtn = document.createElement('button');
         joinBtn.className = 'private-server-join-btn';
-        joinBtn.innerHTML = `<span class="icon-common-play"></span>`;
+        joinBtn.innerHTML = DOMPurify.sanitize(`<span class="icon-common-play"></span>`);
         joinBtn.onclick = (e) => {
             e.preventDefault(); e.stopPropagation();
             launchPrivateGame(placeId, server.accessCode, server.vipServerId);
@@ -479,10 +489,12 @@ async function setupHoverCard(gameLink, settings) {
     gameLink.classList.add('game-tile-styles');
     const isSpecialLayout = gameLink.closest('.featured-game-container, .featured-grid-item-container');
 
-    const hoverBg = document.createElement('div');
-    hoverBg.className = 'hover-background';
-    gameLink.appendChild(hoverBg);
-
+    if (!isSpecialLayout) {
+        const hoverBg = document.createElement('div');
+        hoverBg.className = 'hover-background';
+        gameLink.appendChild(hoverBg);
+    }
+    
     const overlay = document.createElement('div');
     overlay.className = 'play-button-overlay';
     const wrapper = document.createElement('div');
@@ -506,11 +518,11 @@ async function setupHoverCard(gameLink, settings) {
 
     const playBtn = document.createElement('button');
     playBtn.className = 'play-game-button';
-    playBtn.innerHTML = `<span class="icon-common-play"></span>`;
+    playBtn.innerHTML = DOMPurify.sanitize(`<span class="icon-common-play"></span>`);
     
     if (settings.PreferredRegionEnabled && settings.playbuttonpreferredregionenabled) {
         playBtn.onclick = handlePreferredJoin;
-        if (settings.robloxPreferredRegion === 'AUTO') attachTooltip(playBtn, 'Join Fastest Server');
+        if (settings.robloxPreferredRegion === 'AUTO') attachTooltip(playBtn, 'Join Closest Server');
         else addRegionTooltip(playBtn);
     } else {
         playBtn.onclick = handleNormalJoin;
@@ -522,7 +534,7 @@ async function setupHoverCard(gameLink, settings) {
         regionBtn.className = 'server-browser-button';
         regionBtn.appendChild(Icons.globe());
         regionBtn.onclick = handlePreferredJoin;
-        if (settings.robloxPreferredRegion === 'AUTO') attachTooltip(regionBtn, 'Join Fastest Server');
+        if (settings.robloxPreferredRegion === 'AUTO') attachTooltip(regionBtn, 'Join Closest Server');
         else addRegionTooltip(regionBtn);
         wrapper.appendChild(regionBtn);
     }
@@ -593,6 +605,9 @@ function initializeQuickPlay() {
         robloxPreferredRegion: 'AUTO'
     }, (settings) => {
         const onCardFound = (gameLink) => {
+            if (gameLink.closest('[data-testid="event-experience-link"]')) {
+                return;
+            }
             if (gameLink.classList.contains(PROCESSED_MARKER_CLASS)) return;
             gameLink.classList.add(PROCESSED_MARKER_CLASS);
             
@@ -624,12 +639,12 @@ const CSS_STYLES = `
 a.game-tile-styles.game-card-link { position: relative; display: block; z-index: 2; transform: translateZ(0); }
 a.game-tile-styles.game-card-link:hover { z-index: 2; }
 a.game-tile-styles.game-card-link::after { content: ''; position: absolute; top: -2.5%; left: -2.5%; width: 105%; height: 105%; z-index: 1; }
-a.game-tile-styles.game-card-link::before, .hover-background { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; border-radius: 12px; opacity: 0; transition: opacity 0.15s ease-out, transform 0.15s ease-out; pointer-events: none; will-change: transform, opacity; }
+a.game-tile-styles.game-card-link::before, .hover-background { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; border-radius: 12px !Important; opacity: 0; transition: opacity 0.15s ease-out, top 0.15s ease-out, left 0.15s ease-out, right 0.15s ease-out, bottom 0.15s ease-out; pointer-events: none; will-change: opacity, top, left, right, bottom; }
 a.game-tile-styles.game-card-link::before { box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3); z-index: -2; }
-.hover-background { background-color: rgb(39, 41, 48); transform: scale(1); z-index: -1; }
+.hover-background { background-color: rgb(39, 41, 48); z-index: -1; }
 body:not(.dark-theme) .hover-background { background-color: rgb(247, 247, 248); }
-a.game-tile-styles.game-card-link:hover::before, a.game-tile-styles.game-card-link.quick-play-hover-active::before { opacity: 1; }
-a.game-tile-styles.game-card-link:hover .hover-background, a.game-tile-styles.game-card-link.quick-play-hover-active .hover-background { opacity: 1; transform: scale(1.05); }
+a.game-tile-styles.game-card-link:hover::before, a.game-tile-styles.game-card-link.quick-play-hover-active::before { opacity: 1; top: -5px; left: -5px; right: -5px; bottom: -5px; }
+a.game-tile-styles.game-card-link:hover .hover-background, a.game-tile-styles.game-card-link.quick-play-hover-active .hover-background { opacity: 1; top: -5px; left: -5px; right: -5px; bottom: -5px; }
 a.game-tile-styles.game-card-link:hover .game-card-name, a.game-tile-styles.game-card-link.quick-play-hover-active .game-card-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
 a.game-tile-styles.game-card-link:hover .game-card-native-ad, a.game-tile-styles.game-card-link.quick-play-hover-active .game-card-native-ad { display: none; }
 .quick-play-original-stats { z-index: 5; transition: transform 0.15s ease-out; will-change: transform; }
@@ -637,7 +652,7 @@ a.game-tile-styles.game-card-link:hover .quick-play-original-stats.game-card-fri
 a.game-tile-styles.game-card-link.quick-play-hover-active .quick-play-original-stats.game-card-friend-info { transform: translateY(-30px); }
 a.game-tile-styles.game-card-link:hover .quick-play-original-stats.game-card-info:not(.game-card-friend-info),
 a.game-tile-styles.game-card-link.quick-play-hover-active .quick-play-original-stats.game-card-info:not(.game-card-friend-info) { transform: translateY(-25px); }
-.play-button-overlay { display: flex; flex-direction: column; position: absolute; bottom: 0px; left: 4px; right: 4px; z-index: 10; opacity: 0; gap: 0px; transform: translateY(8px); transition: opacity 0.2s ease-out, transform 0.2s ease-out; pointer-events: none; }
+.play-button-overlay { display: flex; flex-direction: column; position: absolute; bottom: 0px; left: 0px; right: 0px; z-index: 10; opacity: 0; gap: 0px; transform: translateY(0px); transition: opacity 0.2s ease-out, transform 0.2s ease-out; pointer-events: none; }
 a.game-tile-styles.game-card-link:hover .play-button-overlay, a.game-tile-styles.game-card-link.quick-play-hover-active .play-button-overlay { opacity: 1; transform: translateY(0); transition-delay: 0.1s; }
 .play-buttons-wrapper { display: flex; gap: 4px; width: 100%; }
 .play-game-button, .server-browser-button, .private-servers-button { pointer-events: auto; background-color: rgb(51, 95, 255); color: white; border: none; padding: 4px; line-height: 0; border-radius: 6px; cursor: pointer; transition: background-color 0.2s; display: flex; align-items: center; justify-content: center; height: 28px; }

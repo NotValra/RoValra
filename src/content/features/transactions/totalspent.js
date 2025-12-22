@@ -2,6 +2,7 @@ import { observeElement } from '../../core/observer.js';
 import { callRobloxApiJson } from '../../core/api.js';
 import { createOverlay } from '../../core/ui/overlay.js';
 import { createButton } from '../../core/ui/buttons.js';
+import DOMPurify from 'dompurify';
 
 function onElementFound(container) {
     const buttonIdentifier = 'rovalra-total-spent-btn';
@@ -155,7 +156,7 @@ function onElementFound(container) {
             const formatCurrency = (amount) => amount.toLocaleString(undefined, { style: 'currency', currency: state.currencyCode });
 
             if (transEl) transEl.textContent = state.transactionsProcessed.toLocaleString();
-            if (robuxEl) robuxEl.innerHTML = formatRobux(state.totalSpent);
+            if (robuxEl) robuxEl.innerHTML = DOMPurify.sanitize(formatRobux(state.totalSpent));
             if (moneySpentEl) moneySpentEl.textContent = state.totalMoneySpent.toLocaleString(undefined, { style: 'currency', currency: state.currencyCode });
             
             if (itemTypeBreakdownEl) {
@@ -175,9 +176,9 @@ function onElementFound(container) {
                 }).join('');
                 
                 if (itemsHTML) {
-                    itemTypeBreakdownEl.innerHTML = `<ul class="rovalra-breakdown-list">${itemsHTML}</ul>`;
+                    itemTypeBreakdownEl.innerHTML = DOMPurify.sanitize(`<ul class="rovalra-breakdown-list">${itemsHTML}</ul>`);
                 } else {
-                    itemTypeBreakdownEl.innerHTML = `<div class="text-secondary text-caption-body" style="padding:8px;">No items found yet.</div>`;
+                    itemTypeBreakdownEl.innerHTML = DOMPurify.sanitize(`<div class="text-secondary text-caption-body" style="padding:8px;">No items found yet.</div>`);
                 }
             }
 
@@ -192,7 +193,7 @@ function onElementFound(container) {
                                 <span class="rovalra-breakdown-price">${total}</span>
                             </li>`;
                 }).join('');
-                purchaseBreakdownEl.innerHTML = `<ul class="rovalra-breakdown-list">${itemsHTML}</ul>`;
+                purchaseBreakdownEl.innerHTML = DOMPurify.sanitize(`<ul class="rovalra-breakdown-list">${itemsHTML}</ul>`);
             }
             
             if (premiumBreakdownEl) {
@@ -207,7 +208,7 @@ function onElementFound(container) {
                                 <span class="rovalra-breakdown-price">${total}</span>
                             </li>`;
                 }).join('');
-                premiumBreakdownEl.innerHTML = `<ul class="rovalra-breakdown-list">${itemsHTML}</ul>`;
+                premiumBreakdownEl.innerHTML = DOMPurify.sanitize(`<ul class="rovalra-breakdown-list">${itemsHTML}</ul>`);
             }
         }
     };
@@ -478,11 +479,11 @@ function onElementFound(container) {
 
 
             
-            bodyContainer.innerHTML = `
+            bodyContainer.innerHTML = DOMPurify.sanitize(`
                 ${statsGridHTML}
                 ${breakdownsHTML}
                 <div class="rovalra-divider"></div>
-                <div class="rovalra-status-content">${statusContent}</div>`;
+                <div class="rovalra-status-content">${statusContent}</div>`);
             
             mainContent = bodyContainer;
 
@@ -602,26 +603,29 @@ function onElementFound(container) {
                             hasNextPage = false;
                         }
                     } catch (error) {
-                        if (error.status === 429) { 
+                        if (error.status === 429 || error.message?.includes('429')) { 
                             if (!state.isRateLimited) { state.isRateLimited = true; updateOverlay(); }
                             const waitUntil = Date.now() + (5 * 1000); 
                             while (Date.now() < waitUntil) {
                                 if (state.status !== CALCULATION_STATE.RUNNING) throw new PausedException("Paused during rate-limit wait.");
                                 await new Promise(resolve => setTimeout(resolve, 250));
                             }
+                            if (state.isRateLimited) { 
+                                state.isRateLimited = false; updateOverlay(); 
+                            }
                             continue;
-                        }
-                        if (error.status === 500) { 
+                        } else { 
                             state.retryCount++;
-                            if (state.retryCount >= MAX_RETRIES) throw new Error("Roblox servers are having issues.");
-                            const waitUntil = Date.now() + (1000 * state.retryCount);
+                            if (state.retryCount > 5) {
+                                throw new Error(`Failed after multiple retries. Last error: ${error.message || 'Unknown'}`);
+                            }
+                            const waitUntil = Date.now() + 1000;
                             while (Date.now() < waitUntil) {
                                 if (state.status !== CALCULATION_STATE.RUNNING) throw new PausedException("Paused during retry wait.");
                                 await new Promise(resolve => setTimeout(resolve, 250));
                             }
                             continue; 
                         }
-                        throw error;
                     }
                 }
             }

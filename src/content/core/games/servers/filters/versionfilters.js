@@ -5,6 +5,7 @@ import { callRobloxApiJson } from '../../../api.js';
 import { createStyledInput } from '../../../ui/catalog/input.js'; 
 import { createDropdown } from '../../../ui/dropdown.js';
 import { addTooltip } from '../../../ui/tooltip.js'; 
+import DOMPurify from 'dompurify';
 
 let isInitialized = false;
 let currentCursor = null;
@@ -213,7 +214,7 @@ async function createVersionWidget(container) {
             versions.forEach(v => {
                 const item = document.createElement('div');
                 item.className = 'rovalra-version-item';
-                item.innerHTML = `<span>${v}</span>`;
+                item.innerHTML = DOMPurify.sanitize(`<span>${v}</span>`);
                 
                 item.addEventListener('click', (e) => {
                     e.stopPropagation(); 

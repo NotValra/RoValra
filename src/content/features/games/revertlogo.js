@@ -3,6 +3,7 @@ import { getAssets } from '../../core/assets.js';
 import { loadDatacenterMap, getRegionData, getFullRegionName } from '../../core/regions.js';
 import { fetchThumbnails } from '../../core/thumbnail/thumbnails.js';
 import { callRobloxApi } from '../../core/api.js'; 
+import DOMPurify from 'dompurify';
 
 import { 
     showLoadingOverlay, 
@@ -214,7 +215,7 @@ const buildInfoList = (gameId, isPrivateServer, regionCode, regionName, serverIn
         </li>
     `);
     
-    return listItems.join('');
+    return DOMPurify.sanitize(listItems.join(''));
 };
 
 
@@ -419,6 +420,15 @@ function initializeJoinDialogEnhancer() {
 
                             if (response && response.ok) {
                                 const data = await response.json();
+
+                                if (data?.status === 12 || (data?.message && data.message.includes("non-root place"))) {
+                                    showLoadingOverlayResult(data.message || "Cannot join: Non-root place restrictions.", { 
+                                        text: "Close", 
+                                        onClick: () => closeInterface(true) 
+                                    });
+                                    return; 
+                                }
+
                                 if (data?.joinScript) {
                                     joinApiResponse = data;
                                     break;
@@ -527,6 +537,7 @@ function initialize() {
 }
 
 export function init() {
+    closeInterface(true);
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initialize, { once: true });
     } else {

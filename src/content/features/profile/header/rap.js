@@ -7,6 +7,7 @@ import { addTooltip } from '../../../core/ui/tooltip.js';
 import { getUsernameFromPageData } from '../../../core/utils.js';
 import { createProfileHeaderButton } from '../../../core/ui/profile/header/button.js';
 import { createStyledInput } from '../../../core/ui/catalog/input.js';
+import DOMPurify from 'dompurify';
 
 const userCollectiblesCache = new Map();
 const rapDisplayIdentifier = 'rovalra-user-rap-display';
@@ -188,7 +189,7 @@ async function showInventoryOverlay(userId, items, totalRapString, hideSerial) {
     rolimonsLink.rel = 'noopener noreferrer';
     rolimonsLink.className = 'rolimons-link'; 
     rolimonsLink.style.cssText = 'display: inline-flex; align-items: center; margin-left: 12px; color: var(--rovalra-secondary-text-color);';
-    rolimonsLink.innerHTML = `<svg focusable="false" aria-hidden="true" viewBox="0 0 24 24" style="width:20px;height:20px;fill:currentColor;"><path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3z"></path></svg>`;
+    rolimonsLink.innerHTML = DOMPurify.sanitize(`<svg focusable="false" aria-hidden="true" viewBox="0 0 24 24" style="width:20px;height:20px;fill:currentColor;"><path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3z"></path></svg>`);
 
     const overlayTitleText = `${displayName}'s Collectibles (${totalRapString} RAP)`;
 
@@ -215,7 +216,7 @@ async function showInventoryOverlay(userId, items, totalRapString, hideSerial) {
     });
 
     const setEmpty = (message) => {
-        itemListContainer.innerHTML = `<p class="text-secondary" style="grid-column:1/-1;text-align:center;">${message}</p>`;
+        itemListContainer.innerHTML = DOMPurify.sanitize(`<p class="text-secondary" style="grid-column:1/-1;text-align:center;">${message}</p>`);
     };
 
     if (allItems.length > 0) {
@@ -279,9 +280,12 @@ async function addUserRapDisplay(observedElement) {
 
         rapDisplay.addEventListener('click', () => {
             const username = getUsernameFromPageData() || 'this user';
+            const bodyContent = document.createElement('div');
+            bodyContent.innerHTML = DOMPurify.sanitize(`You are about to be redirected to ${username}'s profile on Rolimon's, an external website for trading and item values.<br><br>Do you want to continue?`);
+
             const { close } = createOverlay({
                 title: 'Continue to Rolimon\'s',
-                bodyContent: `You are about to be redirected to ${username}'s profile on Rolimon's, an external website for trading and item values.<br><br>Do you want to continue?`,
+                bodyContent: bodyContent,
                 actions: [
                     (() => {
                         const continueButton = document.createElement('button');

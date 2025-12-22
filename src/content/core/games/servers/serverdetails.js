@@ -121,10 +121,9 @@ function getLocationFromDataCenterId(id) {
 export function getFullLocationName(data) {
     if (!data || typeof data !== 'object') return "Unknown Region";
     const loc = data.location || data;
-    const { city, region, country } = loc;
+    const { city, region } = loc;
     
-    const countryMap = { "US": "USA", "GB": "UK" };
-    const parts = [city, (country === "US" && region !== city) ? region : null, countryMap[country] || country];
+    const parts = [city, (region && region !== city) ? region : null];
     
     return [...new Set(parts.filter(Boolean))].join(', ') || "Unknown Region";
 }
@@ -476,6 +475,8 @@ export async function fetchServerUptime(placeId, serverIds, serverLocations, ser
 
             if (place_version) serverVersionsCache[server_id] = place_version;
 
+            const versionToDisplay = place_version || serverVersionsCache[server_id];
+
             let uptime = 'N/A';
             if (first_seen) {
                 const date = new Date(first_seen.endsWith('Z') ? first_seen : first_seen + 'Z');
@@ -484,7 +485,7 @@ export async function fetchServerUptime(placeId, serverIds, serverLocations, ser
             serverUptimes[server_id] = uptime;
 
             let regionStr = null;
-            const locParts = [city, region, country].filter(p => p && p !== 'Unknown');
+            const locParts = [city, (region && region !== city) ? region : null].filter(p => p && p !== 'Unknown');
             if (locParts.length) {
                 regionStr = [...new Set(locParts)].join(', ');
                 serverLocations[server_id] = regionStr;
@@ -494,7 +495,7 @@ export async function fetchServerUptime(placeId, serverIds, serverLocations, ser
             const serverEls = document.querySelectorAll(`[data-rovalra-serverid="${server_id}"]`);
             
             serverEls.forEach(serverEl => {
-                displayPlaceVersion(serverEl, place_version, serverLocations);
+                displayPlaceVersion(serverEl, versionToDisplay, serverLocations);
                 displayUptime(serverEl, uptime, serverLocations);
                 if (regionStr) {
                     displayRegion(serverEl, regionStr, serverLocations);

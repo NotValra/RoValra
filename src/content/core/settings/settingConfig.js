@@ -11,17 +11,17 @@ export const SETTINGS_CONFIG = {
             itemSalesEnabled: {
                 label: "Item Sales",
                 description: ["This shows the most up to date sales and revenue data we have.",
-                    "The sales data is very likely to be inaccurate on items that are for sale, but very likely to be correct on off-sale items.",
-                    "Keep in mind this was leaked data from around half a year ago. A lot of data is inaccurate and a lot of items don't have data."
-                ],
+                    "The sales data is very likely to be inaccurate on items that are for sale, but very likely to be correct on off-sale items."                ],
+                deprecated: "Sale stats are very old and now inaccurate.",
                 type: "checkbox",
-                default: true
+                default: false
             },
             hiddenCatalogEnabled: {
                 label: "Hidden Catalog",
                 description: ["Shows Roblox made items before they are on the official catalog.",
-                    "{{WARNING red}} This has now been patched by Roblox, but you can still see previous hidden items.",
+                    
                 ],
+                deprecated: "Patched by Roblox",
                 type: "checkbox",
                 default: false
             },
@@ -29,10 +29,10 @@ export const SETTINGS_CONFIG = {
                 label: "Save 10%-40% Robux on Purchases",
                 description: ["This adds a button allowing you to save 40% on items on the catalog and 10% on gamepasses",
                     "Keep in mind a group is required for this to work.",
-                    "**WARNING this currently uses a method that could have a slight risk of an account ban.** In full release it will be changed."
+              
                 ],
                 type: "checkbox",
-                default: false,
+                default: true,
                 childSettings: {
                     RobuxPlaceId: {
                         label: "Place ID to use for the 10%-40% Robux back",
@@ -102,7 +102,7 @@ export const SETTINGS_CONFIG = {
             },
             whatamIJoiningEnabled: {
                 label: "What Am I Joining",
-                description: ["This shows the server ID, region, player count (if available), if it's a private server, and more info about the server you are joining when joining a game.",
+                description: ["This shows the server ID, region, if it's a private server, and more info about the server you are joining when joining a game.",
 ],
                 type: "checkbox",
                 default: true,
@@ -111,8 +111,8 @@ export const SETTINGS_CONFIG = {
                     AlwaysGetInfo: {
                         label: "Always Get Server Info",
                         description: ["This will always get the server info, even if no server data is available.",
-                            "This works by overwriting any attempt to join a game without any server data, and then it will get a server and make you join that.",
-                        "This will not be able to get player count or server performance."],
+                            "It has a very small change to get inaccurate information."
+                        ],
                         type: "checkbox",
                         default: true
                     }
@@ -144,19 +144,19 @@ export const SETTINGS_CONFIG = {
             },
             subplacesEnabled: {
                 label: "Subplaces",
-                description: ["Shows the subplaces of a game."],
+                description: ["Shows the subplaces of an experience."],
                 type: "checkbox",
                 default: true
             },
             TotalServersEnabled: {
                 label: "Total Servers",
-                description: ["This shows the total amount of servers a game has."],
+                description: ["This shows the total amount of servers RoValra is tracking under that experience."],
                 type: "checkbox",
                 default: true
             },
             GameVersionEnabled: {
                 label: "Game Version",
-                description: ["This shows the current version a game is on.",
+                description: ["This shows the current version an experience is on.",
                     "Useful for developers."
                 ],
                 type: "checkbox",
@@ -164,7 +164,7 @@ export const SETTINGS_CONFIG = {
             },
             OldestVersionEnabled: {
                 label: "Oldest Server Version",
-                description: ["This shows the oldest game version that servers are still running on.",
+                description: ["This shows the oldest place version that servers are still running on.",
                     "Useful for developers."
                 ],
                 type: "checkbox",
@@ -173,11 +173,30 @@ export const SETTINGS_CONFIG = {
             ServerFilterEnabled: {
                 label: "Server Filters",
                 description: ["This adds a filter to the server list.",
-                    "allowing you to filter servers by region, uptime, and server size.",
                     "**It is highly recommended that the 'Server List Modifications' setting is enabled for this to work correctly.**"
                 ],
                 type: "checkbox",
                 default: true,
+                childSettings: {
+                    RegionFiltersEnabled: {
+                        label: "Region Filters",
+                        description: "Adds Region filters in the server list.",
+                        type: "checkbox",
+                        default: true,
+                    },
+                    UptimeFiltersEnabled: {
+                        label: "Uptime Filters",
+                        description: "Adds Server Uptime filters in the server list.",
+                        type: "checkbox",
+                        default: true,
+                    },
+                    VersionFiltersEnabled: {
+                        label: "Place Version Filters",
+                        description: "Adds Place Version filters in the server list allowing you to filter by servers running a specific place version.",
+                        type: "checkbox",
+                        default: true,
+                    }
+                }
             },
             ServerlistmodificationsEnabled: {
                 label: "Server List Modifications",
@@ -248,9 +267,11 @@ export const SETTINGS_CONFIG = {
             },
             PrivateQuickLinkCopy: {
                 label: "Quick Private Server Link Copy and Generation",
-                description: ["{{This feature has been disabled for maintenance orange}}",
+                description: ["This feature has been disabled for maintenance",
                     "This allows you to quickly copy a private server link or generate a new private server link"
-                ]
+                ],
+                deprecated: "This feature is currently disabled. It is technically not deprecated and will come back when finished."
+
             },
 
         }
@@ -268,11 +289,10 @@ export const SETTINGS_CONFIG = {
                 label: "Instant Joiner",
                 description: ["This joins a user instantly when they go into a game, best used for people with a lot of people trying to join them.",
                     "### Requirements",
-                    "- It is **strongly recommended** that you uninstall the Microsoft Store version of Roblox",
                     "- This feature requires the user to have their joins enabled for everyone or for you to be friends with them."
                 ],
                 type: "checkbox",
-                default: false,
+                default: true,
                 childSettings: {
                     deeplinkEnabled: {
                         label: "Join through deeplinks",
@@ -336,24 +356,26 @@ export const SETTINGS_CONFIG = {
         title: "Communities",
         settings: {
             groupGamesEnabled: {
-                label: "Hidden Community Games",
-                description: ["Shows a communities hidden games."],
+                label: "Hidden Community Experiences",
+                description: ["Shows a communities hidden experiences."],
                 type: "checkbox",
                 default: true
             },
             pendingRobuxEnabled: {
                 label: "Unpending Robux",
                 description: ["Shows an estimate of how many pending Robux will stop pending within 24 hours.",],
+                experimental: "May be inaccurate. And will take ages depending on the amount of sales",
                 type: "checkbox",
-                default: true
+                default: false
             },
             antibotsEnabled: {
                 label: "Anti-Bot Members",
-                description: ["{{Experimental Feature green}}",
+                description: [
                     "This adds a button that will allow you to scan all members in a community for bots.",
                     "If there is any bots it will allow you to quickly ban or kick them.",
                     "This calculates bots by similar avatars and display names, so it may not be 100% accurate."
                 ],
+                experimental: "Takes ages since Roblox has heavy rate limits.",
                 type: "checkbox",
                 default: true
             },
@@ -397,7 +419,17 @@ export const SETTINGS_CONFIG = {
                 description: ["This calculates the total amount of Robux and money you have spent on your account based on your transaction history."],
                 type: "checkbox",
                 default: true
-            }
+            },
+            pendingrobuxtrans: {
+
+                label: "Unpending Robux Transactions",
+                description: ["This estimates how many Robux will stop pending in 24 hours.",
+
+                ],
+                experimental: "May be inaccurate. And will take ages depending on the amount of sales",
+                type: "checkbox",
+                default: false
+            },
         }
     },
     Miscellaneous: {
@@ -410,6 +442,7 @@ export const SETTINGS_CONFIG = {
                     "If you don't know what a memory leak is or you don't feel like Roblox is using too much memory, you can leave this off.",
                     "**This will prompt you to enable the 'webNavigation' permission for the feature to work.**"
                 ],
+                experimental: "May cause some issues.",
                 type: "checkbox",
                 default: false,
                 requiredPermissions: ["webNavigation"],
@@ -448,16 +481,7 @@ export const SETTINGS_CONFIG = {
                 type: "checkbox",
                 default: true
             },
-            pendingrobuxtrans: {
 
-                label: "Unpending Robux Transactions",
-                description: ["This estimates how many Robux will stop pending in 24 hours.",
-                    "This feature is experimental since I couldn't test it myself, but it should work fine."
-                ],
-
-                type: "checkbox",
-                default: true
-            },
             revertLogo: {
                 label: "Change the app launch icon",
                 description: ["This changes the icon that shows when you join a game.",
@@ -472,14 +496,14 @@ export const SETTINGS_CONFIG = {
                         description: ["Upload your custom image. Maximum file size is 1MB."],
                         type: "file",
                         default: null,
-                        compressSettingName: "compressCustomLogo" // This setting controls compression
+                        compressSettingName: "compressCustomLogo" 
                     },
                     compressCustomLogo: {
                         label: "Compress Custom Icon",
                         description: [
                             "Compresses the image to reduce storage space (max 512px, JPEG 80% quality for photos, PNG for transparent images).",
                             "Disable this to keep full quality and transparency, but it may use more storage space.",
-                            "{{WARNING orange}} Uncompressed images must still be under 1MB."
+                            "Uncompressed images must still be under 1MB."
                         ],
                         type: "checkbox",
                         default: true
@@ -492,14 +516,39 @@ export const SETTINGS_CONFIG = {
 
     },
     AntiAccountTracking: {
-        title: "Anti Account Tracking",
+        title: "Privacy",
         settings: {
+            streamermode: {
+                label: "Streamer Mode",
+                description: ["This feature hides information that you most likely don't wanna accidently show on something like a live stream.",
+                    
+                ],
+                type: "checkbox",
+                default: false,
+                experimental: "This may cause some issues since it tricks Roblox into thinking your private info is something it isn't.",
+                childSettings: {
+                    settingsPageInfo: {
+                        label: "Hide Private Information on the settings page",
+                        description: ["This visually replaces your Email, Phone Number, Sessions and account location with 'RoValra Streamer Mode Enabled'",
+                            "And completely hides your Age Group and Birthday."],
+                        type: "checkbox",
+                        default: true,
+                    },
+                    hideRobux: {
+                        label: "Hide Robux",
+                        description: ["Simply hides your Robux by changing it to 'Hidden'",
+                            "This does not hide your Robux on purchase prompts."
+                        ],
+                        type: "checkbox",
+                        default: false,
+                    }
+                }
+            },
             spoofAsOffline: {
                 label: "Spoof status as Offline",
                 description: [
                     "Makes you appear as offline to you and other people.",
                     "This is useful if you want to appear offline while still allowing connections to join you in experiences, since the official offline status by Roblox does not allow this.",
-                    "This may take a few minutes to update after turning on the feature.",
                     "Joining an experience will overwrite this status.",
                     "This may take a few minutes to actually change your status to offline after turning on the feature."
                     

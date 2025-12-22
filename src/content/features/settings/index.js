@@ -1,5 +1,6 @@
 import { getAssets } from '../../core/assets.js';
 import { getRegionData, loadDatacenterMap, getFullRegionName } from '../../core/regions.js';
+import DOMPurify from 'dompurify';
 import { observeElement } from '../../core/observer.js';
 import { generateSingleSettingHTML } from '../../core/settings/generateSettings.js';
 import { SETTINGS_CONFIG } from '../../core/settings/settingConfig.js';
@@ -184,6 +185,7 @@ export async function updateContent(buttonInfo, contentContainer) {
     if (typeof buttonInfo !== 'object' || buttonInfo === null || !buttonInfo.content) return;
 
     const lowerText = buttonInfo.text.toLowerCase();
+    const sanitizeConfig = { ADD_URI_SCHEMES: ['chrome-extension'] };
 
     if (lowerText === "info" || lowerText === "credits") {
         contentContainer.innerHTML = `
@@ -193,9 +195,9 @@ export async function updateContent(buttonInfo, contentContainer) {
                         ${buttonInfo.content}
                     </div> 
                 </div> 
-            </div>`;
+            </div>`, sanitizeConfig;
     } else {
-        contentContainer.innerHTML = buttonInfo.content;
+        contentContainer.innerHTML = DOMPurify.sanitize(buttonInfo.content, sanitizeConfig);
     }
 
     if (lowerText === "info") {
@@ -223,7 +225,7 @@ export async function handleSearch(event) {
     });
 
     if (query.length < 2) {
-        contentContainer.innerHTML = `<div id="settings-content" style="padding: 15px; text-align: center; color: var(--rovalra-main-text-color);">Please enter at least 2 characters to search.</div>`;
+        contentContainer.innerHTML = DOMPurify.sanitize(`<div id="settings-content" style="padding: 15px; text-align: center; color: var(--rovalra-main-text-color);">Please enter at least 2 characters to search.</div>`);
         await applyTheme();
         return;
     }
@@ -264,7 +266,7 @@ export async function handleSearch(event) {
     }
 
     if (searchResults.length === 0) {
-        contentContainer.innerHTML = `<div id="settings-content" style="padding: 15px; text-align: center; color: var(--rovalra-main-text-color);">No settings found for "${query}".</div>`;
+        contentContainer.innerHTML = DOMPurify.sanitize(`<div id="settings-content" style="padding: 15px; text-align: center; color: var(--rovalra-main-text-color);">No settings found for "${query}".</div>`);
     } else {
         const groupedResults = searchResults.reduce((acc, setting) => {
             if (!acc[setting.category]) acc[setting.category] = [];
@@ -292,7 +294,7 @@ export async function handleSearch(event) {
                     resultsWrapper.appendChild(settingElement);
                 } else {
                     const tempDiv = document.createElement('div');
-                    tempDiv.innerHTML = settingElement;
+                    tempDiv.innerHTML = DOMPurify.sanitize(settingElement);
                     while (tempDiv.firstChild) {
                         resultsWrapper.appendChild(tempDiv.firstChild);
                     }
