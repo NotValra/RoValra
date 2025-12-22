@@ -537,6 +537,7 @@ function initialize() {
 }
 
 export function init() {
+    closeInterface(true);
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initialize, { once: true });
     } else {
