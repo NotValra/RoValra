@@ -173,11 +173,30 @@ export const SETTINGS_CONFIG = {
             ServerFilterEnabled: {
                 label: "Server Filters",
                 description: ["This adds a filter to the server list.",
-                    "allowing you to filter servers by region, uptime, and server size.",
                     "**It is highly recommended that the 'Server List Modifications' setting is enabled for this to work correctly.**"
                 ],
                 type: "checkbox",
                 default: true,
+                childSettings: {
+                    RegionFiltersEnabled: {
+                        label: "Region Filters",
+                        description: "Adds Region filters in the server list.",
+                        type: "checkbox",
+                        default: true,
+                    },
+                    UptimeFiltersEnabled: {
+                        label: "Uptime Filters",
+                        description: "Adds Server Uptime filters in the server list.",
+                        type: "checkbox",
+                        default: true,
+                    },
+                    VersionFiltersEnabled: {
+                        label: "Place Version Filters",
+                        description: "Adds Place Version filters in the server list allowing you to filter by servers running a specific place version.",
+                        type: "checkbox",
+                        default: true,
+                    }
+                }
             },
             ServerlistmodificationsEnabled: {
                 label: "Server List Modifications",

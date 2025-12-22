@@ -72,6 +72,12 @@ const _state = {
     elements: {
         container: null,
         clearButton: null
+    },
+    filterSettings: {
+        serverFilter: true,
+        region: true,
+        uptime: true,
+        version: true
     }
 };
 
@@ -80,8 +86,23 @@ export function init() {
         safeInitAll();
         return;
     }
-    chrome.storage.local.get(['ServerlistmodificationsEnabled'], (settings) => {
+    chrome.storage.local.get([
+        'ServerlistmodificationsEnabled',
+        'ServerFilterEnabled',
+        'RegionFiltersEnabled',
+        'UptimeFiltersEnabled',
+        'VersionFiltersEnabled'
+    ], (settings) => {
         if (settings && settings.ServerlistmodificationsEnabled === false) return;
+        
+        if (settings) {
+            _state.filterSettings = {
+                serverFilter: settings.ServerFilterEnabled !== false,
+                region: settings.RegionFiltersEnabled !== false,
+                uptime: settings.UptimeFiltersEnabled !== false,
+                version: settings.VersionFiltersEnabled !== false
+            };
+        }
         safeInitAll();
     });
 }
@@ -119,9 +140,13 @@ function createFilterUI(parentContainer) {
     }
     _state.elements.container = container;
 
-    try { if (typeof initVersionFilters === 'function') initVersionFilters(); } catch (e) {}
-    try { if (typeof initUptimeFilters === 'function') initUptimeFilters(); } catch (e) {}
-    try { if (typeof initRegionFilters === 'function') initRegionFilters(); } catch (e) {}
+    const filters = _state.filterSettings;
+
+    if (filters.serverFilter) {
+        if (filters.version) try { if (typeof initVersionFilters === 'function') initVersionFilters(); } catch (e) {}
+        if (filters.uptime) try { if (typeof initUptimeFilters === 'function') initUptimeFilters(); } catch (e) {}
+        if (filters.region) try { if (typeof initRegionFilters === 'function') initRegionFilters(); } catch (e) {}
+    }
 
     createClearButton(container);
 }
