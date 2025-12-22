@@ -346,65 +346,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 }
             });
             return true; 
-
-        case 'corsFetch':
-            handleCorsFetch(request, sendResponse);
-            return true; 
         
     }
     return [
-        "injectScript", "fetchItemData", "fetchHiddenGames", "corsFetch"
+        "injectScript", "fetchItemData", "fetchHiddenGames"
     ].includes(request.action);
 });
-
-
-async function handleCorsFetch(request, sendResponse) {
-    const { url, options = {} } = request;
-
-    try {
-
-        const response = await fetch(url, {
-            method: options.method || 'GET',
-            headers: options.headers || {},
-            body: options.body || undefined,
-            credentials: options.credentials || 'include', 
-            mode: 'cors', 
-            cache: options.cache || 'default',
-            redirect: options.redirect || 'follow'
-        });
-
-        const contentType = response.headers.get('content-type') || '';
-        let data;
-
-        if (contentType.includes('application/json')) {
-            data = await response.json();
-        } else {
-            data = await response.text();
-        }
-
-        const headers = {};
-        response.headers.forEach((value, key) => {
-            headers[key] = value;
-        });
-
-        sendResponse({
-            success: true,
-            ok: response.ok,
-            status: response.status,
-            statusText: response.statusText,
-            headers: headers,
-            data: data
-        });
-
-
-    } catch (error) {
-        console.error(`RoValra CORS Proxy: Failed to fetch ${url}:`, error);
-        sendResponse({
-            success: false,
-            error: error.message || 'Unknown error occurred during CORS fetch'
-        });
-    }
-}
 
 chrome.storage.local.get('MemoryleakFixEnabled', (result) => {
     if (result.MemoryleakFixEnabled) {
