@@ -2,7 +2,7 @@ import { observeElement } from '../../core/observer.js';
 import { createAssetIcon } from '../../core/ui/general/toast.js';
 import { createCloseButton } from '../../core/ui/closeButton.js';
 import { callRobloxApi } from '../../core/api.js';
-import { fetchThumbnails as fetchThumbnailsBatch } from '../../core/thumbnail/thumbnails.js';
+import { fetchThumbnails as fetchThumbnailsBatch, createThumbnailElement } from '../../core/thumbnail/thumbnails.js';
 import { createSquareButton } from '../../core/ui/profile/header/squarebutton.js';
 import { createScrollButtons } from '../../core/ui/general/scrollButtons.js';
 import { createButton } from '../../core/ui/buttons.js';
@@ -16,7 +16,6 @@ export function init() {
 
         'use strict';
 
-        const isDarkMode = () => document.body.classList.contains('dark-theme');
 
         const getUserIdFromPageData = () => {
             const profileHeader = document.getElementById('profile-header-container');
@@ -159,10 +158,7 @@ export function init() {
             const detailsContentWrapper = document.createElement('div');
             Object.assign(detailsContentWrapper.style, { padding: '20px 20px 0 20px', display: 'flex', flexDirection: 'column', alignItems: 'center' });
             const detailsImageContainer = document.createElement('div');
-            Object.assign(detailsImageContainer.style, { width: '150px', height: '150px', position: 'relative', marginBottom: '10px', flexShrink: 0 });
-            const detailsImage = document.createElement('img');
-            Object.assign(detailsImage.style, { width: '100%', height: '100%', borderRadius: '8px', display: 'none', objectFit: 'cover' });
-            detailsImageContainer.appendChild(detailsImage);
+            Object.assign(detailsImageContainer.style, { width: '150px', height: '150px', position: 'relative', marginBottom: '10px', flexShrink: '0' });
             const detailsName = document.createElement('h3');
             Object.assign(detailsName.style, { fontSize: '22px', margin: '10px 0', wordBreak: 'break-word', textAlign: 'center', color: theme.textPrimary });
             const separator = document.createElement('div');
@@ -244,8 +240,6 @@ export function init() {
                 }
 
                 while (detailsImageContainer.firstChild) { detailsImageContainer.firstChild.remove(); }
-                detailsImageContainer.appendChild(detailsImage);
-                detailsImage.style.display = 'none';
 
                 const shimmerPlaceholder = document.createElement('div');
                 shimmerPlaceholder.className = 'thumbnail-2d-container shimmer';
@@ -344,21 +338,9 @@ export function init() {
                         }
 
                         if (largeThumbData) {
-                            if (largeThumbData.state === 'Completed') {
-                                const img = new Image();
-                                img.onload = () => {
-                                    setTimeout(() => {
-                                        detailsImage.src = img.src;
-                                        detailsImage.style.display = 'block';
-                                    }, 300);
-                                };
-                                img.src = largeThumbData.imageUrl;
-                            } else if (largeThumbData.state === 'Blocked') {
-                                const blockedIcon = document.createElement('div');
-                                blockedIcon.className = 'thumbnail-2d-container icon-blocked';
-                                Object.assign(blockedIcon.style, { width: '100%', height: '100%', position: 'absolute', borderRadius: '8px' });
-                                detailsImageContainer.prepend(blockedIcon);
-                            }
+                            detailsImageContainer.innerHTML = '';
+                            const largeThumbEl = createThumbnailElement(largeThumbData, outfit.name, '', { width: '100%', height: '100%', borderRadius: '8px', objectFit: 'cover' });
+                            detailsImageContainer.appendChild(largeThumbEl);
                         }
 
                         if (!assets || assets.length === 0) {
@@ -446,16 +428,7 @@ export function init() {
                                 });
 
                                 const assetThumbnailData = thumbnailMap[asset.id];
-                                let itemThumbnailElement;
-                                if (assetThumbnailData && assetThumbnailData.state === 'Blocked') {
-                                    itemThumbnailElement = document.createElement('div');
-                                    itemThumbnailElement.className = 'thumbnail-2d-container icon-blocked';
-                                    Object.assign(itemThumbnailElement.style, { width: '100%', height: '100%' });
-                                } else {
-                                    itemThumbnailElement = document.createElement('img');
-                                    itemThumbnailElement.src = assetThumbnailData ? assetThumbnailData.imageUrl : '';
-                                    Object.assign(itemThumbnailElement.style, { width: '100%', height: '100%', objectFit: 'cover' });
-                                }
+                                const itemThumbnailElement = createThumbnailElement(assetThumbnailData, asset.name, '', { width: '100%', height: '100%', objectFit: 'cover' });
 
                                 const assetDetails = catalogDetailsMap[asset.id];
                                 if (assetDetails && assetDetails.itemRestrictions && assetDetails.itemRestrictions.length > 0) {
@@ -659,16 +632,7 @@ export function init() {
                     flexShrink: '0', backgroundColor: theme.thumbBg, display: 'flex',
                     justifyContent: 'center', alignItems: 'center', overflow: 'hidden'
                 });
-                let thumbnailElement;
-                if (thumbnailData && thumbnailData.state === 'Completed') {
-                    thumbnailElement = document.createElement('img');
-                    thumbnailElement.src = thumbnailData.imageUrl;
-                    Object.assign(thumbnailElement.style, { width: '100%', height: '100%' });
-                } else {
-                    thumbnailElement = document.createElement('div');
-                    thumbnailElement.className = 'thumbnail-2d-container icon-broken';
-                    Object.assign(thumbnailElement.style, { width: '100%', height: '100%' });
-                }
+                const thumbnailElement = createThumbnailElement(thumbnailData, outfit.name, '', { width: '100%', height: '100%' });
                 thumbnailContainer.appendChild(thumbnailElement);
                 listItem.appendChild(thumbnailContainer);
 
