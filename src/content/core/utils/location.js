@@ -19,7 +19,6 @@ export async function getUserLocation(placeId, forceRefresh = false) {
             });
 
             if (storedData && storedData.timestamp && (Date.now() - storedData.timestamp < CACHE_DURATION_MS)) {
-                console.log("Location Util: Loaded location from cache", storedData);
                 return { userLat: storedData.userLat, userLon: storedData.userLon };
             }
         } catch (e) {
@@ -48,13 +47,11 @@ export async function getUserLocation(placeId, forceRefresh = false) {
             return null;
         }
 
-        console.log(`Location Util: Probing ${Math.min(servers.length, 3)} servers...`);
 
         for (const server of servers.slice(0, 3)) {
             const coords = await probeServerForLocation(placeId, server.id);
             
             if (coords) {
-                console.log("Location Util: Coordinates found!", coords);
                 
                 const cacheObject = { ...coords, timestamp: Date.now() };
                 
@@ -64,7 +61,6 @@ export async function getUserLocation(placeId, forceRefresh = false) {
                             if (chrome.runtime.lastError) {
                                 console.error("Location Util: Storage Save Failed", chrome.runtime.lastError);
                             } else {
-                                console.log("Location Util: Successfully saved to chrome.storage.local");
                             }
                             resolve();
                         });
@@ -100,7 +96,6 @@ async function probeServerForLocation(placeId, serverId) {
         });
 
         if (!res.ok) {
-            console.log(`Location Util: Probe failed for server ${serverId} (Status: ${res.status})`);
             return null;
         }
 
@@ -135,4 +130,51 @@ async function probeServerForLocation(placeId, serverId) {
         console.error(`Location Util: Error probing server ${serverId}`, e);
     }
     return null;
+}
+
+export async function updateUserLocationIfChanged(freshCoords) {
+    if (!freshCoords || typeof freshCoords.userLat !== 'number' || typeof freshCoords.userLon !== 'number') {
+        return;
+    }
+
+    try {
+        const storedData = await new Promise((resolve) => {
+            if (typeof chrome === 'undefined' || !chrome.storage) {
+                resolve(null);
+            } else {
+                chrome.storage.local.get(LOCATION_STORAGE_KEY, (result) => {
+                    resolve(result[LOCATION_STORAGE_KEY]);
+                });
+            }
+        });
+
+        if (storedData && typeof storedData.userLat === 'number' && typeof storedData.userLon === 'number') {
+            const latMatch = Math.abs(storedData.userLat - freshCoords.userLat) < 0.0001;
+            const lonMatch = Math.abs(storedData.userLon - freshCoords.userLon) < 0.0001;
+
+            if (!latMatch || !lonMatch) {
+                console.log("Mismatch found in console");
+                const cacheObject = { ...freshCoords, timestamp: Date.now() };
+                await new Promise((resolve) => {
+                    if (typeof chrome !== 'undefined' && chrome.storage) {
+                        chrome.storage.local.set({ [LOCATION_STORAGE_KEY]: cacheObject }, () => {
+                            if (chrome.runtime.lastError) {
+                                console.error("Location Util: Storage Update Failed", chrome.runtime.lastError);
+                            }
+                            resolve();
+                        });
+                    } else { resolve(); }
+                });
+            }
+        } else {
+            const cacheObject = { ...freshCoords, timestamp: Date.now() };
+            await new Promise((resolve) => {
+                if (typeof chrome !== 'undefined' && chrome.storage) {
+                    chrome.storage.local.set({ [LOCATION_STORAGE_KEY]: cacheObject }, resolve);
+                } else { resolve(); }
+            });
+        }
+    } catch (e) {
+        console.error("Location Util: Error in updateUserLocationIfChanged", e);
+    }
 }

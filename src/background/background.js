@@ -59,7 +59,7 @@ function getDefaultSettings() {
         deeplinkEnabled: false, 
         eastereggslinksEnabled: true,
         giantInvisibleLink: true,
-        SaveLotsRobuxEnabled: false,
+        SaveLotsRobuxEnabled: true,
         simulateRoValraServerErrors: false,
         onboardingShown: false,
         totalspentEnabled: true,

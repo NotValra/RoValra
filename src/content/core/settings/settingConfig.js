@@ -29,12 +29,10 @@ export const SETTINGS_CONFIG = {
                 label: "Save 10%-40% Robux on Purchases",
                 description: ["This adds a button allowing you to save 40% on items on the catalog and 10% on gamepasses",
                     "Keep in mind a group is required for this to work.",
-                    "**WARNING this currently uses a method that could have a slight risk of an account ban.** In full release it will be changed.",
-                    "**USE AT YOUR OWN RISK**"
+              
                 ],
                 type: "checkbox",
-                beta: "Currently in a prerelease state.",
-                default: false,
+                default: true,
                 childSettings: {
                     RobuxPlaceId: {
                         label: "Place ID to use for the 10%-40% Robux back",
@@ -250,9 +248,11 @@ export const SETTINGS_CONFIG = {
             },
             PrivateQuickLinkCopy: {
                 label: "Quick Private Server Link Copy and Generation",
-                description: ["{{This feature has been disabled for maintenance orange}}",
+                description: ["This feature has been disabled for maintenance",
                     "This allows you to quickly copy a private server link or generate a new private server link"
-                ]
+                ],
+                deprecated: "This feature is currently disabled. It is technically not deprecated and will come back when finished."
+
             },
 
         }
@@ -337,8 +337,8 @@ export const SETTINGS_CONFIG = {
         title: "Communities",
         settings: {
             groupGamesEnabled: {
-                label: "Hidden Community Games",
-                description: ["Shows a communities hidden games."],
+                label: "Hidden Community Experiences",
+                description: ["Shows a communities hidden experiences."],
                 type: "checkbox",
                 default: true
             },
