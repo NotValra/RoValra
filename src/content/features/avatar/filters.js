@@ -2,15 +2,18 @@ import { checkAssetsInBatch } from '../../core/utils/assetStreamer.js';
 import { observeElement } from '../../core/observer.js';
 import { createAvatarFilterUI } from '../../core/ui/FiltersUI.js';
 
-chrome.storage.local.get({
-    avatarFiltersEnabled: false,
-    searchbarEnabled: false
-}, (settings) => {
-    if (!settings.avatarFiltersEnabled && !settings.searchbarEnabled) {
-        return;
-    } else {
-        (function() {
-            'use strict';
+export function init() {
+    if (!window.location.pathname.includes('/my/avatar')) return;
+
+    chrome.storage.local.get({
+        avatarFiltersEnabled: false,
+        searchbarEnabled: false
+    }, (settings) => {
+        if (!settings.avatarFiltersEnabled && !settings.searchbarEnabled) {
+            return;
+        } else {
+            (function() {
+                'use strict';
 
             const CATALOG_BATCH_SIZE = 100;
             const TRANSPARENT_PIXEL = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
@@ -600,6 +603,5 @@ chrome.storage.local.get({
 
         })();
     }
-});
-
-export function init() {}
+    });
+}

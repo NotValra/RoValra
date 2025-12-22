@@ -2,9 +2,7 @@
 
 import { observeElement } from '../../core/observer.js';
 import { callRobloxApiJson, callRobloxApi } from '../../core/api.js';
-import { corsFetch } from '../../core/utils/corsProxy.js';
-import { getCsrfToken } from '../../core/utils.js';
-import { launchGame } from '../../core/utils/launcher.js';
+import { launchMultiplayerGame, launchStudioForGame } from '../../core/utils/launcher.js';
 
 import { createOverlay } from '../../core/ui/overlay.js';
 import { createDropdown } from '../../core/ui/dropdown.js';
@@ -17,10 +15,24 @@ import DOMPurify from 'dompurify';
 
 
 
-const DEBUG_SKIP_ROBLOX_LAUNCH = false;
-
 const ROVALRA_PLACE_ID = '17222553211';
 
+async function fetchGamesForGroup(groupId) {
+    let allGames = [];
+    let nextCursor = null;
+    do {
+        const url = `/universes/v1/search?CreatorType=Group&CreatorTargetId=${groupId}&IsArchived=false&Surface=CreatorHubCreations&PageSize=100&SortParam=LastUpdated&SortOrder=Desc` + (nextCursor ? `&cursor=${nextCursor}` : '');
+        const response = await callRobloxApiJson({
+            subdomain: 'apis',
+            endpoint: url,
+        });
+        if (response.data) {
+            allGames = allGames.concat(response.data);
+        }
+        nextCursor = response.nextPageCursor;
+    } while (nextCursor);
+    return allGames;
+}
 
 
 
@@ -128,18 +140,60 @@ const checkItemOwnership = async (userId, itemId, itemType) => {
 };
 
 
+const getUniverseId = () => {
+    const meta = document.getElementById('game-detail-meta-data');
+    return meta ? meta.getAttribute('data-universe-id') : null;
+};
 
+async function fetchGamePassesForUniverse(universeId) {
+    let gamePasses = [];
+    let cursor = '';
+    const limit = 50;
+
+    try {
+        do {
+            const url = `/game-passes/v1/universes/${universeId}/game-passes?pageSize=${limit}&passView=Full` + (cursor ? `&cursor=${cursor}` : '');
+            const response = await callRobloxApiJson({
+                subdomain: 'apis',
+                endpoint: url,
+                method: 'GET'
+            });
+
+            if (response.gamePasses) {
+                gamePasses = gamePasses.concat(response.gamePasses);
+            }
+            cursor = response.nextPageToken;
+        } while (cursor);
+    } catch (error) {
+        console.warn('RoValra: Failed to fetch game passes via API', error);
+    }
+    return gamePasses;
+}
 
 const detectAndAddSaveButton = () => {
-    console.log("Starting to detect the purchase modal.");
     
 
     observeElement('.modal-dialog .modal-content[role="document"], .modal-dialog .modal-content', (modal) => {
-        if (!modal.querySelector('.btn-save-robux')) {
-            console.log("Purchase modal found. Adding 'Save Robux' button.");
-            addSaveButton(modal);
+        const handleUpdate = () => {
+            if (!modal.querySelector('.btn-save-robux')) {
+                addSaveButton(modal);
+            }
+        };
+
+        handleUpdate();
+
+        const observer = new MutationObserver(handleUpdate);
+        observer.observe(modal, { childList: true, subtree: true });
+        modal._rovalraSaveBtnObserver = observer;
+    }, { 
+        multiple: true,
+        onRemove: (modal) => {
+            if (modal._rovalraSaveBtnObserver) {
+                modal._rovalraSaveBtnObserver.disconnect();
+                delete modal._rovalraSaveBtnObserver;
+            }
         }
-    }, { multiple: true });
+    });
 };
 
 
@@ -156,7 +210,7 @@ const createAndShowPopup = (onSave) => {
         <div id="sr-view-main">
             <h4 class="text font-header-2" style="margin:0 0 12px 0;">Set Up an Experience</h4>
             <p class="text font-body" style="margin: 0 0 10px 0; line-height:1.4;">
-                <strong>Any experience works</strong> even a brand new baseplate.
+                <strong>Only a specific template works</strong>
             </p>
             <p class="text font-body" style="margin: 0 0 8px 0;">Select a group you can manage experiences in:</p>
             <div id="sr-group-dropdown-container" style="margin-bottom: 16px;"></div>
@@ -187,12 +241,17 @@ const createAndShowPopup = (onSave) => {
         <div id="sr-view-owner-warning" class="sr-hidden">
             <h4 class="text font-header-2" style="margin: 0 0 10px 0;">Ownership Detected</h4>
             <p class="text font-body" style="margin: 5px 0 10px 0; line-height: 1.5;">The 40% method will not work if you are the owner of this group. Please select a different group or transfer ownership to a secured alt account.</p>
+            <div style="display: flex; gap: 8px; margin-top: 16px;">
+                <button class="btn-secondary-md btn-min-width" id="sr-owner-warning-back-btn" style="flex: 1;">Go Back</button>
+            </div>
         </div>
-
         <div id="sr-view-manual-ack" class="sr-hidden">
             <h4 class="text font-header-2" style="margin: 0 0 10px 0;">Experience Accepted</h4>
             <p class="text font-body" style="margin: 5px 0 10px 0; line-height:1.5;">
-                <strong>Any place works</strong> even a brand new baseplate. Make sure the experience belongs to a group <strong>you control, but is not owned by this account</strong> preferably the group should be owned by an alt, if you own the group the 40% method will not work.
+                <strong>Only specific experiences work.</strong> Ensure this experience is set up with the required scripts to handle in-game purchases.
+            </p>
+            <p class="text font-body" style="margin: 5px 0 10px 0; line-height:1.5;">
+                Make sure the experience belongs to a group <strong>you control, but is not owned by this account</strong>. Preferably the group should be owned by an alt. If you own the group, the 40% method will not work.
             </p>
             <p class="text font-body" style="margin: 5px 0 10px 0; line-height:1.5;">
                 The saved Robux will be pending for roughly one month before payout. Use a secure alt as group owner for payouts.
@@ -207,14 +266,44 @@ const createAndShowPopup = (onSave) => {
             <button class="btn-cta-md btn-min-width" id="sr-create-new-game-btn" style="width: 100%;">Create New Experience</button>
         </div>
 
-        <div id="sr-view-creating-game" class="sr-hidden">
-            <div style="text-align: center; padding: 20px 0;">
-                <div id="sr-creating-game-spinner" style="margin: 0 auto 16px;"></div>
-                <h4 class="text font-header-2" style="margin: 0 0 8px 0;">Creating Your Experience</h4>
-                <p class="text font-body" style="margin: 0;">Please wait while we set up your experience...</p>
+        <div id="sr-view-manual-create-instructions" class="sr-hidden">
+            <h4 class="text font-header-2" style="margin: 0 0 10px 0;">Create New Experience</h4>
+            <p class="text font-body" style="margin: 5px 0 10px 0; line-height: 1.5;">To create a new experience for this method:</p>
+            <div style="margin-bottom: 16px; border-radius: 8px; overflow: hidden;">
+                <iframe width="100%" height="250" src="https://www.youtube.com/embed/-kUAWWmmkaQ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+            </div>
+            <ol class="text font-body" style="margin: 0 0 16px 0; padding-left: 20px; line-height: 1.5;">
+                <li>Open the uncopylocked experience in Studio: <a href="#" id="sr-edit-game-link" style="text-decoration: underline;">Open Studio</a></li>
+                <li>In Studio, go to <strong>File > Game Settings > Security > Turn on "Allow Third Party Sales" > File > Publish to Roblox As...</strong></li>
+                <li>Select this group from the Creator list.</li>
+                <li>Click <strong>Create</strong> and the experience will be published</li>
+            </ol>
+            <p class="text font-body" style="margin: 0 0 16px 0; line-height: 1.5;">Once published, click the button below and we'll automatically find and select it for you.</p>
+            <div style="display: flex; gap: 8px; margin-top: 16px;">
+                <button class="btn-secondary-md btn-min-width" id="sr-manual-create-back-btn" style="flex: 1;">Back</button>
+                <button class="btn-cta-md btn-min-width" id="sr-manual-create-done-btn" style="flex: 1;">I've Published the Game</button>
             </div>
         </div>
 
+        <div id="sr-view-finding-game" class="sr-hidden">
+            <div style="text-align: center; padding: 20px 0;">
+                <div id="sr-finding-game-spinner" style="margin: 0 auto 16px;"></div>
+                <h4 class="text font-header-2" style="margin: 0 0 8px 0;">Finding Your Experience</h4>
+                <p class="text font-body" style="margin: 0;">Please wait while we look for your newly published experience...</p>
+            </div>
+        </div>
+        <div id="sr-view-game-not-found" class="sr-hidden">
+            <h4 class="text font-header-2" style="margin: 0 0 10px 0;">Experience Not Found</h4>
+            <p class="text font-body" style="margin: 5px 0 16px 0; line-height: 1.5;">We couldn't find the new experience. Please check the following:</p>
+            <ul class="text font-body" style="margin: 0 0 16px 0; padding-left: 20px; line-height: 1.5;">
+                <li>Did you publish the experience?</li>
+                <li>Did you publish it under the correct group?</li>
+            </ul>
+            <div style="display: flex; gap: 8px; margin-top: 16px;">
+                <button class="btn-secondary-md btn-min-width" id="sr-not-found-back-btn" style="flex: 1;">Back</button>
+                <button class="btn-cta-md btn-min-width" id="sr-not-found-retry-btn" style="flex: 1;">Retry Scan</button>
+            </div>
+        </div>
         <div id="sr-view-existing-games" class="sr-hidden">
             <h4 class="text font-header-2" style="margin: 0 0 10px 0;">Select an Experience</h4>
             <div id="sr-loading-games" style="text-align: center; padding: 20px 0;">
@@ -234,7 +323,7 @@ const createAndShowPopup = (onSave) => {
             </div>
             <div style="display: flex; gap: 8px; margin-top: 16px;">
                 <button class="btn-secondary-md btn-min-width" id="sr-existing-back-btn" style="flex: 1;">Back</button>
-                <button class="btn-cta-md btn-min-width" id="sr-existing-select-btn" style="flex: 1;" disabled>Select Game</button>
+                <button class="btn-cta-md btn-min-width" id="sr-existing-select-btn" style="flex: 1;" disabled>Select Experience</button>
             </div>
         </div>
 
@@ -261,7 +350,7 @@ const createAndShowPopup = (onSave) => {
                 <button class="btn-secondary-md btn-min-width" id="sr-permission-error-back-btn" style="flex: 1;">Back to Group Selection</button>
             </div>
         </div>
-    `);
+    `, { ADD_ATTR: ['target', 'allow', 'allowfullscreen', 'frameborder'], ADD_TAGS: ['iframe'] });
 
     const saveBtn = document.createElement('button');
     saveBtn.textContent = 'Save & Continue';
@@ -275,6 +364,13 @@ const createAndShowPopup = (onSave) => {
         maxWidth: '500px',
         showLogo: true
     });
+
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+        }
+    }, true);
 
     const style = document.createElement('style');
     style.textContent = '.sr-hidden { display: none !important; }';
@@ -293,23 +389,26 @@ const createAndShowPopup = (onSave) => {
     gameIdErrorEl.style.cssText = 'margin-top:6px;font-size:12px;color:#d32f2f;display:none;';
     gameIdInputContainer.appendChild(gameIdErrorEl);
 
-    const creatingGameSpinner = bodyContent.querySelector('#sr-creating-game-spinner');
-    if (creatingGameSpinner) {
-        creatingGameSpinner.appendChild(createSpinner({ size: '48px', color: 'currentColor' }));
-    }
-    
     const loadingGamesSpinner = bodyContent.querySelector('#sr-loading-games-spinner');
     if (loadingGamesSpinner) {
         loadingGamesSpinner.appendChild(createSpinner({ size: '48px', color: 'currentColor' }));
+    }
+
+    const findingGameSpinner = bodyContent.querySelector('#sr-finding-game-spinner');
+    if (findingGameSpinner) {
+        findingGameSpinner.appendChild(createSpinner({ size: '48px', color: 'currentColor' }));
     }
 
     const groupDropdownContainer = bodyContent.querySelector('#sr-group-dropdown-container');
     const viewMain = bodyContent.querySelector('#sr-view-main');
     const viewNonOwnerAck = bodyContent.querySelector('#sr-view-non-owner-ack');
     const viewOwnerWarning = bodyContent.querySelector('#sr-view-owner-warning');
+    const ownerWarningBackBtn = bodyContent.querySelector('#sr-owner-warning-back-btn');
     const viewWIP = bodyContent.querySelector('#sr-view-wip');
-    const viewCreatingGame = bodyContent.querySelector('#sr-view-creating-game');
+    const viewManualCreateInstructions = bodyContent.querySelector('#sr-view-manual-create-instructions');
     const viewExistingGames = bodyContent.querySelector('#sr-view-existing-games');
+    const viewGameNotFound = bodyContent.querySelector('#sr-view-game-not-found');
+    const viewFindingGame = bodyContent.querySelector('#sr-view-finding-game');
     const viewRoValraGroup = bodyContent.querySelector('#sr-view-rovalra-group');
     const viewPermissionError = bodyContent.querySelector('#sr-view-permission-error');
     const permissionErrorBackBtn = bodyContent.querySelector('#sr-permission-error-back-btn');
@@ -323,6 +422,11 @@ const createAndShowPopup = (onSave) => {
     const existingSelectBtn = bodyContent.querySelector('#sr-existing-select-btn');
     const manualAckView = bodyContent.querySelector('#sr-view-manual-ack');
     const manualAckBtn = bodyContent.querySelector('#sr-manual-ack-btn');
+    const manualCreateBackBtn = bodyContent.querySelector('#sr-manual-create-back-btn');
+    const manualCreateDoneBtn = bodyContent.querySelector('#sr-manual-create-done-btn');
+    const notFoundBackBtn = bodyContent.querySelector('#sr-not-found-back-btn');
+    const notFoundRetryBtn = bodyContent.querySelector('#sr-not-found-retry-btn');
+    const editGameLink = bodyContent.querySelector('#sr-edit-game-link');
     let manualPlaceIdCandidate = null;
 
     let groupDropdown = null;
@@ -331,6 +435,7 @@ const createAndShowPopup = (onSave) => {
     let currentPage = 0;
     let selectedGameIndex = null;
     const gamesPerPage = 4;
+    let initialGroupGames = [];
 
     const handleGroupSelection = async (groupId) => {
         if (!groupId) return;
@@ -421,6 +526,29 @@ const createAndShowPopup = (onSave) => {
         }
     });
 
+    manualAckBtn.addEventListener('click', () => {
+        manualAckView.classList.add('sr-hidden');
+        
+        if (manualPlaceIdCandidate !== null) {
+            const placeIdToSave = manualPlaceIdCandidate;
+            manualPlaceIdCandidate = null; 
+
+            if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+                chrome.storage.local.set({
+                    RobuxPlaceId: placeIdToSave,
+                    useRoValraGroup: false
+                }, async () => {
+                    close();
+                    await showInitialConfirmation(placeIdToSave, false);
+                    onSave();
+                });
+            } else {
+                console.error('Chrome storage API not available for manual Place ID save.');
+                alert('Failed to save Place ID. Storage unavailable.');
+            }
+        }
+    });
+
     useExistingGameBtn.addEventListener('click', async () => {
         if (!selectedGroupId) {
             alert('No group selected. Please try again.');
@@ -437,7 +565,7 @@ const createAndShowPopup = (onSave) => {
             const response = await callRobloxApi({
                 subdomain: 'apis',
                 endpoint: `/universes/v1/search?CreatorType=Group&CreatorTargetId=${selectedGroupId}&IsArchived=false&Surface=CreatorHubCreations&PageSize=100&SortParam=LastUpdated&SortOrder=Desc`,
-                method: 'GET'
+                method: 'GET',
             });
 
             if (!response.ok) {
@@ -583,20 +711,10 @@ const createAndShowPopup = (onSave) => {
         if (selectedGameIndex === null) return;
 
         const selectedGame = existingGames[selectedGameIndex];
-        const rootPlaceId = selectedGame.rootPlaceId;
+        manualPlaceIdCandidate = selectedGame.rootPlaceId;
 
-        if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
-            chrome.storage.local.set({ 
-                RobuxPlaceId: rootPlaceId,
-                useRoValraGroup: false 
-            }, async () => {
-                close();
-                await showInitialConfirmation(rootPlaceId, false);
-                onSave();
-            });
-        } else {
-            alert('Chrome storage API not available.');
-        }
+        viewExistingGames.classList.add('sr-hidden');
+        manualAckView.classList.remove('sr-hidden');
     });
 
     createNewGameBtn.addEventListener('click', async () => {
@@ -605,44 +723,59 @@ const createAndShowPopup = (onSave) => {
             return;
         }
 
-        viewWIP.classList.add('sr-hidden');
-        viewCreatingGame.classList.remove('sr-hidden');
+        createNewGameBtn.disabled = true;
+        createNewGameBtn.textContent = 'Preparing...';
 
-        setTimeout(async () => {
-            try {
-                const csrfToken = await getCsrfToken();
-                if (!csrfToken) {
-                    throw new Error('Failed to obtain CSRF token');
-                }
+        try {
+            initialGroupGames = await fetchGamesForGroup(selectedGroupId);
+            viewWIP.classList.add('sr-hidden');
+            viewManualCreateInstructions.classList.remove('sr-hidden');
+        } catch (e) {
+            alert('Failed to fetch initial group games. Please try again.');
+        } finally {
+            createNewGameBtn.disabled = false;
+            createNewGameBtn.textContent = 'Create New Experience';
+        }
+    });
 
-                const response = await callRobloxApi({
-                    subdomain: 'apis',
-                    endpoint: `/universes/v1/universes/create?groupId=${selectedGroupId}`,
-                    method: 'POST',
-                    body: {
-                        templatePlaceId: 95206881,
-                        isPublish: true
-                    }
-                });
+    manualCreateBackBtn.addEventListener('click', () => {
+        viewManualCreateInstructions.classList.add('sr-hidden');
+        viewWIP.classList.remove('sr-hidden');
+    });
 
-                if (!response.ok) {
-                    let errorJson = null;
-                    try { errorJson = await response.json(); } catch {}
-                    if (response.status === 400 && errorJson && errorJson.code === 'InvalidRequest' && /not authorized/i.test(errorJson.message || '')) {
-                        viewCreatingGame.classList.add('sr-hidden');
-                        viewPermissionError.classList.remove('sr-hidden');
-                        return; 
-                    }
-                    throw new Error(errorJson?.message || `Create game failed (${response.status})`);
-                }
+    if (editGameLink) {
+        editGameLink.addEventListener('click', async (e) => {
+            e.preventDefault();
+            await launchStudioForGame(ROVALRA_PLACE_ID);
+        });
+    }
 
-                const data = await response.json();
-                const rootPlaceId = data.rootPlaceId;
+    notFoundBackBtn.addEventListener('click', () => {
+        viewGameNotFound.classList.add('sr-hidden');
+        viewManualCreateInstructions.classList.remove('sr-hidden');
+    });
 
-                if (!rootPlaceId) {
-                    throw new Error('No rootPlaceId returned from API');
-                }
+    notFoundRetryBtn.addEventListener('click', () => {
+        manualCreateDoneBtn.click();
+    });
 
+    manualCreateDoneBtn.addEventListener('click', async () => {
+        viewManualCreateInstructions.classList.add('sr-hidden');
+        viewGameNotFound.classList.add('sr-hidden');
+        viewFindingGame.classList.remove('sr-hidden');
+    
+        try {
+            await new Promise(resolve => setTimeout(resolve, 3000)); 
+    
+            const newGroupGames = await fetchGamesForGroup(selectedGroupId);
+    
+            const initialGameIds = new Set(initialGroupGames.map(g => g.rootPlaceId));
+            const newGames = newGroupGames.filter(g => !initialGameIds.has(g.rootPlaceId));
+    
+            if (newGames.length === 1) {
+                const newGame = newGames[0];
+                const rootPlaceId = newGame.rootPlaceId;
+    
                 if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
                     chrome.storage.local.set({ 
                         RobuxPlaceId: rootPlaceId,
@@ -655,14 +788,15 @@ const createAndShowPopup = (onSave) => {
                 } else {
                     throw new Error('Chrome storage API not available');
                 }
-            } catch (error) {
-                console.error("Failed to create game:", error);
-                if (!viewPermissionError.classList.contains('sr-hidden')) return;
-                viewCreatingGame.classList.add('sr-hidden');
-                viewWIP.classList.remove('sr-hidden');
-                alert(`Failed to create game: ${error.message}`);
+            } else {
+                viewFindingGame.classList.add('sr-hidden');
+                viewGameNotFound.classList.remove('sr-hidden');
             }
-        }, 0);
+        } catch (error) {
+            console.error("Failed to find new experience:", error);
+            viewFindingGame.classList.add('sr-hidden');
+            viewGameNotFound.classList.remove('sr-hidden');
+        }
     });
 
     useRoValraGroupBtn.addEventListener('click', () => {
@@ -676,6 +810,19 @@ const createAndShowPopup = (onSave) => {
         viewMain.classList.remove('sr-hidden');
         saveBtn.style.display = '';
     });
+
+    if (ownerWarningBackBtn) {
+        ownerWarningBackBtn.addEventListener('click', () => {
+            viewOwnerWarning.classList.add('sr-hidden');
+            viewMain.classList.remove('sr-hidden');
+            saveBtn.style.display = '';
+            selectedGroupId = null;
+            if (groupDropdown && groupDropdown.element) {
+                const selectEl = groupDropdown.element.querySelector('select');
+                if (selectEl) selectEl.value = '';
+            }
+        });
+    }
 
     if (permissionErrorBackBtn) {
         permissionErrorBackBtn.addEventListener('click', () => {
@@ -736,7 +883,7 @@ const createAndShowPopup = (onSave) => {
         manualPlaceIdCandidate = parsedId;
         viewMain.classList.add('sr-hidden');
         saveBtn.style.display = 'none';
-        viewNonOwnerAck.classList.remove('sr-hidden');
+        manualAckView.classList.remove('sr-hidden');
     });
 
     loadGroups();
@@ -747,97 +894,6 @@ const createAndShowPopup = (onSave) => {
 let joinDialogObserverInitialized = false;
 
 
-const removeRobloxJoinDialog = () => {
-    if (!document.getElementById('rovalra-hide-launch-dialog-style')) {
-        const style = document.createElement('style');
-        style.id = 'rovalra-hide-launch-dialog-style';
-        style.textContent = `
-            .MuiDialog-root.MuiModal-root[role="presentation"],
-            .foundation-web-dialog-overlay, 
-            .foundation-web-dialog-content.download-dialog { 
-                display: none !important;
-                opacity: 0 !important;
-                pointer-events: none !important;
-            }
-        `;
-        document.head.appendChild(style);
-    }
-
-    if (!joinDialogObserverInitialized) {
-        joinDialogObserverInitialized = true;
-
-        observeElement('.MuiDialog-root.MuiModal-root[role="presentation"]', (el) => {
-            console.log('RoValra: (Observer) Removing Roblox launch dialog (old variant)');
-            el.remove();
-        }, { multiple: true });
-
-        observeElement('.foundation-web-dialog-content.download-dialog', (el) => {
-            console.log('RoValra: (Observer) Removing Roblox download dialog (new variant)');
-            const overlay = el.closest('.foundation-web-dialog-overlay') || el;
-            overlay.remove();
-        }, { multiple: true });
-
-        observeElement('.foundation-web-dialog-overlay', (el) => {
-            if (el.querySelector('.download-dialog')) {
-                console.log('RoValra: (Observer) Removing Roblox download overlay (new variant wrapper)');
-                el.remove();
-            }
-        }, { multiple: true });
-    }
-
-    const intervalId = setInterval(() => {
-        const oldDialog = document.querySelector('.MuiDialog-root.MuiModal-root[role="presentation"]');
-        if (oldDialog) {
-            console.log('RoValra: (Interval) Removing Roblox launch dialog (old variant)');
-            oldDialog.remove();
-        }
-        const newDialogInner = document.querySelector('.foundation-web-dialog-content.download-dialog');
-        if (newDialogInner) {
-            console.log('RoValra: (Interval) Removing Roblox download dialog (new variant)');
-            const overlay = newDialogInner.closest('.foundation-web-dialog-overlay') || newDialogInner;
-            overlay.remove();
-        }
-    }, 50);
-    setTimeout(() => clearInterval(intervalId), 5000);
-};
-
-
-
-const showSuccessNotification = (robuxSaved, gameName, isDonating = false) => {
-    const bodyContent = document.createElement('div');
-    bodyContent.innerHTML = DOMPurify.sanitize(`
-        <div style="padding: 20px; text-align: center;">
-            <div style="font-size: 48px; margin-bottom: 16px;">✓</div>
-            <h3 class="text font-header-2" style="margin: 0 0 12px 0;">Purchase Successful!</h3>
-            ${isDonating ? `
-                <p class="text font-body" style="margin: 0 0 8px 0; font-size: 16px;">❤️ Thank you for donating to RoValra! ❤️</p>
-                <p class="text font-body" style="margin: 0 0 8px 0;">Your support helps us continue developing amazing features.</p>
-                <div style="margin: 0 0 16px 0; font-size: 32px; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 6px;"><span class="icon-robux-28x28"></span><span>${robuxSaved.toLocaleString()}</span></div>
-                <p class="text font-body" style="margin: 0 0 12px 0;">donated to RoValra</p>
-            ` : `
-                <p class="text font-body" style="margin: 0 0 8px 0;">You saved approximately</p>
-                <div style="margin: 0 0 16px 0; font-size: 32px; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 6px;"><span class="icon-robux-28x28"></span><span>${robuxSaved.toLocaleString()}</span></div>
-            `}
-            ${gameName ? `<p class="text font-body" style="margin: 0 0 12px 0;">
-                Using experience: <strong>${gameName}</strong>
-            </p>` : ''}
-            ${!isDonating ? `<p class="text font-body" style="margin: 0;">
-                The Robux will be pending in your group for approximately 1 month.
-            </p>` : ''}
-            <p class="text font-body" style="margin: 12px 0 0 0;">
-                You can close the Roblox client now.
-            </p>
-        </div>
-    `);
-
-    const { overlay, close } = createOverlay({
-        title: 'Purchase Successful',
-        bodyContent: bodyContent,
-        actions: [],
-        maxWidth: '400px',
-        showLogo: true
-    });
-};
 
 
 const showFailureNotification = (errorDetails) => {
@@ -951,17 +1007,12 @@ const showInitialConfirmation = async (savedPlaceId, useRoValraGroup) => {
             <div class="text font-body" style="font-weight: 600; margin-bottom: 8px;">HOW THIS WORKS</div>
             <ol class="text font-body" style="margin: 0; padding-left: 20px;">
                 <li>Roblox will launch and join the server automatically</li>
-                <li>Once you're in-game, the purchase will be completed</li>
+                <li>Once you're in-game, the purchase prompt will show and you just buy the item using that.</li>
                 <li>The item goes to you, ${(useRoValraGroup || savedPlaceId === 'ROVALRA_GROUP') ? 'and RoValra will earn a commission on your purchase which will help support the extension, at no extra cost for you.' : 'but 40% of the Robux goes to your group'}</li>
                 ${(useRoValraGroup || savedPlaceId === 'ROVALRA_GROUP') ? '' : '<li>Robux will be pending for ~1 month</li>'}
             </ol>
         </div>
-        <div style="padding: 10px 12px; border-radius: 4px; display: flex; gap: 8px; align-items: start; background: rgba(0, 0, 0, 0.05);">
-            <span style="font-size: 16px; flex-shrink: 0;">⚠️</span>
-            <div class="text font-body">
-                <strong>Important:</strong> Don't close Roblox until you see the success message.
-            </div>
-        </div>
+        
     `);
 
     const confirmBtn = document.createElement('button');
@@ -975,6 +1026,13 @@ const showInitialConfirmation = async (savedPlaceId, useRoValraGroup) => {
         maxWidth: '500px',
         showLogo: true
     });
+
+    confirmOverlay.addEventListener('click', (e) => {
+        if (e.target === confirmOverlay) {
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+        }
+    }, true);
 
     const changeGameBtn = confirmBody.querySelector('#change-game-btn');
     changeGameBtn.addEventListener('click', () => {
@@ -1001,7 +1059,7 @@ const showInitialConfirmation = async (savedPlaceId, useRoValraGroup) => {
 let activePurchaseContext = null;
 
 
-const executeCartPurchase = async (cartItems, totalPrice) => {
+const executeCartPurchase = async (cartItems) => {
     activePurchaseContext = { cancelled: false };
     const ctx = activePurchaseContext;
     const ensureNotCancelled = () => { if (ctx.cancelled) throw new Error('Purchase cancelled'); };
@@ -1213,6 +1271,13 @@ const executeCartPurchase = async (cartItems, totalPrice) => {
         showLogo: true
     });
 
+    finalConfirmOverlay.addEventListener('click', (e) => {
+        if (e.target === finalConfirmOverlay) {
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+        }
+    }, true);
+
     const closeFinalConfirm = () => {
         if (!ctx.cancelled) ctx.cancelled = true;
         origCloseFinalConfirm();
@@ -1241,206 +1306,21 @@ const executeCartPurchase = async (cartItems, totalPrice) => {
         return;
     }
 
-    const bodyContent = document.createElement('div');
-    bodyContent.innerHTML = DOMPurify.sanitize(`
-        <div style="padding: 20px; text-align: center;">
-            <div id="progress-spinner" style="margin: 0 auto 16px;"></div>
-            <h3 id="progress-title" class="text font-header-2" style="margin: 0 0 8px 0;">Processing Cart</h3>
-            <p id="progress-text" class="text font-body" style="margin: 0;">Initializing...</p>
-            <div id="progress-items" style="margin-top: 16px; text-align: left;"></div>
-        </div>
-    `);
-
-    const progressSpinnerContainer = bodyContent.querySelector('#progress-spinner');
-    if (progressSpinnerContainer) {
-        progressSpinnerContainer.appendChild(createSpinner({ size: '48px', color: 'currentColor' }));
-    }
-
-    const { overlay, close: origCloseProcessing } = createOverlay({
-        title: 'Cart Purchase - Processing',
-        bodyContent: bodyContent,
-        actions: [],
-        maxWidth: '450px',
-        showLogo: true,
-        preventBackdropClose: true
-    });
-
-    const closeProcessing = () => {
-        if (!ctx.cancelled) ctx.cancelled = true;
-        origCloseProcessing();
-    };
-
-    const closeBtn = overlay.querySelector('.foundation-web-dialog-close-container button');
-    if (closeBtn) {
-        closeBtn.addEventListener('click', () => {
-            ctx.cancelled = true;
-            closeProcessing();
-        });
-    }
-
-    const progressTitle = bodyContent.querySelector('#progress-title');
-    const progressText = bodyContent.querySelector('#progress-text');
-    const progressItems = bodyContent.querySelector('#progress-items');
-
-    progressTitle.textContent = 'Setting Up Game Session';
-    progressText.textContent = 'Creating server instance...';
-    
     const placeIdToUse = (useRoValraGroup || savedPlaceId === 'ROVALRA_GROUP') ? actualPlaceId : savedPlaceId;
     
-    let results = [];
-    
-    try {
-        const gameData = await callRobloxApiJson({
-            subdomain: 'games',
-            endpoint: `/v1/games/multiget-place-details?placeIds=${placeIdToUse}`,
-            method: 'GET'
-        });
-        if (!gameData || gameData.length === 0 || !gameData[0].universeId) {
-            throw new Error('Failed to fetch Universe ID');
-        }
-        const universeId = gameData[0].universeId;
-        
-        let serverInstanceId = null;
-        while (!serverInstanceId) {
-            const joinGameResponse = await callRobloxApiJson({
-                subdomain: 'gamejoin',
-                endpoint: '/v1/join-game',
-                method: 'POST',
-                body: {
-                    placeId: parseInt(placeIdToUse, 10),
-                    gameJoinAttemptId: crypto.randomUUID()
-                }
-            });
-            if (joinGameResponse && joinGameResponse.joinScript && joinGameResponse.jobId) {
-                serverInstanceId = joinGameResponse.jobId;
-                console.log('RoValra: Created server instance:', serverInstanceId);
-                break;
-            }
-            await new Promise(resolve => setTimeout(resolve, 1000));
-        }
-        
-        progressTitle.textContent = 'Launching Roblox';
-        progressText.textContent = 'Starting Roblox client...';
-        if (DEBUG_SKIP_ROBLOX_LAUNCH) {
-            console.log('RoValra: DEBUG MODE - Skipping Roblox launch');
-        } else {
-            launchGame(placeIdToUse, serverInstanceId);
-            removeRobloxJoinDialog();
-        }
-        
-        progressTitle.textContent = 'Waiting for Game';
-        progressText.textContent = 'Please wait while Roblox loads...';
-        await new Promise((resolve, reject) => {
-            let inGameDetected = false;
-            const checkCancel = () => { if (ctx.cancelled && !inGameDetected) { cleanup(); reject(new Error('Purchase cancelled')); } };
-            const cleanup = () => clearInterval(pollInterval);
+    const launchDataParts = itemsToPurchase.map(item => `asset:${item.id}`);
+    const launchData = launchDataParts.join(',');
 
-            const pollInterval = setInterval(async () => {
-                if (inGameDetected) return;
-                if (ctx.cancelled) { checkCancel(); return; }
-                
-                try {
-                    const presenceData = await callRobloxApiJson({
-                        subdomain: 'presence',
-                        endpoint: '/v1/presence/users',
-                        method: 'POST',
-                        body: { userIds: [parseInt(currentUserId)] }
-                    });
-                    if (presenceData.userPresences && presenceData.userPresences.length > 0) {
-                        const presence = presenceData.userPresences[0];
-                        const userRootPlaceId = presence.rootPlaceId;
-                        if (userRootPlaceId && userRootPlaceId.toString() === placeIdToUse.toString()) {
-                            console.log('RoValra: User is in the correct game, proceeding with purchases');
-                            inGameDetected = true;
-                            cleanup();
-                            resolve();
-                        }
-                    }
-                } catch (pollError) {
-                    console.error('RoValra: Error checking user presence:', pollError);
-                }
-            }, 1000);
+    launchMultiplayerGame(placeIdToUse, launchData);
 
-            overlay.addEventListener('remove', () => { if (!inGameDetected) { ctx.cancelled = true; checkCancel(); } });
-        });
-        
-        const sharedSession = { serverInstanceId, placeIdToUse, universeId };
 
-        for (let i = 0; i < itemsToPurchase.length; i++) {
-            if (ctx.cancelled) {
-                console.log('RoValra: Cart purchase cancelled by user');
-                break;
-            }
-            
-            const item = itemsToPurchase[i];
-            progressTitle.textContent = `Processing Item ${i + 1} of ${itemsToPurchase.length}`;
-            progressText.textContent = item.name;
-            
-            try {
-                await execute40MethodPurchase(item.id, item.price, false, false, { name: item.name, thumbnail: item.thumbnail }, true, sharedSession);
-                results.push({ item: item.name, success: true });
-                
-                progressItems.insertAdjacentHTML('beforeend', DOMPurify.sanitize(`<div class="text font-body" style="padding: 4px 0; color: #28a745;">✓ ${item.name}</div>`));
-            } catch (error) {
-                const errorMsg = error.message === 'Purchase cancelled' ? 'Cancelled' : error.message;
-                results.push({ item: item.name, success: false, error: errorMsg });
-                progressItems.insertAdjacentHTML('beforeend', DOMPurify.sanitize(`<div class="text font-body" style="padding: 4px 0; color: #d32f2f;">✗ ${item.name} - ${errorMsg}</div>`));
-            }
-        }
-    } catch (error) {
-        closeProcessing();
-        console.error('RoValra: Cart purchase session setup failed:', error);
-        const errorBody = document.createElement('div');
-        errorBody.innerHTML = DOMPurify.sanitize(`
-            <div style="padding: 20px; text-align: center;">
-                <div style="font-size: 48px; margin-bottom: 16px; color: #d32f2f;">✗</div>
-                <h3 class="text font-header-2" style="margin: 0 0 12px 0; color: #d32f2f;">Setup Failed</h3>
-                <p class="text font-body" style="margin: 0;">Failed to set up game session. Please try again.</p>
-            </div>
-        `);
-        createOverlay({
-            title: 'Error',
-            bodyContent: errorBody,
-            actions: [],
-            maxWidth: '400px',
-            showLogo: true
-        });
-        return;
-    }
-    
-    closeProcessing();    
-    const successCount = results.filter(r => r.success).length;
-    const failCount = results.length - successCount;
-    
-    const resultsBody = document.createElement('div');
-    resultsBody.innerHTML = DOMPurify.sanitize(`
-        <div style="padding: 20px; text-align: center;">
-            <div style="font-size: 48px; margin-bottom: 16px;">${failCount === 0 ? '✓' : '⚠️'}</div>
-            <h3 class="text font-header-2" style="margin: 0 0 12px 0;">Cart Purchase ${failCount === 0 ? 'Complete' : 'Partially Complete'}</h3>
-            <p class="text font-body" style="margin: 0 0 12px 0;">${successCount} of ${itemsToPurchase.length} items purchased successfully</p>
-            ${ownedItems.length > 0 ? `<p class="text font-body" style="margin: 0 0 12px 0; opacity: 0.7;">${ownedItems.length} item${ownedItems.length !== 1 ? 's' : ''} skipped (already owned)</p>` : ''}
-            ${failCount > 0 ? `<p class="text font-body" style="margin: 0 0 12px 0; color: #d32f2f;">${failCount} items failed</p>` : ''}
-            <div style="margin: 16px 0; font-size: 28px; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 6px;">
-                <span class="icon-robux-28x28"></span><span>~${totalSavings.toLocaleString()}</span>
-            </div>
-            <p class="text font-body" style="margin: 0;">${isDonating ? 'donated to RoValra' : 'saved (approximate)'}</p>
-        </div>
-    `);
 
-    const { overlay: resultsOverlay, close: closeResults } = createOverlay({
-        title: 'Purchase Complete',
-        bodyContent: resultsBody,
-        actions: [],
-        maxWidth: '400px',
-        showLogo: true
-    });
+
 };
 
 
-const execute40MethodPurchase = async (itemId, robuxPrice, isGamePass = false, isBundle = false, itemDetails = null, isCartItem = false, sharedSession = null) => {
-    if (!isCartItem) {
-        activePurchaseContext = { cancelled: false };
-    }
+const execute40MethodPurchase = async (itemId, robuxPrice, isGamePass = false, isBundle = false, itemDetails = null) => {
+    activePurchaseContext = { cancelled: false };
     const ctx = activePurchaseContext || { cancelled: false };
     const ensureNotCancelled = () => { if (ctx.cancelled) throw new Error('Purchase cancelled'); };
     const currentUserId = getCurrentUserId();
@@ -1465,34 +1345,53 @@ const execute40MethodPurchase = async (itemId, robuxPrice, isGamePass = false, i
     let itemName = itemDetails?.name || 'Unknown Item';
     let itemThumbnail = itemDetails?.thumbnail || '';
     
-    if (!itemDetails && itemId) {
-        try {
-            const catalogData = await callRobloxApiJson({
-                subdomain: 'catalog',
-                endpoint: '/v1/catalog/items/details',
-                method: 'POST',
-                body: {
-                    items: [{ id: parseInt(itemId), itemType: isBundle ? 'Bundle' : 'Asset' }]
-                }
-            });
-            
-            if (catalogData.data && catalogData.data.length > 0) {
-                const item = catalogData.data[0];
-                itemName = item.name || 'Unknown Item';
-                
-                const itemIdForThumbnail = item.collectibleItemId || itemId;
+    if ((!itemDetails || !itemDetails.thumbnail) && itemId) {
+        if (isGamePass) {
+            try {
                 const thumbnailMap = await fetchThumbnails(
-                    [{ id: parseInt(itemIdForThumbnail) }], 
-                    'Asset', 
+                    [{ id: parseInt(itemId) }],
+                    'GamePass',
                     '150x150'
                 );
-                const thumbnailData = thumbnailMap.get(parseInt(itemIdForThumbnail));
+                const thumbnailData = thumbnailMap.get(parseInt(itemId));
                 if (thumbnailData && thumbnailData.state === 'Completed') {
                     itemThumbnail = thumbnailData.imageUrl;
                 }
+            } catch (error) {
+                console.warn('RoValra: Could not fetch game pass thumbnail:', error);
             }
-        } catch (error) {
-            console.warn('RoValra: Could not fetch item details:', error);
+        } else {
+            try {
+                const catalogData = await callRobloxApiJson({
+                    subdomain: 'catalog',
+                    endpoint: '/v1/catalog/items/details',
+                    method: 'POST',
+                    body: {
+                        items: [{ id: parseInt(itemId), itemType: isBundle ? 'Bundle' : 'Asset' }]
+                    }
+                });
+                
+                if (catalogData.data && catalogData.data.length > 0) {
+                    const item = catalogData.data[0];
+                    itemName = item.name || 'Unknown Item';
+                    
+                    const itemIdForThumbnail = item.collectibleItemId || itemId;
+                    let thumbnailType = 'Asset';
+                    if (isBundle) thumbnailType = 'BundleThumbnail';
+    
+                    const thumbnailMap = await fetchThumbnails(
+                        [{ id: parseInt(itemIdForThumbnail) }], 
+                        thumbnailType,
+                        '150x150'
+                    );
+                    const thumbnailData = thumbnailMap.get(parseInt(itemIdForThumbnail));
+                    if (thumbnailData && thumbnailData.state === 'Completed') {
+                        itemThumbnail = thumbnailData.imageUrl;
+                    }
+                }
+            } catch (error) {
+                console.warn('RoValra: Could not fetch item details:', error);
+            }
         }
     }
 
@@ -1552,7 +1451,7 @@ const execute40MethodPurchase = async (itemId, robuxPrice, isGamePass = false, i
     const itemType = isGamePass ? 'GamePass' : (isBundle ? 'Bundle' : 'Asset');
     const alreadyOwned = await checkItemOwnership(currentUserId, itemId, itemType);
     
-    if (alreadyOwned && !isCartItem) {
+    if (alreadyOwned) {
         const ownedBody = document.createElement('div');
         ownedBody.innerHTML = DOMPurify.sanitize(`
             <div style="padding: 20px; text-align: center;">
@@ -1573,131 +1472,6 @@ const execute40MethodPurchase = async (itemId, robuxPrice, isGamePass = false, i
         return;
     }
     
-    if (isCartItem && sharedSession) {
-        const { serverInstanceId, placeIdToUse, universeId } = sharedSession;
-        
-        let collectibleItemId = null;
-        let collectibleProductId = null;
-        let gamePassProductId = null;
-        
-        if (isGamePass) {
-            const gamePassData = await callRobloxApiJson({
-                subdomain: 'apis',
-                endpoint: `/game-passes/v1/game-passes/${itemId}/product-info`,
-                method: 'GET'
-            });
-            if (!gamePassData || !gamePassData.ProductId) {
-                throw new Error('Game pass not found');
-            }
-            gamePassProductId = gamePassData.ProductId;
-        } else {
-            const catalogData = await callRobloxApiJson({
-                subdomain: 'catalog',
-                endpoint: '/v1/catalog/items/details',
-                method: 'POST',
-                body: {
-                    items: [{ id: parseInt(itemId), itemType: isBundle ? 'Bundle' : 'Asset' }]
-                }
-            });
-            if (!catalogData.data || catalogData.data.length === 0) {
-                throw new Error('Item not found in catalog');
-            }
-            const itemData = catalogData.data[0];
-            collectibleItemId = itemData.collectibleItemId;
-            if (!collectibleItemId) {
-                throw new Error('This item is not a collectible');
-            }
-            const marketplaceData = await callRobloxApiJson({
-                subdomain: 'apis',
-                endpoint: '/marketplace-items/v1/items/details',
-                method: 'POST',
-                body: {
-                    itemIds: [collectibleItemId]
-                }
-            });
-            if (!marketplaceData || marketplaceData.length === 0) {
-                throw new Error('Collectible product not found');
-            }
-            collectibleProductId = marketplaceData[0].collectibleProductId;
-        }
-        
-        const csrfToken = await getCsrfToken();
-        if (!csrfToken) {
-            throw new Error('Failed to obtain CSRF token');
-        }
-
-        let requestBody, headers, purchaseUrl;
-        
-        if (isGamePass) {
-            requestBody = {
-                expectedCurrency: 1,
-                expectedPrice: parseInt(robuxPrice),
-                expectedSellerId: 0,
-                expectedPromoId: 0,
-                userAssetId: 0,
-                saleLocationType: 'Game',
-                saleLocationId: parseInt(placeIdToUse)
-            };
-            headers = {
-                'Content-Type': 'application/json',
-                'User-Agent': 'Roblox/WinInetRobloxApp/0.698.0.6980936 (GlobalDist; RobloxDirectDownload)',
-                'X-CSRF-TOKEN': csrfToken,
-                'Requester': 'Client',
-                'Roblox-Game-Id': serverInstanceId,
-                'Roblox-Place-Id': placeIdToUse.toString(),
-                'Roblox-Universe-Id': universeId.toString()
-            };
-            purchaseUrl = `https://apis.roblox.com/game-passes/v1/game-passes/${gamePassProductId}/purchase`;
-        } else {
-            requestBody = {
-                expectedCurrency: 1,
-                expectedPrice: parseInt(robuxPrice),
-                expectedPurchaserId: parseInt(currentUserId),
-                expectedPurchaserType: 'User',
-                collectibleProductId: collectibleProductId,
-                idempotencyKey: crypto.randomUUID(),
-                purchaseAuthToken: ''
-            };
-            headers = {
-                'Content-Type': 'application/json',
-                'User-Agent': 'Roblox/WinInetRobloxApp/0.698.0.6980936 (GlobalDist; RobloxDirectDownload)',
-                'X-CSRF-TOKEN': csrfToken,
-                'Requester': 'Client',
-                'Roblox-Game-Id': serverInstanceId,
-                'Roblox-Place-Id': placeIdToUse.toString(),
-                'Roblox-Universe-Id': universeId.toString()
-            };
-            purchaseUrl = `https://apis.roblox.com/marketplace-sales/v1/item/${collectibleItemId}/purchase-item`;
-        }
-
-        const response = await corsFetch(purchaseUrl, {
-            method: 'POST',
-            headers: headers,
-            body: JSON.stringify(requestBody),
-            credentials: 'include'
-        });
-
-        const responseData = await response.json();
-        console.log('Purchase Response:', responseData);
-        
-        const isSuccess = isGamePass 
-            ? (responseData.purchased === true && responseData.reason === "Success")
-            : (responseData.purchaseResult === "Purchase transaction success" && responseData.purchased === true);
-        
-        if (!isSuccess) {
-            throw new Error(JSON.stringify({
-                message: 'Purchase failed',
-                purchaseResult: responseData.purchaseResult,
-                purchased: responseData.purchased,
-                errorMessage: responseData.errorMessage,
-                errorMsg: responseData.errorMsg
-            }));
-        }
-        
-        return;
-    }
-    
-    if (!isCartItem) {
         const singleItemHtml = `
             <div style="display: flex; gap: 12px; align-items: center; padding: 8px 4px;">
                 ${
@@ -1770,7 +1544,7 @@ const execute40MethodPurchase = async (itemId, robuxPrice, isGamePass = false, i
         `);
 
         const finalConfirmBtn = document.createElement('button');
-        finalConfirmBtn.textContent = 'Confirm Purchase';
+        finalConfirmBtn.textContent = 'Join game to purchase';
         finalConfirmBtn.className = 'btn-cta-md btn-min-width';
         finalConfirmBtn.disabled = robuxAfterPurchase < 0;
 
@@ -1786,6 +1560,13 @@ const execute40MethodPurchase = async (itemId, robuxPrice, isGamePass = false, i
             showLogo: true
         });
 
+        finalConfirmOverlay.addEventListener('click', (e) => {
+            if (e.target === finalConfirmOverlay) {
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+            }
+        }, true);
+
         const closeFinalConfirm = () => {
             if (!ctx.cancelled) ctx.cancelled = true;
             origCloseFinalConfirm();
@@ -1796,7 +1577,7 @@ const execute40MethodPurchase = async (itemId, robuxPrice, isGamePass = false, i
             changeExperienceBtn.addEventListener('click', () => {
                 closeFinalConfirm();
                 createAndShowPopup(() => {
-                    execute40MethodPurchase(itemId, robuxPrice, isGamePass, isBundle, itemDetails, isCartItem);
+                    execute40MethodPurchase(itemId, robuxPrice, isGamePass, isBundle, itemDetails);
                 });
             });
         }
@@ -1813,363 +1594,24 @@ const execute40MethodPurchase = async (itemId, robuxPrice, isGamePass = false, i
         if (!finalConfirmed || ctx.cancelled) {
             return;
         }
-    } 
 
     ensureNotCancelled();
-    const bodyContent = document.createElement('div');
-    bodyContent.innerHTML = DOMPurify.sanitize(`
-        <div style="padding: 20px; text-align: center;">
-            <div id="progress-spinner" style="margin: 0 auto 16px;"></div>
-            <h3 id="progress-title" class="text font-header-2" style="margin: 0 0 8px 0;">Preparing Purchase</h3>
-            <p id="progress-text" class="text font-body" style="margin: 0;">Initializing...</p>
-            <div style="margin-top: 20px; padding: 10px; border-radius: 6px;">
-                <div class="text font-body">This may take a bit...</div>
-            </div>
-        </div>
-    `);
+    let typePrefix = 'asset';
+    if (isGamePass) typePrefix = 'gamepass';
+    else if (isBundle) typePrefix = 'bundle';
+    
+    const launchData = `${typePrefix}:${itemId}`;
+    
+    const placeIdToUse = (useRoValraGroup || savedPlaceId === 'ROVALRA_GROUP') ? actualPlaceId : savedPlaceId;
 
-    const progressSpinnerContainer = bodyContent.querySelector('#progress-spinner');
-    if (progressSpinnerContainer) {
-        progressSpinnerContainer.appendChild(createSpinner({ size: '48px', color: 'currentColor' }));
-    }
+    launchMultiplayerGame(placeIdToUse, launchData);
 
-    const { overlay, close: origCloseProcessing } = createOverlay({
-        title: '40% Method - Processing',
-        bodyContent: bodyContent,
-        actions: [],
-        maxWidth: '450px',
-        showLogo: true,
-        preventBackdropClose: true
-    });
 
-    const closeProcessing = () => {
-        if (!ctx.cancelled) ctx.cancelled = true;
-        origCloseProcessing();
-    };
-
-    const closeBtn = overlay.querySelector('.foundation-web-dialog-close-container button');
-    if (closeBtn) {
-        closeBtn.addEventListener('click', () => {
-            ctx.cancelled = true;
-            closeProcessing();
-        });
-    }
-
-    const progressTitle = bodyContent.querySelector('#progress-title');
-    const progressText = bodyContent.querySelector('#progress-text');
-
-    try {
-        let collectibleItemId = null;
-        let collectibleProductId = null;
-        let gamePassProductId = null;
-        
-        if (isGamePass) {
-            progressTitle.textContent = 'Fetching Game Pass Details';
-            progressText.textContent = 'Retrieving game pass information...';
-            
-            ensureNotCancelled();
-            const gamePassData = await callRobloxApiJson({
-                subdomain: 'apis',
-                endpoint: `/game-passes/v1/game-passes/${itemId}/product-info`,
-                method: 'GET'
-            });
-            ensureNotCancelled();
-
-            if (!gamePassData || !gamePassData.ProductId) {
-                throw new Error('Game pass not found');
-            }
-
-            gamePassProductId = gamePassData.ProductId;
-            console.log('RoValra: Game pass product ID:', gamePassProductId);
-        } else {
-            progressTitle.textContent = 'Fetching Item Details';
-            progressText.textContent = 'Retrieving collectible information...';
-            
-            ensureNotCancelled();
-            const catalogData = await callRobloxApiJson({
-                subdomain: 'catalog',
-                endpoint: '/v1/catalog/items/details',
-                method: 'POST',
-                body: {
-                    items: [{ id: parseInt(itemId), itemType: isBundle ? 'Bundle' : 'Asset' }]
-                }
-            });
-            ensureNotCancelled();
-
-            if (!catalogData.data || catalogData.data.length === 0) {
-                throw new Error('Item not found in catalog');
-            }
-
-            const itemData = catalogData.data[0];
-            collectibleItemId = itemData.collectibleItemId;
-
-            if (!collectibleItemId) {
-                throw new Error('This item is not a collectible');
-            }
-
-            progressTitle.textContent = 'Getting Product Info';
-            progressText.textContent = 'Retrieving marketplace details...';
-            
-            ensureNotCancelled();
-            const marketplaceData = await callRobloxApiJson({
-                subdomain: 'apis',
-                endpoint: '/marketplace-items/v1/items/details',
-                method: 'POST',
-                body: {
-                    itemIds: [collectibleItemId]
-                }
-            });
-            ensureNotCancelled();
-
-            if (!marketplaceData || marketplaceData.length === 0) {
-                throw new Error('Collectible product not found');
-            }
-
-            collectibleProductId = marketplaceData[0].collectibleProductId;
-        }
-
-        progressTitle.textContent = 'Setting Up Experience';
-        progressText.textContent = 'Preparing experience environment...';
-        
-        const placeIdToUse = (useRoValraGroup || savedPlaceId === 'ROVALRA_GROUP') ? actualPlaceId : savedPlaceId;
-        
-        ensureNotCancelled();
-        const gameData = await callRobloxApiJson({
-            subdomain: 'games',
-            endpoint: `/v1/games/multiget-place-details?placeIds=${placeIdToUse}`,
-            method: 'GET'
-        });
-        ensureNotCancelled();
-
-        if (!gameData || gameData.length === 0 || !gameData[0].universeId) {
-            throw new Error('Failed to fetch Universe ID');
-        }
-
-        const universeId = gameData[0].universeId;
-
-        progressTitle.textContent = 'Creating Server';
-        progressText.textContent = 'Requesting server instance...';
-        
-        let serverInstanceId = null;
-        let analyticsSessionId = null;
-
-        while (!serverInstanceId) {
-            ensureNotCancelled();
-            if (ctx.cancelled) {
-                console.log('RoValra: Purchase cancelled during server creation');
-                return;
-            }
-            const joinGameResponse = await callRobloxApiJson({
-                subdomain: 'gamejoin',
-                endpoint: '/v1/join-game',
-                method: 'POST',
-                body: {
-                    placeId: parseInt(placeIdToUse, 10),
-                    gameJoinAttemptId: crypto.randomUUID()
-                }
-            });
-            ensureNotCancelled();
-
-            if (joinGameResponse && joinGameResponse.joinScript && joinGameResponse.jobId) {
-                serverInstanceId = joinGameResponse.jobId;
-                
-                if (joinGameResponse.joinScript.AnalyticsSessionId) {
-                    analyticsSessionId = joinGameResponse.joinScript.AnalyticsSessionId;
-                }
-                
-                console.log('RoValra: Created server instance:', serverInstanceId);
-                break;
-            }
-
-            progressTitle.textContent = 'Retrying Server Creation';
-            progressText.textContent = 'Waiting for server...';
-            await new Promise(resolve => setTimeout(resolve, 1000));
-        }
-
-        if (!analyticsSessionId) {
-            analyticsSessionId = crypto.randomUUID();
-        }
-
-        progressTitle.textContent = 'Launching Roblox';
-        progressText.textContent = 'Starting Roblox client...';
-        ensureNotCancelled();
-        if (ctx.cancelled) {
-            console.log('RoValra: Purchase cancelled before launching Roblox');
-            return;
-        }
-        
-        if (DEBUG_SKIP_ROBLOX_LAUNCH) {
-            console.log('RoValra: DEBUG MODE - Skipping Roblox launch');
-        } else {
-            launchGame(placeIdToUse, serverInstanceId);
-            removeRobloxJoinDialog(); 
-        }
-
-        progressTitle.textContent = 'Waiting for Game';
-        progressText.textContent = 'Please wait while Roblox loads...';
-        await new Promise((resolve, reject) => {
-            let inGameDetected = false;
-            const checkCancel = () => { if (ctx.cancelled && !inGameDetected) { cleanup(); reject(new Error('Purchase cancelled')); } };
-            const cleanup = () => {
-                clearInterval(pollInterval);
-            };
-
-            const pollInterval = setInterval(async () => {
-                if (inGameDetected) return;
-                if (ctx.cancelled) { checkCancel(); return; }
-                
-                try {
-                    const presenceData = await callRobloxApiJson({
-                        subdomain: 'presence',
-                        endpoint: '/v1/presence/users',
-                        method: 'POST',
-                        body: {
-                            userIds: [parseInt(currentUserId)]
-                        }
-                    });
-
-                    if (presenceData.userPresences && presenceData.userPresences.length > 0) {
-                        const presence = presenceData.userPresences[0];
-                        const userRootPlaceId = presence.rootPlaceId;
-                        
-                        console.log('RoValra: User presence check - rootPlaceId:', userRootPlaceId, 'Expected:', placeIdToUse);
-                        
-                        if (userRootPlaceId && userRootPlaceId.toString() === placeIdToUse.toString()) {
-                            console.log('RoValra: User is in the correct game, proceeding with purchase');
-                            inGameDetected = true;
-                            cleanup();
-                            resolve();
-                        }
-                    }
-                } catch (pollError) {
-                    console.error('RoValra: Error checking user presence:', pollError);
-                }
-            }, 1000);
-
-            overlay.addEventListener('remove', () => { if (!inGameDetected) { ctx.cancelled = true; checkCancel(); } });
-        });
-        ensureNotCancelled();
-
-        progressTitle.textContent = 'Completing Purchase';
-        progressText.textContent = 'Finalizing transaction...';
-        
-        ensureNotCancelled();
-        const csrfToken = await getCsrfToken();
-        if (!csrfToken) {
-            throw new Error('Failed to obtain CSRF token');
-        }
-
-        let requestBody, headers, purchaseUrl;
-        
-        if (isGamePass) {
-            requestBody = {
-                expectedCurrency: 1,
-                expectedPrice: parseInt(robuxPrice),
-                expectedSellerId: 0,
-                expectedPromoId: 0,
-                userAssetId: 0,
-                saleLocationType: 'Game',
-                saleLocationId: parseInt(placeIdToUse)
-            };
-
-            headers = {
-                'Content-Type': 'application/json',
-                'User-Agent': 'Roblox/WinInetRobloxApp/0.698.0.6980936 (GlobalDist; RobloxDirectDownload)',
-                'X-CSRF-TOKEN': csrfToken,
-                'Requester': 'Client',
-                'Roblox-Game-Id': serverInstanceId,
-                'Roblox-Place-Id': placeIdToUse.toString(),
-                'Roblox-Universe-Id': universeId.toString()
-            };
-
-            purchaseUrl = `https://apis.roblox.com/game-passes/v1/game-passes/${gamePassProductId}/purchase`;
-        } else {
-            requestBody = {
-                expectedCurrency: 1,
-                expectedPrice: parseInt(robuxPrice),
-                expectedPurchaserId: parseInt(currentUserId),
-                expectedPurchaserType: 'User',
-                collectibleProductId: collectibleProductId,
-                idempotencyKey: analyticsSessionId,
-                purchaseAuthToken: ''
-            };
-
-            headers = {
-                'Content-Type': 'application/json',
-                'User-Agent': 'Roblox/WinInetRobloxApp/0.698.0.6980936 (GlobalDist; RobloxDirectDownload)',
-                'X-CSRF-TOKEN': csrfToken,
-                'Requester': 'Client',
-                'Roblox-Game-Id': serverInstanceId,
-                'Roblox-Place-Id': placeIdToUse.toString(),
-                'Roblox-Universe-Id': universeId.toString()
-            };
-
-            purchaseUrl = `https://apis.roblox.com/marketplace-sales/v1/item/${collectibleItemId}/purchase-item`;
-        }
-
-        ensureNotCancelled();
-        const response = await corsFetch(purchaseUrl, {
-            method: 'POST',
-            headers: headers,
-            body: JSON.stringify(requestBody),
-            credentials: 'include'
-        });
-        ensureNotCancelled();
-
-        const responseData = await response.json();
-        console.log('Purchase Response:', responseData);
-        
-        const isSuccess = isGamePass 
-            ? (responseData.purchased === true && responseData.reason === "Success")
-            : (responseData.purchaseResult === "Purchase transaction success" && responseData.purchased === true);
-        
-        if (isSuccess) {
-            if (!isCartItem) {
-                closeProcessing();
-                const savingsPercentage = isGamePass ? 0.10 : 0.40;
-                const savings = Math.round(robuxPrice * savingsPercentage);
-                const isDonating = (useRoValraGroup || savedPlaceId === 'ROVALRA_GROUP');
-                showSuccessNotification(savings, gameName, isDonating);
-            }
-        } else {
-            throw new Error(JSON.stringify({
-                message: 'Purchase failed',
-                purchaseResult: responseData.purchaseResult,
-                purchased: responseData.purchased,
-                errorMessage: responseData.errorMessage,
-                errorMsg: responseData.errorMsg
-            }));
-        }
-
-    } catch (error) {
-        if (!isCartItem) {
-            if (activePurchaseContext === ctx && !overlay.isConnected) {
-                return;
-            }
-            closeProcessing();
-            if (error.message === 'Purchase cancelled') {
-                console.log('RoValra: Purchase flow cancelled by user.');
-            } else {
-                let errorDetails;
-                try {
-                    errorDetails = JSON.parse(error.message);
-                } catch (e) {
-                    errorDetails = { message: error.message };
-                }
-
-                showFailureNotification(errorDetails);
-                console.error('40% Method Error:', error, errorDetails);
-            }
-        } else {
-            throw error;
-        }
-    }
 };
 
 const addSaveButton = (modal) => {
 
     const modalWindow = modal.closest('.modal-window') || modal.closest('.simplemodal-wrap') || modal;
-    console.log('Modal window found:', modalWindow);
     if (!modalWindow) return;
 
     const checkElements = () => {
@@ -2199,23 +1641,21 @@ const addSaveButton = (modal) => {
         observer.observe(modalWindow, { childList: true, subtree: true });
     }
 
-    function addButtonWithElements({ buyNowButton, robuxPriceElement, buttonContainer, closeButton }) {
-        console.log('All elements found, adding button');
+    async function addButtonWithElements({ buyNowButton, robuxPriceElement, buttonContainer, closeButton }) {
+   
 
         const cartItems = getCartItems();
-        console.log('Cart items found:', cartItems.length);
 
-        const isMultiItemPurchase = cartItems.length >= 2;
-        
-        const isGamePass = isGamePassPage();
-        console.log('Is gamepass:', isGamePass);
+        const isMultiItemPurchase = cartItems.length >= 2;        
+        const isGamePassOnGamePage = window.location.pathname.startsWith('/games/') && modalWindow.querySelector('.modal-message')?.textContent.includes('buy the');
+        const isGamePass = isGamePassPage() || isGamePassOnGamePage;
         const isBundle = window.location.pathname.startsWith('/bundles/');
         
         let itemId = null;
         let isMismatch = false;
+        let capturedItemName = null;
         
         if (isMultiItemPurchase) {
-            console.log('RoValra: Multi-item cart purchase detected with', cartItems.length, 'items');
             
             const batchItemsInModal = getBatchPurchaseItems(modalWindow);
             if (batchItemsInModal.length > 0) {
@@ -2224,24 +1664,62 @@ const addSaveButton = (modal) => {
                     console.warn('Cart mismatch detected!');
                 }
             }
+        } else if (isGamePassOnGamePage) {
+            const modalMessage = modalWindow.querySelector('.modal-message');
+            const modalItemNameEl = modalMessage.querySelector('.font-bold');
+            const modalItemPriceEl = modalMessage.querySelector('.text-robux');
+            const modalItemName = modalItemNameEl.textContent.trim();
+            capturedItemName = modalItemName;
+            const modalItemPrice = parseInt(modalItemPriceEl.textContent.replace(/,/g, ''), 10);
+
+            const universeId = getUniverseId();
+            if (universeId) {
+                const gamePasses = await fetchGamePassesForUniverse(universeId);
+                const match = gamePasses.find(gp => gp.name === modalItemName && gp.price === modalItemPrice);
+                if (match) {
+                    itemId = match.id;
+                }
+            }
+
+            if (!itemId) {
+                const storeItems = document.querySelectorAll('#store-tab .list-item .store-card, .game-passes-list .list-item');
+                for (const itemCard of storeItems) {
+                    const cardNameEl = itemCard.querySelector('.store-card-name, .item-card-name');
+                    const cardPriceEl = itemCard.querySelector('.store-card-price .text-robux, .item-card-price .text-robux');
+                    const cardLinkEl = itemCard.querySelector('a.store-card-link, a.item-card-link');
+
+                    if (cardNameEl && cardPriceEl && cardLinkEl) {
+                        const cardItemName = (cardNameEl.getAttribute('title') || cardNameEl.textContent).trim();
+                        const cardItemPrice = parseInt(cardPriceEl.textContent.replace(/,/g, ''), 10);
+
+                        if (modalItemName === cardItemName && modalItemPrice === cardItemPrice) {
+                            const href = cardLinkEl.getAttribute('href');
+                            const match = href.match(/\/game-pass\/(\d+)/);
+                            if (match) {
+                                itemId = match[1];
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            if (!itemId) {
+                console.warn("RoValra: Could not find matching game pass on page for modal.");
+                return;
+            }
         } else {
             if (isGamePass) {
                 itemId = getGamePassId();
-                console.log('RoValra: Using gamepass ID:', itemId);
             } else if (cartItems.length === 1) {
                 itemId = cartItems[0].id;
-                console.log('RoValra: Using item ID from single-item cart:', itemId);
             } else {
                 itemId = (window.location.href.match(/(?:catalog|bundles|library)\/(\d+)/) || [])[1];
-                console.log('RoValra: No cart items - using item ID from URL:', itemId);
             }
             
-            console.log('Item ID:', itemId);
             if (!itemId) return;
         }
 
         const robuxPrice = parseInt(robuxPriceElement.textContent.replace(/,/g, ''), 10);
-        console.log('Robux price:', robuxPrice);
         if (isNaN(robuxPrice)) return;
 
         const savingsPercentage = isGamePass ? 0.10 : 0.40;
@@ -2280,16 +1758,26 @@ const addSaveButton = (modal) => {
             }
             
             let itemDetails = null;
-            if (!isMultiItemPurchase && itemId) {
+            if (isGamePassOnGamePage) {
+                const modalImage = modalWindow.querySelector('.modal-image-container img, .modal-thumb');
+                itemDetails = {
+                    name: capturedItemName || 'Game Pass',
+                    thumbnail: modalImage ? modalImage.src : null
+                };
+            } else if (!isMultiItemPurchase && itemId) {
                 try {
                     const nameElement = document.querySelector('.item-details-name-row h1');
                     const itemName = nameElement ? nameElement.textContent.trim() : 'Unknown Item';
                     
                     let itemThumbnail = null;
                     try {
+                        let thumbnailType = 'Asset';
+                        if (isGamePass) thumbnailType = 'GamePass';
+                        else if (isBundle) thumbnailType = 'BundleThumbnail';
+
                         const thumbnailMap = await fetchThumbnails(
                             [{ id: parseInt(itemId) }], 
-                            'Asset', 
+                            thumbnailType, 
                             '150x150'
                         );
                         const thumbData = thumbnailMap.get(parseInt(itemId));
@@ -2305,7 +1793,6 @@ const addSaveButton = (modal) => {
                         thumbnail: itemThumbnail
                     };
                     
-                    console.log('RoValra: Extracted item details from page:', itemDetails);
                 } catch (error) {
                     console.warn('RoValra: Could not extract item details from page:', error);
                 }
@@ -2318,7 +1805,7 @@ const addSaveButton = (modal) => {
             if (!result.RobuxPlaceId) {
                 createAndShowPopup(() => {
                     if (isMultiItemPurchase) {
-                        executeCartPurchase(cartItems, robuxPrice);
+                        executeCartPurchase(cartItems);
                     } else {
                         execute40MethodPurchase(itemId, robuxPrice, isGamePass, isBundle, itemDetails);
                     }
@@ -2346,7 +1833,6 @@ const addSaveButton = (modal) => {
             const footer = modalWindow.querySelector('.modal-footer') || buttonContainer.parentElement || modalWindow;
             footer.appendChild(wrapper);
         } else {
-            console.log('RoValra: Save wrapper already exists; not duplicating');
         }
     }
 };
@@ -2357,7 +1843,6 @@ export function init() {
     if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
         chrome.storage.local.get('SaveLotsRobuxEnabled', (result) => {
             if (result.SaveLotsRobuxEnabled === true) {
-                console.log('RoValra: 40% method feature enabled, initializing...');
                 detectAndAddSaveButton();
             }
         });
