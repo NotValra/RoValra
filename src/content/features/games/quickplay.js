@@ -522,7 +522,7 @@ async function setupHoverCard(gameLink, settings) {
     
     if (settings.PreferredRegionEnabled && settings.playbuttonpreferredregionenabled) {
         playBtn.onclick = handlePreferredJoin;
-        if (settings.robloxPreferredRegion === 'AUTO') attachTooltip(playBtn, 'Join Fastest Server');
+        if (settings.robloxPreferredRegion === 'AUTO') attachTooltip(playBtn, 'Join Closest Server');
         else addRegionTooltip(playBtn);
     } else {
         playBtn.onclick = handleNormalJoin;
@@ -534,7 +534,7 @@ async function setupHoverCard(gameLink, settings) {
         regionBtn.className = 'server-browser-button';
         regionBtn.appendChild(Icons.globe());
         regionBtn.onclick = handlePreferredJoin;
-        if (settings.robloxPreferredRegion === 'AUTO') attachTooltip(regionBtn, 'Join Fastest Server');
+        if (settings.robloxPreferredRegion === 'AUTO') attachTooltip(regionBtn, 'Join Closest Server');
         else addRegionTooltip(regionBtn);
         wrapper.appendChild(regionBtn);
     }
