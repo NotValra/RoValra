@@ -62,7 +62,7 @@ export function init() {
             const allButtons = modal.querySelectorAll('button');
             const switchBtn = Array.from(allButtons).find(
                 b => b.textContent.trim().toLowerCase() === 'switch'
-            );
+            ) || (allButtons.length > 0 ? allButtons[allButtons.length - 1] : null);
 
             if (switchBtn) {
 

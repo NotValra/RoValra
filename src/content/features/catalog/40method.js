@@ -12,6 +12,7 @@ import { createStyledInput } from '../../core/ui/catalog/input.js';
 
 import { fetchThumbnails } from '../../core/thumbnail/thumbnails.js';
 import DOMPurify from 'dompurify';
+import { getPlaceIdFromUrl } from '../../core/idExtractor.js';
 
 
 
@@ -97,18 +98,6 @@ async function fetchGamesForGroup(groupId) {
 }
 
 
-
-const isGamePassPage = () => {
-    return window.location.pathname.startsWith('/game-pass/');
-};
-
-
-const getGamePassId = () => {
-    const match = window.location.pathname.match(/\/game-pass\/(\d+)/);
-    return match ? match[1] : null;
-};
-
-
 const getCurrentUserId = () => {
     const meta = document.querySelector('meta[name="user-data"]');
     return meta ? meta.getAttribute('data-userid') : null;
@@ -128,7 +117,7 @@ const getCartItems = () => {
         
         if (link && priceText) {
             const href = link.getAttribute('href');
-            const match = href.match(/\/catalog\/(\d+)\//); 
+            const match = href.match(/\/(?:[a-z]{2}(?:-[a-z]{2})?\/)?catalog\/(\d+)\//i); 
             if (match) {
                 cartItems.push({
                     id: match[1],
@@ -1838,18 +1827,15 @@ const addSaveButton = (modal) => {
         }
 
         const cartItems = getCartItems();
-
-        const isMultiItemPurchase = cartItems.length >= 2;        
-        const isGamePassOnGamePage = window.location.pathname.startsWith('/games/') && modalWindow.querySelector('.modal-message')?.textContent.includes('buy the');
-        const isGamePass = isGamePassPage() || isGamePassOnGamePage;
-        const isBundle = window.location.pathname.startsWith('/bundles/');
+        const isMultiItemPurchase = cartItems.length >= 2;
+        const isOnGamePage = /^\/([a-z]{2}(-[a-z]{2})?\/)?games\//i.test(window.location.pathname);
         
         let itemId = null;
+        let isGamePassOnGamePage = false;
         let isMismatch = false;
         let capturedItemName = null;
         
         if (isMultiItemPurchase) {
-            
             const batchItemsInModal = getBatchPurchaseItems(modalWindow);
             if (batchItemsInModal.length > 0) {
                 isMismatch = !validateCartMatch(batchItemsInModal, cartItems);
@@ -1857,60 +1843,67 @@ const addSaveButton = (modal) => {
                     console.warn('Cart mismatch detected!');
                 }
             }
-        } else if (isGamePassOnGamePage) {
+        } else if (isOnGamePage) {
             const modalMessage = modalWindow.querySelector('.modal-message');
-            const modalItemNameEl = modalMessage.querySelector('.font-bold');
-            const modalItemPriceEl = modalMessage.querySelector('.text-robux');
-            const modalItemName = modalItemNameEl.textContent.trim();
-            capturedItemName = modalItemName;
-            const modalItemPrice = parseInt(modalItemPriceEl.textContent.replace(/,/g, ''), 10);
+            const modalItemNameEl = modalMessage?.querySelector('.font-bold, strong');
+            const modalItemPriceEl = modalMessage?.querySelector('.text-robux, .robux-text');
+            
+            if (modalItemNameEl && modalItemPriceEl) {
+                const modalItemName = modalItemNameEl.textContent.trim();
+                const modalItemPrice = parseInt(modalItemPriceEl.textContent.replace(/\D/g, ''), 10);
+                capturedItemName = modalItemName;
 
-            const universeId = getUniverseId();
-            if (universeId) {
-                const gamePasses = await fetchGamePassesForUniverse(universeId);
-                const match = gamePasses.find(gp => gp.name === modalItemName && gp.price === modalItemPrice);
-                if (match) {
-                    itemId = match.id;
+                const universeId = getUniverseId();
+                if (universeId) {
+                    const gamePasses = await fetchGamePassesForUniverse(universeId);
+                    const match = gamePasses.find(gp => (
+                        (gp.name && gp.name.trim() === modalItemName) || 
+                        (gp.displayName && gp.displayName.trim() === modalItemName)
+                    ) && gp.price === modalItemPrice);
+                    if (match) {
+                        itemId = match.id;
+                        isGamePassOnGamePage = true;
+                    }
                 }
-            }
 
-            if (!itemId) {
-                const storeItems = document.querySelectorAll('#store-tab .list-item .store-card, .game-passes-list .list-item');
-                for (const itemCard of storeItems) {
-                    const cardNameEl = itemCard.querySelector('.store-card-name, .item-card-name');
-                    const cardPriceEl = itemCard.querySelector('.store-card-price .text-robux, .item-card-price .text-robux');
-                    const cardLinkEl = itemCard.querySelector('a.store-card-link, a.item-card-link');
+                if (!itemId) {
+                    const storeItems = document.querySelectorAll('#store-tab .list-item .store-card, .game-passes-list .list-item');
+                    for (const itemCard of storeItems) {
+                        const cardNameEl = itemCard.querySelector('.store-card-name, .item-card-name');
+                        const cardPriceEl = itemCard.querySelector('.store-card-price .text-robux, .item-card-price .text-robux');
+                        const cardLinkEl = itemCard.querySelector('a.store-card-link, a.item-card-link');
 
-                    if (cardNameEl && cardPriceEl && cardLinkEl) {
-                        const cardItemName = (cardNameEl.getAttribute('title') || cardNameEl.textContent).trim();
-                        const cardItemPrice = parseInt(cardPriceEl.textContent.replace(/,/g, ''), 10);
+                        if (cardNameEl && cardPriceEl && cardLinkEl) {
+                            const cardItemName = (cardNameEl.getAttribute('title') || cardNameEl.textContent).trim();
+                            const cardItemPrice = parseInt(cardPriceEl.textContent.replace(/\D/g, ''), 10);
 
-                        if (modalItemName === cardItemName && modalItemPrice === cardItemPrice) {
-                            const href = cardLinkEl.getAttribute('href');
-                            const match = href.match(/\/game-pass\/(\d+)/);
-                            if (match) {
-                                itemId = match[1];
-                                break;
+                            if (modalItemName === cardItemName && modalItemPrice === cardItemPrice) {
+                                const href = cardLinkEl.getAttribute('href');
+                                const match = href.match(/\/(?:[a-z]{2}(?:-[a-z]{2})?\/)?game-pass\/(\d+)/i);
+                                if (match) {
+                                    itemId = match[1];
+                                    isGamePassOnGamePage = true;
+                                    break;
+                                }
                             }
                         }
                     }
                 }
             }
-            if (!itemId) {
-                console.warn("RoValra: Could not find matching game pass on page for modal.");
-                return;
-            }
-        } else {
-            if (isGamePass) {
-                itemId = getGamePassId();
-            } else if (cartItems.length === 1) {
-                itemId = cartItems[0].id;
-            } else {
-                itemId = (window.location.href.match(/(?:catalog|bundles|library)\/(\d+)/) || [])[1];
-            }
-            
-            if (!itemId) return;
         }
+
+        const isGamePass = /^\/([a-z]{2}(-[a-z]{2})?\/)?game-pass\//i.test(window.location.pathname) || isGamePassOnGamePage;
+        const isBundle = /^\/([a-z]{2}(-[a-z]{2})?\/)?bundles\//i.test(window.location.pathname);
+
+        if (!itemId) {
+            if (cartItems.length === 1) {
+                itemId = cartItems[0].id;
+            } else if (!isOnGamePage) {
+                itemId = getPlaceIdFromUrl(window.location.href);
+            }
+        }
+
+        if (!itemId) return;
 
         if (currentUserId) {
             if (!isMultiItemPurchase && itemId) {
@@ -1998,7 +1991,7 @@ const addSaveButton = (modal) => {
                 };
             } else if (!isMultiItemPurchase && itemId) {
                 try {
-                    const nameElement = document.querySelector('.item-details-name-row h1');
+                    const nameElement = document.querySelector('.item-details-name-row h1, .item-name-container h1');
                     const itemName = nameElement ? nameElement.textContent.trim() : 'Unknown Item';
                     
                     let itemThumbnail = null;
