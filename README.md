@@ -19,9 +19,6 @@
 ## Links
 - [**Features**](https://www.rovalra.com/features/)
 - [**FAQ**](https://www.rovalra.com/support/)
-- [**How to build and install**](https://github.com/NotValra/RoValra?tab=readme-ov-file#how-to-install)
-- [**Credits**](https://github.com/NotValra/RoValra?tab=readme-ov-file#credits) 
-
 
 
 
