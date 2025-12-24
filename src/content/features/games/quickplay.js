@@ -81,7 +81,7 @@ function getGameIdsFromLink(href) {
         
         let placeId = params.get('PlaceId');
         if (!placeId) {
-            const match = urlObj.pathname.match(/^\/games\/(\d+)/);
+            const match = urlObj.pathname.match(/^(?:\/[a-z]{2}(?:-[a-z]{2})?)?\/games\/(\d+)/);
             if (match) placeId = match[1];
         }
         return { placeId, universeId: params.get('universeId') };
