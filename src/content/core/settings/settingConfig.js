@@ -29,6 +29,7 @@ export const SETTINGS_CONFIG = {
                 label: "Save 10%-40% Robux on Purchases",
                 description: ["This adds a button allowing you to save 40% on items on the catalog and 10% on gamepasses",
                     "Keep in mind a group is required for this to work.",
+                    "**When buying something there will be a 'Save X Robux' Button which when pressed will give you a full guide on how to setup the 40% Method**"
               
                 ],
                 type: "checkbox",
@@ -36,7 +37,9 @@ export const SETTINGS_CONFIG = {
                 childSettings: {
                     RobuxPlaceId: {
                         label: "Place ID to use for the 10%-40% Robux back",
-                        description: ["It is best to not modify this, as when using the feature it will automatically set a correct place id."],
+                        description: ["It is best to not modify this, as when using the feature it will automatically set a correct place id.",
+                            "**Don't change this unless you know what your doing**"
+                        ],
                         type: "input",
                         default: null,
                         placeholder: "Enter Place ID here..."
@@ -120,11 +123,11 @@ export const SETTINGS_CONFIG = {
             },
             EnableGameTrailer: {
                 label: "Experience Trailer",
-                description: ["This adds the trailer of an experience. Some experiences use trailers only supported by the client, this feature makes them also work on the site.",
-                    "The trailer will replace a thumbnail of the experience you are viewing."
+                description: ["This adds experience trailers not on youtube to the website, replacing Roblox's way of doing it.",
+                    "And as a result adding more quality of life, like being able to full screen, turn off auto play, view the length of the video, change playback speed and picture in picture mode."
                 ],
                 type: "checkbox",
-                default: true,
+                default: false,
                 childSettings: {
                     Enableautoplay: {
                         label: "Auto Play Trailer",
