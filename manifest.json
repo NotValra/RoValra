@@ -40,7 +40,6 @@
     "service_worker": "background.js"
   },
   "optional_permissions": [
-    "tabs",
     "webNavigation"
 
   ],
