@@ -5,7 +5,7 @@ import { createButton } from '../../core/ui/buttons.js';
 import DOMPurify from 'dompurify';
 
 function onElementFound(container) {
-    // 1. Change Identifier to avoid conflict with Total Spent
+    
     const buttonIdentifier = 'rovalra-total-earned-btn';
     if (container.querySelector(`.${buttonIdentifier}`)) return;
 
@@ -19,9 +19,9 @@ function onElementFound(container) {
 
     let state = {
         status: CALCULATION_STATE.IDLE,
-        totalEarned: 0, // Changed from totalSpent
+        totalEarned: 0, 
         transactionsProcessed: 0,
-        sourceBreakdown: {}, // Used for categorization (Sales, Payouts, etc)
+        sourceBreakdown: {}, 
         lastSaleCursor: "",
         lastPayoutCursor: "",
         userId: 0,
@@ -73,12 +73,10 @@ function onElementFound(container) {
             const transaction = this.queue.shift();
             state.transactionsProcessed++;
 
-            // 2. Logic Change: Look for POSITIVE amounts
             if (transaction.currency && transaction.currency.amount > 0) {
                 const amount = transaction.currency.amount;
                 state.totalEarned += amount;
 
-                // Determine the "Type" of earning (e.g., Gamepass, Asset, Group Payout)
                 let type = 'Other';
                 
                 if (transaction.category === 'GroupPayout') {
@@ -126,7 +124,6 @@ function onElementFound(container) {
                 
                 const itemsHTML = sortedTypes.map(type => {
                     const data = state.sourceBreakdown[type];
-                    // Clean up CamelCase for display
                     const displayName = type.replace(/([A-Z])/g, ' $1').trim(); 
                     
                     return `<li>
@@ -145,14 +142,124 @@ function onElementFound(container) {
         }
     };
 
-    // Note: We can reuse the CSS from totalspent.js if it's already injected, 
-    // but we inject it here just in case this runs standalone.
+
     const injectFeatureCss = () => {
-        const styleId = 'rovalra-totalspent-style'; // Reusing same ID to avoid dupes
+        const styleId = 'rovalra-totalspent-style';
         if (document.getElementById(styleId)) return;
-        // ... (CSS string can be identical to the original file)
-        // For brevity, assuming CSS is handled by the main app or the previous script.
-        // If not, copy the injectFeatureCss function from totalspent.js here.
+        const css = `
+            .rovalra-overlay-body {
+                display: flex;
+                flex-direction: column;
+                min-height: 250px;
+                justify-content: center;
+                width: 100%;
+            }
+            .rovalra-overlay-body.content-top {
+                justify-content: flex-start;
+            }
+            
+            .rovalra-action-stack {
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+                width: 100%;
+                max-width: 340px;
+                margin: 0 auto;
+                align-items: center;
+            }
+            .rovalra-action-stack button {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .rovalra-description {
+                text-align: center;
+                color: var(--rovalra-secondary-text-color);
+                margin-bottom: 24px;
+                font-size: 16px;
+            }
+
+            .rovalra-stats-grid { 
+                display: grid; 
+                grid-template-columns: 1fr 1fr; 
+                gap: 12px; 
+                margin-top: 12px; 
+                margin-bottom: 16px; 
+                text-align: left; 
+            }
+            .rovalra-stat-item { padding: 12px; border-radius: 6px; background: var(--rovalra-container-background-color); }
+            
+
+            .rovalra-stat-item.centered-content { 
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                padding: 16px;
+            }
+            
+            .rovalra-stat-item.centered-content .rovalra-stat-value {
+                font-size: 22px; 
+                margin-top: 4px;
+                justify-content: center;
+            }
+
+            .rovalra-stat-item.full-width { grid-column: 1 / -1; }
+            .rovalra-stat-label { font-size: 14px; color: var(--rovalra-secondary-text-color); display: block; margin-bottom: 4px; }
+            .rovalra-stat-value { font-size: 18px; font-weight: 600; color: var(--rovalra-main-text-color); display: flex; align-items: center; }
+            
+            .rovalra-divider { height: 1px; width: 100%; background-color: var(--rovalra-container-background-color); margin: 16px 0; }
+            
+            .rovalra-status-content { 
+                min-height: 60px; 
+                display: flex; 
+                flex-direction: column; 
+                align-items: center; 
+                justify-content: center; 
+            }
+            
+            .rovalra-status-wrapper {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 8px;
+                text-align: center;
+            }
+            
+            .rovalra-status-text { 
+                font-size: 14px; 
+                color: var(--rovalra-secondary-text-color); 
+            }
+            .rovalra-rate-limit-text { 
+                color: var(--rovalra-main-text-color); 
+            }
+
+            .rovalra-breakdown-section { margin-top: 16px; text-align: left; }
+            
+            .rovalra-breakdown-list { 
+                border: 1px solid var(--rovalra-container-background-color); 
+                border-radius: 6px; 
+                padding: 8px 12px; 
+                margin: 8px 0 0 0; 
+                max-height: 220px; 
+                overflow-y: auto; 
+                list-style: none;
+                pointer-events: auto; 
+            }
+            
+            .rovalra-breakdown-list::-webkit-scrollbar { width: 6px; }
+            .rovalra-breakdown-list::-webkit-scrollbar-track { background: transparent; }
+            .rovalra-breakdown-list::-webkit-scrollbar-thumb { background-color: var(--rovalra-container-background-color); border-radius: 3px; }
+            .rovalra-breakdown-list li { display: flex; align-items: center; padding: 8px 4px; font-size: 14px; color: var(--rovalra-main-text-color); border-bottom: 1px solid var(--rovalra-container-background-color); }
+            .rovalra-breakdown-list li:last-child { border-bottom: none; }
+            .rovalra-breakdown-amount { flex: 1 1 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px; }
+            .rovalra-breakdown-count { flex-shrink: 0; width: 50px; text-align: center; color: var(--rovalra-secondary-text-color); }
+            .rovalra-breakdown-price { flex: 1 1 0; text-align: right; font-weight: 600; }
+        `;
+        const style = document.createElement('style');
+        style.id = styleId;
+        style.textContent = css;
+        document.head.appendChild(style);
     };
 
     const handleOverlayClose = () => {
@@ -206,7 +313,6 @@ function onElementFound(container) {
         } else {
             bodyContainer.classList.add('content-top'); 
             
-            // 3. UI Structure tailored for Earnings
             const statsGridHTML = `
                 <div class="rovalra-stats-grid">
                     <div class="rovalra-stat-item centered-content">
@@ -328,7 +434,6 @@ function onElementFound(container) {
                 state.userId = userData.id;
             }
 
-            // 4. API Logic: Iterate through Sale and GroupPayout
             const transactionTasks = [
                 { type: 'Sale', cursorKey: 'lastSaleCursor', category: 'Sale' },
                 { type: 'GroupPayout', cursorKey: 'lastPayoutCursor', category: 'GroupPayout' }
@@ -365,7 +470,6 @@ function onElementFound(container) {
                     } catch (error) {
                         if (error.status === 429 || error.message?.includes('429')) { 
                             if (!state.isRateLimited) { state.isRateLimited = true; updateOverlay(); }
-                            // Simple backoff
                             const waitUntil = Date.now() + (5 * 1000); 
                             while (Date.now() < waitUntil) {
                                 if (state.status !== CALCULATION_STATE.RUNNING) throw new PausedException("Paused.");
@@ -422,22 +526,19 @@ function onElementFound(container) {
         onClick: () => updateOverlay()
     });
     totalEarnedButton.classList.add('btn-growth-md');
-    // Add margin left so it sits nicely next to the "Total Spent" button if present
     totalEarnedButton.style.marginLeft = '10px';
     totalEarnedButton.style.marginTop = 'auto';
     totalEarnedButton.style.maxHeight = '36px';
 
-    // We rely on totalspent.js to inject CSS, or you can uncomment the function call above
-    // injectFeatureCss(); 
+    injectFeatureCss(); 
     
     container.appendChild(totalEarnedButton);
 }
 
 export function init() {
-    // You might want to add a new toggle in chrome storage for this, or reuse the existing one
-    chrome.storage.local.get('totalspentEnabled', (result) => {
-        if (result.totalspentEnabled) {
+    chrome.storage.local.get('totalearnedEnabled', (result) => {
+    if (result.totalearnedEnabled) {
             observeElement('.dropdown-container.container-header', onElementFound);
-        }
+      }
     });
 }
