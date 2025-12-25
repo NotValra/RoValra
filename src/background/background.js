@@ -82,7 +82,8 @@ function getDefaultSettings() {
         RegionFiltersEnabled: true,
         UptimeFiltersEnabled: true,
         VersionFiltersEnabled: true,
-        totalearnedEnabled: true
+        totalearnedEnabled: true,
+        EnableRobloxApiDocs: false
     };
 }
 
