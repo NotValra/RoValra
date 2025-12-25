@@ -244,7 +244,7 @@ function onElementFound(container) {
 
             .rovalra-description {
                 text-align: center;
-                color: var(--text-secondary);
+                color: var(--rovalra-secondary-text-color);
                 margin-bottom: 24px;
                 font-size: 16px;
             }
@@ -257,7 +257,7 @@ function onElementFound(container) {
                 margin-bottom: 16px; 
                 text-align: left; 
             }
-            .rovalra-stat-item { padding: 12px; border-radius: 6px; background: var(--bg-secondary); }
+            .rovalra-stat-item { padding: 12px; border-radius: 6px; background: var(--rovalra-container-background-color); }
             
 
             .rovalra-stat-item.centered-content { 
@@ -275,10 +275,10 @@ function onElementFound(container) {
             }
 
             .rovalra-stat-item.full-width { grid-column: 1 / -1; }
-            .rovalra-stat-label { font-size: 14px; color: var(--text-secondary); display: block; margin-bottom: 4px; }
-            .rovalra-stat-value { font-size: 18px; font-weight: 600; color: var(--text-primary); display: flex; align-items: center; }
+            .rovalra-stat-label { font-size: 14px; color: var(--rovalra-secondary-text-color); display: block; margin-bottom: 4px; }
+            .rovalra-stat-value { font-size: 18px; font-weight: 600; color: var(--rovalra-main-text-color); display: flex; align-items: center; }
             
-            .rovalra-divider { height: 1px; width: 100%; background-color: var(--color-stroke-muted); margin: 16px 0; }
+            .rovalra-divider { height: 1px; width: 100%; background-color: var(--rovalra-container-background-color); margin: 16px 0; }
             
             .rovalra-status-content { 
                 min-height: 60px; 
@@ -298,16 +298,16 @@ function onElementFound(container) {
             
             .rovalra-status-text { 
                 font-size: 14px; 
-                color: var(--text-secondary); 
+                color: var(--rovalra-secondary-text-color); 
             }
             .rovalra-rate-limit-text { 
-                color: var(--text-warning); 
+                color: var(--rovalra-main-text-color); 
             }
 
             .rovalra-breakdown-section { margin-top: 16px; text-align: left; }
             
             .rovalra-breakdown-list { 
-                border: 1px solid var(--color-stroke-muted); 
+                border: 1px solid var(--rovalra-container-background-color); 
                 border-radius: 6px; 
                 padding: 8px 12px; 
                 margin: 8px 0 0 0; 
@@ -319,11 +319,11 @@ function onElementFound(container) {
             
             .rovalra-breakdown-list::-webkit-scrollbar { width: 6px; }
             .rovalra-breakdown-list::-webkit-scrollbar-track { background: transparent; }
-            .rovalra-breakdown-list::-webkit-scrollbar-thumb { background-color: var(--bg-secondary); border-radius: 3px; }
-            .rovalra-breakdown-list li { display: flex; align-items: center; padding: 8px 4px; font-size: 14px; color: var(--text-primary); border-bottom: 1px solid var(--border-default); }
+            .rovalra-breakdown-list::-webkit-scrollbar-thumb { background-color: var(--rovalra-container-background-color); border-radius: 3px; }
+            .rovalra-breakdown-list li { display: flex; align-items: center; padding: 8px 4px; font-size: 14px; color: var(--rovalra-main-text-color); border-bottom: 1px solid var(--rovalra-container-background-color); }
             .rovalra-breakdown-list li:last-child { border-bottom: none; }
             .rovalra-breakdown-amount { flex: 1 1 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px; }
-            .rovalra-breakdown-count { flex-shrink: 0; width: 50px; text-align: center; color: var(--text-secondary); }
+            .rovalra-breakdown-count { flex-shrink: 0; width: 50px; text-align: center; color: var(--rovalra-secondary-text-color); }
             .rovalra-breakdown-price { flex: 1 1 0; text-align: right; font-weight: 600; }
         `;
         const style = document.createElement('style');
@@ -331,7 +331,6 @@ function onElementFound(container) {
         style.textContent = css;
         document.head.appendChild(style);
     };
-
     const handleOverlayClose = () => {
         if (isUIUpdate) return;
         if (state.status === CALCULATION_STATE.RUNNING) {

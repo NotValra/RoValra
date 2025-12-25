@@ -423,6 +423,12 @@ export const SETTINGS_CONFIG = {
                 type: "checkbox",
                 default: true
             },
+            totalearnedEnabled: {
+                label: "Total Earned",
+                description: ["This Calulates the amount of Robux you have earned through out the years via stuff like gamepasses, item sales etc."],
+                type: "checkbox",
+                default: true
+            },
             pendingrobuxtrans: {
 
                 label: "Unpending Robux Transactions",
