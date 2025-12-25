@@ -73,7 +73,7 @@ function getDefaultSettings() {
         EnableItemDependencies: true,
         EnablebannerTest: false,
         EnableVideoTest: false,
-        EnableGameTrailer: true,
+        EnableGameTrailer: false,
         Enableautoplay: true,
         alwaysShowDeveloperSettings: false,
         streamermode: false,
@@ -82,6 +82,7 @@ function getDefaultSettings() {
         RegionFiltersEnabled: true,
         UptimeFiltersEnabled: true,
         VersionFiltersEnabled: true,
+        totalearnedEnabled: true
     };
 }
 
