@@ -5,10 +5,10 @@ import { createButton } from '../../core/ui/buttons.js';
 import DOMPurify from 'dompurify';
 
 function onElementFound(container) {
-    const buttonIdentifier = 'rovalra-total-spent-btn';
+    
+    const buttonIdentifier = 'rovalra-total-earned-btn';
     if (container.querySelector(`.${buttonIdentifier}`)) return;
 
-    const ROBUX_TO_USD_RATE = 0.0125;
     const CALCULATION_STATE = {
         IDLE: 'IDLE',
         RUNNING: 'RUNNING',
@@ -16,23 +16,14 @@ function onElementFound(container) {
         DONE: 'DONE',
         ERROR: 'ERROR',
     };
-    const CALCULATION_TYPE = {
-        ROBUX_SPENT: 'ROBUX_SPENT',
-        MONEY_SPENT: 'MONEY_SPENT',
-    };
 
     let state = {
         status: CALCULATION_STATE.IDLE,
-        calculationType: null,
-        totalSpent: 0,
-        totalMoneySpent: 0,
-        currencyCode: 'USD',
+        totalEarned: 0, 
         transactionsProcessed: 0,
-        purchaseCounts: {}, 
-        stipendCounts: {},
-        itemTypeBreakdown: {}, 
-        lastPurchaseCursor: "",
-        lastStipendCursor: "",
+        sourceBreakdown: {}, 
+        lastSaleCursor: "",
+        lastPayoutCursor: "",
         userId: 0,
         errorMessage: "",
         isRateLimited: false,
@@ -67,8 +58,6 @@ function onElementFound(container) {
         queue: [],
         isAnimating: false,
         animationInterval: null,
-        robuxToPriceMap: new Map(),
-        premiumRobuxToProductMap: new Map(),
 
         addBatch(transactions) {
             this.queue.push(...transactions);
@@ -84,53 +73,27 @@ function onElementFound(container) {
             const transaction = this.queue.shift();
             state.transactionsProcessed++;
 
-            if (state.calculationType === CALCULATION_TYPE.ROBUX_SPENT) {
-                if (transaction.currency && transaction.currency.amount < 0) {
-                    const amount = Math.abs(transaction.currency.amount);
-                    state.totalSpent += amount;
-
-                    const type = transaction.details && transaction.details.type ? transaction.details.type : 'Other';
-                    
-                    if (!state.itemTypeBreakdown[type]) {
-                        state.itemTypeBreakdown[type] = { count: 0, robux: 0 };
-                    }
-                    state.itemTypeBreakdown[type].count++;
-                    state.itemTypeBreakdown[type].robux += amount;
-                }
-            } else if (transaction.category === 'Premium') {
+            if (transaction.currency && transaction.currency.amount > 0) {
                 const amount = transaction.currency.amount;
-                const product = this.premiumRobuxToProductMap.get(amount);
-                if (product) {
-                    state.totalMoneySpent += product.price;
-                    const amountKey = amount.toString();
-                    state.stipendCounts[amountKey] = (state.stipendCounts[amountKey] || 0) + 1;
-                }
-            } else if (transaction.category === 'Currency') {
-                const amount = transaction.currency.amount;
-                const amountKey = amount.toString();
-                state.purchaseCounts[amountKey] = (state.purchaseCounts[amountKey] || 0) + 1;
+                state.totalEarned += amount;
 
-                const price = this.getPriceForRobuxAmount(amount);
-                if (price) {
-                    state.totalMoneySpent += price;
+                let type = 'Other';
+                
+                if (transaction.category === 'GroupPayout') {
+                    type = 'Group Payout';
+                } else if (transaction.details && transaction.details.type) {
+                    type = transaction.details.type;
+                } else if (transaction.transactionType) {
+                    type = transaction.transactionType;
                 }
+                
+                if (!state.sourceBreakdown[type]) {
+                    state.sourceBreakdown[type] = { count: 0, robux: 0 };
+                }
+                state.sourceBreakdown[type].count++;
+                state.sourceBreakdown[type].robux += amount;
             }
             this.updateDOM();
-        },
-        getPriceForRobuxAmount(amount) {
-            let closestAmount = 0;
-            let smallestDiff = Infinity;
-            for (const robuxAmount of this.robuxToPriceMap.keys()) {
-                const diff = Math.abs(robuxAmount - amount);
-                if (diff < smallestDiff) {
-                    smallestDiff = diff;
-                    closestAmount = robuxAmount;
-                }
-            }
-            if (closestAmount > 0 && (smallestDiff / closestAmount) < 0.25) {
-                return this.robuxToPriceMap.get(closestAmount);
-            }
-            return null;
         },
         stop() {
             clearInterval(this.animationInterval);
@@ -146,26 +109,21 @@ function onElementFound(container) {
         updateDOM() {
             const transEl = document.getElementById('rovalra-stat-transactions');
             const robuxEl = document.getElementById('rovalra-stat-robux');
-            const moneySpentEl = document.getElementById('rovalra-stat-money-spent');
-            const purchaseBreakdownEl = document.getElementById('rovalra-purchase-breakdown-container');
-            const premiumBreakdownEl = document.getElementById('rovalra-premium-breakdown-container');
-            const itemTypeBreakdownEl = document.getElementById('rovalra-itemtype-breakdown-container'); 
+            const breakdownEl = document.getElementById('rovalra-earnings-breakdown-container'); 
 
             const robuxIcon = `<span class="icon-robux-16x16" style="vertical-align: -3px;"></span>`;
             const formatRobux = (amount) => `${amount.toLocaleString()} ${robuxIcon}`;
-            const formatCurrency = (amount) => amount.toLocaleString(undefined, { style: 'currency', currency: state.currencyCode });
 
             if (transEl) transEl.textContent = state.transactionsProcessed.toLocaleString();
-            if (robuxEl) robuxEl.innerHTML = DOMPurify.sanitize(formatRobux(state.totalSpent));
-            if (moneySpentEl) moneySpentEl.textContent = state.totalMoneySpent.toLocaleString(undefined, { style: 'currency', currency: state.currencyCode });
+            if (robuxEl) robuxEl.innerHTML = DOMPurify.sanitize(formatRobux(state.totalEarned));
             
-            if (itemTypeBreakdownEl) {
-                const sortedTypes = Object.keys(state.itemTypeBreakdown).sort((a, b) => 
-                    state.itemTypeBreakdown[b].robux - state.itemTypeBreakdown[a].robux
+            if (breakdownEl) {
+                const sortedTypes = Object.keys(state.sourceBreakdown).sort((a, b) => 
+                    state.sourceBreakdown[b].robux - state.sourceBreakdown[a].robux
                 );
                 
                 const itemsHTML = sortedTypes.map(type => {
-                    const data = state.itemTypeBreakdown[type];
+                    const data = state.sourceBreakdown[type];
                     const displayName = type.replace(/([A-Z])/g, ' $1').trim(); 
                     
                     return `<li>
@@ -176,42 +134,14 @@ function onElementFound(container) {
                 }).join('');
                 
                 if (itemsHTML) {
-                    itemTypeBreakdownEl.innerHTML = DOMPurify.sanitize(`<ul class="rovalra-breakdown-list">${itemsHTML}</ul>`);
+                    breakdownEl.innerHTML = DOMPurify.sanitize(`<ul class="rovalra-breakdown-list">${itemsHTML}</ul>`);
                 } else {
-                    itemTypeBreakdownEl.innerHTML = DOMPurify.sanitize(`<div class="text-secondary text-caption-body" style="padding:8px;">No items found yet.</div>`);
+                    breakdownEl.innerHTML = DOMPurify.sanitize(`<div class="text-secondary text-caption-body" style="padding:8px;">No earnings found yet.</div>`);
                 }
-            }
-
-            if (purchaseBreakdownEl) {
-                const sorted = Object.keys(state.purchaseCounts).sort((a, b) => Number(b) - Number(a));
-                const itemsHTML = sorted.map(amountStr => {
-                    const amount = Number(amountStr), count = state.purchaseCounts[amountStr], price = this.getPriceForRobuxAmount(amount);
-                    const total = price ? formatCurrency(price * count) : 'N/A';
-                    return `<li>
-                                <span class="rovalra-breakdown-amount">${formatRobux(amount)} Pack</span>
-                                <span class="rovalra-breakdown-count">x${count}</span>
-                                <span class="rovalra-breakdown-price">${total}</span>
-                            </li>`;
-                }).join('');
-                purchaseBreakdownEl.innerHTML = DOMPurify.sanitize(`<ul class="rovalra-breakdown-list">${itemsHTML}</ul>`);
-            }
-            
-            if (premiumBreakdownEl) {
-                const sorted = Object.keys(state.stipendCounts).sort((a, b) => Number(b) - Number(a));
-                const itemsHTML = sorted.map(amountStr => {
-                    const amount = Number(amountStr), count = state.stipendCounts[amountStr], product = this.premiumRobuxToProductMap.get(amount);
-                    const total = product ? formatCurrency(product.price * count) : 'N/A';
-                    const name = product ? product.name : `${formatRobux(amount)} Stipend`;
-                    return `<li>
-                                <span class="rovalra-breakdown-amount">${name}</span>
-                                <span class="rovalra-breakdown-count">x${count}</span>
-                                <span class="rovalra-breakdown-price">${total}</span>
-                            </li>`;
-                }).join('');
-                premiumBreakdownEl.innerHTML = DOMPurify.sanitize(`<ul class="rovalra-breakdown-list">${itemsHTML}</ul>`);
             }
         }
     };
+
 
     const injectFeatureCss = () => {
         const styleId = 'rovalra-totalspent-style';
@@ -331,6 +261,7 @@ function onElementFound(container) {
         style.textContent = css;
         document.head.appendChild(style);
     };
+
     const handleOverlayClose = () => {
         if (isUIUpdate) return;
         if (state.status === CALCULATION_STATE.RUNNING) {
@@ -343,17 +274,15 @@ function onElementFound(container) {
         isUIUpdate = true;
         if (overlayInstance) overlayInstance.close();
 
-        const moneySpentValue = state.totalMoneySpent.toLocaleString(undefined, { style: 'currency', currency: state.currencyCode });
-        const robuxSpentValue = state.totalSpent.toLocaleString();
+        const robuxEarnedValue = state.totalEarned.toLocaleString();
         const transactionsValue = state.transactionsProcessed.toLocaleString();
 
         let header = "", mainContent = "", actions = [];
-
         const bodyContainer = document.createElement('div');
         bodyContainer.className = 'rovalra-overlay-body';
 
         if (state.status === CALCULATION_STATE.IDLE || state.status === CALCULATION_STATE.PAUSED) {
-            header = 'Calculate Spend';
+            header = 'Calculate Earnings';
             const desc = document.createElement('div');
             desc.className = 'rovalra-description';
             
@@ -366,10 +295,9 @@ function onElementFound(container) {
                 const newCalcButton = createButton('Start New Calculation', 'secondary', { onClick: () => { state.status = CALCULATION_STATE.IDLE; updateOverlay(); } });
                 btnStack.append(resumeButton, newCalcButton);
             } else { 
-                desc.textContent = "Select a mode to calculate your transaction history.";
-                const robuxButton = createButton('Calculate Robux Spent', 'primary', { onClick: () => startCalculation(CALCULATION_TYPE.ROBUX_SPENT) });
-                const moneyButton = createButton('Calculate Money Spent', 'primary', { onClick: () => startCalculation(CALCULATION_TYPE.MONEY_SPENT) });
-                btnStack.append(robuxButton, moneyButton);
+                desc.textContent = "Calculate your total Robux earned from Sales and Group Payouts.";
+                const robuxButton = createButton('Start Calculation', 'primary', { onClick: startCalculation });
+                btnStack.append(robuxButton);
             }
 
             bodyContainer.append(desc, btnStack);
@@ -385,58 +313,31 @@ function onElementFound(container) {
         } else {
             bodyContainer.classList.add('content-top'); 
             
-            let statsGridHTML = "", breakdownsHTML = "", statusContent = "";
-
-            if (state.calculationType === CALCULATION_TYPE.ROBUX_SPENT) {
-
-                statsGridHTML = `
-                    <div class="rovalra-stats-grid">
-                        <div class="rovalra-stat-item centered-content">
-                            <span class="rovalra-stat-label">Transactions Scanned</span>
-                            <span class="rovalra-stat-value" id="rovalra-stat-transactions">${transactionsValue}</span>
-                        </div>
-                        <div class="rovalra-stat-item centered-content">
-                            <span class="rovalra-stat-label">Total Robux Spent</span>
-                            <span class="rovalra-stat-value" id="rovalra-stat-robux">${robuxSpentValue} <span class="icon-robux-16x16" style="vertical-align: -3px;"></span></span>
-                        </div>
-                    </div>`;
-                
-                breakdownsHTML = `
-                    <div class="rovalra-breakdown-section">
-                        <span class="rovalra-stat-label">Item Type Breakdown</span>
-                        <div id="rovalra-itemtype-breakdown-container"></div>
+            const statsGridHTML = `
+                <div class="rovalra-stats-grid">
+                    <div class="rovalra-stat-item centered-content">
+                        <span class="rovalra-stat-label">Transactions Scanned</span>
+                        <span class="rovalra-stat-value" id="rovalra-stat-transactions">${transactionsValue}</span>
                     </div>
-                `;
+                    <div class="rovalra-stat-item centered-content">
+                        <span class="rovalra-stat-label">Total Robux Earned</span>
+                        <span class="rovalra-stat-value" id="rovalra-stat-robux">${robuxEarnedValue} <span class="icon-robux-16x16" style="vertical-align: -3px;"></span></span>
+                    </div>
+                </div>`;
+            
+            const breakdownsHTML = `
+                <div class="rovalra-breakdown-section">
+                    <span class="rovalra-stat-label">Earnings Source Breakdown</span>
+                    <div id="rovalra-earnings-breakdown-container"></div>
+                </div>
+            `;
 
-            } else { 
-                statsGridHTML = `
-                    <div class="rovalra-stats-grid">
-                        <div class="rovalra-stat-item">
-                            <span class="rovalra-stat-label">Transactions Scanned</span>
-                            <span class="rovalra-stat-value" id="rovalra-stat-transactions">${transactionsValue}</span>
-                        </div>
-                        <div class="rovalra-stat-item">
-                            <span class="rovalra-stat-label">Total Spent (Approx.)</span>
-                            <span class="rovalra-stat-value" id="rovalra-stat-money-spent">${moneySpentValue}</span>
-                        </div>
-                    </div>`;
-                breakdownsHTML = `
-                    <div class="rovalra-breakdown-section">
-                        <span class="rovalra-stat-label">Premium Subscription Breakdown</span>
-                        <div id="rovalra-premium-breakdown-container"></div>
-                    </div>
-                    <div class="rovalra-breakdown-section">
-                        <span class="rovalra-stat-label">Robux Purchase Breakdown</span>
-                        <div id="rovalra-purchase-breakdown-container"></div>
-                    </div>
-                `;
-            }
+            let statusContent = "";
 
             switch (state.status) {
                 case CALCULATION_STATE.RUNNING:
-                    header = 'Calculating';
-                    
-                    let statusText = "Calculating...";
+                    header = 'Calculating Earnings';
+                    let statusText = "Scanning transaction history...";
                     let statusClass = "rovalra-status-text";
                     
                     if (state.isRateLimited) {
@@ -449,21 +350,17 @@ function onElementFound(container) {
                             <span class="${statusClass}">${statusText}</span>
                             <span class="spinner spinner-default"></span>
                         </div>`;
-                    
                     actions = [];
                     break;
 
                 case CALCULATION_STATE.DONE:
                     header = 'Calculation Complete';
-                    const doneText = `<p class="text-body">All relevant transactions have been scanned.</p><p class="text-caption-body text-secondary" style="margin-bottom: 16px;"></p>`;
+                    const doneText = `<p class="text-body">All earning records have been scanned.</p>`;
                     const newCalcBtn = createButton('New Calculation', 'primary', { onClick: () => { state.status = CALCULATION_STATE.IDLE; updateOverlay(); } });
-                    
                     const btnWrapper = document.createElement('div');
                     btnWrapper.className = 'rovalra-action-stack';
                     btnWrapper.appendChild(newCalcBtn);
-
                     statusContent = doneText + btnWrapper.outerHTML; 
-                    
                     actions = [];
                     break;
 
@@ -471,13 +368,11 @@ function onElementFound(container) {
                     header = 'An Error Occurred';
                     statusContent = `<p class="text-error">${state.errorMessage}</p>`;
                     actions = [
-                        createButton('Retry', 'primary', { onClick: resetAndRunCalculation }),
+                        createButton('Retry', 'primary', { onClick: runCalculation }),
                     ];
                     break;
             }
 
-
-            
             bodyContainer.innerHTML = DOMPurify.sanitize(`
                 ${statsGridHTML}
                 ${breakdownsHTML}
@@ -506,36 +401,28 @@ function onElementFound(container) {
         }
         
         animationController.updateDOM();
-        
-        setTimeout(() => {
-            isUIUpdate = false;
-        }, 50);
+        setTimeout(() => { isUIUpdate = false; }, 50);
     };
 
     const pauseCalculation = (silent = false) => {
         if (state.status === CALCULATION_STATE.RUNNING) {
             state.status = CALCULATION_STATE.PAUSED;
             stopOverlayMonitor(); 
-            if (!silent) {
-                updateOverlay();
-            }
+            if (!silent) updateOverlay();
         }
     };
 
     const runCalculation = async () => {
-        if (!overlayInstance) {
-            updateOverlay();
-        }
+        if (!overlayInstance) updateOverlay();
         state.status = CALCULATION_STATE.RUNNING;
         updateOverlay();
         startOverlayMonitor();
         
-        totalSpentButton.style.pointerEvents = 'none';
+        totalEarnedButton.style.pointerEvents = 'none';
 
         class PausedException extends Error {
             constructor(message) { super(message); this.name = "PausedException"; }
         }
-        const MAX_RETRIES = 3;
 
         try {
             if (!state.userId) {
@@ -546,37 +433,17 @@ function onElementFound(container) {
                 if (!userData.id) throw new Error("Could not retrieve user ID.");
                 state.userId = userData.id;
             }
-            
-            if (state.calculationType === CALCULATION_TYPE.MONEY_SPENT && animationController.robuxToPriceMap.size === 0) {
-                const productsData = await callRobloxApiJson({
-                    subdomain: 'premiumfeatures',
-                    endpoint: '/v1/products?skipPremiumUserCheck=true'
-                });
-                productsData.products.forEach(p => {
-                     if (p.premiumFeatureTypeName === 'Subscription') {
-                        animationController.premiumRobuxToProductMap.set(p.robuxAmount, { price: p.price.amount, name: p.defaultDisplayName });
-                    } else { 
-                        animationController.robuxToPriceMap.set(p.robuxAmount, p.price.amount);
-                    }
-                });
-                state.currencyCode = productsData.products[0]?.price.currency.currencyCode || 'USD';
-                if (!animationController.robuxToPriceMap.has(80)) animationController.robuxToPriceMap.set(80, 0.99);
-            }
 
-            const transactionTasks = state.calculationType === CALCULATION_TYPE.ROBUX_SPENT ?
-                [{ type: 'Purchase', cursorKey: 'lastPurchaseCursor', category: 'Currency' }] :
-                [
-                    { type: 'PremiumStipend', cursorKey: 'lastStipendCursor', category: 'Premium' },
-                    { type: 'CurrencyPurchase', cursorKey: 'lastPurchaseCursor', category: 'Currency' }
-                ];
+            const transactionTasks = [
+                { type: 'Sale', cursorKey: 'lastSaleCursor', category: 'Sale' },
+                { type: 'GroupPayout', cursorKey: 'lastPayoutCursor', category: 'GroupPayout' }
+            ];
             
             for (const task of transactionTasks) {
                 let hasNextPage = true;
                 while (hasNextPage && state.status === CALCULATION_STATE.RUNNING) {
                     
-                    if (!document.getElementById('rovalra-stat-transactions')) {
-                         throw new PausedException("Overlay closed by user.");
-                    }
+                    if (!document.getElementById('rovalra-stat-transactions')) throw new PausedException("Overlay closed.");
 
                     await animationController.waitUntilIdle();
                     const cursor = state[task.cursorKey];
@@ -588,7 +455,6 @@ function onElementFound(container) {
                         });
 
                         state.retryCount = 0; 
-
                         if (state.isRateLimited) { state.isRateLimited = false; updateOverlay(); }
                         
                         if (data.data && data.data.length > 0) {
@@ -606,23 +472,14 @@ function onElementFound(container) {
                             if (!state.isRateLimited) { state.isRateLimited = true; updateOverlay(); }
                             const waitUntil = Date.now() + (5 * 1000); 
                             while (Date.now() < waitUntil) {
-                                if (state.status !== CALCULATION_STATE.RUNNING) throw new PausedException("Paused during rate-limit wait.");
+                                if (state.status !== CALCULATION_STATE.RUNNING) throw new PausedException("Paused.");
                                 await new Promise(resolve => setTimeout(resolve, 250));
-                            }
-                            if (state.isRateLimited) { 
-                                state.isRateLimited = false; updateOverlay(); 
                             }
                             continue;
                         } else { 
                             state.retryCount++;
-                            if (state.retryCount > 5) {
-                                throw new Error(`Failed after multiple retries. Last error: ${error.message || 'Unknown'}`);
-                            }
-                            const waitUntil = Date.now() + 1000;
-                            while (Date.now() < waitUntil) {
-                                if (state.status !== CALCULATION_STATE.RUNNING) throw new PausedException("Paused during retry wait.");
-                                await new Promise(resolve => setTimeout(resolve, 250));
-                            }
+                            if (state.retryCount > 5) throw new Error(`Failed after retries: ${error.message}`);
+                            await new Promise(resolve => setTimeout(resolve, 1000));
                             continue; 
                         }
                     }
@@ -634,62 +491,54 @@ function onElementFound(container) {
         } catch (error) {
             stopOverlayMonitor(); 
             if (error instanceof PausedException) {
-                console.log(`RoValra: ${error.message}`);
                 await animationController.waitUntilIdle();
             } else {
-                console.error('RoValra: An error occurred during calculation:', error);
+                console.error('RoValra Earned: Error:', error);
                 state.status = CALCULATION_STATE.ERROR;
                 state.errorMessage = error.message;
                 updateOverlay();
             }
         } finally {
-            totalSpentButton.style.pointerEvents = 'auto';
+            totalEarnedButton.style.pointerEvents = 'auto';
             state.isRateLimited = false;
             stopOverlayMonitor();
             if (overlayInstance && state.status !== CALCULATION_STATE.PAUSED) updateOverlay();
         }
     };
     
-    const startCalculation = (type) => {
+    const startCalculation = () => {
         state = {
             ...state,
             status: CALCULATION_STATE.IDLE,
-            calculationType: type,
-            totalSpent: 0,
-            totalMoneySpent: 0,
+            totalEarned: 0,
             transactionsProcessed: 0,
-            purchaseCounts: {},
-            stipendCounts: {},
-            itemTypeBreakdown: {}, 
-            lastPurchaseCursor: "",
-            lastStipendCursor: "",
+            sourceBreakdown: {},
+            lastSaleCursor: "",
+            lastPayoutCursor: "",
             errorMessage: "",
             retryCount: 0,
         };
         runCalculation();
     };
-    
-    const resetAndRunCalculation = () => {
-        startCalculation(state.calculationType);
-    };
 
-    const totalSpentButton = createButton('Calculate Spend', 'secondary', {
+    const totalEarnedButton = createButton('Calculate Earned', 'secondary', {
         id: buttonIdentifier,
         onClick: () => updateOverlay()
     });
-    totalSpentButton.classList.add('btn-growth-md');
-    totalSpentButton.style.marginLeft = '10px';
-    totalSpentButton.style.marginTop = 'auto';
-    totalSpentButton.style.maxHeight = '36px';
+    totalEarnedButton.classList.add('btn-growth-md');
+    totalEarnedButton.style.marginLeft = '10px';
+    totalEarnedButton.style.marginTop = 'auto';
+    totalEarnedButton.style.maxHeight = '36px';
 
-    injectFeatureCss();
-    container.appendChild(totalSpentButton);
+    injectFeatureCss(); 
+    
+    container.appendChild(totalEarnedButton);
 }
 
 export function init() {
-    chrome.storage.local.get('totalspentEnabled', (result) => {
-        if (result.totalspentEnabled) {
+    chrome.storage.local.get('totalearnedEnabled', (result) => {
+    if (result.totalearnedEnabled) {
             observeElement('.dropdown-container.container-header', onElementFound);
-        }
+      }
     });
 }
