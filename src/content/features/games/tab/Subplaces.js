@@ -2,6 +2,7 @@ import { fetchThumbnails as fetchThumbnailsBatch, createThumbnailElement } from 
 import { callRobloxApi } from '../../../core/api.js';
 import { observeElement } from '../../../core/observer.js';
 import { createStyledInput } from '../../../core/ui/catalog/input.js';
+import { getPlaceIdFromUrl } from '../../../core/idExtractor.js';
 import DOMPurify from 'dompurify';
 
 const PAGE_SIZE = 12;
@@ -9,11 +10,6 @@ const PAGE_SIZE = 12;
 export async function init() {
   chrome.storage.local.get(['subplacesEnabled'], async (result) => {
     if (result.subplacesEnabled) {
-        const extractPlaceId = () => {
-            const match = window.location.href.match(/games\/(\d+)/);
-            return match ? match[1] : null;
-        };
-
         const fetchUniverseId = async (placeId) => {
             try {
                 const response = await callRobloxApi({
@@ -353,7 +349,7 @@ export async function init() {
             }
             tabContainer.dataset.rovalraSubplacesInitialized = 'true';
 
-            const placeId = extractPlaceId();
+            const placeId = getPlaceIdFromUrl();
             if (!placeId) {
                 return;
             }

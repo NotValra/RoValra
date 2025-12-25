@@ -117,8 +117,10 @@ const featureRoutes = [
 
 function runFeaturesForPage() {
   const path = window.location.pathname;
+  const normalizedPath = path.replace(/^\/[a-z]{2}(?:-[a-z]{2})?\//, '/');
+
   featureRoutes.forEach((route) => {
-    if (route.paths.some((p) => p === '*' || path.startsWith(p))) {
+    if (route.paths.some((p) => p === '*' || path.startsWith(p) || normalizedPath.startsWith(p))) {
       if (route.features && Array.isArray(route.features)) {
         route.features.forEach((init) => init());
       }

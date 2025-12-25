@@ -55,7 +55,6 @@
   }
   },
   "optional_permissions": [
-    "tabs",
     "webNavigation"
 
   ],
