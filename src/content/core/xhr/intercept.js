@@ -12,6 +12,16 @@
     const GAME_SERVERS_API_URL = 'https://games.roblox.com/v1/games/';
     const GAMES_ROBLOX_API = 'https://games.roblox.com/'; 
 
+    function dispatchCaptureEvent(url, method, body) {
+        if (typeof url !== 'string') return;
+        if (url.match(/\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|mp3|ogg|wav|webm|mp4|json)$/i) && !url.includes('apis.roblox.com') && !url.includes('games.roblox.com')) return;
+        if (!url.includes('roblox.com') && !url.includes('rovalra.com')) return;
+        
+        document.dispatchEvent(new CustomEvent('rovalra-traffic-capture', {
+            detail: { url, method: method || 'GET', body }
+        }));
+    }
+
     let streamerModeEnabled = false;
     let settingsPageInfoEnabled = true;
 
@@ -32,6 +42,12 @@
     const originalFetch = window.fetch;
     window.fetch = async function(...args) {
         const [url, config] = args;
+
+        try {
+            const method = config?.method || 'GET';
+            dispatchCaptureEvent(url, method, config?.body);
+        } catch (e) {}
+
         let response = await originalFetch(...args);
         
         if (streamerModeEnabled && settingsPageInfoEnabled && typeof url === 'string' && (url.includes('/my/settings/json') || url.includes('accountinformation.roblox.com/v1/phone') || url.includes('users.roblox.com/v1/birthdate') || url.includes('apis.roblox.com/age-verification-service/v1/age-verification/verified-age') || url.includes('accountsettings.roblox.com/v1/account/settings/account-country') || url.includes('apis.roblox.com/user-settings-api/v1/account-insights/age-group') || url.includes('apis.roblox.com/token-metadata-service/v1/sessions'))) {
@@ -133,8 +149,11 @@
     const originalXhrOpen = XMLHttpRequest.prototype.open;
     const originalXhrSend = XMLHttpRequest.prototype.send;
 
+    const originalOpen = XMLHttpRequest.prototype.open;
+    
     XMLHttpRequest.prototype.open = function(method, url, ...rest) {
         this._rovalra_url = url; 
+        this._rovalra_method = method;
         
         if (streamerModeEnabled && typeof url === 'string') {
             if (settingsPageInfoEnabled) {
@@ -167,6 +186,10 @@
 
     XMLHttpRequest.prototype.send = function(...args) {
         const xhr = this;
+
+        try {
+            dispatchCaptureEvent(xhr._rovalra_url, 'GET', args[0]); 
+        } catch (e) {}
 
         if (xhr._rovalra_spoof_settings || xhr._rovalra_spoof_phone || xhr._rovalra_spoof_birthdate || xhr._rovalra_spoof_age || xhr._rovalra_spoof_country || xhr._rovalra_spoof_age_group || xhr._rovalra_spoof_sessions) {
             Object.defineProperty(xhr, 'responseText', {

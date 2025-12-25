@@ -5,6 +5,96 @@ import { getCsrfToken } from './utils.js';
 import { updateUserLocationIfChanged } from './utils/location.js';
 const activeRequests = new Map();
 
+const CAPTURED_APIS_KEY = 'rovalra_captured_apis';
+const seenRequests = new Map();
+
+document.addEventListener('rovalra-traffic-capture', (e) => {
+    const { url, method, body } = e.detail;
+    try {
+        const urlObj = new URL(url);
+        const hostname = urlObj.hostname;
+        const pathname = urlObj.pathname + urlObj.search;
+        
+        let subdomain = 'apis';
+        let isRovalraApi = false;
+
+        if (hostname.endsWith('.roblox.com')) {
+            subdomain = hostname.replace('.roblox.com', '');
+        } else if (hostname.includes('rovalra.com')) {
+            isRovalraApi = true;
+            subdomain = 'apis'; 
+        } else {
+            
+            return;
+        }
+
+        captureApiCall({
+            subdomain,
+            endpoint: pathname,
+            method,
+            isRovalraApi,
+            body
+        });
+    } catch (err) {}
+});
+
+function captureApiCall(options) {
+    try {
+        const { subdomain = 'apis', endpoint, method = 'GET', isRovalraApi = false, body = null } = options;
+        if (!endpoint) return;
+        
+        const [baseEndpoint] = endpoint.split('?');
+        const category = isRovalraApi ? 'rovalra.com' : (subdomain || 'apis');
+        const methodUpper = method.toUpperCase();
+        const key = `${category}|${baseEndpoint}|${methodUpper}`;
+        const hasParams = endpoint.includes('?');
+        
+        if (seenRequests.has(key)) {
+            const seenWithParams = seenRequests.get(key);
+            if (seenWithParams || !hasParams) return;
+        }
+        seenRequests.set(key, hasParams || seenRequests.get(key) || false);
+
+        chrome.storage.local.get([CAPTURED_APIS_KEY, 'EnableRobloxApiDocs'], (result) => {
+            if (!result.EnableRobloxApiDocs) return;
+
+            const data = result[CAPTURED_APIS_KEY] || {};
+            let changed = false;
+
+            if (!data[category]) {
+                data[category] = {};
+                changed = true;
+            }
+            
+            if (!data[category][baseEndpoint]) {
+                data[category][baseEndpoint] = {};
+                changed = true;
+            }
+
+            if (!data[category][baseEndpoint][methodUpper]) {
+                data[category][baseEndpoint][methodUpper] = {
+                    exampleBody: body,
+                    exampleEndpoint: endpoint
+                };
+                changed = true;
+            } else {
+                const currentDetails = data[category][baseEndpoint][methodUpper];
+                if (hasParams && (!currentDetails.exampleEndpoint || !currentDetails.exampleEndpoint.includes('?'))) {
+                    currentDetails.exampleEndpoint = endpoint;
+                    changed = true;
+                }
+                if (body && !currentDetails.exampleBody) {
+                    currentDetails.exampleBody = body;
+                    changed = true;
+                }
+            }
+
+            if (changed) {
+                chrome.storage.local.set({ [CAPTURED_APIS_KEY]: data });
+            }
+        });
+    } catch (e) {}
+}
 
 function getRequestKey({ endpoint, subdomain = 'apis', method = 'GET', isRovalraApi = false, body = null }) {
     const bodyStr = body && typeof body === 'object' ? JSON.stringify(body) : (body || '');
@@ -26,6 +116,7 @@ function checkSimulatedDowntime() {
 
 
 export async function callRobloxApi(options) {
+    captureApiCall(options);
     const requestKey = getRequestKey(options);
 
 

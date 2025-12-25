@@ -359,7 +359,16 @@ function addDeveloperTab({ menuList, loadTabContent, renderMobileDropdown }) {
                 type: "checkbox",
                 default: false
                     
-                },
+            },
+            EnableRobloxApiDocs: {
+                label: "Roblox API docs",
+                description: ["This adds documentation for Roblox apis on https://www.roblox.com/docs",
+                    "All the apis are captured when you browse the site.",
+                    "This stores all the APIs in storage."
+                ],
+                type: "checkbox",
+                default: false
+            },
             EnablebannerTest: {
                 label: ["Banner test"],
                 description: ["This adds a test banner to experiences"],
