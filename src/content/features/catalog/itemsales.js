@@ -1,4 +1,4 @@
-import { getAssets } from '../../core/assets.js';
+import { callRobloxApiJson } from '../../core/api.js';
 import { observeElement } from '../../core/observer.js';
 import { addTooltip } from '../../core/ui/tooltip.js';
 import DOMPurify from 'dompurify';
@@ -21,14 +21,14 @@ export function init() {
         
         const itemId = parseInt(match[1], 10);
         currentActiveItemId = itemId;
-        const assets = getAssets();
 
         if (!cachedItemsData) {
             try {
-                const response = await fetch(assets.itemsJson);
-                if (response.ok) {
-                    cachedItemsData = await response.json();
-                }
+                cachedItemsData = await callRobloxApiJson({
+                    isRovalraApi: true,
+                    subdomain: 'www',
+                    endpoint: '/static/json/items.json'
+                });
             } catch (e) {
                 console.error("RoValra: Failed to load items.json", e);
                 return;

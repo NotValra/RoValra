@@ -32,7 +32,8 @@ import { init as initSubplaces } from './features/games/tab/Subplaces.js';
 import { initServerIdExtraction } from './core/games/servers/serverids.js';
 import { init as initGameTrailers } from './features/games/thumbnails/gametrailers.js';
 import { init as initGameBanner } from './core/ui/games/banner.js';
-import { init as bannertest } from './features/games/banner.js'
+import { init as bannertest } from './features/games/banner.js';
+import { init as quickOutfits } from './features/games/actions/quickOutfits.js';
 // transactions
 import { init as initTotalSpent } from './features/transactions/totalspent.js';
 import { init as initPendingRobuxTrans } from './features/transactions/pendingRobuxTrans.js';
@@ -89,7 +90,8 @@ const featureRoutes = [
       initRegionPlayButton,
       initSubplaces,
       bannertest,
-      initGameTrailers
+      initGameTrailers,
+      quickOutfits
     ],
   },
   // avatar
