@@ -584,6 +584,13 @@ export const SETTINGS_CONFIG = {
     FunStuff: {
         title: "Fun Stuff",
         settings: {
+            yappDollarEnabled: {
+                label: "Yap Dollar",
+                description: ["Changes the robux icon into a Yap Dollar",
+                    "It adds a Yap Dollar nothing else to say"],
+                type: "checkbox",
+                default: true
+            },
             bandurationsEnabled: {
                 label: "All possible ban durations",
 
