@@ -589,7 +589,7 @@ export const SETTINGS_CONFIG = {
                 description: ["Changes the robux icon into a Yap Dollar",
                     "It adds a Yap Dollar nothing else to say"],
                 type: "checkbox",
-                default: true
+                default: false
             },
             bandurationsEnabled: {
                 label: "All possible ban durations",
