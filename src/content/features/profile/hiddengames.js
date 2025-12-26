@@ -210,7 +210,7 @@ const UI = {
         const createFilterSection = (label, element) => {
             const div = document.createElement('div');
             div.style.cssText = 'display: flex; flex-direction: column; gap: 4px;';
-            div.innerHTML = DOMPurify.sanitize(`<label style="font-size: 12px; font-weight: 500; color: var(--rovalra-overlay-text-secondary);">${label}</label>`);
+            div.innerHTML = DOMPurify.sanitize(`<label style="font-size: 12px; font-weight: 500; color: var(--rovalra-secondary-text-color);">${label}</label>`);
             div.appendChild(element);
             return div;
         };

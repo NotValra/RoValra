@@ -169,7 +169,7 @@ class HiddenGamesManager {
             },
         });
 
-        const createFilterGroup = (label, input) => el("div", "", { style: { display: "flex", flexDirection: "column", gap: "4px" } }, [el("label", "", { textContent: label, style: { fontSize: "12px", fontWeight: "500", color: "var(--rovalra-overlay-text-secondary)" } }), input]);
+        const createFilterGroup = (label, input) => el("div", "", { style: { display: "flex", flexDirection: "column", gap: "4px" } }, [el("label", "", { textContent: label, style: { fontSize: "12px", fontWeight: "500", color: "var(--rovalra-secondary-text-color)" } }), input]);
 
         const body = el("div", "", { style: { display: "flex", flexDirection: "column", minHeight: "0" } }, [
             el(
