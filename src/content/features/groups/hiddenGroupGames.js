@@ -223,21 +223,22 @@ class HiddenGamesManager {
             await api.getGameDetails(this.allGames, this.cache.likes, this.cache.players);
         }
 
+        const orderMultiplier = order === 'desc' ? -1 : 1;
         let processed = [...this.allGames];
         if (sort === "like-ratio") {
-            processed.sort((a, b) => (this.cache.likes.get(b.id)?.ratio || 0) - (this.cache.likes.get(a.id)?.ratio || 0));
+            processed.sort((a, b) => ((this.cache.likes.get(a.id)?.ratio || 0) - (this.cache.likes.get(b.id)?.ratio || 0)) * orderMultiplier);
         } else if (sort === "likes") {
-            processed.sort((a, b) => (this.cache.likes.get(b.id)?.upVotes || 0) - (this.cache.likes.get(a.id)?.upVotes || 0));
+            processed.sort((a, b) => ((this.cache.likes.get(a.id)?.upVotes || 0) - (this.cache.likes.get(b.id)?.upVotes || 0)) * orderMultiplier);
         } else if (sort === "dislikes") {
-            processed.sort((a, b) => (this.cache.likes.get(b.id)?.downVotes || 0) - (this.cache.likes.get(a.id)?.downVotes || 0));
+            processed.sort((a, b) => ((this.cache.likes.get(a.id)?.downVotes || 0) - (this.cache.likes.get(b.id)?.downVotes || 0)) * orderMultiplier);
         } else if (sort === "players") {
-            processed.sort((a, b) => (this.cache.players.get(b.id) || 0) - (this.cache.players.get(a.id) || 0));
+            processed.sort((a, b) => ((this.cache.players.get(a.id) || 0) - (this.cache.players.get(b.id) || 0)) * orderMultiplier);
         } else if (sort === "name") {
-            processed.sort((a, b) => a.name.localeCompare(b.name));
-        }
-
-        if ((order === "asc" && sort !== "name") || (order === "desc" && sort === "name")) {
-            processed.reverse();
+            processed.sort((a, b) => a.name.localeCompare(b.name) * orderMultiplier);
+        } else {
+            if (order === "asc") {
+                processed.reverse();
+            }
         }
 
         this.filteredGames = processed;
