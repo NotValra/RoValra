@@ -112,6 +112,10 @@ export const buttonData = [
                 <h2 style="margin-bottom: 10px; color: var(--rovalra-main-text-color) !important;">RoValra Credits!</h2>
                 <ul style="margin-top: 10px; padding-left: 0px; color: var(--rovalra-secondary-text-color);">
                     <li style="margin-bottom: 8px; list-style-type: disc; margin-left: 20px;">
+                        Thanks to <b style="font-weight: bold;">everyone who</b>
+                        <a href="https://github.com/NotValra/RoValra/graphs/contributors" target="_blank" class="rovalra-github-link">contributed</a>
+                    </li>
+                    <li style="margin-bottom: 8px; list-style-type: disc; margin-left: 20px;">
                         Thanks to <b style="font-weight: bold;">Frames</b> for somehow getting the Roblox sales and revenue on some items
                         <a href="https://github.com/workframes/roblox-owner-counts" target="_blank" class="rovalra-github-link">GitHub Repo</a>
                     </li>

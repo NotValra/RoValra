@@ -44,6 +44,8 @@
 </details>
 
 # Credits
+- **everyone who [contributed](https://github.com/NotValra/RoValra/graphs/contributors)**
+
 - **Sales / revenue thingy: https://github.com/workframes/roblox-owner-counts**
   
 - **Thanks to mmfw for making the pictures on the chrome web store and general help with UI design of the extension.**
