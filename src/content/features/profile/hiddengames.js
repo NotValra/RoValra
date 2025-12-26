@@ -157,7 +157,7 @@ const Api = {
             likeRes.data.forEach(item => {
                 const total = item.upVotes + item.downVotes;
                 const ratio = total > 0 ? Math.round((item.upVotes / total) * 100) : 0;
-                state.likes.set(item.id, { ratio, total });
+                state.likes.set(item.id, { ratio, total, upVotes: item.upVotes, downVotes: item.downVotes });
             });
         }
 
@@ -218,7 +218,9 @@ const UI = {
         const sortDropdown = createDropdown({
             items: [
                 { value: 'default', label: 'Recently Updated' },
-                { value: 'likes', label: 'Likes' },
+                { value: "like-ratio", label: "Like Ratio" },
+                { value: "likes", label: "Likes" },
+                { value: "dislikes", label: "Dislikes" },
                 { value: 'players', label: 'Players' },
                 { value: 'name', label: 'Name (Z-A)' }
             ],
@@ -337,7 +339,7 @@ class HiddenGamesManager {
         this.elements.list.appendChild(createShimmerGrid(12, { width: '150px', height: '240px' }));
         this.visibleCount = 0;
 
-        if (['likes', 'players'].includes(this.filters.sort)) {
+        if (['like-ratio', 'likes', 'dislikes', 'players'].includes(this.filters.sort)) {
             await Api.enrichGameData(this.allGames, this.cache);
         }
 
@@ -345,12 +347,16 @@ class HiddenGamesManager {
         const orderMultiplier = order === 'desc' ? -1 : 1;
         let sorted = [...this.allGames];
         
-        if (sort === 'likes') {
-            sorted.sort((a, b) => ((this.cache.likes.get(b.id)?.ratio || 0) - (this.cache.likes.get(a.id)?.ratio || 0)) * orderMultiplier);
+        if (sort === 'like-ratio') {
+            sorted.sort((a, b) => ((this.cache.likes.get(b.id)?.ratio || 0) - (this.cache.likes.get(a.id)?.ratio || 0)));
+        } else if (sort === "likes") {
+            sorted.sort((a, b) => (this.cache.likes.get(b.id)?.upVotes || 0) - (this.cache.likes.get(a.id)?.upVotes || 0));
+        } else if (sort === "dislikes") {
+            sorted.sort((a, b) => (this.cache.likes.get(b.id)?.downVotes || 0) - (this.cache.likes.get(a.id)?.downVotes || 0));
         } else if (sort === 'players') {
-            sorted.sort((a, b) => ((this.cache.players.get(b.id) || 0) - (this.cache.players.get(a.id) || 0)) * orderMultiplier);
+            sorted.sort((a, b) => ((this.cache.players.get(b.id) || 0) - (this.cache.players.get(a.id) || 0)));
         } else if (sort === 'name') {
-            sorted.sort((a, b) => a.name.localeCompare(b.name) * (order === 'asc' ? 1 : -1));
+            sorted.sort((a, b) => a.name.localeCompare(b.name) * (orderMultiplier));
         } else { 
             if (order === 'asc') {
                 sorted.reverse();
