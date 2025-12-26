@@ -10,7 +10,7 @@ function applyYappDollar(enabled) {
             const style = document.createElement("style");
             style.id = 'rovalra-yapp-dollar-style';
             style.textContent = `
-                /* This targets almost all instances of the Robux icon on the site */
+                /* it says hi to you */
                 .icon-robux-28x28, 
                 .icon-robux-gray-16x16, 
                 .icon-robux-white-16x16, 
