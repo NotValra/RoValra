@@ -1,11 +1,11 @@
-import { observeElement } from '../../core/observer.js';
-import { createOverlay } from '../../core/ui/overlay.js';
-import { createButton } from '../../core/ui/buttons.js';
-import { createDropdown } from '../../core/ui/dropdown.js';
-import { createShimmerGrid } from '../../core/ui/shimmer.js';
-import { fetchThumbnails as fetchThumbnailsBatch, createThumbnailElement } from '../../core/thumbnail/thumbnails.js';
-import { callRobloxApiJson } from '../../core/api.js';
-import DOMPurify from 'dompurify';
+import { observeElement } from "../../core/observer.js";
+import { createOverlay } from "../../core/ui/overlay.js";
+import { createButton } from "../../core/ui/buttons.js";
+import { createDropdown } from "../../core/ui/dropdown.js";
+import { createShimmerGrid } from "../../core/ui/shimmer.js";
+import { fetchThumbnails as fetchThumbnailsBatch, createThumbnailElement } from "../../core/thumbnail/thumbnails.js";
+import { callRobloxApiJson } from "../../core/api.js";
+import DOMPurify from "dompurify";
 
 const PAGE_SIZE = 50;
 const ACCESS_FILTER = { ALL: 1, PUBLIC: 2 };
@@ -15,11 +15,11 @@ const el = (tag, className, props = {}, children = []) => {
     if (className) element.className = className;
     Object.assign(element, props);
     Object.assign(element.style, props.style || {});
-    children.forEach(child => child && element.append(child));
+    children.forEach((child) => child && element.append(child));
     return element;
 };
 
-const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 const api = {
     async safeGet(endpoint) {
@@ -29,9 +29,9 @@ const api = {
         for (let i = 0; i <= retries; i++) {
             try {
                 return await callRobloxApiJson({
-                    subdomain: 'games',
+                    subdomain: "games",
                     endpoint: endpoint,
-                    method: 'GET'
+                    method: "GET",
                 });
             } catch (err) {
                 if (err.status === 429 && i < retries) {
@@ -49,57 +49,54 @@ const api = {
 
     async getGroupGames(groupId, accessFilter) {
         let games = [];
-        let cursor = '';
-        
+        let cursor = "";
+
         do {
             const endpoint = `/v2/groups/${groupId}/gamesV2?accessFilter=${accessFilter}&limit=50&sortOrder=Desc&cursor=${cursor}`;
             const json = await this.safeGet(endpoint);
-            
+
             if (json?.data) {
                 games = games.concat(json.data);
-                cursor = json.nextPageCursor || '';
+                cursor = json.nextPageCursor || "";
             } else {
-                cursor = '';
+                cursor = "";
             }
         } while (cursor);
-        
+
         return games;
     },
 
     async getGameDetails(games, likeMap, playerMap) {
-        const batch = games.filter(g => g && !likeMap.has(g.id));
+        const batch = games.filter((g) => g && !likeMap.has(g.id));
         if (!batch.length) return;
 
         for (let i = 0; i < batch.length; i += 50) {
             const chunk = batch.slice(i, i + 50);
-            const universeIds = chunk.map(g => g.id).join(',');
+            const universeIds = chunk.map((g) => g.id).join(",");
             if (!universeIds) continue;
 
-            const [votesData, playersData] = await Promise.all([
-                this.safeGet(`/v1/games/votes?universeIds=${universeIds}`),
-                this.safeGet(`/v1/games?universeIds=${universeIds}`)
-            ]);
+            const [votesData, playersData] = await Promise.all([this.safeGet(`/v1/games/votes?universeIds=${universeIds}`), this.safeGet(`/v1/games?universeIds=${universeIds}`)]);
 
             if (votesData?.data) {
-                votesData.data.forEach(item => {
+                votesData.data.forEach((item) => {
                     const total = item.upVotes + item.downVotes;
                     const ratio = total > 0 ? Math.round((item.upVotes / total) * 100) : 0;
-                    likeMap.set(item.id, { ratio, total });
+                    likeMap.set(item.id, { ratio, total, upVotes: item.upVotes, downVotes: item.downVotes });
                 });
             }
 
             if (playersData?.data) {
-                playersData.data.forEach(item => playerMap.set(item.id, item.playing || 0));
+                playersData.data.forEach((item) => playerMap.set(item.id, item.playing || 0));
             }
         }
     },
 
     async getThumbnails(games, cache) {
-        const uncached = games.filter(g => g && !cache.has(g.id));
+        const uncached = games.filter((g) => g && !cache.has(g.id));
         if (!uncached.length) return;
-        const results = await fetchThumbnailsBatch(uncached, 'GameIcon', '256x256');
+        const results = await fetchThumbnailsBatch(uncached, "GameIcon", "256x256");
         results.forEach((data, id) => cache.set(id, data));
-    }
+    },
 };
 
 const createGameCard = (game, likeMap, playerMap, thumbnailCache) => {
@@ -107,27 +104,26 @@ const createGameCard = (game, likeMap, playerMap, thumbnailCache) => {
     const votes = likeMap.get(game.id) || { ratio: 0, total: 0 };
     const players = playerMap.get(game.id) || 0;
 
-    const thumbnail = createThumbnailElement(thumbData, game.name, 'game-card-thumb');
-    
+    const thumbnail = createThumbnailElement(thumbData, game.name, "game-card-thumb");
+
     const infoContent = `
         <span class="info-label icon-votes-gray"></span>
-        <span class="info-label vote-percentage-label ${votes.total > 0 ? '' : 'hidden'}">${votes.ratio}%</span>
-        <span class="info-label no-vote ${votes.total === 0 ? '' : 'hidden'}"></span>
+        <span class="info-label vote-percentage-label ${votes.total > 0 ? "" : "hidden"}">${votes.ratio}%</span>
+        <span class="info-label no-vote ${votes.total === 0 ? "" : "hidden"}"></span>
         <span class="info-label icon-playing-counts-gray"></span>
         <span class="info-label playing-counts-label" title="${players.toLocaleString()}">${players.toLocaleString()}</span>
     `;
 
-    return el('div', 'game-card-container', { style: { justifySelf: 'center', width: '150px', height: '240px' } }, [
-        el('a', 'game-card-link', { 
-            href: `https://www.roblox.com/games/${game.rootPlace.id}`,
-            style: { display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'space-between' } 
-        }, [
-            el('div', null, {}, [
-                el('div', 'game-card-thumb-container', {}, [thumbnail]),
-                el('div', 'game-card-name game-name-title', { title: game.name, textContent: game.name })
-            ]),
-            el('div', 'game-card-info', { innerHTML: DOMPurify.sanitize(infoContent) })
-        ])
+    return el("div", "game-card-container", { style: { justifySelf: "center", width: "150px", height: "240px" } }, [
+        el(
+            "a",
+            "game-card-link",
+            {
+                href: `https://www.roblox.com/games/${game.rootPlace.id}`,
+                style: { display: "flex", flexDirection: "column", height: "100%", justifyContent: "space-between" },
+            },
+            [el("div", null, {}, [el("div", "game-card-thumb-container", {}, [thumbnail]), el("div", "game-card-name game-name-title", { title: game.name, textContent: game.name })]), el("div", "game-card-info", { innerHTML: DOMPurify.sanitize(infoContent) })]
+        ),
     ]);
 };
 
@@ -135,7 +131,7 @@ class HiddenGamesManager {
     constructor(allHiddenGames) {
         this.allGames = allHiddenGames;
         this.filteredGames = [];
-        this.filters = { sort: 'default', order: 'desc' };
+        this.filters = { sort: "default", order: "desc" };
         this.displayedCount = 0;
         this.isLoading = false;
         this.isPaginating = false;
@@ -147,45 +143,52 @@ class HiddenGamesManager {
     render() {
         const sortDropdown = createDropdown({
             items: [
-                { value: 'default', label: 'Recently Updated' },
-                { value: 'likes', label: 'Likes' },
-                { value: 'players', label: 'Players' },
-                { value: 'name', label: 'Name (Z-A)' }
+                { value: "default", label: "Recently Updated" },
+                { value: "like-ratio", label: "Like Ratio" },
+                { value: "likes", label: "Likes" },
+                { value: "dislikes", label: "Dislikes" },
+                { value: "players", label: "Players" },
+                { value: "name", label: "Name (Z-A)" },
             ],
-            initialValue: 'default',
-            onValueChange: (v) => { this.filters.sort = v; this.applyFilters(); }
+            initialValue: "default",
+            onValueChange: (v) => {
+                this.filters.sort = v;
+                this.applyFilters();
+            },
         });
 
         const orderDropdown = createDropdown({
             items: [
-                { value: 'desc', label: 'Descending' },
-                { value: 'asc', label: 'Ascending' }
+                { value: "desc", label: "Descending" },
+                { value: "asc", label: "Ascending" },
             ],
-            initialValue: 'desc',
-            onValueChange: (v) => { this.filters.order = v; this.applyFilters(); }
+            initialValue: "desc",
+            onValueChange: (v) => {
+                this.filters.order = v;
+                this.applyFilters();
+            },
         });
 
-        const createFilterGroup = (label, input) => el('div', '', { style: { display: 'flex', flexDirection: 'column', gap: '4px' } }, [
-            el('label', '', { textContent: label, style: { fontSize: '12px', fontWeight: '500', color: 'var(--rovalra-overlay-text-secondary)' } }),
-            input
+        const createFilterGroup = (label, input) => el("div", "", { style: { display: "flex", flexDirection: "column", gap: "4px" } }, [el("label", "", { textContent: label, style: { fontSize: "12px", fontWeight: "500", color: "var(--rovalra-overlay-text-secondary)" } }), input]);
+
+        const body = el("div", "", { style: { display: "flex", flexDirection: "column", minHeight: "0" } }, [
+            el(
+                "div",
+                "rovalra-filters-container",
+                {
+                    style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px 24px", padding: "16px 24px", flexShrink: 0, backgroundColor: "var(--surface-default)", borderBottom: "1px solid var(--border-default)" },
+                },
+                [createFilterGroup("Sort", sortDropdown.element), createFilterGroup("Order", orderDropdown.element)]
+            ),
+            el("div", "hidden-games-list", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: "10px", padding: "24px", overflowY: "auto", flexGrow: 1 } }),
+            el("div", "rovalra-load-more-container", { style: { padding: "10px 0", textAlign: "center", flexShrink: 0 } }),
         ]);
 
-        const body = el('div', '', { style: { display: 'flex', flexDirection: 'column', minHeight: '0' } }, [
-            el('div', 'rovalra-filters-container', { 
-                style: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px 24px', padding: '16px 24px', flexShrink: 0, backgroundColor: 'var(--surface-default)', borderBottom: '1px solid var(--border-default)' } 
-            }, [
-                createFilterGroup('Sort', sortDropdown.element),
-                createFilterGroup('Order', orderDropdown.element)
-            ]),
-            el('div', 'hidden-games-list', { style: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '10px', padding: '24px', overflowY: 'auto', flexGrow: 1 } }),
-            el('div', 'rovalra-load-more-container', { style: { padding: '10px 0', textAlign: 'center', flexShrink: 0 } })
-        ]);
+        this.elements.list = body.querySelector(".hidden-games-list");
+        this.elements.filters = body.querySelector(".rovalra-filters-container");
+        this.elements.loader = body.querySelector(".rovalra-load-more-container");
 
-        this.elements.list = body.querySelector('.hidden-games-list');
-        this.elements.filters = body.querySelector('.rovalra-filters-container');
-        this.elements.loader = body.querySelector('.rovalra-load-more-container');
-
-        this.elements.list.addEventListener('scroll', () => {
+        this.elements.list.addEventListener("scroll", () => {
             const { scrollTop, clientHeight, scrollHeight } = this.elements.list;
             if (scrollTop + clientHeight >= scrollHeight - 150) this.loadMore();
         });
@@ -193,13 +196,13 @@ class HiddenGamesManager {
         createOverlay({
             title: `Hidden Group Experiences (${this.allGames.length} Total)`,
             bodyContent: body,
-            maxWidth: '1200px',
-            maxHeight: '85vh'
+            maxWidth: "1200px",
+            maxHeight: "85vh",
         });
 
         if (this.allGames.length === 0) {
             this.elements.list.innerHTML = DOMPurify.sanitize(`<p class="btr-no-servers-message">This group has no hidden experiences.</p>`);
-            this.elements.filters.style.display = 'none';
+            this.elements.filters.style.display = "none";
         } else {
             this.applyFilters();
         }
@@ -209,28 +212,33 @@ class HiddenGamesManager {
         if (this.isLoading) return;
         this.isLoading = true;
         this.isPaginating = false;
-        
-        this.elements.list.innerHTML = '';
-        this.elements.list.appendChild(createShimmerGrid(12, { width: '150px', height: '240px' }));
-        this.elements.loader.innerHTML = '';
+
+        this.elements.list.innerHTML = "";
+        this.elements.list.appendChild(createShimmerGrid(12, { width: "150px", height: "240px" }));
+        this.elements.loader.innerHTML = "";
 
         const { sort, order } = this.filters;
 
-        if (sort === 'likes' || sort === 'players') {
+        if (sort === "like-ratio" || sort === "likes" || sort === "dislikes" || sort === "players") {
             await api.getGameDetails(this.allGames, this.cache.likes, this.cache.players);
         }
 
+        const orderMultiplier = order === 'desc' ? -1 : 1;
         let processed = [...this.allGames];
-        if (sort === 'likes') {
-            processed.sort((a, b) => (this.cache.likes.get(b.id)?.ratio || 0) - (this.cache.likes.get(a.id)?.ratio || 0));
-        } else if (sort === 'players') {
-            processed.sort((a, b) => (this.cache.players.get(b.id) || 0) - (this.cache.players.get(a.id) || 0));
-        } else if (sort === 'name') {
-            processed.sort((a, b) => a.name.localeCompare(b.name));
-        }
-
-        if ((order === 'asc' && sort !== 'name') || (order === 'desc' && sort === 'name')) {
-            processed.reverse();
+        if (sort === "like-ratio") {
+            processed.sort((a, b) => ((this.cache.likes.get(a.id)?.ratio || 0) - (this.cache.likes.get(b.id)?.ratio || 0)) * orderMultiplier);
+        } else if (sort === "likes") {
+            processed.sort((a, b) => ((this.cache.likes.get(a.id)?.upVotes || 0) - (this.cache.likes.get(b.id)?.upVotes || 0)) * orderMultiplier);
+        } else if (sort === "dislikes") {
+            processed.sort((a, b) => ((this.cache.likes.get(a.id)?.downVotes || 0) - (this.cache.likes.get(b.id)?.downVotes || 0)) * orderMultiplier);
+        } else if (sort === "players") {
+            processed.sort((a, b) => ((this.cache.players.get(a.id) || 0) - (this.cache.players.get(b.id) || 0)) * orderMultiplier);
+        } else if (sort === "name") {
+            processed.sort((a, b) => a.name.localeCompare(b.name) * orderMultiplier);
+        } else {
+            if (order === "asc") {
+                processed.reverse();
+            }
         }
 
         this.filteredGames = processed;
@@ -238,10 +246,7 @@ class HiddenGamesManager {
 
         const firstBatch = this.filteredGames.slice(0, PAGE_SIZE);
         if (firstBatch.length > 0) {
-            await Promise.all([
-                api.getGameDetails(firstBatch, this.cache.likes, this.cache.players),
-                api.getThumbnails(firstBatch, this.cache.thumbnails)
-            ]);
+            await Promise.all([api.getGameDetails(firstBatch, this.cache.likes, this.cache.players), api.getThumbnails(firstBatch, this.cache.thumbnails)]);
             this.displayedCount = firstBatch.length;
         }
 
@@ -250,7 +255,7 @@ class HiddenGamesManager {
     }
 
     renderList() {
-        this.elements.list.innerHTML = '';
+        this.elements.list.innerHTML = "";
         const gamesToShow = this.filteredGames.slice(0, this.displayedCount);
 
         if (gamesToShow.length === 0) {
@@ -259,7 +264,7 @@ class HiddenGamesManager {
         }
 
         const fragment = document.createDocumentFragment();
-        gamesToShow.forEach(game => {
+        gamesToShow.forEach((game) => {
             fragment.appendChild(createGameCard(game, this.cache.likes, this.cache.players, this.cache.thumbnails));
         });
         this.elements.list.appendChild(fragment);
@@ -272,26 +277,23 @@ class HiddenGamesManager {
 
         const nextBatch = this.filteredGames.slice(this.displayedCount, this.displayedCount + PAGE_SIZE);
         if (nextBatch.length > 0) {
-            await Promise.all([
-                api.getGameDetails(nextBatch, this.cache.likes, this.cache.players),
-                api.getThumbnails(nextBatch, this.cache.thumbnails)
-            ]);
+            await Promise.all([api.getGameDetails(nextBatch, this.cache.likes, this.cache.players), api.getThumbnails(nextBatch, this.cache.thumbnails)]);
 
             const fragment = document.createDocumentFragment();
-            nextBatch.forEach(game => {
+            nextBatch.forEach((game) => {
                 fragment.appendChild(createGameCard(game, this.cache.likes, this.cache.players, this.cache.thumbnails));
             });
             this.elements.list.appendChild(fragment);
             this.displayedCount += nextBatch.length;
         }
 
-        this.elements.loader.innerHTML = '';
+        this.elements.loader.innerHTML = "";
         this.isPaginating = false;
     }
 }
 
 export function init() {
-    chrome.storage.local.get(['groupGamesEnabled'], (result) => {
+    chrome.storage.local.get(["groupGamesEnabled"], (result) => {
         if (result.groupGamesEnabled !== true) return;
 
         const getGroupIdFromUrl = () => {
@@ -301,16 +303,16 @@ export function init() {
 
         const cleanupLegacyButtons = (header) => {
             if (!header) return;
-            const selectors = ['.rovalra-hidden-games-container', '.hidden-games-button'];
-            selectors.forEach(sel => {
+            const selectors = [".rovalra-hidden-games-container", ".hidden-games-button"];
+            selectors.forEach((sel) => {
                 const els = header.querySelectorAll(sel);
-                els.forEach(el => el.remove());
+                els.forEach((el) => el.remove());
             });
         };
 
         const initHeader = async (header) => {
             if (!header || !header.isConnected) return;
-            
+
             const currentGroupId = getGroupIdFromUrl();
             if (!currentGroupId) return;
 
@@ -318,12 +320,12 @@ export function init() {
 
             if (attachedGroupId) {
                 if (attachedGroupId === currentGroupId) {
-                    const existing = header.querySelectorAll('.rovalra-hidden-games-container');
+                    const existing = header.querySelectorAll(".rovalra-hidden-games-container");
                     if (existing.length > 1) {
-                         cleanupLegacyButtons(header);
-                         delete header.dataset.rovalraGroupId; 
+                        cleanupLegacyButtons(header);
+                        delete header.dataset.rovalraGroupId;
                     } else if (existing.length === 1) {
-                        return; 
+                        return;
                     }
                 } else {
                     cleanupLegacyButtons(header);
@@ -334,42 +336,43 @@ export function init() {
             header.dataset.rovalraGroupId = currentGroupId;
 
             try {
-                const [allGames, publicGames] = await Promise.all([
-                    api.getGroupGames(currentGroupId, ACCESS_FILTER.ALL),
-                    api.getGroupGames(currentGroupId, ACCESS_FILTER.PUBLIC)
-                ]);
+                const [allGames, publicGames] = await Promise.all([api.getGroupGames(currentGroupId, ACCESS_FILTER.ALL), api.getGroupGames(currentGroupId, ACCESS_FILTER.PUBLIC)]);
 
                 const freshId = getGroupIdFromUrl();
                 if (freshId !== currentGroupId || !header.isConnected) {
                     return;
                 }
 
-                const publicIds = new Set(publicGames.map(g => g.id));
-                const hiddenGames = allGames.filter(g => !publicIds.has(g.id));
+                const publicIds = new Set(publicGames.map((g) => g.id));
+                const hiddenGames = allGames.filter((g) => !publicIds.has(g.id));
 
                 cleanupLegacyButtons(header);
 
                 const btn = createButton("Hidden Experiences", "secondary");
-                btn.addEventListener('click', () => new HiddenGamesManager(hiddenGames));
-                
-                const container = el('div', 'rovalra-hidden-games-container', {
-                    style: { marginTop: '10px' } 
-                }, [btn]);
+                btn.addEventListener("click", () => new HiddenGamesManager(hiddenGames));
 
-                const description = header.querySelector('.description-container');
+                const container = el(
+                    "div",
+                    "rovalra-hidden-games-container",
+                    {
+                        style: { marginTop: "10px" },
+                    },
+                    [btn]
+                );
+
+                const description = header.querySelector(".description-container");
                 if (description) {
                     description.after(container);
                 } else {
                     header.appendChild(container);
                 }
-
             } catch (err) {
-                delete header.dataset.rovalraGroupId; 
+                delete header.dataset.rovalraGroupId;
                 cleanupLegacyButtons(header);
             }
         };
 
-        observeElement('.group-profile-header', (header) => {
+        observeElement(".group-profile-header", (header) => {
             initHeader(header);
         });
 
@@ -378,14 +381,14 @@ export function init() {
             const currentUrl = window.location.href;
             if (currentUrl !== lastUrl) {
                 lastUrl = currentUrl;
-                const header = document.querySelector('.group-profile-header');
+                const header = document.querySelector(".group-profile-header");
                 if (header) {
-                    initHeader(header); 
+                    initHeader(header);
                 }
             }
         };
 
         setInterval(checkForUrlChange, 1000);
-        window.addEventListener('popstate', checkForUrlChange);
+        window.addEventListener("popstate", checkForUrlChange);
     });
 }

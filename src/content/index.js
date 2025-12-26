@@ -13,6 +13,7 @@ import { init as initServerListener } from './features/games/serverlistener.js';
 import { init as initVideoTest } from './features/developer/videotest.js';
 import { init as initStreamerMode } from './features/sitewide/streamermode.js';
 import { init as initMarkDownTest } from './features/developer/markdowntest.js'
+import { init as initApiDocs } from './features/developer/apiDocs.js';
 
 // Avatar
 import { init as initAvatarFilters } from './features/avatar/filters.js';
@@ -35,6 +36,7 @@ import { init as bannertest } from './features/games/banner.js'
 // transactions
 import { init as initTotalSpent } from './features/transactions/totalspent.js';
 import { init as initPendingRobuxTrans } from './features/transactions/pendingRobuxTrans.js';
+import { init as initTotalEarned } from './features/transactions/totalearned.js';
 // group
 import { init as initHiddenGroupGames } from './features/groups/hiddenGroupGames.js';
 import { init as initAntiBots } from './features/groups/Antibots.js';
@@ -111,7 +113,13 @@ const featureRoutes = [
   },
 
   // Transactions page
-  { paths: ['/transactions'], features: [initTotalSpent, initPendingRobuxTrans] },
+  { paths: ['/transactions'], features: [initTotalSpent, initPendingRobuxTrans, initTotalEarned] },
+
+  // API Docs
+  {
+    paths: ['/docs'],
+    features: [initApiDocs],
+  },
 ];
 
 
