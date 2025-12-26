@@ -53,6 +53,13 @@ esbuild.build({
   bundle: false, 
 }).catch(() => process.exit(1));
 
+esbuild.build({
+  ...commonConfig,
+  entryPoints: ['YappDollar.js'],
+  outfile: 'dist/YappDollar.js',
+  bundle: false,
+}).catch(() => process.exit(1));
+
 
 
 const cssDir = path.join(__dirname, 'src', 'css');
