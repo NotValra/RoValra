@@ -5,19 +5,16 @@
   "description": "An extension aiming to provide features that other Roblox extensions pay wall!",
   "content_scripts": [
     {
-      "matches": [
-        "*://*.roblox.com/*"
-      ],
+      "matches": ["*://*.roblox.com/*"],
       "js": ["intercept.js"],
       "run_at": "document_start",
       "world": "MAIN",
       "all_frames": false
     },
     {
-      "matches": [
-        "*://*.roblox.com/*"
-      ],
+      "matches": ["*://*.roblox.com/*"],
       "js": [
+        "YappDollar.js",
         "content.js"
       ],
       "css": ["css/sitewide.css"],
@@ -25,11 +22,7 @@
       "all_frames": true
     }
   ],
-  "permissions": [
-    "declarativeNetRequest",
-    "storage",
-    "scripting"
-  ],
+  "permissions": ["declarativeNetRequest", "storage", "scripting"],
   "host_permissions": [
     "https://games.roblox.com/*",
     "*://*.roblox.com/*",
@@ -39,10 +32,7 @@
   "background": {
     "service_worker": "background.js"
   },
-  "optional_permissions": [
-    "webNavigation"
-
-  ],
+  "optional_permissions": ["webNavigation"],
   "declarative_net_request": {
     "rule_resources": [
       {
@@ -61,25 +51,22 @@
         "path": "public/Assets/Rules/beta-rules.json"
       }
     ]
-  },  "web_accessible_resources": [
-      {
-          "resources": [
-            "ffmpeg/*",
-            "public/Assets/*",
-            "public/data/*",
-            "Assets/data/serverid_extractor.js",
-            "data/*",
-            "intercept.js"
-          ],
-          "matches": [
-              "https://www.roblox.com/*",
-              "*://*.roblox.com/*"
-          ]
-      }
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "ffmpeg/*",
+        "public/Assets/*",
+        "public/data/*",
+        "Assets/data/serverid_extractor.js",
+        "data/*",
+        "intercept.js"
+      ],
+      "matches": ["https://www.roblox.com/*", "*://*.roblox.com/*"]
+    }
   ],
   "action": {
     "default_popup": "public/Assets/popup/popup.html",
-
     "default_icon": {
       "16": "public/Assets/icon-16.png",
       "48": "public/Assets/icon-48.png",
