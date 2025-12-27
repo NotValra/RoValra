@@ -11,7 +11,7 @@ function removeHomeElement() {
     if (homeElementToRemove) homeElementToRemove.remove();
 }
 
-function renderDocsPage(contentDiv) {
+function renderDocsPage(contentDiv, suppressWarning = false) {
     if (window.location.pathname.toLowerCase() !== '/docs') return;
     
     contentDiv.innerHTML = '';
@@ -19,7 +19,7 @@ function renderDocsPage(contentDiv) {
     contentDiv.style.backgroundColor = 'var(--rovalra-container-background-color)';
     contentDiv.style.minHeight = 'calc(100vh - 60px)';
     
-    if (!sessionStorage.getItem('rovalra_api_docs_warning')) {
+    if (!suppressWarning) {
         const confirmBtn = document.createElement('button');
         confirmBtn.className = 'btn-primary-md';
         confirmBtn.textContent = 'I Understand';
@@ -38,7 +38,6 @@ function renderDocsPage(contentDiv) {
         });
 
         confirmBtn.onclick = () => {
-            sessionStorage.setItem('rovalra_api_docs_warning', 'true');
             close();
         };
     }
@@ -88,7 +87,7 @@ function renderDocsPage(contentDiv) {
     clearBtn.style.cursor = 'pointer';
     clearBtn.onclick = () => {
         chrome.storage.local.remove(CAPTURED_APIS_KEY, () => {
-            renderDocsPage(contentDiv);
+            renderDocsPage(contentDiv, true);
         });
     };
     
@@ -138,7 +137,35 @@ function renderDocsPage(contentDiv) {
 
         const renderEndpoints = (subdomain, filter = '') => {
             endpointsContainer.innerHTML = '';
-            const endpoints = data[subdomain];
+            const rawEndpoints = data[subdomain];
+            const endpoints = {};
+
+            Object.keys(rawEndpoints).forEach(rawPath => {
+                const normalizedPath = rawPath
+                    .split('?')[0]
+                    .split('/')
+                    .map(segment => {
+                        if (/^\d+$/.test(segment)) return '{id}';
+                        if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(segment)) return '{uuid}';
+                        return segment;
+                    })
+                    .join('/');
+
+                if (!endpoints[normalizedPath]) {
+                    endpoints[normalizedPath] = {};
+                }
+
+                const methods = rawEndpoints[rawPath];
+                Object.keys(methods).forEach(method => {
+                    if (!endpoints[normalizedPath][method]) {
+                        endpoints[normalizedPath][method] = {
+                            ...methods[method],
+                            exampleEndpoint: rawPath
+                        };
+                    }
+                });
+            });
+
             let endpointKeys = Object.keys(endpoints).sort();
             if (filter) {
                 const lowerFilter = filter.toLowerCase();
