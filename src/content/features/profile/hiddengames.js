@@ -29,7 +29,7 @@ const ENDPOINTS = {
     VOTES_V1: (ids) => `/v1/games/votes?universeIds=${ids}`,
     GAMES_V1: (ids) => `/v1/games?universeIds=${ids}`,
     
-    GAME_LINK: (placeId) => `https://www.roblox.com/games/${placeId}`
+    GAME_LINK: (placeId) => `https://www.roblox.com/games/${placeId}/unnamed` // adding an extra parameter after placeid adds support for btroblox's copy placeid context menu item
 };
 
 const Api = {
@@ -162,7 +162,10 @@ const Api = {
         }
 
         if (playerRes?.data) {
-            playerRes.data.forEach(item => state.players.set(item.id, item.playing || 0));
+            playerRes.data.forEach(item => {
+                state.players.set(item.id, item.playing || 0);
+                state.updated.set(item.id, item.updated || 0);
+            });
         }
 
         const newThumbnails = await fetchThumbnailsBatch(batch, 'GameIcon', '256x256');
@@ -277,7 +280,7 @@ const UI = {
 class HiddenGamesManager {
     constructor(allGames) {
         this.allGames = allGames;
-        this.cache = { likes: new Map(), players: new Map(), thumbnails: new Map() };
+        this.cache = { likes: new Map(), players: new Map(), updated: new Map(), thumbnails: new Map() };
         this.filters = { sort: 'default', order: 'desc' };
         this.processedGames = [];
         this.visibleCount = 0;
@@ -339,15 +342,17 @@ class HiddenGamesManager {
         this.elements.list.appendChild(createShimmerGrid(12, { width: '150px', height: '240px' }));
         this.visibleCount = 0;
 
-        if (['like-ratio', 'likes', 'dislikes', 'players'].includes(this.filters.sort)) {
+        if (['default', 'like-ratio', 'likes', 'dislikes', 'players'].includes(this.filters.sort)) {
             await Api.enrichGameData(this.allGames, this.cache);
         }
 
         const { sort, order } = this.filters;
         const orderMultiplier = order === 'desc' ? -1 : 1;
         let sorted = [...this.allGames];
-        
-        if (sort === 'like-ratio') {
+      
+        if (sort === 'default') {
+            sorted.sort((a, b) =>(new Date(this.cache.updated.get(a.id) || 0) - new Date(this.cache.updated.get(b.id) || 0)) * orderMultiplier);
+        } else if (sort === 'like-ratio') {
             sorted.sort((a, b) => ((this.cache.likes.get(a.id)?.ratio || 0) - (this.cache.likes.get(b.id)?.ratio || 0)) * orderMultiplier);
         } else if (sort === "likes") {
             sorted.sort((a, b) => ((this.cache.likes.get(a.id)?.upVotes || 0) - (this.cache.likes.get(b.id)?.upVotes || 0)) * orderMultiplier);
