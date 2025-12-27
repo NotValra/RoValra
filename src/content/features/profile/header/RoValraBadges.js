@@ -140,6 +140,7 @@ export function init() {
     chrome.storage.local.get({ RoValraBadgesEnable: true }, (settings) => {
         if (settings.RoValraBadgesEnable) {
             observeElement('#profile-header-title-container-name', addHeaderBadges);
+            observeElement('.profile-header-title-container', addHeaderBadges);
             observeElement('ul.hlist.badge-list', addProfileBadges);
         }
     });
