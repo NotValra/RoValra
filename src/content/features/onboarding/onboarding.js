@@ -8,6 +8,8 @@ export function init() {
         if (!settings.onboardingShown) {
             const bodyContent = document.createElement('div');
             const assets = getAssets();
+            bodyContent.style.maxHeight = 'calc(90vh - 150px)';
+            bodyContent.style.overflowY = 'auto';
 
             bodyContent.innerHTML = `
                 <p style="line-height: 1.6; margin-bottom: 15px;">
@@ -41,7 +43,7 @@ export function init() {
                 title: 'Welcome to RoValra!',
                 bodyContent: bodyContent,
                 actions: [gotItButton],
-                maxWidth: '550px',
+                maxWidth: 'min(550px, 90vw)',
                 showLogo: true,
                 preventBackdropClose: true,
                 onClose: acknowledgeOnboarding
