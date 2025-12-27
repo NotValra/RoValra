@@ -91,7 +91,7 @@ async function wearOutfit(outfitId) {
                 subdomain: 'avatar',
                 endpoint: '/v2/avatar/set-wearing-assets',
                 method: 'POST',
-                body: { assets: details.assets.map(a => ({ id: a.id })) }
+                body: { assets: details.assets }
             }));
         }
 
