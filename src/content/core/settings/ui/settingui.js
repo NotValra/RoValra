@@ -418,6 +418,14 @@ function addDeveloperTab({ menuList, loadTabContent, renderMobileDropdown }) {
                 description: ["This is just a fun setting that will show RoValra badges on any profile"],
                 type: "checkbox",
                 default: false
+            },
+            EnableVersionDownloader: {
+                label: ["Enable Version Downloader"],
+                description: ["Allows downloading specific versions of uncopylocked places."],
+                experimental: "Experimental feature.",
+                type: "checkbox",
+                default: false,
+                requiredPermissions: ["downloads"]
             }
 
         }
