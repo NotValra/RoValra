@@ -153,7 +153,9 @@ export async function callRobloxApi(options) {
             }
         }
 
-        const baseUrl = isRovalraApi ? 'https://apis.rovalra.com' : `https://${subdomain}.roblox.com`;
+        const baseUrl = isRovalraApi 
+            ? (subdomain === 'www' ? 'https://www.rovalra.com' : 'https://apis.rovalra.com')
+            : `https://${subdomain}.roblox.com`;
         const fullUrl = `${baseUrl}${endpoint}`;
         const isMutatingMethod = ['POST', 'PATCH', 'DELETE'].includes(method.toUpperCase());
         
@@ -162,7 +164,6 @@ export async function callRobloxApi(options) {
         const fetchOptions = {
             method,
             headers: {
-                'Content-Type': 'application/json',
                 'Accept': 'application/json',
                 ...headers
             },
@@ -170,6 +171,7 @@ export async function callRobloxApi(options) {
         };
 
         if (body) {
+            fetchOptions.headers['Content-Type'] = 'application/json';
             fetchOptions.body = typeof body === 'string' ? body : JSON.stringify(body);
         }
 

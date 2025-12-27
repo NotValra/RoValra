@@ -6,7 +6,8 @@ export const CONTRIBUTOR_USER_IDS = [
     '1337447242', 
     '109176680',  
     '795922138',  
-    '8345351117'  
+    '8345351117', //Zed128
+    '546872490' //Kanibal02
 ];
 
 export const RAT_BADGE_USER_ID = '477516666'; // rat

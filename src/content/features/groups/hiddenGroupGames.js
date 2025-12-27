@@ -119,7 +119,7 @@ const createGameCard = (game, likeMap, playerMap, thumbnailCache) => {
             "a",
             "game-card-link",
             {
-                href: `https://www.roblox.com/games/${game.rootPlace.id}`,
+                href: `https://www.roblox.com/games/${game.rootPlace.id}/yippe`,
                 style: { display: "flex", flexDirection: "column", height: "100%", justifyContent: "space-between" },
             },
             [el("div", null, {}, [el("div", "game-card-thumb-container", {}, [thumbnail]), el("div", "game-card-name game-name-title", { title: game.name, textContent: game.name })]), el("div", "game-card-info", { innerHTML: DOMPurify.sanitize(infoContent) })]
@@ -169,7 +169,7 @@ class HiddenGamesManager {
             },
         });
 
-        const createFilterGroup = (label, input) => el("div", "", { style: { display: "flex", flexDirection: "column", gap: "4px" } }, [el("label", "", { textContent: label, style: { fontSize: "12px", fontWeight: "500", color: "var(--rovalra-overlay-text-secondary)" } }), input]);
+        const createFilterGroup = (label, input) => el("div", "", { style: { display: "flex", flexDirection: "column", gap: "4px" } }, [el("label", "", { textContent: label, style: { fontSize: "12px", fontWeight: "500", color: "var(--rovalra-secondary-text-color)" } }), input]);
 
         const body = el("div", "", { style: { display: "flex", flexDirection: "column", minHeight: "0" } }, [
             el(

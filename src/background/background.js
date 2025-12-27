@@ -83,7 +83,8 @@ function getDefaultSettings() {
         UptimeFiltersEnabled: true,
         VersionFiltersEnabled: true,
         totalearnedEnabled: true,
-        EnableRobloxApiDocs: false
+        EnableRobloxApiDocs: false,
+        QuickOutfitsEnabled: false
     };
 }
 

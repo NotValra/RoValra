@@ -137,6 +137,12 @@ export const SETTINGS_CONFIG = {
                     }
                 }
             },
+            QuickOutfitsEnabled: {
+                label: "Quick Equip Outfits",
+                description: ["This allows you to quickly switch your avatar on the a games page."],
+                type: "checkbox",
+                default: false
+            },
             botdataEnabled: {
                 label: "Bot Data",
                 description: ["Shows if a game has a lot of bots in the description of the game.",
