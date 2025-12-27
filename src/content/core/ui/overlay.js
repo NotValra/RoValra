@@ -86,18 +86,35 @@ export function createOverlay({ title, bodyContent, actions = [], maxWidth = '55
         body.appendChild(bodyContent);
     }
 
-    if (actions.length > 0) {
-        const footer = document.createElement('div');
-        footer.className = 'flex justify-end gap-medium';
-        actions.forEach(button => footer.appendChild(button));
-        body.appendChild(footer);
-    }
+    const footer = document.createElement('div');
+    footer.className = 'flex justify-end gap-medium';
+    footer.style.display = actions.length > 0 ? 'flex' : 'none';
+    actions.forEach(button => footer.appendChild(button));
+    body.appendChild(footer);
 
     content.appendChild(body);
 
     overlay.appendChild(content); 
     document.body.appendChild(overlay);
     document.body.style.overflow = 'hidden';
+
+    const setContent = (newContent) => {
+        // Clear children after the title
+        while (body.childNodes.length > 1) {
+            body.removeChild(body.lastChild);
+        }
+        
+        if (typeof newContent === 'string') {
+            const container = document.createElement('div');
+            container.innerHTML = DOMPurify.sanitize(newContent);
+            body.appendChild(container);
+        } else if (newContent instanceof HTMLElement) {
+            body.appendChild(newContent);
+        }
+
+        // Re-append footer if it was there (actually simpler to just append it always)
+        body.appendChild(footer);
+    };
 
     const close = () => {
         overlay.remove();
@@ -115,5 +132,5 @@ export function createOverlay({ title, bodyContent, actions = [], maxWidth = '55
         overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
     }
 
-    return { overlay, close };
+    return { overlay, close, setContent, body, footer };
 }
