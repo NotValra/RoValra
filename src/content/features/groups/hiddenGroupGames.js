@@ -119,7 +119,7 @@ const createGameCard = (game, likeMap, playerMap, thumbnailCache) => {
             "a",
             "game-card-link",
             {
-                href: `https://www.roblox.com/games/${game.rootPlace.id}`,
+                href: `https://www.roblox.com/games/${game.rootPlace.id}/yippe`,
                 style: { display: "flex", flexDirection: "column", height: "100%", justifyContent: "space-between" },
             },
             [el("div", null, {}, [el("div", "game-card-thumb-container", {}, [thumbnail]), el("div", "game-card-name game-name-title", { title: game.name, textContent: game.name })]), el("div", "game-card-info", { innerHTML: DOMPurify.sanitize(infoContent) })]
