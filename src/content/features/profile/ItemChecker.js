@@ -24,7 +24,7 @@ const CSS = `
         width: 100%;
     }
     #rovalra-fx-container {
-    margin-bottom: 10px !Important
+    margin-bottom: 0px !Important
     }
     .rovalra-checker-tab {
         flex: 1;
@@ -124,12 +124,30 @@ async function fetchItemDetails(itemId, itemType) {
     }
 }
 
+const privacyCache = new Map();
+
+async function checkIfInventoryIsPrivate(userId) {
+    if (privacyCache.has(userId)) return privacyCache.get(userId);
+    try {
+        const response = await callRobloxApi({ subdomain: 'inventory', endpoint: `/v1/users/${userId}/can-view-inventory` });
+        if (!response.ok) return false;
+        const data = await response.json();
+        const isPrivate = data.canView === false;
+        privacyCache.set(userId, isPrivate);
+        return isPrivate;
+    } catch { return false; }
+}
+
 async function injectItemChecker(container) {
     if (container.querySelector('#rovalra-item-checker-container')) return;
-    injectStyles();
 
     const userId = getUserId();
     if (!userId) return;
+
+    const isPrivate = await checkIfInventoryIsPrivate(userId);
+    if (!isPrivate) return;
+
+    injectStyles();
 
     const displayName = await getUserDisplayName(userId);
 
@@ -463,7 +481,7 @@ async function injectItemChecker(container) {
 
 export function init() {
     chrome.storage.local.get({ privateInventoryEnabled: false }, (settings) => {
-        if (settings.privateInventoryEnabled) {
+        if (settings.privateInventoryEnabled && window.location.href.includes("inventory")) {
             observeElement('div.section-content-off:not(.btr-section-content-off)', injectItemChecker);
         }
     });
