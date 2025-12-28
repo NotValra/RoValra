@@ -171,6 +171,10 @@ const handleMemoryLeakNavigation = (details) => {
         return;
     }
 
+    if (details.url.includes('/download/client')) {
+        return;
+    }
+
     const newUrl = details.url;
     const tabId = details.tabId;
 

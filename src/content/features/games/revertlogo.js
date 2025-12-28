@@ -4,6 +4,7 @@ import { loadDatacenterMap, getRegionData, getFullRegionName } from '../../core/
 import { fetchThumbnails } from '../../core/thumbnail/thumbnails.js';
 import { callRobloxApi } from '../../core/api.js'; 
 import DOMPurify from 'dompurify';
+import { launchGame } from '../../core/utils/launcher.js';
 
 import { 
     showLoadingOverlay, 
@@ -218,10 +219,11 @@ const buildInfoList = (gameId, isPrivateServer, regionCode, regionName, serverIn
     return DOMPurify.sanitize(listItems.join(''));
 };
 
-
-async function pollClientStatus() {
+async function pollClientStatus(targetPlaceId) {
     let clientStatusReceived = false;
     let pollingInterval = null;
+    let isDownloadOptionShown = false;
+    let unknownStatusCount = 0;
 
     const triggerSuccess = () => {
         if (!clientStatusReceived) {
@@ -239,31 +241,139 @@ async function pollClientStatus() {
         }
     };
 
-    const handleClientStatus = (event) => {
-        const data = event.detail;
-        if (data.status && data.status !== 'Unknown') triggerSuccess();
+    const showDownloadUI = () => {
+        if (document.getElementById('rovalra-download-dialog-container')) return;
+
+        const startDownload = () => {
+            window.open(`https://www.roblox.com/download/client?_=${Date.now()}`, '_blank');
+        };
+
+        startDownload();
+
+        hideLoadingOverlay();
+
+        const dialogWrapper = document.createElement('div');
+        dialogWrapper.id = 'rovalra-download-dialog-container';
+        dialogWrapper.style.cssText = 'position: fixed; inset: 0; z-index: 99999; display: flex; align-items: center; justify-content: center; background-color: rgba(0,0,0,0.6);';
+        // Roblox download ui
+        dialogWrapper.innerHTML = DOMPurify.sanitize(`<div role="dialog" id="radix-0" aria-describedby="radix-2" aria-labelledby="radix-1" data-state="open" class="relative radius-large bg-surface-100 stroke-muted stroke-standard foundation-web-dialog-content shadow-transient-high install-dialog" data-size="Large" tabindex="-1" style="pointer-events: auto;"><div class="absolute foundation-web-dialog-close-container"><button type="button" class="foundation-web-close-affordance flex stroke-none bg-none cursor-pointer relative clip group/interactable focus-visible:outline-focus disabled:outline-none bg-over-media-100 padding-medium radius-circle" aria-label="Close"><div role="presentation" class="absolute inset-[0] transition-colors group-hover/interactable:bg-[var(--color-state-hover)] group-active/interactable:bg-[var(--color-state-press)] group-disabled/interactable:bg-none"></div><span role="presentation" class="grow-0 shrink-0 basis-auto icon icon-regular-x size-[var(--icon-size-large)]"></span></button></div><div class="padding-x-xlarge padding-top-xlarge padding-bottom-xlarge content-default"><div class="flex flex-col gap-xlarge padding-xlarge"><div class="flex flex-col gap-xsmall"><h2 id="radix-1" class="text-heading-medium content-emphasis padding-none">Thanks for downloading Roblox</h2><p class="text-body-large">Just follow the steps below to install Roblox. Download should start in a few seconds. If it doesn't, <a id="rovalra-restart-download" href="#" class="download-link-underline">restart the download</a>.</p></div><div></div> <div class="flex gap-xxlarge"><section class="flex flex-col gap-large grow basis-0"><h3 class="text-title-large content-emphasis padding-none">Install Instructions</h3><ol class="download-instructions-list flex flex-col gap-xlarge margin-none padding-left-large text-body-medium"><li class="padding-left-medium">Once downloaded, double-click the <b>RobloxPlayerInstaller.exe</b> file in your Downloads folder.</li><li class="padding-left-medium">Double-click the <b>RobloxPlayerInstaller</b> to install the app.</li><li class="padding-left-medium">Follow the instructions to install Roblox to your computer.</li><li class="padding-left-medium">Now that it’s installed, <a id="download-join-experience" class="download-link-underline" style="cursor: pointer;">join the experience</a>.</li></ol></section><div></div> <div class="stroke-standard stroke-default"></div><div></div> <section class="flex flex-col grow basis-0 gap-xxlarge"><div class="flex flex-col gap-small"><h3 class="text-label-large content-emphasis padding-none">Don't forget the mobile app</h3><p class="text-body-medium">Scan this code with your phone's camera to get Roblox.</p></div><div class="flex grow justify-center items-center bg-shift-100 radius-medium padding-x-large"><div class="radius-medium padding-small bg-[white]"><img class="size-2100" src="https://images.rbxcdn.com/79852c254bf43f36.webp" alt=""></div></div></section></div></div></div></div>`, { ADD_ATTR: ['id'] });
+        
+        document.body.appendChild(dialogWrapper);
+
+        const closeDialog = () => {
+            dialogWrapper.remove();
+            closeInterface(true);
+        };
+
+        const closeBtn = dialogWrapper.querySelector('button[aria-label="Close"]');
+        if (closeBtn) closeBtn.onclick = closeDialog;
+
+        const joinLink = dialogWrapper.querySelector('#download-join-experience');
+        if (joinLink) {
+            joinLink.onclick = (e) => {
+                e.preventDefault();
+                closeDialog();
+                if (targetPlaceId) launchGame(targetPlaceId);
+            };
+        }
+
+        const restartLink = dialogWrapper.querySelector('#rovalra-restart-download');
+        if (restartLink) {
+            restartLink.onclick = (e) => {
+                e.preventDefault();
+                startDownload();
+            };
+        }
+    };
+
+    const triggerDownloadOption = () => {
+        if (!clientStatusReceived && !isDownloadOptionShown) {
+            isDownloadOptionShown = true;
+
+            showLoadingOverlayResult("Roblox not detected", {
+                text: "Download Roblox",
+                onClick: showDownloadUI
+            });
+
+            setTimeout(() => {
+                const buttons = document.querySelectorAll('button');
+                for (const btn of buttons) {
+                    if (btn.textContent.includes("Download Roblox")) {
+                        const wrapper = document.createElement('div');
+                        wrapper.innerHTML = DOMPurify.sanitize(`<button type="button" class="foundation-web-button relative clip group/interactable focus-visible:outline-focus disabled:outline-none cursor-pointer relative flex items-center justify-center stroke-none padding-y-none select-none radius-medium text-label-medium height-1000 padding-x-medium bg-action-emphasis content-action-emphasis grow" style="text-decoration: none;"><div role="presentation" class="absolute inset-[0] transition-colors group-hover/interactable:bg-[var(--color-state-hover)] group-active/interactable:bg-[var(--color-state-press)] group-disabled/interactable:bg-none"></div><span class="padding-y-xsmall text-truncate-end text-no-wrap">Download Roblox</span></button>`);
+                        const newBtn = wrapper.firstChild;
+                        if (newBtn) {
+                            newBtn.onclick = showDownloadUI;
+                            btn.replaceWith(newBtn);
+                        }
+                        break;
+                    }
+                }
+            }, 50);
+        }
+    };
+
+    const performClientStatusCheck = async () => {
+        try {
+            const response = await callRobloxApi({ 
+                subdomain: 'apis', 
+                endpoint: '/matchmaking-api/v1/client-status', 
+                method: 'GET',
+                noCache: true
+            });
+            if (response.ok) {
+                const data = await response.json();
+                handleClientStatus(data);
+            }
+        } catch (e) {}
+    };
+
+    const handleClientStatus = (data) => {
+        if (data && data.status) {
+            if (data.status === 'Unknown') {
+                unknownStatusCount++;
+                if (unknownStatusCount >= 3) {
+                    triggerDownloadOption();
+                } else {
+                    setTimeout(() => {
+                        performClientStatusCheck();
+                    }, 1000);
+                }
+            } else {
+                unknownStatusCount = 0;
+                if (isDownloadOptionShown) {
+                    isDownloadOptionShown = false;
+                    updateLoadingOverlayText("Joining Server...");
+                }
+                if (data.status === 'InGame') {
+                    triggerSuccess();
+                }
+            }
+        }
     };
 
     const handleGameLaunchSuccess = () => triggerSuccess();
 
     const cleanupListeners = () => {
-        document.removeEventListener('rovalra-client-status-response', handleClientStatus);
         document.removeEventListener('rovalra-game-launch-success', handleGameLaunchSuccess);
         if (pollingInterval) clearInterval(pollingInterval);
     };
 
-    document.addEventListener('rovalra-client-status-response', handleClientStatus);
     document.addEventListener('rovalra-game-launch-success', handleGameLaunchSuccess);
 
     const currentUserElement = document.querySelector('meta[name="user-data"]');
     const currentUserId = currentUserElement ? currentUserElement.dataset.userid : null;
 
     if (currentUserId) {
+        performClientStatusCheck();
+
         pollingInterval = setInterval(async () => {
             if (!document.body.classList.contains(HIDE_ROBLOX_UI_CLASS)) {
                 cleanupListeners();
                 return;
             }
+
+            performClientStatusCheck();
 
             try {
                 const resp = await callRobloxApi({
@@ -276,7 +386,11 @@ async function pollClientStatus() {
                     const data = await resp.json();
                     const presence = data?.userPresences?.[0];
                     if (presence && (presence.userPresenceType === 2 || presence.userPresenceType === 4)) {
-                        triggerSuccess();
+                        if (targetPlaceId && presence.rootPlaceId === parseInt(targetPlaceId, 10)) {
+                            triggerSuccess();
+                        } else if (!targetPlaceId) {
+                            triggerSuccess();
+                        }
                     }
                 }
             } catch (e) {}
@@ -509,14 +623,14 @@ function initializeJoinDialogEnhancer() {
                     updateLoadingOverlayText(`Waiting for Roblox...`);
                 }
 
-                pollClientStatus();
+                pollClientStatus(placeId);
 
             } catch (e) {
                 console.error("Rendering error:", e);
                 const details = await gameDetailsPromise;
                 updateServerInfo(details.name, details.iconUrl, null);
                 updateLoadingOverlayText(`Launching...`);
-                pollClientStatus();
+                pollClientStatus(placeId);
             }
         };
 
