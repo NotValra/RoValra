@@ -84,7 +84,8 @@ function getDefaultSettings() {
         VersionFiltersEnabled: true,
         totalearnedEnabled: true,
         EnableRobloxApiDocs: false,
-        QuickOutfitsEnabled: false
+        QuickOutfitsEnabled: false,
+        gameTitleIssueEnable: true
     };
 }
 
