@@ -446,9 +446,7 @@ function initializeJoinDialogEnhancer() {
 
             const logoToUse = (settings.revertLogo === true && settings.customLogoData) ? settings.customLogoData : null;
 
-            openInterface(() => {
-                lastProcessedGameLaunchSrc = null;
-            }, logoToUse);
+            openInterface(null, logoToUse);
 
             let urlParams;
             let placeId;
