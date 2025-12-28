@@ -486,6 +486,12 @@ export const SETTINGS_CONFIG = {
                         type: "checkbox",
                         default: true,
                     },
+                    gameTitleIssueEnable: {
+                        label: "Fix the experience title issues",
+                        description: "Fixes the top and bottom of experience titles on profiles getting cut off.",
+                        type: "checkbox",
+                        default: true,
+                    }
                 }
             },
             eastereggslinksEnabled: {
