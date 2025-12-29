@@ -1,7 +1,24 @@
 const esbuild = require('esbuild');
 const fs = require('fs');
 const path = require('path');
-const pkg = require('./package.json');
+
+const manifestPath = path.join(__dirname, 'manifest.json');
+const packagePath = path.join(__dirname, 'package.json');
+let pkg;
+
+try {
+  const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+  pkg = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
+  
+  if (pkg.version !== manifest.version) {
+    pkg.version = manifest.version;
+    fs.writeFileSync(packagePath, JSON.stringify(pkg, null, 2));
+    console.log(`Updated package.json version to ${manifest.version}`);
+  }
+} catch (e) {
+  console.error('Failed to sync version from manifest.json to package.json', e);
+  process.exit(1);
+}
 
 
 const bannerText = `/*!
