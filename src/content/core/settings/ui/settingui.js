@@ -472,7 +472,7 @@ export function injectSettingsStyles() {
         
         #settings-search-input:focus {
             outline: none;
-            border-color: var(--rovalra-search-focus-border, #0078d4); 
+            border-color: var(--rovalra-playbutton-color); 
         }
 
         .setting { 

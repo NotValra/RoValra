@@ -156,27 +156,18 @@ export async function init() {
             const style = document.createElement('style');
             style.id = 'rovalra-subplaces-styles';
             style.textContent = `
-                :root {
-                    --sp-bg: #f7f7f8; --sp-text: #1A1A1A; --sp-search-bg: #F0F0F0;
-                    --sp-search-border: #BBB; --sp-btn-bg: #E0E0E0; --sp-btn-border: #BBB;
-                    --sp-thumb-bg: #E3E5E7;
-                }
-                .dark-theme {
-                    --sp-bg: #272930; --sp-text: #DDD; --sp-search-bg: #1D1E1F;
-                    --sp-search-border: #555; --sp-btn-bg: #272930; --sp-btn-border: #555;
-                    --sp-thumb-bg: rgba(208, 217, 251, .12);
-                }
+
                 .rovalra-subplaces-list {
                     display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
                     gap: 12px;
                 }
                 .rovalra-subplace-card { justify-self: center; width: 150px; height: 240px; }
                 .rovalra-subplace-card .game-card-link { display: flex; flex-direction: column; height: 100%; text-decoration: none; }
-                .rovalra-subplace-card .game-card-thumb-container { width: 150px; height: 150px; border-radius: 8px; margin-bottom: 5px; background-color: var(--sp-thumb-bg); }
+                .rovalra-subplace-card .game-card-thumb-container { width: 150px; height: 150px; border-radius: 8px; margin-bottom: 5px; background-color: var(--rovalra-secondary-text-color); }
                 .rovalra-subplace-card .game-card-thumb { width: 100%; height: 100%; border-radius: 8px; }
                 .rovalra-subplace-card .game-card-name {
                     font-weight: 500; font-size: 16px; width: 150px;
-                    color: var(--sp-text);
+                    color: var(--rovalra-main-text-color);
                     white-space: normal;
                     word-wrap: break-word;
                     display: -webkit-box;
@@ -184,12 +175,12 @@ export async function init() {
                     -webkit-box-orient: vertical;
                     overflow: hidden;
                 }
-                .rovalra-subplace-card p { color: var(--sp-text); }
+                .rovalra-subplace-card p { color: var(--rovalra-main-text-color); }
                 
                 .rovalra-load-more-wrapper { width: 100%; display: flex; justify-content: center; }
                 .rovalra-load-more-btn {
                     display: none; margin-top: 15px; width: 100%; max-width: 768px;
-                    background-color: var(--sp-btn-bg); color: var(--sp-text);
+                    background-color: var(--rovalra-container-background-color); color: var(--rovalra-main-text-color);
                     border: 1px solid var(--sp-btn-border);
                 }
                 
@@ -278,7 +269,7 @@ export async function init() {
                 return bgColor && bgColor !== 'rgba(0, 0, 0, 0)' && bgColor !== 'transparent';
             });
             if (hasPaneWithBackground) {
-                subplacesContentDiv.style.backgroundColor = 'var(--sp-bg)';
+                subplacesContentDiv.style.backgroundColor = 'var(--rovalra-container-background-color)';
             }
 
             const displaySubplaces = async (gamesToDisplay) => {

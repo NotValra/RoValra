@@ -409,7 +409,7 @@ export const SETTINGS_CONFIG = {
             },
             avatarFiltersEnabled: {
                 label: "Avatar Filters",
-                description: ["Adds filters to the avatar page, allowing you to filter by color, effect items, limited, offsale / onsale and more."],
+                description: ["Adds filters to the avatar page, allowing you to filter by effect items, limited, offsale / onsale and more."],
                 type: "checkbox",
                 default: true
             },
