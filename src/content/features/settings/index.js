@@ -241,7 +241,7 @@ export async function handleSearch(event) {
         const category = SETTINGS_CONFIG[categoryName];
         for (const [settingName, settingDef] of Object.entries(category.settings)) {
             const label = (Array.isArray(settingDef.label) ? settingDef.label.join(' ') : settingDef.label || '').toLowerCase();
-            const description = (settingDef.description || []).join(' ').toLowerCase();
+            const description = (Array.isArray(settingDef.description) ? settingDef.description.join(' ') : settingDef.description || '').toLowerCase();
             const fullText = `${label} ${description}`;
             
             let isMatch = fullText.includes(query) || fullText.replace(/\s+/g, '').includes(queryNoSpaces);
@@ -255,7 +255,7 @@ export async function handleSearch(event) {
             if (!isMatch && settingDef.childSettings) {
                 for (const childDef of Object.values(settingDef.childSettings)) {
                     const childLabel = (Array.isArray(childDef.label) ? childDef.label.join(' ') : childDef.label || '').toLowerCase();
-                    const childDesc = (childDef.description || []).join(' ').toLowerCase();
+                    const childDesc = (Array.isArray(childDef.description) ? childDef.description.join(' ') : childDef.description || '').toLowerCase();
                     if (`${childLabel} ${childDesc}`.includes(query)) {
                         isMatch = true;
                         break;
