@@ -160,15 +160,15 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
         wrapper.className = 'rovalra-number-input-wrapper';
         wrapper.style.cssText = 'display: flex; align-items: center; gap: 12px; margin-left: auto;';
         wrapper.innerHTML = DOMPurify.sanitize(`
-            <div class="rovalra-number-input-container" style="display: flex; align-items: center; gap: 8px; background-color: var(--surface-default); padding: 4px; border-radius: 8px;">
+            <div class="rovalra-number-input-container" style="display: flex; align-items: center; gap: 8px; background-color: var(--rovalra-container-background-color); padding: 4px; border-radius: 8px;">
                 <button type="button" class="rovalra-number-input-btn btn-control-xs" data-action="decrement" data-target="${settingName}" style="width: 32px; height: 32px; padding: 0; line-height: 0; border: none;">
-                    <svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1phnduy" focusable="false" aria-hidden="true" viewBox="0 0 24 24" style="width: 20px; height: 20px; fill: var(--icon-default);"><path d="M19 13H5v-2h14z"></path></svg>
+                    <svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1phnduy" focusable="false" aria-hidden="true" viewBox="0 0 24 24" style="width: 20px; height: 20px; fill: var(--rovalra-main-text-color);"><path d="M19 13H5v-2h14z"></path></svg>
                 </button>
                 <input type="number" id="${settingName}" data-setting-name="${settingName}" class="setting-number-input" 
                        min="${setting.min || 0}" max="${setting.max || 100}" step="${setting.step || 1}"
-                       style="width: 60px; text-align: center; -moz-appearance: textfield; appearance: textfield; border-radius: 6px; border: 1px solid var(--ui-border-strong); background-color: var(--ui-text-input-background); color: var(--ui-text-input-color); padding: 8px; font-weight: 500;">
+                       style="width: 60px; text-align: center; -moz-appearance: textfield; appearance: textfield; border-radius: 6px; border: 1px solid var(--rovalra-border-color); background-color: var(--rovalra-main-background-color); color: var(--rovalra-main-text-color); padding: 8px; font-weight: 500;">
                 <button type="button" class="rovalra-number-input-btn btn-control-xs" data-action="increment" data-target="${settingName}" style="width: 32px; height: 32px; padding: 0; line-height: 0; border: none;">
-                    <svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1phnduy" focusable="false" aria-hidden="true" viewBox="0 0 24 24" style="width: 20px; height: 20px; fill: var(--icon-default);"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6z"></path></svg>
+                    <svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1phnduy" focusable="false" aria-hidden="true" viewBox="0 0 24 24" style="width: 20px; height: 20px; fill: var(--rovalra-main-text-color);"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6z"></path></svg>
                 </button>
             </div>
             <label class="toggle-switch">

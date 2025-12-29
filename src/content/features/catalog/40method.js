@@ -756,7 +756,7 @@ const createAndShowPopup = (onSave, initialState = null) => {
             } catch {}
         } catch (error) {
             console.error('RoValra: Failed to fetch groups:', error);
-            groupDropdownContainer.innerHTML = DOMPurify.sanitize('<div class="text font-body" style="color: var(--rovalra-overlay-text-secondary);">Failed to load groups. Please refresh and try again.</div>');
+            groupDropdownContainer.innerHTML = DOMPurify.sanitize('<div class="text font-body" style="color: var(--rovalra-secondary-text-color);">Failed to load groups. Please refresh and try again.</div>');
         }
     };
     
