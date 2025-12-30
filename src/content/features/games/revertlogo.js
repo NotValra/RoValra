@@ -46,12 +46,12 @@ try {
 } catch(e) { }
 
 
-function openInterface(onCancel, customLogo) {
+function openInterface(onCancel, customLogo, closeOnBackgroundClick) {
     document.body.classList.add(HIDE_ROBLOX_UI_CLASS);
     showLoadingOverlay(() => {
         closeInterface();
         if (onCancel) onCancel();
-    }, customLogo);
+    }, customLogo, closeOnBackgroundClick);
 }
 
 function closeInterface(force = false) {
@@ -432,7 +432,7 @@ function initializeJoinDialogEnhancer() {
         }
     });
 
-    chrome.storage.local.get({ whatamIJoiningEnabled: true, AlwaysGetInfo: false, customLogoData: null, revertLogo: false }, (settings) => {
+    chrome.storage.local.get({ whatamIJoiningEnabled: true, AlwaysGetInfo: false, customLogoData: null, revertLogo: false, closeUiByClickingTheBackground: true }, (settings) => {
         
         const processGameLaunchData = async (gameLaunchFrame) => {
             gameLaunchElementExists = true;
@@ -446,7 +446,7 @@ function initializeJoinDialogEnhancer() {
 
             const logoToUse = (settings.revertLogo === true && settings.customLogoData) ? settings.customLogoData : null;
 
-            openInterface(null, logoToUse);
+            openInterface(null, logoToUse, settings.closeUiByClickingTheBackground);
 
             let urlParams;
             let placeId;
