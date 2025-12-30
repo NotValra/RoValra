@@ -40,8 +40,8 @@
     "service_worker": "background.js"
   },
   "optional_permissions": [
-    "webNavigation"
-
+    "webNavigation",
+    "downloads"
   ],
   "declarative_net_request": {
     "rule_resources": [
