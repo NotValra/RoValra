@@ -119,6 +119,12 @@ export const SETTINGS_CONFIG = {
                         ],
                         type: "checkbox",
                         default: true
+                    },
+                    closeUiByClickingTheBackground: {
+                        label: "Close the 'What am I joining' UI by clicking the background",
+                        description: "This allows you to click the background to close the UI, can be annoying if you want to see the info provided in the UI",
+                        type: "checkbox",
+                        default: true
                     }
                 }
             },

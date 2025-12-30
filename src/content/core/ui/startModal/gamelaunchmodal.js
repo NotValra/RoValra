@@ -184,7 +184,7 @@ try {
 let activeInstance = null;
 let keepOverlayOpen = false;
 
-export function showLoadingOverlay(onCancel, customLogo = null) {
+export function showLoadingOverlay(onCancel, customLogo = null, closeOnBackgroundClick = false) {
     keepOverlayOpen = false;
 
     if (activeInstance) {
@@ -241,7 +241,13 @@ export function showLoadingOverlay(onCancel, customLogo = null) {
 
     const { overlay, close } = createOverlay({
         title: '', bodyContent: bodyWrapper, showLogo: false,
-        maxWidth: '350px', preventBackdropClose: true
+        maxWidth: '350px', preventBackdropClose: !closeOnBackgroundClick,
+        onClose: () => {
+            if (activeInstance) {
+                activeInstance = null;
+                if (typeof onCancel === 'function') onCancel();
+            }
+        }
     });
 
     const titleEl = overlay.querySelector('.group-description-dialog-body-header');
@@ -264,8 +270,9 @@ export function hideLoadingOverlay(force = false) {
     if (keepOverlayOpen && !force) return;
     
     if (activeInstance) {
-        activeInstance.close();
+        const instance = activeInstance;
         activeInstance = null;
+        instance.close();
     }
 }
 
