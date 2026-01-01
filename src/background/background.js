@@ -84,7 +84,9 @@ function getDefaultSettings() {
         VersionFiltersEnabled: true,
         totalearnedEnabled: true,
         EnableRobloxApiDocs: false,
-        QuickOutfitsEnabled: false
+        QuickOutfitsEnabled: false,
+        gameTitleIssueEnable: true,
+        closeUiByClickingTheBackground:  true
     };
 }
 
@@ -168,6 +170,10 @@ const handleMemoryLeakNavigation = (details) => {
     }
 
     if (details.frameId !== 0 || details.transitionType === 'auto_subframe' || details.transitionType === 'reload') {
+        return;
+    }
+
+    if (details.url.includes('/download/client')) {
         return;
     }
 

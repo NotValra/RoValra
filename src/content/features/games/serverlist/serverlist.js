@@ -480,8 +480,8 @@ export function createServerCardFromApi(server, placeId = '') {
         const playerThumbnailsContainerHTML = `
             <div class="player-thumbnails-container" style="display:flex; align-items:center; justify-content:center; padding: 8px;">
                 <div style="background-color: rgba(0,0,0,0.06); border-radius: 6px; padding: 8px 12px; text-align: center;">
-                    <div style="font-size:12px; font-weight:600; color: var(--text-secondary);">Player count unknown</div>
-                    <div style="font-size:11px; color: var(--text-secondary); margin-top:4px;">This is a roblox limitation</div>
+                    <div style="font-size:12px; font-weight:600; color: var(--rovalra-secondary-text-color);">Player count unknown</div>
+                    <div style="font-size:11px; color: var(--rovalra-secondary-text-color); margin-top:4px;">This is a roblox limitation</div>
                 </div>
             </div>`;
 
