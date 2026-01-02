@@ -597,6 +597,14 @@ function initializeQuickPlay() {
     State.currentUserId = getCurrentUserId();
     initializeData();
     createGlobalPrivateServerContainer();
+	
+	observeElement('.list-item.hover-game-tile.grid-tile.old-hover', (el) => {
+		if (el.classList.contains('focused')) el.classList.remove('focused');
+		const o = new MutationObserver(() => {
+			if (el.classList.contains('focused')) el.classList.remove('focused');
+		});
+		o.observe(el, { attributes: true, attributeFilter: ['class'] });
+	}, { multiple: true });
 
     chrome.storage.local.get({
         PreferredRegionEnabled: true,
@@ -651,7 +659,7 @@ a.game-tile-styles.game-card-link:hover .quick-play-original-stats.game-card-fri
 a.game-tile-styles.game-card-link.quick-play-hover-active .quick-play-original-stats.game-card-friend-info { transform: translateY(-30px); }
 a.game-tile-styles.game-card-link:hover .quick-play-original-stats.game-card-info:not(.game-card-friend-info),
 a.game-tile-styles.game-card-link.quick-play-hover-active .quick-play-original-stats.game-card-info:not(.game-card-friend-info) { transform: translateY(-25px); }
-.play-button-overlay { display: flex; flex-direction: column; position: absolute; bottom: 0px; left: 0px; right: 0px; z-index: 10; opacity: 0; gap: 0px; transform: translateY(0px); transition: opacity 0.2s ease-out, transform 0.2s ease-out; pointer-events: none; }
+.play-button-overlay { display: flex; flex-direction: column; position: absolute; bottom: -8px; left: 0px; right: 0px; z-index: 10; opacity: 0; gap: 0px; transform: translateY(0px); transition: opacity 0.2s ease-out, transform 0.2s ease-out; pointer-events: none; }
 a.game-tile-styles.game-card-link:hover .play-button-overlay, a.game-tile-styles.game-card-link.quick-play-hover-active .play-button-overlay { opacity: 1; transform: translateY(0); transition-delay: 0.1s; }
 .play-buttons-wrapper { display: flex; gap: 4px; width: 100%; }
 .play-game-button, .server-browser-button, .private-servers-button { pointer-events: auto; background-color: var(--rovalra-playbutton-color); color: white; border: none; padding: 4px; line-height: 0; border-radius: 6px; cursor: pointer; transition: background-color 0.2s; display: flex; align-items: center; justify-content: center; height: 28px; }
