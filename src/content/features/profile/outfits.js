@@ -7,6 +7,7 @@ import { createSquareButton } from '../../core/ui/profile/header/squarebutton.js
 import { createScrollButtons } from '../../core/ui/general/scrollButtons.js';
 import { createButton } from '../../core/ui/buttons.js';
 import DOMPurify from 'dompurify';
+import { safeHtml } from '../../core/packages/dompurify';
 
 export function init() {
     chrome.storage.local.get('useroutfitsEnabled', function(data) {
@@ -129,7 +130,7 @@ export function init() {
             const header = document.createElement('div');
             Object.assign(header.style, {
                 display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                padding: '16px 24px', borderBottom: `1px solid ${theme.borderPrimary}`, flexShrink: '0'
+                padding: '6px 16px', borderBottom: `1px solid ${theme.borderPrimary}`, flexShrink: '0'
             });
             const headerTitle = document.createElement('h3');
             Object.assign(headerTitle.style, { fontSize: '18px', fontWeight: '600', margin: '0' });
@@ -158,9 +159,9 @@ export function init() {
             const detailsContentWrapper = document.createElement('div');
             Object.assign(detailsContentWrapper.style, { padding: '20px 20px 0 20px', display: 'flex', flexDirection: 'column', alignItems: 'center' });
             const detailsImageContainer = document.createElement('div');
-            Object.assign(detailsImageContainer.style, { width: '150px', height: '150px', position: 'relative', marginBottom: '10px', flexShrink: '0' });
+            Object.assign(detailsImageContainer.style, { width: 'auto', height: 'auto', maxWidth: '150px', maxHeight: '150px', position: 'relative', marginBottom: '0px', flexShrink: '0' });
             const detailsName = document.createElement('h3');
-            Object.assign(detailsName.style, { fontSize: '22px', margin: '10px 0', wordBreak: 'break-word', textAlign: 'center', color: theme.textPrimary });
+            Object.assign(detailsName.style, { fontSize: '22px', marginBottom: '0px', wordBreak: 'break-word', textAlign: 'center', color: theme.textPrimary });
             const separator = document.createElement('div');
             const totalPriceElement = document.createElement('div');
             totalPriceElement.id = 'rovalra-outfit-total-price';
@@ -168,7 +169,7 @@ export function init() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                marginTop: '8px',
+                marginTop: '0px',
                 fontSize: '16px',
                 fontWeight: '600',
                 color: theme.textSecondary
@@ -262,7 +263,7 @@ export function init() {
                     return Math.max(1, itemsPerRow * rowsPerPage);
                 };
 
-                itemsContainer.innerHTML = DOMPurify.sanitize(`<p style="color: ${theme.textSecondary}; font-style: italic; text-align: center;">Loading items...</p>`);
+                itemsContainer.innerHTML = safeHtml(`<p style="color: ${theme.textSecondary}; font-style: italic; text-align: center;">Loading items...</p>`);
                 itemsContainer.style.display = 'flex';
                 itemsContainer.style.flexWrap = 'wrap';
                 itemsContainer.style.justifyContent = 'center'; 
@@ -344,7 +345,7 @@ export function init() {
                         }
 
                         if (!assets || assets.length === 0) {
-                            itemsContainer.innerHTML = DOMPurify.sanitize('<p style="font-style: italic; text-align: center;">This outfit has no items.</p>');
+                            itemsContainer.innerHTML = safeHtml('<p style="font-style: italic; text-align: center;">This outfit has no items.</p>');
                             itemsContainer.style.display = 'block';
                             paginationContainer.style.visibility = 'hidden';
                             return;

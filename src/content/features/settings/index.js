@@ -1,6 +1,5 @@
 import { getAssets } from '../../core/assets.js';
 import { getRegionData, loadDatacenterMap, getFullRegionName } from '../../core/regions.js';
-import DOMPurify from 'dompurify';
 import { observeElement } from '../../core/observer.js';
 import { generateSingleSettingHTML } from '../../core/settings/generateSettings.js';
 import { SETTINGS_CONFIG } from '../../core/settings/settingConfig.js';
@@ -16,6 +15,8 @@ import {
 import { addCustomButton, addPopoverButton } from '../../core/settings/ui/settingsbutton.js';
 import { checkRoValraPage } from '../../core/settings/ui/page.js';
 import { callRobloxApi } from '../../core/api.js';
+import { safeHtml } from '../../core/packages/dompurify';
+import DOMPurify from 'dompurify'
 
 
 
@@ -201,7 +202,7 @@ export async function updateContent(buttonInfo, contentContainer) {
                 </div> 
             </div>`, sanitizeConfig;
     } else {
-        contentContainer.innerHTML = DOMPurify.sanitize(buttonInfo.content, sanitizeConfig);
+        contentContainer.innerHTML = safeHtml(buttonInfo.content, sanitizeConfig);
     }
 
     if (lowerText === "info") {
@@ -270,7 +271,8 @@ export async function handleSearch(event) {
     }
 
     if (searchResults.length === 0) {
-        contentContainer.innerHTML = DOMPurify.sanitize(`<div id="settings-content" style="padding: 15px; text-align: center; color: var(--rovalra-main-text-color);">No settings found for "${query}".</div>`);
+        contentContainer.innerHTML = safeHtml`<div id="settings-content" style="padding: 15px; text-align: center; color: var(--rovalra-main-text-color);">No settings found for "${query}".</div>`
+        ;
     } else {
         const groupedResults = searchResults.reduce((acc, setting) => {
             if (!acc[setting.category]) acc[setting.category] = [];
@@ -298,7 +300,7 @@ export async function handleSearch(event) {
                     resultsWrapper.appendChild(settingElement);
                 } else {
                     const tempDiv = document.createElement('div');
-                    tempDiv.innerHTML = DOMPurify.sanitize(settingElement);
+                    tempDiv.innerHTML = safeHtml(settingElement);
                     while (tempDiv.firstChild) {
                         resultsWrapper.appendChild(tempDiv.firstChild);
                     }

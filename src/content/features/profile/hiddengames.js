@@ -5,7 +5,7 @@ import { createShimmerGrid } from '../../core/ui/shimmer.js';
 import { createOverlay } from '../../core/ui/overlay.js';
 import { fetchThumbnails as fetchThumbnailsBatch, createThumbnailElement } from '../../core/thumbnail/thumbnails.js';
 import { callRobloxApi } from '../../core/api.js';
-import DOMPurify from 'dompurify';
+import { safeHtml } from '../../core/packages/dompurify';
 
 const CONFIG = {
     PAGE_SIZE: 50,
@@ -183,7 +183,7 @@ const UI = {
         card.className = 'game-card-container';
         Object.assign(card.style, { justifySelf: 'center', width: '150px', height: '240px' });
 
-        card.innerHTML = DOMPurify.sanitize(`
+        card.innerHTML = safeHtml`
             <a class="game-card-link" href="${ENDPOINTS.GAME_LINK(game.rootPlace.id)}" style="display: flex; flex-direction: column; height: 100%; justify-content: space-between;">
                 <div>
                     <div class="game-card-thumb-container"></div>
@@ -197,7 +197,7 @@ const UI = {
                     <span class="info-label playing-counts-label" title="${playerCount.toLocaleString()}">${playerCount.toLocaleString()}</span>
                 </div>
             </a>
-        `);
+        `;
 
         const thumbContainer = card.querySelector('.game-card-thumb-container');
         thumbContainer.appendChild(createThumbnailElement(thumbnailData, game.name, 'game-card-thumb'));
@@ -213,7 +213,7 @@ const UI = {
         const createFilterSection = (label, element) => {
             const div = document.createElement('div');
             div.style.cssText = 'display: flex; flex-direction: column; gap: 4px;';
-            div.innerHTML = DOMPurify.sanitize(`<label style="font-size: 12px; font-weight: 500; color: var(--rovalra-secondary-text-color);">${label}</label>`);
+            div.innerHTML = safeHtml`<label style="font-size: 12px; font-weight: 500; color: var(--rovalra-secondary-text-color);">${label}</label>`;
             div.appendChild(element);
             return div;
         };
@@ -314,7 +314,7 @@ class HiddenGamesManager {
         });
 
         if (this.allGames.length === 0) {
-            this.elements.list.innerHTML = DOMPurify.sanitize(`<p class="btr-no-servers-message">This user has no hidden experiences.</p>`);
+            this.elements.list.innerHTML = safeHtml`<p class="no-hidden-games-message">This user has no hidden experiences.</p>`;
             this.elements.filterPanel.style.display = 'none';
             return;
         }
@@ -373,7 +373,7 @@ class HiddenGamesManager {
         
         this.elements.list.innerHTML = '';
         if (this.processedGames.length === 0) {
-            this.elements.list.innerHTML = DOMPurify.sanitize(`<p class="btr-no-servers-message">No experiences match filters.</p>`);
+            this.elements.list.innerHTML = `<p class="no-hidden-games-message">No experiences match filters.</p>`;
         } else {
             await this.loadMore();
         }
@@ -382,7 +382,7 @@ class HiddenGamesManager {
     async loadMore() {
         if (this.visibleCount >= this.processedGames.length || this.elements.loader.innerHTML !== '') return;
 
-        this.elements.loader.innerHTML = DOMPurify.sanitize(`<p class="rovalra-loading-text">Loading...</p>`);
+        this.elements.loader.innerHTML = `<p class="rovalra-loading-text">Loading...</p>`;
         
         const nextBatch = this.processedGames.slice(this.visibleCount, this.visibleCount + CONFIG.PAGE_SIZE);
         

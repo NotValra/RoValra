@@ -6,6 +6,7 @@ import { getAssets } from '../../core/assets.js';
 import { fetchThumbnails } from '../../core/thumbnail/thumbnails.js';
 import { createRadioButton } from '../../core/ui/general/radio.js';
 import DOMPurify from 'dompurify';
+import { safeHtml } from '../../core/packages/dompurify';
 
 const INACTIVE_MAIN_BUTTON_ID = 'rovalra-bulk-inactivate-btn';
 const SET_INACTIVE_BTN_ID = 'rovalra-set-inactive-btn';
@@ -135,7 +136,7 @@ async function processServerRequest(selectedItems, isActive) {
         errorLog.forEach(err => {
             const errorItem = document.createElement('li');
             const gameUrl = `https://www.roblox.com/games/${err.placeId}`;
-            errorItem.innerHTML = DOMPurify.sanitize(`<a href="${gameUrl}" target="_blank" rel="noopener noreferrer">${err.name}</a>: ${err.reason}`);
+            errorItem.innerHTML = safeHtml(`<a href="${gameUrl}" target="_blank" rel="noopener noreferrer">${err.name}</a>: ${err.reason}`);
             errorList.appendChild(errorItem);
         });
         resultBody.appendChild(errorList);
@@ -321,10 +322,82 @@ function handleBulkAction(isActive) {
             filteredServers.forEach(server => {
                 const thumbnailData = thumbnailMap.get(server.universeId);
                 const thumbnailUrl = thumbnailData?.imageUrl || '';
-                const priceDisplay = server.priceInRobux ? `<span class="icon-robux-16x16"></span><span class="text-robux-tile ng-binding">${server.priceInRobux}</span>` : `<span class="text-overflow font-caption-body ng-binding ng-scope text-robux-tile">Free</span>`;
                 const listItem = document.createElement('li');
                 listItem.className = 'list-item item-card ng-scope place-item selectable-item-card';
-                listItem.innerHTML = DOMPurify.sanitize(`<div class="item-card-container"><div class="item-card-link"><div class="item-card-thumb-container"><span class="thumbnail-2d-container"><img src="${thumbnailUrl}" alt="${server.name}" title="${server.name}"></span></div><div class="item-card-name" title="${server.name}"><span class="ng-binding">${server.name}</span></div></div><div class="text-overflow item-card-label ng-scope"><span class="ng-binding">By </span><a class="creator-name text-overflow text-link ng-binding" href="https://www.roblox.com/users/${server.ownerId}/profile" target="_blank" rel="noopener noreferrer">@${server.ownerName}</a></div><div class="text-overflow item-card-price ng-scope">${priceDisplay}</div></div>`);
+
+                const itemCardContainer = document.createElement('div');
+                itemCardContainer.className = 'item-card-container';
+
+                const itemCardLink = document.createElement('div');
+                itemCardLink.className = 'item-card-link';
+
+                const itemCardThumbContainer = document.createElement('div');
+                itemCardThumbContainer.className = 'item-card-thumb-container';
+
+                const thumbnail2dContainer = document.createElement('span');
+                thumbnail2dContainer.className = 'thumbnail-2d-container';
+
+                const img = document.createElement('img');
+                img.src = thumbnailUrl;
+                img.alt = server.name;
+                img.title = server.name;
+
+                thumbnail2dContainer.appendChild(img);
+                itemCardThumbContainer.appendChild(thumbnail2dContainer);
+
+                const itemCardName = document.createElement('div');
+                itemCardName.className = 'item-card-name';
+                itemCardName.title = server.name;
+
+                const nameSpan = document.createElement('span');
+                nameSpan.className = 'ng-binding';
+                nameSpan.textContent = server.name;
+
+                itemCardName.appendChild(nameSpan);
+                itemCardLink.appendChild(itemCardThumbContainer);
+                itemCardLink.appendChild(itemCardName);
+
+                const itemCardLabel = document.createElement('div');
+                itemCardLabel.className = 'text-overflow item-card-label ng-scope';
+
+                const bySpan = document.createElement('span');
+                bySpan.className = 'ng-binding';
+                bySpan.textContent = 'By ';
+
+                const creatorLink = document.createElement('a');
+                creatorLink.className = 'creator-name text-overflow text-link ng-binding';
+                creatorLink.href = `https://www.roblox.com/users/${server.ownerId}/profile`;
+                creatorLink.target = '_blank';
+                creatorLink.rel = 'noopener noreferrer';
+                creatorLink.textContent = `@${server.ownerName}`;
+
+                itemCardLabel.appendChild(bySpan);
+                itemCardLabel.appendChild(creatorLink);
+
+                const itemCardPrice = document.createElement('div');
+                itemCardPrice.className = 'text-overflow item-card-price ng-scope';
+
+                if (server.priceInRobux) {
+                    const iconSpan = document.createElement('span');
+                    iconSpan.className = 'icon-robux-16x16';
+
+                    const priceSpan = document.createElement('span');
+                    priceSpan.className = 'text-robux-tile ng-binding';
+                    priceSpan.textContent = server.priceInRobux;
+
+                    itemCardPrice.appendChild(iconSpan);
+                    itemCardPrice.appendChild(priceSpan);
+                } else {
+                    const freeSpan = document.createElement('span');
+                    freeSpan.className = 'text-overflow font-caption-body ng-binding ng-scope text-robux-tile';
+                    freeSpan.textContent = 'Free';
+                    itemCardPrice.appendChild(freeSpan);
+                }
+
+                itemCardContainer.appendChild(itemCardLink);
+                itemCardContainer.appendChild(itemCardLabel);
+                itemCardContainer.appendChild(itemCardPrice);
+                listItem.appendChild(itemCardContainer);
                 
                 const radio = createRadioButton();
                 radio.dataset.serverId = server.privateServerId;
