@@ -1,6 +1,5 @@
 import { initializeObserver, startObserving } from './core/observer.js';
 import { detectTheme, dispatchThemeEvent } from './core/theme.js';
-
 // --- Feature Imports --- //
 
 // Site wide
