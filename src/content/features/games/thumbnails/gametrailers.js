@@ -6,7 +6,7 @@ function injectVideoStyles() {
     const styleId = 'rovalra-video-styles';
     if (document.getElementById(styleId)) return;
 
-    const style = document.createElement('style');
+    const style = document.createElement('style'); // Verified
     style.id = styleId;
     style.textContent = `
         .carousel-item.carousel-video > *:not(#rovalra-trailer-video) {
@@ -18,31 +18,13 @@ function injectVideoStyles() {
         #rovalra-trailer-video {
             background: #000;
         }
-    `;
+    `; // Verified
     
     const target = document.head || document.documentElement;
     if (target) target.appendChild(style);
 }
 
-async function hijackFirstSlot(videoId, assetType, carouselContainer, shouldAutoplay) {
-    injectVideoStyles();
-
-    let targetItem = carouselContainer.querySelector('.carousel-item');
-    if (!targetItem) {
-        await new Promise(resolve => {
-            const tempObserver = new MutationObserver(() => {
-                if (carouselContainer.querySelector('.carousel-item')) {
-                    tempObserver.disconnect();
-                    resolve();
-                }
-            });
-            tempObserver.observe(carouselContainer, { childList: true });
-        });
-        targetItem = carouselContainer.querySelector('.carousel-item');
-    }
-
-    if (!targetItem) return;
-
+function setupTrailerVideo(targetItem, videoId, assetType, carouselContainer, shouldAutoplay) {
     let lastUserInteraction = 0;
     const registerInteraction = () => { lastUserInteraction = Date.now(); };
     
@@ -67,7 +49,7 @@ async function hijackFirstSlot(videoId, assetType, carouselContainer, shouldAuto
         width: 100%; height: 100%; border: 0; background: #000;
         object-fit: contain; position: absolute; top: 0; left: 0; z-index: 10;
         display: block;
-    `;
+    `;//Verified
     
     videoElement.addEventListener('click', (e) => e.stopPropagation());
 
@@ -135,25 +117,51 @@ async function hijackFirstSlot(videoId, assetType, carouselContainer, shouldAuto
 
     requestAnimationFrame(enforceLoop);
 
-    try {
-        const fetchAssetData = async (type) => {
-            return await callRobloxApiJson({
-                subdomain: 'assetdelivery',
-                endpoint: '/v1/assets/batch',
-                method: 'POST',
-                body: [{ assetId: videoId, assetType: type, requestId: "0" }]
-            });
-        };
+    (async () => {
+        try {
+            const fetchAssetData = async (type) => {
+                return await callRobloxApiJson({
+                    subdomain: 'assetdelivery',
+                    endpoint: '/v1/assets/batch',
+                    method: 'POST',
+                    body: [{ assetId: videoId, assetType: type, requestId: "0" }]
+                });
+            };
 
-        let data = await fetchAssetData(assetType);
-        
-        if (data && data.length > 0 && data[0].errors) {
-            const fallback = (assetType === "Video") ? "GamePreviewVideo" : "Video";
-            data = await fetchAssetData(fallback);
+            let data = await fetchAssetData(assetType);
+            
+            if (data && data.length > 0 && data[0].errors) {
+                const fallback = (assetType === "Video") ? "GamePreviewVideo" : "Video";
+                data = await fetchAssetData(fallback);
+            }
+
+            await streamRobloxVideo(data, videoElement, () => {});
+        } catch (error) {
+            console.error("something went wrong with the gametrailers.", error)
         }
+    })();
+}
 
-        await streamRobloxVideo(data, videoElement, () => {});
-    } catch (error) {
+function hijackFirstSlot(videoId, assetType, carouselContainer, shouldAutoplay) {
+    injectVideoStyles();
+
+    const runSetup = () => {
+        if (carouselContainer.dataset.rovalraVideoInjected) return;
+        const targetItem = carouselContainer.querySelector('.carousel-item');
+        if (targetItem) {
+            carouselContainer.dataset.rovalraVideoInjected = "true";
+            setupTrailerVideo(targetItem, videoId, assetType, carouselContainer, shouldAutoplay);
+        }
+    };
+
+    if (carouselContainer.querySelector('.carousel-item')) {
+        runSetup();
+    } else {
+        observeElement('#game-details-carousel-container [data-testid="carousel"] .carousel-item', (item) => {
+            if (carouselContainer.contains(item)) {
+                runSetup();
+            }
+        }, { multiple: true });
     }
 }
 
