@@ -28,7 +28,7 @@ try {
     );
     process.exit(1);
 }
-
+//E
 const bannerText = `/*!
  * ${pkg.name} v${pkg.version}
  * License: GPL-3.0
