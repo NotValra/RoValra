@@ -219,7 +219,7 @@ async function fetchAndDisplayPrivateServers(placeId, loadMore = false, nextPage
 
     try {
         if (!loadMore) {
-            State.privateServersContainer.innerHTML = DOMPurify.sanitize(`<p style="color: var(--rovalra-secondary-text-color); text-align: center; padding: 10px 0;">Loading...</p>`);
+            State.privateServersContainer.innerHTML = DOMPurify.sanitize(`<p style="color: ${isDark ? '#fff' : '#000'}; text-align: center; padding: 10px 0;">Loading...</p>`);
             
             if (State.privateServerList.has(placeId)) {
                 const cached = State.privateServerList.get(placeId);
@@ -246,7 +246,7 @@ async function fetchAndDisplayPrivateServers(placeId, loadMore = false, nextPage
 
             if (res.status === 429) {
                 if (!loadMore) {
-                    State.privateServersContainer.innerHTML = DOMPurify.sanitize(`<p style="color: var(--rovalra-secondary-text-color); text-align: center; padding: 10px 0;">Rate limited. Retrying...</p>`);
+                    State.privateServersContainer.innerHTML = DOMPurify.sanitize(`<p style="color: ${isDark ? '#fff' : '#000'}; text-align: center; padding: 10px 0;">Rate limited. Retrying...</p>`);
                 }
                 
                 await new Promise(resolve => setTimeout(resolve, retryDelay));
@@ -304,7 +304,7 @@ function renderPrivateServers(placeId, servers, nextPageCursor, thumbnails, appe
     if (!servers.length && !append) {
         const msg = document.createElement('p');
         msg.textContent = 'No active private servers found.';
-        Object.assign(msg.style, { color: 'var(--rovalra-secondary-text-color)', textAlign: 'center', padding: '10px 0' });
+        Object.assign(msg.style, { color: isDark ? '#949ba4' : '#5F6368', textAlign: 'center', padding: '10px 0' });
         State.privateServersContainer.appendChild(msg);
         return;
     }
@@ -641,7 +641,8 @@ a.game-tile-styles.game-card-link:hover { z-index: 2; }
 a.game-tile-styles.game-card-link::after { content: ''; position: absolute; top: -2.5%; left: -2.5%; width: 105%; height: 105%; z-index: 1; }
 a.game-tile-styles.game-card-link::before, .hover-background { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; border-radius: 12px !Important; opacity: 0; transition: opacity 0.15s ease-out, top 0.15s ease-out, left 0.15s ease-out, right 0.15s ease-out, bottom 0.15s ease-out; pointer-events: none; will-change: opacity, top, left, right, bottom; }
 a.game-tile-styles.game-card-link::before { box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3); z-index: -2; }
-.hover-background { background-color: var(--rovalra-container-background-color); z-index: -1; }
+.hover-background { background-color: rgb(39, 41, 48); z-index: -1; }
+body:not(.dark-theme) .hover-background { background-color: rgb(247, 247, 248); }
 a.game-tile-styles.game-card-link:hover::before, a.game-tile-styles.game-card-link.quick-play-hover-active::before { opacity: 1; top: -5px; left: -5px; right: -5px; bottom: -5px; }
 a.game-tile-styles.game-card-link:hover .hover-background, a.game-tile-styles.game-card-link.quick-play-hover-active .hover-background { opacity: 1; top: -5px; left: -5px; right: -5px; bottom: -5px; }
 a.game-tile-styles.game-card-link:hover .game-card-name, a.game-tile-styles.game-card-link.quick-play-hover-active .game-card-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
@@ -654,31 +655,39 @@ a.game-tile-styles.game-card-link.quick-play-hover-active .quick-play-original-s
 .play-button-overlay { display: flex; flex-direction: column; position: absolute; bottom: 0px; left: 0px; right: 0px; z-index: 10; opacity: 0; gap: 0px; transform: translateY(0px); transition: opacity 0.2s ease-out, transform 0.2s ease-out; pointer-events: none; }
 a.game-tile-styles.game-card-link:hover .play-button-overlay, a.game-tile-styles.game-card-link.quick-play-hover-active .play-button-overlay { opacity: 1; transform: translateY(0); transition-delay: 0.1s; }
 .play-buttons-wrapper { display: flex; gap: 4px; width: 100%; }
-.play-game-button, .server-browser-button, .private-servers-button { pointer-events: auto; background-color: var(--rovalra-playbutton-color); color: white; border: none; padding: 4px; line-height: 0; border-radius: 6px; cursor: pointer; transition: background-color 0.2s; display: flex; align-items: center; justify-content: center; height: 28px; }
-.play-game-button:hover, .server-browser-button:hover, .private-servers-button:hover { background-color: var(--rovalra-playbutton-color); }
+.play-game-button, .server-browser-button, .private-servers-button { pointer-events: auto; background-color: rgb(51, 95, 255); color: white; border: none; padding: 4px; line-height: 0; border-radius: 6px; cursor: pointer; transition: background-color 0.2s; display: flex; align-items: center; justify-content: center; height: 28px; }
+.play-game-button:hover, .server-browser-button:hover, .private-servers-button:hover { background-color: rgba(41, 82, 233, 1); }
 .play-game-button { flex-grow: 1; position: relative; }
 .server-browser-button, .private-servers-button { position: relative; flex-shrink: 0; padding: 0 6px; }
-
+.rovalra-ps-tooltip { position: fixed; background-color: #232527; color: #FFFFFF; padding: 7px 10px; border-radius: 6px; font-size: 12px; font-weight: 500; white-space: normal; line-height: 1.4; text-align: center; z-index: 10003; visibility: hidden; opacity: 0; transition: opacity 0.15s ease; pointer-events: none; min-width: max-content; }
 .tooltip, .tooltip.in, .tooltip.fade.in { z-index: 10010 !important; }
 .tooltip .tooltip-inner { z-index: 10011 !important; }
+body:not(.dark-theme) .rovalra-ps-tooltip { background-color: #FFFFFF; color: #1E2024; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
 .private-server-item { display: flex; align-items: center; padding: 12px; border-radius: 8px; transition: background-color 0.2s; }
 .private-server-item:not(:last-child) { margin-bottom: 8px; }
-.private-server-item:hover { background-color: transparent; }
-.private-server-info { display: flex; flex-direction: column; gap: 3px; color: var(--rovalra-secondary-text-color); font-size: 13px; flex-grow: 1; min-width: 0; flex: 1 1 auto; }
-.private-server-name { font-weight: 500; color: var(--rovalra-main-text-color); font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.private-server-players { color: var(--rovalra-secondary-text-color); flex: none; white-space: nowrap; }
+.private-server-item:hover { background-color: #2c2e37; }
+.private-server-info { display: flex; flex-direction: column; gap: 3px; color: #c1c6ce; font-size: 13px; flex-grow: 1; min-width: 0; flex: 1 1 auto; }
+.private-server-name { font-weight: 500; color: #f0f2f5; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.private-server-players { color: #f0f2f5a4; flex: none; white-space: nowrap; }
 .private-server-owner-thumb-link { flex-shrink: 0; margin-right: 12px; display: block; }
-.private-server-owner-thumb { width: 40px; height: 40px; border-radius: 50%; background-color: var(--rovalra-secondary-text-color); }
+.private-server-owner-thumb { width: 40px; height: 40px; border-radius: 50%; background-color: var(--surface-neutral-tertiary); }
+body:not(.dark-theme) .private-server-owner-thumb { background-color: var(--surface-neutral-secondary); }
 .private-server-owner-actions { display: flex; gap: 8px; margin-left: 12px; flex-shrink: 0; }
 .private-server-join-btn, .private-server-action-btn { border: none; border-radius: 6px; cursor: pointer; transition: background-color 0.2s, opacity 0.2s; display: flex; align-items: center; justify-content: center; color: white; position: relative; height: 28px; flex-shrink: 0; }
-.private-server-join-btn { background-color: var(--rovalra-playbutton-color); width: 48px; margin-left: 8px; }
+.private-server-join-btn { background-color: rgb(51, 95, 255); width: 48px; margin-left: 8px; }
 .private-server-join-btn .icon-common-play { transform: scale(0.9); }
-.private-server-join-btn:hover { background-color: var(--rovalra-playbutton-color); }
-.private-server-action-btn { background-color: var(--rovalra-button-background-color); width: 28px !important; padding: 0 !important; box-sizing: border-box; }
-.private-server-action-btn:hover { background-color: var(--rovalra-button-background-color); }
-.private-server-action-btn:disabled { background-color: var(--rovalra-button-background-color); opacity: 0.5; cursor: not-allowed; }
+.private-server-join-btn:hover { background-color: rgba(41, 82, 233, 1); }
+.private-server-action-btn { background-color: #4f545c; width: 28px !important; padding: 0 !important; box-sizing: border-box; }
+.private-server-action-btn:hover { background-color: #5d636d; }
+.private-server-action-btn:disabled { background-color: #4f545c; opacity: 0.5; cursor: not-allowed; }
 .private-server-action-btn svg, .private-server-action-btn img { width: 20px !important; height: 20px !important; display: block; }
-
+body:not(.dark-theme) .private-server-item:hover { background-color: #F0F1F2; }
+body:not(.dark-theme) .private-server-info { color: #5F6368; }
+body:not(.dark-theme) .private-server-name { color: #1E2024; }
+body:not(.dark-theme) .private-server-players { color: #5F6368; }
+body:not(.dark-theme) .private-server-action-btn { background-color: #E8EAED; }
+body:not(.dark-theme) .private-server-action-btn:hover { background-color: #D2D5D9; }
+body:not(.dark-theme) .private-server-action-btn svg { fill: #3C4043; }
 #rovalra-private-servers-global-container { position: absolute; z-index: 10002; display: flex; flex-direction: column; border-radius: 12px; opacity: 0; visibility: hidden; transform: translateY(-5px) scale(0.98); transition: opacity 0.2s ease, transform 0.2s ease, visibility 0s linear 0.2s; pointer-events: none; overflow-y: auto; overflow-x: hidden; }
 #rovalra-private-servers-global-container.visible { opacity: 1; visibility: visible; transform: translateY(0) scale(1); transition-delay: 0s; pointer-events: auto; }
 .rovalra-ps-list-container { padding: 8px; flex-grow: 1; box-sizing: border-box; }
@@ -686,7 +695,7 @@ a.game-tile-styles.game-card-link:hover .play-button-overlay, a.game-tile-styles
 #rovalra-private-servers-global-container::-webkit-scrollbar-track { background: transparent; }
 #rovalra-private-servers-global-container::-webkit-scrollbar-thumb { background-color: rgba(255, 255, 255, 0.2); border-radius: 4px; }
 body:not(.dark-theme) #rovalra-private-servers-global-container::-webkit-scrollbar-thumb { background-color: rgba(0, 0, 0, 0.2); }
-.rovalra-ps-list-container .private-server-item { background-color: transparent; }
+.rovalra-ps-list-container .private-server-item { background-color: var(--surface-neutral-secondary); }
 .featured-game-container a.game-tile-styles.game-card-link::after,
 .featured-game-container a.game-tile-styles.game-card-link::before,
 .featured-game-container .hover-background { position: absolute; top: 16px; left: 16px; background: none; border: none; cursor: pointer; padding: 4px; color: #FFF; }
