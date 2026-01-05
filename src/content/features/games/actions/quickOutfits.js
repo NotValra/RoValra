@@ -7,6 +7,7 @@ import { fetchThumbnails, createThumbnailElement } from '../../../core/thumbnail
 import { createScrollButtons } from '../../../core/ui/general/scrollButtons.js';
 import { addTooltip } from '../../../core/ui/tooltip.js';
 import DOMPurify from 'dompurify';
+import { showSystemAlert } from '../../../core/ui/roblox/alert.js';
 
 async function fetchAllOutfits(userId) {
     let outfits = [];
@@ -206,7 +207,7 @@ function createOutfitCard(outfit, thumbnailData, onSuccess) {
                 name.style.color = "#ff4444";
             }
         } catch (e) {
-            name.textContent = "Error";
+            name.textContent = "Error:", console.error(e);
             name.style.color = "#ff4444";
         }
         
@@ -223,7 +224,7 @@ function createOutfitCard(outfit, thumbnailData, onSuccess) {
 async function showQuickOutfitsOverlay() {
     const userId = await getAuthenticatedUserId();
     if (!userId) {
-        alert("Could not find user ID.");
+        console.error("authed user id not found :C for quick outfits")
         return;
     }
 
@@ -332,7 +333,7 @@ async function showQuickOutfitsOverlay() {
                 }
                 const card = createOutfitCard(outfit, thumbData, () => {
                     close();
-                    showSuccessAlert("Successfully equipped outfit.");
+                    showSystemAlert("Successfully equipped outfit.");
                 });
                 gridContainer.appendChild(card);
             });
@@ -354,37 +355,6 @@ async function showQuickOutfitsOverlay() {
     }
 }
 
-function showSuccessAlert(message) {
-    let feedbackContainer = document.querySelector('.sg-system-feedback');
-    if (!feedbackContainer) {
-        feedbackContainer = document.createElement('div');
-        feedbackContainer.className = 'sg-system-feedback';
-        document.body.appendChild(feedbackContainer);
-    }
-
-    const container = document.createElement('div');
-    container.className = 'alert-system-feedback';
-    
-    const alertDiv = document.createElement('div');
-    alertDiv.className = 'alert alert-success';
-    alertDiv.setAttribute('role', 'alert');
-    
-    const span = document.createElement('span');
-    span.className = 'alert-content';
-    span.textContent = message;
-    
-    alertDiv.appendChild(span);
-    container.appendChild(alertDiv);
-    feedbackContainer.appendChild(container);
-
-    void alertDiv.offsetWidth;
-    alertDiv.classList.add('on');
-    
-    setTimeout(() => {
-        alertDiv.classList.remove('on');
-        setTimeout(() => container.remove(), 300);
-    }, 3000);
-}
 
 function addQuickOutfitsButton(container) {
     if (container.querySelector('.rovalra-quick-outfits-btn-container')) {
