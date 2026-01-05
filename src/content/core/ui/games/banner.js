@@ -2,7 +2,6 @@
 import { parseMarkdown } from '../../utils/markdown.js';
 import { observeElement, startObserving } from '../../observer.js';
 import DOMPurify from 'dompurify';
-
 let isInitialized = false;
 
 export function init() {
@@ -16,12 +15,11 @@ export function init() {
 
     if (!window.GameBannerManager) {
         window.GameBannerManager = {
-
-            addNotice: function(title, iconHtml = '', description = '') {
+            addNotice: function (title, iconHtml = '', description = '') {
                 const banner = document.getElementById(BANNER_ID);
-                if (!banner) return; 
+                if (!banner) return;
 
-                let fontSize = '20px'; 
+                let fontSize = '20px';
                 if (title.length > 100) {
                     fontSize = '14px';
                 } else if (title.length > 50) {
@@ -29,20 +27,15 @@ export function init() {
                 }
 
                 const parsedTitle = DOMPurify.sanitize(parseMarkdown(title));
-                const parsedDescription = DOMPurify.sanitize(parseMarkdown(description));
+                const parsedDescription = DOMPurify.sanitize(
+                    parseMarkdown(description),
+                );
 
                 const entry = document.createElement('div');
-                entry.style.cssText = `
-                    display: flex;
-                    position: relative;
-                    align-items: center;
-                    gap: 15px;
-                    padding: 5px 0;
-                    color: var(--rovalra-main-text-color);
-                `;
-                
+                entry.className = 'rovalra-game-notice-entry';
+
                 let iconContent = '';
-                if(iconHtml) {
+                if (iconHtml) {
                     const tempDiv = document.createElement('div');
                     tempDiv.innerHTML = DOMPurify.sanitize(iconHtml);
                     const svgElement = tempDiv.querySelector('svg');
@@ -50,33 +43,30 @@ export function init() {
                     if (svgElement) {
                         svgElement.setAttribute('fill', 'currentColor');
                         const modifiedIconHtml = svgElement.outerHTML;
-                        iconContent = `<div style="display:flex; align-items:center; justify-content:center; width:48px; height:48px; flex-shrink:0;">${modifiedIconHtml}</div>`;
+                        iconContent = `<div class="rovalra-game-notice-icon">${modifiedIconHtml}</div>`;
                     }
                 }
 
                 const textContainer = document.createElement('div');
-                textContainer.style.display = 'flex';
-                textContainer.style.flexDirection = 'column';
-                textContainer.style.justifyContent = 'center';
+                textContainer.className = 'rovalra-game-notice-text-container';
 
                 const titleDiv = document.createElement('div');
-                titleDiv.innerHTML = parsedTitle; 
+                titleDiv.className = 'rovalra-game-notice-title';
+                titleDiv.innerHTML = parsedTitle; // Verified
 
                 titleDiv.style.fontSize = fontSize;
-                titleDiv.style.fontWeight = description ? '600' : '400'; 
-                titleDiv.style.lineHeight = '1.2';
-                titleDiv.style.color = 'var(--rovalra-main-text-color)';
+                titleDiv.style.fontWeight = description ? '600' : '400';
 
                 const mdWrapper = titleDiv.querySelector('.rovalra-markdown');
                 if (mdWrapper) {
-                    mdWrapper.style.display = 'contents'; 
+                    mdWrapper.style.display = 'contents';
                 }
 
                 const paragraphs = titleDiv.querySelectorAll('p');
-                paragraphs.forEach(p => {
+                paragraphs.forEach((p) => {
                     p.style.margin = '0';
                     p.style.padding = '0';
-                    p.style.display = 'inline'; 
+                    p.style.display = 'inline';
                     p.style.color = 'inherit';
                     p.style.fontWeight = 'inherit';
                     p.style.fontSize = 'inherit';
@@ -86,30 +76,28 @@ export function init() {
 
                 if (description) {
                     const descDiv = document.createElement('div');
-                    descDiv.innerHTML = parsedDescription; 
-                    
-                    descDiv.style.fontSize = '14px'; 
-                    descDiv.style.marginTop = '4px';
-                    descDiv.style.color = 'var(--rovalra-secondary-text-color)';
-                    
-                    const descWrapper = descDiv.querySelector('.rovalra-markdown');
-                    if(descWrapper) descWrapper.style.display = 'contents';
+                    descDiv.className = 'rovalra-game-notice-description';
+                    descDiv.innerHTML = parsedDescription; // Verified
+
+                    const descWrapper =
+                        descDiv.querySelector('.rovalra-markdown');
+                    if (descWrapper) descWrapper.style.display = 'contents';
 
                     const descParagraphs = descDiv.querySelectorAll('p');
-                    descParagraphs.forEach(p => {
+                    descParagraphs.forEach((p) => {
                         p.style.margin = '0';
-                        p.style.color = 'inherit'; 
+                        p.style.color = 'inherit';
                     });
-                    
+
                     textContainer.appendChild(descDiv);
                 }
 
-                entry.innerHTML = iconContent;
+                entry.innerHTML = iconContent; // Verified
                 entry.appendChild(textContainer);
 
                 banner.appendChild(entry);
                 banner.style.display = 'flex';
-            }
+            },
         };
     }
 
@@ -121,19 +109,9 @@ export function init() {
             const banner = document.createElement('div');
             banner.id = BANNER_ID;
 
-            banner.style.cssText = `
-                background-color: var(--rovalra-container-background-color);
-                width: 100%;
-                padding: 10px 15px;
-                margin-bottom: 12px;
-                display: none;
-                flex-direction: column;
-            `;
-
             parent.prepend(banner);
         }
     }
-
 
     observeElement(TARGET_PARENT_SELECTOR, initializeBannerContainer);
 }

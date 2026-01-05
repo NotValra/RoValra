@@ -1,0 +1,51 @@
+#rovalra-game-notice-banner {
+    background-color: var(--rovalra-container-background-color);
+    width: 100%;
+    padding: 10px 15px;
+    margin-bottom: 12px;
+    display: none;
+    flex-direction: column;
+
+    .rovalra-game-notice-entry {
+        display: flex;
+        position: relative;
+        align-items: center;
+        gap: 15px;
+        padding: 5px 0;
+        color: var(--rovalra-main-text-color);
+    }
+
+    .rovalra-game-notice-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 48px;
+        height: 48px;
+        flex-shrink: 0;
+    }
+
+    .rovalra-game-notice-text-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .rovalra-game-notice-title {
+        line-height: 1.2;
+        color: var(--rovalra-main-text-color);
+
+        .rovalra-markdown {
+            display: contents;
+        }
+    }
+
+    .rovalra-game-notice-description {
+        font-size: 14px;
+        margin-top: 4px;
+        color: var(--rovalra-secondary-text-color);
+
+        .rovalra-markdown {
+            display: contents;
+        }
+    }
+}

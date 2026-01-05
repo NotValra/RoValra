@@ -1,0 +1,53 @@
+@keyframes rovalra-rotation {
+    0% {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(359deg);
+    }
+}
+
+.item-card-thumb-container {
+    transition: box-shadow 0.2s ease;
+    .thumbnail-2d-container {
+        border-radius: 8px;
+        overflow: hidden;
+    }
+}
+
+.list-item.selected .item-card-thumb-container {
+    box-shadow: 0 0 8px rgba(51, 95, 255, 0.9);
+}
+
+.selectable-item-card {
+    position: relative;
+}
+
+#rovalra-filtered-assets-list .list-item {
+    cursor: pointer;
+}
+
+.rovalra-no-servers-message {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-secondary);
+    font-size: 16px;
+    font-style: italic;
+}
+
+#rovalra-loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    border-top-color: #333;
+    border-radius: 50%;
+    animation: rovalra-rotation 1s linear infinite;
+    margin: 20px auto;
+}
+
+.success-text {
+    color: #43b581;
+}
+.error-text {
+    color: #e53935;
+}

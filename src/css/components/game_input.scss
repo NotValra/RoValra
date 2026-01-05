@@ -1,0 +1,58 @@
+.rovalra-game-input {
+    .game-search-container {
+        position: relative;
+    }
+
+    .game-search-icon {
+        position: absolute;
+        left: 12px;
+        padding-right: 6px;
+        top: 50%;
+        transform: translateY(-50%) scale(0.8);
+        pointer-events: none;
+        color: var(--rovalra-secondary-text-color);
+    }
+
+    .game-search-input {
+        padding-left: 38px !important;
+    }
+
+    .game-search-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        margin-top: 4px;
+        z-index: 1001;
+        display: none;
+    }
+
+    .game-search-error-item {
+        pointer-events: none;
+        text-align: center;
+    }
+
+    .game-search-result-img {
+        width: 36px;
+        height: 36px;
+        border-radius: 4px;
+        background-color: var(--rovalra-container-background-color);
+        flex-shrink: 0;
+    }
+
+    .game-search-player-count {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .game-search-selected-icon {
+        position: absolute;
+        left: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 24px;
+        height: 24px;
+        border-radius: 4px;
+    }
+}

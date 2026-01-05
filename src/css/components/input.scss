@@ -1,0 +1,95 @@
+.rovalra-catalog-input-wrapper {
+    position: relative;
+    overflow: visible !important; 
+}
+.rovalra-catalog-input-base {
+    position: relative;
+    border-radius: 8px;
+    height: 40px;
+}
+.rovalra-catalog-input-label {
+    color: var(--rovalra-secondary-text-color);
+    font-family: "Builder Sans", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+    font-weight: 400;
+    font-size: 1rem;
+    line-height: 1.4375em;
+    padding: 0;
+    position: absolute;
+    left: 14px;
+    top: 50%; 
+    transform: translateY(-50%);
+    transition: color 200ms cubic-bezier(0.0, 0, 0.2, 1) 0ms, transform 200ms cubic-bezier(0.0, 0, 0.2, 1) 0ms;
+    pointer-events: none;
+    z-index: 1; 
+}
+.rovalra-catalog-input-field {
+    background-color: transparent !important;
+    border: none !important;
+    
+    outline: none !important;
+    box-shadow: none !important;
+    width: 100%;
+    height: 40px;
+    padding: 8px 14px;
+    position: relative;
+    color: var(--rovalra-main-text-color) !important;
+    font-family: "Builder Sans", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif !important;
+    font-size: 16px !important;
+    box-sizing: border-box !important;
+}
+
+.rovalra-catalog-input-field::-webkit-search-decoration,
+.rovalra-catalog-input-field::-webkit-search-cancel-button,
+.rovalra-catalog-input-field::-webkit-search-results-button,
+.rovalra-catalog-input-field::-webkit-search-results-decoration {
+    display: none;
+}
+
+.rovalra-catalog-input-field[readonly] {
+    cursor: text !important;
+    background-color: transparent !important;
+}
+
+
+.rovalra-catalog-input-fieldset { 
+    border: 1px solid rgb(66 65 65 / 45%);
+    position: absolute;
+    top: -5px; 
+    height: 45px; 
+    left: 0;
+    right: 0;
+    margin: 0;
+    border-radius: inherit;
+    pointer-events: none; 
+    transition: border-color 200ms ease; 
+}
+.rovalra-catalog-input-legend {
+    padding: 0;
+    text-align: left;
+    transition: max-width 200ms cubic-bezier(0.0, 0, 0.2, 1) 0ms;
+    line-height: 23px;
+    height: 11px;
+    max-width: 0.01px;
+    background-color: transparent; 
+    transition: background-color 200ms ease; 
+}
+.rovalra-catalog-input-legend span {
+    display: inline-block;
+    padding-left: 5px;
+    padding-right: 0px;
+    visibility: hidden; 
+    font-size: 12px;
+}
+.rovalra-catalog-input-label.MuiInputLabel-shrink {
+    transform: translate(0, -27px) scale(0.75);
+    transform-origin: top left; 
+}
+.rovalra-catalog-input-label.Mui-focused {
+}
+.rovalra-catalog-input-base.Mui-focused .rovalra-catalog-input-fieldset {
+    border: 2px solid rgb(51, 95, 255); 
+}
+.rovalra-catalog-input-label.MuiInputLabel-shrink ~ .rovalra-catalog-input-base .rovalra-catalog-input-legend {
+
+    max-width: calc(100% * 0.70 + 0px);
+}

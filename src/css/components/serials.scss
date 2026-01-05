@@ -1,0 +1,53 @@
+.rovalra-serial-container { 
+    position: absolute; 
+    bottom: 21px; 
+    left: 2px; 
+    z-index: 3;
+    background-color: var(--rovalra-container-background-color); 
+    color: var(--rovalra-main-text-color); 
+    border-radius: 11px; 
+    display: flex; 
+    align-items: center; 
+    height: 22px; 
+    padding: 0 2px; 
+    cursor: default; 
+    transition: all 0.25s ease-in-out; 
+}
+
+.rovalra-serial-star { 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    width: 20px; 
+    height: 20px; 
+    flex-shrink: 0; 
+}
+
+.rovalra-serial-star .icon-shop-limited { 
+    transform: scale(0.8); 
+}
+
+.rovalra-serial-number { 
+    max-width: 0; 
+    opacity: 0; 
+    overflow: hidden; 
+    white-space: nowrap; 
+    font-size: 12px; 
+    font-weight: 600; 
+    transition: max-width 0.25s ease-in-out, opacity 0.2s ease-in-out 0.05s, margin-left 0.25s ease-in-out; 
+    margin-left: 0; 
+}
+
+.rovalra-serial-container.hover-reveal:hover .rovalra-serial-number { 
+    max-width: 100px; 
+    opacity: 1; 
+    margin-left: 4px; 
+    padding-right: 4px; 
+}
+
+.rovalra-serial-container.always-visible .rovalra-serial-number { 
+    max-width: 100px; 
+    opacity: 1; 
+    margin-left: 4px; 
+    padding-right: 4px; 
+}

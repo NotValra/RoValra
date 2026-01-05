@@ -9,12 +9,12 @@ export function createSquareButton({
     onClick,
     disabled = false,
     width = '100%',
-    height = 'height-1000', 
+    height = 'height-1000',
     paddingX = 'padding-x-medium',
-    paddingY = 'padding-y-none', 
-    disableTextTruncation = false, 
+    paddingY = 'padding-y-none',
+    disableTextTruncation = false,
     radius = 'radius-medium',
-    fontSize
+    fontSize,
 }) {
     const button = document.createElement('button');
     button.type = 'button';
@@ -23,36 +23,35 @@ export function createSquareButton({
 
     let classNames = `foundation-web-button relative clip group/interactable focus-visible:outline-focus disabled:outline-none cursor-pointer flex items-center justify-center stroke-none select-none text-label-medium ${height} ${paddingX} ${paddingY} ${radius}`;
 
-    if (backgroundColor) {
-    } else {
-        classNames += ' bg-action-standard content-action-standard'; 
-    }
-    
+    classNames += ' bg-action-standard content-action-standard';
+
     button.className = classNames;
 
     Object.assign(button.style, {
         textDecoration: 'none',
         width: width,
         backgroundColor: backgroundColor || '',
-        fontSize: fontSize || '', 
-        color: textColor || '' 
+        fontSize: fontSize || '',
+        color: textColor || '',
     });
 
     button.disabled = disabled;
 
     const presentationDiv = document.createElement('div');
     presentationDiv.setAttribute('role', 'presentation');
-    
+
     let presentationDivClass = 'absolute inset-[0] transition-colors';
     if (hoverBackgroundColor) {
         presentationDivClass += ` group-hover/interactable:bg-[${hoverBackgroundColor}]`;
     } else {
-        presentationDivClass += ' group-hover/interactable:bg-[var(--color-state-hover)]';
+        presentationDivClass +=
+            ' group-hover/interactable:bg-[var(--color-state-hover)]';
     }
     if (pressBackgroundColor) {
         presentationDivClass += ` group-active/interactable:bg-[${pressBackgroundColor}]`;
     } else {
-        presentationDivClass += ' group-active/interactable:bg-[var(--color-state-press)]';
+        presentationDivClass +=
+            ' group-active/interactable:bg-[var(--color-state-press)]';
     }
     presentationDivClass += ' group-disabled/interactable:bg-none';
 
@@ -63,12 +62,12 @@ export function createSquareButton({
     if (!disableTextTruncation) {
         contentSpanClass += ' text-truncate-end text-no-wrap';
     } else {
-        contentSpanClass += ' text-no-wrap'; 
+        contentSpanClass += ' text-no-wrap';
     }
     contentSpan.className = contentSpanClass;
-    
+
     if (Array.isArray(content)) {
-        content.forEach(item => {
+        content.forEach((item) => {
             if (typeof item === 'string') {
                 contentSpan.appendChild(document.createTextNode(item));
             } else if (item instanceof HTMLElement) {

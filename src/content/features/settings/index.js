@@ -1,33 +1,40 @@
 import { getAssets } from '../../core/assets.js';
-import { getRegionData, loadDatacenterMap, getFullRegionName } from '../../core/regions.js';
+import {
+    getRegionData,
+    loadDatacenterMap,
+    getFullRegionName,
+} from '../../core/regions.js';
 import { observeElement } from '../../core/observer.js';
 import { generateSingleSettingHTML } from '../../core/settings/generateSettings.js';
 import { SETTINGS_CONFIG } from '../../core/settings/settingConfig.js';
-import { exportSettings, importSettings, createExportImportButtons } from '../../core/settings/portSettings.js';
-import { 
-    initSettings, 
-    initializeSettingsEventListeners, 
-    loadSettings, 
-    handleSaveSettings, 
-    updateConditionalSettingsVisibility, 
-    buildSettingsKey 
+import {
+    exportSettings,
+    importSettings,
+    createExportImportButtons,
+} from '../../core/settings/portSettings.js';
+import {
+    initSettings,
+    initializeSettingsEventListeners,
+    loadSettings,
+    handleSaveSettings,
+    updateConditionalSettingsVisibility,
+    buildSettingsKey,
 } from '../../core/settings/handlesettings.js';
-import { addCustomButton, addPopoverButton } from '../../core/settings/ui/settingsbutton.js';
+import {
+    addCustomButton,
+    addPopoverButton,
+} from '../../core/settings/ui/settingsbutton.js';
 import { checkRoValraPage } from '../../core/settings/ui/page.js';
 import { callRobloxApi } from '../../core/api.js';
 import { safeHtml } from '../../core/packages/dompurify';
-import DOMPurify from 'dompurify'
-
-
+import DOMPurify from 'dompurify';
 
 const assets = getAssets();
 let REGIONS = {};
 
-
-
 function debounce(func, wait) {
     let timeout;
-    return function(...args) {
+    return function (...args) {
         clearTimeout(timeout);
         timeout = setTimeout(() => func.apply(this, args), wait);
     };
@@ -37,8 +44,10 @@ function getLevenshteinDistance(a, b) {
     if (!a.length) return b.length;
     if (!b.length) return a.length;
 
-    const matrix = Array.from({ length: b.length + 1 }, (_, j) => 
-        Array.from({ length: a.length + 1 }, (_, i) => (j === 0 ? i : (i === 0 ? j : 0)))
+    const matrix = Array.from({ length: b.length + 1 }, (_, j) =>
+        Array.from({ length: a.length + 1 }, (_, i) =>
+            j === 0 ? i : i === 0 ? j : 0,
+        ),
     );
 
     for (let j = 1; j <= b.length; j++) {
@@ -47,7 +56,7 @@ function getLevenshteinDistance(a, b) {
             matrix[j][i] = Math.min(
                 matrix[j][i - 1] + 1,
                 matrix[j - 1][i] + 1,
-                matrix[j - 1][i - 1] + indicator
+                matrix[j - 1][i - 1] + indicator,
             );
         }
     }
@@ -62,13 +71,14 @@ export async function applyTheme() {
 
 const debouncedApplyTheme = debounce(applyTheme, 50);
 const debouncedAddPopoverButton = debounce(addPopoverButton, 100);
-const debouncedAddCustomButton = debounce(() => addCustomButton(debouncedAddPopoverButton), 100);
-
-
+const debouncedAddCustomButton = debounce(
+    () => addCustomButton(debouncedAddPopoverButton),
+    100,
+);
 
 export const buttonData = [
     {
-        text: "Info",
+        text: 'Info',
         content: `
             <div style="padding: 8px;">
                 <h2 style="margin-bottom: 10px; color: var(--rovalra-main-text-color) !important;">RoValra Information!</h2>
@@ -104,10 +114,10 @@ export const buttonData = [
                         </div>
                     </div>
                 </div>
-            </div>`
+            </div>`,
     },
     {
-        text: "Credits",
+        text: 'Credits',
         content: `
             <div style="padding: 8px;">
                 <h2 style="margin-bottom: 10px; color: var(--rovalra-main-text-color) !important;">RoValra Credits!</h2>
@@ -144,19 +154,17 @@ export const buttonData = [
                         Thanks to <b style="font-weight: bold;">WoozyNate</b> for making the amazing game called fisch, which is where Gilbert (the logo) is from <3
                     </li>
                 </ul>
-            </div>`
+            </div>`,
     },
     {
-        text: "Settings",
+        text: 'Settings',
         content: `
             <div id="settings-content" style="padding: 0; background-color: transparent;">
                 <div id="setting-section-buttons" style="display: flex; margin-bottom: 25px;"></div>
                 <div id="setting-section-content" style="padding: 5px;"></div>
-            </div>`
-    }
+            </div>`,
+    },
 ];
-
-
 
 function handleGlobalDomChange(event) {
     if (document.getElementById('settings-popover-menu')) {
@@ -171,14 +179,20 @@ function handleGlobalDomChange(event) {
     const mutationsList = event.detail?.mutationsList;
     if (!mutationsList) return;
 
-    const shouldUpdateTheme = mutationsList.some(mutation => 
-        mutation.type === 'childList' && 
-        mutation.addedNodes.length > 0 &&
-        Array.from(mutation.addedNodes).some(node => 
-            node.nodeType === Node.ELEMENT_NODE && 
-            (node.matches('[data-theme-dependent], .setting, .menu-option, #content-container') || 
-             node.querySelector('[data-theme-dependent], .setting, .menu-option, #content-container'))
-        )
+    const shouldUpdateTheme = mutationsList.some(
+        (mutation) =>
+            mutation.type === 'childList' &&
+            mutation.addedNodes.length > 0 &&
+            Array.from(mutation.addedNodes).some(
+                (node) =>
+                    node.nodeType === Node.ELEMENT_NODE &&
+                    (node.matches(
+                        '[data-theme-dependent], .setting, .menu-option, #content-container',
+                    ) ||
+                        node.querySelector(
+                            '[data-theme-dependent], .setting, .menu-option, #content-container',
+                        )),
+            ),
     );
 
     if (shouldUpdateTheme) {
@@ -187,50 +201,74 @@ function handleGlobalDomChange(event) {
 }
 
 export async function updateContent(buttonInfo, contentContainer) {
-    if (typeof buttonInfo !== 'object' || buttonInfo === null || !buttonInfo.content) return;
+    if (
+        typeof buttonInfo !== 'object' ||
+        buttonInfo === null ||
+        !buttonInfo.content
+    )
+        return;
 
     const lowerText = buttonInfo.text.toLowerCase();
     const sanitizeConfig = { ADD_URI_SCHEMES: ['chrome-extension'] };
 
-    if (lowerText === "info" || lowerText === "credits") {
-        contentContainer.innerHTML = `
+    if (lowerText === 'info' || lowerText === 'credits') {
+        ((contentContainer.innerHTML = `
             <div id="settings-content" style="padding: 0; background-color: transparent !important;"> 
                 <div id="setting-section-content" style="padding: 5px;"> 
                     <div id="info-credits-background-wrapper" class="setting" style="margin-bottom: 15px;">
                         ${buttonInfo.content}
                     </div> 
                 </div> 
-            </div>`, sanitizeConfig;
+            </div>`), //verified
+            sanitizeConfig);
     } else {
-        contentContainer.innerHTML = safeHtml(buttonInfo.content, sanitizeConfig);
+        contentContainer.innerHTML = safeHtml(
+            buttonInfo.content,
+            sanitizeConfig,
+        ); //verified
     }
 
-    if (lowerText === "info") {
-        const buttonContainer = contentContainer.querySelector('#export-import-buttons-container');
+    if (lowerText === 'info') {
+        const buttonContainer = contentContainer.querySelector(
+            '#export-import-buttons-container',
+        );
         if (buttonContainer) {
             buttonContainer.appendChild(createExportImportButtons());
         }
     }
 
-    const rovalraHeader = document.querySelector('#react-user-account-base > h1');
+    const rovalraHeader = document.querySelector(
+        '#react-user-account-base > h1',
+    );
     if (rovalraHeader) {
-        rovalraHeader.style.setProperty('color', 'var(--rovalra-main-text-color)', 'important');
+        rovalraHeader.style.setProperty(
+            'color',
+            'var(--rovalra-main-text-color)',
+            'important',
+        );
     }
 }
 
 export async function handleSearch(event) {
-    const query = (event.target && event.target.value) ? event.target.value.toLowerCase().trim() : '';
-    
+    const query =
+        event.target && event.target.value
+            ? event.target.value.toLowerCase().trim()
+            : '';
+
     const contentContainer = document.querySelector('#content-container');
     if (!contentContainer) return;
 
-    document.querySelectorAll('#unified-menu .menu-option-content').forEach(el => {
-        el.classList.remove('active');
-        el.removeAttribute('aria-current');
-    });
+    document
+        .querySelectorAll('#unified-menu .menu-option-content')
+        .forEach((el) => {
+            el.classList.remove('active');
+            el.removeAttribute('aria-current');
+        });
 
     if (query.length < 2) {
-        contentContainer.innerHTML = DOMPurify.sanitize(`<div id="settings-content" style="padding: 15px; text-align: center; color: var(--rovalra-main-text-color);">Please enter at least 2 characters to search.</div>`);
+        contentContainer.innerHTML = DOMPurify.sanitize(
+            `<div id="settings-content" style="padding: 15px; text-align: center; color: var(--rovalra-main-text-color);">Please enter at least 2 characters to search.</div>`,
+        );
         await applyTheme();
         return;
     }
@@ -240,23 +278,47 @@ export async function handleSearch(event) {
 
     for (const categoryName in SETTINGS_CONFIG) {
         const category = SETTINGS_CONFIG[categoryName];
-        for (const [settingName, settingDef] of Object.entries(category.settings)) {
-            const label = (Array.isArray(settingDef.label) ? settingDef.label.join(' ') : settingDef.label || '').toLowerCase();
-            const description = (Array.isArray(settingDef.description) ? settingDef.description.join(' ') : settingDef.description || '').toLowerCase();
+        for (const [settingName, settingDef] of Object.entries(
+            category.settings,
+        )) {
+            const label = (
+                Array.isArray(settingDef.label)
+                    ? settingDef.label.join(' ')
+                    : settingDef.label || ''
+            ).toLowerCase();
+            const description = (
+                Array.isArray(settingDef.description)
+                    ? settingDef.description.join(' ')
+                    : settingDef.description || ''
+            ).toLowerCase();
             const fullText = `${label} ${description}`;
-            
-            let isMatch = fullText.includes(query) || fullText.replace(/\s+/g, '').includes(queryNoSpaces);
+
+            let isMatch =
+                fullText.includes(query) ||
+                fullText.replace(/\s+/g, '').includes(queryNoSpaces);
 
             if (!isMatch) {
                 const words = fullText.split(/\s+/);
                 const threshold = query.length > 5 ? 2 : 1;
-                isMatch = words.some(word => getLevenshteinDistance(query, word) <= threshold);
+                isMatch = words.some(
+                    (word) => getLevenshteinDistance(query, word) <= threshold,
+                );
             }
 
             if (!isMatch && settingDef.childSettings) {
-                for (const childDef of Object.values(settingDef.childSettings)) {
-                    const childLabel = (Array.isArray(childDef.label) ? childDef.label.join(' ') : childDef.label || '').toLowerCase();
-                    const childDesc = (Array.isArray(childDef.description) ? childDef.description.join(' ') : childDef.description || '').toLowerCase();
+                for (const childDef of Object.values(
+                    settingDef.childSettings,
+                )) {
+                    const childLabel = (
+                        Array.isArray(childDef.label)
+                            ? childDef.label.join(' ')
+                            : childDef.label || ''
+                    ).toLowerCase();
+                    const childDesc = (
+                        Array.isArray(childDef.description)
+                            ? childDef.description.join(' ')
+                            : childDef.description || ''
+                    ).toLowerCase();
                     if (`${childLabel} ${childDesc}`.includes(query)) {
                         isMatch = true;
                         break;
@@ -264,15 +326,21 @@ export async function handleSearch(event) {
                 }
             }
 
-            if (isMatch && !searchResults.some(res => res.name === settingName)) {
-                searchResults.push({ category: category.title, name: settingName, config: settingDef });
+            if (
+                isMatch &&
+                !searchResults.some((res) => res.name === settingName)
+            ) {
+                searchResults.push({
+                    category: category.title,
+                    name: settingName,
+                    config: settingDef,
+                });
             }
         }
     }
 
     if (searchResults.length === 0) {
-        contentContainer.innerHTML = safeHtml`<div id="settings-content" style="padding: 15px; text-align: center; color: var(--rovalra-main-text-color);">No settings found for "${query}".</div>`
-        ;
+        contentContainer.innerHTML = safeHtml`<div id="settings-content" style="padding: 15px; text-align: center; color: var(--rovalra-main-text-color);">No settings found for "${query}".</div>`;
     } else {
         const groupedResults = searchResults.reduce((acc, setting) => {
             if (!acc[setting.category]) acc[setting.category] = [];
@@ -289,18 +357,23 @@ export async function handleSearch(event) {
         for (const categoryTitle in groupedResults) {
             const header = document.createElement('h2');
             header.className = 'settings-category-header';
-            header.style.cssText = 'margin-left: 5px; margin-bottom: 10px; color: var(--rovalra-main-text-color);';
+            header.style.cssText =
+                'margin-left: 5px; margin-bottom: 10px; color: var(--rovalra-main-text-color);'; // Verified
             header.textContent = categoryTitle;
             resultsWrapper.appendChild(header);
 
             for (const setting of groupedResults[categoryTitle]) {
-                const settingElement = generateSingleSettingHTML(setting.name, setting.config, REGIONS);
-                
+                const settingElement = generateSingleSettingHTML(
+                    setting.name,
+                    setting.config,
+                    REGIONS,
+                );
+
                 if (settingElement instanceof Node) {
                     resultsWrapper.appendChild(settingElement);
                 } else {
                     const tempDiv = document.createElement('div');
-                    tempDiv.innerHTML = safeHtml(settingElement);
+                    tempDiv.innerHTML = safeHtml(settingElement); // Verified
                     while (tempDiv.firstChild) {
                         resultsWrapper.appendChild(tempDiv.firstChild);
                     }
@@ -326,9 +399,16 @@ document.addEventListener('click', (event) => {
         const settingName = target.dataset.settingName;
         if (settingName) {
             handleSaveSettings(settingName, target.checked).then(() => {
-                const settingsContent = document.querySelector('#setting-section-content');
+                const settingsContent = document.querySelector(
+                    '#setting-section-content',
+                );
                 if (settingsContent) {
-                    loadSettings().then(currentSettings => updateConditionalSettingsVisibility(settingsContent, currentSettings));
+                    loadSettings().then((currentSettings) =>
+                        updateConditionalSettingsVisibility(
+                            settingsContent,
+                            currentSettings,
+                        ),
+                    );
                 }
             });
         }
@@ -336,16 +416,21 @@ document.addEventListener('click', (event) => {
         const settingName = target.dataset.settingName;
         if (settingName) {
             handleSaveSettings(settingName, target.value).then(() => {
-                const settingsContent = document.querySelector('#setting-section-content');
+                const settingsContent = document.querySelector(
+                    '#setting-section-content',
+                );
                 if (settingsContent) {
-                    loadSettings().then(currentSettings => updateConditionalSettingsVisibility(settingsContent, currentSettings));
+                    loadSettings().then((currentSettings) =>
+                        updateConditionalSettingsVisibility(
+                            settingsContent,
+                            currentSettings,
+                        ),
+                    );
                 }
             });
         }
     }
 });
-
-
 
 function onPopoverRemoved() {
     window.rovalraPopoverButtonAdded = false;
@@ -366,11 +451,15 @@ async function initializeExtension() {
     addPopoverButton();
 
     initializeSettingsEventListeners();
-    
+
     document.addEventListener('roblox-dom-changed', handleGlobalDomChange);
 
-    observeElement('#settings-popover-menu', addPopoverButton, { onRemove: onPopoverRemoved });
-    observeElement('ul.menu-vertical[role="tablist"]', () => addCustomButton(debouncedAddPopoverButton));
+    observeElement('#settings-popover-menu', addPopoverButton, {
+        onRemove: onPopoverRemoved,
+    });
+    observeElement('ul.menu-vertical[role="tablist"]', () =>
+        addCustomButton(debouncedAddPopoverButton),
+    );
 
     await checkRoValraPage();
 }
@@ -387,33 +476,40 @@ window.addEventListener('beforeunload', () => {
     document.removeEventListener('roblox-dom-changed', handleGlobalDomChange);
 });
 
-document.addEventListener('DOMContentLoaded', function() {
-    const PreferredRegionEnabled = document.getElementById('PreferredRegionEnabled');
-    const preferredRegionSelect = document.getElementById('preferredRegionSelect');
-    const regionSettingDiv = document.getElementById('setting-preferred-region');
+document.addEventListener('DOMContentLoaded', function () {
+    const PreferredRegionEnabled = document.getElementById(
+        'PreferredRegionEnabled',
+    );
+    const preferredRegionSelect = document.getElementById(
+        'preferredRegionSelect',
+    );
+    const regionSettingDiv = document.getElementById(
+        'setting-preferred-region',
+    );
 
     function updateRegionSelectVisibility() {
         if (PreferredRegionEnabled && regionSettingDiv) {
             const isEnabled = PreferredRegionEnabled.checked;
             regionSettingDiv.style.display = isEnabled ? 'flex' : 'none';
-            if (preferredRegionSelect) preferredRegionSelect.disabled = !isEnabled;
+            if (preferredRegionSelect)
+                preferredRegionSelect.disabled = !isEnabled;
         }
     }
 
     if (PreferredRegionEnabled) {
-        PreferredRegionEnabled.addEventListener('change', function() {
+        PreferredRegionEnabled.addEventListener('change', function () {
             updateRegionSelectVisibility();
             handleSaveSettings('PreferredRegionEnabled', this.checked);
         });
     }
 
     if (preferredRegionSelect) {
-        preferredRegionSelect.addEventListener('change', function() {
+        preferredRegionSelect.addEventListener('change', function () {
             handleSaveSettings('robloxPreferredRegion', this.value);
         });
 
         if (preferredRegionSelect.options.length === 0) {
-            Object.keys(REGIONS).forEach(regionCode => {
+            Object.keys(REGIONS).forEach((regionCode) => {
                 const option = document.createElement('option');
                 option.value = regionCode;
                 option.textContent = getFullRegionName(regionCode);
@@ -424,8 +520,6 @@ document.addEventListener('DOMContentLoaded', function() {
     updateRegionSelectVisibility();
 });
 
-
-
 function initializeHeartbeatSpoofer() {
     const originalFetch = window.fetch;
     let pulseInterval = null;
@@ -433,7 +527,7 @@ function initializeHeartbeatSpoofer() {
 
     const sendSpoofedHeartbeat = async () => {
         let locationInfoPayload;
-        
+
         if (spoofingMode === 'studio') {
             locationInfoPayload = { studioLocationInfo: { placeId: 0 } };
         } else {
@@ -443,7 +537,7 @@ function initializeHeartbeatSpoofer() {
         const spoofedPulseRequest = {
             clientSideTimestampEpochMs: Date.now(),
             locationInfo: locationInfoPayload,
-            sessionInfo: { sessionId: crypto.randomUUID() }
+            sessionInfo: { sessionId: crypto.randomUUID() },
         };
 
         try {
@@ -452,11 +546,13 @@ function initializeHeartbeatSpoofer() {
                 endpoint: '/user-heartbeats-api/pulse',
                 method: 'POST',
                 body: spoofedPulseRequest,
-                headers: { 'RoValra-Internal': 'true' }
+                headers: { 'RoValra-Internal': 'true' },
             });
-            console.log(`RoValra: Spoofed heartbeat sent. Mode: ${spoofingMode}`);
+            console.log(
+                `RoValra: Spoofed heartbeat sent. Mode: ${spoofingMode}`,
+            );
         } catch (error) {
-            console.error("RoValra: Failed to send spoofed heartbeat.", error);
+            console.error('RoValra: Failed to send spoofed heartbeat.', error);
         }
     };
 
@@ -472,15 +568,21 @@ function initializeHeartbeatSpoofer() {
 
     const stopSpoofingTimer = () => {
         if (pulseInterval) {
-            console.log("RoValra: Stopping spoofer timer.");
+            console.log('RoValra: Stopping spoofer timer.');
             clearInterval(pulseInterval);
             pulseInterval = null;
         }
     };
 
     const updateSpoofingMode = (settings) => {
-        chrome.runtime.sendMessage({ action: 'updateOfflineRule', enabled: settings.spoofAsOffline });
-        chrome.runtime.sendMessage({ action: 'updateEarlyAccessRule', enabled: settings.EarlyAccessProgram });
+        chrome.runtime.sendMessage({
+            action: 'updateOfflineRule',
+            enabled: settings.spoofAsOffline,
+        });
+        chrome.runtime.sendMessage({
+            action: 'updateEarlyAccessRule',
+            enabled: settings.EarlyAccessProgram,
+        });
 
         if (settings.spoofAsOffline) spoofingMode = 'offline';
         else if (settings.spoofAsStudio) spoofingMode = 'studio';
@@ -490,17 +592,26 @@ function initializeHeartbeatSpoofer() {
         else stopSpoofingTimer();
     };
 
-    const relevantSettings = ['spoofAsStudio', 'spoofAsOffline', 'EarlyAccessProgram'];
+    const relevantSettings = [
+        'spoofAsStudio',
+        'spoofAsOffline',
+        'EarlyAccessProgram',
+    ];
     chrome.storage.local.get(relevantSettings, updateSpoofingMode);
 
     chrome.storage.onChanged.addListener((changes) => {
-        if (relevantSettings.some(setting => changes[setting])) {
+        if (relevantSettings.some((setting) => changes[setting])) {
             chrome.storage.local.get(relevantSettings, (result) => {
                 if (changes.LaunchDelay) {
-                    const toggle = document.querySelector('#LaunchDelay-enabled');
+                    const toggle = document.querySelector(
+                        '#LaunchDelay-enabled',
+                    );
                     if (toggle) {
                         toggle.checked = changes.LaunchDelay.newValue > 0;
-                        updateConditionalSettingsVisibility(document.body, result);
+                        updateConditionalSettingsVisibility(
+                            document.body,
+                            result,
+                        );
                     }
                 }
                 updateSpoofingMode(result);
@@ -508,24 +619,26 @@ function initializeHeartbeatSpoofer() {
         }
     });
 
-    window.fetch = async function(...args) {
+    window.fetch = async function (...args) {
         const url = args[0] ? args[0].toString() : '';
         let isInternal = false;
-
 
         if (args.length > 1 && args[1] && args[1].headers) {
             const originalOptions = args[1];
             const newOptions = { ...originalOptions };
-            
+
             let hasHeader = false;
-            
+
             if (newOptions.headers instanceof Headers) {
                 if (newOptions.headers.get('RoValra-Internal') === 'true') {
                     hasHeader = true;
                     newOptions.headers = new Headers(newOptions.headers);
                     newOptions.headers.delete('RoValra-Internal');
                 }
-            } else if (typeof newOptions.headers === 'object' && !Array.isArray(newOptions.headers)) {
+            } else if (
+                typeof newOptions.headers === 'object' &&
+                !Array.isArray(newOptions.headers)
+            ) {
                 if (newOptions.headers['RoValra-Internal'] === 'true') {
                     hasHeader = true;
                     newOptions.headers = { ...newOptions.headers };
@@ -539,22 +652,24 @@ function initializeHeartbeatSpoofer() {
             }
         }
 
-        if (url.includes("apis.roblox.com/user-heartbeats-api/pulse") && spoofingMode !== 'off' && !isInternal) {
-            return new Response(null, { status: 200, statusText: "OK" });
+        if (
+            url.includes('apis.roblox.com/user-heartbeats-api/pulse') &&
+            spoofingMode !== 'off' &&
+            !isInternal
+        ) {
+            return new Response(null, { status: 200, statusText: 'OK' });
         }
-        
+
         return originalFetch.apply(this, args);
     };
 
-    console.log("RoValra: Proactive heartbeat spoofer initialized.");
+    console.log('RoValra: Proactive heartbeat spoofer initialized.');
 }
-
-
 
 function manageSingletonExecution() {
     const KEYS = {
         ID: 'rovalra_singleton_leader_id',
-        SEEN: 'rovalra_singleton_last_seen'
+        SEEN: 'rovalra_singleton_last_seen',
     };
     const INTERVAL = 5000;
     const LEASE = 10000;
@@ -566,12 +681,14 @@ function manageSingletonExecution() {
 
     const toggleFeatures = (shouldRun) => {
         if (shouldRun && !featuresInitialized) {
-            console.log("RoValra: Leader instance. Initializing singleton features.");
+            console.log(
+                'RoValra: Leader instance. Initializing singleton features.',
+            );
             initializeHeartbeatSpoofer();
             featuresInitialized = true;
         } else if (!shouldRun && featuresInitialized) {
             featuresInitialized = false;
-            console.log("RoValra: No longer leader.");
+            console.log('RoValra: No longer leader.');
         }
     };
 
@@ -583,7 +700,7 @@ function manageSingletonExecution() {
     const attemptToBecomeLeader = () => {
         isLeader = true;
         const info = { [KEYS.ID]: instanceId, [KEYS.SEEN]: Date.now() };
-        
+
         chrome.storage.local.set(info, () => {
             toggleFeatures(true);
             resetLoop(renewLease);
@@ -592,8 +709,12 @@ function manageSingletonExecution() {
 
     const renewLease = () => {
         if (!isLeader) return;
-        
-        if (typeof chrome === 'undefined' || !chrome.storage || !chrome.storage.local) {
+
+        if (
+            typeof chrome === 'undefined' ||
+            !chrome.storage ||
+            !chrome.storage.local
+        ) {
             isLeader = false;
             toggleFeatures(false);
             resetLoop(checkForLeader);
@@ -614,7 +735,7 @@ function manageSingletonExecution() {
     const checkForLeader = () => {
         chrome.storage.local.get([KEYS.ID, KEYS.SEEN], (result) => {
             const lastSeen = result[KEYS.SEEN];
-            const isLeaseActive = lastSeen && (Date.now() - lastSeen < LEASE);
+            const isLeaseActive = lastSeen && Date.now() - lastSeen < LEASE;
 
             if (!result[KEYS.ID] || !isLeaseActive) {
                 attemptToBecomeLeader();

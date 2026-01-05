@@ -1,0 +1,83 @@
+.rovalra-global-overlay {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.6);
+    pointer-events: auto;
+    z-index: 10000 !important;
+    transform: none;
+
+    // Theme variables
+    --rovalra-overlay-bg: #ffffff;
+    --rovalra-overlay-text: #191b1d;
+    --rovalra-overlay-border: #d9dadb;
+    --rovalra-overlay-shadow: rgba(0, 0, 0, 0.15);
+
+    body.dark-theme & {
+        --rovalra-overlay-bg: rgb(25, 26, 31);
+        --rovalra-overlay-text: #ffffff;
+        --rovalra-overlay-border: rgba(255, 255, 255, 0.1);
+        --rovalra-overlay-shadow: rgba(0, 0, 0, 0.5);
+    }
+}
+
+.rovalra-overlay-content {
+    position: relative;
+    border-radius: 12px;
+    background-color: var(--rovalra-overlay-bg);
+    color: var(--rovalra-overlay-text);
+    border: 1px solid var(--rovalra-overlay-border);
+    box-shadow: 0 8px 16px var(--rovalra-overlay-shadow);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    max-height: 90vh;
+    max-width: 90vw;
+    width: 90%;
+    pointer-events: auto;
+}
+
+.rovalra-overlay-body {
+    padding: 0 24px;
+    display: block;
+    overflow-y: auto;
+    flex-grow: 1;
+    min-height: 0;
+    width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    word-break: break-word;
+}
+
+.rovalra-overlay-header {
+    display: flex;
+    align-items: center;
+    font-size: 20px;
+    font-weight: 700;
+    flex-shrink: 0;
+    line-height: 1.3;
+    padding: 24px 48px 16px 24px;
+}
+
+.rovalra-overlay-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    flex-shrink: 0;
+    margin-top: auto;
+    padding: 16px 24px 24px;
+}
+
+.rovalra-overlay-close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 10;
+}

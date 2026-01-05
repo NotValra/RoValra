@@ -1,0 +1,50 @@
+.rovalra-checker-container {
+    width: 100%;
+    margin: 20px auto;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+
+    .rovalra-checker-tabs {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 15px;
+        width: 100%;
+    }
+
+    #rovalra-fx-container {
+        margin-bottom: 0px !important;
+    }
+
+    .rovalra-checker-tab {
+        flex: 1;
+        text-align: center;
+        padding: 8px 16px;
+        cursor: pointer;
+        border-radius: 8px;
+        font-weight: 600;
+        background-color: var(--rovalra-container-background-color);
+        color: var(--rovalra-secondary-text-color);
+        transition: all 0.2s ease;
+
+        &.active {
+            background-color: rgb(51, 95, 255);
+            color: white;
+            border-color: rgb(51, 95, 255);
+        }
+    }
+
+    .rovalra-results-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 10px;
+        width: 100%;
+    }
+
+    .rovalra-status-text {
+        text-align: center;
+        font-weight: 500;
+        margin-top: 5px;
+    }
+}
