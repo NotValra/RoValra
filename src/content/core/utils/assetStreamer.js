@@ -102,7 +102,7 @@ export async function checkAssetsInBatch(assetIds) {
             if (!assetUrl) return createDefaultResult(id);
 
             try {
-                const response = await fetch(assetUrl);
+                const response = await fetch(assetUrl); // Verified
                 if (!response.ok) return createDefaultResult(id);
 
                 const buffer = await response.arrayBuffer();

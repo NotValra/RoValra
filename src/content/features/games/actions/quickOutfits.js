@@ -221,7 +221,7 @@ function createOutfitCard(outfit, thumbnailData, onSuccess) {
 }
 
 async function showQuickOutfitsOverlay() {
-    const userId = getAuthenticatedUserId();
+    const userId = await getAuthenticatedUserId();
     if (!userId) {
         alert("Could not find user ID.");
         return;

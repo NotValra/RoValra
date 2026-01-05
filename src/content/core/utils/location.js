@@ -60,8 +60,7 @@ export async function getUserLocation(placeId, forceRefresh = false) {
                         chrome.storage.local.set({ [LOCATION_STORAGE_KEY]: cacheObject }, () => {
                             if (chrome.runtime.lastError) {
                                 console.error("Location Util: Storage Save Failed", chrome.runtime.lastError);
-                            } else {
-                            }
+                            } 
                             resolve();
                         });
                     } else {

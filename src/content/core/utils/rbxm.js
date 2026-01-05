@@ -242,8 +242,6 @@ export function parseRbxm(buffer) {
                     if (childObj) {
                         if (parentObj) {
                             parentObj.Children.push(childObj);
-                        } else {
-
                         }
                     }
                 }

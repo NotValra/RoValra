@@ -96,9 +96,10 @@ function captureApiCall(options) {
     } catch (e) {}
 }
 
-function getRequestKey({ endpoint, subdomain = 'apis', method = 'GET', isRovalraApi = false, body = null }) {
+function getRequestKey({ endpoint, subdomain = 'apis', method = 'GET', isRovalraApi = false, body = null, fullUrl = null }) {
     const bodyStr = body && typeof body === 'object' ? JSON.stringify(body) : (body || '');
-    return `${isRovalraApi}|${subdomain}|${endpoint}|${method.toUpperCase()}|${bodyStr}`;
+    const target = fullUrl || `${isRovalraApi}|${subdomain}|${endpoint}`;
+    return `${target}|${method.toUpperCase()}|${bodyStr}`;
 }
 
 
@@ -140,7 +141,8 @@ export async function callRobloxApi(options) {
             method = 'GET',
             isRovalraApi = false,
             headers = {},
-            body = null
+            body = null,
+            fullUrl: customFullUrl
         } = options;
 
         if (isRovalraApi) {
@@ -156,7 +158,7 @@ export async function callRobloxApi(options) {
         const baseUrl = isRovalraApi 
             ? (subdomain === 'www' ? 'https://www.rovalra.com' : 'https://apis.rovalra.com')
             : `https://${subdomain}.roblox.com`;
-        const fullUrl = `${baseUrl}${endpoint}`;
+        const fullUrl = customFullUrl || `${baseUrl}${endpoint}`;
         const isMutatingMethod = ['POST', 'PATCH', 'DELETE'].includes(method.toUpperCase());
         
         const credentials = options.credentials ?? (isRovalraApi ? 'omit' : 'include');

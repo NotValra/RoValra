@@ -1,9 +1,9 @@
 
 
 import { callRobloxApi } from './api.js';
-import { launchGame, launchMultiplayerGame } from './utils/launcher.js';
+import { launchGame } from './utils/launcher.js';
 import { getUserLocation } from './utils/location.js'; 
-import { getRegionData, getFullRegionName } from './regions.js';
+import { getFullRegionName } from './regions.js';
 import DOMPurify from 'dompurify';
 import { showLoadingOverlay, hideLoadingOverlay, updateLoadingOverlayText, showLoadingOverlayResult } from './ui/startModal/gamelaunchmodal.js';
 

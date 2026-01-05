@@ -5,18 +5,23 @@ import { getUsernameFromPageData } from '../../../core/utils.js';
 import { getOrCreateRovalraContainer } from './rap.js';
 import { createProfileHeaderButton } from '../../../core/ui/profile/header/button.js';
 import DOMPurify from 'dompurify';
+import { getAuthenticatedUsername } from '../../../core/user.js';
 
-function addDonationButton(observedElement) {
+
+async function addDonationButton(observedElement) {
+    const autheduser = await getAuthenticatedUsername();
+    const username = getUsernameFromPageData();
     const buttonIdentifier = 'rovalra-donation-button';
     const targetContainer = getOrCreateRovalraContainer(observedElement);
 
     if (!targetContainer) return;
     if (targetContainer.querySelector(`.${buttonIdentifier}`)) return;
 
-    function showDonationOverlay() {
-        const username = getUsernameFromPageData();
+     function showDonationOverlay() {
+        
+        
         if (!username) {
-            alert('Could not determine the username for the donation.');
+            console.error("Could not get the username for the donation button.")
             return;
         }
 
@@ -66,7 +71,6 @@ function addDonationButton(observedElement) {
     const buttonText = document.createElement('span');
     buttonText.innerText = 'Donate';
     buttonText.style.color = '#181818ff';
-
     const donationButton = createProfileHeaderButton({
         id: buttonIdentifier,
         content: [robuxIcon, buttonText],
@@ -76,8 +80,12 @@ function addDonationButton(observedElement) {
             showDonationOverlay();
         }
     });
+    if (autheduser != username) {
+        targetContainer.appendChild(donationButton);
 
-    targetContainer.appendChild(donationButton);
+    }
+
+
 }
 
 export function init() {
@@ -87,3 +95,4 @@ export function init() {
         }
     });
 }
+

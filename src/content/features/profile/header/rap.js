@@ -10,6 +10,7 @@ import { createStyledInput } from '../../../core/ui/catalog/input.js';
 import DOMPurify from 'dompurify';
 
 const userCollectiblesCache = new Map();
+const itemThumbnailCache = new Map();
 const rapDisplayIdentifier = 'rovalra-user-rap-display';
 
 
@@ -118,43 +119,40 @@ async function showInventoryOverlay(userId, items, totalRapString, hideSerial) {
     const displayName = metaTitle ? metaTitle.replace("'s Profile", "") : "User";
     const allItems = items.sort((a, b) => (b.recentAveragePrice || 0) - (a.recentAveragePrice || 0));
     let filteredItems = [...allItems];
-    const thumbnailCache = new Map();
     let currentLoadController = null;
     let isPaginating = false;
 
     const loadMoreItems = async () => {
-        if (currentLoadController?.signal.aborted) return;
+        if (isPaginating || currentLoadController?.signal.aborted) return;
 
         const itemsToLoad = filteredItems.splice(0, 50);
         if (itemsToLoad.length === 0) return;
 
         isPaginating = true;
 
-        const loadingMessage = document.createElement('p');
-        loadingMessage.textContent = 'Loading more items...';
+        const loadingMessage = document.createElement('p'); 
+        loadingMessage.textContent = 'Loading more items...'; 
         loadingMessage.className = 'loading-message text-secondary'; 
         loadingMessage.style.gridColumn = '1 / -1'; 
-        loadingMessage.style.textAlign = 'center';
+        loadingMessage.style.textAlign = 'center'; 
+        itemListContainer.appendChild(loadingMessage); 
 
-        currentLoadController = new AbortController();
-        try {
-            itemListContainer.appendChild(loadingMessage);
-            await fetchItemThumbnails(itemsToLoad, thumbnailCache, currentLoadController.signal);
-        } catch (error) {
-            if (error.name !== 'AbortError') {
-                console.error("RoValra: Failed to fetch item thumbnails.", error);
-            }
-        } finally {
-            loadingMessage.remove();
-            isPaginating = false;
-        }
-
-        if (currentLoadController.signal.aborted) return;
-
-        itemsToLoad.forEach(item => {
-            const card = createItemCard(item, thumbnailCache, { showSerial: true, hideSerial });
-            itemListContainer.appendChild(card);
-        });
+        currentLoadController = new AbortController(); 
+        try { 
+            await fetchItemThumbnails(itemsToLoad, itemThumbnailCache, currentLoadController.signal); 
+            if (currentLoadController.signal.aborted) return; 
+            itemsToLoad.forEach(item => { 
+                const card = createItemCard(item, itemThumbnailCache, { showSerial: true, hideSerial }); 
+                itemListContainer.appendChild(card); 
+            }); 
+        } catch (error) { 
+            if (error.name !== 'AbortError') { 
+                console.error("RoValra: Failed to fetch item thumbnails.", error); 
+            } 
+        } finally { 
+            loadingMessage.remove(); 
+            isPaginating = false; 
+        } 
     };
 
     const handleSearch = () => {
@@ -170,7 +168,7 @@ async function showInventoryOverlay(userId, items, totalRapString, hideSerial) {
     };
 
     const bodyContent = document.createElement('div');
-    bodyContent.style.cssText = 'display: flex; flex-direction: column; min-height: 0; gap: 16px;';
+    bodyContent.style.cssText = 'display: flex; flex-direction: column; min-height: 0; gap: 16px;'; // Verified
 
     const searchInput = createStyledInput({
         id: 'rovalra-rap-search',
@@ -180,7 +178,7 @@ async function showInventoryOverlay(userId, items, totalRapString, hideSerial) {
 
     const itemListContainer = document.createElement('div');
     itemListContainer.className = 'rovalra-inventory-list';
-    itemListContainer.style.cssText = 'display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); grid-auto-rows:max-content; gap:16px; overflow-y:auto; flex-grow:1;';
+    itemListContainer.style.cssText = 'display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); grid-auto-rows:max-content; gap:16px;'; // Verified
     bodyContent.append(searchInput.container, itemListContainer);
 
     const rolimonsLink = document.createElement('a');
@@ -188,8 +186,8 @@ async function showInventoryOverlay(userId, items, totalRapString, hideSerial) {
     rolimonsLink.target = '_blank';
     rolimonsLink.rel = 'noopener noreferrer';
     rolimonsLink.className = 'rolimons-link'; 
-    rolimonsLink.style.cssText = 'display: inline-flex; align-items: center; margin-left: 12px; color: var(--rovalra-secondary-text-color);';
-    rolimonsLink.innerHTML = DOMPurify.sanitize(`<svg focusable="false" aria-hidden="true" viewBox="0 0 24 24" style="width:20px;height:20px;fill:currentColor;"><path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3z"></path></svg>`);
+    rolimonsLink.style.cssText = 'display: inline-flex; align-items: center; margin-left: 12px; color: var(--rovalra-secondary-text-color);'; // Verified
+    rolimonsLink.innerHTML = `<svg focusable="false" aria-hidden="true" viewBox="0 0 24 24" style="width:20px;height:20px;fill:currentColor;"><path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3z"></path></svg>`;
 
     const overlayTitleText = `${displayName}'s Collectibles (${totalRapString} RAP)`;
 
@@ -200,7 +198,7 @@ async function showInventoryOverlay(userId, items, totalRapString, hideSerial) {
         maxHeight: '85vh'
     });
 
-    const actualTitleElement = overlay.querySelector('.group-description-dialog-body-header');
+    const actualTitleElement = overlay.querySelector('.rovalra-overlay-header');
     if (actualTitleElement) {
         actualTitleElement.append(rolimonsLink);
         addTooltip(rolimonsLink, "Open in Rolimon's", { position: 'top', container: overlay });
@@ -208,8 +206,9 @@ async function showInventoryOverlay(userId, items, totalRapString, hideSerial) {
 
     searchInput.input.addEventListener('input', handleSearch);
 
-    itemListContainer.addEventListener('scroll', () => {
-        const isNearBottom = itemListContainer.scrollTop + itemListContainer.clientHeight >= itemListContainer.scrollHeight - 250;
+    const scrollTarget = overlay.querySelector('.rovalra-overlay-body');
+    scrollTarget.addEventListener('scroll', () => {
+        const isNearBottom = scrollTarget.scrollTop + scrollTarget.clientHeight >= scrollTarget.scrollHeight - 250;
         if (isNearBottom && !isPaginating && filteredItems.length > 0) {
             loadMoreItems();
         }
@@ -234,21 +233,6 @@ async function addUserRapDisplay(observedElement) {
     const userId = document.getElementById('profile-header-container')?.dataset?.profileuserid;
     if (!userId) return;
 
-
-    if (!document.getElementById('rovalra-theme-styles')) {
-        const style = document.createElement('style');
-        style.id = 'rovalra-theme-styles';
-        style.innerHTML = `
-            .rovalra-dynamic-icon {
-                filter: brightness(10);
-            }
-            
-            .light-theme .rovalra-dynamic-icon {
-                filter: brightness(0.6);
-            }
-        `;
-        document.head.appendChild(style);
-    }
 
     const robuxIcon = document.createElement('span');
     robuxIcon.className = 'icon-robux-16x16 rovalra-dynamic-icon';
@@ -304,11 +288,11 @@ async function addUserRapDisplay(observedElement) {
     } else {
         const rapString = collectibleResult.totalRap.toLocaleString();
         rapText.innerText = rapString;
-        userCollectiblesCache.set(userId, collectibleResult.items); 
 
         rapDisplay.addEventListener('click', async () => {
             const settings = await new Promise(resolve => chrome.storage.local.get({ HideSerial: false }, resolve));
-            const items = userCollectiblesCache.get(userId) || [];
+            const cachedData = userCollectiblesCache.get(userId);
+            const items = cachedData ? cachedData.items : [];
             showInventoryOverlay(userId, items, rapString, settings.HideSerial);
         });
     }

@@ -20,14 +20,14 @@ export function createSpinner({ size = '24px', color = 'currentColor', className
     svg.appendChild(path);
 
     if (!document.getElementById('rovalra-spinner-keyframes')) {
-        const style = document.createElement('style');
+        const style = document.createElement('style'); // Verified
         style.id = 'rovalra-spinner-keyframes';
         style.textContent = `
             @keyframes rovalra-spinner-rotation {
                 from { transform: rotate(0deg); }
                 to { transform: rotate(359deg); }
             }
-        `;
+        `;// Verified
         document.head.appendChild(style);
     }
 

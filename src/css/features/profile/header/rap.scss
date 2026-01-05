@@ -1,0 +1,7 @@
+.rovalra-dynamic-icon {
+    filter: brightness(10);
+
+    .light-theme & {
+        filter: brightness(0.6);
+    }
+}

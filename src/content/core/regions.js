@@ -11,7 +11,6 @@ const STORAGE_KEY_CONTINENTS = 'cachedRegionContinents';
 
 let cachedRegionData = null;
 export let REGIONS = {}; 
-let serverIpMap = {};    
 const stateMap = {
     'Alabama': 'AL', 'Alaska': 'AK', 'Arizona': 'AZ', 'Arkansas': 'AR', 'California': 'CA',
     'Colorado': 'CO', 'Connecticut': 'CT', 'Delaware': 'DE', 'Florida': 'FL', 'Georgia': 'GA',

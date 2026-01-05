@@ -64,7 +64,7 @@ export function initializeObserver() {
                 }
             }
         }
-    });
+    }); //Verified
 
     observerInitialized = true;
 }

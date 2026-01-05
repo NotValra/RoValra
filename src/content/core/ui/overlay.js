@@ -21,15 +21,23 @@ export function createOverlay({
     content.setAttribute('role', 'dialog');
     content.style.maxWidth = maxWidth;
     content.style.maxHeight = maxHeight;
+    content.style.display = 'flex';
+    content.style.flexDirection = 'column';
 
     const closeButtonContainer = document.createElement('div');
     closeButtonContainer.className = 'rovalra-overlay-close';
 
     const body = document.createElement('div');
     body.className = 'rovalra-overlay-body';
+    body.style.flex = '1';
+    body.style.overflowY = 'auto';
+    body.style.minHeight = '0';
 
     const titleElement = document.createElement('div');
     titleElement.className = 'rovalra-overlay-header';
+    titleElement.style.display = 'flex';
+    titleElement.style.alignItems = 'center';
+    titleElement.style.flexShrink = '0';
 
     if (showLogo) {
         const assetName =
@@ -70,6 +78,7 @@ export function createOverlay({
     if (actions.length > 0) {
         const footer = document.createElement('div');
         footer.className = 'rovalra-overlay-footer';
+        footer.style.flexShrink = '0';
         actions.forEach((button) => footer.appendChild(button));
         content.appendChild(footer);
     }
