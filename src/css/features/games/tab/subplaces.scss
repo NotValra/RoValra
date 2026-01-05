@@ -7,7 +7,7 @@
 .rovalra-subplace-card {
     justify-self: center;
     width: 150px;
-    height: 240px;
+    height: 240px !important;
 
     .game-card-link {
         display: flex;
@@ -67,7 +67,6 @@
     max-width: 768px;
     background-color: var(--rovalra-container-background-color);
     color: var(--rovalra-main-text-color);
-    border: 1px solid var(--sp-btn-border);
 }
 
 .rovalra-subplaces-search-wrapper {
