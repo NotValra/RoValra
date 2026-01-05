@@ -29,7 +29,6 @@ export const SETTINGS_CONFIG = {
                 label: "Save 10%-40% Robux on Purchases",
                 description: ["This adds a button allowing you to save 40% on items on the catalog and 10% on gamepasses",
                     "Keep in mind a group is required for this to work.",
-                    "https://www.youtube.com/watch?v=-kUAWWmmkaQ Video guide showing a step by step on how to set it up.",
                     "**When buying something there will be a 'Save X Robux' Button which when pressed will give you a full guide on how to setup the 40% Method**"
               
                 ],
@@ -117,12 +116,6 @@ export const SETTINGS_CONFIG = {
                         description: ["This will always get the server info, even if no server data is available.",
                             "It has a very small change to get inaccurate information."
                         ],
-                        type: "checkbox",
-                        default: true
-                    },
-                    closeUiByClickingTheBackground: {
-                        label: "Close the 'What am I joining' UI by clicking the background",
-                        description: "This allows you to click the background to close the UI, can be annoying if you want to see the info provided in the UI",
                         type: "checkbox",
                         default: true
                     }
@@ -415,7 +408,7 @@ export const SETTINGS_CONFIG = {
             },
             avatarFiltersEnabled: {
                 label: "Avatar Filters",
-                description: ["Adds filters to the avatar page, allowing you to filter by effect items, limited, offsale / onsale and more."],
+                description: ["Adds filters to the avatar page, allowing you to filter by color, effect items, limited, offsale / onsale and more."],
                 type: "checkbox",
                 default: true
             },
@@ -493,12 +486,6 @@ export const SETTINGS_CONFIG = {
                         type: "checkbox",
                         default: true,
                     },
-                    gameTitleIssueEnable: {
-                        label: "Fix the experience title issues",
-                        description: "Fixes the top and bottom of experience titles on profiles getting cut off.",
-                        type: "checkbox",
-                        default: true,
-                    }
                 }
             },
             eastereggslinksEnabled: {

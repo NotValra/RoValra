@@ -86,13 +86,13 @@ function injectCustomCSS() {
             padding: 0 !important; display: flex !important; align-items: center !important;
             justify-content: center !important; flex-shrink: 0 !important; visibility: visible !important;
             opacity: 1 !important; border: none !important;
-            background-color: var(--rovalra-playbutton-color) !important; color: white !important;
+            background-color: rgb(51, 95, 255) !important; color: white !important;
             cursor: pointer; border-radius: 12px;
             transition: background-color 0.2s;
             order: 5 !important;
         }
         .${ROVALRA_BUTTON_CLASS}:hover {
-            background-color: var(--rovalra-playbutton-color) !important;
+            background-color: rgba(41, 82, 233, 1) !important;
         }
         .${ROVALRA_BUTTON_CLASS} svg path { 
             fill: white !important; 

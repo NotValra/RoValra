@@ -79,30 +79,12 @@ const applyHomeHeaderLinkFix = () => {
     });
 };
 
-const applyGameTitleFix = () => {
-    chrome.storage.local.get('gameTitleIssueEnable', function(settings) {
-        if (!settings.gameTitleIssueEnable) return;
-
-        if (!window.location.href.includes('profile')) return;
-
-        const css = `
-            .slide-item-name.games.font-title {
-                line-height: normal !important;
-            }
-        `;
-        const style = document.createElement('style');
-        style.textContent = css;
-        (document.head || document.documentElement).appendChild(style);
-    });
-};
-
 export function init() {
     chrome.storage.local.get(['cssfixesEnabled', 'giantInvisibleLink'], function(data) {
         if (data.cssfixesEnabled === true) {
             observeElement('#profile-header-container', applyImpersonateAttribute);
             observeElement('.profile-header', applyHeaderFix);
             applyHomeHeaderLinkFix();
-            applyGameTitleFix();
         }
     });
 }

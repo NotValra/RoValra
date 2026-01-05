@@ -84,9 +84,7 @@ function getDefaultSettings() {
         VersionFiltersEnabled: true,
         totalearnedEnabled: true,
         EnableRobloxApiDocs: false,
-        QuickOutfitsEnabled: false,
-        gameTitleIssueEnable: true,
-        closeUiByClickingTheBackground:  true
+        QuickOutfitsEnabled: false
     };
 }
 
@@ -170,10 +168,6 @@ const handleMemoryLeakNavigation = (details) => {
     }
 
     if (details.frameId !== 0 || details.transitionType === 'auto_subframe' || details.transitionType === 'reload') {
-        return;
-    }
-
-    if (details.url.includes('/download/client')) {
         return;
     }
 
@@ -355,6 +349,20 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 }
             });
             return true; 
+
+        case 'downloadVersion':
+            chrome.downloads.download({
+                url: request.url,
+                filename: request.filename,
+                saveAs: true 
+            }, (downloadId) => {
+                if (chrome.runtime.lastError) {
+                    sendResponse({ success: false, error: chrome.runtime.lastError.message });
+                } else {
+                    sendResponse({ success: true, downloadId: downloadId });
+                }
+            });
+            return true;
         
     }
     return [

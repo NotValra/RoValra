@@ -16,7 +16,7 @@ import { getPlaceIdFromUrl } from '../../core/idExtractor.js';
 
 
 
-const ROVALRA_PLACE_ID = '107845747621646';
+const ROVALRA_PLACE_ID = '17222553211';
 let assetToSubcategoryMap = null;
 let classicClothingSubcategories = null;
 let metadataPromise = null;
@@ -97,104 +97,6 @@ async function fetchGamesForGroup(groupId) {
     return allGames;
 }
 
-async function updateGameDescription(universeId, sourcePlaceId) {
-    try {
-        const versionResponse = await callRobloxApiJson({
-            subdomain: 'develop',
-            endpoint: '/v1/assets/latest-versions',
-            method: 'POST',
-            body: {
-                assetIds: [parseInt(sourcePlaceId)],
-                versionStatus: 'Published'
-            }
-        });
-
-        let versionNumber = 'Unknown';
-        if (versionResponse && versionResponse.results && versionResponse.results.length > 0) {
-            versionNumber = versionResponse.results[0].versionNumber;
-        }
-
-        const configResponse = await callRobloxApiJson({
-            subdomain: 'develop',
-            endpoint: `/v1/universes/${universeId}/configuration`,
-            method: 'GET'
-        });
-
-        if (!configResponse) return;
-
-        const newDescription = `SourcePlaceId: ${sourcePlaceId} Version: ${versionNumber}`;
-        
-        const patchBody = {
-            name: configResponse.name,
-            description: newDescription,
-            isFriendsOnly: configResponse.isFriendsOnly,
-            studioAccessToApisAllowed: configResponse.isStudioAccessToApisAllowed
-        };
-
-        await callRobloxApiJson({
-            subdomain: 'develop',
-            endpoint: `/v2/universes/${universeId}/configuration`,
-            method: 'PATCH',
-            body: patchBody
-        });
-
-    } catch (e) {
-        console.warn('RoValra: Failed to update game description', e);
-    }
-}
-
-async function validateGameSync(universeId, placeId) {
-    try {
-        const versionResponse = await callRobloxApiJson({
-            subdomain: 'develop',
-            endpoint: '/v1/assets/latest-versions',
-            method: 'POST',
-            body: {
-                assetIds: [parseInt(ROVALRA_PLACE_ID)],
-                versionStatus: 'Published'
-            }
-        });
-        
-        let latestVersion = 0;
-        if (versionResponse && versionResponse.results && versionResponse.results.length > 0) {
-            latestVersion = versionResponse.results[0].versionNumber;
-        }
-
-        let description = '';
-        if (placeId) {
-            const gameDetails = await callRobloxApiJson({
-                subdomain: 'games',
-                endpoint: `/v1/games/multiget-place-details?placeIds=${placeId}`,
-                method: 'GET'
-            });
-            if (gameDetails && gameDetails.length > 0) {
-                description = gameDetails[0].description || '';
-            }
-        } else {
-            const configResponse = await callRobloxApiJson({
-                subdomain: 'develop',
-                endpoint: `/v1/universes/${universeId}/configuration`,
-                method: 'GET'
-            });
-            if (configResponse) description = configResponse.description || '';
-        }
-        
-        const match = description.match(/SourcePlaceId:\s*(\d+)\s*Version:\s*(\d+)/);
-        
-        if (!match) return { valid: false, reason: 'missing_metadata' };
-        
-        const sourceId = match[1];
-        const currentVersion = parseInt(match[2], 10);
-        
-        if (sourceId !== ROVALRA_PLACE_ID || currentVersion < latestVersion) {
-            return { valid: false, reason: 'outdated', current: currentVersion, latest: latestVersion };
-        }
-
-        return { valid: true };
-    } catch (e) {
-        return { valid: true }; 
-    }
-}
 
 const getCurrentUserId = () => {
     const meta = document.querySelector('meta[name="user-data"]');
@@ -347,7 +249,7 @@ const detectAndAddSaveButton = () => {
 
 
 
-const createAndShowPopup = (onSave, initialState = null) => {
+const createAndShowPopup = (onSave) => {
     const currentUserId = getCurrentUserId();
     if (!currentUserId) {
         alert("Could not identify your user ID. Please make sure you are logged in.");
@@ -492,50 +394,11 @@ const createAndShowPopup = (onSave, initialState = null) => {
             </div>
         </div>
 
-        <div id="sr-view-validation-warning" class="sr-hidden">
-            <h4 class="text font-header-2" style="margin: 0 0 10px 0;">Validation Warning</h4>
-            <div id="sr-validation-message-container"></div>
-            <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 16px;">
-                <button class="btn-cta-md btn-min-width" id="sr-validation-create-btn" style="display: none;">Create New Experience</button>
-                <button class="btn-cta-md btn-min-width" id="sr-validation-update-btn" style="display: none;">Update Experience</button>
-                <button class="btn-secondary-md btn-min-width" id="sr-validation-use-anyway-btn">Use Anyway</button>
-            </div>
-        </div>
-
         <div id="sr-view-permission-error" class="sr-hidden">
             <h4 class="text font-header-2" style="margin: 0 0 10px 0;">Permission Required</h4>
             <p class="text font-body" style="margin: 5px 0 12px 0; line-height: 1.5;">You don't have permission to manage experiences for this group. You need a role with creation/management rights. You can pick a different group or choose the donate option instead.</p>
             <div style="display: flex; gap: 8px;">
                 <button class="btn-secondary-md btn-min-width" id="sr-permission-error-back-btn" style="flex: 1;">Back to Group Selection</button>
-            </div>
-        </div>
-
-        <div id="sr-view-update-instructions" class="sr-hidden">
-            <h4 class="text font-header-2" style="margin: 0 0 10px 0;">Update Experience</h4>
-            <p class="text font-body" style="margin: 5px 0 10px 0; line-height: 1.5;">
-                Experience: <strong id="sr-update-game-name">Loading...</strong>
-            </p>
-            <p class="text font-body" style="margin: 5px 0 10px 0; line-height: 1.5;">Your experience is outdated. To ensure it works correctly, please update it. Updates to the 40% method experience is normally important bug fixes.</p>
-            <div style="margin-bottom: 16px; border-radius: 8px; overflow: hidden;">
-                <iframe width="100%" height="250" src="https://www.youtube.com/embed/P-Njqsr9-Ok" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-            </div>
-            <ol class="text font-body" style="margin: 0 0 16px 0; padding-left: 20px; line-height: 1.5;">
-                <li>Open the template in Roblox Studio: <a href="#" id="sr-update-open-studio-link" style="text-decoration: underline;">Open Studio</a></li>
-                <li>To update the game, you just need to open the template through the "Open Studio"</li>
-                <li>Then file > Publish To Roblox As > the experience you currently use > Overwrite. </li>
-            </ol>
-            <div style="display: flex; gap: 8px; margin-top: 16px;">
-                <button class="btn-secondary-md btn-min-width" id="sr-update-use-anyway-btn" style="flex: 1;">Use Anyway</button>
-                <button class="btn-cta-md btn-min-width" id="sr-update-confirm-btn" style="flex: 1;">I've Updated It</button>
-            </div>
-        </div>
-
-        <div id="sr-view-update-failed" class="sr-hidden">
-            <h4 class="text font-header-2" style="margin: 0 0 10px 0;">Update Not Detected</h4>
-            <p class="text font-body" style="margin: 5px 0 16px 0; line-height: 1.5;">We didn't detect a new version. Please make sure you published the game to Roblox (File > Publish to Roblox).</p>
-            <div style="display: flex; gap: 8px; margin-top: 16px;">
-                <button class="btn-secondary-md btn-min-width" id="sr-update-failed-back-btn" style="flex: 1;">Back</button>
-                <button class="btn-cta-md btn-min-width" id="sr-update-failed-retry-btn" style="flex: 1;">Retry Verification</button>
             </div>
         </div>
     `, { ADD_ATTR: ['target', 'allow', 'allowfullscreen', 'frameborder'], ADD_TAGS: ['iframe'] });
@@ -599,18 +462,6 @@ const createAndShowPopup = (onSave, initialState = null) => {
     const viewFindingGame = bodyContent.querySelector('#sr-view-finding-game');
     const viewRoValraGroup = bodyContent.querySelector('#sr-view-rovalra-group');
     const viewPermissionError = bodyContent.querySelector('#sr-view-permission-error');
-    const viewValidationWarning = bodyContent.querySelector('#sr-view-validation-warning');
-    const viewUpdateInstructions = bodyContent.querySelector('#sr-view-update-instructions');
-    const viewUpdateFailed = bodyContent.querySelector('#sr-view-update-failed');
-    const updateUseAnywayBtn = bodyContent.querySelector('#sr-update-use-anyway-btn');
-    const updateFailedBackBtn = bodyContent.querySelector('#sr-update-failed-back-btn');
-    const updateFailedRetryBtn = bodyContent.querySelector('#sr-update-failed-retry-btn');
-    const updateGameNameEl = bodyContent.querySelector('#sr-update-game-name');
-    const updateOpenStudioLink = bodyContent.querySelector('#sr-update-open-studio-link');
-    const updateConfirmBtn = bodyContent.querySelector('#sr-update-confirm-btn');
-    const validationUseAnywayBtn = bodyContent.querySelector('#sr-validation-use-anyway-btn');
-    const validationCreateBtn = bodyContent.querySelector('#sr-validation-create-btn');
-    const validationUpdateBtn = bodyContent.querySelector('#sr-validation-update-btn');
     const permissionErrorBackBtn = bodyContent.querySelector('#sr-permission-error-back-btn');
     const acknowledgeBtn = bodyContent.querySelector('#sr-acknowledge-btn');
     const useRoValraGroupBtn = bodyContent.querySelector('#sr-use-rovalra-group-btn');
@@ -628,9 +479,6 @@ const createAndShowPopup = (onSave, initialState = null) => {
     const notFoundRetryBtn = bodyContent.querySelector('#sr-not-found-retry-btn');
     const editGameLink = bodyContent.querySelector('#sr-edit-game-link');
     let manualPlaceIdCandidate = null;
-    let manualUniverseIdCandidate = null;
-    let lastValidationReason = null;
-    let initialUserPlaceVersion = 0;
 
     let groupDropdown = null;
     let selectedGroupId = null;
@@ -639,61 +487,6 @@ const createAndShowPopup = (onSave, initialState = null) => {
     let selectedGameIndex = null;
     const gamesPerPage = 4;
     let initialGroupGames = [];
-
-    const showValidationWarning = async (reason, placeId, universeId, gameName = null) => {
-        lastValidationReason = reason;
-        if (gameName && updateGameNameEl) updateGameNameEl.textContent = gameName;
-        const container = bodyContent.querySelector('#sr-validation-message-container');
-        
-        validationUpdateBtn.style.display = 'none';
-        validationCreateBtn.style.display = 'none';
-
-        if (reason === 'missing_metadata' || reason === 'wrong_source') {
-            container.innerHTML = DOMPurify.sanitize(`
-                <p class="text font-body" style="margin-bottom: 10px;">This experience does not appear to support the 40% method (missing or invalid metadata).</p>
-                <p class="text font-body" style="margin-bottom: 10px;">You can update the experience to fix this, or create a new one.</p>
-            `);
-            validationCreateBtn.style.display = 'block';
-            validationUpdateBtn.style.display = 'block';
-        } else if (reason === 'outdated') {
-            container.innerHTML = DOMPurify.sanitize(`
-                <p class="text font-body" style="margin-bottom: 10px;">Your game version is out of sync with the latest template.</p>
-                <p class="text font-body" style="margin-bottom: 10px;">Please update your game to avoid issues with purchases.</p>
-            `);
-            validationUpdateBtn.style.display = 'block';
-        } else {
-             container.innerHTML = '<p class="text font-body">Validation failed. Please check your game settings.</p>';
-        }
-
-        manualPlaceIdCandidate = placeId;
-        manualUniverseIdCandidate = universeId;
-
-        viewMain.classList.add('sr-hidden');
-        viewExistingGames.classList.add('sr-hidden');
-        saveBtn.style.display = 'none';
-
-        if (reason === 'outdated') {
-            try {
-                const vResp = await callRobloxApiJson({
-                    subdomain: 'develop',
-                    endpoint: '/v1/assets/latest-versions',
-                    method: 'POST',
-                    body: { assetIds: [placeId], versionStatus: 'Published' }
-                });
-                if (vResp && vResp.results && vResp.results.length > 0) {
-                    initialUserPlaceVersion = vResp.results[0].versionNumber;
-                }
-            } catch (e) { console.error("RoValra: Failed to fetch initial place version", e); }
-            viewUpdateInstructions.classList.remove('sr-hidden');
-            return;
-        }
-        
-        if (initialState && initialState.view === 'validation-warning') {
-
-        }
-        
-        viewValidationWarning.classList.remove('sr-hidden');
-    };
 
     const handleGroupSelection = async (groupId) => {
         if (!groupId) return;
@@ -756,7 +549,7 @@ const createAndShowPopup = (onSave, initialState = null) => {
             } catch {}
         } catch (error) {
             console.error('RoValra: Failed to fetch groups:', error);
-            groupDropdownContainer.innerHTML = DOMPurify.sanitize('<div class="text font-body" style="color: var(--rovalra-secondary-text-color);">Failed to load groups. Please refresh and try again.</div>');
+            groupDropdownContainer.innerHTML = DOMPurify.sanitize('<div class="text font-body" style="color: var(--rovalra-overlay-text-secondary);">Failed to load groups. Please refresh and try again.</div>');
         }
     };
     
@@ -967,15 +760,10 @@ const createAndShowPopup = (onSave, initialState = null) => {
 
     existingSelectBtn.addEventListener('click', async () => {
         if (selectedGameIndex === null) return;
-        const selectedGame = existingGames[selectedGameIndex];
-        
-        const validation = await validateGameSync(selectedGame.id, selectedGame.rootPlaceId);
-        if (!validation.valid) {
-            showValidationWarning(validation.reason, selectedGame.rootPlaceId, selectedGame.id, selectedGame.name);
-            return;
-        }
 
+        const selectedGame = existingGames[selectedGameIndex];
         manualPlaceIdCandidate = selectedGame.rootPlaceId;
+
         viewExistingGames.classList.add('sr-hidden');
         manualAckView.classList.remove('sr-hidden');
     });
@@ -1038,8 +826,6 @@ const createAndShowPopup = (onSave, initialState = null) => {
             if (newGames.length === 1) {
                 const newGame = newGames[0];
                 const rootPlaceId = newGame.rootPlaceId;
-
-                await updateGameDescription(newGame.id, ROVALRA_PLACE_ID);
     
                 if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
                     chrome.storage.local.set({ 
@@ -1102,96 +888,6 @@ const createAndShowPopup = (onSave, initialState = null) => {
         });
     }
 
-    const handleUseAnyway = () => {
-        if (manualPlaceIdCandidate !== null) {
-            const placeIdToSave = manualPlaceIdCandidate;
-            if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
-                chrome.storage.local.set({ RobuxPlaceId: placeIdToSave, useRoValraGroup: false }, () => {
-                    close();
-                    onSave();
-                });
-            }
-        } else { close(); onSave(); }
-    };
-
-    validationUseAnywayBtn.addEventListener('click', handleUseAnyway);
-
-    validationCreateBtn.addEventListener('click', () => {
-        viewValidationWarning.classList.add('sr-hidden');
-        createNewGameBtn.click();
-    });
-
-    validationUpdateBtn.addEventListener('click', () => {
-        viewValidationWarning.classList.add('sr-hidden');
-        viewUpdateInstructions.classList.remove('sr-hidden');
-    });
-
-    updateUseAnywayBtn.addEventListener('click', handleUseAnyway);
-
-    if (updateOpenStudioLink) {
-        updateOpenStudioLink.addEventListener('click', async (e) => {
-            e.preventDefault();
-            await launchStudioForGame(ROVALRA_PLACE_ID);
-        });
-    }
-
-    const verifyUpdate = async () => {
-        const originalText = updateConfirmBtn.textContent;
-        updateConfirmBtn.textContent = 'Verifying...';
-        updateConfirmBtn.disabled = true;
-        updateFailedRetryBtn.disabled = true;
-
-        try {
-            const vResp = await callRobloxApiJson({
-                subdomain: 'develop',
-                endpoint: '/v1/assets/latest-versions',
-                method: 'POST',
-                body: { assetIds: [manualPlaceIdCandidate], versionStatus: 'Published' },
-            });
-
-            let currentVersion = 0;
-            if (vResp && vResp.results && vResp.results.length > 0) {
-                currentVersion = vResp.results[0].versionNumber;
-            }
-
-            if (currentVersion > initialUserPlaceVersion) {
-                if (manualUniverseIdCandidate)
-                    await updateGameDescription(manualUniverseIdCandidate, ROVALRA_PLACE_ID);
-                viewUpdateInstructions.classList.add('sr-hidden');
-                manualAckView.classList.remove('sr-hidden');
-            } else {
-                viewUpdateInstructions.classList.add('sr-hidden');
-                viewUpdateFailed.classList.remove('sr-hidden');
-            }
-        } catch (e) {
-            console.error('RoValra: Update verification failed', e);
-            viewUpdateInstructions.classList.add('sr-hidden');
-            const p = viewUpdateFailed.querySelector('p');
-            if (p) p.textContent = 'An error occurred while verifying the update. Please try again.';
-            viewUpdateFailed.classList.remove('sr-hidden');
-        } finally {
-            updateConfirmBtn.textContent = originalText;
-            updateConfirmBtn.disabled = false;
-            updateFailedRetryBtn.disabled = false;
-        }
-    };
-
-    updateConfirmBtn.addEventListener('click', verifyUpdate);
-
-    updateFailedBackBtn.addEventListener('click', () => {
-        viewUpdateFailed.classList.add('sr-hidden');
-        viewUpdateInstructions.classList.remove('sr-hidden');
-        const p = viewUpdateFailed.querySelector('p');
-        if (p) p.textContent = "We didn't detect a new version. Please make sure you published the game to Roblox (File > Publish to Roblox As).";
-    });
-
-    updateFailedRetryBtn.addEventListener('click', () => {
-        viewUpdateFailed.classList.add('sr-hidden');
-        const p = viewUpdateFailed.querySelector('p');
-        if (p) p.textContent = "We didn't detect a new version. Please make sure you published the game to Roblox (File > Publish to Roblox As).";
-        verifyUpdate();
-    });
-
     rovalraConfirmBtn.addEventListener('click', async () => {
         if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
             chrome.storage.local.set({ 
@@ -1228,15 +924,6 @@ const createAndShowPopup = (onSave, initialState = null) => {
                 gameIdErrorEl.style.display = 'block';
                 return;
             }
-            
-            const universeId = data[0].universeId;
-            const gameName = data[0].name;
-            const validation = await validateGameSync(universeId, parsedId);
-            if (!validation.valid) {
-                showValidationWarning(validation.reason, parsedId, universeId, gameName);
-                return;
-            }
-
         } catch (e) {
             console.error('Failed to validate place ID:', e);
             gameIdErrorEl.textContent = 'Could not validate the ID. Please try again.';
@@ -1250,11 +937,7 @@ const createAndShowPopup = (onSave, initialState = null) => {
         manualAckView.classList.remove('sr-hidden');
     });
 
-    if (initialState && initialState.view === 'validation-warning') {
-        showValidationWarning(initialState.reason, initialState.placeId, initialState.universeId, initialState.gameName);
-    } else {
-        loadGroups();
-    }
+    loadGroups();
 };
 
 
@@ -1312,7 +995,6 @@ const showInitialConfirmation = async (savedPlaceId, useRoValraGroup) => {
     let gameName = 'Unknown Experience';
     let gameThumbnailUrl = '';
     let actualPlaceId = savedPlaceId;
-    let universeId = null;
 
     if (useRoValraGroup || savedPlaceId === 'ROVALRA_GROUP') {
         actualPlaceId = ROVALRA_PLACE_ID;
@@ -1428,7 +1110,7 @@ const showInitialConfirmation = async (savedPlaceId, useRoValraGroup) => {
 let activePurchaseContext = null;
 
 
-const executeCartPurchase = async (cartItems, prefetchData = null, bypassValidation = false) => {
+const executeCartPurchase = async (cartItems, prefetchData = null) => {
     activePurchaseContext = { cancelled: false };
     const ctx = activePurchaseContext;
     const ensureNotCancelled = () => { if (ctx.cancelled) throw new Error('Purchase cancelled'); };
@@ -1477,7 +1159,6 @@ const executeCartPurchase = async (cartItems, prefetchData = null, bypassValidat
     let gameName = 'Unknown Experience';
     let gameThumbnailUrl = '';
     let actualPlaceId = savedPlaceId;
-    let universeId = null;
 
     if (useRoValraGroup || savedPlaceId === 'ROVALRA_GROUP') {
         actualPlaceId = ROVALRA_PLACE_ID;
@@ -1489,7 +1170,6 @@ const executeCartPurchase = async (cartItems, prefetchData = null, bypassValidat
             const info = await prefetchData.gameInfo;
             if (info && info.data && info.data.length > 0) {
                 gameName = info.data[0].name || 'Unknown Experience';
-                universeId = info.data[0].universeId;
             }
             if (prefetchData.gameThumb) {
                 gameThumbnailUrl = (await prefetchData.gameThumb) || '';
@@ -1505,7 +1185,7 @@ const executeCartPurchase = async (cartItems, prefetchData = null, bypassValidat
             
             if (gameData && gameData.length > 0) {
                 gameName = gameData[0].name || 'Unknown Experience';
-                universeId = gameData[0].universeId;
+                const universeId = gameData[0].universeId;
                 
                 if (universeId) {
                     const thumbnailMap = await fetchThumbnails([{ id: universeId }], 'GameIcon', '150x150');
@@ -1517,20 +1197,6 @@ const executeCartPurchase = async (cartItems, prefetchData = null, bypassValidat
             }
         } catch (error) {
             console.warn('RoValra: Could not fetch game details:', error);
-        }
-    }
-
-    if (!useRoValraGroup && savedPlaceId !== 'ROVALRA_GROUP' && universeId && !bypassValidation) {
-        const validation = await validateGameSync(universeId, actualPlaceId);
-        if (!validation.valid) {
-            let reason = validation.reason;
-            if (reason === 'missing_metadata') {
-                reason = 'outdated';
-            }
-            createAndShowPopup(() => {
-                executeCartPurchase(cartItems, prefetchData, true);
-            }, { view: 'validation-warning', reason: reason, placeId: actualPlaceId, universeId: universeId, gameName: gameName });
-            return;
         }
     }
 
@@ -1666,7 +1332,7 @@ const executeCartPurchase = async (cartItems, prefetchData = null, bypassValidat
                 <span class="text font-body" style="font-weight: 600; ${robuxAfterPurchase < 0 ? 'color: #d32f2f;' : ''} display: flex; align-items: center; gap: 4px;"><span class="icon-robux-16x16"></span>${robuxAfterPurchase.toLocaleString()}</span>
             </div>
             <div style="display: flex; justify-content: space-between; padding: 8px; background: rgba(0,128,0,0.05); border-radius: 4px;">
-                <span class="text font-body" style="font-weight: 600; font-size: 13px;">${isDonating ? 'RoValra gets:' : 'You Save:'}</span>
+                <span class="text font-body" style="font-weight: 600; font-size: 13px;">${isDonating ? 'Commission:' : 'You Save:'}</span>
                 <span class="text font-body" style="font-size: 18px; font-weight: 700; display: flex; align-items: center; gap: 4px;"><span class="icon-robux-16x16"></span>${totalSavings.toLocaleString()}</span>
             </div>
         </div>
@@ -1738,7 +1404,7 @@ const executeCartPurchase = async (cartItems, prefetchData = null, bypassValidat
 };
 
 
-const execute40MethodPurchase = async (itemId, robuxPrice, isGamePass = false, isBundle = false, itemDetails = null, prefetchData = null, bypassValidation = false) => {
+const execute40MethodPurchase = async (itemId, robuxPrice, isGamePass = false, isBundle = false, itemDetails = null, prefetchData = null) => {
     activePurchaseContext = { cancelled: false };
     const ctx = activePurchaseContext || { cancelled: false };
     const ensureNotCancelled = () => { if (ctx.cancelled) throw new Error('Purchase cancelled'); };
@@ -1828,7 +1494,6 @@ const execute40MethodPurchase = async (itemId, robuxPrice, isGamePass = false, i
     let gameName = 'Unknown Experience';
     let gameThumbnailUrl = '';
     let actualPlaceId = savedPlaceId;
-    let universeId = null;
 
     if (useRoValraGroup || savedPlaceId === 'ROVALRA_GROUP') {
         actualPlaceId = ROVALRA_PLACE_ID;
@@ -1839,7 +1504,6 @@ const execute40MethodPurchase = async (itemId, robuxPrice, isGamePass = false, i
         try {
             const info = await prefetchData.gameInfo;
             if (info && info.data && info.data.length > 0) {
-                universeId = info.data[0].universeId;
                 gameName = info.data[0].name || 'Unknown Experience';
             }
             if (prefetchData.gameThumb) {
@@ -1856,7 +1520,7 @@ const execute40MethodPurchase = async (itemId, robuxPrice, isGamePass = false, i
             
             if (gameData && gameData.length > 0) {
                 gameName = gameData[0].name || 'Unknown Experience';
-                universeId = gameData[0].universeId;
+                const universeId = gameData[0].universeId;
                 
                 if (universeId) {
                     const thumbnailMap = await fetchThumbnails([{ id: universeId }], 'GameIcon', '150x150');
@@ -1868,20 +1532,6 @@ const execute40MethodPurchase = async (itemId, robuxPrice, isGamePass = false, i
             }
         } catch (error) {
             console.warn('RoValra: Could not fetch game details:', error);
-        }
-    }
-
-    if (!useRoValraGroup && savedPlaceId !== 'ROVALRA_GROUP' && universeId && !bypassValidation) {
-        const validation = await validateGameSync(universeId, actualPlaceId);
-        if (!validation.valid) {
-            let reason = validation.reason;
-            if (reason === 'missing_metadata') {
-                reason = 'outdated';
-            }
-            createAndShowPopup(() => {
-                execute40MethodPurchase(itemId, robuxPrice, isGamePass, isBundle, itemDetails, prefetchData, true);
-            }, { view: 'validation-warning', reason: reason, placeId: actualPlaceId, universeId: universeId, gameName: gameName });
-            return;
         }
     }
     
@@ -2380,9 +2030,9 @@ const addSaveButton = (modal) => {
             if (!result.RobuxPlaceId) {
                 createAndShowPopup(() => {
                     if (isMultiItemPurchase) {
-                        executeCartPurchase(cartItems, prefetchData, true);
+                        executeCartPurchase(cartItems, prefetchData);
                     } else {
-                        execute40MethodPurchase(itemId, robuxPrice, isGamePass, isBundle, itemDetails, prefetchData, true);
+                        execute40MethodPurchase(itemId, robuxPrice, isGamePass, isBundle, itemDetails, prefetchData);
                     }
                 });
             } else {

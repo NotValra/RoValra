@@ -191,7 +191,7 @@ async function displayItems(itemsWithDetails) {
                     toggleButton.style.color = '#666';
                 } else {
                     title.textContent = originalName;
-                    toggleButton.style.color = 'var(--rovalra-main-text-color)';
+                    toggleButton.style.color = 'var(--text-color, #fff)';
                 }
                 showingOriginal = !showingOriginal;
             };

@@ -418,6 +418,14 @@ function addDeveloperTab({ menuList, loadTabContent, renderMobileDropdown }) {
                 description: ["This is just a fun setting that will show RoValra badges on any profile"],
                 type: "checkbox",
                 default: false
+            },
+            EnableVersionDownloader: {
+                label: ["Enable Version Downloader"],
+                description: ["Allows downloading specific versions of uncopylocked places."],
+                experimental: "Experimental feature.",
+                type: "checkbox",
+                default: false,
+                requiredPermissions: ["downloads"]
             }
 
         }
@@ -472,7 +480,7 @@ export function injectSettingsStyles() {
         
         #settings-search-input:focus {
             outline: none;
-            border-color: var(--rovalra-playbutton-color); 
+            border-color: var(--rovalra-search-focus-border, #0078d4); 
         }
 
         .setting { 
