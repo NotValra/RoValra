@@ -52,7 +52,6 @@
     "web_accessible_resources": [
         {
             "resources": [
-                "ffmpeg/*",
                 "public/Assets/*",
                 "public/data/*",
                 "Assets/data/serverid_extractor.js",
