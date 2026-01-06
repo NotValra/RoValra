@@ -1,6 +1,7 @@
 // adds information about servers
 
 import { callRobloxApi } from '../../api.js';
+import { observeElement } from '../../observer.js';
 
 
 const CLASSES = {
@@ -486,7 +487,7 @@ export async function fetchServerUptime(placeId, serverIds, serverLocations, ser
             serverUptimes[server_id] = uptime;
 
             let regionStr = null;
-            const locParts = [city, (region && region !== city) ? region : null].filter(p => p && p !== 'Unknown');
+            const locParts = [city, (region && region !== city) ? region : null, country].filter(p => p && p !== 'Unknown');
             if (locParts.length) {
                 regionStr = [...new Set(locParts)].join(', ');
                 serverLocations[server_id] = regionStr;
@@ -620,23 +621,17 @@ export function cleanupServerUI(server) {
     });
 }
 
+let cleanupObserverInitialized = false;
+
 export function attachCleanupObserver(server) {
-    if (server.dataset.rovalraCleanupAttached) return;
-    
-    const observer = new MutationObserver(mutations => {
-        mutations.forEach(m => {
-            m.addedNodes.forEach(node => {
-                if (node.nodeType !== 1) return;
-                const isTarget = node.matches?.('.share-button, .server-performance');
-                if (isTarget && !isExcludedButton(node)) {
-                    node.remove();
-                }
-            });
-        });
-    });
-    
-    observer.observe(server, { childList: true, subtree: true });
-    server.dataset.rovalraCleanupAttached = 'true';
+    if (cleanupObserverInitialized) return;
+    cleanupObserverInitialized = true;
+
+    observeElement('.share-button, .server-performance', (node) => {
+        if (!isExcludedButton(node) && node.closest('[data-rovalra-serverid]')) {
+            node.remove();
+        }
+    }, { multiple: true });
 }
 
 export async function addCopyJoinLinkButton(server, serverId) {

@@ -70,36 +70,6 @@ async function processServerElement(serverItem) {
 }
 
 
-function watchServerElement(serverItem) {
-    const observer = new MutationObserver((mutations) => {
-        const hasPlayerChange = mutations.some(mutation => {
-            if (mutation.type === 'childList') {
-                const target = mutation.target;
-                if (target.classList?.contains('player-thumbnails-container') ||
-                    target.closest('.player-thumbnails-container')) {
-                    return true;
-                }
-            }
-            return false;
-        });
-        
-        if (hasPlayerChange) {
-            
-            serverItem.classList.remove('rovalra-checked');
-            
-            processServerElement(serverItem);
-        }
-    });
-    
-    observer.observe(serverItem, {
-        childList: true,
-        subtree: true
-    });
-    
-    serverItem._rovalraServerObserver = observer;
-}
-
-
 export function initServerIdExtraction() {
     injectExtractorScript();
     
@@ -109,11 +79,18 @@ export function initServerIdExtraction() {
         '.rbx-private-game-server-item'
     ];
     
+    const serverSelectorString = selectors.join(',');
+
     selectors.forEach(selector => {
         observeElement(selector, (serverElement) => {
             processServerElement(serverElement);
-            
-            watchServerElement(serverElement);
         }, { multiple: true });
     });
+
+    observeElement('.player-thumbnails-container', (container) => {
+        const serverItem = container.closest(serverSelectorString);
+        if (serverItem) {
+            processServerElement(serverItem);
+        }
+    }, { multiple: true });
 }

@@ -3,6 +3,7 @@
 import { callRobloxApi } from '../../api.js';
 import { addTooltip } from '../../ui/tooltip.js';
 import DOMPurify from 'dompurify';
+import { observeElement, startObserving } from '../../observer.js';
 
 
 let versionDataCache = null;
@@ -173,10 +174,10 @@ function createStatItem(icon, label, value, theme) {
 }
 
 
-function applyVersionAttributes() {
+function applyVersionAttributes(element) {
     if (!versionDataCache) return;
 
-    const serverItemContainer = document.getElementById('rbx-public-game-server-item-container');
+    const serverItemContainer = element || document.getElementById('rbx-public-game-server-item-container');
     if (serverItemContainer && !serverItemContainer.hasAttribute('data-newest-version')) {
         if (versionDataCache.newest_place_version) {
             serverItemContainer.dataset.newestVersion = versionDataCache.newest_place_version;
@@ -280,30 +281,25 @@ export async function initGlobalStatsBar() {
     if (statsBarObserverAttached) {
         return;
     }
-    statsBarObserverAttached = true;
-
-    injectStatsStyles();
-
-    const mainObserver = new MutationObserver(() => {
-        applyVersionAttributes();
-
-        const serverListContainer = document.getElementById('rbx-public-running-games');
-        if (serverListContainer && versionDataCache) {
-            createStatsBarUI(serverListContainer);
-        }
-    });
-
-    mainObserver.observe(document.body, {
-        childList: true,
-        subtree: true
-    });
 
     const placeId = window.location.pathname.match(/\/games\/(\d+)\//)?.[1];
     if (!placeId) {
-        mainObserver.disconnect();
-        statsBarObserverAttached = false;
         return;
     }
+
+    statsBarObserverAttached = true;
+    injectStatsStyles();
+    startObserving();
+
+    observeElement('#rbx-public-game-server-item-container', (element) => {
+        applyVersionAttributes(element);
+    });
+
+    observeElement('#rbx-public-running-games', (element) => {
+        if (versionDataCache) {
+            createStatsBarUI(element);
+        }
+    });
 
     try {
         const data = await fetchServerStats(placeId);
