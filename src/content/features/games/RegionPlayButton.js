@@ -225,39 +225,13 @@ export function init() {
 
         observeElement(targetContainerIdSelector, (container) => {
             processContainer(container);
-
-            const observer = new MutationObserver((mutations) => {
-                let shouldProcess = false;
-                
-                for (const mutation of mutations) {
-                    if (mutation.type === 'childList') {
-                        let onlyOurButtonAdded = false;
-                        mutation.addedNodes.forEach(node => {
-                            if (node.id === NEW_BUTTON_ID || (node.classList && node.classList.contains(ROVALRA_BUTTON_CLASS))) {
-                                onlyOurButtonAdded = true;
-                            }
-                        });
-
-                        if (!onlyOurButtonAdded) shouldProcess = true;
-                    }
-                    
-                    if (mutation.type === 'attributes') {
-                        const target = mutation.target;
-                        if (!target.classList.contains('random-server-join-button') && 
-                            !target.classList.contains(ROVALRA_BUTTON_CLASS)) {
-                            shouldProcess = true;
-                        }
-                    }
-                }
-
-                if (shouldProcess) {
-                    processContainer(container);
-                }
-            });
-            
-            observer.observe(container, { childList: true, subtree: true, attributes: true });
-        }, {
-            onRemove: () => {}
         });
+
+        observeElement(`${targetContainerIdSelector} button`, (button) => {
+            const container = button.closest(targetContainerIdSelector);
+            if (container) {
+                processContainer(container);
+            }
+        }, { multiple: true });
     });
 }

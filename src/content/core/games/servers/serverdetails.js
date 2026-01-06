@@ -394,6 +394,7 @@ export function displayRegion(server, regionName, serverLocations = {}) {
     
     if (regionName && regionName !== 'Unknown Region') {
         container.querySelector(`.${CLASSES.Full}`)?.remove();
+        container.querySelector(`.${CLASSES.Private}`)?.remove();
     }
 
     let text = "Unknown";
@@ -545,15 +546,19 @@ export async function fetchAndDisplayRegion(server, serverId, serverIpMap, serve
             const joinBtn = server.querySelector('.game-server-join-btn');
 
             if (info.status === 12 && info.message?.includes("private instance")) {
-                serverLocations[serverId] = 'private';
-                displayPrivateServerStatus(server);
+                if (!serverLocations[serverId]) {
+                    serverLocations[serverId] = 'private';
+                    displayPrivateServerStatus(server);
+                }
                 return;
             }
 
 
             if (info.status === 5) {
-                serverLocations[serverId] = 'inactive';
-                displayInactivePlaceStatus(server); 
+                if (!serverLocations[serverId]) {
+                    serverLocations[serverId] = 'inactive';
+                    displayInactivePlaceStatus(server);
+                }
                 return;
             }
             
@@ -569,8 +574,10 @@ export async function fetchAndDisplayRegion(server, serverId, serverIpMap, serve
             }
 
             if (info.joinScript?.PlaceVersion) {
-                serverVersionsCache[serverId] = info.joinScript.PlaceVersion;
-                displayPlaceVersion(server, info.joinScript.PlaceVersion, serverLocations);
+                if (!serverVersionsCache[serverId]) {
+                    serverVersionsCache[serverId] = info.joinScript.PlaceVersion;
+                    displayPlaceVersion(server, info.joinScript.PlaceVersion, serverLocations);
+                }
             }
 
             if (!serverLocations[serverId] || serverLocations[serverId] === 'Unknown Region' || serverLocations[serverId] === 'Unknown') {
