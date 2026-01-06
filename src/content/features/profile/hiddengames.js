@@ -32,6 +32,14 @@ const ENDPOINTS = {
     GAME_LINK: (placeId) => `https://www.roblox.com/games/${placeId}/unnamed`, // adding an extra parameter after placeid adds support for btroblox's copy placeid context menu item
 };
 
+const userListCache = new Map();
+const sharedStatsCache = {
+    likes: new Map(),
+    players: new Map(),
+    updated: new Map(),
+    thumbnails: new Map(),
+};
+
 const Api = {
     async fetchWithRetry(options) {
         let delay = CONFIG.RETRY.DELAY_MS;
@@ -123,18 +131,21 @@ const Api = {
     },
 
     async getUserGames(userId) {
-        try {
-            const isPublic = await this.checkInventoryPublic(userId);
-
-            if (isPublic) {
-                return await this.getGamesFromInventory(userId);
-            } else {
-                return await this.getGamesFromV2(userId);
-            }
-        } catch (error) {
-            console.error(error);
-            return [];
+        if (userListCache.has(userId)) {
+            return userListCache.get(userId).catch((err) => {
+                console.error(err);
+                return [];
+            });
         }
+
+        const fetchPromise = (async () => {
+            const isPublic = await this.checkInventoryPublic(userId);
+            return isPublic ? await this.getGamesFromInventory(userId) : await this.getGamesFromV2(userId);
+        })();
+
+        userListCache.set(userId, fetchPromise);
+        fetchPromise.catch(() => userListCache.delete(userId));
+        return fetchPromise.catch((err) => (console.error(err), []));
     },
 
     async enrichGameData(games, state) {
@@ -270,12 +281,7 @@ const UI = {
 class HiddenGamesManager {
     constructor(allGames) {
         this.allGames = allGames;
-        this.cache = {
-            likes: new Map(),
-            players: new Map(),
-            updated: new Map(),
-            thumbnails: new Map(),
-        };
+        this.cache = sharedStatsCache;
         this.filters = { sort: 'default', order: 'desc' };
         this.processedGames = [];
         this.visibleCount = 0;
@@ -301,8 +307,8 @@ class HiddenGamesManager {
 
         this.elements = { list, loader, filterPanel };
 
-        createOverlay({
-            title: 'Hidden Experiences',
+        const { overlay } = createOverlay({
+            title: 'Hidden Experiences (Might show not hidden experiences)',
             bodyContent: body,
             maxWidth: '1200px',
             maxHeight: '85vh',
@@ -314,13 +320,15 @@ class HiddenGamesManager {
             return;
         }
 
-        this.elements.list.addEventListener('scroll', () => {
-            const { scrollTop, clientHeight, scrollHeight } =
-                this.elements.list;
-            if (scrollTop + clientHeight >= scrollHeight - 150) {
-                this.loadMore();
-            }
-        });
+        const scrollContainer = overlay.querySelector('.rovalra-overlay-body');
+        if (scrollContainer) {
+            scrollContainer.addEventListener('scroll', () => {
+                const { scrollTop, clientHeight, scrollHeight } = scrollContainer;
+                if (scrollTop + clientHeight >= scrollHeight - 150) {
+                    this.loadMore();
+                }
+            });
+        }
 
         this.applyFilters();
     }
@@ -417,22 +425,26 @@ class HiddenGamesManager {
 
         this.elements.loader.innerHTML = `<p class="rovalra-loading-text">Loading...</p>`;
 
-        const nextBatch = this.processedGames.slice(
-            this.visibleCount,
-            this.visibleCount + CONFIG.PAGE_SIZE,
-        );
+        try {
+            const nextBatch = this.processedGames.slice(
+                this.visibleCount,
+                this.visibleCount + CONFIG.PAGE_SIZE,
+            );
 
-        if (nextBatch.length > 0) {
-            await Api.enrichGameData(nextBatch, this.cache);
-            nextBatch.forEach((game) => {
-                this.elements.list.appendChild(
-                    createGameCard({ game, stats: this.cache }),
-                );
-            });
-            this.visibleCount += nextBatch.length;
+            if (nextBatch.length > 0) {
+                await Api.enrichGameData(nextBatch, this.cache);
+                nextBatch.forEach((game) => {
+                    this.elements.list.appendChild(
+                        createGameCard({ game, stats: this.cache }),
+                    );
+                });
+                this.visibleCount += nextBatch.length;
+            }
+        } catch (err) {
+            console.warn('RoValra: Error loading more games', err);
+        } finally {
+            this.elements.loader.innerHTML = '';
         }
-
-        this.elements.loader.innerHTML = '';
     }
 }
 
@@ -448,30 +460,9 @@ export function init() {
         const userId = getUserId();
         if (!userId) return;
 
-        let cachedGames = null;
-        let isFetching = false;
-
         const handleButtonClick = async () => {
-            const games = await fetchGamesOnce();
+            const games = await Api.getUserGames(userId);
             new HiddenGamesManager(games).openOverlay();
-        };
-
-        const fetchGamesOnce = async () => {
-            if (cachedGames !== null) return cachedGames;
-            if (isFetching) {
-                while (isFetching) await new Promise((r) => setTimeout(r, 100));
-                return cachedGames;
-            }
-
-            isFetching = true;
-            try {
-                cachedGames = await Api.getUserGames(userId);
-            } catch (err) {
-                cachedGames = [];
-            } finally {
-                isFetching = false;
-            }
-            return cachedGames;
         };
 
         observeElement(

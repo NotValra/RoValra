@@ -3,9 +3,10 @@ import { createOverlay } from "../../core/ui/overlay.js";
 import { createButton } from "../../core/ui/buttons.js";
 import { createDropdown } from "../../core/ui/dropdown.js";
 import { createShimmerGrid } from "../../core/ui/shimmer.js";
-import { fetchThumbnails as fetchThumbnailsBatch, createThumbnailElement } from "../../core/thumbnail/thumbnails.js";
+import { fetchThumbnails as fetchThumbnailsBatch } from "../../core/thumbnail/thumbnails.js";
 import { callRobloxApiJson } from "../../core/api.js";
 import DOMPurify from "dompurify";
+import { createGameCard } from "../../core/ui/games/gameCard.js";
 
 const PAGE_SIZE = 50;
 const ACCESS_FILTER = { ALL: 1, PUBLIC: 2 };
@@ -20,6 +21,14 @@ const el = (tag, className, props = {}, children = []) => {
 };
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+const groupListCache = new Map();
+const sharedStatsCache = {
+    likes: new Map(),
+    players: new Map(),
+    updated: new Map(),
+    thumbnails: new Map(),
+};
 
 const api = {
     async safeGet(endpoint) {
@@ -48,26 +57,36 @@ const api = {
     },
 
     async getGroupGames(groupId, accessFilter) {
-        let games = [];
-        let cursor = "";
+        const cacheKey = `${groupId}:${accessFilter}`;
+        if (groupListCache.has(cacheKey)) {
+            return groupListCache.get(cacheKey);
+        }
 
-        do {
-            const endpoint = `/v2/groups/${groupId}/gamesV2?accessFilter=${accessFilter}&limit=50&sortOrder=Desc&cursor=${cursor}`;
-            const json = await this.safeGet(endpoint);
+        const fetchPromise = (async () => {
+            let games = [];
+            let cursor = "";
 
-            if (json?.data) {
-                games = games.concat(json.data);
-                cursor = json.nextPageCursor || "";
-            } else {
-                cursor = "";
-            }
-        } while (cursor);
+            do {
+                const endpoint = `/v2/groups/${groupId}/gamesV2?accessFilter=${accessFilter}&limit=50&sortOrder=Desc&cursor=${cursor}`;
+                const json = await this.safeGet(endpoint);
 
-        return games;
+                if (json?.data) {
+                    games = games.concat(json.data);
+                    cursor = json.nextPageCursor || "";
+                } else {
+                    cursor = "";
+                }
+            } while (cursor);
+            return games;
+        })();
+
+        groupListCache.set(cacheKey, fetchPromise);
+        fetchPromise.catch(() => groupListCache.delete(cacheKey));
+        return fetchPromise;
     },
 
-    async getGameDetails(games, likeMap, playerMap) {
-        const batch = games.filter((g) => g && !likeMap.has(g.id));
+    async getGameDetails(games, cache) {
+        const batch = games.filter((g) => g && !cache.likes.has(g.id));
         if (!batch.length) return;
 
         for (let i = 0; i < batch.length; i += 50) {
@@ -81,12 +100,15 @@ const api = {
                 votesData.data.forEach((item) => {
                     const total = item.upVotes + item.downVotes;
                     const ratio = total > 0 ? Math.round((item.upVotes / total) * 100) : 0;
-                    likeMap.set(item.id, { ratio, total, upVotes: item.upVotes, downVotes: item.downVotes });
+                    cache.likes.set(item.id, { ratio, total, upVotes: item.upVotes, downVotes: item.downVotes });
                 });
             }
 
             if (playersData?.data) {
-                playersData.data.forEach((item) => playerMap.set(item.id, item.playing || 0));
+                playersData.data.forEach((item) => {
+                    cache.players.set(item.id, item.playing || 0);
+                    cache.updated.set(item.id, item.updated || 0);
+                });
             }
         }
     },
@@ -99,34 +121,6 @@ const api = {
     },
 };
 
-const createGameCard = (game, likeMap, playerMap, thumbnailCache) => {
-    const thumbData = thumbnailCache.get(game.id);
-    const votes = likeMap.get(game.id) || { ratio: 0, total: 0 };
-    const players = playerMap.get(game.id) || 0;
-
-    const thumbnail = createThumbnailElement(thumbData, game.name, "game-card-thumb");
-
-    const infoContent = `
-        <span class="info-label icon-votes-gray"></span>
-        <span class="info-label vote-percentage-label ${votes.total > 0 ? "" : "hidden"}">${votes.ratio}%</span>
-        <span class="info-label no-vote ${votes.total === 0 ? "" : "hidden"}"></span>
-        <span class="info-label icon-playing-counts-gray"></span>
-        <span class="info-label playing-counts-label" title="${players.toLocaleString()}">${players.toLocaleString()}</span>
-    `;
-
-    return el("div", "game-card-container", { style: { justifySelf: "center", width: "150px", height: "240px" } }, [
-        el(
-            "a",
-            "game-card-link",
-            {
-                href: `https://www.roblox.com/games/${game.rootPlace.id}/yippe`,
-                style: { display: "flex", flexDirection: "column", height: "100%", justifyContent: "space-between" },
-            },
-            [el("div", null, {}, [el("div", "game-card-thumb-container", {}, [thumbnail]), el("div", "game-card-name game-name-title", { title: game.name, textContent: game.name })]), el("div", "game-card-info", { innerHTML: DOMPurify.sanitize(infoContent) })]
-        ),
-    ]);
-};
-
 class HiddenGamesManager {
     constructor(allHiddenGames) {
         this.allGames = allHiddenGames;
@@ -135,7 +129,7 @@ class HiddenGamesManager {
         this.displayedCount = 0;
         this.isLoading = false;
         this.isPaginating = false;
-        this.cache = { likes: new Map(), players: new Map(), thumbnails: new Map() };
+        this.cache = sharedStatsCache;
         this.elements = {};
         this.render();
     }
@@ -171,34 +165,37 @@ class HiddenGamesManager {
 
         const createFilterGroup = (label, input) => el("div", "", { style: { display: "flex", flexDirection: "column", gap: "4px" } }, [el("label", "", { textContent: label, style: { fontSize: "12px", fontWeight: "500", color: "var(--rovalra-secondary-text-color)" } }), input]);
 
-        const body = el("div", "", { style: { display: "flex", flexDirection: "column", minHeight: "0" } }, [
+        const body = el("div", "", { style: { display: "flex", flexDirection: "column" } }, [
             el(
                 "div",
                 "rovalra-filters-container",
                 {
-                    style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px 24px", padding: "16px 24px", flexShrink: 0, backgroundColor: "var(--surface-default)", borderBottom: "1px solid var(--border-default)" },
+                    style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px 24px", padding: "16px 24px", backgroundColor: "var(--surface-default)", borderBottom: "1px solid var(--border-default)" },
                 },
                 [createFilterGroup("Sort", sortDropdown.element), createFilterGroup("Order", orderDropdown.element)]
             ),
-            el("div", "hidden-games-list", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: "10px", padding: "24px", overflowY: "auto", flexGrow: 1 } }),
-            el("div", "rovalra-load-more-container", { style: { padding: "10px 0", textAlign: "center", flexShrink: 0 } }),
+            el("div", "hidden-games-list", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: "10px", padding: "24px" } }),
+            el("div", "rovalra-load-more-container", { style: { padding: "10px 0", textAlign: "center" } }),
         ]);
 
         this.elements.list = body.querySelector(".hidden-games-list");
         this.elements.filters = body.querySelector(".rovalra-filters-container");
         this.elements.loader = body.querySelector(".rovalra-load-more-container");
 
-        this.elements.list.addEventListener("scroll", () => {
-            const { scrollTop, clientHeight, scrollHeight } = this.elements.list;
-            if (scrollTop + clientHeight >= scrollHeight - 150) this.loadMore();
-        });
-
-        createOverlay({
+        const { overlay } = createOverlay({
             title: `Hidden Group Experiences (${this.allGames.length} Total)`,
             bodyContent: body,
             maxWidth: "1200px",
             maxHeight: "85vh",
         });
+
+        const scrollContainer = overlay.querySelector(".rovalra-overlay-body");
+        if (scrollContainer) {
+            scrollContainer.addEventListener("scroll", () => {
+                const { scrollTop, clientHeight, scrollHeight } = scrollContainer;
+                if (scrollTop + clientHeight >= scrollHeight - 150) this.loadMore();
+            });
+        }
 
         if (this.allGames.length === 0) {
             this.elements.list.innerHTML = DOMPurify.sanitize(`<p class="btr-no-servers-message">This group has no hidden experiences.</p>`);
@@ -220,7 +217,7 @@ class HiddenGamesManager {
         const { sort, order } = this.filters;
 
         if (sort === "like-ratio" || sort === "likes" || sort === "dislikes" || sort === "players") {
-            await api.getGameDetails(this.allGames, this.cache.likes, this.cache.players);
+            await api.getGameDetails(this.allGames, this.cache);
         }
 
         const orderMultiplier = order === 'desc' ? -1 : 1;
@@ -246,7 +243,7 @@ class HiddenGamesManager {
 
         const firstBatch = this.filteredGames.slice(0, PAGE_SIZE);
         if (firstBatch.length > 0) {
-            await Promise.all([api.getGameDetails(firstBatch, this.cache.likes, this.cache.players), api.getThumbnails(firstBatch, this.cache.thumbnails)]);
+            await Promise.all([api.getGameDetails(firstBatch, this.cache), api.getThumbnails(firstBatch, this.cache.thumbnails)]);
             this.displayedCount = firstBatch.length;
         }
 
@@ -265,7 +262,7 @@ class HiddenGamesManager {
 
         const fragment = document.createDocumentFragment();
         gamesToShow.forEach((game) => {
-            fragment.appendChild(createGameCard(game, this.cache.likes, this.cache.players, this.cache.thumbnails));
+            fragment.appendChild(createGameCard({ game, stats: this.cache }));
         });
         this.elements.list.appendChild(fragment);
     }
@@ -275,20 +272,24 @@ class HiddenGamesManager {
         this.isPaginating = true;
         this.elements.loader.innerHTML = DOMPurify.sanitize(`<p class="rovalra-loading-text">Loading more games...</p>`);
 
-        const nextBatch = this.filteredGames.slice(this.displayedCount, this.displayedCount + PAGE_SIZE);
-        if (nextBatch.length > 0) {
-            await Promise.all([api.getGameDetails(nextBatch, this.cache.likes, this.cache.players), api.getThumbnails(nextBatch, this.cache.thumbnails)]);
+        try {
+            const nextBatch = this.filteredGames.slice(this.displayedCount, this.displayedCount + PAGE_SIZE);
+            if (nextBatch.length > 0) {
+                await Promise.all([api.getGameDetails(nextBatch, this.cache), api.getThumbnails(nextBatch, this.cache.thumbnails)]);
 
-            const fragment = document.createDocumentFragment();
-            nextBatch.forEach((game) => {
-                fragment.appendChild(createGameCard(game, this.cache.likes, this.cache.players, this.cache.thumbnails));
-            });
-            this.elements.list.appendChild(fragment);
-            this.displayedCount += nextBatch.length;
+                const fragment = document.createDocumentFragment();
+                nextBatch.forEach((game) => {
+                    fragment.appendChild(createGameCard({ game, stats: this.cache }));
+                });
+                this.elements.list.appendChild(fragment);
+                this.displayedCount += nextBatch.length;
+            }
+        } catch (err) {
+            console.warn("RoValra: Error loading more games", err);
+        } finally {
+            this.elements.loader.innerHTML = "";
+            this.isPaginating = false;
         }
-
-        this.elements.loader.innerHTML = "";
-        this.isPaginating = false;
     }
 }
 

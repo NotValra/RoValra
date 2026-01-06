@@ -75,7 +75,7 @@ async function kickUser(groupId, userId) {
 function injectUiCss() {
     const styleId = 'rovalra-antibots-content-style';
     if (document.getElementById(styleId)) return;
-
+    // TODO move this to a scss file
     const css = `
         .rovalra-action-summary-list { max-height: 250px; overflow-y: auto; padding-left: 20px; border: 0px solid var(--border-color); padding: 10px; border-radius: 4px; list-style-type: disc; }
         .rovalra-action-progress-bar-container { width: 100%; background-color: var(--surface-default); border-radius: 4px; margin-top: 15px; display: none; height: 10px; }
