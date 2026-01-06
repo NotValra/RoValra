@@ -234,8 +234,7 @@ chrome.runtime.onConnect.addListener(port => {
             contentScriptUUID = message.uuid;
             connectedContentScripts.set(contentScriptUUID, port);
         } 
-        else {
-        }
+  
     });
 
 
@@ -285,28 +284,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
               .catch((error) => sendResponse({ success: false, error: error.message }));
             return true; 
 
-        case "fetchItemData":
-            fetch("URL_GOES_HERE").then(response => response.json())
-                .then(data => sendResponse({ success: true, data: data }))
-                .catch(error => sendResponse({ success: false, message: error.message }));
-            return true; 
-            
-        case "fetchHiddenGames":
-            chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-                if (tabs.length > 0) {
-                    chrome.tabs.sendMessage(tabs[0].id, request, (response) => {
-                        if (chrome.runtime.lastError) {
-                            console.warn("Could not send message to content script:", chrome.runtime.lastError.message);
-                            sendResponse({ success: false, error: "Content script not ready." });
-                        } else {
-                            sendResponse(response);
-                        }
-                    });
-                } else {
-                    sendResponse({ success: false, error: "No active tab found." });
-                }
-            });
-            return true; 
+
+
 
         case 'toggleMemoryLeakFix':
             isMemoryFixEnabled = request.enabled;

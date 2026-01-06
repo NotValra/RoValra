@@ -241,6 +241,8 @@ const UI = {
     injectButton(header, onClick) {
         if (!header || header.querySelector('.hidden-games-button')) return;
 
+        if (header.querySelector('social-link-icon-list') || header.querySelector('h2')) return;
+
         const btn = createButton('Hidden Experiences', 'secondary');
         btn.classList.add('hidden-games-button');
         btn.style.marginLeft = '5px';
@@ -307,7 +309,7 @@ class HiddenGamesManager {
         });
 
         if (this.allGames.length === 0) {
-            this.elements.list.innerHTML = safeHtml`<p class="no-hidden-games-message">This user has no hidden experiences.</p>`;
+            this.elements.list.innerHTML = `<p class="no-hidden-games-message">This user has no hidden experiences.</p>`;
             this.elements.filterPanel.style.display = 'none';
             return;
         }
@@ -478,5 +480,26 @@ export function init() {
                 UI.injectButton(header, handleButtonClick);
             },
         );
+
+        const checkEmptyState = () => {
+            if (!window.location.hash.includes('#creations')) return;
+
+            const contents = document.querySelectorAll('.profile-tab-content');
+            contents.forEach((content) => {
+                if (content.classList.contains('ng-hide')) return;
+
+                if (content.children.length === 1) {
+                    const inner = content.children[0];
+                    if (inner.tagName === 'DIV' && inner.children.length === 0 && inner.textContent.trim() === '') {
+                        if (content.querySelector('.rovalra-empty-state')) return;
+                        content.innerHTML = '';
+                        content.appendChild(UI.createEmptyState(handleButtonClick));
+                    }
+                }
+            });
+        };
+
+        window.addEventListener('hashchange', checkEmptyState);
+        observeElement('.profile-tab-content', checkEmptyState);
     });
 }
