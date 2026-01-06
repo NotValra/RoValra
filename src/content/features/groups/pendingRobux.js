@@ -257,7 +257,7 @@ function injectResultElement(targetElement, result) {
             <td class="icon-robux-container amount-cell">
                 ${amountHtml}
             </td>
-        `;
+        `; // Verified
 
         const infoIcon = estimatorRow.querySelector('.icon-moreinfo');
         if (infoIcon) {

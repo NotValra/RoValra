@@ -85,83 +85,6 @@ function detectTheme() {
 }
 
 
-let statsStylesInjected = false;
-function injectStatsStyles() {
-    if (statsStylesInjected) return;
-    statsStylesInjected = true;
-
-    const statsCss = `
-        .rovalra-region-stats-bar {
-            display: inline-flex;
-            align-items: center;
-            padding: 8px 12px;
-            margin: 0 8px 0 0;
-            gap: 8px;
-                    border: none;
-                    border-radius: 0;
-        }
-        .rovalra-region-stats-bar.dark { 
-            background-color: var(--rovalra-container-background-color);
-        }
-        .rovalra-region-stats-bar.light { 
-            background-color: var(--rovalra-container-background-color);
-        }
-        .rovalra-stat-item { 
-            display: flex; 
-            align-items: center; 
-            gap: 6px; 
-        }
-        .rovalra-stat-item .stat-icon { 
-            width: 20px; 
-            height: 20px;
-        }
-        .rovalra-stat-item .stat-icon.dark {
-            color: var(--rovalra-main-text-color);
-        }
-        .rovalra-stat-item .stat-icon.light {
-            color: var(--rovalra-main-text-color);
-        }
-        .rovalra-stat-item .stat-text { 
-            display: flex; 
-            align-items: baseline;
-            gap: 4px;
-        }
-        .rovalra-stat-item .stat-value { 
-            font-size: 14px; 
-            font-weight: 600; 
-            line-height: 1;
-        }
-        .rovalra-stat-item .stat-value.dark {
-            color: var(--rovalra-main-text-color);
-        }
-        .rovalra-stat-item .stat-value.light {
-            color: var(--rovalra-main-text-color);
-        }
-        .rovalra-stat-item .stat-label { 
-            font-size: 12px; 
-            font-weight: 400; 
-            line-height: 1;
-        }
-        .rovalra-stat-item .stat-label.dark {
-            color: var(--rovalra-main-text-color);
-        }
-        .rovalra-stat-item .stat-label.light {
-            color: var(--rovalra-main-text-color);
-        }
-        .rovalra-stats-loader { 
-            text-align: center; 
-            width: 100%; 
-            color: var(--rovalra-secondary-text-color); 
-            font-size: 14px; 
-            padding: 10px; 
-        }
-    `;
-
-    const styleSheet = document.createElement("style");
-    styleSheet.innerText = statsCss;
-    document.head.appendChild(styleSheet);
-}
-
 function createStatItem(icon, label, value, theme) {
     return `
         <div class="rovalra-stat-item">
@@ -288,7 +211,6 @@ export async function initGlobalStatsBar() {
     }
 
     statsBarObserverAttached = true;
-    injectStatsStyles();
     startObserving();
 
     observeElement('#rbx-public-game-server-item-container', (element) => {

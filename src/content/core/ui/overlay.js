@@ -23,6 +23,8 @@ export function createOverlay({
     content.style.maxHeight = maxHeight;
     content.style.display = 'flex';
     content.style.flexDirection = 'column';
+    content.style.overflow = 'clip';
+    content.style.overflowClipMargin = '30px';
 
     const closeButtonContainer = document.createElement('div');
     closeButtonContainer.className = 'rovalra-overlay-close';
