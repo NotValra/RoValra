@@ -86,7 +86,8 @@ function getDefaultSettings() {
         EnableRobloxApiDocs: false,
         QuickOutfitsEnabled: false,
         gameTitleIssueEnable: true,
-        closeUiByClickingTheBackground:  true
+        closeUiByClickingTheBackground:  true,
+        EnableDatacenterandId: false,
     };
 }
 

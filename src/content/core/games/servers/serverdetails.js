@@ -54,6 +54,7 @@ let isFullServerIDEnabled = true;
 let isFullServerIndicatorsEnabled = true;
 let isServerPerformanceEnabled = true;
 let isMiscIndicatorsEnabled = true; 
+let isDatacenterAndIdEnabled = true;
 
 const serverVersionsCache = {};
 
@@ -69,7 +70,8 @@ const cacheReadyPromise = new Promise(resolve => {
         'EnableFullServerID',
         'EnableFullServerIndicators',
         'EnableServerPerformance',
-        'EnableMiscIndicators'
+        'EnableMiscIndicators',
+        'EnableDatacenterandId'
     ], (res) => {
         if (res?.rovalraDatacenters) rovalraDatacentersCache = res.rovalraDatacenters;
         
@@ -81,6 +83,7 @@ const cacheReadyPromise = new Promise(resolve => {
         if (res?.EnableFullServerIndicators !== undefined) isFullServerIndicatorsEnabled = res.EnableFullServerIndicators;
         if (res?.EnableServerPerformance !== undefined) isServerPerformanceEnabled = res.EnableServerPerformance;
         if (res?.EnableMiscIndicators !== undefined) isMiscIndicatorsEnabled = res.EnableMiscIndicators;
+        if (res?.EnableDatacenterandId !== undefined) isDatacenterAndIdEnabled = res.EnableDatacenterandId;
 
         resolve();
     });
@@ -96,6 +99,12 @@ const cacheReadyPromise = new Promise(resolve => {
             if (changes.EnableFullServerIndicators) isFullServerIndicatorsEnabled = changes.EnableFullServerIndicators.newValue;
             if (changes.EnableServerPerformance) isServerPerformanceEnabled = changes.EnableServerPerformance.newValue;
             if (changes.EnableMiscIndicators) isMiscIndicatorsEnabled = changes.EnableMiscIndicators.newValue;
+            if (changes.EnableDatacenterandId) {
+                isDatacenterAndIdEnabled = changes.EnableDatacenterandId.newValue;
+                document.querySelectorAll('[data-rovalra-serverid]').forEach(server => {
+                    displayIpAndDcId(server);
+                });
+            }
         }
     });
 });
@@ -419,6 +428,45 @@ export function displayRegion(server, regionName, serverLocations = {}) {
     updateInfoElement(container, 'Region', icon, text, visible);
 }
 
+export function displayIpAndDcId(server) {
+    let extraDiv = server.querySelector('.rovalra-server-extra-details');
+
+    if (!isFullServerIDEnabled || !isDatacenterAndIdEnabled) {
+        if (extraDiv) {
+            extraDiv.remove();
+        }
+        return;
+    }
+    
+    let idDiv = server.querySelector('.server-id-text');
+    if (!idDiv) return;
+
+    if (!extraDiv) {
+        extraDiv = document.createElement('div');
+        idDiv.after(extraDiv);
+    }
+    
+    extraDiv.className = 'rovalra-server-extra-details text-info xsmall';
+
+    const ip = server.dataset.rovalraIp;
+    const dcId = server.dataset.rovalraDcId;
+
+    extraDiv.style.cssText = `font-size: 9px; margin-top: 2px; display: flex; justify-content: space-between; min-height: 12px; padding: 0 8px; box-sizing: border-box;`;
+    extraDiv.innerHTML = '';
+
+    if (isDatacenterAndIdEnabled) {
+        if (ip || dcId) {
+            const ipSpan = document.createElement('span');
+            ipSpan.textContent = ip || '';
+            extraDiv.appendChild(ipSpan);
+
+            const dcIdSpan = document.createElement('span');
+            dcIdSpan.textContent = dcId || '';
+            extraDiv.appendChild(dcIdSpan);
+        }
+    }
+}
+
 export function displayServerFullStatus(server) {
     if (!isFullServerIndicatorsEnabled) {
         const container = getOrCreateDetailsContainer(server);
@@ -470,7 +518,7 @@ export async function fetchServerUptime(placeId, serverIds, serverLocations, ser
         const foundIds = new Set();
 
         data.servers.forEach(info => {
-            const { server_id, first_seen, place_version, city, region, country } = info;
+            const { server_id, first_seen, place_version, city, region, country, ip_address, datacenter_id } = info;
             if (!server_id) return;
             
             foundIds.add(server_id);
@@ -497,11 +545,15 @@ export async function fetchServerUptime(placeId, serverIds, serverLocations, ser
             const serverEls = document.querySelectorAll(`[data-rovalra-serverid="${server_id}"]`);
             
             serverEls.forEach(serverEl => {
+                if (ip_address) serverEl.dataset.rovalraIp = ip_address;
+                if (datacenter_id) serverEl.dataset.rovalraDcId = datacenter_id;
+
                 displayPlaceVersion(serverEl, versionToDisplay, serverLocations);
                 displayUptime(serverEl, uptime, serverLocations);
                 if (regionStr) {
                     displayRegion(serverEl, regionStr, serverLocations);
                 }
+                displayIpAndDcId(serverEl);
             });
         });
 
@@ -545,6 +597,34 @@ export async function fetchAndDisplayRegion(server, serverId, serverIpMap, serve
         if (response.ok) {
             const info = await response.json();
             const joinBtn = server.querySelector('.game-server-join-btn');
+
+            if (info.joinScript) {
+                const joinScript = info.joinScript;
+                let changed = false;
+                
+                if (joinScript.DataCenterId && !server.dataset.rovalraDcId) {
+                    server.dataset.rovalraDcId = joinScript.DataCenterId;
+                    changed = true;
+                }
+
+                if (!server.dataset.rovalraIp) {
+                    let ip = null;
+                    if (joinScript.UdmuxEndpoints && joinScript.UdmuxEndpoints.length > 0 && joinScript.UdmuxEndpoints[0].Address) {
+                        ip = joinScript.UdmuxEndpoints[0].Address;
+                    } else if (joinScript.MachineAddress) {
+                        ip = joinScript.MachineAddress;
+                    }
+
+                    if (ip) {
+                        server.dataset.rovalraIp = ip;
+                        changed = true;
+                    }
+                }
+
+                if (changed) {
+                    displayIpAndDcId(server);
+                }
+            }
 
             if (info.status === 12 && info.message?.includes("private instance")) {
                 if (!serverLocations[serverId]) {
@@ -749,6 +829,7 @@ export async function enhanceServer(server, context) {
 
     fetchAndDisplayRegion(server, serverId, serverIpMap, serverLocations);
 
+    displayIpAndDcId(server);
     addCopyJoinLinkButton(server, serverId);
     enableAvatarLinks(server);
 

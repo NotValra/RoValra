@@ -275,6 +275,12 @@ export const SETTINGS_CONFIG = {
                         description: ["This shows indicators for servers you cannot join like if someone is playing in a private server"],
                         type: "checkbox",
                         default: true
+                    },
+                    EnableDatacenterandId: {
+                        label: "Show Datacenter ID and Server Ip",
+                        description: "This shows the Datacenter ID server Ip of servers in the server list.",
+                        type: "checkbox",
+                        default: false,
                     }
                 }
 
