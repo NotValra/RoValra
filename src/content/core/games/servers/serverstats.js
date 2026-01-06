@@ -66,6 +66,10 @@ export async function fetchServerStats(placeId) {
             throw new Error("API returned an error or invalid data.");
         }
 
+        if (data.counts.regions) {
+            data.counts.total_servers = Object.values(data.counts.regions).reduce((acc, val) => acc + (Number(val) || 0), 0);
+        }
+
         const robloxVersion = await fetchLatestPlaceVersion(placeId);
         
         if (robloxVersion) {
