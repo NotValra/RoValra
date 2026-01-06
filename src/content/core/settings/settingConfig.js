@@ -1,8 +1,6 @@
 // Settings config (not developer settings)
 
-import { getAssets } from '../assets.js';
 
-let assets = getAssets();
 
 export const SETTINGS_CONFIG = {
     Marketplace: {

@@ -1,6 +1,6 @@
 import { SETTINGS_CONFIG } from './settingConfig.js';
 import { parseMarkdown } from '../utils/markdown.js';
-import { getFullRegionName, REGIONS, getContinent } from '../regions.js';
+import { getFullRegionName, getContinent } from '../regions.js';
 import { getCurrentTheme, THEME_CONFIG } from '../theme.js';
 import { createDropdown } from '../ui/dropdown.js';
 import { createFileUpload } from '../ui/fileupload.js';
