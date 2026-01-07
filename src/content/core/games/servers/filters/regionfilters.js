@@ -6,7 +6,6 @@ import { callRobloxApiJson } from '../../../api.js';
 import { addTooltip } from '../../../ui/tooltip.js';
 import { getStateCodeFromRegion } from '../../../preferredregion.js';
 import { createButton } from '../../../ui/buttons.js';
-import { createDropdown } from '../../../ui/dropdown.js';
 import DOMPurify from 'dompurify';
 
 const DEFAULT_PLACE_ID = window.ROVALRA_PLACE_ID;

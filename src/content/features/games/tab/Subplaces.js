@@ -269,6 +269,16 @@ export async function init() {
             horizontalTabs.appendChild(subplaceTab);
             contentSection.appendChild(subplacesContentDiv);
 
+            horizontalTabs.style.display = 'flex';
+            horizontalTabs.style.flexWrap = 'nowrap';
+
+            observeElement('#horizontal-tabs .rbx-tab', (tab) => {
+                tab.style.width = 'auto';
+                tab.style.flex = '1 1 auto';
+                tab.style.float = 'none';
+                tab.style.minWidth = '0';
+            }, { multiple: true });
+
             subplaceTab.addEventListener('click', (e) => {
                 e.preventDefault();
                 document.querySelectorAll('.rbx-tab.active, .tab-pane.active').forEach(el => el.classList.remove('active'));
