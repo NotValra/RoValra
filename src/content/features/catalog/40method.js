@@ -632,6 +632,25 @@ const createAndShowPopup = (onSave, initialState = null) => {
     let lastValidationReason = null;
     let initialUserPlaceVersion = 0;
 
+    const safeSaveSettings = (placeId, useGroup, onSuccess) => {
+        if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+            chrome.storage.local.set({
+                RobuxPlaceId: placeId,
+                useRoValraGroup: useGroup
+            }, () => {
+                if (chrome.runtime.lastError) {
+                    console.error('RoValra: Storage save error:', chrome.runtime.lastError);
+                    alert('Failed to save settings: ' + chrome.runtime.lastError.message);
+                } else {
+                    if (onSuccess) onSuccess();
+                }
+            });
+        } else {
+            console.error('RoValra: Storage API unavailable.');
+            alert('Failed to save settings. Storage API unavailable.');
+        }
+    };
+
     let groupDropdown = null;
     let selectedGroupId = null;
     let existingGames = [];
@@ -765,19 +784,11 @@ const createAndShowPopup = (onSave, initialState = null) => {
             const placeIdToSave = manualPlaceIdCandidate;
             manualPlaceIdCandidate = null; 
             viewNonOwnerAck.classList.add('sr-hidden');
-            if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
-                chrome.storage.local.set({
-                    RobuxPlaceId: placeIdToSave,
-                    useRoValraGroup: false
-                }, async () => {
-                    close();
-                    await showInitialConfirmation(placeIdToSave, false);
-                    onSave();
-                });
-            } else {
-                console.error('Chrome storage API not available for manual Place ID save.');
-                alert('Failed to save Place ID. Storage unavailable.');
-            }
+            safeSaveSettings(placeIdToSave, false, async () => {
+                close();
+                await showInitialConfirmation(placeIdToSave, false);
+                onSave();
+            });
         } else {
             viewNonOwnerAck.classList.add('sr-hidden');
             viewWIP.classList.remove('sr-hidden');
@@ -791,19 +802,11 @@ const createAndShowPopup = (onSave, initialState = null) => {
             const placeIdToSave = manualPlaceIdCandidate;
             manualPlaceIdCandidate = null; 
 
-            if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
-                chrome.storage.local.set({
-                    RobuxPlaceId: placeIdToSave,
-                    useRoValraGroup: false
-                }, async () => {
-                    close();
-                    await showInitialConfirmation(placeIdToSave, false);
-                    onSave();
-                });
-            } else {
-                console.error('Chrome storage API not available for manual Place ID save.');
-                alert('Failed to save Place ID. Storage unavailable.');
-            }
+            safeSaveSettings(placeIdToSave, false, async () => {
+                close();
+                await showInitialConfirmation(placeIdToSave, false);
+                onSave();
+            });
         }
     });
 
@@ -1041,18 +1044,11 @@ const createAndShowPopup = (onSave, initialState = null) => {
 
                 await updateGameDescription(newGame.id, ROVALRA_PLACE_ID);
     
-                if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
-                    chrome.storage.local.set({ 
-                        RobuxPlaceId: rootPlaceId,
-                        useRoValraGroup: false 
-                    }, async () => {
-                        close();
-                        await showInitialConfirmation(rootPlaceId, false);
-                        onSave();
-                    });
-                } else {
-                    throw new Error('Chrome storage API not available');
-                }
+                safeSaveSettings(rootPlaceId, false, async () => {
+                    close();
+                    await showInitialConfirmation(rootPlaceId, false);
+                    onSave();
+                });
             } else {
                 viewFindingGame.classList.add('sr-hidden');
                 viewGameNotFound.classList.remove('sr-hidden');
@@ -1105,12 +1101,10 @@ const createAndShowPopup = (onSave, initialState = null) => {
     const handleUseAnyway = () => {
         if (manualPlaceIdCandidate !== null) {
             const placeIdToSave = manualPlaceIdCandidate;
-            if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
-                chrome.storage.local.set({ RobuxPlaceId: placeIdToSave, useRoValraGroup: false }, () => {
-                    close();
-                    onSave();
-                });
-            }
+            safeSaveSettings(placeIdToSave, false, () => {
+                close();
+                onSave();
+            });
         } else { close(); onSave(); }
     };
 
@@ -1193,16 +1187,11 @@ const createAndShowPopup = (onSave, initialState = null) => {
     });
 
     rovalraConfirmBtn.addEventListener('click', async () => {
-        if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
-            chrome.storage.local.set({ 
-                RobuxPlaceId: 'ROVALRA_GROUP',
-                useRoValraGroup: true 
-            }, async () => {
-                close();
-                await showInitialConfirmation('ROVALRA_GROUP', true);
-                onSave();
-            });
-        }
+        safeSaveSettings('ROVALRA_GROUP', true, async () => {
+            close();
+            await showInitialConfirmation('ROVALRA_GROUP', true);
+            onSave();
+        });
     });
     
     saveBtn.addEventListener('click', async () => {
@@ -1528,7 +1517,8 @@ const executeCartPurchase = async (cartItems, prefetchData = null, bypassValidat
                 reason = 'outdated';
             }
             createAndShowPopup(() => {
-                executeCartPurchase(cartItems, prefetchData, true);
+                const freshPrefetch = prefetchData ? { ...prefetchData, storage: null, gameInfo: null, gameThumb: null } : null;
+                executeCartPurchase(cartItems, freshPrefetch, true);
             }, { view: 'validation-warning', reason: reason, placeId: actualPlaceId, universeId: universeId, gameName: gameName });
             return;
         }
@@ -1879,7 +1869,8 @@ const execute40MethodPurchase = async (itemId, robuxPrice, isGamePass = false, i
                 reason = 'outdated';
             }
             createAndShowPopup(() => {
-                execute40MethodPurchase(itemId, robuxPrice, isGamePass, isBundle, itemDetails, prefetchData, true);
+                const freshPrefetch = prefetchData ? { ...prefetchData, storage: null, gameInfo: null, gameThumb: null } : null;
+                execute40MethodPurchase(itemId, robuxPrice, isGamePass, isBundle, itemDetails, freshPrefetch, true);
             }, { view: 'validation-warning', reason: reason, placeId: actualPlaceId, universeId: universeId, gameName: gameName });
             return;
         }
@@ -2016,7 +2007,7 @@ const execute40MethodPurchase = async (itemId, robuxPrice, isGamePass = false, i
                     <span class="text font-body" style="font-weight: 600; ${robuxAfterPurchase < 0 ? 'color: #d32f2f;' : ''} display: flex; align-items: center; gap: 4px;"><span class="icon-robux-16x16"></span>${robuxAfterPurchase.toLocaleString()}</span>
                 </div>
                 <div style="display: flex; justify-content: space-between; padding: 8px; background: rgba(0,128,0,0.05); border-radius: 4px;">
-                    <span class="text font-body" style="font-weight: 600; font-size: 13px;">${isDonating ? 'Commission:' : 'You Save:'}</span>
+                    <span class="text font-body" style="font-weight: 600; font-size: 13px;">${isDonating ? 'RoValra gets:' : 'You Save:'}</span>
                     <span class="text font-body" style="font-size: 18px; font-weight: 700; display: flex; align-items: center; gap: 4px;"><span class="icon-robux-16x16"></span>${robuxSaved.toLocaleString()}</span>
                 </div>
             </div>
@@ -2379,10 +2370,11 @@ const addSaveButton = (modal) => {
 
             if (!result.RobuxPlaceId) {
                 createAndShowPopup(() => {
+                    const freshPrefetch = prefetchData ? { ...prefetchData, storage: null, gameInfo: null, gameThumb: null } : null;
                     if (isMultiItemPurchase) {
-                        executeCartPurchase(cartItems, prefetchData, true);
+                        executeCartPurchase(cartItems, freshPrefetch, true);
                     } else {
-                        execute40MethodPurchase(itemId, robuxPrice, isGamePass, isBundle, itemDetails, prefetchData, true);
+                        execute40MethodPurchase(itemId, robuxPrice, isGamePass, isBundle, itemDetails, freshPrefetch, true);
                     }
                 });
             } else {
