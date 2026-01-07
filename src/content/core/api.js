@@ -250,6 +250,20 @@ export async function callRobloxApi(options) {
                     }
                 } catch (e) {}
             }
+
+            if (data.status === 5) {
+                let serverId = null;
+                try {
+                    const bodyData = options.body && typeof options.body === 'string' ? JSON.parse(options.body) : options.body;
+                    if (bodyData && bodyData.gameId) serverId = bodyData.gameId;
+                } catch (e) {}
+
+                if (serverId) {
+                    document.dispatchEvent(new CustomEvent('rovalra-server-inactive', {
+                        detail: { serverId }
+                    }));
+                }
+            }
         }).catch(() => {});
     }
 

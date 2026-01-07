@@ -266,6 +266,13 @@ function attachGlobalListeners() {
         const errorMessage = ev.detail?.message || "Failed to load servers from RoValra API.";
         displayMessageInContainer(errorMessage, true);
     });
+
+    document.addEventListener('rovalra-server-inactive', (ev) => {
+        const serverId = ev.detail?.serverId;
+        if (!serverId) return;
+        const serverElement = document.querySelector(`li[data-rovalra-serverid="${serverId}"]`);
+        if (serverElement) serverElement.remove();
+    });
 }
 
 function manageLoadMoreButton(nextCursor, regionCode) {
@@ -558,6 +565,7 @@ export async function createServerCardFromApi(server, placeId = '') {
         }
 
         try { serverItem._rovalraApiData = server; serverItem.setAttribute('data-rovalra-api', '1'); } catch (e) {}
+        enhanceServer(serverItem, _state);
         return serverItem;
     } catch (e) {
         return null;

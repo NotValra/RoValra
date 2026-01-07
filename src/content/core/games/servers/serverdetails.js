@@ -455,15 +455,13 @@ export function displayIpAndDcId(server) {
     extraDiv.innerHTML = '';
 
     if (isDatacenterAndIdEnabled) {
-        if (ip || dcId) {
-            const ipSpan = document.createElement('span');
-            ipSpan.textContent = ip || '';
-            extraDiv.appendChild(ipSpan);
+        const ipSpan = document.createElement('span');
+        ipSpan.textContent = ip || '---';
+        extraDiv.appendChild(ipSpan);
 
-            const dcIdSpan = document.createElement('span');
-            dcIdSpan.textContent = dcId || '';
-            extraDiv.appendChild(dcIdSpan);
-        }
+        const dcIdSpan = document.createElement('span');
+        dcIdSpan.textContent = dcId || '---';
+        extraDiv.appendChild(dcIdSpan);
     }
 }
 
@@ -545,8 +543,8 @@ export async function fetchServerUptime(placeId, serverIds, serverLocations, ser
             const serverEls = document.querySelectorAll(`[data-rovalra-serverid="${server_id}"]`);
             
             serverEls.forEach(serverEl => {
-                if (ip_address) serverEl.dataset.rovalraIp = ip_address;
-                if (datacenter_id) serverEl.dataset.rovalraDcId = datacenter_id;
+                if (ip_address != null) serverEl.dataset.rovalraIp = ip_address;
+                if (datacenter_id != null) serverEl.dataset.rovalraDcId = datacenter_id;
 
                 displayPlaceVersion(serverEl, versionToDisplay, serverLocations);
                 displayUptime(serverEl, uptime, serverLocations);
@@ -602,7 +600,7 @@ export async function fetchAndDisplayRegion(server, serverId, serverIpMap, serve
                 const joinScript = info.joinScript;
                 let changed = false;
                 
-                if (joinScript.DataCenterId && !server.dataset.rovalraDcId) {
+                if (joinScript.DataCenterId != null && !server.dataset.rovalraDcId) {
                     server.dataset.rovalraDcId = joinScript.DataCenterId;
                     changed = true;
                 }
