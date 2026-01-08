@@ -290,7 +290,7 @@ async function pollClientStatus(targetPlaceId) {
         if (!clientStatusReceived && !isDownloadOptionShown) {
             isDownloadOptionShown = true;
 
-            showLoadingOverlayResult("Roblox not detected", {
+            showLoadingOverlayResult("Launching Roblox", {
                 text: "Download Roblox",
                 onClick: showDownloadUI
             });
