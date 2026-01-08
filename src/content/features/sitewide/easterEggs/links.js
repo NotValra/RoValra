@@ -14,7 +14,7 @@ function handleCatsPage() {
 
         for (let i = 0; i < numberOfCats; i++) {
             catImagePromises.push(
-                fetch('https://api.thecatapi.com/v1/images/search')
+                fetch('https://api.thecatapi.com/v1/images/search') // Verified
                     .then(response => {
                         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                         return response.json();

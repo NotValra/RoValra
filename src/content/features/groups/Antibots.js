@@ -72,50 +72,6 @@ async function kickUser(groupId, userId) {
     return await callRobloxApiJson({ subdomain: 'groups', endpoint: `/v1/groups/${groupId}/users/${userId}`, method: 'DELETE' });
 }
 
-function injectUiCss() {
-    const styleId = 'rovalra-antibots-content-style';
-    if (document.getElementById(styleId)) return;
-    // TODO move this to a scss file
-    const css = `
-        .rovalra-action-summary-list { max-height: 250px; overflow-y: auto; padding-left: 20px; border: 0px solid var(--border-color); padding: 10px; border-radius: 4px; list-style-type: disc; }
-        .rovalra-action-progress-bar-container { width: 100%; background-color: var(--surface-default); border-radius: 4px; margin-top: 15px; display: none; height: 10px; }
-        .rovalra-action-progress-bar { width: 0%; height: 100%; background-color: #28a745; border-radius: 4px; transition: width 0.3s ease; }
-        .rovalra-action-status-text { margin-top: 5px; font-size: 13px; text-align: center; color: var(--rovalra-secondary-text-color); min-height: 18px; }
-        .rovalra-ban-warning { background-color: rgba(220, 53, 69, 0.1); color: #dc3545; padding: 12px; border-radius: 6px; margin-top: 15px; font-size: 14px; border: 1px solid rgba(220, 53, 69, 0.3); }
-        .rovalra-score-selector-container { margin: 20px 0; }
-        .rovalra-score-selector-container label { display: block; margin-bottom: 10px; font-weight: 500; }
-        .rovalra-slider { -webkit-appearance: none; width: 100%; height: 8px; border-radius: 5px; background: var(--surface-default); outline: none; opacity: 0.9; transition: opacity .2s; }
-        .rovalra-slider:hover { opacity: 1; }
-        .rovalra-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 20px; height: 20px; border-radius: 50%; background: #dc3545; cursor: pointer; }
-        .rovalra-score-impact-text { text-align: center; font-size: 15px; color: var(--rovalra-secondary-text-color); margin-top: 10px; }
-        
-        .quick-ban-card { cursor: pointer; user-select: none; }
-        .quick-ban-card .avatar-card-container { position: relative; }
-        .quick-ban-card.selected .avatar-card-container { outline: 2px solid #dc3545; box-shadow: 0 0 5px #dc3545; border-radius: 3px; }
-        .quick-ban-card.processed { opacity: 0.4; pointer-events: none; transition: opacity 0.5s; }
-        
-        .rovalra-loading-more { 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            padding: 20px; 
-            width: 100%; 
-            color: var(--rovalra-secondary-text-color);
-            font-weight: 500;
-            gap: 12px;
-        }
-        .rovalra-loading-more .spinner {
-            position: relative;
-            width: 24px;
-            height: 24px;
-        }
-    `;
-    const style = document.createElement('style');
-    style.id = styleId;
-    style.textContent = css;
-    document.head.appendChild(style);
-}
-
 export function refreshMainPageSelectionCount() {
     updateActionCount();
 }
@@ -1033,7 +989,6 @@ export function init() {
     if (isInitialized) return;
     isInitialized = true;
 
-    injectUiCss();
     if (!window.rovalra) window.rovalra = {};
     if (!window.rovalra.ui) window.rovalra.ui = {};
     window.addEventListener('hashchange', checkUrlAndManageState);
