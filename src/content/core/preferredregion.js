@@ -1,5 +1,6 @@
 
 
+import { showReviewPopup } from './review/review.js';
 import { callRobloxApi } from './api.js';
 import { launchGame } from './utils/launcher.js';
 import { getUserLocation } from './utils/location.js'; 
@@ -241,6 +242,7 @@ async function findServerViaRovalraApi(placeId, universeId, preferredRegionCode,
                             if (info.joinScript) {
                                 joinedServerIds.add(server.server_id); 
                                 launchGame(placeId, server.server_id);
+                                showReviewPopup('region_filters');
                                 return { joined: true };
                             }
                         }
@@ -393,6 +395,7 @@ export async function performJoinAction(placeId, universeId, preferredRegionCode
                         if (bestServerTier === 0) {
                             joinedServerIds.add(bestServerFoundSoFar.id);
                             launchGame(placeId, bestServerFoundSoFar.id);
+                            showReviewPopup('region_filters');
                             joined = true;
                             break;
                         }
@@ -400,6 +403,7 @@ export async function performJoinAction(placeId, universeId, preferredRegionCode
                         if (!preferredRegionCode && bestServerTier <= 2 && pageCount > 5) {
                             joinedServerIds.add(bestServerFoundSoFar.id);
                             launchGame(placeId, bestServerFoundSoFar.id);
+                            showReviewPopup('region_filters');
                             joined = true;
                             break;
                         }
@@ -435,6 +439,7 @@ export async function performJoinAction(placeId, universeId, preferredRegionCode
                         onClick: () => {
                             hideLoadingOverlay(true);
                             launchGame(placeId);
+                            showReviewPopup('region_filters');
                         } 
                     }
                 );
@@ -451,6 +456,7 @@ export async function performJoinAction(placeId, universeId, preferredRegionCode
                             hideLoadingOverlay(true);
                             joinedServerIds.add(bestServerFoundSoFar.id);
                             launchGame(placeId, bestServerFoundSoFar.id);
+                            showReviewPopup('region_filters');
                         } 
                     }
                 );

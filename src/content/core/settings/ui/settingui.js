@@ -414,6 +414,12 @@ function addDeveloperTab({ menuList, loadTabContent, renderMobileDropdown }) {
                 description: ["This is just a fun setting that will show RoValra badges on any profile"],
                 type: "checkbox",
                 default: false
+            },
+            forceReviewPopup: {
+                label: ["Force Review Popup"],
+                description: ["When enabled, shows the review popup every time it's triggered, ignoring all requirements. For testing purposes."],
+                type: "checkbox",
+                default: false
             }
 
         }

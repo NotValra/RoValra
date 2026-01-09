@@ -1,3 +1,4 @@
+import { showReviewPopup } from '../../core/review/review.js';
 import { createDropdown } from '../../core/ui/dropdown.js';
 import { observeElement } from '../../core/observer.js';
 import { callRobloxApiJson } from '../../core/api.js';
@@ -276,6 +277,10 @@ async function processMembers(actionType) {
         cancelBtn.style.display = 'block'; 
     }
     
+    if (successCount > 0) {
+        showReviewPopup('antibots');
+    }
+
     updateActionCount();
 }
 

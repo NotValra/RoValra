@@ -97,6 +97,8 @@ export const observeElement = (selector, callback, options = {}) => {
             callback(existingElement);
         }
     }
+
+    return request;
 };
 
 

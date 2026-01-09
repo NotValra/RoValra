@@ -88,6 +88,7 @@ function getDefaultSettings() {
         gameTitleIssueEnable: true,
         closeUiByClickingTheBackground:  true,
         EnableDatacenterandId: false,
+        forceReviewPopup: false
     };
 }
 

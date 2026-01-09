@@ -6,6 +6,7 @@ import { callRobloxApiJson } from '../../../api.js';
 import { addTooltip } from '../../../ui/tooltip.js';
 import { getStateCodeFromRegion } from '../../../preferredregion.js';
 import { createButton } from '../../../ui/buttons.js';
+import { showReviewPopup } from '../../../review/review.js';
 import DOMPurify from 'dompurify';
 
 const DEFAULT_PLACE_ID = window.ROVALRA_PLACE_ID;
@@ -504,6 +505,7 @@ function attachGlobalListeners() {
     document.addEventListener('rovalraRegionSelected', async (ev) => {
         const code = ev.detail?.regionCode;
         if (!code) return;
+        showReviewPopup('region_filters');
         closeGlobalPanels(); 
         delete State.regionServersCache[code];
 
