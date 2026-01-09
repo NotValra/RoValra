@@ -294,10 +294,11 @@ export async function performJoinAction(placeId, universeId, preferredRegionCode
         let allRegionsByDistance = [];
         if (locationData) {
             const { userLat, userLon } = locationData;
-            const regionsWithDistance = Object.keys(REGIONS).map(regionCode => ({ 
-                regionCode, 
-                distance: getDistance(userLat, userLon, REGIONS[regionCode].latitude, REGIONS[regionCode].longitude) 
-            }));
+            const regionsWithDistance = Object.keys(REGIONS).map(regionCode => {
+                const region = REGIONS[regionCode];
+                const distance = getDistance(userLat, userLon, region.latitude, region.longitude);
+                return { regionCode, distance };
+            });
             regionsWithDistance.sort((a, b) => a.distance - b.distance);
             allRegionsByDistance = regionsWithDistance.map(r => r.regionCode);
         } else {
@@ -432,34 +433,33 @@ export async function performJoinAction(placeId, universeId, preferredRegionCode
             }
 
             if (totalUniqueServersSeen === 0 && !bestServerFoundSoFar) {
-                showLoadingOverlayResult(
-                    "No servers found in this game.", 
-                    { 
-                        text: 'Start Server', 
-                        onClick: () => {
-                            hideLoadingOverlay(true);
-                            launchGame(placeId);
-                            showReviewPopup('region_filters');
-                        } 
-                    }
-                );
+                hideLoadingOverlay(true);
+                launchGame(placeId);
+                showReviewPopup('region_filters');
             }
             else if (bestServerFoundSoFar) {
-                let foundRegionName = bestServerRegionCode;
-                try { foundRegionName = getFullRegionName(bestServerRegionCode); } catch(e) {}
-                
-                showLoadingOverlayResult(
-                    DOMPurify.sanitize(`Could not find server in ${shortTargetName}.`),
-                    { 
-                        text: DOMPurify.sanitize(`Join ${foundRegionName}`), 
-                        onClick: () => {
-                            hideLoadingOverlay(true);
-                            joinedServerIds.add(bestServerFoundSoFar.id);
-                            launchGame(placeId, bestServerFoundSoFar.id);
-                            showReviewPopup('region_filters');
-                        } 
-                    }
-                );
+                if (!preferredRegionCode) {
+                    hideLoadingOverlay(true);
+                    joinedServerIds.add(bestServerFoundSoFar.id);
+                    launchGame(placeId, bestServerFoundSoFar.id);
+                    showReviewPopup('region_filters');
+                } else {
+                    let foundRegionName = bestServerRegionCode;
+                    try { foundRegionName = getFullRegionName(bestServerRegionCode); } catch(e) {}
+                    
+                    showLoadingOverlayResult(
+                        DOMPurify.sanitize(`Could not find server in ${shortTargetName}.`),
+                        { 
+                            text: DOMPurify.sanitize(`Join ${foundRegionName}`), 
+                            onClick: () => {
+                                hideLoadingOverlay(true);
+                                joinedServerIds.add(bestServerFoundSoFar.id);
+                                launchGame(placeId, bestServerFoundSoFar.id);
+                                showReviewPopup('region_filters');
+                            } 
+                        }
+                    );
+                }
             }
 
             else {
