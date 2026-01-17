@@ -330,12 +330,7 @@ export const SETTINGS_CONFIG = {
                 type: "checkbox",
                 default: true
             },
-            privateInventoryEnabled: {
-                label: "Private Inventory Viewer",
-                description: ["This allows you to view a user's private inventory by scanning a lot of items at once to check if they own them."],
-                type: "checkbox",
-                default: true,
-            },
+
             donationbuttonEnable: {
                 label: "Donation Button",
                 description: ["This will add a donation button to a user's profile, which allows you to donate to someone via PLS Donate"],

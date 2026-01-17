@@ -106,6 +106,7 @@ export function createSearchInput({
             const img = document.createElement('img');
             img.src = thumbUrl;
             img.className = 'game-search-result-img';
+            img.style.borderRadius = '4px';
 
             const textContainer = document.createElement('div');
             textContainer.className =
@@ -125,6 +126,7 @@ export function createSearchInput({
 
             const playingCountLabel = document.createElement('span');
             playingCountLabel.className = 'info-label playing-counts-label';
+            playingCountLabel.style.marginLeft = '4px';
             playingCountLabel.textContent = formatPlayerCount(game.playerCount);
 
             playerCountContainer.append(playingIcon, playingCountLabel);

@@ -157,24 +157,9 @@ async function findServerViaRovalraApi(placeId, universeId, preferredRegionCode,
         } catch (e) { console.warn("Region counts API failed", e); }
         
         let targetableRegions = [];
-        let citySpecificWarning = false;
         
         if (preferredRegionCode) {
-
-            let rovalraRegionCode;
-            if (preferredRegionCode.startsWith('US-')) {
-                const parts = preferredRegionCode.split('-');
-                const fullStateName = invertedStateMap[parts[1]] || parts[1]; 
-                rovalraRegionCode = `US-${fullStateName}`;
-            } else {
-                rovalraRegionCode = preferredRegionCode.split('-')[0];
-                if (preferredRegionCode.split('-').length > 1) citySpecificWarning = true;
-            }
-            
-            if (rovalraRegionCode) {
-                targetableRegions = [rovalraRegionCode];
-                if (citySpecificWarning) updateLoadingOverlayText(DOMPurify.sanitize(`Searching in ${getFullRegionName(preferredRegionCode).split(',')[0]}...`));
-            }
+            targetableRegions = [preferredRegionCode];
         } else {
             if (availableRovalraRegions.length === 0) return { joined: false };
             
@@ -202,7 +187,7 @@ async function findServerViaRovalraApi(placeId, universeId, preferredRegionCode,
                 if (representativeRegionKey && REGIONS[representativeRegionKey]) {
                     const regionInfo = REGIONS[representativeRegionKey];
                     availableRegionsWithDistance.push({ 
-                        regionCode: rovalraRegionCode, 
+                        regionCode: representativeRegionKey, 
                         distance: getDistance(userLat, userLon, regionInfo.latitude, regionInfo.longitude) 
                     });
                 }
@@ -215,9 +200,17 @@ async function findServerViaRovalraApi(placeId, universeId, preferredRegionCode,
         if (targetableRegions.length === 0) return { joined: false };
 
         for (const targetRegion of targetableRegions) {
+            const regionData = REGIONS[targetRegion];
+            if (!regionData) continue;
+
+            let url = `/v1/servers/region?place_id=${placeId}`;
+            if (regionData.country) url += `&country=${encodeURIComponent(regionData.country)}`;
+            if (regionData.city) url += `&city=${encodeURIComponent(regionData.city)}`;
+            url += '&cursor=0';
+
             const serversInRegionResponse = await callRobloxApi({
                 isRovalraApi: true,
-                endpoint: `/v1/servers/region?place_id=${placeId}&region=${encodeURIComponent(targetRegion)}&cursor=0`
+                endpoint: url
             });
             
             if (!serversInRegionResponse.ok) { 
@@ -294,10 +287,11 @@ export async function performJoinAction(placeId, universeId, preferredRegionCode
         let allRegionsByDistance = [];
         if (locationData) {
             const { userLat, userLon } = locationData;
-            const regionsWithDistance = Object.keys(REGIONS).map(regionCode => ({ 
-                regionCode, 
-                distance: getDistance(userLat, userLon, REGIONS[regionCode].latitude, REGIONS[regionCode].longitude) 
-            }));
+            const regionsWithDistance = Object.keys(REGIONS).map(regionCode => {
+                const region = REGIONS[regionCode];
+                const distance = getDistance(userLat, userLon, region.latitude, region.longitude);
+                return { regionCode, distance };
+            });
             regionsWithDistance.sort((a, b) => a.distance - b.distance);
             allRegionsByDistance = regionsWithDistance.map(r => r.regionCode);
         } else {
@@ -432,34 +426,33 @@ export async function performJoinAction(placeId, universeId, preferredRegionCode
             }
 
             if (totalUniqueServersSeen === 0 && !bestServerFoundSoFar) {
-                showLoadingOverlayResult(
-                    "No servers found in this game.", 
-                    { 
-                        text: 'Start Server', 
-                        onClick: () => {
-                            hideLoadingOverlay(true);
-                            launchGame(placeId);
-                            showReviewPopup('region_filters');
-                        } 
-                    }
-                );
+                hideLoadingOverlay(true);
+                launchGame(placeId);
+                showReviewPopup('region_filters');
             }
             else if (bestServerFoundSoFar) {
-                let foundRegionName = bestServerRegionCode;
-                try { foundRegionName = getFullRegionName(bestServerRegionCode); } catch(e) {}
-                
-                showLoadingOverlayResult(
-                    DOMPurify.sanitize(`Could not find server in ${shortTargetName}.`),
-                    { 
-                        text: DOMPurify.sanitize(`Join ${foundRegionName}`), 
-                        onClick: () => {
-                            hideLoadingOverlay(true);
-                            joinedServerIds.add(bestServerFoundSoFar.id);
-                            launchGame(placeId, bestServerFoundSoFar.id);
-                            showReviewPopup('region_filters');
-                        } 
-                    }
-                );
+                if (!preferredRegionCode) {
+                    hideLoadingOverlay(true);
+                    joinedServerIds.add(bestServerFoundSoFar.id);
+                    launchGame(placeId, bestServerFoundSoFar.id);
+                    showReviewPopup('region_filters');
+                } else {
+                    let foundRegionName = bestServerRegionCode;
+                    try { foundRegionName = getFullRegionName(bestServerRegionCode); } catch(e) {}
+                    
+                    showLoadingOverlayResult(
+                        DOMPurify.sanitize(`Could not find server in ${shortTargetName}.`),
+                        { 
+                            text: DOMPurify.sanitize(`Join ${foundRegionName}`), 
+                            onClick: () => {
+                                hideLoadingOverlay(true);
+                                joinedServerIds.add(bestServerFoundSoFar.id);
+                                launchGame(placeId, bestServerFoundSoFar.id);
+                                showReviewPopup('region_filters');
+                            } 
+                        }
+                    );
+                }
             }
 
             else {

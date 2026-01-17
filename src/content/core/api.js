@@ -292,7 +292,10 @@ export async function callRobloxApiUnsafe(options) {
 export async function callRobloxApiJson(options) {
     const response = await callRobloxApi(options);
     if (!response.ok) {
-        throw new Error(`API request failed with status ${response.status}`);
+        const errorBody = await response.json().catch(() => ({ message: 'Could not parse error response' }));
+        const error = new Error(`API request failed with status ${response.status}`);
+        error.response = errorBody;
+        throw error;
     }
     return await response.json();
 }

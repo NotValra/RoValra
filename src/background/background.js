@@ -7,7 +7,7 @@ function getDefaultSettings() {
         groupGamesEnabled: true,
         userGamesEnabled: true,
         userSniperEnabled: true,
-        privateInventoryEnabled: true,
+        privateInventoryEnabled: false,
         PreferredRegionEnabled: true,
         robloxPreferredRegion: 'AUTO',
         subplacesEnabled: true,

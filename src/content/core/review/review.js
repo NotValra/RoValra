@@ -9,15 +9,14 @@ const STATS_KEY = "rovalra_review_stats";
 const SOURCE_WEIGHTS = {
     'region_filters': 10,
     'quickplay': 5,
-    'itemsales': 5,
     'outfits': 5,
     'totalspent': 5,
     'antibots': 5,
     'default': 2
 };
-const MIN_DAYS_INSTALLED = 1; // Prevent instant pop up when installing
+const MIN_DAYS_INSTALLED = 0; // Prevent instant pop up when installing
 const COOLDOWN_DAYS = 7; // Prevent it getting annoying
-const SCORE_THRESHOLD = 80; // Ensure usage depth
+const SCORE_THRESHOLD = 150; // Ensure usage depth
 
 function createButton(text, className, onClick) {
     const btn = document.createElement('button');
@@ -84,9 +83,10 @@ export function showReviewPopup(source = 'unknown') {
                 bodyContent.style.gap = '10px';
 
                 const text = document.createElement('p');
-                text.textContent = "It looks like you've been getting value from RoValra! Would you mind leaving a 5-star review? It helps keep RoValra free for everyone without paywalls.";
+                text.textContent = "It looks like you've been getting value from RoValra!\n Would you mind leaving a 5-star review?\n It helps keep RoValra free for everyone without paywalls.";
                 text.style.fontSize = "16px";
                 text.style.lineHeight = "1.5";
+                text.style.whiteSpace = "pre-line";
                 bodyContent.appendChild(text);
 
                 let actionTaken = false;

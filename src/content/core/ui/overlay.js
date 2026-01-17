@@ -12,6 +12,7 @@ export function createOverlay({
     showLogo = false,
     preventBackdropClose = false,
     onClose,
+    overflowVisible = false,
 }) {
     const overlay = document.createElement('div');
     overlay.className = 'rovalra-global-overlay';
@@ -23,8 +24,12 @@ export function createOverlay({
     content.style.maxHeight = maxHeight;
     content.style.display = 'flex';
     content.style.flexDirection = 'column';
-    content.style.overflow = 'clip';
-    content.style.overflowClipMargin = '30px';
+    if (overflowVisible) {
+        content.style.overflow = 'visible';
+    } else {
+        content.style.overflow = 'clip';
+        content.style.overflowClipMargin = '30px';
+    }
 
     const closeButtonContainer = document.createElement('div');
     closeButtonContainer.className = 'rovalra-overlay-close';
@@ -32,7 +37,11 @@ export function createOverlay({
     const body = document.createElement('div');
     body.className = 'rovalra-overlay-body';
     body.style.flex = '1';
-    body.style.overflowY = 'auto';
+    if (overflowVisible) {
+        body.style.overflowY = 'visible';
+    } else {
+        body.style.overflowY = 'auto';
+    }
     body.style.minHeight = '0';
 
     const titleElement = document.createElement('div');

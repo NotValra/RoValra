@@ -170,7 +170,7 @@ function resolveApiRegionCode(internalCode) {
                         candidate = `${country}-${city.replace(/\s+/g, '')}`;
                     }
                     
-                    if (normalizeKey(candidate) === internalNorm) return apiCode;
+                    if (normalizeKey(candidate) === internalNorm) return internalCode;
                 }
             }
             
@@ -246,7 +246,47 @@ function processStorageDatacenters(apiData) { if (!Array.isArray(apiData)) retur
 
 async function fetchCounts() { try { const pid = getPlaceIdFromUrl(); const json = await callRobloxApiJson({ endpoint: `/v1/servers/counts?place_id=${encodeURIComponent(pid)}`, isRovalraApi: true }); State.apiCounts = json; State.activeServerCounts = buildServerCountsMap(json); document.dispatchEvent(new CustomEvent('rovalraRegionsUpdated')); document.dispatchEvent(new CustomEvent('rovalraGlobe_UpdateData', { detail: { serverCounts: State.activeServerCounts } })); } catch (e) { State.apiCounts = { counts: {} }; State.activeServerCounts = {}; document.dispatchEvent(new CustomEvent('rovalraRegionsUpdated')); document.dispatchEvent(new CustomEvent('rovalraGlobe_UpdateData', { detail: { serverCounts: {} } })); } }
 
-async function fetchServers(regionCode, cursor) { try { const pid = getPlaceIdFromUrl(); const qs = new URLSearchParams({ place_id: pid, region: regionCode }); if (cursor) qs.set('cursor', cursor); return await callRobloxApiJson({ endpoint: `/v1/servers/region?${qs}`, isRovalraApi: true }); } catch (e) { return { servers: [], next_cursor: null }; } }
+async function fetchServers(regionCode, cursor) {
+    try {
+        const pid = getPlaceIdFromUrl();
+        
+        let city;
+        const country = regionCode.split('-')[0];
+
+        for (const continent of Object.values(State.regions)) {
+            if (continent[regionCode]) {
+                city = continent[regionCode].city;
+                break;
+            }
+        }
+
+        if (!city && State.apiCounts?.counts?.detailed_regions?.[regionCode]?.cities) {
+            const cities = Object.keys(State.apiCounts.counts.detailed_regions[regionCode].cities);
+            if (cities.length > 0) {
+                city = cities[0];
+            }
+        }
+        
+        let qs;
+        if (city) {
+            qs = new URLSearchParams({ 
+                place_id: pid, 
+                country: country,
+                city: city.toLowerCase()
+            });
+        } else {
+            qs = new URLSearchParams({ place_id: pid, region: regionCode });
+        }
+        
+        if (cursor) {
+            qs.set('cursor', cursor);
+        }
+
+        return await callRobloxApiJson({ endpoint: `/v1/servers/region?${qs.toString()}`, isRovalraApi: true });
+    } catch (e) {
+        return { servers: [], next_cursor: null };
+    }
+}
 
 function createGlobePanel(container) {
     const theme = detectTheme();

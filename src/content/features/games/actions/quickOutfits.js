@@ -244,7 +244,7 @@ async function showQuickOutfitsOverlay() {
         alignContent: 'flex-start',
         minHeight: '410px',
         maxWidth: '630px',
-        width: '630px'
+        width: '100%'
     });
     
     const paginationContainer = document.createElement('div');
@@ -262,12 +262,16 @@ async function showQuickOutfitsOverlay() {
 
     gridContainer.innerHTML = DOMPurify.sanitize('<div style="padding: 20px;">Loading outfits...</div>');
 
-    const { overlay, close } = createOverlay({
+    let resizeObserver;
+    const { close } = createOverlay({
         title: 'Quick Outfits',
         bodyContent: mainContainer,
         maxWidth: 'fit-content',
         maxHeight: '60vh',
-        showLogo: true
+        showLogo: true,
+        onClose: () => {
+            if (resizeObserver) resizeObserver.disconnect();
+        }
     });
 
     try {
@@ -278,9 +282,9 @@ async function showQuickOutfitsOverlay() {
             return;
         }
 
-        const ITEMS_PER_PAGE = 8;
+        let itemsPerPage = 8;
         let currentPage = 0;
-        const totalPages = Math.ceil(outfits.length / ITEMS_PER_PAGE);
+        let totalPages = Math.ceil(outfits.length / itemsPerPage);
         let thumbnailMap = new Map();
         let isFetchingThumbnails = true;
 
@@ -322,8 +326,8 @@ async function showQuickOutfitsOverlay() {
 
         const renderPage = () => {
             gridContainer.innerHTML = '';
-            const start = currentPage * ITEMS_PER_PAGE;
-            const end = start + ITEMS_PER_PAGE;
+            const start = currentPage * itemsPerPage;
+            const end = start + itemsPerPage;
             const pageOutfits = outfits.slice(start, end);
 
             pageOutfits.forEach(outfit => {
@@ -340,6 +344,37 @@ async function showQuickOutfitsOverlay() {
             
             updatePagination();
         };
+
+        const calculateItemsPerPage = () => {
+            const containerWidth = gridContainer.clientWidth;
+            if (containerWidth <= 0) return 8;
+            
+            const cardWidth = 140;
+            const gap = 8;
+            const padding = 20; 
+            
+            const availableWidth = containerWidth - padding;
+            const itemsPerRow = Math.floor((availableWidth + gap) / (cardWidth + gap));
+            const rows = 2;
+            
+            return Math.max(1, itemsPerRow * rows);
+        };
+
+        resizeObserver = new ResizeObserver(() => {
+            const newItemsPerPage = calculateItemsPerPage();
+            if (newItemsPerPage !== itemsPerPage) {
+                const firstVisibleItemIndex = currentPage * itemsPerPage;
+                itemsPerPage = newItemsPerPage;
+                totalPages = Math.ceil(outfits.length / itemsPerPage);
+                currentPage = Math.floor(firstVisibleItemIndex / itemsPerPage);
+                
+                if (currentPage >= totalPages) currentPage = Math.max(0, totalPages - 1);
+                
+                renderPage();
+            }
+        });
+        
+        resizeObserver.observe(gridContainer);
 
         renderPage();
 
