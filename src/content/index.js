@@ -13,6 +13,7 @@ import { init as initVideoTest } from './features/developer/videotest.js';
 import { init as initStreamerMode } from './features/sitewide/streamermode.js';
 import { init as initMarkDownTest } from './features/developer/markdowntest.js'
 import { init as initApiDocs } from './features/developer/apiDocs.js';
+import { init as initServerTracker } from './core/utils/trackers/servers.js';
 
 // Avatar
 import { init as initAvatarFilters } from './features/avatar/filters.js';
@@ -26,6 +27,7 @@ import { init as initDependencies} from './features/catalog/depenencies.js';
 import { init as initBotDetector } from './features/games/about/botDetector.js';
 import { init as initQuickPlay } from './features/games/quickplay.js';
 import { init as initServerList } from './features/games/serverlist/serverlist.js';
+import { initRecentServers } from './features/games/serverlist/recentservers.js';
 import { init as initRegionPlayButton } from './features/games/RegionPlayButton.js';
 import { init as initSubplaces } from './features/games/tab/Subplaces.js';
 import { initServerIdExtraction } from './core/games/servers/serverids.js';
@@ -61,7 +63,7 @@ const featureRoutes = [
   // Generic features that run on most pages
   {
     paths: ['*'],
-    features: [initSettingsPage, initQuickPlay, initEasterEggLinks, initCssFixes, initWhatAmIJoining, initHiddenCatalog, initServerListener, initOnboarding, initVideoTest, initStreamerMode, initMarkDownTest],
+    features: [initSettingsPage, initQuickPlay, initEasterEggLinks, initCssFixes, initWhatAmIJoining, initHiddenCatalog, initServerListener, initOnboarding, initVideoTest, initStreamerMode, initMarkDownTest, initServerTracker],
   },
 // pretty much just the 40% method
   {
@@ -90,7 +92,8 @@ const featureRoutes = [
       initSubplaces,
       bannertest,
       initGameTrailers,
-      quickOutfits
+      quickOutfits,
+      initRecentServers
     ],
   },
   // avatar

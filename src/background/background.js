@@ -1,4 +1,3 @@
-
 function getDefaultSettings() {
     // This object should be kept in sync with the defaults in settingConfig.js
     return {
@@ -247,6 +246,25 @@ chrome.runtime.onConnect.addListener(port => {
     });
 });
 
+let currentUserId = null;
+let latestPresence = null;
+let pollingInterval = null;
+
+function pollUserPresence() {
+    if (!currentUserId) return;
+
+    chrome.tabs.query({ url: "*://*.roblox.com/*", status: "complete", active: true }, (tabs) => {
+        if (tabs.length > 0) {
+            const targetTab = tabs.find(t => t.url.includes("/games/")) || tabs[0];
+            chrome.tabs.sendMessage(targetTab.id, { action: 'pollPresence', userId: currentUserId }, (response) => {
+                if (chrome.runtime.lastError) {
+        
+                }
+            });
+        }
+    });
+}
+
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     switch (request.action) {
         case 'updateOfflineRule':
@@ -285,9 +303,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             }).then(() => sendResponse({ success: true }))
               .catch((error) => sendResponse({ success: false, error: error.message }));
             return true; 
-
-
-
 
         case 'toggleMemoryLeakFix':
             isMemoryFixEnabled = request.enabled;
@@ -337,11 +352,78 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             });
             return true; 
         
+        case 'updateUserId':
+            if (request.userId) {
+                if (request.userId !== currentUserId) {
+                    currentUserId = request.userId;
+                    latestPresence = null; 
+                    if (pollingInterval) {
+                        clearInterval(pollingInterval);
+                    }
+                    pollUserPresence(); 
+                    pollingInterval = setInterval(pollUserPresence, 5000);
+                }
+            }
+            break;
+        
+        case 'presencePollResult':
+            if (request.success) {
+                const presence = request.presence;
+        
+                if (JSON.stringify(presence) !== JSON.stringify(latestPresence)) {
+                    const oldPresence = latestPresence;
+                    latestPresence = presence;
+        
+                    chrome.tabs.query({ url: "*://*.roblox.com/*" }, (tabs) => {
+                        tabs.forEach(tab => {
+                            chrome.tabs.sendMessage(tab.id, { action: 'presenceUpdate', presence: latestPresence }, (response) => {
+                                if(chrome.runtime.lastError) {}
+                            });
+                        });
+                    });
+        
+                    const isJoiningGame = p => p && (p.userPresenceType === 2 || p.userPresenceType === 4);
+        
+                    if (isJoiningGame(presence) && presence.gameId && presence.rootPlaceId) {
+                                            if (!isJoiningGame(oldPresence) || oldPresence.gameId !== presence.gameId) {
+                                                chrome.storage.local.get({ 'rovalra_server_history': {} }, (res) => {
+                                                    const history = res.rovalra_server_history || {};
+                                                    const gameId = presence.rootPlaceId.toString();
+                                                    let gameHistory = history[gameId] || [];
+                                        
+                                                    const now = Date.now();
+                                                    const oneDay = 24 * 60 * 60 * 1000;
+                                        
+                                                    gameHistory = gameHistory.filter(entry => (now - entry.timestamp) < oneDay);
+                                        
+                                                    const serverIndex = gameHistory.findIndex(entry => entry.presence.gameId === presence.gameId);
+                                                    if (serverIndex > -1) {
+                                                        gameHistory.splice(serverIndex, 1);
+                                                    }
+                                        
+                                                    gameHistory.unshift({ presence, timestamp: now });
+                                                    
+                                                    gameHistory = gameHistory.slice(0, 4);
+                                                    history[gameId] = gameHistory;
+                                        
+                                                    chrome.storage.local.set({ 'rovalra_server_history': history });
+                                                });
+                                            }
+                                        }                }
+            }
+            break;
+
+        case 'getLatestPresence':
+            sendResponse({ presence: latestPresence });
+            return true;
     }
+
     return [
-        "injectScript", "fetchItemData", "fetchHiddenGames"
+        "injectScript", "fetchItemData", "fetchHiddenGames",
+        'checkPermission', 'requestPermission', 'revokePermission', 'getLatestPresence'
     ].includes(request.action);
 });
+
 
 chrome.storage.local.get('MemoryleakFixEnabled', (result) => {
     if (result.MemoryleakFixEnabled) {

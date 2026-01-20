@@ -60,7 +60,7 @@ const SHARED_STYLES = `
     body.rovalra-filter-active .rbx-public-running-games-footer { display: none !important; }
 `;
 
-const _state = {
+export const _state = {
     serverIpMap: null,
     serverLocations: {},
     serverUptimes: {},
@@ -358,7 +358,7 @@ async function loadServerIpMap() {
     }
 }
 
-function processUptimeBatch() {
+export function processUptimeBatch() {
     if (_state.uptimeBatch.size === 0) return;
     const placeId = window.location.pathname.match(/\/games\/(\d+)\//)?.[1];
     if (!placeId) return;
