@@ -3,6 +3,7 @@ import { callRobloxApi } from '../api.js';
 const LOCATION_STORAGE_KEY = 'robloxUserLocationCache';
 const CACHE_DURATION_MS = 1000 * 60 * 60 * 24; 
 
+let hasUpdatedLocation = false;
 
 async function resolveGeoNames(lat, lon) {
     try {
@@ -127,8 +128,10 @@ async function probeServerForLocation(placeId, serverId) {
 }
 
 export async function updateUserLocationIfChanged(freshCoords) {
+    if (hasUpdatedLocation) return;
     if (!freshCoords || typeof freshCoords.userLat !== 'number') return;
 
+    hasUpdatedLocation = true;
     try {
         const geoNames = await resolveGeoNames(freshCoords.userLat, freshCoords.userLon);
         const cacheObject = { ...freshCoords, ...geoNames, timestamp: Date.now() };
