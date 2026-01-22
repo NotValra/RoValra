@@ -21,7 +21,83 @@ let assetToSubcategoryMap = null;
 let classicClothingSubcategories = null;
 let metadataPromise = null;
 const itemDetailsCache = new Map();
+const ROVALRA_TEMPLATE_ASSET_ID = 107845747621646; 
 
+
+async function fetchTemplateBlobViaBatch() {
+    const batchResponse = await callRobloxApi({
+        subdomain: 'assetdelivery',
+        endpoint: '/v2/assets/batch',
+        method: 'POST',
+        body: [
+            {
+                "requestId": "rovalra_req_" + Date.now(),
+                "assetId": ROVALRA_TEMPLATE_ASSET_ID,
+                "type": "Place", 
+                "format": "rbxl"
+            }
+        ]
+    });
+
+    if (!batchResponse.ok) {
+        throw new Error(`Batch API failed: ${batchResponse.status}`);
+    }
+
+    const batchData = await batchResponse.json();
+    
+    if (!batchData || !batchData[0] || !batchData[0].locations || !batchData[0].locations[0]) {
+        throw new Error('Could not retrieve template download location from Batch API');
+    }
+
+    const cdnUrl = batchData[0].locations[0].location;
+
+    const fileResponse = await callRobloxApi({
+        fullUrl: cdnUrl,
+        method: 'GET',
+        credentials: 'omit'
+    });
+    if (!fileResponse.ok) {
+        throw new Error('Failed to download file from CDN');
+    }
+
+    return await fileResponse.blob();
+}
+
+async function publishTemplateToPlace(targetPlaceId) {
+    try {
+        const fileBlob = await fetchTemplateBlobViaBatch();
+
+        const formData = new FormData();
+        
+        const requestData = {
+            assetType: "Place",
+            assetId: parseInt(targetPlaceId),
+            published: true,
+            creationContext: {}
+        };
+        formData.append('request', JSON.stringify(requestData));
+
+        formData.append('fileContent', fileBlob, 'place.rbxl');
+
+        const response = await callRobloxApi({
+            subdomain: 'apis',
+            endpoint: `/assets/user-auth/v1/assets/${targetPlaceId}`,
+            method: 'PATCH',
+            body: formData,
+
+        });
+
+        if (!response.ok) {
+            const txt = await response.text();
+            throw new Error(`Patch upload failed: ${response.status} ${txt}`);
+        }
+
+        return true;
+    } catch (error) {
+        console.error('RoValra: Auto-publish failed', error);
+        throw error;
+    }
+}
 function getItemDetails(itemId, itemType = 'Asset') {
     const key = `${itemId}_${itemType}`;
     if (itemDetailsCache.has(key)) return itemDetailsCache.get(key);
@@ -265,21 +341,21 @@ const validateCartMatch = (modalItems, cartItems) => {
 const checkItemOwnership = async (userId, itemId, itemType) => {
     try {
         const typeMap = {
-            'Asset': 'asset',
-            'Bundle': 'bundle',
-            'GamePass': 'gamepass'
+            'Asset': 'Asset',
+            'Bundle': 'Bundle',
+            'GamePass': 'GamePass'
         };
-        const type = typeMap[itemType] || 'asset';
+        const type = typeMap[itemType] || 'Asset';
         
         const response = await callRobloxApi({
             subdomain: 'inventory',
-            endpoint: `/v1/users/${userId}/items/${type}/${itemId}/is-owned`,
+            endpoint: `/v1/users/${userId}/items/${type}/${itemId}`,
             method: 'GET'
         });
         
         if (response.ok) {
-            const owned = await response.json();
-            return owned === true;
+            const data = await response.json();
+            return data && data.data && data.data.length > 0;
         }
         return false;
     } catch (error) {
@@ -409,9 +485,8 @@ const createAndShowPopup = (onSave, initialState = null) => {
         </div>
         
         <div id="sr-view-wip" class="sr-hidden">
-            <h4 class="text font-header-2" style="margin: 0 0 10px 0;">Choose Experience Setup</h4>
-            <p class="text font-body" style="margin: 5px 0 16px 0; line-height: 1.5;">Select how you want to set up your experience for this group.</p>
-            <button class="btn-secondary-md btn-min-width" id="sr-use-existing-game-btn" style="width: 100%; margin-bottom: 12px;">Use Existing Experiences</button>
+            <h4 class="text font-header-2" style="margin: 0 0 10px 0;">Create Experience</h4>
+            <p class="text font-body" style="margin: 5px 0 16px 0; line-height: 1.5;">Create a new experience for this group to use the 40% method.</p>
             <button class="btn-cta-md btn-min-width" id="sr-create-new-game-btn" style="width: 100%;">Create New Experience</button>
         </div>
 
@@ -439,40 +514,6 @@ const createAndShowPopup = (onSave, initialState = null) => {
                 <div id="sr-finding-game-spinner" style="margin: 0 auto 16px;"></div>
                 <h4 class="text font-header-2" style="margin: 0 0 8px 0;">Finding Your Experience</h4>
                 <p class="text font-body" style="margin: 0;">Please wait while we look for your newly published experience...</p>
-            </div>
-        </div>
-        <div id="sr-view-game-not-found" class="sr-hidden">
-            <h4 class="text font-header-2" style="margin: 0 0 10px 0;">Experience Not Found</h4>
-            <p class="text font-body" style="margin: 5px 0 16px 0; line-height: 1.5;">We couldn't find the new experience. Please check the following:</p>
-            <ul class="text font-body" style="margin: 0 0 16px 0; padding-left: 20px; line-height: 1.5;">
-                <li>Did you publish the experience?</li>
-                <li>Did you publish it under the correct group?</li>
-            </ul>
-            <div style="display: flex; gap: 8px; margin-top: 16px;">
-                <button class="btn-secondary-md btn-min-width" id="sr-not-found-back-btn" style="flex: 1;">Back</button>
-                <button class="btn-cta-md btn-min-width" id="sr-not-found-retry-btn" style="flex: 1;">Retry Scan</button>
-            </div>
-        </div>
-        <div id="sr-view-existing-games" class="sr-hidden">
-            <h4 class="text font-header-2" style="margin: 0 0 10px 0;">Select an Experience</h4>
-            <div id="sr-loading-games" style="text-align: center; padding: 20px 0;">
-                <div id="sr-loading-games-spinner" style="margin: 0 auto 16px;"></div>
-                <p class="text font-body" style="margin: 0;">Loading experiences...</p>
-            </div>
-            <div id="sr-games-container" class="sr-hidden">
-                <div style="position: relative; margin-bottom: 16px;">
-                    <div id="sr-games-carousel" style="overflow: hidden;">
-                        <div id="sr-games-list" style="display: flex; gap: 0px; transition: transform 0.3s ease;"></div>
-                    </div>
-                    <div id="sr-scroll-buttons" style="position: absolute; top: 50%; transform: translateY(-50%); width: 100%; pointer-events: none; display: flex; justify-content: space-between; padding: 0 8px;"></div>
-                </div>
-                <div style="text-align: center; margin-top: 8px;">
-                    <span class="text font-body" id="sr-page-indicator">1 / 1</span>
-                </div>
-            </div>
-            <div style="display: flex; gap: 8px; margin-top: 16px;">
-                <button class="btn-secondary-md btn-min-width" id="sr-existing-back-btn" style="flex: 1;">Back</button>
-                <button class="btn-cta-md btn-min-width" id="sr-existing-select-btn" style="flex: 1;" disabled>Select Experience</button>
             </div>
         </div>
 
@@ -515,27 +556,23 @@ const createAndShowPopup = (onSave, initialState = null) => {
             <p class="text font-body" style="margin: 5px 0 10px 0; line-height: 1.5;">
                 Experience: <strong id="sr-update-game-name">Loading...</strong>
             </p>
-            <p class="text font-body" style="margin: 5px 0 10px 0; line-height: 1.5;">Your experience is outdated. To ensure it works correctly, please update it. Updates to the 40% method experience is normally important bug fixes.</p>
-            <div style="margin-bottom: 16px; border-radius: 8px; overflow: hidden;">
-                <iframe width="100%" height="250" src="https://www.youtube.com/embed/P-Njqsr9-Ok" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+            <p class="text font-body" style="margin: 5px 0 10px 0; line-height: 1.5;">Your experience is outdated. To ensure it works correctly, please update it.</p>
+            
+            <div style="background-color: rgba(211, 47, 47, 0.1); border: 1px solid rgba(211, 47, 47, 0.3); border-radius: 8px; padding: 12px; margin-bottom: 16px;">
+                <p class="text font-body" style="margin: 0 0 8px 0; font-weight: 600; color: #d32f2f;">⚠️ WARNING: This will overwrite your game!</p>
+                <p class="text font-body" style="margin: 0; font-size: 14px;">Updating will replace the entire experience with the latest 40% method template. Any existing work in this place will be overwritten.</p>
             </div>
-            <ol class="text font-body" style="margin: 0 0 16px 0; padding-left: 20px; line-height: 1.5;">
-                <li>Open the template in Roblox Studio: <a href="#" id="sr-update-open-studio-link" style="text-decoration: underline;">Open Studio</a></li>
-                <li>To update the game, you just need to open the template through the "Open Studio"</li>
-                <li>Then file > Publish To Roblox As > the experience you currently use > Overwrite. </li>
-            </ol>
+
+            <div style="margin-bottom: 16px;">
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                    <input type="checkbox" id="sr-update-agree-checkbox" style="width: 16px; height: 16px;">
+                    <span class="text font-body" style="font-size: 14px;">I agree to overwrite this experience</span>
+                </label>
+            </div>
+
             <div style="display: flex; gap: 8px; margin-top: 16px;">
                 <button class="btn-secondary-md btn-min-width" id="sr-update-use-anyway-btn" style="flex: 1;">Use Anyway</button>
-                <button class="btn-cta-md btn-min-width" id="sr-update-confirm-btn" style="flex: 1;">I've Updated It</button>
-            </div>
-        </div>
-
-        <div id="sr-view-update-failed" class="sr-hidden">
-            <h4 class="text font-header-2" style="margin: 0 0 10px 0;">Update Not Detected</h4>
-            <p class="text font-body" style="margin: 5px 0 16px 0; line-height: 1.5;">We didn't detect a new version. Please make sure you published the game to Roblox (File > Publish to Roblox).</p>
-            <div style="display: flex; gap: 8px; margin-top: 16px;">
-                <button class="btn-secondary-md btn-min-width" id="sr-update-failed-back-btn" style="flex: 1;">Back</button>
-                <button class="btn-cta-md btn-min-width" id="sr-update-failed-retry-btn" style="flex: 1;">Retry Verification</button>
+                <button class="btn-cta-md btn-min-width" id="sr-update-confirm-btn" style="flex: 1;" disabled>Update Now</button>
             </div>
         </div>
     `, { ADD_ATTR: ['target', 'allow', 'allowfullscreen', 'frameborder'], ADD_TAGS: ['iframe'] });
@@ -577,11 +614,6 @@ const createAndShowPopup = (onSave, initialState = null) => {
     gameIdErrorEl.style.cssText = 'margin-top:6px;font-size:12px;color:#d32f2f;display:none;';
     gameIdInputContainer.appendChild(gameIdErrorEl);
 
-    const loadingGamesSpinner = bodyContent.querySelector('#sr-loading-games-spinner');
-    if (loadingGamesSpinner) {
-        loadingGamesSpinner.appendChild(createSpinner({ size: '48px', color: 'currentColor' }));
-    }
-
     const findingGameSpinner = bodyContent.querySelector('#sr-finding-game-spinner');
     if (findingGameSpinner) {
         findingGameSpinner.appendChild(createSpinner({ size: '48px', color: 'currentColor' }));
@@ -594,20 +626,15 @@ const createAndShowPopup = (onSave, initialState = null) => {
     const ownerWarningBackBtn = bodyContent.querySelector('#sr-owner-warning-back-btn');
     const viewWIP = bodyContent.querySelector('#sr-view-wip');
     const viewManualCreateInstructions = bodyContent.querySelector('#sr-view-manual-create-instructions');
-    const viewExistingGames = bodyContent.querySelector('#sr-view-existing-games');
-    const viewGameNotFound = bodyContent.querySelector('#sr-view-game-not-found');
     const viewFindingGame = bodyContent.querySelector('#sr-view-finding-game');
     const viewRoValraGroup = bodyContent.querySelector('#sr-view-rovalra-group');
     const viewPermissionError = bodyContent.querySelector('#sr-view-permission-error');
     const viewValidationWarning = bodyContent.querySelector('#sr-view-validation-warning');
     const viewUpdateInstructions = bodyContent.querySelector('#sr-view-update-instructions');
-    const viewUpdateFailed = bodyContent.querySelector('#sr-view-update-failed');
     const updateUseAnywayBtn = bodyContent.querySelector('#sr-update-use-anyway-btn');
-    const updateFailedBackBtn = bodyContent.querySelector('#sr-update-failed-back-btn');
-    const updateFailedRetryBtn = bodyContent.querySelector('#sr-update-failed-retry-btn');
     const updateGameNameEl = bodyContent.querySelector('#sr-update-game-name');
-    const updateOpenStudioLink = bodyContent.querySelector('#sr-update-open-studio-link');
     const updateConfirmBtn = bodyContent.querySelector('#sr-update-confirm-btn');
+    const updateAgreeCheckbox = bodyContent.querySelector('#sr-update-agree-checkbox');
     const validationUseAnywayBtn = bodyContent.querySelector('#sr-validation-use-anyway-btn');
     const validationCreateBtn = bodyContent.querySelector('#sr-validation-create-btn');
     const validationUpdateBtn = bodyContent.querySelector('#sr-validation-update-btn');
@@ -616,10 +643,7 @@ const createAndShowPopup = (onSave, initialState = null) => {
     const useRoValraGroupBtn = bodyContent.querySelector('#sr-use-rovalra-group-btn');
     const rovalraBackBtn = bodyContent.querySelector('#sr-rovalra-back-btn');
     const rovalraConfirmBtn = bodyContent.querySelector('#sr-rovalra-confirm-btn');
-    const useExistingGameBtn = bodyContent.querySelector('#sr-use-existing-game-btn');
     const createNewGameBtn = bodyContent.querySelector('#sr-create-new-game-btn');
-    const existingBackBtn = bodyContent.querySelector('#sr-existing-back-btn');
-    const existingSelectBtn = bodyContent.querySelector('#sr-existing-select-btn');
     const manualAckView = bodyContent.querySelector('#sr-view-manual-ack');
     const manualAckBtn = bodyContent.querySelector('#sr-manual-ack-btn');
     const manualCreateBackBtn = bodyContent.querySelector('#sr-manual-create-back-btn');
@@ -653,10 +677,6 @@ const createAndShowPopup = (onSave, initialState = null) => {
 
     let groupDropdown = null;
     let selectedGroupId = null;
-    let existingGames = [];
-    let currentPage = 0;
-    let selectedGameIndex = null;
-    const gamesPerPage = 4;
     let initialGroupGames = [];
 
     const showValidationWarning = async (reason, placeId, universeId, gameName = null) => {
@@ -688,7 +708,6 @@ const createAndShowPopup = (onSave, initialState = null) => {
         manualUniverseIdCandidate = universeId;
 
         viewMain.classList.add('sr-hidden');
-        viewExistingGames.classList.add('sr-hidden');
         saveBtn.style.display = 'none';
 
         if (reason === 'outdated') {
@@ -810,197 +829,71 @@ const createAndShowPopup = (onSave, initialState = null) => {
         }
     });
 
-    useExistingGameBtn.addEventListener('click', async () => {
-        if (!selectedGroupId) {
-            alert('No group selected. Please try again.');
-            return;
-        }
-
-        viewWIP.classList.add('sr-hidden');
-        viewExistingGames.classList.remove('sr-hidden');
-
-        const loadingGames = bodyContent.querySelector('#sr-loading-games');
-        const gamesContainer = bodyContent.querySelector('#sr-games-container');
-
-        try {
-            const response = await callRobloxApi({
-                subdomain: 'apis',
-                endpoint: `/universes/v1/search?CreatorType=Group&CreatorTargetId=${selectedGroupId}&IsArchived=false&Surface=CreatorHubCreations&PageSize=100&SortParam=LastUpdated&SortOrder=Desc`,
-                method: 'GET',
-            });
-
-            if (!response.ok) {
-                let errorJson = null;
-                try { errorJson = await response.json(); } catch {}
-                if (response.status === 401 && errorJson && errorJson.code === 'Unauthorized' && /unable to manage group/i.test(errorJson.message || '')) {
-                    viewExistingGames.classList.add('sr-hidden');
-                    viewPermissionError.classList.remove('sr-hidden');
-                    return;
-                }
-                throw new Error(errorJson?.message || `Fetch games failed (${response.status})`);
-            }
-
-            const data = await response.json();
-            existingGames = data.data || [];
-
-            if (existingGames.length === 0) {
-                loadingGames.innerHTML = DOMPurify.sanitize('<p class="text font-body">No experiences found for this group.</p>');
-                return;
-            }
-
-            const universeIds = existingGames.map(game => ({ id: game.id }));
-            const thumbnailMap = await fetchThumbnails(universeIds, 'GameIcon', '150x150');
-            
-            existingGames.forEach(game => {
-                const thumbnailData = thumbnailMap.get(game.id);
-                game.thumbnailUrl = (thumbnailData && thumbnailData.state === 'Completed') 
-                    ? thumbnailData.imageUrl 
-                    : '';
-            });
-
-            loadingGames.classList.add('sr-hidden');
-            gamesContainer.classList.remove('sr-hidden');
-            renderGamesPage();
-        } catch (error) {
-            console.error('Failed to load games:', error);
-            if (!viewPermissionError.classList.contains('sr-hidden')) return;
-            loadingGames.innerHTML = DOMPurify.sanitize('<p class="text font-body">Failed to load games. Please try again.</p>');
-        }
-    });
-
-    const renderGamesPage = () => {
-        const gamesList = bodyContent.querySelector('#sr-games-list');
-        const pageIndicator = bodyContent.querySelector('#sr-page-indicator');
-        const scrollButtonsContainer = bodyContent.querySelector('#sr-scroll-buttons');
-        
-        gamesList.innerHTML = '';
-        
-        const start = currentPage * gamesPerPage;
-        const end = Math.min(start + gamesPerPage, existingGames.length);
-        const totalPages = Math.ceil(existingGames.length / gamesPerPage);
-
-        for (let i = start; i < end; i++) {
-            const game = existingGames[i];
-            const gameCard = document.createElement('div');
-            gameCard.className = 'game-card';
-            gameCard.style.cssText = `
-                flex: 0 0 calc(25% - 9px);
-                cursor: pointer;
-                border: 2px solid transparent;
-                border-radius: 8px;
-                padding: 4px;
-                transition: border-color 0.2s;
-            `;
-
-            if (selectedGameIndex === i) {
-                gameCard.style.borderColor = '#00a76f';
-                gameCard.style.backgroundColor = 'rgba(0, 167, 111, 0.1)';
-            }
-
-            gameCard.innerHTML = DOMPurify.sanitize(`
-                <div style="width: 100px; height: 100px; background: #bdbebe; border-radius: 4px; overflow: hidden; position: relative;">
-                    ${game.thumbnailUrl ? `
-                        <img src="${game.thumbnailUrl}" alt="${game.name}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;">
-                    ` : ''}
-                </div>
-                <div class="text font-body" style="margin-top: 8px; font-weight: 600; font-size: 14px; width: 100px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; word-break: break-word;" title="${game.name}">${game.name}</div>
-                <div class="text font-body" style="font-size: 12px; opacity: 0.7; width: 100px;">ID: ${game.rootPlaceId}</div>
-            `);
-
-            gameCard.addEventListener('click', () => {
-                selectedGameIndex = i;
-                existingSelectBtn.disabled = false;
-                renderGamesPage();
-            });
-
-            gamesList.appendChild(gameCard);
-        }
-
-        pageIndicator.textContent = `${currentPage + 1} / ${totalPages}`;
-
-        scrollButtonsContainer.innerHTML = '';
-        if (totalPages > 1) {
-            const { leftButton, rightButton } = createScrollButtons({
-                onLeftClick: () => {
-                    if (currentPage > 0) {
-                        currentPage--;
-                        renderGamesPage();
-                    }
-                },
-                onRightClick: () => {
-                    if (currentPage < totalPages - 1) {
-                        currentPage++;
-                        renderGamesPage();
-                    }
-                }
-            });
-
-            leftButton.style.pointerEvents = currentPage > 0 ? 'auto' : 'none';
-            leftButton.style.opacity = currentPage > 0 ? '1' : '0.3';
-            leftButton.style.backgroundColor = 'rgba(0, 0, 0, 0.6)';
-            leftButton.style.borderRadius = '50%';
-            leftButton.style.width = '40px';
-            leftButton.style.height = '40px';
-            leftButton.style.display = 'flex';
-            leftButton.style.alignItems = 'center';
-            leftButton.style.justifyContent = 'center';
-            
-            rightButton.style.pointerEvents = currentPage < totalPages - 1 ? 'auto' : 'none';
-            rightButton.style.opacity = currentPage < totalPages - 1 ? '1' : '0.3';
-            rightButton.style.backgroundColor = 'rgba(0, 0, 0, 0.6)';
-            rightButton.style.borderRadius = '50%';
-            rightButton.style.width = '40px';
-            rightButton.style.height = '40px';
-            rightButton.style.display = 'flex';
-            rightButton.style.alignItems = 'center';
-            rightButton.style.justifyContent = 'center';
-
-            scrollButtonsContainer.appendChild(leftButton);
-            scrollButtonsContainer.appendChild(rightButton);
-        }
-    };
-
-    existingBackBtn.addEventListener('click', () => {
-        viewExistingGames.classList.add('sr-hidden');
-        viewWIP.classList.remove('sr-hidden');
-        currentPage = 0;
-        selectedGameIndex = null;
-        existingSelectBtn.disabled = true;
-    });
-
-    existingSelectBtn.addEventListener('click', async () => {
-        if (selectedGameIndex === null) return;
-        const selectedGame = existingGames[selectedGameIndex];
-        
-        const validation = await validateGameSync(selectedGame.id, selectedGame.rootPlaceId);
-        if (!validation.valid) {
-            showValidationWarning(validation.reason, selectedGame.rootPlaceId, selectedGame.id, selectedGame.name);
-            return;
-        }
-
-        manualPlaceIdCandidate = selectedGame.rootPlaceId;
-        viewExistingGames.classList.add('sr-hidden');
-        manualAckView.classList.remove('sr-hidden');
-    });
-
-    createNewGameBtn.addEventListener('click', async () => {
+createNewGameBtn.addEventListener('click', async () => {
         if (!selectedGroupId) {
             alert('No group selected. Please try again.');
             return;
         }
 
         createNewGameBtn.disabled = true;
-        createNewGameBtn.textContent = 'Preparing...';
-
+        const originalText = createNewGameBtn.textContent;
+        createNewGameBtn.textContent = 'Creating...';
+        
         try {
-            initialGroupGames = await fetchGamesForGroup(selectedGroupId);
-            viewWIP.classList.add('sr-hidden');
-            viewManualCreateInstructions.classList.remove('sr-hidden');
-        } catch (e) {
-            alert('Failed to fetch initial group games. Please try again.');
-        } finally {
+
+            const createResponse = await callRobloxApiJson({
+                subdomain: 'apis',
+                endpoint: `/universes/v1/universes/create?groupId=${selectedGroupId}`,
+                method: 'POST',
+                body: {
+                    templatePlaceId: 95206881, 
+                    isPublish: true
+                }
+            });
+
+            if (!createResponse || !createResponse.rootPlaceId) {
+                throw new Error('Failed to create universe');
+            }
+
+            const newUniverseId = createResponse.universeId;
+            const newPlaceId = createResponse.rootPlaceId;
+
+            console.log(`RoValra: Created Universe ${newUniverseId}, Place ${newPlaceId}`);
+            
+            createNewGameBtn.textContent = 'Uploading Template...';
+            await publishTemplateToPlace(newPlaceId, newUniverseId);
+
+            createNewGameBtn.textContent = 'Configuring...';
+            await updateGameDescription(newUniverseId, ROVALRA_PLACE_ID);
+
+            try {
+               await callRobloxApiJson({
+                    subdomain: 'develop',
+                    endpoint: `/v2/universes/${newUniverseId}/configuration`,
+                    method: 'PATCH',
+                    body: {
+                        permissions: {
+                            IsThirdPartyPurchaseAllowed: true
+                        }
+                    }
+                }); 
+            } catch (permErr) {
+                console.warn("Could not auto-enable third party sales", permErr);
+            }
+
+            createNewGameBtn.textContent = 'Done!';
+            
+            safeSaveSettings(newPlaceId, false, async () => {
+                close();
+                await showInitialConfirmation(newPlaceId, false);
+                if (typeof onSave === 'function') onSave();
+            });
+
+        } catch (error) {
+            console.error('RoValra: Create Game Error', error);
+            alert(`Error creating experience: ${error.message}. Please try again.`);
+            createNewGameBtn.textContent = originalText;
             createNewGameBtn.disabled = false;
-            createNewGameBtn.textContent = 'Create New Experience';
         }
     });
 
@@ -1016,18 +909,9 @@ const createAndShowPopup = (onSave, initialState = null) => {
         });
     }
 
-    notFoundBackBtn.addEventListener('click', () => {
-        viewGameNotFound.classList.add('sr-hidden');
-        viewManualCreateInstructions.classList.remove('sr-hidden');
-    });
-
-    notFoundRetryBtn.addEventListener('click', () => {
-        manualCreateDoneBtn.click();
-    });
 
     manualCreateDoneBtn.addEventListener('click', async () => {
         viewManualCreateInstructions.classList.add('sr-hidden');
-        viewGameNotFound.classList.add('sr-hidden');
         viewFindingGame.classList.remove('sr-hidden');
     
         try {
@@ -1051,12 +935,10 @@ const createAndShowPopup = (onSave, initialState = null) => {
                 });
             } else {
                 viewFindingGame.classList.add('sr-hidden');
-                viewGameNotFound.classList.remove('sr-hidden');
             }
         } catch (error) {
             console.error("Failed to find new experience:", error);
             viewFindingGame.classList.add('sr-hidden');
-            viewGameNotFound.classList.remove('sr-hidden');
         }
     });
 
@@ -1122,68 +1004,43 @@ const createAndShowPopup = (onSave, initialState = null) => {
 
     updateUseAnywayBtn.addEventListener('click', handleUseAnyway);
 
-    if (updateOpenStudioLink) {
-        updateOpenStudioLink.addEventListener('click', async (e) => {
-            e.preventDefault();
-            await launchStudioForGame(ROVALRA_PLACE_ID);
+    if (updateAgreeCheckbox) {
+        updateAgreeCheckbox.addEventListener('change', () => {
+            updateConfirmBtn.disabled = !updateAgreeCheckbox.checked;
         });
     }
 
-    const verifyUpdate = async () => {
+    updateConfirmBtn.addEventListener('click', async () => {
         const originalText = updateConfirmBtn.textContent;
-        updateConfirmBtn.textContent = 'Verifying...';
+        updateConfirmBtn.textContent = 'Updating...';
         updateConfirmBtn.disabled = true;
-        updateFailedRetryBtn.disabled = true;
 
         try {
-            const vResp = await callRobloxApiJson({
-                subdomain: 'develop',
-                endpoint: '/v1/assets/latest-versions',
-                method: 'POST',
-                body: { assetIds: [manualPlaceIdCandidate], versionStatus: 'Published' },
-            });
+            await publishTemplateToPlace(manualPlaceIdCandidate);
 
-            let currentVersion = 0;
-            if (vResp && vResp.results && vResp.results.length > 0) {
-                currentVersion = vResp.results[0].versionNumber;
+            if (manualUniverseIdCandidate) {
+                await updateGameDescription(manualUniverseIdCandidate, ROVALRA_PLACE_ID);
+                try {
+                    await callRobloxApiJson({
+                        subdomain: 'develop',
+                        endpoint: `/v2/universes/${manualUniverseIdCandidate}/configuration`,
+                        method: 'PATCH',
+                        body: { permissions: { IsThirdPartyPurchaseAllowed: true } }
+                    }); 
+                } catch (permErr) {
+                    console.warn("Could not auto-enable third party sales", permErr);
+                }
             }
-
-            if (currentVersion > initialUserPlaceVersion) {
-                if (manualUniverseIdCandidate)
-                    await updateGameDescription(manualUniverseIdCandidate, ROVALRA_PLACE_ID);
-                viewUpdateInstructions.classList.add('sr-hidden');
-                manualAckView.classList.remove('sr-hidden');
-            } else {
-                viewUpdateInstructions.classList.add('sr-hidden');
-                viewUpdateFailed.classList.remove('sr-hidden');
-            }
-        } catch (e) {
-            console.error('RoValra: Update verification failed', e);
+            
             viewUpdateInstructions.classList.add('sr-hidden');
-            const p = viewUpdateFailed.querySelector('p');
-            if (p) p.textContent = 'An error occurred while verifying the update. Please try again.';
-            viewUpdateFailed.classList.remove('sr-hidden');
+            manualAckView.classList.remove('sr-hidden');
+        } catch (e) {
+            console.error('RoValra: Update failed', e);
+            alert(`Update failed: ${e.message}. Please try again.`);
         } finally {
             updateConfirmBtn.textContent = originalText;
-            updateConfirmBtn.disabled = false;
-            updateFailedRetryBtn.disabled = false;
+            updateConfirmBtn.disabled = !updateAgreeCheckbox.checked;
         }
-    };
-
-    updateConfirmBtn.addEventListener('click', verifyUpdate);
-
-    updateFailedBackBtn.addEventListener('click', () => {
-        viewUpdateFailed.classList.add('sr-hidden');
-        viewUpdateInstructions.classList.remove('sr-hidden');
-        const p = viewUpdateFailed.querySelector('p');
-        if (p) p.textContent = "We didn't detect a new version. Please make sure you published the game to Roblox (File > Publish to Roblox As).";
-    });
-
-    updateFailedRetryBtn.addEventListener('click', () => {
-        viewUpdateFailed.classList.add('sr-hidden');
-        const p = viewUpdateFailed.querySelector('p');
-        if (p) p.textContent = "We didn't detect a new version. Please make sure you published the game to Roblox (File > Publish to Roblox As).";
-        verifyUpdate();
     });
 
     rovalraConfirmBtn.addEventListener('click', async () => {

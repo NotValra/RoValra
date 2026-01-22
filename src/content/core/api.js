@@ -180,8 +180,13 @@ export async function callRobloxApi(options) {
         };
 
         if (body) {
-            fetchOptions.headers['Content-Type'] = 'application/json';
-            fetchOptions.body = typeof body === 'string' ? body : JSON.stringify(body);
+            if (body instanceof FormData) {
+                fetchOptions.body = body;
+                if (fetchOptions.headers['Content-Type']) delete fetchOptions.headers['Content-Type'];
+            } else {
+                fetchOptions.headers['Content-Type'] = 'application/json';
+                fetchOptions.body = typeof body === 'string' ? body : JSON.stringify(body);
+            }
         }
 
         if (isRovalraApi) {
