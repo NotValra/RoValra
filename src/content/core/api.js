@@ -158,7 +158,14 @@ export async function callRobloxApi(options) {
         const baseUrl = isRovalraApi 
             ? (subdomain === 'www' ? 'https://www.rovalra.com' : 'https://apis.rovalra.com')
             : `https://${subdomain}.roblox.com`;
-        const fullUrl = customFullUrl || `${baseUrl}${endpoint}`;
+        let fullUrl = customFullUrl || `${baseUrl}${endpoint}`;
+
+        if (fullUrl.includes('?')) {
+            fullUrl += `&_RoValraRequest=`;
+        } else {
+            fullUrl += `?_RoValraRequest=`;
+        }
+
         const isMutatingMethod = ['POST', 'PATCH', 'DELETE'].includes(method.toUpperCase());
         
         const credentials = options.credentials ?? (isRovalraApi ? 'omit' : 'include');

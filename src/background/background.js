@@ -147,12 +147,86 @@ function initializeSettings(reason) {
 
 chrome.runtime.onInstalled.addListener((details) => {
     initializeSettings(details.reason);
+    updateUserAgentRule();
 });
 
 
 chrome.runtime.onStartup.addListener(() => {
     initializeSettings("startup");
+    updateUserAgentRule();
 });
+
+function updateUserAgentRule() {
+    const originalUA = self.navigator.userAgent;
+    let browser = 'Unknown';
+    let engine = 'Unknown';
+
+    if (originalUA.includes("Firefox/")) {
+        browser = "Firefox";
+        engine = "Gecko";
+    } else if (originalUA.includes("Edg/")) {
+        browser = "Edge";
+        engine = "Chromium";
+    } else if (originalUA.includes("OPR/") || originalUA.includes("Opera/")) {
+        browser = "Opera";
+        engine = "Chromium";
+    } else if (originalUA.includes("Chrome/")) {
+        browser = "Chrome";
+        engine = "Chromium";
+    } else if (originalUA.includes("Safari/") && !originalUA.includes("Chrome/")) {
+        browser = "Safari";
+        engine = "WebKit";
+    }
+    
+    const manifest = chrome.runtime.getManifest();
+    const version = manifest.version || 'Unknown';
+    const isDevelopment = !('update_url' in manifest);
+    const environment = isDevelopment ? 'Development' : 'Production';
+    
+    const rovalraSuffix = `RoValraExtension(RoValra/${browser}/${engine}/${version}/${environment})`;
+
+    const generalRule = {
+        id: 999,
+        priority: 5, 
+        action: {
+            type: 'modifyHeaders',
+            requestHeaders: [
+                {
+                    header: 'User-Agent',
+                    operation: 'set',
+                    value: `${originalUA} ${rovalraSuffix}`
+                }
+            ]
+        },
+        condition: {
+            regexFilter: ".*_RoValraRequest=", 
+            resourceTypes: ["xmlhttprequest"]
+        }
+    };
+
+    const gameJoinRule = {
+        id: 1000,
+        priority: 10, 
+        action: {
+            type: 'modifyHeaders',
+            requestHeaders: [
+                {
+                    header: 'User-Agent',
+                    operation: 'set',
+                    value: `Roblox/WinInet ${rovalraSuffix}` 
+                }
+            ]
+        },
+        condition: {
+            regexFilter: "^https://gamejoin\\.roblox\\.com/.*_RoValraRequest=",
+            resourceTypes: ["xmlhttprequest"]
+        }
+    };
+
+    chrome.declarativeNetRequest.updateDynamicRules({
+        addRules: [generalRule, gameJoinRule]
+    });
+}
 
 chrome.storage.onChanged.addListener((changes) => {
     if (changes.MemoryleakFixEnabled) { 

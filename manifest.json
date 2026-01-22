@@ -32,11 +32,7 @@
     "optional_permissions": ["webNavigation"],
     "declarative_net_request": {
         "rule_resources": [
-            {
-                "id": "ruleset_1",
-                "enabled": true,
-                "path": "public/Assets/Rules/rules.json"
-            },
+
             {
                 "id": "ruleset_status",
                 "enabled": false,
