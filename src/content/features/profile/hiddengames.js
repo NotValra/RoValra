@@ -60,6 +60,8 @@ const Api = {
                 return response;
             } catch (err) {
                 if (i >= CONFIG.RETRY.MAX_ATTEMPTS) return null;
+                await new Promise((r) => setTimeout(r, delay));
+                delay *= 2;
             }
         }
         return null;
@@ -154,25 +156,26 @@ const Api = {
 
         const universeIds = batch.map((g) => g.id).join(',');
 
-        const gameInfoPromises = [];
-        for (let i = 0; i < batch.length; i += 10) {
-            const chunk = batch.slice(i, i + 10);
+        const votesPromise = this.fetchWithRetry({
+            subdomain: 'games',
+            endpoint: ENDPOINTS.VOTES_V1(universeIds),
+        }).then((r) => r?.json());
+
+        const playerResList = [];
+        for (let i = 0; i < batch.length; i += 50) {
+            const chunk = batch.slice(i, i + 50);
             const chunkIds = chunk.map((g) => g.id).join(',');
-            gameInfoPromises.push(
-                this.fetchWithRetry({
-                    subdomain: 'games',
-                    endpoint: ENDPOINTS.GAMES_V1(chunkIds),
-                }).then((r) => r?.json()),
-            );
+
+            if (i > 0) await new Promise((r) => setTimeout(r, 250));
+
+            const res = await this.fetchWithRetry({
+                subdomain: 'games',
+                endpoint: ENDPOINTS.GAMES_V1(chunkIds),
+            }).then((r) => r?.json());
+            playerResList.push(res);
         }
 
-        const [likeRes, ...playerResList] = await Promise.all([
-            this.fetchWithRetry({
-                subdomain: 'games',
-                endpoint: ENDPOINTS.VOTES_V1(universeIds),
-            }).then((r) => r?.json()),
-            ...gameInfoPromises,
-        ]);
+        const likeRes = await votesPromise;
 
         if (likeRes?.data) {
             likeRes.data.forEach((item) => {

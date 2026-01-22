@@ -295,7 +295,7 @@ function injectResultElement(targetElement, result) {
     } else {
         estimatorRow = document.createElement('tr');
         estimatorRow.className = 'estimator-row';
-        estimatorRow.innerHTML = safeHtml`
+        estimatorRow.innerHTML = `
             <td class="unpending-sales" style="display: flex; align-items: center;">
                 <div style="color: var(--rovalra-main-text-color);">
                     <span class="ng-binding">Unpending Robux tomorrow</span>
@@ -305,7 +305,7 @@ function injectResultElement(targetElement, result) {
             <td class="amount icon-robux-container">
                 ${amountHtml}
             </td>
-        `;
+        `;//Verified
 
         const infoIcon = estimatorRow.querySelector('.icon-moreinfo');
         if (infoIcon) {
