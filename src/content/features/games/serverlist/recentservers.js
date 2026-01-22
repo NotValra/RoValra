@@ -127,7 +127,7 @@ export function initRecentServers() {
             const publicSection = container.querySelector('#rbx-public-running-games');
     
             if (friendsSection) {
-                friendsSection.after(section);
+                friendsSection.before(section);
             } else if (publicSection) {
                 publicSection.before(section);
             } else {
@@ -145,6 +145,13 @@ export function initRecentServers() {
 
     observeElement('#running-game-instances-container', () => {
         inject();
+    });
+
+    observeElement('#rbx-friends-running-games', (friendsSection) => {
+        const section = document.getElementById('rbx-recent-running-games-rovalra');
+        if (section) {
+            friendsSection.before(section);
+        }
     });
 
     observeElement('#rbx-recent-running-games-rovalra', () => {}, {
@@ -253,7 +260,7 @@ async function renderRecentServers(section) {
             if (serverData.presence && serverData.presence.gameId) {
                 const contentSection = document.createElement('div');
                 contentSection.className = 'section-content';
-                contentSection.style.width = '25%';
+                contentSection.style.width = '23%';
                 contentSection.style.padding = '12px';
                 contentSection.style.boxSizing = 'border-box';
                 const serverList = document.createElement('ul');
