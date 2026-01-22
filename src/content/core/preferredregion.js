@@ -71,6 +71,58 @@ function deg2rad(deg) {
     return deg * (Math.PI / 180);
 }
 
+function getRegionDistance(code1, code2) {
+    const r1 = REGIONS[code1];
+    const r2 = REGIONS[code2];
+    if (!r1 || !r2) return Infinity;
+    return getDistance(r1.latitude, r1.longitude, r2.latitude, r2.longitude);
+}
+
+async function findClosestServerViaApi(placeId, originRegionCode) {
+    if (!REGIONS[originRegionCode]) return null;
+
+    const allRegions = Object.keys(REGIONS).filter(r => r !== originRegionCode);
+    const regionsWithDistance = allRegions.map(regionCode => ({
+        regionCode,
+        distance: getRegionDistance(originRegionCode, regionCode)
+    }));
+    
+    regionsWithDistance.sort((a, b) => a.distance - b.distance);
+    
+    const regionsToCheck = regionsWithDistance.slice(0, 10);
+
+    for (const { regionCode } of regionsToCheck) {
+        if (userRequestedStop) return null;
+        
+        const regionData = REGIONS[regionCode];
+        let url = `/v1/servers/region?place_id=${placeId}`;
+        if (regionData.country) url += `&country=${encodeURIComponent(regionData.country)}`;
+        if (regionData.city) url += `&city=${encodeURIComponent(regionData.city)}`;
+        url += '&cursor=0';
+
+        try {
+            const response = await callRobloxApi({ isRovalraApi: true, endpoint: url });
+            if (response.ok) {
+                const data = await response.json();
+                if (data.servers && data.servers.length > 0) {
+                    const server = data.servers[0];
+                    return {
+                        server: { 
+                            id: server.server_id, 
+                            playing: server.playing, 
+                            maxPlayers: server.max_players || server.maxPlayers 
+                        },
+                        regionCode: regionCode
+                    };
+                }
+            }
+        } catch (e) {
+            console.warn("Fallback API search failed for region", regionCode, e);
+        }
+    }
+    return null;
+}
+
 const getCsrfToken = (() => {
     let token = null;
     return async () => {
@@ -127,6 +179,7 @@ async function fetchServerDetails(server, placeId) {
 
 async function findServerViaRovalraApi(placeId, universeId, preferredRegionCode, failedRegionNames) {
     try {
+        let apiSucceededAtLeastOnce = false;
 
         const stateNameToUpperCodeMap = {};
         Object.entries(stateMap).forEach(([full, code]) => {
@@ -218,6 +271,7 @@ async function findServerViaRovalraApi(placeId, universeId, preferredRegionCode,
                 continue; 
             }
             
+            apiSucceededAtLeastOnce = true;
             const serversInRegionData = await serversInRegionResponse.json();
             
             if (serversInRegionData.servers) {
@@ -236,7 +290,7 @@ async function findServerViaRovalraApi(placeId, universeId, preferredRegionCode,
                                 joinedServerIds.add(server.server_id); 
                                 launchGame(placeId, server.server_id);
                                 showReviewPopup('region_filters');
-                                return { joined: true };
+                                return { status: 'JOINED' };
                             }
                         }
                     } catch (e) {}
@@ -244,10 +298,15 @@ async function findServerViaRovalraApi(placeId, universeId, preferredRegionCode,
             }
             failedRegionNames.add(getFullRegionName(targetRegion));
         }
-        return { joined: false };
+
+        if (apiSucceededAtLeastOnce) {
+            return { status: 'NO_SERVERS' };
+        }
+
+        return { status: 'API_ERROR' };
     } catch (error) {
         console.error("Rovalra Search Error", error);
-        return { joined: false };
+        return { status: 'API_ERROR' };
     }
 }
 
@@ -308,19 +367,29 @@ export async function performJoinAction(placeId, universeId, preferredRegionCode
         const targetRegionName = preferredRegionCode ? getFullRegionName(preferredRegionCode) : "closest region";
         const shortTargetName = targetRegionName.split(',')[0];
 
+        let runManualScan = true;
+        let manualScanReason = `Region API unavailable. Scanning for ${shortTargetName}...`;
 
         if (!userRequestedStop) {
             updateLoadingOverlayText(DOMPurify.sanitize(`Searching in ${shortTargetName}...`));
             const rovalraResult = await findServerViaRovalraApi(placeId, universeId, preferredRegionCode, failedRegionNames);
-            joined = rovalraResult.joined;
+
+            if (rovalraResult.status === 'JOINED') {
+                joined = true;
+                runManualScan = false;
+            } else if (rovalraResult.status === 'NO_SERVERS') {
+                runManualScan = true;
+                manualScanReason = `No servers found in ${shortTargetName} via API. Scanning locally...`;
+            }
         }
 
-        if (!joined && !userRequestedStop) {
+        if (runManualScan && !joined && !userRequestedStop) {
  
-            updateLoadingOverlayText(DOMPurify.sanitize(`Region API unavailable. Scanning for ${shortTargetName}...`));
+            updateLoadingOverlayText(DOMPurify.sanitize(manualScanReason));
             
             let nextCursor = null;
             let pageCount = 0;
+
 
             while (pageCount < MAX_SERVER_PAGES && !userRequestedStop && !joined) {
                 pageCount++;
@@ -425,10 +494,37 @@ export async function performJoinAction(placeId, universeId, preferredRegionCode
                 }
             }
 
+            if (preferredRegionCode && !userRequestedStop) {
+                updateLoadingOverlayText(DOMPurify.sanitize(`Searching for closest region to ${shortTargetName}...`));
+                const apiFallback = await findClosestServerViaApi(placeId, preferredRegionCode);
+                
+                if (apiFallback) {
+                    let useApi = false;
+                    if (!bestServerFoundSoFar) {
+                        useApi = true;
+                    } else {
+                        const localDist = getRegionDistance(preferredRegionCode, bestServerRegionCode);
+                        const apiDist = getRegionDistance(preferredRegionCode, apiFallback.regionCode);
+                        if (apiDist < localDist) {
+                            useApi = true;
+                        }
+                    }
+                    
+                    if (useApi) {
+                        bestServerFoundSoFar = apiFallback.server;
+                        bestServerRegionCode = apiFallback.regionCode;
+                    }
+                }
+            }
+
             if (totalUniqueServersSeen === 0 && !bestServerFoundSoFar) {
-                hideLoadingOverlay(true);
-                launchGame(placeId);
-                showReviewPopup('region_filters');
+                if (!runManualScan) {
+                    showLoadingOverlayResult(DOMPurify.sanitize(`No servers found in ${shortTargetName}.`), { text: 'Close', onClick: () => hideLoadingOverlay(true) });
+                } else {
+                    hideLoadingOverlay(true);
+                    launchGame(placeId);
+                    showReviewPopup('region_filters');
+                }
             }
             else if (bestServerFoundSoFar) {
                 if (!preferredRegionCode) {
@@ -441,7 +537,7 @@ export async function performJoinAction(placeId, universeId, preferredRegionCode
                     try { foundRegionName = getFullRegionName(bestServerRegionCode); } catch(e) {}
                     
                     showLoadingOverlayResult(
-                        DOMPurify.sanitize(`Could not find server in ${shortTargetName}.`),
+                        DOMPurify.sanitize(`No ${shortTargetName} servers running.`),
                         { 
                             text: DOMPurify.sanitize(`Join ${foundRegionName}`), 
                             onClick: () => {
