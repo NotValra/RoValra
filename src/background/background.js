@@ -183,7 +183,11 @@ function updateUserAgentRule() {
     const isDevelopment = !('update_url' in manifest);
     const environment = isDevelopment ? 'Development' : 'Production';
     
-    const rovalraSuffix = `RoValraExtension(RoValra/${browser}/${engine}/${version}/${environment})`;
+    let rovalraSuffix = `RoValraExtension(RoValra/${browser}/${engine}/${version}/${environment})`;
+
+    if (engine === "Gecko" || engine === "WebKit") {
+        rovalraSuffix += " UnofficialRoValraVersion"; // If you are developing a port for either of these don't remove this. It tells Roblox that I don't control requests coming from your port.
+    }
 
     const generalRule = {
         id: 999,
@@ -224,6 +228,7 @@ function updateUserAgentRule() {
     };
 
     chrome.declarativeNetRequest.updateDynamicRules({
+        removeRuleIds: [999, 1000], 
         addRules: [generalRule, gameJoinRule]
     });
 }
