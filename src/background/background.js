@@ -87,7 +87,8 @@ function getDefaultSettings() {
         gameTitleIssueEnable: true,
         closeUiByClickingTheBackground:  true,
         EnableDatacenterandId: false,
-        forceReviewPopup: false
+        forceReviewPopup: false,
+        recentServersEnabled: true
     };
 }
 

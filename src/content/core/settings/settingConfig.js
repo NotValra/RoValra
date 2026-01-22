@@ -162,6 +162,12 @@ export const SETTINGS_CONFIG = {
                 type: "checkbox",
                 default: true
             },
+            recentServersEnabled: {
+                label: "Recent Servers",
+                description: ["Shows the 4 most recent servers you joined under an experience."],
+                type: "checkbox",
+                default: true
+            },
             TotalServersEnabled: {
                 label: "Total Servers",
                 description: ["This shows the total amount of servers RoValra is tracking under that experience."],

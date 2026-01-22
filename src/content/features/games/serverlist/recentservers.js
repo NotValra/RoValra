@@ -5,6 +5,8 @@ import { enhanceServer, createUUID } from '../../../core/games/servers/serverdet
 import { callRobloxApiJson } from '../../../core/api.js';
 import { _state as serverListState, processUptimeBatch } from './serverlist.js';
 import { launchGame } from '../../../core/utils/launcher.js';
+import { getAuthenticatedUserId } from '../../../core/user.js';
+import { fetchThumbnails } from '../../../core/thumbnail/thumbnails.js';
 
 function formatTimeAgo(timestamp) {
     const now = Date.now();
@@ -23,7 +25,7 @@ function formatTimeAgo(timestamp) {
     return `${days}d ago`;
 }
 
-function createServerItem(serverData) {
+function createServerItem(serverData, userThumbnailUrl, userId) {
     const { presence, timestamp } = serverData;
     const serverItem = document.createElement('li');
     serverItem.className = 'rbx-game-server-item';
@@ -32,17 +34,29 @@ function createServerItem(serverData) {
 
     const lastJoinedInfo = timestamp ? `<p class="text-info" style="font-size: 12px; margin-top: 4px;">Last Joined: ${formatTimeAgo(timestamp)}</p>` : '';
 
+    let avatarHtml = `<a class="avatar-card-link" style="display: none;"></a>`;
+    if (userThumbnailUrl && userId) {
+        avatarHtml = `
+            <a class="avatar-card-link" href="https://www.roblox.com/users/${userId}/profile">
+                <span class="avatar avatar-headshot-md player-avatar">
+                    <span class="thumbnail-2d-container avatar-card-image" style="width: 60px; height: 60px;">
+                        <img src="${userThumbnailUrl}" alt="Me" style="width: 60px; height: 60px; border-radius: 50%;">
+                    </span>
+                </span>
+            </a>`;
+    }
+
     const serverContent = `
-        <div class="card-content">
-            <div class="player-thumbnails-container">
-                <a class="avatar-card-link" style="display: none;"></a>
+        <div class="card-content" style="display: flex; flex-direction: column;">
+            <div class="player-thumbnails-container" style="align-self: center; margin-bottom: 20px;">
+                ${avatarHtml}
             </div>
             <div class="rbx-game-server-details">
                 ${lastJoinedInfo}
             </div>
         </div>
     `;
-    serverItem.innerHTML = serverContent;
+    serverItem.innerHTML = DOMPurify.sanitize(serverContent);
 
     const detailsDiv = serverItem.querySelector('.rbx-game-server-details');
     if (detailsDiv) {
@@ -79,6 +93,82 @@ async function checkServerIsActive(placeId, gameId) {
     }
 }
 
+export function initRecentServers() {
+    chrome.storage.local.get({ recentServersEnabled: true }, (settings) => {
+        if (!settings.recentServersEnabled) return;
+
+    const inject = () => {
+        const container = document.querySelector('#running-game-instances-container');
+        if (!container) return;
+
+        let section = container.querySelector('#rbx-recent-running-games-rovalra');
+        if (!section) {
+            section = document.createElement('div');
+            section.id = 'rbx-recent-running-games-rovalra';
+            section.className = 'server-list-section';
+    
+            const content = `
+                <div class="container-header">
+                    <div class="server-list-container-header">
+                        <h2 class="server-list-header">Recent Servers</h2>
+                        <button type="button" class="btn-more rbx-refresh refresh-link-icon btn-control-xs btn-min-width">Refresh</button>
+                    </div>
+                </div>
+                <div class="rbx-recent-servers-grid">
+                    <div class="section-content-off empty-game-instances-container">
+                        <p class="no-servers-message">No Recent Servers Found.</p>
+                    </div>
+                </div>
+            `;
+    
+            section.innerHTML = DOMPurify.sanitize(content);
+    
+            const friendsSection = container.querySelector('#rbx-friends-running-games');
+            const publicSection = container.querySelector('#rbx-public-running-games');
+    
+            if (friendsSection) {
+                friendsSection.after(section);
+            } else if (publicSection) {
+                publicSection.before(section);
+            } else {
+                container.appendChild(section);
+            }
+
+            const refreshButton = section.querySelector('.rbx-refresh');
+            if (refreshButton) {
+                refreshButton.addEventListener('click', () => renderRecentServers(section));
+            }
+        }
+        
+        renderRecentServers(section);
+    };
+
+    observeElement('#running-game-instances-container', () => {
+        inject();
+    });
+
+    observeElement('#rbx-recent-running-games-rovalra', () => {}, {
+        onRemove: () => {
+            setTimeout(() => {
+                const container = document.querySelector('#running-game-instances-container');
+                if (container && !container.querySelector('#rbx-recent-running-games-rovalra')) {
+                    inject();
+                }
+            }, 500);
+        }
+    });
+
+    chrome.runtime.onMessage.addListener((request) => {
+        if (request.action === 'presenceUpdate') {
+            const section = document.querySelector('#rbx-recent-running-games-rovalra');
+            if (section && document.body.contains(section)) {
+                renderRecentServers(section);
+            }
+        }
+    });
+    });
+}
+
 async function renderRecentServers(section) {
     const placeId = getPlaceIdFromUrl();
     if (!placeId) return;
@@ -97,6 +187,26 @@ async function renderRecentServers(section) {
     spinnerSection.className = 'section-content';
     spinnerSection.innerHTML = '<div class="spinner spinner-default"></div>';
     gridContainer.appendChild(spinnerSection);
+
+    const [settings, userId] = await Promise.all([
+        new Promise(resolve => chrome.storage.local.get(['ServerlistmodificationsEnabled'], resolve)),
+        getAuthenticatedUserId()
+    ]);
+
+    let userThumbnailUrl = null;
+    if (userId) {
+        try {
+            const thumbMap = await fetchThumbnails([{ id: userId }], 'AvatarHeadshot', '150x150', true);
+            const thumb = thumbMap.get(userId);
+            if (thumb && thumb.state === 'Completed') {
+                userThumbnailUrl = thumb.imageUrl;
+            }
+        } catch (e) {
+            console.warn("Recent Servers: Failed to fetch user thumbnail", e);
+        }
+    }
+
+    const serverListModificationsEnabled = settings.ServerlistmodificationsEnabled !== false; 
 
     chrome.storage.local.get({ 'rovalra_server_history': {} }, async (result) => {
         const history = result.rovalra_server_history || {};
@@ -150,7 +260,7 @@ async function renderRecentServers(section) {
                 serverList.className = 'rbx-game-server-item-container';
                 contentSection.appendChild(serverList);
 
-                const serverItem = createServerItem(serverData);
+                const serverItem = createServerItem(serverData, userThumbnailUrl, userId);
                 serverList.appendChild(serverItem);
                 gridContainer.appendChild(contentSection);
 
@@ -169,84 +279,14 @@ async function renderRecentServers(section) {
                     }
                 });
 
-                enhanceServer(serverItem, context).catch(e => console.error("Error enhancing recent server:", e));
+                if (serverListModificationsEnabled) {
+                    enhanceServer(serverItem, context).catch(e => console.error("Error enhancing recent server:", e));
+                }
             }
         });
         
         if (processUptimeBatch) {
             setTimeout(() => processUptimeBatch(), 150);
-        }
-    });
-}
-
-export function initRecentServers() {
-    const inject = () => {
-        const container = document.querySelector('#running-game-instances-container');
-        if (!container) return;
-
-        let section = container.querySelector('#rbx-recent-running-games');
-        if (!section) {
-            section = document.createElement('div');
-            section.id = 'rbx-recent-running-games';
-            section.className = 'server-list-section';
-    
-            const content = `
-                <div class="container-header">
-                    <div class="server-list-container-header">
-                        <h2 class="server-list-header">Recent Servers</h2>
-                        <button type="button" class="btn-more rbx-refresh refresh-link-icon btn-control-xs btn-min-width">Refresh</button>
-                    </div>
-                </div>
-                <div class="rbx-recent-servers-grid">
-                    <div class="section-content-off empty-game-instances-container">
-                        <p class="no-servers-message">No Recent Servers Found.</p>
-                    </div>
-                </div>
-            `;
-    
-            section.innerHTML = DOMPurify.sanitize(content);
-    
-            const friendsSection = container.querySelector('#rbx-friends-running-games');
-            const publicSection = container.querySelector('#rbx-public-running-games');
-    
-            if (friendsSection) {
-                friendsSection.after(section);
-            } else if (publicSection) {
-                publicSection.before(section);
-            } else {
-                container.appendChild(section);
-            }
-
-            const refreshButton = section.querySelector('.rbx-refresh');
-            if (refreshButton) {
-                refreshButton.addEventListener('click', () => renderRecentServers(section));
-            }
-        }
-        
-        renderRecentServers(section);
-    };
-
-    observeElement('#running-game-instances-container', () => {
-        inject();
-    });
-
-    observeElement('#rbx-recent-running-games', () => {}, {
-        onRemove: () => {
-            setTimeout(() => {
-                const container = document.querySelector('#running-game-instances-container');
-                if (container && !container.querySelector('#rbx-recent-running-games')) {
-                    inject();
-                }
-            }, 500)
-        }
-    });
-
-    chrome.runtime.onMessage.addListener((request) => {
-        if (request.action === 'presenceUpdate') {
-            const section = document.querySelector('#rbx-recent-running-games');
-            if (section && document.body.contains(section)) {
-                renderRecentServers(section);
-            }
         }
     });
 }
