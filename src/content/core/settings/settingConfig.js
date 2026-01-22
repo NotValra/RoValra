@@ -27,8 +27,8 @@ export const SETTINGS_CONFIG = {
                 label: "Save 10%-40% Robux on Purchases",
                 description: ["This adds a button allowing you to save 40% on items on the catalog and 10% on gamepasses",
                     "Keep in mind a group is required for this to work.",
-                    "https://www.youtube.com/watch?v=-kUAWWmmkaQ Video guide showing a step by step on how to set it up.",
-                    "**When buying something there will be a 'Save X Robux' Button which when pressed will give you a full guide on how to setup the 40% Method**"
+                   
+                    "**When buying something there will be a 'Save X Robux' Button which when pressed will set up the experience required for it to work for you.**"
               
                 ],
                 type: "checkbox",

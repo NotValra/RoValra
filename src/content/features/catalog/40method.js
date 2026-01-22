@@ -6,7 +6,6 @@ import { launchMultiplayerGame, launchStudioForGame } from '../../core/utils/lau
 
 import { createOverlay } from '../../core/ui/overlay.js';
 import { createDropdown } from '../../core/ui/dropdown.js';
-import { createScrollButtons } from '../../core/ui/general/scrollButtons.js';
 import { createSpinner } from '../../core/ui/spinner.js';
 import { createStyledInput } from '../../core/ui/catalog/input.js';
 
