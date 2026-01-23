@@ -186,7 +186,10 @@ export async function getRegionData() {
 
     return new Promise((resolve, reject) => {
         chrome.storage.local.get([STORAGE_KEY_REGIONS, STORAGE_KEY_CONTINENTS], async (result) => {
-            if (result[STORAGE_KEY_REGIONS]) {
+            if (result[STORAGE_KEY_REGIONS] && 
+                result[STORAGE_KEY_REGIONS]["AUTO"] && 
+                result[STORAGE_KEY_REGIONS]["AUTO"].city === "Automatic") {
+                
                 REGIONS = result[STORAGE_KEY_REGIONS];
                 cachedRegionData = { 
                     regions: result[STORAGE_KEY_REGIONS], 
@@ -204,7 +207,6 @@ export async function getRegionData() {
         });
     });
 }
-
 
 export function getFullRegionName(regionCode) {
     const regionData = REGIONS[regionCode];
