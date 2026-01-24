@@ -101,21 +101,33 @@ export function showReviewPopup(source = 'unknown') {
                 const notNowBtn = createButton("Not right now", "btn-control-md", () => {
                     actionTaken = true;
                     stats.lastDismissed = Date.now();
-                    stats.dismissCount++;
+                    stats.dismissCount = (stats.dismissCount || 0) + 1;
                     chrome.storage.local.set({ [STATS_KEY]: stats });
                     close();
                 });
 
+                const actions = [];
+
+                if (stats.dismissCount > 0) {
+                    const dontShowBtn = createButton("Do not show again", "btn-control-md", () => {
+                        actionTaken = true;
+                        chrome.storage.local.set({ [STATUS_KEY]: 'dont_show' });
+                        close();
+                    });
+                    actions.push(dontShowBtn);
+                }
+                actions.push(notNowBtn, reviewBtn);
+
                 const { close } = createOverlay({
                     title: "Rate RoValra",
                     bodyContent: bodyContent,
-                    actions: [notNowBtn, reviewBtn],
+                    actions: actions,
                     showLogo: true,
                     preventBackdropClose: true,
                     onClose: () => {
                         if (actionTaken) return;
                         stats.lastDismissed = Date.now();
-                        stats.dismissCount++;
+                        stats.dismissCount = (stats.dismissCount || 0) + 1;
                         chrome.storage.local.set({ [STATS_KEY]: stats });
                     }
                 });
