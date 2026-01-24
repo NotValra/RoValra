@@ -96,7 +96,7 @@ export function init() {
         'UptimeFiltersEnabled',
         'VersionFiltersEnabled'
     ], (settings) => {
-        if (settings && settings.ServerlistmodificationsEnabled === false) return;
+        if (settings && settings.ServerlistmodificationsEnabled === false && settings.ServerFilterEnabled === false) return;
         
         if (settings) {
             _state.filterSettings = {

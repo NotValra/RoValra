@@ -420,6 +420,12 @@ function addDeveloperTab({ menuList, loadTabContent, renderMobileDropdown }) {
                 description: ["When enabled, shows the review popup every time it's triggered, ignoring all requirements. For testing purposes."],
                 type: "checkbox",
                 default: false
+            },
+            simulateRoValraServerLatency: {
+                label: ["Simulates RoValra's APIs having latency issues"],
+                description: ["Yup"],
+                type: "checkbox",
+                default: false
             }
 
         }

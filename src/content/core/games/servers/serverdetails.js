@@ -58,6 +58,7 @@ let isFullServerIndicatorsEnabled = true;
 let isServerPerformanceEnabled = true;
 let isMiscIndicatorsEnabled = true; 
 let isDatacenterAndIdEnabled = true;
+let isServerListModificationsEnabled = true;
 
 const serverVersionsCache = {};
 
@@ -66,6 +67,7 @@ const cacheReadyPromise = new Promise(resolve => {
 
     chrome.storage.local.get([
         'rovalraDatacenters', 
+        'ServerlistmodificationsEnabled',
         'enableShareLink', 
         'EnableServerUptime', 
         'EnableServerRegion', 
@@ -78,6 +80,7 @@ const cacheReadyPromise = new Promise(resolve => {
     ], (res) => {
         if (res?.rovalraDatacenters) rovalraDatacentersCache = res.rovalraDatacenters;
         
+        if (res?.ServerlistmodificationsEnabled !== undefined) isServerListModificationsEnabled = res.ServerlistmodificationsEnabled;
         if (res?.enableShareLink !== undefined) isShareLinkEnabled = res.enableShareLink;
         if (res?.EnableServerUptime !== undefined) isServerUptimeEnabled = res.EnableServerUptime;
         if (res?.EnableServerRegion !== undefined) isServerRegionEnabled = res.EnableServerRegion;
@@ -94,6 +97,13 @@ const cacheReadyPromise = new Promise(resolve => {
     chrome.storage.onChanged?.addListener((changes, area) => {
         if (area === 'local') {
             if (changes.rovalraDatacenters) rovalraDatacentersCache = changes.rovalraDatacenters.newValue;
+            if (changes.ServerlistmodificationsEnabled) {
+                isServerListModificationsEnabled = changes.ServerlistmodificationsEnabled.newValue;
+                if (!isServerListModificationsEnabled) {
+                    document.querySelectorAll('.rovalra-details-container, .rovalra-server-extra-details, .rovalra-copy-join-link').forEach(el => el.remove());
+                } else {
+                }
+            }
             if (changes.enableShareLink) isShareLinkEnabled = changes.enableShareLink.newValue;
             if (changes.EnableServerUptime) isServerUptimeEnabled = changes.EnableServerUptime.newValue;
             if (changes.EnableServerRegion) isServerRegionEnabled = changes.EnableServerRegion.newValue;
@@ -207,6 +217,10 @@ function removeCountryFromRegion(regionName) {
 
 
 export function getOrCreateDetailsContainer(server) {
+    if (!isServerListModificationsEnabled) {
+        return server.querySelector(`.${CLASSES.CONTAINER}`);
+    }
+
     let container = server.querySelector(`.${CLASSES.CONTAINER}`);
     if (container) return container;
 
@@ -253,6 +267,8 @@ export function createInfoElement(className, svg, text) {
 }
 
 function updateInfoElement(container, type, iconHTML, text, isVisible = true) {
+    if (!container) return;
+
     const className = CLASSES[type];
     let element = container.querySelector(`.${className}`);
 
@@ -317,7 +333,7 @@ function enableAvatarLinks(server) {
 
 
 export function displayPerformance(server, fps, serverLocations = {}) {
-    if (!isServerPerformanceEnabled) {
+    if (!isServerPerformanceEnabled || !isServerListModificationsEnabled) {
         const container = getOrCreateDetailsContainer(server);
         updateInfoElement(container, 'Performance', '', '', false);
         return;
@@ -344,7 +360,7 @@ export function displayPerformance(server, fps, serverLocations = {}) {
 }
 
 export function displayUptime(server, uptime, serverLocations = {}) {
-    if (!isServerUptimeEnabled) {
+    if (!isServerUptimeEnabled || !isServerListModificationsEnabled) {
         const container = getOrCreateDetailsContainer(server);
         updateInfoElement(container, 'Uptime', '', '', false);
         return;
@@ -371,7 +387,7 @@ export function displayUptime(server, uptime, serverLocations = {}) {
 }
 
 export function displayPlaceVersion(server, version, serverLocations = {}) {
-    if (!isPlaceVersionEnabled) {
+    if (!isPlaceVersionEnabled || !isServerListModificationsEnabled) {
         const container = getOrCreateDetailsContainer(server);
         updateInfoElement(container, 'Version', '', '', false);
         return;
@@ -397,7 +413,7 @@ export function displayPlaceVersion(server, version, serverLocations = {}) {
 }
 
 export function displayRegion(server, regionName, serverLocations = {}) {
-    if (!isServerRegionEnabled) {
+    if (!isServerRegionEnabled || !isServerListModificationsEnabled) {
         const container = getOrCreateDetailsContainer(server);
         updateInfoElement(container, 'Region', '', '', false);
         return;
@@ -434,7 +450,7 @@ export function displayRegion(server, regionName, serverLocations = {}) {
 export function displayIpAndDcId(server) {
     let extraDiv = server.querySelector('.rovalra-server-extra-details');
 
-    if (!isFullServerIDEnabled || !isDatacenterAndIdEnabled) {
+    if (!isFullServerIDEnabled || !isDatacenterAndIdEnabled || !isServerListModificationsEnabled) {
         if (extraDiv) {
             extraDiv.remove();
         }
@@ -469,7 +485,7 @@ export function displayIpAndDcId(server) {
 }
 
 export function displayServerFullStatus(server) {
-    if (!isFullServerIndicatorsEnabled) {
+    if (!isFullServerIndicatorsEnabled || !isServerListModificationsEnabled) {
         const container = getOrCreateDetailsContainer(server);
         updateInfoElement(container, 'Full', '', '', false);
         return;
@@ -481,7 +497,7 @@ export function displayServerFullStatus(server) {
 }
 
 export function displayPrivateServerStatus(server) {
-    if (!isMiscIndicatorsEnabled) {
+    if (!isMiscIndicatorsEnabled || !isServerListModificationsEnabled) {
         const container = getOrCreateDetailsContainer(server);
         updateInfoElement(container, 'Private', '', '', false);
         return;
@@ -493,7 +509,7 @@ export function displayPrivateServerStatus(server) {
 }
 
 export function displayPurchaseGameStatus(server) {
-    if (!isMiscIndicatorsEnabled) {
+    if (!isMiscIndicatorsEnabled || !isServerListModificationsEnabled) {
         const container = getOrCreateDetailsContainer(server);
         updateInfoElement(container, 'Purchase', '', '', false);
         return;
@@ -738,7 +754,7 @@ export function attachCleanupObserver(server) {
 
 export async function addCopyJoinLinkButton(server, serverId) {
     await cacheReadyPromise;
-    if (isShareLinkEnabled === false) return;
+    if (isShareLinkEnabled === false || !isServerListModificationsEnabled) return;
 
     if (server.querySelector('.rovalra-copy-join-link')) return;
 
@@ -753,7 +769,7 @@ export async function addCopyJoinLinkButton(server, serverId) {
     btn.onclick = (e) => {
         e.preventDefault();
         e.stopPropagation();
-        const link = `https://www.fishstrap.app/joingame?placeId=${placeId}&gameInstanceId=${serverId}`;
+        const link = `https://www.fishstrap.app/v1/joingame?placeId=${placeId}&gameInstanceId=${serverId}`;
         navigator.clipboard.writeText(link).then(() => {
             btn.textContent = 'Copied!';
             setTimeout(() => btn.textContent = 'Share', 2000);
@@ -773,6 +789,8 @@ export async function addCopyJoinLinkButton(server, serverId) {
 
 export async function enhanceServer(server, context) {
     await cacheReadyPromise;
+
+    if (!isServerListModificationsEnabled) return;
 
     injectStyles();
 

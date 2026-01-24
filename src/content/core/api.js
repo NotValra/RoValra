@@ -115,6 +115,18 @@ function checkSimulatedDowntime() {
     });
 }
 
+function checkSimulatedLatency() {
+    return new Promise((resolve) => {
+        if (typeof chrome === 'undefined' || !chrome.storage || !chrome.storage.local) {
+            resolve(false);
+            return;
+        }
+        chrome.storage.local.get(['simulateRoValraServerLatency'], (result) => {
+            resolve(!!result.simulateRoValraServerLatency);
+        });
+    });
+}
+
 
 export async function callRobloxApi(options) {
     captureApiCall(options);
@@ -152,6 +164,12 @@ export async function callRobloxApi(options) {
                 return new Response(JSON.stringify({
                     errors: [{ code: 500, message: "Simulated Internal Server Error" }]
                 }), { status: 500, statusText: "Internal Server Error", headers: { "Content-Type": "application/json" } });
+            }
+
+            const isLatencySimulated = await checkSimulatedLatency();
+            if (isLatencySimulated) {
+                console.warn(`RoValra API: [SIMULATION] Adding 5s latency for ${endpoint}`);
+                await new Promise(resolve => setTimeout(resolve, 5000));
             }
         }
 

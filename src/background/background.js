@@ -88,7 +88,8 @@ function getDefaultSettings() {
         closeUiByClickingTheBackground:  true,
         EnableDatacenterandId: false,
         forceReviewPopup: false,
-        recentServersEnabled: true
+        recentServersEnabled: true,
+        simulateRoValraServerLatency: false
     };
 }
 
