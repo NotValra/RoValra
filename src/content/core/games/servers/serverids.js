@@ -45,7 +45,7 @@ async function extractServerIdFromFiber(server) {
 }
 
 
-async function processServerElement(serverItem) {
+async function processServerElement(serverItem, retries = 5) {
     try {
         const serverId = await extractServerIdFromFiber(serverItem);
         
@@ -61,6 +61,9 @@ async function processServerElement(serverItem) {
                 });
                 serverItem.dispatchEvent(event);
             }
+        } else if (serverItem.classList.contains('rbx-private-game-server-item') && !serverItem.hasAttribute('data-private-server-id') && retries > 0) {
+            setTimeout(() => processServerElement(serverItem, retries - 1), 1000);
+            return;
         }
         
         serverItem.classList.add('rovalra-checked');

@@ -293,11 +293,11 @@ export const SETTINGS_CONFIG = {
             },
             PrivateQuickLinkCopy: {
                 label: "Quick Private Server Link Copy and Generation",
-                description: ["This feature has been disabled for maintenance",
+                description: [
                     "This allows you to quickly copy a private server link or generate a new private server link"
                 ],
-                deprecated: "This feature is currently disabled. It is technically not deprecated and will come back when finished."
-
+                type: "checkbox",
+                default: true
             },
 
         }

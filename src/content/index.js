@@ -52,6 +52,7 @@ import { init as initOutfits } from './features/profile/outfits.js';
 import { init as initPrivateServers } from './features/profile/privateserver.js';
 import { init as initRovalraBadges } from './features/profile/header/RoValraBadges.js';
 import { init as initUserGames } from './features/profile/hiddengames.js';
+import { init as initPrivateServerControls } from './features/games/privateserver.js';
 
 // Settings
 import { init as initSettingsPage } from './features/settings/index.js'; 
@@ -93,7 +94,8 @@ const featureRoutes = [
       bannertest,
       initGameTrailers,
       quickOutfits,
-      initRecentServers
+      initRecentServers,
+      initPrivateServerControls
     ],
   },
   // avatar

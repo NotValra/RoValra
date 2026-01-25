@@ -89,7 +89,8 @@ function getDefaultSettings() {
         EnableDatacenterandId: false,
         forceReviewPopup: false,
         recentServersEnabled: true,
-        simulateRoValraServerLatency: false
+        simulateRoValraServerLatency: false,
+        PrivateQuickLinkCopy: true
     };
 }
 

@@ -228,7 +228,12 @@ export function getOrCreateDetailsContainer(server) {
     container.className = CLASSES.CONTAINER;
 
     const isFriends = server.classList.contains('rbx-friends-game-server-item');
-    container.style.cssText = isFriends ? STYLES.containerFriends : STYLES.container;
+    const isPrivate = server.classList.contains('rbx-private-game-server-item');
+    if (isPrivate) {
+        container.style.cssText = 'display: flex; flex-direction: column; align-items: flex-start; gap: 2px; margin-top: 4px; width: 100%;';
+    } else {
+        container.style.cssText = isFriends ? STYLES.containerFriends : STYLES.container;
+    }
 
 
     const statusNode = server.querySelector('.text-info.rbx-game-status');
@@ -533,7 +538,7 @@ export async function fetchServerUptime(placeId, serverIds, serverLocations, ser
     try {
         const response = await callRobloxApi({
             subdomain: 'apis',
-            endpoint: `/v1/server_details?place_id=${placeId}&server_ids=${validIds.join(',')}`,
+            endpoint: `/v1/servers/details?place_id=${placeId}&server_ids=${validIds.join(',')}`,
             method: 'GET',
             isRovalraApi: true
         });
@@ -606,7 +611,7 @@ export async function fetchServerUptime(placeId, serverIds, serverLocations, ser
         });
     }
 }
-export async function fetchAndDisplayRegion(server, serverId, serverIpMap, serverLocations) {
+export async function fetchAndDisplayRegion(server, serverId, serverIpMap, serverLocations, options = {}) {
     let placeId = server.dataset.placeid || window.location.href.match(/\/games\/(\d+)\//)?.[1];
     if (!placeId) {
         if (!serverLocations[serverId]) displayServerFullStatus(server);
@@ -614,11 +619,16 @@ export async function fetchAndDisplayRegion(server, serverId, serverIpMap, serve
     }
 
     try {
+        const endpoint = options.isPrivate ? '/v1/join-private-game' : '/v1/join-game-instance';
+        const body = options.isPrivate 
+            ? { placeId: parseInt(placeId), accessCode: options.accessCode, gameJoinAttemptId: createUUID() }
+            : { placeId: parseInt(placeId), gameId: serverId, gameJoinAttemptId: createUUID() };
+
         const response = await callRobloxApi({
             subdomain: 'gamejoin',
-            endpoint: '/v1/join-game-instance',
+            endpoint: endpoint,
             method: 'POST',
-            body: { placeId: parseInt(placeId), gameId: serverId, gameJoinAttemptId: createUUID() }
+            body: body
         });
 
         if (server.dataset.rovalraServerid !== serverId) return;
@@ -801,7 +811,13 @@ export async function enhanceServer(server, context) {
         server.addEventListener('rovalra-serverid-set', server._rovalraListener);
     }
 
-    const serverId = server.getAttribute('data-rovalra-serverid');
+    let serverId = server.getAttribute('data-rovalra-serverid');
+    const isPrivate = server.classList.contains('rbx-private-game-server-item');
+
+    if (!serverId && isPrivate) {
+        serverId = server.dataset.accessCode;
+    }
+
     if (!serverId) return;
 
     const lastId = server._rovalraLastProcessedId;
@@ -825,8 +841,10 @@ export async function enhanceServer(server, context) {
 
     displayPerformance(server, serverPerformanceCache[serverId] ?? 'Unknown', serverLocations);
     
-    const cachedUptime = serverUptimes[serverId];
-    displayUptime(server, cachedUptime !== undefined ? cachedUptime : 'fetching', serverLocations);
+    if (!isPrivate) {
+        const cachedUptime = serverUptimes[serverId];
+        displayUptime(server, cachedUptime !== undefined ? cachedUptime : 'fetching', serverLocations);
+    }
 
     const cachedVersion = serverVersionsCache[serverId];
     displayPlaceVersion(server, cachedVersion || 'Unknown', serverLocations);
@@ -841,7 +859,7 @@ export async function enhanceServer(server, context) {
             serverVersionsCache[serverId] = apiData.place_version;
             displayPlaceVersion(server, apiData.place_version, serverLocations);
         }
-        if (apiData.first_seen) {
+        if (apiData.first_seen && !isPrivate) {
             const date = new Date(apiData.first_seen.endsWith('Z') ? apiData.first_seen : apiData.first_seen + 'Z');
             const uptime = isNaN(date) ? 0 : Math.max(0, (new Date() - date) / 1000);
             serverUptimes[serverId] = uptime;
@@ -857,24 +875,26 @@ export async function enhanceServer(server, context) {
 
 
     if (isServerUptimeEnabled || isServerRegionEnabled || isPlaceVersionEnabled) {
-        if (serverUptimes[serverId] === undefined) {
+        if (serverUptimes[serverId] === undefined && !isPrivate) {
             serverUptimes[serverId] = 'fetching';
             uptimeBatch.add(serverId);
             clearTimeout(server._rovalraUptimeTimeout);
             server._rovalraUptimeTimeout = setTimeout(() => processUptimeBatch(), 100);
-        } else if (serverUptimes[serverId] === 'fetching') {
+        } else if (serverUptimes[serverId] === 'fetching' && !isPrivate) {
             displayUptime(server, 'fetching', serverLocations);
         }
     }
 
-    fetchAndDisplayRegion(server, serverId, serverIpMap, serverLocations);
+    fetchAndDisplayRegion(server, serverId, serverIpMap, serverLocations, { isPrivate, accessCode: server.dataset.accessCode });
 
     displayIpAndDcId(server);
-    addCopyJoinLinkButton(server, serverId);
+    if (!isPrivate) {
+        addCopyJoinLinkButton(server, serverId);
+    }
     enableAvatarLinks(server);
 
 
-    if (isFullServerIDEnabled) {
+    if (isFullServerIDEnabled && !isPrivate) {
         let idDiv = server.querySelector('.server-id-text');
         if (!idDiv) {
             idDiv = document.createElement('div');

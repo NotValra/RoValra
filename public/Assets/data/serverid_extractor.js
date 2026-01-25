@@ -19,7 +19,7 @@ window.addEventListener('rovalra-extract-serverid-request', function(event) {
         }
         
         const angularElement = angular.element(element);
-        const context = angularElement.context;
+        const context = angularElement.context || angularElement[0];
         
         if (!context) {
             window.dispatchEvent(new CustomEvent('rovalra-serverid-extracted', {
@@ -36,7 +36,8 @@ window.addEventListener('rovalra-extract-serverid-request', function(event) {
             return;
         }
         
-        const AngularInfo = context[contextKeys[0]];
+        const reactKey = contextKeys.find(key => key.startsWith('__reactFiber')) || contextKeys[0];
+        const AngularInfo = context[reactKey];
         
         if (!AngularInfo) {
             window.dispatchEvent(new CustomEvent('rovalra-serverid-extracted', {
@@ -54,8 +55,24 @@ window.addEventListener('rovalra-extract-serverid-request', function(event) {
         
         const serverProps = AngularInfo.return.memoizedProps;
         const serverId = serverProps.id;
+        const accessCode = serverProps.accessCode;
+        const privateServerId = serverProps.vipServerId;
+        
+        if (accessCode) {
+            element.setAttribute('data-access-code', accessCode);
+        }
+        
+        if (privateServerId) {
+            element.setAttribute('data-private-server-id', privateServerId);
+        }
         
         if (!serverId) {
+            if (accessCode || privateServerId) {
+                window.dispatchEvent(new CustomEvent('rovalra-serverid-extracted', {
+                    detail: { extractionId, serverId: null, accessCode, privateServerId }
+                }));
+                return;
+            }
             window.dispatchEvent(new CustomEvent('rovalra-serverid-extracted', {
                 detail: { extractionId, serverId: null, error: "No id in props" }
             }));
@@ -63,7 +80,7 @@ window.addEventListener('rovalra-extract-serverid-request', function(event) {
         }
         
         window.dispatchEvent(new CustomEvent('rovalra-serverid-extracted', {
-            detail: { extractionId, serverId }
+            detail: { extractionId, serverId, accessCode, privateServerId }
         }));
         
     } catch (e) {
