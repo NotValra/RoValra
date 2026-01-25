@@ -10,9 +10,9 @@ a.game-tile-styles.game-card-link:hover::before, a.game-tile-styles.game-card-li
 a.game-tile-styles.game-card-link:hover .hover-background, a.game-tile-styles.game-card-link.quick-play-hover-active .hover-background { opacity: 1; top: -5px; left: -5px; right: -5px; bottom: -5px; }
 a.game-tile-styles.game-card-link:hover .game-card-name, a.game-tile-styles.game-card-link.quick-play-hover-active .game-card-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
 a.game-tile-styles.game-card-link:hover .game-card-native-ad, a.game-tile-styles.game-card-link.quick-play-hover-active .game-card-native-ad { display: none; }
-.quick-play-original-stats { z-index: 5; transition: transform 0.15s ease-out; will-change: transform; }
-a.game-tile-styles.game-card-link:hover .quick-play-original-stats.game-card-friend-info,
-a.game-tile-styles.game-card-link.quick-play-hover-active .quick-play-original-stats.game-card-friend-info { transform: translateY(-30px); }
+.quick-play-original-stats, a.game-tile-styles.game-card-link .game-card-friend-info { z-index: 5; transition: transform 0.15s ease-out; will-change: transform; }
+a.game-tile-styles.game-card-link:hover .game-card-friend-info,
+a.game-tile-styles.game-card-link.quick-play-hover-active .game-card-friend-info { transform: translateY(-30px); }
 a.game-tile-styles.game-card-link:hover .quick-play-original-stats.game-card-info:not(.game-card-friend-info),
 a.game-tile-styles.game-card-link.quick-play-hover-active .quick-play-original-stats.game-card-info:not(.game-card-friend-info) { transform: translateY(-25px); }
 .play-button-overlay { display: flex; flex-direction: column; position: absolute; bottom: 0px; left: 0px; right: 0px; z-index: 10; opacity: 0; gap: 0px; transform: translateY(0px); transition: opacity 0.2s ease-out, transform 0.2s ease-out; pointer-events: none; }
