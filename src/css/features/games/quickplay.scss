@@ -82,7 +82,7 @@ body:not(.dark-theme) #rovalra-private-servers-global-container::-webkit-scrollb
 
     .featured-game-container {
         a.game-tile-styles.game-card-link:hover .play-button-overlay {
-            opacity: 0 !important;
+            display: none;
             pointer-events: none;
         }
     }
@@ -90,7 +90,7 @@ body:not(.dark-theme) #rovalra-private-servers-global-container::-webkit-scrollb
     &.focused {
         .featured-game-container {
             a.game-tile-styles.game-card-link .play-button-overlay {
-                opacity: 1 !important;
+                display: block;
                 transform: translateY(0) !important;
                 pointer-events: auto;
             }
