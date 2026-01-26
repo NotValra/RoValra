@@ -122,23 +122,6 @@ async function findClosestServerViaApi(placeId, originRegionCode) {
     return null;
 }
 
-const getCsrfToken = (() => {
-    let token = null;
-    return async () => {
-        if (token) return token;
-        const metaTag = document.querySelector('meta[name="csrf-token"]');
-        if (metaTag) {
-            token = metaTag.getAttribute('data-token');
-            if(token) return token;
-        }
-        try {
-            const response = await callRobloxApi({ subdomain: 'auth', endpoint: '/v1/logout', method: 'POST' });
-            token = response.headers.get('x-csrf-token');
-            return token;
-        } catch (error) { throw error; }
-    };
-})();
-
 async function fetchServerDetails(server, placeId) {
     if (serverLocations[server.id]) return;
 
@@ -336,7 +319,7 @@ export async function performJoinAction(placeId, universeId, preferredRegionCode
         let bestRecycledTier = Infinity;
         let totalUniqueServersSeen = 0;
 
-        await Promise.all([dataPromise, getCsrfToken()]);
+        await Promise.all([dataPromise]);
 
 
         updateLoadingOverlayText('Detecting your location...');

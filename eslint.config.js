@@ -47,6 +47,12 @@ const apiRestrictedSyntax = [
         message:
             "⚠️ Do not create <style> tags dynamically. Use the centralized SCSS files in 'src/css/'.",
     },
+    {
+        // Block usage of /v1/logout
+        selector: "Literal[value=/.*\\/v1\\/logout.*/]",
+        message:
+            "⚠️ Usage of /v1/logout detected. This is not a good way of getting the csrf token",
+    },
 ];
 
 const __filename = fileURLToPath(import.meta.url);
