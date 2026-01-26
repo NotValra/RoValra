@@ -106,6 +106,7 @@ export const buttonData = [
                                             </a>
                                             <a href="https://www.roblox.com/games/9676908657/Gamepasses#!/store" target="_blank" class="rovalra-roblox-link">Support Me on Roblox</a>
                                             <a href="https://www.tiktok.com/@valrawantbanana" target="_blank" class="rovalra-tiktok-link">TikTok: ValraWantBanana</a>
+                                            <a href="https://x.com/ValraSwag" target="_blank" class="rovalra-x-link">X: ValraSwag</a>
                                         </div>
                                         <div id="export-import-buttons-container" style="border-top: 1px solid var(--rovalra-secondary-text-color); opacity: 0.8; padding-top: 15px; display: flex; justify-content: flex-start; gap: 10px;"></div>
                                     </div>

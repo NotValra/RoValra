@@ -1,4 +1,5 @@
-import { fetchThumbnails as fetchThumbnailsBatch, createThumbnailElement } from '../../../core/thumbnail/thumbnails.js';
+import { fetchThumbnails as fetchThumbnailsBatch } from '../../../core/thumbnail/thumbnails.js';
+import { createGameCard } from '../../../core/ui/games/gameCard.js';
 import { callRobloxApi } from '../../../core/api.js';
 import { observeElement } from '../../../core/observer.js';
 import { createStyledInput } from '../../../core/ui/catalog/input.js';
@@ -11,7 +12,7 @@ export async function init() {
   chrome.storage.local.get(['subplacesEnabled'], async (result) => {
     if (result.subplacesEnabled) {
         const fetchUniverseId = async (placeId) => {
-            try {
+          
                 const response = await callRobloxApi({
                     subdomain: 'games',
                     endpoint: `/v1/games/multiget-place-details?placeIds=${placeId}`,
@@ -27,13 +28,11 @@ export async function init() {
                     return data[0].universeId;
                 }
                 throw new Error("Universe ID not found in the API response.");
-            } catch (error) {
-                throw error;
-            }
+           
         };
 
         const fetchUniverseDetails = async (universeId) => {
-            try {
+          
                 const response = await callRobloxApi({
                     subdomain: 'games',
                     endpoint: `/v1/games?universeIds=${universeId}`,
@@ -49,9 +48,7 @@ export async function init() {
                     return data.data[0];
                 }
                 throw new Error("Universe details not found in the API response.");
-            } catch (error) {
-                throw error;
-            }
+           
         };
 
         const checkSubplaceJoinability = async (placeId) => {
@@ -151,81 +148,8 @@ export async function init() {
             }
         };
 
-        const injectStyles = () => {
-            if (document.getElementById('rovalra-subplaces-styles')) return;
-            const style = document.createElement('style');
-            style.id = 'rovalra-subplaces-styles';
-            style.textContent = `
 
-                .rovalra-subplaces-list {
-                    display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-                    gap: 12px;
-                }
-                .rovalra-subplace-card { justify-self: center; width: 150px; height: 240px; }
-                .rovalra-subplace-card .game-card-link { display: flex; flex-direction: column; height: 100%; text-decoration: none; }
-                .rovalra-subplace-card .game-card-thumb-container { width: 150px; height: 150px; border-radius: 8px; margin-bottom: 5px; background-color: var(--rovalra-secondary-text-color); }
-                .rovalra-subplace-card .game-card-thumb { width: 100%; height: 100%; border-radius: 8px; }
-                .rovalra-subplace-card .game-card-name {
-                    font-weight: 500; font-size: 16px; width: 150px;
-                    color: var(--rovalra-main-text-color);
-                    white-space: normal;
-                    word-wrap: break-word;
-                    display: -webkit-box;
-                    -webkit-line-clamp: 2;
-                    -webkit-box-orient: vertical;
-                    overflow: hidden;
-                }
-                .rovalra-subplace-card p { color: var(--rovalra-main-text-color); }
-                
-                .rovalra-load-more-wrapper { width: 100%; display: flex; justify-content: center; }
-                .rovalra-load-more-btn {
-                    display: none; margin-top: 15px; width: 100%; max-width: 768px;
-                    background-color: var(--rovalra-container-background-color); color: var(--rovalra-main-text-color);
-                    border: 1px solid var(--sp-btn-border);
-                }
-                
-                .rovalra-subplaces-search-wrapper {
-                    margin-bottom: 16px;
-                }
-            `;
-            document.head.appendChild(style);
-        };
 
-        const createSubplaceCard = (subplace, thumbnailData) => {
-            const card = document.createElement('div');
-            card.className = 'rovalra-subplace-card game-card-container';
-
-            const link = document.createElement('a');
-            link.className = 'game-card-link';
-            link.href = `https://www.roblox.com/games/${subplace.id}`;
-
-            const thumbContainer = document.createElement('div');
-            thumbContainer.className = 'game-card-thumb-container'; 
-            const thumbnailElement = createThumbnailElement(thumbnailData, subplace.name, 'game-card-thumb');
-            thumbContainer.appendChild(thumbnailElement);
-
-            const nameSpan = document.createElement('span');
-            nameSpan.className = 'game-card-name game-name-title';
-
-            nameSpan.dataset.fullName = subplace.name;
-            nameSpan.title = subplace.name;
-            nameSpan.textContent = subplace.name;
-
-            const detailsContainer = document.createElement('div');
-            detailsContainer.appendChild(nameSpan);
-
-            if (subplace.isRootPlace) {
-                const rootLabel = document.createElement('p');
-                rootLabel.textContent = 'Root Place';
-                rootLabel.style.cssText = 'font-size: 13px; color: var(--rovalra-secondary-text-color); margin-top: 4px;';
-                detailsContainer.appendChild(rootLabel);
-            }
-
-            link.append(thumbContainer, detailsContainer);
-
-            card.appendChild(link);
-            return card;
-        };
 
         const createSubplacesTab = (subplaces, horizontalTabs, contentSection) => {
             let displayedCount = 0;
@@ -275,7 +199,32 @@ export async function init() {
             const displaySubplaces = async (gamesToDisplay) => {
                 const thumbnails = await fetchThumbnails(gamesToDisplay);
                 gamesToDisplay.forEach(subplace => {
-                    const card = createSubplaceCard(subplace, thumbnails.get(subplace.id));
+                    const gameData = {
+                        id: subplace.id,
+                        name: subplace.name,
+                        rootPlace: { id: subplace.id }
+                    };
+                    const stats = { thumbnails };
+
+                    const card = createGameCard({
+                        game: gameData,
+                        stats,
+                        showVotes: false,
+                        showPlayers: false
+                    });
+                    card.classList.add('rovalra-subplace-card', 'game-card-container');
+
+                    const nameEl = card.querySelector('.game-card-name');
+                    if (nameEl) nameEl.dataset.fullName = subplace.name;
+
+                    if (subplace.isRootPlace) {
+                        const rootLabel = document.createElement('p');
+                        rootLabel.textContent = 'Root Place';
+                        rootLabel.className = 'root-place-label';
+                        const link = card.querySelector('.game-card-link');
+                        if (link) link.appendChild(rootLabel);
+                    }
+
                     subplacesContainer.appendChild(card);
                 });
             };
@@ -319,6 +268,16 @@ export async function init() {
 
             horizontalTabs.appendChild(subplaceTab);
             contentSection.appendChild(subplacesContentDiv);
+
+            horizontalTabs.style.display = 'flex';
+            horizontalTabs.style.flexWrap = 'nowrap';
+
+            observeElement('#horizontal-tabs .rbx-tab', (tab) => {
+                tab.style.width = 'auto';
+                tab.style.flex = '1 1 auto';
+                tab.style.float = 'none';
+                tab.style.minWidth = '0';
+            }, { multiple: true });
 
             subplaceTab.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -403,7 +362,6 @@ export async function init() {
             }
         };
 
-        injectStyles();
 
         if (observeElement && typeof observeElement === 'function') {
             observeElement(

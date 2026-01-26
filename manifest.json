@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
     "name": "RoValra - Roblox Improved",
-    "version": "2.4.2",
+    "version": "2.4.6",
     "description": "An extension aiming to provide features that other Roblox extensions pay wall!",
     "content_scripts": [
         {
@@ -32,11 +32,7 @@
     "optional_permissions": ["webNavigation"],
     "declarative_net_request": {
         "rule_resources": [
-            {
-                "id": "ruleset_1",
-                "enabled": true,
-                "path": "public/Assets/Rules/rules.json"
-            },
+
             {
                 "id": "ruleset_status",
                 "enabled": false,
@@ -52,7 +48,6 @@
     "web_accessible_resources": [
         {
             "resources": [
-                "ffmpeg/*",
                 "public/Assets/*",
                 "public/data/*",
                 "Assets/data/serverid_extractor.js",

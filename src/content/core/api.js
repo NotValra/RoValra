@@ -96,9 +96,10 @@ function captureApiCall(options) {
     } catch (e) {}
 }
 
-function getRequestKey({ endpoint, subdomain = 'apis', method = 'GET', isRovalraApi = false, body = null }) {
+function getRequestKey({ endpoint, subdomain = 'apis', method = 'GET', isRovalraApi = false, body = null, fullUrl = null }) {
     const bodyStr = body && typeof body === 'object' ? JSON.stringify(body) : (body || '');
-    return `${isRovalraApi}|${subdomain}|${endpoint}|${method.toUpperCase()}|${bodyStr}`;
+    const target = fullUrl || `${isRovalraApi}|${subdomain}|${endpoint}`;
+    return `${target}|${method.toUpperCase()}|${bodyStr}`;
 }
 
 
@@ -110,6 +111,18 @@ function checkSimulatedDowntime() {
         }
         chrome.storage.local.get(['simulateRoValraServerErrors'], (result) => {
             resolve(!!result.simulateRoValraServerErrors);
+        });
+    });
+}
+
+function checkSimulatedLatency() {
+    return new Promise((resolve) => {
+        if (typeof chrome === 'undefined' || !chrome.storage || !chrome.storage.local) {
+            resolve(false);
+            return;
+        }
+        chrome.storage.local.get(['simulateRoValraServerLatency'], (result) => {
+            resolve(!!result.simulateRoValraServerLatency);
         });
     });
 }
@@ -140,7 +153,8 @@ export async function callRobloxApi(options) {
             method = 'GET',
             isRovalraApi = false,
             headers = {},
-            body = null
+            body = null,
+            fullUrl: customFullUrl
         } = options;
 
         if (isRovalraApi) {
@@ -151,12 +165,25 @@ export async function callRobloxApi(options) {
                     errors: [{ code: 500, message: "Simulated Internal Server Error" }]
                 }), { status: 500, statusText: "Internal Server Error", headers: { "Content-Type": "application/json" } });
             }
+
+            const isLatencySimulated = await checkSimulatedLatency();
+            if (isLatencySimulated) {
+                console.warn(`RoValra API: [SIMULATION] Adding 5s latency for ${endpoint}`);
+                await new Promise(resolve => setTimeout(resolve, 5000));
+            }
         }
 
         const baseUrl = isRovalraApi 
             ? (subdomain === 'www' ? 'https://www.rovalra.com' : 'https://apis.rovalra.com')
             : `https://${subdomain}.roblox.com`;
-        const fullUrl = `${baseUrl}${endpoint}`;
+        let fullUrl = customFullUrl || `${baseUrl}${endpoint}`;
+
+        if (fullUrl.includes('?')) {
+            fullUrl += `&_RoValraRequest=`;
+        } else {
+            fullUrl += `?_RoValraRequest=`;
+        }
+
         const isMutatingMethod = ['POST', 'PATCH', 'DELETE'].includes(method.toUpperCase());
         
         const credentials = options.credentials ?? (isRovalraApi ? 'omit' : 'include');
@@ -171,8 +198,13 @@ export async function callRobloxApi(options) {
         };
 
         if (body) {
-            fetchOptions.headers['Content-Type'] = 'application/json';
-            fetchOptions.body = typeof body === 'string' ? body : JSON.stringify(body);
+            if (body instanceof FormData) {
+                fetchOptions.body = body;
+                if (fetchOptions.headers['Content-Type']) delete fetchOptions.headers['Content-Type'];
+            } else {
+                fetchOptions.headers['Content-Type'] = 'application/json';
+                fetchOptions.body = typeof body === 'string' ? body : JSON.stringify(body);
+            }
         }
 
         if (isRovalraApi) {
@@ -248,6 +280,20 @@ export async function callRobloxApi(options) {
                     }
                 } catch (e) {}
             }
+
+            if (data.status === 5) {
+                let serverId = null;
+                try {
+                    const bodyData = options.body && typeof options.body === 'string' ? JSON.parse(options.body) : options.body;
+                    if (bodyData && bodyData.gameId) serverId = bodyData.gameId;
+                } catch (e) {}
+
+                if (serverId) {
+                    document.dispatchEvent(new CustomEvent('rovalra-server-inactive', {
+                        detail: { serverId }
+                    }));
+                }
+            }
         }).catch(() => {});
     }
 
@@ -276,7 +322,10 @@ export async function callRobloxApiUnsafe(options) {
 export async function callRobloxApiJson(options) {
     const response = await callRobloxApi(options);
     if (!response.ok) {
-        throw new Error(`API request failed with status ${response.status}`);
+        const errorBody = await response.json().catch(() => ({ message: 'Could not parse error response' }));
+        const error = new Error(`API request failed with status ${response.status}`);
+        error.response = errorBody;
+        throw error;
     }
     return await response.json();
 }

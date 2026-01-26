@@ -1,27 +1,27 @@
 {
-    "name": "rovalra",
-    "version": "2.4.2",
-    "description": "An extension aiming to provide features that other Roblox extensions pay wall!",
-    "private": true,
-    "scripts": {
-        "build": "npm run clean && node build.js",
-        "clean": "rimraf dist",
-        "lint": "eslint ."
-    },
-    "devDependencies": {
-        "esbuild": "^0.25.0",
-        "eslint": "^9.39.2",
-        "eslint-config-prettier": "^10.1.8",
-        "prettier": "^3.7.4",
-        "rimraf": "^5.0.5",
-        "sass": "^1.83.0"
-    },
-    "dependencies": {
-        "dompurify": "^3.3.1",
-        "marked": "^17.0.1"
-    },
-    "lint-staged": {
-        "*.js": "eslint --fix",
-        "*.{js,json,css,md}": "prettier --write"
-    }
+  "name": "rovalra",
+  "version": "2.4.6",
+  "description": "An extension aiming to provide features that other Roblox extensions pay wall!",
+  "private": true,
+  "scripts": {
+    "build": "npm run clean && node build.js",
+    "clean": "rimraf dist",
+    "lint": "eslint ."
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0",
+    "eslint": "^9.39.2",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.7.4",
+    "rimraf": "^5.0.5",
+    "sass": "^1.83.0"
+  },
+  "dependencies": {
+    "dompurify": "^3.3.1",
+    "marked": "^17.0.1"
+  },
+  "lint-staged": {
+    "*.js": "eslint --fix",
+    "*.{js,json,css,md}": "prettier --write"
+  }
 }

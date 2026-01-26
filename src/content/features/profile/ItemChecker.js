@@ -96,6 +96,12 @@ async function checkIfInventoryIsPrivate(userId) {
 }
 
 async function injectItemChecker(container) {
+    const removalDate = new Date('2026-01-30T00:00:00Z');
+    const now = new Date();
+    if (now >= removalDate) {
+        return;
+    }
+
     if (container.querySelector('#rovalra-item-checker-container')) return;
 
     const userId = getUserId();
@@ -110,11 +116,25 @@ async function injectItemChecker(container) {
     wrapper.id = 'rovalra-item-checker-container';
     wrapper.className = 'rovalra-checker-container';
 
+    const patchedMessage = document.createElement('p');
+    patchedMessage.className = 'text-label';
+    patchedMessage.style.textAlign = 'center';
+    patchedMessage.style.color = 'var(--rovalra-main-text-color)';
+    patchedMessage.textContent =
+        'Roblox patched this feature.\n There is nothing RoValra can do about it.\n This message will disappear on the 30th of January.';
+    wrapper.appendChild(patchedMessage);
+    patchedMessage.style.whiteSpace = "pre-line";
+
+    const uiContainer = document.createElement('div');
+    uiContainer.style.pointerEvents = 'none';
+    uiContainer.style.opacity = '0.5';
+    wrapper.appendChild(uiContainer);
+
     const explanation = document.createElement('p');
     explanation.className = 'text-label';
     explanation.style.textAlign = 'center';
     explanation.textContent = `Check if ${displayName} owns specific items`;
-    wrapper.appendChild(explanation);
+    uiContainer.appendChild(explanation);
 
     const controlsContainer = document.createElement('div');
     controlsContainer.style.display = 'flex';
@@ -178,7 +198,7 @@ async function injectItemChecker(container) {
         statusText.style.display = 'block';
     };
 
-    wrapper.append(controlsContainer, statusText);
+    uiContainer.append(controlsContainer, statusText);
 
     const filterConfig = [
         { id: 'rovalra-check-creator', label: 'Creator Name', type: 'text' },
@@ -505,11 +525,10 @@ async function injectItemChecker(container) {
 
     topRow.append(inputContainer, filterUI);
     controlsContainer.append(topRow, checkBtn);
-    wrapper.append(resultsContainer);
+    uiContainer.append(resultsContainer);
 
     container.appendChild(wrapper);
 }
-
 export function init() {
     chrome.storage.local.get({ privateInventoryEnabled: false }, (settings) => {
         if (

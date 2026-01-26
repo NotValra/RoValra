@@ -174,7 +174,7 @@ const buildInfoList = (gameId, isPrivateServer, regionCode, regionName, serverIn
         const ownerIconHtml = ownerInfo.thumbnailUrl
             ? `<img src="${ownerInfo.thumbnailUrl}" style="width:16px;height:16px;border-radius:50%;margin-right:6px;vertical-align:text-bottom;" alt="Owner">`
             : `<span style="width:16px;height:16px;border-radius:50%;margin-right:6px;background-color:#555;display:inline-block;vertical-align:text-bottom;"></span>`;
-        listItems.push(`<li ${liClass}>${ownerIconHtml}<strong>Owner:</strong> <a href="${ownerProfileUrl}" target="_blank" style="color: #fff; text-decoration: underline;">${ownerInfo.displayName}</a></li>`);
+        listItems.push(`<li ${liClass}>${ownerIconHtml}<strong>Owner:</strong> <a href="${ownerProfileUrl}" target="_blank" style="text-decoration: underline;">${ownerInfo.displayName}</a></li>`);
     }
 
     if (regionCode && regionName) {
@@ -290,7 +290,7 @@ async function pollClientStatus(targetPlaceId) {
         if (!clientStatusReceived && !isDownloadOptionShown) {
             isDownloadOptionShown = true;
 
-            showLoadingOverlayResult("Roblox not detected", {
+            showLoadingOverlayResult("Launching Roblox", {
                 text: "Download Roblox",
                 onClick: showDownloadUI
             });

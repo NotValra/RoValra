@@ -7,6 +7,7 @@ import { fetchThumbnails, createThumbnailElement } from '../../../core/thumbnail
 import { createScrollButtons } from '../../../core/ui/general/scrollButtons.js';
 import { addTooltip } from '../../../core/ui/tooltip.js';
 import DOMPurify from 'dompurify';
+import { showSystemAlert } from '../../../core/ui/roblox/alert.js';
 
 async function fetchAllOutfits(userId) {
     let outfits = [];
@@ -206,7 +207,7 @@ function createOutfitCard(outfit, thumbnailData, onSuccess) {
                 name.style.color = "#ff4444";
             }
         } catch (e) {
-            name.textContent = "Error";
+            name.textContent = "Error:", console.error(e);
             name.style.color = "#ff4444";
         }
         
@@ -221,9 +222,9 @@ function createOutfitCard(outfit, thumbnailData, onSuccess) {
 }
 
 async function showQuickOutfitsOverlay() {
-    const userId = getAuthenticatedUserId();
+    const userId = await getAuthenticatedUserId();
     if (!userId) {
-        alert("Could not find user ID.");
+        console.error("authed user id not found :C for quick outfits")
         return;
     }
 
@@ -243,7 +244,7 @@ async function showQuickOutfitsOverlay() {
         alignContent: 'flex-start',
         minHeight: '410px',
         maxWidth: '630px',
-        width: '630px'
+        width: '100%'
     });
     
     const paginationContainer = document.createElement('div');
@@ -261,12 +262,16 @@ async function showQuickOutfitsOverlay() {
 
     gridContainer.innerHTML = DOMPurify.sanitize('<div style="padding: 20px;">Loading outfits...</div>');
 
-    const { overlay, close } = createOverlay({
+    let resizeObserver;
+    const { close } = createOverlay({
         title: 'Quick Outfits',
         bodyContent: mainContainer,
         maxWidth: 'fit-content',
         maxHeight: '60vh',
-        showLogo: true
+        showLogo: true,
+        onClose: () => {
+            if (resizeObserver) resizeObserver.disconnect();
+        }
     });
 
     try {
@@ -277,9 +282,9 @@ async function showQuickOutfitsOverlay() {
             return;
         }
 
-        const ITEMS_PER_PAGE = 8;
+        let itemsPerPage = 8;
         let currentPage = 0;
-        const totalPages = Math.ceil(outfits.length / ITEMS_PER_PAGE);
+        let totalPages = Math.ceil(outfits.length / itemsPerPage);
         let thumbnailMap = new Map();
         let isFetchingThumbnails = true;
 
@@ -321,8 +326,8 @@ async function showQuickOutfitsOverlay() {
 
         const renderPage = () => {
             gridContainer.innerHTML = '';
-            const start = currentPage * ITEMS_PER_PAGE;
-            const end = start + ITEMS_PER_PAGE;
+            const start = currentPage * itemsPerPage;
+            const end = start + itemsPerPage;
             const pageOutfits = outfits.slice(start, end);
 
             pageOutfits.forEach(outfit => {
@@ -332,13 +337,44 @@ async function showQuickOutfitsOverlay() {
                 }
                 const card = createOutfitCard(outfit, thumbData, () => {
                     close();
-                    showSuccessAlert("Successfully equipped outfit.");
+                    showSystemAlert("Successfully equipped outfit.");
                 });
                 gridContainer.appendChild(card);
             });
             
             updatePagination();
         };
+
+        const calculateItemsPerPage = () => {
+            const containerWidth = gridContainer.clientWidth;
+            if (containerWidth <= 0) return 8;
+            
+            const cardWidth = 140;
+            const gap = 8;
+            const padding = 20; 
+            
+            const availableWidth = containerWidth - padding;
+            const itemsPerRow = Math.floor((availableWidth + gap) / (cardWidth + gap));
+            const rows = 2;
+            
+            return Math.max(1, itemsPerRow * rows);
+        };
+
+        resizeObserver = new ResizeObserver(() => {
+            const newItemsPerPage = calculateItemsPerPage();
+            if (newItemsPerPage !== itemsPerPage) {
+                const firstVisibleItemIndex = currentPage * itemsPerPage;
+                itemsPerPage = newItemsPerPage;
+                totalPages = Math.ceil(outfits.length / itemsPerPage);
+                currentPage = Math.floor(firstVisibleItemIndex / itemsPerPage);
+                
+                if (currentPage >= totalPages) currentPage = Math.max(0, totalPages - 1);
+                
+                renderPage();
+            }
+        });
+        
+        resizeObserver.observe(gridContainer);
 
         renderPage();
 
@@ -354,37 +390,6 @@ async function showQuickOutfitsOverlay() {
     }
 }
 
-function showSuccessAlert(message) {
-    let feedbackContainer = document.querySelector('.sg-system-feedback');
-    if (!feedbackContainer) {
-        feedbackContainer = document.createElement('div');
-        feedbackContainer.className = 'sg-system-feedback';
-        document.body.appendChild(feedbackContainer);
-    }
-
-    const container = document.createElement('div');
-    container.className = 'alert-system-feedback';
-    
-    const alertDiv = document.createElement('div');
-    alertDiv.className = 'alert alert-success';
-    alertDiv.setAttribute('role', 'alert');
-    
-    const span = document.createElement('span');
-    span.className = 'alert-content';
-    span.textContent = message;
-    
-    alertDiv.appendChild(span);
-    container.appendChild(alertDiv);
-    feedbackContainer.appendChild(container);
-
-    void alertDiv.offsetWidth;
-    alertDiv.classList.add('on');
-    
-    setTimeout(() => {
-        alertDiv.classList.remove('on');
-        setTimeout(() => container.remove(), 300);
-    }, 3000);
-}
 
 function addQuickOutfitsButton(container) {
     if (container.querySelector('.rovalra-quick-outfits-btn-container')) {

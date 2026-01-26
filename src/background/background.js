@@ -1,4 +1,3 @@
-
 function getDefaultSettings() {
     // This object should be kept in sync with the defaults in settingConfig.js
     return {
@@ -7,7 +6,7 @@ function getDefaultSettings() {
         groupGamesEnabled: true,
         userGamesEnabled: true,
         userSniperEnabled: true,
-        privateInventoryEnabled: true,
+        privateInventoryEnabled: false,
         PreferredRegionEnabled: true,
         robloxPreferredRegion: 'AUTO',
         subplacesEnabled: true,
@@ -86,7 +85,12 @@ function getDefaultSettings() {
         EnableRobloxApiDocs: false,
         QuickOutfitsEnabled: false,
         gameTitleIssueEnable: true,
-        closeUiByClickingTheBackground:  true
+        closeUiByClickingTheBackground:  true,
+        EnableDatacenterandId: false,
+        forceReviewPopup: false,
+        recentServersEnabled: true,
+        simulateRoValraServerLatency: false,
+        PrivateQuickLinkCopy: true
     };
 }
 
@@ -145,12 +149,91 @@ function initializeSettings(reason) {
 
 chrome.runtime.onInstalled.addListener((details) => {
     initializeSettings(details.reason);
+    updateUserAgentRule();
 });
 
 
 chrome.runtime.onStartup.addListener(() => {
     initializeSettings("startup");
+    updateUserAgentRule();
 });
+
+function updateUserAgentRule() {
+    const originalUA = self.navigator.userAgent;
+    let browser = 'Unknown';
+    let engine = 'Unknown';
+
+    if (originalUA.includes("Firefox/")) {
+        browser = "Firefox";
+        engine = "Gecko";
+    } else if (originalUA.includes("Edg/")) {
+        browser = "Edge";
+        engine = "Chromium";
+    } else if (originalUA.includes("OPR/") || originalUA.includes("Opera/")) {
+        browser = "Opera";
+        engine = "Chromium";
+    } else if (originalUA.includes("Chrome/")) {
+        browser = "Chrome";
+        engine = "Chromium";
+    } else if (originalUA.includes("Safari/") && !originalUA.includes("Chrome/")) {
+        browser = "Safari";
+        engine = "WebKit";
+    }
+    
+    const manifest = chrome.runtime.getManifest();
+    const version = manifest.version || 'Unknown';
+    const isDevelopment = !('update_url' in manifest);
+    const environment = isDevelopment ? 'Development' : 'Production';
+    
+    let rovalraSuffix = `RoValraExtension(RoValra/${browser}/${engine}/${version}/${environment})`;
+
+    if (engine === "Gecko" || engine === "WebKit") {
+        rovalraSuffix += " UnofficialRoValraVersion"; // If you are developing a port for either of these don't remove this. It tells Roblox that I don't control requests coming from your port.
+    }
+
+    const generalRule = {
+        id: 999,
+        priority: 5, 
+        action: {
+            type: 'modifyHeaders',
+            requestHeaders: [
+                {
+                    header: 'User-Agent',
+                    operation: 'set',
+                    value: `${originalUA} ${rovalraSuffix}`
+                }
+            ]
+        },
+        condition: {
+            regexFilter: ".*_RoValraRequest=", 
+            resourceTypes: ["xmlhttprequest"]
+        }
+    };
+
+    const gameJoinRule = {
+        id: 1000,
+        priority: 10, 
+        action: {
+            type: 'modifyHeaders',
+            requestHeaders: [
+                {
+                    header: 'User-Agent',
+                    operation: 'set',
+                    value: `Roblox/WinInet ${rovalraSuffix}` 
+                }
+            ]
+        },
+        condition: {
+            regexFilter: "^https://gamejoin\\.roblox\\.com/.*_RoValraRequest=",
+            resourceTypes: ["xmlhttprequest"]
+        }
+    };
+
+    chrome.declarativeNetRequest.updateDynamicRules({
+        removeRuleIds: [999, 1000], 
+        addRules: [generalRule, gameJoinRule]
+    });
+}
 
 chrome.storage.onChanged.addListener((changes) => {
     if (changes.MemoryleakFixEnabled) { 
@@ -234,8 +317,7 @@ chrome.runtime.onConnect.addListener(port => {
             contentScriptUUID = message.uuid;
             connectedContentScripts.set(contentScriptUUID, port);
         } 
-        else {
-        }
+  
     });
 
 
@@ -245,6 +327,25 @@ chrome.runtime.onConnect.addListener(port => {
         }
     });
 });
+
+let currentUserId = null;
+let latestPresence = null;
+let pollingInterval = null;
+
+function pollUserPresence() {
+    if (!currentUserId) return;
+
+    chrome.tabs.query({ url: "*://*.roblox.com/*", status: "complete", active: true }, (tabs) => {
+        if (tabs.length > 0) {
+            const targetTab = tabs.find(t => t.url.includes("/games/")) || tabs[0];
+            chrome.tabs.sendMessage(targetTab.id, { action: 'pollPresence', userId: currentUserId }, (response) => {
+                if (chrome.runtime.lastError) {
+        
+                }
+            });
+        }
+    });
+}
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     switch (request.action) {
@@ -283,29 +384,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 args: [request.codeToInject],
             }).then(() => sendResponse({ success: true }))
               .catch((error) => sendResponse({ success: false, error: error.message }));
-            return true; 
-
-        case "fetchItemData":
-            fetch("URL_GOES_HERE").then(response => response.json())
-                .then(data => sendResponse({ success: true, data: data }))
-                .catch(error => sendResponse({ success: false, message: error.message }));
-            return true; 
-            
-        case "fetchHiddenGames":
-            chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-                if (tabs.length > 0) {
-                    chrome.tabs.sendMessage(tabs[0].id, request, (response) => {
-                        if (chrome.runtime.lastError) {
-                            console.warn("Could not send message to content script:", chrome.runtime.lastError.message);
-                            sendResponse({ success: false, error: "Content script not ready." });
-                        } else {
-                            sendResponse(response);
-                        }
-                    });
-                } else {
-                    sendResponse({ success: false, error: "No active tab found." });
-                }
-            });
             return true; 
 
         case 'toggleMemoryLeakFix':
@@ -356,11 +434,78 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             });
             return true; 
         
+        case 'updateUserId':
+            if (request.userId) {
+                if (request.userId !== currentUserId) {
+                    currentUserId = request.userId;
+                    latestPresence = null; 
+                    if (pollingInterval) {
+                        clearInterval(pollingInterval);
+                    }
+                    pollUserPresence(); 
+                    pollingInterval = setInterval(pollUserPresence, 5000);
+                }
+            }
+            break;
+        
+        case 'presencePollResult':
+            if (request.success) {
+                const presence = request.presence;
+        
+                if (JSON.stringify(presence) !== JSON.stringify(latestPresence)) {
+                    const oldPresence = latestPresence;
+                    latestPresence = presence;
+        
+                    chrome.tabs.query({ url: "*://*.roblox.com/*" }, (tabs) => {
+                        tabs.forEach(tab => {
+                            chrome.tabs.sendMessage(tab.id, { action: 'presenceUpdate', presence: latestPresence }, (response) => {
+                                if(chrome.runtime.lastError) {}
+                            });
+                        });
+                    });
+        
+                    const isJoiningGame = p => p && (p.userPresenceType === 2 || p.userPresenceType === 4);
+        
+                    if (isJoiningGame(presence) && presence.gameId && presence.rootPlaceId) {
+                                            if (!isJoiningGame(oldPresence) || oldPresence.gameId !== presence.gameId) {
+                                                chrome.storage.local.get({ 'rovalra_server_history': {} }, (res) => {
+                                                    const history = res.rovalra_server_history || {};
+                                                    const gameId = presence.rootPlaceId.toString();
+                                                    let gameHistory = history[gameId] || [];
+                                        
+                                                    const now = Date.now();
+                                                    const oneDay = 24 * 60 * 60 * 1000;
+                                        
+                                                    gameHistory = gameHistory.filter(entry => (now - entry.timestamp) < oneDay);
+                                        
+                                                    const serverIndex = gameHistory.findIndex(entry => entry.presence.gameId === presence.gameId);
+                                                    if (serverIndex > -1) {
+                                                        gameHistory.splice(serverIndex, 1);
+                                                    }
+                                        
+                                                    gameHistory.unshift({ presence, timestamp: now });
+                                                    
+                                                    gameHistory = gameHistory.slice(0, 4);
+                                                    history[gameId] = gameHistory;
+                                        
+                                                    chrome.storage.local.set({ 'rovalra_server_history': history });
+                                                });
+                                            }
+                                        }                }
+            }
+            break;
+
+        case 'getLatestPresence':
+            sendResponse({ presence: latestPresence });
+            return true;
     }
+
     return [
-        "injectScript", "fetchItemData", "fetchHiddenGames"
+        "injectScript", "fetchItemData", "fetchHiddenGames",
+        'checkPermission', 'requestPermission', 'revokePermission', 'getLatestPresence'
     ].includes(request.action);
 });
+
 
 chrome.storage.local.get('MemoryleakFixEnabled', (result) => {
     if (result.MemoryleakFixEnabled) {

@@ -8,6 +8,7 @@ import { initRegionFilters } from '../../../core/games/servers/filters/regionfil
 import { initUptimeFilters } from '../../../core/games/servers/filters/uptimefilters.js';
 import { initVersionFilters } from '../../../core/games/servers/filters/versionfilters.js';
 import { createButton } from '../../../core/ui/buttons.js';
+import { addTooltip } from '../../../core/ui/tooltip.js';
 import DOMPurify from 'dompurify';
 import {
     enhanceServer,
@@ -59,13 +60,15 @@ const SHARED_STYLES = `
     body.rovalra-filter-active .rbx-public-running-games-footer { display: none !important; }
 `;
 
-const _state = {
+export const _state = {
     serverIpMap: null,
     serverLocations: {},
     serverUptimes: {},
     serverPerformanceCache: {},
     vipStatusCache: {},
     uptimeBatch: new Set(),
+    collectedPlayerTokens: [],
+    recentlyUsedTokens: [],
     
     originalServerElements: [],
     isFilterActive: false,
@@ -93,7 +96,7 @@ export function init() {
         'UptimeFiltersEnabled',
         'VersionFiltersEnabled'
     ], (settings) => {
-        if (settings && settings.ServerlistmodificationsEnabled === false) return;
+        if (settings && settings.ServerlistmodificationsEnabled === false && settings.ServerFilterEnabled === false) return;
         
         if (settings) {
             _state.filterSettings = {
@@ -263,6 +266,13 @@ function attachGlobalListeners() {
         const errorMessage = ev.detail?.message || "Failed to load servers from RoValra API.";
         displayMessageInContainer(errorMessage, true);
     });
+
+    document.addEventListener('rovalra-server-inactive', (ev) => {
+        const serverId = ev.detail?.serverId;
+        if (!serverId) return;
+        const serverElement = document.querySelector(`li[data-rovalra-serverid="${serverId}"]`);
+        if (serverElement) serverElement.remove();
+    });
 }
 
 function manageLoadMoreButton(nextCursor, regionCode) {
@@ -348,7 +358,7 @@ async function loadServerIpMap() {
     }
 }
 
-function processUptimeBatch() {
+export function processUptimeBatch() {
     if (_state.uptimeBatch.size === 0) return;
     const placeId = window.location.pathname.match(/\/games\/(\d+)\//)?.[1];
     if (!placeId) return;
@@ -400,6 +410,12 @@ try {
             serversArray.forEach(serverData => {
                 const serverId = serverData.id || serverData.server_id || serverData.serverId || serverData.server_id;
                 const fps = serverData.fps ?? serverData.FPS ?? serverData.performance ?? null;
+
+                if (serverData.playerTokens && Array.isArray(serverData.playerTokens)) {
+                    _state.collectedPlayerTokens.push(...serverData.playerTokens);
+                    if (_state.collectedPlayerTokens.length > 2000) _state.collectedPlayerTokens.splice(0, _state.collectedPlayerTokens.length - 2000);
+                }
+
                 if (!serverId || typeof fps !== 'number') return;
                 _state.serverPerformanceCache[serverId] = fps;
                 const serverElement = document.querySelector(`[data-rovalra-serverid="${serverId}"]`);
@@ -469,7 +485,7 @@ export async function createServerCardFromRobloxApi(server, placeId) {
     }
 }
 
-export function createServerCardFromApi(server, placeId = '') {
+export async function createServerCardFromApi(server, placeId = '') {
     try {
         const listItemClass = 'rbx-public-game-server-item col-md-3 col-sm-4 col-xs-6';
         const serverItem = document.createElement('li');
@@ -477,12 +493,50 @@ export function createServerCardFromApi(server, placeId = '') {
         const serverId = server.server_id || server.id || '';
         serverItem.dataset.rovalraServerid = serverId;
 
+        let thumbnailsHTML = '';
+        const placeholderSrc = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNTAgMTUwIj48cmVjdCB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgZmlsbD0iI0UzRTNFMyIvPjwvc3ZnPg==';
+        
+        let tokensToFetch = [];
+        if (_state.collectedPlayerTokens && _state.collectedPlayerTokens.length > 0) {
+            let availableTokens = _state.collectedPlayerTokens.filter(t => !_state.recentlyUsedTokens.includes(t));
+            
+            if (availableTokens.length < 6) {
+                availableTokens = [..._state.collectedPlayerTokens];
+            }
+
+            for (let i = 0; i < 6; i++) {
+                if (availableTokens.length === 0) break;
+                const randomIndex = Math.floor(Math.random() * availableTokens.length);
+                const token = availableTokens[randomIndex];
+                tokensToFetch.push({ id: token });
+                availableTokens.splice(randomIndex, 1);
+                _state.recentlyUsedTokens.push(token);
+            }
+            
+            if (_state.recentlyUsedTokens.length > 60) _state.recentlyUsedTokens.splice(0, _state.recentlyUsedTokens.length - 60);
+        }
+
+        if (tokensToFetch.length > 0) {
+            try {
+                const thumbnailMap = await fetchThumbnails(tokensToFetch, 'PlayerToken', '150x150');
+                thumbnailsHTML = tokensToFetch.map(t => {
+                    const data = thumbnailMap.get(t.id);
+                    const src = (data && data.imageUrl) ? data.imageUrl : placeholderSrc;
+                    return `<span class="avatar avatar-headshot-md player-avatar"><span class="thumbnail-2d-container avatar-card-image"><img src="${src}" alt="Player"></span></span>`;
+                }).join('');
+            } catch (e) {}
+        }
+
+        if (!thumbnailsHTML) {
+            for (let i = 0; i < 6; i++) {
+                thumbnailsHTML += `<span class="avatar avatar-headshot-md player-avatar"><span class="thumbnail-2d-container avatar-card-image"><img src="${placeholderSrc}" alt="Player"></span></span>`;
+            }
+        }
+
         const playerThumbnailsContainerHTML = `
-            <div class="player-thumbnails-container" style="display:flex; align-items:center; justify-content:center; padding: 8px;">
-                <div style="background-color: rgba(0,0,0,0.06); border-radius: 6px; padding: 8px 12px; text-align: center;">
-                    <div style="font-size:12px; font-weight:600; color: var(--rovalra-secondary-text-color);">Player count unknown</div>
-                    <div style="font-size:11px; color: var(--rovalra-secondary-text-color); margin-top:4px;">This is a roblox limitation</div>
-                </div>
+            <div class="player-thumbnails-container" style="position: relative;">
+                ${thumbnailsHTML}
+                <span class="icon-moreinfo rovalra-unknown-count-icon" style="position: absolute; top: -11px; right: -15px; z-index: 5; cursor: help;"></span>
             </div>`;
 
         const serverDetailsHTML = `
@@ -496,6 +550,11 @@ export function createServerCardFromApi(server, placeId = '') {
                 </div>
             </div>`);
 
+        const infoIcon = serverItem.querySelector('.rovalra-unknown-count-icon');
+        if (infoIcon) {
+            addTooltip(infoIcon, "Player count is unknown, this is a Roblox limitation. the thumbnails are not representative of the people in game", { position: 'top' });
+        }
+
         if (placeId) {
             const detailsDiv = serverItem.querySelector('.game-server-details');
             const joinBtn = document.createElement('button');
@@ -506,6 +565,7 @@ export function createServerCardFromApi(server, placeId = '') {
         }
 
         try { serverItem._rovalraApiData = server; serverItem.setAttribute('data-rovalra-api', '1'); } catch (e) {}
+        enhanceServer(serverItem, _state);
         return serverItem;
     } catch (e) {
         return null;
@@ -517,7 +577,7 @@ async function renderAndAppendServers(servers, serverListContainer, placeId) {
         if (server.playerTokens) {
             return createServerCardFromRobloxApi(server, placeId);
         } else {
-            return Promise.resolve(createServerCardFromApi(server, placeId));
+            return createServerCardFromApi(server, placeId);
         }
     });
 

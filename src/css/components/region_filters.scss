@@ -1,0 +1,66 @@
+.rovalra-filter-widget {
+    position: relative;
+    display: inline-block;
+}
+
+.rovalra-side-panel { 
+    display: none; 
+    position: absolute; 
+    top: 100%; 
+    margin-top: 5px; 
+    right: 0; 
+    width: 220px; 
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15); 
+    z-index: 10000; 
+    border-radius: 8px; 
+    padding: 6px; 
+    border: 1px solid; 
+}
+.rovalra-side-panel.show { display: block; }
+.rovalra-side-panel.dark { background-color: rgb(39, 41, 48); border-color: rgba(255,255,255,0.15); }
+.rovalra-side-panel.light { background-color: #ffffff; border-color: #ccc; }
+
+.rovalra-side-panel-header { padding: 4px 8px 10px; margin-bottom: 6px; border-bottom: 1px solid; font-size: 15px; font-weight: 600; }
+.rovalra-side-panel-header.dark { border-color: rgba(255,255,255,0.1); color: #fff; }
+.rovalra-side-panel-header.light { border-color: rgba(0,0,0,0.1); color: #392213; }
+
+.rovalra-side-panel-list { max-height: 298px; overflow-y: auto; padding: 0 2px; }
+.rovalra-side-panel-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; border-radius: 5px; font-size: 14px; font-weight: 600; cursor: pointer; margin-bottom: 4px; }
+.rovalra-side-panel-item .country { font-size: 11px; opacity: 0.7; }
+.rovalra-side-panel-item.dark { color: #e0e0e0; background-color: #393B3D; }
+.rovalra-side-panel-item.light { color: #333333; background-color: #f0f0f0; }
+.rovalra-side-panel-item.dark:hover { background-color: #494b4d; }
+.rovalra-side-panel-item.light:hover { background-color: #e0e0e0; }
+.rovalra-side-panel-item.loading { opacity: 0.6; pointer-events: none; }
+
+.rovalra-region-count { font-size: 11px; font-weight: 500; padding: 2px 6px; border-radius: 4px; margin-left: 8px; }
+.rovalra-region-count.dark { background-color: rgba(255,255,255,0.1); color: #c8c8c8; }
+
+#rovalra-globe-panel { 
+    display: none; 
+    flex-direction: column; 
+    position: absolute; 
+    top: 100%; 
+    margin-top: 5px;
+    left: 50%; 
+    transform: translateX(-50%); 
+    width: 500px; 
+    box-shadow: 0 6px 15px rgba(0,0,0,0.2); 
+    z-index: 10000; 
+    border-radius: 8px; 
+    border: 1px solid; 
+    overflow: hidden; 
+}
+#rovalra-globe-panel.show { display: flex; }
+#rovalra-globe-panel { background-color: var(--rovalra-container-background-color); border-color: rgba(255, 255, 255, 0); }
+
+#rovalra-globe-container { width: 100%; height: 500px; cursor: grab; }
+#rovalra-globe-container:active { cursor: grabbing; }
+
+.rovalra-globe-header { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 10px; border-bottom: 1px solid rgba(127,127,127,0.1); user-select: none; }
+.rovalra-header-logo { width: 24px; height: 24px; cursor: default; transition: transform 0.1s; }
+.rovalra-header-logo:active { transform: scale(0.9); }
+
+#rovalra-globe-tooltip { position: fixed; top: 0; left: 0; display: none; background-color: rgba(20,20,20,0.95); color: #fff; padding: 5px 10px; border-radius: 6px; font-size: 12px; pointer-events: none; z-index: 2147483647; white-space: nowrap; border: 1px solid rgba(255,255,255,0.15); transform: translate(-50%, -100%) translateY(-12px); flex-direction: column; align-items: center; backdrop-filter: blur(4px); min-width: 120px; }
+
+.rovalra-filter-group-header { padding: 4px 8px; font-weight: 700; font-size: 12px; opacity: 0.8; text-transform: uppercase; margin-top: 8px; }

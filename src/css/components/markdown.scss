@@ -1,0 +1,72 @@
+.rovalra-markdown {
+    a {
+        text-decoration: underline !important;
+        cursor: pointer !important;
+        color: inherit;
+
+        &:hover {
+            opacity: 0.95;
+        }
+    }
+
+    table {
+        border-collapse: collapse;
+        width: 100%;
+        margin: 15px 0;
+    }
+
+    th, td {
+        border: 1px solid var(--rovalra-container-background-color);
+        padding: 8px 12px;
+        text-align: left;
+    }
+
+    th {
+        background-color: rgba(255, 255, 255, 0.05);
+        font-weight: bold;
+    }
+
+    blockquote {
+        border-left: 4px solid var(--rovalra-container-background-color);
+        margin: 15px 0;
+        padding-left: 15px;
+        color: var(--rovalra-secondary-text-color);
+    }
+
+    code {
+        background-color: rgba(255, 255, 255, 0);
+        padding: 2px 5px;
+        border-radius: 4px;
+        font-family: monospace;
+    }
+
+    pre {
+        background-color: rgba(0, 0, 0, 0.2);
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 15px 0;
+    }
+
+    img {
+        max-width: 100%;
+        border-radius: 4px;
+    }
+
+    ul, ol {
+        padding-left: 20px;
+        margin: 15px 0;
+    }
+
+    ul {
+        list-style-type: disc;
+    }
+
+    ol {
+        list-style-type: decimal;
+    }
+
+    li {
+        margin-bottom: 5px;
+    }
+}

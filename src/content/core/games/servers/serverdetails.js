@@ -1,6 +1,7 @@
 // adds information about servers
 
 import { callRobloxApi } from '../../api.js';
+import { observeElement } from '../../observer.js';
 
 
 const CLASSES = {
@@ -12,6 +13,7 @@ const CLASSES = {
     Version: 'rovalra-version-info',
     Full: 'rovalra-server-full-info',
     Private: 'rovalra-private-server-info',
+    Purchase: 'rovalra-purchase-game-info',
     Inactive: 'rovalra-inactive-place-info'
 };
 
@@ -20,7 +22,8 @@ const ORDERS = {
     Uptime: 2,
     Version: 3,
     Region: 4,
-    Status: 5
+    Purchase: 5,
+    Status: 6
 };
 
 const STYLES = {
@@ -36,9 +39,10 @@ const ICONS = {
     performanceLow: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="m16 18 2.29-2.29-4.88-4.88-4 4L2 7.41 3.41 6l6 6 4-4 6.3 6.29L22 12v6z" stroke="currentColor" fill="currentColor" stroke-width="0.01"/></svg>`,
     uptime: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="m22 5.7-4.6-3.9-1.3 1.5 4.6 3.9zM7.9 3.4 6.6 1.9 2 5.7l1.3 1.5zM12.5 8H11v6l4.7 2.9.8-1.2-4-2.4zM12 4c-5 0-9 4-9 9s4 9 9 9 9-4 9-9-4-9-9-9m0 16c-3.9 0-7-3.1-7-7s3.1-7 7-7 7 3.1 7 7-3.1 7-7 7" fill="currentColor"/></svg>`,
     version: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M21 10.12h-6.78l2.74-2.82c-2.73-2.7-7.15-2.8-9.88-.1-2.73 2.71-2.73 7.08 0 9.79s7.15 2.71 9.88 0C18.32 15.65 19 14.08 19 12.1h2c0 1.98-.88 4.55-2.64 6.29-3.51 3.48-9.21 3.48-12.72 0-3.5-3.47-3.53-9.11-.02-12.58s9.14-3.47 12.65 0L21 3zM12.5 8v4.25l3.5 2.08-.72 1.21L11 13V8z" stroke="currentColor" fill="currentColor" stroke-width="0.01"/></svg>`,
-    regionDefault: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2.4578C14.053 2.16035 13.0452 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12C22 10.2847 21.5681 8.67022 20.8071 7.25945M17 5.75H17.005M10.5001 21.8883L10.5002 19.6849C10.5002 19.5656 10.5429 19.4502 10.6205 19.3596L13.1063 16.4594C13.3106 16.2211 13.2473 15.8556 12.9748 15.6999L10.1185 14.0677C10.0409 14.0234 9.97663 13.9591 9.93234 13.8814L8.07046 10.6186C7.97356 10.4488 7.78657 10.3511 7.59183 10.3684L2.06418 10.8607M21 6C21 8.20914 19 10 17 12C15 10 13 8.20914 13 6C13 3.79086 14.7909 2 17 2C19.2091 2 21 3.79086 21 6Z"></path></svg>`,
+    regionDefault: `<svg width="20" height="20" viewBox="0 0 24 24"><path d="M11 8.17 6.49 3.66C8.07 2.61 9.96 2 12 2c5.52 0 10 4.48 10 10 0 2.04-.61 3.93-1.66 5.51l-1.46-1.46C19.59 14.87 20 13.48 20 12c0-3.35-2.07-6.22-5-7.41V5c0 1.1-.9 2-2 2h-2zm10.19 13.02-1.41 1.41-2.27-2.27C15.93 21.39 14.04 22 12 22 6.48 22 2 17.52 2 12c0-2.04.61-3.93 1.66-5.51L1.39 4.22 2.8 2.81zM11 18c-1.1 0-2-.9-2-2v-1l-4.79-4.79C4.08 10.79 4 11.38 4 12c0 4.08 3.05 7.44 7 7.93z" stroke="currentColor" fill="currentColor" stroke-width="0.01"/></svg>`,
     full: `<svg width="20" height="20" viewBox="0 0 24 24"><path d="M11 8.17 6.49 3.66C8.07 2.61 9.96 2 12 2c5.52 0 10 4.48 10 10 0 2.04-.61 3.93-1.66 5.51l-1.46-1.46C19.59 14.87 20 13.48 20 12c0-3.35-2.07-6.22-5-7.41V5c0 1.1-.9 2-2 2h-2zm10.19 13.02-1.41 1.41-2.27-2.27C15.93 21.39 14.04 22 12 22 6.48 22 2 17.52 2 12c0-2.04.61-3.93 1.66-5.51L1.39 4.22 2.8 2.81zM11 18c-1.1 0-2-.9-2-2v-1l-4.79-4.79C4.08 10.79 4 11.38 4 12c0 4.08 3.05 7.44 7 7.93z" stroke="currentColor" fill="currentColor" stroke-width="0.01"/></svg>`,
     private: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2m-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2m3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1s3.1 1.39 3.1 3.1z" stroke="currentColor" fill="currentColor" stroke-width="0.01"/></svg>`,
+    purchase: `<svg width="20" height="20" viewBox="0 0 24 24"><path d="M11 8.17 6.49 3.66C8.07 2.61 9.96 2 12 2c5.52 0 10 4.48 10 10 0 2.04-.61 3.93-1.66 5.51l-1.46-1.46C19.59 14.87 20 13.48 20 12c0-3.35-2.07-6.22-5-7.41V5c0 1.1-.9 2-2 2h-2zm10.19 13.02-1.41 1.41-2.27-2.27C15.93 21.39 14.04 22 12 22 6.48 22 2 17.52 2 12c0-2.04.61-3.93 1.66-5.51L1.39 4.22 2.8 2.81zM11 18c-1.1 0-2-.9-2-2v-1l-4.79-4.79C4.08 10.79 4 11.38 4 12c0 4.08 3.05 7.44 7 7.93z" stroke="currentColor" fill="currentColor" stroke-width="0.01"/></svg>`,
     inactive: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V12M12 16H12.01M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z"/> stroke="currentColor" fill="currentColor" stroke-width="0.01"/></svg>`
 };
 
@@ -53,6 +57,8 @@ let isFullServerIDEnabled = true;
 let isFullServerIndicatorsEnabled = true;
 let isServerPerformanceEnabled = true;
 let isMiscIndicatorsEnabled = true; 
+let isDatacenterAndIdEnabled = true;
+let isServerListModificationsEnabled = true;
 
 const serverVersionsCache = {};
 
@@ -61,6 +67,7 @@ const cacheReadyPromise = new Promise(resolve => {
 
     chrome.storage.local.get([
         'rovalraDatacenters', 
+        'ServerlistmodificationsEnabled',
         'enableShareLink', 
         'EnableServerUptime', 
         'EnableServerRegion', 
@@ -68,10 +75,12 @@ const cacheReadyPromise = new Promise(resolve => {
         'EnableFullServerID',
         'EnableFullServerIndicators',
         'EnableServerPerformance',
-        'EnableMiscIndicators'
+        'EnableMiscIndicators',
+        'EnableDatacenterandId'
     ], (res) => {
         if (res?.rovalraDatacenters) rovalraDatacentersCache = res.rovalraDatacenters;
         
+        if (res?.ServerlistmodificationsEnabled !== undefined) isServerListModificationsEnabled = res.ServerlistmodificationsEnabled;
         if (res?.enableShareLink !== undefined) isShareLinkEnabled = res.enableShareLink;
         if (res?.EnableServerUptime !== undefined) isServerUptimeEnabled = res.EnableServerUptime;
         if (res?.EnableServerRegion !== undefined) isServerRegionEnabled = res.EnableServerRegion;
@@ -80,6 +89,7 @@ const cacheReadyPromise = new Promise(resolve => {
         if (res?.EnableFullServerIndicators !== undefined) isFullServerIndicatorsEnabled = res.EnableFullServerIndicators;
         if (res?.EnableServerPerformance !== undefined) isServerPerformanceEnabled = res.EnableServerPerformance;
         if (res?.EnableMiscIndicators !== undefined) isMiscIndicatorsEnabled = res.EnableMiscIndicators;
+        if (res?.EnableDatacenterandId !== undefined) isDatacenterAndIdEnabled = res.EnableDatacenterandId;
 
         resolve();
     });
@@ -87,6 +97,13 @@ const cacheReadyPromise = new Promise(resolve => {
     chrome.storage.onChanged?.addListener((changes, area) => {
         if (area === 'local') {
             if (changes.rovalraDatacenters) rovalraDatacentersCache = changes.rovalraDatacenters.newValue;
+            if (changes.ServerlistmodificationsEnabled) {
+                isServerListModificationsEnabled = changes.ServerlistmodificationsEnabled.newValue;
+                if (!isServerListModificationsEnabled) {
+                    document.querySelectorAll('.rovalra-details-container, .rovalra-server-extra-details, .rovalra-copy-join-link').forEach(el => el.remove());
+                } else {
+                }
+            }
             if (changes.enableShareLink) isShareLinkEnabled = changes.enableShareLink.newValue;
             if (changes.EnableServerUptime) isServerUptimeEnabled = changes.EnableServerUptime.newValue;
             if (changes.EnableServerRegion) isServerRegionEnabled = changes.EnableServerRegion.newValue;
@@ -95,6 +112,12 @@ const cacheReadyPromise = new Promise(resolve => {
             if (changes.EnableFullServerIndicators) isFullServerIndicatorsEnabled = changes.EnableFullServerIndicators.newValue;
             if (changes.EnableServerPerformance) isServerPerformanceEnabled = changes.EnableServerPerformance.newValue;
             if (changes.EnableMiscIndicators) isMiscIndicatorsEnabled = changes.EnableMiscIndicators.newValue;
+            if (changes.EnableDatacenterandId) {
+                isDatacenterAndIdEnabled = changes.EnableDatacenterandId.newValue;
+                document.querySelectorAll('[data-rovalra-serverid]').forEach(server => {
+                    displayIpAndDcId(server);
+                });
+            }
         }
     });
 });
@@ -194,6 +217,10 @@ function removeCountryFromRegion(regionName) {
 
 
 export function getOrCreateDetailsContainer(server) {
+    if (!isServerListModificationsEnabled) {
+        return server.querySelector(`.${CLASSES.CONTAINER}`);
+    }
+
     let container = server.querySelector(`.${CLASSES.CONTAINER}`);
     if (container) return container;
 
@@ -201,7 +228,12 @@ export function getOrCreateDetailsContainer(server) {
     container.className = CLASSES.CONTAINER;
 
     const isFriends = server.classList.contains('rbx-friends-game-server-item');
-    container.style.cssText = isFriends ? STYLES.containerFriends : STYLES.container;
+    const isPrivate = server.classList.contains('rbx-private-game-server-item');
+    if (isPrivate) {
+        container.style.cssText = 'display: flex; flex-direction: column; align-items: flex-start; gap: 2px; margin-top: 4px; width: 100%;';
+    } else {
+        container.style.cssText = isFriends ? STYLES.containerFriends : STYLES.container;
+    }
 
 
     const statusNode = server.querySelector('.text-info.rbx-game-status');
@@ -240,6 +272,8 @@ export function createInfoElement(className, svg, text) {
 }
 
 function updateInfoElement(container, type, iconHTML, text, isVisible = true) {
+    if (!container) return;
+
     const className = CLASSES[type];
     let element = container.querySelector(`.${className}`);
 
@@ -266,7 +300,7 @@ function updateInfoElement(container, type, iconHTML, text, isVisible = true) {
 }
 
 function clearExclusiveStatuses(container) {
-    [CLASSES.Uptime, CLASSES.Version, CLASSES.Region, CLASSES.Full, CLASSES.Private, CLASSES.Inactive]
+    [CLASSES.Uptime, CLASSES.Version, CLASSES.Region, CLASSES.Full, CLASSES.Private, CLASSES.Purchase, CLASSES.Inactive]
         .forEach(cls => container.querySelector(`.${cls}`)?.remove());
 }
 
@@ -304,7 +338,7 @@ function enableAvatarLinks(server) {
 
 
 export function displayPerformance(server, fps, serverLocations = {}) {
-    if (!isServerPerformanceEnabled) {
+    if (!isServerPerformanceEnabled || !isServerListModificationsEnabled) {
         const container = getOrCreateDetailsContainer(server);
         updateInfoElement(container, 'Performance', '', '', false);
         return;
@@ -331,7 +365,7 @@ export function displayPerformance(server, fps, serverLocations = {}) {
 }
 
 export function displayUptime(server, uptime, serverLocations = {}) {
-    if (!isServerUptimeEnabled) {
+    if (!isServerUptimeEnabled || !isServerListModificationsEnabled) {
         const container = getOrCreateDetailsContainer(server);
         updateInfoElement(container, 'Uptime', '', '', false);
         return;
@@ -358,7 +392,7 @@ export function displayUptime(server, uptime, serverLocations = {}) {
 }
 
 export function displayPlaceVersion(server, version, serverLocations = {}) {
-    if (!isPlaceVersionEnabled) {
+    if (!isPlaceVersionEnabled || !isServerListModificationsEnabled) {
         const container = getOrCreateDetailsContainer(server);
         updateInfoElement(container, 'Version', '', '', false);
         return;
@@ -384,7 +418,7 @@ export function displayPlaceVersion(server, version, serverLocations = {}) {
 }
 
 export function displayRegion(server, regionName, serverLocations = {}) {
-    if (!isServerRegionEnabled) {
+    if (!isServerRegionEnabled || !isServerListModificationsEnabled) {
         const container = getOrCreateDetailsContainer(server);
         updateInfoElement(container, 'Region', '', '', false);
         return;
@@ -394,6 +428,7 @@ export function displayRegion(server, regionName, serverLocations = {}) {
     
     if (regionName && regionName !== 'Unknown Region') {
         container.querySelector(`.${CLASSES.Full}`)?.remove();
+        container.querySelector(`.${CLASSES.Private}`)?.remove();
     }
 
     let text = "Unknown";
@@ -417,8 +452,45 @@ export function displayRegion(server, regionName, serverLocations = {}) {
     updateInfoElement(container, 'Region', icon, text, visible);
 }
 
+export function displayIpAndDcId(server) {
+    let extraDiv = server.querySelector('.rovalra-server-extra-details');
+
+    if (!isFullServerIDEnabled || !isDatacenterAndIdEnabled || !isServerListModificationsEnabled) {
+        if (extraDiv) {
+            extraDiv.remove();
+        }
+        return;
+    }
+    
+    let idDiv = server.querySelector('.server-id-text');
+    if (!idDiv) return;
+
+    if (!extraDiv) {
+        extraDiv = document.createElement('div');
+        idDiv.after(extraDiv);
+    }
+    
+    extraDiv.className = 'rovalra-server-extra-details text-info xsmall';
+
+    const ip = server.dataset.rovalraIp;
+    const dcId = server.dataset.rovalraDcId;
+
+    extraDiv.style.cssText = `font-size: 9px; margin-top: 2px; display: flex; justify-content: space-between; min-height: 12px; padding: 0 8px; box-sizing: border-box;`;
+    extraDiv.innerHTML = '';
+
+    if (isDatacenterAndIdEnabled) {
+        const ipSpan = document.createElement('span');
+        ipSpan.textContent = ip || '---';
+        extraDiv.appendChild(ipSpan);
+
+        const dcIdSpan = document.createElement('span');
+        dcIdSpan.textContent = dcId || '---';
+        extraDiv.appendChild(dcIdSpan);
+    }
+}
+
 export function displayServerFullStatus(server) {
-    if (!isFullServerIndicatorsEnabled) {
+    if (!isFullServerIndicatorsEnabled || !isServerListModificationsEnabled) {
         const container = getOrCreateDetailsContainer(server);
         updateInfoElement(container, 'Full', '', '', false);
         return;
@@ -430,7 +502,7 @@ export function displayServerFullStatus(server) {
 }
 
 export function displayPrivateServerStatus(server) {
-    if (!isMiscIndicatorsEnabled) {
+    if (!isMiscIndicatorsEnabled || !isServerListModificationsEnabled) {
         const container = getOrCreateDetailsContainer(server);
         updateInfoElement(container, 'Private', '', '', false);
         return;
@@ -439,6 +511,18 @@ export function displayPrivateServerStatus(server) {
     const container = getOrCreateDetailsContainer(server);
     clearExclusiveStatuses(container);
     updateInfoElement(container, 'Private', ICONS.private, "Playing in a private server", true);
+}
+
+export function displayPurchaseGameStatus(server) {
+    if (!isMiscIndicatorsEnabled || !isServerListModificationsEnabled) {
+        const container = getOrCreateDetailsContainer(server);
+        updateInfoElement(container, 'Purchase', '', '', false);
+        return;
+    }
+
+    const container = getOrCreateDetailsContainer(server);
+    clearExclusiveStatuses(container);
+    updateInfoElement(container, 'Purchase', ICONS.purchase, "Buy game to see regions.", true);
 }
 
 export function displayInactivePlaceStatus(server) {
@@ -454,7 +538,7 @@ export async function fetchServerUptime(placeId, serverIds, serverLocations, ser
     try {
         const response = await callRobloxApi({
             subdomain: 'apis',
-            endpoint: `/v1/server_details?place_id=${placeId}&server_ids=${validIds.join(',')}`,
+            endpoint: `/v1/servers/details?place_id=${placeId}&server_ids=${validIds.join(',')}`,
             method: 'GET',
             isRovalraApi: true
         });
@@ -468,7 +552,7 @@ export async function fetchServerUptime(placeId, serverIds, serverLocations, ser
         const foundIds = new Set();
 
         data.servers.forEach(info => {
-            const { server_id, first_seen, place_version, city, region, country } = info;
+            const { server_id, first_seen, place_version, city, region, country, ip_address, datacenter_id } = info;
             if (!server_id) return;
             
             foundIds.add(server_id);
@@ -485,7 +569,7 @@ export async function fetchServerUptime(placeId, serverIds, serverLocations, ser
             serverUptimes[server_id] = uptime;
 
             let regionStr = null;
-            const locParts = [city, (region && region !== city) ? region : null].filter(p => p && p !== 'Unknown');
+            const locParts = [city, (region && region !== city) ? region : null, country].filter(p => p && p !== 'Unknown');
             if (locParts.length) {
                 regionStr = [...new Set(locParts)].join(', ');
                 serverLocations[server_id] = regionStr;
@@ -495,11 +579,15 @@ export async function fetchServerUptime(placeId, serverIds, serverLocations, ser
             const serverEls = document.querySelectorAll(`[data-rovalra-serverid="${server_id}"]`);
             
             serverEls.forEach(serverEl => {
+                if (ip_address != null) serverEl.dataset.rovalraIp = ip_address;
+                if (datacenter_id != null) serverEl.dataset.rovalraDcId = datacenter_id;
+
                 displayPlaceVersion(serverEl, versionToDisplay, serverLocations);
                 displayUptime(serverEl, uptime, serverLocations);
                 if (regionStr) {
                     displayRegion(serverEl, regionStr, serverLocations);
                 }
+                displayIpAndDcId(serverEl);
             });
         });
 
@@ -523,7 +611,7 @@ export async function fetchServerUptime(placeId, serverIds, serverLocations, ser
         });
     }
 }
-export async function fetchAndDisplayRegion(server, serverId, serverIpMap, serverLocations) {
+export async function fetchAndDisplayRegion(server, serverId, serverIpMap, serverLocations, options = {}) {
     let placeId = server.dataset.placeid || window.location.href.match(/\/games\/(\d+)\//)?.[1];
     if (!placeId) {
         if (!serverLocations[serverId]) displayServerFullStatus(server);
@@ -531,11 +619,16 @@ export async function fetchAndDisplayRegion(server, serverId, serverIpMap, serve
     }
 
     try {
+        const endpoint = options.isPrivate ? '/v1/join-private-game' : '/v1/join-game-instance';
+        const body = options.isPrivate 
+            ? { placeId: parseInt(placeId), accessCode: options.accessCode, gameJoinAttemptId: createUUID() }
+            : { placeId: parseInt(placeId), gameId: serverId, gameJoinAttemptId: createUUID() };
+
         const response = await callRobloxApi({
             subdomain: 'gamejoin',
-            endpoint: '/v1/join-game-instance',
+            endpoint: endpoint,
             method: 'POST',
-            body: { placeId: parseInt(placeId), gameId: serverId, gameJoinAttemptId: createUUID() }
+            body: body
         });
 
         if (server.dataset.rovalraServerid !== serverId) return;
@@ -544,16 +637,57 @@ export async function fetchAndDisplayRegion(server, serverId, serverIpMap, serve
             const info = await response.json();
             const joinBtn = server.querySelector('.game-server-join-btn');
 
-            if (info.status === 12 && info.message?.includes("private instance")) {
-                serverLocations[serverId] = 'private';
-                displayPrivateServerStatus(server);
-                return;
+            if (info.joinScript) {
+                const joinScript = info.joinScript;
+                let changed = false;
+                
+                if (joinScript.DataCenterId != null && !server.dataset.rovalraDcId) {
+                    server.dataset.rovalraDcId = joinScript.DataCenterId;
+                    changed = true;
+                }
+
+                if (!server.dataset.rovalraIp) {
+                    let ip = null;
+                    if (joinScript.UdmuxEndpoints && joinScript.UdmuxEndpoints.length > 0 && joinScript.UdmuxEndpoints[0].Address) {
+                        ip = joinScript.UdmuxEndpoints[0].Address;
+                    } else if (joinScript.MachineAddress) {
+                        ip = joinScript.MachineAddress;
+                    }
+
+                    if (ip) {
+                        server.dataset.rovalraIp = ip;
+                        changed = true;
+                    }
+                }
+
+                if (changed) {
+                    displayIpAndDcId(server);
+                }
+            }
+
+            if (info.status === 12) {
+                if (info.message?.includes("private instance")) {
+                    if (!serverLocations[serverId]) {
+                        serverLocations[serverId] = 'private';
+                        displayPrivateServerStatus(server);
+                    }
+                    return;
+                }
+                if (info.message?.toLowerCase().includes("purchase access")) {
+                    if (!serverLocations[serverId]) {
+                        serverLocations[serverId] = 'purchase';
+                        displayPurchaseGameStatus(server);
+                    }
+                    return;
+                }
             }
 
 
             if (info.status === 5) {
-                serverLocations[serverId] = 'inactive';
-                displayInactivePlaceStatus(server); 
+                if (!serverLocations[serverId]) {
+                    serverLocations[serverId] = 'inactive';
+                    displayInactivePlaceStatus(server);
+                }
                 return;
             }
             
@@ -569,8 +703,10 @@ export async function fetchAndDisplayRegion(server, serverId, serverIpMap, serve
             }
 
             if (info.joinScript?.PlaceVersion) {
-                serverVersionsCache[serverId] = info.joinScript.PlaceVersion;
-                displayPlaceVersion(server, info.joinScript.PlaceVersion, serverLocations);
+                if (!serverVersionsCache[serverId]) {
+                    serverVersionsCache[serverId] = info.joinScript.PlaceVersion;
+                    displayPlaceVersion(server, info.joinScript.PlaceVersion, serverLocations);
+                }
             }
 
             if (!serverLocations[serverId] || serverLocations[serverId] === 'Unknown Region' || serverLocations[serverId] === 'Unknown') {
@@ -613,28 +749,22 @@ export function cleanupServerUI(server) {
     });
 }
 
+let cleanupObserverInitialized = false;
+
 export function attachCleanupObserver(server) {
-    if (server.dataset.rovalraCleanupAttached) return;
-    
-    const observer = new MutationObserver(mutations => {
-        mutations.forEach(m => {
-            m.addedNodes.forEach(node => {
-                if (node.nodeType !== 1) return;
-                const isTarget = node.matches?.('.share-button, .server-performance');
-                if (isTarget && !isExcludedButton(node)) {
-                    node.remove();
-                }
-            });
-        });
-    });
-    
-    observer.observe(server, { childList: true, subtree: true });
-    server.dataset.rovalraCleanupAttached = 'true';
+    if (cleanupObserverInitialized) return;
+    cleanupObserverInitialized = true;
+
+    observeElement('.share-button, .server-performance', (node) => {
+        if (!isExcludedButton(node) && node.closest('[data-rovalra-serverid]')) {
+            node.remove();
+        }
+    }, { multiple: true });
 }
 
 export async function addCopyJoinLinkButton(server, serverId) {
     await cacheReadyPromise;
-    if (isShareLinkEnabled === false) return;
+    if (isShareLinkEnabled === false || !isServerListModificationsEnabled) return;
 
     if (server.querySelector('.rovalra-copy-join-link')) return;
 
@@ -649,7 +779,7 @@ export async function addCopyJoinLinkButton(server, serverId) {
     btn.onclick = (e) => {
         e.preventDefault();
         e.stopPropagation();
-        const link = `https://www.fishstrap.app/joingame?placeId=${placeId}&gameInstanceId=${serverId}`;
+        const link = `https://www.fishstrap.app/v1/joingame?placeId=${placeId}&gameInstanceId=${serverId}`;
         navigator.clipboard.writeText(link).then(() => {
             btn.textContent = 'Copied!';
             setTimeout(() => btn.textContent = 'Share', 2000);
@@ -670,6 +800,8 @@ export async function addCopyJoinLinkButton(server, serverId) {
 export async function enhanceServer(server, context) {
     await cacheReadyPromise;
 
+    if (!isServerListModificationsEnabled) return;
+
     injectStyles();
 
     const { serverLocations, serverUptimes, serverPerformanceCache, uptimeBatch, serverIpMap, processUptimeBatch } = context;
@@ -679,7 +811,13 @@ export async function enhanceServer(server, context) {
         server.addEventListener('rovalra-serverid-set', server._rovalraListener);
     }
 
-    const serverId = server.getAttribute('data-rovalra-serverid');
+    let serverId = server.getAttribute('data-rovalra-serverid');
+    const isPrivate = server.classList.contains('rbx-private-game-server-item');
+
+    if (!serverId && isPrivate) {
+        serverId = server.dataset.accessCode;
+    }
+
     if (!serverId) return;
 
     const lastId = server._rovalraLastProcessedId;
@@ -703,8 +841,10 @@ export async function enhanceServer(server, context) {
 
     displayPerformance(server, serverPerformanceCache[serverId] ?? 'Unknown', serverLocations);
     
-    const cachedUptime = serverUptimes[serverId];
-    displayUptime(server, cachedUptime !== undefined ? cachedUptime : 'fetching', serverLocations);
+    if (!isPrivate) {
+        const cachedUptime = serverUptimes[serverId];
+        displayUptime(server, cachedUptime !== undefined ? cachedUptime : 'fetching', serverLocations);
+    }
 
     const cachedVersion = serverVersionsCache[serverId];
     displayPlaceVersion(server, cachedVersion || 'Unknown', serverLocations);
@@ -719,7 +859,7 @@ export async function enhanceServer(server, context) {
             serverVersionsCache[serverId] = apiData.place_version;
             displayPlaceVersion(server, apiData.place_version, serverLocations);
         }
-        if (apiData.first_seen) {
+        if (apiData.first_seen && !isPrivate) {
             const date = new Date(apiData.first_seen.endsWith('Z') ? apiData.first_seen : apiData.first_seen + 'Z');
             const uptime = isNaN(date) ? 0 : Math.max(0, (new Date() - date) / 1000);
             serverUptimes[serverId] = uptime;
@@ -735,23 +875,26 @@ export async function enhanceServer(server, context) {
 
 
     if (isServerUptimeEnabled || isServerRegionEnabled || isPlaceVersionEnabled) {
-        if (serverUptimes[serverId] === undefined) {
+        if (serverUptimes[serverId] === undefined && !isPrivate) {
             serverUptimes[serverId] = 'fetching';
             uptimeBatch.add(serverId);
             clearTimeout(server._rovalraUptimeTimeout);
             server._rovalraUptimeTimeout = setTimeout(() => processUptimeBatch(), 100);
-        } else if (serverUptimes[serverId] === 'fetching') {
+        } else if (serverUptimes[serverId] === 'fetching' && !isPrivate) {
             displayUptime(server, 'fetching', serverLocations);
         }
     }
 
-    fetchAndDisplayRegion(server, serverId, serverIpMap, serverLocations);
+    fetchAndDisplayRegion(server, serverId, serverIpMap, serverLocations, { isPrivate, accessCode: server.dataset.accessCode });
 
-    addCopyJoinLinkButton(server, serverId);
+    displayIpAndDcId(server);
+    if (!isPrivate) {
+        addCopyJoinLinkButton(server, serverId);
+    }
     enableAvatarLinks(server);
 
 
-    if (isFullServerIDEnabled) {
+    if (isFullServerIDEnabled && !isPrivate) {
         let idDiv = server.querySelector('.server-id-text');
         if (!idDiv) {
             idDiv = document.createElement('div');

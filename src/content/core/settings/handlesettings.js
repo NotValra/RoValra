@@ -54,7 +54,7 @@ export const handleSaveSettings = async (settingName, value) => {
                     }
                     break;
                     
-                case 'number':
+                case 'number': {
                     const numValue = Number(value);
                     if (isNaN(numValue)) {
                         console.warn(`Invalid number value for '${settingName}' - setting to default`);
@@ -69,6 +69,7 @@ export const handleSaveSettings = async (settingName, value) => {
                         }
                     }
                     break;
+                }
                     
                 case 'text':
                 case 'input':
@@ -233,11 +234,9 @@ export const initSettings = async (settingsContent) => {
                             if (previewElement && settings[settingName]) {
                                 previewElement.src = settings[settingName];
                                 previewElement.style.display = 'block';
-                                if (clearButton) clearButton.style.display = 'inline-block';
                             } else if (previewElement) {
                                 previewElement.src = '#';
                                 previewElement.style.display = 'none';
-                                if (clearButton) clearButton.style.display = 'none';
                             }
                         }
                     }

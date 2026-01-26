@@ -1,4 +1,3 @@
-// TODO get rid of this script
 export const getCsrfToken = (() => {
     let csrfToken = null;
     let pendingPromise = null;
@@ -11,11 +10,8 @@ export const getCsrfToken = (() => {
                 return csrfToken;
             }
             
-            const response = await fetch('https://auth.roblox.com/v1/logout', { method: 'POST', credentials: 'include' });
-            const token = response.headers.get('x-csrf-token');
-            if (!token) throw new Error('CSRF token not found in response header');
-            csrfToken = token;
-            return token;
+            
+           
         } catch (error) {
             console.error("RoValra (Utils): Failed to get CSRF token.", error);
             pendingPromise = null; 

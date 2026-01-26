@@ -3,6 +3,7 @@
 let observerInitialized = false; 
 let observationRequests = []; 
 let globalObserver = null; 
+let attributeListeners = new Map();
 
 
 export function initializeObserver() {
@@ -28,6 +29,12 @@ export function initializeObserver() {
         }
 
         for (const mutation of mutationsList) {
+            if (mutation.type === 'attributes') {
+                const listener = attributeListeners.get(mutation.target);
+                if (listener) listener(mutation);
+                continue;
+            }
+
             if (mutation.addedNodes.length === 0) continue;
 
             for (const addedNode of mutation.addedNodes) {
@@ -64,7 +71,7 @@ export function initializeObserver() {
                 }
             }
         }
-    });
+    }); //Verified
 
     observerInitialized = true;
 }
@@ -97,6 +104,21 @@ export const observeElement = (selector, callback, options = {}) => {
             callback(existingElement);
         }
     }
+
+    return request;
+};
+
+export const observeAttributes = (element, callback, attributeFilter = []) => {
+    if (!observerInitialized) initializeObserver();
+
+    attributeListeners.set(element, callback);
+    globalObserver.observe(element, { attributes: true, attributeFilter });
+
+    return {
+        disconnect: () => {
+            attributeListeners.delete(element);
+        }
+    };
 };
 
 

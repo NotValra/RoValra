@@ -399,7 +399,8 @@ function renderDocsPage(contentDiv, suppressWarning = false) {
                             responseContainer.innerHTML = `
                                 <div style="margin-bottom: 5px;"><strong>Status:</strong> <span style="color: ${statusColor}; font-weight: bold;">${response.status} ${safeStatusText}</span></div>
                                 <pre style="background: rgba(0,0,0,0.1); padding: 10px; border-radius: 4px; overflow: auto; max-height: 400px;">${safeResponseText}</pre>
-                            `;
+                            `;// Verified
+                            // Purified the stuff in different places
                         } catch (err) {
                             responseContainer.innerHTML = `<div style="color: #f93e3e;">Error: ${err.message}</div>`;
                         }

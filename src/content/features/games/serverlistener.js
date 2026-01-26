@@ -20,7 +20,7 @@ async function sendToLocalAPI(placeId, serverIds) {
                 server_ids: serverIds 
             }
         });
-    } catch (apiError) {}
+    } catch (apiError) {console.error(apiError);}
 }
 
 function processServerData(placeId, responseData) {

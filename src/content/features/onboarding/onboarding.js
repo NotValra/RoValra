@@ -1,7 +1,6 @@
 import { createOverlay } from '../../core/ui/overlay.js';
 import { createButton } from '../../core/ui/buttons.js';
 import { getAssets } from '../../core/assets.js';
-import DOMPurify from 'dompurify';
 
 export function init() {
     chrome.storage.local.get({ onboardingShown: false }, function(settings) {
@@ -29,7 +28,7 @@ export function init() {
                 <p style="line-height: 1.6;">
                     RoValra is a forever free Roblox extension trying to provide quality of life to everyone!
                 </p>
-            `;
+            `;// Verified
 
             const acknowledgeOnboarding = () => {
                 chrome.storage.local.set({ onboardingShown: true }, function() {

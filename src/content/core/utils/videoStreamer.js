@@ -1,9 +1,10 @@
 // Turns Robloxs videos into watchable videos!!!
+import { callRobloxApi } from '../api.js';
 const MIME_TYPE = 'video/webm; codecs="vp9,opus"';
 const BUFFER_AHEAD_SECONDS = 30; 
 
-export async function streamRobloxVideo(requestJson, videoElement, onProgress = () => {}) {
-    return new Promise(async (resolve, reject) => {
+export function streamRobloxVideo(requestJson, videoElement, onProgress = () => {}) {
+    return new Promise((resolve, reject) => {
         if (!requestJson || !Array.isArray(requestJson) || !requestJson[0]?.location) {
             return reject(new Error("Invalid video data: Asset is likely not a video."));
         }
@@ -138,14 +139,14 @@ function shouldPauseBuffering(video) {
 
 
 async function fetchText(url) {
-    const resp = await fetch(url);
+    const resp = await callRobloxApi({ fullUrl: url, credentials: 'omit' });
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     return await resp.text();
 }
 
 
 async function fetchBuffer(url) {
-    const resp = await fetch(url);
+    const resp = await callRobloxApi({ fullUrl: url, credentials: 'omit' });
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     return await resp.arrayBuffer();
 }

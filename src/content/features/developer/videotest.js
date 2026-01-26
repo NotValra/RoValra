@@ -17,7 +17,9 @@ function waitForBody() {
                 observer.disconnect();
                 resolve();
             }
-        });
+        }); // Verified 
+
+        // Shouldnt matter too much as it is just a test page
         observer.observe(document.documentElement, { childList: true });
     });
 }
@@ -140,10 +142,9 @@ export async function init() {
             <video id="rovalra-player" controls autoplay style="width: 80vw; max-width: 1000px; box-shadow: 0 0 20px #000; border-radius: 8px; background: #000;"></video>
             
             <br/>
-            <!-- Hidden by default -->
             <button id="dl-btn" style="margin-top:20px; padding:10px 20px; cursor:pointer; display:none;">Save Full MP4</button>
         </div>
-    `;
+    `;// Verified
 
     const statusText = document.getElementById('status-text');
     const videoElement = document.getElementById('rovalra-player');

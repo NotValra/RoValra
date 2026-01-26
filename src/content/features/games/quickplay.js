@@ -1,5 +1,6 @@
 
 
+import { showReviewPopup } from '../../core/review/review.js';
 import { observeElement } from '../../core/observer.js';
 import { callRobloxApi } from '../../core/api.js';
 import { launchGame, launchPrivateGame } from '../../core/utils/launcher.js';
@@ -377,6 +378,7 @@ function renderPrivateServers(placeId, servers, nextPageCursor, thumbnails, appe
         joinBtn.onclick = (e) => {
             e.preventDefault(); e.stopPropagation();
             launchPrivateGame(placeId, server.accessCode, server.vipServerId);
+            showReviewPopup('quickplay');
             hidePrivateServersOverlay();
         };
         el.appendChild(joinBtn);
@@ -513,7 +515,10 @@ async function setupHoverCard(gameLink, settings) {
 
     const handleNormalJoin = (e) => {
         e.preventDefault(); e.stopPropagation(); hidePrivateServersOverlay();
-        if (placeId) launchGame(placeId);
+        if (placeId) {
+            launchGame(placeId);
+            showReviewPopup('quickplay');
+        }
     };
 
     const playBtn = document.createElement('button');
@@ -582,18 +587,11 @@ async function addRegionTooltip(button) {
     attachTooltip(button, text);
 }
 
-function injectStyles() {
-    const style = document.createElement('style');
-    style.textContent = CSS_STYLES;
-    document.head.appendChild(style);
-}
-
 function initializeQuickPlay() {
     if (window.hasRunQuickPlayScript) return;
     window.hasRunQuickPlayScript = true;
     window.EMULATE_API_FAILURE = true;
 
-    injectStyles();
     State.currentUserId = getCurrentUserId();
     initializeData();
     createGlobalPrivateServerContainer();
@@ -640,6 +638,7 @@ export function init() {
             else initializeQuickPlay();
         }
     });
+<<<<<<< HEAD
 }
 
 const CSS_STYLES = `
@@ -699,3 +698,6 @@ body:not(.dark-theme) #rovalra-private-servers-global-container::-webkit-scrollb
 .featured-game-container a.game-tile-styles.game-card-link::before,
 .featured-game-container .hover-background { position: absolute; top: 16px; left: 16px; background: none; border: none; cursor: pointer; padding: 4px; color: #FFF; }
 `;
+=======
+}
+>>>>>>> origin/main

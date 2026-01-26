@@ -68,7 +68,7 @@ async function fetchTransactions(groupId) {
 
                 let foundPendingSale = false;
                 for (const transaction of currentPageTransactions) {
-                    if (transaction.hasOwnProperty('isPending') && transaction.isPending) {
+                    if (Object.prototype.hasOwnProperty.call(transaction, 'isPending') && transaction.isPending) {
                         foundPendingSale = true;
                         break;
                     }
@@ -111,7 +111,7 @@ function inferPendingDuration(transactionsList) {
     const now = new Date();
 
     for (const transaction of transactionsList) {
-        if (transaction.hasOwnProperty('isPending') && !transaction.isPending) {
+        if (Object.prototype.hasOwnProperty.call(transaction, 'isPending') && !transaction.isPending) {
             const createdStr = transaction.created;
             if (!createdStr) continue;
 
@@ -158,7 +158,7 @@ function calculateUnpendingRobux(transactionsList, pendingDaysToUse) {
     const tomorrowUTCDateString = tomorrow.toISOString().split('T')[0];
 
     for (const transaction of transactionsList) {
-        if (!transaction.hasOwnProperty('isPending') || transaction.isPending) {
+        if (!Object.prototype.hasOwnProperty.call(transaction, 'isPending') || transaction.isPending) {
             const createdStr = transaction.created;
             const amount = transaction.currency?.amount;
 
@@ -257,7 +257,7 @@ function injectResultElement(targetElement, result) {
             <td class="icon-robux-container amount-cell">
                 ${amountHtml}
             </td>
-        `;
+        `; // Verified
 
         const infoIcon = estimatorRow.querySelector('.icon-moreinfo');
         if (infoIcon) {

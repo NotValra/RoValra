@@ -12,6 +12,7 @@ export function createOverlay({
     showLogo = false,
     preventBackdropClose = false,
     onClose,
+    overflowVisible = false,
 }) {
     const overlay = document.createElement('div');
     overlay.className = 'rovalra-global-overlay';
@@ -21,15 +22,33 @@ export function createOverlay({
     content.setAttribute('role', 'dialog');
     content.style.maxWidth = maxWidth;
     content.style.maxHeight = maxHeight;
+    content.style.display = 'flex';
+    content.style.flexDirection = 'column';
+    if (overflowVisible) {
+        content.style.overflow = 'visible';
+    } else {
+        content.style.overflow = 'clip';
+        content.style.overflowClipMargin = '30px';
+    }
 
     const closeButtonContainer = document.createElement('div');
     closeButtonContainer.className = 'rovalra-overlay-close';
 
     const body = document.createElement('div');
     body.className = 'rovalra-overlay-body';
+    body.style.flex = '1';
+    if (overflowVisible) {
+        body.style.overflowY = 'visible';
+    } else {
+        body.style.overflowY = 'auto';
+    }
+    body.style.minHeight = '0';
 
     const titleElement = document.createElement('div');
     titleElement.className = 'rovalra-overlay-header';
+    titleElement.style.display = 'flex';
+    titleElement.style.alignItems = 'center';
+    titleElement.style.flexShrink = '0';
 
     if (showLogo) {
         const assetName =
@@ -70,6 +89,7 @@ export function createOverlay({
     if (actions.length > 0) {
         const footer = document.createElement('div');
         footer.className = 'rovalra-overlay-footer';
+        footer.style.flexShrink = '0';
         actions.forEach((button) => footer.appendChild(button));
         content.appendChild(footer);
     }

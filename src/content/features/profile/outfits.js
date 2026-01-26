@@ -1,3 +1,4 @@
+import { showReviewPopup } from '../../core/review/review.js';
 import { observeElement } from '../../core/observer.js';
 import { createAssetIcon } from '../../core/ui/general/toast.js';
 import { createCloseButton } from '../../core/ui/closeButton.js';
@@ -1042,6 +1043,7 @@ export function init() {
             }
 
             const clickHandler = async (event) => {
+                showReviewPopup('outfits');
                 const displayNameElement = document.querySelector(
                     '#profile-header-title-container-name',
                 );

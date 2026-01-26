@@ -3,6 +3,7 @@
 import { callRobloxApi } from '../../api.js';
 import { addTooltip } from '../../ui/tooltip.js';
 import DOMPurify from 'dompurify';
+import { observeElement, startObserving } from '../../observer.js';
 
 
 let versionDataCache = null;
@@ -65,6 +66,10 @@ export async function fetchServerStats(placeId) {
             throw new Error("API returned an error or invalid data.");
         }
 
+        if (data.counts.regions) {
+            data.counts.total_servers = Object.values(data.counts.regions).reduce((acc, val) => acc + (Number(val) || 0), 0);
+        }
+
         const robloxVersion = await fetchLatestPlaceVersion(placeId);
         
         if (robloxVersion) {
@@ -84,83 +89,6 @@ function detectTheme() {
 }
 
 
-let statsStylesInjected = false;
-function injectStatsStyles() {
-    if (statsStylesInjected) return;
-    statsStylesInjected = true;
-
-    const statsCss = `
-        .rovalra-region-stats-bar {
-            display: inline-flex;
-            align-items: center;
-            padding: 8px 12px;
-            margin: 0 8px 0 0;
-            gap: 8px;
-                    border: none;
-                    border-radius: 0;
-        }
-        .rovalra-region-stats-bar.dark { 
-            background-color: var(--rovalra-container-background-color);
-        }
-        .rovalra-region-stats-bar.light { 
-            background-color: var(--rovalra-container-background-color);
-        }
-        .rovalra-stat-item { 
-            display: flex; 
-            align-items: center; 
-            gap: 6px; 
-        }
-        .rovalra-stat-item .stat-icon { 
-            width: 20px; 
-            height: 20px;
-        }
-        .rovalra-stat-item .stat-icon.dark {
-            color: var(--rovalra-main-text-color);
-        }
-        .rovalra-stat-item .stat-icon.light {
-            color: var(--rovalra-main-text-color);
-        }
-        .rovalra-stat-item .stat-text { 
-            display: flex; 
-            align-items: baseline;
-            gap: 4px;
-        }
-        .rovalra-stat-item .stat-value { 
-            font-size: 14px; 
-            font-weight: 600; 
-            line-height: 1;
-        }
-        .rovalra-stat-item .stat-value.dark {
-            color: var(--rovalra-main-text-color);
-        }
-        .rovalra-stat-item .stat-value.light {
-            color: var(--rovalra-main-text-color);
-        }
-        .rovalra-stat-item .stat-label { 
-            font-size: 12px; 
-            font-weight: 400; 
-            line-height: 1;
-        }
-        .rovalra-stat-item .stat-label.dark {
-            color: var(--rovalra-main-text-color);
-        }
-        .rovalra-stat-item .stat-label.light {
-            color: var(--rovalra-main-text-color);
-        }
-        .rovalra-stats-loader { 
-            text-align: center; 
-            width: 100%; 
-            color: var(--rovalra-secondary-text-color); 
-            font-size: 14px; 
-            padding: 10px; 
-        }
-    `;
-
-    const styleSheet = document.createElement("style");
-    styleSheet.innerText = statsCss;
-    document.head.appendChild(styleSheet);
-}
-
 function createStatItem(icon, label, value, theme) {
     return `
         <div class="rovalra-stat-item">
@@ -173,10 +101,10 @@ function createStatItem(icon, label, value, theme) {
 }
 
 
-function applyVersionAttributes() {
+function applyVersionAttributes(element) {
     if (!versionDataCache) return;
 
-    const serverItemContainer = document.getElementById('rbx-public-game-server-item-container');
+    const serverItemContainer = element || document.getElementById('rbx-public-game-server-item-container');
     if (serverItemContainer && !serverItemContainer.hasAttribute('data-newest-version')) {
         if (versionDataCache.newest_place_version) {
             serverItemContainer.dataset.newestVersion = versionDataCache.newest_place_version;
@@ -280,30 +208,24 @@ export async function initGlobalStatsBar() {
     if (statsBarObserverAttached) {
         return;
     }
-    statsBarObserverAttached = true;
-
-    injectStatsStyles();
-
-    const mainObserver = new MutationObserver(() => {
-        applyVersionAttributes();
-
-        const serverListContainer = document.getElementById('rbx-public-running-games');
-        if (serverListContainer && versionDataCache) {
-            createStatsBarUI(serverListContainer);
-        }
-    });
-
-    mainObserver.observe(document.body, {
-        childList: true,
-        subtree: true
-    });
 
     const placeId = window.location.pathname.match(/\/games\/(\d+)\//)?.[1];
     if (!placeId) {
-        mainObserver.disconnect();
-        statsBarObserverAttached = false;
         return;
     }
+
+    statsBarObserverAttached = true;
+    startObserving();
+
+    observeElement('#rbx-public-game-server-item-container', (element) => {
+        applyVersionAttributes(element);
+    });
+
+    observeElement('#rbx-public-running-games', (element) => {
+        if (versionDataCache) {
+            createStatsBarUI(element);
+        }
+    });
 
     try {
         const data = await fetchServerStats(placeId);

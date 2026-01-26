@@ -1,4 +1,4 @@
-import { observeElement } from '../../../core/observer.js';
+import { observeElement, observeAttributes } from '../../../core/observer.js';
 import { createOverlay } from '../../../core/ui/overlay.js';
 import { createSearchInput } from '../../../core/ui/general/gameInput.js';
 import { createSquareButton } from '../../../core/ui/profile/header/squarebutton.js';
@@ -160,12 +160,48 @@ export function init() {
             goBackButton.innerText = 'Cancel';
             goBackButton.className = 'btn-control-md';
 
+            let cleanupDropdown = null;
+
             const { close } = createOverlay({
                 title: 'Confirm Action',
                 bodyContent: bodyContent,
                 actions: [goBackButton, continueButton],
                 maxWidth: '480px',
+                onClose: () => {
+                    if (cleanupDropdown) cleanupDropdown();
+                }
             });
+
+            const dropdown = searchInputComponent.element.querySelector('.game-search-dropdown');
+            if (dropdown) {
+                document.body.appendChild(dropdown);
+                dropdown.style.zIndex = '10005';
+                dropdown.addEventListener('click', (e) => e.stopPropagation());
+
+                const updatePosition = () => {
+                    const rect = searchInputComponent.input.getBoundingClientRect();
+                    dropdown.style.position = 'absolute';
+                    dropdown.style.top = `${rect.bottom + window.scrollY + 5}px`;
+                    dropdown.style.left = `${rect.left + window.scrollX}px`;
+                    dropdown.style.width = `${rect.width}px`;
+                };
+
+                const observer = observeAttributes(dropdown, () => {
+                    if (dropdown.style.display !== 'none') {
+                        updatePosition();
+                    }
+                }, ['style']);
+
+                window.addEventListener('resize', updatePosition);
+                window.addEventListener('scroll', updatePosition, { capture: true });
+
+                cleanupDropdown = () => {
+                    dropdown.remove();
+                    window.removeEventListener('resize', updatePosition);
+                    window.removeEventListener('scroll', updatePosition, { capture: true });
+                    observer.disconnect();
+                };
+            }
 
             continueButton.onclick = () => {
                 let specificPlaceId = null;
@@ -266,7 +302,7 @@ export function init() {
             observedElement.prepend(button);
         }
 
-        const selector = '.profile-header-buttons, .buttons-show-on-desktop';
+        const selector = '.profile-header-buttons, .buttons-show-on-desktop, .buttons-show-on-mobile';
         observeElement(selector, addInstantJoinButton, { multiple: true });
     });
 }

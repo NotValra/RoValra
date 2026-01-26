@@ -86,13 +86,8 @@ function addHeaderBadges(nameContainer) {
     const parentContainer = nameContainer.parentElement;
     if (!parentContainer) return;
 
-    const observer = new MutationObserver((mutations) => {
-        for (const mutation of mutations) {
-            if (mutation.type === 'childList' && !parentContainer.querySelector('.rovalra-header-badge')) {
-                reapplyBadges();
-            }
-        }
-    });
+    const uniqueId = Date.now().toString(36) + Math.random().toString(36).substr(2);
+    nameContainer.dataset.rovalraId = uniqueId;
 
     const reapplyBadges = () => {
         parentContainer.querySelectorAll('.rovalra-header-badge').forEach(badge => badge.remove());
@@ -111,8 +106,13 @@ function addHeaderBadges(nameContainer) {
         });
     };
 
-    observer.observe(parentContainer, { childList: true, subtree: true });
     reapplyBadges(); 
+
+    observeElement(`[data-rovalra-id="${uniqueId}"] .rovalra-header-badge`, () => {}, {
+        onRemove: () => {
+            if (!nameContainer.querySelector('.rovalra-header-badge')) reapplyBadges();
+        }
+    });
 }
 
 
