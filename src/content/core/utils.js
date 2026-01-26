@@ -1,4 +1,3 @@
-// TODO get rid of this script
 export const getCsrfToken = (() => {
     let csrfToken = null;
     let pendingPromise = null;
