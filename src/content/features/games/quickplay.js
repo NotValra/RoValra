@@ -595,14 +595,6 @@ function initializeQuickPlay() {
     State.currentUserId = getCurrentUserId();
     initializeData();
     createGlobalPrivateServerContainer();
-	
-	observeElement('.list-item.hover-game-tile.grid-tile.old-hover', (el) => {
-		if (el.classList.contains('focused')) el.classList.remove('focused');
-		const o = new MutationObserver(() => {
-			if (el.classList.contains('focused')) el.classList.remove('focused');
-		});
-		o.observe(el, { attributes: true, attributeFilter: ['class'] });
-	}, { multiple: true });
 
     chrome.storage.local.get({
         PreferredRegionEnabled: true,
@@ -619,6 +611,8 @@ function initializeQuickPlay() {
             
             gameLink.addEventListener('mouseenter', () => setupHoverCard(gameLink, settings));
             gameLink.addEventListener('mouseleave', () => scheduleCardCleanup(gameLink));
+            gameLink.addEventListener('focus', () => setupHoverCard(gameLink, settings));
+            gameLink.addEventListener('blur', () => scheduleCardCleanup(gameLink));
         };
 
         observeElement('a.game-card-link[href*="/games/"]', onCardFound, { multiple: true });
@@ -638,66 +632,5 @@ export function init() {
             else initializeQuickPlay();
         }
     });
-<<<<<<< HEAD
+
 }
-
-const CSS_STYLES = `
-.scroller-new, .scroller { z-index: 5 !Important; }
-a.game-tile-styles.game-card-link { position: relative; display: block; z-index: 2; transform: translateZ(0); }
-a.game-tile-styles.game-card-link:hover { z-index: 2; }
-a.game-tile-styles.game-card-link::after { content: ''; position: absolute; top: -2.5%; left: -2.5%; width: 105%; height: 105%; z-index: 1; }
-a.game-tile-styles.game-card-link::before, .hover-background { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; border-radius: 12px !Important; opacity: 0; transition: opacity 0.15s ease-out, top 0.15s ease-out, left 0.15s ease-out, right 0.15s ease-out, bottom 0.15s ease-out; pointer-events: none; will-change: opacity, top, left, right, bottom; }
-a.game-tile-styles.game-card-link::before { box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3); z-index: -2; }
-.hover-background { background-color: var(--rovalra-container-background-color); z-index: -1; }
-a.game-tile-styles.game-card-link:hover::before, a.game-tile-styles.game-card-link.quick-play-hover-active::before { opacity: 1; top: -5px; left: -5px; right: -5px; bottom: -5px; }
-a.game-tile-styles.game-card-link:hover .hover-background, a.game-tile-styles.game-card-link.quick-play-hover-active .hover-background { opacity: 1; top: -5px; left: -5px; right: -5px; bottom: -5px; }
-a.game-tile-styles.game-card-link:hover .game-card-name, a.game-tile-styles.game-card-link.quick-play-hover-active .game-card-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
-a.game-tile-styles.game-card-link:hover .game-card-native-ad, a.game-tile-styles.game-card-link.quick-play-hover-active .game-card-native-ad { display: none; }
-.quick-play-original-stats { z-index: 5; transition: transform 0.15s ease-out; will-change: transform; }
-a.game-tile-styles.game-card-link:hover .quick-play-original-stats.game-card-friend-info,
-a.game-tile-styles.game-card-link.quick-play-hover-active .quick-play-original-stats.game-card-friend-info { transform: translateY(-30px); }
-a.game-tile-styles.game-card-link:hover .quick-play-original-stats.game-card-info:not(.game-card-friend-info),
-a.game-tile-styles.game-card-link.quick-play-hover-active .quick-play-original-stats.game-card-info:not(.game-card-friend-info) { transform: translateY(-25px); }
-.play-button-overlay { display: flex; flex-direction: column; position: absolute; bottom: -8px; left: 0px; right: 0px; z-index: 10; opacity: 0; gap: 0px; transform: translateY(0px); transition: opacity 0.2s ease-out, transform 0.2s ease-out; pointer-events: none; }
-a.game-tile-styles.game-card-link:hover .play-button-overlay, a.game-tile-styles.game-card-link.quick-play-hover-active .play-button-overlay { opacity: 1; transform: translateY(0); transition-delay: 0.1s; }
-.play-buttons-wrapper { display: flex; gap: 4px; width: 100%; }
-.play-game-button, .server-browser-button, .private-servers-button { pointer-events: auto; background-color: var(--rovalra-playbutton-color); color: white; border: none; padding: 4px; line-height: 0; border-radius: 6px; cursor: pointer; transition: background-color 0.2s; display: flex; align-items: center; justify-content: center; height: 28px; }
-.play-game-button:hover, .server-browser-button:hover, .private-servers-button:hover { background-color: var(--rovalra-playbutton-color); }
-.play-game-button { flex-grow: 1; position: relative; }
-.server-browser-button, .private-servers-button { position: relative; flex-shrink: 0; padding: 0 6px; }
-
-.tooltip, .tooltip.in, .tooltip.fade.in { z-index: 10010 !important; }
-.tooltip .tooltip-inner { z-index: 10011 !important; }
-.private-server-item { display: flex; align-items: center; padding: 12px; border-radius: 8px; transition: background-color 0.2s; }
-.private-server-item:not(:last-child) { margin-bottom: 8px; }
-.private-server-item:hover { background-color: transparent; }
-.private-server-info { display: flex; flex-direction: column; gap: 3px; color: var(--rovalra-secondary-text-color); font-size: 13px; flex-grow: 1; min-width: 0; flex: 1 1 auto; }
-.private-server-name { font-weight: 500; color: var(--rovalra-main-text-color); font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.private-server-players { color: var(--rovalra-secondary-text-color); flex: none; white-space: nowrap; }
-.private-server-owner-thumb-link { flex-shrink: 0; margin-right: 12px; display: block; }
-.private-server-owner-thumb { width: 40px; height: 40px; border-radius: 50%; background-color: var(--rovalra-secondary-text-color); }
-.private-server-owner-actions { display: flex; gap: 8px; margin-left: 12px; flex-shrink: 0; }
-.private-server-join-btn, .private-server-action-btn { border: none; border-radius: 6px; cursor: pointer; transition: background-color 0.2s, opacity 0.2s; display: flex; align-items: center; justify-content: center; color: white; position: relative; height: 28px; flex-shrink: 0; }
-.private-server-join-btn { background-color: var(--rovalra-playbutton-color); width: 48px; margin-left: 8px; }
-.private-server-join-btn .icon-common-play { transform: scale(0.9); }
-.private-server-join-btn:hover { background-color: var(--rovalra-playbutton-color); }
-.private-server-action-btn { background-color: var(--rovalra-button-background-color); width: 28px !important; padding: 0 !important; box-sizing: border-box; }
-.private-server-action-btn:hover { background-color: var(--rovalra-button-background-color); }
-.private-server-action-btn:disabled { background-color: var(--rovalra-button-background-color); opacity: 0.5; cursor: not-allowed; }
-.private-server-action-btn svg, .private-server-action-btn img { width: 20px !important; height: 20px !important; display: block; }
-
-#rovalra-private-servers-global-container { position: absolute; z-index: 10002; display: flex; flex-direction: column; border-radius: 12px; opacity: 0; visibility: hidden; transform: translateY(-5px) scale(0.98); transition: opacity 0.2s ease, transform 0.2s ease, visibility 0s linear 0.2s; pointer-events: none; overflow-y: auto; overflow-x: hidden; }
-#rovalra-private-servers-global-container.visible { opacity: 1; visibility: visible; transform: translateY(0) scale(1); transition-delay: 0s; pointer-events: auto; }
-.rovalra-ps-list-container { padding: 8px; flex-grow: 1; box-sizing: border-box; }
-#rovalra-private-servers-global-container::-webkit-scrollbar { width: 8px; }
-#rovalra-private-servers-global-container::-webkit-scrollbar-track { background: transparent; }
-#rovalra-private-servers-global-container::-webkit-scrollbar-thumb { background-color: rgba(255, 255, 255, 0.2); border-radius: 4px; }
-body:not(.dark-theme) #rovalra-private-servers-global-container::-webkit-scrollbar-thumb { background-color: rgba(0, 0, 0, 0.2); }
-.rovalra-ps-list-container .private-server-item { background-color: transparent; }
-.featured-game-container a.game-tile-styles.game-card-link::after,
-.featured-game-container a.game-tile-styles.game-card-link::before,
-.featured-game-container .hover-background { position: absolute; top: 16px; left: 16px; background: none; border: none; cursor: pointer; padding: 4px; color: #FFF; }
-`;
-=======
-}
->>>>>>> origin/main

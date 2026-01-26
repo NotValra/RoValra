@@ -54,3 +54,46 @@ body:not(.dark-theme) #rovalra-private-servers-global-container::-webkit-scrollb
 .featured-game-container a.game-tile-styles.game-card-link::after,
 .featured-game-container a.game-tile-styles.game-card-link::before,
 .featured-game-container .hover-background { position: absolute; top: 16px; left: 16px; background: none; border: none; cursor: pointer; padding: 4px; color: #FFF; }
+.featured-game-container {
+    a.game-tile-styles.game-card-link {
+
+        .hover-background {
+            background: none !important;
+            background-color: transparent !important;
+            box-shadow: none !important;
+            opacity: 0 !important;
+        }
+
+        &::before {
+            box-shadow: none !important;
+            background: none !important;
+            opacity: 0 !important;
+        }
+
+ 
+        &::after {
+            background: none;
+            border: none;
+        }
+    }
+}
+
+.list-item.hover-game-tile.grid-tile.old-hover {
+
+    .featured-game-container {
+        a.game-tile-styles.game-card-link:hover .play-button-overlay {
+            opacity: 0 !important;
+            pointer-events: none;
+        }
+    }
+
+    &.focused {
+        .featured-game-container {
+            a.game-tile-styles.game-card-link .play-button-overlay {
+                opacity: 1 !important;
+                transform: translateY(0) !important;
+                pointer-events: auto;
+            }
+        }
+    }
+}
