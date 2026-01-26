@@ -611,6 +611,8 @@ function initializeQuickPlay() {
             
             gameLink.addEventListener('mouseenter', () => setupHoverCard(gameLink, settings));
             gameLink.addEventListener('mouseleave', () => scheduleCardCleanup(gameLink));
+            gameLink.addEventListener('focus', () => setupHoverCard(gameLink, settings));
+            gameLink.addEventListener('blur', () => scheduleCardCleanup(gameLink));
         };
 
         observeElement('a.game-card-link[href*="/games/"]', onCardFound, { multiple: true });
@@ -630,4 +632,5 @@ export function init() {
             else initializeQuickPlay();
         }
     });
+
 }
