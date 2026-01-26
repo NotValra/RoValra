@@ -1,6 +1,6 @@
 **Privacy Policy for RoValra Chrome Extension**
 
-**Effective Date:** 8/14/25
+**Effective Date:** January 26 2026
 
 **Introduction**
 
@@ -8,31 +8,34 @@ This Privacy Policy describes how the RoValra Chrome extension ("the Extension")
 
 **Information We Do Not Collect**
 
-RoValra does **not** collect, store, or transmit any personally identifiable information (PII) from users. This includes, but is not limited to, names, email addresses, browsing history, or any other data that could be used to identify you. The Extension primarily interacts with Roblox's services and APIs, a developer-controlled API, and potentially other third-party APIs as detailed in the **Third-Party Services** section.
+RoValra does **not** collect, store, or transmit any personally identifiable information (PII) from users as part of its application logic. This includes, but is not limited to, names, email addresses, browsing history, or any other data that could be used to identify you. The Extension primarily interacts with Roblox's services and APIs, developer-controlled APIs, and potentially other third-party APIs as detailed in the **Third-Party Services** section.
 
 **Optional Data Sharing**
 
-For certain features, the Extension sends specific, non-personal data—namely PlaceIds and serverIds—to a developer-controlled API. This data is used to enhance the functionality of the extension. 
+For certain features, the Extension sends specific, non-personal data—namely PlaceIds and serverIds—to a developer-controlled API. This data is used to enhance the functionality of the extension.
 
-This feature is **completely optional** and can be turned off at any point in the extension's settings. When this feature is active, only the PlaceId and serverId are transmitted. No data that could link a user to this information, such as an IP address or user ID, is sent or logged.
+This feature is **completely optional** and can be turned off at any point in the extension's settings. When this feature is active, only the PlaceId and serverId are transmitted in the data payload. No data that could link a user to this information is explicitly logged by our software.
 
 **Data Security**
 
-As the extension does not store or transmit your personal data to external servers controlled by us, traditional security measures like server-side encryption for user data are not applicable to our infrastructure. All processing involving potentially sensitive information like IP/geolocation occurs on your local machine.
+As the extension does not store or transmit your personal data to external servers for the purpose of data collection, traditional security measures like server-side encryption for user databases are not applicable. All processing involving potentially sensitive information like IP/geolocation generally occurs on your local machine. However, all network interactions with our APIs are secured via HTTPS and protected by standard network infrastructure providers.
 
 **Third-Party Services**
 
 To provide its features, RoValra interacts with several Application Programming Interfaces (APIs):
 
 1.  **Roblox's APIs:** Essential for interacting with the Roblox platform itself.
-2.  **Developer-Controlled API (Valra):** An API managed by the RoValra developer, used to retrieve specific data necessary for certain extension features. As mentioned in the **Optional Data Sharing** section, for some features, PlaceIds and serverIds are sent to this API.
+2.  **Developer-Controlled APIs (Valra):** The Extension interacts with various API endpoints managed by the RoValra developer to retrieve data and support functionality (including, but not limited to, the optional sharing of PlaceIds/serverIds).
+    *   **Infrastructure & Security:** **All** traffic between the Extension and any RoValra developer-controlled API is routed through **Cloudflare** for performance, optimization, and security (e.g., DDoS protection).
+    *   While the RoValra extension logic does not track your IP address, standard web traffic information—including your IP address—is necessarily processed by Cloudflare to establish the connection to our APIs. This applies to *any* interaction with our servers, regardless of the feature being used.
+    *   For information on how Cloudflare handles network data, please refer to [Cloudflare’s Privacy Policy](https://www.cloudflare.com/privacypolicy/).
 3.  **Other Third-Party APIs:** The Extension may interact with other external APIs not controlled by Roblox or the developer (Valra). These are used strictly to *retrieve* information required for specific features (e.g., fetching public data relevant to the extension's purpose).
 
-Crucially, the interaction with all APIs listed above is limited to *retrieving* information, with the explicit, optional exception of sending PlaceIds and serverIds as described above. **No personally identifiable information (PII), IP address, geolocation, or any other user-specific data is sent from the Extension to any of these APIs (Roblox, Valra, or other third parties).** Data flow is primarily one-way: the Extension requests public or necessary functional data *from* these services; it does not send your personal data *to* them.
+Crucially, the interaction with all APIs listed above is limited to *retrieving* information, with the explicit, optional exception of sending PlaceIds and serverIds as described above. **No personally identifiable information (PII) or user-specific data is explicitly sent by the Extension logic to any of these APIs.** Data flow is primarily one-way: the Extension requests public or necessary functional data *from* these services.
 
 **Data Retention**
 
-Since the extension does not collect or store any personal information on external servers, there is no data retention period applicable to user PII.
+Since the extension does not collect or store any personal information on external servers, there is no data retention period applicable to user PII. Network logs processed by our infrastructure provider (Cloudflare) are retained according to their specific policies for security and operational purposes only.
 
 **Children's Privacy**
 
