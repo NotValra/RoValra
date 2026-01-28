@@ -20,7 +20,7 @@ function createHeaderBadge(parentContainer, badge) {
     icon.src = badge.icon;
     Object.assign(icon.style, {
         width: 'var(--icon-size-large)',
-        height: 'var(--icon-size-large)',
+        height: 'var(--icon-size-large)', // Just to make it more consistent with Roblox
         cursor: 'pointer',
         ...badge.style
     });

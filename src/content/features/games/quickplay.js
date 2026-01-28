@@ -11,7 +11,7 @@ import { addTooltip as attachTooltip } from '../../core/ui/tooltip.js';
 import { performJoinAction, getSavedPreferredRegion } from '../../core/preferredregion.js';
 import { fetchThumbnails } from '../../core/thumbnail/thumbnails.js';
 import DOMPurify from 'dompurify';
-
+import { safeHtml } from '../../core/packages/dompurify.js';
 
 const PROCESSED_MARKER_CLASS = 'rovalra-quickplay-processed';
 const GLOBAL_CONTAINER_ID = 'rovalra-private-servers-global-container';
@@ -317,7 +317,7 @@ function renderPrivateServers(placeId, servers, nextPageCursor, thumbnails, appe
         el.className = 'private-server-item';
 
         const thumbUrl = thumbnails[server.owner.id];
-        el.innerHTML = DOMPurify.sanitize(`
+        el.innerHTML = safeHtml`
             <a href="https://www.roblox.com/users/${server.owner.id}/profile" target="_blank" class="private-server-owner-thumb-link">
                 <img class="private-server-owner-thumb" src="${thumbUrl || ''}">
             </a>
@@ -325,7 +325,7 @@ function renderPrivateServers(placeId, servers, nextPageCursor, thumbnails, appe
                 <span class="private-server-name" title="${server.name}">${server.name}</span>
                 <span class="private-server-players">${server.players.length} / ${server.maxPlayers}</span>
             </div>
-        `);
+        `;
 
         const thumbLink = el.querySelector('.private-server-owner-thumb-link');
         if (thumbLink) thumbLink.addEventListener('click', (e) => e.stopPropagation());

@@ -1,5 +1,4 @@
 import { showReviewPopup } from '../../core/review/review.js';
-import { createDropdown } from '../../core/ui/dropdown.js';
 import { observeElement } from '../../core/observer.js';
 import { callRobloxApiJson } from '../../core/api.js';
 import { createRadioButton } from '../../core/ui/general/radio.js';

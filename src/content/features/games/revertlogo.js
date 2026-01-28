@@ -1,6 +1,5 @@
 import { observeElement } from '../../core/observer.js';
-import { getAssets } from '../../core/assets.js';
-import { loadDatacenterMap, getRegionData, getFullRegionName } from '../../core/regions.js';
+import { loadDatacenterMap, getRegionData } from '../../core/regions.js';
 import { fetchThumbnails } from '../../core/thumbnail/thumbnails.js';
 import { callRobloxApi } from '../../core/api.js'; 
 import DOMPurify from 'dompurify';
