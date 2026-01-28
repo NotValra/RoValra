@@ -270,6 +270,7 @@ async function findServerViaRovalraApi(placeId, universeId, preferredRegionCode,
                             const info = await res.json();
                             if (info.joinScript) {
                                 joinedServerIds.add(server.server_id); 
+                                hideLoadingOverlay(true);
                                 launchGame(placeId, server.server_id);
                                 showReviewPopup('region_filters');
                                 return { status: 'JOINED' };
@@ -303,7 +304,7 @@ export async function performJoinAction(placeId, universeId, preferredRegionCode
         userRequestedStop = true;
         hideLoadingOverlay(true);
         if (onCancel) onCancel();
-    });
+    }, null, true);
 
     try {
         let joined = false;
@@ -438,6 +439,7 @@ export async function performJoinAction(placeId, universeId, preferredRegionCode
                         }
 
                         if (bestServerTier === 0) {
+                            hideLoadingOverlay(true);
                             joinedServerIds.add(bestServerFoundSoFar.id);
                             launchGame(placeId, bestServerFoundSoFar.id);
                             showReviewPopup('region_filters');
@@ -446,6 +448,7 @@ export async function performJoinAction(placeId, universeId, preferredRegionCode
                         }
 
                         if (!preferredRegionCode && bestServerTier <= 2 && pageCount > 5) {
+                            hideLoadingOverlay(true);
                             joinedServerIds.add(bestServerFoundSoFar.id);
                             launchGame(placeId, bestServerFoundSoFar.id);
                             showReviewPopup('region_filters');
