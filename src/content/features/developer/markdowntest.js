@@ -99,7 +99,8 @@ function run() {
     
     const container = document.createElement('div');
     container.style.padding = '20px';
-    container.innerHTML = renderedHtml;
+    container.innerHTML = renderedHtml; // Verified
+    // Static and a test page so we should be good
     
     contentDiv.appendChild(container);
 

@@ -1,0 +1,59 @@
+
+
+    .rovalra-dep-panel-content {
+        width: 100%; 
+        height: 100%;
+        box-sizing: border-box;
+        padding: 12px;
+    }
+
+    .rovalra-dep-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(126px, 1fr)); 
+        gap: 12px;
+    }
+
+    .rovalra-dep-grid .item-card-container {
+        width: 100% !important;
+        float: none !important;
+        margin: 0 !important;
+        height: auto !important;
+    }
+    
+    .rovalra-dep-grid .item-card-link {
+        display: block;
+        width: 100%;
+        cursor: pointer;
+    }
+
+    .rovalra-dep-grid .item-card-thumb-container {
+        width: 100%;
+        height: 100%;
+        position: relative;
+    }
+
+    .rovalra-dep-grid .thumbnail-2d-container {
+        display: block;
+        width: 100%;
+        padding-top: 100%; 
+        position: relative;
+        overflow: hidden;
+        border-radius: 4px;
+    }
+
+    .rovalra-dep-grid .item-card-name {
+        font-size: 14px;
+        margin-top: 4px;
+        font-weight: 600;
+        color: var(--rovalra-main-text-color);
+    }
+
+    .rovalra-dep-grid .item-card-creator {
+        margin-top: 2px;
+    }
+
+    #rovalra-dep-container {
+        margin-top: 8px;
+        width: 100%;
+        clear: both;
+    }
