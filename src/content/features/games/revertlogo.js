@@ -163,7 +163,7 @@ const buildInfoList = (gameId, isPrivateServer, regionCode, regionName, serverIn
     const listItems = [];
 
     if (gameId) {
-        listItems.push(`<li ${liClass}><strong>ServerID:</strong> <span class="rovalra-spoiler">${gameId}</span></li>`);
+        listItems.push(`<li style="white-space: nowrap;" ${liClass}><strong>ServerID:</strong> <span class="rovalra-spoiler" style="white-space: nowrap;">${gameId}</span></li>`);
     }
     
     if (isPrivateServer) listItems.push(`<li ${liClass}>${privIcon}<strong>Private Server</strong></li>`);
