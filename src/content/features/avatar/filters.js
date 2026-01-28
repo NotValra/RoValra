@@ -1,5 +1,5 @@
 import { checkAssetsInBatch } from '../../core/utils/assetStreamer.js';
-import { observeElement } from '../../core/observer.js';
+import { observeElement, observeAttributes } from '../../core/observer.js';
 import { createAvatarFilterUI } from '../../core/ui/FiltersUI.js';
 
 export function init() {
@@ -78,9 +78,12 @@ export function init() {
                 scanSessionId++; 
                 
                 activeObservers.forEach(obs => {
-                    if (obs) {
-                        if (typeof obs.disconnect === 'function') obs.disconnect();
-                        else if (typeof obs.stop === 'function') obs.stop(); 
+                    if (!obs) return;
+            
+                    if (typeof obs.disconnect === 'function') {
+                        obs.disconnect();
+                    } else if (obs.selector) {
+                        obs.active = false;
                     }
                 });
                 activeObservers = []; 
@@ -555,18 +558,13 @@ export function init() {
             function cleanupFeature() { document.getElementById('rovalra-fx-container')?.remove(); }
 
             function initBreadcrumbMonitor() {
-                const bcObs = observeElement('.breadcrumb-container', (breadcrumb) => {
-                    let previousText = breadcrumb.textContent;
-                    const observer = new MutationObserver(() => {
-                        const newText = breadcrumb.textContent;
-                        if (newText !== previousText) {
-                            previousText = newText;
-                            fullStateReset();
-                            setTimeout(ensureUIInActiveTab, 100);
-                        }
-                    });
-                    observer.observe(breadcrumb, { childList: true, subtree: true, characterData: true });
-                    activeObservers.push(observer);
+                let hasObservedBreadcrumb = false;
+                const bcObs = observeElement('.breadcrumb-container', () => {
+                    if (hasObservedBreadcrumb) {
+                        fullStateReset();
+                        setTimeout(ensureUIInActiveTab, 100);
+                    }
+                    hasObservedBreadcrumb = true;
                 });
                 if (bcObs) activeObservers.push(bcObs);
             }
@@ -582,17 +580,19 @@ export function init() {
 
                 const tabContent = document.querySelector('.tab-content.rbx-tab-content');
                 if (tabContent) {
-                    const observer = new MutationObserver((mutations) => {
-                        for (const mutation of mutations) {
-                            if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-                                const target = mutation.target;
-                                if (target.classList.contains('active') && target.classList.contains('tab-pane')) {
-                                    ensureUIInActiveTab();
-                                }
+                    const tabObs = observeElement('.tab-pane', (pane) => {
+                        const attrObserver = observeAttributes(pane, (mutation) => {
+                            if (mutation.attributeName === 'class' && pane.classList.contains('active')) {
+                                ensureUIInActiveTab();
                             }
-                        }
-                    });
-                    observer.observe(tabContent, { attributes: true, subtree: true, attributeFilter: ['class'] });
+                        }, ['class']);
+                        activeObservers.push(attrObserver);
+                    }, { multiple: true, scope: tabContent });
+            
+                    if (tabObs) {
+                        activeObservers.push(tabObs);
+                    }
+            
                     ensureUIInActiveTab();
                 } else {
                     setTimeout(initObserver, 500);
