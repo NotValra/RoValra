@@ -548,6 +548,18 @@ export async function performJoinAction(placeId, universeId, preferredRegionCode
 }
 
 export async function getSavedPreferredRegion() {
+    await dataPromise;
     const result = await chrome.storage.local.get(PREFERRED_REGION_STORAGE_KEY);
-    return result[PREFERRED_REGION_STORAGE_KEY] || 'AUTO';
+    const region = result[PREFERRED_REGION_STORAGE_KEY];
+
+    if (region && region !== 'AUTO' && !REGIONS[region]) {
+        try {
+            await chrome.storage.local.set({ [PREFERRED_REGION_STORAGE_KEY]: 'AUTO' });
+        } catch (e) {
+            console.error("RoValra: Failed to reset invalid preferred region.", e);
+        }
+        return 'AUTO';
+    }
+
+    return region || 'AUTO';
 }
