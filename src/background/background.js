@@ -51,11 +51,12 @@ function getDefaultSettings() {
         AlwaysGetInfo: true,
         antibotsEnabled: false,
         QuickActionsEnabled: true,
+        draggableGroupsEnabled: true,
         userRapEnabled: true,
         HideSerial: false,
         EarlyAccessProgram: false,
-        MemoryleakFixEnabled: false, 
-        deeplinkEnabled: false, 
+        MemoryleakFixEnabled: false,
+        deeplinkEnabled: false,
         eastereggslinksEnabled: true,
         giantInvisibleLink: true,
         SaveLotsRobuxEnabled: true,
@@ -85,7 +86,7 @@ function getDefaultSettings() {
         EnableRobloxApiDocs: false,
         QuickOutfitsEnabled: false,
         gameTitleIssueEnable: true,
-        closeUiByClickingTheBackground:  true,
+        closeUiByClickingTheBackground: true,
         EnableDatacenterandId: false,
         forceReviewPopup: false,
         recentServersEnabled: true,
@@ -101,7 +102,7 @@ function initializeSettings(reason) {
     chrome.storage.local.get(null, (currentSettings) => {
         const settingsToUpdate = {};
         let needsUpdate = false;
-        
+
         for (const key in defaults) {
             const defaultValue = defaults[key];
             const storedValue = currentSettings[key];
@@ -109,7 +110,7 @@ function initializeSettings(reason) {
             if (storedValue === undefined) {
                 settingsToUpdate[key] = defaultValue;
                 needsUpdate = true;
-                continue; 
+                continue;
             }
 
 
@@ -179,12 +180,12 @@ function updateUserAgentRule() {
         browser = "Safari";
         engine = "WebKit";
     }
-    
+
     const manifest = chrome.runtime.getManifest();
     const version = manifest.version || 'Unknown';
     const isDevelopment = !('update_url' in manifest);
     const environment = isDevelopment ? 'Development' : 'Production';
-    
+
     let rovalraSuffix = `RoValraExtension(RoValra/${browser}/${engine}/${version}/${environment})`;
 
     if (engine === "Gecko" || engine === "WebKit") {
@@ -193,7 +194,7 @@ function updateUserAgentRule() {
 
     const generalRule = {
         id: 999,
-        priority: 5, 
+        priority: 5,
         action: {
             type: 'modifyHeaders',
             requestHeaders: [
@@ -205,21 +206,21 @@ function updateUserAgentRule() {
             ]
         },
         condition: {
-            regexFilter: ".*_RoValraRequest=", 
+            regexFilter: ".*_RoValraRequest=",
             resourceTypes: ["xmlhttprequest"]
         }
     };
 
     const gameJoinRule = {
         id: 1000,
-        priority: 10, 
+        priority: 10,
         action: {
             type: 'modifyHeaders',
             requestHeaders: [
                 {
                     header: 'User-Agent',
                     operation: 'set',
-                    value: `Roblox/WinInet ${rovalraSuffix}` 
+                    value: `Roblox/WinInet ${rovalraSuffix}`
                 }
             ]
         },
@@ -230,21 +231,21 @@ function updateUserAgentRule() {
     };
 
     chrome.declarativeNetRequest.updateDynamicRules({
-        removeRuleIds: [999, 1000], 
+        removeRuleIds: [999, 1000],
         addRules: [generalRule, gameJoinRule]
     });
 }
 
 chrome.storage.onChanged.addListener((changes) => {
-    if (changes.MemoryleakFixEnabled) { 
-        isMemoryFixEnabled = changes.MemoryleakFixEnabled.newValue; 
+    if (changes.MemoryleakFixEnabled) {
+        isMemoryFixEnabled = changes.MemoryleakFixEnabled.newValue;
         if (isMemoryFixEnabled) setupNavigationListener();
     }
 });
 
 
 let isMemoryFixEnabled = false;
-const programmaticallyNavigatedUrls = new Set(); 
+const programmaticallyNavigatedUrls = new Set();
 
 const handleMemoryLeakNavigation = (details) => {
     if (programmaticallyNavigatedUrls.has(details.url)) {
@@ -269,17 +270,17 @@ const handleMemoryLeakNavigation = (details) => {
     chrome.tabs.update(tabId, { url: 'about:blank' }, () => {
         setTimeout(() => {
             chrome.tabs.update(tabId, { url: newUrl });
-        }, 50); 
+        }, 50);
     });
 };
 
 const navigationFilter = {
     url: [{ hostContains: ".roblox.com" }],
-    urlExcludes: ["roblox-player:*"] 
+    urlExcludes: ["roblox-player:*"]
 };
 
 const navigationListener = (details) => {
-    if (isMemoryFixEnabled) { 
+    if (isMemoryFixEnabled) {
         handleMemoryLeakNavigation(details);
     }
 };
@@ -293,7 +294,7 @@ async function setupNavigationListener() {
 
 chrome.permissions.onAdded.addListener((permissions) => {
     if (permissions.permissions?.includes('webNavigation')) {
-        setupNavigationListener(); 
+        setupNavigationListener();
     }
 });
 
@@ -302,22 +303,22 @@ chrome.permissions.onRemoved.addListener((permissions) => {
         chrome.webNavigation.onBeforeNavigate.removeListener(navigationListener);
     }
 });
-const connectedContentScripts = new Map(); 
+const connectedContentScripts = new Map();
 
 chrome.runtime.onConnect.addListener(port => {
     if (port.name !== 'mutation-reporter') {
-        return; 
+        return;
     }
 
 
-    let contentScriptUUID; 
+    let contentScriptUUID;
 
     port.onMessage.addListener(message => {
         if (message.type === 'init_connection' && message.uuid) {
             contentScriptUUID = message.uuid;
             connectedContentScripts.set(contentScriptUUID, port);
-        } 
-  
+        }
+
     });
 
 
@@ -340,7 +341,7 @@ function pollUserPresence() {
             const targetTab = tabs.find(t => t.url.includes("/games/")) || tabs[0];
             chrome.tabs.sendMessage(targetTab.id, { action: 'pollPresence', userId: currentUserId }, (response) => {
                 if (chrome.runtime.lastError) {
-        
+
                 }
             });
         }
@@ -383,12 +384,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 },
                 args: [request.codeToInject],
             }).then(() => sendResponse({ success: true }))
-              .catch((error) => sendResponse({ success: false, error: error.message }));
-            return true; 
+                .catch((error) => sendResponse({ success: false, error: error.message }));
+            return true;
 
         case 'toggleMemoryLeakFix':
             isMemoryFixEnabled = request.enabled;
-            sendResponse({ success: true }); 
+            sendResponse({ success: true });
             break;
 
         case 'injectMainWorldScript':
@@ -407,7 +408,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             chrome.permissions.contains({ permissions: permissionsToCheck }, (granted) => {
                 sendResponse({ granted: granted });
             });
-            return true; 
+            return true;
 
         case 'requestPermission':
             const permissionsToRequest = Array.isArray(request.permission) ? request.permission : [request.permission];
@@ -418,7 +419,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                     sendResponse({ granted: granted });
                 }
             });
-            return true; 
+            return true;
 
         case 'revokePermission':
             const permissionsToRevoke = Array.isArray(request.permission) ? request.permission : [request.permission];
@@ -432,66 +433,67 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                     sendResponse({ revoked: removed });
                 }
             });
-            return true; 
-        
+            return true;
+
         case 'updateUserId':
             if (request.userId) {
                 if (request.userId !== currentUserId) {
                     currentUserId = request.userId;
-                    latestPresence = null; 
+                    latestPresence = null;
                     if (pollingInterval) {
                         clearInterval(pollingInterval);
                     }
-                    pollUserPresence(); 
+                    pollUserPresence();
                     pollingInterval = setInterval(pollUserPresence, 5000);
                 }
             }
             break;
-        
+
         case 'presencePollResult':
             if (request.success) {
                 const presence = request.presence;
-        
+
                 if (JSON.stringify(presence) !== JSON.stringify(latestPresence)) {
                     const oldPresence = latestPresence;
                     latestPresence = presence;
-        
+
                     chrome.tabs.query({ url: "*://*.roblox.com/*" }, (tabs) => {
                         tabs.forEach(tab => {
                             chrome.tabs.sendMessage(tab.id, { action: 'presenceUpdate', presence: latestPresence }, (response) => {
-                                if(chrome.runtime.lastError) {}
+                                if (chrome.runtime.lastError) { }
                             });
                         });
                     });
-        
+
                     const isJoiningGame = p => p && (p.userPresenceType === 2 || p.userPresenceType === 4);
-        
+
                     if (isJoiningGame(presence) && presence.gameId && presence.rootPlaceId) {
-                                            if (!isJoiningGame(oldPresence) || oldPresence.gameId !== presence.gameId) {
-                                                chrome.storage.local.get({ 'rovalra_server_history': {} }, (res) => {
-                                                    const history = res.rovalra_server_history || {};
-                                                    const gameId = presence.rootPlaceId.toString();
-                                                    let gameHistory = history[gameId] || [];
-                                        
-                                                    const now = Date.now();
-                                                    const oneDay = 24 * 60 * 60 * 1000;
-                                        
-                                                    gameHistory = gameHistory.filter(entry => (now - entry.timestamp) < oneDay);
-                                        
-                                                    const serverIndex = gameHistory.findIndex(entry => entry.presence.gameId === presence.gameId);
-                                                    if (serverIndex > -1) {
-                                                        gameHistory.splice(serverIndex, 1);
-                                                    }
-                                        
-                                                    gameHistory.unshift({ presence, timestamp: now });
-                                                    
-                                                    gameHistory = gameHistory.slice(0, 4);
-                                                    history[gameId] = gameHistory;
-                                        
-                                                    chrome.storage.local.set({ 'rovalra_server_history': history });
-                                                });
-                                            }
-                                        }                }
+                        if (!isJoiningGame(oldPresence) || oldPresence.gameId !== presence.gameId) {
+                            chrome.storage.local.get({ 'rovalra_server_history': {} }, (res) => {
+                                const history = res.rovalra_server_history || {};
+                                const gameId = presence.rootPlaceId.toString();
+                                let gameHistory = history[gameId] || [];
+
+                                const now = Date.now();
+                                const oneDay = 24 * 60 * 60 * 1000;
+
+                                gameHistory = gameHistory.filter(entry => (now - entry.timestamp) < oneDay);
+
+                                const serverIndex = gameHistory.findIndex(entry => entry.presence.gameId === presence.gameId);
+                                if (serverIndex > -1) {
+                                    gameHistory.splice(serverIndex, 1);
+                                }
+
+                                gameHistory.unshift({ presence, timestamp: now });
+
+                                gameHistory = gameHistory.slice(0, 4);
+                                history[gameId] = gameHistory;
+
+                                chrome.storage.local.set({ 'rovalra_server_history': history });
+                            });
+                        }
+                    }
+                }
             }
             break;
 

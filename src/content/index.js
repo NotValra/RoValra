@@ -22,7 +22,7 @@ import { init as initR6Warning } from './features/avatar/R6Warning.js';
 // Catalog
 import { init as initItemSales } from './features/catalog/itemsales.js';
 import { init as init40Method } from './features/catalog/40method.js';
-import { init as initDependencies} from './features/catalog/depenencies.js';
+import { init as initDependencies } from './features/catalog/depenencies.js';
 // Games
 import { init as initBotDetector } from './features/games/about/botDetector.js';
 import { init as initQuickPlay } from './features/games/quickplay.js';
@@ -43,6 +43,7 @@ import { init as initTotalEarned } from './features/transactions/totalearned.js'
 import { init as initHiddenGroupGames } from './features/groups/hiddenGroupGames.js';
 import { init as initAntiBots } from './features/groups/Antibots.js';
 import { init as initPendingRobux } from './features/groups/pendingRobux.js';
+import { init as initDraggableGroups } from './features/groups/draggableGroups.js';
 // Profile
 import { init as initDonationLink } from './features/profile/header/donationlink.js';
 import { init as initRap } from './features/profile/header/rap.js';
@@ -55,7 +56,7 @@ import { init as initUserGames } from './features/profile/hiddengames.js';
 import { init as initPrivateServerControls } from './features/games/privateserver.js';
 
 // Settings
-import { init as initSettingsPage } from './features/settings/index.js'; 
+import { init as initSettingsPage } from './features/settings/index.js';
 
 let pageLoaded = false;
 let lastPath = window.location.pathname;
@@ -66,7 +67,7 @@ const featureRoutes = [
     paths: ['*'],
     features: [initSettingsPage, initQuickPlay, initEasterEggLinks, initCssFixes, initWhatAmIJoining, initHiddenCatalog, initServerListener, initOnboarding, initVideoTest, initStreamerMode, initMarkDownTest, initServerTracker],
   },
-// pretty much just the 40% method
+  // pretty much just the 40% method
   {
     paths: ['/catalog', '/bundles', '/game-pass', '/games'],
     features: [init40Method],
@@ -79,7 +80,7 @@ const featureRoutes = [
   // Group pages
   {
     paths: ['/communities/'],
-    features: [initHiddenGroupGames, initAntiBots, initPendingRobux],
+    features: [initHiddenGroupGames, initAntiBots, initPendingRobux, initDraggableGroups],
   },
   // Game pages
   {
@@ -165,13 +166,13 @@ async function initializePage() {
 
 function handleUrlChange() {
   const currentPath = window.location.pathname;
-  
+
   if (currentPath !== lastPath) {
     console.log(`%cRoValra: URL changed from ${lastPath} to ${currentPath}`, 'color: #FF4500;');
     lastPath = currentPath;
-    
+
     runFeaturesForPage();
-    
+
     detectTheme().then(theme => dispatchThemeEvent(theme));
   }
 }
@@ -180,19 +181,19 @@ function handleUrlChange() {
 function setupUrlChangeListeners() {
   const originalPushState = history.pushState;
   const originalReplaceState = history.replaceState;
-  
-  history.pushState = function(...args) {
+
+  history.pushState = function (...args) {
     originalPushState.apply(this, args);
     handleUrlChange();
   };
-  
-  history.replaceState = function(...args) {
+
+  history.replaceState = function (...args) {
     originalReplaceState.apply(this, args);
     handleUrlChange();
   };
-  
+
   window.addEventListener('popstate', handleUrlChange);
-  
+
   let urlCheckInterval = setInterval(() => {
     if (window.location.pathname !== lastPath) {
       handleUrlChange();
