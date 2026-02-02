@@ -3,8 +3,7 @@
 </p>
 
 <p align="center">
-  <strong>RoValra</strong> is a modern browser extension that enhances the Roblox experience with performance improvements,
-  quality-of-life features, and advanced tooling.
+  <strong>RoValra</strong> is a modern browser extension that enhances the Roblox experience with quality-of-life features and advanced tooling, all completely free.
 </p>
 
 <p align="center">
