@@ -1,8 +1,8 @@
 import { observeElement, startObserving } from '../../core/observer.js';
 
 const STORAGE_KEY = 'rovalra_groups_order';
-const HOLD_THRESHOLD = 75;
-
+const HOLD_THRESHOLD = 200;
+const MOVE_THRESHOLD = 5; 
 let dragState = {
     active: false,
     element: null,
@@ -41,8 +41,15 @@ export function init() {
 
 function initializeDragSystem() {
     observeElement('a.groups-list-item', (link) => {
+        
+        if (link.closest('.pending-join-requests')) {
+            return;
+        }
+
         const container = link.closest('.groups-list-items-container');
-        if (!container || container.hasAttribute('data-rovalra-drag')) return;
+        if (!container) return;
+
+        if (container.hasAttribute('data-rovalra-drag')) return;
         
         container.setAttribute('data-rovalra-drag', 'true');
         
@@ -50,7 +57,8 @@ function initializeDragSystem() {
             restoreSavedOrder(container);
             setupDragHandlers(container);
         }, 100);
-    });
+
+    }, { multiple: true }); 
 }
 
 function setupDragHandlers(container) {
@@ -75,6 +83,8 @@ function onClick(e) {
 function onMouseDown(e) {
     if (!isEnabled || e.button !== 0) return;
     
+    if (e.target.closest('.leave-group-btn')) return;
+
     const link = e.currentTarget;
     const rect = link.getBoundingClientRect();
     
@@ -83,11 +93,13 @@ function onMouseDown(e) {
     dragState.startY = e.clientY;
     dragState.offsetX = e.clientX - rect.left;
     dragState.offsetY = e.clientY - rect.top;
-    dragState.preventClick = false;
+    dragState.active = false;      
+    dragState.preventClick = false; 
     
+    if (dragState.holdTimer) clearTimeout(dragState.holdTimer);
+
     dragState.holdTimer = setTimeout(() => {
-        const moved = Math.abs(e.clientX - dragState.startX) > 3 || Math.abs(e.clientY - dragState.startY) > 3;
-        if (!moved) {
+        if (!dragState.active) {
             beginDrag(e);
         }
     }, HOLD_THRESHOLD);
@@ -145,24 +157,27 @@ function createDropIndicator() {
 }
 
 function onMouseMove(e) {
-    if (dragState.holdTimer) {
-        const moved = Math.abs(e.clientX - dragState.startX) > 3 || Math.abs(e.clientY - dragState.startY) > 3;
-        if (moved) {
-            clearTimeout(dragState.holdTimer);
-            dragState.holdTimer = null;
+    const deltaX = Math.abs(e.clientX - dragState.startX);
+    const deltaY = Math.abs(e.clientY - dragState.startY);
+
+    if (!dragState.active) {
+        if (deltaX > MOVE_THRESHOLD || deltaY > MOVE_THRESHOLD) {
+            clearTimeout(dragState.holdTimer); 
+            beginDrag(e);
+        } else {
+            return; 
         }
     }
     
-    if (!dragState.active || !dragState.clone) return;
-    
     e.preventDefault();
-    dragState.preventClick = true;
     
     const x = e.clientX - dragState.offsetX;
     const y = e.clientY - dragState.offsetY;
     
-    dragState.clone.style.left = x + 'px';
-    dragState.clone.style.top = y + 'px';
+    if (dragState.clone) {
+        dragState.clone.style.left = x + 'px';
+        dragState.clone.style.top = y + 'px';
+    }
     
     updateDropPosition(e.clientY);
 }
@@ -231,33 +246,27 @@ function onMouseUp(e) {
     
     if (dragState.active) {
         finalizeDrop(e.clientY);
-    }
-    
-    if (dragState.clone) {
-        dragState.clone.remove();
-        dragState.clone = null;
-    }
-    
-    if (dragState.element) {
-        dragState.element.style.opacity = '';
-        dragState.element.style.transform = '';
-        dragState.element.style.transition = '';
-    }
-    
-    hideDropIndicator();
-    if (dropIndicator) {
-        dropIndicator.remove();
-        dropIndicator = null;
+        
+        if (dragState.clone) dragState.clone.remove();
+        if (dragState.element) {
+            dragState.element.style.opacity = '';
+            dragState.element.style.transform = '';
+        }
+        hideDropIndicator();
+        
+        setTimeout(() => {
+            dragState.active = false;
+            dragState.element = null;
+            dragState.preventClick = false;
+        }, 50);
+    } else {
+        dragState.active = false;
+        dragState.element = null;
+        dragState.preventClick = false;
     }
     
     document.body.style.cursor = '';
     document.body.style.userSelect = '';
-    
-    setTimeout(() => {
-        dragState.active = false;
-        dragState.element = null;
-        dragState.preventClick = false;
-    }, 10);
 }
 
 function finalizeDrop(mouseY) {
@@ -267,7 +276,10 @@ function finalizeDrop(mouseY) {
     const section = dragState.element.parentElement?.closest('div.padding-bottom-small');
     if (!section) return;
     
-    const links = Array.from(section.querySelectorAll('a.groups-list-item')).filter(l => l !== dragState.element);
+    const wrapper = section.querySelector('div:not(.text-caption-large)');
+    if (!wrapper) return;
+
+    const links = Array.from(wrapper.querySelectorAll('a.groups-list-item')).filter(l => l !== dragState.element);
     
     let targetElement = null;
     let insertBefore = true;
@@ -284,19 +296,17 @@ function finalizeDrop(mouseY) {
     }
     
     if (targetElement) {
-        const parent = targetElement.parentElement;
         if (insertBefore) {
-            parent.insertBefore(dragState.element, targetElement);
+            wrapper.insertBefore(dragState.element, targetElement);
         } else {
             if (targetElement.nextSibling) {
-                parent.insertBefore(dragState.element, targetElement.nextSibling);
+                wrapper.insertBefore(dragState.element, targetElement.nextSibling);
             } else {
-                parent.appendChild(dragState.element);
+                wrapper.appendChild(dragState.element);
             }
         }
     } else if (links.length > 0) {
-        const parent = links[links.length - 1].parentElement;
-        parent.appendChild(dragState.element);
+        wrapper.appendChild(dragState.element);
     }
     
     persistOrder(container);
@@ -323,24 +333,24 @@ function restoreSavedOrder(container) {
         if (!savedOrder || !savedOrder.length) return;
         
         const orderMap = new Map(savedOrder.map(o => [o.groupId, o.position]));
+        
         const sections = container.querySelectorAll('div.padding-bottom-small');
         
         sections.forEach(section => {
-            const wrapper = section.querySelector('div');
+            const wrapper = section.querySelector('div'); 
             if (!wrapper) return;
             
-            const links = Array.from(section.querySelectorAll('a.groups-list-item'));
-            
+            const links = Array.from(wrapper.querySelectorAll('a.groups-list-item'));
+            if (links.length === 0) return;
+
             links.sort((a, b) => {
-                const aHref = a.getAttribute('href');
-                const bHref = b.getAttribute('href');
-                const aMatch = aHref?.match(/\/communities\/(\d+)/);
-                const bMatch = bHref?.match(/\/communities\/(\d+)/);
+                const aMatch = a.getAttribute('href')?.match(/\/communities\/(\d+)/);
+                const bMatch = b.getAttribute('href')?.match(/\/communities\/(\d+)/);
                 
                 if (!aMatch || !bMatch) return 0;
                 
-                const aPos = orderMap.get(aMatch[1]) ?? 999;
-                const bPos = orderMap.get(bMatch[1]) ?? 999;
+                const aPos = orderMap.has(aMatch[1]) ? orderMap.get(aMatch[1]) : 9999;
+                const bPos = orderMap.has(bMatch[1]) ? orderMap.get(bMatch[1]) : 9999;
                 
                 return aPos - bPos;
             });
