@@ -2,8 +2,8 @@ import { observeElement } from '../../../core/observer.js';
 import { addTooltip } from '../../../core/ui/tooltip.js';
 import { createConfetti } from '../../../core/fun/confetti.js';
 import { BADGE_CONFIG } from '../../../core/configs/badges.js';
+import { callRobloxApiJson } from '../../../core/api.js';
 import DOMPurify from 'dompurify';
-
 
 function createHeaderBadge(parentContainer, badge) {
     const iconContainer = document.createElement('div');
@@ -29,6 +29,12 @@ function createHeaderBadge(parentContainer, badge) {
         icon.addEventListener('click', () => createConfetti(icon, badge.confetti));
     }
 
+    if (badge.url) {
+        icon.addEventListener('click', () => {
+            window.location.href = badge.url;
+        });
+    }
+
     if (badge.tooltip) {
         addTooltip(iconContainer, badge.tooltip, { position: 'bottom' });
     }
@@ -37,6 +43,51 @@ function createHeaderBadge(parentContainer, badge) {
     iconContainer.appendChild(icon);
 }
 
+function createTextHeaderBadge(parentContainer, badgeName, isHiddenInitially = false) {
+    const badgeElement = document.createElement('span');
+    badgeElement.textContent = badgeName.replace(/_/g, ' ');
+    badgeElement.className = 'rovalra-text-badge';
+
+    const isHidden = isHiddenInitially;
+
+    const applyVisualState = () => {
+        if (isHidden) {
+            Object.assign(badgeElement.style, {
+                backgroundColor: 'var(--surface-neutral-tertiary)',
+                color: 'var(--text-muted)',
+                padding: '2px 8px',
+                borderRadius: '12px',
+                fontSize: '12px',
+                fontWeight: '500',
+                marginLeft: '8px',
+                verticalAlign: 'middle',
+                cursor: 'default',
+                textTransform: 'capitalize',
+                opacity: '0.6',
+                border: '1px dashed var(--text-muted)',
+            });
+            addTooltip(badgeElement, `This badge is hidden. Manage in settings.`, { position: 'bottom' });
+        } else {
+            Object.assign(badgeElement.style, {
+                backgroundColor: 'var(--surface-neutral-tertiary)',
+                color: 'var(--text-default)',
+                padding: '2px 8px',
+                borderRadius: '12px',
+                fontSize: '12px',
+                fontWeight: '500',
+                marginLeft: '8px',
+                verticalAlign: 'middle',
+                cursor: 'default',
+                textTransform: 'capitalize',
+                opacity: '1',
+                border: 'none',
+            });
+        }
+    };
+
+    applyVisualState();
+    parentContainer.appendChild(badgeElement);
+}
 
 function createProfileBadge(badgeList, badge) {
     const badgeItem = document.createElement('li');
@@ -79,39 +130,57 @@ function createProfileBadge(badgeList, badge) {
 }
 
 
-function addHeaderBadges(nameContainer) {
+async function addHeaderBadges(nameContainer) {
     if (nameContainer.dataset.rovalraHeaderObserverAttached) return;
     nameContainer.dataset.rovalraHeaderObserverAttached = 'true';
 
     const parentContainer = nameContainer.parentElement;
     if (!parentContainer) return;
 
-    const uniqueId = Date.now().toString(36) + Math.random().toString(36).substr(2);
+    const uniqueId = `rovalra-badges-${Date.now()}-${Math.random()}`;
     nameContainer.dataset.rovalraId = uniqueId;
 
-    const reapplyBadges = () => {
-        parentContainer.querySelectorAll('.rovalra-header-badge').forEach(badge => badge.remove());
+    const reapplyBadges = async () => {
+        parentContainer.querySelectorAll('.rovalra-header-badge, .rovalra-text-badge').forEach((badge) => badge.remove());
 
         const userIdMatch = window.location.pathname.match(/\/users\/(\d+)/);
         if (!userIdMatch) return;
         const currentUserId = userIdMatch[1];
 
-        chrome.storage.local.get({ ShowBadgesEverywhere: false }, (settings) => {
-            for (const key in BADGE_CONFIG) {
-                const badge = BADGE_CONFIG[key];
-                if (badge.type === 'header' && badge.userIds.includes(currentUserId)) {
-                    createHeaderBadge(nameContainer, badge);
-                }
+        for (const key in BADGE_CONFIG) {
+            const badge = BADGE_CONFIG[key];
+            if (badge.type === 'header' && badge.userIds.includes(currentUserId)) {
+                createHeaderBadge(nameContainer, badge);
             }
-        });
+        }
+
+        try {
+            const apiBadgesData = await callRobloxApiJson({
+                isRovalraApi: true,
+                subdomain: 'apis',
+                endpoint: `/v1/users/${currentUserId}/badges`,
+                method: 'GET',
+            });
+
+            if (apiBadgesData && apiBadgesData.status === 'success' && Array.isArray(apiBadgesData.badges)) {
+                apiBadgesData.badges.forEach((badgeName) => {
+                    if (BADGE_CONFIG[badgeName]) {
+                        createHeaderBadge(nameContainer, BADGE_CONFIG[badgeName]);
+                    } else {
+                        createTextHeaderBadge(nameContainer, badgeName, false);
+                    }
+                });
+            }
+        } catch (error) {
+        }
     };
 
-    reapplyBadges(); 
+    await reapplyBadges();
 
-    observeElement(`[data-rovalra-id="${uniqueId}"] .rovalra-header-badge`, () => {}, {
+    observeElement(`[data-rovalra-id="${uniqueId}"] .rovalra-header-badge, [data-rovalra-id="${uniqueId}"] .rovalra-text-badge`, () => {}, {
         onRemove: () => {
-            if (!nameContainer.querySelector('.rovalra-header-badge')) reapplyBadges();
-        }
+            if (!nameContainer.querySelector('.rovalra-header-badge') && !nameContainer.querySelector('.rovalra-text-badge')) reapplyBadges();
+        },
     });
 }
 

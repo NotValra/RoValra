@@ -1,12 +1,18 @@
 // used to create Robloxs tooltip with an attempted fix for the arrow that didnt exactly work out that well
 import DOMPurify from 'dompurify';
 
+let activeTooltipCleanup = null;
+
 export function addTooltip(parent, text, options = {}) {
     const { position = 'bottom', container = document.body } = options;
     let tooltipElement = null;
     let isUpdateScheduled = false; let scrollListenerRef = null;
 
     const showTooltip = () => {
+        if (activeTooltipCleanup) {
+            activeTooltipCleanup();
+        }
+
         tooltipElement = document.createElement('div');
         tooltipElement.style.position = 'absolute';
         tooltipElement.style.pointerEvents = 'none';
@@ -103,6 +109,8 @@ export function addTooltip(parent, text, options = {}) {
         tooltipElement.style.display = 'block'; 
         tooltipElement.style.opacity = '1'; 
         tooltipElement.style.visibility = 'visible'; 
+
+        activeTooltipCleanup = hideTooltip;
     };
 
     const hideTooltip = () => {
@@ -114,6 +122,9 @@ export function addTooltip(parent, text, options = {}) {
             window.removeEventListener('scroll', scrollListenerRef);
             window.removeEventListener('resize', scrollListenerRef);
             scrollListenerRef = null;
+        }
+        if (activeTooltipCleanup === hideTooltip) {
+            activeTooltipCleanup = null;
         }
     };
 

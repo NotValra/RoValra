@@ -39,5 +39,37 @@ export const BADGE_CONFIG = {
         name: 'I make rats',
         tooltip: 'I make rats',
         confetti: assets.fishConfetti
+    },
+    legacy_donator: {
+        type: 'header',
+        userIds: [],
+        icon: assets.rovalraIcon,
+        tooltip: 'Legacy Donator. Earned by donating to RoValra before donator badges were a thing.',
+        confetti: assets.rovalraIcon,
+        style: { filter: 'sepia(100%) saturate(600%) brightness(90%) hue-rotate(5deg)' }
+    },
+    donator_1: {
+        type: 'header',
+        userIds: [],
+        icon: assets.rovalraIcon,
+        tooltip: 'Donated any amount of Robux to help Support RoValra\'s development.',
+        url: 'https://www.roblox.com/communities/11249333/Valra#!/about',
+        style: { filter: 'sepia(1) saturate(1.8) hue-rotate(-35deg) brightness(0.8) contrast(1.2)' }
+    },
+    donator_2: {
+        type: 'header',
+        userIds: [],
+        icon: assets.rovalraIcon,
+        tooltip: 'Donated 200 or more Robux to help Support RoValra\'s development.',
+        url: 'https://www.roblox.com/communities/11249333/Valra#!/about',
+        style: { filter: 'grayscale(1) brightness(1.3) contrast(1.2)' }
+    },
+    donator_3: {
+        type: 'header',
+        userIds: [],
+        icon: assets.rovalraIcon,
+        tooltip: 'Donated 500 or more Robux to help Support RoValra\'s development.',
+        url: 'https://www.roblox.com/communities/11249333/Valra#!/about',
+        style: { filter: 'sepia(1) saturate(3) hue-rotate(5deg) brightness(1.1)' }
     }
 };

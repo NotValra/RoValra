@@ -1,10 +1,13 @@
 // All api requests should go through this script
 
 import { getCsrfToken } from './utils.js';
+import { getAuthenticatedUserId } from './user.js';
+import { getValidAccessToken } from './oauth/oauth.js';
 
 import { updateUserLocationIfChanged } from './utils/location.js';
 const activeRequests = new Map();
 
+const OAUTH_STORAGE_KEY = 'rovalra_oauth_verification';
 const CAPTURED_APIS_KEY = 'rovalra_captured_apis';
 const seenRequests = new Map();
 
@@ -154,10 +157,19 @@ export async function callRobloxApi(options) {
             isRovalraApi = false,
             headers = {},
             body = null,
-            fullUrl: customFullUrl
+            fullUrl: customFullUrl,
+            skipAutoAuth = false
         } = options;
 
         if (isRovalraApi) {
+            if (endpoint && endpoint.includes('/v1/auth') && !skipAutoAuth) {
+                const token = await getValidAccessToken();
+                if (token) {
+                    headers['Authorization'] = `Bearer ${token}`;
+                } else {
+                    return new Response(JSON.stringify({ status: "error", message: "Unauthorized" }), { status: 401, headers: { "Content-Type": "application/json" } });
+                }
+            }
             const isDowntimeSimulated = await checkSimulatedDowntime();
             if (isDowntimeSimulated) {
                 console.warn(`RoValra API: [SIMULATION] 500 Error for ${endpoint}`);
@@ -174,7 +186,7 @@ export async function callRobloxApi(options) {
         }
 
         const baseUrl = isRovalraApi 
-            ? (subdomain === 'www' ? 'https://www.rovalra.com' : 'https://apis.rovalra.com')
+            ? (subdomain === 'www' ? 'https://www.rovalra.com' : `https://${subdomain}.rovalra.com`)
             : `https://${subdomain}.roblox.com`;
         let fullUrl = customFullUrl || `${baseUrl}${endpoint}`;
 
@@ -209,15 +221,60 @@ export async function callRobloxApi(options) {
 
         if (isRovalraApi) {
             let lastResponse;
+            let authRetried = false;
             for (let attempt = 0; attempt < 4; attempt++) { 
                 try {
                     lastResponse = await fetch(fullUrl, fetchOptions);
+
+                    const newAccessToken = lastResponse.headers.get('X-New-Access-Token');
+                    if (newAccessToken) {
+                        try {
+                            const authedUserId = await getAuthenticatedUserId();
+                            if (authedUserId) {
+                                const storage = await chrome.storage.local.get(OAUTH_STORAGE_KEY);
+                                let allVerifications = storage[OAUTH_STORAGE_KEY] || {};
+                                let storedVerification = allVerifications[authedUserId];
+                                
+                                if (storedVerification && storedVerification.robloxId == authedUserId) {
+                                    console.log("RoValra API: New token received from header. Updating storage.");
+                                    storedVerification.accessToken = newAccessToken;
+                                    storedVerification.timestamp = Date.now();
+
+                                    const cloned = lastResponse.clone();
+                                    try {
+                                        const data = await cloned.json();
+                                        if (data && data.expires_at) {
+                                            storedVerification.expiresAt = data.expires_at * 1000;
+                                        }
+                                    } catch {}
+                                    allVerifications[authedUserId] = storedVerification;
+                                    await chrome.storage.local.set({ [OAUTH_STORAGE_KEY]: allVerifications });
+                                }
+                            }
+                        } catch (e) {
+                            console.error("RoValra API: Failed to update new access token.", e);
+                        }
+                    }
+
+                
+                    if (lastResponse.status === 401 && endpoint && endpoint.includes('/v1/auth') && !skipAutoAuth && !authRetried) {
+                        console.log("RoValra API: 401 Unauthorized, attempting token refresh...");
+                        authRetried = true;
+                        const newToken = await getValidAccessToken(true);
+                        if (newToken) {
+                            fetchOptions.headers['Authorization'] = `Bearer ${newToken}`;
+                            continue; 
+                        }
+                    }
+
                     if (lastResponse.ok) {
                         return lastResponse; 
                     }
+
+                    if (endpoint && endpoint.includes('/v1/auth')) break;
                 } catch (error) {
-                    if (attempt === 3) {
-                        console.error(`RoValra API: Request to ${fullUrl} failed after multiple retries.`, error);
+                    if (attempt === 3 || (endpoint && endpoint.includes('/v1/auth'))) {
+                        console.error(`RoValra API: Request to ${fullUrl} failed${attempt === 3 ? ' after multiple retries' : ''}.`, error);
                         throw error;
                     }
                 }

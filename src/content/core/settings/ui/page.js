@@ -4,6 +4,7 @@ import { generateSettingsUI } from '../generateSettings.js';
 import { initSettings } from '../handlesettings.js';
 import { buildSettingsPage } from './settingui.js';
 import { updateContent, handleSearch, buttonData, applyTheme } from '../../../features/settings/index.js';
+import { createBadgeSettings } from '../badgeSettings.js';
 
 let isSettingsPage = false;
 
@@ -97,6 +98,10 @@ export async function checkRoValraPage() {
             if (infoButtonData) {
                 await updateContent(infoButtonData, contentContainer);
             }
+        }
+
+        if (lowerHashKey === "profile") {
+            await createBadgeSettings(contentContainer);
         }
     }
 

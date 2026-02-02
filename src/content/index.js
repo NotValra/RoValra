@@ -1,7 +1,6 @@
 import { initializeObserver, startObserving } from './core/observer.js';
 import { detectTheme, dispatchThemeEvent } from './core/theme.js';
 // --- Feature Imports --- //
-
 // Site wide
 import { init as initOnboarding } from './features/onboarding/onboarding.js';
 import { init as initWhatAmIJoining } from './features/games/revertlogo.js';
