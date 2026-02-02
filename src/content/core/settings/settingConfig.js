@@ -9,7 +9,7 @@ export const SETTINGS_CONFIG = {
             itemSalesEnabled: {
                 label: "Item Sales",
                 description: ["This shows the most up to date sales and revenue data we have.",
-                    "The sales data is very likely to be inaccurate on items that are for sale, but very likely to be correct on off-sale items."                ],
+                    "The sales data is very likely to be inaccurate on items that are for sale, but very likely to be correct on off-sale items."],
                 deprecated: "Sale stats are very old and now inaccurate.",
                 type: "checkbox",
                 default: false
@@ -17,7 +17,7 @@ export const SETTINGS_CONFIG = {
             hiddenCatalogEnabled: {
                 label: "Hidden Catalog",
                 description: ["Shows Roblox made items before they are on the official catalog.",
-                    
+
                 ],
                 deprecated: "Patched by Roblox",
                 type: "checkbox",
@@ -27,9 +27,9 @@ export const SETTINGS_CONFIG = {
                 label: "Save 10%-40% Robux on Purchases",
                 description: ["This adds a button allowing you to save 40% on items on the catalog and 10% on gamepasses",
                     "Keep in mind a group is required for this to work.",
-                   
+
                     "**When buying something there will be a 'Save X Robux' Button which when pressed will set up the experience required for it to work for you.**"
-              
+
                 ],
                 type: "checkbox",
                 default: true,
@@ -51,7 +51,7 @@ export const SETTINGS_CONFIG = {
                 type: "checkbox",
                 default: true,
             }
-            
+
 
         }
     },
@@ -70,7 +70,7 @@ export const SETTINGS_CONFIG = {
                 childSettings: {
                     robloxPreferredRegion: {
                         label: "Preferred Region",
-                        description: ["Select your preferred region for joining games.", 
+                        description: ["Select your preferred region for joining games.",
                             "**Automatic** will automatically attempt to find the closest region to you."],
                         type: "select",
                         options: "REGIONS",
@@ -105,11 +105,11 @@ export const SETTINGS_CONFIG = {
             whatamIJoiningEnabled: {
                 label: "What Am I Joining",
                 description: ["This shows the server ID, region, if it's a private server, and more info about the server you are joining when joining a game.",
-],
+                ],
                 type: "checkbox",
                 default: true,
                 childSettings: {
-                  
+
                     AlwaysGetInfo: {
                         label: "Always Get Server Info",
                         description: ["This will always get the server info, even if no server data is available.",
@@ -405,6 +405,15 @@ export const SETTINGS_CONFIG = {
                 description: ["This adds a quick action button allowing you to quickly ban or kick a bunch of users at once."],
                 type: "checkbox",
                 default: true
+            },
+            draggableGroupsEnabled: {
+                label: "Draggable Communities",
+                description: ["Hold and drag your communities to reorder them however you want.",
+                    "Your custom order will be saved and persist across page refreshes.",
+                    "Just hold down on a community for a moment and drag it up or down."
+                ],
+                type: "checkbox",
+                default: true
             }
 
         }
@@ -529,7 +538,7 @@ export const SETTINGS_CONFIG = {
                         description: ["Upload your custom image. Maximum file size is 1MB."],
                         type: "file",
                         default: null,
-                        compressSettingName: "compressCustomLogo" 
+                        compressSettingName: "compressCustomLogo"
                     },
                     compressCustomLogo: {
                         label: "Compress Custom Icon",
@@ -554,7 +563,7 @@ export const SETTINGS_CONFIG = {
             streamermode: {
                 label: "Streamer Mode",
                 description: ["This feature hides information that you most likely don't wanna accidently show on something like a live stream.",
-                    
+
                 ],
                 type: "checkbox",
                 default: false,
@@ -584,7 +593,7 @@ export const SETTINGS_CONFIG = {
                     "This is useful if you want to appear offline while still allowing connections to join you in experiences, since the official offline status by Roblox does not allow this.",
                     "Joining an experience will overwrite this status.",
                     "This may take a few minutes to actually change your status to offline after turning on the feature."
-                    
+
                 ],
                 type: "checkbox",
                 default: false,
