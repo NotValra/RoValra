@@ -205,7 +205,7 @@ function buildServerCountsMap(apiJson) {
             if (entry.cities) {
                 Object.entries(entry.cities).forEach(([city, count]) => {
                     const key = generateRegionKey(country, city, stateCode ? parts.slice(1).join('-') : null);
-                    out[key] = typeof entry.total_servers === 'number' ? entry.total_servers : count;
+                    out[key] = count;
                 });
             } else if (typeof entry.total_servers === 'number') {
                 out[apiCode] = entry.total_servers;
@@ -312,10 +312,31 @@ async function fetchServers(regionCode, cursor) {
             }
         }
 
-        if (!city && State.apiCounts?.counts?.detailed_regions?.[regionCode]?.cities) {
-            const cities = Object.keys(State.apiCounts.counts.detailed_regions[regionCode].cities);
-            if (cities.length > 0) {
-                city = cities[0];
+        if (!city && State.apiCounts?.counts?.detailed_regions) {
+            const detailed = State.apiCounts.counts.detailed_regions;
+            for (const [apiCode, entry] of Object.entries(detailed)) {
+                if (entry.cities) {
+                    const parts = apiCode.split('-');
+                    const ctry = parts[0];
+                    let stateName = null;
+                    if (ctry === 'US' && parts.length > 1) {
+                        stateName = parts.slice(1).join('-');
+                    }
+                    for (const cityName of Object.keys(entry.cities)) {
+                        const key = generateRegionKey(ctry, cityName, stateName);
+                        if (key === regionCode) {
+                            city = cityName;
+                            break;
+                        }
+                    }
+                }
+                if (city) break;
+            }
+            if (!city && detailed[regionCode]?.cities) {
+                const cities = Object.keys(detailed[regionCode].cities);
+                if (cities.length > 0) {
+                    city = cities[0];
+                }
             }
         }
         
@@ -422,16 +443,25 @@ function populateRegionSidePanel(container, theme) {
         for (const [code, entry] of Object.entries(detailed)) {
             const parts = code.split('-');
             const groupName = parts[0]; 
-            const city = entry.cities ? Object.keys(entry.cities)[0] : code;
 
             let subLabel = code;
+            let stateName = null;
             if (groupName === 'US' && parts.length > 1) {
-                const rawState = parts.slice(1).join(' ');
+                const rawState = parts.slice(1).join(' '); 
+                stateName = parts.slice(1).join('-');
                 subLabel = rawState.toLowerCase().replace(/\b\w/g, s => s.toUpperCase()); 
             }
 
             if (!groups[groupName]) groups[groupName] = [];
-            groups[groupName].push({ code, label: city || code, subLabel: subLabel, count: entry.total_servers || 0 });
+            
+            if (entry.cities) {
+                for (const [cityName, count] of Object.entries(entry.cities)) {
+                    const regionKey = generateRegionKey(groupName, cityName, stateName);
+                    groups[groupName].push({ code: regionKey, label: cityName, subLabel: subLabel, count: count });
+                }
+            } else {
+                groups[groupName].push({ code, label: code, subLabel: subLabel, count: entry.total_servers || 0 });
+            }
         }
     } else {
         for (const [continent, regions] of Object.entries(State.regions)) {

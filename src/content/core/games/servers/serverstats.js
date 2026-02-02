@@ -66,7 +66,7 @@ export async function fetchServerStats(placeId) {
             throw new Error("API returned an error or invalid data.");
         }
 
-        if (data.counts.regions) {
+        if (data.counts.regions && typeof data.counts.total_servers !== 'number') {
             data.counts.total_servers = Object.values(data.counts.regions).reduce((acc, val) => acc + (Number(val) || 0), 0);
         }
 
