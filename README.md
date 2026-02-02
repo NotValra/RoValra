@@ -1,55 +1,109 @@
-# RoValra
+<p align="center">
+  <img src="./public/Assets/logo.svg" alt="RoValra" width="520">
+</p>
 
-- **Only Official Website https://rovalra.com**
+<p align="center">
+  <strong>RoValra</strong> is a modern browser extension that enhances the Roblox experience with quality-of-life features and advanced tooling, all completely free.
+</p>
 
-[Chrome webstore](https://chromewebstore.google.com/detail/RoValra%20-%20Roblox%20Improved/njcickgebhnpgmoodjdgohkclfplejli)
+<p align="center">
+  <a href="https://rovalra.com"><strong>Official Website</strong></a> •
+  <a href="https://chromewebstore.google.com/detail/RoValra%20-%20Roblox%20Improved/njcickgebhnpgmoodjdgohkclfplejli">Chrome Web Store</a> •
+  <a href="https://discord.gg/GHd5cSKJRk">Discord</a>
+</p>
 
-<img alt="GitHub Downloads (all assets, all releases)" src="https://img.shields.io/github/downloads/NotValra/RoValra/total">
+<p align="center">
+  <img alt="GitHub Downloads" src="https://img.shields.io/github/downloads/NotValra/RoValra/total">
+</p>
 
-- **If you like this project, consider giving it a star⭐, it really helps!**
+---
 
-**[Discord Server](https://discord.gg/GHd5cSKJRk)**
+## Official Links
 
-## Links
+- **Website:** https://rovalra.com  
+- **Features:** https://www.rovalra.com/features/  
+- **FAQ & Support:** https://www.rovalra.com/support/  
 
-- [**Features**](https://www.rovalra.com/features/)
-- [**FAQ**](https://www.rovalra.com/support/)
+> [!WARNING]
+> RoValra is only distributed through the official website and Chrome Web Store.
 
-# How to install
+---
+
+## Installation
+
+### Option 1: Chrome Web Store and Firefox Web Store (Recommended)
+
+Install directly from the [Chrome Web Store](https://chromewebstore.google.com/detail/RoValra%20-%20Roblox%20Improved/njcickgebhnpgmoodjdgohkclfplejli)
+or install from the [Firefox Addon Store](https://addons.mozilla.org/en-US/firefox/addon/rovalra/)
+> [!WARNING]
+> Firefox port is unofficial and not inspected by the team of RoValra - Proceed with caution
+
+---
+
+### Option 2: Manual Installation (Developer Mode)
 
 <details>
-  <summary>Expand</summary>
+<summary><strong>Expand instructions</strong></summary>
 
-**Building and installing**
+### Build from source
 
-- npm install
-- npm run build
-- Import "dist" in your browser
+```bash
+npm install
+npm run build
+````
 
-**Importing to browser**
+### Load into browser
 
-- If you want a simple install you can install it on from the [chrome web store.](https://chromewebstore.google.com/detail/RoValra%20-%20Roblox%20Improved/njcickgebhnpgmoodjdgohkclfplejli)
-- Everything below is purely a tutorial on how to install it from GitHub.
-- Enable developer mode on your browser of choice.
-  ![image](https://github.com/user-attachments/assets/301ab762-7b3b-4f5f-9eb0-9e7699212546)
-- Unzip the file in [releases](https://github.com/NotValra/RoValra/releases)
-- Import the unzipped folder into your browser. Ensure that you import the folder that contains direct access to background.js, content.js and manifest.json etc.
-![image](https://github.com/user-attachments/assets/2b238201-c297-4106-a5ad-6db4c9259dc6)
-  </details>
+1. Enable **Developer Mode** in your browser’s extensions page
+2. Download and unzip the latest release from
+   [https://github.com/NotValra/RoValra/releases](https://github.com/NotValra/RoValra/releases)
+3. Import the folder that directly contains:
 
-# Credits
+   * `manifest.json`
+   * `background.js`
+   * `content.js`
 
-- **everyone who [contributed](https://github.com/NotValra/RoValra/graphs/contributors)**
+</details>
 
-- **Sales / revenue thingy: https://github.com/workframes/roblox-owner-counts**
-- **Thanks to mmfw for making the pictures on the chrome web store and general help with UI design of the extension.**
+---
 
-- **Coding: Chatgpt (more like gemini but what ever) 😘 and little me**
+## Support the Project
 
-- **Region searcher, originally a python script made by l5se on dc that I improved in python and then recoded to add to my extension (with permission)**
+If you find RoValra useful, consider giving the repository a **star**.
+It helps a lot and supports continued development.
 
-- **Extra coding help when chatgpt and me didnt know how: [Aspect](https://github.com/Aspectise)**
-- **Extensions logo is gilbert, which is a fish I caught in [Fisch](https://www.roblox.com/games/16732694052/Fisch)**
-- **7_lz on dc helped me a lot with the process of switching away from third party APIs by providing me with the json and just general help**
-- **Thanks to Julia for creating a Github repo that documented all the Roblox datacenter ips, which I used to use for my region selector https://github.com/RoSeal-Extension/Top-Secret-Thing**
-- **Credit to coweggs on dc for coming up with the name RoValra, it was just too funny I had to use it**
+---
+
+## Credits
+
+* **Contributors:**
+  [https://github.com/NotValra/RoValra/graphs/contributors](https://github.com/NotValra/RoValra/graphs/contributors)
+
+* **Sales / Revenue Data:**
+  [https://github.com/workframes/roblox-owner-counts](https://github.com/workframes/roblox-owner-counts)
+
+* **UI & Chrome Store Graphics:**
+  mmfw
+
+* **Development:**
+  ChatGPT, Gemini, Valra and [the contributors](https://github.com/NotValra/RoValra/graphs/contributors)
+
+* **Region Searcher:**
+  Originally a Python script by l5se (used with permission, improved and rewritten for the extension)
+
+* **Additional Development Help:**
+  [Aspect](https://github.com/Aspectise)
+
+* **Extension Logo:**
+  *Gilbert*, a fish caught in
+  [Fisch](https://www.roblox.com/games/16732694052/Fisch)
+
+* **Infrastructure & API Help:**
+  7_lz (Discord)
+
+* **Roblox Datacenter IP Research:**
+  Julia -
+  [Datacenter IP Research](https://github.com/RoSeal-Extension/Top-Secret-Thing)
+
+* **Project Name:**
+  coweggs (Discord)
