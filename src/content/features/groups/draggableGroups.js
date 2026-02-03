@@ -147,7 +147,7 @@ function createDropIndicator() {
     dropIndicator = document.createElement('div');
     dropIndicator.style.position = 'absolute';
     dropIndicator.style.height = '2px';
-    dropIndicator.style.backgroundColor = '#0066ff';
+    dropIndicator.style.backgroundColor = 'var(--rovalra-playbutton-color)';
     dropIndicator.style.borderRadius = '1px';
     dropIndicator.style.pointerEvents = 'none';
     dropIndicator.style.zIndex = '99998';

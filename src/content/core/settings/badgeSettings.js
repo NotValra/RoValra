@@ -53,7 +53,7 @@ export async function createBadgeSettings(container) {
         mainControls.className = 'setting-controls';
         
         const mainLabel = document.createElement('label');
-        mainLabel.textContent = 'Show Badges on Profile';
+        mainLabel.textContent = 'Toggle your donation badges visibility.';
         mainControls.appendChild(mainLabel);
 
         const mainToggle = generateSettingInput('ShowAllBadges', { type: 'checkbox' });
