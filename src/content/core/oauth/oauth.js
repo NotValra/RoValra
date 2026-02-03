@@ -148,6 +148,33 @@ async function startOAuthFlow(silent = false) {
     if (activeOAuthPromise) return activeOAuthPromise;
 
     activeOAuthPromise = (async () => {
+        try {
+            const birthResponse = await callRobloxApi({
+                subdomain: 'users',
+                endpoint: '/v1/birthdate',
+                method: 'GET'
+            });
+
+            if (birthResponse.ok) {
+                const data = await birthResponse.json();
+                const { birthYear, birthMonth, birthDay } = data;
+
+                const today = new Date();
+                let age = today.getFullYear() - birthYear;
+                const m = (today.getMonth() + 1) - birthMonth;
+                if (m < 0 || (m === 0 && today.getDate() < birthDay)) {
+                    age--;
+                }
+
+                if (age < 13) {
+                    console.log("RoValra: User is under 13. Skipping OAuth.");
+                    return false;
+                }
+            }
+        } catch (error) {
+            console.warn("RoValra: Failed to check birthdate", error);
+        }
+
         const userExists = await checkUserExistence(userId);
         if (!userExists) {
             return false;
