@@ -105,7 +105,7 @@ export function initRecentServers() {
 		if (!settings.recentServersEnabled) return;
 
 		const inject = () => {
-			const container = document.querySelector('#running-game-instances-container');
+			const container = document.querySelector('#roseal-running-game-instances-container') || document.querySelector('#running-game-instances-container');
 			if (!container) return;
 
 			let section = container.querySelector('#rbx-recent-running-games-rovalra');
@@ -150,7 +150,7 @@ export function initRecentServers() {
 			renderRecentServers(section);
 		};
 
-		observeElement('#running-game-instances-container', () => {
+		observeElement('#running-game-instances-container, #roseal-running-game-instances-container', () => {
 			inject();
 		});
 
@@ -164,7 +164,7 @@ export function initRecentServers() {
 		observeElement('#rbx-recent-running-games-rovalra', () => {}, {
 			onRemove: () => {
 				setTimeout(() => {
-					const container = document.querySelector('#running-game-instances-container');
+					const container = document.querySelector('#roseal-running-game-instances-container') || document.querySelector('#running-game-instances-container');
 					if (container && !container.querySelector('#rbx-recent-running-games-rovalra')) {
 						inject();
 					}
