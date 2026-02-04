@@ -290,8 +290,9 @@ export async function callRobloxApi(options) {
 
         if (isMutatingMethod) {
             const csrfToken = await getCsrfToken();
-            if (!csrfToken) throw new Error('CSRF token is required but could not be obtained.');
-            fetchOptions.headers['X-CSRF-TOKEN'] = csrfToken;
+            if (csrfToken) {
+                fetchOptions.headers['X-CSRF-TOKEN'] = csrfToken;
+            }
         }
 
         let response = await fetch(fullUrl, fetchOptions);

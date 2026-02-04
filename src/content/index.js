@@ -47,7 +47,6 @@ import { init as initDraggableGroups } from './features/groups/draggableGroups.j
 import { init as initDonationLink } from './features/profile/header/donationlink.js';
 import { init as initRap } from './features/profile/header/rap.js';
 import { init as initInstantJoiner } from './features/profile/header/instantjoiner.js';
-import { init as initItemChecker } from './features/profile/ItemChecker.js';
 import { init as initOutfits } from './features/profile/outfits.js';
 import { init as initPrivateServers } from './features/profile/privateserver.js';
 import { init as initRovalraBadges } from './features/profile/header/RoValraBadges.js';
@@ -56,6 +55,9 @@ import { init as initPrivateServerControls } from './features/games/privateserve
 
 // Settings
 import { init as initSettingsPage } from './features/settings/index.js';
+
+// create
+import { init as initCreateDownload } from './features/create.roblox.com/download.js'
 
 let pageLoaded = false;
 let lastPath = window.location.pathname;
@@ -110,7 +112,6 @@ const featureRoutes = [
       initDonationLink,
       initRap,
       initInstantJoiner,
-      initItemChecker,
       initOutfits,
       initPrivateServers,
       initRovalraBadges,
@@ -126,6 +127,11 @@ const featureRoutes = [
     paths: ['/docs'],
     features: [initApiDocs],
   },
+  // create
+  {
+    paths: ['/store/asset'],
+    features: [initCreateDownload]
+  }
 ];
 
 
@@ -136,7 +142,13 @@ function runFeaturesForPage() {
   featureRoutes.forEach((route) => {
     if (route.paths.some((p) => p === '*' || path.startsWith(p) || normalizedPath.startsWith(p))) {
       if (route.features && Array.isArray(route.features)) {
-        route.features.forEach((init) => init());
+        route.features.forEach((init) => {
+          try {
+            init();
+          } catch (error) {
+            console.error('RoValra: Feature init failed', error);
+          }
+        });
       }
     }
   });
@@ -151,13 +163,16 @@ async function initializePage() {
   const observerStatus = startObserving();
 
   const onDomReady = async () => {
-    const theme = await detectTheme();
-    dispatchThemeEvent(theme);
+    detectTheme().then((theme) => dispatchThemeEvent(theme));
 
     runFeaturesForPage();
   };
 
-  document.addEventListener('DOMContentLoaded', onDomReady);
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', onDomReady);
+  } else {
+    onDomReady();
+  }
 
   console.log(`%cRoValra Initialized`, 'font-size: 1.5em; color: #FF4500;', `(Observer: ${observerStatus})`);
 }
