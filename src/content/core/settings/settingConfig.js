@@ -365,8 +365,8 @@ export const SETTINGS_CONFIG = {
             },
             RoValraBadgesEnable: {
                 label: "RoValra Badges",
-                description: ["This adds custom RoValra related badges to the Roblox Badges for specific users profiles",
-                    "The list of users will expand, this is mostly just a silly feature."
+                description: ["Disabling this will hide any RoValra badges from profiles.",
+                
                 ],
                 type: "checkbox",
                 default: true,
