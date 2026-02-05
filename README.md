@@ -16,7 +16,7 @@
   <img alt="Lisence" src="https://img.shields.io/github/license/NotValra/RoValra">
   <img alt="GitHub Downloads" src="https://img.shields.io/github/downloads/NotValra/RoValra/total">
   <img alt="Chrome Webstore Installs" src="https://img.shields.io/chrome-web-store/users/njcickgebhnpgmoodjdgohkclfplejli?logo=googlechrome&logoColor=white&label=Weekly%20Users&link=https%3A%2F%2Fchromewebstore.google.com%2Fdetail%2Frovalra-roblox-improved%2Fnjcickgebhnpgmoodjdgohkclfplejli">
-  <img alt="Discord" src="https://img.shields.io/discord/1143867106765570088?logo=discord&logoColor=white&label=Discord&color=002bff">
+  <img alt="Discord" src="https://img.shields.io/discord/1143867106765570088?logo=discord&logoColor=white&label=Discord&color=002bff&link=https://discord.gg/GHd5cSKJRk">
   <img alt="Rating" src="https://img.shields.io/chrome-web-store/stars/njcickgebhnpgmoodjdgohkclfplejli?logo=reverbnation&logoColor=yellow&link=https%3A%2F%2Fchromewebstore.google.com%2Fdetail%2Frovalra-roblox-improved%2Fnjcickgebhnpgmoodjdgohkclfplejli%2Freviews">
 </p>
 
