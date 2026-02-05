@@ -3,6 +3,7 @@ import { observeElement } from '../../core/observer.js';
 import { createAssetIcon } from '../../core/ui/general/toast.js';
 import { createCloseButton } from '../../core/ui/closeButton.js';
 import { callRobloxApi } from '../../core/api.js';
+import { getUserIdFromUrl } from '../../core/idExtractor.js';
 import {
     fetchThumbnails as fetchThumbnailsBatch,
     createThumbnailElement,
@@ -21,18 +22,6 @@ export function init() {
 
         ('use strict');
 
-        const getUserIdFromPageData = () => {
-            const profileHeader = document.getElementById(
-                'profile-header-container',
-            );
-            if (profileHeader) {
-                const userId = profileHeader.getAttribute('data-profileuserid');
-                if (userId) {
-                    return parseInt(userId, 10);
-                }
-            }
-            return null;
-        };
 
         async function fetchAllOutfits(userId, onChunkFetched, loadingControl) {
             let paginationToken = null;
@@ -1059,7 +1048,7 @@ export function init() {
                 );
 
                 try {
-                    const userId = getUserIdFromPageData();
+                    const userId = getUserIdFromUrl();
                     if (userId) {
                         let outfitsFound = false;
                         await fetchAllOutfits(

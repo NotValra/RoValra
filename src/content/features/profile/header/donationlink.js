@@ -10,7 +10,7 @@ import { getAuthenticatedUsername } from '../../../core/user.js';
 
 async function addDonationButton(observedElement) {
     const autheduser = await getAuthenticatedUsername();
-    const username = getUsernameFromPageData();
+    const username = await getUsernameFromPageData();
     const buttonIdentifier = 'rovalra-donation-button';
     const targetContainer = getOrCreateRovalraContainer(observedElement);
 
@@ -95,4 +95,3 @@ export function init() {
         }
     });
 }
-

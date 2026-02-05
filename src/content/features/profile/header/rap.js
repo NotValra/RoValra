@@ -4,7 +4,8 @@ import { callRobloxApi } from '../../../core/api.js';
 import { createItemCard } from '../../../core/ui/items/items.js';
 import { fetchThumbnails as fetchThumbnailsBatch } from '../../../core/thumbnail/thumbnails.js';
 import { addTooltip } from '../../../core/ui/tooltip.js';
-import { getUsernameFromPageData } from '../../../core/utils.js';
+import { getUsernameFromPageData, getDisplayNameFromPageData } from '../../../core/utils.js';
+import { getUserIdFromUrl } from '../../../core/idExtractor.js';
 import { createProfileHeaderButton } from '../../../core/ui/profile/header/button.js';
 import { createStyledInput } from '../../../core/ui/catalog/input.js';
 import DOMPurify from 'dompurify';
@@ -115,8 +116,7 @@ async function fetchItemThumbnails(items, thumbnailCache, signal) {
 
 
 async function showInventoryOverlay(userId, items, totalRapString, hideSerial) {
-    const metaTitle = document.querySelector('meta[property="og:title"]')?.content;
-    const displayName = metaTitle ? metaTitle.replace("'s Profile", "") : "User";
+    const displayName = await getDisplayNameFromPageData() || "User";
     const allItems = items.sort((a, b) => (b.recentAveragePrice || 0) - (a.recentAveragePrice || 0));
     let filteredItems = [...allItems];
     let currentLoadController = null;
@@ -230,7 +230,7 @@ async function addUserRapDisplay(observedElement) {
     const targetContainer = getOrCreateRovalraContainer(observedElement);
     if (!targetContainer || targetContainer.querySelector(`.${rapDisplayIdentifier}`)) return;
 
-    const userId = document.getElementById('profile-header-container')?.dataset?.profileuserid;
+    const userId = getUserIdFromUrl();
     if (!userId) return;
 
 
@@ -262,8 +262,8 @@ async function addUserRapDisplay(observedElement) {
         rapText.innerText = 'Private';
         addTooltip(rapDisplay, "Open in Rolimon's", { position: 'top' });
 
-        rapDisplay.addEventListener('click', () => {
-            const username = getUsernameFromPageData() || 'this user';
+        rapDisplay.addEventListener('click', async () => {
+            const username = await getUsernameFromPageData() || 'this user';
             const bodyContent = document.createElement('div');
             bodyContent.innerHTML = DOMPurify.sanitize(`You are about to be redirected to ${username}'s profile on Rolimon's, an external website for trading and item values.<br><br>Do you want to continue?`);
 

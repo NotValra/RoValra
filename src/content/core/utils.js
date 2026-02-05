@@ -1,3 +1,6 @@
+import { callRobloxApi } from './api.js';
+import { getUserIdFromUrl } from './idExtractor.js';
+
 export const getCsrfToken = (() => {
     let csrfToken = null;
     let pendingPromise = null;
@@ -33,22 +36,44 @@ export const getCsrfToken = (() => {
     return getToken;
 })();
 
+export { getUserIdFromUrl };
 
-export function getUserIdFromUrl() {
-    const match = window.location.href.match(/\/users\/(\d+)\/profile/);
-    return match ? match[1] : null;
+export async function getUsernameFromPageData() {
+    const userId = getUserIdFromUrl();
+    if (!userId) {
+        return null;
+    }
+
+    try {
+        const response = await callRobloxApi({
+            subdomain: 'users',
+            endpoint: `/v1/users/${userId}`,
+            method: 'GET'
+        });
+        if (response.ok) {
+            const data = await response.json();
+            return data.name;
+        }
+    } catch (e) {}
+    return null;
 }
 
-export function getUsernameFromPageData() {
-    const scripts = document.querySelectorAll('script');
-    for (const script of scripts) {
-        if (script.textContent.includes('Roblox.ProfileHeaderData')) {
-            const match = script.textContent.match(/"profileusername":"([^"]+)"/);
-            if (match && match[1]) {
-                return match[1];
-            }
-        }
+export async function getDisplayNameFromPageData() {
+    const userId = getUserIdFromUrl();
+    if (!userId) {
+        return null;
     }
-    console.error('RoValra (Utils): Could not find profileusername within any script tags.');
+
+    try {
+        const response = await callRobloxApi({
+            subdomain: 'users',
+            endpoint: `/v1/users/${userId}`,
+            method: 'GET'
+        });
+        if (response.ok) {
+            const data = await response.json();
+            return data.displayName;
+        }
+    } catch (e) {}
     return null;
 }
