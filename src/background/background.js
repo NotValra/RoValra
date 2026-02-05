@@ -90,7 +90,8 @@ function getDefaultSettings() {
         forceReviewPopup: false,
         recentServersEnabled: true,
         simulateRoValraServerLatency: false,
-        PrivateQuickLinkCopy: true
+        PrivateQuickLinkCopy: true,
+        DownloadCreateEnabled: true
     };
 }
 

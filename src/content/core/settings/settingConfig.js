@@ -495,6 +495,12 @@ export const SETTINGS_CONFIG = {
                 type: "checkbox",
                 default: true
             },
+            DownloadCreateEnabled: {
+                label: "Adds a download button to create.roblox.com",
+                description: "This feature allows you to download assets like meshes, images, audios, etc from the create page.",
+                type: "checkbox",
+                default: true
+            },
             cssfixesEnabled: {
                 label: "Site Fixes",
                 description: ["This fixes various site issues or just poor design choices by Roblox.",],

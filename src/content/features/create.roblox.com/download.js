@@ -1,9 +1,9 @@
 import { getAssetIdFromUrl } from '../../core/idExtractor.js';
 import { checkAssetsInBatch } from '../../core/utils/assetStreamer.js';
-import { createButton } from '../../core/ui/buttons.js';
 import { observeElement } from '../../core/observer.js';
 import { callRobloxApi } from '../../core/api.js';
 import { MeshConverter } from '../../core/utils/meshConverter.js';
+import { getAssets } from '../../core/assets.js';
 
 
 function saveAsFile(data, fileName, mimeType) {
@@ -19,7 +19,6 @@ function saveAsFile(data, fileName, mimeType) {
 }
 
 async function downloadAsset(assetId) {
-    console.log(`[RoValra DL] Starting download for asset: ${assetId}`);
     
     let assetLocation = null;
     let assetTypeId = null;
@@ -52,8 +51,7 @@ async function downloadAsset(assetId) {
 
     if (assetLocation) {
         try {
-            console.log(`[RoValra DL] Fetching raw asset from: ${assetLocation}`);
-            const response = await fetch(assetLocation);
+            const response = await fetch(assetLocation); // Verified
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
             
             const arrayBuffer = await response.arrayBuffer();
@@ -61,7 +59,6 @@ async function downloadAsset(assetId) {
 
             if (assetTypeId === 4 || assetTypeId === 40) {
                 try {
-                    console.log('[RoValra DL] Mesh detected. Attempting OBJ conversion...');
                     const objData = await MeshConverter.convertToObj(arrayBuffer);
                     saveAsFile(objData, `${assetId}.obj`, 'text/plain');
                     return; 
@@ -84,12 +81,10 @@ async function downloadAsset(assetId) {
         }
     }
 
-    console.log('[RoValra DL] Falling back to AssetStreamer...');
     const assetData = await checkAssetsInBatch([assetId]);
     const asset = assetData[0];
 
     if (!asset || !asset.isValid || !asset.root) {
-        console.error(`Failed to download or parse asset: ${assetId}`);
         return;
     }
 
@@ -122,16 +117,52 @@ function addButton(buttonContainer) {
     }
 
     const targetContainer = buttonContainer.firstElementChild || buttonContainer;
+    const assets = getAssets();
 
-    const downloadButton = createButton('Download', 'secondary', {
-        id: 'rovalra-download-asset-btn',
-        onClick: () => {
-            downloadAsset(assetId);
-        }
+    const downloadButton = document.createElement('button');
+    downloadButton.id = 'rovalra-download-asset-btn';
+    Object.assign(downloadButton.style, {
+        display: 'flex',
+        alignItems: 'center',
+        background: 'transparent',
+        border: 'none',
+        cursor: 'pointer',
+        padding: '0',
+        marginRight: '10px',
+        color: 'inherit',
+        fontWeight: 'bold',
+        fontSize: '14px',
+        fontFamily: 'inherit'
     });
 
-    downloadButton.style.marginLeft = '10px';
-    targetContainer.appendChild(downloadButton);
+    const icon = document.createElement('div');
+    Object.assign(icon.style, {
+        width: '24px',
+        height: '24px',
+        marginRight: '4px',
+        backgroundColor: 'currentColor',
+        webkitMask: `url("${assets.downloadIcon}") no-repeat center / contain`,
+        mask: `url("${assets.downloadIcon}") no-repeat center / contain`
+    });
+
+    const text = document.createElement('span');
+    text.textContent = 'Download';
+
+    downloadButton.appendChild(icon);
+    downloadButton.appendChild(text);
+
+    downloadButton.addEventListener('mouseenter', () => {
+        text.style.textDecoration = 'underline';
+    });
+    downloadButton.addEventListener('mouseleave', () => {
+        text.style.textDecoration = 'none';
+    });
+
+    downloadButton.onclick = () => {
+        downloadAsset(assetId);
+    };
+
+    targetContainer.prepend(downloadButton);
 }
 
 export function init() {
@@ -139,7 +170,11 @@ export function init() {
         return;
     }
 
-    observeElement('[data-testid="assetButtonsTestId"]', (buttonContainer) => {
-        addButton(buttonContainer);
+    chrome.storage.local.get({ DownloadCreateEnabled: true }, (result) => {
+        if (result.DownloadCreateEnabled) {
+            observeElement('[data-testid="assetButtonsTestId"]', (buttonContainer) => {
+                addButton(buttonContainer);
+            });
+        }
     });
 }
