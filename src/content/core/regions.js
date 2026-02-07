@@ -1,9 +1,9 @@
 // TODO i hate this script...
 
 import { callRobloxApi } from './api.js';
+import { getAssets } from './assets.js';
 
 const API_ENDPOINT_DATACENTERS_LIST = '/v1/datacenters/list';
-const FALLBACK_JSON_PATH = 'data/ServerList.json';
 const STORAGE_KEY_DATACENTERS = 'rovalraDatacenters';
 const STORAGE_KEY_REGIONS = 'cachedRegions';
 const STORAGE_KEY_CONTINENTS = 'cachedRegionContinents';
@@ -69,7 +69,7 @@ export async function loadDatacenterMap() {
 
     if (!currentData) {
         try {
-            const fallbackUrl = chrome.runtime.getURL(FALLBACK_JSON_PATH);
+            const fallbackUrl = getAssets().serverListJson;
             const response = await fetch(fallbackUrl);
             if (!response.ok) throw new Error(`Status: ${response.status}`);
 
@@ -126,7 +126,7 @@ async function fetchAndProcessRegions() {
     } catch (error) {
         console.warn("RoValra: API failed, using fallback.", error.message);
         try {
-            const fallbackUrl = chrome.runtime.getURL(FALLBACK_JSON_PATH);
+            const fallbackUrl = getAssets().serverListJson;
             const response = await fetch(fallbackUrl);
             if (!response.ok) throw new Error(`Status ${response.status}`);
             data = await response.json();
