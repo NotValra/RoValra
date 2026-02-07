@@ -28,7 +28,7 @@ try {
     );
     process.exit(1);
 }
-//E
+//E why the hell did i make this comment?
 const bannerText = `/*!
  * ${pkg.name} v${pkg.version}
  * License: GPL-3.0
@@ -39,7 +39,7 @@ const bannerText = `/*!
 const commonConfig = {
     minify: false,
 
-    minifyWhitespace: true,
+    minifyWhitespace: false,
     minifySyntax: true,
     minifyIdentifiers: false,
 
@@ -141,7 +141,7 @@ function processDirectory(src, dest) {
 
                     const result = esbuild.transformSync(content, {
                         loader: ext.slice(1),
-                        minifyWhitespace: true,
+                        minifyWhitespace: false,
                         minifySyntax: true,
                         minifyIdentifiers: false,
                         keepNames: true,
