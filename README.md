@@ -46,9 +46,8 @@ It helps a lot and supports continued development.
 ### Option 1: Chrome Web Store and Firefox Web Store (Recommended)
 
 Install directly from the [Chrome Web Store](https://chromewebstore.google.com/detail/RoValra%20-%20Roblox%20Improved/njcickgebhnpgmoodjdgohkclfplejli)
-or install from the [Firefox Addon Store](https://addons.mozilla.org/en-US/firefox/addon/rovalra/)
-> [!WARNING]
-> Firefox port is unofficial and not inspected by the team of RoValra - Proceed with caution
+> [!NOTE]
+> Firefox port of RoValra was removed by Firefox.
 
 ---
 
