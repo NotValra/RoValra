@@ -50,6 +50,12 @@ export const SETTINGS_CONFIG = {
                 description: ["This feature shows an items dependencies which means you are able to view the texture, mesh and more of an item."],
                 type: "checkbox",
                 default: true,
+            },
+            priceFloorEnabled: {
+                label: "Show Price Floor",
+                description: "This will show the price floor when viewing items, and shows if the item you are viewing is sold at or above the price floor.",
+                type: "checkbox",
+                default: true
             }
 
 

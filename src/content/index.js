@@ -22,6 +22,8 @@ import { init as initR6Warning } from './features/avatar/R6Warning.js';
 import { init as initItemSales } from './features/catalog/itemsales.js';
 import { init as init40Method } from './features/catalog/40method.js';
 import { init as initDependencies } from './features/catalog/depenencies.js';
+import { init as initPriceFloor } from './features/catalog/pricefloor.js';
+
 // Games
 import { init as initBotDetector } from './features/games/about/botDetector.js';
 import { init as initQuickPlay } from './features/games/quickplay.js';
@@ -76,7 +78,7 @@ const featureRoutes = [
   // Catalog and bundle pages
   {
     paths: ['/catalog', '/bundles'],
-    features: [initDependencies, initItemSales],
+    features: [initDependencies, initItemSales, initPriceFloor],
   },
   // Group pages
   {

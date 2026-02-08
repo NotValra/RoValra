@@ -91,7 +91,8 @@ function getDefaultSettings() {
         recentServersEnabled: true,
         simulateRoValraServerLatency: false,
         PrivateQuickLinkCopy: true,
-        DownloadCreateEnabled: true
+        DownloadCreateEnabled: true,
+        priceFloorEnabled: true
     };
 }
 
