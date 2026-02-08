@@ -16,22 +16,34 @@ export function init() {
             if (!assetId) return;
 
             try {
+                const isBundlePage = window.location.pathname.includes('/bundles/');
+                const itemType = isBundlePage ? 'Bundle' : 'Asset';
+
                 const details = await callRobloxApiJson({
                     subdomain: 'catalog',
-                    endpoint: `/v1/catalog/items/${assetId}/details?itemType=Asset`
+                    endpoint: `/v1/catalog/items/${assetId}/details?itemType=${itemType}`
                 });
 
-                if (!details || !details.assetType) return;
+                if (!details) return;
 
-                const assetType = details.assetType;
+                let assetType = isBundlePage ? details.bundleType : details.assetType;
+
+                if (details.taxonomy?.some(t => t.taxonomyName === 'Heads')) {
+                    assetType = 2;
+                }
+
+                if (!assetType) return;
+
                 const isPbr = details.isPBR || false;
                 const isBodysuit = details.taxonomy?.some(t => t.taxonomyName === 'Bodysuit') || false;
                 
                 const collectibleItemType = (details.itemRestrictions && details.itemRestrictions.includes('Collectible')) ? 1 : 2;
 
+                const typeParam = isBundlePage ? 'bundleType' : 'assetType';
+
                 const priceFloorData = await callRobloxApiJson({
                     subdomain: 'itemconfiguration',
-                    endpoint: `/v1/items/price-floor?collectibleItemType=${collectibleItemType}&creationType=1&isPbr=${isPbr}&isBodysuit=${isBodysuit}&assetType=${assetType}`
+                    endpoint: `/v1/items/price-floor?collectibleItemType=${collectibleItemType}&creationType=1&isPbr=${isPbr}&isBodysuit=${isBodysuit}&${typeParam}=${assetType}`
                 });
 
                 if (priceFloorData && typeof priceFloorData.priceFloor === 'number') {
