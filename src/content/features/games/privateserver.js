@@ -76,6 +76,20 @@ async function addOwnerControls(serverItem, privateServerId) {
 
     if (serverItem.querySelector('.rbx-private-game-server-copy-link') || serverItem.querySelector('.rbx-private-game-server-regenerate-link')) return;
 
+    let initialData = null;
+    try {
+        const res = await callRobloxApi({
+            subdomain: 'games',
+            endpoint: `/v1/vip-servers/${privateServerId}`,
+            method: 'GET'
+        });
+        if (res.ok) {
+            initialData = await res.json();
+        }
+    } catch (e) { console.warn(e); }
+
+    if (initialData?.subscription?.expired) return;
+
     const container = document.createElement('div');
     container.className = 'rovalra-private-server-controls';
     container.style.marginTop = '5px';
@@ -104,6 +118,13 @@ async function addOwnerControls(serverItem, privateServerId) {
         detailsDiv.appendChild(container);
     }
 
+    if (initialData) {
+        copyLinkBtn.disabled = !initialData.link;
+        if (initialData.active === false) {
+            generateLinkBtn.disabled = true;
+        }
+    }
+
     const checkLink = async () => {
         try {
             const res = await callRobloxApi({
@@ -122,8 +143,6 @@ async function addOwnerControls(serverItem, privateServerId) {
         } catch (e) { console.warn(e); }
         return null;
     };
-
-    checkLink();
 
     copyLinkBtn.onclick = async () => {
         if (copyLinkBtn.disabled) return;
