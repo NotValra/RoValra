@@ -56,6 +56,28 @@ export function init() {
                     navbar.insertBefore(li, navbar.firstChild);
                 }
                 
+                const permissionLevels = {
+                    'AllUsers': 4, 'All': 4,
+                    'FriendsFollowingAndFollowers': 3, 'Followers': 3,
+                    'FriendsAndFollowing': 2, 'Following': 2,
+                    'Friends': 1,
+                    'NoOne': 0
+                };
+                const onlineToJoinMap = {
+                    'AllUsers': 'All',
+                    'FriendsFollowingAndFollowers': 'Followers',
+                    'FriendsAndFollowing': 'Following',
+                    'Friends': 'Friends',
+                    'NoOne': 'NoOne'
+                };
+                const joinToOnlineMap = {
+                    'All': 'AllUsers',
+                    'Followers': 'FriendsFollowingAndFollowers',
+                    'Following': 'FriendsAndFollowing',
+                    'Friends': 'Friends',
+                    'NoOne': 'NoOne'
+                };
+
                 let currentOnlineStatus = 'AllUsers';
                 let currentJoinStatus = 'AllUsers';
                 try {
@@ -75,6 +97,8 @@ export function init() {
                 } catch (e) {
                     console.warn('RoValra: Failed to fetch online status', e);
                 }
+
+                currentJoinStatus = onlineToJoinMap[currentJoinStatus] || currentJoinStatus;
 
                 chrome.storage.local.get([], (data) => {
                     const labelMap = {
@@ -118,16 +142,16 @@ export function init() {
                         }
 
                         if (value === 'onlineStatus' || value === 'joinStatus') {
+                            const isOnlineStatus = value === 'onlineStatus';
                             const statusOptions = [
-                                { label: 'Everyone', value: 'AllUsers' },
-                                { label: 'Connections, Followers, & Following', value: 'FriendsFollowingAndFollowers' },
-                                { label: 'Connections & Following', value: 'FriendsAndFollowing' },
+                                { label: 'Everyone', value: isOnlineStatus ? 'AllUsers' : 'All' },
+                                { label: 'Connections, Followers, & Following', value: isOnlineStatus ? 'FriendsFollowingAndFollowers' : 'Followers' },
+                                { label: 'Connections & Following', value: isOnlineStatus ? 'FriendsAndFollowing' : 'Following' },
                                 { label: 'Connections', value: 'Friends' },
                                 { label: 'No one', value: 'NoOne' }
                             ];
 
-                            const isOnlineStatus = value === 'onlineStatus';
-                            const initialValue = isOnlineStatus ? currentOnlineStatus : currentJoinStatus;
+                            let initialValue = isOnlineStatus ? currentOnlineStatus : currentJoinStatus;
 
                             const { element: statusDropdown, setValue } = createDropdown({
                                 items: statusOptions,
@@ -136,15 +160,55 @@ export function init() {
                                     const payload = isOnlineStatus 
                                         ? { whoCanSeeMyOnlineStatus: newValue }
                                         : { whoCanJoinMeInExperiences: newValue };
-
+                
                                     callRobloxApi({
                                         subdomain: 'apis',
                                         endpoint: '/user-settings-api/v1/user-settings',
                                         method: 'POST',
                                         body: payload
                                     }).catch(e => console.error('Failed to update status', e));
-
-                                    if (isOnlineStatus && newValue === 'NoOne') {
+                
+                                    const onlineDropdownEl = document.getElementById('rovalra-qol-onlineStatus-dropdown');
+                                    const joinDropdownEl = document.getElementById('rovalra-qol-joinStatus-dropdown');
+                
+                                    if (isOnlineStatus) {
+                                        currentOnlineStatus = newValue;
+                                        const onlineLevel = permissionLevels[currentOnlineStatus];
+                                        const joinLevel = permissionLevels[currentJoinStatus];
+                
+                                        if (onlineLevel < joinLevel) {
+                                            const newJoinValue = onlineToJoinMap[currentOnlineStatus];
+                                            if (joinDropdownEl && joinDropdownEl.rovalraSetValue) {
+                                                joinDropdownEl.rovalraSetValue(newJoinValue);
+                                                currentJoinStatus = newJoinValue;
+                                                callRobloxApi({
+                                                    subdomain: 'apis',
+                                                    endpoint: '/user-settings-api/v1/user-settings',
+                                                    method: 'POST',
+                                                    body: { whoCanJoinMeInExperiences: newJoinValue }
+                                                }).catch(e => console.error('Failed to update join status', e));
+                                            }
+                                        }
+                                    } else { // isJoinStatus
+                                        currentJoinStatus = newValue;
+                                        const joinLevel = permissionLevels[currentJoinStatus];
+                                        const onlineLevel = permissionLevels[currentOnlineStatus];
+                
+                                        if (joinLevel > onlineLevel) {
+                                            const newOnlineValue = joinToOnlineMap[currentJoinStatus];
+                                            if (onlineDropdownEl && onlineDropdownEl.rovalraSetValue) {
+                                                onlineDropdownEl.rovalraSetValue(newOnlineValue);
+                                                currentOnlineStatus = newOnlineValue;
+                                                callRobloxApi({
+                                                    subdomain: 'apis',
+                                                    endpoint: '/user-settings-api/v1/user-settings',
+                                                    method: 'POST',
+                                                    body: { whoCanSeeMyOnlineStatus: newOnlineValue }
+                                                }).catch(e => console.error('Failed to update online status', e));
+                                            }
+                                        }
+                                    }
+                                    if (isOnlineStatus && newValue === 'NoOne' && joinDropdownEl && joinDropdownEl.rovalraSetValue) {
                                         const joinDropdownEl = document.getElementById('rovalra-qol-joinStatus-dropdown');
                                         if (joinDropdownEl && joinDropdownEl.rovalraSetValue) {
                                             joinDropdownEl.rovalraSetValue('NoOne');

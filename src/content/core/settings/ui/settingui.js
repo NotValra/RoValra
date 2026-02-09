@@ -346,7 +346,7 @@ function addDeveloperTab({ menuList, loadTabContent, renderMobileDropdown }) {
         settings: {
             info: {
                 label: ["Developer Settings"],
-                description: ["These are featured used mostly to develop rovalra, if you don't know what your doing dont touch them."],
+                description: ["These are features used mostly to develop rovalra, if you don't know what your doing dont touch them."],
                 type: "yay"
             },
             alwaysShowDeveloperSettings: {
