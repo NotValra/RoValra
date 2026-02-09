@@ -176,3 +176,48 @@ export function createDropdown({ items = [], initialValue, placeholder = 'Select
         }
     };
 }
+
+export function createDropdownMenu({ trigger, items, onValueChange, position }) {
+    injectDropdownCss();
+
+    const updateTriggerText = () => {};
+
+    const { element: contentPanel, toggleVisibility } = createDropdownContent(
+        trigger, items, null, onValueChange, updateTriggerText, false
+    );
+
+    const toggle = (forceOpen) => {
+        const isOpen = forceOpen ?? contentPanel.getAttribute('data-state') !== 'open';
+        toggleVisibility(isOpen);
+        trigger.setAttribute('data-state', isOpen ? 'open' : 'closed');
+        trigger.setAttribute('aria-expanded', String(isOpen));
+        
+        if (isOpen) {
+            contentPanel.style.minWidth = '200px';
+            if (position !== 'center') {
+                const rect = trigger.getBoundingClientRect();
+                if (rect.left + 200 > window.innerWidth) {
+                    contentPanel.style.left = `${rect.right - 200 + window.scrollX}px`;
+                }
+            }
+        }
+    };
+
+    trigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggle();
+    });
+
+    contentPanel.addEventListener('click', (e) => {
+        e.stopPropagation();
+    });
+
+    document.addEventListener('click', (e) => {
+        if (contentPanel.contains(e.target)) return;
+        if (!trigger.contains(e.target) && contentPanel.getAttribute('data-state') === 'open') {
+            toggle(false);
+        }
+    });
+
+    return { panel: contentPanel, toggle };
+}

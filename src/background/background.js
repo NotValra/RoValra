@@ -92,7 +92,8 @@ function getDefaultSettings() {
         simulateRoValraServerLatency: false,
         PrivateQuickLinkCopy: true,
         DownloadCreateEnabled: true,
-        priceFloorEnabled: true
+        priceFloorEnabled: true,
+        qolTogglesEnabled: true
     };
 }
 

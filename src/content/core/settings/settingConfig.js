@@ -507,6 +507,12 @@ export const SETTINGS_CONFIG = {
                 type: "checkbox",
                 default: true
             },
+            qolTogglesEnabled: {
+                label: "Adds quality of life toggles to the nav bar",
+                description: "Allowing you to quickly change your online status or experience status without going into settings.",
+                type: "checkbox",
+                default: true
+            },
             cssfixesEnabled: {
                 label: "Site Fixes",
                 description: ["This fixes various site issues or just poor design choices by Roblox.",],

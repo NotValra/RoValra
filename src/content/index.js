@@ -13,6 +13,7 @@ import { init as initStreamerMode } from './features/sitewide/streamermode.js';
 import { init as initMarkDownTest } from './features/developer/markdowntest.js'
 import { init as initApiDocs } from './features/developer/apiDocs.js';
 import { init as initServerTracker } from './core/utils/trackers/servers.js';
+import { init as initQoLToggles } from './features/navigation/QoLToggles.js';
 
 // Avatar
 import { init as initAvatarFilters } from './features/avatar/filters.js';
@@ -68,7 +69,7 @@ const featureRoutes = [
   // Generic features that run on most pages
   {
     paths: ['*'],
-    features: [initSettingsPage, initQuickPlay, initEasterEggLinks, initCssFixes, initWhatAmIJoining, initHiddenCatalog, initServerListener, initOnboarding, initVideoTest, initStreamerMode, initMarkDownTest, initServerTracker],
+    features: [initSettingsPage, initQuickPlay, initEasterEggLinks, initCssFixes, initWhatAmIJoining, initHiddenCatalog, initServerListener, initOnboarding, initVideoTest, initStreamerMode, initMarkDownTest, initServerTracker, initQoLToggles],
   },
   // pretty much just the 40% method
   {
