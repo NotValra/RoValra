@@ -2,7 +2,6 @@ import { getAssetIdFromUrl } from '../../core/idExtractor.js';
 import { checkAssetsInBatch } from '../../core/utils/assetStreamer.js';
 import { observeElement } from '../../core/observer.js';
 import { callRobloxApi } from '../../core/api.js';
-import { MeshConverter } from '../../core/utils/meshConverter.js';
 import { getAssets } from '../../core/assets.js';
 
 
@@ -56,17 +55,6 @@ async function downloadAsset(assetId) {
             
             const arrayBuffer = await response.arrayBuffer();
             
-
-            if (assetTypeId === 4 || assetTypeId === 40) {
-                try {
-                    const objData = await MeshConverter.convertToObj(arrayBuffer);
-                    saveAsFile(objData, `${assetId}.obj`, 'text/plain');
-                    return; 
-                } catch (convErr) {
-                    console.error('[RoValra DL] Mesh conversion failed, downloading raw .mesh instead.', convErr);
-                }
-            }
-
             const typeMap = {
                 1: 'png', 3: 'ogg', 4: 'mesh', 9: 'rbxl', 10: 'rbxm', 
                 11: 'png', 12: 'png', 13: 'png', 24: 'rbxm', 38: 'rbxm', 40: 'mesh'
