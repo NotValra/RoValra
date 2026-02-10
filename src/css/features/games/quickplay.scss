@@ -333,7 +333,26 @@ a.game-tile-styles.game-card-link {
     }
 }
 
+
+
 .featured-game-container {
+
+    .featured-game-icon-container {
+        position: relative;
+        z-index: 11 !important;
+    }
+
+    .game-tile-overflow-button {
+        position: relative;
+        z-index: 12 !important;
+        pointer-events: auto !important;
+
+        button {
+            pointer-events: auto !important;
+            isolation: isolate;
+        }
+    }
+
     a.game-tile-styles.game-card-link {
 
         &::after,
