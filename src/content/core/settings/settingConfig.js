@@ -444,6 +444,12 @@ export const SETTINGS_CONFIG = {
                 description: ["Allowing you to quickly search for items in the avatar editor."],
                 type: "checkbox",
                 default: true
+            },
+            avatarRotatorEnabled: {
+                label: "Avatar Rotator",
+                description: "Adds an avatar Rotator allowing you to Rotate between up to 5 different avatars on a 5 seconds interval.",
+                type: "checkbox",
+                default: true
             }
         }
     },

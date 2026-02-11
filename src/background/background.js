@@ -93,7 +93,8 @@ function getDefaultSettings() {
         PrivateQuickLinkCopy: true,
         DownloadCreateEnabled: true,
         priceFloorEnabled: true,
-        qolTogglesEnabled: true
+        qolTogglesEnabled: true,
+        avatarRotatorEnabled: true
     };
 }
 
@@ -350,6 +351,135 @@ function pollUserPresence() {
     });
 }
 
+let csrfTokenCache = null;
+
+async function callRobloxApiBackground(options) {
+    const {
+        subdomain = 'api',
+        endpoint,
+        method = 'GET',
+        body = null,
+        headers = {}
+    } = options;
+
+    let url = `https://${subdomain}.roblox.com${endpoint}`;
+    if (url.includes('?')) {
+        url += `&_RoValraRequest=`;
+    } else {
+        url += `?_RoValraRequest=`;
+    }
+
+    const fetchOptions = {
+        method,
+        headers: {
+            ...headers
+        }
+    };
+
+    if (body) {
+        fetchOptions.headers['Content-Type'] = 'application/json';
+        fetchOptions.body = JSON.stringify(body);
+    }
+
+    if (method !== 'GET' && method !== 'HEAD') {
+        if (csrfTokenCache) {
+            fetchOptions.headers['X-CSRF-TOKEN'] = csrfTokenCache;
+        }
+    }
+
+    let response = await fetch(url, fetchOptions);
+
+    if (response.status === 403 && (method !== 'GET' && method !== 'HEAD')) {
+        const newCsrf = response.headers.get('x-csrf-token');
+        if (newCsrf) {
+            csrfTokenCache = newCsrf;
+            fetchOptions.headers['X-CSRF-TOKEN'] = newCsrf;
+            response = await fetch(url, fetchOptions);
+        }
+    }
+
+    return response;
+}
+
+async function wearOutfit(outfitId) {
+    const callWithRetry = async (options) => {
+        let retries500 = 0;
+        while (true) {
+            const response = await callRobloxApiBackground(options);
+
+            if (response.ok) return response;
+
+            if (response.status === 429) {
+                await new Promise(r => setTimeout(r, 1000));
+                continue;
+            }
+
+            if (response.status >= 500) {
+                if (retries500 < 3) {
+                    retries500++;
+                    await new Promise(r => setTimeout(r, 1000));
+                    continue;
+                }
+            }
+            return response;
+        }
+    };
+
+    try {
+        const detailsRes = await callWithRetry({
+            subdomain: 'avatar',
+            endpoint: `/v1/outfits/${outfitId}/details`
+        });
+
+        if (!detailsRes.ok) return { ok: false };
+
+        const details = await detailsRes.json();
+        const promises = [];
+
+        if (details.bodyColors) {
+            promises.push(callWithRetry({
+                subdomain: 'avatar',
+                endpoint: '/v1/avatar/set-body-colors',
+                method: 'POST',
+                body: details.bodyColors
+            }));
+        }
+
+        if (details.assets) {
+            promises.push(callWithRetry({
+                subdomain: 'avatar',
+                endpoint: '/v2/avatar/set-wearing-assets',
+                method: 'POST',
+                body: { assets: details.assets }
+            }));
+        }
+
+        if (details.playerAvatarType) {
+            promises.push(callWithRetry({
+                subdomain: 'avatar',
+                endpoint: '/v1/avatar/set-player-avatar-type',
+                method: 'POST',
+                body: { playerAvatarType: details.playerAvatarType }
+            }));
+        }
+
+        if (details.scale) {
+            promises.push(callWithRetry({
+                subdomain: 'avatar',
+                endpoint: '/v1/avatar/set-scales',
+                method: 'POST',
+                body: details.scale
+            }));
+        }
+
+        const results = await Promise.all(promises);
+        return { ok: results.every(r => r.ok) };
+    } catch (e) {
+        console.error('RoValra: Error wearing outfit', e);
+        return { ok: false };
+    }
+}
+
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     switch (request.action) {
         case 'updateOfflineRule':
@@ -502,11 +632,15 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         case 'getLatestPresence':
             sendResponse({ presence: latestPresence });
             return true;
+
+        case 'wearOutfit':
+            wearOutfit(request.outfitId).then(result => sendResponse(result));
+            return true;
     }
 
     return [
         "injectScript", "fetchItemData", "fetchHiddenGames",
-        'checkPermission', 'requestPermission', 'revokePermission', 'getLatestPresence'
+        'checkPermission', 'requestPermission', 'revokePermission', 'getLatestPresence', 'wearOutfit'
     ].includes(request.action);
 });
 
@@ -517,3 +651,38 @@ chrome.storage.local.get('MemoryleakFixEnabled', (result) => {
     }
     setupNavigationListener();
 });
+
+let rotatorInterval = null;
+let rotatorIndex = 0;
+
+function updateAvatarRotator() {
+    chrome.storage.local.get(['rovalra_avatar_rotator_enabled', 'rovalra_avatar_rotator_ids'], (data) => {
+        if (rotatorInterval) {
+            clearInterval(rotatorInterval);
+            rotatorInterval = null;
+        }
+
+        if (data.rovalra_avatar_rotator_enabled && data.rovalra_avatar_rotator_ids && data.rovalra_avatar_rotator_ids.length > 0) {
+            const ids = data.rovalra_avatar_rotator_ids;
+            rotatorIndex = 0;
+
+            const rotate = () => {
+                if (ids.length === 0) return;
+                const outfitId = ids[rotatorIndex];
+                wearOutfit(outfitId);
+                rotatorIndex = (rotatorIndex + 1) % ids.length;
+            };
+
+            rotate();
+            rotatorInterval = setInterval(rotate, 5000);
+        }
+    });
+}
+
+chrome.storage.onChanged.addListener((changes, namespace) => {
+    if (namespace === 'local' && (changes.rovalra_avatar_rotator_enabled || changes.rovalra_avatar_rotator_ids)) {
+        updateAvatarRotator();
+    }
+});
+
+updateAvatarRotator();

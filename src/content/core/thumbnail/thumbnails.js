@@ -50,6 +50,7 @@ async function fetchBatchData(batch, type, size, isCircular, signal, noCache = f
         'BundleThumbnail': { path: '/v1/bundles/thumbnails', idParam: 'bundleIds' },
         'PlaceIcon': { path: '/v1/places/gameicons', idParam: 'placeIds' },
         'UserOutfit': { path: '/v1/users/outfits', idParam: 'userOutfitIds' },
+        'Outfit': { path: '/v1/users/outfits', idParam: 'userOutfitIds' },
         'GamePass': { path: '/v1/game-passes', idParam: 'gamePassIds' }
     };
 
@@ -244,4 +245,10 @@ export function createThumbnailElement(thumbnailData, altText, baseClass = 'game
     thumbnailElement = document.createElement('div');
     thumbnailElement.className = 'thumbnail-2d-container icon-broken';
     return applyStyles(thumbnailElement);
+}
+
+export async function getBatchThumbnails(ids, type, size = '150x150') {
+    const items = ids.map(id => ({ id }));
+    const thumbnailMap = await fetchThumbnails(items, type, size);
+    return Array.from(thumbnailMap.values());
 }

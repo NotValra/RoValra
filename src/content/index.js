@@ -18,6 +18,7 @@ import { init as initQoLToggles } from './features/navigation/QoLToggles.js';
 // Avatar
 import { init as initAvatarFilters } from './features/avatar/filters.js';
 import { init as initR6Warning } from './features/avatar/R6Warning.js';
+import { init as initAvatarRotator } from './features/avatar/avatarRotator.js';
 
 // Catalog
 import { init as initItemSales } from './features/catalog/itemsales.js';
@@ -106,7 +107,7 @@ const featureRoutes = [
   // avatar
   {
     paths: ['/my/avatar'],
-    features: [initAvatarFilters, initR6Warning],
+    features: [initAvatarFilters, initR6Warning, initAvatarRotator],
   },
   // User profile pages
   {

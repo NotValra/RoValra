@@ -196,7 +196,7 @@ async function startOAuthFlow(silent = false) {
                         { "scopeType": "profile", "operations": ["read"] }
                     ],
                     "resourceInfos": [{
-                        "owner": { "id": "447170745", "type": "User" },
+                        "owner": { "id": userId.toString(), "type": "User" },
                         "resources": {}
                     }]
                 }

@@ -35,7 +35,7 @@ export async function createBadgeSettings(container) {
         }
 
         const badges = response.badges;
-        const badgeKeys = Object.keys(badges).filter(key => typeof badges[key] === 'boolean' && !key.endsWith('_visible'));
+        const badgeKeys = Object.keys(badges).filter(key => typeof badges[key] === 'boolean' && !key.endsWith('_visible') && badges[key] === true);
 
         if (badgeKeys.length === 0) {
             return;
