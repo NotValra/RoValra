@@ -449,7 +449,9 @@ export const SETTINGS_CONFIG = {
             },
             avatarRotatorEnabled: {
                 label: "Avatar Rotator",
-                description: "Adds an avatar Rotator allowing you to Rotate between up to 5 different avatars on a 5 seconds interval.",
+                description: ["Adds an avatar Rotator allowing you to Rotate between different avatars on a set interval.",
+                    "Allowing you to have a random avatar equipped every time you join an experience or respawn."
+                ],
                 type: "checkbox",
                 default: true,
                 storageKey: ["rovalra_avatar_rotator_enabled", "rovalra_avatar_rotator_ids", "rovalra_avatar_rotator_interval"]
