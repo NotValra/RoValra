@@ -53,7 +53,7 @@ export const BADGE_CONFIG = {
         userIds: [],
         icon: assets.rovalraIcon,
         tooltip: 'Donated any amount of Robux to help Support RoValra\'s development.',
-        url: 'https://www.roblox.com/communities/11249333/Valra#!/about',
+        url: 'https://www.roblox.com/games/107845747621646/The-game-that-games#!/store',
         style: { filter: 'sepia(1) saturate(1.8) hue-rotate(-35deg) brightness(0.8) contrast(1.2)' }
     },
     donator_2: {
@@ -61,7 +61,7 @@ export const BADGE_CONFIG = {
         userIds: [],
         icon: assets.rovalraIcon,
         tooltip: 'Donated 200 or more Robux to help Support RoValra\'s development.',
-        url: 'https://www.roblox.com/communities/11249333/Valra#!/about',
+        url: 'https://www.roblox.com/games/107845747621646/The-game-that-games#!/store',
         style: { filter: 'grayscale(1) brightness(1.3) contrast(1.2)' }
     },
     donator_3: {
@@ -69,7 +69,7 @@ export const BADGE_CONFIG = {
         userIds: [],
         icon: assets.rovalraIcon,
         tooltip: 'Donated 500 or more Robux to help Support RoValra\'s development.',
-        url: 'https://www.roblox.com/communities/11249333/Valra#!/about',
+        url: 'https://www.roblox.com/games/107845747621646/The-game-that-games#!/store',
         style: { filter: 'sepia(1) saturate(3) hue-rotate(5deg) brightness(1.1)' }
     }
 };
