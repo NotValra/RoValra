@@ -172,7 +172,8 @@ export const SETTINGS_CONFIG = {
                 label: "Recent Servers",
                 description: ["Shows the 4 most recent servers you joined under an experience."],
                 type: "checkbox",
-                default: true
+                default: true,
+                storageKey: "rovalra_server_history"
             },
             TotalServersEnabled: {
                 label: "Total Servers",
@@ -419,7 +420,8 @@ export const SETTINGS_CONFIG = {
                     "Just hold down on a community for a moment and drag it up or down."
                 ],
                 type: "checkbox",
-                default: true
+                default: true,
+                storageKey: "rovalra_groups_order"
             }
 
         }
@@ -449,7 +451,8 @@ export const SETTINGS_CONFIG = {
                 label: "Avatar Rotator",
                 description: "Adds an avatar Rotator allowing you to Rotate between up to 5 different avatars on a 5 seconds interval.",
                 type: "checkbox",
-                default: true
+                default: true,
+                storageKey: ["rovalra_avatar_rotator_enabled", "rovalra_avatar_rotator_ids", "rovalra_avatar_rotator_interval"]
             }
         }
     },
@@ -562,7 +565,8 @@ export const SETTINGS_CONFIG = {
                         description: ["Upload your custom image. Maximum file size is 1MB."],
                         type: "file",
                         default: null,
-                        compressSettingName: "compressCustomLogo"
+                        compressSettingName: "compressCustomLogo",
+                        storageKey: "customLogoData"
                     },
                     compressCustomLogo: {
                         label: "Compress Custom Icon",

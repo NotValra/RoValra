@@ -4,6 +4,7 @@ import { createOverlay } from '../../core/ui/overlay.js';
 import { callRobloxApiJson } from '../../core/api.js';
 import { getBatchThumbnails, createThumbnailElement } from '../../core/thumbnail/thumbnails.js';
 import { createRadioButton } from '../../core/ui/general/radio.js';
+import { createStyledInput } from '../../core/ui/catalog/input.js';
 
 export function init() {
     if (!window.location.pathname.includes('/my/avatar')) return;
@@ -52,33 +53,8 @@ export function init() {
 
             const statusText = document.getElementById('rovalra-avatar-status');
             if (statusText) {
-                if (count >= 5) {
-                    statusText.textContent = 'Maximum limit of 5 avatars reached.';
-                    statusText.style.color = '#ff4444';
-                } else {
-                    statusText.textContent = `Select up to 5 avatars to rotate between every 5 seconds. (${count}/5)`; // Verified
-                    statusText.style.color = '';
-                }
-            }
-
-            if (avatarListContainer) {
-                const cards = avatarListContainer.getElementsByClassName('rovalra-avatar-card');
-                for (const card of cards) {
-                    const radio = card.querySelector('button[role="checkbox"]');
-                    if (!radio) continue;
-
-                    const isChecked = radio.getAttribute('aria-checked') === 'true';
-                    
-                    if (!isChecked && count >= 5) {
-                        radio.disabled = true;
-                        card.style.opacity = '0.5';
-                        card.style.cursor = 'not-allowed';
-                    } else {
-                        radio.disabled = false;
-                        card.style.opacity = '1';
-                        card.style.cursor = 'pointer';
-                    }
-                }
+                statusText.textContent = `Select avatars to rotate between. (${count} selected)`;
+                statusText.style.color = '';
             }
         }
 
@@ -123,10 +99,6 @@ export function init() {
                             checked: selectedAvatars.has(outfit.itemId),
                             onChange: (checked) => {
                                 if (checked) {
-                                    if (selectedAvatars.size >= 5) {
-                                        radio.setChecked(false);
-                                        return;
-                                    }
                                     selectedAvatars.add(outfit.itemId);
                                 } else {
                                     selectedAvatars.delete(outfit.itemId);
@@ -176,7 +148,7 @@ export function init() {
         }
 
         rotatorBtn.addEventListener('click', () => {
-            chrome.storage.local.get(['rovalra_avatar_rotator_ids', 'rovalra_avatar_rotator_enabled'], (data) => {
+            chrome.storage.local.get(['rovalra_avatar_rotator_ids', 'rovalra_avatar_rotator_enabled', 'rovalra_avatar_rotator_interval'], (data) => {
                 selectedAvatars.clear();
                 if (data.rovalra_avatar_rotator_ids && Array.isArray(data.rovalra_avatar_rotator_ids)) {
                     data.rovalra_avatar_rotator_ids.forEach(id => selectedAvatars.add(id));
@@ -194,11 +166,33 @@ export function init() {
 
                 const placeholderText = document.createElement('div');
                 placeholderText.id = 'rovalra-avatar-status';
-                placeholderText.textContent = 'Select up to 5 avatars to rotate between. (0/5)';
+                placeholderText.textContent = `Select avatars to rotate between. (${selectedAvatars.size} selected)`;
                 placeholderText.style.cssText = 'padding: 0 10px 10px 10px; text-align: center; font-size: 12px; opacity: 0.8; flex-shrink: 0;';
+
+                const settingsContainer = document.createElement('div');
+                settingsContainer.style.cssText = 'display: flex; align-items: center; justify-content: center; gap: 10px; padding: 0 0 10px 0; flex-shrink: 0;';
+                
+                const { container: inputContainer, input: intervalInput } = createStyledInput({
+                    id: 'rovalra-rotator-interval',
+                    label: 'Interval (seconds)'
+                });
+
+                intervalInput.type = 'number';
+                intervalInput.min = '5';
+                intervalInput.value = data.rovalra_avatar_rotator_interval || '5';
+                inputContainer.style.width = '150px';
+                inputContainer.style.marginTop = '5px';
+                intervalInput.dispatchEvent(new Event('input'));
+                
+                intervalInput.addEventListener('change', () => {
+                    if (parseInt(intervalInput.value) < 5) intervalInput.value = 5;
+                });
+
+                settingsContainer.appendChild(inputContainer);
 
                 const wrapper = document.createElement('div');
                 wrapper.style.cssText = 'display: flex; flex-direction: column; width: 100%; height: 550px;';
+                wrapper.appendChild(settingsContainer);
                 wrapper.appendChild(placeholderText);
                 wrapper.appendChild(avatarListContainer);
                 wrapper.appendChild(loadMoreBtn);
@@ -209,9 +203,11 @@ export function init() {
                 setRotatorsBtn.disabled = true;
                 setRotatorsBtn.onclick = () => {
                     const avatars = Array.from(selectedAvatars);
+                    const interval = parseInt(intervalInput.value, 10) || 5;
                     chrome.storage.local.set({
                         rovalra_avatar_rotator_ids: avatars,
-                        rovalra_avatar_rotator_enabled: true
+                        rovalra_avatar_rotator_enabled: true,
+                        rovalra_avatar_rotator_interval: interval
                     });
                     setRotatorsBtn.textContent = 'Rotators Active!';
                     if (disableRotatorBtn) disableRotatorBtn.style.display = 'inline-block';

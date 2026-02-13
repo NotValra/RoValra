@@ -8,7 +8,55 @@ import { createPill } from '../ui/general/pill.js';
 import { handleSaveSettings } from './handlesettings.js';
 import { createStyledInput } from '../ui/catalog/input.js'; 
 import DOMPurify from 'dompurify';
+import { addTooltip } from '../ui/tooltip.js';
+import { createButton } from '../ui/buttons.js';
+import { showConfirmationPrompt } from '../ui/confirmationPrompt.js';
 
+
+function createClearStorageButton(storageKey, inputElement, settingType) {
+    const btn = createButton('', 'secondary');
+    btn.classList.remove('btn-control-md');
+    btn.classList.add('btn-control-xs');
+    
+    btn.style.marginLeft = '0px';
+    btn.style.display = 'inline-flex';
+    btn.style.alignItems = 'center';
+    btn.style.justifyContent = 'center';
+    btn.style.width = '32px';
+    btn.style.height = '32px';
+
+    const icon = document.createElement('div');
+    icon.style.width = '20px';
+    icon.style.height = '20px';
+    icon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="100%" height="100%"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6zM19 4h-3.5l-1-1h-5l-1 1H5v2h14z"></path></svg>`;
+    btn.appendChild(icon);
+    
+    addTooltip(btn, 'Clear Storage', { position: 'top' });
+
+    btn.onclick = (e) => {
+        e.preventDefault();
+        showConfirmationPrompt({
+            title: 'Clear Storage',
+            message: 'Are you sure you want to clear the storage for this setting? This will clear stuff this feature stored for its functionality. This cannot be reverted.',
+            confirmText: 'Clear',
+            confirmType: 'secondary',
+            cancelType: 'primary',
+            onConfirm: () => {
+                chrome.storage.local.remove(storageKey, () => {
+                    if (settingType === 'file' && inputElement) {
+                         const uploadApi = inputElement._uploadApi || inputElement.rovalraFileUpload;
+                         if (uploadApi) {
+                             uploadApi.setFileName(null);
+                             uploadApi.showClear(false);
+                             uploadApi.clearPreview();
+                         }
+                    }
+                });
+            }
+        });
+    };
+    return btn;
+}
 
 export function findSettingConfig(settingName) {
     for (const category of Object.values(SETTINGS_CONFIG)) {
@@ -207,6 +255,11 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
     }
 
     const inputElement = generateSettingInput(settingName, setting, REGIONS);
+
+    if (setting.storageKey) {
+        controlsContainer.appendChild(createClearStorageButton(setting.storageKey, inputElement, setting.type));
+    }
+
     controlsContainer.appendChild(inputElement);
     settingContainer.appendChild(controlsContainer);
 
@@ -285,6 +338,11 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
             }
 
             const childInput = generateSettingInput(childName, childSetting, REGIONS);
+
+            if (childSetting.storageKey) {
+                childControls.appendChild(createClearStorageButton(childSetting.storageKey, childInput, childSetting.type));
+            }
+
             childControls.appendChild(childInput);
             childContainer.appendChild(childControls);
 

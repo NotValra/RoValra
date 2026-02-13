@@ -31,7 +31,7 @@ YourFeatureName: {
     ],
     type: "checkbox", // Common types: "checkbox", "input", "select"
     default: true,    // Set the default state
-    
+    storageKey: ["What Ever Storage Key Your Feature Uses", "In case of multiple keys"] // Add this if your feature stores stuff for its functionality. So a user is able to clear the storage
     // Optional properties that adds a pill beside the title with a tooltip explaining why its there
     // experimental: "reason why its experimental",
     // deprecated: "Reason if the feature is no longer supported",
@@ -41,7 +41,7 @@ YourFeatureName: {
 }
 ```
 
-You must add your setting to src/background/background.js in ```function getDefaultSettings()```
+You must add your setting to `src/background/background.js` in ```function getDefaultSettings()```
 And the value must match the default value of the setting
 
 ## Contributor Badge

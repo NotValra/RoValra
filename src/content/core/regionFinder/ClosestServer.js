@@ -9,7 +9,7 @@ export let REGIONS = {};
 export let serverIpMap = {};
 
 export const FINDER_CONFIG = {
-    logScores: false,
+    logScores: true,
     maxServersPerRegion: 10,
     checkGameActivity: true,
     maxManualScanPages: 3

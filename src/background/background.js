@@ -656,7 +656,7 @@ let rotatorInterval = null;
 let rotatorIndex = 0;
 
 function updateAvatarRotator() {
-    chrome.storage.local.get(['rovalra_avatar_rotator_enabled', 'rovalra_avatar_rotator_ids'], (data) => {
+    chrome.storage.local.get(['rovalra_avatar_rotator_enabled', 'rovalra_avatar_rotator_ids', 'rovalra_avatar_rotator_interval'], (data) => {
         if (rotatorInterval) {
             clearInterval(rotatorInterval);
             rotatorInterval = null;
@@ -665,6 +665,10 @@ function updateAvatarRotator() {
         if (data.rovalra_avatar_rotator_enabled && data.rovalra_avatar_rotator_ids && data.rovalra_avatar_rotator_ids.length > 0) {
             const ids = data.rovalra_avatar_rotator_ids;
             rotatorIndex = 0;
+            
+            let intervalSeconds = parseInt(data.rovalra_avatar_rotator_interval, 10) || 5;
+            if (intervalSeconds < 5) intervalSeconds = 5;
+            const intervalMs = intervalSeconds * 1000;
 
             const rotate = () => {
                 if (ids.length === 0) return;
@@ -674,13 +678,13 @@ function updateAvatarRotator() {
             };
 
             rotate();
-            rotatorInterval = setInterval(rotate, 5000);
+            rotatorInterval = setInterval(rotate, intervalMs);
         }
     });
 }
 
 chrome.storage.onChanged.addListener((changes, namespace) => {
-    if (namespace === 'local' && (changes.rovalra_avatar_rotator_enabled || changes.rovalra_avatar_rotator_ids)) {
+    if (namespace === 'local' && (changes.rovalra_avatar_rotator_enabled || changes.rovalra_avatar_rotator_ids || changes.rovalra_avatar_rotator_interval)) {
         updateAvatarRotator();
     }
 });
