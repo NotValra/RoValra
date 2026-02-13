@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const links = {
     'settings-link': 'https://www.roblox.com/my/account?rovalra=info#!/info',
     'discord-link': 'https://discord.gg/GHd5cSKJRk',
-    'donate-link': 'https://www.roblox.com/games/9676908657/Gamepasses#!/store',
+    'donate-link': 'https://www.roblox.com/games/107845747621646/The-game-that-games#!/store',
     'github-link': 'https://github.com/NotValra/RoValra'
   };
 
