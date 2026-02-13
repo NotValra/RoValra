@@ -539,6 +539,12 @@ export const SETTINGS_CONFIG = {
                         description: "Fixes the top and bottom of experience titles on profiles getting cut off.",
                         type: "checkbox",
                         default: true,
+                    },
+                    FixCartRemoveButton: {
+                        label: "Fix Cart Remove Button Size",
+                        description: "Fixes the size of the remove item from cart button being super small in the shopping cart.",
+                        type: "checkbox",
+                        default: true,
                     }
                 }
             },

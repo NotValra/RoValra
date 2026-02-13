@@ -94,7 +94,8 @@ function getDefaultSettings() {
         DownloadCreateEnabled: true,
         priceFloorEnabled: true,
         qolTogglesEnabled: true,
-        avatarRotatorEnabled: true
+        avatarRotatorEnabled: true,
+        FixCartRemoveButton: true
     };
 }
 

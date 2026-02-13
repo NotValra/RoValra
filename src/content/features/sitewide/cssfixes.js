@@ -96,6 +96,22 @@ const applyGameTitleFix = () => {
     });
 };
 
+const applyCartRemoveButtonFix = () => {
+    chrome.storage.local.get('FixCartRemoveButton', function(settings) {
+        if (!settings.FixCartRemoveButton) return;
+
+        const css = `
+            .cart-item-container .rm-item-btn-container.icon-actions-clear-sm button {
+                width: 18px;
+                height: 18px;
+            }
+        `;
+        const style = document.createElement('style');
+        style.textContent = css;
+        (document.head || document.documentElement).appendChild(style);
+    });
+};
+
 export function init() {
     chrome.storage.local.get(['cssfixesEnabled', 'giantInvisibleLink'], function(data) {
         if (data.cssfixesEnabled === true) {
@@ -103,6 +119,7 @@ export function init() {
             observeElement('.profile-header', applyHeaderFix);
             applyHomeHeaderLinkFix();
             applyGameTitleFix();
+            applyCartRemoveButtonFix();
         }
     });
 }
