@@ -37,7 +37,7 @@
 ## Support the Project
 
 If you find RoValra useful, consider giving the repository a **star⭐**.\
-Or [donate robux.](https://www.roblox.com/games/9676908657/Gamepasses#!/store) \
+Or [donate robux.](https://www.roblox.com/games/107845747621646/The-game-that-games#!/store) \
 It helps a lot and supports continued development.
 
 ---
