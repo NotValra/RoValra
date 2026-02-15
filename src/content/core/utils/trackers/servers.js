@@ -14,44 +14,26 @@ chrome.runtime.onMessage.addListener((request) => {
             latestPresence = presence;
             broadcast(presence);
         }
-    } else if (request.action === 'pollPresence') {
-        const { userId } = request;
-        callRobloxApi({
-            subdomain: 'presence',
-            endpoint: '/v1/presence/users',
-            method: 'POST',
-            body: { userIds: [parseInt(userId, 10)] }
-        }).then(resp => {
-            if (resp.ok) {
-                resp.json().then(data => {
-                    const presence = data?.userPresences?.[0];
-                    chrome.runtime.sendMessage({ action: 'presencePollResult', presence: presence, success: true });
-                }).catch(() => {
-                    chrome.runtime.sendMessage({ action: 'presencePollResult', success: false });
-                });
-            } else {
-                 chrome.runtime.sendMessage({ action: 'presencePollResult', success: false });
-            }
-        }).catch(() => {
-            chrome.runtime.sendMessage({ action: 'presencePollResult', success: false });
-        });
-        return true; 
     }
 });
 
 export function init() {
-    const currentUserElement = document.querySelector('meta[name="user-data"]');
-    const currentUserId = currentUserElement ? currentUserElement.dataset.userid : null;
-    if (currentUserId) {
-        chrome.runtime.sendMessage({ action: 'updateUserId', userId: currentUserId });
-    }
+    chrome.storage.local.get({ recentServersEnabled: true }, (settings) => {
+        if (!settings.recentServersEnabled) return;
 
-    chrome.runtime.sendMessage({ action: 'getLatestPresence' }, (response) => {
-        if (chrome.runtime.lastError) {
-        } else if (response && response.presence) {
-            latestPresence = response.presence;
-            broadcast(latestPresence);
+        const currentUserElement = document.querySelector('meta[name="user-data"]');
+        const currentUserId = currentUserElement ? currentUserElement.dataset.userid : null;
+        if (currentUserId) {
+            chrome.runtime.sendMessage({ action: 'updateUserId', userId: currentUserId });
         }
+
+        chrome.runtime.sendMessage({ action: 'getLatestPresence' }, (response) => {
+            if (chrome.runtime.lastError) {
+            } else if (response && response.presence) {
+                latestPresence = response.presence;
+                broadcast(latestPresence);
+            }
+        });
     });
 }
 

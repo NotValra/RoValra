@@ -252,15 +252,61 @@ async function wearOutfit(outfitId) {
 
 // --- Presence Polling ---
 
+function handlePresenceUpdate(presence) {
+    if (JSON.stringify(presence) !== JSON.stringify(state.latestPresence)) {
+        const oldPresence = state.latestPresence;
+        state.latestPresence = presence;
+
+        chrome.tabs.query({ url: "*://*.roblox.com/*" }, (tabs) => {
+            tabs.forEach(tab => chrome.tabs.sendMessage(tab.id, { action: 'presenceUpdate', presence: state.latestPresence }).catch(() => {}));
+        });
+
+        // Server History Logic
+        const isJoiningGame = p => p && (p.userPresenceType === 2 || p.userPresenceType === 4);
+        if (isJoiningGame(presence) && presence.gameId && presence.rootPlaceId) {
+            if (!isJoiningGame(oldPresence) || oldPresence.gameId !== presence.gameId) {
+                chrome.storage.local.get({ 'rovalra_server_history': {} }, (res) => {
+                    const history = res.rovalra_server_history || {};
+                    const gameId = presence.rootPlaceId.toString();
+                    let gameHistory = history[gameId] || [];
+                    const now = Date.now();
+                    
+                    gameHistory = gameHistory.filter(entry => (now - entry.timestamp) < 24 * 60 * 60 * 1000);
+                    const serverIndex = gameHistory.findIndex(entry => entry.presence.gameId === presence.gameId);
+                    if (serverIndex > -1) gameHistory.splice(serverIndex, 1);
+                    
+                    gameHistory.unshift({ presence, timestamp: now });
+                    history[gameId] = gameHistory.slice(0, 4);
+                    chrome.storage.local.set({ 'rovalra_server_history': history });
+                });
+            }
+        }
+    }
+}
+
 function pollUserPresence() {
     if (!state.currentUserId) return;
 
-    chrome.tabs.query({ url: "*://*.roblox.com/*", status: "complete", active: true }, (tabs) => {
-        if (tabs.length > 0) {
-            const targetTab = tabs.find(t => t.url.includes("/games/")) || tabs[0];
-            chrome.tabs.sendMessage(targetTab.id, { action: 'pollPresence', userId: state.currentUserId }, () => {
-                if (chrome.runtime.lastError) { /* Ignore */ }
+    chrome.storage.local.get({ recentServersEnabled: true }, async (settings) => {
+        if (!settings.recentServersEnabled) return;
+
+        try {
+            const response = await callRobloxApiBackground({
+                subdomain: 'presence',
+                endpoint: '/v1/presence/users',
+                method: 'POST',
+                body: { userIds: [parseInt(state.currentUserId, 10)] }
             });
+
+            if (response.ok) {
+                const data = await response.json();
+                const presence = data?.userPresences?.[0];
+                if (presence) {
+                    handlePresenceUpdate(presence);
+                }
+            }
+        } catch (e) {
+            // ignore
         }
     });
 }
@@ -432,38 +478,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             return false;
 
         case 'presencePollResult':
-            if (request.success && request.presence) {
-                const presence = request.presence;
-                if (JSON.stringify(presence) !== JSON.stringify(state.latestPresence)) {
-                    const oldPresence = state.latestPresence;
-                    state.latestPresence = presence;
-
-                    chrome.tabs.query({ url: "*://*.roblox.com/*" }, (tabs) => {
-                        tabs.forEach(tab => chrome.tabs.sendMessage(tab.id, { action: 'presenceUpdate', presence: state.latestPresence }).catch(() => {}));
-                    });
-
-                    // Server History Logic
-                    const isJoiningGame = p => p && (p.userPresenceType === 2 || p.userPresenceType === 4);
-                    if (isJoiningGame(presence) && presence.gameId && presence.rootPlaceId) {
-                        if (!isJoiningGame(oldPresence) || oldPresence.gameId !== presence.gameId) {
-                            chrome.storage.local.get({ 'rovalra_server_history': {} }, (res) => {
-                                const history = res.rovalra_server_history || {};
-                                const gameId = presence.rootPlaceId.toString();
-                                let gameHistory = history[gameId] || [];
-                                const now = Date.now();
-                                
-                                gameHistory = gameHistory.filter(entry => (now - entry.timestamp) < 24 * 60 * 60 * 1000);
-                                const serverIndex = gameHistory.findIndex(entry => entry.presence.gameId === presence.gameId);
-                                if (serverIndex > -1) gameHistory.splice(serverIndex, 1);
-                                
-                                gameHistory.unshift({ presence, timestamp: now });
-                                history[gameId] = gameHistory.slice(0, 4);
-                                chrome.storage.local.set({ 'rovalra_server_history': history });
-                            });
-                        }
-                    }
-                }
-            }
             return false;
 
         case 'getLatestPresence':
