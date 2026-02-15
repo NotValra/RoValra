@@ -134,6 +134,19 @@ export function createDropdown({ items = [], initialValue, placeholder = 'Select
         toggleContentVisibility(isOpen);
         trigger.setAttribute('data-state', isOpen ? 'open' : 'closed');
         trigger.setAttribute('aria-expanded', String(isOpen));
+
+        if (isOpen) {
+            requestAnimationFrame(() => {
+                const rect = contentPanel.getBoundingClientRect();
+                const viewportWidth = document.documentElement.clientWidth || window.innerWidth;
+                if (rect.right > viewportWidth) {
+                    const currentLeft = parseFloat(contentPanel.style.left);
+                    if (!isNaN(currentLeft)) {
+                        contentPanel.style.left = `${currentLeft - (rect.right - viewportWidth) - 20}px`;
+                    }
+                }
+            });
+        }
     };
 
     trigger.addEventListener('click', (e) => {
