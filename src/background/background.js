@@ -95,7 +95,8 @@ function getDefaultSettings() {
         priceFloorEnabled: true,
         qolTogglesEnabled: true,
         avatarRotatorEnabled: true,
-        FixCartRemoveButton: true
+        FixCartRemoveButton: true,
+        copyIdEnabled: true
     };
 }
 
@@ -155,12 +156,14 @@ function initializeSettings(reason) {
 chrome.runtime.onInstalled.addListener((details) => {
     initializeSettings(details.reason);
     updateUserAgentRule();
+    setupContextMenuListener();
 });
 
 
 chrome.runtime.onStartup.addListener(() => {
     initializeSettings("startup");
     updateUserAgentRule();
+    setupContextMenuListener();
 });
 
 function updateUserAgentRule() {
@@ -295,17 +298,48 @@ async function setupNavigationListener() {
         chrome.webNavigation.onBeforeNavigate.addListener(navigationListener, navigationFilter);
     }
 }
-
+async function setupContextMenuListener() {
+    const hasRequiredPermissions = await chrome.permissions.contains({ permissions: ['contextMenus'] });
+    if (hasRequiredPermissions && chrome.contextMenus && !chrome.contextMenus.onClicked.hasListener(contextMenuClickListener)) {
+        chrome.contextMenus.onClicked.addListener(contextMenuClickListener);
+    }
+}
+const contextMenuClickListener = (info, tab) => {
+    if (info.menuItemId.startsWith('rovalra-copy-')) {
+        const textToCopy = info.menuItemId.replace('rovalra-copy-', '');
+        if (tab && tab.id) {
+            chrome.tabs.sendMessage(tab.id, { action: 'copyToClipboard', text: textToCopy });
+        }
+    }
+};
 chrome.permissions.onAdded.addListener((permissions) => {
     if (permissions.permissions?.includes('webNavigation')) {
         setupNavigationListener();
     }
+    if (permissions.permissions?.includes('contextMenus')) {
+        setupContextMenuListener();
+    }
+    chrome.tabs.query({}, (tabs) => {
+        for (const tab of tabs) {
+            chrome.tabs.sendMessage(tab.id, { action: 'permissionsUpdated' }).catch(() => {});
+        }
+    });
 });
 
 chrome.permissions.onRemoved.addListener((permissions) => {
     if (permissions.permissions?.includes('webNavigation') && chrome.webNavigation.onBeforeNavigate.hasListener(navigationListener)) {
         chrome.webNavigation.onBeforeNavigate.removeListener(navigationListener);
     }
+    if (permissions.permissions?.includes('contextMenus')) {
+        if (chrome.contextMenus && chrome.contextMenus.onClicked.hasListener(contextMenuClickListener)) {
+            chrome.contextMenus.onClicked.removeListener(contextMenuClickListener);
+        }
+    }
+    chrome.tabs.query({}, (tabs) => {
+        for (const tab of tabs) {
+            chrome.tabs.sendMessage(tab.id, { action: 'permissionsUpdated' }).catch(() => {});
+        }
+    });
 });
 const connectedContentScripts = new Map();
 
@@ -547,6 +581,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             const permissionsToRequest = Array.isArray(request.permission) ? request.permission : [request.permission];
             chrome.permissions.request({ permissions: permissionsToRequest }, (granted) => {
                 if (chrome.runtime.lastError) {
+                    console.warn("RoValra: Permission request failed:", chrome.runtime.lastError);
                     sendResponse({ granted: false });
                 } else {
                     sendResponse({ granted: granted });
@@ -637,6 +672,30 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         case 'wearOutfit':
             wearOutfit(request.outfitId).then(result => sendResponse(result));
             return true;
+
+        case 'updateContextMenu':
+            if (chrome.contextMenus) {
+                chrome.contextMenus.removeAll(() => {
+                    if (chrome.runtime.lastError) {
+                        console.warn("RoValra: Context menu removeAll failed:", chrome.runtime.lastError);
+                        return;
+                    }
+                    if (request.ids && request.ids.length > 0) {
+                        request.ids.forEach((item) => {
+                            chrome.contextMenus.create({
+                                id: `rovalra-copy-${item.id}`,
+                                title: `Copy ${item.type} ID`,
+                                contexts: ['link'],
+                            }, () => {
+                                if (chrome.runtime.lastError) {
+                                    console.warn("RoValra: Context menu create failed:", chrome.runtime.lastError);
+                                }
+                            });
+                        });
+                    }
+                });
+            }
+            break;
     }
 
     return [
@@ -691,3 +750,4 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
 });
 
 updateAvatarRotator();
+setupContextMenuListener();

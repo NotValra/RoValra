@@ -524,6 +524,13 @@ export const SETTINGS_CONFIG = {
                 type: "checkbox",
                 default: true
             },
+            copyIdEnabled: {
+                label: "Allows you to quickly copy an id of a thing you are right clicking.",
+                description: "This adds a copy id button directly into the right click context menu so you don't have  to open the link and copy the id from the link.",
+                type: "checkbox",
+                default: false,
+                requiredPermissions: ["contextMenus"],
+            },
             cssfixesEnabled: {
                 label: "Site Fixes",
                 description: ["This fixes various site issues or just poor design choices by Roblox.",],

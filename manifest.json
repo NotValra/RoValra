@@ -29,7 +29,7 @@
     "background": {
         "service_worker": "background.js"
     },
-    "optional_permissions": ["webNavigation"],
+    "optional_permissions": ["webNavigation", "contextMenus"],
     "declarative_net_request": {
         "rule_resources": [
 

@@ -365,14 +365,6 @@ export function updateConditionalSettingsVisibility(settingsContent, currentSett
         applyDisabledState(settingName, settingsContent, settingsToDisable.has(settingName));
     });
     
-    document.querySelectorAll('.permission-manager').forEach(manager => {
-        const isGranted = manager.querySelector('.permission-revoke-ui').style.display === 'block';
-        if (!isGranted) {
-            const settingName = manager.dataset.permissionFor;
-            applyDisabledState(settingName, settingsContent, true, true);
-        }
-    });
-
     const numberToggles = settingsContent.querySelectorAll('input[type="checkbox"][data-controls-setting]');
     numberToggles.forEach(toggle => {
         const controlledSettingName = toggle.dataset.controlsSetting;
@@ -432,15 +424,38 @@ export async function updateAllPermissionToggles() {
     for (const manager of permissionManagers) {
         const permissionName = manager.dataset.permissionName;
         const isGranted = await hasPermission(permissionName);
-        const requestUI = manager.querySelector('.permission-request-ui');
-        const revokeUI = manager.querySelector('.permission-revoke-ui');
-        const revokeToggle = manager.querySelector('.permission-toggle');
+        
+        const toggle = manager.querySelector('.permission-toggle');
+        if (toggle) {
+            toggle.checked = isGranted;
+        }
+    }
 
-        if (requestUI) requestUI.style.display = isGranted ? 'none' : 'block';
-        if (revokeUI) revokeUI.style.display = isGranted ? 'block' : 'none';
+    for (const sectionName in SETTINGS_CONFIG) {
+        const section = SETTINGS_CONFIG[sectionName];
+        for (const [settingName, config] of Object.entries(section.settings)) {
+            if (settings[settingName] === true && config.requiredPermissions) {
+                let missingPerms = false;
+                
+                for (const perm of config.requiredPermissions) {
+                    const hasIt = await hasPermission(perm);
+                    if (!hasIt) {
+                        missingPerms = true;
+                        break;
+                    }
+                }
 
-        if (revokeToggle) {
-            revokeToggle.checked = isGranted;
+                if (missingPerms) {
+                    console.log(`RoValra: Disabling '${settingName}' because required permissions are missing.`);
+                    await handleSaveSettings(settingName, false);
+                    settings[settingName] = false;
+                    
+                    const element = document.querySelector(`#${settingName}`);
+                    if (element) {
+                        element.checked = false;
+                    }
+                }
+            }
         }
     }
     updateConditionalSettingsVisibility(document, settings);
@@ -451,12 +466,15 @@ export async function handlePermissionToggle(event) {
     const toggle = event.target;
     const permissionName = toggle.dataset.permissionName;
 
-    if (!toggle.checked) { 
+    if (toggle.checked) {
+        const granted = await requestPermission(permissionName);
+        if (!granted) {
+            toggle.checked = false;
+        }
+    } else { 
         const wasRevoked = await revokePermission(permissionName);
         if (!wasRevoked) {
             toggle.checked = true;
-        } else {
-            console.log(`RoValra: Permission '${permissionName}' revoked.`);
         }
     }
     await updateAllPermissionToggles();
@@ -464,6 +482,12 @@ export async function handlePermissionToggle(event) {
 
 
 export function initializeSettingsEventListeners() {
+    chrome.runtime.onMessage.addListener((request) => {
+        if (request.action === 'permissionsUpdated') {
+            updateAllPermissionToggles();
+        }
+    });
+
     document.addEventListener('change', async (event) => {
         const target = event.target;
         const settingName = target.dataset.settingName;
@@ -572,13 +596,6 @@ export function initializeSettingsEventListeners() {
 
     document.addEventListener('click', (event) => {
         const target = event.target;
-
-        if (target.classList.contains('permission-request-btn')) {
-            const permissions = JSON.parse(target.dataset.permissions);
-            requestPermission(permissions).then(granted => {
-                if (granted) { updateAllPermissionToggles(); }
-            });
-        }
 
         const numberButton = target.closest('.rovalra-number-input-btn');
         if (numberButton) {
