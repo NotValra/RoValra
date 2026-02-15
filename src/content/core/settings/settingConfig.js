@@ -104,7 +104,7 @@ export const SETTINGS_CONFIG = {
                         label: "Change the normal Play button to join your preferred region in Quick Play",
                         description: ["This makes the Roblox Play button in the Quick Play join servers closest to you, instead of a random region."],
                         type: "checkbox",
-                        default: false
+                        default: true
                     }
                 }
             },

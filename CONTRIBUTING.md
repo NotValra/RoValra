@@ -41,8 +41,6 @@ YourFeatureName: {
 }
 ```
 
-You must add your setting to `src/background/background.js` in ```function getDefaultSettings()```
-And the value must match the default value of the setting
 
 ## Contributor Badge
 

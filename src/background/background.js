@@ -1,105 +1,38 @@
-function getDefaultSettings() {
-    // This object should be kept in sync with the defaults in settingConfig.js
-    return {
-        hiddenCatalogEnabled: false,
-        itemSalesEnabled: false,
-        groupGamesEnabled: true,
-        userGamesEnabled: true,
-        userSniperEnabled: true,
-        PreferredRegionEnabled: true,
-        robloxPreferredRegion: 'AUTO',
-        subplacesEnabled: true,
-        forceR6Enabled: true,
-        inviteEnabled: true,
-        pendingRobuxEnabled: false,
-        ServerdataEnabled: true,
-        revertLogo: false,
-        customLogoData: null,
-        botdataEnabled: true,
-        showfullserveridEnabled: true,
-        BanReasons: true,
-        enableFriendservers: true,
-        bandurationsEnabled: true,
-        appealstuff: true,
-        privateserverlink: true,
-        pendingrobuxtrans: false,
-        serverUptimeServerLocationEnabled: true,
-        ServerlistmodificationsEnabled: true,
-        TotalServersEnabled: true,
-        ServerFilterEnabled: true,
-        cssfixesEnabled: true,
-        RoValraBadgesEnable: true,
-        ShowBadgesEverywhere: false,
-        QuickPlayEnable: true,
-        PrivateServerBulkEnabled: true,
-        GameVersionEnabled: true,
-        OldestVersionEnabled: true,
-        donationbuttonEnable: false,
-        spoofAsStudio: false,
-        spoofAsOffline: false,
-        useroutfitsEnabled: true,
-        avatarFiltersEnabled: true,
-        searchbarEnabled: true,
-        privateservers: true,
-        playbuttonpreferredregionenabled: true,
-        robloxPreferredRegionEnabled: false,
-        AutoFindRegion: true,
-        RobuxPlaceId: null,
-        impersonateRobloxStaffSetting: false,
-        whatamIJoiningEnabled: true,
-        AlwaysGetInfo: true,
-        antibotsEnabled: false,
-        QuickActionsEnabled: true,
-        draggableGroupsEnabled: true,
-        userRapEnabled: true,
-        HideSerial: false,
-        EarlyAccessProgram: false,
-        MemoryleakFixEnabled: false,
-        deeplinkEnabled: false,
-        eastereggslinksEnabled: true,
-        giantInvisibleLink: true,
-        SaveLotsRobuxEnabled: true,
-        simulateRoValraServerErrors: false,
-        onboardingShown: false,
-        totalspentEnabled: true,
-        enableShareLink: true,
-        EnableServerUptime: true,
-        EnableServerRegion: true,
-        EnablePlaceVersion: true,
-        EnableFullServerID: true,
-        EnableServerPerformance: true,
-        EnableMiscIndicators: true,
-        EnableItemDependencies: true,
-        EnablebannerTest: false,
-        EnableVideoTest: false,
-        EnableGameTrailer: false,
-        Enableautoplay: true,
-        alwaysShowDeveloperSettings: false,
-        streamermode: false,
-        settingsPageInfo: true,
-        hideRobux: false,
-        RegionFiltersEnabled: true,
-        UptimeFiltersEnabled: true,
-        VersionFiltersEnabled: true,
-        totalearnedEnabled: true,
-        EnableRobloxApiDocs: false,
-        QuickOutfitsEnabled: false,
-        gameTitleIssueEnable: true,
-        closeUiByClickingTheBackground: true,
-        EnableDatacenterandId: false,
-        forceReviewPopup: false,
-        recentServersEnabled: true,
-        simulateRoValraServerLatency: false,
-        PrivateQuickLinkCopy: true,
-        DownloadCreateEnabled: true,
-        priceFloorEnabled: true,
-        qolTogglesEnabled: true,
-        avatarRotatorEnabled: true,
-        FixCartRemoveButton: true,
-        copyIdEnabled: true
-    };
-}
+import { SETTINGS_CONFIG } from '../content/core/settings/settingConfig.js';
 
+// --- Constants & State ---
+
+const state = {
+    isMemoryFixEnabled: false,
+    programmaticallyNavigatedUrls: new Set(),
+    currentUserId: null,
+    latestPresence: null,
+    pollingInterval: null,
+    csrfTokenCache: null,
+    rotatorInterval: null,
+    rotatorIndex: 0
+};
+
+// --- Settings Management ---
+
+function getDefaultSettings() {
+    const defaults = {};
+    for (const category of Object.values(SETTINGS_CONFIG)) {
+        for (const [settingName, settingDef] of Object.entries(category.settings)) {
+            if (settingDef.default !== undefined) {
+                defaults[settingName] = settingDef.default;
+            }
+            if (settingDef.childSettings) {
+                for (const [childName, childSettingDef] of Object.entries(settingDef.childSettings)) {
+                    if (childSettingDef.default !== undefined) {
+                        defaults[childName] = childSettingDef.default;
+                    }
+                }
+            }
+        }
+    }
+    return defaults;
+}
 
 function initializeSettings(reason) {
     const defaults = getDefaultSettings();
@@ -108,31 +41,22 @@ function initializeSettings(reason) {
         const settingsToUpdate = {};
         let needsUpdate = false;
 
-        for (const key in defaults) {
-            const defaultValue = defaults[key];
+        for (const [key, defaultValue] of Object.entries(defaults)) {
             const storedValue = currentSettings[key];
 
             if (storedValue === undefined) {
                 settingsToUpdate[key] = defaultValue;
                 needsUpdate = true;
-                continue;
-            }
-
-
-            if (defaultValue !== null) {
+            } else if (defaultValue !== null) {
                 const defaultType = typeof defaultValue;
                 const storedType = typeof storedValue;
 
-
                 if (storedValue === null) {
-                    console.warn(`RoValra: Setting '${key}' was null but expected ${defaultType}. Resetting to default.`);
+                    console.warn(`RoValra: Setting '${key}' was null but expected ${defaultType}. Resetting.`);
                     settingsToUpdate[key] = defaultValue;
                     needsUpdate = true;
-                    continue;
-                }
-
-                if (storedType !== defaultType) {
-                    console.warn(`RoValra: Type mismatch for '${key}'. Expected ${defaultType}, got ${storedType}. Resetting to default.`);
+                } else if (storedType !== defaultType) {
+                    console.warn(`RoValra: Type mismatch for '${key}'. Expected ${defaultType}, got ${storedType}. Resetting.`);
                     settingsToUpdate[key] = defaultValue;
                     needsUpdate = true;
                 }
@@ -147,46 +71,22 @@ function initializeSettings(reason) {
                     console.log(`RoValra: Synced/Fixed ${Object.keys(settingsToUpdate).length} settings (Trigger: ${reason}).`);
                 }
             });
-        } else {
         }
     });
 }
 
-
-chrome.runtime.onInstalled.addListener((details) => {
-    initializeSettings(details.reason);
-    updateUserAgentRule();
-    setupContextMenuListener();
-});
-
-
-chrome.runtime.onStartup.addListener(() => {
-    initializeSettings("startup");
-    updateUserAgentRule();
-    setupContextMenuListener();
-});
+// --- User Agent Spoofing ---
 
 function updateUserAgentRule() {
     const originalUA = self.navigator.userAgent;
     let browser = 'Unknown';
     let engine = 'Unknown';
 
-    if (originalUA.includes("Firefox/")) {
-        browser = "Firefox";
-        engine = "Gecko";
-    } else if (originalUA.includes("Edg/")) {
-        browser = "Edge";
-        engine = "Chromium";
-    } else if (originalUA.includes("OPR/") || originalUA.includes("Opera/")) {
-        browser = "Opera";
-        engine = "Chromium";
-    } else if (originalUA.includes("Chrome/")) {
-        browser = "Chrome";
-        engine = "Chromium";
-    } else if (originalUA.includes("Safari/") && !originalUA.includes("Chrome/")) {
-        browser = "Safari";
-        engine = "WebKit";
-    }
+    if (originalUA.includes("Firefox/")) { browser = "Firefox"; engine = "Gecko"; }
+    else if (originalUA.includes("Edg/")) { browser = "Edge"; engine = "Chromium"; }
+    else if (originalUA.includes("OPR/") || originalUA.includes("Opera/")) { browser = "Opera"; engine = "Chromium"; }
+    else if (originalUA.includes("Chrome/")) { browser = "Chrome"; engine = "Chromium"; }
+    else if (originalUA.includes("Safari/")) { browser = "Safari"; engine = "WebKit"; }
 
     const manifest = chrome.runtime.getManifest();
     const version = manifest.version || 'Unknown';
@@ -194,76 +94,48 @@ function updateUserAgentRule() {
     const environment = isDevelopment ? 'Development' : 'Production';
 
     let rovalraSuffix = `RoValraExtension(RoValra/${browser}/${engine}/${version}/${environment})`;
-
     if (engine === "Gecko" || engine === "WebKit") {
         rovalraSuffix += " UnofficialRoValraVersion"; // If you are developing a port for either of these don't remove this. It tells Roblox that I don't control requests coming from your port.
     }
 
-    const generalRule = {
-        id: 999,
-        priority: 5,
-        action: {
-            type: 'modifyHeaders',
-            requestHeaders: [
-                {
-                    header: 'User-Agent',
-                    operation: 'set',
-                    value: `${originalUA} ${rovalraSuffix}`
-                }
-            ]
+    const rules = [
+        {
+            id: 999,
+            priority: 5,
+            action: {
+                type: 'modifyHeaders',
+                requestHeaders: [{ header: 'User-Agent', operation: 'set', value: `${originalUA} ${rovalraSuffix}` }]
+            },
+            condition: { regexFilter: ".*_RoValraRequest=", resourceTypes: ["xmlhttprequest"] }
         },
-        condition: {
-            regexFilter: ".*_RoValraRequest=",
-            resourceTypes: ["xmlhttprequest"]
+        {
+            id: 1000,
+            priority: 10,
+            action: {
+                type: 'modifyHeaders',
+                requestHeaders: [{ header: 'User-Agent', operation: 'set', value: `Roblox/WinInet ${rovalraSuffix}` }]
+            },
+            condition: { regexFilter: "^https://gamejoin\\.roblox\\.com/.*_RoValraRequest=", resourceTypes: ["xmlhttprequest"] }
         }
-    };
-
-    const gameJoinRule = {
-        id: 1000,
-        priority: 10,
-        action: {
-            type: 'modifyHeaders',
-            requestHeaders: [
-                {
-                    header: 'User-Agent',
-                    operation: 'set',
-                    value: `Roblox/WinInet ${rovalraSuffix}`
-                }
-            ]
-        },
-        condition: {
-            regexFilter: "^https://gamejoin\\.roblox\\.com/.*_RoValraRequest=",
-            resourceTypes: ["xmlhttprequest"]
-        }
-    };
+    ];
 
     chrome.declarativeNetRequest.updateDynamicRules({
         removeRuleIds: [999, 1000],
-        addRules: [generalRule, gameJoinRule]
+        addRules: rules
     });
 }
 
-chrome.storage.onChanged.addListener((changes) => {
-    if (changes.MemoryleakFixEnabled) {
-        isMemoryFixEnabled = changes.MemoryleakFixEnabled.newValue;
-        if (isMemoryFixEnabled) setupNavigationListener();
-    }
-});
-
-
-let isMemoryFixEnabled = false;
-const programmaticallyNavigatedUrls = new Set();
+// --- Memory Leak Fix ---
 
 const handleMemoryLeakNavigation = (details) => {
-    if (programmaticallyNavigatedUrls.has(details.url)) {
-        programmaticallyNavigatedUrls.delete(details.url);
+    if (state.programmaticallyNavigatedUrls.has(details.url)) {
+        state.programmaticallyNavigatedUrls.delete(details.url);
         return;
     }
 
     if (details.frameId !== 0 || details.transitionType === 'auto_subframe' || details.transitionType === 'reload') {
         return;
     }
-
     if (details.url.includes('/download/client')) {
         return;
     }
@@ -271,8 +143,7 @@ const handleMemoryLeakNavigation = (details) => {
     const newUrl = details.url;
     const tabId = details.tabId;
 
-
-    programmaticallyNavigatedUrls.add(newUrl);
+    state.programmaticallyNavigatedUrls.add(newUrl);
 
     chrome.tabs.update(tabId, { url: 'about:blank' }, () => {
         setTimeout(() => {
@@ -281,13 +152,8 @@ const handleMemoryLeakNavigation = (details) => {
     });
 };
 
-const navigationFilter = {
-    url: [{ hostContains: ".roblox.com" }],
-    urlExcludes: ["roblox-player:*"]
-};
-
 const navigationListener = (details) => {
-    if (isMemoryFixEnabled) {
+    if (state.isMemoryFixEnabled) {
         handleMemoryLeakNavigation(details);
     }
 };
@@ -295,141 +161,56 @@ const navigationListener = (details) => {
 async function setupNavigationListener() {
     const hasRequiredPermissions = await chrome.permissions.contains({ permissions: ['webNavigation'] });
     if (hasRequiredPermissions && !chrome.webNavigation.onBeforeNavigate.hasListener(navigationListener)) {
-        chrome.webNavigation.onBeforeNavigate.addListener(navigationListener, navigationFilter);
+        chrome.webNavigation.onBeforeNavigate.addListener(navigationListener, {
+            url: [{ hostContains: ".roblox.com" }],
+            urlExcludes: ["roblox-player:*"]
+        });
     }
 }
+
+// --- Context Menu ---
+
+const contextMenuClickListener = (info, tab) => {
+    if (info.menuItemId.startsWith('rovalra-copy-') && tab?.id) {
+        const textToCopy = info.menuItemId.replace('rovalra-copy-', '');
+        chrome.tabs.sendMessage(tab.id, { action: 'copyToClipboard', text: textToCopy });
+    }
+};
+
 async function setupContextMenuListener() {
     const hasRequiredPermissions = await chrome.permissions.contains({ permissions: ['contextMenus'] });
     if (hasRequiredPermissions && chrome.contextMenus && !chrome.contextMenus.onClicked.hasListener(contextMenuClickListener)) {
         chrome.contextMenus.onClicked.addListener(contextMenuClickListener);
     }
 }
-const contextMenuClickListener = (info, tab) => {
-    if (info.menuItemId.startsWith('rovalra-copy-')) {
-        const textToCopy = info.menuItemId.replace('rovalra-copy-', '');
-        if (tab && tab.id) {
-            chrome.tabs.sendMessage(tab.id, { action: 'copyToClipboard', text: textToCopy });
-        }
-    }
-};
-chrome.permissions.onAdded.addListener((permissions) => {
-    if (permissions.permissions?.includes('webNavigation')) {
-        setupNavigationListener();
-    }
-    if (permissions.permissions?.includes('contextMenus')) {
-        setupContextMenuListener();
-    }
-    chrome.tabs.query({}, (tabs) => {
-        for (const tab of tabs) {
-            chrome.tabs.sendMessage(tab.id, { action: 'permissionsUpdated' }).catch(() => {});
-        }
-    });
-});
 
-chrome.permissions.onRemoved.addListener((permissions) => {
-    if (permissions.permissions?.includes('webNavigation') && chrome.webNavigation.onBeforeNavigate.hasListener(navigationListener)) {
-        chrome.webNavigation.onBeforeNavigate.removeListener(navigationListener);
-    }
-    if (permissions.permissions?.includes('contextMenus')) {
-        if (chrome.contextMenus && chrome.contextMenus.onClicked.hasListener(contextMenuClickListener)) {
-            chrome.contextMenus.onClicked.removeListener(contextMenuClickListener);
-        }
-    }
-    chrome.tabs.query({}, (tabs) => {
-        for (const tab of tabs) {
-            chrome.tabs.sendMessage(tab.id, { action: 'permissionsUpdated' }).catch(() => {});
-        }
-    });
-});
-const connectedContentScripts = new Map();
-
-chrome.runtime.onConnect.addListener(port => {
-    if (port.name !== 'mutation-reporter') {
-        return;
-    }
-
-
-    let contentScriptUUID;
-
-    port.onMessage.addListener(message => {
-        if (message.type === 'init_connection' && message.uuid) {
-            contentScriptUUID = message.uuid;
-            connectedContentScripts.set(contentScriptUUID, port);
-        }
-
-    });
-
-
-    port.onDisconnect.addListener(() => {
-        if (contentScriptUUID && connectedContentScripts.has(contentScriptUUID)) {
-            connectedContentScripts.delete(contentScriptUUID);
-        }
-    });
-});
-
-let currentUserId = null;
-let latestPresence = null;
-let pollingInterval = null;
-
-function pollUserPresence() {
-    if (!currentUserId) return;
-
-    chrome.tabs.query({ url: "*://*.roblox.com/*", status: "complete", active: true }, (tabs) => {
-        if (tabs.length > 0) {
-            const targetTab = tabs.find(t => t.url.includes("/games/")) || tabs[0];
-            chrome.tabs.sendMessage(targetTab.id, { action: 'pollPresence', userId: currentUserId }, (response) => {
-                if (chrome.runtime.lastError) {
-
-                }
-            });
-        }
-    });
-}
-
-let csrfTokenCache = null;
+// --- API & Networking ---
 
 async function callRobloxApiBackground(options) {
-    const {
-        subdomain = 'api',
-        endpoint,
-        method = 'GET',
-        body = null,
-        headers = {}
-    } = options;
+    const { subdomain = 'api', endpoint, method = 'GET', body = null, headers = {} } = options;
 
-    let url = `https://${subdomain}.roblox.com${endpoint}`;
-    if (url.includes('?')) {
-        url += `&_RoValraRequest=`;
-    } else {
-        url += `?_RoValraRequest=`;
-    }
+    const separator = endpoint.includes('?') ? '&' : '?';
+    const url = `https://${subdomain}.roblox.com${endpoint}${separator}_RoValraRequest=`;
 
-    const fetchOptions = {
-        method,
-        headers: {
-            ...headers
-        }
-    };
+    const fetchOptions = { method, headers: { ...headers } };
 
     if (body) {
         fetchOptions.headers['Content-Type'] = 'application/json';
         fetchOptions.body = JSON.stringify(body);
     }
 
-    if (method !== 'GET' && method !== 'HEAD') {
-        if (csrfTokenCache) {
-            fetchOptions.headers['X-CSRF-TOKEN'] = csrfTokenCache;
-        }
+    if (method !== 'GET' && method !== 'HEAD' && state.csrfTokenCache) {
+        fetchOptions.headers['X-CSRF-TOKEN'] = state.csrfTokenCache;
     }
 
-    let response = await fetch(url, fetchOptions);
+    let response = await fetch(url, fetchOptions); //Verified
 
     if (response.status === 403 && (method !== 'GET' && method !== 'HEAD')) {
         const newCsrf = response.headers.get('x-csrf-token');
         if (newCsrf) {
-            csrfTokenCache = newCsrf;
+            state.csrfTokenCache = newCsrf;
             fetchOptions.headers['X-CSRF-TOKEN'] = newCsrf;
-            response = await fetch(url, fetchOptions);
+            response = await fetch(url, fetchOptions); //Verified
         }
     }
 
@@ -438,126 +219,173 @@ async function callRobloxApiBackground(options) {
 
 async function wearOutfit(outfitId) {
     const callWithRetry = async (options) => {
-        let retries500 = 0;
-        while (true) {
+        for (let i = 0; i < 4; i++) {
             const response = await callRobloxApiBackground(options);
-
             if (response.ok) return response;
-
-            if (response.status === 429) {
-                await new Promise(r => setTimeout(r, 1000));
+            if (response.status === 429 || response.status >= 500) {
+                if (i < 3) await new Promise(r => setTimeout(r, 1000));
                 continue;
-            }
-
-            if (response.status >= 500) {
-                if (retries500 < 3) {
-                    retries500++;
-                    await new Promise(r => setTimeout(r, 1000));
-                    continue;
-                }
             }
             return response;
         }
     };
 
     try {
-        const detailsRes = await callWithRetry({
-            subdomain: 'avatar',
-            endpoint: `/v1/outfits/${outfitId}/details`
-        });
-
-        if (!detailsRes.ok) return { ok: false };
+        const detailsRes = await callWithRetry({ subdomain: 'avatar', endpoint: `/v1/outfits/${outfitId}/details` });
+        if (!detailsRes?.ok) return { ok: false };
 
         const details = await detailsRes.json();
         const promises = [];
 
-        if (details.bodyColors) {
-            promises.push(callWithRetry({
-                subdomain: 'avatar',
-                endpoint: '/v1/avatar/set-body-colors',
-                method: 'POST',
-                body: details.bodyColors
-            }));
-        }
-
-        if (details.assets) {
-            promises.push(callWithRetry({
-                subdomain: 'avatar',
-                endpoint: '/v2/avatar/set-wearing-assets',
-                method: 'POST',
-                body: { assets: details.assets }
-            }));
-        }
-
-        if (details.playerAvatarType) {
-            promises.push(callWithRetry({
-                subdomain: 'avatar',
-                endpoint: '/v1/avatar/set-player-avatar-type',
-                method: 'POST',
-                body: { playerAvatarType: details.playerAvatarType }
-            }));
-        }
-
-        if (details.scale) {
-            promises.push(callWithRetry({
-                subdomain: 'avatar',
-                endpoint: '/v1/avatar/set-scales',
-                method: 'POST',
-                body: details.scale
-            }));
-        }
+        if (details.bodyColors) promises.push(callWithRetry({ subdomain: 'avatar', endpoint: '/v1/avatar/set-body-colors', method: 'POST', body: details.bodyColors }));
+        if (details.assets) promises.push(callWithRetry({ subdomain: 'avatar', endpoint: '/v2/avatar/set-wearing-assets', method: 'POST', body: { assets: details.assets } }));
+        if (details.playerAvatarType) promises.push(callWithRetry({ subdomain: 'avatar', endpoint: '/v1/avatar/set-player-avatar-type', method: 'POST', body: { playerAvatarType: details.playerAvatarType } }));
+        if (details.scale) promises.push(callWithRetry({ subdomain: 'avatar', endpoint: '/v1/avatar/set-scales', method: 'POST', body: details.scale }));
 
         const results = await Promise.all(promises);
-        return { ok: results.every(r => r.ok) };
+        return { ok: results.every(r => r?.ok) };
     } catch (e) {
         console.error('RoValra: Error wearing outfit', e);
         return { ok: false };
     }
 }
 
+// --- Presence Polling ---
+
+function pollUserPresence() {
+    if (!state.currentUserId) return;
+
+    chrome.tabs.query({ url: "*://*.roblox.com/*", status: "complete", active: true }, (tabs) => {
+        if (tabs.length > 0) {
+            const targetTab = tabs.find(t => t.url.includes("/games/")) || tabs[0];
+            chrome.tabs.sendMessage(targetTab.id, { action: 'pollPresence', userId: state.currentUserId }, () => {
+                if (chrome.runtime.lastError) { /* Ignore */ }
+            });
+        }
+    });
+}
+
+// --- Avatar Rotator ---
+
+function updateAvatarRotator() {
+    chrome.storage.local.get(['rovalra_avatar_rotator_enabled', 'rovalra_avatar_rotator_ids', 'rovalra_avatar_rotator_interval'], (data) => {
+        if (state.rotatorInterval) {
+            clearInterval(state.rotatorInterval);
+            state.rotatorInterval = null;
+        }
+
+        if (data.rovalra_avatar_rotator_enabled && data.rovalra_avatar_rotator_ids?.length > 0) {
+            const ids = data.rovalra_avatar_rotator_ids;
+            state.rotatorIndex = 0;
+            
+            let intervalSeconds = Math.max(parseInt(data.rovalra_avatar_rotator_interval, 10) || 5, 5);
+            
+            const rotate = () => {
+                if (ids.length === 0) return;
+                const outfitId = ids[state.rotatorIndex];
+                wearOutfit(outfitId);
+                state.rotatorIndex = (state.rotatorIndex + 1) % ids.length;
+            };
+
+            rotate();
+            state.rotatorInterval = setInterval(rotate, intervalSeconds * 1000);
+        }
+    });
+}
+
+// --- Event Listeners ---
+
+chrome.runtime.onInstalled.addListener((details) => {
+    initializeSettings(details.reason);
+    updateUserAgentRule();
+    setupContextMenuListener();
+});
+
+chrome.runtime.onStartup.addListener(() => {
+    initializeSettings("startup");
+    updateUserAgentRule();
+    setupContextMenuListener();
+});
+
+chrome.storage.onChanged.addListener((changes, namespace) => {
+    if (namespace === 'local') {
+        if (changes.MemoryleakFixEnabled) {
+            state.isMemoryFixEnabled = changes.MemoryleakFixEnabled.newValue;
+            if (state.isMemoryFixEnabled) setupNavigationListener();
+        }
+        if (changes.rovalra_avatar_rotator_enabled || changes.rovalra_avatar_rotator_ids || changes.rovalra_avatar_rotator_interval) {
+            updateAvatarRotator();
+        }
+    }
+});
+
+chrome.permissions.onAdded.addListener((permissions) => {
+    if (permissions.permissions?.includes('webNavigation')) setupNavigationListener();
+    if (permissions.permissions?.includes('contextMenus')) setupContextMenuListener();
+    
+    chrome.tabs.query({}, (tabs) => {
+        tabs.forEach(tab => chrome.tabs.sendMessage(tab.id, { action: 'permissionsUpdated' }).catch(() => {}));
+    });
+});
+
+chrome.permissions.onRemoved.addListener((permissions) => {
+    if (permissions.permissions?.includes('webNavigation') && chrome.webNavigation.onBeforeNavigate.hasListener(navigationListener)) {
+        chrome.webNavigation.onBeforeNavigate.removeListener(navigationListener);
+    }
+    if (permissions.permissions?.includes('contextMenus') && chrome.contextMenus?.onClicked.hasListener(contextMenuClickListener)) {
+        chrome.contextMenus.onClicked.removeListener(contextMenuClickListener);
+    }
+    
+    chrome.tabs.query({}, (tabs) => {
+        tabs.forEach(tab => chrome.tabs.sendMessage(tab.id, { action: 'permissionsUpdated' }).catch(() => {}));
+    });
+});
+
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     switch (request.action) {
         case 'updateOfflineRule':
-            chrome.declarativeNetRequest.updateEnabledRulesets(request.enabled ? { enableRulesetIds: ["ruleset_status"] } : { disableRulesetIds: ["ruleset_status"] });
+            chrome.declarativeNetRequest.updateEnabledRulesets(
+                request.enabled ? { enableRulesetIds: ["ruleset_status"] } : { disableRulesetIds: ["ruleset_status"] }
+            );
             sendResponse({ success: true });
-            break;
+            return false;
 
         case 'updateEarlyAccessRule':
-            chrome.declarativeNetRequest.updateEnabledRulesets(request.enabled ? { enableRulesetIds: ["ruleset_3"] } : { disableRulesetIds: ["ruleset_3"] });
+            chrome.declarativeNetRequest.updateEnabledRulesets(
+                request.enabled ? { enableRulesetIds: ["ruleset_3"] } : { disableRulesetIds: ["ruleset_3"] }
+            );
             sendResponse({ success: true });
-            break;
+            return false;
 
         case 'enableServerJoinHeaders':
             chrome.declarativeNetRequest.updateEnabledRulesets({ enableRulesetIds: ['ruleset_2'] });
-            break;
+            return false;
 
         case 'disableServerJoinHeaders':
             chrome.declarativeNetRequest.updateEnabledRulesets({ disableRulesetIds: ['ruleset_2'] });
-            break;
-
+            return false;
 
         case "injectScript":
             chrome.scripting.executeScript({
                 target: { tabId: sender.tab.id },
                 world: "MAIN",
-                func: (codeToInject) => {
+                func: (code) => {
                     try {
                         const script = document.createElement('script');
-                        script.textContent = codeToInject;
+                        script.textContent = code;
                         document.documentElement.appendChild(script);
                         script.remove();
-                    } catch (error) {
-                    }
+                    } catch (e) {}
                 },
                 args: [request.codeToInject],
             }).then(() => sendResponse({ success: true }))
-                .catch((error) => sendResponse({ success: false, error: error.message }));
+              .catch((err) => sendResponse({ success: false, error: err.message }));
             return true;
 
         case 'toggleMemoryLeakFix':
-            isMemoryFixEnabled = request.enabled;
+            state.isMemoryFixEnabled = request.enabled;
             sendResponse({ success: true });
-            break;
+            return false;
 
         case 'injectMainWorldScript':
             if (sender.tab?.id) {
@@ -568,106 +396,79 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 });
             }
             sendResponse({ success: true });
-            break;
+            return false;
 
         case 'checkPermission':
-            const permissionsToCheck = Array.isArray(request.permission) ? request.permission : [request.permission];
-            chrome.permissions.contains({ permissions: permissionsToCheck }, (granted) => {
-                sendResponse({ granted: granted });
+            chrome.permissions.contains({ permissions: [].concat(request.permission) }, (granted) => {
+                sendResponse({ granted });
             });
             return true;
 
         case 'requestPermission':
-            const permissionsToRequest = Array.isArray(request.permission) ? request.permission : [request.permission];
-            chrome.permissions.request({ permissions: permissionsToRequest }, (granted) => {
-                if (chrome.runtime.lastError) {
-                    console.warn("RoValra: Permission request failed:", chrome.runtime.lastError);
-                    sendResponse({ granted: false });
-                } else {
-                    sendResponse({ granted: granted });
-                }
+            chrome.permissions.request({ permissions: [].concat(request.permission) }, (granted) => {
+                if (chrome.runtime.lastError) console.warn("RoValra: Permission request failed:", chrome.runtime.lastError);
+                sendResponse({ granted: !!granted });
             });
             return true;
 
         case 'revokePermission':
-            const permissionsToRevoke = Array.isArray(request.permission) ? request.permission : [request.permission];
-            chrome.permissions.remove({ permissions: permissionsToRevoke }, (removed) => {
+            chrome.permissions.remove({ permissions: [].concat(request.permission) }, (removed) => {
                 if (chrome.runtime.lastError) {
                     sendResponse({ revoked: false, error: chrome.runtime.lastError.message });
                 } else {
-                    if (removed) {
-                    } else {
-                    }
                     sendResponse({ revoked: removed });
                 }
             });
             return true;
 
         case 'updateUserId':
-            if (request.userId) {
-                if (request.userId !== currentUserId) {
-                    currentUserId = request.userId;
-                    latestPresence = null;
-                    if (pollingInterval) {
-                        clearInterval(pollingInterval);
-                    }
-                    pollUserPresence();
-                    pollingInterval = setInterval(pollUserPresence, 5000);
-                }
+            if (request.userId && request.userId !== state.currentUserId) {
+                state.currentUserId = request.userId;
+                state.latestPresence = null;
+                if (state.pollingInterval) clearInterval(state.pollingInterval);
+                pollUserPresence();
+                state.pollingInterval = setInterval(pollUserPresence, 5000);
             }
-            break;
+            return false;
 
         case 'presencePollResult':
-            if (request.success) {
+            if (request.success && request.presence) {
                 const presence = request.presence;
-
-                if (JSON.stringify(presence) !== JSON.stringify(latestPresence)) {
-                    const oldPresence = latestPresence;
-                    latestPresence = presence;
+                if (JSON.stringify(presence) !== JSON.stringify(state.latestPresence)) {
+                    const oldPresence = state.latestPresence;
+                    state.latestPresence = presence;
 
                     chrome.tabs.query({ url: "*://*.roblox.com/*" }, (tabs) => {
-                        tabs.forEach(tab => {
-                            chrome.tabs.sendMessage(tab.id, { action: 'presenceUpdate', presence: latestPresence }, (response) => {
-                                if (chrome.runtime.lastError) { }
-                            });
-                        });
+                        tabs.forEach(tab => chrome.tabs.sendMessage(tab.id, { action: 'presenceUpdate', presence: state.latestPresence }).catch(() => {}));
                     });
 
+                    // Server History Logic
                     const isJoiningGame = p => p && (p.userPresenceType === 2 || p.userPresenceType === 4);
-
                     if (isJoiningGame(presence) && presence.gameId && presence.rootPlaceId) {
                         if (!isJoiningGame(oldPresence) || oldPresence.gameId !== presence.gameId) {
                             chrome.storage.local.get({ 'rovalra_server_history': {} }, (res) => {
                                 const history = res.rovalra_server_history || {};
                                 const gameId = presence.rootPlaceId.toString();
                                 let gameHistory = history[gameId] || [];
-
                                 const now = Date.now();
-                                const oneDay = 24 * 60 * 60 * 1000;
-
-                                gameHistory = gameHistory.filter(entry => (now - entry.timestamp) < oneDay);
-
+                                
+                                gameHistory = gameHistory.filter(entry => (now - entry.timestamp) < 24 * 60 * 60 * 1000);
                                 const serverIndex = gameHistory.findIndex(entry => entry.presence.gameId === presence.gameId);
-                                if (serverIndex > -1) {
-                                    gameHistory.splice(serverIndex, 1);
-                                }
-
+                                if (serverIndex > -1) gameHistory.splice(serverIndex, 1);
+                                
                                 gameHistory.unshift({ presence, timestamp: now });
-
-                                gameHistory = gameHistory.slice(0, 4);
-                                history[gameId] = gameHistory;
-
+                                history[gameId] = gameHistory.slice(0, 4);
                                 chrome.storage.local.set({ 'rovalra_server_history': history });
                             });
                         }
                     }
                 }
             }
-            break;
+            return false;
 
         case 'getLatestPresence':
-            sendResponse({ presence: latestPresence });
-            return true;
+            sendResponse({ presence: state.latestPresence });
+            return false;
 
         case 'wearOutfit':
             wearOutfit(request.outfitId).then(result => sendResponse(result));
@@ -676,76 +477,28 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         case 'updateContextMenu':
             if (chrome.contextMenus) {
                 chrome.contextMenus.removeAll(() => {
-                    if (chrome.runtime.lastError) {
-                        console.warn("RoValra: Context menu removeAll failed:", chrome.runtime.lastError);
-                        return;
-                    }
-                    if (request.ids && request.ids.length > 0) {
+                    if (!chrome.runtime.lastError && request.ids?.length > 0) {
                         request.ids.forEach((item) => {
                             chrome.contextMenus.create({
                                 id: `rovalra-copy-${item.id}`,
                                 title: `Copy ${item.type} ID`,
                                 contexts: ['link'],
-                            }, () => {
-                                if (chrome.runtime.lastError) {
-                                    console.warn("RoValra: Context menu create failed:", chrome.runtime.lastError);
-                                }
                             });
                         });
                     }
                 });
             }
-            break;
+            return false;
     }
-
-    return [
-        "injectScript", "fetchItemData", "fetchHiddenGames",
-        'checkPermission', 'requestPermission', 'revokePermission', 'getLatestPresence', 'wearOutfit'
-    ].includes(request.action);
+    return false;
 });
 
+// --- Initialization ---
 
 chrome.storage.local.get('MemoryleakFixEnabled', (result) => {
     if (result.MemoryleakFixEnabled) {
-        isMemoryFixEnabled = true;
-    }
-    setupNavigationListener();
-});
-
-let rotatorInterval = null;
-let rotatorIndex = 0;
-
-function updateAvatarRotator() {
-    chrome.storage.local.get(['rovalra_avatar_rotator_enabled', 'rovalra_avatar_rotator_ids', 'rovalra_avatar_rotator_interval'], (data) => {
-        if (rotatorInterval) {
-            clearInterval(rotatorInterval);
-            rotatorInterval = null;
-        }
-
-        if (data.rovalra_avatar_rotator_enabled && data.rovalra_avatar_rotator_ids && data.rovalra_avatar_rotator_ids.length > 0) {
-            const ids = data.rovalra_avatar_rotator_ids;
-            rotatorIndex = 0;
-            
-            let intervalSeconds = parseInt(data.rovalra_avatar_rotator_interval, 10) || 5;
-            if (intervalSeconds < 5) intervalSeconds = 5;
-            const intervalMs = intervalSeconds * 1000;
-
-            const rotate = () => {
-                if (ids.length === 0) return;
-                const outfitId = ids[rotatorIndex];
-                wearOutfit(outfitId);
-                rotatorIndex = (rotatorIndex + 1) % ids.length;
-            };
-
-            rotate();
-            rotatorInterval = setInterval(rotate, intervalMs);
-        }
-    });
-}
-
-chrome.storage.onChanged.addListener((changes, namespace) => {
-    if (namespace === 'local' && (changes.rovalra_avatar_rotator_enabled || changes.rovalra_avatar_rotator_ids || changes.rovalra_avatar_rotator_interval)) {
-        updateAvatarRotator();
+        state.isMemoryFixEnabled = true;
+        setupNavigationListener();
     }
 });
 
