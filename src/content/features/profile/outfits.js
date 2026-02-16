@@ -1,7 +1,5 @@
 import { showReviewPopup } from '../../core/review/review.js';
 import { observeElement } from '../../core/observer.js';
-import { createAssetIcon } from '../../core/ui/general/toast.js';
-import { createCloseButton } from '../../core/ui/closeButton.js';
 import { callRobloxApi } from '../../core/api.js';
 import { getUserIdFromUrl } from '../../core/idExtractor.js';
 import {
@@ -13,6 +11,8 @@ import { createScrollButtons } from '../../core/ui/general/scrollButtons.js';
 import { createButton } from '../../core/ui/buttons.js';
 import DOMPurify from 'dompurify';
 import { safeHtml } from '../../core/packages/dompurify';
+import { createOverlay } from '../../core/ui/overlay.js';
+import { createItemCard } from '../../core/ui/items/items.js';
 
 export function init() {
     chrome.storage.local.get('useroutfitsEnabled', function (data) {
@@ -78,18 +78,10 @@ export function init() {
         }
 
         async function fetchOutfitThumbnails(outfitIds) {
-            if (outfitIds.length === 0) return {};
+            if (outfitIds.length === 0) return new Map();
 
             const items = outfitIds.map((id) => ({ id }));
-            const thumbnailMap = await fetchThumbnailsBatch(
-                items,
-                'UserOutfit',
-                '150x150',
-            );
-
-            const result = {};
-            thumbnailMap.forEach((data, id) => (result[id] = data));
-            return result;
+            return await fetchThumbnailsBatch(items, 'UserOutfit', '150x150');
         }
 
         function createOutfitsOverlay(
@@ -103,78 +95,22 @@ export function init() {
             let isFirstLoad = true;
             const outfitDetailsCache = new Map();
 
-            const isDark = document.body.classList.contains('dark-theme');
-            const theme = {
-                bgPrimary: isDark ? 'rgb(25, 26, 31)' : '#FFFFFF',
-                bgSecondary: isDark ? '#2F353A' : '#F2F4F5',
-                bgSelected: isDark ? 'rgb(58, 64, 71)' : '#E8F0FE',
-                textPrimary: isDark ? '#FFFFFF' : '#191B1D',
-                textSecondary: isDark ? '#b8b8b8' : '#606264',
-                borderPrimary: isDark ? 'rgba(255, 255, 255, 0.1)' : '#D9DADB',
-                thumbBg: isDark ? 'rgba(208, 217, 251, .12)' : '#E3E5E7',
-                shadow: isDark ? 'rgba(0, 0, 0, 0.5)' : 'rgba(0, 0, 0, 0.15)',
-            };
-
-            const overlay = document.createElement('div');
-            overlay.id = 'rovalra-outfits-overlay';
-            Object.assign(overlay.style, {
-                position: 'fixed',
-                top: '0',
-                left: '0',
-                width: '100%',
-                height: '100%',
-                backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                zIndex: '10001',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-            });
-
-            const content = document.createElement('div');
-            Object.assign(content.style, {
-                backgroundColor: theme.bgPrimary,
-                color: theme.textPrimary,
-                borderRadius: '8px',
-                height: '85%',
-                width: '80%',
-                maxWidth: '1000px',
-                display: 'flex',
-                flexDirection: 'column',
-                boxShadow: `0 8px 30px ${theme.shadow}`,
-                overflow: 'hidden',
-            });
-
-            const header = document.createElement('div');
-            Object.assign(header.style, {
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                padding: '6px 16px',
-                borderBottom: `1px solid ${theme.borderPrimary}`,
-                flexShrink: '0',
-            });
-            const headerTitle = document.createElement('h3');
-            Object.assign(headerTitle.style, {
-                fontSize: '18px',
-                fontWeight: '600',
-                margin: '0',
-            });
 
             const panelsWrapper = document.createElement('div');
             Object.assign(panelsWrapper.style, {
                 display: 'flex',
                 flexDirection: 'row',
-                flexGrow: '1',
-                minHeight: '0',
+                height: '70vh',
+                width: '100%',
             });
 
             const mainPanel = document.createElement('div');
             Object.assign(mainPanel.style, {
                 display: 'flex',
                 flexDirection: 'column',
-                width: '400px',
+                width: '350px',
                 flexShrink: '0',
-                borderRight: `1px solid ${theme.borderPrimary}`,
+                borderRight: `1px solid var(--rovalra-border-color)`,
             });
             const listContainer = document.createElement('div');
             Object.assign(listContainer.style, {
@@ -193,12 +129,14 @@ export function init() {
             });
 
             const detailsPanel = document.createElement('div');
+            detailsPanel.className = 'rovalra-outfit-details-panel';
             Object.assign(detailsPanel.style, {
+                paddingLeft: '20px',
                 flexGrow: '1',
-                backgroundColor: theme.bgPrimary,
                 display: 'none',
                 flexDirection: 'column',
                 alignItems: 'center',
+                justifyContent: 'center',
             });
             const detailsContentWrapper = document.createElement('div');
             Object.assign(detailsContentWrapper.style, {
@@ -209,8 +147,8 @@ export function init() {
             });
             const detailsImageContainer = document.createElement('div');
             Object.assign(detailsImageContainer.style, {
-                width: 'auto',
-                height: 'auto',
+                width: '150px',
+                height: '150px',
                 maxWidth: '150px',
                 maxHeight: '150px',
                 position: 'relative',
@@ -223,7 +161,7 @@ export function init() {
                 marginBottom: '0px',
                 wordBreak: 'break-word',
                 textAlign: 'center',
-                color: theme.textPrimary,
+                color: 'var(--rovalra-main-text-color)',
             });
             const separator = document.createElement('div');
             const totalPriceElement = document.createElement('div');
@@ -235,12 +173,12 @@ export function init() {
                 marginTop: '0px',
                 fontSize: '16px',
                 fontWeight: '600',
-                color: theme.textSecondary,
+                color: 'var(--rovalra-secondary-text-color)',
             });
             Object.assign(separator.style, {
                 height: '1px',
                 width: '90%',
-                backgroundColor: theme.borderPrimary,
+                backgroundColor: 'var(--rovalra-border-color)',
                 margin: '10px auto',
             });
             const itemsContainer = document.createElement('div');
@@ -249,7 +187,7 @@ export function init() {
                 width: '100%',
                 flexGrow: '0',
                 padding: '0px 0px 20px',
-                overflowY: 'auto',
+                overflowY: 'hidden',
                 height: '100%',
             });
             const paginationContainer = document.createElement('div');
@@ -277,30 +215,27 @@ export function init() {
                 padding: '20px',
                 fontSize: '16px',
                 textAlign: 'center',
-                color: theme.textSecondary,
+                color: 'var(--rovalra-secondary-text-color)',
             });
             list.appendChild(noOutfitsMessage);
 
-            const closeOverlay = () => {
-                if (loadingControl) loadingControl.cancelled = true;
-                document.body.style.overflow = '';
-                overlay.remove();
+            const handleKeydown = (e) => {
+                if (e.key === 'Escape') close();
             };
 
-            const closeButton = createCloseButton({ onClick: closeOverlay });
-
-            const titleText = displayName
-                ? `${displayName}'s Outfits`
-                : 'User Outfits';
-            const logoIcon = createAssetIcon({
-                assetName: 'rovalraIcon',
-                width: '24px',
-                height: '24px',
+            const { close } = createOverlay({
+                title: displayName ? `${displayName}'s Outfits` : 'User Outfits',
+                bodyContent: panelsWrapper,
+                maxWidth: '1000px',
+                maxHeight: '85vh',
+                showLogo: true,
+                onClose: () => {
+                    if (loadingControl) loadingControl.cancelled = true;
+                    window.removeEventListener('keydown', handleKeydown);
+                },
             });
-            logoIcon.style.marginRight = '8px';
-            headerTitle.append(logoIcon, titleText);
 
-            header.append(headerTitle, closeButton);
+            window.addEventListener('keydown', handleKeydown);
 
             let resizeObserver = null;
             const selectOutfit = async (outfit, listItem) => {
@@ -312,7 +247,7 @@ export function init() {
                     selectedListItem.style.backgroundColor = 'transparent';
                 }
 
-                listItem.style.backgroundColor = theme.bgSelected;
+                listItem.style.backgroundColor = 'var(--rovalra-button-background-color)';
                 selectedListItem = listItem;
                 selectedOutfitId = outfit.id;
 
@@ -341,7 +276,7 @@ export function init() {
                     height: '100%',
                     position: 'absolute',
                     borderRadius: '8px',
-                    backgroundColor: theme.thumbBg,
+                    backgroundColor: 'var(--rovalra-button-background-color)',
                 });
                 detailsImageContainer.prepend(shimmerPlaceholder);
 
@@ -367,12 +302,11 @@ export function init() {
                     return Math.max(1, itemsPerRow * rowsPerPage);
                 };
 
-                itemsContainer.innerHTML = safeHtml(
-                    `<p style="color: ${theme.textSecondary}; font-style: italic; text-align: center;">Loading items...</p>`,
-                );
+                itemsContainer.innerHTML = safeHtml(`<p style="color: var(--rovalra-secondary-text-color); font-style: italic; text-align: center;">Loading items...</p>`,);
                 itemsContainer.style.display = 'flex';
                 itemsContainer.style.flexWrap = 'wrap';
                 itemsContainer.style.justifyContent = 'center';
+                itemsContainer.style.alignContent = 'flex-start';
                 itemsContainer.style.gap = '20px';
                 paginationContainer.style.visibility = 'hidden';
 
@@ -391,7 +325,7 @@ export function init() {
                     Object.assign(thumbContainer.style, {
                         width: '120px',
                         height: '120px',
-                        backgroundColor: theme.thumbBg,
+                        backgroundColor: 'var(--rovalra-button-background-color)',
                         borderRadius: '8px',
                         overflow: 'hidden',
                     });
@@ -408,7 +342,7 @@ export function init() {
                     Object.assign(namePlaceholder.style, {
                         width: '90%',
                         height: '14px',
-                        backgroundColor: theme.thumbBg,
+                        backgroundColor: 'var(--rovalra-button-background-color)',
                         marginTop: '8px',
                         borderRadius: '4px',
                     });
@@ -558,6 +492,7 @@ export function init() {
                             display: 'flex',
                             flexWrap: 'wrap',
                             justifyContent: 'center',
+                            alignContent: 'flex-start',
                             gap: '20px',
                         });
                         const startIndex = page * itemsPerPage;
@@ -566,145 +501,37 @@ export function init() {
                             startIndex + itemsPerPage,
                         );
                         pageAssets.forEach((asset) => {
-                            const itemCardContainer =
-                                document.createElement('div');
-                            itemCardContainer.className = 'item-card-container';
-                            Object.assign(itemCardContainer.style, {
-                                width: '120px',
-                                height: 'auto',
-                                maxHeight: '160px',
-                                display: 'flex',
-                                flexDirection: 'column',
-                            });
-
-                            const itemCardLink = document.createElement('a');
-                            itemCardLink.href = `https://www.roblox.com/catalog/${asset.id}/`;
-                            itemCardLink.target = '_blank';
-                            itemCardLink.rel = 'noopener noreferrer';
-                            Object.assign(itemCardLink.style, {
-                                textDecoration: 'none',
-                                color: 'inherit',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                            });
-                            const thumbContainer =
-                                document.createElement('div');
-                            Object.assign(thumbContainer.style, {
-                                width: '120px',
-                                height: '120px',
-                                backgroundColor: theme.thumbBg,
-                                borderRadius: '8px',
-                                overflow: 'hidden',
-                            });
-
-                            const assetThumbnailData = thumbnailMap[asset.id];
-                            const itemThumbnailElement = createThumbnailElement(
-                                assetThumbnailData,
-                                asset.name,
-                                '',
-                                {
-                                    width: '100%',
-                                    height: '100%',
-                                    objectFit: 'cover',
-                                },
-                            );
-
                             const assetDetails = catalogDetailsMap[asset.id];
+                            let priceText = '';
+                            let itemRestrictions = [];
+
                             if (
-                                assetDetails &&
-                                assetDetails.itemRestrictions &&
-                                assetDetails.itemRestrictions.length > 0
+                                assetDetails
                             ) {
-                                const limitedIcon =
-                                    document.createElement('span');
-                                limitedIcon.className = 'icon-label';
-                                Object.assign(limitedIcon.style, {
-                                    position: 'absolute',
-                                    bottom: '38px',
-                                    left: '-2px',
-                                    zIndex: '2',
-                                });
-
-                                if (
-                                    assetDetails.itemRestrictions.includes(
-                                        'Limited',
-                                    )
-                                ) {
-                                    limitedIcon.classList.add(
-                                        'icon-limited-label',
-                                    );
-                                } else if (
-                                    assetDetails.itemRestrictions.includes(
-                                        'Collectible',
-                                    )
-                                ) {
-                                    limitedIcon.classList.add(
-                                        'icon-limited-unique-label',
-                                    );
-                                }
-                                thumbContainer.appendChild(limitedIcon);
-                            }
-                            thumbContainer.appendChild(itemThumbnailElement);
-
-                            const nameElement = document.createElement('div');
-                            nameElement.textContent = asset.name;
-                            Object.assign(nameElement.style, {
-                                fontSize: '16px',
-                                fontWeight: '500',
-                                lineHeight: '18px',
-                                textAlign: 'left',
-                                marginTop: '4px',
-                                width: '120px',
-                                minHeight: '36px',
-                                maxHeight: '36px',
-                                wordBreak: 'break-word',
-                                overflow: 'hidden',
-                            });
-
-                            const priceElement = document.createElement('div');
-                            Object.assign(priceElement.style, {
-                                display: 'flex',
-                                alignItems: 'center',
-                                width: '120px',
-                                marginTop: '4px',
-                                fontSize: '16px',
-                                fontWeight: '600',
-                                color: theme.textSecondary,
-                            });
-
-                            if (assetDetails) {
+                                itemRestrictions = assetDetails.itemRestrictions || [];
                                 if (
                                     assetDetails.isPurchasable &&
                                     assetDetails.priceInRobux > 0
                                 ) {
-                                    priceElement.className =
-                                        'rovalra-outfit-item-price';
-                                    const robuxIcon =
-                                        document.createElement('span');
-                                    robuxIcon.className = 'icon-robux-16x16';
-                                    robuxIcon.style.marginRight = '4px';
-                                    priceElement.appendChild(robuxIcon);
-                                    priceElement.appendChild(
-                                        document.createTextNode(
-                                            assetDetails.priceInRobux.toLocaleString(),
-                                        ),
-                                    );
+                                    priceText = `<span class="icon-robux-16x16" style="margin-right: 4px; vertical-align: middle;"></span>${assetDetails.priceInRobux.toLocaleString()}`;
                                 } else if (!assetDetails.isPurchasable) {
-                                    priceElement.className =
-                                        'rovalra-outfit-item-offsale';
-                                    priceElement.textContent = 'Off Sale';
+                                    priceText = 'Off Sale';
                                 } else {
-                                    priceElement.className =
-                                        'rovalra-outfit-item-free';
-                                    priceElement.textContent = 'Free';
+                                    priceText = 'Free';
                                 }
                             }
-                            itemCardLink.appendChild(thumbContainer);
-                            itemCardLink.appendChild(nameElement);
-                            itemCardLink.appendChild(priceElement);
-                            itemCardContainer.appendChild(itemCardLink);
-                            itemsContainer.appendChild(itemCardContainer);
+
+                            const itemData = {
+                                assetId: asset.id,
+                                name: asset.name,
+                                itemType: assetDetails?.itemType || 'Asset',
+                                priceText: priceText,
+                                itemRestrictions: itemRestrictions
+                            };
+
+                            const card = createItemCard(itemData, thumbnailMap, { showSerial: false });
+                            card.style.width = '120px';
+                            itemsContainer.appendChild(card);
                         });
                     };
 
@@ -734,10 +561,16 @@ export function init() {
                             },
                         );
 
-                        if (currentPage === 0)
+                        if (currentPage === 0) {
                             leftButton.classList.add('disabled');
-                        if (currentPage >= totalPages - 1)
+                            leftButton.disabled = true;
+                            leftButton.style.opacity = '0.5';
+                        }
+                        if (currentPage >= totalPages - 1) {
                             rightButton.classList.add('disabled');
+                            rightButton.disabled = true;
+                            rightButton.style.opacity = '0.5';
+                        }
 
                         paginationContainer.append(leftButton, rightButton);
                         paginationContainer.style.visibility = 'visible';
@@ -768,7 +601,7 @@ export function init() {
                         const detailsData = await detailsResponse.json();
                         const assets = detailsData.assets;
 
-                        let thumbnailMap = {},
+                        let thumbnailMap = new Map(),
                             catalogDetailsMap = {};
                         if (assets && assets.length > 0) {
                             const assetIds = assets.map((asset) => asset.id);
@@ -780,18 +613,11 @@ export function init() {
                                     const items = assetIds.map((id) => ({
                                         id,
                                     }));
-                                    const newThumbnails =
-                                        await fetchThumbnailsBatch(
-                                            items,
-                                            'Asset',
-                                            '150x150',
-                                        );
-                                    thumbnailMap = Array.from(
-                                        newThumbnails.entries(),
-                                    ).reduce((acc, [id, thumb]) => {
-                                        acc[thumb.targetId] = thumb;
-                                        return acc;
-                                    }, {});
+                                    thumbnailMap = await fetchThumbnailsBatch(
+                                        items,
+                                        'Asset',
+                                        '150x150',
+                                    );
                                 })(),
                             );
 
@@ -868,7 +694,7 @@ export function init() {
                         renderOutfitDetails(newOutfitData);
                     } catch (error) {
                         itemsContainer.innerHTML = DOMPurify.sanitize(
-                            `<p style="color: ${theme.textSecondary}; font-style: italic; text-align: center; margin-right: auto; margin-left: auto;">Could not load items.</p>`,
+                            `<p style="color: var(--rovalra-secondary-text-color); font-style: italic; text-align: center; margin-right: auto; margin-left: auto;">Could not load items.</p>`,
                         );
                     }
                 }
@@ -889,7 +715,7 @@ export function init() {
                 });
                 listItem.addEventListener('mouseenter', () => {
                     if (listItem !== selectedListItem) {
-                        listItem.style.backgroundColor = theme.bgSecondary;
+                        listItem.style.backgroundColor = 'var(--rovalra-container-background-color)';
                     }
                 });
                 listItem.addEventListener('mouseleave', () => {
@@ -901,7 +727,7 @@ export function init() {
                     selectOutfit(outfit, listItem),
                 );
 
-                const thumbnailData = thumbnails[outfit.id];
+                const thumbnailData = thumbnails.get(outfit.id);
                 const thumbnailContainer = document.createElement('div');
                 Object.assign(thumbnailContainer.style, {
                     width: '60px',
@@ -909,7 +735,7 @@ export function init() {
                     marginRight: '16px',
                     borderRadius: '6px',
                     flexShrink: '0',
-                    backgroundColor: theme.thumbBg,
+                    backgroundColor: 'var(--rovalra-button-background-color)',
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
@@ -939,19 +765,6 @@ export function init() {
             listContainer.appendChild(list);
             panelsWrapper.appendChild(mainPanel);
             panelsWrapper.appendChild(detailsPanel);
-            content.appendChild(header);
-            content.appendChild(panelsWrapper);
-            overlay.appendChild(content);
-
-            document.body.style.overflow = 'hidden';
-            document.body.appendChild(overlay);
-
-            overlay.addEventListener('click', (e) => {
-                if (e.target === overlay) closeOverlay();
-            });
-            window.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape') closeOverlay();
-            });
 
             let outfitsLoaded = false;
             return {
@@ -1000,23 +813,15 @@ export function init() {
             let container = null;
             let buttonStyle = null;
 
-            const parent = element.parentElement;
-            if (
-                parent &&
-                parent.classList.contains('relative') &&
-                parent.querySelector('.thumbnail-holder')
-            ) {
-                container = parent;
-                buttonStyle = 'square';
-            } else if (element.closest('.btr-avatar-redesign-container')) {
-                container = element.closest('.btr-avatar-redesign-container');
-                buttonStyle = 'square';
-            } else {
-                const childHolder = element.querySelector('.thumbnail-holder');
-                if (childHolder) {
-                    container = childHolder;
-                    buttonStyle = 'standard';
-                }
+            const avatarToggleButton = element.classList.contains(
+                'avatar-toggle-button',
+            )
+                ? element
+                : element.querySelector('.avatar-toggle-button');
+
+            if (avatarToggleButton) {
+                container = avatarToggleButton;
+                buttonStyle = 'toggle';
             }
 
             if (
@@ -1042,7 +847,7 @@ export function init() {
                 const loadingControl = { cancelled: false };
                 const outfitsOverlay = createOutfitsOverlay(
                     [],
-                    {},
+                    new Map(),
                     loadingControl,
                     displayName,
                 );
@@ -1102,6 +907,21 @@ export function init() {
                     left: '5px',
                     zIndex: '10',
                 });
+            } else if (buttonStyle === 'toggle') {
+                button = createSquareButton({
+                    content: 'Show Outfits',
+                    onClick: clickHandler,
+                    width: 'auto',
+                    height: 'height-1200',
+                    paddingX: 'padding-x-medium',
+                    disableTextTruncation: true,
+                });
+                button.classList.replace(
+                    'text-label-medium',
+                    'text-label-large',
+                );
+                container.style.display = 'flex';
+                container.style.gap = '10px';
             } else {
                 button = createButton('Show Outfits', 'secondary', {
                     onClick: clickHandler,
@@ -1115,7 +935,11 @@ export function init() {
             }
 
             button.classList.add('rovalra-show-outfits-btn');
-            container.appendChild(button);
+            if (buttonStyle === 'toggle') {
+                container.prepend(button);
+            } else {
+                container.appendChild(button);
+            }
         }
 
         observeElement(
@@ -1126,8 +950,12 @@ export function init() {
             { multiple: true },
         );
 
-        observeElement('.profile-avatar-left', addShowOutfitsButton, {
-            multiple: true,
-        });
+        observeElement(
+            '.avatar-toggle-button',
+            addShowOutfitsButton,
+            {
+                multiple: true,
+            },
+        );
     });
 }
