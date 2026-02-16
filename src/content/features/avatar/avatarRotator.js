@@ -135,7 +135,7 @@ export function init() {
                     updateButtonState();
                 }
 
-                nextPageCursor = response.nextPageCursor || null;
+                nextPageCursor = response.nextPageToken || null;
             } catch (error) {
                 console.error('RoValra: Failed to fetch avatars', error);
             } finally {
