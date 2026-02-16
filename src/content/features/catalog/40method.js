@@ -2100,7 +2100,7 @@ const addSaveButton = (modal) => {
             }
         }
 
-        if (!itemId) return;
+        if (!itemId && !isMultiItemPurchase) return;
 
         if (currentUserId) {
             if (!isMultiItemPurchase && itemId) {

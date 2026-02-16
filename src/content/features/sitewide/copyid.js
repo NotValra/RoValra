@@ -20,11 +20,20 @@ export function init() {
             if (link) {
                 const url = link.href;
 
-                const placeId = getPlaceIdFromUrl(url);
-                if (placeId) ids.push({ type: 'Place', id: placeId });
+                const bundleMatch = url.match(/\/bundles\/(\d+)/);
+                const catalogMatch = url.match(/\/catalog\/(\d+)/);
 
-                const assetId = getAssetIdFromUrl(url);
-                if (assetId) ids.push({ type: 'Asset', id: assetId });
+                if (bundleMatch) {
+                    ids.push({ type: 'Bundle', id: bundleMatch[1] });
+                } else if (catalogMatch) {
+                    ids.push({ type: 'Asset', id: catalogMatch[1] });
+                } else {
+                    const placeId = getPlaceIdFromUrl(url);
+                    if (placeId) ids.push({ type: 'Place', id: placeId });
+
+                    const assetId = getAssetIdFromUrl(url);
+                    if (assetId) ids.push({ type: 'Asset', id: assetId });
+                }
 
                 const userId = getUserIdFromUrl(url);
                 if (userId) ids.push({ type: 'User', id: userId });
