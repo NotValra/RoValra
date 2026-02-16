@@ -20,6 +20,7 @@ import { init as initCopyId } from './features/sitewide/copyid.js';
 import { init as initAvatarFilters } from './features/avatar/filters.js';
 import { init as initR6Warning } from './features/avatar/R6Warning.js';
 import { init as initAvatarRotator } from './features/avatar/avatarRotator.js';
+import { init as initMultiEquip } from './features/avatar/multiEquip.js';
 
 // Catalog
 import { init as initItemSales } from './features/catalog/itemsales.js';
@@ -108,7 +109,7 @@ const featureRoutes = [
   // avatar
   {
     paths: ['/my/avatar'],
-    features: [initAvatarFilters, initR6Warning, initAvatarRotator],
+    features: [initAvatarFilters, initR6Warning, initAvatarRotator, initMultiEquip],
   },
   // User profile pages
   {

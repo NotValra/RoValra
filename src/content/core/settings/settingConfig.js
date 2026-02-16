@@ -435,6 +435,12 @@ export const SETTINGS_CONFIG = {
                 type: "checkbox",
                 default: true
             },
+            multiEquipEnabled: {
+                label: "Multi-Equip",
+                description: ["Allows you to equip multiple items like accessories seamlessly without having to use the advanced tab."],
+                type: "checkbox",
+                default: true
+            },
             avatarFiltersEnabled: {
                 label: "Avatar Filters",
                 description: ["Adds filters to the avatar page, allowing you to filter by effect items, limited, offsale / onsale and more."],
@@ -615,7 +621,7 @@ export const SETTINGS_CONFIG = {
                     settingsPageInfo: {
                         label: "Hide Private Information on the settings page",
                         description: ["This visually replaces your Email, Phone Number, Sessions and account location with 'RoValra Streamer Mode Enabled'",
-                            "And completely hides your Age Group and Birthday."],
+                            "And completely hides your Age Group, previous usernames in settings and Birthday."],
                         type: "checkbox",
                         default: true,
                     },
