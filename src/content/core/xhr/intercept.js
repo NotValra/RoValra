@@ -250,14 +250,14 @@
         service.__rovalra_patched = true;
 
         const originalGetLimit = service.getAdvancedAccessoryLimit;
-        service.getAdvancedAccessoryLimit = function(assetTypeId) {
+        service.getAdvancedAccessoryLimit = function(assetTypeId, ...args) {
             if (multiAccessoryEnabled) {
                 const id = Number(assetTypeId);
                 if (ASSET_TYPE_ACCESSORIES.includes(id) || ASSET_TYPE_LAYERED.includes(id)) {
                     return 100; 
                 }
             }
-            return originalGetLimit ? originalGetLimit.apply(this, arguments) : 10;
+            return originalGetLimit ? originalGetLimit.call(this, assetTypeId, ...args) : 10;
         };
 
         const originalAddAsset = service.addAssetToAvatar;
@@ -265,27 +265,47 @@
             if (!multiAccessoryEnabled) {
                 return originalAddAsset.apply(this, arguments);
             }
-            const result = originalAddAsset.apply(this, arguments);
-            const allAssets = [asset, ...currentAssets];
+
+            const robloxResult = originalAddAsset.apply(this, arguments);
             
-            let accQuota = 10;
-            let layQuota = 10;
-
-            return allAssets.filter(item => {
+            const newAssetList = robloxResult.filter(item => {
                 const typeId = item?.assetType?.id;
-                const isAcc = ASSET_TYPE_ACCESSORIES.includes(typeId);
-                const isLay = ASSET_TYPE_LAYERED.includes(typeId) || typeId === 41;
-
-                if (isAcc) {
-                    if (accQuota > 0) { accQuota--; return true; }
-                    return false;
-                }
-                if (isLay) {
-                    if (layQuota > 0) { layQuota--; return true; }
-                    return false;
-                }
-                return result.includes(item);
+                return !ASSET_TYPE_ACCESSORIES.includes(typeId) && !ASSET_TYPE_LAYERED.includes(typeId);
             });
+
+            const potentialAssets = [asset, ...currentAssets];
+            const uniqueMultiEquipAssets = [];
+            const seenIds = new Set();
+
+            for (const item of potentialAssets) {
+                if (item && item.id && !seenIds.has(item.id)) {
+                    const typeId = item?.assetType?.id;
+                    if (ASSET_TYPE_ACCESSORIES.includes(typeId) || ASSET_TYPE_LAYERED.includes(typeId)) {
+                        uniqueMultiEquipAssets.push(item);
+                        seenIds.add(item.id);
+                    }
+                }
+            }
+
+            const counts = { accessory: 0, layered: 0 };
+            const limits = { accessory: 10, layered: 10 };
+
+            for (const item of uniqueMultiEquipAssets) {
+                const typeId = item?.assetType?.id;
+                if (ASSET_TYPE_ACCESSORIES.includes(typeId)) {
+                    if (counts.accessory < limits.accessory) {
+                        newAssetList.push(item);
+                        counts.accessory++;
+                    }
+                } else if (ASSET_TYPE_LAYERED.includes(typeId)) {
+                    if (counts.layered < limits.layered) {
+                        newAssetList.push(item);
+                        counts.layered++;
+                    }
+                }
+            }
+
+            return newAssetList;
         };
 
         console.log("RoValra: Multi-Accessory patch applied.");
