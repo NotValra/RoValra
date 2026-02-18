@@ -65,6 +65,38 @@ let lastProcessedGameLaunchSrc = null;
 let gameLaunchElementExists = false;
 let interceptedServerData = null;
 let currentGameId = null;
+let pollingInterval = null;
+let clientStatusReceived = false;
+
+function cleanupPolling() {
+    if (pollingInterval) {
+        clearInterval(pollingInterval);
+        pollingInterval = null;
+    }
+    document.removeEventListener('rovalra-game-launch-success', handleGameLaunchSuccess);
+}
+
+function triggerSuccess() {
+    if (!clientStatusReceived) {
+        clientStatusReceived = true;
+        cleanupPolling();
+        
+        showLoadingOverlayResult("Have Fun!", { 
+            text: "Close", 
+            onClick: () => {
+                cleanupPolling();
+                closeInterface(true); 
+            }
+        });
+    }
+}
+
+function handleGameLaunchSuccess() {
+    triggerSuccess();
+}
+
+
+
 
 
 async function ensureDatacenterDataIsParsed() {
@@ -219,24 +251,36 @@ const buildInfoList = (gameId, isPrivateServer, regionCode, regionName, serverIn
 };
 
 async function pollClientStatus(targetPlaceId) {
-    let clientStatusReceived = false;
-    let pollingInterval = null;
+    clientStatusReceived = false;
+    cleanupPolling();
+
     let isDownloadOptionShown = false;
     let unknownStatusCount = 0;
 
-    const triggerSuccess = () => {
-        if (!clientStatusReceived) {
-            clientStatusReceived = true;
-            if (pollingInterval) clearInterval(pollingInterval);
-            
-            showLoadingOverlayResult("Have Fun!", { 
-                text: "Close", 
-                onClick: () => {
-                    if (pollingInterval) clearInterval(pollingInterval);
-                    closeInterface(true); 
-                }
+    const triggerDownloadOption = () => {
+        if (!clientStatusReceived && !isDownloadOptionShown) {
+            isDownloadOptionShown = true;
+
+            showLoadingOverlayResult("Launching Roblox", {
+                text: "Download Roblox",
+                onClick: showDownloadUI
             });
-            cleanupListeners();
+
+            setTimeout(() => {
+                const buttons = document.querySelectorAll('button');
+                for (const btn of buttons) {
+                    if (btn.textContent.includes("Download Roblox")) {
+                        const wrapper = document.createElement('div');
+                        wrapper.innerHTML = DOMPurify.sanitize(`<button type="button" class="foundation-web-button relative clip group/interactable focus-visible:outline-focus disabled:outline-none cursor-pointer relative flex items-center justify-center stroke-none padding-y-none select-none radius-medium text-label-medium height-1000 padding-x-medium bg-action-emphasis content-action-emphasis grow" style="text-decoration: none;"><div role="presentation" class="absolute inset-[0] transition-colors group-hover/interactable:bg-[var(--color-state-hover)] group-active/interactable:bg-[var(--color-state-press)] group-disabled/interactable:bg-none"></div><span class="padding-y-xsmall text-truncate-end text-no-wrap">Download Roblox</span></button>`);
+                        const newBtn = wrapper.firstChild;
+                        if (newBtn) {
+                            newBtn.onclick = showDownloadUI;
+                            btn.replaceWith(newBtn);
+                        }
+                        break;
+                    }
+                }
+            }, 50);
         }
     };
 
@@ -285,33 +329,6 @@ async function pollClientStatus(targetPlaceId) {
         }
     };
 
-    const triggerDownloadOption = () => {
-        if (!clientStatusReceived && !isDownloadOptionShown) {
-            isDownloadOptionShown = true;
-
-            showLoadingOverlayResult("Launching Roblox", {
-                text: "Download Roblox",
-                onClick: showDownloadUI
-            });
-
-            setTimeout(() => {
-                const buttons = document.querySelectorAll('button');
-                for (const btn of buttons) {
-                    if (btn.textContent.includes("Download Roblox")) {
-                        const wrapper = document.createElement('div');
-                        wrapper.innerHTML = DOMPurify.sanitize(`<button type="button" class="foundation-web-button relative clip group/interactable focus-visible:outline-focus disabled:outline-none cursor-pointer relative flex items-center justify-center stroke-none padding-y-none select-none radius-medium text-label-medium height-1000 padding-x-medium bg-action-emphasis content-action-emphasis grow" style="text-decoration: none;"><div role="presentation" class="absolute inset-[0] transition-colors group-hover/interactable:bg-[var(--color-state-hover)] group-active/interactable:bg-[var(--color-state-press)] group-disabled/interactable:bg-none"></div><span class="padding-y-xsmall text-truncate-end text-no-wrap">Download Roblox</span></button>`);
-                        const newBtn = wrapper.firstChild;
-                        if (newBtn) {
-                            newBtn.onclick = showDownloadUI;
-                            btn.replaceWith(newBtn);
-                        }
-                        break;
-                    }
-                }
-            }, 50);
-        }
-    };
-
     const performClientStatusCheck = async () => {
         try {
             const response = await callRobloxApi({ 
@@ -351,13 +368,6 @@ async function pollClientStatus(targetPlaceId) {
         }
     };
 
-    const handleGameLaunchSuccess = () => triggerSuccess();
-
-    const cleanupListeners = () => {
-        document.removeEventListener('rovalra-game-launch-success', handleGameLaunchSuccess);
-        if (pollingInterval) clearInterval(pollingInterval);
-    };
-
     document.addEventListener('rovalra-game-launch-success', handleGameLaunchSuccess);
 
     const currentUserElement = document.querySelector('meta[name="user-data"]');
@@ -367,8 +377,8 @@ async function pollClientStatus(targetPlaceId) {
         performClientStatusCheck();
 
         pollingInterval = setInterval(async () => {
-            if (!document.body.classList.contains(HIDE_ROBLOX_UI_CLASS)) {
-                cleanupListeners();
+            if (!document.body.classList.contains(HIDE_ROBLOX_UI_CLASS) || clientStatusReceived) {
+                cleanupPolling();
                 return;
             }
 
