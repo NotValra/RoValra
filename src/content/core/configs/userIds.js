@@ -13,3 +13,4 @@ export const CONTRIBUTOR_USER_IDS = [
 ];
 
 export const RAT_BADGE_USER_ID = '477516666'; // rat
+export const BLAHAJ_BADGE_USER_ID = '96786935'; // BLAHAJ

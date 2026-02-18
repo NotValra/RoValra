@@ -3,7 +3,7 @@ import { addTooltip } from '../../../core/ui/tooltip.js';
 import { createConfetti } from '../../../core/fun/confetti.js';
 import { BADGE_CONFIG } from '../../../core/configs/badges.js';
 import { callRobloxApiJson } from '../../../core/api.js';
-import DOMPurify from 'dompurify';
+import { createSquareButton } from '../../../core/ui/profile/header/squarebutton.js';
 
 function createHeaderBadge(parentContainer, badge) {
     const iconContainer = document.createElement('div');
@@ -89,44 +89,56 @@ function createTextHeaderBadge(parentContainer, badgeName, isHiddenInitially = f
     parentContainer.appendChild(badgeElement);
 }
 
-function createProfileBadge(badgeList, badge) {
-    const badgeItem = document.createElement('li');
-    badgeItem.className = 'list-item asset-item';
 
-    const badgeLink = document.createElement('a');
-    badgeLink.href = '#'; 
-    badgeLink.title = badge.tooltip || badge.name;
-    badgeLink.style.cursor = 'pointer';
-    badgeLink.addEventListener('click', (e) => {
-        e.preventDefault(); 
-        if (badge.confetti) {
-            createConfetti(thumbSpan, badge.confetti);
-        }
-    });
 
-    const thumbSpan = document.createElement('span');
-    thumbSpan.className = 'asset-thumb-container border';
-    thumbSpan.className = 'border asset-thumb-container';
-    thumbSpan.title = badge.name;
-    thumbSpan.style.height = '140px';
-    thumbSpan.style.display = 'block';
-    thumbSpan.style.backgroundSize = 'contain';
-    thumbSpan.style.backgroundRepeat = 'no-repeat';
-    thumbSpan.style.backgroundPosition = 'center';
+function createRain(imageUrl) {
+    const container = document.createElement('div');
+    container.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        pointer-events: none;
+        z-index: 100000;
+        overflow: hidden;
+    `;
+    document.body.appendChild(container);
 
-    const thumbImage = document.createElement('img');
-    thumbImage.src = badge.icon;
-    thumbImage.style.height = '140px'; 
-    thumbSpan.appendChild(thumbImage);
+    const interval = setInterval(() => {
+        const drop = document.createElement('img');
+        drop.src = imageUrl;
+        const size = Math.random() * 500 + 50;
+        const startLeft = Math.random() * 100;
+        const duration = Math.random() * 2 + 2;
 
-    const nameContainer = document.createElement('span');
-    nameContainer.className = 'item-name-container text-overflow';
-    nameContainer.style.textAlign = 'left'; 
-    nameContainer.innerHTML = DOMPurify.sanitize(`<span class="font-header-2 text-overflow item-name">${badge.name}</span>`);
+        drop.style.cssText = `
+            position: absolute;
+            top: -100px;
+            left: ${startLeft}vw;
+            width: ${size}px;
+            height: auto;
+            transition: top ${duration}s linear, transform ${duration}s linear;
+        `;
 
-    badgeLink.append(thumbSpan, nameContainer);
-    badgeItem.appendChild(badgeLink);
-    badgeList.prepend(badgeItem); 
+        container.appendChild(drop);
+
+        void drop.offsetWidth;
+
+        drop.style.top = '110vh';
+        drop.style.transform = `rotate(${Math.random() * 360}deg)`;
+
+        setTimeout(() => {
+            drop.remove();
+        }, duration * 1000);
+    }, 50);
+
+    setTimeout(() => {
+        clearInterval(interval);
+        setTimeout(() => {
+            container.remove();
+        }, 5000);
+    }, 10000);
 }
 
 
@@ -185,24 +197,45 @@ async function addHeaderBadges(nameContainer) {
 }
 
 
-function addProfileBadges(badgeList) {
-    if (badgeList.dataset.rovalraProfileBadgesProcessed) return;
-    badgeList.dataset.rovalraProfileBadgesProcessed = 'true';
+async function addProfileBadgeButtons(buttonContainer) {
+    if (buttonContainer.dataset.rovalraProfileBadgesProcessed) return;
+    buttonContainer.dataset.rovalraProfileBadgesProcessed = 'true';
 
     const userIdMatch = window.location.pathname.match(/\/users\/(\d+)/);
     if (!userIdMatch) return;
     const currentUserId = userIdMatch[1];
 
-    chrome.storage.local.get({ ShowBadgesEverywhere: false }, (settings) => {
-        for (const key in BADGE_CONFIG) {
-            const badge = BADGE_CONFIG[key];
-            if (badge.type === 'badge' && (badge.alwaysShow || settings.ShowBadgesEverywhere || badge.userIds.includes(currentUserId))) {
-                if (badge.userIds.includes(currentUserId)) {
-                    createProfileBadge(badgeList, badge);
+    const settings = await new Promise(resolve => chrome.storage.local.get({ ShowBadgesEverywhere: false }, resolve));
+
+    for (const key in BADGE_CONFIG) {
+        const badge = BADGE_CONFIG[key];
+        if (badge.type === 'badge' && (badge.alwaysShow || settings.ShowBadgesEverywhere || badge.userIds.includes(currentUserId))) {
+            if (badge.userIds.includes(currentUserId)) {
+                const badgeButton = createSquareButton({
+                    content: '🥚',
+                    fontSize: '14px',
+                    width: 'auto',
+                    height: 'height-1000',
+                    paddingX: 'padding-x-small',
+                    disableTextTruncation: true,
+                    onClick: (event) => {
+                        if (badge.confetti) {
+                            createConfetti(event.currentTarget, badge.confetti);
+
+                            createRain(badge.icon);
+                        } 
+                    }
+                });
+
+                if (badge.tooltip) {
+                    addTooltip(badgeButton, badge.tooltip);
                 }
+
+                badgeButton.style.marginRight = '5px';
+                buttonContainer.prepend(badgeButton);
             }
         }
-    });
+    }
 }
 
 export function init() {
@@ -210,7 +243,7 @@ export function init() {
         if (settings.RoValraBadgesEnable) {
             observeElement('#profile-header-title-container-name', addHeaderBadges);
             observeElement('.profile-header-title-container', addHeaderBadges);
-            observeElement('ul.hlist.badge-list', addProfileBadges);
+            observeElement('.flex.gap-small.buttons-show-on-desktop', addProfileBadgeButtons, { multiple: true });
         }
     });
 }

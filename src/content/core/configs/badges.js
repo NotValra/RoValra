@@ -1,7 +1,7 @@
 
 
 import { getAssets } from '../assets.js';
-import { CREATOR_USER_ID, CONTRIBUTOR_USER_IDS, RAT_BADGE_USER_ID } from './userIds.js';
+import { CREATOR_USER_ID, CONTRIBUTOR_USER_IDS, RAT_BADGE_USER_ID, BLAHAJ_BADGE_USER_ID } from './userIds.js';
 
 const assets = getAssets();
 
@@ -39,6 +39,14 @@ export const BADGE_CONFIG = {
         name: 'I make rats',
         tooltip: 'I make rats',
         confetti: assets.fishConfetti
+    },
+    blahaj: {
+        type: 'badge',
+        userIds: [BLAHAJ_BADGE_USER_ID],
+        icon: assets.blahaj,
+        name: 'BLAHAJ :3',
+        tooltip: 'BLAHAJ :3',
+        confetti: assets.blahaj
     },
     legacy_donator: {
         type: 'header',
