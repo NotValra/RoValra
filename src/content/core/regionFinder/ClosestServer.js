@@ -126,15 +126,32 @@ export async function findClosestServerViaApi(placeId, originRegionId, userReque
             if (response.ok) {
                 const data = await response.json();
                 if (data.servers && data.servers.length > 0) {
-                    const server = data.servers[0];
-                    return {
-                        server: { 
-                            id: server.server_id, 
-                            playing: server.playing, 
-                            maxPlayers: server.max_players || server.maxPlayers 
-                        },
-                        regionCode: region.id
-                    };
+                    for (const server of data.servers) {
+                        if (userRequestedStop) return null;
+
+                        try {
+                            const joinRes = await callRobloxApi({
+                                subdomain: 'gamejoin',
+                                endpoint: '/v1/join-game-instance',
+                                method: 'POST',
+                                body: { placeId: parseInt(placeId, 10), gameId: server.server_id, gameJoinAttemptId: crypto.randomUUID() }
+                            });
+
+                            if (joinRes.ok) {
+                                const joinInfo = await joinRes.json();
+                                if (joinInfo.joinScript) {
+                                    return {
+                                        server: { 
+                                            id: server.server_id, 
+                                            playing: server.playing, 
+                                            maxPlayers: server.max_players || server.maxPlayers 
+                                        },
+                                        regionCode: region.id
+                                    };
+                                }
+                            }
+                        } catch (e) {}
+                    }
                 }
             }
         } catch (e) {
