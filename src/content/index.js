@@ -8,6 +8,7 @@ import { init as initEasterEggLinks } from './features/sitewide/easterEggs/links
 import { init as initCssFixes } from './features/sitewide/cssfixes.js';
 import { init as initHiddenCatalog } from './features/catalog/hiddenCatalog.js';
 import { init as initServerListener } from './features/games/serverlistener.js';
+import { init as initBetaPrograms } from './features/navigation/betaprograms.js';
 import { init as initVideoTest } from './features/developer/videotest.js';
 import { init as initStreamerMode } from './features/sitewide/streamermode.js';
 import { init as initMarkDownTest } from './features/developer/markdowntest.js'
@@ -72,7 +73,7 @@ const featureRoutes = [
   // Generic features that run on most pages
   {
     paths: ['*'],
-    features: [initSettingsPage, initQuickPlay, initEasterEggLinks, initCssFixes, initWhatAmIJoining, initHiddenCatalog, initServerListener, initOnboarding, initVideoTest, initStreamerMode, initMarkDownTest, initServerTracker, initQoLToggles, initCopyId],
+    features: [initSettingsPage, initQuickPlay, initEasterEggLinks, initCssFixes, initWhatAmIJoining, initHiddenCatalog, initServerListener, initOnboarding, initVideoTest, initStreamerMode, initMarkDownTest, initServerTracker, initQoLToggles, initCopyId, initBetaPrograms],
   },
   // pretty much just the 40% method
   {

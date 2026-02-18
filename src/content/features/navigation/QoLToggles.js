@@ -1,5 +1,5 @@
-import { observeElement } from '../../core/observer.js';
 import { getAssets } from '../../core/assets.js';
+import { createNavbarButton } from '../../core/ui/navbarButton.js';
 import { createDropdownMenu, createDropdown } from '../../core/ui/dropdown.js';
 import { createRadioButton } from '../../core/ui/general/radio.js';
 import { callRobloxApi } from '../../core/api.js';
@@ -10,51 +10,16 @@ export function init() {
             return;
         }
 
-        const addQoLButton = () => {
-            observeElement('.nav.navbar-right.rbx-navbar-icon-group', async (navbar) => {
-                if (document.getElementById('rovalra-qol-toggle')) return;
+        const addQoLButton = async () => {
+            if (document.getElementById('rovalra-qol-toggle')) return;
 
-                const li = document.createElement('li');
-                li.id = 'rovalra-qol-toggle';
-                li.className = 'navbar-icon-item navbar-stream notification-margins';
+            const assets = getAssets();
+            const button = await createNavbarButton({
+                id: 'rovalra-qol-toggle',
+                iconSvgData: assets.qolIcon,
+            });
 
-                const button = document.createElement('button');
-                button.type = 'button';
-                button.className = 'btn-uiblox-common-common-notification-bell-md';
-                
-                const spanIcon = document.createElement('span');
-                spanIcon.className = 'rbx-menu-item';
-                spanIcon.style.display = 'flex';
-                spanIcon.style.alignItems = 'center';
-                spanIcon.style.justifyContent = 'center';
-
-                const assets = getAssets();
-                if (assets.qolIcon && assets.qolIcon.startsWith('data:')) {
-                    try {
-                        const svgEncoded = assets.qolIcon.split(',')[1];
-                        let svgData = decodeURIComponent(svgEncoded);
-                        svgData = svgData.replace('fill="white"', 'fill="var(--rovalra-main-text-color)"');
-                        spanIcon.innerHTML = svgData; //Verified
-                        
-                        const svg = spanIcon.querySelector('svg');
-                        if (svg) {
-                            svg.setAttribute('width', '28');
-                            svg.setAttribute('height', '28');
-                        }
-                    } catch (e) {
-                        console.error('RoValra: Failed to parse QoL icon', e);
-                    }
-                }
-
-                button.appendChild(spanIcon);
-                li.appendChild(button);
-
-                const searchIcon = navbar.querySelector('.rbx-navbar-right-search');
-                if (searchIcon) {
-                    navbar.insertBefore(li, searchIcon.nextSibling);
-                } else {
-                    navbar.insertBefore(li, navbar.firstChild);
-                }
+            if (!button) return;
                 
                 const permissionLevels = {
                     'AllUsers': 4, 'All': 4,
@@ -264,13 +229,8 @@ export function init() {
                         btn.parentNode.replaceChild(div, btn);
                     });
                 });
-            });
         };
 
-        if (document.readyState === 'complete') {
-            addQoLButton();
-        } else {
-            window.addEventListener('load', addQoLButton, { once: true });
-        }
+        addQoLButton();
     });
 }

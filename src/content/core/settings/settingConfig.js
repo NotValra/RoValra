@@ -491,6 +491,24 @@ export const SETTINGS_CONFIG = {
             },
         }
     },
+    Navigation: {
+        title: "Navigation",
+        settings: {
+                    qolTogglesEnabled: {
+            label: "Adds quality of life toggles to the nav bar",
+            description: "Allowing you to quickly change your online status or experience status without going into settings.",
+            type: "checkbox",
+            default: true
+        },
+        betaProgramsEnabled: {
+            label: "Adds a beta programs toggle to the nav bar",
+            description: "This allows you to toggle beta programs you are enrolled into easily.",
+            type: "checkbox",
+            default: false
+        }
+        }
+
+    },
     Miscellaneous: {
         title: "Miscellaneous",
         settings: {
@@ -524,12 +542,7 @@ export const SETTINGS_CONFIG = {
                 type: "checkbox",
                 default: true
             },
-            qolTogglesEnabled: {
-                label: "Adds quality of life toggles to the nav bar",
-                description: "Allowing you to quickly change your online status or experience status without going into settings.",
-                type: "checkbox",
-                default: true
-            },
+
             copyIdEnabled: {
                 label: "Allows you to quickly copy an id of a thing you are right clicking.",
                 description: "This adds a copy id button directly into the right click context menu so you don't have  to open the link and copy the id from the link.",
