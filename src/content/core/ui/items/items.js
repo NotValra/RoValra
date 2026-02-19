@@ -1,8 +1,68 @@
-import { createThumbnailElement } from '../../thumbnail/thumbnails.js';
+import { createThumbnailElement, fetchThumbnails } from '../../thumbnail/thumbnails.js';
 import { addTooltip } from '../tooltip.js';
 import { createSerialIcon } from './serials.js';
+import { callRobloxApi } from '../../api.js';
 
-export function createItemCard(item, thumbnailCache, config = {}) {
+export function createItemCard(itemOrId, thumbnailCacheOrConfig, config = {}) {
+    if (typeof itemOrId === 'number' || typeof itemOrId === 'string') {
+        const itemId = itemOrId;
+        const actualConfig = (thumbnailCacheOrConfig && !thumbnailCacheOrConfig.get) ? thumbnailCacheOrConfig : config;
+
+        const card = document.createElement('div');
+        card.className = 'rovalra-item-card';
+        card.style.minHeight = '100px';
+        card.innerHTML = '<div class="rovalra-loader" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">Loading...</div>';
+
+        (async () => {
+            try {
+                const [detailsRes, thumbMap] = await Promise.all([
+                    callRobloxApi({
+                        subdomain: 'economy',
+                        endpoint: `/v2/assets/${itemId}/details`,
+                        method: 'GET'
+                    }),
+                    fetchThumbnails([{ id: itemId }], 'Asset', '150x150')
+                ]);
+
+                if (!detailsRes.ok) throw new Error('Failed to fetch item details');
+                const details = await detailsRes.json();
+
+                const item = {
+                    assetId: details.AssetId,
+                    name: details.Name,
+                    recentAveragePrice: details.PriceInRobux || details.Price || 0,
+                    itemRestrictions: [],
+                    itemType: 'Asset'
+                };
+
+                if (details.IsLimited || details.CollectiblesItemDetails?.IsLimited) item.itemRestrictions.push('Limited');
+                if (details.IsLimitedUnique) item.itemRestrictions.push('LimitedUnique');
+                if (details.IsNew) item.itemRestrictions.push('New');
+
+                if (details.IsForSale === false) {
+                    const isLimited = item.itemRestrictions.includes('Limited') || item.itemRestrictions.includes('LimitedUnique');
+                    if (isLimited && details.CollectiblesItemDetails?.CollectibleLowestResalePrice) {
+                        item.recentAveragePrice = details.CollectiblesItemDetails.CollectibleLowestResalePrice;
+                    } else {
+                        item.priceText = 'Offsale';
+                    }
+                } else if (item.recentAveragePrice === 0) {
+                    item.priceText = 'Free';
+                }
+
+                const realCard = createItemCard(item, thumbMap, actualConfig);
+                card.replaceWith(realCard);
+            } catch (e) {
+                console.warn('RoValra: Error creating item card from ID', e);
+                card.innerHTML = '<div style="padding: 10px; color: var(--text-error);">Failed to load item</div>';
+            }
+        })();
+
+        return card;
+    }
+
+    const item = itemOrId;
+    const thumbnailCache = thumbnailCacheOrConfig;
     const { showOnHold = true, showSerial = true, hideSerial = false } = config;
 
     const card = document.createElement('div');
@@ -28,6 +88,7 @@ export function createItemCard(item, thumbnailCache, config = {}) {
 
     const thumbContainer = document.createElement('div');
     thumbContainer.className = 'rovalra-item-thumb-container';
+    thumbContainer.style.position = 'relative';
     const thumbnailElement = createThumbnailElement(
         thumbData,
         item.name,
@@ -74,6 +135,7 @@ export function createItemCard(item, thumbnailCache, config = {}) {
         limitedIconElement.className = isUnique
             ? 'icon-label icon-limited-unique-label'
             : 'icon-label icon-limited-label';
+
         thumbContainer.appendChild(limitedIconElement);
     }
 

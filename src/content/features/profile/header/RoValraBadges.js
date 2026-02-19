@@ -4,6 +4,7 @@ import { createConfetti } from '../../../core/fun/confetti.js';
 import { BADGE_CONFIG } from '../../../core/configs/badges.js';
 import { callRobloxApiJson } from '../../../core/api.js';
 import { createSquareButton } from '../../../core/ui/profile/header/squarebutton.js';
+import { getUserIdFromUrl } from '../../../core/idExtractor.js';
 
 function createHeaderBadge(parentContainer, badge) {
     const iconContainer = document.createElement('div');
@@ -155,9 +156,8 @@ async function addHeaderBadges(nameContainer) {
     const reapplyBadges = async () => {
         parentContainer.querySelectorAll('.rovalra-header-badge, .rovalra-text-badge').forEach((badge) => badge.remove());
 
-        const userIdMatch = window.location.pathname.match(/\/users\/(\d+)/);
-        if (!userIdMatch) return;
-        const currentUserId = userIdMatch[1];
+        const currentUserId = getUserIdFromUrl();
+        if (!currentUserId) return;
 
         for (const key in BADGE_CONFIG) {
             const badge = BADGE_CONFIG[key];
@@ -201,9 +201,8 @@ async function addProfileBadgeButtons(buttonContainer) {
     if (buttonContainer.dataset.rovalraProfileBadgesProcessed) return;
     buttonContainer.dataset.rovalraProfileBadgesProcessed = 'true';
 
-    const userIdMatch = window.location.pathname.match(/\/users\/(\d+)/);
-    if (!userIdMatch) return;
-    const currentUserId = userIdMatch[1];
+    const currentUserId = getUserIdFromUrl();
+    if (!currentUserId) return;
 
     const settings = await new Promise(resolve => chrome.storage.local.get({ ShowBadgesEverywhere: false }, resolve));
 

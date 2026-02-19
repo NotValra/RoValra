@@ -1,5 +1,7 @@
 .rovalra-item-card { 
     text-align:left; 
+            width: 150px !important;
+                height: 100%;
 }
 
 .rovalra-item-card-link { 
@@ -13,11 +15,12 @@
     border-radius:8px; 
     aspect-ratio: 1 / 1; 
     margin-bottom: 8px; 
+
 }
 
 .rovalra-item-thumb { 
-    width:100%; 
-    height:100%; 
+    width: 150px !important; 
+    height: 150px !important;
     object-fit:contain; 
     border-radius: 8px; 
 }
@@ -26,9 +29,13 @@
     font-size:14px; 
     font-weight:500; 
     color: var(--rovalra-main-text-color); 
-    white-space:nowrap; 
-    overflow:hidden; 
-    text-overflow:ellipsis; 
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    word-break: break-word;
+    min-height: 2.6em; 
+    line-height: 1.3;
 }
 
 .rovalra-item-rap { 

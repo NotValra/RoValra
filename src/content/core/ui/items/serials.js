@@ -1,7 +1,7 @@
 import DOMPurify from 'dompurify';
 
 export function createSerialIcon(item, hideSerial) {
-    if (item.serialNumber === null) return null;
+    if (item.serialNumber == null) return null;
 
     const serialVisibilityClass = hideSerial
         ? 'hover-reveal'
