@@ -178,7 +178,7 @@ async function showInventoryOverlay(userId, items, totalRapString, hideSerial) {
 
     const itemListContainer = document.createElement('div');
     itemListContainer.className = 'rovalra-inventory-list';
-    itemListContainer.style.cssText = 'display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); grid-auto-rows:max-content; gap:16px;'; // Verified
+    itemListContainer.style.cssText = 'display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); grid-auto-rows:max-content; gap:8px; margin-bottom:10px;'; // Verified
     bodyContent.append(searchInput.container, itemListContainer);
 
     const rolimonsLink = document.createElement('a');
