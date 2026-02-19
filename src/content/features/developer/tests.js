@@ -1,8 +1,9 @@
 import { createGameCard } from '../../core/ui/games/gameCard.js';
 import { observeElement } from '../../core/observer.js';
 import { createItemCard } from '../../core/ui/items/items.js';
-
-
+import { createRadioButton } from '../../core/ui/general/radio.js';
+import { createToggle } from '../../core/ui/general/toggle.js';
+import { createPill } from '../../core/ui/general/pill.js';
 function removeHomeElement() {
     const homeElementToRemove = document.querySelector('li.cursor-pointer.btr-nav-node-header_home.btr-nav-header_home');
     if (homeElementToRemove) homeElementToRemove.remove();
@@ -56,6 +57,12 @@ async function renderTestPage(contentDiv) {
     const limitedid = 76233968067050;
     const limiteditemCard = createItemCard(limitedid);
     container.appendChild(limiteditemCard);
+    const radio = createRadioButton();
+    container.appendChild(radio);
+    const toggle = createToggle("RoValra-Toggle");
+    container.appendChild(toggle);
+    const pill = createPill("Test test");
+    container.appendChild(pill);
     removeHomeElement();
 }
 
