@@ -1,7 +1,7 @@
 
 
 import { getAssets } from '../assets.js';
-import { CREATOR_USER_ID, CONTRIBUTOR_USER_IDS, RAT_BADGE_USER_ID, BLAHAJ_BADGE_USER_ID } from './userIds.js';
+import { CREATOR_USER_ID, CONTRIBUTOR_USER_IDS, RAT_BADGE_USER_ID, BLAHAJ_BADGE_USER_ID, CAM_BADGE_USER_ID } from './userIds.js';
 
 const assets = getAssets();
 
@@ -48,6 +48,22 @@ export const BADGE_CONFIG = {
         tooltip: 'BLAHAJ :3',
         confetti: assets.blahaj
     },
+    cam: {
+        type: 'header',
+        userIds: [CAM_BADGE_USER_ID],
+        icon: assets.blahaj,
+        name: 'BLAHAJ :3',
+        tooltip: 'BLAHAJ :3',
+        confetti: assets.blahaj
+    },
+    camEasterEgg: {
+        type: 'badge',
+        userIds: [CAM_BADGE_USER_ID],
+        icon: assets.blahaj,
+        name: 'BLAHAJ :3',
+        tooltip: 'BLAHAJ :3',
+        confetti: assets.blahaj
+    },
     legacy_donator: {
         type: 'header',
         userIds: [],
@@ -61,7 +77,7 @@ export const BADGE_CONFIG = {
         userIds: [],
         icon: assets.rovalraIcon,
         tooltip: 'Donated any amount of Robux to help Support RoValra\'s development.',
-        url: 'https://www.roblox.com/games/107845747621646/The-game-that-games#!/store',
+        url: 'https://www.roblox.com/games/store-section/9452973012',
         style: { filter: 'sepia(1) saturate(1.8) hue-rotate(-35deg) brightness(0.8) contrast(1.2)' }
     },
     donator_2: {
@@ -69,7 +85,7 @@ export const BADGE_CONFIG = {
         userIds: [],
         icon: assets.rovalraIcon,
         tooltip: 'Donated 200 or more Robux to help Support RoValra\'s development.',
-        url: 'https://www.roblox.com/games/107845747621646/The-game-that-games#!/store',
+        url: 'https://www.roblox.com/games/store-section/9452973012',
         style: { filter: 'grayscale(1) brightness(1.3) contrast(1.2)' }
     },
     donator_3: {
@@ -77,7 +93,7 @@ export const BADGE_CONFIG = {
         userIds: [],
         icon: assets.rovalraIcon,
         tooltip: 'Donated 500 or more Robux to help Support RoValra\'s development.',
-        url: 'https://www.roblox.com/games/107845747621646/The-game-that-games#!/store',
+        url: 'https://www.roblox.com/games/store-section/9452973012',
         style: { filter: 'sepia(1) saturate(3) hue-rotate(5deg) brightness(1.1)' }
     }
 };

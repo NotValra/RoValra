@@ -28,6 +28,7 @@ import { checkRoValraPage } from '../../core/settings/ui/page.js';
 import { callRobloxApi } from '../../core/api.js';
 import { safeHtml } from '../../core/packages/dompurify';
 import DOMPurify from 'dompurify';
+import { BADGE_CONFIG } from '../../core/configs/badges.js';
 
 const assets = getAssets();
 let REGIONS = {};
@@ -76,6 +77,27 @@ const debouncedAddCustomButton = debounce(
     100,
 );
 
+function getBadgeStyle(key) {
+    const badge = BADGE_CONFIG[key];
+    if (!badge || !badge.style) return '';
+    return Object.entries(badge.style).map(([k, v]) => `${k.replace(/([A-Z])/g, '-$1').toLowerCase()}:${v}`).join(';');
+}
+
+const donatorBadgeKeys = ['donator_1', 'donator_2', 'donator_3'];
+const donatorBadgesHtml = donatorBadgeKeys.map(key => {
+    const badge = BADGE_CONFIG[key];
+    if (!badge) return '';
+    const styleString = getBadgeStyle(key);
+    const shortTooltip = badge.tooltip.split('.')[0];
+
+    return `
+        <div title="${badge.tooltip}" style="display: flex; align-items: center; gap: 10px; padding: 10px; background-color: var(--rovalra-container-background-color, rgba(0,0,0,0.1)); border-radius: 8px; flex: 1; min-width: 240px;">
+            <img src="${badge.icon}" style="width: 32px; height: 32px; ${styleString}" />
+            <span style="color: var(--rovalra-main-text-color); font-size: 14px;">${shortTooltip}</span>
+        </div>
+    `;
+}).join('');
+
 export const buttonData = [
     {
         text: 'Info',
@@ -104,7 +126,7 @@ export const buttonData = [
                                                 Github Repo
                                                 <img src="${assets.rovalraIcon}" style="width: 20px; height: 20px; margin-right: 0px; vertical-align: middle;" />
                                             </a>
-                                            <a href="https://www.roblox.com/games/107845747621646/The-game-that-games#!/store" target="_blank" class="rovalra-roblox-link">Support Me on Roblox</a>
+                                            <a href="https://www.roblox.com/games/store-section/9452973012" target="_blank" class="rovalra-roblox-link">Support RoValra</a>
                                             <a href="https://www.tiktok.com/@valrawantbanana" target="_blank" class="rovalra-tiktok-link">TikTok: ValraWantBanana</a>
                                             <a href="https://x.com/ValraSwag" target="_blank" class="rovalra-x-link">X: ValraSwag</a>
                                         </div>
@@ -155,6 +177,78 @@ export const buttonData = [
                         Thanks to <b style="font-weight: bold;">WoozyNate</b> for making the amazing game called fisch, which is where Gilbert (the logo) is from <3
                     </li>
                 </ul>
+            </div>`,
+    },
+    {
+        text: 'Donator Perks',
+        content: `
+            <div style="padding: 8px;">
+                <h2 style="margin-bottom: 10px; color: var(--rovalra-main-text-color) !important;">Donator Perks!</h2>
+                <p>Support RoValra's development and get exclusive perks!</p>
+                
+                <div style="margin-top: 15px;">
+                    <h3 style="color: var(--rovalra-main-text-color); margin-bottom: 5px; font-size: 18px;">How to Get Perks</h3>
+                    <p>You can donate by purchasing a gamepasses in the support game.</p>
+                    <div style="margin-top: 10px;">
+                        <a href="https://www.roblox.com/games/store-section/9452973012" target="_blank" class="rovalra-roblox-link">Go to Donation Game</a>
+                    </div>
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <h3 style="color: var(--rovalra-main-text-color); margin-bottom: 10px; font-size: 18px;">Perk Tiers</h3>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <div style="flex: 1; min-width: 200px; margin-bottom: 10px; padding: 10px; background-color: var(--rovalra-container-background-color, rgba(0,0,0,0.1)); border-radius: 8px; border: 1px solid var(--rovalra-border-color, rgba(128,128,128,0.2));">
+                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
+                                <img src="${BADGE_CONFIG.donator_1.icon}" style="width: 32px; height: 32px; ${getBadgeStyle('donator_1')}" />
+                                <h4 style="color: var(--rovalra-main-text-color); margin: 0; font-size: 16px;">Tier 1: Supporter</h4>
+                            </div>
+                            <p style="color: var(--rovalra-secondary-text-color); font-size: 14px;">Donate <strong>any amount</strong></p>
+                            <ul style="margin-top: 5px; padding-left: 20px; color: var(--rovalra-secondary-text-color); margin-bottom: 0;">
+                                <li>Supporter 1 Badge</li>
+                                <li>More coming soon.</li>
+                            </ul>
+                        </div>
+
+                        <div style="flex: 1; min-width: 200px; margin-bottom: 10px; padding: 10px; background-color: var(--rovalra-container-background-color, rgba(0,0,0,0.1)); border-radius: 8px; border: 1px solid var(--rovalra-border-color, rgba(128,128,128,0.2));">
+                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
+                                <img src="${BADGE_CONFIG.donator_2.icon}" style="width: 32px; height: 32px; ${getBadgeStyle('donator_2')}" />
+                                <h4 style="color: var(--rovalra-main-text-color); margin: 0; font-size: 16px;">Tier 2: Super Supporter</h4>
+                            </div>
+                            <p style="color: var(--rovalra-secondary-text-color); font-size: 14px;">Donate <strong>200+ Robux</strong></p>
+                            <ul style="margin-top: 5px; padding-left: 20px; color: var(--rovalra-secondary-text-color); margin-bottom: 0;">
+                                <li>Supporter 2 Badge</li>
+                                <li>+ All previous tier rewards</li>
+                                <li>More coming soon.</li>
+                            </ul>
+                        </div>
+
+                        <div style="flex: 1; min-width: 200px; margin-bottom: 10px; padding: 10px; background-color: var(--rovalra-container-background-color, rgba(0,0,0,0.1)); border-radius: 8px; border: 1px solid var(--rovalra-border-color, rgba(128,128,128,0.2));">
+                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
+                                <img src="${BADGE_CONFIG.donator_3.icon}" style="width: 32px; height: 32px; ${getBadgeStyle('donator_3')}" />
+                                <h4 style="color: var(--rovalra-main-text-color); margin: 0; font-size: 16px;">Tier 3: Mega Supporter</h4>
+                            </div>
+                            <p style="color: var(--rovalra-secondary-text-color); font-size: 14px;">Donate <strong>500+ Robux</strong></p>
+                            <ul style="margin-top: 5px; padding-left: 20px; color: var(--rovalra-secondary-text-color); margin-bottom: 0;">
+                                <li>Supporter 3 Badge</li>
+                                <li>+ All previous tier rewards</li>
+                                <li>More coming soon.</li>
+
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <h3 style="color: var(--rovalra-main-text-color); margin-bottom: 10px; font-size: 18px;">Available Badges</h3>
+                    <div style="display: flex; flex-wrap: wrap; gap: 15px; align-items: stretch;">
+                        ${donatorBadgesHtml}
+                    </div>
+                </div>
+                
+                <p style="margin-top: 15px; font-size: 12px; color: var(--rovalra-secondary-text-color);">
+                    Note: Badges may take a few minutes to appear after donation. To manage badge visibility, go to the 'Profile' settings tab.
+                    Donating through commissions sadly wont give a badge, this is a Roblox limitation.
+                </p>
             </div>`,
     },
     {
@@ -212,7 +306,7 @@ export async function updateContent(buttonInfo, contentContainer) {
     const lowerText = buttonInfo.text.toLowerCase();
     const sanitizeConfig = { ADD_URI_SCHEMES: ['chrome-extension'] };
 
-    if (lowerText === 'info' || lowerText === 'credits') {
+    if (lowerText === 'info' || lowerText === 'credits' || lowerText === 'donator perks') {
         ((contentContainer.innerHTML = `
             <div id="settings-content" style="padding: 0; background-color: transparent !important;"> 
                 <div id="setting-section-content" style="padding: 5px;"> 

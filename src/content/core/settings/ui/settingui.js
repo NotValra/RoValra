@@ -81,7 +81,7 @@ export async function buildSettingsPage({ handleSearch, debounce, loadTabContent
         const initialTab = urlParams.get('rovalra') || 'info';
         const dropdownItems = [];
         
-        buttonData.filter(item => item.text === "Info" || item.text === "Credits").forEach(item => {
+        buttonData.filter(item => item.text === "Info" || item.text === "Credits" || item.text === "Donator Perks").forEach(item => {
             dropdownItems.push({
                 value: item.text.toLowerCase(),
                 label: item.text
@@ -252,7 +252,7 @@ function createUnifiedMenu({ handleSearch, debounce, buttonData, devTabAdded, lo
     searchListItem.appendChild(searchInput);
     menuList.appendChild(searchListItem);
 
-    const staticItems = buttonData.filter(item => item.text === "Info" || item.text === "Credits");
+    const staticItems = buttonData.filter(item => item.text === "Info" || item.text === "Credits" || item.text === "Donator Perks");
     staticItems.forEach(item => {
         const listItem = document.createElement('li');
         listItem.id = `${item.text.toLowerCase()}-tab`;

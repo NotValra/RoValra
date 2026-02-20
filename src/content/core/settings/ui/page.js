@@ -75,7 +75,7 @@ export async function checkRoValraPage() {
 
         contentContainer.innerHTML = ''; 
 
-        if (lowerHashKey === "info" || lowerHashKey === "credits") {
+        if (lowerHashKey === "info" || lowerHashKey === "credits" || lowerHashKey === "donator perks") {
             const buttonInfo = buttonData.find(b => b.text.toLowerCase() === lowerHashKey);
             if (buttonInfo) {
                 await updateContent(buttonInfo, contentContainer);
@@ -109,7 +109,7 @@ export async function checkRoValraPage() {
     async function handleHashChange() {
         const urlParams = new URLSearchParams(window.location.search);
         const rovalraTabFromParam = urlParams.get('rovalra');
-        const hashPart = window.location.hash.replace('#!/', '').replace('#!', '');
+        const hashPart = decodeURIComponent(window.location.hash.replace('#!/', '').replace('#!', ''));
         const currentHash = hashPart || rovalraTabFromParam || 'info';
         await loadTabContent(currentHash);
     }
