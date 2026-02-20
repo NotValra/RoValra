@@ -147,10 +147,10 @@ export function init() {
             });
             const detailsImageContainer = document.createElement('div');
             Object.assign(detailsImageContainer.style, {
-                width: '150px',
-                height: '150px',
-                maxWidth: '150px',
-                maxHeight: '150px',
+                width: '200px',
+                height: '200px',
+                maxWidth: '200px',
+                maxHeight: '200px',
                 position: 'relative',
                 marginBottom: '0px',
                 flexShrink: '0',
@@ -283,8 +283,8 @@ export function init() {
                 const calculatePlaceholders = () => {
                     const containerWidth = itemsContainer.clientWidth;
                     const containerHeight = itemsContainer.clientHeight;
-                    const itemWidth = 120;
-                    const itemHeight = 160;
+                    const itemWidth = 150;
+                    const itemHeight = 220;
                     const gap = 20;
 
                     if (containerWidth <= 0 || containerHeight <= 0) return 8;
@@ -314,17 +314,17 @@ export function init() {
                     const itemCardContainer = document.createElement('div');
                     itemCardContainer.className = 'item-card-container';
                     Object.assign(itemCardContainer.style, {
-                        width: '120px',
+                        width: '150px',
                         height: 'auto',
-                        maxHeight: '160px',
+                        maxHeight: '220px',
                         display: 'flex',
                         flexDirection: 'column',
                     });
 
                     const thumbContainer = document.createElement('div');
                     Object.assign(thumbContainer.style, {
-                        width: '120px',
-                        height: '120px',
+                        width: '150px',
+                        height: '150px',
                         backgroundColor: 'var(--rovalra-button-background-color)',
                         borderRadius: '8px',
                         overflow: 'hidden',
@@ -434,8 +434,8 @@ export function init() {
                     const calculateItemsPerPage = () => {
                         const containerWidth = itemsContainer.clientWidth;
                         const containerHeight = itemsContainer.clientHeight;
-                        const itemWidth = 120;
-                        const itemHeight = 160;
+                        const itemWidth = 150;
+                        const itemHeight = 220;
                         const gap = 20;
 
                         if (containerWidth <= 0 || containerHeight <= 0) {
@@ -530,7 +530,7 @@ export function init() {
                             };
 
                             const card = createItemCard(itemData, thumbnailMap, { showSerial: false });
-                            card.style.width = '120px';
+                            card.style.width = '150px';
                             itemsContainer.appendChild(card);
                         });
                     };
