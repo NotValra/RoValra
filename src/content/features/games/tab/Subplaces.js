@@ -202,7 +202,7 @@ export async function init() {
                     const gameData = {
                         id: subplace.id,
                         name: subplace.name,
-                        rootPlace: { id: subplace.id }
+                        rootPlaceId: subplace.id
                     };
                     const stats = { thumbnails };
 

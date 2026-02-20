@@ -71,7 +71,11 @@ const api = {
                 const json = await this.safeGet(endpoint);
 
                 if (json?.data) {
-                    games = games.concat(json.data);
+                    const formattedGames = json.data.map((game) => ({
+                        ...game,
+                        rootPlaceId: game.rootPlace?.id,
+                    }));
+                    games = games.concat(formattedGames);
                     cursor = json.nextPageCursor || "";
                 } else {
                     cursor = "";

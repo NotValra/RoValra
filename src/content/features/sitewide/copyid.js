@@ -22,11 +22,23 @@ export function init() {
 
                 const bundleMatch = url.match(/\/bundles\/(\d+)/);
                 const catalogMatch = url.match(/\/catalog\/(\d+)/);
+                const gamePassMatch = url.match(/\/game-pass\/(\d+)/);
+                const badgeMatch = url.match(/\/badges\/(\d+)/);
+                const groupMatch = url.match(/\/(?:groups|communities)\/(\d+)/);
+                const eventMatch = url.match(/\/events\/(\d+)/);
 
                 if (bundleMatch) {
                     ids.push({ type: 'Bundle', id: bundleMatch[1] });
                 } else if (catalogMatch) {
                     ids.push({ type: 'Asset', id: catalogMatch[1] });
+                } else if (gamePassMatch) {
+                    ids.push({ type: 'GamePass', id: gamePassMatch[1] });
+                } else if (badgeMatch) {
+                    ids.push({ type: 'Badge', id: badgeMatch[1] });
+                } else if (groupMatch) {
+                    ids.push({ type: 'Community', id: groupMatch[1] });
+                } else if (eventMatch) {
+                    ids.push({ type: 'Event', id: eventMatch[1] });
                 } else {
                     const placeId = getPlaceIdFromUrl(url);
                     if (placeId) ids.push({ type: 'Place', id: placeId });

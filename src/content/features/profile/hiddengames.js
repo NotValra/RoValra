@@ -93,9 +93,8 @@ const Api = {
                     .map((item) => ({
                         id: item.universeId,
                         name: item.name,
-                        rootPlace: {
-                            id: item.placeId,
-                        },
+                        rootPlaceId: item.placeId,
+                       
                     }));
 
                 games = games.concat(formattedGames);
