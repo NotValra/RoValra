@@ -33,6 +33,7 @@
  */
 import { createThumbnailElement, fetchThumbnails } from '../../thumbnail/thumbnails.js';
 import { safeHtml } from '../../packages/dompurify.js';
+import { formatPlayerCount } from '../../games/playerCount.js';
 import { callRobloxApi } from '../../api.js';
 
 const BATCH_WAIT = 50;
@@ -241,6 +242,7 @@ export function createGameCard(options) {
 
     const voteData = stats?.likes?.get(game.id) || { ratio: 0, total: 0 };
     const playerCount = stats?.players?.get(game.id) || 0;
+    const formattedPlayerCount = formatPlayerCount(playerCount);
     const thumbnailData = stats?.thumbnails?.get(game.id);
 
     const card = document.createElement('div');
@@ -275,7 +277,7 @@ export function createGameCard(options) {
                     showPlayers
                         ? `
                     <span class="info-label icon-playing-counts-gray"></span>
-                    <span class="info-label playing-counts-label" title="${playerCount.toLocaleString()}">${playerCount.toLocaleString()}</span>
+                    <span class="info-label playing-counts-label" title="${playerCount.toLocaleString()}">${formattedPlayerCount}</span>
                 `
                         : ''
                 }

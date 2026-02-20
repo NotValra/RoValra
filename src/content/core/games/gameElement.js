@@ -1,5 +1,6 @@
 import { createThumbnailElement } from '../../core/thumbnail/thumbnails.js';
 import DOMPurify from 'dompurify';
+import { formatPlayerCount } from './playerCount.js';
 
 
 export const createGameCard = (game, likeMap, playerMap, thumbnailCache) => {
@@ -31,6 +32,7 @@ export const createGameCard = (game, likeMap, playerMap, thumbnailCache) => {
     cardInfo.className = 'game-card-info';
     const voteData = likeMap.get(game.id) || { ratio: 0, total: 0 };
     const playerCount = playerMap.get(game.id) || 0;
+    const formattedPlayerCount = formatPlayerCount(playerCount);
     const votePercentageClass = voteData.total > 0 ? '' : 'hidden';
     const noVoteClass = voteData.total === 0 ? '' : 'hidden';
     cardInfo.innerHTML = DOMPurify.sanitize(`
@@ -38,7 +40,7 @@ export const createGameCard = (game, likeMap, playerMap, thumbnailCache) => {
         <span class="info-label vote-percentage-label ${votePercentageClass}">${voteData.ratio}%</span>
         <span class="info-label no-vote ${noVoteClass}"></span>
         <span class="info-label icon-playing-counts-gray"></span>
-        <span class="info-label playing-counts-label" title="${playerCount.toLocaleString()}">${playerCount.toLocaleString()}</span>
+        <span class="info-label playing-counts-label" title="${playerCount.toLocaleString()}">${formattedPlayerCount}</span>
     `);
 
     const topSection = document.createElement('div');
