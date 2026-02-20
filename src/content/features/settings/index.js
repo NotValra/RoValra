@@ -247,7 +247,7 @@ export const buttonData = [
                 
                 <p style="margin-top: 15px; font-size: 12px; color: var(--rovalra-secondary-text-color);">
                     Note: Badges may take a few minutes to appear after donation. To manage badge visibility, go to the 'Profile' settings tab.
-                    Donating through commissions sadly wont give a badge, this is a Roblox limitation.
+                    Donating through commissions sadly won't give a donator perks, this is a Roblox limitation.
                 </p>
             </div>`,
     },
