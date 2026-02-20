@@ -83,7 +83,7 @@ export function showReviewPopup(source = 'unknown') {
                 bodyContent.style.gap = '10px';
 
                 const text = document.createElement('p');
-                text.textContent = "It looks like you've been getting value from RoValra!\n Would you mind leaving a 5-star review?\n It helps keep RoValra free for everyone without paywalls.";
+                text.textContent = "It looks like you've been getting value from RoValra!\n Would you mind leaving a review?\n It helps keep RoValra free for everyone without paywalls.";
                 text.style.fontSize = "16px";
                 text.style.lineHeight = "1.5";
                 text.style.whiteSpace = "pre-line";
