@@ -92,7 +92,7 @@ body:has(#settings-search-input) {
         transition: .4s; border-radius: 50%; 
     }
     
-    input:checked + .slider1, input:checked + .slider { background-color: #2EA44F; }
+    input:checked + .slider1, input:checked + .slider { background-color: var(--rovalra-playbutton-color); }
     input:checked + .slider1:before, input:checked + .slider:before { transform: translateX(18px); }
     
     .setting-select-input { 

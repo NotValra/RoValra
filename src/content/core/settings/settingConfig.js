@@ -550,6 +550,13 @@ export const SETTINGS_CONFIG = {
                 default: false,
                 requiredPermissions: ["contextMenus"],
             },
+            copyUniverseIdEnabled: {
+                label: "Allows you to quickly copy a universe id",
+                description: "This adds a copy universe id button directly into the right click context menu.",
+                type: "checkbox",
+                default: false,
+                requiredPermissions: ["contextMenus"],
+            },
             cssfixesEnabled: {
                 label: "Site Fixes",
                 description: ["This fixes various site issues or just poor design choices by Roblox.",],

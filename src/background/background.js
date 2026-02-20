@@ -170,8 +170,14 @@ async function setupNavigationListener() {
 
 // --- Context Menu ---
 
-const contextMenuClickListener = (info, tab) => {
-    if (info.menuItemId.startsWith('rovalra-copy-') && tab?.id) {
+const contextMenuClickListener = async (info, tab) => {
+    if (info.menuItemId.startsWith('rovalra-copy-universe-')) {
+        const placeId = info.menuItemId.replace('rovalra-copy-universe-', '');
+        const universeId = await getUniverseIdFromPlaceId(placeId);
+        if (universeId && tab?.id) {
+            chrome.tabs.sendMessage(tab.id, { action: 'copyToClipboard', text: String(universeId) });
+        }
+    } else if (info.menuItemId.startsWith('rovalra-copy-') && tab?.id) {
         const textToCopy = info.menuItemId.replace('rovalra-copy-', '');
         chrome.tabs.sendMessage(tab.id, { action: 'copyToClipboard', text: textToCopy });
     }
@@ -185,6 +191,24 @@ async function setupContextMenuListener() {
 }
 
 // --- API & Networking ---
+
+async function getUniverseIdFromPlaceId(placeId) {
+    try {
+        const response = await callRobloxApiBackground({
+            subdomain: 'apis',
+            endpoint: `/universes/v1/places/${placeId}/universe`,
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            return data.universeId;
+        }
+        return null;
+    } catch (e) {
+        console.error('RoValra: Error fetching universe ID from place ID', e);
+        return null;
+    }
+}
 
 async function callRobloxApiBackground(options) {
     const { subdomain = 'api', endpoint, method = 'GET', body = null, headers = {} } = options;
@@ -490,16 +514,30 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
         case 'updateContextMenu':
             if (chrome.contextMenus) {
-                chrome.contextMenus.removeAll(() => {
-                    if (!chrome.runtime.lastError && request.ids?.length > 0) {
-                        request.ids.forEach((item) => {
-                            chrome.contextMenus.create({
-                                id: `rovalra-copy-${item.id}`,
-                                title: `Copy ${item.type} ID`,
-                                contexts: ['link'],
+                chrome.storage.local.get(['copyIdEnabled', 'copyUniverseIdEnabled'], (settings) => {
+                    chrome.contextMenus.removeAll(() => {
+                        if (!chrome.runtime.lastError && request.ids?.length > 0) {
+                            request.ids.forEach((item) => {
+                                if (item.type === 'Universe') {
+                                    if (settings.copyUniverseIdEnabled) {
+                                        chrome.contextMenus.create({
+                                            id: `rovalra-copy-universe-${item.id}`,
+                                            title: 'Copy Universe ID',
+                                            contexts: ['link'],
+                                        });
+                                    }
+                                } else {
+                                    if (settings.copyIdEnabled) {
+                                        chrome.contextMenus.create({
+                                            id: `rovalra-copy-${item.id}`,
+                                            title: `Copy ${item.type} ID`,
+                                            contexts: ['link'],
+                                        });
+                                    }
+                                }
                             });
-                        });
-                    }
+                        }
+                    });
                 });
             }
             return false;

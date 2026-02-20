@@ -41,7 +41,10 @@ export function init() {
                     ids.push({ type: 'Event', id: eventMatch[1] });
                 } else {
                     const placeId = getPlaceIdFromUrl(url);
-                    if (placeId) ids.push({ type: 'Place', id: placeId });
+                    if (placeId) {
+                        ids.push({ type: 'Place', id: placeId });
+                        ids.push({ type: 'Universe', id: placeId });
+                    }
 
                     const assetId = getAssetIdFromUrl(url);
                     if (assetId) ids.push({ type: 'Asset', id: assetId });
