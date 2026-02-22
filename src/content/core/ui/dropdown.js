@@ -125,8 +125,14 @@ export function createDropdown({ items = [], initialValue, placeholder = 'Select
         }
     };
 
+    const handleValueChange = (value) => {
+        if (onValueChange) onValueChange(value);
+        trigger.setAttribute('data-state', 'closed');
+        trigger.setAttribute('aria-expanded', 'false');
+    };
+
     const { element: contentPanel, toggleVisibility: toggleContentVisibility, updateSelectedState: updateContentSelectedState } = createDropdownContent(
-        trigger, items || [], initialValue, onValueChange, updateTriggerText, showFlags
+        trigger, items || [], initialValue, handleValueChange, updateTriggerText, showFlags
     );
 
     const toggleDropdown = (forceOpen) => { 
@@ -195,8 +201,14 @@ export function createDropdownMenu({ trigger, items, onValueChange, position }) 
 
     const updateTriggerText = () => {};
 
+    const handleValueChange = (value) => {
+        if (onValueChange) onValueChange(value);
+        trigger.setAttribute('data-state', 'closed');
+        trigger.setAttribute('aria-expanded', 'false');
+    };
+
     const { element: contentPanel, toggleVisibility } = createDropdownContent(
-        trigger, items, null, onValueChange, updateTriggerText, false
+        trigger, items, null, handleValueChange, updateTriggerText, false
     );
 
     const toggle = (forceOpen) => {

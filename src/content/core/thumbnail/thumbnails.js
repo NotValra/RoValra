@@ -210,11 +210,17 @@ export function createThumbnailElement(thumbnailData, altText, baseClass = 'game
     if (state === 'Pending' || state === 'InReview') {
         const container = document.createElement('div');
         container.className = 'thumbnail-2d-container shimmer'; 
+        container.style.borderRadius = '8px';
         applyStyles(container);
 
         if (thumbnailData && thumbnailData.finalUpdate) {
             thumbnailData.finalUpdate.then(updatedData => {
-                if (!updatedData) return; 
+                if (!updatedData) {
+                    container.className = 'thumbnail-2d-container icon-blocked';
+                    container.style.borderRadius = '8px';
+                    container.classList.remove('shimmer');
+                    return;
+                } 
 
                 if (updatedData.state === 'Completed') {
                     const img = document.createElement('img');
@@ -231,10 +237,12 @@ export function createThumbnailElement(thumbnailData, altText, baseClass = 'game
                     container.classList.remove('shimmer');
                 } else {
                     container.className = 'thumbnail-2d-container icon-broken'; 
+                    container.style.borderRadius = '8px';
                     container.classList.remove('shimmer');
                 }
             }).catch(() => {
                 container.className = 'thumbnail-2d-container icon-broken';
+                container.style.borderRadius = '8px';
                 container.classList.remove('shimmer');
             });
         }
@@ -244,6 +252,7 @@ export function createThumbnailElement(thumbnailData, altText, baseClass = 'game
 
     thumbnailElement = document.createElement('div');
     thumbnailElement.className = 'thumbnail-2d-container icon-broken';
+    thumbnailElement.style.borderRadius = '8px';
     return applyStyles(thumbnailElement);
 }
 

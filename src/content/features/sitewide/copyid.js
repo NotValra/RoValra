@@ -26,6 +26,7 @@ export function init() {
                 const badgeMatch = url.match(/\/badges\/(\d+)/);
                 const groupMatch = url.match(/\/(?:groups|communities)\/(\d+)/);
                 const eventMatch = url.match(/\/events\/(\d+)/);
+                const devProductMatch = url.match(/\/developer-product\/\d+\/product\/(\d+)/);
 
                 if (bundleMatch) {
                     ids.push({ type: 'Bundle', id: bundleMatch[1] });
@@ -39,6 +40,8 @@ export function init() {
                     ids.push({ type: 'Community', id: groupMatch[1] });
                 } else if (eventMatch) {
                     ids.push({ type: 'Event', id: eventMatch[1] });
+                } else if (devProductMatch) {
+                    ids.push({ type: 'Developer Product', id: devProductMatch[1] });
                 } else {
                     const placeId = getPlaceIdFromUrl(url);
                     if (placeId) {

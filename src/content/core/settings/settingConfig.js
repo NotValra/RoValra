@@ -148,9 +148,15 @@ export const SETTINGS_CONFIG = {
                     }
                 }
             },
+            EnableDevProducts: {
+                label: "View Developer Products",
+                description: "This allows you to view the developer products of an experience directly on the store page.",
+                type: "checkbox",
+                default: true
+            },
             QuickOutfitsEnabled: {
                 label: "Quick Equip Outfits",
-                description: ["This allows you to quickly switch your avatar on the a games page."],
+                description: ["This allows you to quickly switch your avatar on the an experience page."],
                 type: "checkbox",
                 default: false
             },
