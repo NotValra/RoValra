@@ -31,19 +31,32 @@ async function fetchUniverseId(placeId) {
 }
 
 async function fetchDevProducts(universeId) {
-    try {
-        const response = await callRobloxApi({
-            subdomain: 'apis',
-            endpoint: `/developer-products/v2/universes/${universeId}/developerproducts?limit=400`,
-            method: 'GET'
-        });
+    let allProducts = [];
+    let cursor = null;
 
-        if (!response.ok) throw new Error('Failed to fetch developer products');
-        const data = await response.json();
-        return data?.developerProducts || [];
+    try {
+        do {
+            const endpoint = `/developer-products/v2/universes/${universeId}/developerproducts?limit=100` + (cursor ? `&cursor=${cursor}` : '');
+            const response = await callRobloxApi({
+                subdomain: 'apis',
+                endpoint: endpoint,
+                method: 'GET'
+            });
+
+            if (!response.ok) throw new Error('Failed to fetch developer products');
+            const data = await response.json();
+            
+            if (data?.developerProducts) {
+                allProducts = allProducts.concat(data.developerProducts);
+            }
+            
+            cursor = data?.nextPageCursor;
+        } while (cursor);
+
+        return allProducts;
     } catch (error) {
         console.error('RoValra: Error fetching developer products', error);
-        return [];
+        return allProducts;
     }
 }
 
@@ -61,6 +74,7 @@ async function loadAndRenderProducts(storeTab, placeId) {
     let passesList = gamePassesContainer ? gamePassesContainer.querySelector('ul.store-cards') : null;
     let headerContainer = gamePassesContainer ? gamePassesContainer.querySelector('.container-header') : null;
     let rosealFilters = gamePassesContainer ? gamePassesContainer.querySelector('.store-item-filters') : null;
+    let noPassesMessage = gamePassesContainer ? gamePassesContainer.querySelector('.section-content-off') : null;
 
     if (!gamePassesContainer) {
         gamePassesContainer = document.createElement('div');
@@ -337,6 +351,7 @@ async function loadAndRenderProducts(storeTab, placeId) {
         if (isPasses) {
             passesList.style.display = '';
             if (rosealFilters) rosealFilters.style.display = '';
+            if (noPassesMessage) noPassesMessage.style.display = '';
             devProductsList.style.display = 'none';
             paginationContainer.style.display = 'none';
             filterWrapper.style.display = 'none';
@@ -345,6 +360,7 @@ async function loadAndRenderProducts(storeTab, placeId) {
         } else {
             passesList.style.display = 'none';
             if (rosealFilters) rosealFilters.style.display = 'none';
+            if (noPassesMessage) noPassesMessage.style.display = 'none';
             devProductsList.style.display = '';
             paginationContainer.style.display = 'flex';
             filterWrapper.style.display = 'flex';
@@ -364,12 +380,14 @@ async function loadAndRenderProducts(storeTab, placeId) {
     if (hasPasses) {
         passesList.style.display = '';
         if (rosealFilters) rosealFilters.style.display = '';
+        if (noPassesMessage) noPassesMessage.style.display = '';
         devProductsList.style.display = 'none';
         paginationContainer.style.display = 'none';
         filterWrapper.style.display = 'none';
     } else {
         passesList.style.display = 'none';
         if (rosealFilters) rosealFilters.style.display = 'none';
+        if (noPassesMessage) noPassesMessage.style.display = 'none';
         devProductsList.style.display = '';
         paginationContainer.style.display = 'flex';
         filterWrapper.style.display = 'flex';
