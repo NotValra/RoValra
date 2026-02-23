@@ -5,6 +5,7 @@ import { observeElement } from '../../../core/observer.js';
 import { createStyledInput } from '../../../core/ui/catalog/input.js';
 import { getPlaceIdFromUrl } from '../../../core/idExtractor.js';
 import DOMPurify from 'dompurify';
+import { createTab } from '../../../core/ui/games/tab.js';
 
 const PAGE_SIZE = 12;
 
@@ -155,14 +156,13 @@ export async function init() {
             let displayedCount = 0;
             let allDisplayed = false;
 
-            const subplaceTab = document.createElement('li');
-            subplaceTab.id = 'tab-subplaces';
-            subplaceTab.className = 'rbx-tab tab-subplaces';
-            subplaceTab.innerHTML = `<a class="rbx-tab-heading"><span class="text-lead">Subplaces</span></a>`;
-
-            const subplacesContentDiv = document.createElement('div');
-            subplacesContentDiv.className = 'tab-pane';
-            subplacesContentDiv.id = 'subplaces-content-pane';
+            const { contentPane: subplacesContentDiv } = createTab({
+                id: 'subplaces',
+                label: 'Subplaces',
+                container: horizontalTabs,
+                contentContainer: contentSection,
+                hash: '#!/subplaces'
+            });
 
             const searchWrapper = document.createElement('div');
             searchWrapper.className = 'rovalra-subplaces-search-wrapper';
@@ -186,15 +186,6 @@ export async function init() {
 
             subplacesContentDiv.append(searchWrapper, subplacesContainer, loadMoreWrapper);
 
-            const otherPanes = contentSection.querySelectorAll('.tab-pane');
-            const hasPaneWithBackground = Array.from(otherPanes).some(pane => {
-                const style = window.getComputedStyle(pane);
-                const bgColor = style.backgroundColor;
-                return bgColor && bgColor !== 'rgba(0, 0, 0, 0)' && bgColor !== 'transparent';
-            });
-            if (hasPaneWithBackground) {
-                subplacesContentDiv.style.backgroundColor = 'var(--rovalra-container-background-color)';
-            }
 
             const displaySubplaces = async (gamesToDisplay) => {
                 const thumbnails = await fetchThumbnails(gamesToDisplay);
@@ -265,31 +256,6 @@ export async function init() {
                 });
                 loadMoreWrapper.style.display = term ? 'none' : (allDisplayed ? 'none' : 'flex');
             });
-
-            horizontalTabs.appendChild(subplaceTab);
-            contentSection.appendChild(subplacesContentDiv);
-
-            horizontalTabs.style.display = 'flex';
-            horizontalTabs.style.flexWrap = 'nowrap';
-
-            observeElement('#horizontal-tabs .rbx-tab', (tab) => {
-                tab.style.width = 'auto';
-                tab.style.flex = '1 1 auto';
-                tab.style.float = 'none';
-                tab.style.minWidth = '0';
-            }, { multiple: true });
-
-            subplaceTab.addEventListener('click', (e) => {
-                e.preventDefault();
-                document.querySelectorAll('.rbx-tab.active, .tab-pane.active').forEach(el => el.classList.remove('active'));
-                subplaceTab.classList.add('active');
-                subplacesContentDiv.classList.add('active');
-                if (window.location.hash !== '#!/subplaces') window.location.hash = '#!/subplaces';
-            });
-
-            if (window.location.hash === '#!/subplaces') {
-                setTimeout(() => subplaceTab.click(), 200);
-            }
         };
 
 

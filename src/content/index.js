@@ -43,6 +43,7 @@ import { init as initGameBanner } from './core/ui/games/banner.js';
 import { init as bannertest } from './features/games/banner.js';
 import { init as quickOutfits } from './features/games/actions/quickOutfits.js';
 import { init as initDevProductLoader } from './features/games/tab/DevProducts.js';
+import { init as initHeatmap } from './features/games/tab/updateHistory.js';
 // transactions
 import { init as initTotalSpent } from './features/transactions/totalspent.js';
 import { init as initPendingRobuxTrans } from './features/transactions/pendingRobuxTrans.js';
@@ -107,7 +108,8 @@ const featureRoutes = [
       quickOutfits,
       initRecentServers,
       initPrivateServerControls,
-      initDevProductLoader
+      initDevProductLoader,
+      initHeatmap
     ],
   },
   // avatar

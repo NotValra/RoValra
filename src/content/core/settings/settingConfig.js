@@ -170,9 +170,18 @@ export const SETTINGS_CONFIG = {
             },
             subplacesEnabled: {
                 label: "Subplaces",
-                description: ["Shows the subplaces of an experience."],
+                description: ["This adds a tab to an experience page that shows the subplaces of the experience."],
                 type: "checkbox",
                 default: true
+            },
+            updateHistoryEnabled: {
+                label: "Update History",
+                description: ["This adds a tab to an experience page that has a heatmap showing the update history of an experience.",
+                    "This feature was heavily inspired by a RoPro v2 feature."
+                ],
+                type: "checkbox",
+                default: false,
+                experimental: "This feature is lacking update history data. It will slowly get it over time."
             },
             recentServersEnabled: {
                 label: "Recent Servers",
