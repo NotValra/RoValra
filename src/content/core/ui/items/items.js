@@ -11,6 +11,9 @@ export function createItemCard(itemOrId, thumbnailCacheOrConfig, config = {}) {
         const card = document.createElement('div');
         card.className = 'rovalra-item-card';
         card.style.minHeight = '100px';
+        card.style.width = '150px';
+        card.style.minWidth = '150px';
+        card.style.maxWidth = '150px';
         card.innerHTML = '<div class="rovalra-loader" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">Loading...</div>';
 
         (async () => {
@@ -67,6 +70,9 @@ export function createItemCard(itemOrId, thumbnailCacheOrConfig, config = {}) {
 
     const card = document.createElement('div');
     card.className = 'rovalra-item-card';
+    card.style.width = '150px';
+    card.style.minWidth = '150px';
+    card.style.maxWidth = '150px';
 
     const thumbData = thumbnailCache.get(item.assetId);
     const itemType = item.itemType || 'Asset';
@@ -89,6 +95,8 @@ export function createItemCard(itemOrId, thumbnailCacheOrConfig, config = {}) {
     const thumbContainer = document.createElement('div');
     thumbContainer.className = 'rovalra-item-thumb-container';
     thumbContainer.style.position = 'relative';
+    thumbContainer.style.width = '150px';
+    thumbContainer.style.height = '150px';
     const thumbnailElement = createThumbnailElement(
         thumbData,
         item.name,

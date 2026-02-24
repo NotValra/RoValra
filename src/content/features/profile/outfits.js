@@ -92,7 +92,6 @@ export function init() {
         ) {
             let selectedOutfitId = null;
             let selectedListItem = null;
-            let isFirstLoad = true;
             const outfitDetailsCache = new Map();
 
 
@@ -108,9 +107,7 @@ export function init() {
             Object.assign(mainPanel.style, {
                 display: 'flex',
                 flexDirection: 'column',
-                width: '350px',
-                flexShrink: '0',
-                borderRight: `1px solid var(--rovalra-border-color)`,
+                width: '100%',
             });
             const listContainer = document.createElement('div');
             Object.assign(listContainer.style, {
@@ -124,20 +121,36 @@ export function init() {
                 padding: '0',
                 margin: '0',
                 display: 'flex',
-                flexDirection: 'column',
-                gap: '8px',
+                flexWrap: 'wrap',
+                justifyContent: 'center',
+                gap: '10px',
             });
 
             const detailsPanel = document.createElement('div');
             detailsPanel.className = 'rovalra-outfit-details-panel';
             Object.assign(detailsPanel.style, {
-                paddingLeft: '20px',
-                flexGrow: '1',
+                width: '100%',
                 display: 'none',
                 flexDirection: 'column',
                 alignItems: 'center',
-                justifyContent: 'center',
             });
+
+            const backButtonWrapper = document.createElement('div');
+            Object.assign(backButtonWrapper.style, {
+                width: '100%',
+                padding: '10px 20px 0',
+                display: 'flex',
+                justifyContent: 'flex-start',
+            });
+            const backButton = createButton('Back', 'secondary', {
+                onClick: () => {
+                    detailsPanel.style.display = 'none';
+                    mainPanel.style.display = 'flex';
+                },
+            });
+            backButtonWrapper.appendChild(backButton);
+            detailsPanel.appendChild(backButtonWrapper);
+
             const detailsContentWrapper = document.createElement('div');
             Object.assign(detailsContentWrapper.style, {
                 padding: '20px 20px 0 20px',
@@ -240,6 +253,8 @@ export function init() {
             let resizeObserver = null;
             const selectOutfit = async (outfit, listItem) => {
                 if (selectedOutfitId === outfit.id) {
+                    mainPanel.style.display = 'none';
+                    detailsPanel.style.display = 'flex';
                     return;
                 }
 
@@ -255,6 +270,7 @@ export function init() {
                     resizeObserver.disconnect();
                 }
 
+                mainPanel.style.display = 'none';
                 detailsPanel.style.display = 'flex';
                 detailsName.textContent = outfit.name;
 
@@ -524,13 +540,12 @@ export function init() {
                             const itemData = {
                                 assetId: asset.id,
                                 name: asset.name,
-                                itemType: assetDetails?.itemType || 'Asset',
+                                itemType: 'Asset',
                                 priceText: priceText,
                                 itemRestrictions: itemRestrictions
                             };
 
                             const card = createItemCard(itemData, thumbnailMap, { showSerial: false });
-                            card.style.width = '150px';
                             itemsContainer.appendChild(card);
                         });
                     };
@@ -707,11 +722,13 @@ export function init() {
                 const listItem = document.createElement('li');
                 Object.assign(listItem.style, {
                     display: 'flex',
+                    flexDirection: 'column',
                     alignItems: 'center',
                     padding: '8px',
                     borderRadius: '6px',
                     cursor: 'pointer',
                     transition: 'background-color 0.2s ease',
+                    width: '170px',
                 });
                 listItem.addEventListener('mouseenter', () => {
                     if (listItem !== selectedListItem) {
@@ -730,9 +747,9 @@ export function init() {
                 const thumbnailData = thumbnails.get(outfit.id);
                 const thumbnailContainer = document.createElement('div');
                 Object.assign(thumbnailContainer.style, {
-                    width: '60px',
-                    height: '60px',
-                    marginRight: '16px',
+                    width: '150px',
+                    height: '150px',
+                    marginBottom: '8px',
                     borderRadius: '6px',
                     flexShrink: '0',
                     backgroundColor: 'var(--rovalra-button-background-color)',
@@ -753,8 +770,13 @@ export function init() {
                 const nameSpan = document.createElement('span');
                 nameSpan.textContent = outfit.name;
                 Object.assign(nameSpan.style, {
-                    fontSize: '16px',
+                    fontSize: '14px',
                     fontWeight: '500',
+                    textAlign: 'center',
+                    wordBreak: 'break-word',
+                    lineHeight: '1.2',
+                    maxHeight: '2.4em',
+                    overflow: 'hidden',
                 });
                 listItem.appendChild(nameSpan);
 
@@ -773,31 +795,13 @@ export function init() {
                         list.innerHTML = '';
                         outfitsLoaded = true;
                     }
-                    let firstListItemToSelect = null;
                     outfits.forEach((outfit, index) => {
                         const listItem = renderOutfitListItem(
                             outfit,
                             thumbnails,
                         );
                         list.appendChild(listItem);
-                        if (isFirstLoad && index === 0) {
-                            firstListItemToSelect = {
-                                outfit,
-                                element: listItem,
-                            };
-                        }
                     });
-                    if (isFirstLoad && firstListItemToSelect) {
-                        isFirstLoad = false;
-                        setTimeout(
-                            () =>
-                                selectOutfit(
-                                    firstListItemToSelect.outfit,
-                                    firstListItemToSelect.element,
-                                ),
-                            0,
-                        );
-                    }
                 },
                 setNoOutfits: (message) => {
                     if (!outfitsLoaded) {

@@ -1,6 +1,6 @@
 .rovalra-item-card { 
     text-align:left; 
-            width: 150px !important;
+            width: 100% !important;
                 height: 100%;
 }
 
@@ -19,8 +19,8 @@
 }
 
 .rovalra-item-thumb { 
-    width: 150px !important; 
-    height: 150px !important;
+    width: 100% !important; 
+    height: 100% !important;
     object-fit:contain; 
     border-radius: 8px; 
 }
