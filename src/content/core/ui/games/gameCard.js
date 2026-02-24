@@ -37,7 +37,7 @@ import { formatPlayerCount } from '../../games/playerCount.js';
 import { callRobloxApi } from '../../api.js';
 
 const BATCH_WAIT = 50;
-const MAX_BATCH = 100;
+const MAX_BATCH = 50;
 
 const universeQueue = new Map();
 let universeTimer = null;
@@ -83,7 +83,7 @@ function flushUniverseQueue() {
 
     for (let i = 0; i < ids.length; i += MAX_BATCH) {
         const chunk = ids.slice(i, i + MAX_BATCH);
-        const idsStr = chunk.join(',');
+        const idsStr = chunk.length > 2 ? chunk.join(',') : `1,${chunk.join(',')}`;
         
         Promise.all([
             fetchWithRetry('games', `/v1/games?universeIds=${idsStr}`),

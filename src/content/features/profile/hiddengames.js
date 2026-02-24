@@ -153,42 +153,44 @@ const Api = {
         const batch = games.filter((g) => g && !state.likes.has(g.id));
         if (!batch.length) return;
 
-        const universeIds = batch.map((g) => g.id).join(',');
-
-        const votesPromise = this.fetchWithRetry({
-            subdomain: 'games',
-            endpoint: ENDPOINTS.VOTES_V1(universeIds),
-        }).then((r) => r?.json());
-
         const playerResList = [];
+        const voteResList = [];
         for (let i = 0; i < batch.length; i += 50) {
             const chunk = batch.slice(i, i + 50);
             const chunkIds = chunk.map((g) => g.id).join(',');
 
             if (i > 0) await new Promise((r) => setTimeout(r, 250));
 
-            const res = await this.fetchWithRetry({
-                subdomain: 'games',
-                endpoint: ENDPOINTS.GAMES_V1(chunkIds),
-            }).then((r) => r?.json());
-            playerResList.push(res);
+            const [gamesRes, votesRes] = await Promise.all([
+                this.fetchWithRetry({
+                    subdomain: 'games',
+                    endpoint: ENDPOINTS.GAMES_V1(chunkIds),
+                }).then((r) => r?.json()),
+                this.fetchWithRetry({
+                    subdomain: 'games',
+                    endpoint: ENDPOINTS.VOTES_V1(chunkIds),
+                }).then((r) => r?.json()),
+            ]);
+
+            playerResList.push(gamesRes);
+            voteResList.push(votesRes);
         }
 
-        const likeRes = await votesPromise;
-
-        if (likeRes?.data) {
-            likeRes.data.forEach((item) => {
-                const total = item.upVotes + item.downVotes;
-                const ratio =
-                    total > 0 ? Math.round((item.upVotes / total) * 100) : 0;
-                state.likes.set(item.id, {
-                    ratio,
-                    total,
-                    upVotes: item.upVotes,
-                    downVotes: item.downVotes,
+        voteResList.forEach((likeRes) => {
+            if (likeRes?.data) {
+                likeRes.data.forEach((item) => {
+                    const total = item.upVotes + item.downVotes;
+                    const ratio =
+                        total > 0 ? Math.round((item.upVotes / total) * 100) : 0;
+                    state.likes.set(item.id, {
+                        ratio,
+                        total,
+                        upVotes: item.upVotes,
+                        downVotes: item.downVotes,
+                    });
                 });
-            });
-        }
+            }
+        });
 
         playerResList.forEach((playerRes) => {
             if (playerRes?.data) {
