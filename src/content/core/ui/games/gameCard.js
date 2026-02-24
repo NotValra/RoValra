@@ -1,13 +1,9 @@
 /**
  * @file This script provides a function to create game cards for Roblox games.
  *
- * To use this module, import the `createGameCard` function.
- * Import the function
- * @example
- * import { createGameCard } from './path/to/gameCard.js';
- *
+
  * Create a game card by providing a place ID. The card will handle loading.
- * const gameCardById = createGameCard(920587237); // e.g., for "Adopt Me!"
+ * const gameCardById = createGameCard(920587237);
  * document.body.appendChild(gameCardById);
  * 
  * Or create a card with pre-fetched data for synchronous rendering.
@@ -25,7 +21,7 @@
  * You can also customize what is displayed on the card.
  * @example
  * const customCard = createGameCard({
- *   placeId: 1818, // e.g., for "Work at a Pizza Place"
+ *   placeId: 1818, 
  *   showVotes: false, // Don't show the like/dislike ratio
  *   showPlayers: false // Don't show the current player count
  * });
