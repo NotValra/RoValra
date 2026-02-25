@@ -40,6 +40,58 @@ export function init() {
 }
 
 async function loadAndRenderHeatmap(placeId, parentElement) {
+    const metaData = document.getElementById('game-detail-meta-data');
+    const universeId = metaData?.dataset.universeId;
+
+    if (universeId) {
+        try {
+            const maturityData = await callRobloxApiJson({
+                subdomain: 'apis',
+                endpoint: '/discovery-api/omni-recommendation-metadata',
+                method: 'POST',
+                body: {
+                    contents: [{ contentId: parseInt(universeId, 10), contentType: 'Game' }],
+                    sessionId: self.crypto.randomUUID()
+                }
+            });
+
+            const gameMeta = maturityData?.contentMetadata?.Game?.[universeId];
+            if (gameMeta && gameMeta.contentMaturity === 'restricted') {
+                const msg = document.createElement('div');
+                msg.className = 'text-secondary';
+                msg.style.padding = '20px';
+                msg.style.textAlign = 'center';
+                msg.style.fontSize = '20px';
+                msg.textContent = "Update History doesn't work on 18+ experiences";
+                parentElement.appendChild(msg);
+                return;
+            }
+        } catch (e) {
+            console.warn('RoValra: Failed to check content maturity', e);
+        }
+    }
+
+    try {
+        const placeDetails = await callRobloxApiJson({
+            subdomain: 'games',
+            endpoint: `/v1/games/multiget-place-details?placeIds=${placeId}`,
+            method: 'GET'
+        });
+
+        if (placeDetails && placeDetails[0] && placeDetails[0].price > 0) {
+            const msg = document.createElement('div');
+            msg.className = 'text-secondary';
+            msg.style.padding = '20px';
+            msg.style.textAlign = 'center';
+            msg.style.fontSize = '20px';
+            msg.textContent = "Update History doesn't work on paid access experiences";
+            parentElement.appendChild(msg);
+            return;
+        }
+    } catch (e) {
+        console.warn('RoValra: Failed to check paid access status', e);
+    }
+
     try {
         const data = await callRobloxApiJson({
             isRovalraApi: true,
