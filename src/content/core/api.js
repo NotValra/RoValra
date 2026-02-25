@@ -235,13 +235,13 @@ export async function callRobloxApi(options) {
                                 let allVerifications = storage[OAUTH_STORAGE_KEY] || {};
                                 let storedVerification = allVerifications[authedUserId];
                                 
-                                if (storedVerification && storedVerification.robloxId == authedUserId) {
+                                if (storedVerification) {
                                     console.log("RoValra API: New token received from header. Updating storage.");
                                     storedVerification.accessToken = newAccessToken;
                                     storedVerification.timestamp = Date.now();
 
-                                    const cloned = lastResponse.clone();
                                     try {
+                                        const cloned = lastResponse.clone();
                                         const data = await cloned.json();
                                         if (data && data.expires_at) {
                                             storedVerification.expiresAt = data.expires_at * 1000;
