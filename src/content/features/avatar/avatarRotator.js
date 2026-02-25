@@ -77,7 +77,7 @@ export function init() {
                     'itemCategories[0].ItemSubType': '3',
                     'itemCategories[0].ItemType': 'Outfit'
                 });
-                if (nextPageCursor) queryParams.append('cursor', nextPageCursor);
+                if (nextPageCursor) queryParams.append('pageToken', nextPageCursor);
 
                 const response = await callRobloxApiJson({
                     subdomain: 'avatar',
