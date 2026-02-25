@@ -486,6 +486,7 @@ const createAndShowPopup = (onSave, initialState = null) => {
         <div id="sr-view-wip" class="sr-hidden">
             <h4 class="text font-header-2" style="margin: 0 0 10px 0;">Create Experience</h4>
             <p class="text font-body" style="margin: 5px 0 16px 0; line-height: 1.5;">Create a new experience for this group to use the 40% method.</p>
+            <div id="sr-create-game-error" class="text font-body" style="margin-bottom: 10px; font-size: 12px; color: #d32f2f; display: none;"></div>
             <button class="btn-cta-md btn-min-width" id="sr-create-new-game-btn" style="width: 100%;">Create New Experience</button>
         </div>
 
@@ -829,6 +830,9 @@ const createAndShowPopup = (onSave, initialState = null) => {
     });
 
 createNewGameBtn.addEventListener('click', async () => {
+        const errorEl = bodyContent.querySelector('#sr-create-game-error');
+        if (errorEl) errorEl.style.display = 'none';
+
         if (!selectedGroupId) {
             alert('No group selected. Please try again.');
             return;
@@ -890,7 +894,16 @@ createNewGameBtn.addEventListener('click', async () => {
 
         } catch (error) {
             console.error('RoValra: Create Game Error', error);
-            alert(`Error creating experience: ${error.message}. Please try again.`);
+            if (errorEl) {
+                if (error.response && error.response.code === "InvalidRequest" && error.response.message === "User is not authorized to perform this action") {
+                    errorEl.textContent = "You don't have permission to manage experiences in this group. Please give yourself a role with the right permissions.";
+                } else {
+                    errorEl.textContent = `Error creating experience: ${error.message}. Please try again.`;
+                }
+                errorEl.style.display = 'block';
+            } else {
+                alert(`Error creating experience: ${error.message}. Please try again.`);
+            }
             createNewGameBtn.textContent = originalText;
             createNewGameBtn.disabled = false;
         }
