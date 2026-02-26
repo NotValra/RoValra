@@ -12,7 +12,7 @@ function addPriceIconToCard(card, assetId) {
     const isOffSale = itemIsOffSale.get(assetId);
 
     if (isOffSale && price !== undefined && price > 1) {
-        const priceLabelSelector = '.text-overflow.item-card-price';
+        const priceLabelSelector = '.text-overflow.item-card-price, .rovalra-item-rap';
         let container = card.querySelector(priceLabelSelector);
         
         if (!container) {
@@ -143,7 +143,8 @@ export function init() {
             handleItemCard(card);
         }, { multiple: true });
 
-        observeElement('.rovalra-cw-category-grid .item-card', (card) => {
+
+        observeElement('.rovalra-item-card', (card) => {
             handleItemCard(card);
         }, { multiple: true });
     });
@@ -151,7 +152,8 @@ export function init() {
 
 function handleItemCard(card) {
     if (!card.isConnected) return;
-    const link = card.querySelector('.item-card-link');
+    
+    const link = card.querySelector('.item-card-link') || card.querySelector('.rovalra-item-card-link');
     if (!link) return;
 
     const href = link.getAttribute('href');
@@ -159,7 +161,7 @@ function handleItemCard(card) {
     if (!match) return;
     const assetId = parseInt(match[1]);
 
-    const priceLabelSelector = '.text-overflow.item-card-price';
+    const priceLabelSelector = '.text-overflow.item-card-price, .rovalra-item-rap';
     let priceLabelContainer = card.querySelector(priceLabelSelector);
     
     let shouldProcess = false;
@@ -167,8 +169,10 @@ function handleItemCard(card) {
     if (!priceLabelContainer) {
         shouldProcess = true;
     } else {
-        const priceLabel = priceLabelContainer.querySelector('.text-robux-tile');
-        if (!priceLabel || priceLabel.textContent.trim() === 'Off Sale') {
+        const textContent = priceLabelContainer.textContent.trim().toLowerCase();
+        const hasRobuxIcon = priceLabelContainer.querySelector('.icon-robux-tile');
+        
+        if (!hasRobuxIcon || textContent.includes('off sale') || textContent.includes('offsale')) {
             shouldProcess = true;
         }
     }

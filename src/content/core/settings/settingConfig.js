@@ -372,8 +372,10 @@ export const SETTINGS_CONFIG = {
                 default: true,
             },
             categorizeWearingEnabled: {
-                label: "Categorize Currently Wearing",
-                description: "Separates the 'Currently Wearing' section on profiles into categories like Accessories and Emotes.",
+                label: "Improved Currently Wearing",
+                description: ["Separates the 'Currently Wearing' section on profiles into categories like Accessories and Emotes.",
+                    "Also improves the item cards making them look a bit better."
+                ],
                 type: "checkbox",
                 default: true,
             },
