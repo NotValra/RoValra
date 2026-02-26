@@ -181,7 +181,7 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: "checkbox",
                 default: false,
-                experimental: "This feature is lacking update history data. It will slowly get it over time."
+                beta: "This feature is lacking update history data. It will slowly get it over time."
             },
             recentServersEnabled: {
                 label: "Recent Servers",
@@ -362,6 +362,12 @@ export const SETTINGS_CONFIG = {
             donationbuttonEnable: {
                 label: "Donation Button",
                 description: ["This will add a donation button to a user's profile, which allows you to donate to someone via PLS Donate"],
+                type: "checkbox",
+                default: true,
+            },
+            PreviousPriceEnabled: {
+                label: "Previous Price in currently wearing.",
+                description: "This shows the price of an offsale item a user is wearing before it went offsale.",
                 type: "checkbox",
                 default: true,
             },

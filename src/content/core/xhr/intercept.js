@@ -119,6 +119,9 @@
 
         if (typeof url === 'string') {
             if (url.includes(CATALOG_API_URL)) {
+                response.clone().json().then(d => window.dispatchEvent(new CustomEvent('rovalra-catalog-details', { detail: d }))).catch(()=>{});
+            }
+            if (url.includes(CATALOG_API_URL)) {
                 response.clone().json().then(d => document.dispatchEvent(new CustomEvent('rovalra-catalog-details-response', { detail: d }))).catch(()=>{});
             }
             if (url.includes(CLIENT_STATUS_API_URL)) {
@@ -218,6 +221,7 @@
                 const triggerEvent = (eventName, detail) => document.dispatchEvent(new CustomEvent(eventName, { detail }));
                 try {
                     const url = xhr._rovalra_url;
+                    if (url.includes(CATALOG_API_URL)) window.dispatchEvent(new CustomEvent('rovalra-catalog-details', { detail: JSON.parse(xhr.responseText) }));
                     if (url.includes(CATALOG_API_URL)) triggerEvent('rovalra-catalog-details-response', JSON.parse(xhr.responseText));
                     if (url.includes(CLIENT_STATUS_API_URL)) triggerEvent('rovalra-client-status-response', JSON.parse(xhr.responseText));
                     if (url.includes(GAME_SERVERS_API_URL) && url.includes('/servers/')) triggerEvent('rovalra-game-servers-response', { url, data: JSON.parse(xhr.responseText) });
