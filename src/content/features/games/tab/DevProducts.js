@@ -2,7 +2,7 @@ import { callRobloxApi } from '../../../core/api.js';
 import { observeElement, observeAttributes } from '../../../core/observer.js';
 import { fetchThumbnails } from '../../../core/thumbnail/thumbnails.js';
 import { createDevProductCard } from '../../../core/ui/games/devProductsUI.js';
-import { createButton } from '../../../core/ui/buttons.js';
+import { createPillToggle } from '../../../core/ui/general/pillToggle.js';
 import { createDropdown } from '../../../core/ui/dropdown.js';
 import { createStyledInput } from '../../../core/ui/catalog/input.js';
 import { getPlaceIdFromUrl } from '../../../core/idExtractor.js';
@@ -73,7 +73,6 @@ async function loadAndRenderProducts(storeTab, placeId) {
     let gamePassesContainer = storeTab.querySelector('#roseal-game-passes') || storeTab.querySelector('#rbx-game-passes');
     let passesList = gamePassesContainer ? gamePassesContainer.querySelector('ul.store-cards') : null;
     let headerContainer = gamePassesContainer ? gamePassesContainer.querySelector('.container-header') : null;
-    let rosealFilters = gamePassesContainer ? gamePassesContainer.querySelector('.store-item-filters') : null;
     let noPassesMessage = gamePassesContainer ? gamePassesContainer.querySelector('.section-content-off') : null;
 
     if (!gamePassesContainer) {
@@ -337,8 +336,6 @@ async function loadAndRenderProducts(storeTab, placeId) {
         sortProducts();
     });
 
-    let passesTab, devTab;
-    
     const filterWrapper = document.createElement('div');
     filterWrapper.style.marginBottom = '10px';
     filterWrapper.style.display = 'flex';
@@ -348,53 +345,37 @@ async function loadAndRenderProducts(storeTab, placeId) {
     filterWrapper.appendChild(sortOrderDropdown.element);
 
     const updateTabState = (isPasses) => {
+        const currentRosealFilters = gamePassesContainer.querySelector('.store-item-filters');
+
         if (isPasses) {
             passesList.style.display = '';
-            if (rosealFilters) rosealFilters.style.display = '';
+            if (currentRosealFilters) currentRosealFilters.style.display = '';
             if (noPassesMessage) noPassesMessage.style.display = '';
             devProductsList.style.display = 'none';
             paginationContainer.style.display = 'none';
             filterWrapper.style.display = 'none';
-            passesTab.className = 'btn-primary-md rovalra-ui-btn rovalra-btn-primary';
-            devTab.className = 'btn-control-md rovalra-ui-btn rovalra-btn-secondary';
         } else {
             passesList.style.display = 'none';
-            if (rosealFilters) rosealFilters.style.display = 'none';
+            if (currentRosealFilters) currentRosealFilters.style.display = 'none';
             if (noPassesMessage) noPassesMessage.style.display = 'none';
             devProductsList.style.display = '';
             paginationContainer.style.display = 'flex';
             filterWrapper.style.display = 'flex';
-            passesTab.className = 'btn-control-md rovalra-ui-btn rovalra-btn-secondary';
-            devTab.className = 'btn-primary-md rovalra-ui-btn rovalra-btn-primary';
         }
     };
 
-    passesTab = createButton('Passes', hasPasses ? 'primary' : 'secondary', {
-        onClick: () => updateTabState(true)
-    });
-    
-    devTab = createButton('Developer Products', !hasPasses ? 'primary' : 'secondary', {
-        onClick: () => updateTabState(false)
+    const toggle = createPillToggle({
+        options: [
+            { text: 'Passes', value: 'passes' },
+            { text: 'Developer Products', value: 'devProducts' }
+        ],
+        initialValue: hasPasses ? 'passes' : 'devProducts',
+        onChange: (value) => updateTabState(value === 'passes')
     });
 
-    if (hasPasses) {
-        passesList.style.display = '';
-        if (rosealFilters) rosealFilters.style.display = '';
-        if (noPassesMessage) noPassesMessage.style.display = '';
-        devProductsList.style.display = 'none';
-        paginationContainer.style.display = 'none';
-        filterWrapper.style.display = 'none';
-    } else {
-        passesList.style.display = 'none';
-        if (rosealFilters) rosealFilters.style.display = 'none';
-        if (noPassesMessage) noPassesMessage.style.display = 'none';
-        devProductsList.style.display = '';
-        paginationContainer.style.display = 'flex';
-        filterWrapper.style.display = 'flex';
-    }
+    updateTabState(hasPasses);
 
-    controlsDiv.appendChild(passesTab);
-    controlsDiv.appendChild(devTab);
+    controlsDiv.appendChild(toggle);
     headerContainer.appendChild(controlsDiv);
     headerContainer.appendChild(filterWrapper);
     

@@ -3,6 +3,7 @@ import { observeElement } from '../../core/observer.js';
 import { createItemCard } from '../../core/ui/items/items.js';
 import { createRadioButton } from '../../core/ui/general/radio.js';
 import { createToggle } from '../../core/ui/general/toggle.js';
+import { createPillToggle } from '../../core/ui/general/pillToggle.js';
 import { createPill } from '../../core/ui/general/pill.js';
 function removeHomeElement() {
     const homeElementToRemove = document.querySelector('li.cursor-pointer.btr-nav-node-header_home.btr-nav-header_home');
@@ -63,6 +64,17 @@ async function renderTestPage(contentDiv) {
     container.appendChild(toggle);
     const pill = createPill("Test test");
     container.appendChild(pill);
+    const pillToggle = createPillToggle({
+        options: [
+            { text: 'Option 1', value: 1 },
+            { text: 'Option 2', value: 2, tooltip: 'A tooltip for option 2' },
+            { text: 'Option 3', value: 3 },
+            { text: '4', value: 4 },
+        ],
+        initialValue: 2,
+        onChange: (value) => console.log('Pill Toggle changed to:', value),
+    });
+    container.appendChild(pillToggle);
     removeHomeElement();
 }
 

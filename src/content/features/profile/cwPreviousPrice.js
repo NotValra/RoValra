@@ -142,6 +142,10 @@ export function init() {
         observeElement('.roseal-currently-wearing .item-card', (card) => {
             handleItemCard(card);
         }, { multiple: true });
+
+        observeElement('.rovalra-cw-category-grid .item-card', (card) => {
+            handleItemCard(card);
+        }, { multiple: true });
     });
 }
 

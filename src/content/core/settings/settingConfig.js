@@ -371,6 +371,12 @@ export const SETTINGS_CONFIG = {
                 type: "checkbox",
                 default: true,
             },
+            categorizeWearingEnabled: {
+                label: "Categorize Currently Wearing",
+                description: "Separates the 'Currently Wearing' section on profiles into categories like Accessories and Emotes.",
+                type: "checkbox",
+                default: true,
+            },
             userRapEnabled: {
                 label: "User RAP",
                 description: ["This shows a user's total RAP on their profile."],

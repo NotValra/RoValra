@@ -11,10 +11,18 @@ export function createItemCard(itemOrId, thumbnailCacheOrConfig, config = {}) {
         const card = document.createElement('div');
         card.className = 'rovalra-item-card';
         card.style.minHeight = '100px';
-        card.style.width = '150px';
-        card.style.minWidth = '150px';
-        card.style.maxWidth = '150px';
-        card.innerHTML = '<div class="rovalra-loader" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">Loading...</div>';
+        if (actualConfig.cardStyles) {
+            Object.assign(card.style, actualConfig.cardStyles);
+        } else {
+            card.style.width = '100%';
+            card.style.minWidth = '1%';
+            card.style.maxWidth = '150px';
+        }
+        card.innerHTML = `
+            <div class="rovalra-item-thumb-container shimmer" style="width: 100%; height: 150px; border-radius: 8px; margin-bottom: 4px;"></div>
+            <div class="rovalra-item-name shimmer" style="height: 14px; width: 90%; margin-bottom: 4px; border-radius: 4px;"></div>
+            <div class="rovalra-item-rap shimmer" style="height: 14px; width: 60%; border-radius: 4px;"></div>
+        `;
 
         (async () => {
             try {
@@ -70,9 +78,13 @@ export function createItemCard(itemOrId, thumbnailCacheOrConfig, config = {}) {
 
     const card = document.createElement('div');
     card.className = 'rovalra-item-card';
-    card.style.width = '150px';
-    card.style.minWidth = '150px';
-    card.style.maxWidth = '150px';
+    if (config.cardStyles) {
+        Object.assign(card.style, config.cardStyles);
+    } else {
+        card.style.width = '100%';
+        card.style.minWidth = '1%';
+        card.style.maxWidth = '150px';
+    }
 
     const thumbData = thumbnailCache.get(item.assetId);
     const itemType = item.itemType || 'Asset';
@@ -95,8 +107,9 @@ export function createItemCard(itemOrId, thumbnailCacheOrConfig, config = {}) {
     const thumbContainer = document.createElement('div');
     thumbContainer.className = 'rovalra-item-thumb-container';
     thumbContainer.style.position = 'relative';
-    thumbContainer.style.width = '150px';
-    thumbContainer.style.height = '150px';
+    thumbContainer.style.width = '100%';
+    thumbContainer.style.height = '100%';
+    thumbContainer.style.maxHeight = '150px';
     const thumbnailElement = createThumbnailElement(
         thumbData,
         item.name,
