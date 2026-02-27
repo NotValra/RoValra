@@ -233,7 +233,7 @@ export function createItemCard(itemOrId, thumbnailCacheOrConfig, config = {}) {
     }
 
     card.innerHTML = `
-        <a href="${itemUrl}" target="_blank" rel="noopener noreferrer" class="rovalra-item-card-link">
+        <a href="${itemUrl}" class="rovalra-item-card-link">
             <div class="rovalra-item-name"></div>
             <div class="rovalra-item-rap">
                 ${priceHtml}

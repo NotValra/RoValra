@@ -365,16 +365,11 @@ export const SETTINGS_CONFIG = {
                 type: "checkbox",
                 default: true,
             },
-            PreviousPriceEnabled: {
-                label: "Previous Price in currently wearing.",
-                description: "This shows the price of an offsale item a user is wearing before it went offsale.",
-                type: "checkbox",
-                default: true,
-            },
+
             categorizeWearingEnabled: {
                 label: "Improved Currently Wearing",
                 description: ["Separates the 'Currently Wearing' section on profiles into categories like Items, Emotes, Body Parts and Animations.",
-                    "Also improves the item cards making them look a bit better."
+                    "Also improves the item cards making them look a bit better and adds total outfit price."
                 ],
                 type: "checkbox",
                 default: true,
@@ -605,6 +600,12 @@ export const SETTINGS_CONFIG = {
                 type: "checkbox",
                 default: false,
                 requiredPermissions: ["contextMenus"],
+            },
+            PreviousPriceEnabled: {
+                label: "Previous Price to item cards and on item pages.",
+                description: "This shows the price of an offsale item before it went offsale.",
+                type: "checkbox",
+                default: true,
             },
             cssfixesEnabled: {
                 label: "Site Fixes",

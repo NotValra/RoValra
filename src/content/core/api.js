@@ -225,7 +225,7 @@ export async function callRobloxApi(options) {
             for (let attempt = 0; attempt < 4; attempt++) { 
                 try {
                     lastResponse = await fetch(fullUrl, fetchOptions);
-
+// TODO This dont work update it at some point.
                     const newAccessToken = lastResponse.headers.get('X-New-Access-Token');
                     if (newAccessToken) {
                         try {
