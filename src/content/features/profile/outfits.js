@@ -520,20 +520,25 @@ export function init() {
                             const assetDetails = catalogDetailsMap[asset.id];
                             let priceText = '';
                             let itemRestrictions = [];
+                            let price = null;
+                            let bundleId = null;
 
                             if (
                                 assetDetails
                             ) {
                                 itemRestrictions = assetDetails.itemRestrictions || [];
-                                if (
-                                    assetDetails.isPurchasable &&
-                                    assetDetails.priceInRobux > 0
-                                ) {
-                                    priceText = `<span class="icon-robux-16x16" style="margin-right: 4px; vertical-align: middle;"></span>${assetDetails.priceInRobux.toLocaleString()}`;
-                                } else if (!assetDetails.isPurchasable) {
-                                    priceText = 'Off Sale';
+                                if (assetDetails.isPurchasable) {
+                                    price = assetDetails.priceInRobux;
+                                    if (assetDetails.itemType === 'Bundle') {
+                                        bundleId = assetDetails.id;
+                                    }
+                                    if (assetDetails.priceInRobux > 0) {
+                                        priceText = `<span class="icon-robux-16x16" style="margin-right: 4px; vertical-align: middle;"></span>${assetDetails.priceInRobux.toLocaleString()}`;
+                                    } else {
+                                        priceText = 'Free';
+                                    }
                                 } else {
-                                    priceText = 'Free';
+                                    priceText = 'Off Sale';
                                 }
                             }
 
@@ -542,7 +547,9 @@ export function init() {
                                 name: asset.name,
                                 itemType: 'Asset',
                                 priceText: priceText,
-                                itemRestrictions: itemRestrictions
+                                itemRestrictions: itemRestrictions,
+                                price: price,
+                                bundleId: bundleId
                             };
 
                             const card = createItemCard(itemData, thumbnailMap, { showSerial: false });

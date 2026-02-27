@@ -373,11 +373,31 @@ export const SETTINGS_CONFIG = {
             },
             categorizeWearingEnabled: {
                 label: "Improved Currently Wearing",
-                description: ["Separates the 'Currently Wearing' section on profiles into categories like Accessories and Emotes.",
+                description: ["Separates the 'Currently Wearing' section on profiles into categories like Items, Emotes, Body Parts and Animations.",
                     "Also improves the item cards making them look a bit better."
                 ],
                 type: "checkbox",
                 default: true,
+                childSettings: {
+                    CategorizeBodyParts: {
+                        label: "Body Parts in its own category",
+                        description: "This puts Body Parts into its own category",
+                        type: "checkbox",
+                        default: true
+                    },
+                    CategorizeEmotes: {
+                        label: "Emotes in its own category",
+                        description: "This puts Emotes into its own category",
+                        type: "checkbox",
+                        default: true
+                    },
+                    CategorizeAnimations: {
+                        label: "Animations in its own category",
+                        description: "This puts Animations into its own category",
+                        type: "checkbox",
+                        default: true
+                    }
+                }
             },
             userRapEnabled: {
                 label: "User RAP",
