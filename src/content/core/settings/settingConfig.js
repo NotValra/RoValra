@@ -369,7 +369,8 @@ export const SETTINGS_CONFIG = {
             categorizeWearingEnabled: {
                 label: "Improved Currently Wearing",
                 description: ["Separates the 'Currently Wearing' section on profiles into categories like Items, Emotes, Body Parts and Animations.",
-                    "Also improves the item cards making them look a bit better and adds total outfit price."
+                    "Also improves the item cards making them look a bit better and adds total outfit price.",
+                    "This feature was heavily inspired by a [roseal](https://www.roseal.live/) feature."
                 ],
                 type: "checkbox",
                 default: true,

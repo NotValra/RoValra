@@ -282,6 +282,7 @@ function createCategorizedWearingSection() {
 }
 
 function addItemToCategoryView(itemEl, assetId) {
+    if (itemEl.dataset.rovalraCategorized === 'true') return;
     const info = assetInfoCache.get(assetId);
     if (!info || !accessoriesGrid) return;
     const category = getCategoryName(info.assetType.id);
@@ -292,8 +293,17 @@ function addItemToCategoryView(itemEl, assetId) {
         case 'Body Parts': targetGrid = bodyPartsGrid; break;
         default: targetGrid = accessoriesGrid;
     }
-    if (!targetGrid.querySelector(`a[href*="/${assetId}/"]`)) {
-        targetGrid.appendChild(createItemCard(assetId, {}, { cardStyles: { width: '150px', flexShrink: 0 } }));
+
+    const exists = Array.from(targetGrid.children).some(child => 
+        child.dataset.rovalraPendingId == assetId || 
+        child.querySelector(`a[href*="/${assetId}/"]`)
+    );
+
+    if (!exists) {
+        itemEl.dataset.rovalraCategorized = 'true';
+        const card = createItemCard(assetId, {}, { cardStyles: { width: '150px', flexShrink: 0 } });
+        card.dataset.rovalraPendingId = assetId;
+        targetGrid.appendChild(card);
         if (!discoveredCategories.has(category)) {
             discoveredCategories.add(category);
             refreshPillToggle();
