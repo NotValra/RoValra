@@ -33,23 +33,48 @@ export async function init() {
         };
 
         const fetchUniverseDetails = async (universeId) => {
-          
-                const response = await callRobloxApi({
-                    subdomain: 'games',
-                    endpoint: `/v1/games?universeIds=${universeId}`,
-                    method: 'GET'
+            if (document.hidden) {
+                await new Promise(resolve => {
+                    const onVisibilityChange = () => {
+                        if (!document.hidden) {
+                            document.removeEventListener('visibilitychange', onVisibilityChange);
+                            resolve();
+                        }
+                    };
+                    document.addEventListener('visibilitychange', onVisibilityChange);
                 });
+            }
 
-                if (!response.ok) {
-                    throw new Error(`Failed to fetch universe details: ${response.status}`);
-                }
+            let attempts = 0;
+            while (attempts < 5) {
+                try {
+                    const response = await callRobloxApi({
+                        subdomain: 'games',
+                        endpoint: `/v1/games?universeIds=${universeId}`,
+                        method: 'GET'
+                    });
 
-                const data = await response.json();
-                if (data?.data?.[0]) {
-                    return data.data[0];
+                    if (response.status === 429) {
+                        attempts++;
+                        await new Promise(r => setTimeout(r, 2000 * attempts));
+                        continue;
+                    }
+
+                    if (!response.ok) {
+                        throw new Error(`Failed to fetch universe details: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    if (data?.data?.[0]) {
+                        return data.data[0];
+                    }
+                    throw new Error("Universe details not found in the API response.");
+                } catch (e) {
+                    if (attempts >= 4) throw e;
+                    attempts++;
+                    await new Promise(r => setTimeout(r, 1000));
                 }
-                throw new Error("Universe details not found in the API response.");
-           
+            }
         };
 
         const checkSubplaceJoinability = async (placeId) => {
@@ -152,10 +177,7 @@ export async function init() {
 
 
 
-        const createSubplacesTab = (subplaces, horizontalTabs, contentSection) => {
-            let displayedCount = 0;
-            let allDisplayed = false;
-
+        const createSubplacesTab = (universeId, horizontalTabs, contentSection) => {
             const { contentPane: subplacesContentDiv } = createTab({
                 id: 'subplaces',
                 label: 'Subplaces',
@@ -186,76 +208,120 @@ export async function init() {
 
             subplacesContentDiv.append(searchWrapper, subplacesContainer, loadMoreWrapper);
 
+            let isLoaded = false;
 
-            const displaySubplaces = async (gamesToDisplay) => {
-                const thumbnails = await fetchThumbnails(gamesToDisplay);
-                gamesToDisplay.forEach(subplace => {
-                    const gameData = {
-                        id: subplace.id,
-                        name: subplace.name,
-                        rootPlaceId: subplace.id
-                    };
-                    const stats = { thumbnails };
+            const initData = async () => {
+                if (isLoaded) return;
+                isLoaded = true;
 
-                    const card = createGameCard({
-                        game: gameData,
-                        stats,
-                        showVotes: false,
-                        showPlayers: false
-                    });
-                    card.classList.add('rovalra-subplace-card', 'game-card-container');
-
-                    const nameEl = card.querySelector('.game-card-name');
-                    if (nameEl) nameEl.dataset.fullName = subplace.name;
-
-                    if (subplace.isRootPlace) {
-                        const rootLabel = document.createElement('p');
-                        rootLabel.textContent = 'Root Place';
-                        rootLabel.className = 'root-place-label';
-                        const link = card.querySelector('.game-card-link');
-                        if (link) link.appendChild(rootLabel);
-                    }
-
-                    subplacesContainer.appendChild(card);
-                });
-            };
-
-            const loadMore = async () => {
-                const toLoad = subplaces.slice(displayedCount, displayedCount + PAGE_SIZE);
-                if (toLoad.length > 0) {
-                    await displaySubplaces(toLoad);
-                    displayedCount += toLoad.length;
-                }
-                if (displayedCount >= subplaces.length) {
-                    allDisplayed = true;
-                    loadMoreWrapper.style.display = 'none';
-                }
-            };
-
-            if (subplaces.length === 0) {
-                subplacesContainer.innerHTML = '<p style="grid-column: 1 / -1;">No subplaces found.</p>';
+                subplacesContainer.innerHTML = '<div class="spinner spinner-default"></div>';
                 loadMoreWrapper.style.display = 'none';
-            } else {
-                loadMore(); 
-                if (subplaces.length > PAGE_SIZE) {
-                    loadMoreButton.style.display = 'block';
-                    loadMoreButton.addEventListener('click', loadMore);
-                }
-            }
 
-            searchInput.addEventListener('input', async () => {
-                const term = searchInput.value.trim().toLowerCase();
-                if (term && !allDisplayed) {
-                    while (!allDisplayed) {
-                        await loadMore();
+                try {
+                    const subplaces = await fetchAllSubplaces(universeId);
+                    const universeDetails = await fetchUniverseDetails(universeId);
+                    const placeId = getPlaceIdFromUrl();
+
+                    if (universeDetails && universeDetails.rootPlaceId && universeDetails.rootPlaceId.toString() !== placeId) {
+                        const rootPlaceData = subplaces.find(p => p.isRootPlace);
+                        const rootPlaceName = DOMPurify.sanitize(rootPlaceData ? rootPlaceData.name : "the main experience");
+                        const rootPlaceId = universeDetails.rootPlaceId;
+                        const joinData = await checkSubplaceJoinability(placeId);
+                        
+                        const bannerTitle = `You are currently viewing a subplace of ${rootPlaceName}.`;
+                        let bannerDescription = "Some experiences may disable joining subplaces.";
+                        
+                        if (joinData && joinData.status === 12) {
+                             bannerDescription = "This subplace cannot be joined due to join restrictions.";
+                        }
+                        if (joinData && joinData.status === 2) {
+                             bannerDescription = "This subplace can be joined.";
+                        }
+
+                        const checkBannerInterval = setInterval(() => {
+                            if (window.GameBannerManager) {
+                                clearInterval(checkBannerInterval);
+                                const subplaceIcon = `<svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1phnduy" focusable="false" aria-hidden="true" viewBox="0 0 24 24"><path d="M13 22h8v-7h-3v-4h-5V9h3V2H8v7h3v2H6v4H3v7h8v-7H8v-2h8v2h-3z"></path></svg>`;
+                                window.GameBannerManager.addNotice(bannerTitle, subplaceIcon, bannerDescription);
+                            }
+                        }, 200);
                     }
+
+                    subplacesContainer.innerHTML = '';
+
+                    let displayedCount = 0;
+                    let allDisplayed = false;
+
+                    const displaySubplaces = async (gamesToDisplay) => {
+                        const thumbnails = await fetchThumbnails(gamesToDisplay);
+                        gamesToDisplay.forEach(subplace => {
+                            const gameData = { id: subplace.id, name: subplace.name, rootPlaceId: subplace.id };
+                            const stats = { thumbnails };
+                            const card = createGameCard({ game: gameData, stats, showVotes: false, showPlayers: false });
+                            card.classList.add('rovalra-subplace-card', 'game-card-container');
+                            const nameEl = card.querySelector('.game-card-name');
+                            if (nameEl) nameEl.dataset.fullName = subplace.name;
+                            if (subplace.isRootPlace) {
+                                const rootLabel = document.createElement('p');
+                                rootLabel.textContent = 'Root Place';
+                                rootLabel.className = 'root-place-label';
+                                const link = card.querySelector('.game-card-link');
+                                if (link) link.appendChild(rootLabel);
+                            }
+                            subplacesContainer.appendChild(card);
+                        });
+                    };
+
+                    const loadMore = async () => {
+                        const toLoad = subplaces.slice(displayedCount, displayedCount + PAGE_SIZE);
+                        if (toLoad.length > 0) {
+                            await displaySubplaces(toLoad);
+                            displayedCount += toLoad.length;
+                        }
+                        if (displayedCount >= subplaces.length) {
+                            allDisplayed = true;
+                            loadMoreWrapper.style.display = 'none';
+                        }
+                    };
+
+                    if (subplaces.length === 0) {
+                        subplacesContainer.innerHTML = '<p style="grid-column: 1 / -1;">No subplaces found.</p>';
+                        loadMoreWrapper.style.display = 'none';
+                    } else {
+                        loadMore(); 
+                        if (subplaces.length > PAGE_SIZE) {
+                            loadMoreButton.style.display = 'block';
+                            loadMoreButton.addEventListener('click', loadMore);
+                        }
+                    }
+
+                    searchInput.addEventListener('input', async () => {
+                        const term = searchInput.value.trim().toLowerCase();
+                        if (term && !allDisplayed) {
+                            while (!allDisplayed) {
+                                await loadMore();
+                            }
+                        }
+                        subplacesContainer.querySelectorAll('.rovalra-subplace-card').forEach(c => {
+                            const name = c.querySelector('.game-card-name')?.dataset.fullName?.toLowerCase() || '';
+                            c.style.display = name.includes(term) ? '' : 'none';
+                        });
+                        loadMoreWrapper.style.display = term ? 'none' : (allDisplayed ? 'none' : 'flex');
+                    });
+
+                } catch (e) {
+                    subplacesContainer.innerHTML = '<p style="grid-column: 1 / -1; padding: 20px;">Failed to load subplaces.</p>';
                 }
-                subplacesContainer.querySelectorAll('.rovalra-subplace-card').forEach(c => {
-                    const name = c.querySelector('.game-card-name')?.dataset.fullName?.toLowerCase() || '';
-                    c.style.display = name.includes(term) ? '' : 'none';
-                });
-                loadMoreWrapper.style.display = term ? 'none' : (allDisplayed ? 'none' : 'flex');
-            });
+            };
+
+            const checkUrl = () => {
+                if (window.location.hash.includes('#!/subplaces')) {
+                    initData();
+                }
+            };
+
+            window.addEventListener('hashchange', checkUrl);
+            checkUrl();
         };
 
 
@@ -281,40 +347,7 @@ export async function init() {
             try {
                 const universeId = await fetchUniverseId(placeId);
                 if (universeId) {
-                    const subplaces = await fetchAllSubplaces(universeId);
-                    
-                    const universeDetails = await fetchUniverseDetails(universeId);
-
-                    if (universeDetails && universeDetails.rootPlaceId && universeDetails.rootPlaceId.toString() !== placeId) {
-                        
-                        const rootPlaceData = subplaces.find(p => p.isRootPlace);
-                        const rootPlaceName = DOMPurify.sanitize(rootPlaceData ? rootPlaceData.name : "the main experience");
-                        const rootPlaceId = universeDetails.rootPlaceId;
-                        const joinData = await checkSubplaceJoinability(placeId);
-                        
-                        const bannerTitle = `You are currently viewing a subplace of [${rootPlaceName}](https://www.roblox.com/games/${rootPlaceId}).`;
-                        
-                        let bannerDescription = "Some experiences may disable joining subplaces.";
-                        
-                        if (joinData && joinData.status === 12) {
-                             bannerDescription = "This subplace cannot be joined due to join restrictions.";
-                        }
-                        if (joinData && joinData.status === 2) {
-                             bannerDescription = "This subplace can be joined.";
-                        }
-
-
-                        const checkBannerInterval = setInterval(() => {
-                            if (window.GameBannerManager) {
-                                clearInterval(checkBannerInterval);
-                                const subplaceIcon = `<svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1phnduy" focusable="false" aria-hidden="true" viewBox="0 0 24 24"><path d="M13 22h8v-7h-3v-4h-5V9h3V2H8v7h3v2H6v4H3v7h8v-7H8v-2h8v2h-3z"></path></svg>`;
-                                
-                                window.GameBannerManager.addNotice(bannerTitle, subplaceIcon, bannerDescription);
-                            }
-                        }, 200);
-                    }
-
-                    createSubplacesTab(subplaces, tabContainer, contentSection);
+                    createSubplacesTab(universeId, tabContainer, contentSection);
                 }
             } catch (error) {
                 tabContainer.dataset.rovalraSubplacesInitialized = 'false'; 
