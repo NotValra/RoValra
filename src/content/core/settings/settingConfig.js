@@ -56,8 +56,13 @@ export const SETTINGS_CONFIG = {
                 description: "This will show the price floor when viewing items, and shows if the item you are viewing is sold at or above the price floor.",
                 type: "checkbox",
                 default: true
+            },
+            ParentItemsEnabled: {
+                label: "Show what bundle an item is a part of.",
+                description: "When viewing items pages of items inside of a bundle it will tell you what bundle that item is from.",
+                type: "checkbox",
+                default: true
             }
-
 
         }
     },
