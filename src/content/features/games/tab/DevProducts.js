@@ -36,7 +36,7 @@ async function fetchDevProducts(universeId) {
 
     try {
         do {
-            const endpoint = `/developer-products/v2/universes/${universeId}/developerproducts?limit=100` + (cursor ? `&cursor=${cursor}` : '');
+            const endpoint = `/developer-products/v2/universes/${universeId}/developerproducts?limit=400` + (cursor ? `&cursor=${cursor}` : '');
             const response = await callRobloxApi({
                 subdomain: 'apis',
                 endpoint: endpoint,
@@ -67,8 +67,8 @@ async function loadAndRenderProducts(storeTab, placeId) {
     const universeId = await fetchUniverseId(placeId);
     if (!universeId) return;
 
-    const products = await fetchDevProducts(universeId);
-    if (!products || products.length === 0) return;
+    let products = [];
+    let isProductsLoaded = false;
 
     let gamePassesContainer = storeTab.querySelector('#roseal-game-passes') || storeTab.querySelector('#rbx-game-passes');
     let passesList = gamePassesContainer ? gamePassesContainer.querySelector('ul.store-cards') : null;
@@ -259,6 +259,7 @@ async function loadAndRenderProducts(storeTab, placeId) {
     let currentSearchTerm = '';
 
     const sortProducts = () => {
+        if (!isProductsLoaded) return;
         let items = [...products];
         const trimmedSearch = currentSearchTerm ? currentSearchTerm.trim() : '';
 
@@ -344,6 +345,32 @@ async function loadAndRenderProducts(storeTab, placeId) {
     filterWrapper.appendChild(sortFieldDropdown.element);
     filterWrapper.appendChild(sortOrderDropdown.element);
 
+    const ensureProductsLoaded = async () => {
+        if (isProductsLoaded) return;
+        
+        devProductsList.innerHTML = '<div class="spinner spinner-default" style="margin: 20px auto;"></div>';
+        devProductsList.style.display = 'flex';
+        devProductsList.style.justifyContent = 'center';
+        
+        const fetchedProducts = await fetchDevProducts(universeId);
+        products = fetchedProducts || [];
+        isProductsLoaded = true;
+        
+        devProductsList.style.display = '';
+        devProductsList.style.justifyContent = '';
+        devProductsList.innerHTML = '';
+
+        if (products.length === 0) {
+             devProductsList.innerHTML = '<div class="section-content-off">No developer products found.</div>';
+             paginationContainer.style.display = 'none';
+             filterWrapper.style.display = 'none';
+        } else {
+             sortProducts();
+             filterWrapper.style.display = 'flex';
+             paginationContainer.style.display = 'flex';
+        }
+    };
+
     const updateTabState = (isPasses) => {
         const currentRosealFilters = gamePassesContainer.querySelector('.store-item-filters');
 
@@ -359,8 +386,15 @@ async function loadAndRenderProducts(storeTab, placeId) {
             if (currentRosealFilters) currentRosealFilters.style.display = 'none';
             if (noPassesMessage) noPassesMessage.style.display = 'none';
             devProductsList.style.display = '';
-            paginationContainer.style.display = 'flex';
-            filterWrapper.style.display = 'flex';
+            
+            if (isProductsLoaded && products.length > 0) {
+                paginationContainer.style.display = 'flex';
+                filterWrapper.style.display = 'flex';
+            } else {
+                paginationContainer.style.display = 'none';
+                filterWrapper.style.display = 'none';
+                ensureProductsLoaded();
+            }
         }
     };
 
@@ -378,8 +412,6 @@ async function loadAndRenderProducts(storeTab, placeId) {
     controlsDiv.appendChild(toggle);
     headerContainer.appendChild(controlsDiv);
     headerContainer.appendChild(filterWrapper);
-    
-    sortProducts();
 }
 
 export function init() {
