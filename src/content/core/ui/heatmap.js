@@ -85,7 +85,7 @@ function _renderHeatmap(graphContainer, history, detailsContainer) {
     
     const timeDiff = endDate - startDate;
     const dayDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
-    const weeks = Math.ceil(dayDiff / 7);
+    const weeks = Math.ceil((dayDiff + 1) / 7);
 
     const width = weeks * weekWidth;
     const totalWidth = width + leftPadding;
