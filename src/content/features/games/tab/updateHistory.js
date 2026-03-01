@@ -28,7 +28,19 @@ export function init() {
                     hash: '#!/updates'
                 });
 
-                loadAndRenderHeatmap(placeId, contentPane);
+                let isLoaded = false;
+
+                const checkUrl = () => {
+                    if (window.location.hash.includes('#!/updates')) {
+                        if (!isLoaded) {
+                            isLoaded = true;
+                            loadAndRenderHeatmap(placeId, contentPane);
+                        }
+                    }
+                };
+
+                window.addEventListener('hashchange', checkUrl);
+                checkUrl();
             }
         }, {
             onRemove: () => {
