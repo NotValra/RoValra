@@ -396,13 +396,12 @@ export async function init() {
             position: absolute; z-index: 10; top: 50%; transform: translateY(-50%);
             background: rgba(0, 0, 0, 0.6) !important; border-radius: 50%;
             width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
-            border: none; cursor: pointer; color: white; opacity: 0; 
-            transition: opacity 0.25s ease; pointer-events: none;
+            border: none; cursor: pointer; color: white; opacity: 1; 
+            transition: opacity 0.25s ease; pointer-events: auto;
         }
         .rovalra-scroll-btn.left { left: 5px; }
         .rovalra-scroll-btn.right { right: 5px; }
-        .rovalra-scroll-wrapper:hover .rovalra-scroll-btn { opacity: 1; pointer-events: auto; }
-        .rovalra-scroll-btn.rovalra-btn-disabled { opacity: 0.25 !important; cursor: default; pointer-events: none; }
+        .rovalra-scroll-btn.rovalra-btn-disabled { opacity: 0.25 !important; cursor: default; pointer-events: auto; }
     `;
     document.head.appendChild(hideStyle);
 

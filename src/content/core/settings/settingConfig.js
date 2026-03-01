@@ -62,7 +62,13 @@ export const SETTINGS_CONFIG = {
                 description: "When viewing items pages of items inside of a bundle it will tell you what bundle that item is from.",
                 type: "checkbox",
                 default: true
-            }
+            },
+            PreviousPriceEnabled: {
+                label: "Previous Price to item cards and on item pages.",
+                description: "This shows the price of an offsale item before it went offsale.",
+                type: "checkbox",
+                default: true,
+            },
 
         }
     },
@@ -607,12 +613,7 @@ export const SETTINGS_CONFIG = {
                 default: false,
                 requiredPermissions: ["contextMenus"],
             },
-            PreviousPriceEnabled: {
-                label: "Previous Price to item cards and on item pages.",
-                description: "This shows the price of an offsale item before it went offsale.",
-                type: "checkbox",
-                default: true,
-            },
+
             cssfixesEnabled: {
                 label: "Site Fixes",
                 description: ["This fixes various site issues or just poor design choices by Roblox.",],
