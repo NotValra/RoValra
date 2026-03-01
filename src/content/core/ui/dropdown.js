@@ -3,6 +3,7 @@
 import { createDropdownContent } from './selects.js'; 
 
 let isCssInjected = false;
+let openDropdowns = [];
 
 function injectDropdownCss() {
     if (isCssInjected) return;
@@ -137,6 +138,34 @@ export function createDropdown({ items = [], initialValue, placeholder = 'Select
 
     const toggleDropdown = (forceOpen) => { 
         const isOpen = forceOpen ?? contentPanel.getAttribute('data-state') !== 'open';
+
+        if (isOpen) {
+            let parentIndex = -1;
+            for (let i = openDropdowns.length - 1; i >= 0; i--) {
+                if (openDropdowns[i].panel.contains(trigger)) {
+                    parentIndex = i;
+                    break;
+                }
+            }
+
+            while (openDropdowns.length > parentIndex + 1) {
+                const toClose = openDropdowns.pop();
+                toClose.close(false);
+            }
+            
+            openDropdowns.push({ panel: contentPanel, close: toggleDropdown });
+        } else {
+            const index = openDropdowns.findIndex(d => d.close === toggleDropdown);
+            if (index !== -1) {
+                while (openDropdowns.length > index) {
+                    const toClose = openDropdowns.pop();
+                    if (toClose.close !== toggleDropdown) {
+                        toClose.close(false);
+                    }
+                }
+            }
+        }
+
         toggleContentVisibility(isOpen);
         trigger.setAttribute('data-state', isOpen ? 'open' : 'closed');
         trigger.setAttribute('aria-expanded', String(isOpen));
@@ -213,6 +242,34 @@ export function createDropdownMenu({ trigger, items, onValueChange, position }) 
 
     const toggle = (forceOpen) => {
         const isOpen = forceOpen ?? contentPanel.getAttribute('data-state') !== 'open';
+        
+        if (isOpen) {
+            let parentIndex = -1;
+            for (let i = openDropdowns.length - 1; i >= 0; i--) {
+                if (openDropdowns[i].panel.contains(trigger)) {
+                    parentIndex = i;
+                    break;
+                }
+            }
+
+            while (openDropdowns.length > parentIndex + 1) {
+                const toClose = openDropdowns.pop();
+                toClose.close(false);
+            }
+            
+            openDropdowns.push({ panel: contentPanel, close: toggle });
+        } else {
+            const index = openDropdowns.findIndex(d => d.close === toggle);
+            if (index !== -1) {
+                while (openDropdowns.length > index) {
+                    const toClose = openDropdowns.pop();
+                    if (toClose.close !== toggle) {
+                        toClose.close(false);
+                    }
+                }
+            }
+        }
+
         toggleVisibility(isOpen);
         trigger.setAttribute('data-state', isOpen ? 'open' : 'closed');
         trigger.setAttribute('aria-expanded', String(isOpen));
