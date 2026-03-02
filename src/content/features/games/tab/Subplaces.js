@@ -174,6 +174,36 @@ export async function init() {
             }
         };
 
+        const checkAndDisplaySubplaceBanner = async (universeId, placeId) => {
+            try {
+                const universeDetails = await fetchUniverseDetails(universeId);
+                if (universeDetails && universeDetails.rootPlaceId && universeDetails.rootPlaceId.toString() !== placeId) {
+                    const rootPlaceName = "the main experience";
+
+                    const joinData = await checkSubplaceJoinability(placeId);
+                    
+                    const bannerTitle = `You are currently viewing a subplace of ${DOMPurify.sanitize(rootPlaceName)}.`;
+                    let bannerDescription = "Some experiences may disable joining subplaces.";
+                    
+                    if (joinData && joinData.status === 12) {
+                         bannerDescription = "This subplace cannot be joined due to join restrictions.";
+                    }
+                    if (joinData && joinData.status === 2) {
+                         bannerDescription = "This subplace can be joined.";
+                    }
+
+                    const checkBannerInterval = setInterval(() => {
+                        if (window.GameBannerManager) {
+                            clearInterval(checkBannerInterval);
+                            const subplaceIcon = `<svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1phnduy" focusable="false" aria-hidden="true" viewBox="0 0 24 24"><path d="M13 22h8v-7h-3v-4h-5V9h3V2H8v7h3v2H6v4H3v7h8v-7H8v-2h8v2h-3z"></path></svg>`;
+                            window.GameBannerManager.addNotice(bannerTitle, subplaceIcon, bannerDescription);
+                        }
+                    }, 200);
+                }
+            } catch (e) {
+                console.warn("RoValra: Failed to check for subplace banner", e);
+            }
+        };
 
 
 
@@ -219,33 +249,6 @@ export async function init() {
 
                 try {
                     const subplaces = await fetchAllSubplaces(universeId);
-                    const universeDetails = await fetchUniverseDetails(universeId);
-                    const placeId = getPlaceIdFromUrl();
-
-                    if (universeDetails && universeDetails.rootPlaceId && universeDetails.rootPlaceId.toString() !== placeId) {
-                        const rootPlaceData = subplaces.find(p => p.isRootPlace);
-                        const rootPlaceName = DOMPurify.sanitize(rootPlaceData ? rootPlaceData.name : "the main experience");
-                        const rootPlaceId = universeDetails.rootPlaceId;
-                        const joinData = await checkSubplaceJoinability(placeId);
-                        
-                        const bannerTitle = `You are currently viewing a subplace of ${rootPlaceName}.`;
-                        let bannerDescription = "Some experiences may disable joining subplaces.";
-                        
-                        if (joinData && joinData.status === 12) {
-                             bannerDescription = "This subplace cannot be joined due to join restrictions.";
-                        }
-                        if (joinData && joinData.status === 2) {
-                             bannerDescription = "This subplace can be joined.";
-                        }
-
-                        const checkBannerInterval = setInterval(() => {
-                            if (window.GameBannerManager) {
-                                clearInterval(checkBannerInterval);
-                                const subplaceIcon = `<svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1phnduy" focusable="false" aria-hidden="true" viewBox="0 0 24 24"><path d="M13 22h8v-7h-3v-4h-5V9h3V2H8v7h3v2H6v4H3v7h8v-7H8v-2h8v2h-3z"></path></svg>`;
-                                window.GameBannerManager.addNotice(bannerTitle, subplaceIcon, bannerDescription);
-                            }
-                        }, 200);
-                    }
 
                     subplacesContainer.innerHTML = '';
 
@@ -347,6 +350,7 @@ export async function init() {
             try {
                 const universeId = await fetchUniverseId(placeId);
                 if (universeId) {
+                    checkAndDisplaySubplaceBanner(universeId, placeId);
                     createSubplacesTab(universeId, tabContainer, contentSection);
                 }
             } catch (error) {
