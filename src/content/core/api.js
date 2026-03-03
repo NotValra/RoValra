@@ -158,7 +158,8 @@ export async function callRobloxApi(options) {
             headers = {},
             body = null,
             fullUrl: customFullUrl,
-            skipAutoAuth = false
+            skipAutoAuth = false,
+            signal
         } = options;
 
         if (isRovalraApi) {
@@ -206,7 +207,8 @@ export async function callRobloxApi(options) {
                 'Accept': 'application/json',
                 ...headers
             },
-            credentials
+            credentials,
+            signal
         };
 
         if (body) {

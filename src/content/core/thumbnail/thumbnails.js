@@ -88,6 +88,7 @@ export async function fetchThumbnails(items, type, size = '150x150', isCircular 
 
     const processResults = (resultsArray) => {
         resultsArray.flat().forEach(thumb => {
+            thumb.thumbnailType = type;
             if (type === 'PlayerToken') {
                 const token = thumb.requestId.split(':')[1];
                 thumbnailMap.set(token, thumb);
@@ -209,7 +210,11 @@ export function createThumbnailElement(thumbnailData, altText, baseClass = 'game
 
     if (state === 'Pending' || state === 'InReview') {
         const container = document.createElement('div');
-        container.className = 'thumbnail-2d-container shimmer'; 
+        let className = 'thumbnail-2d-container shimmer';
+        if (thumbnailData && (thumbnailData.thumbnailType === 'AvatarHeadshot' || thumbnailData.thumbnailType === 'PlayerToken')) {
+            className += ' icon-blocked';
+        }
+        container.className = className;
         container.style.borderRadius = '8px';
         applyStyles(container);
 

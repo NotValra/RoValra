@@ -17,6 +17,7 @@ import { init as initApiDocs } from './features/developer/apiDocs.js';
 import { init as initServerTracker } from './core/utils/trackers/servers.js';
 import { init as initQoLToggles } from './features/navigation/QoLToggles.js';
 import { init as initCopyId } from './features/sitewide/copyid.js';
+import { init as initQuickSearch } from './features/navigation/search/quicksearch.js';
 
 // Avatar
 import { init as initAvatarFilters } from './features/avatar/filters.js';
@@ -80,7 +81,7 @@ const featureRoutes = [
   // Generic features that run on most pages
   {
     paths: ['*'],
-    features: [initSettingsPage, initQuickPlay, initEasterEggLinks, initCssFixes, initWhatAmIJoining, initHiddenCatalog, initServerListener, initOnboarding, initVideoTest, initStreamerMode, initMarkDownTest, initTests, initServerTracker, initQoLToggles, initCopyId, initBetaPrograms, initPreviousPrice],
+    features: [initSettingsPage, initQuickPlay, initEasterEggLinks, initCssFixes, initWhatAmIJoining, initHiddenCatalog, initServerListener, initOnboarding, initVideoTest, initStreamerMode, initMarkDownTest, initTests, initServerTracker, initQoLToggles, initCopyId, initBetaPrograms, initPreviousPrice, initQuickSearch],
   },
   // pretty much just the 40% method
   {

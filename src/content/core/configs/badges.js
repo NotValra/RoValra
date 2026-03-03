@@ -51,18 +51,18 @@ export const BADGE_CONFIG = {
     cam: {
         type: 'header',
         userIds: [CAM_BADGE_USER_ID],
-        icon: assets.blahaj,
-        name: 'BLAHAJ :3',
-        tooltip: 'BLAHAJ :3',
-        confetti: assets.blahaj
+        icon: assets.cam,
+        name: 'kat >w<',
+        tooltip: 'kat >w<',
+        confetti: assets.cam
     },
     camEasterEgg: {
         type: 'badge',
         userIds: [CAM_BADGE_USER_ID],
-        icon: assets.blahaj,
-        name: 'BLAHAJ :3',
-        tooltip: 'BLAHAJ :3',
-        confetti: assets.blahaj
+        icon: assets.cam,
+        name: 'kat >w<',
+        tooltip: 'kat >w<',
+        confetti: assets.cam
     },
     legacy_donator: {
         type: 'header',
