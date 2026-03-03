@@ -1,5 +1,4 @@
-import { callRobloxApiJson, callRobloxApi } from '../../../core/api.js';
-import DOMPurify from 'dompurify';
+import { callRobloxApi } from '../../../core/api.js';
 import { observeElement } from '../../../core/observer.js';
 import { fetchThumbnails, createThumbnailElement } from '../../../core/thumbnail/thumbnails.js';
 import { getAuthenticatedUserId } from '../../../core/user.js';
@@ -8,11 +7,26 @@ import { safeHtml } from '../../../core/packages/dompurify.js';
 import { performJoinAction, getSavedPreferredRegion } from '../../../core/preferredregion.js';
 import { launchGame } from '../../../core/utils/launcher.js';
 import { getAssets } from '../../../core/assets.js';
+import { createPill } from '../../../core/ui/general/pill.js';
 
-let lastValue = "";        
 let lastSearchedQuery = ""; 
 let searchAbortController = null;
 const assets = getAssets();
+const STORAGE_KEY = 'rovalra_search_history';
+const MAX_HISTORY = 50;
+let initialSearchValue = "";
+
+const debounce = (func, delay) => {
+    let timeout;
+    return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), delay);
+    };
+};
+
+let cachedFriendsData = null;
+let friendsFetchPromise = null;
+let cachedUserId = null;
 
 async function fetchWithRetry(options, retries = 3) {
     try {
@@ -40,13 +54,14 @@ async function performSearch(query) {
     if (!query || query.length < 2) {
         window._lastRoValraUserResult = null;
         window._lastRoValraGameResult = null;
+        window._lastRoValraFriendResults = [];
         lastSearchedQuery = "";
         const menu = document.querySelector('ul.new-dropdown-menu');
         if (menu) {
             menu.querySelectorAll('.rovalra-quick-search-result').forEach(el => el.remove());
         }
         if (searchAbortController) {
-            searchAbortController.abort();
+            searchAbortController.abort('Query too short');
         }
         return;
     }
@@ -60,16 +75,43 @@ async function performSearch(query) {
     lastSearchedQuery = query;
 
     if (searchAbortController) {
-        searchAbortController.abort();
+        searchAbortController.abort('New search started');
     }
     searchAbortController = new AbortController();
     const signal = searchAbortController.signal;
 
-    const authedUserId = await getAuthenticatedUserId();
-    if (signal.aborted) return;
-
     try {
-        const [userSearchData, gameSearchData, settings] = await Promise.all([
+        const authedUserId = await getAuthenticatedUserId();
+        if (signal.aborted) return;
+
+        if (cachedUserId !== authedUserId) {
+            cachedFriendsData = null;
+            friendsFetchPromise = null;
+            cachedUserId = authedUserId;
+        }
+
+        let friendsPromise;
+        if (cachedFriendsData) {
+            friendsPromise = Promise.resolve(cachedFriendsData);
+        } else if (friendsFetchPromise) {
+            friendsPromise = friendsFetchPromise;
+        } else {
+            friendsFetchPromise = fetchWithRetry({
+                subdomain: 'friends',
+                endpoint: `/v1/users/${authedUserId}/friends/online`,
+                signal
+            }).then(data => {
+                cachedFriendsData = data;
+                return data;
+            }).catch(e => {
+                friendsFetchPromise = null;
+                if (e.name === 'AbortError') throw e;
+                return { data: [] };
+            });
+            friendsPromise = friendsFetchPromise;
+        }
+
+        const [userSearchData, gameSearchData, settings, friendsData, friendSearchData] = await Promise.all([
             fetchWithRetry({
                 subdomain: 'users',
                 endpoint: '/v1/usernames/users',
@@ -85,7 +127,13 @@ async function performSearch(query) {
                 endpoint: `/search-api/omni-search?searchQuery=${encodeURIComponent(query)}&sessionid=${authedUserId}&pageType=Game`,
                 signal
             }),
-            new Promise(resolve => chrome.storage.local.get(['PreferredRegionEnabled'], resolve))
+            new Promise(resolve => chrome.storage.local.get(['PreferredRegionEnabled'], resolve)),
+            friendsPromise,
+            fetchWithRetry({
+                subdomain: 'friends',
+                endpoint: `/v1/users/${authedUserId}/friends/search?limit=5&userSort=FriendScore&query=${encodeURIComponent(query)}`,
+                signal
+            })
         ]);
 
         if (signal.aborted) return;
@@ -93,6 +141,7 @@ async function performSearch(query) {
         // Clear previous results before populating new ones
         window._lastRoValraUserResult = null;
         window._lastRoValraGameResult = null;
+        window._lastRoValraFriendResults = [];
 
         const userResult = userSearchData?.data?.[0];
         if (userResult) {
@@ -113,19 +162,79 @@ async function performSearch(query) {
             window._lastRoValraUserResult = createUserResultHtml(userResult, userThumbData, userPresence);
         }
 
+        if (friendSearchData?.PageItems) {
+            const friendIds = friendSearchData.PageItems.map(f => f.id);
+            if (friendIds.length > 0) {
+                const uniqueFriendIds = userResult ? friendIds.filter(id => id !== userResult.id) : friendIds;
+
+                if (uniqueFriendIds.length > 0) {
+                    const [usersData, presenceData] = await Promise.all([
+                        fetchWithRetry({
+                            subdomain: 'users',
+                            endpoint: '/v1/users',
+                            method: 'POST',
+                            body: { userIds: uniqueFriendIds, excludeBannedUsers: false },
+                            signal
+                        }),
+                        fetchWithRetry({
+                            subdomain: 'presence',
+                            endpoint: '/v1/presence/users',
+                            method: 'POST',
+                            body: { userIds: uniqueFriendIds },
+                            signal
+                        })
+                    ]);
+
+                    if (signal.aborted) return;
+
+                    const users = usersData?.data || [];
+                    const presences = presenceData?.userPresences || [];
+                    const presenceMap = new Map(presences.map(p => [p.userId, p]));
+
+                    if (users.length > 0) {
+                        const thumbnailMap = await fetchThumbnails(users.map(u => ({ id: u.id })), 'AvatarHeadshot', '48x48');
+                        if (signal.aborted) return;
+
+                        window._lastRoValraFriendResults = users.map(friendUser => {
+                            const thumbData = thumbnailMap.get(friendUser.id);
+                            const presence = presenceMap.get(friendUser.id);
+                            return createUserResultHtml(friendUser, thumbData, presence);
+                        });
+                    }
+                }
+            }
+        }
+
         const gameResult = gameSearchData?.searchResults?.find(r => r.contentGroupType === 'Game' && r.contents?.length > 0);
         if (gameResult) {
         const game = gameResult.contents[0];
+        const friendPlaying = friendsData?.data?.find(f => f.userPresence?.universeId === game.universeId);
  
         if (signal.aborted) return;
-        const [thumbnailMap, votesData] = await Promise.all([
+        const promises = [
             fetchThumbnails([{ id: game.universeId }], 'GameIcon', '50x50'),
             fetchWithRetry({
                 subdomain: 'games',
                 endpoint: `/v1/games/votes?universeIds=${game.universeId}`,
                 signal
             })
-        ]);
+        ];
+
+        if (friendPlaying) {
+            promises.push(fetchThumbnails([{ id: friendPlaying.id }], 'AvatarHeadshot', '48x48'));
+            promises.push(fetchWithRetry({
+                subdomain: 'users',
+                endpoint: `/v1/users/${friendPlaying.id}`,
+                signal
+            }).catch(e => {
+                if (e.name === 'AbortError') throw e;
+                return null;
+            }));
+        }
+
+        const results = await Promise.all(promises);
+        const thumbnailMap = results[0];
+        const votesData = results[1];
  
         if (signal.aborted) return;
         const voteInfo = votesData.data && votesData.data[0] ? votesData.data[0] : { upVotes: 0, downVotes: 0 };
@@ -136,7 +245,21 @@ async function performSearch(query) {
         const thumbnailUrl = thumbData?.state === 'Completed' ? thumbData.imageUrl : '';
         const playerCount = formatPlayerCount(game.playerCount || 0);
 
-            window._lastRoValraGameResult = createResultHtml(game, thumbnailUrl, playerCount, voteRatio, totalVotes, settings);
+        let friendInfo = null;
+        if (friendPlaying && results[2]) {
+            const friendThumbMap = results[2];
+            const friendUserData = results[3];
+            const fThumb = friendThumbMap.get(friendPlaying.id);
+            if (fThumb && fThumb.state === 'Completed') {
+                friendInfo = {
+                    id: friendPlaying.id,
+                    name: friendUserData ? (friendUserData.displayName || friendUserData.name) : 'Friend',
+                    thumbnailUrl: fThumb.imageUrl
+                };
+            }
+        }
+
+            window._lastRoValraGameResult = createResultHtml(game, thumbnailUrl, playerCount, voteRatio, totalVotes, settings, friendInfo);
         }
 
         injectIntoMenu();
@@ -325,7 +448,7 @@ function createUserResultHtml(user, thumbData, presence) {
     return li;
 }
  
-function createResultHtml(game, thumbnailUrl, playerCount, voteRatio, totalVotes, settings) {
+function createResultHtml(game, thumbnailUrl, playerCount, voteRatio, totalVotes, settings, friendInfo) {
     const li = document.createElement('li');
     li.className = 'navbar-search-option rbx-clickable-li improved-search rovalra-quick-search-result';
  
@@ -430,6 +553,45 @@ function createResultHtml(game, thumbnailUrl, playerCount, voteRatio, totalVotes
     buttonsContainer.appendChild(playBtn);
 
     container.appendChild(link);
+
+    if (friendInfo) {
+        const friendContainer = document.createElement('div');
+        Object.assign(friendContainer.style, {
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginRight: '6px',
+            flexShrink: '0'
+        });
+
+        const friendLink = document.createElement('a');
+        friendLink.href = `https://www.roblox.com/users/${friendInfo.id}/profile`;
+        friendLink.title = friendInfo.name;
+        Object.assign(friendLink.style, {
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            textDecoration: 'none',
+            flexShrink: '0'
+        });
+        
+        friendLink.onclick = (e) => e.stopPropagation();
+
+        const friendThumb = document.createElement('img');
+        friendThumb.src = friendInfo.thumbnailUrl;
+        friendThumb.alt = friendInfo.name;
+        Object.assign(friendThumb.style, {
+            width: '24px',
+            height: '24px',
+            borderRadius: '50%',
+            border: '1px solid var(--rovalra-border-color)'
+        });
+        
+        friendLink.appendChild(friendThumb);
+        friendContainer.appendChild(friendLink);
+        container.appendChild(friendContainer);
+    }
+
     container.appendChild(buttonsContainer);
     li.appendChild(container);
     return li;
@@ -444,6 +606,11 @@ function injectIntoMenu() {
     if (window._lastRoValraGameResult) {
         menu.prepend(window._lastRoValraGameResult);
     }
+    if (window._lastRoValraFriendResults && window._lastRoValraFriendResults.length > 0) {
+        window._lastRoValraFriendResults.slice().reverse().forEach(friendResult => {
+            menu.prepend(friendResult);
+        });
+    }
     if (window._lastRoValraUserResult) {
         menu.prepend(window._lastRoValraUserResult);
     }
@@ -455,34 +622,103 @@ function injectExistingResult() {
         if (window._lastRoValraGameResult) {
             menu.prepend(window._lastRoValraGameResult);
         }
+        if (window._lastRoValraFriendResults && window._lastRoValraFriendResults.length > 0) {
+            window._lastRoValraFriendResults.slice().reverse().forEach(friendResult => {
+                menu.prepend(friendResult);
+            });
+        }
         if (window._lastRoValraUserResult) {
             menu.prepend(window._lastRoValraUserResult);
         }
     }
 }
 
-function checkValue(input) {
-    const currentVal = (input.value || "").trim();
+async function getHistory() {
+    const result = await chrome.storage.local.get(STORAGE_KEY);
+    return result[STORAGE_KEY] || [];
+}
+
+async function addSearchTerm(term) {
+    if (!term || !term.trim()) return;
+    const cleanTerm = term.trim();
+    let history = await getHistory();
+    history = history.filter(t => t.toLowerCase() !== cleanTerm.toLowerCase());
+    history.unshift(cleanTerm);
+    if (history.length > MAX_HISTORY) history = history.slice(0, MAX_HISTORY);
+    await chrome.storage.local.set({ [STORAGE_KEY]: history });
+}
+
+async function renderSearchHistory(container) {
+    if (container.querySelector('.rovalra-search-history-section')) return;
+    const history = await getHistory();
+
+    const section = document.createElement('div');
+    section.className = 'game-sort-header-container rovalra-search-history-section';
+    section.style.marginTop = '20px';
     
-    if (currentVal !== lastValue) {
-        lastValue = currentVal; 
-        
-        performSearch(currentVal);
+    section.innerHTML = `
+        <div class="container-header">
+            <h2 class="sort-header"><span>Search History</span></h2>
+        </div>
+        <div class="rovalra-history-list" style="display: flex; flex-wrap: wrap; gap: 8px; padding: 10px 0;"></div>
+    `;
+
+    const list = section.querySelector('.rovalra-history-list');
+    
+    if (history.length === 0) {
+        const emptyMsg = document.createElement('div');
+        emptyMsg.className = 'text-secondary';
+        emptyMsg.textContent = "You don't have any search history.";
+        emptyMsg.style.paddingLeft = '12px';
+        list.appendChild(emptyMsg);
+    } else {
+        history.forEach(term => {
+            const pill = createPill(term, null, { isButton: true });
+            pill.addEventListener('click', () => {
+                const input = document.getElementById('navbar-search-input');
+                if (input) {
+                    input.value = term;
+                    input.focus();
+                    input.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+            });
+            list.appendChild(pill);
+        });
     }
+
+    container.appendChild(section);
 }
 
 export function init() {
+    const debouncedSearch = debounce(performSearch, 150);
+
     const seeker = setInterval(() => {
         const input = document.getElementById('navbar-search-input');
         if (input) {
             clearInterval(seeker);
+            initialSearchValue = input.value;
             
-            input.addEventListener('input', () => checkValue(input));
+            input.addEventListener('input', () => {
+                const currentVal = (input.value || "").trim();
+                debouncedSearch(currentVal);
+            });
 
-            setInterval(() => checkValue(input), 500);
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    const val = input.value;
+                    if (val !== initialSearchValue) {
+                        addSearchTerm(val);
+                        initialSearchValue = val;
+                    }
+                }
+            });
 
             observeElement('ul.new-dropdown-menu', () => {
                 injectExistingResult();
+            });
+
+            observeElement('section[data-testid="SearchLandingPageOmniFeedTestId"]', (container) => {
+                renderSearchHistory(container);
             });
         }
     }, 500);
