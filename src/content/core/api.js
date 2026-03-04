@@ -297,14 +297,29 @@ export async function callRobloxApi(options) {
             }
         }
 
-        let response = await fetch(fullUrl, fetchOptions);
+        let response;
+        try {
+            response = await fetch(fullUrl, fetchOptions);
+        } catch (error) {
+            if (error.name === 'AbortError' || (signal && signal.aborted)) {
+                return new Response(null, { status: 499, statusText: 'Client Closed Request' });
+            }
+            throw error;
+        }
 
         if (response.status === 403 && isMutatingMethod) {
             const newCsrfToken = response.headers.get('x-csrf-token');
             if (newCsrfToken) {
                 if (typeof getCsrfToken.setToken === 'function') getCsrfToken.setToken(newCsrfToken);
                 fetchOptions.headers['X-CSRF-TOKEN'] = newCsrfToken;
-                response = await fetch(fullUrl, fetchOptions);
+                try {
+                    response = await fetch(fullUrl, fetchOptions);
+                } catch (error) {
+                    if (error.name === 'AbortError' || (signal && signal.aborted)) {
+                        return new Response(null, { status: 499, statusText: 'Client Closed Request' });
+                    }
+                    throw error;
+                }
             }
         }
 

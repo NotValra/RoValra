@@ -12,12 +12,12 @@ const PROP_TYPES = {
     RAY: 0x8,
     FACES: 0x9,
     AXES: 0xA,
-    BRICKCOLOR: 0xB,
+    BRICKCOLOR: 0xB, // Not implemented
     COLOR3: 0xC,
-    VECTOR2: 0xD,
+    VECTOR2: 0xD, // Not implemented
     VECTOR3: 0xE,
-    CFRAME: 0x10,
-    ENUM: 0x13,
+    CFRAME: 0x10, // Not implemented
+    ENUM: 0x13, // Implemented as INT
     REF: 0x14,
     INT64: 0x15,
     SHARED_STRING: 0x16,
@@ -206,6 +206,20 @@ export function parseRbxm(buffer) {
                     const values = chunkReader.readInterleavedFloatArray(count);
                     for (let i = 0; i < count; i++) {
                         instances.get(instanceIds[i]).Properties[propName] = values[i];
+                    }
+                } else if (propType === PROP_TYPES.COLOR3) {
+                    const rs = chunkReader.readInterleavedFloatArray(count);
+                    const gs = chunkReader.readInterleavedFloatArray(count);
+                    const bs = chunkReader.readInterleavedFloatArray(count);
+                    for (let i = 0; i < count; i++) {
+                        instances.get(instanceIds[i]).Properties[propName] = { r: rs[i], g: gs[i], b: bs[i] };
+                    }
+                } else if (propType === PROP_TYPES.VECTOR3) {
+                    const xs = chunkReader.readInterleavedFloatArray(count);
+                    const ys = chunkReader.readInterleavedFloatArray(count);
+                    const zs = chunkReader.readInterleavedFloatArray(count);
+                    for (let i = 0; i < count; i++) {
+                        instances.get(instanceIds[i]).Properties[propName] = { x: xs[i], y: ys[i], z: zs[i] };
                     }
                 } else if (propType === PROP_TYPES.DOUBLE) {
 

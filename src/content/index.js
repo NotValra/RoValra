@@ -15,6 +15,7 @@ import { init as initMarkDownTest } from './features/developer/markdowntest.js'
 import { init as initTests } from './features/developer/tests.js';
 import { init as initApiDocs } from './features/developer/apiDocs.js';
 import { init as initServerTracker } from './core/utils/trackers/servers.js';
+import { initFriendsListTracking } from './core/utils/trackers/friendslist.js';
 import { init as initQoLToggles } from './features/navigation/QoLToggles.js';
 import { init as initCopyId } from './features/sitewide/copyid.js';
 import { init as initQuickSearch } from './features/navigation/search/quicksearch.js';
@@ -70,9 +71,10 @@ import { init as initCategorizeWearing } from './features/profile/categorizeWear
 
 // Settings
 import { init as initSettingsPage } from './features/settings/index.js';
-
+import { init as initFirstAccount } from './features/settings/roblox/firstAccount.js';
 // create
-import { init as initCreateDownload } from './features/create.roblox.com/download.js'
+import { init as initCreateDownload } from './features/create.roblox.com/download.js';
+
 
 let pageLoaded = false;
 let lastPath = window.location.pathname;
@@ -81,7 +83,7 @@ const featureRoutes = [
   // Generic features that run on most pages
   {
     paths: ['*'],
-    features: [initSettingsPage, initQuickPlay, initEasterEggLinks, initCssFixes, initWhatAmIJoining, initHiddenCatalog, initServerListener, initOnboarding, initVideoTest, initStreamerMode, initMarkDownTest, initTests, initServerTracker, initQoLToggles, initCopyId, initBetaPrograms, initPreviousPrice, initQuickSearch],
+    features: [initSettingsPage, initQuickPlay, initEasterEggLinks, initCssFixes, initWhatAmIJoining, initHiddenCatalog, initServerListener, initOnboarding, initVideoTest, initStreamerMode, initMarkDownTest, initTests, initServerTracker, initFriendsListTracking, initQoLToggles, initCopyId, initBetaPrograms, initPreviousPrice, initQuickSearch],
   },
   // pretty much just the 40% method
   {
@@ -149,6 +151,10 @@ const featureRoutes = [
   {
     paths: ['/store/asset'],
     features: [initCreateDownload]
+  },
+  {
+    paths: ['/my/account'],
+    features: [initFirstAccount]
   }
 ];
 

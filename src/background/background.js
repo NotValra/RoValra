@@ -115,7 +115,7 @@ function updateUserAgentRule() {
                 type: 'modifyHeaders',
                 requestHeaders: [{ header: 'User-Agent', operation: 'set', value: `Roblox/WinInet ${rovalraSuffix}` }]
             },
-            condition: { regexFilter: "^https://gamejoin\\.roblox\\.com/.*_RoValraRequest=", resourceTypes: ["xmlhttprequest"] }
+            condition: { regexFilter: "^https://gamejoin\\.roblox\\.com/.*_RoValraRequest=|^https://apis\\.roblox\\.com/player-hydration-service/v1/players/signed", resourceTypes: ["xmlhttprequest"] }
         }
     ];
 
@@ -214,7 +214,11 @@ async function callRobloxApiBackground(options) {
     const { subdomain = 'api', endpoint, method = 'GET', body = null, headers = {} } = options;
 
     const separator = endpoint.includes('?') ? '&' : '?';
-    const url = `https://${subdomain}.roblox.com${endpoint}${separator}_RoValraRequest=`;
+    let url = `https://${subdomain}.roblox.com${endpoint}`;
+
+    if (!endpoint.includes('/player-hydration-service/v1/players/signed')) {
+        url += `${separator}_RoValraRequest=`;
+    }
 
     const fetchOptions = { method, headers: { ...headers } };
 
@@ -240,6 +244,8 @@ async function callRobloxApiBackground(options) {
 
     return response;
 }
+
+
 
 async function wearOutfit(outfitId) {
     const callWithRetry = async (options) => {
@@ -507,6 +513,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         case 'getLatestPresence':
             sendResponse({ presence: state.latestPresence });
             return false;
+
+
 
         case 'wearOutfit':
             wearOutfit(request.outfitId).then(result => sendResponse(result));

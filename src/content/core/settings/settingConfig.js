@@ -550,18 +550,51 @@ export const SETTINGS_CONFIG = {
     Navigation: {
         title: "Navigation",
         settings: {
-                    qolTogglesEnabled: {
-            label: "Adds quality of life toggles to the nav bar",
-            description: "Allowing you to quickly change your online status or experience status without going into settings.",
-            type: "checkbox",
-            default: true
-        },
-        betaProgramsEnabled: {
-            label: "Adds a beta programs toggle to the nav bar",
-            description: "This allows you to toggle beta programs you are enrolled into easily.",
-            type: "checkbox",
-            default: false
-        }
+            qolTogglesEnabled: {
+                label: "Adds quality of life toggles to the nav bar",
+                description: "Allowing you to quickly change your online status or experience status without going into settings.",
+                type: "checkbox",
+                default: true
+            },
+            betaProgramsEnabled: {
+                label: "Adds a beta programs toggle to the nav bar",
+                description: "This allows you to toggle beta programs you are enrolled into easily.",
+                type: "checkbox",
+                default: false
+            },
+            quickSearchEnabled: {
+                label: "Quick Search",
+                description: "This adds an autocomplete to the search dropdown for users, connections and experiences",
+                type: "checkbox",
+                default: true,
+                childSettings: {
+                    userSearchEnabled: {
+                        label: "Quick User Search",
+                        description: "Shows a user that matched what you searched in the search dropdown.",
+                        type: "checkbox",
+                        default: true
+                    },
+                    gameSearchEnabled: {
+                        label: "Quick Experience Search",
+                        description: "Shows an experience that has the best match to what you searched in the search dropdown.",
+                        type: "checkbox",
+                        default: true
+                    },
+                    friendSearchEnabled: {
+                        label: "Quick Connection Search",
+                        description: "Shows a list of connections that has the best match to what you searched in the search dropdown.",
+                        type: "checkbox",
+                        default: true
+                    }
+                }
+            },
+            searchHistoryEnabled: {
+                label: "Search History",
+                description: "This tracks what you search on Roblox and allows you to view it.",
+                type: "checkbox",
+                default: true,
+                storageKey: "rovalra_search_history"
+            }
         }
 
     },
@@ -648,7 +681,13 @@ export const SETTINGS_CONFIG = {
                 type: "checkbox",
                 default: true
             },
-
+            firstAccountEnabled: {
+                label: "First Account?",
+                description: "This adds a section in Roblox's settings showing if Roblox considers your Roblox account the first Roblox account you created.",
+                type: "checkbox",
+                default: true,
+                storageKey: "rovalra_first_account_cache"
+            },
             revertLogo: {
                 label: "Change the app launch icon",
                 description: ["This changes the icon that shows when you join a game.",

@@ -5,6 +5,11 @@ let observationRequests = [];
 let globalObserver = null; 
 let attributeListeners = new Map();
 
+const viewportObservers = new Map();
+const customRootObservers = new WeakMap();
+const intersectionCallbacks = new WeakMap();
+const resizeObservers = new Map();
+const resizeCallbacks = new WeakMap();
 
 export function initializeObserver() {
     if (observerInitialized) {
@@ -121,6 +126,100 @@ export const observeAttributes = (element, callback, attributeFilter = []) => {
     };
 };
 
+export function observeIntersection(element, callback, options = {}) {
+    const root = options.root || null;
+    const rootMargin = options.rootMargin || '0px';
+    const threshold = options.threshold || 0;
+    const optionsKey = `${rootMargin}|${threshold}`;
+
+    let observer;
+
+    if (root) {
+        let rootMap = customRootObservers.get(root);
+        if (!rootMap) {
+            rootMap = new Map();
+            customRootObservers.set(root, rootMap);
+        }
+        observer = rootMap.get(optionsKey);
+        if (!observer) {
+            observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    const callbacks = intersectionCallbacks.get(entry.target);
+                    if (callbacks) callbacks.forEach(cb => cb(entry));
+                });
+            }, { root, rootMargin, threshold });
+            rootMap.set(optionsKey, observer);
+        }
+    } else {
+        observer = viewportObservers.get(optionsKey);
+        if (!observer) {
+            observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    const callbacks = intersectionCallbacks.get(entry.target);
+                    if (callbacks) callbacks.forEach(cb => cb(entry));
+                });
+            }, { root: null, rootMargin, threshold });
+            viewportObservers.set(optionsKey, observer);
+        }
+    }
+
+    let callbacks = intersectionCallbacks.get(element);
+    if (!callbacks) {
+        callbacks = new Set();
+        intersectionCallbacks.set(element, callbacks);
+    }
+    callbacks.add(callback);
+    observer.observe(element);
+
+    return {
+        unobserve: () => {
+            const cbs = intersectionCallbacks.get(element);
+            if (cbs) {
+                cbs.delete(callback);
+                if (cbs.size === 0) {
+                    intersectionCallbacks.delete(element);
+                    observer.unobserve(element);
+                }
+            }
+        }
+    };
+}
+
+export function observeResize(element, callback, options = {}) {
+    const box = options.box || 'content-box';
+    
+    let observer = resizeObservers.get(box);
+    if (!observer) {
+        observer = new ResizeObserver((entries) => {
+            entries.forEach(entry => {
+                const callbacks = resizeCallbacks.get(entry.target);
+                if (callbacks) callbacks.forEach(cb => cb(entry));
+            });
+        });
+        resizeObservers.set(box, observer);
+    }
+
+    let callbacks = resizeCallbacks.get(element);
+    if (!callbacks) {
+        callbacks = new Set();
+        resizeCallbacks.set(element, callbacks);
+    }
+    callbacks.add(callback);
+    observer.observe(element, options);
+
+    return {
+        unobserve: () => {
+            const cbs = resizeCallbacks.get(element);
+            if (cbs) {
+                cbs.delete(callback);
+                if (cbs.size === 0) {
+                    resizeCallbacks.delete(element);
+                    observer.unobserve(element);
+                }
+            }
+        }
+    };
+}
 
 export function startObserving() {
     if (!observerInitialized) {

@@ -5,7 +5,7 @@ export function createPill(text, tooltipText, options = {}) {
         options = { type: options };
     }
 
-    const { type, isButton = false } = options;
+    const { type, isButton = false, iconUrl } = options;
 
     if (!type) {
         const pill = document.createElement('div');
@@ -19,11 +19,27 @@ export function createPill(text, tooltipText, options = {}) {
             presentation.className = 'absolute inset-[0] transition-colors group-hover/interactable:bg-[var(--color-state-hover)] group-active/interactable:bg-[var(--color-state-press)] group-disabled/interactable:bg-none';
             pill.appendChild(presentation);
         }
-
+        if (iconUrl) {
+            const img = document.createElement('img');
+            img.src = iconUrl;
+            Object.assign(img.style, {
+                width: '20px',
+                height: '20px',
+                borderRadius: '50%',
+                marginRight: '6px',
+                objectFit: 'cover',
+                position: 'relative',
+                zIndex: '1'
+            });
+            pill.appendChild(img);
+        }
         const content = document.createElement('span');
         content.className = 'padding-y-xsmall text-no-wrap text-truncate-end';
         content.textContent = text;
-
+        if (iconUrl) {
+            content.style.position = 'relative';
+            content.style.zIndex = '1';
+        }
         pill.appendChild(content);
 
         if (tooltipText) {

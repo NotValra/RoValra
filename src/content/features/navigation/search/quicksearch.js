@@ -1,5 +1,5 @@
 import { callRobloxApi } from '../../../core/api.js';
-import { observeElement } from '../../../core/observer.js';
+import { observeElement, observeIntersection, observeResize } from '../../../core/observer.js';
 import { fetchThumbnails, createThumbnailElement } from '../../../core/thumbnail/thumbnails.js';
 import { getAuthenticatedUserId } from '../../../core/user.js';
 import { formatPlayerCount } from '../../../core/games/playerCount.js';
@@ -7,10 +7,16 @@ import { safeHtml } from '../../../core/packages/dompurify.js';
 import { performJoinAction, getSavedPreferredRegion } from '../../../core/preferredregion.js';
 import { launchGame } from '../../../core/utils/launcher.js';
 import { getAssets } from '../../../core/assets.js';
+import { addTooltip } from '../../../core/ui/tooltip.js';
 import { createPill } from '../../../core/ui/general/pill.js';
+import { getFullRegionName, getRegionData } from '../../../core/regions.js';
+import { createScrollButtons } from '../../../core/ui/general/scrollButtons.js';
+import { showFriendListOverlay } from '../../../core/ui/games/friendListOverlay.js';
 
 let lastSearchedQuery = ""; 
-let searchAbortController = null;
+let userSearchAbortController = null;
+let gameSearchAbortController = null;
+const userCache = new Map();
 const assets = getAssets();
 const STORAGE_KEY = 'rovalra_search_history';
 const MAX_HISTORY = 50;
@@ -28,9 +34,30 @@ let cachedFriendsData = null;
 let friendsFetchPromise = null;
 let cachedUserId = null;
 
-async function fetchWithRetry(options, retries = 3) {
+let searchSettings = {
+    quickSearchEnabled: true,
+    userSearchEnabled: true,
+    gameSearchEnabled: true,
+    friendSearchEnabled: true,
+    searchHistoryEnabled: true
+};
+
+function updateSearchSettings() {
+    chrome.storage.local.get(['quickSearchEnabled', 'userSearchEnabled', 'gameSearchEnabled', 'friendSearchEnabled', 'searchHistoryEnabled'], (result) => {
+        if (result) Object.assign(searchSettings, result);
+    });
+}
+
+async function fetchWithRetry(options, retries = 3, signal = null) {
     try {
+        if (signal) options.signal = signal;
+        
         const response = await callRobloxApi(options);
+        if (response.status === 499) {
+            const abortError = new Error('Aborted');
+            abortError.name = 'AbortError';
+            throw abortError;
+        }
         if (response.status === 429) {
             if (retries > 0) {
                 await new Promise(resolve => setTimeout(resolve, 1000));
@@ -44,41 +71,205 @@ async function fetchWithRetry(options, retries = 3) {
     } catch (e) {
         if (retries > 0 && e.name !== 'AbortError') {
             await new Promise(resolve => setTimeout(resolve, 1000));
-            return fetchWithRetry(options, retries - 1);
+            return fetchWithRetry(options, retries - 1, signal);
         }
         throw e;
     }
 }
 
-async function performSearch(query) {
-    if (!query || query.length < 2) {
-        window._lastRoValraUserResult = null;
-        window._lastRoValraGameResult = null;
-        window._lastRoValraFriendResults = [];
-        lastSearchedQuery = "";
-        const menu = document.querySelector('ul.new-dropdown-menu');
-        if (menu) {
-            menu.querySelectorAll('.rovalra-quick-search-result').forEach(el => el.remove());
+async function performUserSearch(query) {
+    if (userSearchAbortController) {
+        userSearchAbortController.abort();
+    }
+    userSearchAbortController = new AbortController();
+    const signal = userSearchAbortController.signal;
+
+    try {
+        const authedUserId = await getAuthenticatedUserId();
+        if (signal.aborted) return;
+
+        const promises = [];
+        if (searchSettings.userSearchEnabled && query.length >= 2) {
+            promises.push(fetchWithRetry({
+                subdomain: 'users',
+                endpoint: '/v1/usernames/users',
+                method: 'POST',
+                body: {
+                    usernames: [query],
+                    excludeBannedUsers: false
+                }
+            }, 3, signal));
+        } else {
+            promises.push(Promise.resolve(null));
         }
-        if (searchAbortController) {
-            searchAbortController.abort('Query too short');
+
+        const localFriendsPromise = new Promise(resolve => {
+            chrome.storage.local.get(['rovalra_friends_data'], (result) => {
+                if (!searchSettings.friendSearchEnabled) {
+                    resolve([]);
+                    return;
+                }
+
+                const friendsData = result.rovalra_friends_data?.[authedUserId];
+                if (!friendsData?.friendsList) {
+                    resolve([]);
+                    return;
+                }
+                const lowerQuery = query.toLowerCase();
+                const matches = friendsData.friendsList.filter(f => 
+                    (f.username && f.username.toLowerCase().includes(lowerQuery)) || 
+                    (f.displayName && f.displayName.toLowerCase().includes(lowerQuery)) ||
+                    (f.combinedName && f.combinedName.toLowerCase().includes(lowerQuery))
+                );
+                resolve(matches.slice(0, 5));
+            });
+        });
+        promises.push(localFriendsPromise);
+
+        localFriendsPromise.then(async (localFriends) => {
+            if (signal.aborted) return;
+            
+            if (localFriends.length > 0) {
+                const validUsers = localFriends.map(f => ({
+                    id: f.id,
+                    name: f.username,
+                    displayName: f.combinedName,
+                    hasVerifiedBadge: f.isVerified,
+                    isBanned: f.isDeleted,
+                    isTrusted: f.isTrusted
+                }));
+
+                const thumbnailMap = await fetchThumbnails(validUsers.map(u => ({ id: u.id })), 'AvatarHeadshot', '48x48', false, signal);
+                if (signal.aborted) return;
+
+                const presencePromise = fetchWithRetry({
+                    subdomain: 'presence',
+                    endpoint: '/v1/presence/users',
+                    method: 'POST',
+                    body: { userIds: validUsers.map(u => u.id) }
+                }, 3, signal).catch(() => null);
+
+                const [presenceData] = await Promise.all([presencePromise]);
+                if (signal.aborted) return;
+
+                const presences = presenceData?.userPresences || [];
+                const presenceMap = new Map(presences.map(p => [p.userId, p]));
+
+                window._lastRoValraFriendResults = validUsers.map(friendUser => {
+                    if (window._lastRoValraUserResult && window._lastRoValraUserResult.dataset.userId == friendUser.id) {
+                        return null;
+                    }
+                    const thumbData = thumbnailMap.get(friendUser.id);
+                    const presence = presenceMap.get(friendUser.id);
+                    return createUserResultHtml(friendUser, thumbData, presence, true, friendUser.isTrusted);
+                }).filter(el => el !== null);
+            } else {
+                window._lastRoValraFriendResults = [];
+            }
+            injectIntoMenu();
+        }).catch(e => {
+            if (e.name !== 'AbortError') console.error('RoValra: Friend Search Error', e);
+        });
+
+        const [userSearchData, localFriends] = await Promise.all(promises);
+
+        if (signal.aborted) return;
+
+        const userResult = userSearchData?.data?.[0];
+        const friendIdsFromSearch = localFriends.map(f => f.id);
+        let userResultIsFriend = false;
+        let userResultFriendData = null;
+
+        if (userResult) {
+            userResultIsFriend = friendIdsFromSearch.includes(userResult.id);
+            if (userResultIsFriend) {
+                userResultFriendData = localFriends.find(f => f.id === userResult.id);
+            }
         }
-        return;
-    }
-    
-    if (query === lastSearchedQuery) {
+        const uniqueFriends = localFriends.filter(f => !userResult || f.id !== userResult.id);
+        const uniqueFriendIds = uniqueFriends.map(f => f.id);
 
-        injectExistingResult(); 
-        return;
-    }
+        if (userResult) {
+            if (signal.aborted) return;
+            
+            const promises2 = [
+                fetchThumbnails([{ id: userResult.id }], 'AvatarHeadshot', '48x48'),
+                fetchWithRetry({
+                    subdomain: 'presence',
+                    endpoint: '/v1/presence/users',
+                    method: 'POST',
+                    body: { userIds: [userResult.id] },
+                }, 3, signal)
+            ];
 
-    lastSearchedQuery = query;
+            if (!userResultIsFriend) {
+                promises2.push(
+                    userCache.has(userResult.id) ? 
+                    Promise.resolve(userCache.get(userResult.id)) :
+                    fetchWithRetry({
+                        subdomain: 'users',
+                        endpoint: `/v1/users/${userResult.id}`,
+                    }, 3, signal).then(userData => {
+                        if (userData) {
+                            userCache.set(userResult.id, userData);
+                        }
+                        return userData;
+                    })
+                );
+            } else {
+                promises2.push(Promise.resolve(null));
+            }
 
-    if (searchAbortController) {
-        searchAbortController.abort('New search started');
+            const [userThumbnailMap, presenceData, fetchedUserDetails] = await Promise.all(promises2);
+            if (signal.aborted) return;
+
+            let userDetails = fetchedUserDetails;
+            let isTrusted = false;
+
+            if (userResultIsFriend && userResultFriendData) {
+                userDetails = {
+                    id: userResultFriendData.id,
+                    name: userResultFriendData.username,
+                    displayName: userResultFriendData.combinedName,
+                    hasVerifiedBadge: userResultFriendData.isVerified,
+                    isBanned: userResultFriendData.isDeleted
+                };
+                isTrusted = userResultFriendData.isTrusted;
+            } else if (!userDetails && userResult) {
+                 userDetails = {
+                    id: userResult.id,
+                    name: userResult.name,
+                    displayName: userResult.displayName,
+                    hasVerifiedBadge: userResult.hasVerifiedBadge,
+                    isBanned: false
+                };
+            }
+
+            const userThumbData = userThumbnailMap.get(userResult.id);
+            const userPresence = presenceData?.userPresences?.[0];
+            window._lastRoValraUserResult = createUserResultHtml(userDetails, userThumbData, userPresence, userResultIsFriend, isTrusted);
+            
+            if (window._lastRoValraFriendResults) {
+                window._lastRoValraFriendResults = window._lastRoValraFriendResults.filter(el => el.dataset.userId != userResult.id);
+            }
+        } else {
+            window._lastRoValraUserResult = null;
+        }
+
+        injectIntoMenu();
+    } catch (e) {
+        if (e.name !== 'AbortError') console.error('RoValra: User Search Error', e);
     }
-    searchAbortController = new AbortController();
-    const signal = searchAbortController.signal;
+}
+
+async function performGameSearch(query) {
+    if (!searchSettings.gameSearchEnabled) return;
+
+    if (gameSearchAbortController) {
+        gameSearchAbortController.abort();
+    }
+    gameSearchAbortController = new AbortController();
+    const signal = gameSearchAbortController.signal;
 
     try {
         const authedUserId = await getAuthenticatedUserId();
@@ -99,7 +290,7 @@ async function performSearch(query) {
             friendsFetchPromise = fetchWithRetry({
                 subdomain: 'friends',
                 endpoint: `/v1/users/${authedUserId}/friends/online`,
-                signal
+                signal: signal
             }).then(data => {
                 cachedFriendsData = data;
                 return data;
@@ -111,125 +302,33 @@ async function performSearch(query) {
             friendsPromise = friendsFetchPromise;
         }
 
-        const [userSearchData, gameSearchData, settings, friendsData, friendSearchData] = await Promise.all([
-            fetchWithRetry({
-                subdomain: 'users',
-                endpoint: '/v1/usernames/users',
-                method: 'POST',
-                body: {
-                    usernames: [query],
-                    excludeBannedUsers: false
-                },
-                signal
-            }),
+        const [gameSearchData, settings, friendsData] = await Promise.all([
             fetchWithRetry({
                 subdomain: 'apis',
-                endpoint: `/search-api/omni-search?searchQuery=${encodeURIComponent(query)}&sessionid=${authedUserId}&pageType=Game`,
-                signal
-            }),
+                endpoint: `/search-api/omni-search?searchQuery=${encodeURIComponent(query)}&sessionid=${authedUserId}&pageType=Game`
+            }, 3, signal),
             new Promise(resolve => chrome.storage.local.get(['PreferredRegionEnabled'], resolve)),
-            friendsPromise,
-            fetchWithRetry({
-                subdomain: 'friends',
-                endpoint: `/v1/users/${authedUserId}/friends/search?limit=5&userSort=FriendScore&query=${encodeURIComponent(query)}`,
-                signal
-            })
+            friendsPromise
         ]);
 
         if (signal.aborted) return;
- 
-        // Clear previous results before populating new ones
-        window._lastRoValraUserResult = null;
-        window._lastRoValraGameResult = null;
-        window._lastRoValraFriendResults = [];
-
-        const userResult = userSearchData?.data?.[0];
-        if (userResult) {
-            if (signal.aborted) return;
-            const [userThumbnailMap, presenceData] = await Promise.all([
-                fetchThumbnails([{ id: userResult.id }], 'AvatarHeadshot', '48x48'),
-                fetchWithRetry({
-                    subdomain: 'presence',
-                    endpoint: '/v1/presence/users',
-                    method: 'POST',
-                    body: { userIds: [userResult.id] },
-                    signal
-                })
-            ]);
-            if (signal.aborted) return;
-            const userThumbData = userThumbnailMap.get(userResult.id);
-            const userPresence = presenceData?.userPresences?.[0];
-            window._lastRoValraUserResult = createUserResultHtml(userResult, userThumbData, userPresence);
-        }
-
-        if (friendSearchData?.PageItems) {
-            const friendIds = friendSearchData.PageItems.map(f => f.id);
-            if (friendIds.length > 0) {
-                const uniqueFriendIds = userResult ? friendIds.filter(id => id !== userResult.id) : friendIds;
-
-                if (uniqueFriendIds.length > 0) {
-                    const [usersData, presenceData] = await Promise.all([
-                        fetchWithRetry({
-                            subdomain: 'users',
-                            endpoint: '/v1/users',
-                            method: 'POST',
-                            body: { userIds: uniqueFriendIds, excludeBannedUsers: false },
-                            signal
-                        }),
-                        fetchWithRetry({
-                            subdomain: 'presence',
-                            endpoint: '/v1/presence/users',
-                            method: 'POST',
-                            body: { userIds: uniqueFriendIds },
-                            signal
-                        })
-                    ]);
-
-                    if (signal.aborted) return;
-
-                    const users = usersData?.data || [];
-                    const presences = presenceData?.userPresences || [];
-                    const presenceMap = new Map(presences.map(p => [p.userId, p]));
-
-                    if (users.length > 0) {
-                        const thumbnailMap = await fetchThumbnails(users.map(u => ({ id: u.id })), 'AvatarHeadshot', '48x48');
-                        if (signal.aborted) return;
-
-                        window._lastRoValraFriendResults = users.map(friendUser => {
-                            const thumbData = thumbnailMap.get(friendUser.id);
-                            const presence = presenceMap.get(friendUser.id);
-                            return createUserResultHtml(friendUser, thumbData, presence);
-                        });
-                    }
-                }
-            }
-        }
 
         const gameResult = gameSearchData?.searchResults?.find(r => r.contentGroupType === 'Game' && r.contents?.length > 0);
         if (gameResult) {
         const game = gameResult.contents[0];
-        const friendPlaying = friendsData?.data?.find(f => f.userPresence?.universeId === game.universeId);
+        const friendsPlaying = friendsData?.data?.filter(f => f.userPresence?.universeId === game.universeId) || [];
  
         if (signal.aborted) return;
         const promises = [
             fetchThumbnails([{ id: game.universeId }], 'GameIcon', '50x50'),
             fetchWithRetry({
                 subdomain: 'games',
-                endpoint: `/v1/games/votes?universeIds=${game.universeId}`,
-                signal
-            })
+                endpoint: `/v1/games/votes?universeIds=${game.universeId}`
+            }, 3, signal)
         ];
 
-        if (friendPlaying) {
-            promises.push(fetchThumbnails([{ id: friendPlaying.id }], 'AvatarHeadshot', '48x48'));
-            promises.push(fetchWithRetry({
-                subdomain: 'users',
-                endpoint: `/v1/users/${friendPlaying.id}`,
-                signal
-            }).catch(e => {
-                if (e.name === 'AbortError') throw e;
-                return null;
-            }));
+        if (friendsPlaying.length > 0) {
+            promises.push(fetchThumbnails(friendsPlaying.map(f => ({ id: f.id })), 'AvatarHeadshot', '48x48'));
         }
 
         const results = await Promise.all(promises);
@@ -245,39 +344,47 @@ async function performSearch(query) {
         const thumbnailUrl = thumbData?.state === 'Completed' ? thumbData.imageUrl : '';
         const playerCount = formatPlayerCount(game.playerCount || 0);
 
-        let friendInfo = null;
-        if (friendPlaying && results[2]) {
+        let friendsInfo = [];
+        if (friendsPlaying.length > 0 && results[2]) {
             const friendThumbMap = results[2];
-            const friendUserData = results[3];
-            const fThumb = friendThumbMap.get(friendPlaying.id);
-            if (fThumb && fThumb.state === 'Completed') {
-                friendInfo = {
-                    id: friendPlaying.id,
-                    name: friendUserData ? (friendUserData.displayName || friendUserData.name) : 'Friend',
-                    thumbnailUrl: fThumb.imageUrl
-                };
-            }
+            friendsInfo = friendsPlaying.map(f => {
+                const fThumb = friendThumbMap.get(f.id);
+                if (fThumb && fThumb.state === 'Completed') {
+                    return {
+                        id: f.id,
+                        userId: f.id,
+                        name: f.displayName || f.name,
+                        displayName: f.displayName,
+                        combinedName: `${f.displayName || f.name} (@${f.name})`,
+                        username: f.name,
+                        thumbnailUrl: fThumb.imageUrl,
+                        rootPlaceId: f.userPresence.rootPlaceId,
+                        gameInstanceId: f.userPresence.gameId
+                    };
+                }
+                return null;
+            }).filter(f => f !== null);
         }
 
-            window._lastRoValraGameResult = createResultHtml(game, thumbnailUrl, playerCount, voteRatio, totalVotes, settings, friendInfo);
+            window._lastRoValraGameResult = createResultHtml(game, thumbnailUrl, playerCount, voteRatio, totalVotes, settings, friendsInfo);
         }
 
         injectIntoMenu();
     } catch (e) {
-        if (e.name === 'AbortError') return;
-        console.error('RoValra: Search Error', e);
+        if (e.name !== 'AbortError') console.error('RoValra: Game Search Error', e);
     }
 }
 
-function createUserResultHtml(user, thumbData, presence) {
+function createUserResultHtml(user, thumbData, presence, isFriend = false, isTrusted = false) {
     const li = document.createElement('li');
     li.className = 'navbar-search-option rbx-clickable-li improved-search rovalra-quick-search-result';
+    li.dataset.userId = user.id;
 
     const container = document.createElement('div');
     Object.assign(container.style, {
         display: 'flex',
         alignItems: 'center',
-        padding: '6px 12px',
+        padding: '6px 0px',
         gap: '12px',
         maxHeight: "56px"
     });
@@ -292,6 +399,9 @@ function createUserResultHtml(user, thumbData, presence) {
         color: 'inherit',
         flex: '1',
         minWidth: '0'
+    });
+    link.addEventListener('click', () => {
+        addSearchTerm({ type: 'user', id: user.id, name: user.displayName, thumbnail: thumbData?.imageUrl });
     });
 
     const thumbContainer = document.createElement('span');
@@ -386,9 +496,14 @@ function createUserResultHtml(user, thumbData, presence) {
         overflow: 'hidden',
         textOverflow: 'ellipsis'
     });
-    secondaryInfoDiv.textContent = (presence && presence.userPresenceType === 2 && presence.lastLocation)
-        ? `Playing ${presence.lastLocation}`
-        : `@${user.name}`;
+    
+    let statusText = `@${user.name}`;
+    if (presence && presence.userPresenceType === 2 && presence.lastLocation) {
+        statusText = `Playing ${presence.lastLocation}`;
+    } else if (isFriend) {
+        statusText = isTrusted ? "You are trusted connections" : "You are connections";
+    }
+    secondaryInfoDiv.textContent = statusText;
 
     infoDiv.appendChild(displayNameDiv);
     infoDiv.appendChild(secondaryInfoDiv);
@@ -404,6 +519,25 @@ function createUserResultHtml(user, thumbData, presence) {
             badge.title = "Verified";
             Object.assign(badge.style, { width: '16px', height: '16px', display: 'inline-block', verticalAlign: 'middle', marginLeft: '5px', flexShrink: '0' });
             displayNameDiv.appendChild(badge);
+        }
+    }
+
+    if (user.isBanned) {
+        if (displayNameDiv) {
+            const lockIcon = document.createElement('div');
+            addTooltip(lockIcon, 'This user has been permanently banned', { position: 'bottom' });
+            Object.assign(lockIcon.style, {
+                width: '16px',
+                height: '16px',
+                display: 'inline-block',
+                verticalAlign: 'middle',
+                marginLeft: '5px',
+                flexShrink: '0',
+                backgroundColor: 'var(--rovalra-secondary-text-color)',
+                webkitMask: `url("${assets.lock}") no-repeat center / contain`,
+                mask: `url("${assets.lock}") no-repeat center / contain`
+            });
+            displayNameDiv.appendChild(lockIcon);
         }
     }
 
@@ -448,7 +582,7 @@ function createUserResultHtml(user, thumbData, presence) {
     return li;
 }
  
-function createResultHtml(game, thumbnailUrl, playerCount, voteRatio, totalVotes, settings, friendInfo) {
+function createResultHtml(game, thumbnailUrl, playerCount, voteRatio, totalVotes, settings, friendsInfo) {
     const li = document.createElement('li');
     li.className = 'navbar-search-option rbx-clickable-li improved-search rovalra-quick-search-result';
  
@@ -456,7 +590,7 @@ function createResultHtml(game, thumbnailUrl, playerCount, voteRatio, totalVotes
     Object.assign(container.style, {
         display: 'flex',
         alignItems: 'center',
-        padding: '6px 12px',
+        padding: '6px 0px',
         gap: '12px',
         maxHeight: "56px"
     });
@@ -472,6 +606,9 @@ function createResultHtml(game, thumbnailUrl, playerCount, voteRatio, totalVotes
         minWidth: '0',
         textDecoration: 'none',
         color: 'inherit'
+    });
+    link.addEventListener('click', () => {
+        addSearchTerm({ type: 'game', id: game.rootPlaceId, universeId: game.universeId, name: game.name, thumbnail: thumbnailUrl });
     });
 
     const votePercentageClass = totalVotes > 0 ? '' : 'hidden';
@@ -496,7 +633,7 @@ function createResultHtml(game, thumbnailUrl, playerCount, voteRatio, totalVotes
     const buttonsContainer = document.createElement('div');
     Object.assign(buttonsContainer.style, {
         display: 'flex',
-        gap: '6px',
+        gap: '3px',
         alignItems: 'center',
         flexShrink: '0',
         paddingRight: '12px'
@@ -519,6 +656,23 @@ function createResultHtml(game, thumbnailUrl, playerCount, voteRatio, totalVotes
             transition: 'filter 0.2s',
             flexShrink: '0'
         });
+
+        (async () => {
+            try {
+                await getRegionData();
+                const savedRegion = await getSavedPreferredRegion();
+                let tooltipText;
+                if (!savedRegion || savedRegion === 'AUTO') {
+                    tooltipText = 'Join Preferred Region<br><b>Best Region (Auto)</b>';
+                } else {
+                    const regionName = getFullRegionName(savedRegion);
+                    tooltipText = `Join Preferred Region<br><b>${regionName}</b>`;
+                }
+                addTooltip(regionBtn, tooltipText, { position: 'top' });
+            } catch (e) {
+                addTooltip(regionBtn, "Join Preferred Region", { position: 'top' });
+            }
+        })();
 
         regionBtn.onclick = async (e) => {
             e.preventDefault();
@@ -554,41 +708,85 @@ function createResultHtml(game, thumbnailUrl, playerCount, voteRatio, totalVotes
 
     container.appendChild(link);
 
-    if (friendInfo) {
+    if (friendsInfo && friendsInfo.length > 0) {
         const friendContainer = document.createElement('div');
         Object.assign(friendContainer.style, {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             marginRight: '6px',
-            flexShrink: '0'
+            flexShrink: '0',
+            position: 'relative'
         });
 
-        const friendLink = document.createElement('a');
-        friendLink.href = `https://www.roblox.com/users/${friendInfo.id}/profile`;
-        friendLink.title = friendInfo.name;
-        Object.assign(friendLink.style, {
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            textDecoration: 'none',
-            flexShrink: '0'
-        });
-        
-        friendLink.onclick = (e) => e.stopPropagation();
+        if (friendsInfo.length === 1) {
+            const friendInfo = friendsInfo[0];
+            const friendLink = document.createElement('a');
+            friendLink.href = `https://www.roblox.com/users/${friendInfo.id}/profile`;
+            friendLink.title = friendInfo.name;
+            Object.assign(friendLink.style, {
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                textDecoration: 'none',
+                flexShrink: '0'
+            });
+            
+            friendLink.onclick = (e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                showFriendListOverlay(friendsInfo, game.name);
+            };
 
-        const friendThumb = document.createElement('img');
-        friendThumb.src = friendInfo.thumbnailUrl;
-        friendThumb.alt = friendInfo.name;
-        Object.assign(friendThumb.style, {
-            width: '24px',
-            height: '24px',
-            borderRadius: '50%',
-            border: '1px solid var(--rovalra-border-color)'
-        });
-        
-        friendLink.appendChild(friendThumb);
-        friendContainer.appendChild(friendLink);
+            const friendThumb = document.createElement('img');
+            friendThumb.src = friendInfo.thumbnailUrl;
+            friendThumb.alt = friendInfo.name;
+            Object.assign(friendThumb.style, {
+                width: '36px',
+                height: '36px',
+                borderRadius: '50%',
+                border: '1px solid var(--rovalra-border-color)'
+            });
+            
+            friendLink.appendChild(friendThumb);
+            friendContainer.appendChild(friendLink);
+        } else {
+            const stackContainer = document.createElement('div');
+            Object.assign(stackContainer.style, {
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                position: 'relative',
+                width: '44px',
+                height: '36px'
+            });
+
+            const showFriends = friendsInfo.slice(0, 2);
+            showFriends.forEach((f, index) => {
+                const img = document.createElement('img');
+                img.src = f.thumbnailUrl;
+                Object.assign(img.style, {
+                    width: '36px',
+                    height: '36px',
+                    borderRadius: '50%',
+                    border: '1px solid var(--rovalra-border-color)',
+                    position: 'absolute',
+                    left: index === 0 ? '0px' : '12px',
+                    zIndex: index === 0 ? '2' : '1'
+                });
+                stackContainer.appendChild(img);
+            });
+
+            stackContainer.onclick = (e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                showFriendListOverlay(friendsInfo, game.name);
+            };
+            
+            friendContainer.appendChild(stackContainer);
+        }
+
         container.appendChild(friendContainer);
     }
 
@@ -614,6 +812,13 @@ function injectIntoMenu() {
     if (window._lastRoValraUserResult) {
         menu.prepend(window._lastRoValraUserResult);
     }
+
+    const firstResult = menu.querySelector('.rovalra-quick-search-result');
+    const currentlySelected = menu.querySelector('.new-selected');
+    if (firstResult && currentlySelected && !currentlySelected.classList.contains('rovalra-quick-search-result')) {
+        currentlySelected.classList.remove('new-selected');
+        firstResult.classList.add('new-selected');
+    }
 }
 
 function injectExistingResult() {
@@ -631,6 +836,13 @@ function injectExistingResult() {
             menu.prepend(window._lastRoValraUserResult);
         }
     }
+
+    const firstResult = menu?.querySelector('.rovalra-quick-search-result');
+    const currentlySelected = menu?.querySelector('.new-selected');
+    if (firstResult && currentlySelected && !currentlySelected.classList.contains('rovalra-quick-search-result')) {
+        currentlySelected.classList.remove('new-selected');
+        firstResult.classList.add('new-selected');
+    }
 }
 
 async function getHistory() {
@@ -639,17 +851,107 @@ async function getHistory() {
 }
 
 async function addSearchTerm(term) {
-    if (!term || !term.trim()) return;
-    const cleanTerm = term.trim();
+    if (!searchSettings.searchHistoryEnabled) return;
+    if (!term) return;
+    
+    let entry;
+    let valueToCheck;
+
+    if (typeof term === 'string') {
+        if (!term.trim()) return;
+        valueToCheck = term.trim();
+        entry = valueToCheck;
+    } else {
+        valueToCheck = term.name;
+        entry = { 
+            name: term.name, 
+            thumbnail: term.thumbnail,
+            type: term.type,
+            id: term.id,
+            universeId: term.universeId,
+            timestamp: Date.now()
+        };
+    }
+
     let history = await getHistory();
-    history = history.filter(t => t.toLowerCase() !== cleanTerm.toLowerCase());
-    history.unshift(cleanTerm);
+    history = history.filter(item => {
+        const itemValue = typeof item === 'string' ? item : item.name;
+        return itemValue.toLowerCase() !== valueToCheck.toLowerCase();
+    });
+    history.unshift(entry);
     if (history.length > MAX_HISTORY) history = history.slice(0, MAX_HISTORY);
     await chrome.storage.local.set({ [STORAGE_KEY]: history });
 }
 
+async function updateThumbnails(items) {
+    const users = items.filter(i => i.type === 'user').map(i => ({ id: parseInt(i.id), pill: i.pill }));
+    const games = items.filter(i => i.type === 'game').map(i => ({ id: parseInt(i.universeId || i.id), pill: i.pill }));
+
+    const promises = [];
+    if (users.length) promises.push(fetchThumbnails(users.map(u => ({ id: u.id })), 'AvatarHeadshot', '48x48').then(map => ({ type: 'user', map, items: users })));
+    if (games.length) promises.push(fetchThumbnails(games.map(g => ({ id: g.id })), 'GameIcon', '50x50').then(map => ({ type: 'game', map, items: games })));
+
+    if (promises.length > 0) {
+        const results = await Promise.all(promises);
+        const history = await getHistory();
+        let changed = false;
+
+        results.forEach(({ type, map, items }) => {
+            items.forEach(({ id, pill }) => {
+                if (map.has(id)) {
+                    const newData = map.get(id);
+                    if (newData && newData.state === 'Completed') {
+                        const img = pill.querySelector('img');
+                        if (img && img.src !== newData.imageUrl) {
+                            img.src = newData.imageUrl;
+                        }
+                        
+                        const storedId = pill.dataset.historyId;
+                        const historyItem = history.find(h => 
+                            typeof h !== 'string' && 
+                            String(h.id) === String(storedId) && 
+                            h.type === type
+                        );
+
+                        if (historyItem) {
+                            historyItem.thumbnail = newData.imageUrl;
+                            historyItem.timestamp = Date.now();
+                            changed = true;
+                        }
+                    }
+                }
+            });
+        });
+
+        if (changed) {
+            await chrome.storage.local.set({ [STORAGE_KEY]: history });
+        }
+    }
+}
+
+function updateScrollButtonStates(container, leftBtn, rightBtn) {
+    if (!container || !leftBtn || !rightBtn) return;
+    const { scrollLeft, scrollWidth, clientWidth } = container;
+    const isScrollable = scrollWidth > clientWidth + 5;
+
+    if (!isScrollable) {
+        leftBtn.style.display = 'none';
+        rightBtn.style.display = 'none';
+        return;
+    }
+
+    leftBtn.style.display = 'flex';
+    rightBtn.style.display = 'flex';
+
+    leftBtn.classList.toggle('rovalra-btn-disabled', scrollLeft <= 5);
+    const isAtEnd = scrollLeft + clientWidth >= scrollWidth - 5;
+    rightBtn.classList.toggle('rovalra-btn-disabled', isAtEnd);
+}
+
 async function renderSearchHistory(container) {
-    if (container.querySelector('.rovalra-search-history-section')) return;
+    if (container.querySelector('.rovalra-search-history-section')) {
+        container.querySelector('.rovalra-search-history-section').remove();
+    }
     const history = await getHistory();
 
     const section = document.createElement('div');
@@ -660,37 +962,191 @@ async function renderSearchHistory(container) {
         <div class="container-header">
             <h2 class="sort-header"><span>Search History</span></h2>
         </div>
-        <div class="rovalra-history-list" style="display: flex; flex-wrap: wrap; gap: 8px; padding: 10px 0;"></div>
     `;
 
-    const list = section.querySelector('.rovalra-history-list');
-    
     if (history.length === 0) {
         const emptyMsg = document.createElement('div');
         emptyMsg.className = 'text-secondary';
         emptyMsg.textContent = "You don't have any search history.";
-        emptyMsg.style.paddingLeft = '12px';
-        list.appendChild(emptyMsg);
-    } else {
-        history.forEach(term => {
-            const pill = createPill(term, null, { isButton: true });
-            pill.addEventListener('click', () => {
+        emptyMsg.style.padding = '10px 12px';
+        section.appendChild(emptyMsg);
+        container.appendChild(section);
+        return;
+    }
+
+    const scrollWrapper = document.createElement('div');
+    scrollWrapper.className = 'rovalra-history-scroll-wrapper';
+    scrollWrapper.style.position = 'relative';
+    scrollWrapper.style.padding = '10px 0';
+
+    const listContainer = document.createElement('div');
+    listContainer.className = 'rovalra-history-list-container';
+    listContainer.style.overflowX = 'auto';
+    listContainer.style.scrollBehavior = 'smooth';
+    
+    listContainer.style.scrollbarWidth = 'none'; // Firefox
+    listContainer.style.msOverflowStyle = 'none';  // IE and Edge
+    if (!document.getElementById('rovalra-history-scrollbar-style')) {
+        const style = document.createElement('style');//verified
+        style.id = 'rovalra-history-scrollbar-style';
+        style.textContent = `
+            .rovalra-history-list-container::-webkit-scrollbar { display: none; }
+            .rovalra-scroll-btn {
+                position: absolute;
+                top: 50%;
+                transform: translateY(-50%);
+                z-index: 10;
+                width: 28px;
+                height: 28px;
+                border-radius: 50%;
+                background-color: rgba(0, 0, 0, 0.6);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                transition: opacity 0.2s, background-color 0.2s;
+                border: none;
+                color: white;
+            }
+            .rovalra-scroll-btn:hover {
+                background-color: rgba(0, 0, 0, 0.8);
+            }
+            .rovalra-scroll-btn.left { left: 0; }
+            .rovalra-scroll-btn.right { right: 0; }
+            .rovalra-scroll-btn.rovalra-btn-disabled {
+                opacity: 0;
+                cursor: default;
+                pointer-events: auto;
+            }
+        `;// Verified
+        document.head.appendChild(style);
+    }
+
+    const list = document.createElement('div');
+    list.className = 'rovalra-history-list';
+    list.style.display = 'flex';
+    list.style.flexWrap = 'nowrap';
+    list.style.gap = '8px';
+    list.style.padding = '0 40px'; 
+
+    history.forEach(item => {
+        let term;
+        let iconUrl = null;
+
+        if (typeof item === 'string') {
+            term = item;
+        } else {
+            term = item.name;
+            iconUrl = item.thumbnail;
+        }
+
+        const pill = createPill(term, null, { isButton: true, iconUrl });
+        pill.style.flexShrink = '0';
+
+        if (typeof item !== 'string' && item.id && item.type) {
+            pill.dataset.historyId = item.id;
+            pill.dataset.historyType = item.type;
+            if (item.universeId) pill.dataset.historyUniverseId = item.universeId;
+            pill.dataset.timestamp = item.timestamp || 0;
+        }
+
+        pill.addEventListener('click', () => {
+            if (typeof item === 'object' && item !== null && item.type && item.id) {
+                if (item.type === 'user') {
+                    window.location.href = `https://www.roblox.com/users/${item.id}/profile`;
+                } else if (item.type === 'game') {
+                    window.location.href = `https://www.roblox.com/games/${item.id}/`;
+                }
+            } else {
                 const input = document.getElementById('navbar-search-input');
                 if (input) {
                     input.value = term;
                     input.focus();
                     input.dispatchEvent(new Event('input', { bubbles: true }));
                 }
-            });
-            list.appendChild(pill);
+            }
         });
+        list.appendChild(pill);
+    });
+
+    listContainer.appendChild(list);
+    const { leftButton, rightButton } = createScrollButtons({
+        onLeftClick: (e) => {
+            if (!e.currentTarget.classList.contains('rovalra-btn-disabled')) {
+                listContainer.scrollLeft -= 300;
+            }
+        },
+        onRightClick: (e) => {
+            if (!e.currentTarget.classList.contains('rovalra-btn-disabled')) {
+                listContainer.scrollLeft += 300;
+            }
+        }
+    });
+
+    leftButton.classList.add('rovalra-scroll-btn', 'left');
+    rightButton.classList.add('rovalra-scroll-btn', 'right');
+    
+    listContainer.addEventListener('scroll', () => updateScrollButtonStates(listContainer, leftButton, rightButton));
+    
+    scrollWrapper.appendChild(leftButton);
+    scrollWrapper.appendChild(listContainer);
+    scrollWrapper.appendChild(rightButton);
+
+    section.appendChild(scrollWrapper);
+    container.appendChild(section);
+
+    if (container._rovalraResizeCleanup) {
+        container._rovalraResizeCleanup();
     }
 
-    container.appendChild(section);
+    setTimeout(() => updateScrollButtonStates(listContainer, leftButton, rightButton), 100);
+    const { unobserve } = observeResize(listContainer, () => updateScrollButtonStates(listContainer, leftButton, rightButton));
+    container._rovalraResizeCleanup = unobserve;
+    
+    const itemsToUpdateQueue = new Set();
+    let updateTimeout = null;
+
+    const processQueue = () => {
+        if (itemsToUpdateQueue.size > 0) {
+            updateThumbnails(Array.from(itemsToUpdateQueue));
+            itemsToUpdateQueue.clear();
+        }
+        updateTimeout = null;
+    };
+
+    list.querySelectorAll('[data-history-id]').forEach(pill => {
+        const unobserver = observeIntersection(pill, (entry) => {
+            if (entry.isIntersecting) {
+                const timestamp = parseInt(pill.dataset.timestamp || '0');
+                if (Date.now() - timestamp > 300000) {
+                    const id = pill.dataset.historyId;
+                    const type = pill.dataset.historyType;
+                    const universeId = pill.dataset.historyUniverseId;
+
+                    if (id && type) {
+                        itemsToUpdateQueue.add({ id, type, universeId, pill });
+                        unobserver.unobserve();
+                        if (!updateTimeout) {
+                            updateTimeout = setTimeout(processQueue, 100);
+                        }
+                    }
+                }
+            }
+        }, { root: listContainer, threshold: 0.1 });
+    });
 }
 
 export function init() {
-    const debouncedSearch = debounce(performSearch, 150);
+    updateSearchSettings();
+    chrome.storage.onChanged.addListener((changes, area) => {
+        if (area === 'local') {
+            if (changes.quickSearchEnabled || changes.userSearchEnabled || changes.gameSearchEnabled || changes.friendSearchEnabled || changes.searchHistoryEnabled) {
+                updateSearchSettings();
+            }
+        }
+    });
+
+    const debouncedGameSearch = debounce(performGameSearch, 300);
 
     const seeker = setInterval(() => {
         const input = document.getElementById('navbar-search-input');
@@ -699,27 +1155,107 @@ export function init() {
             initialSearchValue = input.value;
             
             input.addEventListener('input', () => {
+                if (!searchSettings.quickSearchEnabled) return;
                 const currentVal = (input.value || "").trim();
-                debouncedSearch(currentVal);
+
+                if (currentVal === lastSearchedQuery) return;
+                lastSearchedQuery = currentVal;
+
+                if (userSearchAbortController) userSearchAbortController.abort('New search initiated');
+                if (gameSearchAbortController) gameSearchAbortController.abort('New search initiated');
+
+                window._lastRoValraUserResult = null;
+                window._lastRoValraGameResult = null;
+                window._lastRoValraFriendResults = [];
+                injectIntoMenu();
+
+                if (currentVal.length < 1) {
+                    return;
+                }
+
+                performUserSearch(currentVal);
+
+                if (currentVal.length >= 2) {
+                    debouncedGameSearch(currentVal);
+                } else {
+                    window._lastRoValraUserResult = null;
+                    window._lastRoValraGameResult = null;
+                }
             });
 
             input.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') {
-                    const val = input.value;
-                    if (val !== initialSearchValue) {
-                        addSearchTerm(val);
-                        initialSearchValue = val;
+                if (!searchSettings.quickSearchEnabled) return;
+
+                const menu = document.querySelector('ul.new-dropdown-menu');
+                const isMenuVisible = menu && menu.offsetParent !== null;
+
+                if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+                    if (isMenuVisible) {
+                        const items = Array.from(menu.querySelectorAll('li.navbar-search-option'));
+                        if (items.length > 0) {
+                            e.preventDefault();
+                            e.stopPropagation();
+
+                            let selectedIndex = items.findIndex(item => item.classList.contains('new-selected'));
+
+                            if (selectedIndex !== -1) {
+                                items[selectedIndex].classList.remove('new-selected');
+                            }
+
+                            if (e.key === 'ArrowDown') {
+                                selectedIndex++;
+                                if (selectedIndex >= items.length) selectedIndex = 0;
+                            } else {
+                                selectedIndex--;
+                                if (selectedIndex < 0) selectedIndex = items.length - 1;
+                            }
+
+                            items[selectedIndex].classList.add('new-selected');
+                        }
+                    }
+                } else if (e.key === 'Enter') {
+                    let handled = false;
+                    if (isMenuVisible) {
+                        const selected = menu.querySelector('li.navbar-search-option.new-selected');
+                        if (selected) {
+                            const link = selected.querySelector('a');
+                            if (link) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                link.click();
+                                handled = true;
+                            }
+                        }
+                    }
+
+                    if (!handled) {
+                        const val = input.value;
+                        if (val !== initialSearchValue) {
+                            addSearchTerm(val);
+                            initialSearchValue = val;
+                        }
                     }
                 }
             });
 
             observeElement('ul.new-dropdown-menu', () => {
-                injectExistingResult();
+                if (searchSettings.quickSearchEnabled) {
+                    injectExistingResult();
+                }
             });
 
             observeElement('section[data-testid="SearchLandingPageOmniFeedTestId"]', (container) => {
-                renderSearchHistory(container);
+                if (searchSettings.searchHistoryEnabled) {
+                    renderSearchHistory(container);
+                }
+            }, {
+                onRemove: (container) => {
+                    if (container._rovalraResizeCleanup) {
+                        container._rovalraResizeCleanup();
+                        delete container._rovalraResizeCleanup;
+                    }
+                }
             });
-        }
-    }, 500);
+}
+    }, 300);
 }
