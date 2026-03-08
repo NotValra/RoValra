@@ -201,7 +201,7 @@ async function showInventoryOverlay(userId, items, totalRapString, hideSerial) {
     const actualTitleElement = overlay.querySelector('.rovalra-overlay-header');
     if (actualTitleElement) {
         actualTitleElement.append(rolimonsLink);
-        addTooltip(rolimonsLink, "Open in Rolimon's", { position: 'top', container: overlay });
+        addTooltip(rolimonsLink, "Open in Rolimon's", { position: 'top' });
     }
 
     searchInput.input.addEventListener('input', handleSearch);
