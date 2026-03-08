@@ -566,8 +566,15 @@ function createUserResultHtml(user, thumbData, presence, isFriend = false, isTru
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            transition: 'background-color 0.2s',
+            transition: 'background-color 0.2s, filter 0.2s',
             flexShrink: '0'
+        });
+
+        playBtn.addEventListener('mouseenter', () => {
+            playBtn.style.filter = 'brightness(0.9)';
+        });
+        playBtn.addEventListener('mouseleave', () => {
+            playBtn.style.filter = '';
         });
 
         playBtn.onmousedown = (e) => {
@@ -667,6 +674,13 @@ function createResultHtml(game, thumbnailUrl, playerCount, voteRatio, totalVotes
             flexShrink: '0'
         });
 
+        regionBtn.addEventListener('mouseenter', () => {
+            regionBtn.style.filter = 'brightness(0.9)';
+        });
+        regionBtn.addEventListener('mouseleave', () => {
+            regionBtn.style.filter = '';
+        });
+
         (async () => {
             try {
                 await getRegionData();
@@ -710,9 +724,16 @@ function createResultHtml(game, thumbnailUrl, playerCount, voteRatio, totalVotes
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        transition: 'background-color 0.2s',
+            transition: 'background-color 0.2s, filter 0.2s',
         flexShrink: '0'
     });
+
+        playBtn.addEventListener('mouseenter', () => {
+            playBtn.style.filter = 'brightness(0.9)';
+        });
+        playBtn.addEventListener('mouseleave', () => {
+            playBtn.style.filter = '';
+        });
 
     playBtn.onmousedown = (e) => {
         e.preventDefault();
