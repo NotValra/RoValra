@@ -876,7 +876,14 @@ async function addSearchTerm(term) {
     let history = await getHistory();
     history = history.filter(item => {
         const itemValue = typeof item === 'string' ? item : item.name;
-        return itemValue.toLowerCase() !== valueToCheck.toLowerCase();
+        if (itemValue.toLowerCase() === valueToCheck.toLowerCase()) return false;
+
+        if (typeof term !== 'string' && typeof item !== 'string') {
+            // Check for matching ID within the same type (handles both games and users)
+            if (item.type === term.type && String(item.id) === String(term.id)) return false;
+        }
+
+        return true;
     });
     history.unshift(entry);
     if (history.length > MAX_HISTORY) history = history.slice(0, MAX_HISTORY);

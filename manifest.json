@@ -53,7 +53,7 @@
                 "Assets/data/serverid_extractor.js",
                 "data/*",
                 "intercept.js"
-            ],
+                       ],
             "matches": ["https://www.roblox.com/*", "*://*.roblox.com/*"]
         }
     ],

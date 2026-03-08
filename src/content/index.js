@@ -19,7 +19,6 @@ import { initFriendsListTracking } from './core/utils/trackers/friendslist.js';
 import { init as initQoLToggles } from './features/navigation/QoLToggles.js';
 import { init as initCopyId } from './features/sitewide/copyid.js';
 import { init as initQuickSearch } from './features/navigation/search/quicksearch.js';
-
 // Avatar
 import { init as initAvatarFilters } from './features/avatar/filters.js';
 import { init as initR6Warning } from './features/avatar/R6Warning.js';

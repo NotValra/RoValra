@@ -201,12 +201,14 @@ export async function callRobloxApi(options) {
         
         const credentials = options.credentials ?? (isRovalraApi ? 'omit' : 'include');
 
+        const normalizedHeaders = new Headers(headers);
+        if (!normalizedHeaders.has('Accept')) {
+            normalizedHeaders.set('Accept', 'application/json');
+        }
+
         const fetchOptions = {
             method,
-            headers: {
-                'Accept': 'application/json',
-                ...headers
-            },
+            headers: normalizedHeaders,
             credentials,
             signal
         };
@@ -214,9 +216,13 @@ export async function callRobloxApi(options) {
         if (body) {
             if (body instanceof FormData) {
                 fetchOptions.body = body;
-                if (fetchOptions.headers['Content-Type']) delete fetchOptions.headers['Content-Type'];
+                if (normalizedHeaders.has('Content-Type')) {
+                    normalizedHeaders.delete('Content-Type');
+                }
             } else {
-                fetchOptions.headers['Content-Type'] = 'application/json';
+                if (!normalizedHeaders.has('Content-Type')) {
+                    normalizedHeaders.set('Content-Type', 'application/json');
+                }
                 fetchOptions.body = typeof body === 'string' ? body : JSON.stringify(body);
             }
         }
@@ -293,7 +299,7 @@ export async function callRobloxApi(options) {
         if (isMutatingMethod) {
             const csrfToken = await getCsrfToken();
             if (csrfToken) {
-                fetchOptions.headers['X-CSRF-TOKEN'] = csrfToken;
+                normalizedHeaders.set('X-CSRF-TOKEN', csrfToken);
             }
         }
 
@@ -311,7 +317,7 @@ export async function callRobloxApi(options) {
             const newCsrfToken = response.headers.get('x-csrf-token');
             if (newCsrfToken) {
                 if (typeof getCsrfToken.setToken === 'function') getCsrfToken.setToken(newCsrfToken);
-                fetchOptions.headers['X-CSRF-TOKEN'] = newCsrfToken;
+                fetchOptions.headers.set('X-CSRF-TOKEN', newCsrfToken);
                 try {
                     response = await fetch(fullUrl, fetchOptions);
                 } catch (error) {

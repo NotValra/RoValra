@@ -1,5 +1,5 @@
 
-import { parseRbxm } from './rbxm.js'; 
+import { parseRbxm } from './rbxm.js';
 import { callRobloxApi } from '../api.js';
 
 const RBXM_SIGNATURE_BYTES = [60, 114, 111, 98, 108, 111, 120, 33]; 
@@ -112,7 +112,7 @@ export async function checkAssetsInBatch(assetIds) {
                 if (isBinaryFormat(buffer)) {
                     format = 'RBXM';
 
-                    parsedRoot = parseRbxm(buffer); 
+                    parsedRoot = parseRbxm(buffer);
                 } else {
                     format = 'XML';
                     const decoder = new TextDecoder('utf-8');

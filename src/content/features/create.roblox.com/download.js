@@ -160,7 +160,7 @@ export function init() {
 
     chrome.storage.local.get({ DownloadCreateEnabled: true }, (result) => {
         if (result.DownloadCreateEnabled) {
-            observeElement('[data-testid="assetButtonsTestId"]', (buttonContainer) => {
+            observeElement('[data-testid="assetButtonsDeprecatedTestId"]', (buttonContainer) => {
                 addButton(buttonContainer);
             });
         }
