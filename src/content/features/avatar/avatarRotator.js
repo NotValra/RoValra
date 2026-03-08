@@ -1,5 +1,5 @@
 
-import { observeElement } from '../../core/observer.js';
+import { observeElement, observeResize } from '../../core/observer.js';
 import { createOverlay } from '../../core/ui/overlay.js';
 import { callRobloxApiJson } from '../../core/api.js';
 import { getBatchThumbnails, createThumbnailElement } from '../../core/thumbnail/thumbnails.js';
@@ -22,6 +22,28 @@ export function init() {
         li.style.alignItems = 'center';
         li.style.gap = '5px';
 
+        const createBtnSelector = 'a.btn-float-right.btn-min-width.btn-secondary-xs';
+        let resizeHandler = null;
+
+        const updateMargin = () => {
+            const createBtn = document.querySelector(createBtnSelector);
+            if (createBtn && createBtn.textContent.includes('Create') && createBtn.offsetParent !== null) {
+                li.style.marginRight = `${(createBtn.offsetWidth || 60) + 10}px`;
+            } else {
+                li.style.marginRight = '0px';
+            }
+        };
+        
+        observeElement(createBtnSelector, (createBtn) => {
+            if (resizeHandler) resizeHandler.unobserve();
+            resizeHandler = observeResize(createBtn, updateMargin);
+            updateMargin();
+        }, { onRemove: () => {
+            if (resizeHandler) resizeHandler.unobserve();
+            resizeHandler = null;
+            updateMargin();
+        }});
+        
         const stopBtn = document.createElement('button');
         stopBtn.type = 'button';
         stopBtn.className = 'btn-control-xs rovalra-avatar-rotator-stop-btn';
@@ -225,13 +247,28 @@ export function init() {
                     disableRotatorBtn.style.display = 'none';
                 };
 
+                const clearBtn = document.createElement('button');
+                clearBtn.className = 'btn-control-md';
+                clearBtn.textContent = 'Clear Selection';
+                clearBtn.onclick = () => {
+                    selectedAvatars.clear();
+                    chrome.storage.local.set({
+                        rovalra_avatar_rotator_ids: []
+                    });
+                    const radios = avatarListContainer.querySelectorAll('button[role="checkbox"]');
+                    radios.forEach(radio => {
+                        if (radio.setChecked) radio.setChecked(false);
+                    });
+                    updateButtonState();
+                };
+
                 createOverlay({
                     title: 'Avatar Rotator',
                     bodyContent: wrapper,
                     showLogo: true,
                     maxWidth: '600px',
                     maxHeight: '600px',
-                    actions: [disableRotatorBtn, setRotatorsBtn]
+                    actions: [disableRotatorBtn, clearBtn, setRotatorsBtn]
                 });
 
                 fetchAndRenderAvatars(true);

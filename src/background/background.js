@@ -247,10 +247,11 @@ async function callRobloxApiBackground(options) {
 
 
 
-async function wearOutfit(outfitId) {
+async function wearOutfit(outfitData) {
     const callWithRetry = async (options) => {
+        let response;
         for (let i = 0; i < 4; i++) {
-            const response = await callRobloxApiBackground(options);
+            response = await callRobloxApiBackground(options);
             if (response.ok) return response;
             if (response.status === 429 || response.status >= 500) {
                 if (i < 3) await new Promise(r => setTimeout(r, 1000));
@@ -258,22 +259,34 @@ async function wearOutfit(outfitId) {
             }
             return response;
         }
+        return response;
     };
 
     try {
+        const outfitId = (typeof outfitData === 'object' && outfitData !== null) ? outfitData.itemId : outfitData;
+        if (!outfitId) {
+            console.error('RoValra: wearOutfit called with invalid outfitData', outfitData);
+            return { ok: false };
+        }
+
         const detailsRes = await callWithRetry({ subdomain: 'avatar', endpoint: `/v1/outfits/${outfitId}/details` });
         if (!detailsRes?.ok) return { ok: false };
 
         const details = await detailsRes.json();
         const promises = [];
 
-        if (details.bodyColors) promises.push(callWithRetry({ subdomain: 'avatar', endpoint: '/v1/avatar/set-body-colors', method: 'POST', body: details.bodyColors }));
         if (details.assets) promises.push(callWithRetry({ subdomain: 'avatar', endpoint: '/v2/avatar/set-wearing-assets', method: 'POST', body: { assets: details.assets } }));
         if (details.playerAvatarType) promises.push(callWithRetry({ subdomain: 'avatar', endpoint: '/v1/avatar/set-player-avatar-type', method: 'POST', body: { playerAvatarType: details.playerAvatarType } }));
         if (details.scale) promises.push(callWithRetry({ subdomain: 'avatar', endpoint: '/v1/avatar/set-scales', method: 'POST', body: details.scale }));
 
+        if (typeof outfitData === 'object' && outfitData?.outfitDetail?.bodyColor3s) {
+            promises.push(callWithRetry({ subdomain: 'avatar', endpoint: '/v3/avatar/set-body-colors', method: 'POST', body: outfitData.outfitDetail.bodyColor3s }));
+        } else if (details.bodyColors) {
+            promises.push(callWithRetry({ subdomain: 'avatar', endpoint: '/v1/avatar/set-body-colors', method: 'POST', body: details.bodyColors }));
+        }
+
         const results = await Promise.all(promises);
-        return { ok: results.every(r => r?.ok) };
+        return { ok: results.every(r => r && r.ok) };
     } catch (e) {
         console.error('RoValra: Error wearing outfit', e);
         return { ok: false };
@@ -358,8 +371,8 @@ function updateAvatarRotator() {
             
             const rotate = () => {
                 if (ids.length === 0) return;
-                const outfitId = ids[state.rotatorIndex];
-                wearOutfit(outfitId);
+                const outfit = ids[state.rotatorIndex];
+                wearOutfit(outfit);
                 state.rotatorIndex = (state.rotatorIndex + 1) % ids.length;
             };
 
@@ -517,7 +530,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
 
         case 'wearOutfit':
-            wearOutfit(request.outfitId).then(result => sendResponse(result));
+            wearOutfit(request.outfitId).then(sendResponse);
             return true;
 
         case 'updateContextMenu':
