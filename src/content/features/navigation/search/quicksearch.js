@@ -12,6 +12,7 @@ import { createPill } from '../../../core/ui/general/pill.js';
 import { getFullRegionName, getRegionData } from '../../../core/regions.js';
 import { createScrollButtons } from '../../../core/ui/general/scrollButtons.js';
 import { showFriendListOverlay } from '../../../core/ui/games/friendListOverlay.js';
+import { showConfirmationPrompt } from '../../../core/ui/confirmationPrompt.js';
 
 let lastSearchedQuery = ""; 
 let userSearchAbortController = null;
@@ -936,6 +937,34 @@ async function updateThumbnails(items) {
     }
 }
 
+function handleButtonState(btn, shouldDisable) {
+    const currentlyDisabled = btn.classList.contains('rovalra-btn-disabled');
+    
+    if (shouldDisable) {
+        if (!currentlyDisabled) {
+            btn.classList.add('rovalra-btn-disabled');
+            // Double click prevention
+            btn.style.pointerEvents = 'auto';
+            
+            if (btn._timeout) clearTimeout(btn._timeout);
+            btn._timeout = setTimeout(() => {
+                if (btn.classList.contains('rovalra-btn-disabled')) {
+                    btn.style.pointerEvents = 'none';
+                }
+            }, 1000);
+        }
+    } else {
+        if (currentlyDisabled) {
+            btn.classList.remove('rovalra-btn-disabled');
+            btn.style.pointerEvents = '';
+            if (btn._timeout) {
+                clearTimeout(btn._timeout);
+                btn._timeout = null;
+            }
+        }
+    }
+}
+
 function updateScrollButtonStates(container, leftBtn, rightBtn) {
     if (!container || !leftBtn || !rightBtn) return;
     const { scrollLeft, scrollWidth, clientWidth } = container;
@@ -950,9 +979,8 @@ function updateScrollButtonStates(container, leftBtn, rightBtn) {
     leftBtn.style.display = 'flex';
     rightBtn.style.display = 'flex';
 
-    leftBtn.classList.toggle('rovalra-btn-disabled', scrollLeft <= 5);
-    const isAtEnd = scrollLeft + clientWidth >= scrollWidth - 5;
-    rightBtn.classList.toggle('rovalra-btn-disabled', isAtEnd);
+    handleButtonState(leftBtn, scrollLeft <= 5);
+    handleButtonState(rightBtn, scrollLeft + clientWidth >= scrollWidth - 5);
 }
 
 async function renderSearchHistory(container) {
@@ -1024,7 +1052,7 @@ async function renderSearchHistory(container) {
             #rovalra-history-list-scroll .rovalra-scroll-btn.rovalra-btn-disabled {
                 opacity: 0;
                 cursor: default;
-                pointer-events: auto;
+                pointer-events: none;
             }
         `;// Verified
         document.head.appendChild(style);
@@ -1074,6 +1102,68 @@ async function renderSearchHistory(container) {
                 }
             }
         });
+
+        const deleteBtn = document.createElement('div');
+        Object.assign(deleteBtn.style, {
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '20px',
+            height: '20px',
+            marginLeft: '6px',
+            cursor: 'pointer',
+            borderRadius: '50%',
+            transition: 'background-color 0.2s',
+            position: 'relative',
+            zIndex: '2'
+        });
+
+        const deleteIcon = document.createElement('div');
+        Object.assign(deleteIcon.style, {
+            width: '16px',
+            height: '16px',
+            backgroundColor: 'currentColor',
+            webkitMask: `url("${assets.delete}") no-repeat center / contain`,
+            mask: `url("${assets.delete}") no-repeat center / contain`,
+            opacity: '0.7'
+        });
+        deleteBtn.appendChild(deleteIcon);
+
+        deleteBtn.addEventListener('mouseenter', () => {
+            deleteBtn.style.backgroundColor = 'var(--color-state-hover)';
+            deleteIcon.style.opacity = '1';
+        });
+        deleteBtn.addEventListener('mouseleave', () => {
+            deleteBtn.style.backgroundColor = 'transparent';
+            deleteIcon.style.opacity = '0.7';
+        });
+
+        deleteBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            
+            showConfirmationPrompt({
+                title: 'Delete Search History',
+                message: 'Are you sure you want to delete this search history entry?',
+                confirmText: 'Delete',
+                confirmType: 'primary-destructive',
+                onConfirm: async () => {
+                    const currentHistory = await getHistory();
+                    const newHistory = currentHistory.filter(h => {
+                        if (typeof item === 'string') {
+                            return h !== item;
+                        } else {
+                            if (typeof h === 'string') return true;
+                            return !(String(h.id) === String(item.id) && h.type === item.type);
+                        }
+                    });
+                    await chrome.storage.local.set({ [STORAGE_KEY]: newHistory });
+                    renderSearchHistory(container);
+                }
+            });
+        });
+
+        pill.appendChild(deleteBtn);
         list.appendChild(pill);
     });
 
