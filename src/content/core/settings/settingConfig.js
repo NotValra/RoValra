@@ -191,7 +191,7 @@ export const SETTINGS_CONFIG = {
                     "This feature was heavily inspired by a RoPro v2 feature."
                 ],
                 type: "checkbox",
-                default: false,
+                default: true,
                 beta: "This feature is lacking update history data. It will slowly get it over time."
             },
             recentServersEnabled: {
