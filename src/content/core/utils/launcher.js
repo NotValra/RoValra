@@ -34,6 +34,21 @@ export function launchMultiplayerGame(placeId, launchData = {}) {
     executeLaunchScript(codeToInject);
 }
 
+export function followUser(userId) {
+    const uId = parseInt(userId, 10);
+    const placeLauncherUrl = `https://assetgame.roblox.com/game/PlaceLauncher.ashx?request=RequestFollowUser&userId=${uId}&is30=false`;
+    const deepLink = `roblox-player:1+launchmode:play+placelauncherurl:${encodeURIComponent(placeLauncherUrl)}`;
+
+    const codeToInject = `
+        if (typeof Roblox !== 'undefined' && Roblox.GameLauncher && typeof Roblox.GameLauncher.followPlayerIntoGame === 'function') {
+            Roblox.GameLauncher.followPlayerIntoGame(${uId});
+        } else {
+            window.location.href = '${deepLink}';
+        }
+    `;
+    executeLaunchScript(codeToInject);
+}
+
 export async function launchStudioForGame(placeId) {
     try {
         const gameDetails = await callRobloxApiJson({

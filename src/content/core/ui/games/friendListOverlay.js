@@ -1,6 +1,6 @@
 import { createOverlay } from '../overlay.js';
 import { createThumbnailElement } from '../../thumbnail/thumbnails.js';
-import { launchGame } from '../../utils/launcher.js';
+import { followUser } from '../../utils/launcher.js';
 import { createButton } from '../buttons.js';
 
 export function showFriendListOverlay(friends, gameName) {
@@ -67,7 +67,7 @@ export function showFriendListOverlay(friends, gameName) {
         joinBtn.style.border = 'none';
         joinBtn.style.color = '#ffffff';
         joinBtn.onclick = () => {
-            launchGame(friend.rootPlaceId, friend.gameInstanceId);
+            followUser(friend.id);
         };
 
         row.appendChild(left);

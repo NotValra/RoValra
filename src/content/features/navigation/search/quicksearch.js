@@ -5,7 +5,7 @@ import { getAuthenticatedUserId } from '../../../core/user.js';
 import { formatPlayerCount } from '../../../core/games/playerCount.js';
 import { safeHtml } from '../../../core/packages/dompurify.js';
 import { performJoinAction, getSavedPreferredRegion } from '../../../core/preferredregion.js';
-import { launchGame } from '../../../core/utils/launcher.js';
+import { launchGame, followUser } from '../../../core/utils/launcher.js';
 import { getAssets } from '../../../core/assets.js';
 import { addTooltip } from '../../../core/ui/tooltip.js';
 import { createPill } from '../../../core/ui/general/pill.js';
@@ -570,10 +570,19 @@ function createUserResultHtml(user, thumbData, presence, isFriend = false, isTru
             flexShrink: '0'
         });
 
+        playBtn.onmousedown = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+        };
+
         playBtn.onclick = (e) => {
             e.preventDefault();
             e.stopPropagation();
-            launchGame(presence.rootPlaceId, presence.gameId);
+            if (isFriend) {
+                followUser(user.id);
+            } else {
+                launchGame(presence.rootPlaceId, presence.gameId);
+            }
         };
         buttonsContainer.appendChild(playBtn);
         container.appendChild(buttonsContainer);
@@ -675,6 +684,11 @@ function createResultHtml(game, thumbnailUrl, playerCount, voteRatio, totalVotes
             }
         })();
 
+        regionBtn.onmousedown = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+        };
+
         regionBtn.onclick = async (e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -700,6 +714,11 @@ function createResultHtml(game, thumbnailUrl, playerCount, voteRatio, totalVotes
         flexShrink: '0'
     });
 
+    playBtn.onmousedown = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+    };
+
     playBtn.onclick = (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -708,88 +727,6 @@ function createResultHtml(game, thumbnailUrl, playerCount, voteRatio, totalVotes
     buttonsContainer.appendChild(playBtn);
 
     container.appendChild(link);
-
-    if (friendsInfo && friendsInfo.length > 0) {
-        const friendContainer = document.createElement('div');
-        Object.assign(friendContainer.style, {
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginRight: '6px',
-            flexShrink: '0',
-            position: 'relative'
-        });
-
-        if (friendsInfo.length === 1) {
-            const friendInfo = friendsInfo[0];
-            const friendLink = document.createElement('a');
-            friendLink.href = `https://www.roblox.com/users/${friendInfo.id}/profile`;
-            friendLink.title = friendInfo.name;
-            Object.assign(friendLink.style, {
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                textDecoration: 'none',
-                flexShrink: '0'
-            });
-            
-            friendLink.onclick = (e) => {
-                e.stopPropagation();
-                e.preventDefault();
-                showFriendListOverlay(friendsInfo, game.name);
-            };
-
-            const friendThumb = document.createElement('img');
-            friendThumb.src = friendInfo.thumbnailUrl;
-            friendThumb.alt = friendInfo.name;
-            Object.assign(friendThumb.style, {
-                width: '36px',
-                height: '36px',
-                borderRadius: '50%',
-                border: '1px solid var(--rovalra-border-color)'
-            });
-            
-            friendLink.appendChild(friendThumb);
-            friendContainer.appendChild(friendLink);
-        } else {
-            const stackContainer = document.createElement('div');
-            Object.assign(stackContainer.style, {
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                position: 'relative',
-                width: '44px',
-                height: '36px'
-            });
-
-            const showFriends = friendsInfo.slice(0, 2);
-            showFriends.forEach((f, index) => {
-                const img = document.createElement('img');
-                img.src = f.thumbnailUrl;
-                Object.assign(img.style, {
-                    width: '36px',
-                    height: '36px',
-                    borderRadius: '50%',
-                    border: '1px solid var(--rovalra-border-color)',
-                    position: 'absolute',
-                    left: index === 0 ? '0px' : '12px',
-                    zIndex: index === 0 ? '2' : '1'
-                });
-                stackContainer.appendChild(img);
-            });
-
-            stackContainer.onclick = (e) => {
-                e.stopPropagation();
-                e.preventDefault();
-                showFriendListOverlay(friendsInfo, game.name);
-            };
-            
-            friendContainer.appendChild(stackContainer);
-        }
-
-        container.appendChild(friendContainer);
-    }
 
     container.appendChild(buttonsContainer);
     li.appendChild(container);
