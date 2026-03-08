@@ -54,6 +54,7 @@ export function init() {
 async function loadAndRenderHeatmap(placeId, parentElement) {
     const metaData = document.getElementById('game-detail-meta-data');
     const universeId = metaData?.dataset.universeId;
+    let blockingMessage = null;
 
     if (universeId) {
         try {
@@ -69,55 +70,96 @@ async function loadAndRenderHeatmap(placeId, parentElement) {
 
             const gameMeta = maturityData?.contentMetadata?.Game?.[universeId];
             if (gameMeta && gameMeta.contentMaturity === 'restricted') {
-                const msg = document.createElement('div');
-                msg.className = 'text-secondary';
-                msg.style.padding = '20px';
-                msg.style.textAlign = 'center';
-                msg.style.fontSize = '20px';
-                msg.textContent = "Update History doesn't work on 18+ experiences";
-                parentElement.appendChild(msg);
-                return;
+                blockingMessage = "Update History doesn't work on 18+ experiences";
             }
         } catch (e) {
             console.warn('RoValra: Failed to check content maturity', e);
         }
     }
 
-    try {
-        const placeDetails = await callRobloxApiJson({
-            subdomain: 'games',
-            endpoint: `/v1/games/multiget-place-details?placeIds=${placeId}`,
-            method: 'GET'
-        });
+    if (!blockingMessage) {
+        try {
+            const placeDetails = await callRobloxApiJson({
+                subdomain: 'games',
+                endpoint: `/v1/games/multiget-place-details?placeIds=${placeId}`,
+                method: 'GET'
+            });
 
-        if (placeDetails && placeDetails[0] && placeDetails[0].price > 0) {
-            const msg = document.createElement('div');
-            msg.className = 'text-secondary';
-            msg.style.padding = '20px';
-            msg.style.textAlign = 'center';
-            msg.style.fontSize = '20px';
-            msg.textContent = "Update History doesn't work on paid access experiences";
-            parentElement.appendChild(msg);
-            return;
+            if (placeDetails && placeDetails[0] && placeDetails[0].price > 0 || placeDetails[0].reasonProhibited == "PurchaseRequired") {
+                blockingMessage = "Update History doesn't work on paid access experiences";
+            }
+        } catch (e) {
+            console.warn('RoValra: Failed to check paid access status', e);
         }
-    } catch (e) {
-        console.warn('RoValra: Failed to check paid access status', e);
     }
 
-    try {
-        const data = await callRobloxApiJson({
-            isRovalraApi: true,
-            endpoint: `/v1/games/history?place_id=${placeId}`,
-            method: 'GET'
-        });
-        
-        const historyData = (data && data.history) ? data.history : [];
-        const heatmapElement = createHeatmap(historyData, 'Update History');
-        parentElement.appendChild(heatmapElement);
-        
-    } catch (error) {
-        console.error('RoValra: Failed to load heatmap data', error);
-        const heatmapElement = createHeatmap([], 'Update History'); 
-        parentElement.appendChild(heatmapElement);
+    if (!blockingMessage) {
+        try {
+            const joinData = await callRobloxApiJson({
+                subdomain: 'gamejoin',
+                endpoint: '/v1/join-game',
+                method: 'POST',
+                body: {
+                    placeId: parseInt(placeId, 10),
+                    gameJoinAttemptId: self.crypto.randomUUID()
+                }
+            });
+
+            if (joinData && joinData.status === 12) {
+                blockingMessage = "Update History doesn't work on subplaces with join restrictions";
+            }
+        } catch (e) {
+            console.warn('RoValra: Failed to check subplace joinability', e);
+        }
     }
+
+    let historyData = [];
+    if (!blockingMessage) {
+        try {
+            const data = await callRobloxApiJson({
+                isRovalraApi: true,
+                endpoint: `/v1/games/history?place_id=${placeId}`,
+                method: 'GET'
+            });
+            
+            historyData = (data && data.history) ? data.history : [];
+        } catch (error) {
+            console.error('RoValra: Failed to load heatmap data', error);
+        }
+    }
+
+    const container = document.createElement('div');
+    container.style.position = 'relative';
+
+    const heatmapElement = createHeatmap(historyData, 'Update History');
+    
+    if (blockingMessage) {
+        heatmapElement.style.filter = 'blur(5px)';
+        heatmapElement.style.opacity = '0.5';
+        heatmapElement.style.pointerEvents = 'none';
+
+        const msgContainer = document.createElement('div');
+        msgContainer.style.position = 'absolute';
+        msgContainer.style.top = '0';
+        msgContainer.style.left = '0';
+        msgContainer.style.width = '100%';
+        msgContainer.style.height = '100%';
+        msgContainer.style.display = 'flex';
+        msgContainer.style.alignItems = 'center';
+        msgContainer.style.justifyContent = 'center';
+        msgContainer.style.zIndex = '10';
+
+        const msg = document.createElement('div');
+        msg.className = 'text-secondary';
+        msg.style.fontSize = '20px';
+        msg.style.fontWeight = '500';
+        msg.style.textAlign = 'center';
+        msg.textContent = blockingMessage;
+
+        msgContainer.appendChild(msg);
+        container.appendChild(msgContainer);
+    }
+
+    container.appendChild(heatmapElement);
+    parentElement.appendChild(container);
 }
