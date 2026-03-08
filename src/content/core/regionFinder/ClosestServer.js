@@ -390,6 +390,10 @@ async function attemptJoinServers(placeId, servers, joinedServerIds, stopCheck) 
                     joinedServerIds.add(serverId);
                     hideLoadingOverlay(true);
                     launchGame(placeId, serverId);
+                    callRobloxApi({
+                        subdomain: 'games',
+                        endpoint: `/v1/games/${placeId}/servers/Public?limit=100`
+                    }).catch(()=>{/*fire and forget*/});
                     showReviewPopup('region_filters');
                     return true;
                 }

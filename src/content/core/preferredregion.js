@@ -198,6 +198,10 @@ export async function performJoinAction(placeId, universeId, preferredRegionCode
                             hideLoadingOverlay(true);
                             joinedServerIds.add(bestServerFoundSoFar.id);
                             launchGame(placeId, bestServerFoundSoFar.id);
+                            callRobloxApi({
+                                subdomain: 'games',
+                                endpoint: `/v1/games/${placeId}/servers/Public?limit=100`
+                            }).catch(()=>{/*fire and forget*/});
                             showReviewPopup('region_filters');
                             joined = true;
                             break;
@@ -207,6 +211,10 @@ export async function performJoinAction(placeId, universeId, preferredRegionCode
                             hideLoadingOverlay(true);
                             joinedServerIds.add(bestServerFoundSoFar.id);
                             launchGame(placeId, bestServerFoundSoFar.id);
+                            callRobloxApi({
+                                subdomain: 'games',
+                                endpoint: `/v1/games/${placeId}/servers/Public?limit=100`
+                            }).catch(()=>{/*fire and forget*/});
                             showReviewPopup('region_filters');
                             joined = true;
                             break;
@@ -264,6 +272,10 @@ export async function performJoinAction(placeId, universeId, preferredRegionCode
                 } else {
                     hideLoadingOverlay(true);
                     launchGame(placeId);
+                    callRobloxApi({
+                        subdomain: 'games',
+                        endpoint: `/v1/games/${placeId}/servers/Public?limit=100`
+                    }).catch(()=>{/*fire and forget*/});
                     showReviewPopup('region_filters');
                 }
             }
@@ -272,6 +284,10 @@ export async function performJoinAction(placeId, universeId, preferredRegionCode
                     hideLoadingOverlay(true);
                     joinedServerIds.add(bestServerFoundSoFar.id);
                     launchGame(placeId, bestServerFoundSoFar.id);
+                    callRobloxApi({
+                        subdomain: 'games',
+                        endpoint: `/v1/games/${placeId}/servers/Public?limit=100`
+                    }).catch(()=>{/*fire and forget*/});
                     showReviewPopup('region_filters');
                 } else {
                     let foundRegionName = bestServerRegionCode;
@@ -290,6 +306,10 @@ export async function performJoinAction(placeId, universeId, preferredRegionCode
                                 hideLoadingOverlay(true);
                                 joinedServerIds.add(bestServerFoundSoFar.id);
                                 launchGame(placeId, bestServerFoundSoFar.id);
+                                callRobloxApi({
+                                    subdomain: 'games',
+                                    endpoint: `/v1/games/${placeId}/servers/Public?limit=100`
+                                }).catch(()=>{/*fire and forget*/});
                                 showReviewPopup('region_filters');
                             } 
                         }
