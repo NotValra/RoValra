@@ -1182,6 +1182,7 @@ export function init() {
     });
 
     const debouncedGameSearch = debounce(performGameSearch, 300);
+    const debouncedUserSearch = debounce(performUserSearch, 100);
 
     const seeker = setInterval(() => {
         const input = document.getElementById('navbar-search-input');
@@ -1208,7 +1209,7 @@ export function init() {
                     return;
                 }
 
-                performUserSearch(currentVal);
+                debouncedUserSearch(currentVal);
 
                 if (currentVal.length >= 2) {
                     debouncedGameSearch(currentVal);
