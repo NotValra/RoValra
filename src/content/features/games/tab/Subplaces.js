@@ -178,11 +178,12 @@ export async function init() {
             try {
                 const universeDetails = await fetchUniverseDetails(universeId);
                 if (universeDetails && universeDetails.rootPlaceId && universeDetails.rootPlaceId.toString() !== placeId) {
-                    const rootPlaceName = "the main experience";
+                    const rootPlaceName = universeDetails.name || "the main experience";
+                    const rootPlaceUrl = `https://www.roblox.com/games/${universeDetails.rootPlaceId}/YAYAYAY`;
 
                     const joinData = await checkSubplaceJoinability(placeId);
                     
-                    const bannerTitle = `You are currently viewing a subplace of ${DOMPurify.sanitize(rootPlaceName)}.`;
+                    const bannerTitle = `You are currently viewing a subplace of [${DOMPurify.sanitize(rootPlaceName)}](${rootPlaceUrl}).`;
                     let bannerDescription = "Some experiences may disable joining subplaces.";
                     
                     if (joinData && joinData.status === 12) {
