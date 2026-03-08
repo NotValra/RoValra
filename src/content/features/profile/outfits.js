@@ -258,11 +258,6 @@ export function init() {
                     return;
                 }
 
-                if (selectedListItem) {
-                    selectedListItem.style.backgroundColor = 'transparent';
-                }
-
-                listItem.style.backgroundColor = 'var(--rovalra-button-background-color)';
                 selectedListItem = listItem;
                 selectedOutfitId = outfit.id;
 
@@ -736,16 +731,6 @@ export function init() {
                     cursor: 'pointer',
                     transition: 'background-color 0.2s ease',
                     width: '170px',
-                });
-                listItem.addEventListener('mouseenter', () => {
-                    if (listItem !== selectedListItem) {
-                        listItem.style.backgroundColor = 'var(--rovalra-container-background-color)';
-                    }
-                });
-                listItem.addEventListener('mouseleave', () => {
-                    if (listItem !== selectedListItem) {
-                        listItem.style.backgroundColor = 'transparent';
-                    }
                 });
                 listItem.addEventListener('click', () =>
                     selectOutfit(outfit, listItem),
