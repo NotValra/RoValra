@@ -342,14 +342,12 @@ export async function init() {
         if (document.getElementById('rovalra-main-categorized-wrapper')) return;
         
         const originalWearing = content.querySelector('.profile-currently-wearing, .roseal-currently-wearing');
-        const categorizedSection = createCategorizedWearingSection();
-        categorizedSection.id = 'rovalra-main-categorized-wrapper';
 
         if (originalWearing) {
+            const categorizedSection = createCategorizedWearingSection();
+            categorizedSection.id = 'rovalra-main-categorized-wrapper';
             originalWearing.before(categorizedSection);
             originalWearing.style.cssText = 'display: none !important; height: 0px !important; margin: 0px !important; padding: 0px !important; opacity: 0 !important; pointer-events: none !important;';
-        } else {
-            content.prepend(categorizedSection);
         }
     }, { multiple: true });
 
