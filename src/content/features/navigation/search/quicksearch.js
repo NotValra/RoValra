@@ -983,6 +983,7 @@ async function renderSearchHistory(container) {
 
     const scrollWrapper = document.createElement('div');
     scrollWrapper.className = 'rovalra-history-scroll-wrapper';
+    scrollWrapper.id = 'rovalra-history-list-scroll';
     scrollWrapper.style.position = 'relative';
     scrollWrapper.style.padding = '10px 0';
 
@@ -997,8 +998,8 @@ async function renderSearchHistory(container) {
         const style = document.createElement('style');//verified
         style.id = 'rovalra-history-scrollbar-style';
         style.textContent = `
-            .rovalra-history-list-container::-webkit-scrollbar { display: none; }
-            .rovalra-scroll-btn {
+            #rovalra-history-list-scroll .rovalra-history-list-container::-webkit-scrollbar { display: none; }
+            #rovalra-history-list-scroll .rovalra-scroll-btn {
                 position: absolute;
                 top: 50%;
                 transform: translateY(-50%);
@@ -1015,12 +1016,12 @@ async function renderSearchHistory(container) {
                 border: none;
                 color: white;
             }
-            .rovalra-scroll-btn:hover {
+            #rovalra-history-list-scroll .rovalra-scroll-btn:hover {
                 background-color: rgba(0, 0, 0, 0.8);
             }
-            .rovalra-scroll-btn.left { left: 0; }
-            .rovalra-scroll-btn.right { right: 0; }
-            .rovalra-scroll-btn.rovalra-btn-disabled {
+            #rovalra-history-list-scroll .rovalra-scroll-btn.left { left: 0; }
+            #rovalra-history-list-scroll .rovalra-scroll-btn.right { right: 0; }
+            #rovalra-history-list-scroll .rovalra-scroll-btn.rovalra-btn-disabled {
                 opacity: 0;
                 cursor: default;
                 pointer-events: auto;
