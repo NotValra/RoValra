@@ -395,34 +395,19 @@ async function fetchGamePassesForUniverse(universeId) {
 }
 
 const detectAndAddSaveButton = () => {
-    
-
-    observeElement('.modal-dialog .modal-content[role="document"], .modal-dialog .modal-content', (modal) => {
-        const handleUpdate = () => {
-            if (!modal.querySelector('.btn-save-robux')) {
-                addSaveButton(modal);
-            }
-        };
-
-        handleUpdate();
-
-        const observer = new MutationObserver(handleUpdate);
-        observer.observe(modal, { childList: true, subtree: true });
-        modal._rovalraSaveBtnObserver = observer;
+    observeElement('.modal-footer .modal-buttons, .modal-btns', (buttonContainer) => {
+        const modal = buttonContainer.closest('.modal-dialog .modal-content[role="document"], .modal-dialog .modal-content');
+        if (modal) {
+            addSaveButton(modal);
+        }
     }, { 
         multiple: true,
-        onRemove: (modal) => {
-            if (modal._rovalraSaveBtnObserver) {
-                modal._rovalraSaveBtnObserver.disconnect();
-                delete modal._rovalraSaveBtnObserver;
-            }
-        }
     });
 };
 
 
 
-const createAndShowPopup = (onSave, initialState = null) => {
+export const createAndShowPopup = (onSave, initialState = null) => {
     const currentUserId = getCurrentUserId();
     if (!currentUserId) {
         alert("Could not identify your user ID. Please make sure you are logged in.");
@@ -436,14 +421,14 @@ const createAndShowPopup = (onSave, initialState = null) => {
             <p class="text font-body" style="margin: 0 0 10px 0; line-height:1.4;">
                 <strong>Only a specific template works</strong>
             </p>
-            <p class="text font-body" style="margin: 0 0 8px 0;">Select a group you can manage experiences in:</p>
+            <p class="text font-body" style="margin: 0 0 8px 0;">Select a group you can manage experiences in. <br>And the extension will create the experience for you.</p>
             <div id="sr-group-dropdown-container" style="margin-bottom: 16px;"></div>
             <div style="display:flex;align-items:center;gap:8px;margin:12px 0 8px 0;">
                 <hr style="flex:1;border:none;border-top:1px solid rgba(255,255,255,0.15);" />
                 <span class="text font-body" style="font-size:12px;opacity:.7;">OR</span>
                 <hr style="flex:1;border:none;border-top:1px solid rgba(255,255,255,0.15);" />
             </div>
-            <p class="text font-body" style="margin: 0 0 8px 0;">Manually enter a Place ID:</p>
+            <p class="text font-body" style="margin: 0 0 8px 0;">Manually enter a Place ID <br> (Only do this if you know what your doing.)</p>
             <div id="sr-game-id-input-container" style="width: 100%;"></div>
             <div style="display:flex;align-items:center;gap:8px;margin:12px 0 8px 0;">
                 <hr style="flex:1;border:none;border-top:1px solid rgba(255,255,255,0.15);" />
@@ -1967,18 +1952,9 @@ const addSaveButton = (modal) => {
         return { buyNowButton, robuxPriceElement, buttonContainer, closeButton };
     };
 
-    let elements = checkElements();
+    const elements = checkElements();
     if (elements) {
         addButtonWithElements(elements);
-    } else {
-        const observer = new MutationObserver(() => {
-            elements = checkElements();
-            if (elements) {
-                observer.disconnect();
-                addButtonWithElements(elements);
-            }
-        });
-        observer.observe(modalWindow, { childList: true, subtree: true });
     }
 
     async function addButtonWithElements({ buyNowButton, robuxPriceElement, buttonContainer, closeButton }) {
@@ -2138,7 +2114,12 @@ const addSaveButton = (modal) => {
             try {
                 const details = await getItemDetails(itemId, 'Asset');
                 if (details && details.data && details.data[0]) {
-                    assetType = details.data[0].assetType;
+                    const itemData = details.data[0];
+                    assetType = itemData.assetType;
+
+                    if (itemData.itemRestrictions && (itemData.itemRestrictions.includes('Collectible') || itemData.itemRestrictions.includes('Limited') || itemData.itemRestrictions.includes('LimitedUnique'))) {
+                        return;
+                    }
                 }
             } catch (e) {
                 console.warn('RoValra: Failed to fetch asset type for button text', e);

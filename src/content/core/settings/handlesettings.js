@@ -2,6 +2,7 @@ import { SETTINGS_CONFIG } from './settingConfig.js';
 import { findSettingConfig } from './generateSettings.js';
 import { getFullRegionName, REGIONS } from '../regions.js';
 import { sanitizeString } from '../utils/sanitize.js';
+import { createAndShowPopup } from '../../features/catalog/40method.js';
 
 
 export const loadSettings = async () => {
@@ -285,6 +286,8 @@ export const initSettings = async (settingsContent) => {
                                     previewElement.style.display = 'none';
                                     if (clearButton) clearButton.style.display = 'none';
                                 }
+                            } else if (childSetting.type === 'button') {
+                                // No state to restore from settings
                             }
                         }
                     }
@@ -482,6 +485,12 @@ export async function handlePermissionToggle(event) {
 
 
 export function initializeSettingsEventListeners() {
+    document.addEventListener('rovalra:open40methodSetup', () => {
+        createAndShowPopup(() => {
+            // Configuration is saved by the popup.
+        });
+    });
+
     chrome.runtime.onMessage.addListener((request) => {
         if (request.action === 'permissionsUpdated') {
             updateAllPermissionToggles();

@@ -42,6 +42,13 @@ export const SETTINGS_CONFIG = {
                         type: "input",
                         default: null,
                         placeholder: "Enter Place ID here..."
+                    },
+                    configureGame: {
+                        label: "Configure Experience",
+                        description: "Open the setup to configure an experience for the 40% method without needing to be in a purchase flow.",
+                        type: "button",
+                        buttonText: "Open Setup",
+                        event: "rovalra:open40methodSetup"
                     }
                 }
             },

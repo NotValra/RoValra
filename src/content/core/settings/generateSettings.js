@@ -225,6 +225,20 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
             </label>`);
         return wrapper;
     }
+    else if (setting.type === 'button') {
+        const button = createButton(setting.buttonText || 'Click Me', 'secondary');
+        button.dataset.settingName = settingName;
+        button.id = settingName;
+        button.style.marginLeft = 'auto';
+
+        if (setting.event) {
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                document.dispatchEvent(new CustomEvent(setting.event));
+            });
+        }
+        return button;
+    }
     return document.createElement('div'); 
 }
 
