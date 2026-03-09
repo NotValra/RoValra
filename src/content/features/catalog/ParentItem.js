@@ -107,7 +107,7 @@ export function init() {
                         window.CatalogBannerManager.addNotice(
                             `This item is part of the [${bundle.name}](${bundleUrl}) bundle`,
                             iconHtml,
-                            "You are currently viewing an item that is a part of a bundle."
+                            "You are currently viewing an item from a bundle."
                         );
 
                         const links = banner.querySelectorAll(`a[href="${bundleUrl}"]`);
