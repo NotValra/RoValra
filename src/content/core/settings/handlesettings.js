@@ -212,6 +212,7 @@ export const initSettings = async (settingsContent) => {
                         }
                     } else if (setting.type === 'input') {
                         element.value = settings[settingName] || '';
+                        element.dispatchEvent(new Event('input', { bubbles: true }));
                     } else if (setting.type === 'file') {
                         const fileUploadWrapper = settingsContent.querySelector(`[data-setting-name="${settingName}"]`);
                         const previewElement = settingsContent.querySelector(`#preview-${settingName}`);
@@ -267,6 +268,7 @@ export const initSettings = async (settingsContent) => {
                                 }
                             } else if (childSetting.type === 'input') {
                                 childElement.value = settings[childName] || '';
+                                childElement.dispatchEvent(new Event('input', { bubbles: true }));
                             } else if (childSetting.type === 'number') {
                                 const currentValue = settings[childName] !== undefined ? settings[childName] : childSetting.default;
                                 childElement.value = currentValue;
