@@ -28,7 +28,7 @@ export const SETTINGS_CONFIG = {
                 description: ["This adds a button allowing you to save 40% on items on the catalog and 10% on gamepasses",
                     "Keep in mind a group is required for this to work.",
 
-                    "**When buying something there will be a 'Save X Robux' Button which when pressed will set up the experience required for it to work for you.**"
+                    "**When buying something there will be a 'Save X Robux' Button which when pressed will set up the experience required for it to work for you, if not already set up.**"
 
                 ],
                 type: "checkbox",

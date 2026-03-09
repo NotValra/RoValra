@@ -447,6 +447,16 @@ export const createAndShowPopup = (onSave, initialState = null) => {
             <button class="btn-cta-md btn-min-width" id="sr-acknowledge-btn" style="width: 100%; margin-top: 10px;">I Acknowledge</button>
         </div>
 
+        <div id="sr-view-no-group-info" class="sr-hidden">
+            <h4 class="text font-header-2" style="margin: 0 0 10px 0;">Group Required</h4>
+            <p class="text font-body" style="margin: 5px 0 10px 0; line-height: 1.5;">To use the 40% method with your own group, you need a group that you can manage experiences in.</p>
+            <p class="text font-body" style="margin: 5px 0 10px 0; line-height: 1.5;"><strong>Important:</strong> For this to work correctly, the group must be owned by a secure alternate account. Your main account (the one you're using to buy items) should have a role with permissions to create and manage group experiences.</p>
+            <p class="text font-body" style="margin: 5px 0 10px 0; line-height: 1.5;">If you don't have a suitable group, you can instead support RoValra by using our experience to process the purchase, which will give RoValra the saved Robux ❤️</p>
+            <div style="display: flex; gap: 8px; margin-top: 16px;">
+                <button class="btn-secondary-md btn-min-width" id="sr-no-group-back-btn" style="flex: 1;">Go Back</button>
+            </div>
+        </div>
+
         <div id="sr-view-owner-warning" class="sr-hidden">
             <h4 class="text font-header-2" style="margin: 0 0 10px 0;">Ownership Detected</h4>
             <p class="text font-body" style="margin: 5px 0 10px 0; line-height: 1.5;">The 40% method will not work if you are the owner of this group. Please select a different group or transfer ownership to a secured alt account.</p>
@@ -607,6 +617,8 @@ export const createAndShowPopup = (onSave, initialState = null) => {
     const groupDropdownContainer = bodyContent.querySelector('#sr-group-dropdown-container');
     const viewMain = bodyContent.querySelector('#sr-view-main');
     const viewNonOwnerAck = bodyContent.querySelector('#sr-view-non-owner-ack');
+    const viewNoGroupInfo = bodyContent.querySelector('#sr-view-no-group-info');
+    const noGroupBackBtn = bodyContent.querySelector('#sr-no-group-back-btn');
     const viewOwnerWarning = bodyContent.querySelector('#sr-view-owner-warning');
     const ownerWarningBackBtn = bodyContent.querySelector('#sr-owner-warning-back-btn');
     const viewWIP = bodyContent.querySelector('#sr-view-wip');
@@ -659,6 +671,18 @@ export const createAndShowPopup = (onSave, initialState = null) => {
             alert('Failed to save settings. Storage API unavailable.');
         }
     };
+
+    if (noGroupBackBtn) {
+        noGroupBackBtn.addEventListener('click', () => {
+            viewNoGroupInfo.classList.add('sr-hidden');
+            viewMain.classList.remove('sr-hidden');
+            saveBtn.style.display = '';
+            if (groupDropdown && groupDropdown.element) {
+                const selectEl = groupDropdown.element.querySelector('select');
+                if (selectEl) selectEl.value = '';
+            }
+        });
+    }
 
     let groupDropdown = null;
     let selectedGroupId = null;
@@ -721,6 +745,13 @@ export const createAndShowPopup = (onSave, initialState = null) => {
     const handleGroupSelection = async (groupId) => {
         if (!groupId) return;
 
+        if (groupId === 'no-group') {
+            viewMain.classList.add('sr-hidden');
+            saveBtn.style.display = 'none';
+            viewNoGroupInfo.classList.remove('sr-hidden');
+            return;
+        }
+
         selectedGroupId = groupId; 
         viewMain.classList.add('sr-hidden');
         saveBtn.style.display = 'none';
@@ -755,8 +786,10 @@ export const createAndShowPopup = (onSave, initialState = null) => {
                 ...data.groups.map(group => ({
                     value: String(group.id),
                     label: group.name
-                }))
+                })),
             ];
+
+            groupItems.push({ value: 'no-group', label: "I don't have a group" });
 
             groupDropdown = createDropdown({
                 items: groupItems,
