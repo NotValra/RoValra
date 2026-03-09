@@ -67,6 +67,7 @@ import { init as initUserGames } from './features/profile/hiddengames.js';
 import { init as initPrivateServerControls } from './features/games/privateserver.js';
 import { init as initPreviousPrice } from './features/sitewide/PreviousPrice.js';
 import { init as initCategorizeWearing } from './features/profile/categorizeWearing.js';
+import { init as initTrustedFriends } from './features/profile/trustedfriends.js';
 
 // Settings
 import { init as initSettingsPage } from './features/settings/index.js';
@@ -135,6 +136,7 @@ const featureRoutes = [
       initRovalraBadges,
       initUserGames,
       initCategorizeWearing,
+      initTrustedFriends,
     ],
   },
 

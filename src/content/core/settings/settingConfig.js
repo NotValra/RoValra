@@ -368,6 +368,12 @@ export const SETTINGS_CONFIG = {
                     }
                 }
             },
+            trustedConnectionsEnabled: {
+                label: "Trusted Connections",
+                description: "This feature allows you to accept, request and remove trusted connections on the site for eligible connections.",
+                type: "checkbox",
+                default: true
+            },
             PrivateServerBulkEnabled: {
                 label: "Private Server Bulk Removal",
                 description: ["This will add a toggle to the private server inventory tab that allows you to easily set a bunch of private servers as inactive.",
