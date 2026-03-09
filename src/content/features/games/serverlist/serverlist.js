@@ -69,6 +69,7 @@ export const _state = {
     uptimeBatch: new Set(),
     collectedPlayerTokens: [],
     recentlyUsedTokens: [],
+    serverDataCache: new Map(),
     
     originalServerElements: [],
     isFilterActive: false,
@@ -403,26 +404,42 @@ try {
         try {
             const detail = event && event.detail;
             if (!detail) return;
+            const placeId = getPlaceIdFromUrl();
             const data = detail.data || detail;
             const serversArray = Array.isArray(data.data) ? data.data : (Array.isArray(data) ? data : null);
             if (!serversArray) return;
 
-            serversArray.forEach(serverData => {
-                const serverId = serverData.id || serverData.server_id || serverData.serverId || serverData.server_id;
-                const fps = serverData.fps ?? serverData.FPS ?? serverData.performance ?? null;
+            (async () => {
+                for (const serverData of serversArray) {
+                    const serverId = serverData.id || serverData.server_id || serverData.serverId;
+                    if (!serverId) continue;
 
-                if (serverData.playerTokens && Array.isArray(serverData.playerTokens)) {
-                    _state.collectedPlayerTokens.push(...serverData.playerTokens);
-                    if (_state.collectedPlayerTokens.length > 2000) _state.collectedPlayerTokens.splice(0, _state.collectedPlayerTokens.length - 2000);
-                }
+                    _state.serverDataCache.set(serverId, serverData);
+                    const fps = serverData.fps ?? serverData.FPS ?? serverData.performance ?? null;
+                    if (typeof fps === 'number') {
+                        _state.serverPerformanceCache[serverId] = fps;
+                    }
 
-                if (!serverId || typeof fps !== 'number') return;
-                _state.serverPerformanceCache[serverId] = fps;
-                const serverElement = document.querySelector(`[data-rovalra-serverid="${serverId}"]`);
-                if (serverElement) {
-                    try { displayPerformance(serverElement, fps, _state.serverLocations); } catch (e) {}
+                    if (serverData.playerTokens && Array.isArray(serverData.playerTokens)) {
+                        _state.collectedPlayerTokens.push(...serverData.playerTokens);
+                        if (_state.collectedPlayerTokens.length > 2000) _state.collectedPlayerTokens.splice(0, _state.collectedPlayerTokens.length - 2000);
+                    }
+
+                    const serverElement = document.querySelector(`[data-rovalra-serverid="${serverId}"]`);
+                    if (serverElement) {
+                        if (serverElement.querySelector('.rovalra-unknown-count-icon')) {
+                            const newCard = await createServerCardFromApi(serverData, placeId);
+                            if (newCard) {
+                                serverElement.replaceWith(newCard);
+                            }
+                        } else {
+                            if (typeof fps === 'number') {
+                                try { displayPerformance(serverElement, fps, _state.serverLocations); } catch (e) {}
+                            }
+                        }
+                    }
                 }
-            });
+            })();
         } catch (e) {}
     });
 } catch (e) {}
@@ -493,54 +510,125 @@ export async function createServerCardFromApi(server, placeId = '') {
         const serverId = server.server_id || server.id || '';
         serverItem.dataset.rovalraServerid = serverId;
 
+        const cachedServerData = _state.serverDataCache.get(serverId);
+        if (cachedServerData) {
+            if (typeof cachedServerData.playing === 'number' && typeof server.playing !== 'number') {
+                server.playing = cachedServerData.playing;
+                server.maxPlayers = cachedServerData.maxPlayers;
+            }
+            if (cachedServerData.playerTokens && !server.playerTokens) {
+                server.playerTokens = cachedServerData.playerTokens;
+            }
+        }
+
+        const hasPlayerCount = typeof server.playing === 'number' && typeof server.maxPlayers === 'number';
         let thumbnailsHTML = '';
         const placeholderSrc = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNTAgMTUwIj48cmVjdCB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgZmlsbD0iI0UzRTNFMyIvPjwvc3ZnPg==';
-        
-        let tokensToFetch = [];
-        if (_state.collectedPlayerTokens && _state.collectedPlayerTokens.length > 0) {
-            let availableTokens = _state.collectedPlayerTokens.filter(t => !_state.recentlyUsedTokens.includes(t));
-            
-            if (availableTokens.length < 6) {
-                availableTokens = [..._state.collectedPlayerTokens];
+
+        const playerTokens = server.playerTokens || [];
+        const displayLimit = 6;
+
+        if (playerTokens.length > 0) {
+            let itemsToDisplay = playerTokens.slice(0, displayLimit);
+            let remainingCount = 0;
+
+            if (hasPlayerCount && server.playing > displayLimit) {
+                itemsToDisplay = playerTokens.slice(0, displayLimit - 1);
+                remainingCount = server.playing - itemsToDisplay.length;
             }
 
-            for (let i = 0; i < 6; i++) {
-                if (availableTokens.length === 0) break;
-                const randomIndex = Math.floor(Math.random() * availableTokens.length);
-                const token = availableTokens[randomIndex];
-                tokensToFetch.push({ id: token });
-                availableTokens.splice(randomIndex, 1);
-                _state.recentlyUsedTokens.push(token);
-            }
-            
-            if (_state.recentlyUsedTokens.length > 60) _state.recentlyUsedTokens.splice(0, _state.recentlyUsedTokens.length - 60);
-        }
-
-        if (tokensToFetch.length > 0) {
+            const thumbnailItems = itemsToDisplay.map(token => ({ id: token }));
             try {
-                const thumbnailMap = await fetchThumbnails(tokensToFetch, 'PlayerToken', '150x150');
-                thumbnailsHTML = tokensToFetch.map(t => {
-                    const data = thumbnailMap.get(t.id);
-                    const src = (data && data.imageUrl) ? data.imageUrl : placeholderSrc;
+                const thumbnailMap = await fetchThumbnails(thumbnailItems, 'PlayerToken', '150x150');
+                thumbnailsHTML = thumbnailItems.map(item => {
+                    const thumbData = thumbnailMap.get(item.id);
+                    const src = (thumbData && thumbData.imageUrl) ? thumbData.imageUrl : placeholderSrc;
                     return `<span class="avatar avatar-headshot-md player-avatar"><span class="thumbnail-2d-container avatar-card-image"><img src="${src}" alt="Player"></span></span>`;
                 }).join('');
+
+                if (remainingCount > 0) {
+                    thumbnailsHTML += `<span class="avatar avatar-headshot-md player-avatar hidden-players-placeholder">+${remainingCount}</span>`;
+                }
             } catch (e) {}
+        } else if (!hasPlayerCount || server.playing > 0) {
+            let tokensToFetch = [];
+            let fetchCount = displayLimit;
+            let addPlaceholder = false;
+            let remainingCount = 0;
+
+            if (hasPlayerCount && server.playing > displayLimit) {
+                fetchCount = displayLimit - 1;
+                addPlaceholder = true;
+                remainingCount = server.playing - fetchCount;
+            }
+
+            if (_state.collectedPlayerTokens && _state.collectedPlayerTokens.length > 0) {
+                let availableTokens = _state.collectedPlayerTokens.filter(t => !_state.recentlyUsedTokens.includes(t));
+                
+                if (availableTokens.length < fetchCount) {
+                    availableTokens = [..._state.collectedPlayerTokens];
+                }
+
+                for (let i = 0; i < fetchCount; i++) {
+                    if (availableTokens.length === 0) break;
+                    const randomIndex = Math.floor(Math.random() * availableTokens.length);
+                    const token = availableTokens[randomIndex];
+                    tokensToFetch.push({ id: token });
+                    availableTokens.splice(randomIndex, 1);
+                    _state.recentlyUsedTokens.push(token);
+                }
+                
+                if (_state.recentlyUsedTokens.length > 60) _state.recentlyUsedTokens.splice(0, _state.recentlyUsedTokens.length - 60);
+            }
+
+            if (tokensToFetch.length > 0) {
+                try {
+                    const thumbnailMap = await fetchThumbnails(tokensToFetch, 'PlayerToken', '150x150');
+                    thumbnailsHTML = tokensToFetch.map(t => {
+                        const data = thumbnailMap.get(t.id);
+                        const src = (data && data.imageUrl) ? data.imageUrl : placeholderSrc;
+                        return `<span class="avatar avatar-headshot-md player-avatar"><span class="thumbnail-2d-container avatar-card-image"><img src="${src}" alt="Player"></span></span>`;
+                    }).join('');
+                } catch (e) {}
+            }
+            if (addPlaceholder) {
+                thumbnailsHTML += `<span class="avatar avatar-headshot-md player-avatar hidden-players-placeholder">+${remainingCount}</span>`;
+            }
         }
 
-        if (!thumbnailsHTML) {
-            for (let i = 0; i < 6; i++) {
+        if (!thumbnailsHTML && (!hasPlayerCount || server.playing > 0)) {
+            let placeholderCount = displayLimit;
+            let addPlaceholder = false;
+            let remainingCount = 0;
+
+            if (hasPlayerCount && server.playing > displayLimit) {
+                placeholderCount = displayLimit - 1;
+                addPlaceholder = true;
+                remainingCount = server.playing - placeholderCount;
+            }
+
+            for (let i = 0; i < placeholderCount; i++) {
                 thumbnailsHTML += `<span class="avatar avatar-headshot-md player-avatar"><span class="thumbnail-2d-container avatar-card-image"><img src="${placeholderSrc}" alt="Player"></span></span>`;
+            }
+
+            if (addPlaceholder) {
+                thumbnailsHTML += `<span class="avatar avatar-headshot-md player-avatar hidden-players-placeholder">+${remainingCount}</span>`;
             }
         }
 
         const playerThumbnailsContainerHTML = `
             <div class="player-thumbnails-container" style="position: relative;">
                 ${thumbnailsHTML}
-                <span class="icon-moreinfo rovalra-unknown-count-icon" style="position: absolute; top: -11px; right: -15px; z-index: 5; cursor: help;"></span>
+                ${!hasPlayerCount ? `<span class="icon-moreinfo rovalra-unknown-count-icon" style="position: absolute; top: -11px; right: -15px; z-index: 5; cursor: help;"></span>` : ''}
             </div>`;
 
-        const serverDetailsHTML = `
-            <div class="text-info rbx-game-status rbx-public-game-server-status text-overflow">Player count unknown</div>`;
+        const serverDetailsHTML = hasPlayerCount
+            ? `
+            <div class="text-info rbx-game-status rbx-public-game-server-status text-overflow">${server.playing} of ${server.maxPlayers} people max</div>
+            <div class="server-player-count-gauge border"><div class="gauge-inner-bar border" style="width: ${ (server.playing / server.maxPlayers) * 100}%;"></div></div>`
+            : `
+            <div class="text-info rbx-game-status rbx-public-game-server-status text-overflow">Player count unknown</div>
+            <div class="server-player-count-gauge border"><div class="gauge-inner-bar border" style="width: 0%;"></div></div>`;
 
         serverItem.innerHTML = DOMPurify.sanitize(`
             <div class="card-item card-item-public-server">
@@ -550,9 +638,11 @@ export async function createServerCardFromApi(server, placeId = '') {
                 </div>
             </div>`);
 
-        const infoIcon = serverItem.querySelector('.rovalra-unknown-count-icon');
-        if (infoIcon) {
-            addTooltip(infoIcon, "Player count is unknown, this is a Roblox limitation. the thumbnails are not representative of the people in game", { position: 'top' });
+        if (!hasPlayerCount) {
+            const infoIcon = serverItem.querySelector('.rovalra-unknown-count-icon');
+            if (infoIcon) {
+                addTooltip(infoIcon, "Player count is unknown, this is a Roblox limitation. the thumbnails are not representative of the people in game", { position: 'top' });
+            }
         }
 
         if (placeId) {
