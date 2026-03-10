@@ -122,7 +122,7 @@ function injectFileUploadCss() {
 }
 
 
-export function createFileUpload({ id, accept = 'image/*', compress = true, compressSettingName, onFileSelect, onFileClear }) {
+export function createFileUpload({ id, accept = 'image/*', compress = true, compressSettingName, onFileSelect, onFileClear } = {}) {
     injectFileUploadCss();
 
     const wrapper = document.createElement('div');
@@ -194,16 +194,25 @@ export function createFileUpload({ id, accept = 'image/*', compress = true, comp
             const reader = new FileReader();
             reader.onload = async (e) => {
                 try {
-                    const base64Data = e.target.result;
-                    
-                    if (!base64Data || !base64Data.startsWith('data:image/')) {
+                    const base64Data = e.target.result;                    
+                    if (!base64Data || !base64Data.startsWith('data:')) {
+                        errorMessage.textContent = 'Invalid file format.';
+                        errorMessage.style.display = 'block';
+                        fileInput.value = '';
+                        clearPreview();
+                        return;
+                    }
+
+                    const isImageUpload = accept.includes('image');
+
+                    if (isImageUpload && !base64Data.startsWith('data:image/')) {
                         errorMessage.textContent = 'Invalid file format. Please upload a valid image.';
                         errorMessage.style.display = 'block';
                         fileInput.value = '';
                         clearPreview();
                         return;
                     }
-                    
+
                     let shouldCompress = compress;
                     if (compressSettingName) {
                         const result = await chrome.storage.local.get([compressSettingName]);
@@ -211,12 +220,12 @@ export function createFileUpload({ id, accept = 'image/*', compress = true, comp
                     }
                     
                     let finalData = base64Data;
-                    if (file.type.startsWith('image/')) {
+                    if (isImageUpload && file.type.startsWith('image/')) {
                         finalData = await compressImage(base64Data, shouldCompress);
                     }
                     
-                    if (!finalData || !finalData.startsWith('data:image/')) {
-                        errorMessage.textContent = 'Image processing failed. Please try another file.';
+                    if (!finalData) {
+                        errorMessage.textContent = 'File processing failed. Please try another file.';
                         errorMessage.style.display = 'block';
                         fileInput.value = '';
                         clearPreview();
@@ -226,7 +235,7 @@ export function createFileUpload({ id, accept = 'image/*', compress = true, comp
                     const finalSize = Math.round((finalData.length * 3) / 4); 
                     
                     if (finalSize > MAX_FILE_SIZE) {
-                        const errorMsg = shouldCompress 
+                        const errorMsg = shouldCompress && isImageUpload
                             ? `File too large even after compression. Size: ${formatFileSize(finalSize)}, maximum: ${formatFileSize(MAX_FILE_SIZE)}.`
                             : `File too large. Size: ${formatFileSize(finalSize)}, maximum: ${formatFileSize(MAX_FILE_SIZE)}. Enable compression to reduce file size.`;
                         errorMessage.textContent = errorMsg;
@@ -236,12 +245,14 @@ export function createFileUpload({ id, accept = 'image/*', compress = true, comp
                         return;
                     }
                     
-                    setPreview(finalData, finalSize);
-                    
+                    setPreview(finalData, finalSize, file.type);
+                    setFileName(file.name);
+                    showClear(true);
+
                     onFileSelect(finalData);
                 } catch (error) {
-                    console.error('Error processing image:', error);
-                    errorMessage.textContent = 'Error processing image. Please try another file.';
+                    console.error('Error processing file:', error);
+                    errorMessage.textContent = 'Error processing file. Please try another file.';
                     errorMessage.style.display = 'block';
                     fileInput.value = '';
                     clearPreview();
@@ -253,8 +264,10 @@ export function createFileUpload({ id, accept = 'image/*', compress = true, comp
 
     if (onFileClear) {
         clearButton.addEventListener('click', () => {
-            fileInput.value = ''; 
+            fileInput.value = '';
             clearPreview();
+            setFileName(null);
+            showClear(false);
             onFileClear();
         });
     }
@@ -278,8 +291,14 @@ export function createFileUpload({ id, accept = 'image/*', compress = true, comp
         clearButton.style.display = visible ? 'inline-flex' : 'none';
     };
 
-    const setPreview = (base64Data, sizeInBytes) => {
-        previewImage.src = base64Data;
+    const setPreview = (base64Data, sizeInBytes, fileType) => {
+        if ((fileType && fileType.startsWith('image/')) || (base64Data && base64Data.startsWith('data:image/'))) {
+            previewImage.src = base64Data;
+            previewImage.style.display = 'block';
+        } else {
+            previewImage.src = '';
+            previewImage.style.display = 'none';
+        }
         fileSizeDisplay.textContent = formatFileSize(sizeInBytes);
         previewContainer.classList.add('visible');
     };

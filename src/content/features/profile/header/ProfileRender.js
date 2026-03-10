@@ -1,10 +1,13 @@
 import { observeElement } from '../../../core/observer.js';
 import { getUserIdFromUrl } from '../../../core/idExtractor.js';
-import { injectStylesheet } from '../../../core/ui/cssInjector.js';
+import { injectStylesheet, removeStylesheet } from '../../../core/ui/cssInjector.js';
 import { callRobloxApiJson } from '../../../core/api.js';
 import { createSquareButton } from '../../../core/ui/profile/header/squarebutton.js';
 import { createOverlay } from '../../../core/ui/overlay.js'; 
 import { createDropdown } from '../../../core/ui/dropdown.js';
+import { addTooltip } from '../../../core/ui/tooltip.js';
+import { showConfirmationPrompt } from '../../../core/ui/confirmationPrompt.js';
+import { getAuthenticatedUserId } from '../../../core/user.js';
 import { getAssets } from '../../../core/assets.js';
 import { 
     RegisterWrappers, 
@@ -19,7 +22,9 @@ import {
     animNamesR15,
     animNamesR6
 } from 'roavatar-renderer';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
+import * as THREE from 'three';
 FLAGS.ASSETS_PATH = chrome.runtime.getURL("assets/rbxasset/");
 FLAGS.USE_WORKERS = false; 
 
@@ -32,10 +37,40 @@ let preloadedCanvas = null;
 let isPreloading = false;
 let globalAvatarData = null; 
 let avatarDataPromise = null;
+let isCustomEnvLoaded = false;
+let environmentConfig = null;
 
 let activeEmoteId = null;
 let activeAnimValue = null;
 
+let isAnimatePatched = false;
+
+function patchAnimateForRotation() {
+    if (isAnimatePatched || typeof RBXRenderer.animate !== 'function') return;
+
+    const originalAnimate = RBXRenderer.animate;
+    if (originalAnimate.toString().includes('getRendererControls')) {
+        isAnimatePatched = true;
+        return;
+    }
+
+    RBXRenderer.animate = function() {
+        const controls = RBXRenderer.getRendererControls();
+        if (controls) {
+            controls.update();
+        }
+
+        RBXRenderer.renderer.setRenderTarget(null);
+        if (RBXRenderer.effectComposer) {
+            RBXRenderer.effectComposer.render();
+        } else {
+            RBXRenderer.renderer.render(RBXRenderer.scene, RBXRenderer.camera);
+        }
+
+        requestAnimationFrame(() => RBXRenderer.animate());
+    };
+    isAnimatePatched = true;
+}
 
 function getAnimatorW(rig = currentRig) {
     if (!rig) return null;
@@ -201,20 +236,25 @@ async function createEmoteRadialMenu(emotesData, onSelect) {
 }
 
 
-function injectCustomButtons(container) {
-    if (!globalAvatarData || container.querySelector('.rovalra-custom-controls')) return;
+function injectCustomButtons(toggleButton) {
+    if (!globalAvatarData || toggleButton.querySelector('.rovalra-custom-controls')) return;
 
     const controlsWrapper = document.createElement('div');
     controlsWrapper.className = 'rovalra-custom-controls';
     
+
     Object.assign(controlsWrapper.style, {
         display: 'flex',
         gap: '5px',
+        alignItems: 'center',
         position: 'absolute',
-        top: '10px',
-        left: '10px',
-        zIndex: '10'
+        bottom: '0px',   
+        right: '800px', // Moves it all the way to the left
+        zIndex: '100',    
+        pointerEvents: 'auto' 
     });
+
+    toggleButton.style.overflow = 'visible';
 
     const assets = getAssets();
 
@@ -227,13 +267,19 @@ function injectCustomButtons(container) {
 
         const emoteBtn = createSquareButton({ content: emoteIcon, width: 'auto', fontSize: '12px' });
         emoteBtn.addEventListener('click', async (e) => {
-            e.stopPropagation();
-            
+            e.stopPropagation(); 
             const radialContent = await createEmoteRadialMenu(globalAvatarData.emotes, async (emote) => {
                 await playEmote(emote.assetId, false, 10);
                 overlayHandle.close(); 
             });
-            const overlayHandle = createOverlay({ title: 'Emotes', bodyContent: radialContent, maxWidth: '450px', overflowVisible: true, showLogo: true });
+            const overlayHandle = createOverlay({ 
+                title: 'Emotes', 
+                bodyContent: radialContent, 
+                maxWidth: '450px', 
+                overflowVisible: true, 
+                showLogo: true,
+                onClose: () => removeStylesheet('rovalra-profile-render-css')
+            });
         });
         controlsWrapper.appendChild(emoteBtn);
     }
@@ -246,34 +292,31 @@ function injectCustomButtons(container) {
     const settingsBtn = createSquareButton({ content: settingsIcon, width: 'auto', fontSize: '12px' });
 
     settingsBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
+        e.stopPropagation(); 
         const contentContainer = document.createElement('div');
         Object.assign(contentContainer.style, { display: 'flex', flexDirection: 'column', gap: '15px', padding: '5px' });
 
         const animSection = document.createElement('div');
         animSection.innerHTML = '<div class="text-label-small" style="margin-bottom:5px; color:var(--rovalra-secondary-text-color);">Animations</div>';
-
+        
         const updateAnimationDropdown = () => {
             const existingDropdown = animSection.querySelector('.rovalra-dropdown-container');
             if (existingDropdown) existingDropdown.remove();
-
             let animItems = [];
             const animAssets = globalAvatarData.assets.filter(a => a.assetType.name.includes("Animation"));
-
             if (animAssets.length > 0) {
                 animItems = animAssets.map(a => ({
                     label: a.assetType.name.replace("Animation", ""),
                     value: String(a.assetType.name.toLowerCase().replace("animation", ""))
                 }));
             } else {
-                const excludedAnims = ['toolnone', 'idle', 'sit', 'swimidle', 'toolslash', 'toollunge'];
+                const excludedAnims = ['toolnone', 'idle', 'sit', 'swimidle', 'toolslash', 'toollunge']; // Idk why they are added tbh
                 const defaultAnims = currentRigType === 'R6' ? animNamesR6 : animNamesR15;
                 animItems = Object.keys(defaultAnims).map(animName => {
                     if (excludedAnims.includes(animName) || animName.startsWith('dance')) return null;
                     return { label: animName.charAt(0).toUpperCase() + animName.slice(1), value: animName };
                 }).filter(Boolean);
             }
-
             const { element: dropdownElement } = createDropdown({
                 items: [{ label: 'Idle', value: 'idle' }, ...animItems],
                 initialValue: activeAnimValue || 'idle',
@@ -292,14 +335,11 @@ function injectCustomButtons(container) {
         const rigSection = document.createElement('div');
         rigSection.innerHTML = '<div class="text-label-small" style="margin-bottom:5px; color:var(--rovalra-secondary-text-color);">Rig Type</div>';
         const rigButtons = document.createElement('div');
-        rigButtons.style.display = 'flex';
-        rigButtons.style.gap = '10px';
-
+        rigButtons.style.display = 'flex'; rigButtons.style.gap = '10px';
         ['R6', 'R15'].forEach(type => {
             const btn = document.createElement('button');
             btn.className = (currentRigType === type) ? 'btn-primary-sm' : 'btn-secondary-sm';
-            btn.textContent = type;
-            btn.style.flex = '1';
+            btn.textContent = type; btn.style.flex = '1';
             btn.onclick = async () => {
                 if (currentRigType === type) return;
                 Array.from(rigButtons.children).forEach(b => b.className = 'btn-secondary-sm');
@@ -309,18 +349,42 @@ function injectCustomButtons(container) {
             };
             rigButtons.appendChild(btn);
         });
-
         rigSection.appendChild(rigButtons);
         contentContainer.appendChild(rigSection);
         updateAnimationDropdown();
         contentContainer.appendChild(animSection);
+
         createOverlay({ title: 'Render Settings', bodyContent: contentContainer, maxWidth: '400px', overflowVisible: true, showLogo: true });
     });
 
     controlsWrapper.appendChild(settingsBtn);
-    container.appendChild(controlsWrapper);
-}
+    
+    if (isCustomEnvLoaded && environmentConfig && environmentConfig.tooltip) {
+        const infoIcon = document.createElement('img');
+        infoIcon.src = assets.priceFloorIcon;
+        infoIcon.style.width = '24px';
+        infoIcon.style.height = '24px';
+        infoIcon.style.filter = 'invert(1)';
+        infoIcon.style.cursor = 'pointer';
 
+        addTooltip(infoIcon, environmentConfig.tooltip.text, { position: 'top' });
+
+        infoIcon.addEventListener('click', (e) => {
+            e.stopPropagation();
+            showConfirmationPrompt({
+                title: 'External Site',
+                message: 'You are about to be redirected to an external website which may have different privacy policies than Roblox. Do you want to continue?',
+                confirmText: 'Continue',
+                onConfirm: () => {
+                    window.open(environmentConfig.tooltip.link, '_blank');
+                }
+            });
+        });
+        controlsWrapper.appendChild(infoIcon);
+    }
+
+    toggleButton.prepend(controlsWrapper);
+}
 // Rendering loop
 function startAnimationLoop() {
     const animate = () => {
@@ -340,7 +404,104 @@ function startAnimationLoop() {
     animate();
 }
 
+async function loadCustomEnvironment(scene, config) {
+    if (!config || !config.url) return;
+
+    return new Promise((resolve, reject) => {
+        const loader = new GLTFLoader();
+        let envUrl = config.url;
+
+        if (!envUrl.startsWith('http')) {
+            envUrl = chrome.runtime.getURL(envUrl);
+        }
+
+        loader.load(envUrl, (gltf) => {
+            const model = gltf.scene;
+            
+            if (config.position) model.position.set(...config.position);
+            if (config.scale) model.scale.set(...config.scale);
+            
+            model.traverse(node => {
+                if (node.isMesh) {
+                    if (config.receiveShadow !== undefined) node.receiveShadow = config.receiveShadow;
+                    if (config.castShadow !== undefined) node.castShadow = config.castShadow;
+                }
+            });
+
+            scene.add(model);
+            if (RBXRenderer.plane) RBXRenderer.plane.visible = false;
+            isCustomEnvLoaded = true;
+            resolve();
+        }, undefined, reject);
+    });
+}
+
+function setupAtmosphere(scene, config, isCustomEnv = false) {
+    if (!config) return;
+
+    if (config.background) {
+        scene.background = new THREE.Color(config.background);
+    } else {
+        scene.background = null; 
+    }
+
+    scene.children.filter(obj => obj.isLight).forEach(light => scene.remove(light));
+    if (config.lights && Array.isArray(config.lights)) {
+        config.lights.forEach(lightDef => {
+            let light;
+            const color = new THREE.Color(lightDef.color || 0xffffff);
+            const intensity = lightDef.intensity !== undefined ? lightDef.intensity : 1;
+
+            if (lightDef.type === 'DirectionalLight') {
+                light = new THREE.DirectionalLight(color, intensity);
+                if (lightDef.position) light.position.set(...lightDef.position);
+                if (lightDef.castShadow) light.castShadow = true;
+            } else if (lightDef.type === 'AmbientLight') {
+                light = new THREE.AmbientLight(color, intensity);
+            }
+
+            if (light) scene.add(light);
+        });
+    }
+
+
+    const shouldShowPlane = (config.showFloor !== undefined) ? config.showFloor : !isCustomEnv;
+
+    if (RBXRenderer.shadowPlane) RBXRenderer.shadowPlane.visible = shouldShowPlane;
+    if (RBXRenderer.plane) RBXRenderer.plane.visible = shouldShowPlane;
+
+    if (config.fog) {
+        scene.fog = new THREE.Fog(
+            new THREE.Color(config.fog.color || 0xffffff), 
+            config.fog.near || 30, 
+            config.fog.far || 120
+        );
+    } else {
+        scene.fog = null;
+    }
+}
 // PRELOADER WITH EMOTE PRERENDERING
+// Define a standard lighting setup to use when no custom environment is active
+const DEFAULT_VOID_CONFIG = {
+    atmosphere: {
+         showFloor: false,
+        lights: [
+            {
+                type: 'AmbientLight',
+                color: "#ffffff",
+                intensity: 1.2
+            },
+            {
+                type: 'DirectionalLight',
+                color: "#ffffff",
+                intensity: 1.5,
+                position: [10, 20, 10],
+                castShadow: true
+            }
+        ]
+    }
+};
+
 async function preloadAvatar() {
     if (avatarDataPromise) return avatarDataPromise;
     avatarDataPromise = (async () => {
@@ -348,17 +509,144 @@ async function preloadAvatar() {
         isPreloading = true;
         const userId = getUserIdFromUrl();
         if (!userId) { isPreloading = false; return null; }
+
+        const authUserId = await getAuthenticatedUserId();
+        const isOwnProfile = String(userId) === String(authUserId);
+
+        const settings = await new Promise(resolve => 
+            chrome.storage.local.get([ 'profileRenderRotateEnabled',
+                'profileRenderEnvironment', 'environmentTester', 'modelUrl', 'modelPosX', 'modelPosY', 'modelPosZ', 
+                'modelScaleX', 'modelScaleY', 'modelScaleZ', 'modelCastShadow', 'modelReceiveShadow', 'cameraFar', 'skyboxToggle',
+                'skyboxPx', 'skyboxNx', 'skyboxPy', 'skyboxNy', 'skyboxPz', 'skyboxNz',
+                'bgColor', 'showFloor', 'ambientLightToggle', 'ambientLightColor', 'ambientLightIntensity',
+                'dirLightToggle', 'dirLightColor', 'dirLightIntensity', 'dirLightPosX', 'dirLightPosY', 'dirLightPosZ', 'dirLightCastShadow',
+                'fogToggle', 'fogColor', 'fogNear', 'fogFar', 'tooltipToggle', 'tooltipText', 'tooltipLink'
+            ], resolve)
+        );
+
+        const useDevEnvironment = settings.environmentTester && settings.modelUrl;
+
         try {
             RegisterWrappers();
+            patchAnimateForRotation();
             await RBXRenderer.fullSetup(true, true);
-            RBXRenderer.setBackgroundTransparent(true);
+            const camera = RBXRenderer.getRendererCamera();
+            RBXRenderer.setBackgroundTransparent(true); 
+
+            const controls = RBXRenderer.getRendererControls();
+            if (controls) {
+                controls.autoRotate = !!settings.profileRenderRotateEnabled;
+                controls.autoRotateSpeed = 1.0;
+            }
+
+            const scene = RBXRenderer.getScene();
+
+            if (useDevEnvironment) {
+                environmentConfig = {
+                    model: {
+                        url: settings.modelUrl,
+                        position: [parseFloat(settings.modelPosX) || 0, parseFloat(settings.modelPosY) || 0, parseFloat(settings.modelPosZ) || 0],
+                        scale: [parseFloat(settings.modelScaleX) || 1, parseFloat(settings.modelScaleY) || 1, parseFloat(settings.modelScaleZ) || 1],
+                        castShadow: settings.modelCastShadow,
+                        receiveShadow: settings.modelReceiveShadow
+                    },
+                    atmosphere: {
+                        background: settings.bgColor || null,
+                        showFloor: settings.showFloor,
+                        lights: [],
+                        fog: null
+                    }
+                };
+                if (settings.ambientLightToggle) {
+                    environmentConfig.atmosphere.lights.push({
+                        type: 'AmbientLight',
+                        color: settings.ambientLightColor,
+                        intensity: parseFloat(settings.ambientLightIntensity) || 0
+                    });
+                }
+                if (settings.dirLightToggle) {
+                    environmentConfig.atmosphere.lights.push({
+                        type: 'DirectionalLight',
+                        color: settings.dirLightColor,
+                        intensity: parseFloat(settings.dirLightIntensity) || 0,
+                        position: [parseFloat(settings.dirLightPosX) || 0, parseFloat(settings.dirLightPosY) || 0, parseFloat(settings.dirLightPosZ) || 0],
+                        castShadow: settings.dirLightCastShadow
+                    });
+                }
+                if (settings.fogToggle) {
+                    environmentConfig.atmosphere.fog = {
+                        color: settings.fogColor,
+                        near: parseFloat(settings.fogNear) || 0,
+                        far: parseFloat(settings.fogFar) || 0
+                    };
+                }
+                if (settings.tooltipToggle) {
+                    environmentConfig.tooltip = {
+                        text: settings.tooltipText,
+                        link: settings.tooltipLink
+                    };
+                }
+                isCustomEnvLoaded = true;
+            } else {
+                let environmentEndpoint = null;
+                if (isOwnProfile) {
+                    const profileEnv = settings.profileRenderEnvironment || 'void';
+                    if (profileEnv === 'beachside') {
+                        environmentEndpoint = '/static/json/beachside_environment.json';
+                    }
+                }
+                
+                if (environmentEndpoint) {
+                    environmentConfig = await callRobloxApiJson({
+                        isRovalraApi: true,
+                        subdomain: 'www',
+                        endpoint: environmentEndpoint,
+                        method: 'GET'
+                    });
+                    isCustomEnvLoaded = !!environmentConfig.model;
+                } else {
+                    environmentConfig = DEFAULT_VOID_CONFIG;
+                    isCustomEnvLoaded = false;
+                }
+            }
+
+            if (isCustomEnvLoaded && environmentConfig.model) {
+                await loadCustomEnvironment(scene, environmentConfig.model);
+            }
+            setupAtmosphere(scene, environmentConfig?.atmosphere || DEFAULT_VOID_CONFIG.atmosphere, isCustomEnvLoaded);
+
+            let skyboxUrls = null;
+            if (useDevEnvironment && settings.skyboxToggle) {
+                skyboxUrls = [
+                    settings.skyboxPx, settings.skyboxNx,
+                    settings.skyboxPy, settings.skyboxNy,
+                    settings.skyboxNz, settings.skyboxPz
+                ];
+            } else if (environmentConfig?.skybox) {
+                skyboxUrls = environmentConfig.skybox;
+            }
+
+            if (skyboxUrls && skyboxUrls.every(url => url)) {
+                const cubeLoader = new THREE.CubeTextureLoader();
+                scene.background = cubeLoader.load(skyboxUrls);
+                if (RBXRenderer.plane) RBXRenderer.plane.visible = false;
+                if (RBXRenderer.shadowPlane) RBXRenderer.shadowPlane.visible = false;
+            }
+
+            if (camera) {
+                let farValue = 100;
+                if (environmentConfig?.camera?.far) {
+                    farValue = environmentConfig.camera.far;
+                } else if (useDevEnvironment && settings.cameraFar) {
+                    const parsedFar = parseFloat(settings.cameraFar);
+                    if (!isNaN(parsedFar)) farValue = parsedFar;
+                }
+                camera.far = farValue;
+                camera.updateProjectionMatrix();
+            }
+
             preloadedCanvas = RBXRenderer.getRendererElement();
-            
-            Object.assign(preloadedCanvas.style, {
-                width: '100%',
-                height: '100%',
-                outline: 'none'
-            });
+            Object.assign(preloadedCanvas.style, { width: '100%', height: '100%', outline: 'none' });
 
             globalAvatarData = await callRobloxApiJson({
                 subdomain: 'avatar',
@@ -367,17 +655,6 @@ async function preloadAvatar() {
 
             await loadRig(globalAvatarData.playerAvatarType);
             startAnimationLoop();
-
-            // Background pre-loading of emotes (non-blocking)
-            // To prevent a delay when a user plays an emote
-            if (globalAvatarData.emotes && currentRigType === 'R15') {
-                const animatorW = getAnimatorW(currentRig);
-                if (animatorW) {
-                    globalAvatarData.emotes.forEach(emote => {
-                        animatorW.loadAvatarAnimation(BigInt(emote.assetId), true, false);
-                    });
-                }
-            }
 
             return globalAvatarData;
         } catch (err) {
@@ -389,7 +666,6 @@ async function preloadAvatar() {
     })();
     return avatarDataPromise;
 }
-
 async function attachPreloadedAvatar(container) {
     if (container.dataset.rovalraRendered) return;
     await preloadAvatar();
@@ -420,16 +696,16 @@ export function init() {
     chrome.storage.local.get({ profile3DRenderEnabled: true }, (result) => {
         if (result.profile3DRenderEnabled) {
             const avatarPromise = preloadAvatar();
+            injectStylesheet('css/thumbnailholder.css', 'rovalra-thumbnail-holder-css');
             observeElement(
                 '.thumbnail-holder-position .thumbnail-3d-container > canvas[data-engine*="three.js"], .avatar-toggle-button',
                 (element) => {
                     if (element.tagName === 'CANVAS') {
                         attachPreloadedAvatar(element.parentElement);
-                    } else {
-                        const container = element.closest('.thumbnail-3d-container') || element.parentElement;
-                        if (container) {
-                            avatarPromise.then(data => data && injectCustomButtons(container));
-                        }
+                    } else if (element.classList.contains('avatar-toggle-button')) {
+                        avatarPromise.then(data => {
+                            if (data) injectCustomButtons(element);
+                        });
                     }
                 },
                 { multiple: true }

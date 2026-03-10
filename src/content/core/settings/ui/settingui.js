@@ -4,8 +4,9 @@ import { createDropdown } from '../../ui/dropdown.js';
 
 
 function ensureDeveloperSettings() {
+
     if (!SETTINGS_CONFIG.Developer) {
-        addDeveloperTab({});
+        SETTINGS_CONFIG.Developer = { title: "Developer", settings: {} };
     }
 }
 
@@ -173,7 +174,7 @@ export async function buildSettingsPage({ handleSearch, debounce, loadTabContent
         if (rovalraIconClickCount >= 10 && !devTabAdded) {
             devTabAdded = true;
             ensureDeveloperSettings();
-            addDeveloperTab({ 
+            addDeveloperTabUI({ 
                 REGIONS, 
                 initSettings, 
                 menuList: unifiedMenu, 
@@ -340,97 +341,7 @@ function createSidebarItem(sectionName, title, loadTabContent) {
     return listItem;
 }
 
-function addDeveloperTab({ menuList, loadTabContent, renderMobileDropdown }) {
-    SETTINGS_CONFIG.Developer = {
-        title: "Developer",
-        settings: {
-            info: {
-                label: ["Developer Settings"],
-                description: ["These are features used mostly to develop rovalra, if you don't know what your doing dont touch them."],
-                type: "yay"
-            },
-            alwaysShowDeveloperSettings: {
-                label: ["Always show developer settings tab"],
-                description: ["This will make the developer settings tab always show. So you dont have to do the easter egg every time."],
-                type: "checkbox",
-                default: false
-                    
-            },
-            EnableRobloxApiDocs: {
-                label: "Roblox API docs",
-                description: ["This adds documentation for Roblox apis on https://www.roblox.com/docs",
-                    "All the apis are captured when you browse the site.",
-                    "This stores all the APIs in storage."
-                ],
-                type: "checkbox",
-                default: false
-            },
-            EnablebannerTest: {
-                label: ["Banner test"],
-                description: ["This adds a test banner to experiences"],
-                type: "checkbox",
-                default: false
-            },
-            impersonateRobloxStaffSetting: {
-                label: ["Impersonate User Option On Profiles"],
-                description: ["This enables the 'Impersonate User' option on peoples profile, used by Roblox internally.",
-                    "Pressing the 'Impersonate User' option does nothing other than error unless you are authorized to use it"
-                ],
-                deprecated: "Roblox removed it with the new profile overhaul",
-                type: "checkbox",
-                default: false
-            },
-            EarlyAccessProgram: {
-                label: ["Early Access Program Showcase"],
-                description: ["This will trick Roblox into thinking you are in an early access program, making Roblox add the early access program UI to your settings",
-                    "This setting wont allow you to join any early access programs you werent invited to.",
-                    "This will also overwrite any early access programs you might already be in."
-                ],
-                type: "checkbox",
-                default: false
-            },
-            EnableVideoTest: {
-                label: ["Video test"],
-                description: ["This adds a video test for experience trailers not uploaded to youtube on https://www.roblox.com/videotest",
-                    "Since this feature is only supported on the client."
-                ],
-                type: "checkbox",
-                default: false
-            },
-            onboardingShown: {
-                label: ["Show onboarding"],
-                description: ["This will show RoValra's onboarding screen again when this setting is disabled."],
-                type: "checkbox",
-                default: false
-            },
-            simulateRoValraServerErrors: {
-                label: ["Simulate RoValra Server Errors / downtime"],
-                description: ["This will simulate RoValra Server errors / downtime, useful when testing how the extension handles stuff like that."],
-                type: "checkbox",
-                default: false
-            },
-            ShowBadgesEverywhere: {
-                label: ["Show badges everywhere"],
-                description: ["This is just a fun setting that will show RoValra badges on any profile"],
-                type: "checkbox",
-                default: false
-            },
-            forceReviewPopup: {
-                label: ["Force Review Popup"],
-                description: ["When enabled, shows the review popup every time it's triggered, ignoring all requirements. For testing purposes."],
-                type: "checkbox",
-                default: false
-            },
-            simulateRoValraServerLatency: {
-                label: ["Simulates RoValra's APIs having latency issues"],
-                description: ["Yup"],
-                type: "checkbox",
-                default: false
-            }
-
-        }
-    };
-
+function addDeveloperTabUI({ menuList, loadTabContent, renderMobileDropdown }) {
     if (menuList && loadTabContent) {
         const devItem = createSidebarItem("Developer", "Developer", loadTabContent);
         

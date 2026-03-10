@@ -190,6 +190,7 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
     else if (setting.type === 'file') {
         const fileUpload = createFileUpload({
             id: settingName,
+            accept: setting.accept,
             compress: setting.compress !== false, 
             compressSettingName: setting.compressSettingName, 
             onFileSelect: (base64Data) => {

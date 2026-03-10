@@ -97,9 +97,17 @@ export const handleSaveSettings = async (settingName, value) => {
                     break;
                     
                 case 'file':
-                    if (value !== null && (typeof value !== 'string' || !value.startsWith('data:image/'))) {
-                        console.warn('Attempted to save non-image data to file setting:', settingName);
+                    if (value === null) {
                         sanitizedValue = null;
+                    } else if (typeof value !== 'string' || !value.startsWith('data:')) {
+                        console.warn(`Invalid data URI for file setting '${settingName}'`);
+                        sanitizedValue = null;
+                    } else {
+                        const accept = settingConfig.accept || 'image/*';
+                        if (accept.includes('image') && !value.startsWith('data:image/')) {
+                             console.warn(`Attempted to save non-image data to an image file setting: '${settingName}'`);
+                             sanitizedValue = null;
+                        }
                     }
                     break;
             }
@@ -491,6 +499,94 @@ export function initializeSettingsEventListeners() {
         createAndShowPopup(() => {
             // Configuration is saved by the popup.
         });
+    });
+
+    document.addEventListener('rovalra:generateEnvironmentJson', async () => {
+        const settings = await loadSettings();
+        const envConfig = {};
+
+        // Model
+        if (settings.modelUrl) {
+            envConfig.model = {
+                url: settings.modelUrl, 
+                position: [
+                    parseFloat(settings.modelPosX) || 0,
+                    parseFloat(settings.modelPosY) || 0,
+                    parseFloat(settings.modelPosZ) || 0
+                ],
+                scale: [
+                    parseFloat(settings.modelScaleX) || 1,
+                    parseFloat(settings.modelScaleY) || 1,
+                    parseFloat(settings.modelScaleZ) || 1
+                ],
+                castShadow: settings.modelCastShadow,
+                receiveShadow: settings.modelReceiveShadow
+            };
+        }
+
+        const atmosphere = {};
+        if (settings.bgColor) {
+            atmosphere.background = settings.bgColor;
+        }
+        atmosphere.showFloor = settings.showFloor;
+
+        const lights = [];
+        if (settings.ambientLightToggle) {
+            lights.push({
+                type: 'AmbientLight',
+                color: settings.ambientLightColor,
+                intensity: parseFloat(settings.ambientLightIntensity) || 0
+            });
+        }
+        if (settings.dirLightToggle) {
+            lights.push({
+                type: 'DirectionalLight',
+                color: settings.dirLightColor,
+                intensity: parseFloat(settings.dirLightIntensity) || 0,
+                position: [
+                    parseFloat(settings.dirLightPosX) || 0,
+                    parseFloat(settings.dirLightPosY) || 0,
+                    parseFloat(settings.dirLightPosZ) || 0
+                ],
+                castShadow: settings.dirLightCastShadow
+            });
+        }
+        if (lights.length > 0) {
+            atmosphere.lights = lights;
+        }
+
+        if (settings.fogToggle) {
+            atmosphere.fog = {
+                color: settings.fogColor,
+                near: parseFloat(settings.fogNear) || 0,
+                far: parseFloat(settings.fogFar) || 0
+            };
+        }
+
+        if (Object.keys(atmosphere).length > 0) {
+            envConfig.atmosphere = atmosphere;
+        }
+
+        if (settings.cameraFar) {
+            const far = parseFloat(settings.cameraFar);
+            if (!isNaN(far) && far !== 100) {
+                envConfig.camera = { far: far };
+            }
+        }
+
+        if (settings.skyboxToggle && settings.skyboxPx && settings.skyboxNx && settings.skyboxPy && settings.skyboxNy && settings.skyboxPz && settings.skyboxNz) {
+            envConfig.skybox = [
+                settings.skyboxPx,
+                settings.skyboxNx,
+                settings.skyboxNy,
+                settings.skyboxPy,
+                settings.skyboxNz,
+                settings.skyboxPz
+            ];
+        }
+
+        console.log("Generated Environment JSON:\n" + JSON.stringify(envConfig, null, 2));
+        alert("Environment JSON has been printed to the console (F12).");
     });
 
     chrome.runtime.onMessage.addListener((request) => {

@@ -14,3 +14,14 @@ export function injectStylesheet(cssPath, id) {
     link.href = chrome.runtime.getURL(cssPath);
     document.head.appendChild(link);
 }
+
+/**
+ * Removes a stylesheet from the document by its ID.
+ * @param {string} id The ID of the stylesheet link element to remove.
+ */
+export function removeStylesheet(id) {
+    const stylesheet = document.getElementById(id);
+    if (stylesheet) {
+        stylesheet.remove();
+    }
+}

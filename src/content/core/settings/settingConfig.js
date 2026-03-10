@@ -369,9 +369,28 @@ export const SETTINGS_CONFIG = {
                 }
             },
             profile3DRenderEnabled: {
-                label: "Placeholder",
+                label: "Enable Custom 3D Profile Renderer",
+                description: ["Replaces the default profile avatar with a more customizable and feature-rich 3D renderer.", "This feature is required for custom environments and other render-related settings."],
                 type: "checkbox",
-                default: true
+                default: true,
+                childSettings: {
+                    profileRenderEnvironment: {
+                        label: "3D Profile Environment",
+                        description: ["Choose a custom environment for your own profile's 3D render.", "This only applies when viewing your own profile."],
+                        type: "select",
+                        options: [
+                            { label: "None", value: "void" },
+                            { label: "Beachside", value: "beachside" }
+                        ],
+                        default: "void"
+                    },
+                    profileRenderRotateEnabled: {
+                        label: "Auto-Rotate Profile Avatar",
+                        description: ["Automatically rotates the 3D avatar on the profile page."],
+                        type: "checkbox",
+                        default: false
+                    }
+                }
             },
             trustedConnectionsEnabled: {
                 label: "Trusted Connections",
@@ -967,5 +986,163 @@ export const SETTINGS_CONFIG = {
 
         }
 
+    },
+    Developer: {
+        title: "Developer",
+        settings: {
+
+        info: {
+            label: ["Developer Settings"],
+            description: ["These are features used mostly to develop rovalra, if you don't know what your doing dont touch them."],
+            type: "yay"
+        },
+        alwaysShowDeveloperSettings: {
+            label: ["Always show developer settings tab"],
+            description: ["This will make the developer settings tab always show. So you dont have to do the easter egg every time."],
+            type: "checkbox",
+            default: false
+                
+        },
+        EnableRobloxApiDocs: {
+            label: "Roblox API docs",
+            description: ["This adds documentation for Roblox apis on https://www.roblox.com/docs",
+                "All the apis are captured when you browse the site.",
+                "This stores all the APIs in storage."
+            ],
+            type: "checkbox",
+            default: false
+        },
+        EnablebannerTest: {
+            label: ["Banner test"],
+            description: ["This adds a test banner to experiences"],
+            type: "checkbox",
+            default: false
+        },
+        impersonateRobloxStaffSetting: {
+            label: ["Impersonate User Option On Profiles"],
+            description: ["This enables the 'Impersonate User' option on peoples profile, used by Roblox internally.",
+                "Pressing the 'Impersonate User' option does nothing other than error unless you are authorized to use it"
+            ],
+            deprecated: "Roblox removed it with the new profile overhaul",
+            type: "checkbox",
+            default: false
+        },
+        EarlyAccessProgram: {
+            label: ["Early Access Program Showcase"],
+            description: ["This will trick Roblox into thinking you are in an early access program, making Roblox add the early access program UI to your settings",
+                "This setting wont allow you to join any early access programs you werent invited to.",
+                "This will also overwrite any early access programs you might already be in."
+            ],
+            type: "checkbox",
+            default: false
+        },
+        EnableVideoTest: {
+            label: ["Video test"],
+            description: ["This adds a video test for experience trailers not uploaded to youtube on https://www.roblox.com/videotest",
+                "Since this feature is only supported on the client."
+            ],
+            type: "checkbox",
+            default: false
+        },
+        onboardingShown: {
+            label: ["Show onboarding"],
+            description: ["This will show RoValra's onboarding screen again when this setting is disabled."],
+            type: "checkbox",
+            default: false
+        },
+        simulateRoValraServerErrors: {
+            label: ["Simulate RoValra Server Errors / downtime"],
+            description: ["This will simulate RoValra Server errors / downtime, useful when testing how the extension handles stuff like that."],
+            type: "checkbox",
+            default: false
+        },
+        forceReviewPopup: {
+            label: ["Force Review Popup"],
+            description: ["When enabled, shows the review popup every time it's triggered, ignoring all requirements. For testing purposes."],
+            type: "checkbox",
+            default: false
+            },
+                    environmentTester: {
+                label: "Environment Tester",
+                description: ["Tool to test custom .glb environments for the profile renderer. Configure the settings and press 'Generate JSON' to get the configuration for an API."],
+                type: "checkbox",
+                default: false,
+                childSettings: {
+                    // model settings
+                    modelUrl: {
+                        label: "GLB Model Path",
+                        description: ["Enter a local path to a .glb model file (e.g., assets/environments/crossroads.glb)."],
+                        type: "input",
+                        default: "",
+                        placeholder: "assets/environments/model.glb",
+                        storageKey: "envTester_modelUrl"
+                    },
+                    modelPosX: { label: "Model Pos X", type: "input", default: "0", placeholder: "e.g. 0" },
+                    modelPosY: { label: "Model Pos Y", type: "input", default: "0", placeholder: "e.g. 0" },
+                    modelPosZ: { label: "Model Pos Z", type: "input", default: "0", placeholder: "e.g. 0" },
+                    modelScaleX: { label: "Model Scale X", type: "input", default: "1", placeholder: "e.g. 1" },
+                    modelScaleY: { label: "Model Scale Y", type: "input", default: "1", placeholder: "e.g. 1" },
+                    modelScaleZ: { label: "Model Scale Z", type: "input", default: "1", placeholder: "e.g. 1" },
+                    modelCastShadow: { label: "Model Cast Shadow", type: "checkbox", default: false },
+                    modelReceiveShadow: { label: "Model Receive Shadow", type: "checkbox", default: true },
+
+                    // atmosphere settings
+                    bgColor: { label: "Background Color", type: "input", default: "", placeholder: "Hex color (e.g. #123456), empty for transparent" },
+                    showFloor: { label: "Show Floor", type: "checkbox", default: false },
+
+                    // ambient light
+                    ambientLightToggle: { label: "Enable Ambient Light", type: "checkbox", default: true },
+                    ambientLightColor: { label: "Ambient Light Color", type: "input", default: "#ffffff", placeholder: "Hex color" },
+                    ambientLightIntensity: { label: "Ambient Light Intensity", type: "input", default: "1.2", placeholder: "e.g. 1.2" },
+
+                    // directional light
+                    dirLightToggle: { label: "Enable Directional Light", type: "checkbox", default: true },
+                    dirLightColor: { label: "Directional Light Color", type: "input", default: "#ffffff", placeholder: "Hex color" },
+                    dirLightIntensity: { label: "Directional Light Intensity", type: "input", default: "1.5", placeholder: "e.g. 1.5" },
+                    dirLightPosX: { label: "Dir Light Pos X", type: "input", default: "10", placeholder: "e.g. 10" },
+                    dirLightPosY: { label: "Dir Light Pos Y", type: "input", default: "20", placeholder: "e.g. 20" },
+                    dirLightPosZ: { label: "Dir Light Pos Z", type: "input", default: "10", placeholder: "e.g. 10" },
+                    dirLightCastShadow: { label: "Dir Light Cast Shadow", type: "checkbox", default: true },
+
+                    // fog
+                    fogToggle: { label: "Enable Fog", type: "checkbox", default: false },
+                    fogColor: { label: "Fog Color", type: "input", default: "#ffffff", placeholder: "Hex color" },
+                    fogNear: { label: "Fog Near", type: "input", default: "30", placeholder: "e.g. 30" },
+                    fogFar: { label: "Fog Far", type: "input", default: "120", placeholder: "e.g. 120" },
+                    
+                    cameraFar: {
+                        label: "Camera Far",
+                        description: ["Sets the far clipping plane of the camera for the renderer."],
+                        type: "input",
+                        default: "100",
+                        placeholder: "e.g. 100"
+                    },
+                    
+                    // skybox settings
+                    skyboxToggle: { label: "Enable Skybox", type: "checkbox", default: false },
+                    skyboxPx: { label: "Skybox Rt (Right)", type: "input", default: "https://www.rovalra.com/static/img/", placeholder: "URL to image" },
+                    skyboxNx: { label: "Skybox Lf (Left)", type: "input", default: "https://www.rovalra.com/static/img/", placeholder: "URL to image" },
+                     skyboxNy: { label: "Skybox Dn (Down)", type: "input", default: "https://www.rovalra.com/static/img/", placeholder: "URL to image" },
+                    skyboxPy: { label: "Skybox Up (Top)", type: "input", default: "https://www.rovalra.com/static/img/", placeholder: "URL to image" },
+                    skyboxPz: { label: "Skybox Ft (Front)", type: "input", default: "https://www.rovalra.com/static/img/", placeholder: "URL to image" },
+                    skyboxNz: { label: "Skybox Bk (Back)", type: "input", default: "https://www.rovalra.com/static/img/", placeholder: "URL to image" },
+
+                    // tooltip settings
+                    tooltipToggle: { label: "Enable Tooltip", type: "checkbox", default: false },
+                    tooltipText: { label: "Tooltip Text", type: "input", default: "Environment by...", placeholder: "Enter tooltip text" },
+                    tooltipLink: { label: "Tooltip Link", type: "input", default: "", placeholder: "Enter URL" },
+
+                    // generate button
+                    generateJson: {
+                        label: "Generate and Print JSON",
+                        description: "Generates the JSON config based on the settings above and prints it to the console.",
+                        type: "button",
+                        buttonText: "Generate JSON",
+                        event: "rovalra:generateEnvironmentJson"
+                    }
+                }
+            },
+        }
+        
     }
 }
