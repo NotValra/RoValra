@@ -52,7 +52,10 @@ async function playIdle() {
 }
 
 async function playEmote(emoteAssetId, loop = false, durationLimit = null) {
-    if (!currentRig) return false;
+ if (!currentRig || currentRigType !== 'R15') {
+        console.warn("Emotes are only supported on R15 rigs.");
+        return false;
+    }
     if (emoteStopTimer) clearTimeout(emoteStopTimer);
 
     const animatorW = getAnimatorW();
@@ -225,6 +228,7 @@ function injectCustomButtons(container) {
         const emoteBtn = createSquareButton({ content: emoteIcon, width: 'auto', fontSize: '12px' });
         emoteBtn.addEventListener('click', async (e) => {
             e.stopPropagation();
+            
             const radialContent = await createEmoteRadialMenu(globalAvatarData.emotes, async (emote) => {
                 await playEmote(emote.assetId, false, 10);
                 overlayHandle.close(); 
