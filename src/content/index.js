@@ -19,6 +19,8 @@ import { initFriendsListTracking } from './core/utils/trackers/friendslist.js';
 import { init as initQoLToggles } from './features/navigation/QoLToggles.js';
 import { init as initCopyId } from './features/sitewide/copyid.js';
 import { init as initQuickSearch } from './features/navigation/search/quicksearch.js';
+import { init as initRenderTest } from './features/developer/rendertest.js';
+
 // Avatar
 import { init as initAvatarFilters } from './features/avatar/filters.js';
 import { init as initR6Warning } from './features/avatar/R6Warning.js';
@@ -68,6 +70,7 @@ import { init as initPrivateServerControls } from './features/games/privateserve
 import { init as initPreviousPrice } from './features/sitewide/PreviousPrice.js';
 import { init as initCategorizeWearing } from './features/profile/categorizeWearing.js';
 import { init as initTrustedFriends } from './features/profile/trustedfriends.js';
+import { init as initProfileRender } from './features/profile/header/ProfileRender.js';
 
 // Settings
 import { init as initSettingsPage } from './features/settings/index.js';
@@ -83,7 +86,7 @@ const featureRoutes = [
   // Generic features that run on most pages
   {
     paths: ['*'],
-    features: [initSettingsPage, initQuickPlay, initEasterEggLinks, initCssFixes, initWhatAmIJoining, initHiddenCatalog, initServerListener, initOnboarding, initVideoTest, initStreamerMode, initMarkDownTest, initTests, initServerTracker, initFriendsListTracking, initQoLToggles, initCopyId, initBetaPrograms, initPreviousPrice, initQuickSearch],
+    features: [initSettingsPage, initQuickPlay, initEasterEggLinks, initCssFixes, initWhatAmIJoining, initHiddenCatalog, initServerListener, initOnboarding, initVideoTest, initStreamerMode, initMarkDownTest, initTests, initServerTracker, initFriendsListTracking, initQoLToggles, initCopyId, initBetaPrograms, initPreviousPrice, initQuickSearch, initRenderTest],
   },
   // pretty much just the 40% method
   {
@@ -137,6 +140,7 @@ const featureRoutes = [
       initUserGames,
       initCategorizeWearing,
       initTrustedFriends,
+      initProfileRender,
     ],
   },
 

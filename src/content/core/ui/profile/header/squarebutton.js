@@ -70,13 +70,13 @@ export function createSquareButton({
         content.forEach((item) => {
             if (typeof item === 'string') {
                 contentSpan.appendChild(document.createTextNode(item));
-            } else if (item instanceof HTMLElement) {
+            } else if (item instanceof Element) {
                 contentSpan.appendChild(item);
             }
         });
     } else if (typeof content === 'string') {
         contentSpan.textContent = content;
-    } else if (content instanceof HTMLElement) {
+    } else if (content instanceof Element) {
         contentSpan.appendChild(content);
     }
 

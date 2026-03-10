@@ -1,11 +1,56 @@
-export function createDropdownContent(triggerElement, items, initialValue, onValueChange, updateTriggerTextCallback, showFlags = false) {
+const injectScrollbarStyles = () => {
+    if (document.getElementById('rovalra-dropdown-styles')) return;
+    const style = document.createElement('style');
+    style.id = 'rovalra-dropdown-styles';
+    style.textContent = `
+        .rovalra-no-scrollbar::-webkit-scrollbar { display: none; }
+        .rovalra-no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .rovalra-dropdown-item[data-selected="true"].highlight-enabled {
+            background-color: rgba(255, 255, 255, 0.1) !important;
+            border-left: 3px solid var(--rovalra-play-button-color); 
+        }
+        .rovalra-text-clamp-2 {
+            display: -webkit-box !important;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: normal !important; 
+            word-break: break-word;
+        }
+    `;
+    document.head.appendChild(style);
+};
+
+export function createDropdownContent(
+    triggerElement, 
+    items, 
+    initialValue, 
+    onValueChange, 
+    updateTriggerTextCallback, 
+    showFlags = false,
+    showScrollbar = true, 
+    highlightSelected = false
+) {
+    injectScrollbarStyles();
+
     const contentPanel = document.createElement('div');
     contentPanel.className = 'rovalra-dropdown-content-panel foundation-web-menu bg-surface-100 stroke-standard stroke-default shadow-transient-high radius-large';
     contentPanel.setAttribute('role', 'listbox');
     contentPanel.style.minWidth = `${triggerElement.offsetWidth}px`; 
+    contentPanel.style.maxHeight = '300px'; 
+    contentPanel.style.overflow = 'hidden';
 
     const dropdownContentInner = document.createElement('div');
     dropdownContentInner.className = 'flex-dropdown-menu';
+    dropdownContentInner.style.overflowY = 'auto';
+    dropdownContentInner.style.maxHeight = 'inherit';
+
+    // Handle visual scrollbar toggle
+    if (!showScrollbar) {
+        dropdownContentInner.classList.add('rovalra-no-scrollbar');
+    }
+
     contentPanel.appendChild(dropdownContentInner);
 
     let currentSelectedValue = initialValue;
@@ -13,8 +58,14 @@ export function createDropdownContent(triggerElement, items, initialValue, onVal
     const updateSelectedState = (newValue) => {
         currentSelectedValue = newValue;
         contentPanel.querySelectorAll('.rovalra-dropdown-item').forEach(el => {
-            const isSelected = el.dataset.value === newValue;
+            const isSelected = el.dataset.value === String(newValue);
             el.setAttribute('data-selected', isSelected);
+            el.setAttribute('aria-selected', isSelected);
+            
+            // Apply highlight class if requested
+            if (highlightSelected) {
+                el.classList.add('highlight-enabled');
+            }
         });
     };
 
@@ -52,16 +103,15 @@ export function createDropdownContent(triggerElement, items, initialValue, onVal
         const itemEl = document.createElement('button');
         itemEl.className = 'rovalra-dropdown-item relative clip group/interactable focus-visible:outline-focus disabled:outline-none foundation-web-menu-item flex items-center content-default text-truncate-split focus-visible:hover:outline-none cursor-pointer stroke-none bg-none text-align-x-left width-full text-body-medium padding-x-medium padding-y-small gap-x-medium radius-medium';
         itemEl.type = 'button';
-        itemEl.dataset.value = item.value;
+        itemEl.dataset.value = String(item.value);
         itemEl.setAttribute('role', 'option');
-        itemEl.setAttribute('aria-selected', item.value === currentSelectedValue);
 
         const itemPresentationDiv = document.createElement('div');
         itemPresentationDiv.setAttribute('role', 'presentation');
         itemPresentationDiv.className = 'absolute inset-[0] transition-colors group-hover/interactable:bg-[var(--color-state-hover)] group-active/interactable:bg-[var(--color-state-press)] group-disabled/interactable:bg-none';
 
         const getCountryCode = (regionCode) => {
-            if (regionCode === 'AUTO') return null;
+            if (typeof regionCode !== 'string' || regionCode === 'AUTO') return null;
             const parts = regionCode.split('-');
             return parts[0].toLowerCase();
         };
@@ -75,19 +125,17 @@ export function createDropdownContent(triggerElement, items, initialValue, onVal
         itemTextWrapper.style.alignItems = 'center';
         itemTextWrapper.style.gap = '8px';
 
-        if (showFlags) {
-            if (countryCode) {
-                const flagImg = document.createElement('img');
-                flagImg.src = `https://flagcdn.com/h20/${countryCode}.png`;
-                flagImg.srcset = `https://flagcdn.com/h40/${countryCode}.png 2x`;
-                flagImg.alt = `${countryCode} flag`;
-                flagImg.style.width = '20px';
-                flagImg.style.height = '15px';
-                flagImg.style.objectFit = 'cover';
-                flagImg.style.borderRadius = '3px';
-                flagImg.style.flexShrink = '0';
-                itemTextWrapper.appendChild(flagImg);
-            }
+        if (showFlags && countryCode) {
+            const flagImg = document.createElement('img');
+            flagImg.src = `https://flagcdn.com/h20/${countryCode}.png`;
+            flagImg.srcset = `https://flagcdn.com/h40/${countryCode}.png 2x`;
+            flagImg.alt = `${countryCode} flag`;
+            flagImg.style.width = '20px';
+            flagImg.style.height = '15px';
+            flagImg.style.objectFit = 'cover';
+            flagImg.style.borderRadius = '3px';
+            flagImg.style.flexShrink = '0';
+            itemTextWrapper.appendChild(flagImg);
         }
 
         const itemText = document.createElement('span');

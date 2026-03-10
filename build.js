@@ -7,6 +7,7 @@ try {
 } catch (e) {
     console.warn('Sass not found, skipping SCSS compilation.');
 }
+const dracoPath = path.join(__dirname, 'node_modules', 'roavatar-renderer', 'dist', 'draco_decoder.js');
 
 const manifestPath = path.join(__dirname, 'manifest.json');
 const packagePath = path.join(__dirname, 'package.json');
@@ -54,6 +55,21 @@ const commonConfig = {
         css: bannerText,
     },
 };
+
+function compileScssFile(inputFile, outputFile) {
+    if (!sass) return;
+    try {
+        const outputDir = path.dirname(outputFile);
+        if (!fs.existsSync(outputDir)) {
+            fs.mkdirSync(outputDir, { recursive: true });
+        }
+        const result = sass.compile(inputFile, { style: 'compressed' });
+        fs.writeFileSync(outputFile, bannerText + '\n' + result.css);
+        console.log(`Compiled SCSS: ${inputFile} -> ${outputFile}`);
+    } catch (e) {
+        console.error(`SCSS Compilation Failed for ${inputFile}:`, e.message);
+    }
+}
 
 esbuild
     .build({
@@ -103,8 +119,35 @@ if (sass && fs.existsSync(cssDir)) {
             console.error('SCSS Compilation Failed:', e.message);
         }
     }
+
+    const independentCssDir = path.join(cssDir, 'independent');
+    if (fs.existsSync(independentCssDir)) {
+        const independentScssFiles = fs.readdirSync(independentCssDir).filter(file => file.endsWith('.scss'));
+        independentScssFiles.forEach(file => {
+            compileScssFile(
+                path.join(independentCssDir, file),
+                path.join('dist', 'css', file.replace('.scss', '.css'))
+            );
+        });
+    }
+}
+let dracoSource = '';
+if (fs.existsSync(dracoPath)) {
+    dracoSource = fs.readFileSync(dracoPath, 'utf8');
 }
 
+esbuild
+    .build({
+        ...commonConfig,
+        entryPoints: ['src/content/index.js'],
+        outfile: 'dist/content.js',
+        bundle: true,
+        // This injects Draco directly into the content script context for roavatar-renderer
+        banner: {
+            js: bannerText + '\n' + dracoSource, 
+        },
+    })
+    .catch(() => process.exit(1));
 if (fs.existsSync(cssDir)) {
     const cssFiles = fs
         .readdirSync(cssDir)
@@ -168,6 +211,9 @@ function processDirectory(src, dest) {
 
 if (fs.existsSync('public')) {
     processDirectory('public', path.join('dist', 'public'));
+}
+if (fs.existsSync('assets')) {
+    processDirectory('assets', path.join('dist', 'assets'));
 }
 
 if (fs.existsSync('manifest.json')) {

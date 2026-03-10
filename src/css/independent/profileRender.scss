@@ -1,0 +1,118 @@
+$bgOuter: "https://images.rbxcdn.com/569c4ec4a8a917cd300587c398d212d4-circle-bg_03202019.png";
+$bgInner: "https://images.rbxcdn.com/2541e7ed30362c4ca563f36e5965bd0d-img_circle_03202019.png";
+
+.rovalra-overlay-body {
+    padding: 0px !important;
+}
+
+.emotes-radial-menu {
+    background-image: url($bgOuter);
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    width: 420px;
+    height: 420px;
+    position: relative;
+    margin: 10px auto;
+    user-select: none;
+}
+
+.emotes-radial-background-layer {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+
+.emotes-radial-img {
+    background-image: url($bgInner);
+    background-size: 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+    width: 420px;
+    height: 420px;
+    position: absolute;
+    opacity: 0.8;
+}
+
+.emotes-radial-middle-text {
+    z-index: 10;
+    text-align: center;
+    width: 140px;
+    font-size: 16px;
+    line-height: 1.2;
+    font-weight: 700;
+    color: rgb(247, 247, 248) !important;
+    pointer-events: none;
+}
+
+.emotes-radial-slices {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+}
+
+.emotes-radial-slice-container {
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    transform: translate(-50%, -50%);
+    z-index: 20;
+}
+
+.emotes-radial-button {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+    &:hover {
+        transform: scale(1.2);
+
+        .emotes-radial-icon {
+            border-color: #ffffff;
+            background: rgba(60, 60, 60, 0.8);
+        }
+    }
+}
+
+.emotes-radial-icon {
+    width: 60px;
+    height: 60px;
+    background: rgba(25, 25, 25, 0.6);
+    border-radius: 80%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.emotes-radial-thumbnail img {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+}
+
+.emotes-radial-index {
+    font-size: 12px;
+    color: rgb(247, 247, 248);
+    font-weight: bold;
+    margin-top: 4px;
+}
+
+.slice-disabled {
+    opacity: 0.15;
+    filter: grayscale(1);
+    cursor: default;
+    pointer-events: none;
+}

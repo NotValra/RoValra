@@ -368,6 +368,11 @@ export const SETTINGS_CONFIG = {
                     }
                 }
             },
+            profile3DRenderEnabled: {
+                label: "Placeholder",
+                type: "checkbox",
+                default: true
+            },
             trustedConnectionsEnabled: {
                 label: "Trusted Connections",
                 description: "This feature allows you to accept, request and remove trusted connections on the site for eligible connections.",
