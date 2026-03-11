@@ -13,7 +13,7 @@ export const themes = Object.freeze({
 export const getCurrentTheme = () => cachedTheme || themes.DEFAULT;
 
 export const THEME_CONFIG = {
-    light: {
+    [themes.LIGHT]: {
         content: 'rgb(247, 247, 248)',
         text: 'rgb(73, 77, 90)',
         header: 'rgb(32, 34, 39)',
@@ -29,7 +29,7 @@ export const THEME_CONFIG = {
         githubLink: '#1e722a',
         robloxLink: '#c13ad9'
     },
-    dark: {
+    [themes.DARK]: {
         content: 'rgb(39, 41, 48)',
         text: 'rgb(213, 215, 221)',
         header: 'white',
