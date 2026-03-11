@@ -88,6 +88,9 @@ export function detectTheme() {
             resolve(initialTheme);
             return;
         }
+        
+        cachedTheme = themes.DEFAULT;
+        resolve(themes.DEFAULT);
 
         const observer = observeAttributes(body, (mutation) => {
             const theme = checkThemeClass(mutation.target);
