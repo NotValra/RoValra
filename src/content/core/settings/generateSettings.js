@@ -278,11 +278,11 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
     controlsContainer.appendChild(inputElement);
     settingContainer.appendChild(controlsContainer);
 
-    const divider = document.createElement('div');
-    divider.className = 'setting-label-divider';
-    settingContainer.appendChild(divider);
-
     if (setting.description) {
+        const divider = document.createElement('div');
+        divider.className = 'setting-label-divider';
+        settingContainer.appendChild(divider);
+
         const descriptions = Array.isArray(setting.description) ? setting.description : [String(setting.description)];
         descriptions.forEach(desc => {
             const descElement = document.createElement('div');
@@ -387,11 +387,11 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
             childControls.appendChild(childInput);
             childContainer.appendChild(childControls);
 
-            const childDivider = document.createElement('div');
-            childDivider.className = 'setting-label-divider';
-            childContainer.appendChild(childDivider);
-
             if (childSetting.description) {
+                const childDivider = document.createElement('div');
+                childDivider.className = 'setting-label-divider';
+                childContainer.appendChild(childDivider);
+
                 const childDescriptions = Array.isArray(childSetting.description) ? childSetting.description : [String(childSetting.description)];
                 childDescriptions.forEach(desc => {
                     const childDescElement = document.createElement('div');
