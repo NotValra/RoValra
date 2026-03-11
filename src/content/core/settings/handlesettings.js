@@ -574,14 +574,21 @@ export function initializeSettingsEventListeners() {
             }
         }
 
+        if (settings.tooltipToggle && settings.tooltipText) {
+            envConfig.tooltip = {
+                text: settings.tooltipText,
+                link: settings.tooltipLink || ''
+            };
+        }
+
         if (settings.skyboxToggle && settings.skyboxPx && settings.skyboxNx && settings.skyboxPy && settings.skyboxNy && settings.skyboxPz && settings.skyboxNz) {
             envConfig.skybox = [
                 settings.skyboxPx,
                 settings.skyboxNx,
-                settings.skyboxNy,
                 settings.skyboxPy,
-                settings.skyboxNz,
-                settings.skyboxPz
+                settings.skyboxNy,
+                settings.skyboxPz,
+                settings.skyboxNz
             ];
         }
 

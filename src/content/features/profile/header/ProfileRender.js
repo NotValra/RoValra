@@ -9,6 +9,7 @@ import { addTooltip } from '../../../core/ui/tooltip.js';
 import { showConfirmationPrompt } from '../../../core/ui/confirmationPrompt.js';
 import { getAuthenticatedUserId } from '../../../core/user.js';
 import { getAssets } from '../../../core/assets.js';
+import { SETTINGS_CONFIG } from '../../../core/settings/settingConfig.js';
 import { 
     RegisterWrappers, 
     RBXRenderer, 
@@ -588,14 +589,11 @@ async function preloadAvatar() {
                 }
                 isCustomEnvLoaded = true;
             } else {
-                let environmentEndpoint = null;
-                if (isOwnProfile) {
-                    const profileEnv = settings.profileRenderEnvironment || 'void';
-                    if (profileEnv === 'beachside') {
-                        environmentEndpoint = '/static/json/beachside_environment.json';
-                    }
-                }
-                
+                const profileEnvValue = settings.profileRenderEnvironment || 'void';
+                const profileEnvs = SETTINGS_CONFIG.Profile.settings.profile3DRenderEnabled.childSettings.profileRenderEnvironment.options;
+                const selectedEnv = profileEnvs.find(opt => opt.value === profileEnvValue);
+                const environmentEndpoint = (isOwnProfile && selectedEnv?.environmentEndpoint) ? selectedEnv.environmentEndpoint : null;
+
                 if (environmentEndpoint) {
                     environmentConfig = await callRobloxApiJson({
                         isRovalraApi: true,
@@ -614,13 +612,16 @@ async function preloadAvatar() {
                 await loadCustomEnvironment(scene, environmentConfig.model);
             }
             setupAtmosphere(scene, environmentConfig?.atmosphere || DEFAULT_VOID_CONFIG.atmosphere, isCustomEnvLoaded);
-
             let skyboxUrls = null;
             if (useDevEnvironment && settings.skyboxToggle) {
                 skyboxUrls = [
-                    settings.skyboxPx, settings.skyboxNx,
-                    settings.skyboxPy, settings.skyboxNy,
-                    settings.skyboxNz, settings.skyboxPz
+                    settings.skyboxNx, 
+                    settings.skyboxPx, 
+                    settings.skyboxPy, 
+                    settings.skyboxNy, 
+                    
+                    settings.skyboxPz, 
+                    settings.skyboxNz
                 ];
             } else if (environmentConfig?.skybox) {
                 skyboxUrls = environmentConfig.skybox;

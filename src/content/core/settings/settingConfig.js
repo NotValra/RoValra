@@ -380,7 +380,8 @@ export const SETTINGS_CONFIG = {
                         type: "select",
                         options: [
                             { label: "None", value: "void" },
-                            { label: "Beachside", value: "beachside" }
+                            { label: "Beachside", value: "beachside", environmentEndpoint: "/static/json/beachside_environment.json" },
+                            { label: "Crossroads", value: "crossroads", environmentEndpoint: "/static/json/crossroads.json"}
                         ],
                         default: "void"
                     },
