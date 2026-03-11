@@ -6,6 +6,12 @@ let cachedTheme = null;
 
 export const getCurrentTheme = () => cachedTheme || 'light';
 
+export const themes = Object.freeze({
+    DARK: 'dark',
+    LIGHT: 'light',
+    DEFAULT: LIGHT
+})
+
 export const THEME_CONFIG = {
     light: {
         content: 'rgb(247, 247, 248)',
@@ -63,8 +69,8 @@ export function detectTheme() {
         const body = document.body;
 
         const checkThemeClass = (targetNode) => {
-            if (targetNode.classList.contains('dark-theme')) return 'dark';
-            if (targetNode.classList.contains('light-theme')) return 'light';
+            if (targetNode.classList.contains('dark-theme')) return themes.DARK;
+            if (targetNode.classList.contains('light-theme')) return themes.LIGHT;
             return null;
         };
 
@@ -108,8 +114,8 @@ export function dispatchThemeEvent(theme) {
     detail: { theme: theme },
   });
   window.dispatchEvent(themeEvent);
-  document.body.classList.toggle("dark-theme", theme === "dark");
-  document.body.classList.toggle("light-theme", theme === "light");
+  document.body.classList.toggle("dark-theme", theme === themes.DARK);
+  document.body.classList.toggle("light-theme", theme === themes.LIGHT);
 }
 
 
