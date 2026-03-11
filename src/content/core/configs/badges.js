@@ -1,7 +1,7 @@
 
 
 import { getAssets } from '../assets.js';
-import { CREATOR_USER_ID, CONTRIBUTOR_USER_IDS, RAT_BADGE_USER_ID, BLAHAJ_BADGE_USER_ID, CAM_BADGE_USER_ID } from './userIds.js';
+import { CREATOR_USER_ID, CONTRIBUTOR_USER_IDS, RAT_BADGE_USER_ID, BLAHAJ_BADGE_USER_ID, CAM_BADGE_USER_ID, alice_badge_user_id } from './userIds.js';
 
 const assets = getAssets();
 
@@ -63,6 +63,22 @@ export const BADGE_CONFIG = {
         name: 'kat >w<',
         tooltip: 'kat >w<',
         confetti: assets.cam
+    },
+    alice: {
+        type: 'header',
+        userIds: [alice_badge_user_id],
+        icon: assets.alice,
+        name: 'silly goober',
+        tooltip: 'silly goober',
+        confetti: assets.alice
+    },
+     aliceegg: {
+        type: 'badge',
+        userIds: [alice_badge_user_id],
+        icon: assets.alice,
+        name: 'silly goober',
+        tooltip: 'silly goober',
+        confetti: assets.alice
     },
     legacy_donator: {
         type: 'header',
