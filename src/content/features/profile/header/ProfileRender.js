@@ -409,21 +409,30 @@ function injectCustomButtons(toggleButton) {
 }
 // Rendering loop
 function startAnimationLoop() {
-    const animate = () => {
-        if (currentRig) {
-            const animatorW = getAnimatorW();
-            if (animatorW) {
-                const currentTime = Date.now() / 1000;
-                const deltaTime = currentTime - lastFrameTime;
-                lastFrameTime = currentTime;
-                animatorW.renderAnimation(deltaTime);
-                RBXRenderer.addInstance(currentRig, null);
-            }
-        }
+    const fpsLimit = 60;
+    const interval = 1000 / fpsLimit; 
+    let lastRenderTime = performance.now();
+
+    const animate = (currentTime) => {
         requestAnimationFrame(animate);
+
+        const delta = currentTime - lastRenderTime;
+
+        if (delta >= interval) {
+            if (currentRig) {
+                const animatorW = getAnimatorW();
+                if (animatorW) {
+                    const deltaTime = delta / 1000;
+                    animatorW.renderAnimation(deltaTime);
+                    RBXRenderer.addInstance(currentRig, null);
+                }
+            }
+            
+            lastRenderTime = currentTime - (delta % interval);
+        }
     };
-    lastFrameTime = Date.now() / 1000;
-    animate();
+
+    requestAnimationFrame(animate);
 }
 
 async function loadCustomEnvironment(scene, config) {
