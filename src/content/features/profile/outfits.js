@@ -1,5 +1,5 @@
 import { showReviewPopup } from '../../core/review/review.js';
-import { observeElement } from '../../core/observer.js';
+import { observeElement, observeResize } from '../../core/observer.js';
 import { callRobloxApi } from '../../core/api.js';
 import { getUserIdFromUrl } from '../../core/idExtractor.js';
 import {
@@ -261,9 +261,7 @@ export function init() {
                 selectedListItem = listItem;
                 selectedOutfitId = outfit.id;
 
-                if (resizeObserver) {
-                    resizeObserver.disconnect();
-                }
+                if (resizeObserver) resizeObserver.unobserve();
 
                 mainPanel.style.display = 'none';
                 detailsPanel.style.display = 'flex';
@@ -494,8 +492,7 @@ export function init() {
                         }, 50);
                     };
 
-                    resizeObserver = new ResizeObserver(handleResize);
-                    resizeObserver.observe(itemsContainer);
+                    resizeObserver = observeResize(itemsContainer, handleResize);
 
                     const renderItemsPage = (page) => {
                         itemsContainer.innerHTML = '';

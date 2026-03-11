@@ -1,4 +1,4 @@
-import { observeElement } from '../../../core/observer.js';
+import { observeElement, observeResize } from '../../../core/observer.js';
 import { getUserIdFromUrl } from '../../../core/idExtractor.js';
 import { injectStylesheet, removeStylesheet } from '../../../core/ui/cssInjector.js';
 import { callRobloxApiJson } from '../../../core/api.js';
@@ -532,158 +532,135 @@ const DEFAULT_VOID_CONFIG = {
 
 async function preloadAvatar() {
     if (avatarDataPromise) return avatarDataPromise;
+
     avatarDataPromise = (async () => {
         if (isPreloading) return;
         isPreloading = true;
+
         const userId = getUserIdFromUrl();
         if (!userId) { isPreloading = false; return null; }
 
-        const authUserId = await getAuthenticatedUserId();
-        const isOwnProfile = String(userId) === String(authUserId);
-
-        const settings = await new Promise(resolve => 
-            chrome.storage.local.get([ 'profileRenderRotateEnabled',
-                'profileRenderEnvironment', 'environmentTester', 'modelUrl', 'modelPosX', 'modelPosY', 'modelPosZ', 
-                'modelScaleX', 'modelScaleY', 'modelScaleZ', 'modelCastShadow', 'modelReceiveShadow', 'cameraFar', 'skyboxToggle',
-                'skyboxPx', 'skyboxNx', 'skyboxPy', 'skyboxNy', 'skyboxPz', 'skyboxNz',
-                'bgColor', 'showFloor', 'ambientLightToggle', 'ambientLightColor', 'ambientLightIntensity',
-                'dirLightToggle', 'dirLightColor', 'dirLightIntensity', 'dirLightPosX', 'dirLightPosY', 'dirLightPosZ', 'dirLightCastShadow',
-                'fogToggle', 'fogColor', 'fogNear', 'fogFar', 'tooltipToggle', 'tooltipText', 'tooltipLink'
-            ], resolve)
-        );
-
-        const useDevEnvironment = settings.environmentTester && settings.modelUrl;
-
         try {
-            RegisterWrappers();
-            patchAnimateForRotation();
-            await RBXRenderer.fullSetup(true, true);
-            const camera = RBXRenderer.getRendererCamera();
-            RBXRenderer.setBackgroundTransparent(true); 
+            // We don't wait for data to start the renderer
+            const [settings, avatarData] = await Promise.all([
+                chrome.storage.local.get([
+                    'profileRenderRotateEnabled', 'profileRenderEnvironment', 'environmentTester', 
+                    'modelUrl', 'modelPosX', 'modelPosY', 'modelPosZ', 'modelScaleX', 'modelScaleY', 
+                    'modelScaleZ', 'modelCastShadow', 'modelReceiveShadow', 'cameraFar', 'skyboxToggle',
+                    'skyboxPx', 'skyboxNx', 'skyboxPy', 'skyboxNy', 'skyboxPz', 'skyboxNz',
+                    'bgColor', 'showFloor', 'ambientLightToggle', 'ambientLightColor', 'ambientLightIntensity',
+                    'dirLightToggle', 'dirLightColor', 'dirLightIntensity', 'dirLightPosX', 'dirLightPosY', 
+                    'dirLightPosZ', 'dirLightCastShadow', 'fogToggle', 'fogColor', 'fogNear', 'fogFar', 
+                    'tooltipToggle', 'tooltipText', 'tooltipLink'
+                ]),
+                callRobloxApiJson({
+                    subdomain: 'avatar',
+                    endpoint: `/v2/avatar/users/${userId}/avatar`
+                }),
+                (async () => {
+                    if (preloadedCanvas) return; 
+                    RegisterWrappers();
+                    patchAnimateForRotation();
+                    await RBXRenderer.fullSetup(true, true);
+                    RBXRenderer.setBackgroundTransparent(true);
+                    preloadedCanvas = RBXRenderer.getRendererElement();
+                    preloadedCanvas.classList.add('rovalra-canvas');
+                    Object.assign(preloadedCanvas.style,
+                        {
+                            width: '100%',
+                            height: '100%',
+                            outline: 'none'
+                        }
+                    );
+                    startAnimationLoop();
+                })()
+            ]);
 
+            globalAvatarData = avatarData;
+            const scene = RBXRenderer.getScene();
+            const camera = RBXRenderer.getRendererCamera();
             const controls = RBXRenderer.getRendererControls();
+
             if (controls) {
                 controls.autoRotate = !!settings.profileRenderRotateEnabled;
                 controls.autoRotateSpeed = 1.0;
             }
 
-            const scene = RBXRenderer.getScene();
+            const rigTask = loadRig(globalAvatarData.playerAvatarType);
 
-            if (useDevEnvironment) {
-                environmentConfig = {
-                    model: {
-                        url: settings.modelUrl,
-                        position: [parseFloat(settings.modelPosX) || 0, parseFloat(settings.modelPosY) || 0, parseFloat(settings.modelPosZ) || 0],
-                        scale: [parseFloat(settings.modelScaleX) || 1, parseFloat(settings.modelScaleY) || 1, parseFloat(settings.modelScaleZ) || 1],
-                        castShadow: settings.modelCastShadow,
-                        receiveShadow: settings.modelReceiveShadow
-                    },
-                    atmosphere: {
-                        background: settings.bgColor || null,
-                        showFloor: settings.showFloor,
-                        lights: [],
-                        fog: null
-                    }
-                };
-                if (settings.ambientLightToggle) {
-                    environmentConfig.atmosphere.lights.push({
-                        type: 'AmbientLight',
-                        color: settings.ambientLightColor,
-                        intensity: parseFloat(settings.ambientLightIntensity) || 0
-                    });
-                }
-                if (settings.dirLightToggle) {
-                    environmentConfig.atmosphere.lights.push({
-                        type: 'DirectionalLight',
-                        color: settings.dirLightColor,
-                        intensity: parseFloat(settings.dirLightIntensity) || 0,
-                        position: [parseFloat(settings.dirLightPosX) || 0, parseFloat(settings.dirLightPosY) || 0, parseFloat(settings.dirLightPosZ) || 0],
-                        castShadow: settings.dirLightCastShadow
-                    });
-                }
-                if (settings.fogToggle) {
-                    environmentConfig.atmosphere.fog = {
-                        color: settings.fogColor,
-                        near: parseFloat(settings.fogNear) || 0,
-                        far: parseFloat(settings.fogFar) || 0
-                    };
-                }
-                if (settings.tooltipToggle) {
-                    environmentConfig.tooltip = {
-                        text: settings.tooltipText,
-                        link: settings.tooltipLink
-                    };
-                }
-                isCustomEnvLoaded = true;
-            } else {
-                const profileEnvValue = settings.profileRenderEnvironment || 'void';
-                const profileEnvs = SETTINGS_CONFIG.Profile.settings.profile3DRenderEnabled.childSettings.profileRenderEnvironment.options;
-                const selectedEnv = profileEnvs.find(opt => opt.value === profileEnvValue);
-                const environmentEndpoint = (isOwnProfile && selectedEnv?.environmentEndpoint) ? selectedEnv.environmentEndpoint : null;
+            (async () => {
+                const authUserId = await getAuthenticatedUserId();
+                const isOwnProfile = String(userId) === String(authUserId);
+                const useDevEnvironment = settings.environmentTester && settings.modelUrl;
 
-                if (environmentEndpoint) {
-                    environmentConfig = await callRobloxApiJson({
-                        isRovalraApi: true,
-                        subdomain: 'www',
-                        endpoint: environmentEndpoint,
-                        method: 'GET'
-                    });
-                    isCustomEnvLoaded = !!environmentConfig.model;
+                if (useDevEnvironment) {
+                    environmentConfig = {
+                        model: {
+                            url: settings.modelUrl,
+                            position: [parseFloat(settings.modelPosX) || 0, parseFloat(settings.modelPosY) || 0, parseFloat(settings.modelPosZ) || 0],
+                            scale: [parseFloat(settings.modelScaleX) || 1, parseFloat(settings.modelScaleY) || 1, parseFloat(settings.modelScaleZ) || 1],
+                            castShadow: settings.modelCastShadow,
+                            receiveShadow: settings.modelReceiveShadow
+                        },
+                        atmosphere: {
+                            background: settings.bgColor || null,
+                            showFloor: settings.showFloor,
+                            lights: [],
+                            fog: null
+                        }
+                    };
+                    if (settings.ambientLightToggle) environmentConfig.atmosphere.lights.push({ type: 'AmbientLight', color: settings.ambientLightColor, intensity: parseFloat(settings.ambientLightIntensity) || 0 });
+                    if (settings.dirLightToggle) environmentConfig.atmosphere.lights.push({ type: 'DirectionalLight', color: settings.dirLightColor, intensity: parseFloat(settings.dirLightIntensity) || 0, position: [parseFloat(settings.dirLightPosX) || 0, parseFloat(settings.dirLightPosY) || 0, parseFloat(settings.dirLightPosZ) || 0], castShadow: settings.dirLightCastShadow });
+                    if (settings.fogToggle) environmentConfig.atmosphere.fog = { color: settings.fogColor, near: parseFloat(settings.fogNear) || 0, far: parseFloat(settings.fogFar) || 0 };
+                    if (settings.tooltipToggle) environmentConfig.tooltip = { text: settings.tooltipText, link: settings.tooltipLink };
+                    isCustomEnvLoaded = true;
                 } else {
-                    environmentConfig = DEFAULT_VOID_CONFIG;
-                    isCustomEnvLoaded = false;
+                    const profileEnvValue = settings.profileRenderEnvironment || 'void';
+                    const profileEnvs = SETTINGS_CONFIG.Profile.settings.profile3DRenderEnabled.childSettings.profileRenderEnvironment.options;
+                    const selectedEnv = profileEnvs.find(opt => opt.value === profileEnvValue);
+                    const environmentEndpoint = (isOwnProfile && selectedEnv?.environmentEndpoint) ? selectedEnv.environmentEndpoint : null;
+
+                    if (environmentEndpoint) {
+                        environmentConfig = await callRobloxApiJson({ isRovalraApi: true, subdomain: 'www', endpoint: environmentEndpoint, method: 'GET' });
+                        isCustomEnvLoaded = !!environmentConfig.model;
+                    } else {
+                        environmentConfig = DEFAULT_VOID_CONFIG;
+                        isCustomEnvLoaded = false;
+                    }
                 }
-            }
 
-            if (isCustomEnvLoaded && environmentConfig.model) {
-                await loadCustomEnvironment(scene, environmentConfig.model);
-            }
-            setupAtmosphere(scene, environmentConfig?.atmosphere || DEFAULT_VOID_CONFIG.atmosphere, isCustomEnvLoaded);
-            let skyboxUrls = null;
-            if (useDevEnvironment && settings.skyboxToggle) {
-                skyboxUrls = [
-                    settings.skyboxNx, 
-                    settings.skyboxPx, 
-                    settings.skyboxPy, 
-                    settings.skyboxNy, 
-                    
-                    settings.skyboxPz, 
-                    settings.skyboxNz
-                ];
-            } else if (environmentConfig?.skybox) {
-                skyboxUrls = environmentConfig.skybox;
-            }
-
-            if (skyboxUrls && skyboxUrls.every(url => url)) {
-                const cubeLoader = new THREE.CubeTextureLoader();
-                scene.background = cubeLoader.load(skyboxUrls);
-                if (RBXRenderer.plane) RBXRenderer.plane.visible = false;
-                if (RBXRenderer.shadowPlane) RBXRenderer.shadowPlane.visible = false;
-            }
-
-            if (camera) {
-                let farValue = 100;
-                if (environmentConfig?.camera?.far) {
-                    farValue = environmentConfig.camera.far;
-                } else if (useDevEnvironment && settings.cameraFar) {
-                    const parsedFar = parseFloat(settings.cameraFar);
-                    if (!isNaN(parsedFar)) farValue = parsedFar;
+                setupAtmosphere(scene, environmentConfig?.atmosphere || DEFAULT_VOID_CONFIG.atmosphere, isCustomEnvLoaded);
+                
+                if (isCustomEnvLoaded && environmentConfig.model) {
+                    await loadCustomEnvironment(scene, environmentConfig.model);
                 }
-                camera.far = farValue;
-                camera.updateProjectionMatrix();
-            }
 
-            preloadedCanvas = RBXRenderer.getRendererElement();
-            Object.assign(preloadedCanvas.style, { width: '100%', height: '100%', outline: 'none' });
+                let skyboxUrls = null;
+                if (useDevEnvironment && settings.skyboxToggle) {
+                    skyboxUrls = [settings.skyboxNx, settings.skyboxPx, settings.skyboxPy, settings.skyboxNy, settings.skyboxPz, settings.skyboxNz];
+                } else if (environmentConfig?.skybox) {
+                    skyboxUrls = environmentConfig.skybox;
+                }
 
-            globalAvatarData = await callRobloxApiJson({
-                subdomain: 'avatar',
-                endpoint: `/v2/avatar/users/${userId}/avatar`
+                if (skyboxUrls && skyboxUrls.every(url => url)) {
+                    const cubeLoader = new THREE.CubeTextureLoader();
+                    scene.background = cubeLoader.load(skyboxUrls);
+                    if (RBXRenderer.plane) RBXRenderer.plane.visible = false;
+                    if (RBXRenderer.shadowPlane) RBXRenderer.shadowPlane.visible = false;
+                }
+
+                if (camera) {
+                    camera.far = (environmentConfig?.camera?.far) ? environmentConfig.camera.far : ((useDevEnvironment && settings.cameraFar) ? parseFloat(settings.cameraFar) : 100);
+                    camera.updateProjectionMatrix();
+                }
+            })().catch(err => {
+                console.error("RoValra: Failed to load custom environment in background.", err);
+                setupAtmosphere(scene, DEFAULT_VOID_CONFIG.atmosphere, false);
             });
 
-            await loadRig(globalAvatarData.playerAvatarType);
-            startAnimationLoop();
 
+            await rigTask; 
+            
             return globalAvatarData;
         } catch (err) {
             console.error("RoValra Preload Error:", err);
@@ -694,29 +671,39 @@ async function preloadAvatar() {
     })();
     return avatarDataPromise;
 }
+
 async function attachPreloadedAvatar(container) {
     if (container.dataset.rovalraRendered) return;
-    await preloadAvatar();
-    if (preloadedCanvas) {
-        container.innerHTML = '';
-        Object.assign(container.style, {
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            width: '100%',
-            height: '100%',
-            position: 'relative'
-        });
+    container.dataset.rovalraRendered = 'true';
+    Object.assign(container.style, {
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: '100%',
+        height: '100%',
+        position: 'relative'
+    });
 
-        container.appendChild(preloadedCanvas);
-        container.dataset.rovalraRendered = 'true';
+    const avatarPromise = preloadAvatar();
 
-        const resizeObserver = new ResizeObserver(() => {
-            const w = container.clientWidth || 420;
-            const h = container.clientHeight || 420;
-            RBXRenderer.setRendererSize(w, h);
-        });
-        resizeObserver.observe(container);
+    const ensureCanvasAttached = () => {
+        if (preloadedCanvas && !container.contains(preloadedCanvas)) {
+            container.appendChild(preloadedCanvas);
+            
+             observeResize(container, () => {
+                RBXRenderer.setRendererSize(container.clientWidth || 420, container.clientHeight || 420);
+            });
+            return true;
+        }
+        return false;
+    };
+
+    if (!ensureCanvasAttached()) {
+        const checkInterval = setInterval(() => {
+            if (ensureCanvasAttached()) clearInterval(checkInterval);
+        }, 50);
+        
+        avatarPromise.finally(() => clearInterval(checkInterval));
     }
 }
 
@@ -725,11 +712,20 @@ export function init() {
         if (result.profile3DRenderEnabled) {
             const avatarPromise = preloadAvatar();
             injectStylesheet('css/thumbnailholder.css', 'rovalra-thumbnail-holder-css');
+
             observeElement(
-                '.thumbnail-holder-position .thumbnail-3d-container > canvas[data-engine*="three.js"], .avatar-toggle-button',
+                '.thumbnail-holder-position .thumbnail-3d-container > canvas:not(.rovalra-canvas), .thumbnail-holder-position .thumbnail-3d-container > .placeholder-generated-image',
+                (elementToRemove) => {
+                    elementToRemove.remove();
+                },
+                { multiple: true }
+            );
+            
+            observeElement(
+                '.thumbnail-holder-position .thumbnail-3d-container, .avatar-toggle-button',
                 (element) => {
-                    if (element.tagName === 'CANVAS') {
-                        attachPreloadedAvatar(element.parentElement);
+                    if (element.classList.contains('thumbnail-3d-container')) {
+                        attachPreloadedAvatar(element);
                     } else if (element.classList.contains('avatar-toggle-button')) {
                         avatarPromise.then(data => {
                             if (data) injectCustomButtons(element);

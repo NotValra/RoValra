@@ -11,15 +11,33 @@ function waitForDom() {
 }
 
 export async function getAuthenticatedUserId() {
-    await waitForDom();
-    const userDataMeta = document.querySelector('meta[name="user-data"]');
-    if (userDataMeta) {
-        const userId = userDataMeta.getAttribute('data-userid');
-        if (userId) {
-            return parseInt(userId, 10);
+    const storage = await chrome.storage.local.get('rovalra_authed_user_id');
+    const cachedId = storage.rovalra_authed_user_id;
+
+    const scrapeId = () => {
+        const meta = document.querySelector('meta[name="user-data"]');
+        const actualId = meta ? parseInt(meta.getAttribute('data-userid'), 10) : null;
+        
+        if (actualId !== cachedId) {
+            chrome.storage.local.set({ rovalra_authed_user_id: actualId });
         }
+        return actualId;
+    };
+
+    if (document.readyState !== 'loading') {
+        return scrapeId();
     }
-    return null;
+
+    if (cachedId) {
+        document.addEventListener('DOMContentLoaded', scrapeId, { once: true });
+        return cachedId;
+    }
+
+    await new Promise(resolve => {
+        document.addEventListener('DOMContentLoaded', resolve, { once: true });
+    });
+    
+    return scrapeId();
 }
 export async function getAuthenticatedUsername() {
     await waitForDom();

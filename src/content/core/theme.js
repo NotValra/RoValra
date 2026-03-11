@@ -1,5 +1,6 @@
 // TODO get rid of this and replace it with better things
 
+import { observeAttributes } from './observer.js';
 let cachedTheme = null;
 
 
@@ -82,29 +83,22 @@ export function detectTheme() {
             return;
         }
 
-        const themeObserver = new MutationObserver((mutations) => {
-            for (const mutation of mutations) {
-                if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-                    const theme = checkThemeClass(mutation.target);
-                    if (theme) {
-                        cachedTheme = theme;
-                        let cacheDiv = document.getElementById('rovalra-theme-cache');
-                        if (!cacheDiv) {
-                            cacheDiv = document.createElement('div');
-                            cacheDiv.id = 'rovalra-theme-cache';
-                            cacheDiv.style.display = 'none';
-                            document.body.appendChild(cacheDiv);
-                        }
-                        cacheDiv.dataset.theme = theme;
-                        themeObserver.disconnect();
-                        resolve(theme);
-                        return;
-                    }
+        const observer = observeAttributes(body, (mutation) => {
+            const theme = checkThemeClass(mutation.target);
+            if (theme) {
+                cachedTheme = theme;
+                let cacheDiv = document.getElementById('rovalra-theme-cache');
+                if (!cacheDiv) {
+                    cacheDiv = document.createElement('div');
+                    cacheDiv.id = 'rovalra-theme-cache';
+                    cacheDiv.style.display = 'none';
+                    document.body.appendChild(cacheDiv);
                 }
+                cacheDiv.dataset.theme = theme;
+                observer.disconnect();
+                resolve(theme);
             }
-        });
-
-        themeObserver.observe(body, { attributes: true });
+        }, ['class']);
     });
 }
 
