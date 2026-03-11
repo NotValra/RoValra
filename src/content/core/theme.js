@@ -4,13 +4,13 @@ import { observeAttributes } from './observer.js';
 let cachedTheme = null;
 
 
-export const getCurrentTheme = () => cachedTheme || 'light';
-
 export const themes = Object.freeze({
     DARK: 'dark',
     LIGHT: 'light',
-    DEFAULT: LIGHT
-})
+    DEFAULT: 'light'
+});
+
+export const getCurrentTheme = () => cachedTheme || themes.DEFAULT;
 
 export const THEME_CONFIG = {
     light: {
@@ -88,7 +88,7 @@ export function detectTheme() {
             resolve(initialTheme);
             return;
         }
-        
+
         cachedTheme = themes.DEFAULT;
         resolve(themes.DEFAULT);
 
