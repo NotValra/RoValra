@@ -32,7 +32,6 @@ FLAGS.USE_WORKERS = false;
 
 let currentRig = null;
 let currentRigType = null;
-let lastFrameTime = 0;
 let emoteStopTimer = null;
 let preloadedCanvas = null;
 let isPreloading = false;
@@ -42,7 +41,9 @@ let isCustomEnvLoaded = false;
 let environmentConfig = null;
 
 let activeEmoteId = null;
-let activeAnimValue = null;
+let animationSpeed = 1;
+let savedAnimationR6 = 'idle';
+let savedAnimationR15 = 'idle';
 
 let isAnimatePatched = false;
 const raycaster = new THREE.Raycaster();
@@ -103,7 +104,10 @@ function getAnimatorW(rig = currentRig) {
 
 async function playIdle() {
     const animatorW = getAnimatorW();
-    if (animatorW) animatorW.playAnimation("idle");
+    if (animatorW) {
+        animatorW.stopMoodAnimation();
+        animatorW.playAnimation("idle");
+    }
     activeEmoteId = null;
     activeAnimValue = null;
 }
@@ -162,6 +166,8 @@ async function loadRig(rigType) {
             const wrapper = new HumanoidDescriptionWrapper(desc);
             wrapper.fromOutfit(outfit);
             await wrapper.applyDescription(humanoid);
+
+            await playIdle(); 
             
             RBXRenderer.addInstance(currentRig, null);
             currentRigType = rigType;
@@ -174,7 +180,13 @@ async function loadRig(rigType) {
                 });
             }
 
-            await playIdle();
+            const animToPlay = rigType === 'R6' ? savedAnimationR6 : savedAnimationR15;
+            const animatorW = getAnimatorW();
+            if (animatorW && animToPlay && animToPlay !== 'idle') {
+                animatorW.playAnimation(animToPlay);
+                activeAnimValue = animToPlay;
+                activeEmoteId = null; 
+            }
         }
     }
 }
@@ -281,11 +293,12 @@ function injectCustomButtons(toggleButton) {
     const assets = getAssets();
 
     if (globalAvatarData.emotes?.length > 0) {
-        const emoteIcon = document.createElement('img');
-        emoteIcon.src = assets.Emotes;
+        const emoteIconContainer = document.createElement('div');
+        emoteIconContainer.innerHTML = decodeURIComponent(assets.Emotes.split(',')[1]); //Verified
+        const emoteIcon = emoteIconContainer.querySelector('svg');
         emoteIcon.style.width = '24px';
         emoteIcon.style.height = '24px';
-        emoteIcon.style.filter = 'invert(1)';
+        emoteIcon.style.fill = 'var(--rovalra-main-text-color)';
 
         const emoteBtn = createSquareButton({ content: emoteIcon, width: 'auto', fontSize: '12px' });
         emoteBtn.addEventListener('click', async (e) => {
@@ -306,11 +319,13 @@ function injectCustomButtons(toggleButton) {
         controlsWrapper.appendChild(emoteBtn);
     }
 
-    const settingsIcon = document.createElement('img');
-    settingsIcon.src = assets.settings;
+    const settingsIconContainer = document.createElement('div');
+    settingsIconContainer.innerHTML = decodeURIComponent(assets.settings.split(',')[1]); // verified
+    const settingsIcon = settingsIconContainer.querySelector('svg');
     settingsIcon.style.width = '24px';
     settingsIcon.style.height = '24px';
-    settingsIcon.style.filter = 'invert(1)';
+    settingsIcon.style.fill = 'var(--rovalra-main-text-color)';
+
     const settingsBtn = createSquareButton({ content: settingsIcon, width: 'auto', fontSize: '12px' });
 
     settingsBtn.addEventListener('click', (e) => {
@@ -324,29 +339,55 @@ function injectCustomButtons(toggleButton) {
         const updateAnimationDropdown = () => {
             const existingDropdown = animSection.querySelector('.rovalra-dropdown-container');
             if (existingDropdown) existingDropdown.remove();
+
             let animItems = [];
-            const animAssets = globalAvatarData.assets.filter(a => a.assetType.name.includes("Animation"));
-            if (animAssets.length > 0) {
-                animItems = animAssets.map(a => ({
-                    label: a.assetType.name.replace("Animation", ""),
-                    value: String(a.assetType.name.toLowerCase().replace("animation", ""))
-                }));
-            } else {
-                const excludedAnims = ['toolnone', 'idle', 'sit', 'swimidle', 'toolslash', 'toollunge']; // Idk why they are added tbh
-                const defaultAnims = currentRigType === 'R6' ? animNamesR6 : animNamesR15;
+            const excludedAnims = ['toolnone', 'idle', 'sit', 'swimidle', 'toolslash', 'toollunge'];
+
+            if (currentRigType === 'R6') {
+                const defaultAnims = animNamesR6;
                 animItems = Object.keys(defaultAnims).map(animName => {
                     if (excludedAnims.includes(animName) || animName.startsWith('dance')) return null;
                     return { label: animName.charAt(0).toUpperCase() + animName.slice(1), value: animName };
                 }).filter(Boolean);
+            } else { // R15
+                const defaultAnims = animNamesR15;
+                const animAssets = globalAvatarData.assets.filter(a => a.assetType.name.includes("Animation"));
+                const animItemsMap = new Map();
+
+                // Add default R15 animations
+                Object.keys(defaultAnims).forEach(animName => {
+                    if (!excludedAnims.includes(animName) && !animName.startsWith('dance')) {
+                        animItemsMap.set(animName, {
+                            label: animName.charAt(0).toUpperCase() + animName.slice(1),
+                            value: animName
+                        });
+                    }
+                });
+
+                // Add users equipped animations, which may override defaults
+                animAssets.forEach(asset => {
+                    const animName = String(asset.assetType.name.toLowerCase().replace("animation", ""));
+                    if (!excludedAnims.includes(animName) && !animName.startsWith('dance')) {
+                        animItemsMap.set(animName, { label: asset.assetType.name.replace("Animation", ""), value: animName });
+                    }
+                });
+                animItems = Array.from(animItemsMap.values());
             }
             const { element: dropdownElement } = createDropdown({
                 items: [{ label: 'Idle', value: 'idle' }, ...animItems],
-                initialValue: activeAnimValue || 'idle',
+                initialValue: (currentRigType === 'R6' ? savedAnimationR6 : savedAnimationR15) || 'idle',
                 onValueChange: (value) => {
                     const animatorW = getAnimatorW();
                     if (animatorW) {
                         if (value === 'idle') playIdle();
                         else { animatorW.playAnimation(value); activeAnimValue = value; activeEmoteId = null; }
+                    }
+                    if (currentRigType === 'R6') {
+                        savedAnimationR6 = value;
+                        chrome.storage.local.set({ profileRenderAnimationR6: value });
+                    } else {
+                        savedAnimationR15 = value;
+                        chrome.storage.local.set({ profileRenderAnimationR15: value });
                     }
                 }
             });
@@ -376,18 +417,59 @@ function injectCustomButtons(toggleButton) {
         updateAnimationDropdown();
         contentContainer.appendChild(animSection);
 
+        const speedSection = document.createElement('div');
+        speedSection.innerHTML = '<div class="text-label-small" style="margin-bottom:5px; color:var(--rovalra-secondary-text-color);">Animation Speed</div>';
+
+        const speedSliderWrapper = document.createElement('div');
+        speedSliderWrapper.style.display = 'flex';
+        speedSliderWrapper.style.alignItems = 'center';
+        speedSliderWrapper.style.gap = '10px';
+
+        const speedSlider = document.createElement('input');
+        speedSlider.type = 'range';
+        speedSlider.min = 0;
+        speedSlider.max = 2;
+        speedSlider.step = 0.1;
+        speedSlider.style.flexGrow = '1';
+
+        const speedValueDisplay = document.createElement('span');
+        speedValueDisplay.style.minWidth = '40px';
+        speedValueDisplay.style.textAlign = 'right';
+
+        speedSlider.addEventListener('input', () => { 
+            const newSpeed = parseFloat(speedSlider.value);
+            speedValueDisplay.textContent = `${newSpeed.toFixed(1)}x`;
+        });
+
+        speedSlider.addEventListener('change', () => { 
+            const newSpeed = parseFloat(speedSlider.value);
+            chrome.storage.local.set({ profileRenderAnimationSpeed: newSpeed });
+        });
+
+        chrome.storage.local.get({ profileRenderAnimationSpeed: 1 }, (settings) => {
+            const initialSpeed = parseFloat(settings.profileRenderAnimationSpeed ?? 1);
+            speedSlider.value = initialSpeed;
+            speedValueDisplay.textContent = `${initialSpeed.toFixed(1)}x`;
+        });
+
+        speedSliderWrapper.appendChild(speedSlider);
+        speedSliderWrapper.appendChild(speedValueDisplay);
+        speedSection.appendChild(speedSliderWrapper);
+        contentContainer.appendChild(speedSection);
+
         createOverlay({ title: 'Render Settings', bodyContent: contentContainer, maxWidth: '400px', overflowVisible: true, showLogo: true });
     });
 
     controlsWrapper.appendChild(settingsBtn);
     
     if (isCustomEnvLoaded && environmentConfig && environmentConfig.tooltip) {
-        const infoIcon = document.createElement('img');
-        infoIcon.src = assets.priceFloorIcon;
+        const infoIconContainer = document.createElement('div');
+        infoIconContainer.innerHTML = decodeURIComponent(assets.priceFloorIcon.split(',')[1]); //Verified
+        const infoIcon = infoIconContainer.querySelector('svg');
         infoIcon.style.width = '24px';
         infoIcon.style.height = '24px';
-        infoIcon.style.filter = 'invert(1)';
         infoIcon.style.cursor = 'pointer';
+        infoIcon.style.fill = 'var(--rovalra-main-text-color)';
 
         addTooltip(infoIcon, environmentConfig.tooltip.text, { position: 'top' });
 
@@ -422,7 +504,7 @@ function startAnimationLoop() {
             if (currentRig) {
                 const animatorW = getAnimatorW();
                 if (animatorW) {
-                    const deltaTime = delta / 1000;
+                    const deltaTime = (delta / 1000) * animationSpeed;
                     animatorW.renderAnimation(deltaTime);
                     RBXRenderer.addInstance(currentRig, null);
                 }
@@ -719,6 +801,34 @@ async function attachPreloadedAvatar(container) {
 export function init() {
     chrome.storage.local.get({ profile3DRenderEnabled: true }, (result) => {
         if (result.profile3DRenderEnabled) {
+            chrome.storage.onChanged.addListener((changes, area) => {
+                if (area === 'local') {
+                    if (changes.profileRenderAnimationSpeed) {
+                        try {
+                            const newSpeed = parseFloat(changes.profileRenderAnimationSpeed.newValue);
+                            animationSpeed = isNaN(newSpeed) ? 1 : newSpeed;
+                        } catch (e) {
+                            animationSpeed = 1;
+                        }
+                    }
+                    if (changes.profileRenderAnimationR6) {
+                        savedAnimationR6 = changes.profileRenderAnimationR6.newValue || 'idle';
+                    }
+                    if (changes.profileRenderAnimationR15) {
+                        savedAnimationR15 = changes.profileRenderAnimationR15.newValue || 'idle';
+                    }
+                }
+            });
+            chrome.storage.local.get({ 
+                profileRenderAnimationSpeed: 1,
+                profileRenderAnimationR6: 'idle',
+                profileRenderAnimationR15: 'idle'
+            }, (settings) => {
+                const initialSpeed = parseFloat(settings.profileRenderAnimationSpeed ?? 1);
+                animationSpeed = isNaN(initialSpeed) ? 1 : initialSpeed;
+                savedAnimationR6 = settings.profileRenderAnimationR6 || 'idle';
+                savedAnimationR15 = settings.profileRenderAnimationR15 || 'idle';
+            });
             const avatarPromise = preloadAvatar();
             injectStylesheet('css/thumbnailholder.css', 'rovalra-thumbnail-holder-css');
 

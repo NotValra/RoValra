@@ -373,6 +373,7 @@ export const SETTINGS_CONFIG = {
                 description: ["Replaces the default profile avatar with a more customizable and feature-rich 3D renderer.", "This feature is required for custom environments and other render-related settings."],
                 type: "checkbox",
                 default: true,
+                storageKey: ["profileRenderAnimationR6", "profileRenderAnimationR15", "profileRenderAnimationSpeed"],
                 childSettings: {
                     profileRenderEnvironment: {
                         label: "3D Profile Environment",
@@ -407,7 +408,12 @@ export const SETTINGS_CONFIG = {
                 type: "checkbox",
                 default: true
             },
-
+            statusBubbleEnabled: {
+                label: "Status Bubble",
+                description: ["This allows you to set a status bubble that anyone with RoValra can see.",
+                    "Also allows you to view other RoValra users status bubbles."
+                ]
+            },
             donationbuttonEnable: {
                 label: "Donation Button",
                 description: ["This will add a donation button to a user's profile, which allows you to donate to someone via PLS Donate"],
