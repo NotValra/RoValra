@@ -45,20 +45,42 @@ let activeEmoteId = null;
 let activeAnimValue = null;
 
 let isAnimatePatched = false;
+const raycaster = new THREE.Raycaster();
 
-function patchAnimateForRotation() {
-    if (isAnimatePatched || typeof RBXRenderer.animate !== 'function') return;
+function constrainCamera() {
+    const controls = RBXRenderer.getRendererControls();
+    const camera = RBXRenderer.getRendererCamera();
+    if (!controls || !camera) return;
 
-    const originalAnimate = RBXRenderer.animate;
-    if (originalAnimate.toString().includes('getRendererControls')) {
-        isAnimatePatched = true;
-        return;
+    const direction = new THREE.Vector3().subVectors(camera.position, controls.target).normalize();
+    const distanceToCamera = camera.position.distanceTo(controls.target);
+
+    raycaster.set(controls.target, direction);
+    const intersects = raycaster.intersectObjects(RBXRenderer.scene.children, true);
+
+    // Only collide with objects that has the 'isEnvironment' tag
+    const environmentHits = intersects.filter(hit => {
+        return hit.object.userData.isEnvironment === true;
+    });
+
+    // Move camera if we hit an environment object
+    if (environmentHits.length > 0 && environmentHits[0].distance < distanceToCamera) {
+        const hitDistance = environmentHits[0].distance;
+        const newPos = new THREE.Vector3()
+            .copy(controls.target)
+            .add(direction.multiplyScalar(Math.max(0.1, hitDistance - 0.2)));
+        
+        camera.position.copy(newPos);
     }
+}
+function patchAnimateForRotation() {
+    if (isAnimatePatched) return;
 
     RBXRenderer.animate = function() {
         const controls = RBXRenderer.getRendererControls();
         if (controls) {
             controls.update();
+            constrainCamera(); 
         }
 
         RBXRenderer.renderer.setRenderTarget(null);
@@ -72,7 +94,6 @@ function patchAnimateForRotation() {
     };
     isAnimatePatched = true;
 }
-
 function getAnimatorW(rig = currentRig) {
     if (!rig) return null;
     const humanoid = rig.FindFirstChildOfClass("Humanoid");
@@ -424,6 +445,7 @@ async function loadCustomEnvironment(scene, config) {
             
             model.traverse(node => {
                 if (node.isMesh) {
+                    node.userData.isEnvironment = true;
                     if (config.receiveShadow !== undefined) node.receiveShadow = config.receiveShadow;
                     if (config.castShadow !== undefined) node.castShadow = config.castShadow;
                 }
