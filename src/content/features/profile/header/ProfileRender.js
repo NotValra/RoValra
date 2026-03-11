@@ -433,7 +433,12 @@ async function loadCustomEnvironment(scene, config) {
         const loader = new GLTFLoader();
         let envUrl = config.url;
 
-        if (!envUrl.startsWith('http')) {
+        try {
+            // This will parse full URLs, and throw on relative paths.
+            new URL(envUrl);
+        } catch (e) {
+            // If it's not a valid full URL, assume it's a local path within the extension.
+            // This handles cases like "assets/model.glb".
             envUrl = chrome.runtime.getURL(envUrl);
         }
 

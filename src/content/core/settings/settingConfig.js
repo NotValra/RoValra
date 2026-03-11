@@ -1072,10 +1072,10 @@ export const SETTINGS_CONFIG = {
                     // model settings
                     modelUrl: {
                         label: "GLB Model Path",
-                        description: ["Enter a local path to a .glb model file (e.g., assets/environments/crossroads.glb)."],
+                        description: ["Enter a local path (e.g., `assets/environments/model.glb`) or a full URL to a `.glb` model file."],
                         type: "input",
                         default: "",
-                        placeholder: "assets/environments/model.glb",
+                        placeholder: "Path or URL to .glb file...",
                         storageKey: "envTester_modelUrl"
                     },
                     modelPosX: { label: "Model Pos X", type: "input", default: "0", placeholder: "e.g. 0" },
