@@ -53,47 +53,57 @@ let savedAnimationR15 = 'idle';
 
 let isAnimatePatched = false;
 const raycaster = new THREE.Raycaster();
-
+let intendedDistance = 15;
+let lastAppliedDistance = 15;
 function constrainCamera() {
     const controls = RBXRenderer.getRendererControls();
     const camera = RBXRenderer.getRendererCamera();
     if (!controls || !camera) return;
+    const currentCameraDistance = camera.position.distanceTo(controls.target);
 
+    if (Math.abs(currentCameraDistance - lastAppliedDistance) > 0.001) {
+        intendedDistance = currentCameraDistance;
+    }
     const direction = new THREE.Vector3()
         .subVectors(camera.position, controls.target)
         .normalize();
-    const distanceToCamera = camera.position.distanceTo(controls.target);
 
     raycaster.set(controls.target, direction);
+    raycaster.far = intendedDistance;
+
     const intersects = raycaster.intersectObjects(
         RBXRenderer.scene.children,
         true,
     );
 
-    // Only collide with objects that has the 'isEnvironment' tag
     const environmentHits = intersects.filter((hit) => {
         return hit.object.userData.isEnvironment === true;
     });
 
-    // Move camera if we hit an environment object
-    if (
-        environmentHits.length > 0 &&
-        environmentHits[0].distance < distanceToCamera
-    ) {
-        const hitDistance = environmentHits[0].distance;
-        const newPos = new THREE.Vector3()
-            .copy(controls.target)
-            .add(direction.multiplyScalar(Math.max(0.1, hitDistance - 0.2)));
+    let finalDistance = intendedDistance;
 
-        camera.position.copy(newPos);
+    if (environmentHits.length > 0) {
+        const hitDistance = environmentHits[0].distance;
+        finalDistance = Math.max(0.1, hitDistance - 0.2);
     }
+
+    const newPos = new THREE.Vector3()
+        .copy(controls.target)
+        .add(direction.multiplyScalar(finalDistance));
+
+    camera.position.copy(newPos);
+
+    lastAppliedDistance = finalDistance;
 }
+
 function patchAnimateForRotation() {
     if (isAnimatePatched) return;
 
     RBXRenderer.animate = function () {
         const controls = RBXRenderer.getRendererControls();
-        if (controls) {
+        const camera = RBXRenderer.getRendererCamera();
+
+        if (controls && camera) {
             controls.update();
             constrainCamera();
         }
