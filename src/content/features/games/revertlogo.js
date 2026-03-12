@@ -4,6 +4,7 @@ import { fetchThumbnails } from '../../core/thumbnail/thumbnails.js';
 import { callRobloxApi } from '../../core/api.js'; 
 import DOMPurify from 'dompurify';
 import { launchGame } from '../../core/utils/launcher.js';
+import { log, logLevel } from '../../core/logging.js';
 
 import { 
     showLoadingOverlay, 
@@ -556,7 +557,7 @@ function initializeJoinDialogEnhancer() {
                                 }
                             }
                         } catch (innerErr) {
-                            console.error("Join API attempt failed:", innerErr);
+                            log(logLevel.ERROR, "Join API attempt failed:", innerErr);
                         }
 
                         if (!joinApiResponse && retries < MAX_RETRIES) {
@@ -569,7 +570,7 @@ function initializeJoinDialogEnhancer() {
                     }
 
                 } catch (e) {
-                    console.error("Error in server info fetch loop:", e);
+                    log(logLevel.ERROR, "Error in server info fetch loop:", e);
                 }
             }
 
@@ -633,7 +634,7 @@ function initializeJoinDialogEnhancer() {
                 pollClientStatus(placeId);
 
             } catch (e) {
-                console.error("Rendering error:", e);
+                log(logLevel.ERROR, "Rendering error:", e);
                 const details = await gameDetailsPromise;
                 updateServerInfo(details.name, details.iconUrl, null);
                 updateLoadingOverlayText(`Launching...`);

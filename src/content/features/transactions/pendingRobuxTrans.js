@@ -1,6 +1,7 @@
 import { observeElement } from '../../core/observer.js';
 import { callRobloxApi, callRobloxApiJson } from '../../core/api.js';
 import { addTooltip } from '../../core/ui/tooltip.js';
+import { log, logLevel } from '../../core/logging.js';
 import DOMPurify, { safeHtml } from '../../core/packages/dompurify.js';
 const API_LIMIT = 100;
 const MAX_PAGES_TO_FETCH_FOR_INFERENCE = 2000;
@@ -23,7 +24,7 @@ const parseTimestamp = (timestampStr) => {
         if (isNaN(dt.getTime())) return null;
         return dt;
     } catch (e) {
-        console.error(e);
+        log(logLevel.ERROR, e);
         return null;
     }
 };
@@ -110,7 +111,7 @@ async function fetchTransactions(userId) {
                 break transactionLoop;
             }
         } catch (e) {
-            console.error(e);
+            log(logLevel.ERROR, e);
             break transactionLoop;
         }
     }
@@ -320,7 +321,7 @@ function injectResultElement(targetElement, result) {
                 targetElement.classList.add('robux-estimator-processed');
             }
         } catch (error) {
-            console.error(error);
+            log(logLevel.ERROR, error);
         }
     }
 }
@@ -386,14 +387,14 @@ export function init() {
             });
             state.userId = userData.id;
             if (!state.userId) {
-                console.error(
+                log(logLevel.ERROR, 
                     'RoValra: Could not get user ID for pending Robux feature.',
                 );
                 return;
             }
             observeElement(TARGET_ELEMENT_SELECTOR, onElementFound);
         } catch (e) {
-            console.error(
+            log(logLevel.ERROR, 
                 'RoValra: Failed to initialize pending Robux feature.',
                 e,
             );

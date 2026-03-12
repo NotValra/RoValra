@@ -8,6 +8,7 @@ import { createScrollButtons } from '../../../core/ui/general/scrollButtons.js';
 import { addTooltip } from '../../../core/ui/tooltip.js';
 import DOMPurify from 'dompurify';
 import { showSystemAlert } from '../../../core/ui/roblox/alert.js';
+import { log, logLevel } from '../../../core/logging.js';
 
 async function fetchAllOutfits(userId) {
     let outfits = [];
@@ -117,7 +118,7 @@ async function wearOutfit(outfitId) {
         const results = await Promise.all(promises);
         return { ok: results.every(r => r.ok) };
     } catch (e) {
-        console.error(e);
+        log(logLevel.ERROR, e);
         return { ok: false };
     }
 }
@@ -207,7 +208,7 @@ function createOutfitCard(outfit, thumbnailData, onSuccess) {
                 name.style.color = "#ff4444";
             }
         } catch (e) {
-            name.textContent = "Error:", console.error(e);
+            name.textContent = "Error:", log(logLevel.ERROR, e);
             name.style.color = "#ff4444";
         }
         
@@ -224,7 +225,7 @@ function createOutfitCard(outfit, thumbnailData, onSuccess) {
 async function showQuickOutfitsOverlay() {
     const userId = await getAuthenticatedUserId();
     if (!userId) {
-        console.error("authed user id not found :C for quick outfits")
+        log(logLevel.ERROR, "authed user id not found :C for quick outfits")
         return;
     }
 
@@ -385,7 +386,7 @@ async function showQuickOutfitsOverlay() {
         renderPage();
 
     } catch (e) {
-        console.error(e);
+        log(logLevel.ERROR, e);
         gridContainer.innerHTML = DOMPurify.sanitize('<div style="padding: 20px; color: red;">Error loading outfits.</div>');
     }
 }

@@ -4,6 +4,7 @@ import { callRobloxApiJson } from '../../core/api.js';
 import { createRadioButton } from '../../core/ui/general/radio.js';
 import { createOverlay } from '../../core/ui/overlay.js';
 import { fetchThumbnails, createThumbnailElement } from '../../core/thumbnail/thumbnails.js';
+import { log, logLevel } from '../../core/logging.js';
 import DOMPurify from 'dompurify';
 
 
@@ -597,7 +598,7 @@ async function addFeatureButtons(searchContainer) {
             }
         } catch (e) {
             loader.remove();
-            if (e.name !== 'AbortError') console.error(e);
+            if (e.name !== 'AbortError') log(logLevel.ERROR, e);
         } finally {
             quickActionState.isLoading = false;
         }
@@ -732,7 +733,7 @@ async function addFeatureButtons(searchContainer) {
                         more = !!cursor;
 
                     } catch (err) {
-                        console.error("Error fetching page:", err);
+                        log(logLevel.ERROR, "Error fetching page:", err);
                         break; 
                     }
                 }
@@ -779,7 +780,7 @@ async function addFeatureButtons(searchContainer) {
             } catch (e) {
                 if (e.message !== 'Aborted') {
                     antiBotsButton.textContent = 'Error - Retry';
-                    console.error(e);
+                    log(logLevel.ERROR, e);
                     if (membersTitleElement) membersTitleElement.textContent = 'Error during scan.';
                 } else {
                     resetUiState();

@@ -7,6 +7,7 @@ import { createDropdown } from '../../../core/ui/dropdown.js';
 import { createStyledInput } from '../../../core/ui/catalog/input.js';
 import { getPlaceIdFromUrl } from '../../../core/idExtractor.js';
 import { createScrollButtons } from '../../../core/ui/general/scrollButtons.js';
+import { log, logLevel } from '../../../core/logging.js';
 
 async function fetchUniverseId(placeId) {
     const metaData = document.getElementById('game-detail-meta-data');
@@ -25,7 +26,7 @@ async function fetchUniverseId(placeId) {
         const data = await response.json();
         return data?.[0]?.universeId;
     } catch (error) {
-        console.error('RoValra: Error fetching universe ID', error);
+        log(logLevel.ERROR, 'RoValra: Error fetching universe ID', error);
         return null;
     }
 }
@@ -55,7 +56,7 @@ async function fetchDevProducts(universeId) {
 
         return allProducts;
     } catch (error) {
-        console.error('RoValra: Error fetching developer products', error);
+        log(logLevel.ERROR, 'RoValra: Error fetching developer products', error);
         return allProducts;
     }
 }

@@ -1,6 +1,7 @@
 
 import { parseRbxm } from './rbxm.js';
 import { callRobloxApi } from '../api.js';
+import { log, logLevel } from '../logging.js';
 
 const RBXM_SIGNATURE_BYTES = [60, 114, 111, 98, 108, 111, 120, 33]; 
 
@@ -85,7 +86,7 @@ export async function checkAssetsInBatch(assetIds) {
         });
 
         if (!batchApiResponse.ok) {
-            console.error(`[Rovalra Asset Parser] AssetDelivery batch API failed: ${batchApiResponse.status}`);
+            log(logLevel.ERROR, `[Rovalra Asset Parser] AssetDelivery batch API failed: ${batchApiResponse.status}`);
             return assetIds.map(id => createDefaultResult(id));
         }
 
@@ -133,7 +134,7 @@ export async function checkAssetsInBatch(assetIds) {
                 };
 
             } catch (error) {
-                console.error(`[Rovalra Asset Parser] Error parsing asset ${id}:`, error);
+                log(logLevel.ERROR, `[Rovalra Asset Parser] Error parsing asset ${id}:`, error);
                 return createDefaultResult(id);
             }
         });
@@ -141,7 +142,7 @@ export async function checkAssetsInBatch(assetIds) {
         return Promise.all(processingPromises);
 
     } catch (error) {
-        console.error('[Rovalra Asset Parser] Critical error:', error);
+        log(logLevel.ERROR, '[Rovalra Asset Parser] Critical error:', error);
         return assetIds.map(id => createDefaultResult(id));
     }
 }

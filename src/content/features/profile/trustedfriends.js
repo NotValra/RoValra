@@ -4,6 +4,7 @@ import { getUserIdFromUrl } from '../../core/idExtractor.js';
 import { addTooltip } from '../../core/ui/tooltip.js';
 import { showConfirmationPrompt } from '../../core/ui/confirmationPrompt.js';
 import { showSystemAlert } from '../../core/ui/roblox/alert.js';
+import { log, logLevel } from '../../core/logging.js';
 
 const profileStatusCache = new Map();
 const TEST_ALWAYS_ERROR = false;
@@ -48,7 +49,7 @@ async function getProfileStatus(userId) {
 
             return null;
         } catch (err) {
-            console.error('RoValra: Failed to fetch trusted friend status.', err);
+            log(logLevel.ERROR, 'RoValra: Failed to fetch trusted friend status.', err);
             profileStatusCache.delete(userId); 
             throw err;
         }
@@ -120,7 +121,7 @@ function createAddButton(userId) {
                     showSystemAlert('Trusted connection request sent!', 'success');
                     await refreshButtonState(button, userId);
                 }).catch(err => {
-                    console.error('RoValra: Failed to send trusted friend request.', err);
+                    log(logLevel.ERROR, 'RoValra: Failed to send trusted friend request.', err);
                     showSystemAlert('Failed to send trusted connection request.', 'warning');
                     titleSpan.textContent = 'Error Sending';
                     setTimeout(() => {
@@ -159,7 +160,7 @@ function createAcceptButton(userId) {
                     showSystemAlert('Trusted connection request accepted!', 'success');
                     await refreshButtonState(button, userId);
                 }).catch(err => {
-                    console.error('RoValra: Failed to accept trusted friend request.', err);
+                    log(logLevel.ERROR, 'RoValra: Failed to accept trusted friend request.', err);
                     showSystemAlert('Failed to accept trusted connection request.', 'warning');
                     titleSpan.textContent = 'Error Accepting';
                     setTimeout(() => {
@@ -199,7 +200,7 @@ function createRemoveButton(userId) {
                     showSystemAlert('Trusted connection removed!', 'success');
                     await refreshButtonState(button, userId);
                 }).catch(err => {
-                    console.error('RoValra: Failed to remove trusted friend.', err);
+                    log(logLevel.ERROR, 'RoValra: Failed to remove trusted friend.', err);
                     showSystemAlert('Failed to remove trusted connection.', 'warning');
                     titleSpan.textContent = 'Error Removing';
                     setTimeout(() => {

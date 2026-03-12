@@ -1,5 +1,6 @@
 import { streamRobloxVideo } from '../../core/utils/videoStreamer.js';
 import { callRobloxApiJson } from '../../core/api.js';
+import { log, logLevel } from '../../core/logging.js';
 
 const VIDEO_ASSETS = [
     { id: 126397822635206, name: "Original Test" },

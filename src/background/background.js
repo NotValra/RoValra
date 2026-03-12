@@ -1,4 +1,5 @@
 import { SETTINGS_CONFIG } from '../content/core/settings/settingConfig.js';
+import { log, logLevel} from '../content/core/logging.js';
 
 // --- Constants & State ---
 
@@ -66,9 +67,9 @@ function initializeSettings(reason) {
         if (needsUpdate) {
             chrome.storage.local.set(settingsToUpdate, () => {
                 if (chrome.runtime.lastError) {
-                    console.error('RoValra: Failed to sync settings.', chrome.runtime.lastError);
+                    log(logLevel.ERROR, 'RoValra: Failed to sync settings.', chrome.runtime.lastError);
                 } else {
-                    console.log(`RoValra: Synced/Fixed ${Object.keys(settingsToUpdate).length} settings (Trigger: ${reason}).`);
+                    log(logLevel.DEBUG, `RoValra: Synced/Fixed ${Object.keys(settingsToUpdate).length} settings (Trigger: ${reason}).`);
                 }
             });
         }
@@ -205,7 +206,7 @@ async function getUniverseIdFromPlaceId(placeId) {
         }
         return null;
     } catch (e) {
-        console.error('RoValra: Error fetching universe ID from place ID', e);
+        log(logLevel.ERROR, 'RoValra: Error fetching universe ID from place ID', e);
         return null;
     }
 }
@@ -265,7 +266,7 @@ async function wearOutfit(outfitData) {
     try {
         const outfitId = (typeof outfitData === 'object' && outfitData !== null) ? outfitData.itemId : outfitData;
         if (!outfitId) {
-            console.error('RoValra: wearOutfit called with invalid outfitData', outfitData);
+            log(logLevel.ERROR, 'RoValra: wearOutfit called with invalid outfitData', outfitData);
             return { ok: false };
         }
 
@@ -288,7 +289,7 @@ async function wearOutfit(outfitData) {
         const results = await Promise.all(promises);
         return { ok: results.every(r => r && r.ok) };
     } catch (e) {
-        console.error('RoValra: Error wearing outfit', e);
+        log(logLevel.ERROR, 'RoValra: Error wearing outfit', e);
         return { ok: false };
     }
 }

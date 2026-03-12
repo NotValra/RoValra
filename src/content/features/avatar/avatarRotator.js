@@ -5,6 +5,7 @@ import { callRobloxApiJson } from '../../core/api.js';
 import { getBatchThumbnails, createThumbnailElement } from '../../core/thumbnail/thumbnails.js';
 import { createRadioButton } from '../../core/ui/general/radio.js';
 import { createStyledInput } from '../../core/ui/catalog/input.js';
+import { log, logLevel } from '../../core/logging.js';
 
 export function init() {
     if (!window.location.pathname.includes('/my/avatar')) return;
@@ -159,7 +160,7 @@ export function init() {
 
                 nextPageCursor = response.nextPageToken || null;
             } catch (error) {
-                console.error('RoValra: Failed to fetch avatars', error);
+                log(logLevel.ERROR, 'RoValra: Failed to fetch avatars', error);
             } finally {
                 isLoading = false;
                 if (loadBtn) {

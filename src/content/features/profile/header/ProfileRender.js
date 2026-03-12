@@ -24,6 +24,7 @@ import {
     animNamesR6
 } from 'roavatar-renderer';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { log, logLevel } from '../../../core/logging.js';
 
 import * as THREE from 'three';
 FLAGS.ASSETS_PATH = chrome.runtime.getURL("assets/rbxasset/");
@@ -197,7 +198,7 @@ async function createEmoteRadialMenu(emotesData, onSelect) {
             thumbResponse.data.forEach(item => {
                 thumbMap[item.targetId] = item.imageUrl;
             });
-        } catch (e) { console.error(e); }
+        } catch (e) { log(logLevel.ERROR, e); }
     }
 
     container.innerHTML = `
@@ -663,7 +664,7 @@ async function preloadAvatar() {
                     camera.updateProjectionMatrix();
                 }
             })().catch(err => {
-                console.error("RoValra: Failed to load custom environment in background.", err);
+                log(logLevel.ERROR, "RoValra: Failed to load custom environment in background.", err);
                 setupAtmosphere(scene, DEFAULT_VOID_CONFIG.atmosphere, false);
             });
 
@@ -672,7 +673,7 @@ async function preloadAvatar() {
             
             return globalAvatarData;
         } catch (err) {
-            console.error("RoValra Preload Error:", err);
+            log(logLevel.ERROR, "RoValra Preload Error:", err);
             return null;
         } finally {
             isPreloading = false;

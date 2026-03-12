@@ -13,6 +13,7 @@ import DOMPurify from 'dompurify';
 import { safeHtml } from '../../core/packages/dompurify';
 import { createOverlay } from '../../core/ui/overlay.js';
 import { createItemCard } from '../../core/ui/items/items.js';
+import { log, logLevel } from '../../core/logging.js';
 
 export function init() {
     chrome.storage.local.get('useroutfitsEnabled', function (data) {
@@ -875,11 +876,11 @@ export function init() {
                             );
                         }
                     } else {
-                        alert('Could not determine the User ID from the page.');
+                        log(logLevel.CRITICAL, 'Could not determine the User ID from the page.');
                     }
                 } catch (error) {
                     if (!loadingControl.cancelled)
-                        alert('Could not fetch outfits.');
+                        log(logLevel.CRITICAL, 'Could not fetch outfits.');
                 }
             };
 

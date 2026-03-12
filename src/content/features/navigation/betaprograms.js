@@ -4,6 +4,7 @@ import { callRobloxApi, callRobloxApiJson } from '../../core/api.js';
 import { createDropdownMenu } from '../../core/ui/dropdown.js';
 import { createSpinner } from '../../core/ui/spinner.js';
 import { getAssets } from '../../core/assets.js';
+import { log, logLevel} from '../../core/logging.js';
 
 async function optInBeta(programId) {
     return callRobloxApi({
@@ -182,7 +183,7 @@ export async function addNavbarButton() {
             menu.toggle(true);
 
         } catch (error) {
-            console.error('RoValra: Failed to fetch beta programs', error);
+            log(logLevel.ERROR, 'RoValra: Failed to fetch beta programs', error);
             if (menu) menu.toggle(false);
         } finally {
             isLoading = false;

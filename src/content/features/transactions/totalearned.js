@@ -2,6 +2,7 @@ import { observeElement } from '../../core/observer.js';
 import { callRobloxApiJson } from '../../core/api.js';
 import { createOverlay } from '../../core/ui/overlay.js';
 import { createButton } from '../../core/ui/buttons.js';
+import { log, logLevel} from '../../core/logging.js';
 import DOMPurify from 'dompurify';
 
 function onElementFound(container) {
@@ -445,7 +446,7 @@ function onElementFound(container) {
             if (error instanceof PausedException) {
                 await animationController.waitUntilIdle();
             } else {
-                console.error('RoValra Earned: Error:', error);
+                log(logLevel.ERROR, 'RoValra Earned: Error:', error);
                 state.status = CALCULATION_STATE.ERROR;
                 state.errorMessage = error.message;
                 updateOverlay();

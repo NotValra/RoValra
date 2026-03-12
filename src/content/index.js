@@ -78,6 +78,9 @@ import { init as initFirstAccount } from './features/settings/roblox/firstAccoun
 // create
 import { init as initCreateDownload } from './features/create.roblox.com/download.js';
 
+// Logging
+import { log, logLevel} from './core/logging.js';
+
 
 let pageLoaded = false;
 let lastPath = window.location.pathname;
@@ -203,7 +206,7 @@ async function initializePage() {
     onDomReady();
   }
 
-  console.log(`%cRoValra Initialized`, 'font-size: 1.5em; color: #FF4500;', `(Observer: ${observerStatus})`);
+  log(logLevel.INFO, `%cRoValra Initialized`, 'font-size: 1.5em; color: #FF4500;', `(Observer: ${observerStatus})`);
 }
 
 
@@ -211,7 +214,7 @@ function handleUrlChange() {
   const currentPath = window.location.pathname;
 
   if (currentPath !== lastPath) {
-    console.log(`%cRoValra: URL changed from ${lastPath} to ${currentPath}`, 'color: #FF4500;');
+    log(logLevel.INFO, `%cRoValra: URL changed from ${lastPath} to ${currentPath}`, 'color: #FF4500;');
     lastPath = currentPath;
 
     runFeaturesForPage();

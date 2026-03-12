@@ -13,6 +13,7 @@ import { getFullRegionName, getRegionData } from '../../../core/regions.js';
 import { createScrollButtons } from '../../../core/ui/general/scrollButtons.js';
 import { showFriendListOverlay } from '../../../core/ui/games/friendListOverlay.js';
 import { showConfirmationPrompt } from '../../../core/ui/confirmationPrompt.js';
+import { log, logLevel } from '../../../core/logging.js';
 
 let lastSearchedQuery = ""; 
 let userSearchAbortController = null;
@@ -169,7 +170,7 @@ async function performUserSearch(query) {
             }
             injectIntoMenu();
         }).catch(e => {
-            if (e.name !== 'AbortError') console.error('RoValra: Friend Search Error', e);
+            if (e.name !== 'AbortError') log(logLevel.ERROR, 'RoValra: Friend Search Error', e);
         });
 
         const [userSearchData, localFriends] = await Promise.all(promises);
@@ -259,7 +260,7 @@ async function performUserSearch(query) {
 
         injectIntoMenu();
     } catch (e) {
-        if (e.name !== 'AbortError') console.error('RoValra: User Search Error', e);
+        if (e.name !== 'AbortError') log(logLevel.ERROR, 'RoValra: User Search Error', e);
     }
 }
 
@@ -372,7 +373,7 @@ async function performGameSearch(query) {
 
         injectIntoMenu();
     } catch (e) {
-        if (e.name !== 'AbortError') console.error('RoValra: Game Search Error', e);
+        if (e.name !== 'AbortError') log(logLevel.ERROR, 'RoValra: Game Search Error', e);
     }
 }
 

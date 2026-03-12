@@ -3,6 +3,7 @@ import { createNavbarButton } from '../../core/ui/navbarButton.js';
 import { createDropdownMenu, createDropdown } from '../../core/ui/dropdown.js';
 import { createRadioButton } from '../../core/ui/general/radio.js';
 import { callRobloxApi } from '../../core/api.js';
+import { log, logLevel } from '../../core/logging.js';
 
 export function init() {
     chrome.storage.local.get({ qolTogglesEnabled: true }, (settings) => {
@@ -131,7 +132,7 @@ export function init() {
                                         endpoint: '/user-settings-api/v1/user-settings',
                                         method: 'POST',
                                         body: payload
-                                    }).catch(e => console.error('Failed to update status', e));
+                                    }).catch(e => log(logLevel.ERROR, 'Failed to update status', e));
                 
                                     const onlineDropdownEl = document.getElementById('rovalra-qol-onlineStatus-dropdown');
                                     const joinDropdownEl = document.getElementById('rovalra-qol-joinStatus-dropdown');
@@ -151,7 +152,7 @@ export function init() {
                                                     endpoint: '/user-settings-api/v1/user-settings',
                                                     method: 'POST',
                                                     body: { whoCanJoinMeInExperiences: newJoinValue }
-                                                }).catch(e => console.error('Failed to update join status', e));
+                                                }).catch(e => log(logLevel.ERROR, 'Failed to update join status', e));
                                             }
                                         }
                                     } else { // isJoinStatus
@@ -169,7 +170,7 @@ export function init() {
                                                     endpoint: '/user-settings-api/v1/user-settings',
                                                     method: 'POST',
                                                     body: { whoCanSeeMyOnlineStatus: newOnlineValue }
-                                                }).catch(e => console.error('Failed to update online status', e));
+                                                }).catch(e => log(logLevel.ERROR, 'Failed to update online status', e));
                                             }
                                         }
                                     }
@@ -182,7 +183,7 @@ export function init() {
                                                 endpoint: '/user-settings-api/v1/user-settings',
                                                 method: 'POST',
                                                 body: { whoCanJoinMeInExperiences: 'NoOne' }
-                                            }).catch(e => console.error('Failed to update join status', e));
+                                            }).catch(e => log(logLevel.ERROR, 'Failed to update join status', e));
                                         }
                                     }
                                 }
