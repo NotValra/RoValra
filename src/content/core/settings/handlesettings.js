@@ -2,22 +2,31 @@ import { SETTINGS_CONFIG } from './settingConfig.js';
 import { findSettingConfig } from './generateSettings.js';
 import { getFullRegionName, REGIONS } from '../regions.js';
 import { sanitizeString } from '../utils/sanitize.js';
+import { getAuthenticatedUserId } from '../user.js';
+import {
+    getUserDescription,
+    updateUserDescription,
+} from '../profile/descriptionhandler.js';
 import { createAndShowPopup } from '../../features/catalog/40method.js';
 import { log, logLevel } from '../../core/logging.js';
-
 
 export const loadSettings = async () => {
     return new Promise((resolve, reject) => {
         const defaultSettings = {};
         for (const category of Object.values(SETTINGS_CONFIG)) {
-            for (const [settingName, settingDef] of Object.entries(category.settings)) {
+            for (const [settingName, settingDef] of Object.entries(
+                category.settings,
+            )) {
                 if (settingDef.default !== undefined) {
                     defaultSettings[settingName] = settingDef.default;
                 }
                 if (settingDef.childSettings) {
-                    for (const [childName, childSettingDef] of Object.entries(settingDef.childSettings)) {
+                    for (const [childName, childSettingDef] of Object.entries(
+                        settingDef.childSettings,
+                    )) {
                         if (childSettingDef.default !== undefined) {
-                            defaultSettings[childName] = childSettingDef.default;
+                            defaultSettings[childName] =
+                                childSettingDef.default;
                         }
                     }
                 }
@@ -26,7 +35,9 @@ export const loadSettings = async () => {
 
         chrome.storage.local.get(defaultSettings, (settings) => {
             if (chrome.runtime.lastError) {
-                log(logLevel.ERROR, 'Failed to load settings:', chrome.runtime.lastError);
+                log(logLevel.ERROR,
+                    'Failed to load settings:',
+                    chrome.runtime.lastError);
                 reject(chrome.runtime.lastError);
             } else {
                 resolve(settings);
@@ -34,7 +45,6 @@ export const loadSettings = async () => {
         });
     });
 };
-
 
 export const handleSaveSettings = async (settingName, value) => {
     if (!settingName) {
@@ -44,35 +54,45 @@ export const handleSaveSettings = async (settingName, value) => {
 
     try {
         const settingConfig = findSettingConfig(settingName);
-        
+
         let sanitizedValue = value;
-        
+
         if (settingConfig) {
             switch (settingConfig.type) {
                 case 'checkbox':
                     if (value !== true && value !== false && value !== null) {
-                        console.warn(`Invalid boolean value for '${settingName}' - coercing to boolean`);
+                        console.warn(
+                            `Invalid boolean value for '${settingName}' - coercing to boolean`,
+                        );
                         sanitizedValue = Boolean(value);
                     }
                     break;
-                    
+
                 case 'number': {
                     const numValue = Number(value);
                     if (isNaN(numValue)) {
-                        console.warn(`Invalid number value for '${settingName}' - setting to default`);
+                        console.warn(
+                            `Invalid number value for '${settingName}' - setting to default`,
+                        );
                         sanitizedValue = settingConfig.default ?? 0;
                     } else {
                         sanitizedValue = numValue;
-                        if (settingConfig.min !== undefined && sanitizedValue < settingConfig.min) {
+                        if (
+                            settingConfig.min !== undefined &&
+                            sanitizedValue < settingConfig.min
+                        ) {
                             sanitizedValue = settingConfig.min;
                         }
-                        if (settingConfig.max !== undefined && sanitizedValue > settingConfig.max) {
+                        if (
+                            settingConfig.max !== undefined &&
+                            sanitizedValue > settingConfig.max
+                        ) {
                             sanitizedValue = settingConfig.max;
                         }
                     }
                     break;
                 }
-                    
+
                 case 'text':
                 case 'input':
                 case 'select':
@@ -80,46 +100,74 @@ export const handleSaveSettings = async (settingName, value) => {
                         sanitizedValue = null;
                     } else if (typeof value === 'string') {
                         sanitizedValue = sanitizeString(value);
-                        
-                        if (settingConfig.type === 'select' && settingConfig.options) {
-                            const validValues = Array.isArray(settingConfig.options) 
-                                ? settingConfig.options.map(opt => typeof opt === 'object' ? opt.value : opt)
+
+                        if (
+                            settingConfig.type === 'select' &&
+                            settingConfig.options
+                        ) {
+                            const validValues = Array.isArray(
+                                settingConfig.options,
+                            )
+                                ? settingConfig.options.map((opt) =>
+                                      typeof opt === 'object' ? opt.value : opt,
+                                  )
                                 : [];
-                            
-                            if (validValues.length > 0 && !validValues.includes(sanitizedValue)) {
-                                console.warn(`Invalid select value '${sanitizedValue}' for '${settingName}' - setting to default`);
-                                sanitizedValue = settingConfig.default ?? validValues[0];
+
+                            if (
+                                validValues.length > 0 &&
+                                !validValues.includes(sanitizedValue)
+                            ) {
+                                console.warn(
+                                    `Invalid select value '${sanitizedValue}' for '${settingName}' - setting to default`,
+                                );
+                                sanitizedValue =
+                                    settingConfig.default ?? validValues[0];
                             }
                         }
                     } else {
-                        console.warn(`Invalid string value for '${settingName}' - converting to string and sanitizing`);
+                        console.warn(
+                            `Invalid string value for '${settingName}' - converting to string and sanitizing`,
+                        );
                         sanitizedValue = sanitizeString(String(value));
                     }
                     break;
-                    
+
                 case 'file':
                     if (value === null) {
                         sanitizedValue = null;
-                    } else if (typeof value !== 'string' || !value.startsWith('data:')) {
-                        console.warn(`Invalid data URI for file setting '${settingName}'`);
+                    } else if (
+                        typeof value !== 'string' ||
+                        !value.startsWith('data:')
+                    ) {
+                        console.warn(
+                            `Invalid data URI for file setting '${settingName}'`,
+                        );
                         sanitizedValue = null;
                     } else {
                         const accept = settingConfig.accept || 'image/*';
-                        if (accept.includes('image') && !value.startsWith('data:image/')) {
-                             console.warn(`Attempted to save non-image data to an image file setting: '${settingName}'`);
-                             sanitizedValue = null;
+                        if (
+                            accept.includes('image') &&
+                            !value.startsWith('data:image/')
+                        ) {
+                            console.warn(
+                                `Attempted to save non-image data to an image file setting: '${settingName}'`,
+                            );
+                            sanitizedValue = null;
                         }
                     }
                     break;
             }
         }
-        
+
         const settings = { [settingName]: sanitizedValue };
 
         return new Promise((resolve, reject) => {
             chrome.storage.local.set(settings, () => {
                 if (chrome.runtime.lastError) {
-                    log(logLevel.ERROR, 'Failed to save setting:', settingName, chrome.runtime.lastError);
+                    log(logLevel.ERROR,
+                        'Failed to save setting:',
+                        settingName,
+                        chrome.runtime.lastError);
                     reject(chrome.runtime.lastError);
                 } else {
                     syncToSettingsKey(settingName, sanitizedValue);
@@ -133,7 +181,6 @@ export const handleSaveSettings = async (settingName, value) => {
     }
 };
 
-
 const syncToSettingsKey = (settingName, value) => {
     chrome.storage.local.get('rovalra_settings', (result) => {
         const settingsData = result.rovalra_settings || {};
@@ -142,15 +189,18 @@ const syncToSettingsKey = (settingName, value) => {
     });
 };
 
-
 export const buildSettingsKey = async () => {
     return new Promise((resolve) => {
         const allSettingKeys = [];
         for (const category of Object.values(SETTINGS_CONFIG)) {
-            for (const [settingName, settingDef] of Object.entries(category.settings)) {
+            for (const [settingName, settingDef] of Object.entries(
+                category.settings,
+            )) {
                 allSettingKeys.push(settingName);
                 if (settingDef.childSettings) {
-                    for (const childName of Object.keys(settingDef.childSettings)) {
+                    for (const childName of Object.keys(
+                        settingDef.childSettings,
+                    )) {
                         allSettingKeys.push(childName);
                     }
                 }
@@ -158,9 +208,13 @@ export const buildSettingsKey = async () => {
         }
 
         chrome.storage.local.get(allSettingKeys, (currentSettings) => {
-            chrome.storage.local.set({ rovalra_settings: currentSettings }, () => {
+            chrome.storage.local.set(
+              { rovalra_settings: currentSettings },
+              () => {
                 if (chrome.runtime.lastError) {
-                    log(logLevel.ERROR, 'Failed to build settings key:', chrome.runtime.lastError);
+                    log(logLevel.ERROR,
+                        'Failed to build settings key:',
+                        chrome.runtime.lastError);
                 } else {
                     log(logLevel.DEBUG, 'RoValra: Settings key initialized');
                 }
@@ -170,7 +224,6 @@ export const buildSettingsKey = async () => {
     });
 };
 
-
 export const initSettings = async (settingsContent) => {
     if (!settingsContent) {
         log(logLevel.ERROR, "settingsContent is null in initSettings! Check HTML structure.");
@@ -178,14 +231,18 @@ export const initSettings = async (settingsContent) => {
     }
     const settings = await loadSettings();
 
-
     if (settings) {
         for (const sectionName in SETTINGS_CONFIG) {
             const section = SETTINGS_CONFIG[sectionName];
-            for (const [settingName, config] of Object.entries(section.settings)) {
-                if (settings[settingName] === true && config.requiredPermissions) {
+            for (const [settingName, config] of Object.entries(
+                section.settings,
+            )) {
+                if (
+                    settings[settingName] === true &&
+                    config.requiredPermissions
+                ) {
                     let missingPerms = false;
-                    
+
                     for (const perm of config.requiredPermissions) {
                         const hasIt = await hasPermission(perm);
                         if (!hasIt) {
@@ -195,7 +252,9 @@ export const initSettings = async (settingsContent) => {
                     }
 
                     if (missingPerms) {
-                        log(logLevel.WARNING, `RoValra: Disabling '${settingName}' because required permissions are missing.`);
+                        log(logLevel.WARNING,
+                            `RoValra: Disabling '${settingName}' because required permissions are missing.`
+                        );
                         await handleSaveSettings(settingName, false);
                         settings[settingName] = false;
                     }
@@ -207,30 +266,48 @@ export const initSettings = async (settingsContent) => {
     if (settings) {
         for (const sectionName in SETTINGS_CONFIG) {
             const section = SETTINGS_CONFIG[sectionName];
-            for (const [settingName, setting] of Object.entries(section.settings)) {
-                const element = settingsContent.querySelector(`#${settingName}`);
+            for (const [settingName, setting] of Object.entries(
+                section.settings,
+            )) {
+                const element = settingsContent.querySelector(
+                    `#${settingName}`,
+                );
                 if (element) {
                     if (setting.type === 'checkbox') {
-                        element.checked = settings[settingName] !== undefined ? settings[settingName] : setting.default;
+                        element.checked =
+                            settings[settingName] !== undefined
+                                ? settings[settingName]
+                                : setting.default;
                     } else if (setting.type === 'select') {
-                        const savedValue = settings[settingName] || setting.default;
+                        const savedValue =
+                            settings[settingName] || setting.default;
                         element.value = savedValue;
-                        
+
                         if (element._dropdownApi) {
                             element._dropdownApi.setValue(savedValue);
                         }
                     } else if (setting.type === 'input') {
                         element.value = settings[settingName] || '';
-                        element.dispatchEvent(new Event('input', { bubbles: true }));
+                        element.dispatchEvent(
+                            new Event('input', { bubbles: true }),
+                        );
                     } else if (setting.type === 'file') {
-                        const fileUploadWrapper = settingsContent.querySelector(`[data-setting-name="${settingName}"]`);
-                        const previewElement = settingsContent.querySelector(`#preview-${settingName}`);
+                        const fileUploadWrapper = settingsContent.querySelector(
+                            `[data-setting-name="${settingName}"]`,
+                        );
+                        const previewElement = settingsContent.querySelector(
+                            `#preview-${settingName}`,
+                        );
                         const customLogoData = settings[settingName];
 
-                        if (fileUploadWrapper && fileUploadWrapper.rovalraFileUpload) {
-                            const { setFileName, showClear } = fileUploadWrapper.rovalraFileUpload;
+                        if (
+                            fileUploadWrapper &&
+                            fileUploadWrapper.rovalraFileUpload
+                        ) {
+                            const { setFileName, showClear } =
+                                fileUploadWrapper.rovalraFileUpload;
                             if (customLogoData) {
-                                setFileName('custom_icon.png'); 
+                                setFileName('custom_icon.png');
                                 showClear(true);
                                 if (previewElement) {
                                     previewElement.src = customLogoData;
@@ -239,7 +316,8 @@ export const initSettings = async (settingsContent) => {
                             } else {
                                 setFileName(null);
                                 showClear(false);
-                                if (previewElement) previewElement.style.display = 'none';
+                                if (previewElement)
+                                    previewElement.style.display = 'none';
                             }
                         } else {
                             if (previewElement && settings[settingName]) {
@@ -254,48 +332,84 @@ export const initSettings = async (settingsContent) => {
                 }
 
                 if (setting.childSettings) {
-                    for (const [childName, childSetting] of Object.entries(setting.childSettings)) {
-                        const childElement = settingsContent.querySelector(`#${childName}`);
+                    for (const [childName, childSetting] of Object.entries(
+                        setting.childSettings,
+                    )) {
+                        const childElement = settingsContent.querySelector(
+                            `#${childName}`,
+                        );
                         if (childElement) {
                             if (childSetting.type === 'checkbox') {
-                                childElement.checked = settings[childName] !== undefined ? settings[childName] : childSetting.default;
+                                childElement.checked =
+                                    settings[childName] !== undefined
+                                        ? settings[childName]
+                                        : childSetting.default;
                             } else if (childSetting.type === 'select') {
-                                const savedValue = settings[childName] || childSetting.default;
+                                const savedValue =
+                                    settings[childName] || childSetting.default;
                                 childElement.value = savedValue;
 
                                 if (childElement._dropdownApi) {
-                                    childElement._dropdownApi.setValue(savedValue);
+                                    childElement._dropdownApi.setValue(
+                                        savedValue,
+                                    );
                                 }
 
-                                if (childName === 'robloxPreferredRegion' && childElement.options.length === 0) {
-                                    Object.keys(REGIONS).forEach(regionCode => {
-                                        const option = document.createElement('option');
-                                        option.value = regionCode;
-                                        option.textContent = getFullRegionName(regionCode);
-                                        childElement.appendChild(option);
-                                    });
+                                if (
+                                    childName === 'robloxPreferredRegion' &&
+                                    childElement.options.length === 0
+                                ) {
+                                    Object.keys(REGIONS).forEach(
+                                        (regionCode) => {
+                                            const option =
+                                                document.createElement(
+                                                    'option',
+                                                );
+                                            option.value = regionCode;
+                                            option.textContent =
+                                                getFullRegionName(regionCode);
+                                            childElement.appendChild(option);
+                                        },
+                                    );
                                 }
                             } else if (childSetting.type === 'input') {
                                 childElement.value = settings[childName] || '';
-                                childElement.dispatchEvent(new Event('input', { bubbles: true }));
+                                childElement.dispatchEvent(
+                                    new Event('input', { bubbles: true }),
+                                );
                             } else if (childSetting.type === 'number') {
-                                const currentValue = settings[childName] !== undefined ? settings[childName] : childSetting.default;
+                                const currentValue =
+                                    settings[childName] !== undefined
+                                        ? settings[childName]
+                                        : childSetting.default;
                                 childElement.value = currentValue;
-                                const toggleElement = settingsContent.querySelector(`#${childName}-enabled`);
+                                const toggleElement =
+                                    settingsContent.querySelector(
+                                        `#${childName}-enabled`,
+                                    );
                                 if (toggleElement) {
                                     const isEnabled = currentValue > 0;
                                     toggleElement.checked = isEnabled;
                                 }
                             } else if (childSetting.type === 'file') {
-                                const previewElement = settingsContent.querySelector(`#preview-${childName}`);
-                                const clearButton = settingsContent.querySelector(`#clear-${childName}`);
+                                const previewElement =
+                                    settingsContent.querySelector(
+                                        `#preview-${childName}`,
+                                    );
+                                const clearButton =
+                                    settingsContent.querySelector(
+                                        `#clear-${childName}`,
+                                    );
                                 if (previewElement && settings[childName]) {
                                     previewElement.src = settings[childName];
                                     previewElement.style.display = 'block';
-                                    if (clearButton) clearButton.style.display = 'inline-block';
+                                    if (clearButton)
+                                        clearButton.style.display =
+                                            'inline-block';
                                 } else if (previewElement) {
                                     previewElement.style.display = 'none';
-                                    if (clearButton) clearButton.style.display = 'none';
+                                    if (clearButton)
+                                        clearButton.style.display = 'none';
                                 }
                             } else if (childSetting.type === 'button') {
                                 // No state to restore from settings
@@ -309,21 +423,31 @@ export const initSettings = async (settingsContent) => {
         if (document.querySelector('.permission-manager')) {
             updateAllPermissionToggles();
         }
-    };
-    settingsContent.querySelectorAll('.permission-toggle').forEach(toggle => {
+    }
+    settingsContent.querySelectorAll('.permission-toggle').forEach((toggle) => {
         toggle.addEventListener('change', handlePermissionToggle);
     });
 };
 
-
-function applyDisabledState(settingName, parentElement, isDisabled, isPermissionRelated = false) {
-    const inputElement = parentElement.querySelector(`[data-setting-name="${settingName}"]`);
+function applyDisabledState(
+    settingName,
+    parentElement,
+    isDisabled,
+    isPermissionRelated = false,
+) {
+    const inputElement = parentElement.querySelector(
+        `[data-setting-name="${settingName}"]`,
+    );
     if (!inputElement) return;
 
-    const wrapper = inputElement.closest('.child-setting-item') || inputElement.closest('.setting');
+    const wrapper =
+        inputElement.closest('.child-setting-item') ||
+        inputElement.closest('.setting');
     if (!wrapper) return;
-    
-    const toggleSwitch = wrapper.querySelector('.setting-controls > .toggle-switch');
+
+    const toggleSwitch = wrapper.querySelector(
+        '.setting-controls > .toggle-switch',
+    );
 
     if (isDisabled && isPermissionRelated) {
         if (toggleSwitch) {
@@ -335,12 +459,16 @@ function applyDisabledState(settingName, parentElement, isDisabled, isPermission
         wrapper.classList.add('disabled-setting');
         wrapper.style.opacity = '0.5';
         wrapper.style.pointerEvents = 'none';
-        wrapper.querySelectorAll('input, select, button').forEach(el => { el.disabled = true; });
+        wrapper.querySelectorAll('input, select, button').forEach((el) => {
+            el.disabled = true;
+        });
     } else {
         wrapper.classList.remove('disabled-setting');
         wrapper.style.opacity = '1';
         wrapper.style.pointerEvents = 'auto';
-        wrapper.querySelectorAll('input, select, button').forEach(el => { el.disabled = false; });
+        wrapper.querySelectorAll('input, select, button').forEach((el) => {
+            el.disabled = false;
+        });
         if (toggleSwitch) {
             toggleSwitch.style.opacity = '1';
             toggleSwitch.style.pointerEvents = 'auto';
@@ -348,8 +476,10 @@ function applyDisabledState(settingName, parentElement, isDisabled, isPermission
     }
 }
 
-
-export function updateConditionalSettingsVisibility(settingsContent, currentSettings) {
+export function updateConditionalSettingsVisibility(
+    settingsContent,
+    currentSettings,
+) {
     if (!settingsContent || !currentSettings) {
         return;
     }
@@ -361,9 +491,14 @@ export function updateConditionalSettingsVisibility(settingsContent, currentSett
         if (!config) continue;
 
         if (config.childSettings) {
-            for (const [childName, childConfig] of Object.entries(config.childSettings)) {
+            for (const [childName, childConfig] of Object.entries(
+                config.childSettings,
+            )) {
                 if (childConfig.condition) {
-                    if (currentSettings[childConfig.condition.parent] !== childConfig.condition.value) {
+                    if (
+                        currentSettings[childConfig.condition.parent] !==
+                        childConfig.condition.value
+                    ) {
                         settingsToDisable.add(childName);
                     }
                 } else if (config.type === 'checkbox' && !isEnabled) {
@@ -373,29 +508,44 @@ export function updateConditionalSettingsVisibility(settingsContent, currentSett
         }
     }
 
-    const allSettingElements = settingsContent.querySelectorAll('[data-setting-name]');
-    allSettingElements.forEach(element => {
+    const allSettingElements = settingsContent.querySelectorAll(
+        '[data-setting-name]',
+    );
+    allSettingElements.forEach((element) => {
         const settingName = element.dataset.settingName;
-        applyDisabledState(settingName, settingsContent, settingsToDisable.has(settingName));
+        applyDisabledState(
+            settingName,
+            settingsContent,
+            settingsToDisable.has(settingName),
+        );
     });
-    
-    const numberToggles = settingsContent.querySelectorAll('input[type="checkbox"][data-controls-setting]');
-    numberToggles.forEach(toggle => {
+
+    const numberToggles = settingsContent.querySelectorAll(
+        'input[type="checkbox"][data-controls-setting]',
+    );
+    numberToggles.forEach((toggle) => {
         const controlledSettingName = toggle.dataset.controlsSetting;
-        const numberInputContainer = settingsContent.querySelector(`#${controlledSettingName}`)?.closest('.rovalra-number-input-container');
+        const numberInputContainer = settingsContent
+            .querySelector(`#${controlledSettingName}`)
+            ?.closest('.rovalra-number-input-container');
         if (numberInputContainer) {
             const isDisabled = !toggle.checked;
             numberInputContainer.style.opacity = isDisabled ? '0.5' : '1';
-            numberInputContainer.style.pointerEvents = isDisabled ? 'none' : 'auto';
-            numberInputContainer.querySelectorAll('input, button').forEach(el => el.disabled = isDisabled);
+            numberInputContainer.style.pointerEvents = isDisabled
+                ? 'none'
+                : 'auto';
+            numberInputContainer
+                .querySelectorAll('input, button')
+                .forEach((el) => (el.disabled = isDisabled));
         }
     });
 }
 
-
 async function hasPermission(permission) {
     return new Promise(resolve => {
-        chrome.runtime.sendMessage({ action: 'checkPermission', permission: permission }, (response) => {
+        chrome.runtime.sendMessage(
+          { action: 'checkPermission', permission: permission },
+          (response) => {
             if (chrome.runtime.lastError) {
                 log(logLevel.ERROR, "RoValra: Error checking permission:", chrome.runtime.lastError.message);
                 resolve(false);
@@ -405,25 +555,33 @@ async function hasPermission(permission) {
     });
 }
 
-
 async function requestPermission(permission) {
-    return new Promise(resolve => {
-        chrome.runtime.sendMessage({ action: 'requestPermission', permission: permission }, (response) => {
-            if (chrome.runtime.lastError) {
-                console.warn(`RoValra: Permission request for '${permission}' failed or was dismissed:`, chrome.runtime.lastError.message);
-                resolve(false);
-            }
-            resolve(response?.granted || false);
-        });
+    return new Promise((resolve) => {
+        chrome.runtime.sendMessage(
+            { action: 'requestPermission', permission: permission },
+            (response) => {
+                if (chrome.runtime.lastError) {
+                    console.warn(
+                        `RoValra: Permission request for '${permission}' failed or was dismissed:`,
+                        chrome.runtime.lastError.message,
+                    );
+                    resolve(false);
+                }
+                resolve(response?.granted || false);
+            },
+        );
     });
 }
 
-
 async function revokePermission(permission) {
     return new Promise(resolve => {
-        chrome.runtime.sendMessage({ action: 'revokePermission', permission: permission }, (response) => {
+        chrome.runtime.sendMessage(
+          { action: 'revokePermission', permission: permission },
+          (response) => {
             if (chrome.runtime.lastError) {
-                log(logLevel.ERROR, `RoValra: Failed to revoke '${permission}' permission:`, chrome.runtime.lastError.message);
+                log(logLevel.ERROR,
+                    `RoValra: Failed to revoke '${permission}' permission:`,
+                    chrome.runtime.lastError.message);
                 resolve(false);
             }
             resolve(response?.revoked || false);
@@ -431,14 +589,13 @@ async function revokePermission(permission) {
     });
 }
 
-
 export async function updateAllPermissionToggles() {
     const settings = await loadSettings();
     const permissionManagers = document.querySelectorAll('.permission-manager');
     for (const manager of permissionManagers) {
         const permissionName = manager.dataset.permissionName;
         const isGranted = await hasPermission(permissionName);
-        
+
         const toggle = manager.querySelector('.permission-toggle');
         if (toggle) {
             toggle.checked = isGranted;
@@ -450,7 +607,7 @@ export async function updateAllPermissionToggles() {
         for (const [settingName, config] of Object.entries(section.settings)) {
             if (settings[settingName] === true && config.requiredPermissions) {
                 let missingPerms = false;
-                
+
                 for (const perm of config.requiredPermissions) {
                     const hasIt = await hasPermission(perm);
                     if (!hasIt) {
@@ -463,7 +620,7 @@ export async function updateAllPermissionToggles() {
                     log(logLevel.WARNING, `RoValra: Disabling '${settingName}' because required permissions are missing.`);
                     await handleSaveSettings(settingName, false);
                     settings[settingName] = false;
-                    
+
                     const element = document.querySelector(`#${settingName}`);
                     if (element) {
                         element.checked = false;
@@ -475,7 +632,6 @@ export async function updateAllPermissionToggles() {
     updateConditionalSettingsVisibility(document, settings);
 }
 
-
 export async function handlePermissionToggle(event) {
     const toggle = event.target;
     const permissionName = toggle.dataset.permissionName;
@@ -485,7 +641,7 @@ export async function handlePermissionToggle(event) {
         if (!granted) {
             toggle.checked = false;
         }
-    } else { 
+    } else {
         const wasRevoked = await revokePermission(permissionName);
         if (!wasRevoked) {
             toggle.checked = true;
@@ -493,7 +649,6 @@ export async function handlePermissionToggle(event) {
     }
     await updateAllPermissionToggles();
 }
-
 
 export function initializeSettingsEventListeners() {
     document.addEventListener('rovalra:open40methodSetup', () => {
@@ -509,19 +664,19 @@ export function initializeSettingsEventListeners() {
         // Model
         if (settings.modelUrl) {
             envConfig.model = {
-                url: settings.modelUrl, 
+                url: settings.modelUrl,
                 position: [
                     parseFloat(settings.modelPosX) || 0,
                     parseFloat(settings.modelPosY) || 0,
-                    parseFloat(settings.modelPosZ) || 0
+                    parseFloat(settings.modelPosZ) || 0,
                 ],
                 scale: [
                     parseFloat(settings.modelScaleX) || 1,
                     parseFloat(settings.modelScaleY) || 1,
-                    parseFloat(settings.modelScaleZ) || 1
+                    parseFloat(settings.modelScaleZ) || 1,
                 ],
                 castShadow: settings.modelCastShadow,
-                receiveShadow: settings.modelReceiveShadow
+                receiveShadow: settings.modelReceiveShadow,
             };
         }
 
@@ -536,7 +691,7 @@ export function initializeSettingsEventListeners() {
             lights.push({
                 type: 'AmbientLight',
                 color: settings.ambientLightColor,
-                intensity: parseFloat(settings.ambientLightIntensity) || 0
+                intensity: parseFloat(settings.ambientLightIntensity) || 0,
             });
         }
         if (settings.dirLightToggle) {
@@ -547,9 +702,9 @@ export function initializeSettingsEventListeners() {
                 position: [
                     parseFloat(settings.dirLightPosX) || 0,
                     parseFloat(settings.dirLightPosY) || 0,
-                    parseFloat(settings.dirLightPosZ) || 0
+                    parseFloat(settings.dirLightPosZ) || 0,
                 ],
-                castShadow: settings.dirLightCastShadow
+                castShadow: settings.dirLightCastShadow,
             });
         }
         if (lights.length > 0) {
@@ -560,7 +715,7 @@ export function initializeSettingsEventListeners() {
             atmosphere.fog = {
                 color: settings.fogColor,
                 near: parseFloat(settings.fogNear) || 0,
-                far: parseFloat(settings.fogFar) || 0
+                far: parseFloat(settings.fogFar) || 0,
             };
         }
 
@@ -578,18 +733,26 @@ export function initializeSettingsEventListeners() {
         if (settings.tooltipToggle && settings.tooltipText) {
             envConfig.tooltip = {
                 text: settings.tooltipText,
-                link: settings.tooltipLink || ''
+                link: settings.tooltipLink || '',
             };
         }
 
-        if (settings.skyboxToggle && settings.skyboxPx && settings.skyboxNx && settings.skyboxPy && settings.skyboxNy && settings.skyboxPz && settings.skyboxNz) {
+        if (
+            settings.skyboxToggle &&
+            settings.skyboxPx &&
+            settings.skyboxNx &&
+            settings.skyboxPy &&
+            settings.skyboxNy &&
+            settings.skyboxPz &&
+            settings.skyboxNz
+        ) {
             envConfig.skybox = [
                 settings.skyboxPx,
                 settings.skyboxNx,
                 settings.skyboxPy,
                 settings.skyboxNy,
                 settings.skyboxPz,
-                settings.skyboxNz
+                settings.skyboxNz,
             ];
         }
 
@@ -611,17 +774,25 @@ export function initializeSettingsEventListeners() {
             const controlledSettingName = target.dataset.controlsSetting;
             const numberInput = document.getElementById(controlledSettingName);
             const settingConfig = findSettingConfig(controlledSettingName);
-            const defaultValue = (settingConfig?.default !== undefined && settingConfig.default > 0) ? settingConfig.default : 1;
+            const defaultValue =
+                settingConfig?.default !== undefined &&
+                settingConfig.default > 0
+                    ? settingConfig.default
+                    : 1;
 
             if (numberInput) {
                 if (!target.checked) {
                     numberInput.value = 0;
-                    numberInput.dispatchEvent(new Event('change', { bubbles: true }));
+                    numberInput.dispatchEvent(
+                        new Event('change', { bubbles: true }),
+                    );
                 } else {
                     const currentValue = parseFloat(numberInput.value) || 0;
                     if (currentValue === 0) {
                         numberInput.value = defaultValue;
-                        numberInput.dispatchEvent(new Event('change', { bubbles: true }));
+                        numberInput.dispatchEvent(
+                            new Event('change', { bubbles: true }),
+                        );
                     }
                 }
             }
@@ -629,17 +800,17 @@ export function initializeSettingsEventListeners() {
 
         if (!settingName) return;
 
-        if (target.matches('input[type="file"]')) return; 
+        if (target.matches('input[type="file"]')) return;
 
         const savePromises = [];
         let value;
 
         if (target.matches('input[type="checkbox"]')) {
             value = target.checked;
-            
+
             if (value) {
                 const settingConfig = findSettingConfig(settingName);
-                
+
                 if (settingConfig?.requiredPermissions) {
                     const missingPermissions = [];
                     for (const perm of settingConfig.requiredPermissions) {
@@ -648,8 +819,9 @@ export function initializeSettingsEventListeners() {
                     }
 
                     if (missingPermissions.length > 0) {
-                        const granted = await requestPermission(missingPermissions);
-                        
+                        const granted =
+                            await requestPermission(missingPermissions);
+
                         if (!granted) {
                             target.checked = false;
                             log(logLevel.WARNING, `RoValra: Permission denied for ${settingName}`);
@@ -659,21 +831,62 @@ export function initializeSettingsEventListeners() {
                 }
 
                 if (settingConfig?.exclusiveWith) {
-                    settingConfig.exclusiveWith.forEach(exclusiveSettingName => {
-                        const exclusiveElement = document.querySelector(`#${exclusiveSettingName}`);
-                        if (exclusiveElement?.checked) {
-                            exclusiveElement.checked = false;
-                            savePromises.push(handleSaveSettings(exclusiveSettingName, false));
-                        }
-                    });
+                    settingConfig.exclusiveWith.forEach(
+                        (exclusiveSettingName) => {
+                            const exclusiveElement = document.querySelector(
+                                `#${exclusiveSettingName}`,
+                            );
+                            if (exclusiveElement?.checked) {
+                                exclusiveElement.checked = false;
+                                savePromises.push(
+                                    handleSaveSettings(
+                                        exclusiveSettingName,
+                                        false,
+                                    ),
+                                );
+                            }
+                        },
+                    );
                 }
             }
-            
-            savePromises.push(handleSaveSettings(settingName, value));
 
+            savePromises.push(handleSaveSettings(settingName, value));
         } else if (target.matches('select')) {
             value = target.value;
             savePromises.push(handleSaveSettings(settingName, value));
+            if (settingName === 'profileRenderEnvironment') {
+                const userId = await getAuthenticatedUserId();
+                if (userId) {
+                    const profileEnvs =
+                        SETTINGS_CONFIG.Profile.settings.profile3DRenderEnabled
+                            .childSettings.profileRenderEnvironment.options;
+                    const selectedEnv = profileEnvs.find(
+                        (opt) => opt.value === value,
+                    );
+                    const envId = selectedEnv ? selectedEnv.id : 1;
+
+                    const currentDescription = await getUserDescription(userId);
+                    if (currentDescription !== null) {
+                        let newDescription = currentDescription
+                            .split('\n')
+                            .filter((line) => !line.trim().startsWith('e:'))
+                            .join('\n')
+                            .trim();
+
+                        if (envId !== 1) {
+                            if (newDescription) {
+                                newDescription += `\n\ne:${envId}`;
+                            } else {
+                                newDescription = `e:${envId}`;
+                            }
+                        }
+
+                        if (newDescription !== currentDescription) {
+                            await updateUserDescription(userId, newDescription);
+                        }
+                    }
+                }
+            }
         } else if (target.matches('input[type="text"], input:not([type])')) {
             value = target.value.trim() === '' ? null : target.value;
             savePromises.push(handleSaveSettings(settingName, value));
@@ -681,8 +894,10 @@ export function initializeSettingsEventListeners() {
             const min = parseFloat(target.min) || 0;
             const max = parseFloat(target.max) || Infinity;
             value = Math.max(min, Math.min(max, parseFloat(target.value) || 0));
-            
-            const toggleElement = document.querySelector(`[data-controls-setting="${settingName}"]`);
+
+            const toggleElement = document.querySelector(
+                `[data-controls-setting="${settingName}"]`,
+            );
             if (toggleElement) {
                 toggleElement.checked = value > 0;
             }
@@ -693,15 +908,25 @@ export function initializeSettingsEventListeners() {
 
         if (savePromises.length === 0) return;
 
-        Promise.all(savePromises).then(async () => {
-            const settingsContent = document.querySelector('#setting-section-content');
-            if (settingsContent) {
-                const currentSettings = await loadSettings();
-                updateConditionalSettingsVisibility(settingsContent, currentSettings);
-                updateAllPermissionToggles();
+        Promise.all(savePromises)
+            .then(async () => {
+                const settingsContent = document.querySelector(
+                    '#setting-section-content',
+                );
+                if (settingsContent) {
+                    const currentSettings = await loadSettings();
+                    updateConditionalSettingsVisibility(
+                        settingsContent,
+                        currentSettings,
+                    );
+                    updateAllPermissionToggles();
 
-                if (settingName === 'MemoryleakFixEnabled') {
-                    chrome.runtime.sendMessage({ action: 'toggleMemoryLeakFix', enabled: currentSettings.MemoryleakFixEnabled });
+                    if (settingName === 'MemoryleakFixEnabled') {
+                        chrome.runtime.sendMessage({
+                            action: 'toggleMemoryLeakFix',
+                            enabled: currentSettings.MemoryleakFixEnabled,
+                        });
+                    }
                 }
             }
         }).catch(error => {
@@ -722,18 +947,27 @@ export function initializeSettingsEventListeners() {
                 const min = parseFloat(inputElement.min) || 0;
                 const max = parseFloat(inputElement.max) || Infinity;
                 let currentValue = parseFloat(inputElement.value) || 0;
-                currentValue = (action === 'increment') ? currentValue + step : currentValue - step;
+                currentValue =
+                    action === 'increment'
+                        ? currentValue + step
+                        : currentValue - step;
                 inputElement.value = Math.max(min, Math.min(max, currentValue));
-                inputElement.dispatchEvent(new Event('change', { bubbles: true }));
+                inputElement.dispatchEvent(
+                    new Event('change', { bubbles: true }),
+                );
             }
         }
-        
+
         if (target.id?.startsWith('clear-')) {
             const settingName = target.dataset.settingName;
             if (settingName) {
-                const fileUploadWrapper = document.querySelector(`[data-setting-name="${settingName}"]`);
+                const fileUploadWrapper = document.querySelector(
+                    `[data-setting-name="${settingName}"]`,
+                );
                 if (fileUploadWrapper && fileUploadWrapper.rovalraFileUpload) {
-                    const clearButton = fileUploadWrapper.querySelector(`#${settingName}-clear`);
+                    const clearButton = fileUploadWrapper.querySelector(
+                        `#${settingName}-clear`,
+                    );
                     if (clearButton) clearButton.click();
                 } else {
                     handleSaveSettings(settingName, null);
