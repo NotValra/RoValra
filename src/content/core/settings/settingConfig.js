@@ -380,9 +380,9 @@ export const SETTINGS_CONFIG = {
                         description: ["Choose a custom environment for your own profile's 3D render.", "This only applies when viewing your own profile."],
                         type: "select",
                         options: [
-                            { label: "None", value: "void" },
-                            { label: "Beachside", value: "beachside", environmentEndpoint: "/static/json/beachside_environment.json" },
-                            { label: "Crossroads", value: "crossroads", environmentEndpoint: "/static/json/crossroads.json"}
+                            { label: "None", value: "void", id: 1 },
+                            { label: "Beachside", value: "beachside", environmentEndpoint: "/static/json/beachside_environment.json", id: 2 },
+                            { label: "Crossroads", value: "crossroads", environmentEndpoint: "/static/json/crossroads.json", id: 3 }
                         ],
                         default: "void"
                     },

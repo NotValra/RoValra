@@ -29,17 +29,57 @@ const EVT_REQUEST_REGION_SERVERS = 'rovalraRequestRegionServers';
 const EVT_GLOBE_HOVER = 'rovalraGlobeHover';
 
 const US_STATE_NAME_TO_CODE = {
-    "ALABAMA": "AL", "ALASKA": "AK", "ARIZONA": "AZ", "ARKANSAS": "AR", "CALIFORNIA": "CA",
-    "COLORADO": "CO", "CONNECTICUT": "CT", "DELAWARE": "DE", "FLORIDA": "FL", "GEORGIA": "GA",
-    "HAWAII": "HI", "IDAHO": "ID", "ILLINOIS": "IL", "INDIANA": "IN", "IOWA": "IA",
-    "KANSAS": "KS", "KENTUCKY": "KY", "LOUISIANA": "LA", "MAINE": "ME", "MARYLAND": "MD",
-    "MASSACHUSETTS": "MA", "MICHIGAN": "MI", "MINNESOTA": "MN", "MISSISSIPPI": "MS", "MISSOURI": "MO",
-    "MONTANA": "MT", "NEBRASKA": "NE", "NEVADA": "NV", "NEW HAMPSHIRE": "NH", "NEW JERSEY": "NJ",
-    "NEW MEXICO": "NM", "NEW YORK": "NY", "NORTH CAROLINA": "NC", "NORTH DAKOTA": "ND", "OHIO": "OH",
-    "OKLAHOMA": "OK", "OREGON": "OR", "PENNSYLVANIA": "PA", "RHODE ISLAND": "RI", "SOUTH CAROLINA": "SC",
-    "SOUTH DAKOTA": "SD", "TENNESSEE": "TN", "TEXAS": "TX", "UTAH": "UT", "VERMONT": "VT",
-    "VIRGINIA": "VA", "WASHINGTON": "WA", "WEST VIRGINIA": "WV", "WISCONSIN": "WI", "WYOMING": "WY",
-    "DISTRICT OF COLUMBIA": "DC"
+    ALABAMA: 'AL',
+    ALASKA: 'AK',
+    ARIZONA: 'AZ',
+    ARKANSAS: 'AR',
+    CALIFORNIA: 'CA',
+    COLORADO: 'CO',
+    CONNECTICUT: 'CT',
+    DELAWARE: 'DE',
+    FLORIDA: 'FL',
+    GEORGIA: 'GA',
+    HAWAII: 'HI',
+    IDAHO: 'ID',
+    ILLINOIS: 'IL',
+    INDIANA: 'IN',
+    IOWA: 'IA',
+    KANSAS: 'KS',
+    KENTUCKY: 'KY',
+    LOUISIANA: 'LA',
+    MAINE: 'ME',
+    MARYLAND: 'MD',
+    MASSACHUSETTS: 'MA',
+    MICHIGAN: 'MI',
+    MINNESOTA: 'MN',
+    MISSISSIPPI: 'MS',
+    MISSOURI: 'MO',
+    MONTANA: 'MT',
+    NEBRASKA: 'NE',
+    NEVADA: 'NV',
+    'NEW HAMPSHIRE': 'NH',
+    'NEW JERSEY': 'NJ',
+    'NEW MEXICO': 'NM',
+    'NEW YORK': 'NY',
+    'NORTH CAROLINA': 'NC',
+    'NORTH DAKOTA': 'ND',
+    OHIO: 'OH',
+    OKLAHOMA: 'OK',
+    OREGON: 'OR',
+    PENNSYLVANIA: 'PA',
+    'RHODE ISLAND': 'RI',
+    'SOUTH CAROLINA': 'SC',
+    'SOUTH DAKOTA': 'SD',
+    TENNESSEE: 'TN',
+    TEXAS: 'TX',
+    UTAH: 'UT',
+    VERMONT: 'VT',
+    VIRGINIA: 'VA',
+    WASHINGTON: 'WA',
+    'WEST VIRGINIA': 'WV',
+    WISCONSIN: 'WI',
+    WYOMING: 'WY',
+    'DISTRICT OF COLUMBIA': 'DC',
 };
 
 const State = {
@@ -69,7 +109,7 @@ const State = {
         startY: 0,
         lastDragTime: 0,
         scriptPromise: null,
-        resourcesPreloaded: false
+        resourcesPreloaded: false,
     },
 
     injected: false,
@@ -78,13 +118,21 @@ const State = {
 };
 
 function normalizeKey(s) {
-    return String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, '');
+    return String(s || '')
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/\s+/g, '');
 }
 
 function detectTheme() {
     try {
         const body = document.body;
-        return body && (body.classList.contains('dark-theme') || body.classList.contains('rbx-dark-theme')) ? 'dark' : 'light';
+        return body &&
+            (body.classList.contains('dark-theme') ||
+                body.classList.contains('rbx-dark-theme'))
+            ? 'dark'
+            : 'light';
     } catch {
         return 'light';
     }
@@ -94,8 +142,14 @@ function injectScript(src) {
     return new Promise((resolve, reject) => {
         const s = document.createElement('script');
         s.src = src;
-        s.onload = () => { s.remove(); resolve(); };
-        s.onerror = () => { s.remove(); reject(new Error(`Failed to load ${src}`)); };
+        s.onload = () => {
+            s.remove();
+            resolve();
+        };
+        s.onerror = () => {
+            s.remove();
+            reject(new Error(`Failed to load ${src}`));
+        };
         (document.head || document.documentElement).appendChild(s);
     });
 }
@@ -104,9 +158,11 @@ function getPlaceIdFromUrl() {
     try {
         const url = window.location.href;
         const qp = new URLSearchParams(window.location.search);
-        const qpId = qp.get('placeId') || qp.get('place_id') || qp.get('placeid');
+        const qpId =
+            qp.get('placeId') || qp.get('place_id') || qp.get('placeid');
         if (qpId && /^\d+$/.test(qpId)) return qpId;
-        const match = url.match(/\/games\/([0-9]+)/i) || url.match(/\/(\d{5,})\b/);
+        const match =
+            url.match(/\/games\/([0-9]+)/i) || url.match(/\/(\d{5,})\b/);
         if (match) return match[1];
     } catch {}
     return DEFAULT_PLACE_ID;
@@ -128,22 +184,29 @@ function closeGlobalPanels() {
     const globe = document.getElementById(GLOBE_PANEL_ID);
     if (globe) globe.classList.remove('show');
     const tooltip = document.getElementById(GLOBE_TOOLTIP_ID);
-    if (tooltip) { tooltip.style.display = 'none'; tooltip.innerHTML = ''; }
-    document.querySelectorAll('.rovalra-side-panel.show').forEach(p => p.classList.remove('show'));
-    document.querySelectorAll('.filter-dropdown-container button.active').forEach(b => b.classList.remove('active'));
+    if (tooltip) {
+        tooltip.style.display = 'none';
+        tooltip.innerHTML = '';
+    }
+    document
+        .querySelectorAll('.rovalra-side-panel.show')
+        .forEach((p) => p.classList.remove('show'));
+    document
+        .querySelectorAll('.filter-dropdown-container button.active')
+        .forEach((b) => b.classList.remove('active'));
     State.isGlobeOpen = false;
     State.isScanning = false;
 }
 
 function getInternalStateCode(stateName) {
-    if (!stateName) return "";
+    if (!stateName) return '';
     const upper = stateName.toUpperCase().trim();
     if (US_STATE_NAME_TO_CODE[upper]) return US_STATE_NAME_TO_CODE[upper];
     if (typeof getStateCodeFromRegion === 'function') {
         const res = getStateCodeFromRegion(stateName);
         if (res) return res;
     }
-    return "";
+    return '';
 }
 
 function resolveApiRegionCode(internalCode) {
@@ -159,7 +222,7 @@ function resolveApiRegionCode(internalCode) {
             let stateCode = '';
 
             if (country === 'US' && parts.length > 1) {
-                const stateName = parts.slice(1).join('-'); 
+                const stateName = parts.slice(1).join('-');
                 stateCode = getInternalStateCode(stateName);
             }
 
@@ -171,7 +234,8 @@ function resolveApiRegionCode(internalCode) {
                     } else {
                         candidate = `${country}-${city.replace(/\s+/g, '')}`;
                     }
-                    if (normalizeKey(candidate) === internalNorm) return internalCode; 
+                    if (normalizeKey(candidate) === internalNorm)
+                        return internalCode;
                 }
             }
 
@@ -204,7 +268,11 @@ function buildServerCountsMap(apiJson) {
 
             if (entry.cities) {
                 Object.entries(entry.cities).forEach(([city, count]) => {
-                    const key = generateRegionKey(country, city, stateCode ? parts.slice(1).join('-') : null);
+                    const key = generateRegionKey(
+                        country,
+                        city,
+                        stateCode ? parts.slice(1).join('-') : null,
+                    );
                     out[key] = count;
                 });
             } else if (typeof entry.total_servers === 'number') {
@@ -217,10 +285,14 @@ function buildServerCountsMap(apiJson) {
     if (regions) {
         Object.entries(regions).forEach(([apiCode, total]) => {
             let matched = false;
-            Object.values(State.regions).forEach(continent => {
-                Object.keys(continent).forEach(regionKey => {
-                    if (regionKey === apiCode || regionKey.startsWith(`${apiCode.split('-')[0]}-`)) {
-                        if (out[regionKey] === undefined) out[regionKey] = total;
+            Object.values(State.regions).forEach((continent) => {
+                Object.keys(continent).forEach((regionKey) => {
+                    if (
+                        regionKey === apiCode ||
+                        regionKey.startsWith(`${apiCode.split('-')[0]}-`)
+                    ) {
+                        if (out[regionKey] === undefined)
+                            out[regionKey] = total;
                         matched = true;
                     }
                 });
@@ -233,12 +305,12 @@ function buildServerCountsMap(apiJson) {
     return out;
 }
 
-function generateRegionKey(country, city, regionName) { 
-    if (country === 'US' && regionName) { 
-        const stateCode = getInternalStateCode(regionName); 
-        return `US-${stateCode}-${city.replace(/\s+/g, '')}`; 
-    } 
-    return `${country}-${city.replace(/\s+/g, '')}`; 
+function generateRegionKey(country, city, regionName) {
+    if (country === 'US' && regionName) {
+        const stateCode = getInternalStateCode(regionName);
+        return `US-${stateCode}-${city.replace(/\s+/g, '')}`;
+    }
+    return `${country}-${city.replace(/\s+/g, '')}`;
 }
 
 function processStorageDatacenters(apiData) {
@@ -248,16 +320,18 @@ function processStorageDatacenters(apiData) {
     const newCounts = {};
     const newIpMap = {};
 
-    apiData.forEach(dc => {
+    apiData.forEach((dc) => {
         if (!dc.location || !dc.location.country || !dc.location.city) return;
 
         if (Array.isArray(dc.dataCenterIds)) {
-            dc.dataCenterIds.forEach(id => newIpMap[id] = dc);
+            dc.dataCenterIds.forEach((id) => (newIpMap[id] = dc));
         }
 
         const loc = dc.location;
         const regionKey = generateRegionKey(loc.country, loc.city, loc.region);
-        const count = Array.isArray(dc.dataCenterIds) ? dc.dataCenterIds.length : 0;
+        const count = Array.isArray(dc.dataCenterIds)
+            ? dc.dataCenterIds.length
+            : 0;
 
         newCounts[regionKey] = (newCounts[regionKey] || 0) + count;
 
@@ -271,8 +345,8 @@ function processStorageDatacenters(apiData) {
                 country: loc.country_name || loc.country,
                 coords: {
                     lat: parseFloat(loc.latLong[0]),
-                    lon: parseFloat(loc.latLong[1])
-                }
+                    lon: parseFloat(loc.latLong[1]),
+                },
             };
         }
     });
@@ -286,7 +360,10 @@ function processStorageDatacenters(apiData) {
 async function fetchCounts() {
     try {
         const pid = getPlaceIdFromUrl();
-        const json = await callRobloxApiJson({ endpoint: `/v1/servers/counts?place_id=${encodeURIComponent(pid)}`, isRovalraApi: true });
+        const json = await callRobloxApiJson({
+            endpoint: `/v1/servers/counts?place_id=${encodeURIComponent(pid)}`,
+            isRovalraApi: true,
+        });
         State.apiCounts = json;
         State.activeServerCounts = buildServerCountsMap(json);
     } catch (e) {
@@ -294,14 +371,18 @@ async function fetchCounts() {
         State.activeServerCounts = {};
     } finally {
         document.dispatchEvent(new CustomEvent(EVT_REGIONS_UPDATED));
-        document.dispatchEvent(new CustomEvent(EVT_GLOBE_UPDATE_DATA, { detail: { serverCounts: State.activeServerCounts } }));
+        document.dispatchEvent(
+            new CustomEvent(EVT_GLOBE_UPDATE_DATA, {
+                detail: { serverCounts: State.activeServerCounts },
+            }),
+        );
     }
 }
 
 async function fetchServers(regionCode, cursor) {
     try {
         const pid = getPlaceIdFromUrl();
-        
+
         let city;
         const country = regionCode.split('-')[0];
 
@@ -323,7 +404,11 @@ async function fetchServers(regionCode, cursor) {
                         stateName = parts.slice(1).join('-');
                     }
                     for (const cityName of Object.keys(entry.cities)) {
-                        const key = generateRegionKey(ctry, cityName, stateName);
+                        const key = generateRegionKey(
+                            ctry,
+                            cityName,
+                            stateName,
+                        );
                         if (key === regionCode) {
                             city = cityName;
                             break;
@@ -339,23 +424,26 @@ async function fetchServers(regionCode, cursor) {
                 }
             }
         }
-        
+
         let qs;
         if (city) {
-            qs = new URLSearchParams({ 
-                place_id: pid, 
+            qs = new URLSearchParams({
+                place_id: pid,
                 country: country,
-                city: city.toLowerCase()
+                city: city.toLowerCase(),
             });
         } else {
             qs = new URLSearchParams({ place_id: pid, region: regionCode });
         }
-        
+
         if (cursor) {
             qs.set('cursor', cursor);
         }
 
-        return await callRobloxApiJson({ endpoint: `/v1/servers/region?${qs.toString()}`, isRovalraApi: true });
+        return await callRobloxApiJson({
+            endpoint: `/v1/servers/region?${qs.toString()}`,
+            isRovalraApi: true,
+        });
     } catch (e) {
         return { servers: [], next_cursor: null };
     }
@@ -388,11 +476,17 @@ function createGlobePanel(container) {
             clickCount = 0;
             State.easterEggActive = !State.easterEggActive;
             if (State.easterEggActive) {
-                document.dispatchEvent(new CustomEvent(EVT_GLOBE_EASTER_EGG, { detail: { iconUrl: assets.rovalraIcon } }));
-                if (title) title.textContent = "Gilberts In Your Area";
+                document.dispatchEvent(
+                    new CustomEvent(EVT_GLOBE_EASTER_EGG, {
+                        detail: { iconUrl: assets.rovalraIcon },
+                    }),
+                );
+                if (title) title.textContent = 'Gilberts In Your Area';
             } else {
-                document.dispatchEvent(new CustomEvent(EVT_GLOBE_EASTER_EGG_OFF));
-                if (title) title.textContent = "RoValra Region Selector";
+                document.dispatchEvent(
+                    new CustomEvent(EVT_GLOBE_EASTER_EGG_OFF),
+                );
+                if (title) title.textContent = 'RoValra Region Selector';
             }
         }
     });
@@ -403,10 +497,38 @@ function createGlobePanel(container) {
 function setupGlobePointerEvents() {
     const container = document.getElementById(GLOBE_CONTAINER_ID);
     if (!container) return;
-    const onMove = (e) => { if (State.globe.pointerDown && !State.globe.pointerDragged && (Math.abs(e.clientX - State.globe.startX) > GLOBE_DRAG_THRESHOLD || Math.abs(e.clientY - State.globe.startY) > GLOBE_DRAG_THRESHOLD)) { State.globe.pointerDragged = true; } };
-    const onUp = (e) => { if (State.globe.pointerDragged) State.globe.lastDragTime = Date.now(); State.globe.pointerDown = false; State.globe.pointerDragged = false; try { container.releasePointerCapture(e.pointerId); } catch {} document.removeEventListener('pointermove', onMove); document.removeEventListener('pointerup', onUp); };
-    container.addEventListener('pointerdown', (e) => { try { container.setPointerCapture(e.pointerId); } catch {} State.globe.pointerDown = true; State.globe.pointerDragged = false; State.globe.startX = e.clientX; State.globe.startY = e.clientY; document.addEventListener('pointermove', onMove); document.addEventListener('pointerup', onUp); });
-    container.addEventListener('click', e => e.stopPropagation());
+    const onMove = (e) => {
+        if (
+            State.globe.pointerDown &&
+            !State.globe.pointerDragged &&
+            (Math.abs(e.clientX - State.globe.startX) > GLOBE_DRAG_THRESHOLD ||
+                Math.abs(e.clientY - State.globe.startY) > GLOBE_DRAG_THRESHOLD)
+        ) {
+            State.globe.pointerDragged = true;
+        }
+    };
+    const onUp = (e) => {
+        if (State.globe.pointerDragged) State.globe.lastDragTime = Date.now();
+        State.globe.pointerDown = false;
+        State.globe.pointerDragged = false;
+        try {
+            container.releasePointerCapture(e.pointerId);
+        } catch {}
+        document.removeEventListener('pointermove', onMove);
+        document.removeEventListener('pointerup', onUp);
+    };
+    container.addEventListener('pointerdown', (e) => {
+        try {
+            container.setPointerCapture(e.pointerId);
+        } catch {}
+        State.globe.pointerDown = true;
+        State.globe.pointerDragged = false;
+        State.globe.startX = e.clientX;
+        State.globe.startY = e.clientY;
+        document.addEventListener('pointermove', onMove);
+        document.addEventListener('pointerup', onUp);
+    });
+    container.addEventListener('click', (e) => e.stopPropagation());
 }
 
 async function preloadGlobeResources() {
@@ -414,9 +536,11 @@ async function preloadGlobeResources() {
     State.globe.resourcesPreloaded = true;
     const assets = getAssets();
     if (!State.globe.scriptPromise && !State.globe.assetsLoaded) {
-        State.globe.scriptPromise = injectScript(assets.globeInitializer).then(() => {
-            State.globe.assetsLoaded = true;
-        }).catch(() => {});
+        State.globe.scriptPromise = injectScript(assets.globeInitializer)
+            .then(() => {
+                State.globe.assetsLoaded = true;
+            })
+            .catch(() => {});
     }
 }
 
@@ -424,13 +548,31 @@ async function ensureGlobeInitialized(theme) {
     if (State.globe.initDispatched) return;
     preloadGlobeResources();
     const assets = getAssets();
-    
+
     if (State.globe.scriptPromise) await State.globe.scriptPromise;
-    else if (!State.globe.assetsLoaded) { try { await injectScript(assets.globeInitializer); State.globe.assetsLoaded = true; } catch (e) { return; } }
+    else if (!State.globe.assetsLoaded) {
+        try {
+            await injectScript(assets.globeInitializer);
+            State.globe.assetsLoaded = true;
+        } catch (e) {
+            return;
+        }
+    }
 
     const mapUrl = theme === 'dark' ? assets.mapDark : assets.mapLight;
     State.activeServerCounts = buildServerCountsMap(State.apiCounts || {});
-    document.dispatchEvent(new CustomEvent(EVT_INIT_GLOBE, { detail: { REGIONS: State.regions, mapUrl: mapUrl, countriesData: null, theme, serverCounts: State.activeServerCounts, dataCenterCounts: State.dataCenterCounts } }));
+    document.dispatchEvent(
+        new CustomEvent(EVT_INIT_GLOBE, {
+            detail: {
+                REGIONS: State.regions,
+                mapUrl: mapUrl,
+                countriesData: null,
+                theme,
+                serverCounts: State.activeServerCounts,
+                dataCenterCounts: State.dataCenterCounts,
+            },
+        }),
+    );
     State.globe.initDispatched = true;
 }
 
@@ -442,32 +584,53 @@ function populateRegionSidePanel(container, theme) {
         const detailed = State.apiCounts.counts.detailed_regions;
         for (const [code, entry] of Object.entries(detailed)) {
             const parts = code.split('-');
-            const groupName = parts[0]; 
+            const groupName = parts[0];
 
             let subLabel = code;
             let stateName = null;
             if (groupName === 'US' && parts.length > 1) {
-                const rawState = parts.slice(1).join(' '); 
+                const rawState = parts.slice(1).join(' ');
                 stateName = parts.slice(1).join('-');
-                subLabel = rawState.toLowerCase().replace(/\b\w/g, s => s.toUpperCase()); 
+                subLabel = rawState
+                    .toLowerCase()
+                    .replace(/\b\w/g, (s) => s.toUpperCase());
             }
 
             if (!groups[groupName]) groups[groupName] = [];
-            
+
             if (entry.cities) {
                 for (const [cityName, count] of Object.entries(entry.cities)) {
-                    const regionKey = generateRegionKey(groupName, cityName, stateName);
-                    groups[groupName].push({ code: regionKey, label: cityName, subLabel: subLabel, count: count });
+                    const regionKey = generateRegionKey(
+                        groupName,
+                        cityName,
+                        stateName,
+                    );
+                    groups[groupName].push({
+                        code: regionKey,
+                        label: cityName,
+                        subLabel: subLabel,
+                        count: count,
+                    });
                 }
             } else {
-                groups[groupName].push({ code, label: code, subLabel: subLabel, count: entry.total_servers || 0 });
+                groups[groupName].push({
+                    code,
+                    label: code,
+                    subLabel: subLabel,
+                    count: entry.total_servers || 0,
+                });
             }
         }
     } else {
         for (const [continent, regions] of Object.entries(State.regions)) {
             if (!groups[continent]) groups[continent] = [];
             for (const [key, data] of Object.entries(regions)) {
-                groups[continent].push({ code: key, label: data.city, subLabel: data.country, count: State.dataCenterCounts[key] || 0 });
+                groups[continent].push({
+                    code: key,
+                    label: data.city,
+                    subLabel: data.country,
+                    count: State.dataCenterCounts[key] || 0,
+                });
             }
         }
     }
@@ -478,16 +641,24 @@ function populateRegionSidePanel(container, theme) {
         header.className = `rovalra-filter-group-header ${theme}`;
         header.textContent = groupName;
         container.appendChild(header);
-        items.forEach(item => {
+        items.forEach((item) => {
             const row = document.createElement('a');
             row.className = `rovalra-side-panel-item ${theme}`;
             row.dataset.regionCode = item.code;
-            row.innerHTML = DOMPurify.sanitize(`<div><strong>${item.label}</strong><span class="country"> ${item.subLabel}</span></div><div class="rovalra-region-count ${theme}">${item.count}</div>`);
-            addTooltip(row, `Filter by ${item.label} (${item.count} servers)`, { position: 'left' });
+            row.innerHTML = DOMPurify.sanitize(
+                `<div><strong>${item.label}</strong><span class="country"> ${item.subLabel}</span></div><div class="rovalra-region-count ${theme}">${item.count}</div>`,
+            );
+            addTooltip(row, `Filter by ${item.label} (${item.count} servers)`, {
+                position: 'left',
+            });
 
             row.addEventListener('click', (e) => {
                 e.stopPropagation();
-                document.dispatchEvent(new CustomEvent(EVT_REGION_SELECTED, { detail: { regionCode: item.code } }));
+                document.dispatchEvent(
+                    new CustomEvent(EVT_REGION_SELECTED, {
+                        detail: { regionCode: item.code },
+                    }),
+                );
             });
             container.appendChild(row);
         });
@@ -509,12 +680,12 @@ function createRegionDropdownWidget(container) {
     const sidePanel = document.createElement('div');
     sidePanel.className = `rovalra-side-panel ${theme}`;
     sidePanel.innerHTML = `<div class="rovalra-side-panel-list ${theme}"></div>`;
-    
+
     const listContainer = sidePanel.querySelector('.rovalra-side-panel-list');
     createGlobePanel(wrapper);
     wrapper.appendChild(sidePanel);
 
-    const onButtonClick = e => {
+    const onButtonClick = (e) => {
         e.stopPropagation();
         const globe = document.getElementById(GLOBE_PANEL_ID);
         if (btn.classList.contains('active')) {
@@ -538,7 +709,10 @@ function createRegionDropdownWidget(container) {
     updateList();
 
     window.addEventListener('click', (ev) => {
-        if (!wrapper.contains(ev.target) && (Date.now() - State.globe.lastDragTime) > 500) {
+        if (
+            !wrapper.contains(ev.target) &&
+            Date.now() - State.globe.lastDragTime > 500
+        ) {
             closeGlobalPanels();
         }
     });
@@ -547,29 +721,49 @@ function createRegionDropdownWidget(container) {
 }
 
 async function getAndCacheServerRegion(server, placeId) {
-    if (document.querySelector(`[data-gameid="${server.id}"]`)?.dataset.rovalraRegion) return;
+    if (
+        document.querySelector(`[data-gameid="${server.id}"]`)?.dataset
+            .rovalraRegion
+    )
+        return;
     try {
         const res = await callRobloxApiJson({
             subdomain: 'gamejoin',
             endpoint: '/v1/join-game-instance',
             method: 'POST',
-            body: { placeId: parseInt(placeId, 10), gameId: server.id, gameJoinAttemptId: crypto.randomUUID() }
+            body: {
+                placeId: parseInt(placeId, 10),
+                gameId: server.id,
+                gameJoinAttemptId: crypto.randomUUID(),
+            },
         });
         if (!res.joinScript?.DataCenterId) return;
         const dataCenterId = res.joinScript.DataCenterId;
         const dcInfo = State.serverIpMap[dataCenterId];
         if (dcInfo?.location) {
             const loc = dcInfo.location;
-            const regionKey = generateRegionKey(loc.country, loc.city, loc.region);
-            if (!State.localServersByRegion[regionKey]) State.localServersByRegion[regionKey] = [];
-            const alreadyExists = State.localServersByRegion[regionKey].some(s => s.id === server.id);
+            const regionKey = generateRegionKey(
+                loc.country,
+                loc.city,
+                loc.region,
+            );
+            if (!State.localServersByRegion[regionKey])
+                State.localServersByRegion[regionKey] = [];
+            const alreadyExists = State.localServersByRegion[regionKey].some(
+                (s) => s.id === server.id,
+            );
             if (!alreadyExists) {
                 State.localServersByRegion[regionKey].push(server);
-                const currentGlobalCount = State.activeServerCounts[regionKey] || 0;
+                const currentGlobalCount =
+                    State.activeServerCounts[regionKey] || 0;
                 const localCount = State.localServersByRegion[regionKey].length;
                 if (localCount > currentGlobalCount) {
                     State.activeServerCounts[regionKey] = localCount;
-                    document.dispatchEvent(new CustomEvent(EVT_GLOBE_UPDATE_DATA, { detail: { serverCounts: State.activeServerCounts } }));
+                    document.dispatchEvent(
+                        new CustomEvent(EVT_GLOBE_UPDATE_DATA, {
+                            detail: { serverCounts: State.activeServerCounts },
+                        }),
+                    );
                 }
             }
         }
@@ -579,27 +773,48 @@ async function getAndCacheServerRegion(server, placeId) {
 async function startIndependentServerScan() {
     if (State.isScanning || State.scanCompleted) return;
     State.isScanning = true;
-    if (State.scanCursor === null) { State.localServersByRegion = {}; State.allLocalServerIds.clear(); }
+    if (State.scanCursor === null) {
+        State.localServersByRegion = {};
+        State.allLocalServerIds.clear();
+    }
     const placeId = getPlaceIdFromUrl();
     let pageCount = 0;
 
     while (pageCount++ < Infinity && State.isScanning) {
         try {
-            const response = await callRobloxApiJson({ subdomain: 'games', endpoint: `/v1/games/${placeId}/servers/Public?excludeFullGames=true&limit=100${State.scanCursor ? `&cursor=${encodeURIComponent(State.scanCursor)}` : ''}` });
+            const response = await callRobloxApiJson({
+                subdomain: 'games',
+                endpoint: `/v1/games/${placeId}/servers/Public?excludeFullGames=true&limit=100${State.scanCursor ? `&cursor=${encodeURIComponent(State.scanCursor)}` : ''}`,
+            });
             const serversOnPage = response.data || [];
             if (serversOnPage.length > 0) {
                 for (let i = 0; i < serversOnPage.length; i += 10) {
                     if (!State.isScanning) break;
                     const batch = serversOnPage.slice(i, i + 10);
-                    await Promise.all(batch.map(s => getAndCacheServerRegion(s, placeId)));
-                    if (i + 10 < serversOnPage.length) await new Promise(resolve => setTimeout(resolve, 100));
+                    await Promise.all(
+                        batch.map((s) => getAndCacheServerRegion(s, placeId)),
+                    );
+                    if (i + 10 < serversOnPage.length)
+                        await new Promise((resolve) =>
+                            setTimeout(resolve, 100),
+                        );
                 }
             }
-            if (!response.nextPageCursor) { State.scanCompleted = true; State.scanCursor = null; break; }
+            if (!response.nextPageCursor) {
+                State.scanCompleted = true;
+                State.scanCursor = null;
+                break;
+            }
             State.scanCursor = response.nextPageCursor;
-        } catch (e) { break; }
+        } catch (e) {
+            break;
+        }
     }
-    for (const region in State.localServersByRegion) { for (const server of State.localServersByRegion[region]) { State.allLocalServerIds.add(server.id); } }
+    for (const region in State.localServersByRegion) {
+        for (const server of State.localServersByRegion[region]) {
+            State.allLocalServerIds.add(server.id);
+        }
+    }
     State.isScanning = false;
 }
 
@@ -607,15 +822,28 @@ function handleGlobeHover(e) {
     const tooltip = document.getElementById(GLOBE_TOOLTIP_ID);
     if (!tooltip) return;
     const panel = document.getElementById(GLOBE_PANEL_ID);
-    if (!panel || !panel.classList.contains('show') || !e.detail?.active || !e.detail.regionCode) { tooltip.style.display = 'none'; return; } 
+    if (
+        !panel ||
+        !panel.classList.contains('show') ||
+        !e.detail?.active ||
+        !e.detail.regionCode
+    ) {
+        tooltip.style.display = 'none';
+        return;
+    }
     const { regionCode, city, x, y } = e.detail;
     const countryCode = regionCode.split('-')[0].toLowerCase();
     const serverCount = State.activeServerCounts[regionCode] || 0;
     const dcCount = State.dataCenterCounts[regionCode] || 0;
     let flagSrc = State.flags[countryCode];
-    if (!flagSrc) { flagSrc = `https://flagcdn.com/w40/${countryCode}.png`; cacheFlag(countryCode); }
+    if (!flagSrc) {
+        flagSrc = `https://flagcdn.com/w40/${countryCode}.png`;
+        cacheFlag(countryCode);
+    }
     tooltip.innerHTML = `<div style="display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 2px;"><img src="${flagSrc}" style="width: 20px; height: 13px; border-radius: 2px;"><span style="font-weight: 600; font-size: 12px; color: #eee;">${city}</span></div><div style="display: flex; flex-direction: column; align-items: center; gap: 0px; font-size: 11px; color: #ccc; border-top: 1px solid rgba(255,255,255,0.15); padding-top: 3px; width: 100%;"><span>Servers: <b style="color:#fff;">${serverCount.toLocaleString()}</b></span>${dcCount > 0 ? `<span>Datacenters: <b style="color:#fff;">${dcCount.toLocaleString()}</b></span>` : ''}</div>`;
-    tooltip.style.left = `${x}px`; tooltip.style.top = `${y}px`; tooltip.style.display = 'flex';
+    tooltip.style.left = `${x}px`;
+    tooltip.style.top = `${y}px`;
+    tooltip.style.display = 'flex';
 }
 
 function onOtherFilterSelected() {
@@ -631,16 +859,20 @@ async function onRegionSelected(event) {
     delete State.regionServersCache[code];
 
     const apiRegion = resolveApiRegionCode(code);
-    const item = document.querySelector(`.rovalra-side-panel-item[data-region-code="${code}"]`);
+    const item = document.querySelector(
+        `.rovalra-side-panel-item[data-region-code="${code}"]`,
+    );
     if (item) item.classList.add('loading');
 
     try {
         const res = await fetchServers(apiRegion);
         const apiServers = res.servers || [];
         const locallyFoundServers = State.localServersByRegion[code] || [];
-        const localServerIds = new Set(locallyFoundServers.map(s => s.id));
+        const localServerIds = new Set(locallyFoundServers.map((s) => s.id));
 
-        const filteredApiServers = apiServers.filter(apiServer => !localServerIds.has(apiServer.server_id));
+        const filteredApiServers = apiServers.filter(
+            (apiServer) => !localServerIds.has(apiServer.server_id),
+        );
         const combinedServers = [...locallyFoundServers, ...filteredApiServers];
 
         const initialDisplayServers = combinedServers.slice(0, 8);
@@ -648,25 +880,32 @@ async function onRegionSelected(event) {
 
         State.regionServersCache[code] = {
             allServers: combinedServers,
-            apiNextCursor: res.next_cursor
+            apiNextCursor: res.next_cursor,
         };
 
-        document.dispatchEvent(new CustomEvent(EVT_REGION_SERVERS_LOADED, {
-            detail: {
-                regionCode: code,
-                servers: initialDisplayServers,
-                next_cursor: (remainingServers.length > 0 || res.next_cursor) ? 'HAS_MORE' : null
-            }
-        }));
+        document.dispatchEvent(
+            new CustomEvent(EVT_REGION_SERVERS_LOADED, {
+                detail: {
+                    regionCode: code,
+                    servers: initialDisplayServers,
+                    next_cursor:
+                        remainingServers.length > 0 || res.next_cursor
+                            ? 'HAS_MORE'
+                            : null,
+                },
+            }),
+        );
     } catch (e) {
         const locallyFoundServers = State.localServersByRegion[code] || [];
-        document.dispatchEvent(new CustomEvent(EVT_REGION_SERVERS_LOADED, {
-            detail: {
-                regionCode: code,
-                servers: locallyFoundServers,
-                next_cursor: null
-            }
-        }));
+        document.dispatchEvent(
+            new CustomEvent(EVT_REGION_SERVERS_LOADED, {
+                detail: {
+                    regionCode: code,
+                    servers: locallyFoundServers,
+                    next_cursor: null,
+                },
+            }),
+        );
     } finally {
         if (item) item.classList.remove('loading');
     }
@@ -674,31 +913,76 @@ async function onRegionSelected(event) {
 
 async function onRequestMoreRegionServers(event) {
     const { regionCode } = event.detail || {};
-    if (!regionCode || regionCode === 'newest' || regionCode === 'oldest') return;
+    if (!regionCode || regionCode === 'newest' || regionCode === 'oldest')
+        return;
 
     const apiRegion = resolveApiRegionCode(regionCode);
-    const item = document.querySelector(`.rovalra-side-panel-item[data-region-code="${regionCode}"]`);
+    const item = document.querySelector(
+        `.rovalra-side-panel-item[data-region-code="${regionCode}"]`,
+    );
     if (item) item.classList.add('loading');
 
     try {
         const cachedData = State.regionServersCache[regionCode];
-        const serverListContainer = document.querySelector('#rbx-public-game-server-item-container');
-        const currentlyDisplayedCount = serverListContainer ? serverListContainer.children.length : 0;
+        const serverListContainer = document.querySelector(
+            '#rbx-public-game-server-item-container',
+        );
+        const currentlyDisplayedCount = serverListContainer
+            ? serverListContainer.children.length
+            : 0;
 
-        if (cachedData && currentlyDisplayedCount < cachedData.allServers.length) {
-            const nextServers = cachedData.allServers.slice(currentlyDisplayedCount, currentlyDisplayedCount + 8);
-            const hasMoreAfterThis = (currentlyDisplayedCount + 8) < cachedData.allServers.length || !!cachedData.apiNextCursor;
-            document.dispatchEvent(new CustomEvent(EVT_REGION_SERVERS_LOADED, { detail: { regionCode, servers: nextServers, next_cursor: hasMoreAfterThis ? 'HAS_MORE' : null, append: true } }));
+        if (
+            cachedData &&
+            currentlyDisplayedCount < cachedData.allServers.length
+        ) {
+            const nextServers = cachedData.allServers.slice(
+                currentlyDisplayedCount,
+                currentlyDisplayedCount + 8,
+            );
+            const hasMoreAfterThis =
+                currentlyDisplayedCount + 8 < cachedData.allServers.length ||
+                !!cachedData.apiNextCursor;
+            document.dispatchEvent(
+                new CustomEvent(EVT_REGION_SERVERS_LOADED, {
+                    detail: {
+                        regionCode,
+                        servers: nextServers,
+                        next_cursor: hasMoreAfterThis ? 'HAS_MORE' : null,
+                        append: true,
+                    },
+                }),
+            );
         } else if (cachedData && cachedData.apiNextCursor) {
             const res = await fetchServers(apiRegion, cachedData.apiNextCursor);
             const apiServers = res.servers || [];
-            const filteredApiServers = apiServers.filter(apiServer => !State.allLocalServerIds.has(apiServer.server_id));
+            const filteredApiServers = apiServers.filter(
+                (apiServer) =>
+                    !State.allLocalServerIds.has(apiServer.server_id),
+            );
             cachedData.allServers.push(...filteredApiServers);
             cachedData.apiNextCursor = res.next_cursor;
-            document.dispatchEvent(new CustomEvent(EVT_REGION_SERVERS_LOADED, { detail: { regionCode, servers: filteredApiServers, next_cursor: res.next_cursor, append: true } }));
+            document.dispatchEvent(
+                new CustomEvent(EVT_REGION_SERVERS_LOADED, {
+                    detail: {
+                        regionCode,
+                        servers: filteredApiServers,
+                        next_cursor: res.next_cursor,
+                        append: true,
+                    },
+                }),
+            );
         }
     } catch (e) {
-        document.dispatchEvent(new CustomEvent(EVT_REGION_SERVERS_LOADED, { detail: { regionCode, servers: [], next_cursor: null, append: true } }));
+        document.dispatchEvent(
+            new CustomEvent(EVT_REGION_SERVERS_LOADED, {
+                detail: {
+                    regionCode,
+                    servers: [],
+                    next_cursor: null,
+                    append: true,
+                },
+            }),
+        );
     } finally {
         if (item) item.classList.remove('loading');
     }
@@ -710,7 +994,10 @@ function attachGlobalListeners() {
     document.addEventListener(EVT_UPTIME_SELECTED, onOtherFilterSelected);
     document.addEventListener(EVT_CLEAR_FILTERS, onOtherFilterSelected);
     document.addEventListener(EVT_REGION_SELECTED, onRegionSelected);
-    document.addEventListener(EVT_REQUEST_REGION_SERVERS, onRequestMoreRegionServers);
+    document.addEventListener(
+        EVT_REQUEST_REGION_SERVERS,
+        onRequestMoreRegionServers,
+    );
 
     State.listenersAttached = true;
 }
@@ -722,7 +1009,8 @@ function onStorageChanged(changes, area) {
 }
 
 async function initializeData() {
-    const { rovalraDatacenters } = await chrome.storage.local.get('rovalraDatacenters');
+    const { rovalraDatacenters } =
+        await chrome.storage.local.get('rovalraDatacenters');
     processStorageDatacenters(rovalraDatacenters);
     await fetchCounts();
 
@@ -741,7 +1029,10 @@ function setupUI() {
     }
 
     const mainControls = document.getElementById('rovalra-main-controls');
-    if (mainControls && !mainControls.querySelector('#rovalra-region-filter-dropdown-wrapper')) {
+    if (
+        mainControls &&
+        !mainControls.querySelector('#rovalra-region-filter-dropdown-wrapper')
+    ) {
         createRegionDropdownWidget(mainControls);
     }
 }
@@ -753,7 +1044,7 @@ export async function initRegionFilters() {
     try {
         startObserving();
     } catch (e) {
-        console.error("RoValra: Failed to start observing.", e);
+        console.error('RoValra: Failed to start observing.', e);
     }
 
     setupUI();

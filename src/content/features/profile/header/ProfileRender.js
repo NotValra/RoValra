@@ -1,41 +1,43 @@
 import { observeElement, observeResize } from '../../../core/observer.js';
 import { getUserIdFromUrl } from '../../../core/idExtractor.js';
-import { injectStylesheet, removeStylesheet } from '../../../core/ui/cssInjector.js';
+import {
+    injectStylesheet,
+    removeStylesheet,
+} from '../../../core/ui/cssInjector.js';
 import { callRobloxApiJson } from '../../../core/api.js';
 import { createSquareButton } from '../../../core/ui/profile/header/squarebutton.js';
-import { createOverlay } from '../../../core/ui/overlay.js'; 
+import { createOverlay } from '../../../core/ui/overlay.js';
 import { createDropdown } from '../../../core/ui/dropdown.js';
 import { addTooltip } from '../../../core/ui/tooltip.js';
 import { showConfirmationPrompt } from '../../../core/ui/confirmationPrompt.js';
 import { getAuthenticatedUserId } from '../../../core/user.js';
 import { getAssets } from '../../../core/assets.js';
 import { SETTINGS_CONFIG } from '../../../core/settings/settingConfig.js';
-import { 
-    RegisterWrappers, 
-    RBXRenderer, 
-    Instance, 
-    HumanoidDescriptionWrapper, 
-    RBX, 
-    Outfit, 
+import {
+    RegisterWrappers,
+    RBXRenderer,
+    Instance,
+    HumanoidDescriptionWrapper,
+    RBX,
+    Outfit,
     API,
     FLAGS,
     AnimatorWrapper,
     animNamesR15,
-    animNamesR6
+    animNamesR6,
 } from 'roavatar-renderer';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 import * as THREE from 'three';
-FLAGS.ASSETS_PATH = chrome.runtime.getURL("assets/rbxasset/");
-FLAGS.USE_WORKERS = false; 
-
+FLAGS.ASSETS_PATH = chrome.runtime.getURL('assets/rbxasset/');
+FLAGS.USE_WORKERS = false;
 
 let currentRig = null;
 let currentRigType = null;
 let emoteStopTimer = null;
 let preloadedCanvas = null;
 let isPreloading = false;
-let globalAvatarData = null; 
+let globalAvatarData = null;
 let avatarDataPromise = null;
 let isCustomEnvLoaded = false;
 let environmentConfig = null;
@@ -53,35 +55,43 @@ function constrainCamera() {
     const camera = RBXRenderer.getRendererCamera();
     if (!controls || !camera) return;
 
-    const direction = new THREE.Vector3().subVectors(camera.position, controls.target).normalize();
+    const direction = new THREE.Vector3()
+        .subVectors(camera.position, controls.target)
+        .normalize();
     const distanceToCamera = camera.position.distanceTo(controls.target);
 
     raycaster.set(controls.target, direction);
-    const intersects = raycaster.intersectObjects(RBXRenderer.scene.children, true);
+    const intersects = raycaster.intersectObjects(
+        RBXRenderer.scene.children,
+        true,
+    );
 
     // Only collide with objects that has the 'isEnvironment' tag
-    const environmentHits = intersects.filter(hit => {
+    const environmentHits = intersects.filter((hit) => {
         return hit.object.userData.isEnvironment === true;
     });
 
     // Move camera if we hit an environment object
-    if (environmentHits.length > 0 && environmentHits[0].distance < distanceToCamera) {
+    if (
+        environmentHits.length > 0 &&
+        environmentHits[0].distance < distanceToCamera
+    ) {
         const hitDistance = environmentHits[0].distance;
         const newPos = new THREE.Vector3()
             .copy(controls.target)
             .add(direction.multiplyScalar(Math.max(0.1, hitDistance - 0.2)));
-        
+
         camera.position.copy(newPos);
     }
 }
 function patchAnimateForRotation() {
     if (isAnimatePatched) return;
 
-    RBXRenderer.animate = function() {
+    RBXRenderer.animate = function () {
         const controls = RBXRenderer.getRendererControls();
         if (controls) {
             controls.update();
-            constrainCamera(); 
+            constrainCamera();
         }
 
         RBXRenderer.renderer.setRenderTarget(null);
@@ -97,8 +107,8 @@ function patchAnimateForRotation() {
 }
 function getAnimatorW(rig = currentRig) {
     if (!rig) return null;
-    const humanoid = rig.FindFirstChildOfClass("Humanoid");
-    const animator = humanoid?.FindFirstChildOfClass("Animator");
+    const humanoid = rig.FindFirstChildOfClass('Humanoid');
+    const animator = humanoid?.FindFirstChildOfClass('Animator');
     return animator ? new AnimatorWrapper(animator) : null;
 }
 
@@ -106,15 +116,14 @@ async function playIdle() {
     const animatorW = getAnimatorW();
     if (animatorW) {
         animatorW.stopMoodAnimation();
-        animatorW.playAnimation("idle");
+        animatorW.playAnimation('idle');
     }
     activeEmoteId = null;
-    activeAnimValue = null;
 }
 
 async function playEmote(emoteAssetId, loop = false, durationLimit = null) {
- if (!currentRig || currentRigType !== 'R15') {
-        console.warn("Emotes are only supported on R15 rigs.");
+    if (!currentRig || currentRigType !== 'R15') {
+        console.warn('Emotes are only supported on R15 rigs.');
         return false;
     }
     if (emoteStopTimer) clearTimeout(emoteStopTimer);
@@ -124,15 +133,14 @@ async function playEmote(emoteAssetId, loop = false, durationLimit = null) {
 
     if (activeEmoteId === emoteAssetId) {
         await playIdle();
-        return false; 
+        return false;
     }
 
     const animName = `emote.${emoteAssetId}`;
     await animatorW.loadAvatarAnimation(BigInt(emoteAssetId), true, loop);
     animatorW.playAnimation(animName);
-    
+
     activeEmoteId = emoteAssetId;
-    activeAnimValue = null; 
 
     if (durationLimit) {
         emoteStopTimer = setTimeout(() => {
@@ -140,7 +148,7 @@ async function playEmote(emoteAssetId, loop = false, durationLimit = null) {
             emoteStopTimer = null;
         }, durationLimit * 1000);
     }
-    return true; 
+    return true;
 }
 
 // Prerendering
@@ -160,32 +168,36 @@ async function loadRig(rigType) {
 
     if (rigResult instanceof RBX) {
         currentRig = rigResult.generateTree().GetChildren()[0];
-        const humanoid = currentRig?.FindFirstChildOfClass("Humanoid");
+        const humanoid = currentRig?.FindFirstChildOfClass('Humanoid');
         if (humanoid) {
-            const desc = new Instance("HumanoidDescription");
+            const desc = new Instance('HumanoidDescription');
             const wrapper = new HumanoidDescriptionWrapper(desc);
             wrapper.fromOutfit(outfit);
             await wrapper.applyDescription(humanoid);
 
-            await playIdle(); 
-            
+            await playIdle();
+
             RBXRenderer.addInstance(currentRig, null);
             currentRigType = rigType;
 
             // If we just loaded R15, background-trigger the emote loads for this specific rig
             if (rigType === 'R15' && globalAvatarData.emotes) {
                 const animatorW = getAnimatorW(currentRig);
-                globalAvatarData.emotes.forEach(emote => {
-                    animatorW?.loadAvatarAnimation(BigInt(emote.assetId), true, false);
+                globalAvatarData.emotes.forEach((emote) => {
+                    animatorW?.loadAvatarAnimation(
+                        BigInt(emote.assetId),
+                        true,
+                        false,
+                    );
                 });
             }
 
-            const animToPlay = rigType === 'R6' ? savedAnimationR6 : savedAnimationR15;
+            const animToPlay =
+                rigType === 'R6' ? savedAnimationR6 : savedAnimationR15;
             const animatorW = getAnimatorW();
             if (animatorW && animToPlay && animToPlay !== 'idle') {
                 animatorW.playAnimation(animToPlay);
-                activeAnimValue = animToPlay;
-                activeEmoteId = null; 
+                activeEmoteId = null;
             }
         }
     }
@@ -198,18 +210,20 @@ async function createEmoteRadialMenu(emotesData, onSelect) {
     const container = document.createElement('div');
     container.className = 'emotes-radial-menu-wrapper';
 
-    const assetIds = emotesData.map(e => e.assetId);
+    const assetIds = emotesData.map((e) => e.assetId);
     let thumbMap = {};
     if (assetIds.length > 0) {
         try {
             const thumbResponse = await callRobloxApiJson({
                 subdomain: 'thumbnails',
-                endpoint: `/v1/assets?assetIds=${assetIds.join(',')}&size=150x150&format=Webp&isCircular=false`
+                endpoint: `/v1/assets?assetIds=${assetIds.join(',')}&size=150x150&format=Webp&isCircular=false`,
             });
-            thumbResponse.data.forEach(item => {
+            thumbResponse.data.forEach((item) => {
                 thumbMap[item.targetId] = item.imageUrl;
             });
-        } catch (e) { console.error(e); }
+        } catch (e) {
+            console.error(e);
+        }
     }
 
     container.innerHTML = `
@@ -225,14 +239,14 @@ async function createEmoteRadialMenu(emotesData, onSelect) {
     const sliceParent = container.querySelector('.emotes-radial-slices');
     const middleText = container.querySelector('.emotes-radial-middle-text');
 
-    const radius = 145; 
-    const centerX = 210; 
-    const centerY = 210; 
+    const radius = 145;
+    const centerX = 210;
+    const centerY = 210;
 
     for (let i = 0; i < 8; i++) {
         const slotNumber = i + 1;
-        const emote = emotesData.find(e => e.position === slotNumber);
-        const angle = ((i * 45) - 90) * (Math.PI / 180);
+        const emote = emotesData.find((e) => e.position === slotNumber);
+        const angle = (i * 45 - 90) * (Math.PI / 180);
         const x = centerX + radius * Math.cos(angle);
         const y = centerY + radius * Math.sin(angle);
 
@@ -256,12 +270,18 @@ async function createEmoteRadialMenu(emotesData, onSelect) {
                 </div>
                 <div class="emotes-radial-index">${slotNumber}</div>
             </div>
-        `;//Verified
+        `; //Verified
         // Should be safe since this doesnt have a emote name added into the html and using safeHtml or dompurify here may break thumbnail urls
 
         if (hasEmote) {
-            sliceDiv.addEventListener('mouseenter', () => middleText.textContent = emoteName);
-            sliceDiv.addEventListener('mouseleave', () => middleText.textContent = 'Choose an emote to play');
+            sliceDiv.addEventListener(
+                'mouseenter',
+                () => (middleText.textContent = emoteName),
+            );
+            sliceDiv.addEventListener(
+                'mouseleave',
+                () => (middleText.textContent = 'Choose an emote to play'),
+            );
             sliceDiv.addEventListener('click', () => onSelect(emote));
         }
         sliceParent.appendChild(sliceDiv);
@@ -269,23 +289,25 @@ async function createEmoteRadialMenu(emotesData, onSelect) {
     return container;
 }
 
-
 function injectCustomButtons(toggleButton) {
-    if (!globalAvatarData || toggleButton.querySelector('.rovalra-custom-controls')) return;
+    if (
+        !globalAvatarData ||
+        toggleButton.querySelector('.rovalra-custom-controls')
+    )
+        return;
 
     const controlsWrapper = document.createElement('div');
     controlsWrapper.className = 'rovalra-custom-controls';
-    
 
     Object.assign(controlsWrapper.style, {
         display: 'flex',
         gap: '5px',
         alignItems: 'center',
         position: 'absolute',
-        bottom: '0px',   
+        bottom: '0px',
         right: '800px', // Moves it all the way to the left
-        zIndex: '100',    
-        pointerEvents: 'auto' 
+        zIndex: '100',
+        pointerEvents: 'auto',
     });
 
     toggleButton.style.overflow = 'visible';
@@ -294,118 +316,196 @@ function injectCustomButtons(toggleButton) {
 
     if (globalAvatarData.emotes?.length > 0) {
         const emoteIconContainer = document.createElement('div');
-        emoteIconContainer.innerHTML = decodeURIComponent(assets.Emotes.split(',')[1]); //Verified
+        emoteIconContainer.innerHTML = decodeURIComponent(
+            assets.Emotes.split(',')[1],
+        ); //Verified
         const emoteIcon = emoteIconContainer.querySelector('svg');
         emoteIcon.style.width = '24px';
         emoteIcon.style.height = '24px';
         emoteIcon.style.fill = 'var(--rovalra-main-text-color)';
 
-        const emoteBtn = createSquareButton({ content: emoteIcon, width: 'auto', fontSize: '12px' });
+        const emoteBtn = createSquareButton({
+            content: emoteIcon,
+            width: 'auto',
+            fontSize: '12px',
+        });
         emoteBtn.addEventListener('click', async (e) => {
-            e.stopPropagation(); 
-            const radialContent = await createEmoteRadialMenu(globalAvatarData.emotes, async (emote) => {
-                await playEmote(emote.assetId, false, 10);
-                overlayHandle.close(); 
-            });
-            const overlayHandle = createOverlay({ 
-                title: 'Emotes', 
-                bodyContent: radialContent, 
-                maxWidth: '450px', 
-                overflowVisible: true, 
+            e.stopPropagation();
+            const radialContent = await createEmoteRadialMenu(
+                globalAvatarData.emotes,
+                async (emote) => {
+                    await playEmote(emote.assetId, false, 10);
+                    overlayHandle.close();
+                },
+            );
+            const overlayHandle = createOverlay({
+                title: 'Emotes',
+                bodyContent: radialContent,
+                maxWidth: '450px',
+                overflowVisible: true,
                 showLogo: true,
-                onClose: () => removeStylesheet('rovalra-profile-render-css')
+                onClose: () => removeStylesheet('rovalra-profile-render-css'),
             });
         });
         controlsWrapper.appendChild(emoteBtn);
     }
 
     const settingsIconContainer = document.createElement('div');
-    settingsIconContainer.innerHTML = decodeURIComponent(assets.settings.split(',')[1]); // verified
+    settingsIconContainer.innerHTML = decodeURIComponent(
+        assets.settings.split(',')[1],
+    ); // verified
     const settingsIcon = settingsIconContainer.querySelector('svg');
     settingsIcon.style.width = '24px';
     settingsIcon.style.height = '24px';
     settingsIcon.style.fill = 'var(--rovalra-main-text-color)';
 
-    const settingsBtn = createSquareButton({ content: settingsIcon, width: 'auto', fontSize: '12px' });
+    const settingsBtn = createSquareButton({
+        content: settingsIcon,
+        width: 'auto',
+        fontSize: '12px',
+    });
 
     settingsBtn.addEventListener('click', (e) => {
-        e.stopPropagation(); 
+        e.stopPropagation();
         const contentContainer = document.createElement('div');
-        Object.assign(contentContainer.style, { display: 'flex', flexDirection: 'column', gap: '15px', padding: '5px' });
+        Object.assign(contentContainer.style, {
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '15px',
+            padding: '5px',
+        });
 
         const animSection = document.createElement('div');
-        animSection.innerHTML = '<div class="text-label-small" style="margin-bottom:5px; color:var(--rovalra-secondary-text-color);">Animations</div>';
-        
+        animSection.innerHTML =
+            '<div class="text-label-small" style="margin-bottom:5px; color:var(--rovalra-secondary-text-color);">Animations</div>';
+
         const updateAnimationDropdown = () => {
-            const existingDropdown = animSection.querySelector('.rovalra-dropdown-container');
+            const existingDropdown = animSection.querySelector(
+                '.rovalra-dropdown-container',
+            );
             if (existingDropdown) existingDropdown.remove();
 
             let animItems = [];
-            const excludedAnims = ['toolnone', 'idle', 'sit', 'swimidle', 'toolslash', 'toollunge'];
+            const excludedAnims = [
+                'toolnone',
+                'idle',
+                'sit',
+                'swimidle',
+                'toolslash',
+                'toollunge',
+            ];
 
             if (currentRigType === 'R6') {
                 const defaultAnims = animNamesR6;
-                animItems = Object.keys(defaultAnims).map(animName => {
-                    if (excludedAnims.includes(animName) || animName.startsWith('dance')) return null;
-                    return { label: animName.charAt(0).toUpperCase() + animName.slice(1), value: animName };
-                }).filter(Boolean);
-            } else { // R15
+                animItems = Object.keys(defaultAnims)
+                    .map((animName) => {
+                        if (
+                            excludedAnims.includes(animName) ||
+                            animName.startsWith('dance')
+                        )
+                            return null;
+                        return {
+                            label:
+                                animName.charAt(0).toUpperCase() +
+                                animName.slice(1),
+                            value: animName,
+                        };
+                    })
+                    .filter(Boolean);
+            } else {
+                // R15
                 const defaultAnims = animNamesR15;
-                const animAssets = globalAvatarData.assets.filter(a => a.assetType.name.includes("Animation"));
+                const animAssets = globalAvatarData.assets.filter((a) =>
+                    a.assetType.name.includes('Animation'),
+                );
                 const animItemsMap = new Map();
 
                 // Add default R15 animations
-                Object.keys(defaultAnims).forEach(animName => {
-                    if (!excludedAnims.includes(animName) && !animName.startsWith('dance')) {
+                Object.keys(defaultAnims).forEach((animName) => {
+                    if (
+                        !excludedAnims.includes(animName) &&
+                        !animName.startsWith('dance')
+                    ) {
                         animItemsMap.set(animName, {
-                            label: animName.charAt(0).toUpperCase() + animName.slice(1),
-                            value: animName
+                            label:
+                                animName.charAt(0).toUpperCase() +
+                                animName.slice(1),
+                            value: animName,
                         });
                     }
                 });
 
                 // Add users equipped animations, which may override defaults
-                animAssets.forEach(asset => {
-                    const animName = String(asset.assetType.name.toLowerCase().replace("animation", ""));
-                    if (!excludedAnims.includes(animName) && !animName.startsWith('dance')) {
-                        animItemsMap.set(animName, { label: asset.assetType.name.replace("Animation", ""), value: animName });
+                animAssets.forEach((asset) => {
+                    const animName = String(
+                        asset.assetType.name
+                            .toLowerCase()
+                            .replace('animation', ''),
+                    );
+                    if (
+                        !excludedAnims.includes(animName) &&
+                        !animName.startsWith('dance')
+                    ) {
+                        animItemsMap.set(animName, {
+                            label: asset.assetType.name.replace(
+                                'Animation',
+                                '',
+                            ),
+                            value: animName,
+                        });
                     }
                 });
                 animItems = Array.from(animItemsMap.values());
             }
             const { element: dropdownElement } = createDropdown({
                 items: [{ label: 'Idle', value: 'idle' }, ...animItems],
-                initialValue: (currentRigType === 'R6' ? savedAnimationR6 : savedAnimationR15) || 'idle',
+                initialValue:
+                    (currentRigType === 'R6'
+                        ? savedAnimationR6
+                        : savedAnimationR15) || 'idle',
                 onValueChange: (value) => {
                     const animatorW = getAnimatorW();
                     if (animatorW) {
                         if (value === 'idle') playIdle();
-                        else { animatorW.playAnimation(value); activeAnimValue = value; activeEmoteId = null; }
+                        else {
+                            animatorW.playAnimation(value);
+                            activeEmoteId = null;
+                        }
                     }
                     if (currentRigType === 'R6') {
                         savedAnimationR6 = value;
-                        chrome.storage.local.set({ profileRenderAnimationR6: value });
+                        chrome.storage.local.set({
+                            profileRenderAnimationR6: value,
+                        });
                     } else {
                         savedAnimationR15 = value;
-                        chrome.storage.local.set({ profileRenderAnimationR15: value });
+                        chrome.storage.local.set({
+                            profileRenderAnimationR15: value,
+                        });
                     }
-                }
+                },
             });
             dropdownElement.style.width = '100%';
             animSection.appendChild(dropdownElement);
         };
 
         const rigSection = document.createElement('div');
-        rigSection.innerHTML = '<div class="text-label-small" style="margin-bottom:5px; color:var(--rovalra-secondary-text-color);">Rig Type</div>';
+        rigSection.innerHTML =
+            '<div class="text-label-small" style="margin-bottom:5px; color:var(--rovalra-secondary-text-color);">Rig Type</div>';
         const rigButtons = document.createElement('div');
-        rigButtons.style.display = 'flex'; rigButtons.style.gap = '10px';
-        ['R6', 'R15'].forEach(type => {
+        rigButtons.style.display = 'flex';
+        rigButtons.style.gap = '10px';
+        ['R6', 'R15'].forEach((type) => {
             const btn = document.createElement('button');
-            btn.className = (currentRigType === type) ? 'btn-primary-sm' : 'btn-secondary-sm';
-            btn.textContent = type; btn.style.flex = '1';
+            btn.className =
+                currentRigType === type ? 'btn-primary-sm' : 'btn-secondary-sm';
+            btn.textContent = type;
+            btn.style.flex = '1';
             btn.onclick = async () => {
                 if (currentRigType === type) return;
-                Array.from(rigButtons.children).forEach(b => b.className = 'btn-secondary-sm');
+                Array.from(rigButtons.children).forEach(
+                    (b) => (b.className = 'btn-secondary-sm'),
+                );
                 btn.className = 'btn-primary-sm';
                 await loadRig(type);
                 updateAnimationDropdown();
@@ -418,7 +518,8 @@ function injectCustomButtons(toggleButton) {
         contentContainer.appendChild(animSection);
 
         const speedSection = document.createElement('div');
-        speedSection.innerHTML = '<div class="text-label-small" style="margin-bottom:5px; color:var(--rovalra-secondary-text-color);">Animation Speed</div>';
+        speedSection.innerHTML =
+            '<div class="text-label-small" style="margin-bottom:5px; color:var(--rovalra-secondary-text-color);">Animation Speed</div>';
 
         const speedSliderWrapper = document.createElement('div');
         speedSliderWrapper.style.display = 'flex';
@@ -436,52 +537,68 @@ function injectCustomButtons(toggleButton) {
         speedValueDisplay.style.minWidth = '40px';
         speedValueDisplay.style.textAlign = 'right';
 
-        speedSlider.addEventListener('input', () => { 
+        speedSlider.addEventListener('input', () => {
             const newSpeed = parseFloat(speedSlider.value);
             speedValueDisplay.textContent = `${newSpeed.toFixed(1)}x`;
         });
 
-        speedSlider.addEventListener('change', () => { 
+        speedSlider.addEventListener('change', () => {
             const newSpeed = parseFloat(speedSlider.value);
             chrome.storage.local.set({ profileRenderAnimationSpeed: newSpeed });
         });
 
-        chrome.storage.local.get({ profileRenderAnimationSpeed: 1 }, (settings) => {
-            const initialSpeed = parseFloat(settings.profileRenderAnimationSpeed ?? 1);
-            speedSlider.value = initialSpeed;
-            speedValueDisplay.textContent = `${initialSpeed.toFixed(1)}x`;
-        });
+        chrome.storage.local.get(
+            { profileRenderAnimationSpeed: 1 },
+            (settings) => {
+                const initialSpeed = parseFloat(
+                    settings.profileRenderAnimationSpeed ?? 1,
+                );
+                speedSlider.value = initialSpeed;
+                speedValueDisplay.textContent = `${initialSpeed.toFixed(1)}x`;
+            },
+        );
 
         speedSliderWrapper.appendChild(speedSlider);
         speedSliderWrapper.appendChild(speedValueDisplay);
         speedSection.appendChild(speedSliderWrapper);
         contentContainer.appendChild(speedSection);
 
-        createOverlay({ title: 'Render Settings', bodyContent: contentContainer, maxWidth: '400px', overflowVisible: true, showLogo: true });
+        createOverlay({
+            title: 'Render Settings',
+            bodyContent: contentContainer,
+            maxWidth: '400px',
+            overflowVisible: true,
+            showLogo: true,
+        });
     });
 
     controlsWrapper.appendChild(settingsBtn);
-    
+
     if (isCustomEnvLoaded && environmentConfig && environmentConfig.tooltip) {
         const infoIconContainer = document.createElement('div');
-        infoIconContainer.innerHTML = decodeURIComponent(assets.priceFloorIcon.split(',')[1]); //Verified
+        infoIconContainer.innerHTML = decodeURIComponent(
+            assets.priceFloorIcon.split(',')[1],
+        ); //Verified
         const infoIcon = infoIconContainer.querySelector('svg');
         infoIcon.style.width = '24px';
         infoIcon.style.height = '24px';
         infoIcon.style.cursor = 'pointer';
         infoIcon.style.fill = 'var(--rovalra-main-text-color)';
 
-        addTooltip(infoIcon, environmentConfig.tooltip.text, { position: 'top' });
+        addTooltip(infoIcon, environmentConfig.tooltip.text, {
+            position: 'top',
+        });
 
         infoIcon.addEventListener('click', (e) => {
             e.stopPropagation();
             showConfirmationPrompt({
                 title: 'External Site',
-                message: 'You are about to be redirected to an external website which may have different privacy policies than Roblox. Do you want to continue?',
+                message:
+                    'You are about to be redirected to an external website which may have different privacy policies than Roblox. Do you want to continue?',
                 confirmText: 'Continue',
                 onConfirm: () => {
                     window.open(environmentConfig.tooltip.link, '_blank');
-                }
+                },
             });
         });
         controlsWrapper.appendChild(infoIcon);
@@ -492,7 +609,7 @@ function injectCustomButtons(toggleButton) {
 // Rendering loop
 function startAnimationLoop() {
     const fpsLimit = 30;
-    const interval = 1000 / fpsLimit; 
+    const interval = 1000 / fpsLimit;
     let lastRenderTime = performance.now();
 
     const animate = (currentTime) => {
@@ -509,7 +626,7 @@ function startAnimationLoop() {
                     RBXRenderer.addInstance(currentRig, null);
                 }
             }
-            
+
             lastRenderTime = currentTime - (delta % interval);
         }
     };
@@ -533,25 +650,32 @@ async function loadCustomEnvironment(scene, config) {
             envUrl = chrome.runtime.getURL(envUrl);
         }
 
-        loader.load(envUrl, (gltf) => {
-            const model = gltf.scene;
-            
-            if (config.position) model.position.set(...config.position);
-            if (config.scale) model.scale.set(...config.scale);
-            
-            model.traverse(node => {
-                if (node.isMesh) {
-                    node.userData.isEnvironment = true;
-                    if (config.receiveShadow !== undefined) node.receiveShadow = config.receiveShadow;
-                    if (config.castShadow !== undefined) node.castShadow = config.castShadow;
-                }
-            });
+        loader.load(
+            envUrl,
+            (gltf) => {
+                const model = gltf.scene;
 
-            scene.add(model);
-            if (RBXRenderer.plane) RBXRenderer.plane.visible = false;
-            isCustomEnvLoaded = true;
-            resolve();
-        }, undefined, reject);
+                if (config.position) model.position.set(...config.position);
+                if (config.scale) model.scale.set(...config.scale);
+
+                model.traverse((node) => {
+                    if (node.isMesh) {
+                        node.userData.isEnvironment = true;
+                        if (config.receiveShadow !== undefined)
+                            node.receiveShadow = config.receiveShadow;
+                        if (config.castShadow !== undefined)
+                            node.castShadow = config.castShadow;
+                    }
+                });
+
+                scene.add(model);
+                if (RBXRenderer.plane) RBXRenderer.plane.visible = false;
+                isCustomEnvLoaded = true;
+                resolve();
+            },
+            undefined,
+            reject,
+        );
     });
 }
 
@@ -561,15 +685,18 @@ function setupAtmosphere(scene, config, isCustomEnv = false) {
     if (config.background) {
         scene.background = new THREE.Color(config.background);
     } else {
-        scene.background = null; 
+        scene.background = null;
     }
 
-    scene.children.filter(obj => obj.isLight).forEach(light => scene.remove(light));
+    scene.children
+        .filter((obj) => obj.isLight)
+        .forEach((light) => scene.remove(light));
     if (config.lights && Array.isArray(config.lights)) {
-        config.lights.forEach(lightDef => {
+        config.lights.forEach((lightDef) => {
             let light;
             const color = new THREE.Color(lightDef.color || 0xffffff);
-            const intensity = lightDef.intensity !== undefined ? lightDef.intensity : 1;
+            const intensity =
+                lightDef.intensity !== undefined ? lightDef.intensity : 1;
 
             if (lightDef.type === 'DirectionalLight') {
                 light = new THREE.DirectionalLight(color, intensity);
@@ -583,17 +710,18 @@ function setupAtmosphere(scene, config, isCustomEnv = false) {
         });
     }
 
+    const shouldShowPlane =
+        config.showFloor !== undefined ? config.showFloor : !isCustomEnv;
 
-    const shouldShowPlane = (config.showFloor !== undefined) ? config.showFloor : !isCustomEnv;
-
-    if (RBXRenderer.shadowPlane) RBXRenderer.shadowPlane.visible = shouldShowPlane;
+    if (RBXRenderer.shadowPlane)
+        RBXRenderer.shadowPlane.visible = shouldShowPlane;
     if (RBXRenderer.plane) RBXRenderer.plane.visible = shouldShowPlane;
 
     if (config.fog) {
         scene.fog = new THREE.Fog(
-            new THREE.Color(config.fog.color || 0xffffff), 
-            config.fog.near || 30, 
-            config.fog.far || 120
+            new THREE.Color(config.fog.color || 0xffffff),
+            config.fog.near || 30,
+            config.fog.far || 120,
         );
     } else {
         scene.fog = null;
@@ -603,22 +731,22 @@ function setupAtmosphere(scene, config, isCustomEnv = false) {
 // Define a standard lighting setup to use when no custom environment is active
 const DEFAULT_VOID_CONFIG = {
     atmosphere: {
-         showFloor: false,
+        showFloor: false,
         lights: [
             {
                 type: 'AmbientLight',
-                color: "#ffffff",
-                intensity: 1.2
+                color: '#ffffff',
+                intensity: 1.2,
             },
             {
                 type: 'DirectionalLight',
-                color: "#ffffff",
+                color: '#ffffff',
                 intensity: 1.5,
                 position: [10, 20, 10],
-                castShadow: true
-            }
-        ]
-    }
+                castShadow: true,
+            },
+        ],
+    },
 };
 
 async function preloadAvatar() {
@@ -629,42 +757,74 @@ async function preloadAvatar() {
         isPreloading = true;
 
         const userId = getUserIdFromUrl();
-        if (!userId) { isPreloading = false; return null; }
+        if (!userId) {
+            isPreloading = false;
+            return null;
+        }
 
         try {
             // We don't wait for data to start the renderer
             const [settings, avatarData] = await Promise.all([
                 chrome.storage.local.get([
-                    'profileRenderRotateEnabled', 'profileRenderEnvironment', 'environmentTester', 
-                    'modelUrl', 'modelPosX', 'modelPosY', 'modelPosZ', 'modelScaleX', 'modelScaleY', 
-                    'modelScaleZ', 'modelCastShadow', 'modelReceiveShadow', 'cameraFar', 'skyboxToggle',
-                    'skyboxPx', 'skyboxNx', 'skyboxPy', 'skyboxNy', 'skyboxPz', 'skyboxNz',
-                    'bgColor', 'showFloor', 'ambientLightToggle', 'ambientLightColor', 'ambientLightIntensity',
-                    'dirLightToggle', 'dirLightColor', 'dirLightIntensity', 'dirLightPosX', 'dirLightPosY', 
-                    'dirLightPosZ', 'dirLightCastShadow', 'fogToggle', 'fogColor', 'fogNear', 'fogFar', 
-                    'tooltipToggle', 'tooltipText', 'tooltipLink'
+                    'profileRenderRotateEnabled',
+                    'profileRenderEnvironment',
+                    'environmentTester',
+                    'modelUrl',
+                    'modelPosX',
+                    'modelPosY',
+                    'modelPosZ',
+                    'modelScaleX',
+                    'modelScaleY',
+                    'modelScaleZ',
+                    'modelCastShadow',
+                    'modelReceiveShadow',
+                    'cameraFar',
+                    'skyboxToggle',
+                    'skyboxPx',
+                    'skyboxNx',
+                    'skyboxPy',
+                    'skyboxNy',
+                    'skyboxPz',
+                    'skyboxNz',
+                    'bgColor',
+                    'showFloor',
+                    'ambientLightToggle',
+                    'ambientLightColor',
+                    'ambientLightIntensity',
+                    'dirLightToggle',
+                    'dirLightColor',
+                    'dirLightIntensity',
+                    'dirLightPosX',
+                    'dirLightPosY',
+                    'dirLightPosZ',
+                    'dirLightCastShadow',
+                    'fogToggle',
+                    'fogColor',
+                    'fogNear',
+                    'fogFar',
+                    'tooltipToggle',
+                    'tooltipText',
+                    'tooltipLink',
                 ]),
                 callRobloxApiJson({
                     subdomain: 'avatar',
-                    endpoint: `/v2/avatar/users/${userId}/avatar`
+                    endpoint: `/v2/avatar/users/${userId}/avatar`,
                 }),
                 (async () => {
-                    if (preloadedCanvas) return; 
+                    if (preloadedCanvas) return;
                     RegisterWrappers();
                     patchAnimateForRotation();
                     await RBXRenderer.fullSetup(true, true);
                     RBXRenderer.setBackgroundTransparent(true);
                     preloadedCanvas = RBXRenderer.getRendererElement();
                     preloadedCanvas.classList.add('rovalra-canvas');
-                    Object.assign(preloadedCanvas.style,
-                        {
-                            width: '100%',
-                            height: '100%',
-                            outline: 'none'
-                        }
-                    );
+                    Object.assign(preloadedCanvas.style, {
+                        width: '100%',
+                        height: '100%',
+                        outline: 'none',
+                    });
                     startAnimationLoop();
-                })()
+                })(),
             ]);
 
             globalAvatarData = avatarData;
@@ -682,37 +842,86 @@ async function preloadAvatar() {
             (async () => {
                 const authUserId = await getAuthenticatedUserId();
                 const isOwnProfile = String(userId) === String(authUserId);
-                const useDevEnvironment = settings.environmentTester && settings.modelUrl;
+                const useDevEnvironment =
+                    settings.environmentTester && settings.modelUrl;
 
                 if (useDevEnvironment) {
                     environmentConfig = {
                         model: {
                             url: settings.modelUrl,
-                            position: [parseFloat(settings.modelPosX) || 0, parseFloat(settings.modelPosY) || 0, parseFloat(settings.modelPosZ) || 0],
-                            scale: [parseFloat(settings.modelScaleX) || 1, parseFloat(settings.modelScaleY) || 1, parseFloat(settings.modelScaleZ) || 1],
+                            position: [
+                                parseFloat(settings.modelPosX) || 0,
+                                parseFloat(settings.modelPosY) || 0,
+                                parseFloat(settings.modelPosZ) || 0,
+                            ],
+                            scale: [
+                                parseFloat(settings.modelScaleX) || 1,
+                                parseFloat(settings.modelScaleY) || 1,
+                                parseFloat(settings.modelScaleZ) || 1,
+                            ],
                             castShadow: settings.modelCastShadow,
-                            receiveShadow: settings.modelReceiveShadow
+                            receiveShadow: settings.modelReceiveShadow,
                         },
                         atmosphere: {
                             background: settings.bgColor || null,
                             showFloor: settings.showFloor,
                             lights: [],
-                            fog: null
-                        }
+                            fog: null,
+                        },
                     };
-                    if (settings.ambientLightToggle) environmentConfig.atmosphere.lights.push({ type: 'AmbientLight', color: settings.ambientLightColor, intensity: parseFloat(settings.ambientLightIntensity) || 0 });
-                    if (settings.dirLightToggle) environmentConfig.atmosphere.lights.push({ type: 'DirectionalLight', color: settings.dirLightColor, intensity: parseFloat(settings.dirLightIntensity) || 0, position: [parseFloat(settings.dirLightPosX) || 0, parseFloat(settings.dirLightPosY) || 0, parseFloat(settings.dirLightPosZ) || 0], castShadow: settings.dirLightCastShadow });
-                    if (settings.fogToggle) environmentConfig.atmosphere.fog = { color: settings.fogColor, near: parseFloat(settings.fogNear) || 0, far: parseFloat(settings.fogFar) || 0 };
-                    if (settings.tooltipToggle) environmentConfig.tooltip = { text: settings.tooltipText, link: settings.tooltipLink };
+                    if (settings.ambientLightToggle)
+                        environmentConfig.atmosphere.lights.push({
+                            type: 'AmbientLight',
+                            color: settings.ambientLightColor,
+                            intensity:
+                                parseFloat(settings.ambientLightIntensity) || 0,
+                        });
+                    if (settings.dirLightToggle)
+                        environmentConfig.atmosphere.lights.push({
+                            type: 'DirectionalLight',
+                            color: settings.dirLightColor,
+                            intensity:
+                                parseFloat(settings.dirLightIntensity) || 0,
+                            position: [
+                                parseFloat(settings.dirLightPosX) || 0,
+                                parseFloat(settings.dirLightPosY) || 0,
+                                parseFloat(settings.dirLightPosZ) || 0,
+                            ],
+                            castShadow: settings.dirLightCastShadow,
+                        });
+                    if (settings.fogToggle)
+                        environmentConfig.atmosphere.fog = {
+                            color: settings.fogColor,
+                            near: parseFloat(settings.fogNear) || 0,
+                            far: parseFloat(settings.fogFar) || 0,
+                        };
+                    if (settings.tooltipToggle)
+                        environmentConfig.tooltip = {
+                            text: settings.tooltipText,
+                            link: settings.tooltipLink,
+                        };
                     isCustomEnvLoaded = true;
                 } else {
-                    const profileEnvValue = settings.profileRenderEnvironment || 'void';
-                    const profileEnvs = SETTINGS_CONFIG.Profile.settings.profile3DRenderEnabled.childSettings.profileRenderEnvironment.options;
-                    const selectedEnv = profileEnvs.find(opt => opt.value === profileEnvValue);
-                    const environmentEndpoint = (isOwnProfile && selectedEnv?.environmentEndpoint) ? selectedEnv.environmentEndpoint : null;
+                    const profileEnvValue =
+                        settings.profileRenderEnvironment || 'void';
+                    const profileEnvs =
+                        SETTINGS_CONFIG.Profile.settings.profile3DRenderEnabled
+                            .childSettings.profileRenderEnvironment.options;
+                    const selectedEnv = profileEnvs.find(
+                        (opt) => opt.value === profileEnvValue,
+                    );
+                    const environmentEndpoint =
+                        isOwnProfile && selectedEnv?.environmentEndpoint
+                            ? selectedEnv.environmentEndpoint
+                            : null;
 
                     if (environmentEndpoint) {
-                        environmentConfig = await callRobloxApiJson({ isRovalraApi: true, subdomain: 'www', endpoint: environmentEndpoint, method: 'GET' });
+                        environmentConfig = await callRobloxApiJson({
+                            isRovalraApi: true,
+                            subdomain: 'www',
+                            endpoint: environmentEndpoint,
+                            method: 'GET',
+                        });
                         isCustomEnvLoaded = !!environmentConfig.model;
                     } else {
                         environmentConfig = DEFAULT_VOID_CONFIG;
@@ -720,41 +929,60 @@ async function preloadAvatar() {
                     }
                 }
 
-                setupAtmosphere(scene, environmentConfig?.atmosphere || DEFAULT_VOID_CONFIG.atmosphere, isCustomEnvLoaded);
-                
+                setupAtmosphere(
+                    scene,
+                    environmentConfig?.atmosphere ||
+                        DEFAULT_VOID_CONFIG.atmosphere,
+                    isCustomEnvLoaded,
+                );
+
                 if (isCustomEnvLoaded && environmentConfig.model) {
                     await loadCustomEnvironment(scene, environmentConfig.model);
                 }
 
                 let skyboxUrls = null;
                 if (useDevEnvironment && settings.skyboxToggle) {
-                    skyboxUrls = [settings.skyboxNx, settings.skyboxPx, settings.skyboxPy, settings.skyboxNy, settings.skyboxPz, settings.skyboxNz];
+                    skyboxUrls = [
+                        settings.skyboxNx,
+                        settings.skyboxPx,
+                        settings.skyboxPy,
+                        settings.skyboxNy,
+                        settings.skyboxPz,
+                        settings.skyboxNz,
+                    ];
                 } else if (environmentConfig?.skybox) {
                     skyboxUrls = environmentConfig.skybox;
                 }
 
-                if (skyboxUrls && skyboxUrls.every(url => url)) {
+                if (skyboxUrls && skyboxUrls.every((url) => url)) {
                     const cubeLoader = new THREE.CubeTextureLoader();
                     scene.background = cubeLoader.load(skyboxUrls);
                     if (RBXRenderer.plane) RBXRenderer.plane.visible = false;
-                    if (RBXRenderer.shadowPlane) RBXRenderer.shadowPlane.visible = false;
+                    if (RBXRenderer.shadowPlane)
+                        RBXRenderer.shadowPlane.visible = false;
                 }
 
                 if (camera) {
-                    camera.far = (environmentConfig?.camera?.far) ? environmentConfig.camera.far : ((useDevEnvironment && settings.cameraFar) ? parseFloat(settings.cameraFar) : 100);
+                    camera.far = environmentConfig?.camera?.far
+                        ? environmentConfig.camera.far
+                        : useDevEnvironment && settings.cameraFar
+                          ? parseFloat(settings.cameraFar)
+                          : 100;
                     camera.updateProjectionMatrix();
                 }
-            })().catch(err => {
-                console.error("RoValra: Failed to load custom environment in background.", err);
+            })().catch((err) => {
+                console.error(
+                    'RoValra: Failed to load custom environment in background.',
+                    err,
+                );
                 setupAtmosphere(scene, DEFAULT_VOID_CONFIG.atmosphere, false);
             });
 
+            await rigTask;
 
-            await rigTask; 
-            
             return globalAvatarData;
         } catch (err) {
-            console.error("RoValra Preload Error:", err);
+            console.error('RoValra Preload Error:', err);
             return null;
         } finally {
             isPreloading = false;
@@ -772,7 +1000,7 @@ async function attachPreloadedAvatar(container) {
         alignItems: 'center',
         width: '100%',
         height: '100%',
-        position: 'relative'
+        position: 'relative',
     });
 
     const avatarPromise = preloadAvatar();
@@ -780,9 +1008,12 @@ async function attachPreloadedAvatar(container) {
     const ensureCanvasAttached = () => {
         if (preloadedCanvas && !container.contains(preloadedCanvas)) {
             container.appendChild(preloadedCanvas);
-            
-             observeResize(container, () => {
-                RBXRenderer.setRendererSize(container.clientWidth || 420, container.clientHeight || 420);
+
+            observeResize(container, () => {
+                RBXRenderer.setRendererSize(
+                    container.clientWidth || 420,
+                    container.clientHeight || 420,
+                );
             });
             return true;
         }
@@ -793,7 +1024,7 @@ async function attachPreloadedAvatar(container) {
         const checkInterval = setInterval(() => {
             if (ensureCanvasAttached()) clearInterval(checkInterval);
         }, 50);
-        
+
         avatarPromise.finally(() => clearInterval(checkInterval));
     }
 }
@@ -805,53 +1036,70 @@ export function init() {
                 if (area === 'local') {
                     if (changes.profileRenderAnimationSpeed) {
                         try {
-                            const newSpeed = parseFloat(changes.profileRenderAnimationSpeed.newValue);
+                            const newSpeed = parseFloat(
+                                changes.profileRenderAnimationSpeed.newValue,
+                            );
                             animationSpeed = isNaN(newSpeed) ? 1 : newSpeed;
                         } catch (e) {
                             animationSpeed = 1;
                         }
                     }
                     if (changes.profileRenderAnimationR6) {
-                        savedAnimationR6 = changes.profileRenderAnimationR6.newValue || 'idle';
+                        savedAnimationR6 =
+                            changes.profileRenderAnimationR6.newValue || 'idle';
                     }
                     if (changes.profileRenderAnimationR15) {
-                        savedAnimationR15 = changes.profileRenderAnimationR15.newValue || 'idle';
+                        savedAnimationR15 =
+                            changes.profileRenderAnimationR15.newValue ||
+                            'idle';
                     }
                 }
             });
-            chrome.storage.local.get({ 
-                profileRenderAnimationSpeed: 1,
-                profileRenderAnimationR6: 'idle',
-                profileRenderAnimationR15: 'idle'
-            }, (settings) => {
-                const initialSpeed = parseFloat(settings.profileRenderAnimationSpeed ?? 1);
-                animationSpeed = isNaN(initialSpeed) ? 1 : initialSpeed;
-                savedAnimationR6 = settings.profileRenderAnimationR6 || 'idle';
-                savedAnimationR15 = settings.profileRenderAnimationR15 || 'idle';
-            });
+            chrome.storage.local.get(
+                {
+                    profileRenderAnimationSpeed: 1,
+                    profileRenderAnimationR6: 'idle',
+                    profileRenderAnimationR15: 'idle',
+                },
+                (settings) => {
+                    const initialSpeed = parseFloat(
+                        settings.profileRenderAnimationSpeed ?? 1,
+                    );
+                    animationSpeed = isNaN(initialSpeed) ? 1 : initialSpeed;
+                    savedAnimationR6 =
+                        settings.profileRenderAnimationR6 || 'idle';
+                    savedAnimationR15 =
+                        settings.profileRenderAnimationR15 || 'idle';
+                },
+            );
             const avatarPromise = preloadAvatar();
-            injectStylesheet('css/thumbnailholder.css', 'rovalra-thumbnail-holder-css');
+            injectStylesheet(
+                'css/thumbnailholder.css',
+                'rovalra-thumbnail-holder-css',
+            );
 
             observeElement(
                 '.thumbnail-holder-position .thumbnail-3d-container > canvas:not(.rovalra-canvas), .thumbnail-holder-position .thumbnail-3d-container > .placeholder-generated-image',
                 (elementToRemove) => {
                     elementToRemove.remove();
                 },
-                { multiple: true }
+                { multiple: true },
             );
-            
+
             observeElement(
                 '.thumbnail-holder-position .thumbnail-3d-container, .avatar-toggle-button',
                 (element) => {
                     if (element.classList.contains('thumbnail-3d-container')) {
                         attachPreloadedAvatar(element);
-                    } else if (element.classList.contains('avatar-toggle-button')) {
-                        avatarPromise.then(data => {
+                    } else if (
+                        element.classList.contains('avatar-toggle-button')
+                    ) {
+                        avatarPromise.then((data) => {
                             if (data) injectCustomButtons(element);
                         });
                     }
                 },
-                { multiple: true }
+                { multiple: true },
             );
         }
     });
