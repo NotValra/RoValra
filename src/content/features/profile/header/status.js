@@ -167,14 +167,12 @@ async function addStatusBubble(avatarContainer) {
                                             prefixIndex,
                                         ) +
                                         STATUS_PREFIX +
-                                        ' ' +
                                         newStatus;
                                 } else {
                                     newDescription =
                                         currentDescription +
-                                        '\n\n\n' +
+                                        '\n' +
                                         STATUS_PREFIX +
-                                        ' ' +
                                         newStatus;
                                 }
 

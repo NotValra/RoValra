@@ -612,7 +612,7 @@ function injectCustomButtons(toggleButton) {
 }
 // Rendering loop
 function startAnimationLoop() {
-    const fpsLimit = 30;
+    const fpsLimit = 45;
     const interval = 1000 / fpsLimit;
     let lastRenderTime = performance.now();
 
