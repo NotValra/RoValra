@@ -14,6 +14,10 @@ import { getAuthenticatedUserId } from '../../../core/user.js';
 import { getAssets } from '../../../core/assets.js';
 import { SETTINGS_CONFIG } from '../../../core/settings/settingConfig.js';
 import {
+    getUserDescription,
+    updateUserDescription,
+} from '../../../core/profile/descriptionhandler.js';
+import {
     RegisterWrappers,
     RBXRenderer,
     Instance,
@@ -902,18 +906,89 @@ async function preloadAvatar() {
                         };
                     isCustomEnvLoaded = true;
                 } else {
-                    const profileEnvValue =
-                        settings.profileRenderEnvironment || 'void';
+                    let envId = 1;
                     const profileEnvs =
                         SETTINGS_CONFIG.Profile.settings.profile3DRenderEnabled
                             .childSettings.profileRenderEnvironment.options;
+
+                    if (isOwnProfile) {
+                        const profileEnvValue =
+                            settings.profileRenderEnvironment || 'void';
+                        const selectedEnvFromSettings = profileEnvs.find(
+                            (opt) => opt.value === profileEnvValue,
+                        );
+                        if (selectedEnvFromSettings) {
+                            envId = selectedEnvFromSettings.id;
+                        }
+
+                        const currentDescription =
+                            await getUserDescription(userId);
+                        if (currentDescription !== null) {
+                            let descriptionEnvId = 1;
+                            const envLine = currentDescription
+                                .split('\n')
+                                .find((line) => line.trim().startsWith('e:'));
+                            if (envLine) {
+                                const parsedId = parseInt(
+                                    envLine.trim().substring(4),
+                                    10,
+                                );
+                                if (!isNaN(parsedId)) {
+                                    descriptionEnvId = parsedId;
+                                }
+                            }
+
+                            if (envId !== descriptionEnvId) {
+                                let newDescription = currentDescription
+                                    .split('\n')
+                                    .filter(
+                                        (line) => !line.trim().startsWith('e:'),
+                                    )
+                                    .join('\n')
+                                    .trim();
+
+                                if (envId !== 1) {
+                                    if (newDescription) {
+                                        newDescription += `\n\ne:${envId}`;
+                                    } else {
+                                        newDescription = `e:${envId}`;
+                                    }
+                                }
+
+                                if (newDescription !== currentDescription) {
+                                    await updateUserDescription(
+                                        userId,
+                                        newDescription,
+                                    );
+                                }
+                            }
+                        }
+                    } else {
+                        const description = await getUserDescription(userId);
+                        if (description) {
+                            const envLine = description
+                                .split('\n')
+                                .find((line) => line.trim().startsWith('e:'));
+                            if (envLine) {
+                                const parsedId = parseInt(
+                                    envLine.trim().substring(4),
+                                    10,
+                                );
+                                if (
+                                    !isNaN(parsedId) &&
+                                    profileEnvs.some((e) => e.id === parsedId)
+                                ) {
+                                    envId = parsedId;
+                                }
+                            }
+                        }
+                    }
+
                     const selectedEnv = profileEnvs.find(
-                        (opt) => opt.value === profileEnvValue,
+                        (opt) => opt.id === envId,
                     );
                     const environmentEndpoint =
-                        isOwnProfile && selectedEnv?.environmentEndpoint
-                            ? selectedEnv.environmentEndpoint
-                            : null;
+                        selectedEnv?.environmentEndpoint || null;
 
                     if (environmentEndpoint) {
                         environmentConfig = await callRobloxApiJson({

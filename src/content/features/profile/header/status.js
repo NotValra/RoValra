@@ -10,7 +10,7 @@ import {
     updateUserDescription,
 } from '../../../core/profile/descriptionhandler.js';
 
-const STATUS_PREFIX = 'Status:';
+const STATUS_PREFIX = 's:';
 const MAX_STATUS_LENGTH = 50;
 
 function openEditStatusOverlay(currentStatus, onSave) {
