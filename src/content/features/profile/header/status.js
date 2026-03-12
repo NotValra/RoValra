@@ -105,11 +105,15 @@ async function addStatusBubble(avatarContainer) {
             authenticatedUserId &&
             String(authenticatedUserId) === String(userId);
 
-        if (!description.includes(STATUS_PREFIX) && !isOwnProfile) return;
-
-        let statusText = description.includes(STATUS_PREFIX)
-            ? description.split(STATUS_PREFIX)[1].split('\n')[0].trim()
+        const lines = description.split('\n');
+        const statusLine = lines.find((line) =>
+            line.trim().startsWith(STATUS_PREFIX),
+        );
+        let statusText = statusLine
+            ? statusLine.trim().substring(STATUS_PREFIX.length).trim()
             : null;
+
+        if (!statusText && !isOwnProfile) return;
 
         if (!statusText) {
             if (isOwnProfile) {
@@ -152,45 +156,51 @@ async function addStatusBubble(avatarContainer) {
                             if (currentDescription === null) return false;
 
                             let newDescription;
-                            const hadStatus =
-                                currentDescription.includes(STATUS_PREFIX);
+                            const lines = currentDescription.split('\n');
 
                             if (newStatus) {
-                                if (hadStatus) {
-                                    const prefixIndex =
-                                        currentDescription.indexOf(
-                                            STATUS_PREFIX,
-                                        );
-                                    newDescription =
-                                        currentDescription.substring(
-                                            0,
-                                            prefixIndex,
-                                        ) +
-                                        STATUS_PREFIX +
-                                        newStatus;
-                                } else {
-                                    newDescription =
-                                        currentDescription +
-                                        '\n' +
-                                        STATUS_PREFIX +
-                                        newStatus;
+                                const statusLine = `${STATUS_PREFIX}${newStatus}`;
+                                let statusFound = false;
+
+                                const newLines = [];
+                                for (const line of lines) {
+                                    if (line.trim().startsWith(STATUS_PREFIX)) {
+                                        if (!statusFound) {
+                                            newLines.push(statusLine);
+                                            statusFound = true;
+                                        }
+                                    } else {
+                                        newLines.push(line);
+                                    }
                                 }
+
+                                if (!statusFound) {
+                                    const lastLineIndex = newLines.length - 1;
+                                    if (
+                                        lastLineIndex >= 0 &&
+                                        newLines[lastLineIndex].trim() === ''
+                                    ) {
+                                        newLines[lastLineIndex] = statusLine;
+                                    } else {
+                                        if (currentDescription.trim()) {
+                                            newLines.push(statusLine);
+                                        } else {
+                                            newLines[0] = statusLine;
+                                        }
+                                    }
+                                }
+
+                                newDescription = newLines.join('\n');
 
                                 if (newDescription.length > 1000) {
                                     return 'limit_exceeded';
                                 }
                             } else {
-                                if (hadStatus) {
-                                    const prefixIndex =
-                                        currentDescription.indexOf(
-                                            STATUS_PREFIX,
-                                        );
-                                    newDescription = currentDescription
-                                        .substring(0, prefixIndex)
-                                        .trimEnd();
-                                } else {
-                                    return true;
-                                }
+                                const newLines = lines.filter(
+                                    (line) =>
+                                        !line.trim().startsWith(STATUS_PREFIX),
+                                );
+                                newDescription = newLines.join('\n').trimEnd();
                             }
 
                             const result = await updateUserDescription(

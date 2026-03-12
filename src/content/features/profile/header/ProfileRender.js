@@ -940,7 +940,7 @@ async function preloadAvatar() {
                                 .find((line) => line.trim().startsWith('e:'));
                             if (envLine) {
                                 const parsedId = parseInt(
-                                    envLine.trim().substring(4),
+                                    envLine.trim().substring(2),
                                     10,
                                 );
                                 if (!isNaN(parsedId)) {
@@ -949,20 +949,51 @@ async function preloadAvatar() {
                             }
 
                             if (envId !== descriptionEnvId) {
-                                let newDescription = currentDescription
-                                    .split('\n')
-                                    .filter(
-                                        (line) => !line.trim().startsWith('e:'),
-                                    )
-                                    .join('\n')
-                                    .trim();
+                                const lines = currentDescription.split('\n');
+                                let newDescription;
 
                                 if (envId !== 1) {
-                                    if (newDescription) {
-                                        newDescription += `\n\ne:${envId}`;
-                                    } else {
-                                        newDescription = `e:${envId}`;
+                                    const envLine = `e:${envId}`;
+                                    let envFound = false;
+                                    const newLines = [];
+
+                                    for (const line of lines) {
+                                        if (line.trim().startsWith('e:')) {
+                                            if (!envFound) {
+                                                newLines.push(envLine);
+                                                envFound = true;
+                                            }
+                                        } else {
+                                            newLines.push(line);
+                                        }
                                     }
+
+                                    if (!envFound) {
+                                        const lastLineIndex =
+                                            newLines.length - 1;
+                                        if (
+                                            lastLineIndex >= 0 &&
+                                            newLines[lastLineIndex].trim() ===
+                                                ''
+                                        ) {
+                                            newLines[lastLineIndex] = envLine;
+                                        } else {
+                                            if (currentDescription.trim()) {
+                                                newLines.push(envLine);
+                                            } else {
+                                                newLines[0] = envLine;
+                                            }
+                                        }
+                                    }
+                                    newDescription = newLines.join('\n');
+                                } else {
+                                    // Remove environment
+                                    const newLines = lines.filter(
+                                        (line) => !line.trim().startsWith('e:'),
+                                    );
+                                    newDescription = newLines
+                                        .join('\n')
+                                        .trimEnd();
                                 }
 
                                 if (newDescription !== currentDescription) {
@@ -981,7 +1012,7 @@ async function preloadAvatar() {
                                 .find((line) => line.trim().startsWith('e:'));
                             if (envLine) {
                                 const parsedId = parseInt(
-                                    envLine.trim().substring(4),
+                                    envLine.trim().substring(2),
                                     10,
                                 );
                                 if (
