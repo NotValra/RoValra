@@ -1,0 +1,34 @@
+{
+    "trustedFriends": {
+        "pendingConnection": "Pending Trusted Friend",
+        "pendingRequest": "Trusted Friend Request Pending",
+        "addConnection": "Add Trusted Friend",
+        "addConfirmation": "Are you sure you want to send a trusted Friend request?",
+        "sendRequest": "Send Request",
+        "sending": "Sending...",
+        "requestSent": "Trusted Friend request sent!",
+        "requestFailed": "Failed to send trusted Friend request.",
+        "errorSending": "Error Sending",
+        "acceptConnection": "Accept Trusted Friend",
+        "acceptConfirmation": "Are you sure you want to accept this trusted Friend request?",
+        "accept": "Accept",
+        "accepting": "Accepting...",
+        "requestAccepted": "Trusted Friend request accepted!",
+        "acceptFailed": "Failed to accept trusted Friend request.",
+        "errorAccepting": "Error Accepting",
+        "removeConnection": "Remove Trusted Friend",
+        "removeConfirmation": "Are you sure you want to remove this trusted Friend?",
+        "remove": "Remove",
+        "removing": "Removing...",
+        "connectionRemoved": "Trusted Friend removed!",
+        "removeFailed": "Failed to remove trusted Friend.",
+        "errorRemoving": "Error Removing"
+    },
+    "categorizeWearing": {
+        "currentlyWearing": "Currently Wearing",
+        "items": "Items",
+        "bodyParts": "Body Parts",
+        "animations": "Animations",
+        "emotes": "Emotes"
+    }
+}

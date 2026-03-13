@@ -12,12 +12,9 @@ export const getCsrfToken = (() => {
                 csrfToken = metaTag.dataset.token;
                 return csrfToken;
             }
-            
-            
-           
         } catch (error) {
-            console.error("RoValra (Utils): Failed to get CSRF token.", error);
-            pendingPromise = null; 
+            console.error('RoValra (Utils): Failed to get CSRF token.', error);
+            pendingPromise = null;
             return null;
         }
     };
@@ -30,7 +27,7 @@ export const getCsrfToken = (() => {
 
     getToken.setToken = (newToken) => {
         csrfToken = newToken;
-        pendingPromise = null; 
+        pendingPromise = null;
     };
 
     return getToken;
@@ -48,7 +45,7 @@ export async function getUsernameFromPageData() {
         const response = await callRobloxApi({
             subdomain: 'users',
             endpoint: `/v1/users/${userId}`,
-            method: 'GET'
+            method: 'GET',
         });
         if (response.ok) {
             const data = await response.json();
@@ -68,7 +65,7 @@ export async function getDisplayNameFromPageData() {
         const response = await callRobloxApi({
             subdomain: 'users',
             endpoint: `/v1/users/${userId}`,
-            method: 'GET'
+            method: 'GET',
         });
         if (response.ok) {
             const data = await response.json();

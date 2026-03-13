@@ -4,6 +4,7 @@ import { getUserIdFromUrl } from '../../core/idExtractor.js';
 import { addTooltip } from '../../core/ui/tooltip.js';
 import { showConfirmationPrompt } from '../../core/ui/confirmationPrompt.js';
 import { showSystemAlert } from '../../core/ui/roblox/alert.js';
+import { t } from '../../core/locale/i18n.js';
 
 const profileStatusCache = new Map();
 const TEST_ALWAYS_ERROR = false;
@@ -14,20 +15,20 @@ async function getProfileStatus(userId) {
     }
 
     const profileApiPayload = {
-        "includeComponentOrdering": true,
-        "profileId": userId,
-        "components": [
+        includeComponentOrdering: true,
+        profileId: userId,
+        components: [
             {
-                "component": "Actions",
-                "supportedActions": [
-                    "AddTrustedConnection",
-                    "AddIncomingTrustedConnection",
-                    "RemoveTrustedConnection",
-                    "PendingTrustedConnection"
-                ]
-            }
+                component: 'Actions',
+                supportedActions: [
+                    'AddTrustedConnection',
+                    'AddIncomingTrustedConnection',
+                    'RemoveTrustedConnection',
+                    'PendingTrustedConnection',
+                ],
+            },
         ],
-        "profileType": "User"
+        profileType: 'User',
     };
 
     const statusPromise = (async () => {
@@ -36,20 +37,25 @@ async function getProfileStatus(userId) {
                 subdomain: 'apis',
                 endpoint: '/profile-platform-api/v1/profiles/get',
                 method: 'POST',
-                body: profileApiPayload
+                body: profileApiPayload,
             });
 
-            const actions = profileResponse?.components?.Actions?.contextual || [];
+            const actions =
+                profileResponse?.components?.Actions?.contextual || [];
 
             if (actions.includes('PendingTrustedConnection')) return 'Pending';
-            if (actions.includes('AddIncomingTrustedConnection')) return 'Accept';
+            if (actions.includes('AddIncomingTrustedConnection'))
+                return 'Accept';
             if (actions.includes('RemoveTrustedConnection')) return 'Remove';
             if (actions.includes('AddTrustedConnection')) return 'Add';
 
             return null;
         } catch (err) {
-            console.error('RoValra: Failed to fetch trusted friend status.', err);
-            profileStatusCache.delete(userId); 
+            console.error(
+                'RoValra: Failed to fetch trusted friend status.',
+                err,
+            );
+            profileStatusCache.delete(userId);
             throw err;
         }
     })();
@@ -63,20 +69,22 @@ function createBaseButton(text, isPending = false) {
     button.type = 'button';
     button.role = 'menuitem';
     button.className = `relative clip group/interactable focus-visible:outline-focus foundation-web-menu-item flex items-center content-default text-truncate-split focus-visible:hover:outline-none stroke-none bg-none text-align-x-left width-full text-body-medium padding-x-medium padding-y-small gap-x-medium radius-medium rovalra-trusted-friend-btn ${isPending ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`;
-    
+
     if (isPending) {
         button.setAttribute('aria-disabled', 'true');
     }
 
     const presentationDiv = document.createElement('div');
     presentationDiv.setAttribute('role', 'presentation');
-    presentationDiv.className = 'absolute inset-[0] transition-colors group-hover/interactable:bg-[var(--color-state-hover)] group-active/interactable:bg-[var(--color-state-press)]';
+    presentationDiv.className =
+        'absolute inset-[0] transition-colors group-hover/interactable:bg-[var(--color-state-hover)] group-active/interactable:bg-[var(--color-state-press)]';
 
     const textDiv = document.createElement('div');
     textDiv.className = 'grow-1 text-truncate-split flex flex-col gap-y-xsmall';
-    
+
     const titleSpan = document.createElement('span');
-    titleSpan.className = 'foundation-web-menu-item-title text-no-wrap text-truncate-split content-emphasis';
+    titleSpan.className =
+        'foundation-web-menu-item-title text-no-wrap text-truncate-split content-emphasis';
     titleSpan.textContent = text;
 
     textDiv.appendChild(titleSpan);
@@ -85,25 +93,32 @@ function createBaseButton(text, isPending = false) {
     return { button, titleSpan };
 }
 
-function createPendingButton() {
-    const { button } = createBaseButton('Pending Trusted Connection', true);
+async function createPendingButton() {
+    const { button } = createBaseButton(
+        await t('trustedFriends.pendingConnection'),
+        true,
+    );
     button.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
     });
-    addTooltip(button, 'Trusted Connection Request Pending', { position: 'top' });
+    addTooltip(button, await t('trustedFriends.pendingRequest'), {
+        position: 'top',
+    });
     return button;
 }
 
-function createAddButton(userId) {
-    const { button, titleSpan } = createBaseButton('Add Trusted Connection');
-    button.addEventListener('click', () => {
+async function createAddButton(userId) {
+    const { button, titleSpan } = createBaseButton(
+        await t('trustedFriends.addConnection'),
+    );
+    button.addEventListener('click', async () => {
         showConfirmationPrompt({
-            title: 'Add Trusted Connection',
-            message: 'Are you sure you want to send a trusted connection request?',
-            confirmText: 'Send Request',
-            onConfirm: () => {
-                titleSpan.textContent = 'Sending...';
+            title: await t('trustedFriends.addConnection'),
+            message: await t('trustedFriends.addConfirmation'),
+            confirmText: await t('trustedFriends.sendRequest'),
+            onConfirm: async () => {
+                titleSpan.textContent = await t('trustedFriends.sending');
                 button.disabled = true;
 
                 const action = async () => {
@@ -112,37 +127,54 @@ function createAddButton(userId) {
                         subdomain: 'friends',
                         endpoint: `/v1/users/${userId}/send-trusted-friend-request`,
                         method: 'POST',
-                        body: []
+                        body: [],
                     });
                 };
 
-                action().then(async () => {
-                    showSystemAlert('Trusted connection request sent!', 'success');
-                    await refreshButtonState(button, userId);
-                }).catch(err => {
-                    console.error('RoValra: Failed to send trusted friend request.', err);
-                    showSystemAlert('Failed to send trusted connection request.', 'warning');
-                    titleSpan.textContent = 'Error Sending';
-                    setTimeout(() => {
-                        titleSpan.textContent = 'Add Trusted Connection';
-                        button.disabled = false;
-                    }, 2000);
-                });
-            }
+                action()
+                    .then(async () => {
+                        showSystemAlert(
+                            await t('trustedFriends.requestSent'),
+                            'success',
+                        );
+                        await refreshButtonState(button, userId);
+                    })
+                    .catch(async (err) => {
+                        console.error(
+                            'RoValra: Failed to send trusted friend request.',
+                            err,
+                        );
+                        showSystemAlert(
+                            await t('trustedFriends.requestFailed'),
+                            'warning',
+                        );
+                        titleSpan.textContent = await t(
+                            'trustedFriends.errorSending',
+                        );
+                        setTimeout(async () => {
+                            titleSpan.textContent = await t(
+                                'trustedFriends.addConnection',
+                            );
+                            button.disabled = false;
+                        }, 2000);
+                    });
+            },
         });
     });
     return button;
 }
 
-function createAcceptButton(userId) {
-    const { button, titleSpan } = createBaseButton('Accept Trusted Connection');
-    button.addEventListener('click', () => {
+async function createAcceptButton(userId) {
+    const { button, titleSpan } = createBaseButton(
+        await t('trustedFriends.acceptConnection'),
+    );
+    button.addEventListener('click', async () => {
         showConfirmationPrompt({
-            title: 'Accept Trusted Connection',
-            message: 'Are you sure you want to accept this trusted connection request?',
-            confirmText: 'Accept',
-            onConfirm: () => {
-                titleSpan.textContent = 'Accepting...';
+            title: await t('trustedFriends.acceptConnection'),
+            message: await t('trustedFriends.acceptConfirmation'),
+            confirmText: await t('trustedFriends.accept'),
+            onConfirm: async () => {
+                titleSpan.textContent = await t('trustedFriends.accepting');
                 button.disabled = true;
 
                 const action = async () => {
@@ -151,38 +183,55 @@ function createAcceptButton(userId) {
                         subdomain: 'friends',
                         endpoint: `/v1/users/${userId}/accept-trusted-friend-request`,
                         method: 'POST',
-                        body: []
+                        body: [],
                     });
                 };
 
-                action().then(async () => {
-                    showSystemAlert('Trusted connection request accepted!', 'success');
-                    await refreshButtonState(button, userId);
-                }).catch(err => {
-                    console.error('RoValra: Failed to accept trusted friend request.', err);
-                    showSystemAlert('Failed to accept trusted connection request.', 'warning');
-                    titleSpan.textContent = 'Error Accepting';
-                    setTimeout(() => {
-                        titleSpan.textContent = 'Accept Trusted Connection';
-                        button.disabled = false;
-                    }, 2000);
-                });
-            }
+                action()
+                    .then(async () => {
+                        showSystemAlert(
+                            await t('trustedFriends.requestAccepted'),
+                            'success',
+                        );
+                        await refreshButtonState(button, userId);
+                    })
+                    .catch(async (err) => {
+                        console.error(
+                            'RoValra: Failed to accept trusted friend request.',
+                            err,
+                        );
+                        showSystemAlert(
+                            await t('trustedFriends.acceptFailed'),
+                            'warning',
+                        );
+                        titleSpan.textContent = await t(
+                            'trustedFriends.errorAccepting',
+                        );
+                        setTimeout(async () => {
+                            titleSpan.textContent = await t(
+                                'trustedFriends.acceptConnection',
+                            );
+                            button.disabled = false;
+                        }, 2000);
+                    });
+            },
         });
     });
     return button;
 }
 
-function createRemoveButton(userId) {
-    const { button, titleSpan } = createBaseButton('Remove Trusted Connection');
-    button.addEventListener('click', () => {
+async function createRemoveButton(userId) {
+    const { button, titleSpan } = createBaseButton(
+        await t('trustedFriends.removeConnection'),
+    );
+    button.addEventListener('click', async () => {
         showConfirmationPrompt({
-            title: 'Remove Trusted Connection',
-            message: 'Are you sure you want to remove this trusted connection?',
-            confirmText: 'Remove',
+            title: await t('trustedFriends.removeConnection'),
+            message: await t('trustedFriends.removeConfirmation'),
+            confirmText: await t('trustedFriends.remove'),
             confirmType: 'primary-destructive',
-            onConfirm: () => {
-                titleSpan.textContent = 'Removing...';
+            onConfirm: async () => {
+                titleSpan.textContent = await t('trustedFriends.removing');
                 button.disabled = true;
 
                 const action = async () => {
@@ -191,42 +240,62 @@ function createRemoveButton(userId) {
                         subdomain: 'friends',
                         endpoint: `/v1/users/${userId}/remove-trusted-friend`,
                         method: 'POST',
-                        body: []
+                        body: [],
                     });
                 };
 
-                action().then(async () => {
-                    showSystemAlert('Trusted connection removed!', 'success');
-                    await refreshButtonState(button, userId);
-                }).catch(err => {
-                    console.error('RoValra: Failed to remove trusted friend.', err);
-                    showSystemAlert('Failed to remove trusted connection.', 'warning');
-                    titleSpan.textContent = 'Error Removing';
-                    setTimeout(() => {
-                        titleSpan.textContent = 'Remove Trusted Connection';
-                        button.disabled = false;
-                    }, 2000);
-                });
-            }
+                action()
+                    .then(async () => {
+                        showSystemAlert(
+                            await t('trustedFriends.connectionRemoved'),
+                            'success',
+                        );
+                        await refreshButtonState(button, userId);
+                    })
+                    .catch(async (err) => {
+                        console.error(
+                            'RoValra: Failed to remove trusted friend.',
+                            err,
+                        );
+                        showSystemAlert(
+                            await t('trustedFriends.removeFailed'),
+                            'warning',
+                        );
+                        titleSpan.textContent = await t(
+                            'trustedFriends.errorRemoving',
+                        );
+                        setTimeout(async () => {
+                            titleSpan.textContent = await t(
+                                'trustedFriends.removeConnection',
+                            );
+                            button.disabled = false;
+                        }, 2000);
+                    });
+            },
         });
     });
     return button;
 }
 
-function createButtonForStatus(status, userId) {
+async function createButtonForStatus(status, userId) {
     switch (status) {
-        case 'Pending': return createPendingButton();
-        case 'Add': return createAddButton(userId);
-        case 'Accept': return createAcceptButton(userId);
-        case 'Remove': return createRemoveButton(userId);
-        default: return null;
+        case 'Pending':
+            return await createPendingButton();
+        case 'Add':
+            return await createAddButton(userId);
+        case 'Accept':
+            return await createAcceptButton(userId);
+        case 'Remove':
+            return await createRemoveButton(userId);
+        default:
+            return null;
     }
 }
 
 async function refreshButtonState(currentButton, userId) {
     profileStatusCache.delete(userId);
     const newStatus = await getProfileStatus(userId);
-    const newButton = createButtonForStatus(newStatus, userId);
+    const newButton = await createButtonForStatus(newStatus, userId);
     if (newButton) {
         currentButton.replaceWith(newButton);
     } else {
@@ -239,7 +308,7 @@ async function addTrustedFriendButton(menu) {
         return;
     }
     menu.dataset.rovalraTrustedFriendBtnAdded = 'true';
-    
+
     const userId = getUserIdFromUrl();
     if (!userId) {
         return;
@@ -248,7 +317,7 @@ async function addTrustedFriendButton(menu) {
     try {
         const status = await getProfileStatus(userId);
 
-        const buttonToAdd = createButtonForStatus(status, userId);
+        const buttonToAdd = await createButtonForStatus(status, userId);
 
         if (buttonToAdd) {
             const menuItems = menu.querySelectorAll('button[role="menuitem"]');
@@ -258,30 +327,39 @@ async function addTrustedFriendButton(menu) {
                 menu.appendChild(buttonToAdd);
             }
         }
-    } catch (err) {
-    }
+    } catch (err) {}
 }
 
 export function init() {
-    chrome.storage.local.get({ trustedConnectionsEnabled: true }, (settings) => {
-        if (!settings.trustedConnectionsEnabled) return;
+    chrome.storage.local.get(
+        { trustedConnectionsEnabled: true },
+        async (settings) => {
+            if (!settings.trustedConnectionsEnabled) return;
 
-        observeElement('#user-profile-header-contextual-menu-button', (button) => {
-            const userId = getUserIdFromUrl();
-            if (userId) {
-                getProfileStatus(userId); 
-            }
+            observeElement(
+                '#user-profile-header-contextual-menu-button',
+                (button) => {
+                    const userId = getUserIdFromUrl();
+                    if (userId) {
+                        getProfileStatus(userId);
+                    }
 
-            if (button.dataset.rovalraTrustedListener) {
-                return;
-            }
-            button.dataset.rovalraTrustedListener = 'true';
+                    if (button.dataset.rovalraTrustedListener) {
+                        return;
+                    }
+                    button.dataset.rovalraTrustedListener = 'true';
 
-            button.addEventListener('click', () => {
-                observeElement('div[data-radix-popper-content-wrapper] div[role="menu"]', (menu) => {
-                    addTrustedFriendButton(menu);
-                }, { once: true });
-            });
-        });
-    });
+                    button.addEventListener('click', () => {
+                        observeElement(
+                            'div[data-radix-popper-content-wrapper] div[role="menu"]',
+                            (menu) => {
+                                addTrustedFriendButton(menu);
+                            },
+                            { once: true },
+                        );
+                    });
+                },
+            );
+        },
+    );
 }
