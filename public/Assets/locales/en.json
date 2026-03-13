@@ -54,5 +54,20 @@
         },
         "noMatches": "No experiences match filters.",
         "loading": "Loading..."
+    },
+    "userOutfits": {
+        "loading": "Loading outfits...",
+        "back": "Back",
+        "totalPrice": "Total Price:",
+        "loadingItems": "Loading items...",
+        "noItems": "This outfit has no items.",
+        "errorLoadingItems": "Could not load items.",
+        "buttonText": "Show Outfits",
+        "overlayTitle": "User Outfits",
+        "overlayTitleUser": "{{displayName}}'s Outfits",
+        "noOutfits": "This user has no outfits.",
+        "inventoryPrivate": "User's inventory is private.",
+        "errorNoUserId": "Could not determine the User ID from the page.",
+        "errorFetch": "Could not fetch outfits."
     }
 }
