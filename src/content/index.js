@@ -11,7 +11,7 @@ import { init as initServerListener } from './features/games/serverlistener.js';
 import { init as initBetaPrograms } from './features/navigation/betaprograms.js';
 import { init as initVideoTest } from './features/developer/videotest.js';
 import { init as initStreamerMode } from './features/sitewide/streamermode.js';
-import { init as initMarkDownTest } from './features/developer/markdowntest.js'
+import { init as initMarkDownTest } from './features/developer/markdowntest.js';
 import { init as initTests } from './features/developer/tests.js';
 import { init as initApiDocs } from './features/developer/apiDocs.js';
 import { init as initServerTracker } from './core/utils/trackers/servers.js';
@@ -20,6 +20,7 @@ import { init as initQoLToggles } from './features/navigation/QoLToggles.js';
 import { init as initCopyId } from './features/sitewide/copyid.js';
 import { init as initQuickSearch } from './features/navigation/search/quicksearch.js';
 import { init as initRenderTest } from './features/developer/rendertest.js';
+import { init as initGroupFunds } from './features/navigation/groupfunds.js';
 
 // Avatar
 import { init as initAvatarFilters } from './features/avatar/filters.js';
@@ -87,166 +88,217 @@ let pageLoaded = false;
 let lastPath = window.location.pathname;
 
 const featureRoutes = [
-  // Generic features that run on most pages
-  {
-    paths: ['*'],
-    features: [initSettingsPage, initQuickPlay, initEasterEggLinks, initCssFixes, initWhatAmIJoining, initHiddenCatalog, initServerListener, initOnboarding, initVideoTest, initStreamerMode, initMarkDownTest, initTests, initServerTracker, initFriendsListTracking, initQoLToggles, initCopyId, initBetaPrograms, initPreviousPrice, initQuickSearch, initRenderTest],
-  },
-  // pretty much just the 40% method
-  {
-    paths: ['/catalog', '/bundles', '/game-pass', '/games'],
-    features: [init40Method],
-  },
-  // Catalog and bundle pages
-  {
-    paths: ['/catalog', '/bundles'],
-    features: [initDependencies, initItemSales, initPriceFloor, initCatalogBannerTest, initParentItem],
-  },
-  // Group pages
-  {
-    paths: ['/communities/'],
-    features: [initHiddenGroupGames, initAntiBots, initPendingRobux, initDraggableGroups],
-  },
-  // Game pages
-  {
-    paths: ['/games/'],
-    features: [
-      initGameBanner,
-      initServerIdExtraction,
-      initBotDetector,
-      initServerList,
-      initRegionPlayButton,
-      initSubplaces,
-      bannertest,
-      initGameTrailers,
-      quickOutfits,
-      initRecentServers,
-      initPrivateServerControls,
-      initDevProductLoader,
-      initHeatmap
-    ],
-  },
-  // avatar
-  {
-    paths: ['/my/avatar'],
-    features: [initAvatarFilters, initR6Warning, initAvatarRotator, initMultiEquip],
-  },
-  // User profile pages
-  {
-    paths: ['/users/'],
-    features: [
-      initDonationLink,
-      initRap,
-      initInstantJoiner,
-      initOutfits,
-      initPrivateServers,
-      initRovalraBadges,
-      initUserGames,
-      initCategorizeWearing,
-      initTrustedFriends,
-      initProfileRender,
-      initStatus,
-    ],
-  },
+    // Generic features that run on most pages
+    {
+        paths: ['*'],
+        features: [
+            initSettingsPage,
+            initQuickPlay,
+            initEasterEggLinks,
+            initCssFixes,
+            initWhatAmIJoining,
+            initHiddenCatalog,
+            initServerListener,
+            initOnboarding,
+            initVideoTest,
+            initStreamerMode,
+            initMarkDownTest,
+            initTests,
+            initServerTracker,
+            initFriendsListTracking,
+            initQoLToggles,
+            initCopyId,
+            initBetaPrograms,
+            initPreviousPrice,
+            initQuickSearch,
+            initRenderTest,
+            initGroupFunds,
+        ],
+    },
+    // pretty much just the 40% method
+    {
+        paths: ['/catalog', '/bundles', '/game-pass', '/games'],
+        features: [init40Method],
+    },
+    // Catalog and bundle pages
+    {
+        paths: ['/catalog', '/bundles'],
+        features: [
+            initDependencies,
+            initItemSales,
+            initPriceFloor,
+            initCatalogBannerTest,
+            initParentItem,
+        ],
+    },
+    // Group pages
+    {
+        paths: ['/communities/'],
+        features: [
+            initHiddenGroupGames,
+            initAntiBots,
+            initPendingRobux,
+            initDraggableGroups,
+        ],
+    },
+    // Game pages
+    {
+        paths: ['/games/'],
+        features: [
+            initGameBanner,
+            initServerIdExtraction,
+            initBotDetector,
+            initServerList,
+            initRegionPlayButton,
+            initSubplaces,
+            bannertest,
+            initGameTrailers,
+            quickOutfits,
+            initRecentServers,
+            initPrivateServerControls,
+            initDevProductLoader,
+            initHeatmap,
+        ],
+    },
+    // avatar
+    {
+        paths: ['/my/avatar'],
+        features: [
+            initAvatarFilters,
+            initR6Warning,
+            initAvatarRotator,
+            initMultiEquip,
+        ],
+    },
+    // User profile pages
+    {
+        paths: ['/users/'],
+        features: [
+            initDonationLink,
+            initRap,
+            initInstantJoiner,
+            initOutfits,
+            initPrivateServers,
+            initRovalraBadges,
+            initUserGames,
+            initCategorizeWearing,
+            initTrustedFriends,
+            initProfileRender,
+            initStatus,
+        ],
+    },
 
-  // Transactions page
-  { paths: ['/transactions'], features: [initTotalSpent, initPendingRobuxTrans, initTotalEarned] },
+    // Transactions page
+    {
+        paths: ['/transactions'],
+        features: [initTotalSpent, initPendingRobuxTrans, initTotalEarned],
+    },
 
-  // API Docs
-  {
-    paths: ['/docs'],
-    features: [initApiDocs],
-  },
-  // create
-  {
-    paths: ['/store/asset'],
-    features: [initCreateDownload]
-  },
-  {
-    paths: ['/my/account'],
-    features: [initFirstAccount]
-  }
+    // API Docs
+    {
+        paths: ['/docs'],
+        features: [initApiDocs],
+    },
+    // create
+    {
+        paths: ['/store/asset'],
+        features: [initCreateDownload],
+    },
+    {
+        paths: ['/my/account'],
+        features: [initFirstAccount],
+    },
 ];
 
-
 function runFeaturesForPage() {
-  const path = window.location.pathname;
-  const normalizedPath = path.replace(/^\/[a-z]{2}(?:-[a-z]{2})?\//, '/');
+    const path = window.location.pathname;
+    const normalizedPath = path.replace(/^\/[a-z]{2}(?:-[a-z]{2})?\//, '/');
 
-  featureRoutes.forEach((route) => {
-    if (route.paths.some((p) => p === '*' || path.startsWith(p) || normalizedPath.startsWith(p))) {
-      if (route.features && Array.isArray(route.features)) {
-        route.features.forEach((init) => {
-          try {
-            init();
-          } catch (error) {
-            console.error('RoValra: Feature init failed', error);
-          }
-        });
-      }
-    }
-  });
+    featureRoutes.forEach((route) => {
+        if (
+            route.paths.some(
+                (p) =>
+                    p === '*' ||
+                    path.startsWith(p) ||
+                    normalizedPath.startsWith(p),
+            )
+        ) {
+            if (route.features && Array.isArray(route.features)) {
+                route.features.forEach((init) => {
+                    try {
+                        init();
+                    } catch (error) {
+                        console.error('RoValra: Feature init failed', error);
+                    }
+                });
+            }
+        }
+    });
 }
-
 
 async function initializePage() {
-  if (window.top !== window.self || pageLoaded) return;
-  pageLoaded = true;
+    if (window.top !== window.self || pageLoaded) return;
+    pageLoaded = true;
 
-  initializeObserver();
-  const observerStatus = startObserving();
+    initializeObserver();
+    const observerStatus = startObserving();
 
-  const onDomReady = async () => {
-    detectTheme().then((theme) => dispatchThemeEvent(theme));
+    const onDomReady = async () => {
+        detectTheme().then((theme) => dispatchThemeEvent(theme));
 
-    runFeaturesForPage();
-  };
+        runFeaturesForPage();
+    };
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', onDomReady);
-  } else {
-    onDomReady();
-  }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', onDomReady);
+    } else {
+        onDomReady();
+    }
 
-  log(logLevel.INFO, `%cRoValra Initialized`, 'font-size: 1.5em; color: #FF4500;', `(Observer: ${observerStatus})`);
+  log(logLevel.INFO,
+      `%cRoValra Initialized`,
+      'font-size: 1.5em; color: #FF4500;',
+      `(Observer: ${observerStatus})`
+     );
 }
-
 
 function handleUrlChange() {
-  const currentPath = window.location.pathname;
+    const currentPath = window.location.pathname;
 
   if (currentPath !== lastPath) {
-    log(logLevel.INFO, `%cRoValra: URL changed from ${lastPath} to ${currentPath}`, 'color: #FF4500;');
+    log(logLevel.INFO,
+        `%cRoValra: URL changed from ${lastPath} to ${currentPath}`,
+        'color: #FF4500;'
+       );
     lastPath = currentPath;
 
-    runFeaturesForPage();
+        runFeaturesForPage();
 
-    detectTheme().then(theme => dispatchThemeEvent(theme));
-  }
+        detectTheme().then((theme) => dispatchThemeEvent(theme));
+    }
 }
 
-
 function setupUrlChangeListeners() {
-  const originalPushState = history.pushState;
-  const originalReplaceState = history.replaceState;
+    const originalPushState = history.pushState;
+    const originalReplaceState = history.replaceState;
 
-  history.pushState = function (...args) {
-    originalPushState.apply(this, args);
-    handleUrlChange();
-  };
+    history.pushState = function (...args) {
+        originalPushState.apply(this, args);
+        handleUrlChange();
+    };
 
-  history.replaceState = function (...args) {
-    originalReplaceState.apply(this, args);
-    handleUrlChange();
-  };
+    history.replaceState = function (...args) {
+        originalReplaceState.apply(this, args);
+        handleUrlChange();
+    };
 
-  window.addEventListener('popstate', handleUrlChange);
+    window.addEventListener('popstate', handleUrlChange);
 
-  let urlCheckInterval = setInterval(() => {
-    if (window.location.pathname !== lastPath) {
-      handleUrlChange();
-    }
-  }, 500);
+    let urlCheckInterval = setInterval(() => {
+        if (window.location.pathname !== lastPath) {
+            handleUrlChange();
+        }
+    }, 500);
 }
 
 initializePage();
