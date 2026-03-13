@@ -763,6 +763,24 @@ export const SETTINGS_CONFIG = {
                 default: true,
                 storageKey: 'rovalra_search_history',
             },
+            GroupFundsEnabled: {
+                label: 'Show Community Funds',
+                description:
+                    'Shows the funds of a specific community when pressing your Robux amount in the navigation bar.',
+                type: 'checkbox',
+                default: false,
+                storageKey: 'rovalra-group-funds-data',
+                childSettings: {
+                    GroupFundsId: {
+                        label: 'Community ID',
+                        description:
+                            'The ID of the community to show funds for.',
+                        type: 'input',
+                        default: '',
+                        placeholder: 'Enter Group ID...',
+                    },
+                },
+            },
         },
     },
     Miscellaneous: {
