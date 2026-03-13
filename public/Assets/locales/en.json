@@ -30,5 +30,29 @@
         "bodyParts": "Body Parts",
         "animations": "Animations",
         "emotes": "Emotes"
+    },
+    "hiddenGamesProfile": {
+        "noPublicGames": "User has no public experiences",
+        "overlayText": "Hidden Experiences (Might show not hidden experiences)",
+        "noHiddenGames": "This user has no hidden experiences.",
+        "buttonText": "Hidden Experiences",
+        "labels": {
+            "sort": "Sort",
+            "order": "Order"
+        },
+        "sort": {
+            "default": "Default",
+            "likeRatio": "Like Ratio",
+            "likes": "Likes",
+            "dislikes": "Dislikes",
+            "players": "Players",
+            "name": "Name (Z-A)"
+        },
+        "order": {
+            "descending": "Descending",
+            "ascending": "Ascending"
+        },
+        "noMatches": "No experiences match filters.",
+        "loading": "Loading..."
     }
 }
