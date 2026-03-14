@@ -1,0 +1,73 @@
+{
+    "trustedFriends": {
+        "pendingConnection": "Prieten de încredere în așteptare",
+        "pendingRequest": "Cerere de prieten de încredere în așteptare",
+        "addConnection": "Adaugă prieten de încredere",
+        "addConfirmation": "Ești sigur că vrei să trimiți o cerere de prieten de încredere?",
+        "sendRequest": "Trimite Cerere",
+        "sending": "Se trimite...",
+        "requestSent": "Cerere de prieten de încredere trimisă!",
+        "requestFailed": "Trimiterea de cerere de prieten de încredere a eșuat.",
+        "errorSending": "Eroare în trimitere",
+        "acceptConnection": "Prieten de încredere acceptat",
+        "acceptConfirmation": "Ești sigur că dorești să accepți această cerere de prieten de încredere?",
+        "accept": "Acceptă",
+        "accepting": "Acceptând...",
+        "requestAccepted": "Cerere de prieten de încredere acceptată!",
+        "acceptFailed": "Acceptarea cererei de prieten de încredere a eșuat.",
+        "errorAccepting": "Eroare acceptare",
+        "removeConnection": "Scoate prieten de încredere",
+        "removeConfirmation": "Ești sigur că dorești să scoți acest prieten de încredere?",
+        "remove": "Șterge",
+        "removing": "Ștergând...",
+        "connectionRemoved": "Prieten de încredere scos!",
+        "removeFailed": "Scoaterea prietenului de încredere a eșuat.",
+        "errorRemoving": "Eroare ștergere..."
+    },
+    "categorizeWearing": {
+        "currentlyWearing": "Purtând",
+        "items": "Itemi",
+        "bodyParts": "Părți ale corpului",
+        "animations": "Animații",
+        "emotes": "Emoturi"
+    },
+    "hiddenGamesProfile": {
+        "noPublicGames": "Utilizatorul nu are experiențe publice",
+        "overlayText": "Experiențe ascunse (Poate arăta experiențe neascunse)",
+        "noHiddenGames": "Acest utilizator nu are experiențe ascunse.",
+        "buttonText": "Experiențe Ascunse",
+        "labels": {
+            "sort": "Sortare",
+            "order": "Ordine"
+        },
+        "sort": {
+            "default": "Default",
+            "likeRatio": "Raport Like-uri",
+            "likes": "Like-uri",
+            "dislikes": "Dislike-uri",
+            "players": "Jucători",
+            "name": "Nume (Z-A)"
+        },
+        "order": {
+            "descending": "Descendent",
+            "ascending": "Ascendent"
+        },
+        "noMatches": "Nici-o experiență nu întâlnește criteriile selectate.",
+        "loading": "Se încarcă..."
+    },
+    "userOutfits": {
+        "loading": "Se încarcă vestimentația...",
+        "back": "Înapoi",
+        "totalPrice": "Preț Total:",
+        "loadingItems": "Încărcare itemi...",
+        "noItems": "Această vestimentație nu are itemi.",
+        "errorLoadingItems": "Nu s-au putut încărca itemi.",
+        "buttonText": "Afișează Vestimentații",
+        "overlayTitle": "Vestimentațiile Utilizatorului",
+        "overlayTitleUser": "Vestimentațiile lui {{displayName}}",
+        "noOutfits": "Acest utilizator nu are vestimentații.",
+        "inventoryPrivate": "Inventoriul acestui utilizator este privat.",
+        "errorNoUserId": "Nu s-a putut identifica ID-ul utilizatorului.",
+        "errorFetch": "Nu s-au putut descărca ținutele utilizatorului.."
+    }
+}
