@@ -17,7 +17,10 @@ export const TESTER_USER_IDS = [
     '1163412141', //Tino
 ];
 
-export const TRANSLATOR_USER_IDS = [];
+export const TRANSLATOR_USER_IDS = [
+    '1564574922', //cornusandu
+    '10646979010', //rav4toy
+];
 
 export const TRUSTED_USER_IDS = ['1996279003'];
 export const ARTIST_BADGE_USER_ID = '1337447242';
