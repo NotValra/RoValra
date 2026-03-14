@@ -1,0 +1,73 @@
+{
+    "trustedFriends": {
+        "pendingConnection": "Pending Trusted Friend",
+        "pendingRequest": "Trusted Friend Request Pending",
+        "addConnection": "Add Trusted Friend",
+        "addConfirmation": "Are you sure you want to send a trusted Friend request?",
+        "sendRequest": "Send Request",
+        "sending": "Sending...",
+        "requestSent": "Trusted Friend request sent!",
+        "requestFailed": "Failed to send trusted Friend request.",
+        "errorSending": "Error Sending",
+        "acceptConnection": "Accept Trusted Friend",
+        "acceptConfirmation": "Are you sure you want to accept this trusted Friend request?",
+        "accept": "Accept",
+        "accepting": "Accepting...",
+        "requestAccepted": "Trusted Friend request accepted!",
+        "acceptFailed": "Failed to accept trusted Friend request.",
+        "errorAccepting": "Error Accepting",
+        "removeConnection": "Remove Trusted Friend",
+        "removeConfirmation": "Are you sure you want to remove this trusted Friend?",
+        "remove": "Remove",
+        "removing": "Removing...",
+        "connectionRemoved": "Trusted Friend removed!",
+        "removeFailed": "Failed to remove trusted Friend.",
+        "errorRemoving": "Error Removing"
+    },
+    "categorizeWearing": {
+        "currentlyWearing": "Currently Wearing",
+        "items": "Items",
+        "bodyParts": "Body Parts",
+        "animations": "Animations",
+        "emotes": "Emotes"
+    },
+    "hiddenGamesProfile": {
+        "noPublicGames": "User has no public experiences",
+        "overlayText": "Hidden Experiences (Might show not hidden experiences)",
+        "noHiddenGames": "This user has no hidden experiences.",
+        "buttonText": "Hidden Experiences",
+        "labels": {
+            "sort": "Sort",
+            "order": "Order"
+        },
+        "sort": {
+            "default": "Default",
+            "likeRatio": "Like Ratio",
+            "likes": "Likes",
+            "dislikes": "Dislikes",
+            "players": "Players",
+            "name": "Name (Z-A)"
+        },
+        "order": {
+            "descending": "Descending",
+            "ascending": "Ascending"
+        },
+        "noMatches": "No experiences match filters.",
+        "loading": "Loading..."
+    },
+    "userOutfits": {
+        "loading": "Loading outfits...",
+        "back": "Back",
+        "totalPrice": "Total Price:",
+        "loadingItems": "Loading items...",
+        "noItems": "This outfit has no items.",
+        "errorLoadingItems": "Could not load items.",
+        "buttonText": "Show Outfits",
+        "overlayTitle": "User Outfits",
+        "overlayTitleUser": "{{displayName}}'s Outfits",
+        "noOutfits": "This user has no outfits.",
+        "inventoryPrivate": "User's inventory is private.",
+        "errorNoUserId": "Could not determine the User ID from the page.",
+        "errorFetch": "Could not fetch outfits."
+    }
+}

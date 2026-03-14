@@ -14,6 +14,7 @@ import { safeHtml } from '../../core/packages/dompurify';
 import { createOverlay } from '../../core/ui/overlay.js';
 import { createItemCard } from '../../core/ui/items/items.js';
 import { log, logLevel } from '../../core/logging.js';
+import { t } from '../../core/locale/i18n.js';
 
 export function init() {
     chrome.storage.local.get('useroutfitsEnabled', function (data) {
@@ -22,7 +23,6 @@ export function init() {
         }
 
         ('use strict');
-
 
         async function fetchAllOutfits(userId, onChunkFetched, loadingControl) {
             let paginationToken = null;
@@ -85,7 +85,7 @@ export function init() {
             return await fetchThumbnailsBatch(items, 'UserOutfit', '150x150');
         }
 
-        function createOutfitsOverlay(
+        async function createOutfitsOverlay(
             initialOutfits,
             initialThumbnails,
             loadingControl,
@@ -94,7 +94,6 @@ export function init() {
             let selectedOutfitId = null;
             let selectedListItem = null;
             const outfitDetailsCache = new Map();
-
 
             const panelsWrapper = document.createElement('div');
             Object.assign(panelsWrapper.style, {
@@ -143,12 +142,16 @@ export function init() {
                 display: 'flex',
                 justifyContent: 'flex-start',
             });
-            const backButton = createButton('Back', 'secondary', {
-                onClick: () => {
-                    detailsPanel.style.display = 'none';
-                    mainPanel.style.display = 'flex';
+            const backButton = createButton(
+                await t('userOutfits.back'),
+                'secondary',
+                {
+                    onClick: () => {
+                        detailsPanel.style.display = 'none';
+                        mainPanel.style.display = 'flex';
+                    },
                 },
-            });
+            );
             backButtonWrapper.appendChild(backButton);
             detailsPanel.appendChild(backButtonWrapper);
 
@@ -224,7 +227,7 @@ export function init() {
             detailsPanel.appendChild(itemsContainer);
             detailsPanel.appendChild(paginationContainer);
             const noOutfitsMessage = document.createElement('li');
-            noOutfitsMessage.textContent = 'Loading outfits...';
+            noOutfitsMessage.textContent = await t('userOutfits.loading');
             Object.assign(noOutfitsMessage.style, {
                 padding: '20px',
                 fontSize: '16px',
@@ -238,7 +241,9 @@ export function init() {
             };
 
             const { close } = createOverlay({
-                title: displayName ? `${displayName}'s Outfits` : 'User Outfits',
+                title: displayName
+                    ? await t('userOutfits.overlayTitleUser', { displayName })
+                    : await t('userOutfits.overlayTitle'),
                 bodyContent: panelsWrapper,
                 maxWidth: '1000px',
                 maxHeight: '85vh',
@@ -312,7 +317,9 @@ export function init() {
                     return Math.max(1, itemsPerRow * rowsPerPage);
                 };
 
-                itemsContainer.innerHTML = safeHtml(`<p style="color: var(--rovalra-secondary-text-color); font-style: italic; text-align: center;">Loading items...</p>`,);
+                itemsContainer.innerHTML = safeHtml(
+                    `<p style="color: var(--rovalra-secondary-text-color); font-style: italic; text-align: center;">${await t('userOutfits.loadingItems')}</p>`,
+                ); //Verified
                 itemsContainer.style.display = 'flex';
                 itemsContainer.style.flexWrap = 'wrap';
                 itemsContainer.style.justifyContent = 'center';
@@ -335,7 +342,8 @@ export function init() {
                     Object.assign(thumbContainer.style, {
                         width: '150px',
                         height: '150px',
-                        backgroundColor: 'var(--rovalra-button-background-color)',
+                        backgroundColor:
+                            'var(--rovalra-button-background-color)',
                         borderRadius: '8px',
                         overflow: 'hidden',
                     });
@@ -352,7 +360,8 @@ export function init() {
                     Object.assign(namePlaceholder.style, {
                         width: '90%',
                         height: '14px',
-                        backgroundColor: 'var(--rovalra-button-background-color)',
+                        backgroundColor:
+                            'var(--rovalra-button-background-color)',
                         marginTop: '8px',
                         borderRadius: '4px',
                     });
@@ -368,7 +377,7 @@ export function init() {
                     itemsContainer.appendChild(createItemPlaceholder());
                 }
 
-                const renderOutfitDetails = (outfitData) => {
+                const renderOutfitDetails = async (outfitData) => {
                     if (selectedOutfitId !== outfit.id) return;
 
                     const {
@@ -410,7 +419,7 @@ export function init() {
                         robuxIcon.className = 'icon-robux-16x16';
                         robuxIcon.style.margin = '0 4px 0 8px';
                         totalPriceDisplay.append(
-                            'Total Price:',
+                            await t('userOutfits.totalPrice'),
                             robuxIcon,
                             totalOutfitPrice.toLocaleString(),
                         );
@@ -434,8 +443,8 @@ export function init() {
 
                     if (!assets || assets.length === 0) {
                         itemsContainer.innerHTML = safeHtml(
-                            '<p style="font-style: italic; text-align: center;">This outfit has no items.</p>',
-                        );
+                            `<p style="font-style: italic; text-align: center;">${await t('userOutfits.noItems')}</p>`,
+                        ); //Verified
                         itemsContainer.style.display = 'block';
                         paginationContainer.style.visibility = 'hidden';
                         return;
@@ -493,7 +502,10 @@ export function init() {
                         }, 50);
                     };
 
-                    resizeObserver = observeResize(itemsContainer, handleResize);
+                    resizeObserver = observeResize(
+                        itemsContainer,
+                        handleResize,
+                    );
 
                     const renderItemsPage = (page) => {
                         itemsContainer.innerHTML = '';
@@ -516,10 +528,9 @@ export function init() {
                             let price = null;
                             let bundleId = null;
 
-                            if (
-                                assetDetails
-                            ) {
-                                itemRestrictions = assetDetails.itemRestrictions || [];
+                            if (assetDetails) {
+                                itemRestrictions =
+                                    assetDetails.itemRestrictions || [];
                                 if (assetDetails.isPurchasable) {
                                     price = assetDetails.priceInRobux;
                                     if (assetDetails.itemType === 'Bundle') {
@@ -542,10 +553,14 @@ export function init() {
                                 priceText: priceText,
                                 itemRestrictions: itemRestrictions,
                                 price: price,
-                                bundleId: bundleId
+                                bundleId: bundleId,
                             };
 
-                            const card = createItemCard(itemData, thumbnailMap, { showSerial: false });
+                            const card = createItemCard(
+                                itemData,
+                                thumbnailMap,
+                                { showSerial: false },
+                            );
                             itemsContainer.appendChild(card);
                         });
                     };
@@ -595,7 +610,9 @@ export function init() {
                 };
 
                 if (outfitDetailsCache.has(outfit.id)) {
-                    renderOutfitDetails(outfitDetailsCache.get(outfit.id));
+                    await renderOutfitDetails(
+                        outfitDetailsCache.get(outfit.id),
+                    );
                 } else {
                     try {
                         const largeThumbMap = await fetchThumbnailsBatch(
@@ -706,10 +723,10 @@ export function init() {
                         outfitDetailsCache.set(outfit.id, newOutfitData);
 
                         if (selectedOutfitId !== outfit.id) return;
-                        renderOutfitDetails(newOutfitData);
+                        await renderOutfitDetails(newOutfitData);
                     } catch (error) {
                         itemsContainer.innerHTML = DOMPurify.sanitize(
-                            `<p style="color: var(--rovalra-secondary-text-color); font-style: italic; text-align: center; margin-right: auto; margin-left: auto;">Could not load items.</p>`,
+                            `<p style="color: var(--rovalra-secondary-text-color); font-style: italic; text-align: center; margin-right: auto; margin-left: auto;">${await t('userOutfits.errorLoadingItems')}</p>`,
                         );
                     }
                 }
@@ -793,17 +810,17 @@ export function init() {
                         list.appendChild(listItem);
                     });
                 },
-                setNoOutfits: (message) => {
+                setNoOutfits: async (message) => {
                     if (!outfitsLoaded) {
                         noOutfitsMessage.textContent =
-                            message || 'This user has no outfits.';
+                            message || (await t('userOutfits.noOutfits'));
                         outfitsLoaded = true;
                     }
                 },
             };
         }
 
-        function addShowOutfitsButton(element) {
+        async function addShowOutfitsButton(element) {
             let container = null;
             let buttonStyle = null;
 
@@ -839,7 +856,7 @@ export function init() {
                     ? displayNameElement.textContent.trim()
                     : 'User';
                 const loadingControl = { cancelled: false };
-                const outfitsOverlay = createOutfitsOverlay(
+                const outfitsOverlay = await createOutfitsOverlay(
                     [],
                     new Map(),
                     loadingControl,
@@ -869,25 +886,25 @@ export function init() {
                         if (!outfitsFound && !loadingControl.cancelled) {
                             const canView = await checkCanViewInventory(userId);
                             if (loadingControl.cancelled) return;
-                            outfitsOverlay.setNoOutfits(
+                            await outfitsOverlay.setNoOutfits(
                                 canView
-                                    ? 'This user has no outfits.'
-                                    : "User's inventory is private.",
+                                    ? await t('userOutfits.noOutfits')
+                                    : await t('userOutfits.inventoryPrivate'),
                             );
                         }
                     } else {
-                        log(logLevel.CRITICAL, 'Could not determine the User ID from the page.');
+                        log(logLevel.CRITICAL, await t('userOutfits.errorNoUserId'));
                     }
                 } catch (error) {
                     if (!loadingControl.cancelled)
-                        log(logLevel.CRITICAL, 'Could not fetch outfits.');
+                        log(logLevel.CRITICAL, await t('userOutfits.errorFetch'));
                 }
             };
 
             let button;
             if (buttonStyle === 'square') {
                 button = createSquareButton({
-                    content: 'Show Outfits',
+                    content: await t('userOutfits.buttonText'),
                     onClick: clickHandler,
                     width: 'auto',
                     paddingX: 'padding-x-medium',
@@ -903,7 +920,7 @@ export function init() {
                 });
             } else if (buttonStyle === 'toggle') {
                 button = createSquareButton({
-                    content: 'Show Outfits',
+                    content: await t('userOutfits.buttonText'),
                     onClick: clickHandler,
                     width: 'auto',
                     height: 'height-1200',
@@ -917,9 +934,13 @@ export function init() {
                 container.style.display = 'flex';
                 container.style.gap = '10px';
             } else {
-                button = createButton('Show Outfits', 'secondary', {
-                    onClick: clickHandler,
-                });
+                button = createButton(
+                    await t('userOutfits.buttonText'),
+                    'secondary',
+                    {
+                        onClick: clickHandler,
+                    },
+                );
                 Object.assign(button.style, {
                     position: 'absolute',
                     bottom: '5px',
@@ -944,12 +965,8 @@ export function init() {
             { multiple: true },
         );
 
-        observeElement(
-            '.avatar-toggle-button',
-            addShowOutfitsButton,
-            {
-                multiple: true,
-            },
-        );
+        observeElement('.avatar-toggle-button', addShowOutfitsButton, {
+            multiple: true,
+        });
     });
 }
