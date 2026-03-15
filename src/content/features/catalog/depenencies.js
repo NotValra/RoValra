@@ -1,19 +1,20 @@
-
 import { checkAssetsInBatch } from '../../core/utils/assetStreamer.js';
 import { createDropdown } from '../../core/ui/dropdown.js';
 import { observeElement, startObserving } from '../../core/observer.js';
 import { callRobloxApi } from '../../core/api.js';
-import { fetchThumbnails, createThumbnailElement } from '../../core/thumbnail/thumbnails.js';
-import { getAssets } from '../../core/assets.js'; 
+import {
+    fetchThumbnails,
+    createThumbnailElement,
+} from '../../core/thumbnail/thumbnails.js';
+import { getAssets } from '../../core/assets.js';
 import DOMPurify from 'dompurify';
-
 
 const THUMBNAIL_SIZE = '150x150';
 
 function findDependencies(roots) {
     const dependencies = [];
     const idRegex = /(?:rbxassetid:\/\/|id=)(\d+)/i;
-    
+
     const ignoredProperties = ['ShirtTemplate', 'PantsTemplate', 'Graphic'];
 
     const extractId = (str) => {
@@ -25,7 +26,9 @@ function findDependencies(roots) {
     function traverse(instance) {
         if (!instance) return;
         if (instance.Properties) {
-            for (const [propName, propValue] of Object.entries(instance.Properties)) {
+            for (const [propName, propValue] of Object.entries(
+                instance.Properties,
+            )) {
                 if (ignoredProperties.includes(propName)) continue;
 
                 const id = extractId(propValue);
@@ -33,16 +36,23 @@ function findDependencies(roots) {
                     let typeName = propName.replace('Id', '');
                     if (typeName === 'Texture') typeName = 'Image';
                     if (typeName === 'Mesh') typeName = 'Mesh';
-                    
-                    dependencies.push({ assetId: id, type: typeName, source: instance.ClassName });
+
+                    dependencies.push({
+                        assetId: id,
+                        type: typeName,
+                        source: instance.ClassName,
+                    });
                 }
             }
         }
-        if (instance.Children) instance.Children.forEach(child => traverse(child));
+        if (instance.Children)
+            instance.Children.forEach((child) => traverse(child));
     }
 
-    roots.forEach(root => traverse(root));
-    return Array.from(new Map(dependencies.map(item => [item.assetId, item])).values());
+    roots.forEach((root) => traverse(root));
+    return Array.from(
+        new Map(dependencies.map((item) => [item.assetId, item])).values(),
+    );
 }
 
 async function fetchAssetDetails(assetIds) {
@@ -53,17 +63,19 @@ async function fetchAssetDetails(assetIds) {
             const response = await callRobloxApi({
                 subdomain: 'economy',
                 endpoint: `/v2/assets/${id}/details`,
-                method: 'GET'
+                method: 'GET',
             });
             if (!response.ok) return null;
             return await response.json();
-        } catch (e) { return null; }
+        } catch (e) {
+            return null;
+        }
     });
 
     const results = await Promise.all(promises);
-    
+
     const detailsMap = new Map();
-    results.forEach(data => {
+    results.forEach((data) => {
         if (data && data.AssetId) {
             detailsMap.set(data.AssetId.toString(), {
                 name: data.Name,
@@ -71,7 +83,7 @@ async function fetchAssetDetails(assetIds) {
                 creatorId: data.Creator?.CreatorTargetId || data.Creator?.Id,
                 creatorType: data.Creator?.CreatorType || 'User',
                 isVerified: data.Creator?.HasVerifiedBadge || false,
-                productType: data.AssetTypeId 
+                productType: data.AssetTypeId,
             });
         }
     });
@@ -81,14 +93,20 @@ async function fetchAssetDetails(assetIds) {
 async function mountDependencyScanner(favButton) {
     if (favButton.dataset.rovalraScanning === 'true') return;
 
-    if (favButton.nextSibling?.id === 'rovalra-dep-container' || document.getElementById('rovalra-dep-container')) return;
+    if (
+        favButton.nextSibling?.id === 'rovalra-dep-container' ||
+        document.getElementById('rovalra-dep-container')
+    )
+        return;
     const parent = favButton.parentNode;
     if (!parent) return;
 
     favButton.dataset.rovalraScanning = 'true';
 
-    const urlMatch = window.location.pathname.match(/\/(?:catalog|bundles|hidden-catalog)\/(\d+)/);
-    if (!urlMatch) return; 
+    const urlMatch = window.location.pathname.match(
+        /\/(?:catalog|bundles|hidden-catalog)\/(\d+)/,
+    );
+    if (!urlMatch) return;
     const mainAssetId = parseInt(urlMatch[1], 10);
 
     try {
@@ -96,15 +114,13 @@ async function mountDependencyScanner(favButton) {
         const assetData = results[0];
 
         if (!assetData?.isValid || !assetData?.root) {
-            return; 
+            return;
         }
 
         const deps = findDependencies(assetData.root);
         if (deps.length === 0) {
-            return; 
+            return;
         }
-
-
 
         if (document.getElementById('rovalra-dep-container')) return;
 
@@ -112,31 +128,36 @@ async function mountDependencyScanner(favButton) {
         uiContainer.id = 'rovalra-dep-container';
         parent.insertBefore(uiContainer, favButton.nextSibling);
 
-        const dropdown = createDropdown({ items: [], placeholder: 'Scan Dependencies', onValueChange: () => {} });
+        const dropdown = createDropdown({
+            items: [],
+            placeholder: 'Scan Dependencies',
+            onValueChange: () => {},
+        });
         dropdown.trigger.style.width = '100%';
         dropdown.trigger.style.justifyContent = 'space-between';
         dropdown.trigger.style.height = '32px';
         uiContainer.appendChild(dropdown.element);
 
-        dropdown.trigger.querySelector('span').textContent = `Loading Info (${deps.length})...`;
-        
-        const thumbnailItems = deps.map(d => ({ id: d.assetId }));
-        const rawIds = deps.map(d => d.assetId);
+        dropdown.trigger.querySelector('span').textContent =
+            `Loading Info (${deps.length})...`;
+
+        const thumbnailItems = deps.map((d) => ({ id: d.assetId }));
+        const rawIds = deps.map((d) => d.assetId);
 
         const [thumbMap, detailsMap] = await Promise.all([
             fetchThumbnails(thumbnailItems, 'Asset', THUMBNAIL_SIZE),
-            fetchAssetDetails(rawIds)
+            fetchAssetDetails(rawIds),
         ]);
 
         dropdown.trigger.querySelector('span').textContent = `Dependencies`;
 
         const panel = dropdown.panel;
-        
+
         const columns = Math.min(Math.max(deps.length, 1), 6);
-        const dynamicWidth = (columns * 138) + 24 + 30;
-        
+        const dynamicWidth = columns * 138 + 24 + 30;
+
         panel.style.width = `${dynamicWidth}px`;
-        panel.style.maxWidth = '90vw'; 
+        panel.style.maxWidth = '90vw';
         panel.style.maxHeight = '600px';
         panel.style.overflowY = 'auto';
 
@@ -145,29 +166,34 @@ async function mountDependencyScanner(favButton) {
         contentWrapper.className = 'rovalra-dep-panel-content';
         const grid = document.createElement('div');
         grid.className = 'rovalra-dep-grid';
-        
+
         const assets = getAssets();
 
-        deps.forEach(dep => {
-            const details = detailsMap.get(dep.assetId) || { name: `Asset ${dep.assetId}`, creatorName: 'Unknown', isVerified: false };
+        deps.forEach((dep) => {
+            const details = detailsMap.get(dep.assetId) || {
+                name: `Asset ${dep.assetId}`,
+                creatorName: 'Unknown',
+                isVerified: false,
+            };
             const assetLinkUrl = `https://create.roblox.com/store/asset/${dep.assetId}`;
             const thumbData = thumbMap.get(parseInt(dep.assetId));
 
-            const creatorUrl = details.creatorType === 'Group' 
-                ? `/groups/${details.creatorId}/about`
-                : `/users/${details.creatorId}/profile`;
+            const creatorUrl =
+                details.creatorType === 'Group'
+                    ? `/groups/${details.creatorId}/about`
+                    : `/users/${details.creatorId}/profile`;
 
             const container = document.createElement('div');
             container.className = 'item-card-container';
 
-            const mainLink = document.createElement('a'); 
+            const mainLink = document.createElement('a');
             mainLink.className = 'item-card-link';
             mainLink.href = assetLinkUrl;
-            mainLink.onclick = (e) => { 
+            mainLink.onclick = (e) => {
                 if (!e.target.closest('.creator-name')) {
-                    return true; 
+                    return true;
                 }
-                e.preventDefault(); 
+                e.preventDefault();
             };
 
             const linkInnerDiv = document.createElement('div');
@@ -180,10 +206,17 @@ async function mountDependencyScanner(favButton) {
             thumb2d.className = 'thumbnail-2d-container';
 
             const thumbEl = createThumbnailElement(
-                thumbData, 
-                details.name, 
-                '', 
-                { position: 'absolute', top: '0', left: '0', width: '100%', height: '100%', objectFit: 'contain' }
+                thumbData,
+                details.name,
+                '',
+                {
+                    position: 'absolute',
+                    top: '0',
+                    left: '0',
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'contain',
+                },
             );
 
             thumb2d.appendChild(thumbEl);
@@ -196,7 +229,7 @@ async function mountDependencyScanner(favButton) {
 
             const nameLink = document.createElement('div');
             nameLink.className = 'item-card-name-link';
-            
+
             const nameDiv = document.createElement('div');
             nameDiv.className = 'item-card-name';
             nameDiv.title = details.name;
@@ -210,23 +243,25 @@ async function mountDependencyScanner(favButton) {
 
             const creatorDiv = document.createElement('div');
             creatorDiv.className = 'text-overflow item-card-creator';
-            
+
             const creatorText = document.createElement('span');
             creatorText.className = 'item-card-creator-text';
-            
+
             let badgeHtml = '';
             if (details.isVerified) {
                 badgeHtml = `<img src="${assets.verifiedBadge}" title="Verified Badge" alt="Verified Badge" class="verified-badge-container">`;
             }
-            
-            creatorText.innerHTML = DOMPurify.sanitize(`By <a href="${creatorUrl}" class="creator-name text-link">${details.creatorName} ${badgeHtml}</a>`);
-            
+
+            creatorText.innerHTML = DOMPurify.sanitize(
+                `By <a href="${creatorUrl}" class="creator-name text-link">${details.creatorName} ${badgeHtml}</a>`,
+            );
+
             creatorDiv.appendChild(creatorText);
             secondary.appendChild(creatorDiv);
 
             const typeDiv = document.createElement('div');
             typeDiv.className = 'text-overflow item-card-type';
-            
+
             const typeText = document.createElement('span');
             typeText.className = 'item-card-type-text';
             typeText.textContent = dep.type;
@@ -236,14 +271,13 @@ async function mountDependencyScanner(favButton) {
 
             caption.appendChild(secondary);
             mainLink.appendChild(caption);
-            
+
             container.appendChild(mainLink);
             grid.appendChild(container);
         });
 
         contentWrapper.appendChild(grid);
         panel.appendChild(contentWrapper);
-
     } catch (error) {
         console.warn('[Rovalra Scanner] Silent failure:', error);
     }
@@ -253,7 +287,9 @@ export function init() {
     chrome.storage.local.get('EnableItemDependencies', (data) => {
         if (data.EnableItemDependencies === true) {
             startObserving();
-            observeElement('#favorites-button', (el) => mountDependencyScanner(el));
+            observeElement('#favorites-button', (el) =>
+                mountDependencyScanner(el),
+            );
         }
     });
 }

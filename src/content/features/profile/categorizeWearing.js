@@ -3,8 +3,8 @@ import { getAllCategories } from '../../core/utils/itemCategories.js';
 import { createItemCard } from '../../core/ui/items/items.js';
 import { createPillToggle } from '../../core/ui/general/pillToggle.js';
 import { createScrollButtons } from '../../core/ui/general/scrollButtons.js';
-import { ts } from '../../core/locale/i18n.js';
 import { safeHtml } from '../../core/packages/dompurify.js';
+import { ts } from '../../core/locale/i18n.js';
 let totalPrice = 0;
 const processedBundleIds = new Set();
 let totalPriceElement = null;
@@ -341,13 +341,13 @@ function addItemToCategoryView(itemEl, assetId) {
     const category = getCategoryName(info.assetType.id);
     let targetGrid;
     switch (category) {
-        case 'Emotes':
+        case 'emotes':
             targetGrid = emotesGrid;
             break;
-        case 'Animations':
+        case 'animations':
             targetGrid = animationsGrid;
             break;
-        case 'Body Parts':
+        case 'bodyParts':
             targetGrid = bodyPartsGrid;
             break;
         default:
