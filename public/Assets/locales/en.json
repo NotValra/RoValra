@@ -55,6 +55,29 @@
         "noMatches": "No experiences match filters.",
         "loading": "Loading..."
     },
+    "hiddenGroupGames": {
+        "overlayTitle": "Hidden Group Experiences ({count} Total)",
+        "noHiddenGames": "This group has no hidden experiences.",
+        "buttonText": "Hidden Experiences",
+        "labels": {
+            "sort": "Sort",
+            "order": "Order"
+        },
+        "sort": {
+            "recentlyUpdated": "Recently Updated",
+            "likeRatio": "Like Ratio",
+            "likes": "Likes",
+            "dislikes": "Dislikes",
+            "players": "Players",
+            "name": "Name (Z-A)"
+        },
+        "order": {
+            "descending": "Descending",
+            "ascending": "Ascending"
+        },
+        "noMatches": "No hidden experiences match the current filters.",
+        "loadingMore": "Loading more games..."
+    },
     "userOutfits": {
         "loading": "Loading outfits...",
         "back": "Back",
@@ -296,5 +319,50 @@
         "deleteSearchHistoryTitle": "Delete Search History",
         "deleteSearchHistoryMessage": "Are you sure you want to delete this search history entry?",
         "delete": "Delete"
+    },
+    "antiBots": {
+        "reviewMembers": "Review {{count}} selected members:",
+        "botWarning": "<strong>Warning:</strong> Ensure these are bots before taking action.",
+        "banMembers": "Ban Members",
+        "kickMembers": "Kick Members",
+        "cancel": "Cancel",
+        "actionRequired": "Action Required ({{count}})",
+        "noPermission": "You do not have permission to ban or kick members.",
+        "confirmBan": "You are about to <strong>ban {{count}} member(s)</strong>. They will be permanently blocked.",
+        "confirmKick": "You are about to <strong>kick {{count}} member(s)</strong>. They can rejoin anytime.",
+        "banReminder": "<br><br><div class=\"rovalra-ban-warning\" style=\"margin-top:0;\"><strong>Reminder:</strong> Verify bot scores before banning.</div>",
+        "yesAction": "Yes, {{action}}",
+        "confirmAction": "Confirm Action",
+        "processing": "Processing {{current}} of {{total}}: {{displayName}}... ETA: {{time}}s",
+        "rateLimited": "Rate limited. Retrying in {{delay}}s...",
+        "apiError": "API Error {{status}}",
+        "unknownError": "Unknown Error",
+        "processComplete": "{{successCount}} of {{totalMembers}} members were successfully {{actionType}}ed.",
+        "processFailed": "{{failedCount}} failed.",
+        "close": "Close",
+        "score": "Score: {{score}}/100",
+        "actionCount": "Action ({{count}})",
+        "unselectAll": "Unselect All",
+        "selectAll": "Select All",
+        "antiBots": "Anti Bots",
+        "banByScore": "Ban by Score",
+        "quickAction": "Quick Action",
+        "members": "Members",
+        "loadingMembers": "Loading Members...",
+        "selectMembersForAction": "Select Members for Action ({{count}} Loaded)",
+        "noMembersFound": "No members found.",
+        "initializingScan": "Initializing Scan...",
+        "scanStatus": "Scanned: {{loaded}} ({{percent}}%) | Analyzed: {{processed}}",
+        "finalizingAnalysis": "Finalizing analysis...",
+        "botsFound": "{{count}} Likely Bots Found",
+        "noBotsFound": "No Likely Bots Found",
+        "noBotsDetected": "No bots detected.",
+        "errorRetry": "Error - Retry",
+        "errorDuringScan": "Error during scan.",
+        "minBotScore": "Minimum Bot Score: <span id=\"rovalra-score-value\">50</span>",
+        "scoreImpact": "This will select approximately <span id=\"rovalra-score-ban-count\">0</span> members.",
+        "confirm": "Confirm",
+        "banKickByScore": "Ban/Kick by Score",
+        "confirmCount": "Confirm ({{count}})"
     }
 }

@@ -3,10 +3,12 @@ import { observeElement } from '../../core/observer.js';
 import { callRobloxApiJson } from '../../core/api.js';
 import { createRadioButton } from '../../core/ui/general/radio.js';
 import { createOverlay } from '../../core/ui/overlay.js';
-import { fetchThumbnails, createThumbnailElement } from '../../core/thumbnail/thumbnails.js';
+import {
+    fetchThumbnails,
+    createThumbnailElement,
+} from '../../core/thumbnail/thumbnails.js';
 import DOMPurify from 'dompurify';
-
-
+import { t, ts } from '../../core/locale/i18n.js';
 
 let userPermissions = { canBan: null, canKick: null, lastChecked: 0 };
 
@@ -17,7 +19,7 @@ let quickActionState = {
     groupId: null,
     abortController: null,
     scrollListener: null,
-    members: [] 
+    members: [],
 };
 
 let antiBotState = {
@@ -28,7 +30,7 @@ let antiBotState = {
     thumbnailCache: {},
     hashesCache: {},
     renderCursor: 0,
-    scrollListener: null
+    scrollListener: null,
 };
 
 let isInitialized = false;
@@ -36,7 +38,10 @@ let isInitialized = false;
 async function getFeatureSettings() {
     return new Promise((resolve) => {
         if (chrome && chrome.storage && chrome.storage.local) {
-            chrome.storage.local.get({ antibotsEnabled: true, QuickActionsEnabled: true }, resolve);
+            chrome.storage.local.get(
+                { antibotsEnabled: true, QuickActionsEnabled: true },
+                resolve,
+            );
         } else {
             resolve({ antibotsEnabled: true, QuickActionsEnabled: true });
         }
@@ -45,15 +50,26 @@ async function getFeatureSettings() {
 
 async function checkUserPermissions() {
     const now = Date.now();
-    if (userPermissions.lastChecked && (now - userPermissions.lastChecked < 300000)) return userPermissions;
+    if (
+        userPermissions.lastChecked &&
+        now - userPermissions.lastChecked < 300000
+    )
+        return userPermissions;
 
     const groupId = getGroupIdFromUrl();
     if (!groupId) return { canBan: false, canKick: false };
 
     try {
-        const data = await callRobloxApiJson({ subdomain: 'groups', endpoint: `/v1/groups/${groupId}/membership` });
+        const data = await callRobloxApiJson({
+            subdomain: 'groups',
+            endpoint: `/v1/groups/${groupId}/membership`,
+        });
         const permissions = data.permissions.groupMembershipPermissions;
-        userPermissions = { canBan: permissions.banMembers === true, canKick: permissions.removeMembers === true, lastChecked: now };
+        userPermissions = {
+            canBan: permissions.banMembers === true,
+            canKick: permissions.removeMembers === true,
+            lastChecked: now,
+        };
         return userPermissions;
     } catch (error) {
         return { canBan: false, canKick: false };
@@ -61,15 +77,27 @@ async function checkUserPermissions() {
 }
 
 async function getGroupDetails(groupId) {
-    return await callRobloxApiJson({ subdomain: 'groups', endpoint: `/v1/groups/${groupId}` });
+    return await callRobloxApiJson({
+        subdomain: 'groups',
+        endpoint: `/v1/groups/${groupId}`,
+    });
 }
 
 async function banUser(groupId, userId) {
-    return await callRobloxApiJson({ subdomain: 'groups', endpoint: `/v1/groups/${groupId}/bans/${userId}`, method: 'POST', body: {} });
+    return await callRobloxApiJson({
+        subdomain: 'groups',
+        endpoint: `/v1/groups/${groupId}/bans/${userId}`,
+        method: 'POST',
+        body: {},
+    });
 }
 
 async function kickUser(groupId, userId) {
-    return await callRobloxApiJson({ subdomain: 'groups', endpoint: `/v1/groups/${groupId}/users/${userId}`, method: 'DELETE' });
+    return await callRobloxApiJson({
+        subdomain: 'groups',
+        endpoint: `/v1/groups/${groupId}/users/${userId}`,
+        method: 'DELETE',
+    });
 }
 
 export function refreshMainPageSelectionCount() {
@@ -78,16 +106,16 @@ export function refreshMainPageSelectionCount() {
 
 async function showActionOverlay(selectedMembers, isFromBotScan = false) {
     if (!selectedMembers.length) return;
-    
+
     membersToAction = selectedMembers;
 
     const bodyContainer = document.createElement('div');
-    bodyContainer.innerHTML = DOMPurify.sanitize(`
-        <div class="rovalra-action-description">Review ${selectedMembers.length} selected members:</div>
+    bodyContainer.innerHTML = DOMPurify.sanitize(
+        `<div class="rovalra-action-description">${await t('antiBots.reviewMembers', { count: selectedMembers.length })}</div>
         <ul class="rovalra-action-summary-list">
-            ${selectedMembers.map(m => `<li>${m.user.displayName} (@${m.user.username})</li>`).join('')}
+            ${selectedMembers.map((m) => `<li>${m.user.displayName} (@${m.user.username})</li>`).join('')}
         </ul>
-        ${isFromBotScan ? `<div class="rovalra-action-bot-warning rovalra-ban-warning"><strong>Warning:</strong> Ensure these are bots before taking action.</div>` : ''}
+        ${isFromBotScan ? `<div class="rovalra-action-bot-warning rovalra-ban-warning">${await t('antiBots.botWarning')}</div>` : ''}
         <div class="rovalra-action-permission-warning rovalra-ban-warning" style="display:none"></div>
         <div class="rovalra-action-progress-container" style="display:none">
             <div class="rovalra-action-status-text"></div>
@@ -95,27 +123,34 @@ async function showActionOverlay(selectedMembers, isFromBotScan = false) {
                 <div class="rovalra-action-progress-bar"></div>
             </div>
         </div>
-    `);
-
-    const btnBan = createBtn('Ban Members', 'btn-alert-md');
-    const btnKick = createBtn('Kick Members', 'btn-control-md');
-    const btnCancel = createBtn('Cancel', 'btn-secondary-md');
+    `,
+    );
+    const btnBan = createBtn(await t('antiBots.banMembers'), 'btn-alert-md');
+    const btnKick = createBtn(
+        await t('antiBots.kickMembers'),
+        'btn-control-md',
+    );
+    const btnCancel = createBtn(await t('antiBots.cancel'), 'btn-secondary-md');
 
     const overlayInstance = createOverlay({
-        title: `Action Required (${selectedMembers.length})`,
+        title: await t('antiBots.actionRequired', {
+            count: selectedMembers.length,
+        }),
         bodyContent: bodyContainer,
         actions: [btnBan, btnKick, btnCancel],
         showLogo: true,
-        preventBackdropClose: true
+        preventBackdropClose: true,
     });
 
     const permissions = await checkUserPermissions();
-    const warningEl = bodyContainer.querySelector('.rovalra-action-permission-warning');
+    const warningEl = bodyContainer.querySelector(
+        '.rovalra-action-permission-warning',
+    );
     if (!permissions.canBan) btnBan.disabled = true;
     if (!permissions.canKick) btnKick.disabled = true;
 
     if (!permissions.canBan && !permissions.canKick) {
-        warningEl.textContent = "You do not have permission to ban or kick members.";
+        warningEl.textContent = await t('antiBots.noPermission');
         warningEl.style.display = 'block';
     }
 
@@ -127,34 +162,42 @@ async function showActionOverlay(selectedMembers, isFromBotScan = false) {
     };
 
     window.rovalra.ui.actionOverlay = overlayInstance;
-    
+
     btnCancel.classList.add('rovalra-action-cancel-btn');
     btnBan.classList.add('rovalra-action-ban-btn');
     btnKick.classList.add('rovalra-action-kick-btn');
 }
 
-function showDoubleConfirmOverlay(actionType, isFromBotScan) {
+async function showDoubleConfirmOverlay(actionType, isFromBotScan) {
     const memberCount = membersToAction.length;
     const bodyContent = document.createElement('div');
-    
-    let message = actionType === 'ban' 
-        ? `You are about to <strong>ban ${memberCount} member(s)</strong>. They will be permanently blocked.` 
-        : `You are about to <strong>kick ${memberCount} member(s)</strong>. They can rejoin anytime.`;
-        
+
+    let message =
+        actionType === 'ban'
+            ? await t('antiBots.confirmBan', { count: memberCount })
+            : await t('antiBots.confirmKick', { count: memberCount });
+
     if (actionType === 'ban' && isFromBotScan) {
-        message += `<br><br><div class="rovalra-ban-warning" style="margin-top:0;"><strong>Reminder:</strong> Verify bot scores before banning.</div>`;
+        message += await t('antiBots.banReminder');
     }
 
-    bodyContent.innerHTML = DOMPurify.sanitize(`<div id="rovalra-double-confirm-message" style="text-align:center; font-size:16px;">${message}</div>`);
+    bodyContent.innerHTML = DOMPurify.sanitize(
+        `<div id="rovalra-double-confirm-message" style="text-align:center; font-size:16px;">${message}</div>`,
+    );
 
-    const btnConfirm = createBtn(`Yes, ${actionType.charAt(0).toUpperCase() + actionType.slice(1)}`, 'btn-alert-md');
-    const btnCancel = createBtn('Cancel', 'btn-secondary-md');
+    const btnConfirm = createBtn(
+        await t('antiBots.yesAction', {
+            action: actionType.charAt(0).toUpperCase() + actionType.slice(1),
+        }),
+        'btn-alert-md',
+    );
+    const btnCancel = createBtn(await t('antiBots.cancel'), 'btn-secondary-md');
 
     const overlayInstance = createOverlay({
-        title: 'Confirm Action',
+        title: await t('antiBots.confirmAction'),
         bodyContent: bodyContent,
         actions: [btnConfirm, btnCancel],
-        maxWidth: '400px'
+        maxWidth: '400px',
     });
 
     window.rovalra.ui.doubleConfirmOverlay = overlayInstance;
@@ -190,27 +233,37 @@ async function processMembers(actionType) {
 
     const progressBar = overlayEl.querySelector('.rovalra-action-progress-bar');
     const statusText = overlayEl.querySelector('.rovalra-action-status-text');
-    const progressContainer = overlayEl.querySelector('.rovalra-action-progress-container');
+    const progressContainer = overlayEl.querySelector(
+        '.rovalra-action-progress-container',
+    );
     const summaryList = overlayEl.querySelector('.rovalra-action-summary-list');
     const warning = overlayEl.querySelector('.rovalra-action-bot-warning');
-    const btns = overlayEl.querySelectorAll('button:not(.rovalra-action-cancel-btn)'); 
+    const btns = overlayEl.querySelectorAll(
+        'button:not(.rovalra-action-cancel-btn)',
+    );
 
-    if(summaryList) summaryList.style.display = 'none';
-    if(warning) warning.style.display = 'none';
-    btns.forEach(b => b.style.display = 'none');
-    
+    if (summaryList) summaryList.style.display = 'none';
+    if (warning) warning.style.display = 'none';
+    btns.forEach((b) => (b.style.display = 'none'));
+
     if (progressContainer) {
         progressContainer.style.display = 'block';
-        const barContainer = progressContainer.querySelector('.rovalra-action-progress-bar-container');
-        if(barContainer) barContainer.style.display = 'block';
+        const barContainer = progressContainer.querySelector(
+            '.rovalra-action-progress-bar-container',
+        );
+        if (barContainer) barContainer.style.display = 'block';
     }
-    
-    if(progressBar) progressBar.style.width = '0%';
+
+    if (progressBar) progressBar.style.width = '0%';
 
     const startTime = Date.now();
-    
+
     for (let i = 0; i < totalMembers; i++) {
-        if (!window.rovalra.ui.actionOverlay || !document.body.contains(overlayEl)) return;
+        if (
+            !window.rovalra.ui.actionOverlay ||
+            !document.body.contains(overlayEl)
+        )
+            return;
 
         const member = membersToAction[i];
         const user = member.user;
@@ -219,12 +272,22 @@ async function processMembers(actionType) {
         const elapsedTime = (Date.now() - startTime) / 1000;
         const avgTimePerUser = i > 0 ? elapsedTime / i : 2;
         const remainingTime = Math.round(avgTimePerUser * (totalMembers - i));
-        
-        if(statusText) statusText.textContent = `Processing ${i + 1} of ${totalMembers}: ${user.displayName}... ETA: ${remainingTime}s`;
+
+        if (statusText)
+            statusText.textContent = await t('antiBots.processing', {
+                current: i + 1,
+                total: totalMembers,
+                displayName: user.displayName,
+                time: remainingTime,
+            });
 
         let retries = 0;
         while (true) {
-            if (!window.rovalra.ui.actionOverlay || !document.body.contains(overlayEl)) return;
+            if (
+                !window.rovalra.ui.actionOverlay ||
+                !document.body.contains(overlayEl)
+            )
+                return;
             try {
                 if (actionType === 'ban') {
                     await banUser(groupId, user.userId);
@@ -234,15 +297,24 @@ async function processMembers(actionType) {
                 success = true;
                 break;
             } catch (error) {
-                if (error && (error.status == 429 || (error.message && error.message.includes('429')))) {
+                if (
+                    error &&
+                    (error.status == 429 ||
+                        (error.message && error.message.includes('429')))
+                ) {
                     retries++;
                     const delay = Math.min(retries, 10);
-                    if (statusText) statusText.textContent = `Rate limited. Retrying in ${delay}s...`;
-                    await new Promise(r => setTimeout(r, 1000 * delay));
+                    if (statusText)
+                        statusText.textContent = await t(
+                            'antiBots.rateLimited',
+                            { delay },
+                        );
+                    await new Promise((r) => setTimeout(r, 1000 * delay));
                     continue;
                 }
-                let reason = error.message || 'Unknown Error';
-                if (error.status) reason = `API Error ${error.status}`;
+                let reason = error.message || ts('antiBots.unknownError');
+                if (error.status)
+                    reason = ts('antiBots.apiError', { status: error.status });
                 failedMembers.push({ user, reason });
                 break;
             }
@@ -250,32 +322,51 @@ async function processMembers(actionType) {
 
         if (success) {
             successCount++;
-            antiBotState.allMembersCache = antiBotState.allMembersCache.filter(m => m.user.userId !== user.userId);
-            antiBotState.likelyBotsCache = antiBotState.likelyBotsCache.filter(m => m.user.userId !== user.userId);
-            quickActionState.members = quickActionState.members.filter(m => m.user.userId !== user.userId);
-            
-            const cardElement = document.getElementById(`quick-ban-card-${user.userId}`);
+            antiBotState.allMembersCache = antiBotState.allMembersCache.filter(
+                (m) => m.user.userId !== user.userId,
+            );
+            antiBotState.likelyBotsCache = antiBotState.likelyBotsCache.filter(
+                (m) => m.user.userId !== user.userId,
+            );
+            quickActionState.members = quickActionState.members.filter(
+                (m) => m.user.userId !== user.userId,
+            );
+
+            const cardElement = document.getElementById(
+                `quick-ban-card-${user.userId}`,
+            );
             if (cardElement) {
                 cardElement.classList.add('processed');
                 cardElement.classList.remove('selected');
-                const radio = cardElement.querySelector('button[role="checkbox"]');
+                const radio = cardElement.querySelector(
+                    'button[role="checkbox"]',
+                );
                 if (radio && radio.setChecked) radio.setChecked(false);
             }
         }
-        if(progressBar) progressBar.style.width = `${((i + 1) / totalMembers) * 100}%`;
+        if (progressBar)
+            progressBar.style.width = `${((i + 1) / totalMembers) * 100}%`;
     }
 
-    let finalMessage = `${successCount} of ${totalMembers} members were successfully ${actionType}ed.`;
-    if (failedMembers.length > 0) finalMessage += `\n${failedMembers.length} failed.`;
-    
-    if(statusText) statusText.innerHTML = DOMPurify.sanitize(finalMessage.replace('\n', '<br>'));
-    
+    let finalMessage = await t('antiBots.processComplete', {
+        successCount,
+        totalMembers,
+        actionType,
+    });
+    if (failedMembers.length > 0)
+        finalMessage += `\n${await t('antiBots.processFailed', { failedCount: failedMembers.length })}`;
+
+    if (statusText)
+        statusText.innerHTML = DOMPurify.sanitize(
+            finalMessage.replace('\n', '<br>'),
+        );
+
     const cancelBtn = overlayEl.querySelector('.rovalra-action-cancel-btn');
-    if(cancelBtn) {
-        cancelBtn.textContent = 'Close';
-        cancelBtn.style.display = 'block'; 
+    if (cancelBtn) {
+        cancelBtn.textContent = await t('antiBots.close');
+        cancelBtn.style.display = 'block';
     }
-    
+
     if (successCount > 0) {
         showReviewPopup('antibots');
     }
@@ -298,7 +389,7 @@ function createMemberCard(member, thumbnail, isBot = false) {
         onChange: (isChecked) => {
             li.classList.toggle('selected', isChecked);
             updateActionCount();
-        }
+        },
     });
     radio.style.position = 'absolute';
     radio.style.top = '4px';
@@ -310,37 +401,39 @@ function createMemberCard(member, thumbnail, isBot = false) {
 
     const avatarDiv = document.createElement('div');
     avatarDiv.className = 'avatar avatar-card-fullbody';
-    
+
     const thumbContainer = document.createElement('span');
     thumbContainer.className = 'thumbnail-2d-container';
-    thumbContainer.style.cssText = 'display:flex;justify-content:center;align-items:center;width:100%;height:100%;';
-    
+    thumbContainer.style.cssText =
+        'display:flex;justify-content:center;align-items:center;width:100%;height:100%;';
+
     const thumbEl = createThumbnailElement(thumbnail, member.user.displayName);
     thumbContainer.appendChild(thumbEl);
     avatarDiv.appendChild(thumbContainer);
 
     const captionDiv = document.createElement('div');
     captionDiv.className = 'avatar-card-caption';
-    
+
     const span = document.createElement('span');
-    
+
     const nameDiv = document.createElement('div');
     nameDiv.className = 'avatar-name text-overflow';
     nameDiv.textContent = member.user.displayName;
-    
+
     const tagDiv = document.createElement('div');
     tagDiv.className = 'avatar-card-label text-overflow';
     tagDiv.textContent = `@${member.user.username}`;
-    
+
     span.append(nameDiv, tagDiv);
 
     if (isBot) {
         const { score } = member;
-        let scoreColor = score >= 85 ? "#e34040" : score >= 60 ? "#f58d42" : "#f5c542";
+        let scoreColor =
+            score >= 85 ? '#e34040' : score >= 60 ? '#f58d42' : '#f5c542';
         const scoreDiv = document.createElement('div');
         scoreDiv.className = 'avatar-card-label';
         scoreDiv.style.cssText = `color:${scoreColor};font-weight:bold;`;
-        scoreDiv.textContent = `Score: ${score}/100`;
+        scoreDiv.textContent = ts('antiBots.score', { score });
         span.appendChild(scoreDiv);
     }
 
@@ -359,27 +452,39 @@ function createMemberCard(member, thumbnail, isBot = false) {
     return li;
 }
 
-function updateActionCount() {
-    ['rovalra-quick-ban-list', 'rovalra-bot-list'].forEach(listId => {
+async function updateActionCount() {
+    for (const listId of ['rovalra-quick-ban-list', 'rovalra-bot-list']) {
         const container = document.getElementById(listId);
-        if (!container || container.offsetParent === null) return; 
+        if (!container || container.offsetParent === null) continue;
 
-        const btnId = listId === 'rovalra-quick-ban-list' ? 'rovalra-quick-ban-confirm-btn' : 'rovalra-antibot-confirm-btn';
+        const btnId =
+            listId === 'rovalra-quick-ban-list'
+                ? 'rovalra-quick-ban-confirm-btn'
+                : 'rovalra-antibot-confirm-btn';
         const btn = document.getElementById(btnId);
-        
+
         if (container && btn) {
-            const count = container.querySelectorAll('button[role="checkbox"][aria-checked="true"]').length;
-            btn.textContent = `Action (${count})`;
+            const count = container.querySelectorAll(
+                'button[role="checkbox"][aria-checked="true"]',
+            ).length;
+            btn.textContent = await t('antiBots.actionCount', { count });
             btn.disabled = count === 0;
-            
-            const selectAllBtnId = listId === 'rovalra-quick-ban-list' ? 'rovalra-quick-ban-select-all-btn' : 'rovalra-antibot-select-all-btn';
+
+            const selectAllBtnId =
+                listId === 'rovalra-quick-ban-list'
+                    ? 'rovalra-quick-ban-select-all-btn'
+                    : 'rovalra-antibot-select-all-btn';
             const selectAllBtn = document.getElementById(selectAllBtnId);
             if (selectAllBtn) {
-                const total = container.querySelectorAll('.quick-ban-card').length;
-                selectAllBtn.textContent = (count > 0 && count === total) ? 'Unselect All' : 'Select All';
+                const total =
+                    container.querySelectorAll('.quick-ban-card').length;
+                selectAllBtn.textContent =
+                    count > 0 && count === total
+                        ? await t('antiBots.unselectAll')
+                        : await t('antiBots.selectAll');
             }
         }
-    });
+    }
 }
 
 async function addFeatureButtons(searchContainer) {
@@ -394,7 +499,10 @@ async function addFeatureButtons(searchContainer) {
     buttonContainer.id = 'rovalra-button-container';
     buttonContainer.style.cssText = 'display: flex; gap: 5px;';
 
-    let antiBotsButton, banByScoreButton, antiBotSelectAllButton, antiBotConfirmButton;
+    let antiBotsButton,
+        banByScoreButton,
+        antiBotSelectAllButton,
+        antiBotConfirmButton;
     let quickBanButton, quickBanSelectAllButton, quickBanConfirmButton;
 
     function createBtnControl(id, text, extraClass = '', hidden = false) {
@@ -407,18 +515,59 @@ async function addFeatureButtons(searchContainer) {
     }
 
     if (settings.antibotsEnabled) {
-        antiBotsButton = createBtnControl('rovalra-anti-bots-btn', 'Anti Bots');
-        banByScoreButton = createBtnControl('rovalra-ban-by-score-btn', 'Ban by Score', 'btn-alert-sm', true);
-        antiBotSelectAllButton = createBtnControl('rovalra-antibot-select-all-btn', 'Select All', '', true);
-        antiBotConfirmButton = createBtnControl('rovalra-antibot-confirm-btn', 'Action (0)', 'btn-alert-sm', true);
-        buttonContainer.append(antiBotSelectAllButton, antiBotConfirmButton, banByScoreButton, antiBotsButton);
+        antiBotsButton = createBtnControl(
+            'rovalra-anti-bots-btn',
+            await t('antiBots.antiBots'),
+        );
+        banByScoreButton = createBtnControl(
+            'rovalra-ban-by-score-btn',
+            await t('antiBots.banByScore'),
+            'btn-alert-sm',
+            true,
+        );
+        antiBotSelectAllButton = createBtnControl(
+            'rovalra-antibot-select-all-btn',
+            await t('antiBots.selectAll'),
+            '',
+            true,
+        );
+        antiBotConfirmButton = createBtnControl(
+            'rovalra-antibot-confirm-btn',
+            await t('antiBots.actionCount', { count: 0 }),
+            'btn-alert-sm',
+            true,
+        );
+        buttonContainer.append(
+            antiBotSelectAllButton,
+            antiBotConfirmButton,
+            banByScoreButton,
+            antiBotsButton,
+        );
     }
 
     if (settings.QuickActionsEnabled) {
-        quickBanButton = createBtnControl('rovalra-quick-ban-btn', 'Quick Action', 'btn-secondary-sm');
-        quickBanSelectAllButton = createBtnControl('rovalra-quick-ban-select-all-btn', 'Select All', '', true);
-        quickBanConfirmButton = createBtnControl('rovalra-quick-ban-confirm-btn', 'Action (0)', 'btn-alert-sm', true);
-        buttonContainer.prepend(quickBanSelectAllButton, quickBanConfirmButton, quickBanButton);
+        quickBanButton = createBtnControl(
+            'rovalra-quick-ban-btn',
+            await t('antiBots.quickAction'),
+            'btn-secondary-sm',
+        );
+        quickBanSelectAllButton = createBtnControl(
+            'rovalra-quick-ban-select-all-btn',
+            await t('antiBots.selectAll'),
+            '',
+            true,
+        );
+        quickBanConfirmButton = createBtnControl(
+            'rovalra-quick-ban-confirm-btn',
+            await t('antiBots.actionCount', { count: 0 }),
+            'btn-alert-sm',
+            true,
+        );
+        buttonContainer.prepend(
+            quickBanSelectAllButton,
+            quickBanConfirmButton,
+            quickBanButton,
+        );
     }
 
     if (buttonContainer.children.length > 0) {
@@ -432,17 +581,27 @@ async function addFeatureButtons(searchContainer) {
         parentContainer.insertBefore(buttonContainer, searchContainer);
     }
 
-    const membersTitleElement = document.querySelector('h2.group-title-with-input');
-    const originalMembersTitleText = membersTitleElement ? membersTitleElement.textContent : 'Members';
+    const membersTitleElement = document.querySelector(
+        'h2.group-title-with-input',
+    );
+    const originalMembersTitleText = membersTitleElement
+        ? membersTitleElement.textContent
+        : await t('antiBots.members');
     const originalMemberList = document.querySelector('.hlist.avatar-cards');
-    const roleDropdown = document.querySelector('.input-group-btn.group-dropdown');
-    
+    const roleDropdown = document.querySelector(
+        '.input-group-btn.group-dropdown',
+    );
+
     let botMemberListContainer, quickBanListContainer;
-    let isBotDetectionActive = false, isQuickBanActive = false;
+    let isBotDetectionActive = false,
+        isQuickBanActive = false;
 
     const resetUiState = () => {
         if (quickActionState.scrollListener) {
-            window.removeEventListener('scroll', quickActionState.scrollListener);
+            window.removeEventListener(
+                'scroll',
+                quickActionState.scrollListener,
+            );
             quickActionState.scrollListener = null;
         }
         if (quickActionState.abortController) {
@@ -451,7 +610,10 @@ async function addFeatureButtons(searchContainer) {
         }
         quickActionState.members = [];
         quickActionState.cursor = null;
-        if (quickBanListContainer) { quickBanListContainer.remove(); quickBanListContainer = null; }
+        if (quickBanListContainer) {
+            quickBanListContainer.remove();
+            quickBanListContainer = null;
+        }
 
         if (antiBotState.abortController) {
             antiBotState.abortController.abort();
@@ -461,68 +623,105 @@ async function addFeatureButtons(searchContainer) {
             window.removeEventListener('scroll', antiBotState.scrollListener);
             antiBotState.scrollListener = null;
         }
-        antiBotState.hashesCache = {}; 
-        
-        if (botMemberListContainer) { botMemberListContainer.remove(); botMemberListContainer = null; }
-        
-        [banByScoreButton, quickBanConfirmButton, quickBanSelectAllButton, 
-         antiBotConfirmButton, antiBotSelectAllButton].forEach(b => { if(b) b.style.display = 'none'; });
+        antiBotState.hashesCache = {};
 
-        if (antiBotsButton) { antiBotsButton.textContent = 'Anti Bots'; antiBotsButton.disabled = false; antiBotsButton.style.display = ''; }
-        if (quickBanButton) { quickBanButton.textContent = 'Quick Action'; quickBanButton.style.display = ''; }
-        if (membersTitleElement) membersTitleElement.textContent = originalMembersTitleText;
+        if (botMemberListContainer) {
+            botMemberListContainer.remove();
+            botMemberListContainer = null;
+        }
+
+        [
+            banByScoreButton,
+            quickBanConfirmButton,
+            quickBanSelectAllButton,
+            antiBotConfirmButton,
+            antiBotSelectAllButton,
+        ].forEach((b) => {
+            if (b) b.style.display = 'none';
+        });
+
+        if (antiBotsButton) {
+            antiBotsButton.textContent = ts('antiBots.antiBots');
+            antiBotsButton.disabled = false;
+            antiBotsButton.style.display = '';
+        }
+        if (quickBanButton) {
+            quickBanButton.textContent = ts('antiBots.quickAction');
+            quickBanButton.style.display = '';
+        }
+        if (membersTitleElement)
+            membersTitleElement.textContent = originalMembersTitleText;
         if (originalMemberList) originalMemberList.style.display = '';
         if (searchContainer) searchContainer.style.display = '';
         if (roleDropdown) roleDropdown.style.display = '';
-        
+
         isBotDetectionActive = false;
         isQuickBanActive = false;
     };
-
-    function toggleSelectAll(container, btn) {
+    async function toggleSelectAll(container, btn) {
         if (!container) return;
-        const shouldSelect = btn.textContent === 'Select All';
+        const shouldSelect =
+            btn.textContent === (await t('antiBots.selectAll'));
         const radios = container.querySelectorAll('button[role="checkbox"]');
-        
-        radios.forEach(radio => {
+
+        radios.forEach((radio) => {
             radio.setChecked(shouldSelect);
             const card = radio.closest('.quick-ban-card');
             if (card) card.classList.toggle('selected', shouldSelect);
         });
-        
+
         updateActionCount();
     }
 
-    if (quickBanSelectAllButton) quickBanSelectAllButton.onclick = () => toggleSelectAll(quickBanListContainer, quickBanSelectAllButton);
-    if (antiBotSelectAllButton) antiBotSelectAllButton.onclick = () => toggleSelectAll(botMemberListContainer, antiBotSelectAllButton);
+    if (quickBanSelectAllButton)
+        quickBanSelectAllButton.onclick = () =>
+            toggleSelectAll(quickBanListContainer, quickBanSelectAllButton);
+    if (antiBotSelectAllButton)
+        antiBotSelectAllButton.onclick = () =>
+            toggleSelectAll(botMemberListContainer, antiBotSelectAllButton);
 
     function getSelectedMembers(cache) {
         const selectedIds = new Set();
-        const container = isQuickBanActive ? quickBanListContainer : botMemberListContainer;
+        const container = isQuickBanActive
+            ? quickBanListContainer
+            : botMemberListContainer;
         if (!container) return [];
 
-        container.querySelectorAll('button[role="checkbox"][aria-checked="true"]').forEach(btn => {
-            const userId = parseInt(btn.id.replace('rb-', ''));
-            selectedIds.add(userId);
-        });
+        container
+            .querySelectorAll('button[role="checkbox"][aria-checked="true"]')
+            .forEach((btn) => {
+                const userId = parseInt(btn.id.replace('rb-', ''));
+                selectedIds.add(userId);
+            });
 
-        return cache.filter(m => selectedIds.has(m.user.userId));
+        return cache.filter((m) => selectedIds.has(m.user.userId));
     }
 
-    if (quickBanConfirmButton) quickBanConfirmButton.onclick = () => {
-        showActionOverlay(getSelectedMembers(quickActionState.members), false);
-    };
-    if (antiBotConfirmButton) antiBotConfirmButton.onclick = () => {
-        showActionOverlay(getSelectedMembers(antiBotState.likelyBotsCache), true);
-    };
+    if (quickBanConfirmButton)
+        quickBanConfirmButton.onclick = () => {
+            showActionOverlay(
+                getSelectedMembers(quickActionState.members),
+                false,
+            );
+        };
+    if (antiBotConfirmButton)
+        antiBotConfirmButton.onclick = () => {
+            showActionOverlay(
+                getSelectedMembers(antiBotState.likelyBotsCache),
+                true,
+            );
+        };
 
     if (quickBanButton) {
-        quickBanButton.onclick = async function() {
-            if (isQuickBanActive) { resetUiState(); return; }
+        quickBanButton.onclick = async function () {
+            if (isQuickBanActive) {
+                resetUiState();
+                return;
+            }
             resetUiState();
-            
+
             isQuickBanActive = true;
-            quickBanButton.textContent = 'Cancel';
+            quickBanButton.textContent = await t('antiBots.cancel');
             if (antiBotsButton) antiBotsButton.style.display = 'none';
             if (searchContainer) searchContainer.style.display = 'none';
             if (roleDropdown) roleDropdown.style.display = 'none';
@@ -531,7 +730,10 @@ async function addFeatureButtons(searchContainer) {
             quickBanListContainer = document.createElement('ul');
             quickBanListContainer.id = 'rovalra-quick-ban-list';
             quickBanListContainer.className = 'hlist avatar-cards';
-            originalMemberList.parentNode.insertBefore(quickBanListContainer, originalMemberList.nextSibling);
+            originalMemberList.parentNode.insertBefore(
+                quickBanListContainer,
+                originalMemberList.nextSibling,
+            );
 
             quickActionState.groupId = getGroupIdFromUrl();
             quickActionState.cursor = null;
@@ -539,29 +741,42 @@ async function addFeatureButtons(searchContainer) {
             quickActionState.isLoading = false;
             quickActionState.abortController = new AbortController();
 
-            if (membersTitleElement) membersTitleElement.textContent = 'Loading Members...';
+            if (membersTitleElement)
+                membersTitleElement.textContent = await t(
+                    'antiBots.loadingMembers',
+                );
             await loadNextQuickBanPage();
 
             quickActionState.scrollListener = () => {
                 if (!isQuickBanActive) return;
-                if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
+                if (
+                    window.innerHeight + window.scrollY >=
+                    document.body.offsetHeight - 500
+                ) {
                     loadNextQuickBanPage();
                 }
             };
             window.addEventListener('scroll', quickActionState.scrollListener);
-            
+
             quickBanConfirmButton.style.display = '';
             quickBanConfirmButton.disabled = true;
             quickBanSelectAllButton.style.display = '';
-            quickBanSelectAllButton.textContent = 'Select All';
+            quickBanSelectAllButton.textContent = await t('antiBots.selectAll');
         };
     }
 
     async function loadNextQuickBanPage() {
-        if (quickActionState.isLoading || !quickActionState.hasMore || !isQuickBanActive) return;
+        if (
+            quickActionState.isLoading ||
+            !quickActionState.hasMore ||
+            !isQuickBanActive
+        )
+            return;
         quickActionState.isLoading = true;
-        
-        let loader = quickBanListContainer.querySelector('.rovalra-loading-more');
+
+        let loader = quickBanListContainer.querySelector(
+            '.rovalra-loading-more',
+        );
         if (!loader) {
             loader = document.createElement('div');
             loader.className = 'rovalra-loading-more';
@@ -570,30 +785,45 @@ async function addFeatureButtons(searchContainer) {
 
         try {
             const signal = quickActionState.abortController.signal;
-            const pageData = await fetchMemberPageWithRetry(quickActionState.groupId, quickActionState.cursor);
-            if (signal.aborted) { loader.remove(); return; }
+            const pageData = await fetchMemberPageWithRetry(
+                quickActionState.groupId,
+                quickActionState.cursor,
+            );
+            if (signal.aborted) {
+                loader.remove();
+                return;
+            }
 
             const newMembers = pageData.data || [];
             quickActionState.cursor = pageData.nextPageCursor;
             quickActionState.hasMore = !!pageData.nextPageCursor;
-            loader.remove(); 
+            loader.remove();
 
             if (newMembers.length > 0) {
-                quickActionState.members = quickActionState.members.concat(newMembers);
-                const ids = newMembers.map(m => m.user.userId);
+                quickActionState.members =
+                    quickActionState.members.concat(newMembers);
+                const ids = newMembers.map((m) => m.user.userId);
                 const thumbnails = await getThumbnailsWithCache(ids, signal);
                 if (signal.aborted) return;
-                
-                newMembers.forEach(member => {
-                    const thumb = thumbnails.find(t => t && t.targetId === member.user.userId);
+
+                newMembers.forEach((member) => {
+                    const thumb = thumbnails.find(
+                        (t) => t && t.targetId === member.user.userId,
+                    );
                     const card = createMemberCard(member, thumb);
                     quickBanListContainer.appendChild(card);
                 });
-                
+
                 equalizeCardHeights(quickBanListContainer);
-                if (membersTitleElement) membersTitleElement.textContent = `Select Members for Action (${quickActionState.members.length} Loaded)`;
+                if (membersTitleElement)
+                    membersTitleElement.textContent = await t(
+                        'antiBots.selectMembersForAction',
+                        { count: quickActionState.members.length },
+                    );
             } else if (quickActionState.members.length === 0) {
-                quickBanListContainer.innerHTML = DOMPurify.sanitize(`<div style="text-align: center; padding: 20px;">No members found.</div>`);
+                quickBanListContainer.innerHTML = DOMPurify.sanitize(
+                    `<div style="text-align: center; padding: 20px;">${await t('antiBots.noMembersFound')}</div>`,
+                );
             }
         } catch (e) {
             loader.remove();
@@ -606,19 +836,19 @@ async function addFeatureButtons(searchContainer) {
     function renderNextBotBatch() {
         if (!botMemberListContainer) return;
 
-        const BATCH_SIZE = 50; 
+        const BATCH_SIZE = 50;
         const totalBots = antiBotState.likelyBotsCache.length;
-        
+
         if (antiBotState.renderCursor >= totalBots) return;
 
         const nextBatch = antiBotState.likelyBotsCache.slice(
-            antiBotState.renderCursor, 
-            antiBotState.renderCursor + BATCH_SIZE
+            antiBotState.renderCursor,
+            antiBotState.renderCursor + BATCH_SIZE,
         );
 
         const fragment = document.createDocumentFragment();
 
-        nextBatch.forEach(member => {
+        nextBatch.forEach((member) => {
             const thumb = antiBotState.thumbnailCache[member.user.userId];
             const card = createMemberCard(member, thumb, true);
             fragment.appendChild(card);
@@ -631,12 +861,15 @@ async function addFeatureButtons(searchContainer) {
     }
 
     if (antiBotsButton) {
-        antiBotsButton.onclick = async function() {
-            if (isBotDetectionActive) { resetUiState(); return; }
+        antiBotsButton.onclick = async function () {
+            if (isBotDetectionActive) {
+                resetUiState();
+                return;
+            }
             resetUiState();
 
             isBotDetectionActive = true;
-            antiBotsButton.textContent = 'Cancel';
+            antiBotsButton.textContent = await t('antiBots.cancel');
             if (quickBanButton) quickBanButton.style.display = 'none';
             if (searchContainer) searchContainer.style.display = 'none';
             if (roleDropdown) roleDropdown.style.display = 'none';
@@ -645,7 +878,10 @@ async function addFeatureButtons(searchContainer) {
             botMemberListContainer = document.createElement('ul');
             botMemberListContainer.id = 'rovalra-bot-list';
             botMemberListContainer.className = 'hlist avatar-cards';
-            originalMemberList.parentNode.insertBefore(botMemberListContainer, originalMemberList.nextSibling);
+            originalMemberList.parentNode.insertBefore(
+                botMemberListContainer,
+                originalMemberList.nextSibling,
+            );
 
             antiBotState.abortController = new AbortController();
             const signal = antiBotState.abortController.signal;
@@ -656,43 +892,54 @@ async function addFeatureButtons(searchContainer) {
 
             const updateLoadingStatus = () => {
                 if (!membersTitleElement) return;
-                const pct = totalGroupMembers > 0 ? Math.round((loadedMemberCount / totalGroupMembers) * 100) : 0;
+                const pct =
+                    totalGroupMembers > 0
+                        ? Math.round(
+                              (loadedMemberCount / totalGroupMembers) * 100,
+                          )
+                        : 0;
                 membersTitleElement.innerHTML = DOMPurify.sanitize(`
                     <div style="display:flex; align-items:center; gap:10px;">
-                        <span>Scanned: ${loadedMemberCount} (${pct}%) | Analyzed: ${processedImageCount}</span>
+                        <span>${ts('antiBots.scanStatus', { loaded: loadedMemberCount, percent: pct, processed: processedImageCount })}</span>
                     </div>`);
             };
 
             const imageProcessingTasks = [];
             const processBatch = async (members) => {
                 try {
-                    const ids = members.map(m => m.user.userId);
-                    const thumbnails = await getThumbnailsWithCache(ids, signal);
+                    const ids = members.map((m) => m.user.userId);
+                    const thumbnails = await getThumbnailsWithCache(
+                        ids,
+                        signal,
+                    );
                     if (signal.aborted) return;
-                    
+
                     const hashes = await calculateAllHashes(thumbnails);
                     if (signal.aborted) return;
 
-                    hashes.forEach(h => {
+                    hashes.forEach((h) => {
                         if (h && h.hash) antiBotState.hashesCache[h.id] = h;
                     });
-                    
+
                     processedImageCount += members.length;
                     updateLoadingStatus();
                 } catch (e) {
-                    console.warn("Batch processing error", e);
+                    console.warn('Batch processing error', e);
                 }
             };
 
             try {
                 const groupId = getGroupIdFromUrl();
 
-                if (membersTitleElement) membersTitleElement.textContent = "Initializing Scan...";
+                if (membersTitleElement)
+                    membersTitleElement.textContent = await t(
+                        'antiBots.initializingScan',
+                    );
                 const groupDetails = await getGroupDetails(groupId);
                 totalGroupMembers = groupDetails.memberCount || 1;
-                
+
                 const roles = await fetchGroupRoles(groupId);
-                const defaultRole = roles.find(r => r.rank === 1); 
+                const defaultRole = roles.find((r) => r.rank === 1);
 
                 let cursor = null;
                 let more = true;
@@ -701,64 +948,81 @@ async function addFeatureButtons(searchContainer) {
                 while (more) {
                     if (signal.aborted) throw new Error('Aborted');
 
-                    await new Promise(r => setTimeout(r, 200));
+                    await new Promise((r) => setTimeout(r, 200));
 
                     try {
-                        const data = await fetchMemberPageWithRetry(groupId, cursor);
-                        
+                        const data = await fetchMemberPageWithRetry(
+                            groupId,
+                            cursor,
+                        );
+
                         if (!data || !data.data) {
-                            console.warn("Empty data received, stopping scan.");
+                            console.warn('Empty data received, stopping scan.');
                             break;
                         }
 
                         const pageMembers = data.data;
-                        antiBotState.allMembersCache = antiBotState.allMembersCache.concat(pageMembers);
+                        antiBotState.allMembersCache =
+                            antiBotState.allMembersCache.concat(pageMembers);
                         loadedMemberCount = antiBotState.allMembersCache.length;
                         updateLoadingStatus();
 
-                        const candidates = pageMembers.filter(m => m.role.id === defaultRole?.id);
-                        
+                        const candidates = pageMembers.filter(
+                            (m) => m.role.id === defaultRole?.id,
+                        );
+
                         if (candidates.length > 0) {
                             const task = processBatch(candidates);
                             imageProcessingTasks.push(task);
-                            
+
                             if (imageProcessingTasks.length > 10) {
-                                await imageProcessingTasks.shift(); 
+                                await imageProcessingTasks.shift();
                             }
                         }
 
                         cursor = data.nextPageCursor;
-                        
-                        more = !!cursor;
 
+                        more = !!cursor;
                     } catch (err) {
-                        console.error("Error fetching page:", err);
-                        break; 
+                        console.error('Error fetching page:', err);
+                        break;
                     }
                 }
-                if (membersTitleElement) membersTitleElement.innerHTML = `<span class="spinner spinner-dots" style="width:24px;height:24px;"></span> Finalizing analysis...`;
+                if (membersTitleElement)
+                    membersTitleElement.innerHTML = `<span class="spinner spinner-dots" style="width:24px;height:24px;"></span> ${await t('antiBots.finalizingAnalysis')}`;
                 await Promise.all(imageProcessingTasks);
 
                 if (signal.aborted) throw new Error('Aborted');
 
-
-                const potentialBots = antiBotState.allMembersCache.filter(m => m.role.id === defaultRole?.id);
-                const hashList = potentialBots.map(m => antiBotState.hashesCache[m.user.userId]).filter(Boolean);
+                const potentialBots = antiBotState.allMembersCache.filter(
+                    (m) => m.role.id === defaultRole?.id,
+                );
+                const hashList = potentialBots
+                    .map((m) => antiBotState.hashesCache[m.user.userId])
+                    .filter(Boolean);
 
                 const groups = findSimilarAvatars(hashList);
-                antiBotState.likelyBotsCache = analyzeMembersForBotScore(potentialBots, groups);
-                
+                antiBotState.likelyBotsCache = analyzeMembersForBotScore(
+                    potentialBots,
+                    groups,
+                );
+
                 if (!isBotDetectionActive) return;
-                
+
                 if (membersTitleElement) {
-                     membersTitleElement.textContent = antiBotState.likelyBotsCache.length > 0 ? 
-                        `${antiBotState.likelyBotsCache.length} Likely Bots Found` : 'No Likely Bots Found';
+                    membersTitleElement.textContent =
+                        antiBotState.likelyBotsCache.length > 0
+                            ? await t('antiBots.botsFound', {
+                                  count: antiBotState.likelyBotsCache.length,
+                              })
+                            : await t('antiBots.noBotsFound');
                 }
 
                 if (antiBotState.likelyBotsCache.length > 0) {
                     banByScoreButton.style.display = '';
                     antiBotSelectAllButton.style.display = '';
-                    antiBotSelectAllButton.textContent = 'Select All';
+                    antiBotSelectAllButton.textContent =
+                        await t('antiBots.selectAll');
                     antiBotConfirmButton.style.display = '';
                     antiBotConfirmButton.disabled = true;
 
@@ -767,60 +1031,85 @@ async function addFeatureButtons(searchContainer) {
 
                     antiBotState.scrollListener = () => {
                         if (!isBotDetectionActive) return;
-                        if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
+                        if (
+                            window.innerHeight + window.scrollY >=
+                            document.body.offsetHeight - 500
+                        ) {
                             renderNextBotBatch();
                         }
                     };
-                    window.addEventListener('scroll', antiBotState.scrollListener);
+                    window.addEventListener(
+                        'scroll',
+                        antiBotState.scrollListener,
+                    );
                 } else {
-                    botMemberListContainer.innerHTML = DOMPurify.sanitize(`<div style="text-align: center; padding: 20px;">No bots detected.</div>`);
+                    botMemberListContainer.innerHTML = DOMPurify.sanitize(
+                        `<div style="text-align: center; padding: 20px;">${await t('antiBots.noBotsDetected')}</div>`,
+                    );
                 }
-
             } catch (e) {
                 if (e.message !== 'Aborted') {
-                    antiBotsButton.textContent = 'Error - Retry';
+                    antiBotsButton.textContent = await t('antiBots.errorRetry');
                     console.error(e);
-                    if (membersTitleElement) membersTitleElement.textContent = 'Error during scan.';
+                    if (membersTitleElement)
+                        membersTitleElement.textContent = await t(
+                            'antiBots.errorDuringScan',
+                        );
                 } else {
                     resetUiState();
                 }
             }
         };
     }
-    
+
     if (banByScoreButton) {
-        banByScoreButton.onclick = () => {
+        banByScoreButton.onclick = async () => {
             if (antiBotState.likelyBotsCache.length === 0) return;
 
-            const bodyContainer = document.createElement('div'); bodyContainer.innerHTML = DOMPurify.sanitize(`
+            const bodyContainer = document.createElement('div');
+            bodyContainer.innerHTML = DOMPurify.sanitize(`
                 <div class="rovalra-score-selector-container">
-                    <label>Minimum Bot Score: <span id="rovalra-score-value">50</span></label>
+                    <label>${await t('antiBots.minBotScore')}</label>
                     <input type="range" id="rovalra-score-slider" class="rovalra-slider" min="20" max="100" value="50">
                     <div class="rovalra-score-impact-text">
-                        This will select approximately <span id="rovalra-score-ban-count">0</span> members.
+                        ${await t('antiBots.scoreImpact')}
                     </div>
                 </div>
             `);
 
-            const btnConfirm = createBtn('Confirm', 'btn-alert-md');
-            const btnCancel = createBtn('Cancel', 'btn-secondary-md');
+            const btnConfirm = createBtn(
+                await t('antiBots.confirm'),
+                'btn-alert-md',
+            );
+            const btnCancel = createBtn(
+                await t('antiBots.cancel'),
+                'btn-secondary-md',
+            );
 
             const overlayInstance = createOverlay({
-                title: 'Ban/Kick by Score',
+                title: await t('antiBots.banKickByScore'),
                 bodyContent: bodyContainer,
-                actions: [btnConfirm, btnCancel]
+                actions: [btnConfirm, btnCancel],
             });
 
             const slider = bodyContainer.querySelector('#rovalra-score-slider');
-            const valDisplay = bodyContainer.querySelector('#rovalra-score-value');
-            const countDisplay = bodyContainer.querySelector('#rovalra-score-ban-count');
+            const valDisplay = bodyContainer.querySelector(
+                '#rovalra-score-value',
+            );
+            const countDisplay = bodyContainer.querySelector(
+                '#rovalra-score-ban-count',
+            );
 
-            const update = () => {
+            const update = async () => {
                 const min = parseInt(slider.value, 10);
                 valDisplay.textContent = min;
-                const matches = antiBotState.likelyBotsCache.filter(m => m.score >= min);
+                const matches = antiBotState.likelyBotsCache.filter(
+                    (m) => m.score >= min,
+                );
                 countDisplay.textContent = matches.length;
-                btnConfirm.textContent = `Confirm (${matches.length})`;
+                btnConfirm.textContent = await t('antiBots.confirmCount', {
+                    count: matches.length,
+                });
                 btnConfirm.disabled = matches.length === 0;
                 overlayInstance._tempMatches = matches;
             };
@@ -847,10 +1136,9 @@ function getGroupIdFromUrl() {
 }
 
 async function fetchMemberPageWithRetry(groupId, cursor, retries = 3) {
-
     const params = new URLSearchParams({
         limit: '100',
-        sortOrder: 'Desc'
+        sortOrder: 'Desc',
     });
 
     if (cursor) {
@@ -863,69 +1151,105 @@ async function fetchMemberPageWithRetry(groupId, cursor, retries = 3) {
         try {
             return await callRobloxApiJson({
                 subdomain: 'groups',
-                endpoint: endpoint
+                endpoint: endpoint,
             });
         } catch (error) {
             if (i === retries - 1) throw error;
-            
-            await new Promise(r => setTimeout(r, 1000));
+
+            await new Promise((r) => setTimeout(r, 1000));
         }
     }
 }
 async function fetchGroupRoles(groupId) {
-    const data = await callRobloxApiJson({ subdomain: 'groups', endpoint: `/v1/groups/${groupId}/roles` });
+    const data = await callRobloxApiJson({
+        subdomain: 'groups',
+        endpoint: `/v1/groups/${groupId}/roles`,
+    });
     return data.roles || [];
 }
 
 async function getThumbnailsWithCache(userIds, signal) {
-    const missingIds = userIds.filter(id => !antiBotState.thumbnailCache[id]);
-    
+    const missingIds = userIds.filter((id) => !antiBotState.thumbnailCache[id]);
+
     if (missingIds.length > 0) {
-        const items = missingIds.map(id => ({ id }));
-        const newThumbsMap = await fetchThumbnails(items, 'AvatarHeadshot', '150x150', false, signal);
+        const items = missingIds.map((id) => ({ id }));
+        const newThumbsMap = await fetchThumbnails(
+            items,
+            'AvatarHeadshot',
+            '150x150',
+            false,
+            signal,
+        );
         newThumbsMap.forEach((data, id) => {
             antiBotState.thumbnailCache[id] = data;
         });
     }
-    
-    return userIds.map(id => antiBotState.thumbnailCache[id]).filter(Boolean);
+
+    return userIds.map((id) => antiBotState.thumbnailCache[id]).filter(Boolean);
 }
 
 async function calculateAllHashes(thumbnails) {
-    return await Promise.all(thumbnails.map(t => {
-        if (t?.imageUrl && t.state !== "Blocked") {
-            return calculateImageHash(t.imageUrl).then(h => ({ id: t.targetId, hash: h }));
-        }
-        return Promise.resolve({ id: t?.targetId, hash: null });
-    }));
+    return await Promise.all(
+        thumbnails.map((t) => {
+            if (t?.imageUrl && t.state !== 'Blocked') {
+                return calculateImageHash(t.imageUrl).then((h) => ({
+                    id: t.targetId,
+                    hash: h,
+                }));
+            }
+            return Promise.resolve({ id: t?.targetId, hash: null });
+        }),
+    );
 }
 async function calculateImageHash(url) {
     try {
-        const img = new Image(); img.crossOrigin = "Anonymous";
-        return new Promise(res => {
+        const img = new Image();
+        img.crossOrigin = 'Anonymous';
+        return new Promise((res) => {
             img.onload = () => {
-                const c = document.createElement('canvas'); c.width=9; c.height=8;
-                const ctx = c.getContext('2d'); ctx.drawImage(img,0,0,9,8);
-                const d = ctx.getImageData(0,0,9,8).data;
-                const gray = []; for(let i=0;i<d.length;i+=4) gray.push(0.299*d[i]+0.587*d[i+1]+0.114*d[i+2]);
-                let h=''; for(let y=0;y<8;y++) for(let x=0;x<8;x++) h+=gray[y*9+x]<gray[y*9+x+1]?'1':'0';
+                const c = document.createElement('canvas');
+                c.width = 9;
+                c.height = 8;
+                const ctx = c.getContext('2d');
+                ctx.drawImage(img, 0, 0, 9, 8);
+                const d = ctx.getImageData(0, 0, 9, 8).data;
+                const gray = [];
+                for (let i = 0; i < d.length; i += 4)
+                    gray.push(
+                        0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2],
+                    );
+                let h = '';
+                for (let y = 0; y < 8; y++)
+                    for (let x = 0; x < 8; x++)
+                        h += gray[y * 9 + x] < gray[y * 9 + x + 1] ? '1' : '0';
                 res(h);
             };
-            img.onerror = () => res(null); img.src = url;
+            img.onerror = () => res(null);
+            img.src = url;
         });
-    } catch { return null; }
+    } catch {
+        return null;
+    }
 }
 function findSimilarAvatars(hashes) {
-    const valid = hashes.filter(h => h?.hash);
-    const groups = []; const processed = new Set();
-    for (let i=0; i<valid.length; i++) {
+    const valid = hashes.filter((h) => h?.hash);
+    const groups = [];
+    const processed = new Set();
+    for (let i = 0; i < valid.length; i++) {
         if (processed.has(i)) continue;
-        const group = [valid[i]]; processed.add(i);
-        for (let j=i+1; j<valid.length; j++) {
+        const group = [valid[i]];
+        processed.add(i);
+        for (let j = i + 1; j < valid.length; j++) {
             if (!processed.has(j)) {
-                let dist=0; const h1=valid[i].hash, h2=valid[j].hash;
-                for(let k=0;k<Math.min(h1.length,h2.length);k++) if(h1[k]!==h2[k]) dist++;
-                if (dist <= 5) { group.push(valid[j]); processed.add(j); }
+                let dist = 0;
+                const h1 = valid[i].hash,
+                    h2 = valid[j].hash;
+                for (let k = 0; k < Math.min(h1.length, h2.length); k++)
+                    if (h1[k] !== h2[k]) dist++;
+                if (dist <= 5) {
+                    group.push(valid[j]);
+                    processed.add(j);
+                }
             }
         }
         if (group.length > 1) groups.push(group);
@@ -933,23 +1257,39 @@ function findSimilarAvatars(hashes) {
     return groups;
 }
 function analyzeMembersForBotScore(members, groups) {
-    const names = new Map(); members.forEach(m => names.set(m.user.displayName, (names.get(m.user.displayName)||0)+1));
-    const grpData = new Map(); groups.forEach(g => g.forEach(m => grpData.set(m.id, { size: g.length })));
-    return members.map(m => {
-        const nc = names.get(m.user.displayName)||0;
-        const gs = grpData.get(m.user.userId)?.size||0;
-        const ns = nc>=25?60:nc>=10?50:nc>=4?35:nc>=2?20:0;
-        const as = gs>=10?40:gs>=5?30:gs>=3?15:gs>=2?10:0;
-        return { ...m, score: Math.min(ns+as, 100), scoreBreakdown: { nameCount: nc, avatarGroupSize: gs } };
-    }).filter(m => m.score >= 20).sort((a,b) => b.score - a.score);
+    const names = new Map();
+    members.forEach((m) =>
+        names.set(m.user.displayName, (names.get(m.user.displayName) || 0) + 1),
+    );
+    const grpData = new Map();
+    groups.forEach((g) =>
+        g.forEach((m) => grpData.set(m.id, { size: g.length })),
+    );
+    return members
+        .map((m) => {
+            const nc = names.get(m.user.displayName) || 0;
+            const gs = grpData.get(m.user.userId)?.size || 0;
+            const ns =
+                nc >= 25 ? 60 : nc >= 10 ? 50 : nc >= 4 ? 35 : nc >= 2 ? 20 : 0;
+            const as =
+                gs >= 10 ? 40 : gs >= 5 ? 30 : gs >= 3 ? 15 : gs >= 2 ? 10 : 0;
+            return {
+                ...m,
+                score: Math.min(ns + as, 100),
+                scoreBreakdown: { nameCount: nc, avatarGroupSize: gs },
+            };
+        })
+        .filter((m) => m.score >= 20)
+        .sort((a, b) => b.score - a.score);
 }
 function equalizeCardHeights(container) {
     const cards = container.querySelectorAll('.list-item.avatar-card');
     if (cards.length < 2) return;
-    cards.forEach(c => c.style.height = 'auto');
+    cards.forEach((c) => (c.style.height = 'auto'));
     requestAnimationFrame(() => {
-        let max = 0; cards.forEach(c => max = Math.max(max, c.offsetHeight));
-        if(max > 0) cards.forEach(c => c.style.height = `${max}px`);
+        let max = 0;
+        cards.forEach((c) => (max = Math.max(max, c.offsetHeight)));
+        if (max > 0) cards.forEach((c) => (c.style.height = `${max}px`));
     });
 }
 
@@ -963,27 +1303,39 @@ function handleContainerRemoval() {
 function antiBotsFullCleanup() {
     handleContainerRemoval();
     const overlays = document.querySelectorAll('.rovalra-global-overlay');
-    overlays.forEach(o => o.remove());
-    
+    overlays.forEach((o) => o.remove());
+
     document.getElementById('rovalra-quick-ban-list')?.remove();
     document.getElementById('rovalra-bot-list')?.remove();
 
-    if (quickActionState.scrollListener) window.removeEventListener('scroll', quickActionState.scrollListener);
-    if (quickActionState.abortController) quickActionState.abortController.abort();
+    if (quickActionState.scrollListener)
+        window.removeEventListener('scroll', quickActionState.scrollListener);
+    if (quickActionState.abortController)
+        quickActionState.abortController.abort();
     if (antiBotState.abortController) antiBotState.abortController.abort();
-    if (antiBotState.scrollListener) window.removeEventListener('scroll', antiBotState.scrollListener);
+    if (antiBotState.scrollListener)
+        window.removeEventListener('scroll', antiBotState.scrollListener);
 
     isAntiBotScriptActive = false;
 }
 
 async function checkUrlAndManageState() {
     const settings = await getFeatureSettings();
-    const isMembersPage = /^https:\/\/www\.roblox\.com\/(?:[a-z]{2}\/)?communities\/configure\?id=\d+#!(\/)?members/.test(window.location.href);
-    const active = isMembersPage && (settings.antibotsEnabled || settings.QuickActionsEnabled);
+    const isMembersPage =
+        /^https:\/\/www\.roblox\.com\/(?:[a-z]{2}\/)?communities\/configure\?id=\d+#!(\/)?members/.test(
+            window.location.href,
+        );
+    const active =
+        isMembersPage &&
+        (settings.antibotsEnabled || settings.QuickActionsEnabled);
 
     if (active && !isAntiBotScriptActive) {
         isAntiBotScriptActive = true;
-        observeElement('.input-group.search-container', (el) => addFeatureButtons(el), { onRemove: handleContainerRemoval });
+        observeElement(
+            '.input-group.search-container',
+            (el) => addFeatureButtons(el),
+            { onRemove: handleContainerRemoval },
+        );
     } else if (!active && isAntiBotScriptActive) {
         antiBotsFullCleanup();
     }
