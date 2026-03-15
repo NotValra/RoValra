@@ -408,6 +408,18 @@
         "hoursAgo": "{{count}}h ago",
         "daysAgo": "{{count}}d ago"
     },
+    "quickOutfits": {
+        "errorFetching": "Error fetching outfits",
+        "equipping": "Equipping...",
+        "equipped": "Equipped!",
+        "failed": "Failed",
+        "error": "Error:",
+        "noUserId": "Authenticated user ID not found for quick outfits.",
+        "loading": "Loading outfits...",
+        "title": "Quick Outfits",
+        "noneFound": "No outfits found.",
+        "success": "Successfully equipped outfit."
+    },
     "antiBots": {
         "reviewMembers": "Review {{count}} selected members:",
         "botWarning": "<strong>Warning:</strong> Ensure these are bots before taking action.",
