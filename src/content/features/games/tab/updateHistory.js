@@ -3,51 +3,65 @@ import { callRobloxApiJson } from '../../../core/api.js';
 import { getPlaceIdFromUrl } from '../../../core/idExtractor.js';
 import { createHeatmap } from '../../../core/ui/heatmap.js';
 import { createTab } from '../../../core/ui/games/tab.js';
+import { t, ts } from '../../../core/locale/i18n.js';
 
 export function init() {
     chrome.storage.local.get({ updateHistoryEnabled: false }, (settings) => {
         if (!settings.updateHistoryEnabled) return;
 
-        observeElement('#horizontal-tabs', (tabContainer) => {
-            if (tabContainer.dataset.rovalraUpdatesTabInitialized === 'true') return;
-            tabContainer.dataset.rovalraUpdatesTabInitialized = 'true';
+        observeElement(
+            '#horizontal-tabs',
+            (tabContainer) => {
+                if (
+                    tabContainer.dataset.rovalraUpdatesTabInitialized === 'true'
+                )
+                    return;
+                tabContainer.dataset.rovalraUpdatesTabInitialized = 'true';
 
-            const contentSection = document.querySelector('.tab-content.rbx-tab-content');
-            if (!contentSection) return;
+                const contentSection = document.querySelector(
+                    '.tab-content.rbx-tab-content',
+                );
+                if (!contentSection) return;
 
-            const placeId = getPlaceIdFromUrl();
-            if (placeId) {
-                document.getElementById('tab-updates')?.remove();
-                document.getElementById('updates-content-pane')?.remove();
+                const placeId = getPlaceIdFromUrl();
+                if (placeId) {
+                    document.getElementById('tab-updates')?.remove();
+                    document.getElementById('updates-content-pane')?.remove();
 
-                const { contentPane } = createTab({
-                    id: 'updates',
-                    label: 'Updates',
-                    container: tabContainer,
-                    contentContainer: contentSection,
-                    hash: '#!/updates'
-                });
+                    const { contentPane } = createTab({
+                        id: 'updates',
+                        label: ts('updateHistory.tabTitle'),
+                        container: tabContainer,
+                        contentContainer: contentSection,
+                        hash: '#!/updates',
+                    });
 
-                let isLoaded = false;
+                    let isLoaded = false;
 
-                const checkUrl = () => {
-                    if (window.location.hash.includes('#!/updates')) {
-                        if (!isLoaded) {
-                            isLoaded = true;
-                            loadAndRenderHeatmap(placeId, contentPane);
+                    const checkUrl = () => {
+                        if (window.location.hash.includes('#!/updates')) {
+                            if (!isLoaded) {
+                                isLoaded = true;
+                                loadAndRenderHeatmap(placeId, contentPane);
+                            }
                         }
-                    }
-                };
+                    };
 
-                window.addEventListener('hashchange', checkUrl);
-                checkUrl();
-            }
-        }, {
-            onRemove: () => {
-                const oldContainer = document.querySelector('[data-rovalra-updates-tab-initialized]');
-                if (oldContainer) oldContainer.dataset.rovalraUpdatesTabInitialized = 'false';
-            }
-        });
+                    window.addEventListener('hashchange', checkUrl);
+                    checkUrl();
+                }
+            },
+            {
+                onRemove: () => {
+                    const oldContainer = document.querySelector(
+                        '[data-rovalra-updates-tab-initialized]',
+                    );
+                    if (oldContainer)
+                        oldContainer.dataset.rovalraUpdatesTabInitialized =
+                            'false';
+                },
+            },
+        );
     });
 }
 
@@ -63,14 +77,19 @@ async function loadAndRenderHeatmap(placeId, parentElement) {
                 endpoint: '/discovery-api/omni-recommendation-metadata',
                 method: 'POST',
                 body: {
-                    contents: [{ contentId: parseInt(universeId, 10), contentType: 'Game' }],
-                    sessionId: self.crypto.randomUUID()
-                }
+                    contents: [
+                        {
+                            contentId: parseInt(universeId, 10),
+                            contentType: 'Game',
+                        },
+                    ],
+                    sessionId: self.crypto.randomUUID(),
+                },
             });
 
             const gameMeta = maturityData?.contentMetadata?.Game?.[universeId];
             if (gameMeta && gameMeta.contentMaturity === 'restricted') {
-                blockingMessage = "Update History doesn't work on 18+ experiences";
+                blockingMessage = await t('updateHistory.blocked.eighteenPlus');
             }
         } catch (e) {
             console.warn('RoValra: Failed to check content maturity', e);
@@ -82,11 +101,16 @@ async function loadAndRenderHeatmap(placeId, parentElement) {
             const placeDetails = await callRobloxApiJson({
                 subdomain: 'games',
                 endpoint: `/v1/games/multiget-place-details?placeIds=${placeId}`,
-                method: 'GET'
+                method: 'GET',
             });
 
-            if (placeDetails && placeDetails[0] && placeDetails[0].price > 0 || placeDetails[0].reasonProhibited == "PurchaseRequired") {
-                blockingMessage = "Update History doesn't work on paid access experiences";
+            if (
+                placeDetails &&
+                placeDetails[0] &&
+                (placeDetails[0].price > 0 ||
+                    placeDetails[0].reasonProhibited == 'PurchaseRequired')
+            ) {
+                blockingMessage = await t('updateHistory.blocked.paidAccess');
             }
         } catch (e) {
             console.warn('RoValra: Failed to check paid access status', e);
@@ -101,12 +125,12 @@ async function loadAndRenderHeatmap(placeId, parentElement) {
                 method: 'POST',
                 body: {
                     placeId: parseInt(placeId, 10),
-                    gameJoinAttemptId: self.crypto.randomUUID()
-                }
+                    gameJoinAttemptId: self.crypto.randomUUID(),
+                },
             });
 
             if (joinData && joinData.status === 12) {
-                blockingMessage = "Update History doesn't work on subplaces with join restrictions";
+                blockingMessage = await t('updateHistory.blocked.subplace');
             }
         } catch (e) {
             console.warn('RoValra: Failed to check subplace joinability', e);
@@ -119,10 +143,10 @@ async function loadAndRenderHeatmap(placeId, parentElement) {
             const data = await callRobloxApiJson({
                 isRovalraApi: true,
                 endpoint: `/v1/games/history?place_id=${placeId}`,
-                method: 'GET'
+                method: 'GET',
             });
-            
-            historyData = (data && data.history) ? data.history : [];
+
+            historyData = data && data.history ? data.history : [];
         } catch (error) {
             console.error('RoValra: Failed to load heatmap data', error);
         }
@@ -131,8 +155,11 @@ async function loadAndRenderHeatmap(placeId, parentElement) {
     const container = document.createElement('div');
     container.style.position = 'relative';
 
-    const heatmapElement = createHeatmap(historyData, 'Update History');
-    
+    const heatmapElement = createHeatmap(
+        historyData,
+        await t('updateHistory.title'),
+    );
+
     if (blockingMessage) {
         heatmapElement.style.filter = 'blur(5px)';
         heatmapElement.style.opacity = '0.5';

@@ -378,6 +378,15 @@
             "mainExperience": "the main experience"
         }
     },
+    "updateHistory": {
+        "tabTitle": "Updates",
+        "title": "Update History",
+        "blocked": {
+            "eighteenPlus": "Update History doesn't work on 18+ experiences",
+            "paidAccess": "Update History doesn't work on paid access experiences",
+            "subplace": "Update History doesn't work on subplaces with join restrictions"
+        }
+    },
     "antiBots": {
         "reviewMembers": "Review {{count}} selected members:",
         "botWarning": "<strong>Warning:</strong> Ensure these are bots before taking action.",
