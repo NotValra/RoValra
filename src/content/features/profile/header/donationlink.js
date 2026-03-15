@@ -6,7 +6,7 @@ import { getOrCreateRovalraContainer } from './rap.js';
 import { createProfileHeaderButton } from '../../../core/ui/profile/header/button.js';
 import DOMPurify from 'dompurify';
 import { getAuthenticatedUsername } from '../../../core/user.js';
-
+import { ts } from '../../../core/locale/i18n.js';
 
 async function addDonationButton(observedElement) {
     const autheduser = await getAuthenticatedUsername();
@@ -17,40 +17,51 @@ async function addDonationButton(observedElement) {
     if (!targetContainer) return;
     if (targetContainer.querySelector(`.${buttonIdentifier}`)) return;
 
-     function showDonationOverlay() {
-        
-        
+    function showDonationOverlay() {
         if (!username) {
-            console.error("Could not get the username for the donation button.")
+            console.error(
+                'Could not get the username for the donation button.',
+            );
             return;
         }
 
         const bodyContent = document.createElement('div');
         bodyContent.innerHTML = DOMPurify.sanitize(`
-            <p style="line-height: 1.6; white-space: pre-line; font-size: 14px; font-weight: 600;">
-                This will launch "PLS DONATE" where you can give an offline donation.
-
-                Due to fees from Roblox (30%) and the game (10%), the user receives 60% of the donated amount.
-
-                Upon joining, the "Offline Donations" UI will appear with their username pre-filled. Simply click the gift button to open their stand and purchase a gamepass to donate.
+            <p style="line-height: 1.6; white-space: pre-line; font-size: 14px; font-weight: 600;">${ts('donationLink.description')}
             </p>
         `);
 
         const continueButton = document.createElement('button');
-        continueButton.innerText = 'Join Pls Donate';
-        Object.assign(continueButton.style, { padding: '10px 20px', border: 'none', borderRadius: '8px', backgroundColor: '#04ff00ff', color: '#181818ff', fontWeight: '600', cursor: 'pointer', transition: 'background-color 0.2s', fontSize: '14px' });
-        continueButton.addEventListener('mouseenter', () => continueButton.style.backgroundColor = '#00e600');
-        continueButton.addEventListener('mouseleave', () => continueButton.style.backgroundColor = '#04ff00ff');
+        continueButton.innerText = ts('donationLink.joinButton');
+        Object.assign(continueButton.style, {
+            padding: '10px 20px',
+            border: 'none',
+            borderRadius: '8px',
+            backgroundColor: '#04ff00ff',
+            color: '#181818ff',
+            fontWeight: '600',
+            cursor: 'pointer',
+            transition: 'background-color 0.2s',
+            fontSize: '14px',
+        });
+        continueButton.addEventListener(
+            'mouseenter',
+            () => (continueButton.style.backgroundColor = '#00e600'),
+        );
+        continueButton.addEventListener(
+            'mouseleave',
+            () => (continueButton.style.backgroundColor = '#04ff00ff'),
+        );
 
         const goBackButton = document.createElement('button');
-        goBackButton.innerText = 'Go Back';
+        goBackButton.innerText = ts('donationLink.goBackButton');
         goBackButton.className = 'btn-control-md rovalra-btn-cancel';
 
         const { close } = createOverlay({
-            title: 'Pls Donate',
+            title: ts('donationLink.overlayTitle'),
             bodyContent: bodyContent,
             actions: [goBackButton, continueButton],
-            maxWidth: '480px'
+            maxWidth: '480px',
         });
 
         continueButton.addEventListener('click', () => {
@@ -69,7 +80,7 @@ async function addDonationButton(observedElement) {
     });
 
     const buttonText = document.createElement('span');
-    buttonText.innerText = 'Donate';
+    buttonText.innerText = ts('donationLink.donate');
     buttonText.style.color = '#181818ff';
     const donationButton = createProfileHeaderButton({
         id: buttonIdentifier,
@@ -78,20 +89,21 @@ async function addDonationButton(observedElement) {
         onClick: (event) => {
             event.preventDefault();
             showDonationOverlay();
-        }
+        },
     });
     if (autheduser != username) {
         targetContainer.appendChild(donationButton);
-
     }
-
-
 }
 
 export function init() {
-    chrome.storage.local.get({ donationbuttonEnable: true }, function(data) {
+    chrome.storage.local.get({ donationbuttonEnable: true }, function (data) {
         if (data.donationbuttonEnable) {
-            observeElement('.flex-nowrap.gap-small.flex, .profile-header-names', addDonationButton, { multiple: true });
+            observeElement(
+                '.flex-nowrap.gap-small.flex, .profile-header-names',
+                addDonationButton,
+                { multiple: true },
+            );
         }
     });
 }

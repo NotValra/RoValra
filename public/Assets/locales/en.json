@@ -69,5 +69,12 @@
         "inventoryPrivate": "User's inventory is private.",
         "errorNoUserId": "Could not determine the User ID from the page.",
         "errorFetch": "Could not fetch outfits."
+    },
+    "donationLink": {
+        "donate": "Donate",
+        "overlayTitle": "Pls Donate",
+        "description": "This will launch \"PLS DONATE\" where you can give an offline donation.\n\nDue to fees from Roblox (30%) and the game (10%), the user receives 60% of the donated amount.\n\nUpon joining, the \"Offline Donations\" UI will appear with their username pre-filled. Simply click the gift button to open their stand and purchase a gamepass to donate.",
+        "joinButton": "Join Pls Donate",
+        "goBackButton": "Go Back"
     }
 }
