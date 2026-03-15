@@ -126,5 +126,73 @@
         "setActive": "Set Active",
         "noServersFound": "No {{status}} private servers found.",
         "byCreator": "By "
+    },
+    "firstAccount": {
+        "label": "First Account",
+        "yes": "Yes",
+        "no": "No",
+        "tooltip": "This shows if Roblox thinks your account is your first account. <br>This info comes directly from Roblox but may not be accurate.",
+        "createdDate": "First account created: {{date}}"
+    },
+    "settings": {
+        "tabs": {
+            "info": "Info",
+            "credits": "Credits",
+            "donatorPerks": "Donator Perks",
+            "settings": "Settings"
+        },
+        "info": {
+            "title": "RoValra Information!",
+            "desc1": "RoValra is an extension that's trying to make basic quality of life features free and accessible to everyone, by making everything completely open-source.",
+            "desc2": "This is possible by running almost everything locally.",
+            "desc3": "And the server side features doesn't cost me anything to run which is why I can afford to make this free.",
+            "desc4": "This extension is also a project to learn, so a lot of stuff might change or get reworked overtime as I learn more.",
+            "gilbert": "WE ALL LOVE GILBERT",
+            "suggestions": "If you have any feature suggestions please let me know in my Discord server or via GitHub",
+            "bugs": "If you find any bugs let me know in my Discord server or via GitHub",
+            "review": "If you like this extension please consider <a href=\"https://chromewebstore.google.com/detail/rovalra-roblox-improved/njcickgebhnpgmoodjdgohkclfplejli/reviews\" target=\"_blank\" class=\"rovalra-review-link\">leaving a review</a>, it helps a lot ❤️",
+            "discord": "Discord Server",
+            "github": "Github Repo",
+            "support": "Support RoValra",
+            "tiktok": "TikTok: ValraWantBanana",
+            "x": "X: ValraSwag"
+        },
+        "credits": {
+            "title": "RoValra Credits!",
+            "contributed": "Thanks to <b style=\"font-weight: bold;\">everyone who</b> <a href=\"https://github.com/NotValra/RoValra/graphs/contributors\" target=\"_blank\" class=\"rovalra-github-link\">contributed</a>",
+            "frames": "Thanks to <b style=\"font-weight: bold;\">Frames</b> for somehow getting the Roblox sales and revenue on some items",
+            "julia": "Thanks to <b style=\"font-weight: bold;\">Julia</b> for making a repo with all Roblox server datacenters which I used to use to get the regions, but now I switched to my own api.",
+            "aspect": "Thanks to <b style=\"font-weight: bold;\">Aspect</b> for helping me out here and there when I had a bunch of dumb questions or problems.",
+            "l5se": "Thanks to <b style=\"font-weight: bold;\">l5se</b> for allowing me to use their open source region selector as a template for my extension.",
+            "lz": "Thanks to <b style=\"font-weight: bold;\">7_lz</b> for helping me a bunch when preparing for the Chrome Web Store release. They helped a ton and I'm very thankful.",
+            "mmfw": "Thanks to <b style=\"font-weight: bold;\">mmfw</b> for making the screenshots on the chrome web store, and general help with UI design of the extension.",
+            "coweggs": "Thanks to <b style=\"font-weight: bold;\">Coweggs</b> for coming up with the very funny name that is \"RoValra\" as a joke that I then ended up using.",
+            "woozynate": "Thanks to <b style=\"font-weight: bold;\">WoozyNate</b> for making the amazing game called fisch, which is where Gilbert (the logo) is from <3"
+        },
+        "donatorPerks": {
+            "title": "Donator Perks!",
+            "subtitle": "Support RoValra's development and get exclusive perks!",
+            "howToGet": "How to Get Perks",
+            "howToGetDesc": "You can donate by purchasing a gamepasses in the support game.",
+            "goToGame": "Go to Donation Game",
+            "perkTiers": "Perk Tiers",
+            "tier1": "Tier 1: Supporter",
+            "tier1Desc": "Donate <strong>any amount</strong>",
+            "tier1Reward": "Supporter 1 Badge",
+            "tier2": "Tier 2: Super Supporter",
+            "tier2Desc": "Donate <strong>200+ Robux</strong>",
+            "tier2Reward": "Supporter 2 Badge",
+            "tier3": "Tier 3: Mega Supporter",
+            "tier3Desc": "Donate <strong>500+ Robux</strong>",
+            "tier3Reward": "Supporter 3 Badge",
+            "previousRewards": "+ All previous tier rewards",
+            "moreComingSoon": "More coming soon.",
+            "availableBadges": "Available Badges",
+            "note": "Note: Badges may take a few minutes to appear after donation. To manage badge visibility, go to the 'Profile' settings tab. Donating through commissions sadly won't give a donator perks, this is a Roblox limitation."
+        },
+        "search": {
+            "minLength": "Please enter at least 2 characters to search.",
+            "noResults": "No settings found for \"{{query}}\"."
+        }
     }
 }

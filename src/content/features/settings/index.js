@@ -29,6 +29,7 @@ import { callRobloxApi } from '../../core/api.js';
 import { safeHtml } from '../../core/packages/dompurify';
 import DOMPurify from 'dompurify';
 import { BADGE_CONFIG } from '../../core/configs/badges.js';
+import { ts } from '../../core/locale/i18n.js';
 
 const assets = getAssets();
 let REGIONS = {};
@@ -80,55 +81,66 @@ const debouncedAddCustomButton = debounce(
 function getBadgeStyle(key) {
     const badge = BADGE_CONFIG[key];
     if (!badge || !badge.style) return '';
-    return Object.entries(badge.style).map(([k, v]) => `${k.replace(/([A-Z])/g, '-$1').toLowerCase()}:${v}`).join(';');
+    return Object.entries(badge.style)
+        .map(([k, v]) => `${k.replace(/([A-Z])/g, '-$1').toLowerCase()}:${v}`)
+        .join(';');
 }
 
 const donatorBadgeKeys = ['donator_1', 'donator_2', 'donator_3'];
-const donatorBadgesHtml = donatorBadgeKeys.map(key => {
-    const badge = BADGE_CONFIG[key];
-    if (!badge) return '';
-    const styleString = getBadgeStyle(key);
-    const shortTooltip = badge.tooltip.split('.')[0];
 
-    return `
-        <div title="${badge.tooltip}" style="display: flex; align-items: center; gap: 10px; padding: 10px; background-color: var(--rovalra-container-background-color, rgba(0,0,0,0.1)); border-radius: 8px; flex: 1; min-width: 240px;">
-            <img src="${badge.icon}" style="width: 32px; height: 32px; ${styleString}" />
-            <span style="color: var(--rovalra-main-text-color); font-size: 14px;">${shortTooltip}</span>
-        </div>
-    `;
-}).join('');
+function getDonatorBadgesHtml() {
+    return donatorBadgeKeys
+        .map((key) => {
+            const badge = BADGE_CONFIG[key];
+            if (!badge) return '';
+            const styleString = getBadgeStyle(key);
+            const shortTooltip = badge.tooltip.split('.')[0];
+
+            return `
+            <div title="${badge.tooltip}" style="display: flex; align-items: center; gap: 10px; padding: 10px; background-color: var(--rovalra-container-background-color, rgba(0,0,0,0.1)); border-radius: 8px; flex: 1; min-width: 240px;">
+                <img src="${badge.icon}" style="width: 32px; height: 32px; ${styleString}" />
+                <span style="color: var(--rovalra-main-text-color); font-size: 14px;">${shortTooltip}</span>
+            </div>
+        `;
+        })
+        .join('');
+}
 
 export const buttonData = [
     {
-        text: 'Info',
-        content: `
+        id: 'info',
+        get text() {
+            return ts('settings.tabs.info');
+        },
+        get content() {
+            return `
             <div style="padding: 8px;">
-                <h2 style="margin-bottom: 10px; color: var(--rovalra-main-text-color) !important;">RoValra Information!</h2>
-                <p>RoValra is an extension that's trying to make basic quality of life features free and accessible to everyone, by making everything completely open-source.</p>
+                <h2 style="margin-bottom: 10px; color: var(--rovalra-main-text-color) !important;">${ts('settings.info.title')}</h2>
+                <p>${ts('settings.info.desc1')}</p>
                 <div style="margin-top: 5px;">
-                    <p>This is possible by running almost everything locally.</p>
+                    <p>${ts('settings.info.desc2')}</p>
                     <div style="margin-top: 5px;">
-                        <p>And the server side features doesn't cost me anything to run which is why I can afford to make this free.</p>
+                        <p>${ts('settings.info.desc3')}</p>
                         <div style="margin-top: 5px;">
-                            <p>This extension is also a project to learn, so a lot of stuff might change or get reworked overtime as I learn more.</p>
+                            <p>${ts('settings.info.desc4')}</p>
                             <div style="margin-top: 5px;">
-                                <p>WE ALL LOVE GILBERT</p>
+                                <p>${ts('settings.info.gilbert')}</p>
                                 <div style="margin-top: 5px;">
-                                    <p>If you have any feature suggestions please let me know in my Discord server or via GitHub</p>
+                                    <p>${ts('settings.info.suggestions')}</p>
                                     <div style="margin-top: 5px;">
-                                        <p>If you find any bugs let me know in my Discord server or via GitHub</p>
+                                        <p>${ts('settings.info.bugs')}</p>
                                         <div style="margin-top: 5px;">
-                                            <p>If you like this extension please consider <a href="https://chromewebstore.google.com/detail/rovalra-roblox-improved/njcickgebhnpgmoodjdgohkclfplejli/reviews" target="_blank" class="rovalra-review-link">leaving a review</a>, it helps a lot ❤️</p>
+                                            <p>${ts('settings.info.review')}</p>
                                         </div>
                                         <div style="margin-top: 10px; margin-bottom: 20px;">
-                                            <a href="https://discord.gg/GHd5cSKJRk" target="_blank" class="rovalra-discord-link">Discord Server</a>
+                                            <a href="https://discord.gg/GHd5cSKJRk" target="_blank" class="rovalra-discord-link">${ts('settings.info.discord')}</a>
                                             <a href="https://github.com/NotValra/RoValra" target="_blank" class="rovalra-github-link">
-                                                Github Repo
+                                                ${ts('settings.info.github')}
                                                 <img src="${assets.rovalraIcon}" style="width: 20px; height: 20px; margin-right: 0px; vertical-align: middle;" />
                                             </a>
-                                            <a href="https://www.roblox.com/games/store-section/9452973012" target="_blank" class="rovalra-roblox-link">Support RoValra</a>
-                                            <a href="https://www.tiktok.com/@valrawantbanana" target="_blank" class="rovalra-tiktok-link">TikTok: ValraWantBanana</a>
-                                            <a href="https://x.com/ValraSwag" target="_blank" class="rovalra-x-link">X: ValraSwag</a>
+                                            <a href="https://www.roblox.com/games/store-section/9452973012" target="_blank" class="rovalra-roblox-link">${ts('settings.info.support')}</a>
+                                            <a href="https://www.tiktok.com/@valrawantbanana" target="_blank" class="rovalra-tiktok-link">${ts('settings.info.tiktok')}</a>
+                                            <a href="https://x.com/ValraSwag" target="_blank" class="rovalra-x-link">${ts('settings.info.x')}</a>
                                         </div>
                                         <div id="export-import-buttons-container" style="border-top: 1px solid var(--rovalra-secondary-text-color); opacity: 0.8; padding-top: 15px; display: flex; justify-content: flex-start; gap: 10px;"></div>
                                     </div>
@@ -137,101 +149,110 @@ export const buttonData = [
                         </div>
                     </div>
                 </div>
-            </div>`,
+            </div>`;
+        },
     },
     {
-        text: 'Credits',
-        content: `
+        id: 'credits',
+        get text() {
+            return ts('settings.tabs.credits');
+        },
+        get content() {
+            return `
             <div style="padding: 8px;">
-                <h2 style="margin-bottom: 10px; color: var(--rovalra-main-text-color) !important;">RoValra Credits!</h2>
+                <h2 style="margin-bottom: 10px; color: var(--rovalra-main-text-color) !important;">${ts('settings.credits.title')}</h2>
                 <ul style="margin-top: 10px; padding-left: 0px; color: var(--rovalra-secondary-text-color);">
                     <li style="margin-bottom: 8px; list-style-type: disc; margin-left: 20px;">
-                        Thanks to <b style="font-weight: bold;">everyone who</b>
-                        <a href="https://github.com/NotValra/RoValra/graphs/contributors" target="_blank" class="rovalra-github-link">contributed</a>
+                        ${ts('settings.credits.contributed')}
                     </li>
                     <li style="margin-bottom: 8px; list-style-type: disc; margin-left: 20px;">
-                        Thanks to <b style="font-weight: bold;">Frames</b> for somehow getting the Roblox sales and revenue on some items
-                        <a href="https://github.com/workframes/roblox-owner-counts" target="_blank" class="rovalra-github-link">GitHub Repo</a>
+                        ${ts('settings.credits.frames')}
+                        <a href="https://github.com/workframes/roblox-owner-counts" target="_blank" class="rovalra-github-link">${ts('settings.info.github')}</a>
                     </li>
                     <li style="margin-bottom: 8px; list-style-type: disc; margin-left: 20px;">
-                        Thanks to <b style="font-weight: bold;">Julia</b> for making a repo with all Roblox server datacenters which I used to use to get the regions, but now I switched to my own api.
-                        <a href="https://github.com/RoSeal-Extension/Top-Secret-Thing" target="_blank" class="rovalra-github-link">GitHub Repo</a>
+                        ${ts('settings.credits.julia')}
+                        <a href="https://github.com/RoSeal-Extension/Top-Secret-Thing" target="_blank" class="rovalra-github-link">${ts('settings.info.github')}</a>
                     </li>
                     <li style="margin-bottom: 8px; list-style-type: disc; margin-left: 20px;">
-                         Thanks to <b style="font-weight: bold;">Aspect</b> for helping me out here and there when I had a bunch of dumb questions or problems.
+                         ${ts('settings.credits.aspect')}
                          <a href="https://github.com/Aspectise" target="_blank" class="rovalra-github-link">GitHub</a>
                     </li>
                     <li style="margin-bottom: 8px; list-style-type: disc; margin-left: 20px;">
-                         Thanks to <b style="font-weight: bold;">l5se</b> for allowing me to use their open source region selector as a template for my extension.
+                         ${ts('settings.credits.l5se')}
                     </li>
                     <li style="margin-bottom: 8px; list-style-type: disc; margin-left: 20px;">
-                        Thanks to <b style="font-weight: bold;">7_lz</b> for helping me a bunch when preparing for the Chrome Web Store release. They helped a ton and I'm very thankful.
+                        ${ts('settings.credits.lz')}
                     </li>
                     <li style="margin-bottom: 8px; list-style-type: disc; margin-left: 20px;">
-                        Thanks to <b style="font-weight: bold;">mmfw</b> for making the screenshots on the chrome web store, and general help with UI design of the extension.
+                        ${ts('settings.credits.mmfw')}
                     </li>
                     <li style="margin-bottom: 8px; list-style-type: disc; margin-left: 20px;">
-                        Thanks to <b style="font-weight: bold;">Coweggs</b> for coming up with the very funny name that is "RoValra" as a joke that I then ended up using.
+                        ${ts('settings.credits.coweggs')}
                     </li>
                     <li style="margin-bottom: 8px; list-style-type: disc; margin-left: 20px;">
-                        Thanks to <b style="font-weight: bold;">WoozyNate</b> for making the amazing game called fisch, which is where Gilbert (the logo) is from <3
+                        ${ts('settings.credits.woozynate')}
                     </li>
                 </ul>
-            </div>`,
+            </div>`;
+        },
     },
     {
-        text: 'Donator Perks',
-        content: `
+        id: 'donatorPerks',
+        get text() {
+            return ts('settings.tabs.donatorPerks');
+        },
+        get content() {
+            return `
             <div style="padding: 8px;">
-                <h2 style="margin-bottom: 10px; color: var(--rovalra-main-text-color) !important;">Donator Perks!</h2>
-                <p>Support RoValra's development and get exclusive perks!</p>
+                <h2 style="margin-bottom: 10px; color: var(--rovalra-main-text-color) !important;">${ts('settings.donatorPerks.title')}</h2>
+                <p>${ts('settings.donatorPerks.subtitle')}</p>
                 
                 <div style="margin-top: 15px;">
-                    <h3 style="color: var(--rovalra-main-text-color); margin-bottom: 5px; font-size: 18px;">How to Get Perks</h3>
-                    <p>You can donate by purchasing a gamepasses in the support game.</p>
+                    <h3 style="color: var(--rovalra-main-text-color); margin-bottom: 5px; font-size: 18px;">${ts('settings.donatorPerks.howToGet')}</h3>
+                    <p>${ts('settings.donatorPerks.howToGetDesc')}</p>
                     <div style="margin-top: 10px;">
-                        <a href="https://www.roblox.com/games/store-section/9452973012" target="_blank" class="rovalra-roblox-link">Go to Donation Game</a>
+                        <a href="https://www.roblox.com/games/store-section/9452973012" target="_blank" class="rovalra-roblox-link">${ts('settings.donatorPerks.goToGame')}</a>
                     </div>
                 </div>
 
                 <div style="margin-top: 20px;">
-                    <h3 style="color: var(--rovalra-main-text-color); margin-bottom: 10px; font-size: 18px;">Perk Tiers</h3>
+                    <h3 style="color: var(--rovalra-main-text-color); margin-bottom: 10px; font-size: 18px;">${ts('settings.donatorPerks.perkTiers')}</h3>
                     <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                         <div style="flex: 1; min-width: 200px; margin-bottom: 10px; padding: 10px; background-color: var(--rovalra-container-background-color, rgba(0,0,0,0.1)); border-radius: 8px; border: 1px solid var(--rovalra-border-color, rgba(128,128,128,0.2));">
                             <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
                                 <img src="${BADGE_CONFIG.donator_1.icon}" style="width: 32px; height: 32px; ${getBadgeStyle('donator_1')}" />
-                                <h4 style="color: var(--rovalra-main-text-color); margin: 0; font-size: 16px;">Tier 1: Supporter</h4>
+                                <h4 style="color: var(--rovalra-main-text-color); margin: 0; font-size: 16px;">${ts('settings.donatorPerks.tier1')}</h4>
                             </div>
-                            <p style="color: var(--rovalra-secondary-text-color); font-size: 14px;">Donate <strong>any amount</strong></p>
+                            <p style="color: var(--rovalra-secondary-text-color); font-size: 14px;">${ts('settings.donatorPerks.tier1Desc')}</p>
                             <ul style="margin-top: 5px; padding-left: 20px; color: var(--rovalra-secondary-text-color); margin-bottom: 0;">
-                                <li>Supporter 1 Badge</li>
-                                <li>More coming soon.</li>
+                                <li>${ts('settings.donatorPerks.tier1Reward')}</li>
+                                <li>${ts('settings.donatorPerks.moreComingSoon')}</li>
                             </ul>
                         </div>
 
                         <div style="flex: 1; min-width: 200px; margin-bottom: 10px; padding: 10px; background-color: var(--rovalra-container-background-color, rgba(0,0,0,0.1)); border-radius: 8px; border: 1px solid var(--rovalra-border-color, rgba(128,128,128,0.2));">
                             <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
                                 <img src="${BADGE_CONFIG.donator_2.icon}" style="width: 32px; height: 32px; ${getBadgeStyle('donator_2')}" />
-                                <h4 style="color: var(--rovalra-main-text-color); margin: 0; font-size: 16px;">Tier 2: Super Supporter</h4>
+                                <h4 style="color: var(--rovalra-main-text-color); margin: 0; font-size: 16px;">${ts('settings.donatorPerks.tier2')}</h4>
                             </div>
-                            <p style="color: var(--rovalra-secondary-text-color); font-size: 14px;">Donate <strong>200+ Robux</strong></p>
+                            <p style="color: var(--rovalra-secondary-text-color); font-size: 14px;">${ts('settings.donatorPerks.tier2Desc')}</p>
                             <ul style="margin-top: 5px; padding-left: 20px; color: var(--rovalra-secondary-text-color); margin-bottom: 0;">
-                                <li>Supporter 2 Badge</li>
-                                <li>+ All previous tier rewards</li>
-                                <li>More coming soon.</li>
+                                <li>${ts('settings.donatorPerks.tier2Reward')}</li>
+                                <li>${ts('settings.donatorPerks.previousRewards')}</li>
+                                <li>${ts('settings.donatorPerks.moreComingSoon')}</li>
                             </ul>
                         </div>
 
                         <div style="flex: 1; min-width: 200px; margin-bottom: 10px; padding: 10px; background-color: var(--rovalra-container-background-color, rgba(0,0,0,0.1)); border-radius: 8px; border: 1px solid var(--rovalra-border-color, rgba(128,128,128,0.2));">
                             <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
                                 <img src="${BADGE_CONFIG.donator_3.icon}" style="width: 32px; height: 32px; ${getBadgeStyle('donator_3')}" />
-                                <h4 style="color: var(--rovalra-main-text-color); margin: 0; font-size: 16px;">Tier 3: Mega Supporter</h4>
+                                <h4 style="color: var(--rovalra-main-text-color); margin: 0; font-size: 16px;">${ts('settings.donatorPerks.tier3')}</h4>
                             </div>
-                            <p style="color: var(--rovalra-secondary-text-color); font-size: 14px;">Donate <strong>500+ Robux</strong></p>
+                            <p style="color: var(--rovalra-secondary-text-color); font-size: 14px;">${ts('settings.donatorPerks.tier3Desc')}</p>
                             <ul style="margin-top: 5px; padding-left: 20px; color: var(--rovalra-secondary-text-color); margin-bottom: 0;">
-                                <li>Supporter 3 Badge</li>
-                                <li>+ All previous tier rewards</li>
-                                <li>More coming soon.</li>
+                                <li>${ts('settings.donatorPerks.tier3Reward')}</li>
+                                <li>${ts('settings.donatorPerks.previousRewards')}</li>
+                                <li>${ts('settings.donatorPerks.moreComingSoon')}</li>
 
                             </ul>
                         </div>
@@ -239,25 +260,30 @@ export const buttonData = [
                 </div>
 
                 <div style="margin-top: 20px;">
-                    <h3 style="color: var(--rovalra-main-text-color); margin-bottom: 10px; font-size: 18px;">Available Badges</h3>
+                    <h3 style="color: var(--rovalra-main-text-color); margin-bottom: 10px; font-size: 18px;">${ts('settings.donatorPerks.availableBadges')}</h3>
                     <div style="display: flex; flex-wrap: wrap; gap: 15px; align-items: stretch;">
-                        ${donatorBadgesHtml}
+                        ${getDonatorBadgesHtml()}
                     </div>
                 </div>
                 
                 <p style="margin-top: 15px; font-size: 12px; color: var(--rovalra-secondary-text-color);">
-                    Note: Badges may take a few minutes to appear after donation. To manage badge visibility, go to the 'Profile' settings tab.
-                    Donating through commissions sadly won't give a donator perks, this is a Roblox limitation.
+                    ${ts('settings.donatorPerks.note')}
                 </p>
-            </div>`,
+            </div>`;
+        },
     },
     {
-        text: 'Settings',
-        content: `
+        id: 'settings',
+        get text() {
+            return ts('settings.tabs.settings');
+        },
+        get content() {
+            return `
             <div id="settings-content" style="padding: 0; background-color: transparent;">
                 <div id="setting-section-buttons" style="display: flex; margin-bottom: 25px;"></div>
                 <div id="setting-section-content" style="padding: 5px;"></div>
-            </div>`,
+            </div>`;
+        },
     },
 ];
 
@@ -303,10 +329,14 @@ export async function updateContent(buttonInfo, contentContainer) {
     )
         return;
 
-    const lowerText = buttonInfo.text.toLowerCase();
+    const buttonId = buttonInfo.id;
     const sanitizeConfig = { ADD_URI_SCHEMES: ['chrome-extension'] };
 
-    if (lowerText === 'info' || lowerText === 'credits' || lowerText === 'donator perks') {
+    if (
+        buttonId === 'info' ||
+        buttonId === 'credits' ||
+        buttonId === 'donatorPerks'
+    ) {
         ((contentContainer.innerHTML = `
             <div id="settings-content" style="padding: 0; background-color: transparent !important;"> 
                 <div id="setting-section-content" style="padding: 5px;"> 
@@ -323,7 +353,7 @@ export async function updateContent(buttonInfo, contentContainer) {
         ); //verified
     }
 
-    if (lowerText === 'info') {
+    if (buttonId === 'info') {
         const buttonContainer = contentContainer.querySelector(
             '#export-import-buttons-container',
         );
@@ -362,7 +392,7 @@ export async function handleSearch(event) {
 
     if (query.length < 2) {
         contentContainer.innerHTML = DOMPurify.sanitize(
-            `<div id="settings-content" style="padding: 15px; text-align: center; color: var(--rovalra-main-text-color);">Please enter at least 2 characters to search.</div>`,
+            `<div id="settings-content" style="padding: 15px; text-align: center; color: var(--rovalra-main-text-color);">${ts('settings.search.minLength')}</div>`,
         );
         await applyTheme();
         return;
@@ -435,7 +465,7 @@ export async function handleSearch(event) {
     }
 
     if (searchResults.length === 0) {
-        contentContainer.innerHTML = safeHtml`<div id="settings-content" style="padding: 15px; text-align: center; color: var(--rovalra-main-text-color);">No settings found for "${query}".</div>`;
+        contentContainer.innerHTML = safeHtml`<div id="settings-content" style="padding: 15px; text-align: center; color: var(--rovalra-main-text-color);">${ts('settings.search.noResults', { query })}</div>`;
     } else {
         const groupedResults = searchResults.reduce((acc, setting) => {
             if (!acc[setting.category]) acc[setting.category] = [];
