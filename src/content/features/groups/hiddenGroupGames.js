@@ -1,12 +1,13 @@
-import { observeElement } from "../../core/observer.js";
-import { createOverlay } from "../../core/ui/overlay.js";
-import { createButton } from "../../core/ui/buttons.js";
-import { createDropdown } from "../../core/ui/dropdown.js";
-import { createShimmerGrid } from "../../core/ui/shimmer.js";
-import { fetchThumbnails as fetchThumbnailsBatch } from "../../core/thumbnail/thumbnails.js";
-import { callRobloxApiJson } from "../../core/api.js";
-import DOMPurify from "dompurify";
-import { createGameCard } from "../../core/ui/games/gameCard.js";
+import { observeElement } from '../../core/observer.js';
+import { createOverlay } from '../../core/ui/overlay.js';
+import { createButton } from '../../core/ui/buttons.js';
+import { createDropdown } from '../../core/ui/dropdown.js';
+import { createShimmerGrid } from '../../core/ui/shimmer.js';
+import { fetchThumbnails as fetchThumbnailsBatch } from '../../core/thumbnail/thumbnails.js';
+import { callRobloxApiJson } from '../../core/api.js';
+import DOMPurify from 'dompurify';
+import { t, ts } from '../../core/locale/i18n.js';
+import { createGameCard } from '../../core/ui/games/gameCard.js';
 
 const PAGE_SIZE = 50;
 const ACCESS_FILTER = { ALL: 1, PUBLIC: 2 };
@@ -38,9 +39,9 @@ const api = {
         for (let i = 0; i <= retries; i++) {
             try {
                 return await callRobloxApiJson({
-                    subdomain: "games",
+                    subdomain: 'games',
                     endpoint: endpoint,
-                    method: "GET",
+                    method: 'GET',
                 });
             } catch (err) {
                 if (err.status === 429 && i < retries) {
@@ -64,7 +65,7 @@ const api = {
 
         const fetchPromise = (async () => {
             let games = [];
-            let cursor = "";
+            let cursor = '';
 
             do {
                 const endpoint = `/v2/groups/${groupId}/gamesV2?accessFilter=${accessFilter}&limit=50&sortOrder=Desc&cursor=${cursor}`;
@@ -76,9 +77,9 @@ const api = {
                         rootPlaceId: game.rootPlace?.id,
                     }));
                     games = games.concat(formattedGames);
-                    cursor = json.nextPageCursor || "";
+                    cursor = json.nextPageCursor || '';
                 } else {
-                    cursor = "";
+                    cursor = '';
                 }
             } while (cursor);
             return games;
@@ -95,16 +96,27 @@ const api = {
 
         for (let i = 0; i < batch.length; i += 50) {
             const chunk = batch.slice(i, i + 50);
-            const universeIds = chunk.map((g) => g.id).join(",");
+            const universeIds = chunk.map((g) => g.id).join(',');
             if (!universeIds) continue;
 
-            const [votesData, playersData] = await Promise.all([this.safeGet(`/v1/games/votes?universeIds=${universeIds}`), this.safeGet(`/v1/games?universeIds=${universeIds}`)]);
+            const [votesData, playersData] = await Promise.all([
+                this.safeGet(`/v1/games/votes?universeIds=${universeIds}`),
+                this.safeGet(`/v1/games?universeIds=${universeIds}`),
+            ]);
 
             if (votesData?.data) {
                 votesData.data.forEach((item) => {
                     const total = item.upVotes + item.downVotes;
-                    const ratio = total > 0 ? Math.round((item.upVotes / total) * 100) : 0;
-                    cache.likes.set(item.id, { ratio, total, upVotes: item.upVotes, downVotes: item.downVotes });
+                    const ratio =
+                        total > 0
+                            ? Math.round((item.upVotes / total) * 100)
+                            : 0;
+                    cache.likes.set(item.id, {
+                        ratio,
+                        total,
+                        upVotes: item.upVotes,
+                        downVotes: item.downVotes,
+                    });
                 });
             }
 
@@ -120,7 +132,11 @@ const api = {
     async getThumbnails(games, cache) {
         const uncached = games.filter((g) => g && !cache.has(g.id));
         if (!uncached.length) return;
-        const results = await fetchThumbnailsBatch(uncached, "GameIcon", "256x256");
+        const results = await fetchThumbnailsBatch(
+            uncached,
+            'GameIcon',
+            '256x256',
+        );
         results.forEach((data, id) => cache.set(id, data));
     },
 };
@@ -129,7 +145,7 @@ class HiddenGamesManager {
     constructor(allHiddenGames) {
         this.allGames = allHiddenGames;
         this.filteredGames = [];
-        this.filters = { sort: "default", order: "desc" };
+        this.filters = { sort: 'default', order: 'desc' };
         this.displayedCount = 0;
         this.isLoading = false;
         this.isPaginating = false;
@@ -138,17 +154,32 @@ class HiddenGamesManager {
         this.render();
     }
 
-    render() {
+    async render() {
         const sortDropdown = createDropdown({
             items: [
-                { value: "default", label: "Recently Updated" },
-                { value: "like-ratio", label: "Like Ratio" },
-                { value: "likes", label: "Likes" },
-                { value: "dislikes", label: "Dislikes" },
-                { value: "players", label: "Players" },
-                { value: "name", label: "Name (Z-A)" },
+                {
+                    value: 'default',
+                    label: await t('hiddenGroupGames.sort.recentlyUpdated'),
+                },
+                {
+                    value: 'like-ratio',
+                    label: await t('hiddenGroupGames.sort.likeRatio'),
+                },
+                {
+                    value: 'likes',
+                    label: await t('hiddenGroupGames.sort.likes'),
+                },
+                {
+                    value: 'dislikes',
+                    label: await t('hiddenGroupGames.sort.dislikes'),
+                },
+                {
+                    value: 'players',
+                    label: await t('hiddenGroupGames.sort.players'),
+                },
+                { value: 'name', label: await t('hiddenGroupGames.sort.name') },
             ],
-            initialValue: "default",
+            initialValue: 'default',
             onValueChange: (v) => {
                 this.filters.sort = v;
                 this.applyFilters();
@@ -157,53 +188,123 @@ class HiddenGamesManager {
 
         const orderDropdown = createDropdown({
             items: [
-                { value: "desc", label: "Descending" },
-                { value: "asc", label: "Ascending" },
+                {
+                    value: 'desc',
+                    label: await t('hiddenGroupGames.order.descending'),
+                },
+                {
+                    value: 'asc',
+                    label: await t('hiddenGroupGames.order.ascending'),
+                },
             ],
-            initialValue: "desc",
+            initialValue: 'desc',
             onValueChange: (v) => {
                 this.filters.order = v;
                 this.applyFilters();
             },
         });
 
-        const createFilterGroup = (label, input) => el("div", "", { style: { display: "flex", flexDirection: "column", gap: "4px" } }, [el("label", "", { textContent: label, style: { fontSize: "12px", fontWeight: "500", color: "var(--rovalra-secondary-text-color)" } }), input]);
-
-        const body = el("div", "", { style: { display: "flex", flexDirection: "column" } }, [
+        const createFilterGroup = (label, input) =>
             el(
-                "div",
-                "rovalra-filters-container",
+                'div',
+                '',
                 {
-                    style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px 24px", padding: "16px 24px", backgroundColor: "var(--surface-default)", borderBottom: "1px solid var(--border-default)" },
+                    style: {
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '4px',
+                    },
                 },
-                [createFilterGroup("Sort", sortDropdown.element), createFilterGroup("Order", orderDropdown.element)]
-            ),
-            el("div", "hidden-games-list", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: "10px", padding: "24px" } }),
-            el("div", "rovalra-load-more-container", { style: { padding: "10px 0", textAlign: "center" } }),
-        ]);
+                [
+                    el('label', '', {
+                        textContent: label,
+                        style: {
+                            fontSize: '12px',
+                            fontWeight: '500',
+                            color: 'var(--rovalra-secondary-text-color)',
+                        },
+                    }),
+                    input,
+                ],
+            );
 
-        this.elements.list = body.querySelector(".hidden-games-list");
-        this.elements.filters = body.querySelector(".rovalra-filters-container");
-        this.elements.loader = body.querySelector(".rovalra-load-more-container");
+        const body = el(
+            'div',
+            '',
+            { style: { display: 'flex', flexDirection: 'column' } },
+            [
+                el(
+                    'div',
+                    'rovalra-filters-container',
+                    {
+                        style: {
+                            display: 'grid',
+                            gridTemplateColumns:
+                                'repeat(auto-fit, minmax(200px, 1fr))',
+                            gap: '16px 24px',
+                            padding: '16px 24px',
+                            backgroundColor: 'var(--surface-default)',
+                            borderBottom: '1px solid var(--border-default)',
+                        },
+                    },
+                    [
+                        createFilterGroup(
+                            await t('hiddenGroupGames.labels.sort'),
+                            sortDropdown.element,
+                        ),
+                        createFilterGroup(
+                            await t('hiddenGroupGames.labels.order'),
+                            orderDropdown.element,
+                        ),
+                    ],
+                ),
+                el('div', 'hidden-games-list', {
+                    style: {
+                        display: 'grid',
+                        gridTemplateColumns:
+                            'repeat(auto-fill, minmax(160px, 1fr))',
+                        gap: '10px',
+                        padding: '24px',
+                    },
+                }),
+                el('div', 'rovalra-load-more-container', {
+                    style: { padding: '10px 0', textAlign: 'center' },
+                }),
+            ],
+        );
+
+        this.elements.list = body.querySelector('.hidden-games-list');
+        this.elements.filters = body.querySelector(
+            '.rovalra-filters-container',
+        );
+        this.elements.loader = body.querySelector(
+            '.rovalra-load-more-container',
+        );
 
         const { overlay } = createOverlay({
-            title: `Hidden Group Experiences (${this.allGames.length} Total)`,
+            title: await t('hiddenGroupGames.overlayTitle', {
+                count: this.allGames.length,
+            }),
             bodyContent: body,
-            maxWidth: "1200px",
-            maxHeight: "85vh",
+            maxWidth: '1200px',
+            maxHeight: '85vh',
         });
 
-        const scrollContainer = overlay.querySelector(".rovalra-overlay-body");
+        const scrollContainer = overlay.querySelector('.rovalra-overlay-body');
         if (scrollContainer) {
-            scrollContainer.addEventListener("scroll", () => {
-                const { scrollTop, clientHeight, scrollHeight } = scrollContainer;
-                if (scrollTop + clientHeight >= scrollHeight - 150) this.loadMore();
+            scrollContainer.addEventListener('scroll', () => {
+                const { scrollTop, clientHeight, scrollHeight } =
+                    scrollContainer;
+                if (scrollTop + clientHeight >= scrollHeight - 150)
+                    this.loadMore();
             });
         }
 
         if (this.allGames.length === 0) {
-            this.elements.list.innerHTML = DOMPurify.sanitize(`<p class="btr-no-servers-message">This group has no hidden experiences.</p>`);
-            this.elements.filters.style.display = "none";
+            this.elements.list.innerHTML = DOMPurify.sanitize(
+                `<p class="btr-no-servers-message">${await t('hiddenGroupGames.noHiddenGames')}</p>`,
+            );
+            this.elements.filters.style.display = 'none';
         } else {
             this.applyFilters();
         }
@@ -214,30 +315,59 @@ class HiddenGamesManager {
         this.isLoading = true;
         this.isPaginating = false;
 
-        this.elements.list.innerHTML = "";
-        this.elements.list.appendChild(createShimmerGrid(12, { width: "150px", height: "240px" }));
-        this.elements.loader.innerHTML = "";
+        this.elements.list.innerHTML = '';
+        this.elements.list.appendChild(
+            createShimmerGrid(12, { width: '150px', height: '240px' }),
+        );
+        this.elements.loader.innerHTML = '';
 
         const { sort, order } = this.filters;
 
-        if (sort === "like-ratio" || sort === "likes" || sort === "dislikes" || sort === "players") {
+        if (
+            sort === 'like-ratio' ||
+            sort === 'likes' ||
+            sort === 'dislikes' ||
+            sort === 'players'
+        ) {
             await api.getGameDetails(this.allGames, this.cache);
         }
 
         const orderMultiplier = order === 'desc' ? -1 : 1;
         let processed = [...this.allGames];
-        if (sort === "like-ratio") {
-            processed.sort((a, b) => ((this.cache.likes.get(a.id)?.ratio || 0) - (this.cache.likes.get(b.id)?.ratio || 0)) * orderMultiplier);
-        } else if (sort === "likes") {
-            processed.sort((a, b) => ((this.cache.likes.get(a.id)?.upVotes || 0) - (this.cache.likes.get(b.id)?.upVotes || 0)) * orderMultiplier);
-        } else if (sort === "dislikes") {
-            processed.sort((a, b) => ((this.cache.likes.get(a.id)?.downVotes || 0) - (this.cache.likes.get(b.id)?.downVotes || 0)) * orderMultiplier);
-        } else if (sort === "players") {
-            processed.sort((a, b) => ((this.cache.players.get(a.id) || 0) - (this.cache.players.get(b.id) || 0)) * orderMultiplier);
-        } else if (sort === "name") {
-            processed.sort((a, b) => a.name.localeCompare(b.name) * orderMultiplier);
+        if (sort === 'like-ratio') {
+            processed.sort(
+                (a, b) =>
+                    ((this.cache.likes.get(a.id)?.ratio || 0) -
+                        (this.cache.likes.get(b.id)?.ratio || 0)) *
+                    orderMultiplier,
+            );
+        } else if (sort === 'likes') {
+            processed.sort(
+                (a, b) =>
+                    ((this.cache.likes.get(a.id)?.upVotes || 0) -
+                        (this.cache.likes.get(b.id)?.upVotes || 0)) *
+                    orderMultiplier,
+            );
+        } else if (sort === 'dislikes') {
+            processed.sort(
+                (a, b) =>
+                    ((this.cache.likes.get(a.id)?.downVotes || 0) -
+                        (this.cache.likes.get(b.id)?.downVotes || 0)) *
+                    orderMultiplier,
+            );
+        } else if (sort === 'players') {
+            processed.sort(
+                (a, b) =>
+                    ((this.cache.players.get(a.id) || 0) -
+                        (this.cache.players.get(b.id) || 0)) *
+                    orderMultiplier,
+            );
+        } else if (sort === 'name') {
+            processed.sort(
+                (a, b) => a.name.localeCompare(b.name) * orderMultiplier,
+            );
         } else {
-            if (order === "asc") {
+            if (order === 'asc') {
                 processed.reverse();
             }
         }
@@ -247,7 +377,10 @@ class HiddenGamesManager {
 
         const firstBatch = this.filteredGames.slice(0, PAGE_SIZE);
         if (firstBatch.length > 0) {
-            await Promise.all([api.getGameDetails(firstBatch, this.cache), api.getThumbnails(firstBatch, this.cache.thumbnails)]);
+            await Promise.all([
+                api.getGameDetails(firstBatch, this.cache),
+                api.getThumbnails(firstBatch, this.cache.thumbnails),
+            ]);
             this.displayedCount = firstBatch.length;
         }
 
@@ -256,11 +389,13 @@ class HiddenGamesManager {
     }
 
     renderList() {
-        this.elements.list.innerHTML = "";
+        this.elements.list.innerHTML = '';
         const gamesToShow = this.filteredGames.slice(0, this.displayedCount);
 
         if (gamesToShow.length === 0) {
-            this.elements.list.innerHTML = DOMPurify.sanitize(`<p class="btr-no-servers-message">No hidden experiences match the current filters.</p>`);
+            this.elements.list.innerHTML = DOMPurify.sanitize(
+                `<p class="btr-no-servers-message">${ts('hiddenGroupGames.noMatches')}</p>`,
+            );
             return;
         }
 
@@ -272,43 +407,63 @@ class HiddenGamesManager {
     }
 
     async loadMore() {
-        if (this.isLoading || this.isPaginating || this.displayedCount >= this.filteredGames.length) return;
+        if (
+            this.isLoading ||
+            this.isPaginating ||
+            this.displayedCount >= this.filteredGames.length
+        )
+            return;
         this.isPaginating = true;
-        this.elements.loader.innerHTML = DOMPurify.sanitize(`<p class="rovalra-loading-text">Loading more games...</p>`);
+        this.elements.loader.innerHTML = DOMPurify.sanitize(
+            `<p class="rovalra-loading-text">${await t('hiddenGroupGames.loadingMore')}</p>`,
+        );
 
         try {
-            const nextBatch = this.filteredGames.slice(this.displayedCount, this.displayedCount + PAGE_SIZE);
+            const nextBatch = this.filteredGames.slice(
+                this.displayedCount,
+                this.displayedCount + PAGE_SIZE,
+            );
             if (nextBatch.length > 0) {
-                await Promise.all([api.getGameDetails(nextBatch, this.cache), api.getThumbnails(nextBatch, this.cache.thumbnails)]);
+                await Promise.all([
+                    api.getGameDetails(nextBatch, this.cache),
+                    api.getThumbnails(nextBatch, this.cache.thumbnails),
+                ]);
 
                 const fragment = document.createDocumentFragment();
                 nextBatch.forEach((game) => {
-                    fragment.appendChild(createGameCard({ game, stats: this.cache }));
+                    fragment.appendChild(
+                        createGameCard({ game, stats: this.cache }),
+                    );
                 });
                 this.elements.list.appendChild(fragment);
                 this.displayedCount += nextBatch.length;
             }
         } catch (err) {
-            console.warn("RoValra: Error loading more games", err);
+            console.warn('RoValra: Error loading more games', err);
         } finally {
-            this.elements.loader.innerHTML = "";
+            this.elements.loader.innerHTML = '';
             this.isPaginating = false;
         }
     }
 }
 
 export function init() {
-    chrome.storage.local.get(["groupGamesEnabled"], (result) => {
+    chrome.storage.local.get(['groupGamesEnabled'], (result) => {
         if (result.groupGamesEnabled !== true) return;
 
         const getGroupIdFromUrl = () => {
-            const match = window.location.href.match(/(?:groups|communities)\/(\d+)/);
+            const match = window.location.href.match(
+                /(?:groups|communities)\/(\d+)/,
+            );
             return match ? match[1] : null;
         };
 
         const cleanupLegacyButtons = (header) => {
             if (!header) return;
-            const selectors = [".rovalra-hidden-games-container", ".hidden-games-button"];
+            const selectors = [
+                '.rovalra-hidden-games-container',
+                '.hidden-games-button',
+            ];
             selectors.forEach((sel) => {
                 const els = header.querySelectorAll(sel);
                 els.forEach((el) => el.remove());
@@ -325,7 +480,9 @@ export function init() {
 
             if (attachedGroupId) {
                 if (attachedGroupId === currentGroupId) {
-                    const existing = header.querySelectorAll(".rovalra-hidden-games-container");
+                    const existing = header.querySelectorAll(
+                        '.rovalra-hidden-games-container',
+                    );
                     if (existing.length > 1) {
                         cleanupLegacyButtons(header);
                         delete header.dataset.rovalraGroupId;
@@ -341,7 +498,10 @@ export function init() {
             header.dataset.rovalraGroupId = currentGroupId;
 
             try {
-                const [allGames, publicGames] = await Promise.all([api.getGroupGames(currentGroupId, ACCESS_FILTER.ALL), api.getGroupGames(currentGroupId, ACCESS_FILTER.PUBLIC)]);
+                const [allGames, publicGames] = await Promise.all([
+                    api.getGroupGames(currentGroupId, ACCESS_FILTER.ALL),
+                    api.getGroupGames(currentGroupId, ACCESS_FILTER.PUBLIC),
+                ]);
 
                 const freshId = getGroupIdFromUrl();
                 if (freshId !== currentGroupId || !header.isConnected) {
@@ -349,23 +509,33 @@ export function init() {
                 }
 
                 const publicIds = new Set(publicGames.map((g) => g.id));
-                const hiddenGames = allGames.filter((g) => !publicIds.has(g.id));
+                const hiddenGames = allGames.filter(
+                    (g) => !publicIds.has(g.id),
+                );
 
                 cleanupLegacyButtons(header);
 
-                const btn = createButton("Hidden Experiences", "secondary");
-                btn.addEventListener("click", () => new HiddenGamesManager(hiddenGames));
-
-                const container = el(
-                    "div",
-                    "rovalra-hidden-games-container",
-                    {
-                        style: { marginTop: "10px" },
-                    },
-                    [btn]
+                const btn = createButton(
+                    await t('hiddenGroupGames.buttonText'),
+                    'secondary',
+                );
+                btn.addEventListener(
+                    'click',
+                    () => new HiddenGamesManager(hiddenGames),
                 );
 
-                const description = header.querySelector(".description-container");
+                const container = el(
+                    'div',
+                    'rovalra-hidden-games-container',
+                    {
+                        style: { marginTop: '10px' },
+                    },
+                    [btn],
+                );
+
+                const description = header.querySelector(
+                    '.description-container',
+                );
                 if (description) {
                     description.after(container);
                 } else {
@@ -377,7 +547,7 @@ export function init() {
             }
         };
 
-        observeElement(".group-profile-header", (header) => {
+        observeElement('.group-profile-header', (header) => {
             initHeader(header);
         });
 
@@ -386,7 +556,7 @@ export function init() {
             const currentUrl = window.location.href;
             if (currentUrl !== lastUrl) {
                 lastUrl = currentUrl;
-                const header = document.querySelector(".group-profile-header");
+                const header = document.querySelector('.group-profile-header');
                 if (header) {
                     initHeader(header);
                 }
@@ -394,6 +564,6 @@ export function init() {
         };
 
         setInterval(checkForUrlChange, 1000);
-        window.addEventListener("popstate", checkForUrlChange);
+        window.addEventListener('popstate', checkForUrlChange);
     });
 }

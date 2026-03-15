@@ -5,8 +5,8 @@ const i18nPromise = (async () => {
     if (i18nInitialized) return;
 
     try {
-        const settings = await new Promise((resolve) =>
-            chrome.storage.local.get({ language: 'en' }, resolve),
+        const settings = await new Promise(
+            (resolve) => chrome.storage.local.get({ language: 'en' }, resolve), //Place holder in case that wasnt clear.
         );
         const language = settings.language || 'en';
 

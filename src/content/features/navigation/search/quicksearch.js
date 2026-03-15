@@ -1,10 +1,20 @@
 import { callRobloxApi } from '../../../core/api.js';
-import { observeElement, observeIntersection, observeResize } from '../../../core/observer.js';
-import { fetchThumbnails, createThumbnailElement } from '../../../core/thumbnail/thumbnails.js';
+import {
+    observeElement,
+    observeIntersection,
+    observeResize,
+} from '../../../core/observer.js';
+import {
+    fetchThumbnails,
+    createThumbnailElement,
+} from '../../../core/thumbnail/thumbnails.js';
 import { getAuthenticatedUserId } from '../../../core/user.js';
 import { formatPlayerCount } from '../../../core/games/playerCount.js';
 import { safeHtml } from '../../../core/packages/dompurify.js';
-import { performJoinAction, getSavedPreferredRegion } from '../../../core/preferredregion.js';
+import {
+    performJoinAction,
+    getSavedPreferredRegion,
+} from '../../../core/preferredregion.js';
 import { launchGame, followUser } from '../../../core/utils/launcher.js';
 import { getAssets } from '../../../core/assets.js';
 import { addTooltip } from '../../../core/ui/tooltip.js';
@@ -14,19 +24,20 @@ import { createScrollButtons } from '../../../core/ui/general/scrollButtons.js';
 import { showFriendListOverlay } from '../../../core/ui/games/friendListOverlay.js';
 import { showConfirmationPrompt } from '../../../core/ui/confirmationPrompt.js';
 import { log, logLevel } from '../../../core/logging.js';
+import { t, ts } from '../../../core/locale/i18n.js';
 
-let lastSearchedQuery = ""; 
+let lastSearchedQuery = '';
 let userSearchAbortController = null;
 let gameSearchAbortController = null;
 const userCache = new Map();
 const assets = getAssets();
 const STORAGE_KEY = 'rovalra_search_history';
 const MAX_HISTORY = 50;
-let initialSearchValue = "";
+let initialSearchValue = '';
 
 const debounce = (func, delay) => {
     let timeout;
-    return function(...args) {
+    return function (...args) {
         clearTimeout(timeout);
         timeout = setTimeout(() => func.apply(this, args), delay);
     };
@@ -41,38 +52,51 @@ let searchSettings = {
     userSearchEnabled: true,
     gameSearchEnabled: true,
     friendSearchEnabled: true,
-    searchHistoryEnabled: true
+    searchHistoryEnabled: true,
 };
 
 function updateSearchSettings() {
-    chrome.storage.local.get(['quickSearchEnabled', 'userSearchEnabled', 'gameSearchEnabled', 'friendSearchEnabled', 'searchHistoryEnabled'], (result) => {
-        if (result) Object.assign(searchSettings, result);
-    });
+    chrome.storage.local.get(
+        [
+            'quickSearchEnabled',
+            'userSearchEnabled',
+            'gameSearchEnabled',
+            'friendSearchEnabled',
+            'searchHistoryEnabled',
+        ],
+        (result) => {
+            if (result) Object.assign(searchSettings, result);
+        },
+    );
 }
 
 async function fetchWithRetry(options, retries = 3, signal = null) {
     try {
         if (signal) options.signal = signal;
-        
+
         const response = await callRobloxApi(options);
         if (response.status === 499) {
-            const abortError = new Error('Aborted');
+            const abortError = new Error(await t('quickSearch.aborted'));
             abortError.name = 'AbortError';
             throw abortError;
         }
         if (response.status === 429) {
             if (retries > 0) {
-                await new Promise(resolve => setTimeout(resolve, 1000));
+                await new Promise((resolve) => setTimeout(resolve, 1000));
                 return fetchWithRetry(options, retries - 1);
             }
         }
         if (!response.ok) {
-            throw new Error(`API request failed with status ${response.status}`);
+            throw new Error(
+                await t('quickSearch.apiRequestFailed', {
+                    status: response.status,
+                }),
+            );
         }
         return await response.json();
     } catch (e) {
         if (retries > 0 && e.name !== 'AbortError') {
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            await new Promise((resolve) => setTimeout(resolve, 1000));
             return fetchWithRetry(options, retries - 1, signal);
         }
         throw e;
@@ -92,20 +116,26 @@ async function performUserSearch(query) {
 
         const promises = [];
         if (searchSettings.userSearchEnabled && query.length >= 2) {
-            promises.push(fetchWithRetry({
-                subdomain: 'users',
-                endpoint: '/v1/usernames/users',
-                method: 'POST',
-                body: {
-                    usernames: [query],
-                    excludeBannedUsers: false
-                }
-            }, 3, signal));
+            promises.push(
+                fetchWithRetry(
+                    {
+                        subdomain: 'users',
+                        endpoint: '/v1/usernames/users',
+                        method: 'POST',
+                        body: {
+                            usernames: [query],
+                            excludeBannedUsers: false,
+                        },
+                    },
+                    3,
+                    signal,
+                ),
+            );
         } else {
             promises.push(Promise.resolve(null));
         }
 
-        const localFriendsPromise = new Promise(resolve => {
+        const localFriendsPromise = new Promise((resolve) => {
             chrome.storage.local.get(['rovalra_friends_data'], (result) => {
                 if (!searchSettings.friendSearchEnabled) {
                     resolve([]);
@@ -118,111 +148,159 @@ async function performUserSearch(query) {
                     return;
                 }
                 const lowerQuery = query.toLowerCase();
-                const matches = friendsData.friendsList.filter(f => 
-                    (f.username && f.username.toLowerCase().includes(lowerQuery)) || 
-                    (f.displayName && f.displayName.toLowerCase().includes(lowerQuery)) ||
-                    (f.combinedName && f.combinedName.toLowerCase().includes(lowerQuery))
+                const matches = friendsData.friendsList.filter(
+                    (f) =>
+                        (f.username &&
+                            f.username.toLowerCase().includes(lowerQuery)) ||
+                        (f.displayName &&
+                            f.displayName.toLowerCase().includes(lowerQuery)) ||
+                        (f.combinedName &&
+                            f.combinedName.toLowerCase().includes(lowerQuery)),
                 );
                 resolve(matches.slice(0, 5));
             });
         });
         promises.push(localFriendsPromise);
 
-        localFriendsPromise.then(async (localFriends) => {
-            if (signal.aborted) return;
-            
-            if (localFriends.length > 0) {
-                const validUsers = localFriends.map(f => ({
-                    id: f.id,
-                    name: f.username,
-                    displayName: f.combinedName,
-                    hasVerifiedBadge: f.isVerified,
-                    isBanned: f.isDeleted,
-                    isTrusted: f.isTrusted
-                }));
-
-                const thumbnailMap = await fetchThumbnails(validUsers.map(u => ({ id: u.id })), 'AvatarHeadshot', '48x48', false, signal);
+        localFriendsPromise
+            .then(async (localFriends) => {
                 if (signal.aborted) return;
 
-                const presencePromise = fetchWithRetry({
-                    subdomain: 'presence',
-                    endpoint: '/v1/presence/users',
-                    method: 'POST',
-                    body: { userIds: validUsers.map(u => u.id) }
-                }, 3, signal).catch(() => null);
+                if (localFriends.length > 0) {
+                    const validUsers = localFriends.map((f) => ({
+                        id: f.id,
+                        name: f.username,
+                        displayName: f.combinedName,
+                        hasVerifiedBadge: f.isVerified,
+                        isBanned: f.isDeleted,
+                        isTrusted: f.isTrusted,
+                    }));
 
-                const [presenceData] = await Promise.all([presencePromise]);
-                if (signal.aborted) return;
+                    const thumbnailMap = await fetchThumbnails(
+                        validUsers.map((u) => ({ id: u.id })),
+                        'AvatarHeadshot',
+                        '48x48',
+                        false,
+                        signal,
+                    );
+                    if (signal.aborted) return;
 
-                const presences = presenceData?.userPresences || [];
-                const presenceMap = new Map(presences.map(p => [p.userId, p]));
+                    const presencePromise = fetchWithRetry(
+                        {
+                            subdomain: 'presence',
+                            endpoint: '/v1/presence/users',
+                            method: 'POST',
+                            body: { userIds: validUsers.map((u) => u.id) },
+                        },
+                        3,
+                        signal,
+                    ).catch(() => null);
 
-                window._lastRoValraFriendResults = validUsers.map(friendUser => {
-                    if (window._lastRoValraUserResult && window._lastRoValraUserResult.dataset.userId == friendUser.id) {
-                        return null;
-                    }
-                    const thumbData = thumbnailMap.get(friendUser.id);
-                    const presence = presenceMap.get(friendUser.id);
-                    return createUserResultHtml(friendUser, thumbData, presence, true, friendUser.isTrusted);
-                }).filter(el => el !== null);
-            } else {
-                window._lastRoValraFriendResults = [];
-            }
-            injectIntoMenu();
-        }).catch(e => {
-            if (e.name !== 'AbortError') log(logLevel.ERROR, 'RoValra: Friend Search Error', e);
-        });
+                    const [presenceData] = await Promise.all([presencePromise]);
+                    if (signal.aborted) return;
+
+                    const presences = presenceData?.userPresences || [];
+                    const presenceMap = new Map(
+                        presences.map((p) => [p.userId, p]),
+                    );
+
+                    window._lastRoValraFriendResults = validUsers
+                        .map((friendUser) => {
+                            if (
+                                window._lastRoValraUserResult &&
+                                window._lastRoValraUserResult.dataset.userId ==
+                                    friendUser.id
+                            ) {
+                                return null;
+                            }
+                            const thumbData = thumbnailMap.get(friendUser.id);
+                            const presence = presenceMap.get(friendUser.id);
+                            return createUserResultHtml(
+                                friendUser,
+                                thumbData,
+                                presence,
+                                true,
+                                friendUser.isTrusted,
+                            );
+                        })
+                        .filter((el) => el !== null);
+                } else {
+                    window._lastRoValraFriendResults = [];
+                }
+                injectIntoMenu();
+            })
+            .catch((e) => {
+                if (e.name !== 'AbortError')
+                    console.error(ts('quickSearch.friendSearchError'), e);
+            });
 
         const [userSearchData, localFriends] = await Promise.all(promises);
 
         if (signal.aborted) return;
 
         const userResult = userSearchData?.data?.[0];
-        const friendIdsFromSearch = localFriends.map(f => f.id);
+        const friendIdsFromSearch = localFriends.map((f) => f.id);
         let userResultIsFriend = false;
         let userResultFriendData = null;
 
         if (userResult) {
             userResultIsFriend = friendIdsFromSearch.includes(userResult.id);
             if (userResultIsFriend) {
-                userResultFriendData = localFriends.find(f => f.id === userResult.id);
+                userResultFriendData = localFriends.find(
+                    (f) => f.id === userResult.id,
+                );
             }
         }
-        const uniqueFriends = localFriends.filter(f => !userResult || f.id !== userResult.id);
-        const uniqueFriendIds = uniqueFriends.map(f => f.id);
+        const uniqueFriends = localFriends.filter(
+            (f) => !userResult || f.id !== userResult.id,
+        );
+        const uniqueFriendIds = uniqueFriends.map((f) => f.id);
 
         if (userResult) {
             if (signal.aborted) return;
-            
+
             const promises2 = [
-                fetchThumbnails([{ id: userResult.id }], 'AvatarHeadshot', '48x48'),
-                fetchWithRetry({
-                    subdomain: 'presence',
-                    endpoint: '/v1/presence/users',
-                    method: 'POST',
-                    body: { userIds: [userResult.id] },
-                }, 3, signal)
+                fetchThumbnails(
+                    [{ id: userResult.id }],
+                    'AvatarHeadshot',
+                    '48x48',
+                ),
+                fetchWithRetry(
+                    {
+                        subdomain: 'presence',
+                        endpoint: '/v1/presence/users',
+                        method: 'POST',
+                        body: { userIds: [userResult.id] },
+                    },
+                    3,
+                    signal,
+                ),
             ];
 
             if (!userResultIsFriend) {
                 promises2.push(
-                    userCache.has(userResult.id) ? 
-                    Promise.resolve(userCache.get(userResult.id)) :
-                    fetchWithRetry({
-                        subdomain: 'users',
-                        endpoint: `/v1/users/${userResult.id}`,
-                    }, 3, signal).then(userData => {
-                        if (userData) {
-                            userCache.set(userResult.id, userData);
-                        }
-                        return userData;
-                    })
+                    userCache.has(userResult.id)
+                        ? Promise.resolve(userCache.get(userResult.id))
+                        : fetchWithRetry(
+                              {
+                                  subdomain: 'users',
+                                  endpoint: `/v1/users/${userResult.id}`,
+                              },
+                              3,
+                              signal,
+                          ).then((userData) => {
+                              if (userData) {
+                                  userCache.set(userResult.id, userData);
+                              }
+                              return userData;
+                          }),
                 );
             } else {
                 promises2.push(Promise.resolve(null));
             }
 
-            const [userThumbnailMap, presenceData, fetchedUserDetails] = await Promise.all(promises2);
+            const [userThumbnailMap, presenceData, fetchedUserDetails] =
+                await Promise.all(promises2);
             if (signal.aborted) return;
 
             let userDetails = fetchedUserDetails;
@@ -234,25 +312,34 @@ async function performUserSearch(query) {
                     name: userResultFriendData.username,
                     displayName: userResultFriendData.combinedName,
                     hasVerifiedBadge: userResultFriendData.isVerified,
-                    isBanned: userResultFriendData.isDeleted
+                    isBanned: userResultFriendData.isDeleted,
                 };
                 isTrusted = userResultFriendData.isTrusted;
             } else if (!userDetails && userResult) {
-                 userDetails = {
+                userDetails = {
                     id: userResult.id,
                     name: userResult.name,
                     displayName: userResult.displayName,
                     hasVerifiedBadge: userResult.hasVerifiedBadge,
-                    isBanned: false
+                    isBanned: false,
                 };
             }
 
             const userThumbData = userThumbnailMap.get(userResult.id);
             const userPresence = presenceData?.userPresences?.[0];
-            window._lastRoValraUserResult = createUserResultHtml(userDetails, userThumbData, userPresence, userResultIsFriend, isTrusted);
-            
+            window._lastRoValraUserResult = createUserResultHtml(
+                userDetails,
+                userThumbData,
+                userPresence,
+                userResultIsFriend,
+                isTrusted,
+            );
+
             if (window._lastRoValraFriendResults) {
-                window._lastRoValraFriendResults = window._lastRoValraFriendResults.filter(el => el.dataset.userId != userResult.id);
+                window._lastRoValraFriendResults =
+                    window._lastRoValraFriendResults.filter(
+                        (el) => el.dataset.userId != userResult.id,
+                    );
             }
         } else {
             window._lastRoValraUserResult = null;
@@ -260,7 +347,9 @@ async function performUserSearch(query) {
 
         injectIntoMenu();
     } catch (e) {
-        if (e.name !== 'AbortError') log(logLevel.ERROR, 'RoValra: User Search Error', e);
+        if (e.name !== 'AbortError')
+            log(logLevel.ERROR, 
+                ts('quickSearch.userSearchError'), e);
     }
 }
 
@@ -292,94 +381,142 @@ async function performGameSearch(query) {
             friendsFetchPromise = fetchWithRetry({
                 subdomain: 'friends',
                 endpoint: `/v1/users/${authedUserId}/friends/online`,
-                signal: signal
-            }).then(data => {
-                cachedFriendsData = data;
-                return data;
-            }).catch(e => {
-                friendsFetchPromise = null;
-                if (e.name === 'AbortError') throw e;
-                return { data: [] };
-            });
+                signal: signal,
+            })
+                .then((data) => {
+                    cachedFriendsData = data;
+                    return data;
+                })
+                .catch((e) => {
+                    friendsFetchPromise = null;
+                    if (e.name === 'AbortError') throw e;
+                    return { data: [] };
+                });
             friendsPromise = friendsFetchPromise;
         }
 
         const [gameSearchData, settings, friendsData] = await Promise.all([
-            fetchWithRetry({
-                subdomain: 'apis',
-                endpoint: `/search-api/omni-search?searchQuery=${encodeURIComponent(query)}&sessionid=${authedUserId}&pageType=Game`
-            }, 3, signal),
-            new Promise(resolve => chrome.storage.local.get(['PreferredRegionEnabled'], resolve)),
-            friendsPromise
+            fetchWithRetry(
+                {
+                    subdomain: 'apis',
+                    endpoint: `/search-api/omni-search?searchQuery=${encodeURIComponent(query)}&sessionid=${authedUserId}&pageType=Game`,
+                },
+                3,
+                signal,
+            ),
+            new Promise((resolve) =>
+                chrome.storage.local.get(['PreferredRegionEnabled'], resolve),
+            ),
+            friendsPromise,
         ]);
 
         if (signal.aborted) return;
 
-        const gameResult = gameSearchData?.searchResults?.find(r => r.contentGroupType === 'Game' && r.contents?.length > 0);
+        const gameResult = gameSearchData?.searchResults?.find(
+            (r) => r.contentGroupType === 'Game' && r.contents?.length > 0,
+        );
         if (gameResult) {
-        const game = gameResult.contents[0];
-        const friendsPlaying = friendsData?.data?.filter(f => f.userPresence?.universeId === game.universeId) || [];
- 
-        if (signal.aborted) return;
-        const promises = [
-            fetchThumbnails([{ id: game.universeId }], 'GameIcon', '50x50'),
-            fetchWithRetry({
-                subdomain: 'games',
-                endpoint: `/v1/games/votes?universeIds=${game.universeId}`
-            }, 3, signal)
-        ];
+            const game = gameResult.contents[0];
+            const friendsPlaying =
+                friendsData?.data?.filter(
+                    (f) => f.userPresence?.universeId === game.universeId,
+                ) || [];
 
-        if (friendsPlaying.length > 0) {
-            promises.push(fetchThumbnails(friendsPlaying.map(f => ({ id: f.id })), 'AvatarHeadshot', '48x48'));
-        }
+            if (signal.aborted) return;
+            const promises = [
+                fetchThumbnails([{ id: game.universeId }], 'GameIcon', '50x50'),
+                fetchWithRetry(
+                    {
+                        subdomain: 'games',
+                        endpoint: `/v1/games/votes?universeIds=${game.universeId}`,
+                    },
+                    3,
+                    signal,
+                ),
+            ];
 
-        const results = await Promise.all(promises);
-        const thumbnailMap = results[0];
-        const votesData = results[1];
- 
-        if (signal.aborted) return;
-        const voteInfo = votesData.data && votesData.data[0] ? votesData.data[0] : { upVotes: 0, downVotes: 0 };
-        const totalVotes = voteInfo.upVotes + voteInfo.downVotes;
-        const voteRatio = totalVotes > 0 ? Math.floor((voteInfo.upVotes / totalVotes) * 100) : 0;
- 
-        const thumbData = thumbnailMap.get(game.universeId);
-        const thumbnailUrl = thumbData?.state === 'Completed' ? thumbData.imageUrl : '';
-        const playerCount = formatPlayerCount(game.playerCount || 0);
+            if (friendsPlaying.length > 0) {
+                promises.push(
+                    fetchThumbnails(
+                        friendsPlaying.map((f) => ({ id: f.id })),
+                        'AvatarHeadshot',
+                        '48x48',
+                    ),
+                );
+            }
 
-        let friendsInfo = [];
-        if (friendsPlaying.length > 0 && results[2]) {
-            const friendThumbMap = results[2];
-            friendsInfo = friendsPlaying.map(f => {
-                const fThumb = friendThumbMap.get(f.id);
-                if (fThumb && fThumb.state === 'Completed') {
-                    return {
-                        id: f.id,
-                        userId: f.id,
-                        name: f.displayName || f.name,
-                        displayName: f.displayName,
-                        combinedName: `${f.displayName || f.name} (@${f.name})`,
-                        username: f.name,
-                        thumbnailUrl: fThumb.imageUrl,
-                        rootPlaceId: f.userPresence.rootPlaceId,
-                        gameInstanceId: f.userPresence.gameId
-                    };
-                }
-                return null;
-            }).filter(f => f !== null);
-        }
+            const results = await Promise.all(promises);
+            const thumbnailMap = results[0];
+            const votesData = results[1];
 
-            window._lastRoValraGameResult = createResultHtml(game, thumbnailUrl, playerCount, voteRatio, totalVotes, settings, friendsInfo);
+            if (signal.aborted) return;
+            const voteInfo =
+                votesData.data && votesData.data[0]
+                    ? votesData.data[0]
+                    : { upVotes: 0, downVotes: 0 };
+            const totalVotes = voteInfo.upVotes + voteInfo.downVotes;
+            const voteRatio =
+                totalVotes > 0
+                    ? Math.floor((voteInfo.upVotes / totalVotes) * 100)
+                    : 0;
+
+            const thumbData = thumbnailMap.get(game.universeId);
+            const thumbnailUrl =
+                thumbData?.state === 'Completed' ? thumbData.imageUrl : '';
+            const playerCount = formatPlayerCount(game.playerCount || 0);
+
+            let friendsInfo = [];
+            if (friendsPlaying.length > 0 && results[2]) {
+                const friendThumbMap = results[2];
+                friendsInfo = friendsPlaying
+                    .map((f) => {
+                        const fThumb = friendThumbMap.get(f.id);
+                        if (fThumb && fThumb.state === 'Completed') {
+                            return {
+                                id: f.id,
+                                userId: f.id,
+                                name: f.displayName || f.name,
+                                displayName: f.displayName,
+                                combinedName: `${f.displayName || f.name} (@${f.name})`,
+                                username: f.name,
+                                thumbnailUrl: fThumb.imageUrl,
+                                rootPlaceId: f.userPresence.rootPlaceId,
+                                gameInstanceId: f.userPresence.gameId,
+                            };
+                        }
+                        return null;
+                    })
+                    .filter((f) => f !== null);
+            }
+
+            window._lastRoValraGameResult = createResultHtml(
+                game,
+                thumbnailUrl,
+                playerCount,
+                voteRatio,
+                totalVotes,
+                settings,
+                friendsInfo,
+            );
         }
 
         injectIntoMenu();
     } catch (e) {
-        if (e.name !== 'AbortError') log(logLevel.ERROR, 'RoValra: Game Search Error', e);
+        if (e.name !== 'AbortError')
+            log(logLevel.ERROR, ts('quickSearch.gameSearchError'), e);
     }
 }
 
-function createUserResultHtml(user, thumbData, presence, isFriend = false, isTrusted = false) {
+function createUserResultHtml(
+    user,
+    thumbData,
+    presence,
+    isFriend = false,
+    isTrusted = false,
+) {
     const li = document.createElement('li');
-    li.className = 'navbar-search-option rbx-clickable-li improved-search rovalra-quick-search-result';
+    li.className =
+        'navbar-search-option rbx-clickable-li improved-search rovalra-quick-search-result';
     li.dataset.userId = user.id;
 
     const container = document.createElement('div');
@@ -388,7 +525,7 @@ function createUserResultHtml(user, thumbData, presence, isFriend = false, isTru
         alignItems: 'center',
         padding: '6px 0px',
         gap: '12px',
-        maxHeight: "56px"
+        maxHeight: '56px',
     });
 
     const link = document.createElement('a');
@@ -400,10 +537,15 @@ function createUserResultHtml(user, thumbData, presence, isFriend = false, isTru
         textDecoration: 'none',
         color: 'inherit',
         flex: '1',
-        minWidth: '0'
+        minWidth: '0',
     });
     link.addEventListener('click', () => {
-        addSearchTerm({ type: 'user', id: user.id, name: user.displayName, thumbnail: thumbData?.imageUrl });
+        addSearchTerm({
+            type: 'user',
+            id: user.id,
+            name: user.displayName,
+            thumbnail: thumbData?.imageUrl,
+        });
     });
 
     const thumbContainer = document.createElement('span');
@@ -414,27 +556,35 @@ function createUserResultHtml(user, thumbData, presence, isFriend = false, isTru
         width: '48px',
         borderRadius: '50%',
         flexShrink: '0',
-        overflow: 'visible'
+        overflow: 'visible',
     });
 
-    const thumbEl = createThumbnailElement(thumbData, user.displayName, 'avatar-card-image', {
-        height: '100%',
-        width: '100%',
-        borderRadius: '50%'
-    });
+    const thumbEl = createThumbnailElement(
+        thumbData,
+        user.displayName,
+        'avatar-card-image',
+        {
+            height: '100%',
+            width: '100%',
+            borderRadius: '50%',
+        },
+    );
     thumbContainer.appendChild(thumbEl);
 
     if (presence) {
         let presenceClass = '';
         let presenceColor = '';
 
-        if (presence.userPresenceType === 1) { // Online
+        if (presence.userPresenceType === 1) {
+            // Online
             presenceClass = 'online';
             presenceColor = 'rgb(0, 162, 255)';
-        } else if (presence.userPresenceType === 2) { // In Game
+        } else if (presence.userPresenceType === 2) {
+            // In Game
             presenceClass = 'ingame';
             presenceColor = 'rgb(2, 183, 87)';
-        } else if (presence.userPresenceType === 3) { // In Studio
+        } else if (presence.userPresenceType === 3) {
+            // In Studio
             presenceClass = 'ingame';
             presenceColor = 'rgb(246, 136, 2)';
         }
@@ -444,14 +594,14 @@ function createUserResultHtml(user, thumbData, presence, isFriend = false, isTru
             presenceIndicator.className = presenceClass;
             presenceIndicator.setAttribute('data-testid', 'presence-icon');
             Object.assign(presenceIndicator.style, {
-                position: 'absolute', 
-                bottom: '0px', 
-                right: '0px', 
-                width: '12px', 
-                height: '12px', 
+                position: 'absolute',
+                bottom: '0px',
+                right: '0px',
+                width: '12px',
+                height: '12px',
                 backgroundColor: presenceColor,
                 borderRadius: '50%',
-                border: '2px solid var(--rovalra-container-background-color)'
+                border: '2px solid var(--rovalra-container-background-color)',
             });
             thumbContainer.appendChild(presenceIndicator);
         }
@@ -463,7 +613,7 @@ function createUserResultHtml(user, thumbData, presence, isFriend = false, isTru
         flexDirection: 'column',
         justifyContent: 'center',
         overflow: 'hidden',
-        width: '100%'
+        width: '100%',
     });
 
     const displayNameDiv = document.createElement('div');
@@ -477,7 +627,7 @@ function createUserResultHtml(user, thumbData, presence, isFriend = false, isTru
         overflow: 'hidden',
         textOverflow: 'ellipsis',
         display: 'flex',
-        alignItems: 'center'
+        alignItems: 'center',
     });
 
     const displayNameSpan = document.createElement('span');
@@ -485,7 +635,7 @@ function createUserResultHtml(user, thumbData, presence, isFriend = false, isTru
     Object.assign(displayNameSpan.style, {
         whiteSpace: 'nowrap',
         overflow: 'hidden',
-        textOverflow: 'ellipsis'
+        textOverflow: 'ellipsis',
     });
     displayNameDiv.appendChild(displayNameSpan);
 
@@ -496,14 +646,18 @@ function createUserResultHtml(user, thumbData, presence, isFriend = false, isTru
         color: 'var(--rovalra-secondary-text-color)',
         whiteSpace: 'nowrap',
         overflow: 'hidden',
-        textOverflow: 'ellipsis'
+        textOverflow: 'ellipsis',
     });
-    
+
     let statusText = `@${user.name}`;
     if (presence && presence.userPresenceType === 2 && presence.lastLocation) {
-        statusText = `Playing ${presence.lastLocation}`;
+        statusText = ts('quickSearch.playing', {
+            gameName: presence.lastLocation,
+        });
     } else if (isFriend) {
-        statusText = isTrusted ? "You are trusted connections" : "You are connections";
+        statusText = isTrusted
+            ? ts('quickSearch.trustedConnection')
+            : ts('quickSearch.connection');
     }
     secondaryInfoDiv.textContent = statusText;
 
@@ -517,9 +671,16 @@ function createUserResultHtml(user, thumbData, presence, isFriend = false, isTru
         if (displayNameDiv) {
             const badge = document.createElement('img');
             badge.src = assets.verifiedBadge;
-            badge.alt = "Verified Badge";
-            badge.title = "Verified";
-            Object.assign(badge.style, { width: '16px', height: '16px', display: 'inline-block', verticalAlign: 'middle', marginLeft: '5px', flexShrink: '0' });
+            badge.alt = ts('quickSearch.verifiedBadge');
+            badge.title = ts('quickSearch.verified');
+            Object.assign(badge.style, {
+                width: '16px',
+                height: '16px',
+                display: 'inline-block',
+                verticalAlign: 'middle',
+                marginLeft: '5px',
+                flexShrink: '0',
+            });
             displayNameDiv.appendChild(badge);
         }
     }
@@ -527,7 +688,9 @@ function createUserResultHtml(user, thumbData, presence, isFriend = false, isTru
     if (user.isBanned) {
         if (displayNameDiv) {
             const lockIcon = document.createElement('div');
-            addTooltip(lockIcon, 'This user has been permanently banned', { position: 'bottom' });
+            addTooltip(lockIcon, ts('quickSearch.permanentlyBanned'), {
+                position: 'bottom',
+            });
             Object.assign(lockIcon.style, {
                 width: '16px',
                 height: '16px',
@@ -537,7 +700,7 @@ function createUserResultHtml(user, thumbData, presence, isFriend = false, isTru
                 flexShrink: '0',
                 backgroundColor: 'var(--rovalra-secondary-text-color)',
                 webkitMask: `url("${assets.lock}") no-repeat center / contain`,
-                mask: `url("${assets.lock}") no-repeat center / contain`
+                mask: `url("${assets.lock}") no-repeat center / contain`,
             });
             displayNameDiv.appendChild(lockIcon);
         }
@@ -552,7 +715,7 @@ function createUserResultHtml(user, thumbData, presence, isFriend = false, isTru
             gap: '6px',
             alignItems: 'center',
             flexShrink: '0',
-            paddingRight: '12px'
+            paddingRight: '12px',
         });
 
         const playBtn = document.createElement('button');
@@ -568,7 +731,7 @@ function createUserResultHtml(user, thumbData, presence, isFriend = false, isTru
             alignItems: 'center',
             justifyContent: 'center',
             transition: 'background-color 0.2s, filter 0.2s',
-            flexShrink: '0'
+            flexShrink: '0',
         });
 
         playBtn.addEventListener('mouseenter', () => {
@@ -599,18 +762,27 @@ function createUserResultHtml(user, thumbData, presence, isFriend = false, isTru
     li.appendChild(container);
     return li;
 }
- 
-function createResultHtml(game, thumbnailUrl, playerCount, voteRatio, totalVotes, settings, friendsInfo) {
+
+function createResultHtml(
+    game,
+    thumbnailUrl,
+    playerCount,
+    voteRatio,
+    totalVotes,
+    settings,
+    friendsInfo,
+) {
     const li = document.createElement('li');
-    li.className = 'navbar-search-option rbx-clickable-li improved-search rovalra-quick-search-result';
- 
+    li.className =
+        'navbar-search-option rbx-clickable-li improved-search rovalra-quick-search-result';
+
     const container = document.createElement('div');
     Object.assign(container.style, {
         display: 'flex',
         alignItems: 'center',
         padding: '6px 0px',
         gap: '12px',
-        maxHeight: "56px"
+        maxHeight: '56px',
     });
 
     const link = document.createElement('a');
@@ -623,16 +795,22 @@ function createResultHtml(game, thumbnailUrl, playerCount, voteRatio, totalVotes
         flex: '1',
         minWidth: '0',
         textDecoration: 'none',
-        color: 'inherit'
+        color: 'inherit',
     });
     link.addEventListener('click', () => {
-        addSearchTerm({ type: 'game', id: game.rootPlaceId, universeId: game.universeId, name: game.name, thumbnail: thumbnailUrl });
+        addSearchTerm({
+            type: 'game',
+            id: game.rootPlaceId,
+            universeId: game.universeId,
+            name: game.name,
+            thumbnail: thumbnailUrl,
+        });
     });
 
     const votePercentageClass = totalVotes > 0 ? '' : 'hidden';
     const noVoteClass = totalVotes === 0 ? '' : 'hidden';
- 
-    link.innerHTML = safeHtml`
+
+    ((link.innerHTML = safeHtml`
         <span class="thumbnail-2d-container" style="height: 48px; width: 48px; border-radius: 8px; flex-shrink: 0;">
             <img src="${thumbnailUrl}" style="height: 100%; width: 100%; border-radius: 8px;">
         </span>
@@ -646,7 +824,8 @@ function createResultHtml(game, thumbnailUrl, playerCount, voteRatio, totalVotes
                 <span class="info-label playing-counts-label">${playerCount}</span>
             </div>
         </div>
-    `, { ADD_ATTR: ['style', 'class', 'href', 'title'] };
+    `),
+        { ADD_ATTR: ['style', 'class', 'href', 'title'] });
 
     const buttonsContainer = document.createElement('div');
     Object.assign(buttonsContainer.style, {
@@ -654,8 +833,7 @@ function createResultHtml(game, thumbnailUrl, playerCount, voteRatio, totalVotes
         gap: '3px',
         alignItems: 'center',
         flexShrink: '0',
-        paddingRight: '12px'
-        
+        paddingRight: '12px',
     });
 
     if (settings && settings.PreferredRegionEnabled) {
@@ -672,7 +850,7 @@ function createResultHtml(game, thumbnailUrl, playerCount, voteRatio, totalVotes
             alignItems: 'center',
             justifyContent: 'center',
             transition: 'filter 0.2s',
-            flexShrink: '0'
+            flexShrink: '0',
         });
 
         regionBtn.addEventListener('mouseenter', () => {
@@ -688,14 +866,16 @@ function createResultHtml(game, thumbnailUrl, playerCount, voteRatio, totalVotes
                 const savedRegion = await getSavedPreferredRegion();
                 let tooltipText;
                 if (!savedRegion || savedRegion === 'AUTO') {
-                    tooltipText = 'Join Preferred Region<br><b>Best Region (Auto)</b>';
+                    tooltipText = `${await t('quickSearch.joinPreferredRegion')}<br><b>${await t('quickSearch.bestRegionAuto')}</b>`;
                 } else {
                     const regionName = getFullRegionName(savedRegion);
-                    tooltipText = `Join Preferred Region<br><b>${regionName}</b>`;
+                    tooltipText = `${await t('quickSearch.joinPreferredRegion')}<br><b>${regionName}</b>`;
                 }
                 addTooltip(regionBtn, tooltipText, { position: 'top' });
             } catch (e) {
-                addTooltip(regionBtn, "Join Preferred Region", { position: 'top' });
+                addTooltip(regionBtn, ts('quickSearch.joinPreferredRegion'), {
+                    position: 'top',
+                });
             }
         })();
 
@@ -708,7 +888,11 @@ function createResultHtml(game, thumbnailUrl, playerCount, voteRatio, totalVotes
             e.preventDefault();
             e.stopPropagation();
             const region = await getSavedPreferredRegion();
-            performJoinAction(game.rootPlaceId, game.universeId, region === 'AUTO' ? null : region);
+            performJoinAction(
+                game.rootPlaceId,
+                game.universeId,
+                region === 'AUTO' ? null : region,
+            );
         };
         buttonsContainer.appendChild(regionBtn);
     }
@@ -725,16 +909,16 @@ function createResultHtml(game, thumbnailUrl, playerCount, voteRatio, totalVotes
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-            transition: 'background-color 0.2s, filter 0.2s',
-        flexShrink: '0'
+        transition: 'background-color 0.2s, filter 0.2s',
+        flexShrink: '0',
     });
 
-        playBtn.addEventListener('mouseenter', () => {
-            playBtn.style.filter = 'brightness(0.9)';
-        });
-        playBtn.addEventListener('mouseleave', () => {
-            playBtn.style.filter = '';
-        });
+    playBtn.addEventListener('mouseenter', () => {
+        playBtn.style.filter = 'brightness(0.9)';
+    });
+    playBtn.addEventListener('mouseleave', () => {
+        playBtn.style.filter = '';
+    });
 
     playBtn.onmousedown = (e) => {
         e.preventDefault();
@@ -759,15 +943,23 @@ function injectIntoMenu() {
     const menu = document.querySelector('ul.new-dropdown-menu');
     if (!menu) return;
 
-    menu.querySelectorAll('.rovalra-quick-search-result').forEach(el => el.remove());
-    
+    menu.querySelectorAll('.rovalra-quick-search-result').forEach((el) =>
+        el.remove(),
+    );
+
     if (window._lastRoValraGameResult) {
         menu.prepend(window._lastRoValraGameResult);
     }
-    if (window._lastRoValraFriendResults && window._lastRoValraFriendResults.length > 0) {
-        window._lastRoValraFriendResults.slice().reverse().forEach(friendResult => {
-            menu.prepend(friendResult);
-        });
+    if (
+        window._lastRoValraFriendResults &&
+        window._lastRoValraFriendResults.length > 0
+    ) {
+        window._lastRoValraFriendResults
+            .slice()
+            .reverse()
+            .forEach((friendResult) => {
+                menu.prepend(friendResult);
+            });
     }
     if (window._lastRoValraUserResult) {
         menu.prepend(window._lastRoValraUserResult);
@@ -775,7 +967,11 @@ function injectIntoMenu() {
 
     const firstResult = menu.querySelector('.rovalra-quick-search-result');
     const currentlySelected = menu.querySelector('.new-selected');
-    if (firstResult && currentlySelected && !currentlySelected.classList.contains('rovalra-quick-search-result')) {
+    if (
+        firstResult &&
+        currentlySelected &&
+        !currentlySelected.classList.contains('rovalra-quick-search-result')
+    ) {
         currentlySelected.classList.remove('new-selected');
         firstResult.classList.add('new-selected');
     }
@@ -787,10 +983,16 @@ function injectExistingResult() {
         if (window._lastRoValraGameResult) {
             menu.prepend(window._lastRoValraGameResult);
         }
-        if (window._lastRoValraFriendResults && window._lastRoValraFriendResults.length > 0) {
-            window._lastRoValraFriendResults.slice().reverse().forEach(friendResult => {
-                menu.prepend(friendResult);
-            });
+        if (
+            window._lastRoValraFriendResults &&
+            window._lastRoValraFriendResults.length > 0
+        ) {
+            window._lastRoValraFriendResults
+                .slice()
+                .reverse()
+                .forEach((friendResult) => {
+                    menu.prepend(friendResult);
+                });
         }
         if (window._lastRoValraUserResult) {
             menu.prepend(window._lastRoValraUserResult);
@@ -799,7 +1001,11 @@ function injectExistingResult() {
 
     const firstResult = menu?.querySelector('.rovalra-quick-search-result');
     const currentlySelected = menu?.querySelector('.new-selected');
-    if (firstResult && currentlySelected && !currentlySelected.classList.contains('rovalra-quick-search-result')) {
+    if (
+        firstResult &&
+        currentlySelected &&
+        !currentlySelected.classList.contains('rovalra-quick-search-result')
+    ) {
         currentlySelected.classList.remove('new-selected');
         firstResult.classList.add('new-selected');
     }
@@ -813,7 +1019,7 @@ async function getHistory() {
 async function addSearchTerm(term) {
     if (!searchSettings.searchHistoryEnabled) return;
     if (!term) return;
-    
+
     let entry;
     let valueToCheck;
 
@@ -823,24 +1029,26 @@ async function addSearchTerm(term) {
         entry = valueToCheck;
     } else {
         valueToCheck = term.name;
-        entry = { 
-            name: term.name, 
+        entry = {
+            name: term.name,
             thumbnail: term.thumbnail,
             type: term.type,
             id: term.id,
             universeId: term.universeId,
-            timestamp: Date.now()
+            timestamp: Date.now(),
         };
     }
 
     let history = await getHistory();
-    history = history.filter(item => {
+    history = history.filter((item) => {
         const itemValue = typeof item === 'string' ? item : item.name;
-        if (itemValue.toLowerCase() === valueToCheck.toLowerCase()) return false;
+        if (itemValue.toLowerCase() === valueToCheck.toLowerCase())
+            return false;
 
         if (typeof term !== 'string' && typeof item !== 'string') {
             // Check for matching ID within the same type (handles both games and users)
-            if (item.type === term.type && String(item.id) === String(term.id)) return false;
+            if (item.type === term.type && String(item.id) === String(term.id))
+                return false;
         }
 
         return true;
@@ -851,12 +1059,30 @@ async function addSearchTerm(term) {
 }
 
 async function updateThumbnails(items) {
-    const users = items.filter(i => i.type === 'user').map(i => ({ id: parseInt(i.id), pill: i.pill }));
-    const games = items.filter(i => i.type === 'game').map(i => ({ id: parseInt(i.universeId || i.id), pill: i.pill }));
+    const users = items
+        .filter((i) => i.type === 'user')
+        .map((i) => ({ id: parseInt(i.id), pill: i.pill }));
+    const games = items
+        .filter((i) => i.type === 'game')
+        .map((i) => ({ id: parseInt(i.universeId || i.id), pill: i.pill }));
 
     const promises = [];
-    if (users.length) promises.push(fetchThumbnails(users.map(u => ({ id: u.id })), 'AvatarHeadshot', '48x48').then(map => ({ type: 'user', map, items: users })));
-    if (games.length) promises.push(fetchThumbnails(games.map(g => ({ id: g.id })), 'GameIcon', '50x50').then(map => ({ type: 'game', map, items: games })));
+    if (users.length)
+        promises.push(
+            fetchThumbnails(
+                users.map((u) => ({ id: u.id })),
+                'AvatarHeadshot',
+                '48x48',
+            ).then((map) => ({ type: 'user', map, items: users })),
+        );
+    if (games.length)
+        promises.push(
+            fetchThumbnails(
+                games.map((g) => ({ id: g.id })),
+                'GameIcon',
+                '50x50',
+            ).then((map) => ({ type: 'game', map, items: games })),
+        );
 
     if (promises.length > 0) {
         const results = await Promise.all(promises);
@@ -872,12 +1098,13 @@ async function updateThumbnails(items) {
                         if (img && img.src !== newData.imageUrl) {
                             img.src = newData.imageUrl;
                         }
-                        
+
                         const storedId = pill.dataset.historyId;
-                        const historyItem = history.find(h => 
-                            typeof h !== 'string' && 
-                            String(h.id) === String(storedId) && 
-                            h.type === type
+                        const historyItem = history.find(
+                            (h) =>
+                                typeof h !== 'string' &&
+                                String(h.id) === String(storedId) &&
+                                h.type === type,
                         );
 
                         if (historyItem) {
@@ -898,13 +1125,13 @@ async function updateThumbnails(items) {
 
 function handleButtonState(btn, shouldDisable) {
     const currentlyDisabled = btn.classList.contains('rovalra-btn-disabled');
-    
+
     if (shouldDisable) {
         if (!currentlyDisabled) {
             btn.classList.add('rovalra-btn-disabled');
             // Double click prevention
             btn.style.pointerEvents = 'auto';
-            
+
             if (btn._timeout) clearTimeout(btn._timeout);
             btn._timeout = setTimeout(() => {
                 if (btn.classList.contains('rovalra-btn-disabled')) {
@@ -949,19 +1176,20 @@ async function renderSearchHistory(container) {
     const history = await getHistory();
 
     const section = document.createElement('div');
-    section.className = 'game-sort-header-container rovalra-search-history-section';
+    section.className =
+        'game-sort-header-container rovalra-search-history-section';
     section.style.marginTop = '20px';
-    
-    section.innerHTML = `
+
+    section.innerHTML = safeHtml`
         <div class="container-header">
-            <h2 class="sort-header"><span>Search History</span></h2>
+            <h2 class="sort-header"><span>${await t('quickSearch.searchHistory')}</span></h2>
         </div>
     `;
 
     if (history.length === 0) {
         const emptyMsg = document.createElement('div');
         emptyMsg.className = 'text-secondary';
-        emptyMsg.textContent = "You don't have any search history.";
+        emptyMsg.textContent = await t('quickSearch.noSearchHistory');
         emptyMsg.style.padding = '10px 12px';
         section.appendChild(emptyMsg);
         container.appendChild(section);
@@ -978,11 +1206,11 @@ async function renderSearchHistory(container) {
     listContainer.className = 'rovalra-history-list-container';
     listContainer.style.overflowX = 'auto';
     listContainer.style.scrollBehavior = 'smooth';
-    
+
     listContainer.style.scrollbarWidth = 'none'; // Firefox
-    listContainer.style.msOverflowStyle = 'none';  // IE and Edge
+    listContainer.style.msOverflowStyle = 'none'; // IE and Edge
     if (!document.getElementById('rovalra-history-scrollbar-style')) {
-        const style = document.createElement('style');//verified
+        const style = document.createElement('style'); //verified
         style.id = 'rovalra-history-scrollbar-style';
         style.textContent = `
             #rovalra-history-list-scroll .rovalra-history-list-container::-webkit-scrollbar { display: none; }
@@ -1013,7 +1241,7 @@ async function renderSearchHistory(container) {
                 cursor: default;
                 pointer-events: none;
             }
-        `;// Verified
+        `; // Verified
         document.head.appendChild(style);
     }
 
@@ -1022,9 +1250,9 @@ async function renderSearchHistory(container) {
     list.style.display = 'flex';
     list.style.flexWrap = 'nowrap';
     list.style.gap = '8px';
-    list.style.padding = '0 40px'; 
+    list.style.padding = '0 40px';
 
-    history.forEach(item => {
+    history.forEach((item) => {
         let term;
         let iconUrl = null;
 
@@ -1041,12 +1269,18 @@ async function renderSearchHistory(container) {
         if (typeof item !== 'string' && item.id && item.type) {
             pill.dataset.historyId = item.id;
             pill.dataset.historyType = item.type;
-            if (item.universeId) pill.dataset.historyUniverseId = item.universeId;
+            if (item.universeId)
+                pill.dataset.historyUniverseId = item.universeId;
             pill.dataset.timestamp = item.timestamp || 0;
         }
 
         pill.addEventListener('click', () => {
-            if (typeof item === 'object' && item !== null && item.type && item.id) {
+            if (
+                typeof item === 'object' &&
+                item !== null &&
+                item.type &&
+                item.id
+            ) {
                 if (item.type === 'user') {
                     window.location.href = `https://www.roblox.com/users/${item.id}/profile`;
                 } else if (item.type === 'game') {
@@ -1074,7 +1308,7 @@ async function renderSearchHistory(container) {
             borderRadius: '50%',
             transition: 'background-color 0.2s',
             position: 'relative',
-            zIndex: '2'
+            zIndex: '2',
         });
 
         const deleteIcon = document.createElement('div');
@@ -1084,7 +1318,7 @@ async function renderSearchHistory(container) {
             backgroundColor: 'currentColor',
             webkitMask: `url("${assets.delete}") no-repeat center / contain`,
             mask: `url("${assets.delete}") no-repeat center / contain`,
-            opacity: '0.7'
+            opacity: '0.7',
         });
         deleteBtn.appendChild(deleteIcon);
 
@@ -1100,25 +1334,30 @@ async function renderSearchHistory(container) {
         deleteBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             e.preventDefault();
-            
+
             showConfirmationPrompt({
-                title: 'Delete Search History',
-                message: 'Are you sure you want to delete this search history entry?',
-                confirmText: 'Delete',
+                title: ts('quickSearch.deleteSearchHistoryTitle'),
+                message: ts('quickSearch.deleteSearchHistoryMessage'),
+                confirmText: ts('quickSearch.delete'),
                 confirmType: 'primary-destructive',
                 onConfirm: async () => {
                     const currentHistory = await getHistory();
-                    const newHistory = currentHistory.filter(h => {
+                    const newHistory = currentHistory.filter((h) => {
                         if (typeof item === 'string') {
                             return h !== item;
                         } else {
                             if (typeof h === 'string') return true;
-                            return !(String(h.id) === String(item.id) && h.type === item.type);
+                            return !(
+                                String(h.id) === String(item.id) &&
+                                h.type === item.type
+                            );
                         }
                     });
-                    await chrome.storage.local.set({ [STORAGE_KEY]: newHistory });
+                    await chrome.storage.local.set({
+                        [STORAGE_KEY]: newHistory,
+                    });
                     renderSearchHistory(container);
-                }
+                },
             });
         });
 
@@ -1137,14 +1376,16 @@ async function renderSearchHistory(container) {
             if (!e.currentTarget.classList.contains('rovalra-btn-disabled')) {
                 listContainer.scrollLeft += 300;
             }
-        }
+        },
     });
 
     leftButton.classList.add('rovalra-scroll-btn', 'left');
     rightButton.classList.add('rovalra-scroll-btn', 'right');
-    
-    listContainer.addEventListener('scroll', () => updateScrollButtonStates(listContainer, leftButton, rightButton));
-    
+
+    listContainer.addEventListener('scroll', () =>
+        updateScrollButtonStates(listContainer, leftButton, rightButton),
+    );
+
     scrollWrapper.appendChild(leftButton);
     scrollWrapper.appendChild(listContainer);
     scrollWrapper.appendChild(rightButton);
@@ -1156,10 +1397,15 @@ async function renderSearchHistory(container) {
         container._rovalraResizeCleanup();
     }
 
-    setTimeout(() => updateScrollButtonStates(listContainer, leftButton, rightButton), 100);
-    const { unobserve } = observeResize(listContainer, () => updateScrollButtonStates(listContainer, leftButton, rightButton));
+    setTimeout(
+        () => updateScrollButtonStates(listContainer, leftButton, rightButton),
+        100,
+    );
+    const { unobserve } = observeResize(listContainer, () =>
+        updateScrollButtonStates(listContainer, leftButton, rightButton),
+    );
     container._rovalraResizeCleanup = unobserve;
-    
+
     const itemsToUpdateQueue = new Set();
     let updateTimeout = null;
 
@@ -1171,25 +1417,34 @@ async function renderSearchHistory(container) {
         updateTimeout = null;
     };
 
-    list.querySelectorAll('[data-history-id]').forEach(pill => {
-        const unobserver = observeIntersection(pill, (entry) => {
-            if (entry.isIntersecting) {
-                const timestamp = parseInt(pill.dataset.timestamp || '0');
-                if (Date.now() - timestamp > 300000) {
-                    const id = pill.dataset.historyId;
-                    const type = pill.dataset.historyType;
-                    const universeId = pill.dataset.historyUniverseId;
+    list.querySelectorAll('[data-history-id]').forEach((pill) => {
+        const unobserver = observeIntersection(
+            pill,
+            (entry) => {
+                if (entry.isIntersecting) {
+                    const timestamp = parseInt(pill.dataset.timestamp || '0');
+                    if (Date.now() - timestamp > 300000) {
+                        const id = pill.dataset.historyId;
+                        const type = pill.dataset.historyType;
+                        const universeId = pill.dataset.historyUniverseId;
 
-                    if (id && type) {
-                        itemsToUpdateQueue.add({ id, type, universeId, pill });
-                        unobserver.unobserve();
-                        if (!updateTimeout) {
-                            updateTimeout = setTimeout(processQueue, 100);
+                        if (id && type) {
+                            itemsToUpdateQueue.add({
+                                id,
+                                type,
+                                universeId,
+                                pill,
+                            });
+                            unobserver.unobserve();
+                            if (!updateTimeout) {
+                                updateTimeout = setTimeout(processQueue, 100);
+                            }
                         }
                     }
                 }
-            }
-        }, { root: listContainer, threshold: 0.1 });
+            },
+            { root: listContainer, threshold: 0.1 },
+        );
     });
 }
 
@@ -1197,7 +1452,13 @@ export function init() {
     updateSearchSettings();
     chrome.storage.onChanged.addListener((changes, area) => {
         if (area === 'local') {
-            if (changes.quickSearchEnabled || changes.userSearchEnabled || changes.gameSearchEnabled || changes.friendSearchEnabled || changes.searchHistoryEnabled) {
+            if (
+                changes.quickSearchEnabled ||
+                changes.userSearchEnabled ||
+                changes.gameSearchEnabled ||
+                changes.friendSearchEnabled ||
+                changes.searchHistoryEnabled
+            ) {
                 updateSearchSettings();
             }
         }
@@ -1211,16 +1472,18 @@ export function init() {
         if (input) {
             clearInterval(seeker);
             initialSearchValue = input.value;
-            
+
             input.addEventListener('input', () => {
                 if (!searchSettings.quickSearchEnabled) return;
-                const currentVal = (input.value || "").trim();
+                const currentVal = (input.value || '').trim();
 
                 if (currentVal === lastSearchedQuery) return;
                 lastSearchedQuery = currentVal;
 
-                if (userSearchAbortController) userSearchAbortController.abort('New search initiated');
-                if (gameSearchAbortController) gameSearchAbortController.abort('New search initiated');
+                if (userSearchAbortController)
+                    userSearchAbortController.abort('New search initiated');
+                if (gameSearchAbortController)
+                    gameSearchAbortController.abort('New search initiated');
 
                 window._lastRoValraUserResult = null;
                 window._lastRoValraGameResult = null;
@@ -1249,23 +1512,31 @@ export function init() {
 
                 if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
                     if (isMenuVisible) {
-                        const items = Array.from(menu.querySelectorAll('li.navbar-search-option'));
+                        const items = Array.from(
+                            menu.querySelectorAll('li.navbar-search-option'),
+                        );
                         if (items.length > 0) {
                             e.preventDefault();
                             e.stopPropagation();
 
-                            let selectedIndex = items.findIndex(item => item.classList.contains('new-selected'));
+                            let selectedIndex = items.findIndex((item) =>
+                                item.classList.contains('new-selected'),
+                            );
 
                             if (selectedIndex !== -1) {
-                                items[selectedIndex].classList.remove('new-selected');
+                                items[selectedIndex].classList.remove(
+                                    'new-selected',
+                                );
                             }
 
                             if (e.key === 'ArrowDown') {
                                 selectedIndex++;
-                                if (selectedIndex >= items.length) selectedIndex = 0;
+                                if (selectedIndex >= items.length)
+                                    selectedIndex = 0;
                             } else {
                                 selectedIndex--;
-                                if (selectedIndex < 0) selectedIndex = items.length - 1;
+                                if (selectedIndex < 0)
+                                    selectedIndex = items.length - 1;
                             }
 
                             items[selectedIndex].classList.add('new-selected');
@@ -1274,7 +1545,9 @@ export function init() {
                 } else if (e.key === 'Enter') {
                     let handled = false;
                     if (isMenuVisible) {
-                        const selected = menu.querySelector('li.navbar-search-option.new-selected');
+                        const selected = menu.querySelector(
+                            'li.navbar-search-option.new-selected',
+                        );
                         if (selected) {
                             const link = selected.querySelector('a');
                             if (link) {
@@ -1302,18 +1575,22 @@ export function init() {
                 }
             });
 
-            observeElement('section[data-testid="SearchLandingPageOmniFeedTestId"]', (container) => {
-                if (searchSettings.searchHistoryEnabled) {
-                    renderSearchHistory(container);
-                }
-            }, {
-                onRemove: (container) => {
-                    if (container._rovalraResizeCleanup) {
-                        container._rovalraResizeCleanup();
-                        delete container._rovalraResizeCleanup;
+            observeElement(
+                'section[data-testid="SearchLandingPageOmniFeedTestId"]',
+                (container) => {
+                    if (searchSettings.searchHistoryEnabled) {
+                        renderSearchHistory(container);
                     }
-                }
-            });
-}
+                },
+                {
+                    onRemove: (container) => {
+                        if (container._rovalraResizeCleanup) {
+                            container._rovalraResizeCleanup();
+                            delete container._rovalraResizeCleanup;
+                        }
+                    },
+                },
+            );
+        }
     }, 300);
 }

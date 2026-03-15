@@ -1,6 +1,5 @@
 import { observeElement, startObserving } from '../../../core/observer.js';
 import { getUserIdFromUrl } from '../../../core/idExtractor.js';
-import { callRobloxApiJson } from '../../../core/api.js';
 import { injectStylesheet } from '../../../core/ui/cssInjector.js';
 import { addTooltip } from '../../../core/ui/tooltip.js';
 import { getAuthenticatedUserId } from '../../../core/user.js';

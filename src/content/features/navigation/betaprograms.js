@@ -3,6 +3,7 @@ import { createRadioButton } from '../../core/ui/general/radio.js';
 import { callRobloxApi, callRobloxApiJson } from '../../core/api.js';
 import { createDropdownMenu } from '../../core/ui/dropdown.js';
 import { createSpinner } from '../../core/ui/spinner.js';
+import { t } from '../../core/locale/i18n.js';
 import { getAssets } from '../../core/assets.js';
 import { log, logLevel} from '../../core/logging.js';
 
@@ -11,7 +12,7 @@ async function optInBeta(programId) {
         subdomain: 'apis',
         endpoint: '/test-pilot-api/v1/opt-in',
         method: 'POST',
-        body: { programId }
+        body: { programId },
     });
 }
 
@@ -20,7 +21,7 @@ async function optOutBeta() {
         subdomain: 'apis',
         endpoint: '/test-pilot-api/v1/opt-in',
         method: 'POST',
-        body: { programId: "" }
+        body: { programId: '' },
     });
 }
 
@@ -35,7 +36,7 @@ export async function addNavbarButton() {
     const button = await createNavbarButton({
         id: 'rovalra-beta-programs-toggle',
         iconSvgData: icon,
-        tooltipText: "Toggle Beta Programs"
+        tooltipText: await t('betaPrograms.toggleTooltip'),
     });
 
     if (!button) return;
@@ -63,41 +64,46 @@ export async function addNavbarButton() {
             if (cachedBetaPrograms) {
                 programsDataPromise = Promise.resolve(cachedBetaPrograms);
             } else {
-                programsDataPromise = callRobloxApiJson({ subdomain: 'apis', endpoint: '/test-pilot-api/v1/beta-programs' })
-                    .then(data => {
-                        cachedBetaPrograms = data;
-                        return data;
-                    });
+                programsDataPromise = callRobloxApiJson({
+                    subdomain: 'apis',
+                    endpoint: '/test-pilot-api/v1/beta-programs',
+                }).then((data) => {
+                    cachedBetaPrograms = data;
+                    return data;
+                });
             }
 
             const [programsData, optInData] = await Promise.all([
                 programsDataPromise,
-                callRobloxApiJson({ subdomain: 'apis', endpoint: '/test-pilot-api/v1/opt-in' })
+                callRobloxApiJson({
+                    subdomain: 'apis',
+                    endpoint: '/test-pilot-api/v1/opt-in',
+                }),
             ]);
 
             const betaPrograms = programsData.betaPrograms || [];
             const currentOptInId = optInData.optIn?.programId;
 
-            const menuItems = betaPrograms.map(program => ({
+            const menuItems = betaPrograms.map((program) => ({
                 label: program.displayName,
                 value: program.id,
                 description: program.description,
-                checked: program.id === currentOptInId
+                checked: program.id === currentOptInId,
             }));
-            
+
             if (!menu) {
                 menu = createDropdownMenu({
                     trigger: button,
                     items: [],
                     onValueChange: () => {},
-                    position: 'center'
+                    position: 'center',
                 });
 
                 menu.panel.style.transform = 'translateX(-50%)';
                 menu.panel.style.setProperty('min-width', '300px', 'important');
                 menu.panel.style.maxHeight = '400px';
                 menu.panel.style.overflowY = 'auto';
-                
+
                 const updatePosition = () => {
                     if (button.offsetWidth > 0) {
                         menu.panel.style.marginLeft = `${button.offsetWidth / 2}px`;
@@ -107,12 +113,12 @@ export async function addNavbarButton() {
                 updatePosition();
             }
 
-            menu.panel.innerHTML = ''; 
+            menu.panel.innerHTML = '';
 
             if (menuItems.length === 0) {
                 const noProgramsEl = document.createElement('div');
                 noProgramsEl.className = 'rovalra-dropdown-item';
-                noProgramsEl.textContent = 'You are not enrolled into any beta programs.';
+                noProgramsEl.textContent = await t('betaPrograms.noPrograms');
                 noProgramsEl.style.textAlign = 'center';
                 noProgramsEl.style.padding = '10px';
                 menu.panel.appendChild(noProgramsEl);
@@ -120,12 +126,13 @@ export async function addNavbarButton() {
                 let currentCheckedRadio = null;
                 const radios = [];
 
-                menuItems.forEach(item => {
+                menuItems.forEach((item) => {
                     const itemEl = document.createElement('div');
-                    itemEl.className = 'rovalra-dropdown-item flex items-center justify-between p-2';
+                    itemEl.className =
+                        'rovalra-dropdown-item flex items-center justify-between p-2';
                     itemEl.style.padding = '8px 12px';
                     itemEl.style.cursor = 'pointer';
-                    
+
                     const textContainer = document.createElement('div');
                     textContainer.className = 'flex flex-col';
                     textContainer.style.marginRight = '10px';
@@ -144,7 +151,7 @@ export async function addNavbarButton() {
 
                     const handleRadioChange = async (newState) => {
                         if (newState) {
-                            radios.forEach(r => {
+                            radios.forEach((r) => {
                                 if (r !== radio) r.setChecked(false);
                             });
                             currentCheckedRadio = radio;
@@ -159,7 +166,7 @@ export async function addNavbarButton() {
 
                     const radio = createRadioButton({
                         checked: item.checked,
-                        onChange: handleRadioChange
+                        onChange: handleRadioChange,
                     });
                     radios.push(radio);
 
@@ -169,7 +176,8 @@ export async function addNavbarButton() {
 
                     itemEl.addEventListener('click', (e) => {
                         if (radio.contains(e.target)) return;
-                        const currentChecked = radio.getAttribute('aria-checked') === 'true';
+                        const currentChecked =
+                            radio.getAttribute('aria-checked') === 'true';
                         radio.setChecked(!currentChecked);
                         handleRadioChange(!currentChecked);
                     });
@@ -181,7 +189,6 @@ export async function addNavbarButton() {
             }
 
             menu.toggle(true);
-
         } catch (error) {
             log(logLevel.ERROR, 'RoValra: Failed to fetch beta programs', error);
             if (menu) menu.toggle(false);
@@ -197,6 +204,5 @@ export function init() {
             return;
         }
         addNavbarButton();
-    }
-    )
+    });
 }

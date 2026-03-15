@@ -3,6 +3,7 @@ import { addTooltip } from '../../core/ui/tooltip.js';
 import { getAssets } from '../../core/assets.js';
 import { callRobloxApi } from '../../core/api.js';
 import { getPlaceIdFromUrl } from '../../core/idExtractor.js';
+import { ts } from '../../core/locale/i18n.js';
 
 const itemPrices = new Map();
 const itemIsOffSale = new Map();
@@ -20,18 +21,20 @@ function addPriceIconToCard(card, assetId) {
         }
 
         let container;
-        const priceLabelSelector = '.text-overflow.item-card-price, .rovalra-item-rap';
+        const priceLabelSelector =
+            '.text-overflow.item-card-price, .rovalra-item-rap';
         container = card.querySelector(priceLabelSelector);
-        
+
         if (!container) {
             const caption = card.querySelector('.item-card-caption');
             if (caption) {
                 const newContainer = document.createElement('div');
-                newContainer.className = 'text-overflow item-card-price font-header-2 text-subheader margin-top-none';
-                
+                newContainer.className =
+                    'text-overflow item-card-price font-header-2 text-subheader margin-top-none';
+
                 const offSaleSpan = document.createElement('span');
                 offSaleSpan.className = 'text text-label text-robux-tile';
-                offSaleSpan.textContent = 'Off Sale';
+                offSaleSpan.textContent = ts('previousPrice.offSale');
                 newContainer.appendChild(offSaleSpan);
 
                 caption.appendChild(newContainer);
@@ -39,7 +42,10 @@ function addPriceIconToCard(card, assetId) {
             }
         }
 
-        if (container && !container.querySelector('.rovalra-offsale-price-icon')) {
+        if (
+            container &&
+            !container.querySelector('.rovalra-offsale-price-icon')
+        ) {
             addIcon(container, price);
         }
     }
@@ -59,26 +65,35 @@ export function init() {
             if (!data || !data.data || !Array.isArray(data.data)) {
                 return;
             }
-    
+
             const updatedAssetIds = new Set();
-    
-            data.data.forEach(item => {
+
+            data.data.forEach((item) => {
                 if (item.id) {
                     itemPrices.set(item.id, item.price);
-                    itemIsOffSale.set(item.id, item.isOffSale || item.priceStatus === 'Off Sale');
+                    itemIsOffSale.set(
+                        item.id,
+                        item.isOffSale || item.priceStatus === 'Off Sale',
+                    );
                     updatedAssetIds.add(item.id);
                 }
             });
-    
+
             const assetsToCheck = [];
             const pageId = getPlaceIdFromUrl();
-    
-            data.data.forEach(item => {
+
+            data.data.forEach((item) => {
                 const isOffSale = itemIsOffSale.get(item.id);
                 const price = itemPrices.get(item.id);
 
                 if (isOffSale && (price === null || price === undefined)) {
-                    if (item.itemType !== 'Bundle' && !(window.location.pathname.includes('/bundles/') && item.id == pageId)) {
+                    if (
+                        item.itemType !== 'Bundle' &&
+                        !(
+                            window.location.pathname.includes('/bundles/') &&
+                            item.id == pageId
+                        )
+                    ) {
                         assetsToCheck.push({ id: item.id });
                     }
                 }
@@ -90,56 +105,84 @@ export function init() {
                         subdomain: 'apis',
                         endpoint: '/look-api/v1/looks/purchase-details',
                         method: 'POST',
-                        body: { 
-                            assets: assetsToCheck
-                        }
+                        body: {
+                            assets: assetsToCheck,
+                        },
                     });
-    
+
                     if (purchaseRes.ok) {
                         const purchaseData = await purchaseRes.json();
                         const bundleIds = new Set();
                         const assetToBundle = new Map();
-    
+
                         if (purchaseData.look && purchaseData.look.items) {
-                            purchaseData.look.items.forEach(item => {
+                            purchaseData.look.items.forEach((item) => {
                                 if (item.itemType === 'Bundle') {
                                     bundleIds.add(item.id);
                                     if (item.assetsInBundle) {
-                                        item.assetsInBundle.forEach(asset => {
-                                            assetToBundle.set(asset.id, item.id);
+                                        item.assetsInBundle.forEach((asset) => {
+                                            assetToBundle.set(
+                                                asset.id,
+                                                item.id,
+                                            );
                                         });
                                     }
                                 }
                             });
                         }
-    
+
                         if (bundleIds.size > 0) {
                             const bundleDetailsRes = await callRobloxApi({
                                 subdomain: 'catalog',
                                 endpoint: '/v1/catalog/items/details',
                                 method: 'POST',
                                 body: {
-                                    items: Array.from(bundleIds).map(id => ({ itemType: 'Bundle', id }))
-                                }
+                                    items: Array.from(bundleIds).map((id) => ({
+                                        itemType: 'Bundle',
+                                        id,
+                                    })),
+                                },
                             });
-    
+
                             if (bundleDetailsRes.ok) {
-                                const bundleDetails = await bundleDetailsRes.json();
+                                const bundleDetails =
+                                    await bundleDetailsRes.json();
                                 if (bundleDetails.data) {
-                                    bundleDetails.data.forEach(bundle => {
-                                        const bundleIsOffSale = bundle.isOffSale || bundle.priceStatus === 'Off Sale';
-                                        if (bundleIsOffSale && bundle.price !== undefined) {
-                                            assetToBundle.forEach((bId, assetId) => {
-                                                if (bId === bundle.id) {
-                                                    itemIsOffSale.set(assetId, true);
-                                                    itemPrices.set(assetId, bundle.price);
-                                                    updatedAssetIds.add(assetId);
-                                                }
-                                            });
+                                    bundleDetails.data.forEach((bundle) => {
+                                        const bundleIsOffSale =
+                                            bundle.isOffSale ||
+                                            bundle.priceStatus === 'Off Sale';
+                                        if (
+                                            bundleIsOffSale &&
+                                            bundle.price !== undefined
+                                        ) {
+                                            assetToBundle.forEach(
+                                                (bId, assetId) => {
+                                                    if (bId === bundle.id) {
+                                                        itemIsOffSale.set(
+                                                            assetId,
+                                                            true,
+                                                        );
+                                                        itemPrices.set(
+                                                            assetId,
+                                                            bundle.price,
+                                                        );
+                                                        updatedAssetIds.add(
+                                                            assetId,
+                                                        );
+                                                    }
+                                                },
+                                            );
 
                                             if (itemPrices.has(bundle.id)) {
-                                                itemIsOffSale.set(bundle.id, true);
-                                                itemPrices.set(bundle.id, bundle.price);
+                                                itemIsOffSale.set(
+                                                    bundle.id,
+                                                    true,
+                                                );
+                                                itemPrices.set(
+                                                    bundle.id,
+                                                    bundle.price,
+                                                );
                                                 updatedAssetIds.add(bundle.id);
                                             }
                                         }
@@ -152,41 +195,58 @@ export function init() {
                     // Fail silently
                 }
             }
-    
-            updatedAssetIds.forEach(assetId => {
+
+            updatedAssetIds.forEach((assetId) => {
                 if (pendingCards.has(assetId)) {
                     const cards = pendingCards.get(assetId);
-                    cards.forEach(card => {
+                    cards.forEach((card) => {
                         addPriceIconToCard(card, assetId);
                     });
                     pendingCards.delete(assetId);
                 }
             });
         });
-    
-        observeElement('#collection-carousel-item .item-card', (card) => {
-            handleItemCard(card);
-        }, { multiple: true });
-    
-        observeElement('.roseal-currently-wearing .item-card', (card) => {
-            handleItemCard(card);
-        }, { multiple: true });
 
+        observeElement(
+            '#collection-carousel-item .item-card',
+            (card) => {
+                handleItemCard(card);
+            },
+            { multiple: true },
+        );
 
-        observeElement('.rovalra-item-card', (card) => {
-            handleItemCard(card);
-        }, { multiple: true });
+        observeElement(
+            '.roseal-currently-wearing .item-card',
+            (card) => {
+                handleItemCard(card);
+            },
+            { multiple: true },
+        );
 
-        observeElement('.price-container-text', (container) => {
-            handleOffsalePriceContainer(container);
-        }, { multiple: true });
+        observeElement(
+            '.rovalra-item-card',
+            (card) => {
+                handleItemCard(card);
+            },
+            { multiple: true },
+        );
+
+        observeElement(
+            '.price-container-text',
+            (container) => {
+                handleOffsalePriceContainer(container);
+            },
+            { multiple: true },
+        );
     });
 }
 
 function handleItemCard(card) {
     if (!card.isConnected) return;
-    
-    const link = card.querySelector('.item-card-link') || card.querySelector('.rovalra-item-card-link');
+
+    const link =
+        card.querySelector('.item-card-link') ||
+        card.querySelector('.rovalra-item-card-link');
     if (!link) return;
 
     const href = link.getAttribute('href');
@@ -194,18 +254,26 @@ function handleItemCard(card) {
     if (!match) return;
     const assetId = parseInt(match[1]);
 
-    const priceLabelSelector = '.text-overflow.item-card-price, .rovalra-item-rap';
+    const priceLabelSelector =
+        '.text-overflow.item-card-price, .rovalra-item-rap';
     let priceLabelContainer = card.querySelector(priceLabelSelector);
-    
+
     let shouldProcess = false;
 
     if (!priceLabelContainer) {
         shouldProcess = true;
     } else {
-        const textContent = priceLabelContainer.textContent.trim().toLowerCase();
-        const hasRobuxIcon = priceLabelContainer.querySelector('.icon-robux-tile');
-        
-        if (!hasRobuxIcon || textContent.includes('off sale') || textContent.includes('offsale')) {
+        const textContent = priceLabelContainer.textContent
+            .trim()
+            .toLowerCase();
+        const hasRobuxIcon =
+            priceLabelContainer.querySelector('.icon-robux-tile');
+
+        if (
+            !hasRobuxIcon ||
+            textContent.includes('off sale') ||
+            textContent.includes('offsale')
+        ) {
             shouldProcess = true;
         }
     }
@@ -250,7 +318,7 @@ function handleOffsalePriceContainer(container) {
 
 function addIcon(container, price) {
     if (container.querySelector('.rovalra-offsale-price-icon')) return;
-    
+
     const assets = getAssets();
     const icon = document.createElement('div');
     icon.className = 'rovalra-offsale-price-icon';
@@ -263,10 +331,13 @@ function addIcon(container, price) {
         display: 'inline-block',
         backgroundColor: 'var(--rovalra-secondary-text-color)',
         webkitMask: `url("${assets.priceFloorIcon}") no-repeat center / contain`,
-        mask: `url("${assets.priceFloorIcon}") no-repeat center / contain`
+        mask: `url("${assets.priceFloorIcon}") no-repeat center / contain`,
     });
 
-    addTooltip(icon, `Previous Price: <span class="icon-robux-16x16" style="vertical-align: middle; margin: 0 2px;"></span>${price.toLocaleString()}`);
+    addTooltip(
+        icon,
+        `${ts('previousPrice.text')} <span class="icon-robux-16x16" style="vertical-align: middle; margin: 0 2px;"></span>${price.toLocaleString()}`,
+    );
 
     container.appendChild(icon);
 }
@@ -279,7 +350,7 @@ function addTextPrice(container, price) {
     div.style.marginTop = '5px';
     div.style.fontSize = '12px';
     div.style.color = 'var(--rovalra-secondary-text-color)';
-    div.innerHTML = `Previous Price: <span class="icon-robux-16x16" style="vertical-align: middle; margin: 0 2px;"></span>${price.toLocaleString()}`;
-    
+    div.innerHTML = `${ts('previousPrice.text')} <span class="icon-robux-16x16" style="vertical-align: middle; margin: 0 2px;"></span>${price.toLocaleString()}`;
+
     container.appendChild(div);
 }

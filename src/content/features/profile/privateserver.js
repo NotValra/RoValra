@@ -6,6 +6,7 @@ import { getAssets } from '../../core/assets.js';
 import { fetchThumbnails } from '../../core/thumbnail/thumbnails.js';
 import { createRadioButton } from '../../core/ui/general/radio.js';
 import { safeHtml } from '../../core/packages/dompurify';
+import { ts } from '../../core/locale/i18n.js';
 
 const INACTIVE_MAIN_BUTTON_ID = 'rovalra-bulk-inactivate-btn';
 const SET_INACTIVE_BTN_ID = 'rovalra-set-inactive-btn';
@@ -27,21 +28,25 @@ async function processServerRequest(selectedItems, isActive) {
     const bodyContent = document.createElement('div');
     bodyContent.style.textAlign = 'center';
     bodyContent.innerHTML = `
-        <div id="${PROGRESS_TEXT_ID}">Starting...</div>
+        <div id="${PROGRESS_TEXT_ID}">${ts('privateServer.starting')}</div>
         <div id="${LOADING_SPINNER_ID}"></div>
         <div id="${PROGRESS_RESULTS_ID}" style="display: none;"></div>
     `; // Verified
 
-    const cancelButton = createButton('Cancel', 'primary-destructive', {
-        onClick: () => {
-            isCancelled = true;
-            progressText.textContent = 'Cancelling...';
-            cancelButton.disabled = true;
+    const cancelButton = createButton(
+        ts('privateServer.cancel'),
+        'primary-destructive',
+        {
+            onClick: () => {
+                isCancelled = true;
+                progressText.textContent = ts('privateServer.cancelling');
+                cancelButton.disabled = true;
+            },
         },
-    });
+    );
 
     const { overlay, close } = createOverlay({
-        title: 'Processing Servers',
+        title: ts('privateServer.processingTitle'),
         bodyContent: bodyContent,
         actions: [cancelButton],
         maxWidth: '500px',
@@ -56,12 +61,14 @@ async function processServerRequest(selectedItems, isActive) {
 
     cancelButton.onclick = () => {
         isCancelled = true;
-        progressText.textContent = 'Cancelling...';
+        progressText.textContent = ts('privateServer.cancelling');
         cancelButton.disabled = true;
     };
 
     const totalServers = selectedItems.length;
-    const actionText = isActive ? 'Activating' : 'Inactivating';
+    const actionText = isActive
+        ? ts('privateServer.activating')
+        : ts('privateServer.inactivating');
     const errorLog = [];
     let i = 0;
 
@@ -70,7 +77,11 @@ async function processServerRequest(selectedItems, isActive) {
         const serverItem = selectedItems[i];
         const serverId = serverItem.dataset.serverId;
         const placeId = serverItem.dataset.placeId;
-        progressText.textContent = `${actionText} server ${i + 1} of ${totalServers}...`;
+        progressText.textContent = ts('privateServer.progressText', {
+            actionText: actionText,
+            current: i + 1,
+            total: totalServers,
+        });
         const serverName = serverItem
             .closest('.selectable-item-card')
             .querySelector('.item-card-name').title;
@@ -86,7 +97,7 @@ async function processServerRequest(selectedItems, isActive) {
                 const errorMessage =
                     errorData.errors && errorData.errors[0]
                         ? errorData.errors[0].message
-                        : 'An unknown API error occurred.';
+                        : ts('privateServer.unknownApiError');
                 errorLog.push({
                     placeId,
                     name: serverName,
@@ -104,6 +115,8 @@ async function processServerRequest(selectedItems, isActive) {
 
     spinner.style.display = 'none';
     resultsContainer.style.display = 'flex';
+    resultsContainer.style.flexDirection = 'column';
+    resultsContainer.style.alignItems = 'center';
     resultsContainer.innerHTML = '';
     if (footer) footer.innerHTML = '';
 
@@ -111,9 +124,9 @@ async function processServerRequest(selectedItems, isActive) {
     const successCount = processedCount - errorLog.length;
 
     if (isCancelled) {
-        progressText.innerHTML = safeHtml`Process Cancelled. <span class="success-text">${successCount} server(s) processed.</span>`;
+        progressText.innerHTML = `${ts('privateServer.processCancelled', { count: successCount })}`; // Verified
     } else {
-        progressText.innerHTML = safeHtml`Completed: <span class="success-text">${successCount} succeeded</span>, <span class="error-text">${errorLog.length} failed</span>.`;
+        progressText.innerHTML = `${ts('privateServer.completed', { successCount: successCount, errorCount: errorLog.length })}`; // Verified
     }
 
     const resultBody = document.createElement('div');
@@ -141,7 +154,8 @@ async function processServerRequest(selectedItems, isActive) {
     const titleElement = overlay.querySelector(
         '.group-description-dialog-body-header',
     );
-    if (titleElement) titleElement.textContent = 'Processing Complete';
+    if (titleElement)
+        titleElement.textContent = ts('privateServer.processingComplete');
 
     resultsContainer.appendChild(resultBody);
 
@@ -155,14 +169,15 @@ function showConfirmationModal(selectedItems, isActive) {
     const action = isActive ? 'active' : 'inactive';
 
     const bodyContent = document.createElement('div');
+    bodyContent.style.textAlign = 'center';
     bodyContent.innerHTML = safeHtml`
-        <p>You are about to set ${selectedItems.length} private server(s) as ${action}.</p>
-        <p>${isActive ? 'This will make the private server joinable.' : 'This will make the private server unjoinable.'}</p>
-        <p>You can always change this back later.</p>
+        <p>${ts('privateServer.confirmationMessage', { count: selectedItems.length, action: action })}</p>
+        <p>${isActive ? ts('privateServer.confirmationJoinable') : ts('privateServer.confirmationUnjoinable')}</p>
+        <p>${ts('privateServer.confirmationReversible')}</p>
     `;
 
     const confirmButton = createButton(
-        'Confirm',
+        ts('privateServer.confirm'),
         isActive ? 'primary-confirm' : 'primary-destructive',
         {
             onClick: () => {
@@ -171,10 +186,10 @@ function showConfirmationModal(selectedItems, isActive) {
             },
         },
     );
-    const cancelButton = createButton('Cancel', 'secondary');
+    const cancelButton = createButton(ts('privateServer.cancel'), 'secondary');
 
     const { close } = createOverlay({
-        title: 'Confirm Action',
+        title: ts('privateServer.confirmationTitle'),
         bodyContent: bodyContent,
         actions: [cancelButton, confirmButton],
     });
@@ -196,9 +211,9 @@ function updateButtonStates() {
 
     if (selectAllButton && selectAllButton.style.display !== 'none') {
         if (checkboxes.length > 0 && selectedCount === checkboxes.length) {
-            selectAllButton.textContent = 'Deselect All';
+            selectAllButton.textContent = ts('privateServer.deselectAll');
         } else {
-            selectAllButton.textContent = 'Select All';
+            selectAllButton.textContent = ts('privateServer.selectAll');
         }
     }
 }
@@ -284,12 +299,12 @@ function handleBulkAction(isActive) {
         originalAssetsList.style.display = '';
         document.getElementById(FILTERED_LIST_ID)?.remove();
         if (mainButtonInactive) {
-            mainButtonInactive.textContent = 'Bulk Inactivate';
+            mainButtonInactive.textContent = ts('privateServer.bulkInactivate');
             mainButtonInactive.style.display = 'block';
             mainButtonInactive.style.right = '130px';
         }
         if (mainButtonActive) {
-            mainButtonActive.textContent = 'Bulk Activate';
+            mainButtonActive.textContent = ts('privateServer.bulkActivate');
             mainButtonActive.style.display = 'block';
             mainButtonActive.style.right = '0px';
         }
@@ -315,7 +330,7 @@ function handleBulkAction(isActive) {
 
     if (isActive) {
         if (mainButtonActive) {
-            mainButtonActive.textContent = 'Cancel';
+            mainButtonActive.textContent = ts('privateServer.cancel');
             mainButtonActive.style.right = '0px';
         }
         if (setActiveButton) {
@@ -326,7 +341,7 @@ function handleBulkAction(isActive) {
         if (mainButtonInactive) mainButtonInactive.style.display = 'none';
     } else {
         if (mainButtonInactive) {
-            mainButtonInactive.textContent = 'Cancel';
+            mainButtonInactive.textContent = ts('privateServer.cancel');
             mainButtonInactive.style.right = '0px';
         }
         if (setInactiveButton) {
@@ -357,7 +372,7 @@ function handleBulkAction(isActive) {
                     new Date(server.expirationDate) > new Date(),
             );
             if (filteredServers.length === 0) {
-                newFilteredList.innerHTML = safeHtml`<li><div class="btr-no-servers-message">No ${isActive ? 'inactive' : 'active'} private servers found.</div></li>`;
+                newFilteredList.innerHTML = safeHtml`<li><div class="btr-no-servers-message">${ts('privateServer.noServersFound', { status: isActive ? 'inactive' : 'active' })}</div></li>`;
                 if (selectAllButton) selectAllButton.style.display = 'none';
                 return;
             }
@@ -421,7 +436,7 @@ function handleBulkAction(isActive) {
 
                         const bySpan = document.createElement('span');
                         bySpan.className = 'ng-binding';
-                        bySpan.textContent = 'By ';
+                        bySpan.textContent = ts('privateServer.byCreator');
 
                         const creatorLink = document.createElement('a');
                         creatorLink.className =
@@ -543,33 +558,49 @@ function handlePageUpdate() {
     buttonWrapper.style.position = 'relative';
     headerContainer.appendChild(buttonWrapper);
 
-    const mainButtonInactive = createButton('Bulk Inactivate', 'secondary', {
-        id: INACTIVE_MAIN_BUTTON_ID,
-    });
+    const mainButtonInactive = createButton(
+        ts('privateServer.bulkInactivate'),
+        'secondary',
+        {
+            id: INACTIVE_MAIN_BUTTON_ID,
+        },
+    );
     buttonWrapper.appendChild(mainButtonInactive);
 
     const setInactiveButton = createButton(
-        'Set Inactive',
+        ts('privateServer.setInactive'),
         'primary-destructive',
         { id: SET_INACTIVE_BTN_ID },
     );
     setInactiveButton.style.display = 'none';
     buttonWrapper.appendChild(setInactiveButton);
 
-    const mainButtonActive = createButton('Bulk Activate', 'secondary', {
-        id: ACTIVE_MAIN_BUTTON_ID,
-    });
+    const mainButtonActive = createButton(
+        ts('privateServer.bulkActivate'),
+        'secondary',
+        {
+            id: ACTIVE_MAIN_BUTTON_ID,
+        },
+    );
     buttonWrapper.appendChild(mainButtonActive);
 
-    const setActiveButton = createButton('Set Active', 'primary-confirm', {
-        id: SET_ACTIVE_BTN_ID,
-    });
+    const setActiveButton = createButton(
+        ts('privateServer.setActive'),
+        'primary-confirm',
+        {
+            id: SET_ACTIVE_BTN_ID,
+        },
+    );
     setActiveButton.style.display = 'none';
     buttonWrapper.appendChild(setActiveButton);
 
-    const selectAllButton = createButton('Select All', 'secondary', {
-        id: SELECT_ALL_BTN_ID,
-    });
+    const selectAllButton = createButton(
+        ts('privateServer.selectAll'),
+        'secondary',
+        {
+            id: SELECT_ALL_BTN_ID,
+        },
+    );
     selectAllButton.style.display = 'none';
     buttonWrapper.appendChild(selectAllButton);
 

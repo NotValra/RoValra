@@ -3,6 +3,7 @@ import { callRobloxApi, callRobloxApiJson } from '../../core/api.js';
 import { addTooltip } from '../../core/ui/tooltip.js';
 import { log, logLevel } from '../../core/logging.js';
 import DOMPurify, { safeHtml } from '../../core/packages/dompurify.js';
+import { ts } from '../../core/locale/i18n.js';
 const API_LIMIT = 100;
 const MAX_PAGES_TO_FETCH_FOR_INFERENCE = 2000;
 const MAX_PAGES_WITHOUT_PENDING_SALES = 5;
@@ -264,17 +265,15 @@ function injectResultElement(targetElement, result) {
     let estimatorRow = document.querySelector('.estimator-row');
 
     let amountHtml = '';
-    let tooltipText =
-        'This is an estimate of how many Robux from your pending balance will become available tomorrow, based on your transaction data. The actual amount may vary. And this may be inaccurate.';
+    let tooltipText = ts('pendingRobux.tooltip');
 
     if (result.isLoading) {
-        amountHtml = `<span style="color: var(--rovalra-main-text-color); font-weight: 400; font-size: 13px;">Loading...</span>`;
+        amountHtml = `<span style="color: var(--rovalra-main-text-color); font-weight: 400; font-size: 13px;">${ts('pendingRobux.loading')}</span>`;
     } else if (result.errorMessage) {
-        amountHtml = `<span style="color: red; font-weight: 400; font-size: 13px;">Error: ${result.errorMessage}</span>`;
+        amountHtml = `<span style="color: red; font-weight: 400; font-size: 13px;">${ts('pendingRobux.error', { message: result.errorMessage })}</span>`;
     } else if (!result.hasEnoughData) {
-        amountHtml = `<span style="color: var(--rovalra-main-text-color); font-weight: 400; font-size: 13px;">Insufficient data</span>`;
-        tooltipText =
-            'Not enough transaction history to make an accurate estimate. Please wait for more transactions to complete.';
+        amountHtml = `<span style="color: var(--rovalra-main-text-color); font-weight: 400; font-size: 13px;">${ts('pendingRobux.insufficientData')}</span>`;
+        tooltipText = ts('pendingRobux.insufficientDataTooltip');
     } else {
         amountHtml = `
             <span class="icon-robux-16x16"></span>
@@ -299,14 +298,14 @@ function injectResultElement(targetElement, result) {
         estimatorRow.innerHTML = `
             <td class="unpending-sales" style="display: flex; align-items: center;">
                 <div style="color: var(--rovalra-main-text-color);">
-                    <span class="ng-binding">Unpending Robux tomorrow</span>
+                    <span class="ng-binding">${ts('pendingRobux.label')}</span>
                 </div>
                 <span class="icon-moreinfo" style="margin-left: 4px; font-size: 12px; display: inline-flex; align-items: center; color: var(--rovalra-main-text-color); cursor: pointer;"></span>
             </td>
             <td class="amount icon-robux-container">
                 ${amountHtml}
             </td>
-        `;//Verified
+        `; //Verified
 
         const infoIcon = estimatorRow.querySelector('.icon-moreinfo');
         if (infoIcon) {

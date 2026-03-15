@@ -1,5 +1,6 @@
 import { observeElement } from '../../core/observer.js';
 import { callRobloxApiJson } from '../../core/api.js';
+import { ts } from '../../core/locale/i18n.js';
 import {
     fetchThumbnails,
     createThumbnailElement,
@@ -51,7 +52,7 @@ export function init() {
                 fundsLink.appendChild(leftContainer);
 
                 const amountSpan = document.createElement('span');
-                amountSpan.textContent = 'Loading...';
+                amountSpan.textContent = ts('groupFunds.loading');
                 fundsLink.appendChild(amountSpan);
 
                 fundsLi.appendChild(fundsLink);
@@ -100,7 +101,9 @@ export function init() {
 
                 const renderPending = (amount) => {
                     pendingLink.innerHTML = '';
-                    const label = document.createTextNode('Pending: ');
+                    const label = document.createTextNode(
+                        ts('groupFunds.pending') + ' ',
+                    );
                     const icon = document.createElement('span');
                     icon.className = 'icon-robux-16x16';
                     icon.style.verticalAlign = 'text-bottom';
