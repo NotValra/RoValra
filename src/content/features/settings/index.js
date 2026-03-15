@@ -30,6 +30,11 @@ import { safeHtml } from '../../core/packages/dompurify';
 import DOMPurify from 'dompurify';
 import { BADGE_CONFIG } from '../../core/configs/badges.js';
 import { ts } from '../../core/locale/i18n.js';
+import { CONTRIBUTOR_USER_IDS } from '../../core/configs/userIds.js';
+import {
+    getBatchThumbnails,
+    createThumbnailElement,
+} from '../../core/thumbnail/thumbnails.js';
 
 const assets = getAssets();
 let REGIONS = {};
@@ -106,6 +111,95 @@ function getDonatorBadgesHtml() {
         .join('');
 }
 
+let contributorsCache = null;
+
+function renderContributors(container, users, thumbMap) {
+    container.innerHTML = '';
+    const listContainer = document.createElement('div');
+    listContainer.style.cssText =
+        'display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;';
+
+    CONTRIBUTOR_USER_IDS.forEach((id) => {
+        const user = users.find((u) => String(u.id) === String(id));
+        if (user) {
+            const thumbData = thumbMap.get(String(id));
+
+            const link = document.createElement('a');
+            link.href = `https://www.roblox.com/users/${id}/profile`;
+            link.target = '_blank';
+            link.style.cssText = `display: flex; align-items: center; background-color: var(--rovalra-container-background-color, rgba(0,0,0,0.1)); padding: 8px 12px; border-radius: 8px; text-decoration: none; color: var(--rovalra-main-text-color); transition: background-color 0.2s;`;
+
+            const thumbElement = createThumbnailElement(
+                thumbData,
+                user.displayName,
+                '',
+                {
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '50%',
+                    marginRight: '10px',
+                },
+            );
+
+            const span = document.createElement('span');
+            span.textContent = user.displayName;
+            span.style.fontWeight = '500';
+
+            link.appendChild(thumbElement);
+            link.appendChild(span);
+            listContainer.appendChild(link);
+        }
+    });
+
+    container.appendChild(listContainer);
+}
+
+async function loadContributors() {
+    const container = document.getElementById('rovalra-contributors-list');
+    if (!container) return;
+
+    if (contributorsCache) {
+        renderContributors(
+            container,
+            contributorsCache.users,
+            contributorsCache.thumbMap,
+        );
+        return;
+    }
+
+    try {
+        const response = await callRobloxApi({
+            subdomain: 'users',
+            endpoint: '/v1/users',
+            method: 'POST',
+            body: {
+                userIds: CONTRIBUTOR_USER_IDS,
+                excludeBannedUsers: false,
+            },
+        });
+
+        if (!response.ok) throw new Error('Failed to fetch users');
+        const data = await response.json();
+        const users = data.data;
+
+        const thumbnails = await getBatchThumbnails(
+            CONTRIBUTOR_USER_IDS,
+            'AvatarHeadshot',
+            '150x150',
+        );
+        const thumbMap = new Map();
+        thumbnails.forEach((t) => {
+            thumbMap.set(String(t.targetId), t);
+        });
+
+        contributorsCache = { users, thumbMap };
+        renderContributors(container, users, thumbMap);
+    } catch (err) {
+        console.error('RoValra: Error loading contributors', err);
+        container.innerHTML = `<p style="color: var(--rovalra-secondary-text-color);">${ts('settings.credits.failedToLoadContributors')}</p>`;
+    }
+}
+
 export const buttonData = [
     {
         id: 'info',
@@ -163,9 +257,6 @@ export const buttonData = [
                 <h2 style="margin-bottom: 10px; color: var(--rovalra-main-text-color) !important;">${ts('settings.credits.title')}</h2>
                 <ul style="margin-top: 10px; padding-left: 0px; color: var(--rovalra-secondary-text-color);">
                     <li style="margin-bottom: 8px; list-style-type: disc; margin-left: 20px;">
-                        ${ts('settings.credits.contributed')}
-                    </li>
-                    <li style="margin-bottom: 8px; list-style-type: disc; margin-left: 20px;">
                         ${ts('settings.credits.frames')}
                         <a href="https://github.com/workframes/roblox-owner-counts" target="_blank" class="rovalra-github-link">${ts('settings.info.github')}</a>
                     </li>
@@ -193,6 +284,11 @@ export const buttonData = [
                         ${ts('settings.credits.woozynate')}
                     </li>
                 </ul>
+
+                <h3 style="margin-top: 25px; margin-bottom: 10px; color: var(--rovalra-main-text-color); font-size: 18px;">${ts('settings.credits.contributorsTitle')}</h3>
+                <div id="rovalra-contributors-list">
+                    <div style="color: var(--rovalra-secondary-text-color);">${ts('settings.credits.loadingContributors')}</div>
+                </div>
             </div>`;
         },
     },
@@ -360,6 +456,10 @@ export async function updateContent(buttonInfo, contentContainer) {
         if (buttonContainer) {
             buttonContainer.appendChild(createExportImportButtons());
         }
+    }
+
+    if (buttonId === 'credits') {
+        loadContributors();
     }
 
     const rovalraHeader = document.querySelector(

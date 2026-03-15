@@ -255,7 +255,10 @@
             "lz": "Thanks to <b style=\"font-weight: bold;\">7_lz</b> for helping me a bunch when preparing for the Chrome Web Store release. They helped a ton and I'm very thankful.",
             "mmfw": "Thanks to <b style=\"font-weight: bold;\">mmfw</b> for making the screenshots on the chrome web store, and general help with UI design of the extension.",
             "coweggs": "Thanks to <b style=\"font-weight: bold;\">Coweggs</b> for coming up with the very funny name that is \"RoValra\" as a joke that I then ended up using.",
-            "woozynate": "Thanks to <b style=\"font-weight: bold;\">WoozyNate</b> for making the amazing game called fisch, which is where Gilbert (the logo) is from <3"
+            "woozynate": "Thanks to <b style=\"font-weight: bold;\">WoozyNate</b> for making the amazing game called fisch, which is where Gilbert (the logo) is from <3",
+            "contributorsTitle": "Contributors",
+            "loadingContributors": "Loading...",
+            "failedToLoadContributors": "Failed to load contributors."
         },
         "donatorPerks": {
             "title": "Donator Perks!",
