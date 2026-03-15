@@ -329,6 +329,20 @@
         "tooltipWithRegion": "Join Preferred Region<br><b>{{regionName}}</b>",
         "tooltipBestRegion": "Join Preferred Region<br><b>Best Region (Auto)</b>"
     },
+    "quickPlay": {
+        "loading": "Loading...",
+        "rateLimited": "Rate limited. Retrying...",
+        "loadError": "Could not load servers.",
+        "noPrivateServers": "No active private servers found.",
+        "configure": "Configure",
+        "copyLink": "Copy Link",
+        "copied": "Copied!",
+        "error": "Error!",
+        "generateLink": "Generate New Link",
+        "joinClosestServer": "Join Closest Server",
+        "selectPreferredRegion": "Select Preferred Region",
+        "privateServers": "Private Servers"
+    },
     "antiBots": {
         "reviewMembers": "Review {{count}} selected members:",
         "botWarning": "<strong>Warning:</strong> Ensure these are bots before taking action.",
