@@ -99,5 +99,32 @@
         "collectiblesTitle": "{{displayName}}'s Collectibles ({{totalRapString}} RAP)",
         "inventoryPrivateOrNoLimiteds": "This user's inventory is private or has no limiteds.",
         "searchByName": "Search by item name"
+    },
+    "privateServer": {
+        "processingTitle": "Processing Servers",
+        "starting": "Starting...",
+        "cancel": "Cancel",
+        "cancelling": "Cancelling...",
+        "activating": "Activating",
+        "inactivating": "Inactivating",
+        "progressText": "{{actionText}} server {{current}} of {{total}}...",
+        "unknownApiError": "An unknown API error occurred.",
+        "processCancelled": "Process Cancelled. <span class=\"success-text\">{{count}} server(s) processed.</span>",
+        "completed": "Completed: <span class=\"success-text\">{{successCount}} succeeded</span>, <span class=\"error-text\">{{errorCount}} failed</span>.",
+        "processingComplete": "Processing Complete",
+        "confirmationTitle": "Confirm Action",
+        "confirmationMessage": "You are about to set {{count}} private server(s) as {{action}}.",
+        "confirmationJoinable": "This will make the private server joinable.",
+        "confirmationUnjoinable": "This will make the private server unjoinable.",
+        "confirmationReversible": "You can always change this back later.",
+        "confirm": "Confirm",
+        "deselectAll": "Deselect All",
+        "selectAll": "Select All",
+        "bulkInactivate": "Bulk Inactivate",
+        "bulkActivate": "Bulk Activate",
+        "setInactive": "Set Inactive",
+        "setActive": "Set Active",
+        "noServersFound": "No {{status}} private servers found.",
+        "byCreator": "By "
     }
 }
