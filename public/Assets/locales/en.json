@@ -396,6 +396,18 @@
         "playerCountUnknownTooltip": "Player count is unknown, this is a Roblox limitation. The thumbnails are not representative of the people in game.",
         "playerCountUnknownLabel": "Player count unknown"
     },
+    "recentServers": {
+        "title": "Recent Servers",
+        "refresh": "Refresh",
+        "noneFound": "No Recent Servers Found.",
+        "noActiveFound": "No active recent servers found.",
+        "lastJoined": "Last Joined: {{time}}",
+        "meAlt": "Me",
+        "secondsAgo": "{{count}}s ago",
+        "minutesAgo": "{{count}}m ago",
+        "hoursAgo": "{{count}}h ago",
+        "daysAgo": "{{count}}d ago"
+    },
     "antiBots": {
         "reviewMembers": "Review {{count}} selected members:",
         "botWarning": "<strong>Warning:</strong> Ensure these are bots before taking action.",

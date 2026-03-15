@@ -10,6 +10,7 @@ import { _state as serverListState, processUptimeBatch } from './serverlist.js';
 import { launchGame } from '../../../core/utils/launcher.js';
 import { getAuthenticatedUserId } from '../../../core/user.js';
 import { fetchThumbnails } from '../../../core/thumbnail/thumbnails.js';
+import { t, ts } from '../../../core/locale/i18n.js';
 
 let isRenderingRecentServers = false;
 
@@ -18,16 +19,20 @@ function formatTimeAgo(timestamp) {
     const secondsPast = Math.floor((now - timestamp) / 1000);
 
     if (secondsPast < 60) {
-        return `${secondsPast}s ago`;
+        return ts('recentServers.secondsAgo', { count: secondsPast });
     }
     if (secondsPast < 3600) {
-        return `${Math.floor(secondsPast / 60)}m ago`;
+        return ts('recentServers.minutesAgo', {
+            count: Math.floor(secondsPast / 60),
+        });
     }
     if (secondsPast <= 86400) {
-        return `${Math.floor(secondsPast / 3600)}h ago`;
+        return ts('recentServers.hoursAgo', {
+            count: Math.floor(secondsPast / 3600),
+        });
     }
     const days = Math.floor(secondsPast / 86400);
-    return `${days}d ago`;
+    return ts('recentServers.daysAgo', { count: days });
 }
 
 function createServerItem(serverData, userThumbnailUrl, userId) {
@@ -38,9 +43,7 @@ function createServerItem(serverData, userThumbnailUrl, userId) {
     serverItem.dataset.placeid = presence.rootPlaceId;
 
     const lastJoinedInfo = timestamp
-        ? `<p class="text-info" style="font-size: 12px; margin-top: 4px;">Last Joined: ${formatTimeAgo(
-              timestamp,
-          )}</p>`
+        ? `<p class="text-info" style="font-size: 12px; margin-top: 4px;">${ts('recentServers.lastJoined', { time: formatTimeAgo(timestamp) })}</p>`
         : '';
 
     let avatarHtml = `<a class="avatar-card-link" style="display: none;"></a>`;
@@ -49,7 +52,7 @@ function createServerItem(serverData, userThumbnailUrl, userId) {
             <a class="avatar-card-link" href="https://www.roblox.com/users/${userId}/profile">
                 <span class="avatar avatar-headshot-md player-avatar">
                     <span class="thumbnail-2d-container avatar-card-image" style="width: 60px; height: 60px;">
-                        <img src="${userThumbnailUrl}" alt="Me" style="width: 60px; height: 60px; border-radius: 50%;">
+                        <img src="${userThumbnailUrl}" alt="${ts('recentServers.meAlt')}" style="width: 60px; height: 60px; border-radius: 50%;">
                     </span>
                 </span>
             </a>`;
@@ -72,7 +75,7 @@ function createServerItem(serverData, userThumbnailUrl, userId) {
         const joinBtn = document.createElement('button');
         joinBtn.className =
             'btn-full-width btn-control-xs rbx-public-game-server-join game-server-join-btn btn-primary-md btn-min-width';
-        joinBtn.textContent = 'Join';
+        joinBtn.textContent = ts('serverList.join');
         joinBtn.onclick = () =>
             launchGame(presence.rootPlaceId, presence.gameId);
         detailsDiv.appendChild(joinBtn);
@@ -136,13 +139,13 @@ export function initRecentServers() {
                 const content = `
                 <div class="container-header">
                     <div class="server-list-container-header">
-                        <h2 class="server-list-header">Recent Servers</h2>
-                        <button type="button" class="btn-more rbx-refresh refresh-link-icon btn-control-xs btn-min-width">Refresh</button>
+                        <h2 class="server-list-header">${ts('recentServers.title')}</h2>
+                        <button type="button" class="btn-more rbx-refresh refresh-link-icon btn-control-xs btn-min-width">${ts('recentServers.refresh')}</button>
                     </div>
                 </div>
                 <div class="rbx-recent-servers-grid">
                     <div class="section-content-off empty-game-instances-container">
-                        <p class="no-servers-message">No Recent Servers Found.</p>
+                        <p class="no-servers-message">${ts('recentServers.noneFound')}</p>
                     </div>
                 </div>
             `;
@@ -304,8 +307,7 @@ async function renderRecentServers(section) {
             const noServers = document.createElement('div');
             noServers.className =
                 'section-content-off empty-game-instances-container';
-            noServers.innerHTML =
-                '<p class="no-servers-message">No Recent Servers Found.</p>';
+            noServers.innerHTML = `<p class="no-servers-message">${await t('recentServers.noneFound')}</p>`;
             gridContainer.appendChild(noServers);
             return;
         }
@@ -324,8 +326,7 @@ async function renderRecentServers(section) {
             const noActive = document.createElement('div');
             noActive.className =
                 'section-content-off empty-game-instances-container';
-            noActive.innerHTML =
-                '<p class="no-servers-message">No active recent servers found.</p>';
+            noActive.innerHTML = `<p class="no-servers-message">${await t('recentServers.noActiveFound')}</p>`;
             gridContainer.appendChild(noActive);
             return;
         }
@@ -372,8 +373,7 @@ async function renderRecentServers(section) {
                                         document.createElement('div');
                                     noActive.className =
                                         'section-content-off empty-game-instances-container';
-                                    noActive.innerHTML =
-                                        '<p class="no-servers-message">No active recent servers found.</p>';
+                                    noActive.innerHTML = `<p class="no-servers-message">${ts('recentServers.noActiveFound')}</p>`;
                                     gridContainer.appendChild(noActive);
                                 }
                             }
