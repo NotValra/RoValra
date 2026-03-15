@@ -3,10 +3,8 @@ import { observeElement } from '../../core/observer.js';
 import { callRobloxApiJson } from '../../core/api.js';
 import { createRadioButton } from '../../core/ui/general/radio.js';
 import { createOverlay } from '../../core/ui/overlay.js';
-import {
-    fetchThumbnails,
-    createThumbnailElement,
-} from '../../core/thumbnail/thumbnails.js';
+import { fetchThumbnails, createThumbnailElement } from '../../core/thumbnail/thumbnails.js';
+import { log, logLevel } from '../../core/logging.js';
 import DOMPurify from 'dompurify';
 import { t, ts } from '../../core/locale/i18n.js';
 
@@ -827,7 +825,7 @@ async function addFeatureButtons(searchContainer) {
             }
         } catch (e) {
             loader.remove();
-            if (e.name !== 'AbortError') console.error(e);
+            if (e.name !== 'AbortError') log(logLevel.ERROR, e);
         } finally {
             quickActionState.isLoading = false;
         }
@@ -984,8 +982,8 @@ async function addFeatureButtons(searchContainer) {
 
                         more = !!cursor;
                     } catch (err) {
-                        console.error('Error fetching page:', err);
-                        break;
+                        log(logLevel.ERROR, "Error fetching page:", err);
+                        break; 
                     }
                 }
                 if (membersTitleElement)
@@ -1050,7 +1048,7 @@ async function addFeatureButtons(searchContainer) {
             } catch (e) {
                 if (e.message !== 'Aborted') {
                     antiBotsButton.textContent = await t('antiBots.errorRetry');
-                    console.error(e);
+                    log(LogLevel.ERROR, e);
                     if (membersTitleElement)
                         membersTitleElement.textContent = await t(
                             'antiBots.errorDuringScan',

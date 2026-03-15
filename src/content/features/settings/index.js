@@ -29,6 +29,7 @@ import { callRobloxApi } from '../../core/api.js';
 import { safeHtml } from '../../core/packages/dompurify';
 import DOMPurify from 'dompurify';
 import { BADGE_CONFIG } from '../../core/configs/badges.js';
+import { log, logLevel } from '../../core/logging.js';
 import { ts } from '../../core/locale/i18n.js';
 import { CONTRIBUTOR_USER_IDS } from '../../core/configs/userIds.js';
 import {
@@ -777,7 +778,7 @@ function initializeHeartbeatSpoofer() {
                 `RoValra: Spoofed heartbeat sent. Mode: ${spoofingMode}`,
             );
         } catch (error) {
-            console.error('RoValra: Failed to send spoofed heartbeat.', error);
+            log(logLevel.ERROR, 'RoValra: Failed to send spoofed heartbeat.', error);
         }
     };
 

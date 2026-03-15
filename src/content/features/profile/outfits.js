@@ -13,6 +13,7 @@ import DOMPurify from 'dompurify';
 import { safeHtml } from '../../core/packages/dompurify';
 import { createOverlay } from '../../core/ui/overlay.js';
 import { createItemCard } from '../../core/ui/items/items.js';
+import { log, logLevel } from '../../core/logging.js';
 import { t } from '../../core/locale/i18n.js';
 
 export function init() {
@@ -892,11 +893,11 @@ export function init() {
                             );
                         }
                     } else {
-                        alert(await t('userOutfits.errorNoUserId'));
+                        log(logLevel.CRITICAL, await t('userOutfits.errorNoUserId'));
                     }
                 } catch (error) {
                     if (!loadingControl.cancelled)
-                        alert(await t('userOutfits.errorFetch'));
+                        log(logLevel.CRITICAL, await t('userOutfits.errorFetch'));
                 }
             };
 

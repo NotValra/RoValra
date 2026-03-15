@@ -1,11 +1,12 @@
 // This script should always be used to start up the Roblox client
 import { callRobloxApiJson } from '../api.js';
+import { log, logLevel } from '../logging.js';
 
 function executeLaunchScript(codeToInject) {
     if (typeof chrome !== 'undefined' && chrome.runtime) {
         chrome.runtime.sendMessage({ action: "injectScript", codeToInject });
     } else {
-        console.error("RoValra Launcher: Chrome runtime is not available to inject the script.");
+        log(logLevel.ERROR, "RoValra Launcher: Chrome runtime is not available to inject the script.");
     }
 }
 
@@ -65,7 +66,7 @@ export async function launchStudioForGame(placeId) {
             throw new Error(`Could not retrieve universeId for placeId ${placeId}`);
         }
     } catch (error) {
-        console.error('RoValra Launcher: Failed to launch studio with universeId, falling back.', error);
+        log(logLevel.ERROR, 'RoValra Launcher: Failed to launch studio with universeId, falling back.', error);
         const uri = `roblox-studio:launchmode:edit+task:EditPlace+placeId:${placeId}`;
         const codeToInject = `window.location.href = '${uri}';`;
         executeLaunchScript(codeToInject);
