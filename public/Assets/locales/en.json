@@ -76,5 +76,14 @@
         "description": "This will launch \"PLS DONATE\" where you can give an offline donation.\n\nDue to fees from Roblox (30%) and the game (10%), the user receives 60% of the donated amount.\n\nUpon joining, the \"Offline Donations\" UI will appear with their username pre-filled. Simply click the gift button to open their stand and purchase a gamepass to donate.",
         "joinButton": "Join Pls Donate",
         "goBackButton": "Go Back"
+    },
+    "instantJoiner": {
+        "instantJoin": "Instant Join",
+        "stopJoining": "Stop Joining",
+        "description": "This will automatically attempts to join the user as soon as they get into an experience.<br><br>This requires the user to have their joins enabled for everyone or for you to be friends with them.",
+        "searchPlaceholder": "Search for an experience or enter a Place ID (Optional)",
+        "continue": "Continue",
+        "cancel": "Cancel",
+        "confirmTitle": "Confirm Action"
     }
 }
