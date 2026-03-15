@@ -1,0 +1,172 @@
+{
+    "trustedFriends": {
+        "pendingConnection": "Prieten de încredere în așteptare",
+        "pendingRequest": "Cerere de prieten de încredere în așteptare",
+        "addConnection": "Adaugă prieten de încredere",
+        "addConfirmation": "Ești sigur că vrei să trimiți o cerere de prieten de încredere?",
+        "sendRequest": "Trimite Cerere",
+        "sending": "Se trimite...",
+        "requestSent": "Cerere de prieten de încredere trimisă!",
+        "requestFailed": "Trimiterea de cerere de prieten de încredere a eșuat.",
+        "errorSending": "Eroare în trimitere",
+        "acceptConnection": "Prieten de încredere acceptat",
+        "acceptConfirmation": "Ești sigur că dorești să accepți această cerere de prieten de încredere?",
+        "accept": "Acceptă",
+        "accepting": "Acceptând...",
+        "requestAccepted": "Cerere de prieten de încredere acceptată!",
+        "acceptFailed": "Acceptarea cererei de prieten de încredere a eșuat.",
+        "errorAccepting": "Eroare acceptare",
+        "removeConnection": "Scoate prieten de încredere",
+        "removeConfirmation": "Ești sigur că dorești să scoți acest prieten de încredere?",
+        "remove": "Șterge",
+        "removing": "Ștergând...",
+        "connectionRemoved": "Prieten de încredere scos!",
+        "removeFailed": "Scoaterea prietenului de încredere a eșuat.",
+        "errorRemoving": "Eroare ștergere..."
+    },
+    "categorizeWearing": {
+        "currentlyWearing": "Purtând",
+        "items": "Itemi",
+        "bodyParts": "Părți ale corpului",
+        "animations": "Animații",
+        "emotes": "Emoturi"
+    },
+    "hiddenGamesProfile": {
+        "noPublicGames": "Utilizatorul nu are experiențe publice",
+        "overlayText": "Experiențe ascunse (Poate arăta experiențe neascunse)",
+        "noHiddenGames": "Acest utilizator nu are experiențe ascunse.",
+        "buttonText": "Experiențe Ascunse",
+        "labels": {
+            "sort": "Sortare",
+            "order": "Ordine"
+        },
+        "sort": {
+            "default": "Default",
+            "likeRatio": "Raport Like-uri",
+            "likes": "Like-uri",
+            "dislikes": "Dislike-uri",
+            "players": "Jucători",
+            "name": "Nume (Z-A)"
+        },
+        "order": {
+            "descending": "Descendent",
+            "ascending": "Ascendent"
+        },
+        "noMatches": "Nici-o experiență nu întâlnește criteriile selectate.",
+        "loading": "Se încarcă..."
+    },
+    "hiddenGroupGames": {
+        "overlayTitle": "Experiențe de grup ascunse ({count} în total)",
+        "noHiddenGames": "Acest grup nu are experiențe ascunse.",
+        "buttonText": "Experiențe Ascunse",
+        "labels": {
+            "sort": "Sortare",
+            "order": "Ordine"
+        },
+        "sort": {
+            "recentlyUpdated": "Recent updatate",
+            "likeRatio": "Procent de like-uri",
+            "likes": "Like-uri",
+            "dislikes": "Dislike-uri",
+            "players": "Jucători",
+            "name": "Nume (Z-A)"
+        },
+        "order": {
+            "descending": "Descendent",
+            "ascending": "Ascendent"
+        },
+        "noMatches": "Nici-o experiență nu întâlnește criteriile selectate.",
+        "loadingMore": "Se încarcă mai multe jocuri..."
+    },
+    "userOutfits": {
+        "loading": "Se încarcă vestimentația...",
+        "back": "Înapoi",
+        "totalPrice": "Preț Total:",
+        "loadingItems": "Încărcare itemi...",
+        "noItems": "Această vestimentație nu are itemi.",
+        "errorLoadingItems": "Nu s-au putut încărca itemi.",
+        "buttonText": "Afișează Vestimentații",
+        "overlayTitle": "Vestimentațiile Utilizatorului",
+        "overlayTitleUser": "Vestimentațiile lui {{displayName}}",
+        "noOutfits": "Acest utilizator nu are vestimentații.",
+        "inventoryPrivate": "Inventoriul acestui utilizator este privat.",
+        "errorNoUserId": "Nu s-a putut identifica ID-ul utilizatorului.",
+        "errorFetch": "Nu s-au putut descărca ținutele utilizatorului.."
+    },
+    "donationLink": {
+        "donate": "Donează",
+        "overlayTitle": "Te rog donează",
+        "description": "Se va lansa \"PLS DONATE\", unde poți da o donație offline.\n\nDin cauza taxelor de la Roblox (30%) și a jocului (10%), utilizatorul primește 60% din suma donată.\n\nLa intrare, interfața \"Offline Donations\" va apărea cu numele lor deja completat. Doar dă click pe butonul cu pictograma de cadou pentru a le deschinde stand-ul și cumpără un gamepass pentru a dona.",
+        "joinButton": "Intră pe Pls Donate",
+        "goBackButton": "Înapoi"
+    },
+    "instantJoiner": {
+        "instantJoin": "Intare Instantă",
+        "stopJoining": "Oprește Intrare",
+        "description": "Aceasta va încerca să intre pe jucător automat imediat cum intră într-o experiență.<br><br>Este necesar ca utilizatorul să aibă intrările pornite pentru toți sau să vă aibă la lista de prieteni.",
+        "searchPlaceholder": "Caută o experiență sau introdu un ID de loc (Opțional)",
+        "continue": "Continuă",
+        "cancel": "Anulează",
+        "confirmTitle": "Confirmă Acțiune"
+    },
+    "privateServer": {
+        "processingTitle": "Se procesează serverele...",
+        "starting": "Începe...",
+        "cancel": "Anulează",
+        "cancelling": "Se anulează...",
+        "activating": "Se activează",
+        "inactivating": "Se dezactivează",
+        "progressText": "{{actionText}} serverul {{current}} din {{total}}...",
+        "unknownApiError": "O eroare de API necunoscută a apărut.",
+        "processCancelled": "Proces anulat. <span class=\"success-text\">{{count}} server(e) procesate.</span>",
+        "completed": "Completate: <span class=\"success-text\">{{successCount}} cu succes</span>, <span class=\"error-text\">{{errorCount}} au eșuat</span>.",
+        "processingComplete": "Procesare Completată",
+        "confirmationTitle": "Confirmă Acțiune",
+        "confirmationMessage": "Urmează să setezi {{count}} server(e) private ca {{action}}.",
+        "confirmationJoinable": "Aceasta va face serverul private intrabil.",
+        "confirmationUnjoinable": "Aceasta va face serverul private neintrabil",
+        "confirmationReversible": "Poți mereu schimba setarea aceasta înapoi.",
+        "confirm": "Confirmă",
+        "deselectAll": "Deselectează Toate",
+        "selectAll": "Selectează Toate",
+        "bulkInactivate": "Inactivează Mai multe",
+        "bulkActivate": "Activează Mai multe",
+        "setInactive": "Setează Inactiv",
+        "setActive": "Setează Activ",
+        "noServersFound": "Niciun server privat {{status}} găsit.",
+        "byCreator": "De către "
+    },
+    "rap": {
+        "error": "Eroare",
+        "private": "Privat",
+        "openInRolimons": "Deschis în Rolimon's",
+        "thisUser": "acest utilizator",
+        "rolimonsRedirect": "Vei fi direcționat către profilul lui {{username}} pe Rolimon's, un site extern pentru trading și valori ale itemilor.<br><br>Dorești să continui?",
+        "continueToRolimons": "Continuă către Rolimon's",
+        "user": "Utilizator",
+        "loadingItems": "Se încarcă mai mulți itemi...",
+        "noItemsMatch": "Nici-un item nu întâlnește criteriul selectat.",
+        "collectiblesTitle": "Collectibilele lui {{displayName}} ({{totalRapString}} RAP)",
+        "inventoryPrivateOrNoLimiteds": "Inventoriul acestui utilizator este privat sau nu are itemi limitați.",
+        "searchByName": "Caută după numele de item"
+    },
+    "firstAccount": {
+        "label": "Primul Cont",
+        "yes": "Da",
+        "no": "Nu",
+        "tooltip": "Aceasta arată dacă Roblox crede că acesta este primul tău cont. <br>Această informație vine direct de la Roblox, dar se poate să nu fie corectă.",
+        "createdDate": "Primul cont creat: {{date}}"
+    },
+    "previousPrice": {
+        "offSale": "Off Sale",
+        "text": "Prețul trecut:"
+    },
+    "pendingRobux": {
+        "tooltip": "Acesta este un estimat de câți Robuxi din soldul tău restant (pending balance) vor devine disponibili mâine, pe bază de datele tale tranzacționale. Suma reală poate varia, iar acest estimat poate să nu fie corect.",
+        "loading": "Se încarcă...",
+        "error": "Eroare: {{message}}",
+        "insufficientData": "Date insuficiente",
+        "insufficientDataTooltip": "Nu sunt destule date tranzacționale pentru a face un estimat. Vă rugăm așteptați ca mai multe tranzacții să completeze.",
+        "label": "Robuxi neîn așteptare (unpending) mâine"
+    }
+}
