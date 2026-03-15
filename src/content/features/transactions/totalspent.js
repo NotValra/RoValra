@@ -4,6 +4,7 @@ import { callRobloxApiJson } from '../../core/api.js';
 import { createOverlay } from '../../core/ui/overlay.js';
 import { createButton } from '../../core/ui/buttons.js';
 import DOMPurify from 'dompurify';
+import { ts } from '../../core/locale/i18n.js';
 
 function onElementFound(container) {
     const buttonIdentifier = 'rovalra-total-spent-btn';
@@ -74,7 +75,7 @@ function onElementFound(container) {
                     const type =
                         transaction.details && transaction.details.type
                             ? transaction.details.type
-                            : 'Other';
+                            : ts('totalSpent.other');
 
                     if (!state.itemTypeBreakdown[type]) {
                         state.itemTypeBreakdown[type] = { count: 0, robux: 0 };
@@ -215,9 +216,9 @@ function onElementFound(container) {
                             price = this.getPriceForRobuxAmount(amount);
                         const total = price
                             ? formatCurrency(price * count)
-                            : 'N/A';
+                            : ts('totalSpent.na');
                         return `<li>
-                                <span class="rovalra-breakdown-amount">${formatRobux(amount)} Pack</span>
+                                <span class="rovalra-breakdown-amount">${formatRobux(amount)} ${ts('totalSpent.pack')}</span>
                                 <span class="rovalra-breakdown-count">x${count}</span>
                                 <span class="rovalra-breakdown-price">${total}</span>
                             </li>`;
@@ -239,10 +240,10 @@ function onElementFound(container) {
                             product = this.premiumRobuxToProductMap.get(amount);
                         const total = product
                             ? formatCurrency(product.price * count)
-                            : 'N/A';
+                            : ts('totalSpent.na');
                         const name = product
                             ? product.name
-                            : `${formatRobux(amount)} Stipend`;
+                            : `${formatRobux(amount)} ${ts('totalSpent.stipend')}`;
                         return `<li>
                                 <span class="rovalra-breakdown-amount">${name}</span>
                                 <span class="rovalra-breakdown-count">x${count}</span>
@@ -287,7 +288,7 @@ function onElementFound(container) {
             state.status === CALCULATION_STATE.IDLE ||
             state.status === CALCULATION_STATE.PAUSED
         ) {
-            header = 'Calculate Spend';
+            header = ts('totalSpent.calculateSpend');
             const desc = document.createElement('div');
             desc.className = 'rovalra-description';
 
@@ -295,15 +296,14 @@ function onElementFound(container) {
             btnStack.className = 'rovalra-action-stack';
 
             if (state.status === CALCULATION_STATE.PAUSED) {
-                desc.textContent =
-                    'Calculation paused. Resume to continue counting.';
+                desc.textContent = ts('totalSpent.pausedMessage');
                 const resumeButton = createButton(
-                    'Resume Calculation',
+                    ts('totalSpent.resumeCalculation'),
                     'primary',
                     { onClick: runCalculation },
                 );
                 const newCalcButton = createButton(
-                    'Start New Calculation',
+                    ts('totalSpent.startNewCalculation'),
                     'secondary',
                     {
                         onClick: () => {
@@ -314,10 +314,9 @@ function onElementFound(container) {
                 );
                 btnStack.append(resumeButton, newCalcButton);
             } else {
-                desc.textContent =
-                    'Select a mode to calculate your transaction history.';
+                desc.textContent = ts('totalSpent.description');
                 const robuxButton = createButton(
-                    'Calculate Robux Spent',
+                    ts('totalSpent.calculateRobux'),
                     'primary',
                     {
                         onClick: () =>
@@ -325,7 +324,7 @@ function onElementFound(container) {
                     },
                 );
                 const moneyButton = createButton(
-                    'Calculate Money Spent',
+                    ts('totalSpent.calculateMoney'),
                     'primary',
                     {
                         onClick: () =>
@@ -356,18 +355,18 @@ function onElementFound(container) {
                 statsGridHTML = `
                     <div class="rovalra-stats-grid">
                         <div class="rovalra-stat-item centered-content">
-                            <span class="rovalra-stat-label">Transactions Scanned</span>
+                            <span class="rovalra-stat-label">${ts('totalSpent.transactionsScanned')}</span>
                             <span class="rovalra-stat-value" id="rovalra-stat-transactions">${transactionsValue}</span>
                         </div>
                         <div class="rovalra-stat-item centered-content">
-                            <span class="rovalra-stat-label">Total Robux Spent</span>
+                            <span class="rovalra-stat-label">${ts('totalSpent.totalRobuxSpent')}</span>
                             <span class="rovalra-stat-value" id="rovalra-stat-robux">${robuxSpentValue} <span class="icon-robux-16x16" style="vertical-align: -3px;"></span></span>
                         </div>
                     </div>`;
 
                 breakdownsHTML = `
                     <div class="rovalra-breakdown-section">
-                        <span class="rovalra-stat-label">Item Type Breakdown</span>
+                        <span class="rovalra-stat-label">${ts('totalSpent.itemTypeBreakdown')}</span>
                         <div id="rovalra-itemtype-breakdown-container"></div>
                     </div>
                 `;
@@ -375,21 +374,21 @@ function onElementFound(container) {
                 statsGridHTML = `
                     <div class="rovalra-stats-grid">
                         <div class="rovalra-stat-item">
-                            <span class="rovalra-stat-label">Transactions Scanned</span>
+                            <span class="rovalra-stat-label">${ts('totalSpent.transactionsScanned')}</span>
                             <span class="rovalra-stat-value" id="rovalra-stat-transactions">${transactionsValue}</span>
                         </div>
                         <div class="rovalra-stat-item">
-                            <span class="rovalra-stat-label">Total Spent (Approx.)</span>
+                            <span class="rovalra-stat-label">${ts('totalSpent.totalMoneySpent')}</span>
                             <span class="rovalra-stat-value" id="rovalra-stat-money-spent">${moneySpentValue}</span>
                         </div>
                     </div>`;
                 breakdownsHTML = `
                     <div class="rovalra-breakdown-section">
-                        <span class="rovalra-stat-label">Premium Subscription Breakdown</span>
+                        <span class="rovalra-stat-label">${ts('totalSpent.premiumBreakdown')}</span>
                         <div id="rovalra-premium-breakdown-container"></div>
                     </div>
                     <div class="rovalra-breakdown-section">
-                        <span class="rovalra-stat-label">Robux Purchase Breakdown</span>
+                        <span class="rovalra-stat-label">${ts('totalSpent.purchaseBreakdown')}</span>
                         <div id="rovalra-purchase-breakdown-container"></div>
                     </div>
                 `;
@@ -397,13 +396,13 @@ function onElementFound(container) {
 
             switch (state.status) {
                 case CALCULATION_STATE.RUNNING: {
-                    header = 'Calculating';
+                    header = ts('totalSpent.calculatingTitle');
 
-                    let statusText = 'Calculating...';
+                    let statusText = ts('totalSpent.calculatingText');
                     let statusClass = 'rovalra-status-text';
 
                     if (state.isRateLimited) {
-                        statusText = 'API rate limited. Still counting...';
+                        statusText = ts('totalSpent.rateLimited');
                         statusClass =
                             'rovalra-status-text rovalra-rate-limit-text';
                     }
@@ -419,10 +418,10 @@ function onElementFound(container) {
                 }
 
                 case CALCULATION_STATE.DONE: {
-                    header = 'Calculation Complete';
-                    const doneText = `<p class="text-body">All relevant transactions have been scanned.</p><p class="text-caption-body text-secondary" style="margin-bottom: 16px;"></p>`;
+                    header = ts('totalSpent.calculationComplete');
+                    const doneText = `<p class="text-body">${ts('totalSpent.allScanned')}</p><p class="text-caption-body text-secondary" style="margin-bottom: 16px;"></p>`;
                     const newCalcBtn = createButton(
-                        'New Calculation',
+                        ts('totalSpent.newCalculation'),
                         'primary',
                         {
                             onClick: () => {
@@ -443,10 +442,10 @@ function onElementFound(container) {
                 }
 
                 case CALCULATION_STATE.ERROR:
-                    header = 'An Error Occurred';
+                    header = ts('totalSpent.errorTitle');
                     statusContent = `<p class="text-error">${state.errorMessage}</p>`;
                     actions = [
-                        createButton('Retry', 'primary', {
+                        createButton(ts('totalSpent.retry'), 'primary', {
                             onClick: resetAndRunCalculation,
                         }),
                     ];
@@ -520,8 +519,7 @@ function onElementFound(container) {
                     subdomain: 'users',
                     endpoint: '/v1/users/authenticated',
                 });
-                if (!userData.id)
-                    throw new Error('Could not retrieve user ID.');
+                if (!userData.id) throw new Error(ts('totalSpent.errorUserId'));
                 state.userId = userData.id;
             }
 
@@ -645,7 +643,9 @@ function onElementFound(container) {
                             state.retryCount++;
                             if (state.retryCount > 5) {
                                 throw new Error(
-                                    `Failed after multiple retries. Last error: ${error.message || 'Unknown'}`,
+                                    ts('totalSpent.errorRetries', {
+                                        error: error.message || 'Unknown',
+                                    }),
                                 );
                             }
                             const waitUntil = Date.now() + 1000;
@@ -712,10 +712,14 @@ function onElementFound(container) {
         startCalculation(state.calculationType);
     };
 
-    const totalSpentButton = createButton('Calculate Spend', 'secondary', {
-        id: buttonIdentifier,
-        onClick: () => updateOverlay(),
-    });
+    const totalSpentButton = createButton(
+        ts('totalSpent.calculateSpend'),
+        'secondary',
+        {
+            id: buttonIdentifier,
+            onClick: () => updateOverlay(),
+        },
+    );
     totalSpentButton.classList.add('btn-growth-md');
     totalSpentButton.style.marginLeft = '10px';
     totalSpentButton.style.marginTop = 'auto';

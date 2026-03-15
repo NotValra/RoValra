@@ -3,6 +3,7 @@ import { callRobloxApiJson } from '../../core/api.js';
 import { createOverlay } from '../../core/ui/overlay.js';
 import { createButton } from '../../core/ui/buttons.js';
 import DOMPurify from 'dompurify';
+import { ts } from '../../core/locale/i18n.js';
 
 function onElementFound(container) {
     const buttonIdentifier = 'rovalra-total-earned-btn';
@@ -58,10 +59,10 @@ function onElementFound(container) {
                 const amount = transaction.currency.amount;
                 state.totalEarned += amount;
 
-                let type = 'Other';
+                let type = ts('totalEarned.other');
 
                 if (transaction.category === 'GroupPayout') {
-                    type = 'Group Payout';
+                    type = ts('totalEarned.groupPayout');
                 } else if (transaction.details && transaction.details.type) {
                     type = transaction.details.type;
                 } else if (transaction.transactionType) {
@@ -137,7 +138,7 @@ function onElementFound(container) {
                     );
                 } else {
                     breakdownEl.innerHTML = DOMPurify.sanitize(
-                        `<div class="text-secondary text-caption-body" style="padding:8px;">No earnings found yet.</div>`,
+                        `<div class="text-secondary text-caption-body" style="padding:8px;">${ts('totalEarned.noEarnings')}</div>`,
                     );
                 }
             }
@@ -169,7 +170,7 @@ function onElementFound(container) {
             state.status === CALCULATION_STATE.IDLE ||
             state.status === CALCULATION_STATE.PAUSED
         ) {
-            header = 'Calculate Earnings';
+            header = ts('totalEarned.calculateEarnings');
             const desc = document.createElement('div');
             desc.className = 'rovalra-description';
 
@@ -177,15 +178,14 @@ function onElementFound(container) {
             btnStack.className = 'rovalra-action-stack';
 
             if (state.status === CALCULATION_STATE.PAUSED) {
-                desc.textContent =
-                    'Calculation paused. Resume to continue counting.';
+                desc.textContent = ts('totalEarned.pausedMessage');
                 const resumeButton = createButton(
-                    'Resume Calculation',
+                    ts('totalEarned.resumeCalculation'),
                     'primary',
                     { onClick: runCalculation },
                 );
                 const newCalcButton = createButton(
-                    'Start New Calculation',
+                    ts('totalEarned.startNewCalculation'),
                     'secondary',
                     {
                         onClick: () => {
@@ -196,10 +196,9 @@ function onElementFound(container) {
                 );
                 btnStack.append(resumeButton, newCalcButton);
             } else {
-                desc.textContent =
-                    'Calculate your total Robux earned from Sales and Group Payouts.';
+                desc.textContent = ts('totalEarned.description');
                 const robuxButton = createButton(
-                    'Start Calculation',
+                    ts('totalEarned.startCalculation'),
                     'primary',
                     { onClick: startCalculation },
                 );
@@ -222,18 +221,18 @@ function onElementFound(container) {
             const statsGridHTML = `
                 <div class="rovalra-stats-grid">
                     <div class="rovalra-stat-item centered-content">
-                        <span class="rovalra-stat-label">Transactions Scanned</span>
+                        <span class="rovalra-stat-label">${ts('totalEarned.transactionsScanned')}</span>
                         <span class="rovalra-stat-value" id="rovalra-stat-transactions">${transactionsValue}</span>
                     </div>
                     <div class="rovalra-stat-item centered-content">
-                        <span class="rovalra-stat-label">Total Robux Earned</span>
+                        <span class="rovalra-stat-label">${ts('totalEarned.totalRobuxEarned')}</span>
                         <span class="rovalra-stat-value" id="rovalra-stat-robux">${robuxEarnedValue} <span class="icon-robux-16x16" style="vertical-align: -3px;"></span></span>
                     </div>
                 </div>`;
 
             const breakdownsHTML = `
                 <div class="rovalra-breakdown-section">
-                    <span class="rovalra-stat-label">Earnings Source Breakdown</span>
+                    <span class="rovalra-stat-label">${ts('totalEarned.breakdownLabel')}</span>
                     <div id="rovalra-earnings-breakdown-container"></div>
                 </div>
             `;
@@ -242,12 +241,12 @@ function onElementFound(container) {
 
             switch (state.status) {
                 case CALCULATION_STATE.RUNNING: {
-                    header = 'Calculating Earnings';
-                    let statusText = 'Scanning transaction history...';
+                    header = ts('totalEarned.calculatingTitle');
+                    let statusText = ts('totalEarned.scanningHistory');
                     let statusClass = 'rovalra-status-text';
 
                     if (state.isRateLimited) {
-                        statusText = 'API rate limited. Still counting...';
+                        statusText = ts('totalEarned.rateLimited');
                         statusClass =
                             'rovalra-status-text rovalra-rate-limit-text';
                     }
@@ -262,10 +261,10 @@ function onElementFound(container) {
                 }
 
                 case CALCULATION_STATE.DONE: {
-                    header = 'Calculation Complete';
-                    const doneText = `<p class="text-body">All earning records have been scanned.</p>`;
+                    header = ts('totalEarned.calculationComplete');
+                    const doneText = `<p class="text-body">${ts('totalEarned.allScanned')}</p>`;
                     const newCalcBtn = createButton(
-                        'New Calculation',
+                        ts('totalEarned.newCalculation'),
                         'primary',
                         {
                             onClick: () => {
@@ -283,10 +282,10 @@ function onElementFound(container) {
                 }
 
                 case CALCULATION_STATE.ERROR:
-                    header = 'An Error Occurred';
+                    header = ts('totalEarned.errorTitle');
                     statusContent = `<p class="text-error">${state.errorMessage}</p>`;
                     actions = [
-                        createButton('Retry', 'primary', {
+                        createButton(ts('totalEarned.retry'), 'primary', {
                             onClick: runCalculation,
                         }),
                     ];
@@ -473,10 +472,14 @@ function onElementFound(container) {
         runCalculation();
     };
 
-    const totalEarnedButton = createButton('Calculate Earned', 'secondary', {
-        id: buttonIdentifier,
-        onClick: () => updateOverlay(),
-    });
+    const totalEarnedButton = createButton(
+        ts('totalEarned.calculateEarned'),
+        'secondary',
+        {
+            id: buttonIdentifier,
+            onClick: () => updateOverlay(),
+        },
+    );
     totalEarnedButton.classList.add('btn-growth-md');
     totalEarnedButton.style.marginLeft = '10px';
     totalEarnedButton.style.marginTop = 'auto';
