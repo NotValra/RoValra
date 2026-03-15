@@ -55,6 +55,29 @@
         "noMatches": "Nici-o experiență nu întâlnește criteriile selectate.",
         "loading": "Se încarcă..."
     },
+    "hiddenGroupGames": {
+        "overlayTitle": "Experiențe de grup ascunse ({count} în total)",
+        "noHiddenGames": "Acest grup nu are experiențe ascunse.",
+        "buttonText": "Experiențe Ascunse",
+        "labels": {
+            "sort": "Sortare",
+            "order": "Ordine"
+        },
+        "sort": {
+            "recentlyUpdated": "Recent updatate",
+            "likeRatio": "Procent de like-uri",
+            "likes": "Like-uri",
+            "dislikes": "Dislike-uri",
+            "players": "Jucători",
+            "name": "Nume (Z-A)"
+        },
+        "order": {
+            "descending": "Descendent",
+            "ascending": "Ascendent"
+        },
+        "noMatches": "Nici-o experiență nu întâlnește criteriile selectate.",
+        "loadingMore": "Se încarcă mai multe jocuri..."
+    },
     "userOutfits": {
         "loading": "Se încarcă vestimentația...",
         "back": "Înapoi",
@@ -69,5 +92,21 @@
         "inventoryPrivate": "Inventoriul acestui utilizator este privat.",
         "errorNoUserId": "Nu s-a putut identifica ID-ul utilizatorului.",
         "errorFetch": "Nu s-au putut descărca ținutele utilizatorului.."
+    },
+    "donationLink": {
+        "donate": "Donează",
+        "overlayTitle": "Te rog donează",
+        "description": "Se va lansa \"PLS DONATE\", unde poți da o donație offline.\n\nDin cauza taxelor de la Roblox (30%) și a jocului (10%), utilizatorul primește 60% din suma donată.\n\nLa intrare, interfața \"Offline Donations\" va apărea cu numele lor deja completat. Doar dă click pe butonul cu pictograma de cadou pentru a le deschinde stand-ul și cumpără un gamepass pentru a dona.",
+        "joinButton": "Intră pe Pls Donate",
+        "goBackButton": "Înapoi"
+    },
+    "instantJoiner": {
+        "instantJoin": "Intare Instantă",
+        "stopJoining": "Oprește Intrare",
+        "description": "Aceasta va încerca să intre pe jucător automat imediat cum intră într-o experiență.<br><br>Este necesar ca utilizatorul să aibă intrările pornite pentru toți sau să vă aibă la lista de prieteni.",
+        "searchPlaceholder": "Caută o experiență sau introdu un ID de loc (Opțional)",
+        "continue": "Continuă",
+        "cancel": "Anulează",
+        "confirmTitle": "Confirmă Acțiune"
     }
 }
