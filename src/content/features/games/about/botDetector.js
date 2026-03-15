@@ -2,6 +2,7 @@ import { callRobloxApi } from '../../../core/api.js';
 import { observeElement } from '../../../core/observer.js';
 import { addTooltip } from '../../../core/ui/tooltip.js';
 import DOMPurify from 'dompurify';
+import { t } from '../../../core/locale/i18n.js';
 
 const MAX_SERVERS_TO_CHECK = 50;
 const BOT_PERCENTAGE_THRESHOLD = 10;
@@ -11,20 +12,20 @@ const MIN_PLAYERS_TO_PROCESS = 3;
 function getPlaceIdFromUrl(url) {
     const standardMatch = url.match(/\/games\/(\d+)/);
     if (standardMatch && standardMatch[1]) return standardMatch[1];
-    
+
     const numericMatch = url.match(/\/games\/([0-9]+)/);
     if (numericMatch && numericMatch[1]) return numericMatch[1];
-    
+
     const queryMatch = url.match(/[?&]placeId=(\d+)/i);
     if (queryMatch && queryMatch[1]) return queryMatch[1];
-    
+
     const anyNumberMatch = url.match(/[^0-9](\d{8,})[^0-9]/);
     if (anyNumberMatch && anyNumberMatch[1]) return anyNumberMatch[1];
-    
+
     return null;
 }
 
-class BotDetector {    
+class BotDetector {
     constructor() {
         this.totalPlayersProcessed = 0;
         this.totalBotsFound = 0;
@@ -37,22 +38,24 @@ class BotDetector {
                 this.initialize();
             }
         }
-        
-        this.updateBotStats();    
+
+        this.updateBotStats();
     }
 
     async updateBotStats() {
         const descWrapper = document.getElementById('btr-description-wrapper');
-        const gameDescContainer = document.querySelector('.game-description-container');
+        const gameDescContainer = document.querySelector(
+            '.game-description-container',
+        );
         const targetElement = descWrapper || gameDescContainer;
-        
+
         if (!targetElement) return;
 
         const placeId = getPlaceIdFromUrl(window.location.href);
         if (!placeId) return;
 
         const isLightTheme = document.body.classList.contains('light-theme');
-        const tooltipTextColor = "var(--rovalra-secondary-text-color)";
+        const tooltipTextColor = 'var(--rovalra-secondary-text-color)';
 
         let statsContainer = document.querySelector('.bot-stats-container');
         if (!statsContainer) {
@@ -66,20 +69,27 @@ class BotDetector {
                 box-sizing: border-box;
                 clear: both;
             `;
-            targetElement.insertBefore(statsContainer, targetElement.firstChild);
+            targetElement.insertBefore(
+                statsContainer,
+                targetElement.firstChild,
+            );
         }
-        
-        const botPercentage = this.totalPlayersProcessed > 0 ? 
-            ((this.totalBotsFound / this.totalPlayersProcessed) * 100) : 0;
-            
+
+        const botPercentage =
+            this.totalPlayersProcessed > 0
+                ? (this.totalBotsFound / this.totalPlayersProcessed) * 100
+                : 0;
+
         const gameNameElement = document.querySelector('.game-name');
-        const gameName = gameNameElement ? gameNameElement.textContent.trim().split('\n')[0] : 'This game';
-        const tooltipText = `Bots are accounts running automated scripts to farm items. A single user can sometimes run 50+ bots.\n\nKeep in mind that this is not a fault of the game developers. This information can be inaccurate if an experience is mainly played by new Roblox accounts.`;
+        const gameName = gameNameElement
+            ? gameNameElement.textContent.trim().split('\n')[0]
+            : await t('botDetector.thisGame');
+        const tooltipText = await t('botDetector.tooltip');
 
         if (botPercentage > 20) {
             statsContainer.innerHTML = DOMPurify.sanitize(`
                 <div style="display: flex; align-items: center; gap: 4px; color: ${tooltipTextColor};">
-                    <span style="font-weight: 500;"><span style="color: var(--rovalra-main-text-color)">${gameName}</span> has a lot of bots</span>
+                    <span style="font-weight: 500;">${await t('botDetector.lotsOfBots', { gameName })}</span>
                     <i class="icon-moreinfo"></i>
                 </div>
             `);
@@ -88,7 +98,7 @@ class BotDetector {
         } else if (botPercentage > BOT_PERCENTAGE_THRESHOLD) {
             statsContainer.innerHTML = DOMPurify.sanitize(`
                 <div style="display: flex; align-items: center; gap: 4px; color: ${tooltipTextColor};">
-                    <span style="font-weight: 500;"><span style="color: var(--rovalra-main-text-color);">${gameName}</span> has some bots but mostly real players</span>
+                    <span style="font-weight: 500;">${await t('botDetector.someBots', { gameName })}</span>
                     <i class="icon-moreinfo"></i>
                 </div>
             `);
@@ -108,27 +118,26 @@ class BotDetector {
 
     async fetchServerData(placeId) {
         if (this.initialScanComplete) return;
-        
+
         try {
             if (this.requestIntercepted) return;
 
             const response = await callRobloxApi({
                 subdomain: 'games',
                 endpoint: `/v1/games/${placeId}/servers/Public?limit=50`,
-                method: 'GET'
+                method: 'GET',
             });
-            
+
             if (!response.ok) return;
 
             const data = await response.json();
-            
+
             if (data && data.data && Array.isArray(data.data)) {
                 this.requestIntercepted = true;
                 const servers = data.data.slice(0, MAX_SERVERS_TO_CHECK);
                 this.scanServers(placeId, servers);
             }
-        } catch (error) {
-        }
+        } catch (error) {}
     }
 
     refreshServerData() {
@@ -144,8 +153,8 @@ class BotDetector {
     async calculateImageHash(imageUrl) {
         try {
             const img = new Image();
-            img.crossOrigin = "Anonymous";
-            
+            img.crossOrigin = 'Anonymous';
+
             return new Promise((resolve) => {
                 img.onload = () => {
                     try {
@@ -154,27 +163,28 @@ class BotDetector {
                         canvas.height = 8;
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(img, 0, 0, 8, 8);
-                        
+
                         const data = ctx.getImageData(0, 0, 8, 8).data;
                         let hash = '';
-                        
+
                         let avg = 0;
                         for (let i = 0; i < data.length; i += 4) {
                             avg += (data[i] + data[i + 1] + data[i + 2]) / 3;
                         }
                         avg = avg / (data.length / 4);
-                        
+
                         for (let i = 0; i < data.length; i += 4) {
-                            const pixel = (data[i] + data[i + 1] + data[i + 2]) / 3;
+                            const pixel =
+                                (data[i] + data[i + 1] + data[i + 2]) / 3;
                             hash += pixel > avg ? '1' : '0';
                         }
-                        
+
                         resolve(hash);
                     } catch (canvasError) {
                         resolve(null);
                     }
                 };
-                
+
                 img.onerror = () => resolve(null);
                 img.src = imageUrl;
             });
@@ -194,28 +204,28 @@ class BotDetector {
     async getThumbnails(playerTokens) {
         try {
             if (playerTokens.length === 0) return [];
-            
+
             const results = [];
             const batchSize = 50;
-            
+
             for (let i = 0; i < playerTokens.length; i += batchSize) {
                 const batchTokens = playerTokens.slice(i, i + batchSize);
-                
-                const requestData = batchTokens.map(token => ({
+
+                const requestData = batchTokens.map((token) => ({
                     requestId: token.slice(0, 10),
                     token: token,
-                    type: "AvatarHeadshot",
-                    size: "150x150",
-                    format: "Png",
-                    isCircular: false
+                    type: 'AvatarHeadshot',
+                    size: '150x150',
+                    format: 'Png',
+                    isCircular: false,
                 }));
-                
+
                 try {
                     const response = await callRobloxApi({
                         subdomain: 'thumbnails',
                         endpoint: '/v1/batch',
                         method: 'POST',
-                        body: requestData
+                        body: requestData,
                     });
 
                     if (response.ok) {
@@ -224,15 +234,16 @@ class BotDetector {
                             results.push(...data.data);
                         }
                     } else if (response.status === 429) {
-                        await new Promise(resolve => setTimeout(resolve, 1000));
+                        await new Promise((resolve) =>
+                            setTimeout(resolve, 1000),
+                        );
                     }
-                } catch (batchError) {
-                }
+                } catch (batchError) {}
             }
-            
+
             return results
-                .filter(item => item.state === "Completed")
-                .map(item => item.imageUrl);
+                .filter((item) => item.state === 'Completed')
+                .map((item) => item.imageUrl);
         } catch (error) {
             return [];
         }
@@ -240,18 +251,22 @@ class BotDetector {
 
     async scanServers(placeId, servers) {
         try {
-            if (!servers || !Array.isArray(servers) || servers.length === 0) return;
-            
+            if (!servers || !Array.isArray(servers) || servers.length === 0)
+                return;
+
             let allPlayerTokens = [];
             const MAX_THUMBNAILS_PER_SERVER = 5;
-            
+
             servers.forEach((server) => {
-                const serverTokens = (server.playerTokens || []).slice(0, MAX_THUMBNAILS_PER_SERVER);
+                const serverTokens = (server.playerTokens || []).slice(
+                    0,
+                    MAX_THUMBNAILS_PER_SERVER,
+                );
                 allPlayerTokens.push(...serverTokens);
             });
 
             const allImageUrls = await this.getThumbnails(allPlayerTokens);
-            
+
             if (!allImageUrls.length) return;
 
             const MIN_THUMBNAILS_REQUIRED = 200;
@@ -261,39 +276,59 @@ class BotDetector {
             }
 
             const hashes = await Promise.all(
-                allImageUrls.map(url => this.calculateImageHash(url))
+                allImageUrls.map((url) => this.calculateImageHash(url)),
             );
-            
-            const validHashes = hashes.filter(hash => hash !== null);
+
+            const validHashes = hashes.filter((hash) => hash !== null);
             const similarGroups = new Map();
             const COMPARISON_GROUP_SIZE = 10;
-            
-            for (let groupStart = 0; groupStart < validHashes.length; groupStart += COMPARISON_GROUP_SIZE) {
-                const groupEnd = Math.min(groupStart + COMPARISON_GROUP_SIZE, validHashes.length);
+
+            for (
+                let groupStart = 0;
+                groupStart < validHashes.length;
+                groupStart += COMPARISON_GROUP_SIZE
+            ) {
+                const groupEnd = Math.min(
+                    groupStart + COMPARISON_GROUP_SIZE,
+                    validHashes.length,
+                );
                 const currentGroup = validHashes.slice(groupStart, groupEnd);
-                
+
                 for (let i = 0; i < currentGroup.length; i++) {
                     for (let j = i + 1; j < currentGroup.length; j++) {
-                        const distance = this.calculateHashDistance(currentGroup[i], currentGroup[j]);
-                        
+                        const distance = this.calculateHashDistance(
+                            currentGroup[i],
+                            currentGroup[j],
+                        );
+
                         if (distance <= SIMILARITY_THRESHOLD) {
                             if (!similarGroups.has(currentGroup[i])) {
-                                similarGroups.set(currentGroup[i], new Set([currentGroup[i]]));
+                                similarGroups.set(
+                                    currentGroup[i],
+                                    new Set([currentGroup[i]]),
+                                );
                             }
-                            similarGroups.get(currentGroup[i]).add(currentGroup[j]);
+                            similarGroups
+                                .get(currentGroup[i])
+                                .add(currentGroup[j]);
                         }
                     }
                 }
             }
 
-            const botGroups = Array.from(similarGroups.values()).filter(group => group.size >= 2);
-            const totalBots = botGroups.reduce((total, group) => total + group.size, 0);
+            const botGroups = Array.from(similarGroups.values()).filter(
+                (group) => group.size >= 2,
+            );
+            const totalBots = botGroups.reduce(
+                (total, group) => total + group.size,
+                0,
+            );
 
             this.totalPlayersProcessed = validHashes.length;
             this.totalBotsFound = totalBots;
 
             this.updateBotStats();
-            this.initialScanComplete = true; 
+            this.initialScanComplete = true;
 
             setTimeout(() => {
                 this.requestIntercepted = false;
@@ -302,17 +337,20 @@ class BotDetector {
             this.requestIntercepted = false;
         }
     }
-};
+}
 
 window.BotDetector = BotDetector;
 
 export function init() {
-    chrome.storage.local.get({ botdataEnabled: false }, function(settings) {
-        if (settings.botdataEnabled && window.location.href.includes('/games/')) {
+    chrome.storage.local.get({ botdataEnabled: false }, function (settings) {
+        if (
+            settings.botdataEnabled &&
+            window.location.href.includes('/games/')
+        ) {
             const placeId = getPlaceIdFromUrl(window.location.href);
             if (placeId) {
                 window.botDetector = new BotDetector();
-                
+
                 if (observeElement && typeof observeElement === 'function') {
                     observeElement(
                         '#btr-description-wrapper, .game-description-container',
@@ -320,7 +358,7 @@ export function init() {
                             if (window.botDetector) {
                                 window.botDetector.updateBotStats();
                             }
-                        }
+                        },
                     );
                 }
             }
