@@ -279,7 +279,7 @@
             "previousRewards": "+ All previous tier rewards",
             "moreComingSoon": "More coming soon.",
             "availableBadges": "Available Badges",
-            "note": "Note: Badges may take a few minutes to appear after donation. To manage badge visibility, go to the 'Profile' settings tab. Donating through commissions sadly won't give a donator perks, this is a Roblox limitation."
+            "note": "Note: Badges may take a few minutes to appear after donation. To manage badge visibility, go to the 'Profile' settings tab. Importantly if you are under the age of 13 and donate you won't be able to toggle the visiblity of your donator badge. Donating through commissions sadly won't give a donator perks, this is a Roblox limitation."
         },
         "search": {
             "minLength": "Please enter at least 2 characters to search.",
