@@ -276,5 +276,25 @@
     "betaPrograms": {
         "toggleTooltip": "Toggle Beta Programs",
         "noPrograms": "You are not enrolled into any beta programs."
+    },
+    "quickSearch": {
+        "aborted": "Aborted",
+        "apiRequestFailed": "API request failed with status {{status}}",
+        "friendSearchError": "RoValra: Friend Search Error",
+        "userSearchError": "RoValra: User Search Error",
+        "gameSearchError": "RoValra: Game Search Error",
+        "trustedConnection": "You are trusted connections",
+        "connection": "You are connections",
+        "playing": "Playing {{gameName}}",
+        "verifiedBadge": "Verified Badge",
+        "verified": "Verified",
+        "permanentlyBanned": "This user has been permanently banned",
+        "joinPreferredRegion": "Join Preferred Region",
+        "bestRegionAuto": "Best Region (Auto)",
+        "searchHistory": "Search History",
+        "noSearchHistory": "You don't have any search history.",
+        "deleteSearchHistoryTitle": "Delete Search History",
+        "deleteSearchHistoryMessage": "Are you sure you want to delete this search history entry?",
+        "delete": "Delete"
     }
 }
