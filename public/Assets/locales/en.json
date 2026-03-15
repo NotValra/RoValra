@@ -347,6 +347,22 @@
         "regenerateLink": "Regenerate Link",
         "regenerated": "Regenerated!"
     },
+    "devProducts": {
+        "noProducts": "No developer products found.",
+        "passes": "Passes",
+        "developerProducts": "Developer Products",
+        "search": "Search",
+        "sort": {
+            "created": "Sort by Created",
+            "price": "Sort by Price",
+            "updated": "Sort by Updated",
+            "name": "Sort by Name"
+        },
+        "order": {
+            "ascending": "Sort Ascending",
+            "descending": "Sort Descending"
+        }
+    },
     "antiBots": {
         "reviewMembers": "Review {{count}} selected members:",
         "botWarning": "<strong>Warning:</strong> Ensure these are bots before taking action.",
