@@ -268,5 +268,13 @@
         "friendsAndFollowing": "Connections & Following",
         "friends": "Connections",
         "noOne": "No one"
+    },
+    "groupFunds": {
+        "loading": "Loading...",
+        "pending": "Pending:"
+    },
+    "betaPrograms": {
+        "toggleTooltip": "Toggle Beta Programs",
+        "noPrograms": "You are not enrolled into any beta programs."
     }
 }
