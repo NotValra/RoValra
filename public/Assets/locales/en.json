@@ -363,6 +363,21 @@
             "descending": "Sort Descending"
         }
     },
+    "subplaces": {
+        "tabTitle": "Subplaces",
+        "searchPlaceholder": "Search subplaces",
+        "loadMore": "Load More",
+        "rootPlace": "Root Place",
+        "noSubplaces": "No subplaces found.",
+        "failedToLoad": "Failed to load subplaces.",
+        "banner": {
+            "title": "You are currently viewing a subplace of [{{rootPlaceName}}]({{rootPlaceUrl}}).",
+            "descriptionDefault": "Some experiences may disable joining subplaces.",
+            "descriptionRestricted": "This subplace cannot be joined due to join restrictions.",
+            "descriptionJoinable": "This subplace can be joined.",
+            "mainExperience": "the main experience"
+        }
+    },
     "antiBots": {
         "reviewMembers": "Review {{count}} selected members:",
         "botWarning": "<strong>Warning:</strong> Ensure these are bots before taking action.",
