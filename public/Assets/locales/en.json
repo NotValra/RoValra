@@ -323,6 +323,12 @@
         "deleteSearchHistoryMessage": "Are you sure you want to delete this search history entry?",
         "delete": "Delete"
     },
+    "regionPlayButton": {
+        "ariaLabel": "Select or Join Preferred Server Region",
+        "tooltip": "Join Preferred Region",
+        "tooltipWithRegion": "Join Preferred Region<br><b>{{regionName}}</b>",
+        "tooltipBestRegion": "Join Preferred Region<br><b>Best Region (Auto)</b>"
+    },
     "antiBots": {
         "reviewMembers": "Review {{count}} selected members:",
         "botWarning": "<strong>Warning:</strong> Ensure these are bots before taking action.",
