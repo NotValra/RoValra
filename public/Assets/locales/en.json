@@ -343,6 +343,10 @@
         "selectPreferredRegion": "Select Preferred Region",
         "privateServers": "Private Servers"
     },
+    "privateServerPage": {
+        "regenerateLink": "Regenerate Link",
+        "regenerated": "Regenerated!"
+    },
     "antiBots": {
         "reviewMembers": "Review {{count}} selected members:",
         "botWarning": "<strong>Warning:</strong> Ensure these are bots before taking action.",
