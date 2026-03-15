@@ -85,5 +85,19 @@
         "continue": "Continue",
         "cancel": "Cancel",
         "confirmTitle": "Confirm Action"
+    },
+    "rap": {
+        "error": "Error",
+        "private": "Private",
+        "openInRolimons": "Open in Rolimon's",
+        "thisUser": "this user",
+        "rolimonsRedirect": "You are about to be redirected to {{username}}'s profile on Rolimon's, an external website for trading and item values.<br><br>Do you want to continue?",
+        "continueToRolimons": "Continue to Rolimon's",
+        "user": "User",
+        "loadingItems": "Loading more items...",
+        "noItemsMatch": "No items match your search.",
+        "collectiblesTitle": "{{displayName}}'s Collectibles ({{totalRapString}} RAP)",
+        "inventoryPrivateOrNoLimiteds": "This user's inventory is private or has no limiteds.",
+        "searchByName": "Search by item name"
     }
 }
