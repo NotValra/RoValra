@@ -108,5 +108,19 @@
         "continue": "Continuă",
         "cancel": "Anulează",
         "confirmTitle": "Confirmă Acțiune"
+    },
+    "rap": {
+        "error": "Eroare",
+        "private": "Privat",
+        "openInRolimons": "Deschis în Rolimon's",
+        "thisUser": "acest utilizator",
+        "rolimonsRedirect": "Vei fi direcționat către profilul lui {{username}} pe Rolimon's, un site extern pentru trading și valori ale itemilor.<br><br>Dorești să continui?",
+        "continueToRolimons": "Continuă către Rolimon's",
+        "user": "Utilizator",
+        "loadingItems": "Se încarcă mai mulți itemi...",
+        "noItemsMatch": "Nici-un item nu întâlnește criteriul selectat.",
+        "collectiblesTitle": "Collectibilele lui {{displayName}} ({{totalRapString}} RAP)",
+        "inventoryPrivateOrNoLimiteds": "Inventoriul acestui utilizator este privat sau nu are itemi limitați.",
+        "searchByName": "Caută după numele de item"
     }
 }
