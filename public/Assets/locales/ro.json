@@ -122,5 +122,24 @@
         "collectiblesTitle": "Collectibilele lui {{displayName}} ({{totalRapString}} RAP)",
         "inventoryPrivateOrNoLimiteds": "Inventoriul acestui utilizator este privat sau nu are itemi limitați.",
         "searchByName": "Caută după numele de item"
+    },
+    "firstAccount": {
+        "label": "Primul Cont",
+        "yes": "Da",
+        "no": "Nu",
+        "tooltip": "Aceasta arată dacă Roblox crede că acesta este primul tău cont. <br>Această informație vine direct de la Roblox, dar se poate să nu fie corectă.",
+        "createdDate": "Primul cont creat: {{date}}"
+    },
+    "previousPrice": {
+        "offSale": "Off Sale",
+        "text": "Prețul trecut:"
+    },
+    "pendingRobux": {
+        "tooltip": "Acesta este un estimat de câți Robuxi din soldul tău restant (pending balance) vor devine disponibili mâine, pe bază de datele tale tranzacționale. Suma reală poate varia, iar acest estimat poate să nu fie corect.",
+        "loading": "Se încarcă...",
+        "error": "Eroare: {{message}}",
+        "insufficientData": "Date insuficiente",
+        "insufficientDataTooltip": "Nu sunt destule date tranzacționale pentru a face un estimat. Vă rugăm așteptați ca mai multe tranzacții să completeze.",
+        "label": "Robuxi neîn așteptare (unpending) mâine"
     }
 }
