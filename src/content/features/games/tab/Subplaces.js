@@ -374,7 +374,7 @@ export async function init() {
                         } else {
                             await loadMore();
                             if (subplaces.length > PAGE_SIZE) {
-                                loadMoreButton.style.display = 'block';
+                                loadMoreWrapper.style.display = 'flex';
                                 loadMoreButton.addEventListener(
                                     'click',
                                     loadMore,
