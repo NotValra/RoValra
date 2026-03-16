@@ -297,7 +297,8 @@
     },
     "groupFunds": {
         "loading": "Loading...",
-        "pending": "Pending:"
+        "pending": "Pending:",
+        "noPermissions": "No Permission"
     },
     "betaPrograms": {
         "toggleTooltip": "Toggle Beta Programs",

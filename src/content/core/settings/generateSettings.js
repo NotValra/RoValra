@@ -6,18 +6,17 @@ import { createDropdown } from '../ui/dropdown.js';
 import { createFileUpload } from '../ui/fileupload.js';
 import { createPill } from '../ui/general/pill.js';
 import { handleSaveSettings } from './handlesettings.js';
-import { createStyledInput } from '../ui/catalog/input.js'; 
+import { createStyledInput } from '../ui/catalog/input.js';
 import DOMPurify from 'dompurify';
 import { addTooltip } from '../ui/tooltip.js';
 import { createButton } from '../ui/buttons.js';
 import { showConfirmationPrompt } from '../ui/confirmationPrompt.js';
 
-
 function createClearStorageButton(storageKey, inputElement, settingType) {
     const btn = createButton('', 'secondary');
     btn.classList.remove('btn-control-md');
     btn.classList.add('btn-control-xs');
-    
+
     btn.style.marginLeft = '0px';
     btn.style.display = 'inline-flex';
     btn.style.alignItems = 'center';
@@ -30,29 +29,32 @@ function createClearStorageButton(storageKey, inputElement, settingType) {
     icon.style.height = '20px';
     icon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="100%" height="100%"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6zM19 4h-3.5l-1-1h-5l-1 1H5v2h14z"></path></svg>`;
     btn.appendChild(icon);
-    
+
     addTooltip(btn, 'Clear Storage', { position: 'top' });
 
     btn.onclick = (e) => {
         e.preventDefault();
         showConfirmationPrompt({
             title: 'Clear Storage',
-            message: 'Are you sure you want to clear the storage for this setting? This will clear stuff this feature stored for its functionality. This cannot be reverted.',
+            message:
+                'Are you sure you want to clear the storage for this setting? This will clear stuff this feature stored for its functionality. This cannot be reverted.',
             confirmText: 'Clear',
             confirmType: 'secondary',
             cancelType: 'primary',
             onConfirm: () => {
                 chrome.storage.local.remove(storageKey, () => {
                     if (settingType === 'file' && inputElement) {
-                         const uploadApi = inputElement._uploadApi || inputElement.rovalraFileUpload;
-                         if (uploadApi) {
-                             uploadApi.setFileName(null);
-                             uploadApi.showClear(false);
-                             uploadApi.clearPreview();
-                         }
+                        const uploadApi =
+                            inputElement._uploadApi ||
+                            inputElement.rovalraFileUpload;
+                        if (uploadApi) {
+                            uploadApi.setFileName(null);
+                            uploadApi.showClear(false);
+                            uploadApi.clearPreview();
+                        }
                     }
                 });
-            }
+            },
         });
     };
     return btn;
@@ -60,11 +62,16 @@ function createClearStorageButton(storageKey, inputElement, settingType) {
 
 export function findSettingConfig(settingName) {
     for (const category of Object.values(SETTINGS_CONFIG)) {
-        for (const [parentSettingName, parentSettingDef] of Object.entries(category.settings)) {
+        for (const [parentSettingName, parentSettingDef] of Object.entries(
+            category.settings,
+        )) {
             if (parentSettingName === settingName) {
                 return parentSettingDef;
             }
-            if (parentSettingDef.childSettings && parentSettingDef.childSettings[settingName]) {
+            if (
+                parentSettingDef.childSettings &&
+                parentSettingDef.childSettings[settingName]
+            ) {
                 return parentSettingDef.childSettings[settingName];
             }
         }
@@ -76,7 +83,9 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
     const theme = getCurrentTheme();
 
     if (setting.type === 'checkbox') {
-        const toggleClass = setting.disabled ? 'toggle-switch1' : 'toggle-switch';
+        const toggleClass = setting.disabled
+            ? 'toggle-switch1'
+            : 'toggle-switch';
         const label = document.createElement('label');
         label.className = toggleClass;
         label.innerHTML = DOMPurify.sanitize(`
@@ -86,31 +95,44 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
     } else if (setting.type === 'select') {
         let dropdownOptions = [];
         if (setting.options === 'REGIONS') {
-            dropdownOptions.push({ value: 'AUTO', label: getFullRegionName("AUTO") });
-            
-            const regionsByContinent = {};
-            Object.keys(REGIONS).filter(rc => rc !== "AUTO").forEach(regionCode => {
-                const region = REGIONS[regionCode];
-                const countryCode = regionCode.split('-')[0];
-                const continent = getContinent(countryCode);
-                
-                if (!regionsByContinent[continent]) {
-                    regionsByContinent[continent] = [];
-                }
-                
-                regionsByContinent[continent].push({
-                    value: regionCode,
-                    label: getFullRegionName(regionCode),
-                    group: continent
-                });
+            dropdownOptions.push({
+                value: 'AUTO',
+                label: getFullRegionName('AUTO'),
             });
-            
-            Object.values(regionsByContinent).forEach(regions => {
+
+            const regionsByContinent = {};
+            Object.keys(REGIONS)
+                .filter((rc) => rc !== 'AUTO')
+                .forEach((regionCode) => {
+                    const region = REGIONS[regionCode];
+                    const countryCode = regionCode.split('-')[0];
+                    const continent = getContinent(countryCode);
+
+                    if (!regionsByContinent[continent]) {
+                        regionsByContinent[continent] = [];
+                    }
+
+                    regionsByContinent[continent].push({
+                        value: regionCode,
+                        label: getFullRegionName(regionCode),
+                        group: continent,
+                    });
+                });
+
+            Object.values(regionsByContinent).forEach((regions) => {
                 regions.sort((a, b) => a.label.localeCompare(b.label));
             });
-            
-            const continentOrder = ['North America', 'South America', 'Europe', 'Asia', 'Africa', 'Oceania', 'Other'];
-            continentOrder.forEach(continent => {
+
+            const continentOrder = [
+                'North America',
+                'South America',
+                'Europe',
+                'Asia',
+                'Africa',
+                'Oceania',
+                'Other',
+            ];
+            continentOrder.forEach((continent) => {
                 if (regionsByContinent[continent]) {
                     dropdownOptions.push(...regionsByContinent[continent]);
                 }
@@ -124,13 +146,14 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
             initialValue: setting.default,
             showFlags: setting.showFlags || false,
             onValueChange: (value) => {
-
                 const hiddenSelect = document.getElementById(settingName);
                 if (hiddenSelect) {
                     hiddenSelect.value = value;
-                    hiddenSelect.dispatchEvent(new Event('change', { bubbles: true }));
+                    hiddenSelect.dispatchEvent(
+                        new Event('change', { bubbles: true }),
+                    );
                 }
-            }
+            },
         });
 
         const tempDiv = document.createElement('div');
@@ -139,11 +162,11 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
         tempDiv.style.height = 'auto';
         tempDiv.style.width = 'auto';
         tempDiv.style.whiteSpace = 'nowrap';
-        tempDiv.style.fontSize = '14px'; 
-        tempDiv.style.fontWeight = '500'; 
+        tempDiv.style.fontSize = '14px';
+        tempDiv.style.fontWeight = '500';
         document.body.appendChild(tempDiv);
         let maxItemWidth = 0;
-        dropdownOptions.forEach(item => {
+        dropdownOptions.forEach((item) => {
             tempDiv.textContent = item.label;
             maxItemWidth = Math.max(maxItemWidth, tempDiv.clientWidth);
         });
@@ -153,7 +176,7 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
         hiddenSelect.id = settingName;
         hiddenSelect.dataset.settingName = settingName;
         hiddenSelect.style.display = 'none';
-        dropdownOptions.forEach(opt => {
+        dropdownOptions.forEach((opt) => {
             const option = document.createElement('option');
             option.value = opt.value;
             option.textContent = opt.label;
@@ -166,48 +189,45 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
         if (maxItemWidth > 0) {
             dropdown.element.style.minWidth = `${maxItemWidth + 60}px`;
         }
-        
+
         hiddenSelect._dropdownApi = dropdown;
-        
+
         wrapper.append(dropdown.element, hiddenSelect);
         return wrapper;
-
-    } 
-    else if (setting.type === 'input') {
+    } else if (setting.type === 'input') {
         const { container, input } = createStyledInput({
             id: settingName,
-            label: setting.placeholder || 'Enter value', 
-            placeholder: ' ' 
+            label: setting.placeholder || 'Enter value',
+            placeholder: ' ',
         });
 
         input.dataset.settingName = settingName;
-        
+
         container.style.marginLeft = 'auto';
-        container.style.width = '200px'; 
-        
+        container.style.width = '200px';
+
         return container;
-    } 
-    else if (setting.type === 'file') {
+    } else if (setting.type === 'file') {
         const fileUpload = createFileUpload({
             id: settingName,
             accept: setting.accept,
-            compress: setting.compress !== false, 
-            compressSettingName: setting.compressSettingName, 
+            compress: setting.compress !== false,
+            compressSettingName: setting.compressSettingName,
             onFileSelect: (base64Data) => {
                 handleSaveSettings(settingName, base64Data);
             },
             onFileClear: () => {
                 handleSaveSettings(settingName, null);
-            }
+            },
         });
         fileUpload.element.dataset.settingName = settingName;
         fileUpload.element._uploadApi = fileUpload;
         return fileUpload.element;
-    }
-    else if (setting.type === 'number') {
+    } else if (setting.type === 'number') {
         const wrapper = document.createElement('div');
         wrapper.className = 'rovalra-number-input-wrapper';
-        wrapper.style.cssText = 'display: flex; align-items: center; gap: 12px; margin-left: auto;';
+        wrapper.style.cssText =
+            'display: flex; align-items: center; gap: 12px; margin-left: auto;';
         wrapper.innerHTML = DOMPurify.sanitize(`
             <div class="rovalra-number-input-container" style="display: flex; align-items: center; gap: 8px; background-color: var(--rovalra-container-background-color); padding: 4px; border-radius: 8px;">
                 <button type="button" class="rovalra-number-input-btn btn-control-xs" data-action="decrement" data-target="${settingName}" style="width: 32px; height: 32px; padding: 0; line-height: 0; border: none;">
@@ -225,9 +245,11 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
                 <span class="slider"></span>
             </label>`);
         return wrapper;
-    }
-    else if (setting.type === 'button') {
-        const button = createButton(setting.buttonText || 'Click Me', 'secondary');
+    } else if (setting.type === 'button') {
+        const button = createButton(
+            setting.buttonText || 'Click Me',
+            'secondary',
+        );
         button.dataset.settingName = settingName;
         button.id = settingName;
         button.style.marginLeft = 'auto';
@@ -239,8 +261,92 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
             });
         }
         return button;
+    } else if (setting.type === 'list') {
+        const listContainer = document.createElement('div');
+        listContainer.id = settingName;
+        listContainer.dataset.settingName = settingName;
+        listContainer.style.marginLeft = 'auto';
+        listContainer.style.display = 'flex';
+        listContainer.style.flexDirection = 'column';
+        listContainer.style.gap = '8px';
+
+        const inputsWrapper = document.createElement('div');
+        inputsWrapper.className = 'list-inputs-wrapper';
+        inputsWrapper.style.display = 'flex';
+        inputsWrapper.style.flexDirection = 'column';
+        inputsWrapper.style.gap = '8px';
+
+        const saveList = () => {
+            const values = Array.from(
+                inputsWrapper.querySelectorAll('input'),
+            ).map((input) => input.value);
+            handleSaveSettings(settingName, values);
+        };
+
+        const createInputRow = (value = '') => {
+            const row = document.createElement('div');
+            row.style.display = 'flex';
+            row.style.alignItems = 'center';
+            row.style.gap = '8px';
+
+            const { container: inputContainer, input } = createStyledInput({
+                label: setting.placeholder || 'Enter value',
+                placeholder: ' ',
+            });
+            input.value = value;
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+            inputContainer.style.width = '200px';
+
+            const removeBtn = createButton('', 'secondary');
+            removeBtn.classList.remove('btn-control-md');
+            removeBtn.classList.add('btn-control-xs');
+            removeBtn.style.width = '32px';
+            removeBtn.style.height = '32px';
+            removeBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20px" height="20px"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"></path></svg>`;
+            addTooltip(removeBtn, 'Remove');
+
+            removeBtn.onclick = () => {
+                row.remove();
+                saveList();
+            };
+
+            row.appendChild(inputContainer);
+            row.appendChild(removeBtn);
+
+            input.addEventListener('change', saveList);
+
+            return row;
+        };
+
+        const addBtn = createButton(
+            setting.addButtonText || 'Add',
+            'secondary',
+        );
+        addBtn.style.marginTop = '8px';
+        addBtn.onclick = () => {
+            inputsWrapper.appendChild(createInputRow());
+            saveList();
+        };
+
+        listContainer.appendChild(inputsWrapper);
+        listContainer.appendChild(addBtn);
+
+        listContainer.rovalraList = {
+            setValues: (values) => {
+                inputsWrapper.innerHTML = '';
+                if (values && values.length > 0) {
+                    values.forEach((value) => {
+                        inputsWrapper.appendChild(createInputRow(value));
+                    });
+                } else {
+                    inputsWrapper.appendChild(createInputRow());
+                }
+            },
+        };
+
+        return listContainer;
     }
-    return document.createElement('div'); 
+    return document.createElement('div');
 }
 
 export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
@@ -255,9 +361,13 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
     const label = document.createElement('label');
     label.textContent = setting.label;
     controlsContainer.appendChild(label);
-    
+
     if (setting.experimental) {
-        const experimentalPill = createPill('Experimental', setting.experimental, 'experimental');
+        const experimentalPill = createPill(
+            'Experimental',
+            setting.experimental,
+            'experimental',
+        );
         controlsContainer.appendChild(experimentalPill);
     }
     if (setting.beta) {
@@ -265,14 +375,24 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
         controlsContainer.appendChild(betaPill);
     }
     if (setting.deprecated) {
-        const deprecatedPill = createPill('Deprecated', setting.deprecated, 'deprecated');
+        const deprecatedPill = createPill(
+            'Deprecated',
+            setting.deprecated,
+            'deprecated',
+        );
         controlsContainer.appendChild(deprecatedPill);
     }
 
     const inputElement = generateSettingInput(settingName, setting, REGIONS);
 
     if (setting.storageKey) {
-        controlsContainer.appendChild(createClearStorageButton(setting.storageKey, inputElement, setting.type));
+        controlsContainer.appendChild(
+            createClearStorageButton(
+                setting.storageKey,
+                inputElement,
+                setting.type,
+            ),
+        );
     }
 
     controlsContainer.appendChild(inputElement);
@@ -283,11 +403,15 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
         divider.className = 'setting-label-divider';
         settingContainer.appendChild(divider);
 
-        const descriptions = Array.isArray(setting.description) ? setting.description : [String(setting.description)];
-        descriptions.forEach(desc => {
+        const descriptions = Array.isArray(setting.description)
+            ? setting.description
+            : [String(setting.description)];
+        descriptions.forEach((desc) => {
             const descElement = document.createElement('div');
             descElement.className = 'setting-description';
-            descElement.innerHTML = DOMPurify.sanitize(parseMarkdown(desc, themeColors));
+            descElement.innerHTML = DOMPurify.sanitize(
+                parseMarkdown(desc, themeColors),
+            );
             settingContainer.appendChild(descElement);
         });
     }
@@ -295,16 +419,20 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
     if (setting.requiredPermissions && setting.requiredPermissions.length > 0) {
         const permissionManager = document.createElement('div');
         permissionManager.className = 'permission-manager';
-        permissionManager.dataset.permissionName = setting.requiredPermissions[0];
+        permissionManager.dataset.permissionName =
+            setting.requiredPermissions[0];
         permissionManager.dataset.permissionFor = settingName;
-        permissionManager.style.cssText = 'margin-top: 10px; padding: 10px; background-color: var(--rovalra-container-background-color, rgba(0,0,0,0.1)); border-radius: 8px;';
+        permissionManager.style.cssText =
+            'margin-top: 10px; padding: 10px; background-color: var(--rovalra-container-background-color, rgba(0,0,0,0.1)); border-radius: 8px;';
 
         const container = document.createElement('div');
-        container.style.cssText = 'display: flex; align-items: center; justify-content: space-between;';
+        container.style.cssText =
+            'display: flex; align-items: center; justify-content: space-between;';
 
         const text = document.createElement('span');
         text.textContent = `Enable ${setting.requiredPermissions[0]} permission`;
-        text.style.cssText = 'font-size: 15px; color: var(--rovalra-main-text-color); font-weight: 400;';
+        text.style.cssText =
+            'font-size: 15px; color: var(--rovalra-main-text-color); font-weight: 400;';
 
         const label = document.createElement('label');
         label.className = 'toggle-switch';
@@ -320,22 +448,31 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
 
     if (setting.type === 'file') {
         const uploadElement = inputElement;
-        const uploadApi = uploadElement._uploadApi || uploadElement.rovalraFileUpload;
-        
+        const uploadApi =
+            uploadElement._uploadApi || uploadElement.rovalraFileUpload;
+
         if (uploadApi) {
             const previewElement = uploadApi.getPreviewElement();
             settingContainer.appendChild(previewElement);
-            
+
             chrome.storage.local.get([settingName], (result) => {
                 if (result[settingName]) {
                     const base64Data = result[settingName];
-                    
-                    if (!base64Data || typeof base64Data !== 'string' || !base64Data.startsWith('data:image/')) {
-                        console.warn('Invalid image data detected for', settingName, '- clearing');
+
+                    if (
+                        !base64Data ||
+                        typeof base64Data !== 'string' ||
+                        !base64Data.startsWith('data:image/')
+                    ) {
+                        console.warn(
+                            'Invalid image data detected for',
+                            settingName,
+                            '- clearing',
+                        );
                         chrome.storage.local.set({ [settingName]: null });
                         return;
                     }
-                    
+
                     const size = Math.round((base64Data.length * 3) / 4);
                     uploadApi.setPreview(base64Data, size);
                 }
@@ -346,7 +483,9 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
     }
 
     if (setting.childSettings) {
-        for (const [childName, childSetting] of Object.entries(setting.childSettings)) {
+        for (const [childName, childSetting] of Object.entries(
+            setting.childSettings,
+        )) {
             const separator = document.createElement('div');
             separator.className = 'child-setting-separator';
             settingContainer.appendChild(separator);
@@ -364,9 +503,13 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
             const childLabel = document.createElement('label');
             childLabel.textContent = childSetting.label;
             childControls.appendChild(childLabel);
-            
+
             if (childSetting.experimental) {
-                const experimentalPill = createPill('Experimental', childSetting.experimental, 'experimental');
+                const experimentalPill = createPill(
+                    'Experimental',
+                    childSetting.experimental,
+                    'experimental',
+                );
                 childControls.appendChild(experimentalPill);
             }
             if (childSetting.beta) {
@@ -374,14 +517,28 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
                 childControls.appendChild(betaPill);
             }
             if (childSetting.deprecated) {
-                const deprecatedPill = createPill('Deprecated', childSetting.deprecated, 'deprecated');
+                const deprecatedPill = createPill(
+                    'Deprecated',
+                    childSetting.deprecated,
+                    'deprecated',
+                );
                 childControls.appendChild(deprecatedPill);
             }
 
-            const childInput = generateSettingInput(childName, childSetting, REGIONS);
+            const childInput = generateSettingInput(
+                childName,
+                childSetting,
+                REGIONS,
+            );
 
             if (childSetting.storageKey) {
-                childControls.appendChild(createClearStorageButton(childSetting.storageKey, childInput, childSetting.type));
+                childControls.appendChild(
+                    createClearStorageButton(
+                        childSetting.storageKey,
+                        childInput,
+                        childSetting.type,
+                    ),
+                );
             }
 
             childControls.appendChild(childInput);
@@ -392,34 +549,51 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
                 childDivider.className = 'setting-label-divider';
                 childContainer.appendChild(childDivider);
 
-                const childDescriptions = Array.isArray(childSetting.description) ? childSetting.description : [String(childSetting.description)];
-                childDescriptions.forEach(desc => {
+                const childDescriptions = Array.isArray(
+                    childSetting.description,
+                )
+                    ? childSetting.description
+                    : [String(childSetting.description)];
+                childDescriptions.forEach((desc) => {
                     const childDescElement = document.createElement('div');
                     childDescElement.className = 'setting-description';
-                    childDescElement.innerHTML = DOMPurify.sanitize(parseMarkdown(desc, themeColors));
+                    childDescElement.innerHTML = DOMPurify.sanitize(
+                        parseMarkdown(desc, themeColors),
+                    );
                     childContainer.appendChild(childDescElement);
                 });
             }
-            
+
             if (childSetting.type === 'file') {
                 const uploadElement = childInput;
-                const uploadApi = uploadElement._uploadApi || uploadElement.rovalraFileUpload;
-                
+                const uploadApi =
+                    uploadElement._uploadApi || uploadElement.rovalraFileUpload;
+
                 if (uploadApi) {
                     const previewElement = uploadApi.getPreviewElement();
                     childContainer.appendChild(previewElement);
-                    
+
                     chrome.storage.local.get([childName], (result) => {
                         if (result[childName]) {
                             const base64Data = result[childName];
-                            
-                            if (!base64Data || typeof base64Data !== 'string' || !base64Data.startsWith('data:image/')) {
-                                console.warn('Invalid image data detected for', childName, '- clearing');
+
+                            if (
+                                !base64Data ||
+                                typeof base64Data !== 'string' ||
+                                !base64Data.startsWith('data:image/')
+                            ) {
+                                console.warn(
+                                    'Invalid image data detected for',
+                                    childName,
+                                    '- clearing',
+                                );
                                 chrome.storage.local.set({ [childName]: null });
                                 return;
                             }
-                            
-                            const size = Math.round((base64Data.length * 3) / 4);
+
+                            const size = Math.round(
+                                (base64Data.length * 3) / 4,
+                            );
                             uploadApi.setPreview(base64Data, size);
                         }
                     });
@@ -427,7 +601,7 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
                     console.error('Child upload API not found for', childName);
                 }
             }
-            
+
             settingContainer.appendChild(childContainer);
         }
     }
@@ -441,8 +615,12 @@ export function generateSettingsUI(section, REGIONS = {}) {
 
     if (!sectionConfig) return fragment;
 
-    for (const [settingName, setting] of Object.entries(sectionConfig.settings)) {
-        fragment.appendChild(generateSingleSettingHTML(settingName, setting, REGIONS));
+    for (const [settingName, setting] of Object.entries(
+        sectionConfig.settings,
+    )) {
+        fragment.appendChild(
+            generateSingleSettingHTML(settingName, setting, REGIONS),
+        );
     }
 
     return fragment;
