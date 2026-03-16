@@ -96,7 +96,7 @@
     "donationLink": {
         "donate": "Donează",
         "overlayTitle": "Te rog donează",
-        "description": "Se va lansa \"PLS DONATE\", unde poți da o donație offline.\n\nDin cauza taxelor de la Roblox (30%) și a jocului (10%), utilizatorul primește 60% din suma donată.\n\nLa intrare, interfața \"Offline Donations\" va apărea cu numele lor deja completat. Doar dă click pe butonul cu pictograma de cadou pentru a le deschinde stand-ul și cumpără un gamepass pentru a dona.",
+        "description": "Se va lansa „PLS DONATE”, unde poți da o donație offline.\n\nDin cauza taxelor de la Roblox (30%) și a jocului (10%), utilizatorul primește 60% din suma donată.\n\nLa intrare, interfața „Offline Donations” va apărea cu numele lor deja completat. Doar dă click pe butonul cu pictograma de cadou pentru a le deschinde stand-ul și cumpără un gamepass pentru a dona.",
         "joinButton": "Intră pe Pls Donate",
         "goBackButton": "Înapoi"
     },
@@ -296,13 +296,13 @@
         "noOne": "No one"
     },
     "groupFunds": {
-        "loading": "Loading...",
-        "pending": "Pending:",
-        "noPermissions": "No Permission"
+        "loading": "Se încarcă...",
+        "pending": "În așteptare:",
+        "noPermissions": "Fără Permisiuni"
     },
     "betaPrograms": {
-        "toggleTooltip": "Toggle Beta Programs",
-        "noPrograms": "You are not enrolled into any beta programs."
+        "toggleTooltip": "Activați/Dezactivați programele Beta",
+        "noPrograms": "Nu ești înscris în niciun program beta."
     },
     "quickSearch": {
         "aborted": "Aborted",
