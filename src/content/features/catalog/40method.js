@@ -1,8 +1,9 @@
-
-
 import { observeElement } from '../../core/observer.js';
 import { callRobloxApiJson, callRobloxApi } from '../../core/api.js';
-import { launchMultiplayerGame, launchStudioForGame } from '../../core/utils/launcher.js';
+import {
+    launchMultiplayerGame,
+    launchStudioForGame,
+} from '../../core/utils/launcher.js';
 
 import { createOverlay } from '../../core/ui/overlay.js';
 import { createDropdown } from '../../core/ui/dropdown.js';
@@ -16,14 +17,12 @@ import { getPlaceIdFromUrl } from '../../core/idExtractor.js';
 import { log, logLevel } from '../../core/logging.js';
 
 
-
 const ROVALRA_PLACE_ID = '107845747621646';
 let assetToSubcategoryMap = null;
 let classicClothingSubcategories = null;
 let metadataPromise = null;
 const itemDetailsCache = new Map();
-const ROVALRA_TEMPLATE_ASSET_ID = 107845747621646; 
-
+const ROVALRA_TEMPLATE_ASSET_ID = 107845747621646;
 
 async function fetchTemplateBlobViaBatch() {
     const batchResponse = await callRobloxApi({
@@ -32,12 +31,12 @@ async function fetchTemplateBlobViaBatch() {
         method: 'POST',
         body: [
             {
-                "requestId": "rovalra_req_" + Date.now(),
-                "assetId": ROVALRA_TEMPLATE_ASSET_ID,
-                "type": "Place", 
-                "format": "rbxl"
-            }
-        ]
+                requestId: 'rovalra_req_' + Date.now(),
+                assetId: ROVALRA_TEMPLATE_ASSET_ID,
+                type: 'Place',
+                format: 'rbxl',
+            },
+        ],
     });
 
     if (!batchResponse.ok) {
@@ -45,9 +44,16 @@ async function fetchTemplateBlobViaBatch() {
     }
 
     const batchData = await batchResponse.json();
-    
-    if (!batchData || !batchData[0] || !batchData[0].locations || !batchData[0].locations[0]) {
-        throw new Error('Could not retrieve template download location from Batch API');
+
+    if (
+        !batchData ||
+        !batchData[0] ||
+        !batchData[0].locations ||
+        !batchData[0].locations[0]
+    ) {
+        throw new Error(
+            'Could not retrieve template download location from Batch API',
+        );
     }
 
     const cdnUrl = batchData[0].locations[0].location;
@@ -55,7 +61,7 @@ async function fetchTemplateBlobViaBatch() {
     const fileResponse = await callRobloxApi({
         fullUrl: cdnUrl,
         method: 'GET',
-        credentials: 'omit'
+        credentials: 'omit',
     });
     if (!fileResponse.ok) {
         throw new Error('Failed to download file from CDN');
@@ -69,12 +75,12 @@ async function publishTemplateToPlace(targetPlaceId) {
         const fileBlob = await fetchTemplateBlobViaBatch();
 
         const formData = new FormData();
-        
+
         const requestData = {
-            assetType: "Place",
+            assetType: 'Place',
             assetId: parseInt(targetPlaceId),
             published: true,
-            creationContext: {}
+            creationContext: {},
         };
         formData.append('request', JSON.stringify(requestData));
 
@@ -85,7 +91,6 @@ async function publishTemplateToPlace(targetPlaceId) {
             endpoint: `/assets/user-auth/v1/assets/${targetPlaceId}`,
             method: 'PATCH',
             body: formData,
-
         });
 
         if (!response.ok) {
@@ -107,8 +112,8 @@ function getItemDetails(itemId, itemType = 'Asset') {
         subdomain: 'catalog',
         endpoint: '/v1/catalog/items/details',
         method: 'POST',
-        body: { items: [{ id: parseInt(itemId), itemType: itemType }] }
-    }).catch(err => {
+        body: { items: [{ id: parseInt(itemId), itemType: itemType }] },
+    }).catch((err) => {
         itemDetailsCache.delete(key);
         return null;
     });
@@ -123,28 +128,35 @@ async function fetchCatalogMetadata() {
 
     metadataPromise = (async () => {
         try {
-            const [assetToSubResponse, subcategoriesResponse] = await Promise.all([
-                callRobloxApiJson({
-                    subdomain: 'catalog',
-                    endpoint: '/v1/asset-to-subcategory',
-                    method: 'GET'
-                }),
-                callRobloxApiJson({
-                    subdomain: 'catalog',
-                    endpoint: '/v1/subcategories',
-                    method: 'GET'
-                })
-            ]);
+            const [assetToSubResponse, subcategoriesResponse] =
+                await Promise.all([
+                    callRobloxApiJson({
+                        subdomain: 'catalog',
+                        endpoint: '/v1/asset-to-subcategory',
+                        method: 'GET',
+                    }),
+                    callRobloxApiJson({
+                        subdomain: 'catalog',
+                        endpoint: '/v1/subcategories',
+                        method: 'GET',
+                    }),
+                ]);
 
             assetToSubcategoryMap = assetToSubResponse;
-            
-            const classicKeys = ['ClassicShirts', 'ClassicPants', 'ClassicTShirts'];
+
+            const classicKeys = [
+                'ClassicShirts',
+                'ClassicPants',
+                'ClassicTShirts',
+            ];
             classicClothingSubcategories = [];
-            
+
             if (subcategoriesResponse) {
                 for (const key of classicKeys) {
                     if (subcategoriesResponse[key] !== undefined) {
-                        classicClothingSubcategories.push(subcategoriesResponse[key]);
+                        classicClothingSubcategories.push(
+                            subcategoriesResponse[key],
+                        );
                     }
                 }
             }
@@ -161,7 +173,9 @@ async function fetchGamesForGroup(groupId) {
     let allGames = [];
     let nextCursor = null;
     do {
-        const url = `/universes/v1/search?CreatorType=Group&CreatorTargetId=${groupId}&IsArchived=false&Surface=CreatorHubCreations&PageSize=100&SortParam=LastUpdated&SortOrder=Desc` + (nextCursor ? `&cursor=${nextCursor}` : '');
+        const url =
+            `/universes/v1/search?CreatorType=Group&CreatorTargetId=${groupId}&IsArchived=false&Surface=CreatorHubCreations&PageSize=100&SortParam=LastUpdated&SortOrder=Desc` +
+            (nextCursor ? `&cursor=${nextCursor}` : '');
         const response = await callRobloxApiJson({
             subdomain: 'apis',
             endpoint: url,
@@ -182,39 +196,43 @@ async function updateGameDescription(universeId, sourcePlaceId) {
             method: 'POST',
             body: {
                 assetIds: [parseInt(sourcePlaceId)],
-                versionStatus: 'Published'
-            }
+                versionStatus: 'Published',
+            },
         });
 
         let versionNumber = 'Unknown';
-        if (versionResponse && versionResponse.results && versionResponse.results.length > 0) {
+        if (
+            versionResponse &&
+            versionResponse.results &&
+            versionResponse.results.length > 0
+        ) {
             versionNumber = versionResponse.results[0].versionNumber;
         }
 
         const configResponse = await callRobloxApiJson({
             subdomain: 'develop',
             endpoint: `/v1/universes/${universeId}/configuration`,
-            method: 'GET'
+            method: 'GET',
         });
 
         if (!configResponse) return;
 
         const newDescription = `SourcePlaceId: ${sourcePlaceId} Version: ${versionNumber}`;
-        
+
         const patchBody = {
             name: configResponse.name,
             description: newDescription,
             isFriendsOnly: configResponse.isFriendsOnly,
-            studioAccessToApisAllowed: configResponse.isStudioAccessToApisAllowed
+            studioAccessToApisAllowed:
+                configResponse.isStudioAccessToApisAllowed,
         };
 
         await callRobloxApiJson({
             subdomain: 'develop',
             endpoint: `/v2/universes/${universeId}/configuration`,
             method: 'PATCH',
-            body: patchBody
+            body: patchBody,
         });
-
     } catch (e) {
         console.warn('RoValra: Failed to update game description', e);
     }
@@ -228,12 +246,16 @@ async function validateGameSync(universeId, placeId) {
             method: 'POST',
             body: {
                 assetIds: [parseInt(ROVALRA_PLACE_ID)],
-                versionStatus: 'Published'
-            }
+                versionStatus: 'Published',
+            },
         });
-        
+
         let latestVersion = 0;
-        if (versionResponse && versionResponse.results && versionResponse.results.length > 0) {
+        if (
+            versionResponse &&
+            versionResponse.results &&
+            versionResponse.results.length > 0
+        ) {
             latestVersion = versionResponse.results[0].versionNumber;
         }
 
@@ -242,7 +264,7 @@ async function validateGameSync(universeId, placeId) {
             const gameDetails = await callRobloxApiJson({
                 subdomain: 'games',
                 endpoint: `/v1/games/multiget-place-details?placeIds=${placeId}`,
-                method: 'GET'
+                method: 'GET',
             });
             if (gameDetails && gameDetails.length > 0) {
                 description = gameDetails[0].description || '';
@@ -251,25 +273,32 @@ async function validateGameSync(universeId, placeId) {
             const configResponse = await callRobloxApiJson({
                 subdomain: 'develop',
                 endpoint: `/v1/universes/${universeId}/configuration`,
-                method: 'GET'
+                method: 'GET',
             });
             if (configResponse) description = configResponse.description || '';
         }
-        
-        const match = description.match(/SourcePlaceId:\s*(\d+)\s*Version:\s*(\d+)/);
-        
+
+        const match = description.match(
+            /SourcePlaceId:\s*(\d+)\s*Version:\s*(\d+)/,
+        );
+
         if (!match) return { valid: false, reason: 'missing_metadata' };
-        
+
         const sourceId = match[1];
         const currentVersion = parseInt(match[2], 10);
-        
+
         if (sourceId !== ROVALRA_PLACE_ID || currentVersion < latestVersion) {
-            return { valid: false, reason: 'outdated', current: currentVersion, latest: latestVersion };
+            return {
+                valid: false,
+                reason: 'outdated',
+                current: currentVersion,
+                latest: latestVersion,
+            };
         }
 
         return { valid: true };
     } catch (e) {
-        return { valid: true }; 
+        return { valid: true };
     }
 }
 
@@ -278,82 +307,87 @@ const getCurrentUserId = () => {
     return meta ? meta.getAttribute('data-userid') : null;
 };
 
-
 const getCartItems = () => {
     const cartModal = document.querySelector('.shopping-cart-modal');
     if (!cartModal) return [];
-    
+
     const cartItems = [];
     const itemContainers = cartModal.querySelectorAll('.cart-item-container');
-    
-    itemContainers.forEach(container => {
-        const link = container.querySelector('.item-details-container a.item-name');
+
+    itemContainers.forEach((container) => {
+        const link = container.querySelector(
+            '.item-details-container a.item-name',
+        );
         const priceText = container.querySelector('.item-price .price-text');
-        
+
         if (link && priceText) {
             const href = link.getAttribute('href');
-            const match = href.match(/\/(?:[a-z]{2}(?:-[a-z]{2})?\/)?catalog\/(\d+)\//i); 
+            const match = href.match(
+                /\/(?:[a-z]{2}(?:-[a-z]{2})?\/)?catalog\/(\d+)\//i,
+            );
             if (match) {
                 cartItems.push({
                     id: match[1],
                     name: link.textContent.trim(),
-                    price: parseInt(priceText.textContent.replace(/,/g, ''), 10),
-                    thumbnail: null 
+                    price: parseInt(
+                        priceText.textContent.replace(/,/g, ''),
+                        10,
+                    ),
+                    thumbnail: null,
                 });
             }
         }
     });
-    
+
     return cartItems;
 };
 
-
 const getBatchPurchaseItems = (modal) => {
-    const thumbnails = modal.querySelectorAll('.modal-multi-item-image-container img');
+    const thumbnails = modal.querySelectorAll(
+        '.modal-multi-item-image-container img',
+    );
     const items = [];
-    
-    thumbnails.forEach(img => {
+
+    thumbnails.forEach((img) => {
         const alt = img.getAttribute('alt');
         if (alt) {
             items.push({
-                name: alt.trim()
+                name: alt.trim(),
             });
         }
     });
-    
+
     return items;
 };
 
-
 const validateCartMatch = (modalItems, cartItems) => {
     if (modalItems.length !== cartItems.length) return false;
-    
-    const modalNames = new Set(modalItems.map(item => item.name));
-    const cartNames = new Set(cartItems.map(item => item.name));
-    
+
+    const modalNames = new Set(modalItems.map((item) => item.name));
+    const cartNames = new Set(cartItems.map((item) => item.name));
+
     for (const name of modalNames) {
         if (!cartNames.has(name)) return false;
     }
-    
+
     return true;
 };
-
 
 const checkItemOwnership = async (userId, itemId, itemType) => {
     try {
         const typeMap = {
-            'Asset': 'Asset',
-            'Bundle': 'Bundle',
-            'GamePass': 'GamePass'
+            Asset: 'Asset',
+            Bundle: 'Bundle',
+            GamePass: 'GamePass',
         };
         const type = typeMap[itemType] || 'Asset';
-        
+
         const response = await callRobloxApi({
             subdomain: 'inventory',
             endpoint: `/v1/users/${userId}/items/${type}/${itemId}`,
-            method: 'GET'
+            method: 'GET',
         });
-        
+
         if (response.ok) {
             const data = await response.json();
             return data && data.data && data.data.length > 0;
@@ -361,10 +395,9 @@ const checkItemOwnership = async (userId, itemId, itemType) => {
         return false;
     } catch (error) {
         console.warn('RoValra: Could not check item ownership:', error);
-        return false; 
+        return false;
     }
 };
-
 
 const getUniverseId = () => {
     const meta = document.getElementById('game-detail-meta-data');
@@ -378,11 +411,13 @@ async function fetchGamePassesForUniverse(universeId) {
 
     try {
         do {
-            const url = `/game-passes/v1/universes/${universeId}/game-passes?pageSize=${limit}&passView=Full` + (cursor ? `&cursor=${cursor}` : '');
+            const url =
+                `/game-passes/v1/universes/${universeId}/game-passes?pageSize=${limit}&passView=Full` +
+                (cursor ? `&cursor=${cursor}` : '');
             const response = await callRobloxApiJson({
                 subdomain: 'apis',
                 endpoint: url,
-                method: 'GET'
+                method: 'GET',
             });
 
             if (response.gamePasses) {
@@ -397,17 +432,23 @@ async function fetchGamePassesForUniverse(universeId) {
 }
 
 const detectAndAddSaveButton = () => {
-    observeElement('.modal-footer .modal-buttons, .modal-btns', (buttonContainer) => {
-        const modal = buttonContainer.closest('.modal-dialog .modal-content[role="document"], .modal-dialog .modal-content');
-        if (modal) {
-            addSaveButton(modal);
-        }
-    }, { 
-        multiple: true,
-    });
+    observeElement(
+        '.modal-dialog .modal-content, .modal-footer .modal-buttons, .modal-btns, .text-robux, .text-robux-lg',
+        (element) => {
+            const modal =
+                element.closest('.modal-content') ||
+                element.closest(
+                    '.modal-dialog .modal-content[role="document"], .modal-dialog .modal-content',
+                );
+            if (modal) {
+                addSaveButton(modal);
+            }
+        },
+        {
+            multiple: true,
+        },
+    );
 };
-
-
 
 export const createAndShowPopup = (onSave, initialState = null) => {
     const currentUserId = getCurrentUserId();
@@ -417,7 +458,8 @@ export const createAndShowPopup = (onSave, initialState = null) => {
     }
 
     const bodyContent = document.createElement('div');
-    bodyContent.innerHTML = DOMPurify.sanitize(`
+    bodyContent.innerHTML = DOMPurify.sanitize(
+        `
         <div id="sr-view-main">
             <h4 class="text font-header-2" style="margin:0 0 12px 0;">Set Up an Experience</h4>
             <p class="text font-body" style="margin: 0 0 10px 0; line-height:1.4;">
@@ -572,7 +614,12 @@ export const createAndShowPopup = (onSave, initialState = null) => {
                 <button class="btn-cta-md btn-min-width" id="sr-update-confirm-btn" style="flex: 1;" disabled>Update Now</button>
             </div>
         </div>
-    `, { ADD_ATTR: ['target', 'allow', 'allowfullscreen', 'frameborder'], ADD_TAGS: ['iframe'] });
+    `,
+        {
+            ADD_ATTR: ['target', 'allow', 'allowfullscreen', 'frameborder'],
+            ADD_TAGS: ['iframe'],
+        },
+    );
 
     const saveBtn = document.createElement('button');
     saveBtn.textContent = 'Save & Continue';
@@ -584,71 +631,125 @@ export const createAndShowPopup = (onSave, initialState = null) => {
         bodyContent: bodyContent,
         actions: [saveBtn],
         maxWidth: '500px',
-        showLogo: true
+        showLogo: true,
     });
 
-    overlay.addEventListener('click', (e) => {
-        if (e.target === overlay) {
-            e.stopPropagation();
-            e.stopImmediatePropagation();
-        }
-    }, true);
+    overlay.addEventListener(
+        'click',
+        (e) => {
+            if (e.target === overlay) {
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+            }
+        },
+        true,
+    );
 
     const style = document.createElement('style');
     style.textContent = '.sr-hidden { display: none !important; }';
     document.head.appendChild(style);
 
-    const gameIdInputContainer = bodyContent.querySelector('#sr-game-id-input-container');
-    const { container: gameIdInputWrapper, input: gameIdInput } = createStyledInput({
-        id: 'sr-game-id-input',
-        label: 'Place ID',
-        placeholder: ' '
-    });
+    const gameIdInputContainer = bodyContent.querySelector(
+        '#sr-game-id-input-container',
+    );
+    const { container: gameIdInputWrapper, input: gameIdInput } =
+        createStyledInput({
+            id: 'sr-game-id-input',
+            label: 'Place ID',
+            placeholder: ' ',
+        });
     gameIdInputContainer.appendChild(gameIdInputWrapper);
     const gameIdErrorEl = document.createElement('div');
     gameIdErrorEl.id = 'sr-game-id-error';
     gameIdErrorEl.className = 'text font-body';
-    gameIdErrorEl.style.cssText = 'margin-top:6px;font-size:12px;color:#d32f2f;display:none;';
+    gameIdErrorEl.style.cssText =
+        'margin-top:6px;font-size:12px;color:#d32f2f;display:none;';
     gameIdInputContainer.appendChild(gameIdErrorEl);
 
-    const findingGameSpinner = bodyContent.querySelector('#sr-finding-game-spinner');
+    const findingGameSpinner = bodyContent.querySelector(
+        '#sr-finding-game-spinner',
+    );
     if (findingGameSpinner) {
-        findingGameSpinner.appendChild(createSpinner({ size: '48px', color: 'currentColor' }));
+        findingGameSpinner.appendChild(
+            createSpinner({ size: '48px', color: 'currentColor' }),
+        );
     }
 
-    const groupDropdownContainer = bodyContent.querySelector('#sr-group-dropdown-container');
+    const groupDropdownContainer = bodyContent.querySelector(
+        '#sr-group-dropdown-container',
+    );
     const viewMain = bodyContent.querySelector('#sr-view-main');
     const viewNonOwnerAck = bodyContent.querySelector('#sr-view-non-owner-ack');
     const viewNoGroupInfo = bodyContent.querySelector('#sr-view-no-group-info');
     const noGroupBackBtn = bodyContent.querySelector('#sr-no-group-back-btn');
-    const viewOwnerWarning = bodyContent.querySelector('#sr-view-owner-warning');
-    const ownerWarningBackBtn = bodyContent.querySelector('#sr-owner-warning-back-btn');
+    const viewOwnerWarning = bodyContent.querySelector(
+        '#sr-view-owner-warning',
+    );
+    const ownerWarningBackBtn = bodyContent.querySelector(
+        '#sr-owner-warning-back-btn',
+    );
     const viewWIP = bodyContent.querySelector('#sr-view-wip');
-    const viewManualCreateInstructions = bodyContent.querySelector('#sr-view-manual-create-instructions');
+    const viewManualCreateInstructions = bodyContent.querySelector(
+        '#sr-view-manual-create-instructions',
+    );
     const viewFindingGame = bodyContent.querySelector('#sr-view-finding-game');
-    const viewRoValraGroup = bodyContent.querySelector('#sr-view-rovalra-group');
-    const viewPermissionError = bodyContent.querySelector('#sr-view-permission-error');
-    const viewValidationWarning = bodyContent.querySelector('#sr-view-validation-warning');
-    const viewUpdateInstructions = bodyContent.querySelector('#sr-view-update-instructions');
-    const updateUseAnywayBtn = bodyContent.querySelector('#sr-update-use-anyway-btn');
+    const viewRoValraGroup = bodyContent.querySelector(
+        '#sr-view-rovalra-group',
+    );
+    const viewPermissionError = bodyContent.querySelector(
+        '#sr-view-permission-error',
+    );
+    const viewValidationWarning = bodyContent.querySelector(
+        '#sr-view-validation-warning',
+    );
+    const viewUpdateInstructions = bodyContent.querySelector(
+        '#sr-view-update-instructions',
+    );
+    const updateUseAnywayBtn = bodyContent.querySelector(
+        '#sr-update-use-anyway-btn',
+    );
     const updateGameNameEl = bodyContent.querySelector('#sr-update-game-name');
-    const updateConfirmBtn = bodyContent.querySelector('#sr-update-confirm-btn');
-    const updateAgreeCheckbox = bodyContent.querySelector('#sr-update-agree-checkbox');
-    const validationUseAnywayBtn = bodyContent.querySelector('#sr-validation-use-anyway-btn');
-    const validationCreateBtn = bodyContent.querySelector('#sr-validation-create-btn');
-    const validationUpdateBtn = bodyContent.querySelector('#sr-validation-update-btn');
-    const permissionErrorBackBtn = bodyContent.querySelector('#sr-permission-error-back-btn');
+    const updateConfirmBtn = bodyContent.querySelector(
+        '#sr-update-confirm-btn',
+    );
+    const updateAgreeCheckbox = bodyContent.querySelector(
+        '#sr-update-agree-checkbox',
+    );
+    const validationUseAnywayBtn = bodyContent.querySelector(
+        '#sr-validation-use-anyway-btn',
+    );
+    const validationCreateBtn = bodyContent.querySelector(
+        '#sr-validation-create-btn',
+    );
+    const validationUpdateBtn = bodyContent.querySelector(
+        '#sr-validation-update-btn',
+    );
+    const permissionErrorBackBtn = bodyContent.querySelector(
+        '#sr-permission-error-back-btn',
+    );
     const acknowledgeBtn = bodyContent.querySelector('#sr-acknowledge-btn');
-    const useRoValraGroupBtn = bodyContent.querySelector('#sr-use-rovalra-group-btn');
+    const useRoValraGroupBtn = bodyContent.querySelector(
+        '#sr-use-rovalra-group-btn',
+    );
     const rovalraBackBtn = bodyContent.querySelector('#sr-rovalra-back-btn');
-    const rovalraConfirmBtn = bodyContent.querySelector('#sr-rovalra-confirm-btn');
-    const createNewGameBtn = bodyContent.querySelector('#sr-create-new-game-btn');
+    const rovalraConfirmBtn = bodyContent.querySelector(
+        '#sr-rovalra-confirm-btn',
+    );
+    const createNewGameBtn = bodyContent.querySelector(
+        '#sr-create-new-game-btn',
+    );
     const manualAckView = bodyContent.querySelector('#sr-view-manual-ack');
     const manualAckBtn = bodyContent.querySelector('#sr-manual-ack-btn');
-    const manualCreateBackBtn = bodyContent.querySelector('#sr-manual-create-back-btn');
-    const manualCreateDoneBtn = bodyContent.querySelector('#sr-manual-create-done-btn');
+    const manualCreateBackBtn = bodyContent.querySelector(
+        '#sr-manual-create-back-btn',
+    );
+    const manualCreateDoneBtn = bodyContent.querySelector(
+        '#sr-manual-create-done-btn',
+    );
     const notFoundBackBtn = bodyContent.querySelector('#sr-not-found-back-btn');
-    const notFoundRetryBtn = bodyContent.querySelector('#sr-not-found-retry-btn');
+    const notFoundRetryBtn = bodyContent.querySelector(
+        '#sr-not-found-retry-btn',
+    );
     const editGameLink = bodyContent.querySelector('#sr-edit-game-link');
     let manualPlaceIdCandidate = null;
     let manualUniverseIdCandidate = null;
@@ -656,18 +757,25 @@ export const createAndShowPopup = (onSave, initialState = null) => {
     let initialUserPlaceVersion = 0;
 
     const safeSaveSettings = (placeId, useGroup, onSuccess) => {
-        if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
-            chrome.storage.local.set({
-                RobuxPlaceId: placeId,
-                useRoValraGroup: useGroup
-            }, () => {
-                if (chrome.runtime.lastError) {
-                    log(logLevel.ERROR, 'RoValra: Storage save error:', chrome.runtime.lastError);
-                    log(logLevel.CRITICAL, 'Failed to save settings: ' + chrome.runtime.lastError.message);
-                } else {
-                    if (onSuccess) onSuccess();
-                }
-            });
+        if (
+            typeof chrome !== 'undefined' &&
+            chrome.storage &&
+            chrome.storage.local
+        ) {
+            chrome.storage.local.set(
+                {
+                    RobuxPlaceId: placeId,
+                    useRoValraGroup: useGroup,
+                },
+                () => {
+                    if (chrome.runtime.lastError) {
+                        log(logLevel.ERROR, 'RoValra: Storage save error:', chrome.runtime.lastError);
+                        log(logLevel.CRITICAL, 'Failed to save settings: ' + chrome.runtime.lastError.message);
+                    } else {
+                        if (onSuccess) onSuccess();
+                    }
+                },
+            );
         } else {
             log(logLevel.ERROR, 'RoValra: Storage API unavailable.');
             log(logLevel.CRITICAL, 'Failed to save settings. Storage API unavailable.');
@@ -690,11 +798,19 @@ export const createAndShowPopup = (onSave, initialState = null) => {
     let selectedGroupId = null;
     let initialGroupGames = [];
 
-    const showValidationWarning = async (reason, placeId, universeId, gameName = null) => {
+    const showValidationWarning = async (
+        reason,
+        placeId,
+        universeId,
+        gameName = null,
+    ) => {
         lastValidationReason = reason;
-        if (gameName && updateGameNameEl) updateGameNameEl.textContent = gameName;
-        const container = bodyContent.querySelector('#sr-validation-message-container');
-        
+        if (gameName && updateGameNameEl)
+            updateGameNameEl.textContent = gameName;
+        const container = bodyContent.querySelector(
+            '#sr-validation-message-container',
+        );
+
         validationUpdateBtn.style.display = 'none';
         validationCreateBtn.style.display = 'none';
 
@@ -712,7 +828,8 @@ export const createAndShowPopup = (onSave, initialState = null) => {
             `);
             validationUpdateBtn.style.display = 'block';
         } else {
-             container.innerHTML = '<p class="text font-body">Validation failed. Please check your game settings.</p>';
+            container.innerHTML =
+                '<p class="text font-body">Validation failed. Please check your game settings.</p>';
         }
 
         manualPlaceIdCandidate = placeId;
@@ -727,20 +844,24 @@ export const createAndShowPopup = (onSave, initialState = null) => {
                     subdomain: 'develop',
                     endpoint: '/v1/assets/latest-versions',
                     method: 'POST',
-                    body: { assetIds: [placeId], versionStatus: 'Published' }
+                    body: { assetIds: [placeId], versionStatus: 'Published' },
                 });
                 if (vResp && vResp.results && vResp.results.length > 0) {
                     initialUserPlaceVersion = vResp.results[0].versionNumber;
                 }
-            } catch (e) { log(logLevel.ERROR, "RoValra: Failed to fetch initial place version", e); }
+            } catch (e) {
+                log(logLevel.ERROR,
+                    'RoValra: Failed to fetch initial place version',
+                    e,
+                );
+            }
             viewUpdateInstructions.classList.remove('sr-hidden');
             return;
         }
-        
-        if (initialState && initialState.view === 'validation-warning') {
 
+        if (initialState && initialState.view === 'validation-warning') {
         }
-        
+
         viewValidationWarning.classList.remove('sr-hidden');
     };
 
@@ -754,14 +875,14 @@ export const createAndShowPopup = (onSave, initialState = null) => {
             return;
         }
 
-        selectedGroupId = groupId; 
+        selectedGroupId = groupId;
         viewMain.classList.add('sr-hidden');
         saveBtn.style.display = 'none';
 
         try {
             const data = await callRobloxApiJson({
                 subdomain: 'groups',
-                endpoint: `/v1/groups/${groupId}`
+                endpoint: `/v1/groups/${groupId}`,
             });
 
             if (data.owner && String(data.owner.userId) === currentUserId) {
@@ -780,24 +901,27 @@ export const createAndShowPopup = (onSave, initialState = null) => {
         try {
             const data = await callRobloxApiJson({
                 subdomain: 'apis',
-                endpoint: '/creator-home-api/v1/groups'
+                endpoint: '/creator-home-api/v1/groups',
             });
-            
+
             const groupItems = [
                 { value: '', label: '-- Please choose a group --' },
-                ...data.groups.map(group => ({
+                ...data.groups.map((group) => ({
                     value: String(group.id),
-                    label: group.name
+                    label: group.name,
                 })),
             ];
 
-            groupItems.push({ value: 'no-group', label: "I don't have a group" });
+            groupItems.push({
+                value: 'no-group',
+                label: "I don't have a group",
+            });
 
             groupDropdown = createDropdown({
                 items: groupItems,
                 initialValue: '',
                 onValueChange: handleGroupSelection,
-                showFlags: false
+                showFlags: false,
             });
 
             groupDropdownContainer.appendChild(groupDropdown.element);
@@ -814,14 +938,16 @@ export const createAndShowPopup = (onSave, initialState = null) => {
             } catch {}
         } catch (error) {
             log(logLevel.ERROR, 'RoValra: Failed to fetch groups:', error);
-            groupDropdownContainer.innerHTML = DOMPurify.sanitize('<div class="text font-body" style="color: var(--rovalra-secondary-text-color);">Failed to load groups. Please refresh and try again.</div>');
+            groupDropdownContainer.innerHTML = DOMPurify.sanitize(
+                '<div class="text font-body" style="color: var(--rovalra-secondary-text-color);">Failed to load groups. Please refresh and try again.</div>',
+            );
         }
     };
-    
+
     acknowledgeBtn.addEventListener('click', () => {
         if (manualPlaceIdCandidate !== null) {
             const placeIdToSave = manualPlaceIdCandidate;
-            manualPlaceIdCandidate = null; 
+            manualPlaceIdCandidate = null;
             viewNonOwnerAck.classList.add('sr-hidden');
             safeSaveSettings(placeIdToSave, false, async () => {
                 close();
@@ -836,10 +962,10 @@ export const createAndShowPopup = (onSave, initialState = null) => {
 
     manualAckBtn.addEventListener('click', () => {
         manualAckView.classList.add('sr-hidden');
-        
+
         if (manualPlaceIdCandidate !== null) {
             const placeIdToSave = manualPlaceIdCandidate;
-            manualPlaceIdCandidate = null; 
+            manualPlaceIdCandidate = null;
 
             safeSaveSettings(placeIdToSave, false, async () => {
                 close();
@@ -849,7 +975,7 @@ export const createAndShowPopup = (onSave, initialState = null) => {
         }
     });
 
-createNewGameBtn.addEventListener('click', async () => {
+    createNewGameBtn.addEventListener('click', async () => {
         const errorEl = bodyContent.querySelector('#sr-create-game-error');
         if (errorEl) errorEl.style.display = 'none';
 
@@ -861,17 +987,16 @@ createNewGameBtn.addEventListener('click', async () => {
         createNewGameBtn.disabled = true;
         const originalText = createNewGameBtn.textContent;
         createNewGameBtn.textContent = 'Creating...';
-        
-        try {
 
+        try {
             const createResponse = await callRobloxApiJson({
                 subdomain: 'apis',
                 endpoint: `/universes/v1/universes/create?groupId=${selectedGroupId}`,
                 method: 'POST',
                 body: {
-                    templatePlaceId: 95206881, 
-                    isPublish: true
-                }
+                    templatePlaceId: 95206881,
+                    isPublish: true,
+                },
             });
 
             if (!createResponse || !createResponse.rootPlaceId) {
@@ -881,7 +1006,9 @@ createNewGameBtn.addEventListener('click', async () => {
             const newUniverseId = createResponse.universeId;
             const newPlaceId = createResponse.rootPlaceId;
 
-            log(logLevel.INFO, `RoValra: Created Universe ${newUniverseId}, Place ${newPlaceId}`);
+            log(logLevel.INFO,
+                `RoValra: Created Universe ${newUniverseId}, Place ${newPlaceId}`
+            );
             
             createNewGameBtn.textContent = 'Uploading Template...';
             await publishTemplateToPlace(newPlaceId, newUniverseId);
@@ -890,39 +1017,49 @@ createNewGameBtn.addEventListener('click', async () => {
             await updateGameDescription(newUniverseId, ROVALRA_PLACE_ID);
 
             try {
-               await callRobloxApiJson({
+                await callRobloxApiJson({
                     subdomain: 'develop',
                     endpoint: `/v2/universes/${newUniverseId}/configuration`,
                     method: 'PATCH',
                     body: {
                         permissions: {
-                            IsThirdPartyPurchaseAllowed: true
-                        }
-                    }
-                }); 
+                            IsThirdPartyPurchaseAllowed: true,
+                        },
+                    },
+                });
             } catch (permErr) {
-                console.warn("Could not auto-enable third party sales", permErr);
+                console.warn(
+                    'Could not auto-enable third party sales',
+                    permErr,
+                );
             }
 
             createNewGameBtn.textContent = 'Done!';
-            
+
             safeSaveSettings(newPlaceId, false, async () => {
                 close();
                 await showInitialConfirmation(newPlaceId, false);
                 if (typeof onSave === 'function') onSave();
             });
-
         } catch (error) {
             log(logLevel.ERROR, 'RoValra: Create Game Error', error);
             if (errorEl) {
-                if (error.response && error.response.code === "InvalidRequest" && error.response.message === "User is not authorized to perform this action") {
-                    errorEl.textContent = "You don't have permission to manage experiences in this group. Please give yourself a role with the right permissions.";
+                if (
+                    error.response &&
+                    error.response.code === 'InvalidRequest' &&
+                    error.response.message ===
+                        'User is not authorized to perform this action'
+                ) {
+                    errorEl.textContent =
+                        "You don't have permission to manage experiences in this group. Please give yourself a role with the right permissions.";
                 } else {
                     errorEl.textContent = `Error creating experience: ${error.message}. Please try again.`;
                 }
                 errorEl.style.display = 'block';
             } else {
-                log(logLevel.CRITICAL, `Error creating experience: ${error.message}. Please try again.`);
+                log(logLevel.CRITICAL,
+                    `Error creating experience: ${error.message}. Please try again.`
+                );
             }
             createNewGameBtn.textContent = originalText;
             createNewGameBtn.disabled = false;
@@ -941,25 +1078,28 @@ createNewGameBtn.addEventListener('click', async () => {
         });
     }
 
-
     manualCreateDoneBtn.addEventListener('click', async () => {
         viewManualCreateInstructions.classList.add('sr-hidden');
         viewFindingGame.classList.remove('sr-hidden');
-    
+
         try {
-            await new Promise(resolve => setTimeout(resolve, 3000)); 
-    
+            await new Promise((resolve) => setTimeout(resolve, 3000));
+
             const newGroupGames = await fetchGamesForGroup(selectedGroupId);
-    
-            const initialGameIds = new Set(initialGroupGames.map(g => g.rootPlaceId));
-            const newGames = newGroupGames.filter(g => !initialGameIds.has(g.rootPlaceId));
-    
+
+            const initialGameIds = new Set(
+                initialGroupGames.map((g) => g.rootPlaceId),
+            );
+            const newGames = newGroupGames.filter(
+                (g) => !initialGameIds.has(g.rootPlaceId),
+            );
+
             if (newGames.length === 1) {
                 const newGame = newGames[0];
                 const rootPlaceId = newGame.rootPlaceId;
 
                 await updateGameDescription(newGame.id, ROVALRA_PLACE_ID);
-    
+
                 safeSaveSettings(rootPlaceId, false, async () => {
                     close();
                     await showInitialConfirmation(rootPlaceId, false);
@@ -1019,7 +1159,10 @@ createNewGameBtn.addEventListener('click', async () => {
                 close();
                 onSave();
             });
-        } else { close(); onSave(); }
+        } else {
+            close();
+            onSave();
+        }
     };
 
     validationUseAnywayBtn.addEventListener('click', handleUseAnyway);
@@ -1051,19 +1194,27 @@ createNewGameBtn.addEventListener('click', async () => {
             await publishTemplateToPlace(manualPlaceIdCandidate);
 
             if (manualUniverseIdCandidate) {
-                await updateGameDescription(manualUniverseIdCandidate, ROVALRA_PLACE_ID);
+                await updateGameDescription(
+                    manualUniverseIdCandidate,
+                    ROVALRA_PLACE_ID,
+                );
                 try {
                     await callRobloxApiJson({
                         subdomain: 'develop',
                         endpoint: `/v2/universes/${manualUniverseIdCandidate}/configuration`,
                         method: 'PATCH',
-                        body: { permissions: { IsThirdPartyPurchaseAllowed: true } }
-                    }); 
+                        body: {
+                            permissions: { IsThirdPartyPurchaseAllowed: true },
+                        },
+                    });
                 } catch (permErr) {
-                    console.warn("Could not auto-enable third party sales", permErr);
+                    console.warn(
+                        'Could not auto-enable third party sales',
+                        permErr,
+                    );
                 }
             }
-            
+
             viewUpdateInstructions.classList.add('sr-hidden');
             manualAckView.classList.remove('sr-hidden');
         } catch (e) {
@@ -1082,7 +1233,7 @@ createNewGameBtn.addEventListener('click', async () => {
             onSave();
         });
     });
-    
+
     saveBtn.addEventListener('click', async () => {
         gameIdErrorEl.style.display = 'none';
         gameIdErrorEl.textContent = '';
@@ -1090,7 +1241,8 @@ createNewGameBtn.addEventListener('click', async () => {
         const gameId = gameIdInput.value.trim();
         const parsedId = parseInt(gameId, 10);
         if (!gameId || isNaN(parsedId) || String(parsedId) !== gameId) {
-            gameIdErrorEl.textContent = 'Please enter a valid numeric Experience / Place ID.';
+            gameIdErrorEl.textContent =
+                'Please enter a valid numeric Experience / Place ID.';
             gameIdErrorEl.style.display = 'block';
             return;
         }
@@ -1099,22 +1251,27 @@ createNewGameBtn.addEventListener('click', async () => {
             const data = await callRobloxApiJson({
                 subdomain: 'games',
                 endpoint: `/v1/games/multiget-place-details?placeIds=${parsedId}`,
-                method: 'GET'
+                method: 'GET',
             });
             if (!Array.isArray(data) || data.length === 0) {
-                gameIdErrorEl.textContent = 'That Experience / Place ID does not exist. Double-check the number.';
+                gameIdErrorEl.textContent =
+                    'That Experience / Place ID does not exist. Double-check the number.';
                 gameIdErrorEl.style.display = 'block';
                 return;
             }
-            
+
             const universeId = data[0].universeId;
             const gameName = data[0].name;
             const validation = await validateGameSync(universeId, parsedId);
             if (!validation.valid) {
-                showValidationWarning(validation.reason, parsedId, universeId, gameName);
+                showValidationWarning(
+                    validation.reason,
+                    parsedId,
+                    universeId,
+                    gameName,
+                );
                 return;
             }
-
         } catch (e) {
             log(logLevel.ERROR, 'Failed to validate place ID:', e);
             gameIdErrorEl.textContent = 'Could not validate the ID. Please try again.';
@@ -1129,29 +1286,36 @@ createNewGameBtn.addEventListener('click', async () => {
     });
 
     if (initialState && initialState.view === 'validation-warning') {
-        showValidationWarning(initialState.reason, initialState.placeId, initialState.universeId, initialState.gameName);
+        showValidationWarning(
+            initialState.reason,
+            initialState.placeId,
+            initialState.universeId,
+            initialState.gameName,
+        );
     } else {
         loadGroups();
     }
 };
 
-
-
 let joinDialogObserverInitialized = false;
 
-
-
-
 const showFailureNotification = (errorDetails) => {
-    let reason = errorDetails.errorMessage || errorDetails.purchaseResult || errorDetails.errorMsg || 'Unknown error';
-    const purchased = errorDetails.purchased !== undefined ? errorDetails.purchased : 'Unknown';
+    let reason =
+        errorDetails.errorMessage ||
+        errorDetails.purchaseResult ||
+        errorDetails.errorMsg ||
+        'Unknown error';
+    const purchased =
+        errorDetails.purchased !== undefined
+            ? errorDetails.purchased
+            : 'Unknown';
 
     if (reason === 'NotForSale') {
         reason = `NotForSale – The item appears to be offsale or only available via resellers.
         The 40% method only works on items sold directly by the original seller (not resale listings).
         If it's a limited item being sold by resellers or temporarily offsale, this method will not work.`;
     }
-    
+
     const bodyContent = document.createElement('div');
     bodyContent.innerHTML = DOMPurify.sanitize(`
         <div style="padding: 20px; text-align: center;">
@@ -1176,12 +1340,9 @@ const showFailureNotification = (errorDetails) => {
         bodyContent: bodyContent,
         actions: [],
         maxWidth: '450px',
-        showLogo: true
+        showLogo: true,
     });
 };
-
-
-
 
 const showInitialConfirmation = async (savedPlaceId, useRoValraGroup) => {
     const currentUserId = getCurrentUserId();
@@ -1196,20 +1357,24 @@ const showInitialConfirmation = async (savedPlaceId, useRoValraGroup) => {
         actualPlaceId = ROVALRA_PLACE_ID;
         gameName = 'RoValra Group Experience';
     }
-    
+
     try {
         const gameData = await callRobloxApiJson({
             subdomain: 'games',
             endpoint: `/v1/games/multiget-place-details?placeIds=${actualPlaceId}`,
-            method: 'GET'
+            method: 'GET',
         });
-        
+
         if (gameData && gameData.length > 0) {
             gameName = gameData[0].name || 'Unknown Experience';
             const universeId = gameData[0].universeId;
-            
+
             if (universeId) {
-                const thumbnailMap = await fetchThumbnails([{ id: universeId }], 'GameIcon', '150x150');
+                const thumbnailMap = await fetchThumbnails(
+                    [{ id: universeId }],
+                    'GameIcon',
+                    '150x150',
+                );
                 const thumbnailData = thumbnailMap.get(universeId);
                 if (thumbnailData && thumbnailData.state === 'Completed') {
                     gameThumbnailUrl = thumbnailData.imageUrl;
@@ -1220,8 +1385,8 @@ const showInitialConfirmation = async (savedPlaceId, useRoValraGroup) => {
         console.warn('RoValra: Could not fetch game details:', error);
     }
 
-    const isDonating = (useRoValraGroup || savedPlaceId === 'ROVALRA_GROUP');
-    
+    const isDonating = useRoValraGroup || savedPlaceId === 'ROVALRA_GROUP';
+
     const confirmBody = document.createElement('div');
     confirmBody.style.cssText = 'padding: 10px 0;';
     confirmBody.innerHTML = DOMPurify.sanitize(`
@@ -1238,15 +1403,19 @@ const showInitialConfirmation = async (savedPlaceId, useRoValraGroup) => {
                 </button>
             </div>
             <div style="display: flex; gap: 12px; align-items: center;">
-                ${gameThumbnailUrl ? `
+                ${
+                    gameThumbnailUrl
+                        ? `
                     <img src="${gameThumbnailUrl}" alt="${gameName}" style="width: 60px; height: 60px; border-radius: 4px; flex-shrink: 0;">
-                ` : `
+                `
+                        : `
                     <div style="width: 60px; height: 60px; background: #bdbebe; border-radius: 4px; flex-shrink: 0;"></div>
-                `}
+                `
+                }
                 <div style="flex: 1; min-width: 0;">
                     <div class="text font-body" style="font-weight: 600; margin-bottom: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${gameName}</div>
                     <div class="text font-body" style="font-size: 12px;">Place ID: ${actualPlaceId}</div>
-                    ${(useRoValraGroup || savedPlaceId === 'ROVALRA_GROUP') ? '<div class="text font-body" style="font-size: 12px;">Donating to RoValra ❤️</div>' : ''}
+                    ${useRoValraGroup || savedPlaceId === 'ROVALRA_GROUP' ? '<div class="text font-body" style="font-size: 12px;">Donating to RoValra ❤️</div>' : ''}
                 </div>
             </div>
         </div>
@@ -1255,8 +1424,8 @@ const showInitialConfirmation = async (savedPlaceId, useRoValraGroup) => {
             <ol class="text font-body" style="margin: 0; padding-left: 20px;">
                 <li>Roblox will launch and join the server automatically</li>
                 <li>Once you're in-game, the purchase prompt will show and you just buy the item using that.</li>
-                <li>The item goes to you, ${(useRoValraGroup || savedPlaceId === 'ROVALRA_GROUP') ? 'and RoValra will earn a commission on your purchase which will help support the extension, at no extra cost for you.' : 'but 40% of the Robux goes to your group'}</li>
-                ${(useRoValraGroup || savedPlaceId === 'ROVALRA_GROUP') ? '' : '<li>Robux will be pending for ~1 month</li>'}
+                <li>The item goes to you, ${useRoValraGroup || savedPlaceId === 'ROVALRA_GROUP' ? 'and RoValra will earn a commission on your purchase which will help support the extension, at no extra cost for you.' : 'but 40% of the Robux goes to your group'}</li>
+                ${useRoValraGroup || savedPlaceId === 'ROVALRA_GROUP' ? '' : '<li>Robux will be pending for ~1 month</li>'}
             </ol>
         </div>
         
@@ -1271,45 +1440,54 @@ const showInitialConfirmation = async (savedPlaceId, useRoValraGroup) => {
         bodyContent: confirmBody,
         actions: [confirmBtn],
         maxWidth: '500px',
-        showLogo: true
+        showLogo: true,
     });
 
-    confirmOverlay.addEventListener('click', (e) => {
-        if (e.target === confirmOverlay) {
-            e.stopPropagation();
-            e.stopImmediatePropagation();
-        }
-    }, true);
+    confirmOverlay.addEventListener(
+        'click',
+        (e) => {
+            if (e.target === confirmOverlay) {
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+            }
+        },
+        true,
+    );
 
     const changeGameBtn = confirmBody.querySelector('#change-game-btn');
     changeGameBtn.addEventListener('click', () => {
         closeConfirm();
-        createAndShowPopup(() => {
-        });
+        createAndShowPopup(() => {});
     });
 
     return new Promise((resolve) => {
-        confirmBtn.addEventListener('click', () => { 
-            closeConfirm(); 
-            resolve(true); 
+        confirmBtn.addEventListener('click', () => {
+            closeConfirm();
+            resolve(true);
         });
-        const closeBtn = confirmOverlay.querySelector('.foundation-web-dialog-close-container button');
-        if (closeBtn) closeBtn.addEventListener('click', () => { 
-            closeConfirm(); 
-            resolve(false); 
-        });
+        const closeBtn = confirmOverlay.querySelector(
+            '.foundation-web-dialog-close-container button',
+        );
+        if (closeBtn)
+            closeBtn.addEventListener('click', () => {
+                closeConfirm();
+                resolve(false);
+            });
     });
 };
 
-
-
 let activePurchaseContext = null;
 
-
-const executeCartPurchase = async (cartItems, prefetchData = null, bypassValidation = false) => {
+const executeCartPurchase = async (
+    cartItems,
+    prefetchData = null,
+    bypassValidation = false,
+) => {
     activePurchaseContext = { cancelled: false };
     const ctx = activePurchaseContext;
-    const ensureNotCancelled = () => { if (ctx.cancelled) throw new Error('Purchase cancelled'); };
+    const ensureNotCancelled = () => {
+        if (ctx.cancelled) throw new Error('Purchase cancelled');
+    };
     const currentUserId = getCurrentUserId();
     if (!currentUserId) {
         log(logLevel.CRITICAL, "Could not identify your user ID. Please make sure you are logged in.");
@@ -1317,15 +1495,15 @@ const executeCartPurchase = async (cartItems, prefetchData = null, bypassValidat
     }
 
     try {
-        const itemIds = cartItems.map(item => ({ id: parseInt(item.id) }));
+        const itemIds = cartItems.map((item) => ({ id: parseInt(item.id) }));
         let thumbnailMap;
         if (prefetchData && prefetchData.cartThumbnails) {
             thumbnailMap = await prefetchData.cartThumbnails;
         } else {
             thumbnailMap = await fetchThumbnails(itemIds, 'Asset', '150x150');
         }
-        
-        cartItems.forEach(item => {
+
+        cartItems.forEach((item) => {
             const thumbnailData = thumbnailMap.get(parseInt(item.id));
             if (thumbnailData && thumbnailData.state === 'Completed') {
                 item.thumbnail = thumbnailData.imageUrl;
@@ -1340,13 +1518,16 @@ const executeCartPurchase = async (cartItems, prefetchData = null, bypassValidat
         result = await prefetchData.storage;
     } else {
         result = await new Promise((resolve) => {
-            chrome.storage.local.get(['RobuxPlaceId', 'useRoValraGroup'], resolve);
+            chrome.storage.local.get(
+                ['RobuxPlaceId', 'useRoValraGroup'],
+                resolve,
+            );
         });
     }
 
     const savedPlaceId = result.RobuxPlaceId;
     const useRoValraGroup = result.useRoValraGroup === true;
-    
+
     if (!savedPlaceId) {
         log(logLevel.CRITICAL, 'No saved Place ID. Please set one up first using the "Save Robux" button.');
         return;
@@ -1361,7 +1542,7 @@ const executeCartPurchase = async (cartItems, prefetchData = null, bypassValidat
         actualPlaceId = ROVALRA_PLACE_ID;
         gameName = 'RoValra Group Experience';
     }
-    
+
     if (prefetchData && prefetchData.gameInfo) {
         try {
             const info = await prefetchData.gameInfo;
@@ -1372,21 +1553,27 @@ const executeCartPurchase = async (cartItems, prefetchData = null, bypassValidat
             if (prefetchData.gameThumb) {
                 gameThumbnailUrl = (await prefetchData.gameThumb) || '';
             }
-        } catch (e) { console.warn('RoValra: Prefetch game info error', e); }
+        } catch (e) {
+            console.warn('RoValra: Prefetch game info error', e);
+        }
     } else {
         try {
             const gameData = await callRobloxApiJson({
                 subdomain: 'games',
                 endpoint: `/v1/games/multiget-place-details?placeIds=${actualPlaceId}`,
-                method: 'GET'
+                method: 'GET',
             });
-            
+
             if (gameData && gameData.length > 0) {
                 gameName = gameData[0].name || 'Unknown Experience';
                 universeId = gameData[0].universeId;
-                
+
                 if (universeId) {
-                    const thumbnailMap = await fetchThumbnails([{ id: universeId }], 'GameIcon', '150x150');
+                    const thumbnailMap = await fetchThumbnails(
+                        [{ id: universeId }],
+                        'GameIcon',
+                        '150x150',
+                    );
                     const thumbnailData = thumbnailMap.get(universeId);
                     if (thumbnailData && thumbnailData.state === 'Completed') {
                         gameThumbnailUrl = thumbnailData.imageUrl;
@@ -1398,17 +1585,38 @@ const executeCartPurchase = async (cartItems, prefetchData = null, bypassValidat
         }
     }
 
-    if (!useRoValraGroup && savedPlaceId !== 'ROVALRA_GROUP' && universeId && !bypassValidation) {
+    if (
+        !useRoValraGroup &&
+        savedPlaceId !== 'ROVALRA_GROUP' &&
+        universeId &&
+        !bypassValidation
+    ) {
         const validation = await validateGameSync(universeId, actualPlaceId);
         if (!validation.valid) {
             let reason = validation.reason;
             if (reason === 'missing_metadata') {
                 reason = 'outdated';
             }
-            createAndShowPopup(() => {
-                const freshPrefetch = prefetchData ? { ...prefetchData, storage: null, gameInfo: null, gameThumb: null } : null;
-                executeCartPurchase(cartItems, freshPrefetch, true);
-            }, { view: 'validation-warning', reason: reason, placeId: actualPlaceId, universeId: universeId, gameName: gameName });
+            createAndShowPopup(
+                () => {
+                    const freshPrefetch = prefetchData
+                        ? {
+                              ...prefetchData,
+                              storage: null,
+                              gameInfo: null,
+                              gameThumb: null,
+                          }
+                        : null;
+                    executeCartPurchase(cartItems, freshPrefetch, true);
+                },
+                {
+                    view: 'validation-warning',
+                    reason: reason,
+                    placeId: actualPlaceId,
+                    universeId: universeId,
+                    gameName: gameName,
+                },
+            );
             return;
         }
     }
@@ -1424,25 +1632,27 @@ const executeCartPurchase = async (cartItems, prefetchData = null, bypassValidat
             const balanceData = await callRobloxApiJson({
                 subdomain: 'economy',
                 endpoint: `/v1/users/${currentUserId}/currency`,
-                method: 'GET'
+                method: 'GET',
             });
             userRobux = balanceData.robux || 0;
         } catch (error) {
             console.warn('Could not fetch user balance:', error);
         }
     }
-    
+
     ensureNotCancelled();
-    
+
     let ownershipChecks;
     if (prefetchData && prefetchData.cartOwnership) {
         ownershipChecks = await prefetchData.cartOwnership;
     } else {
         ownershipChecks = await Promise.all(
-            cartItems.map(item => checkItemOwnership(currentUserId, item.id, 'Asset'))
+            cartItems.map((item) =>
+                checkItemOwnership(currentUserId, item.id, 'Asset'),
+            ),
         );
     }
-    
+
     const ownedItems = [];
     const itemsToPurchase = [];
     cartItems.forEach((item, index) => {
@@ -1452,7 +1662,7 @@ const executeCartPurchase = async (cartItems, prefetchData = null, bypassValidat
             itemsToPurchase.push(item);
         }
     });
-    
+
     if (itemsToPurchase.length === 0) {
         const errorBody = document.createElement('div');
         errorBody.innerHTML = DOMPurify.sanitize(`
@@ -1467,25 +1677,28 @@ const executeCartPurchase = async (cartItems, prefetchData = null, bypassValidat
             bodyContent: errorBody,
             actions: [],
             maxWidth: '400px',
-            showLogo: true
+            showLogo: true,
         });
         return;
     }
-    
-    const actualTotalPrice = itemsToPurchase.reduce((sum, item) => sum + item.price, 0);
+
+    const actualTotalPrice = itemsToPurchase.reduce(
+        (sum, item) => sum + item.price,
+        0,
+    );
     const robuxAfterPurchase = userRobux - actualTotalPrice;
-    const isDonating = (useRoValraGroup || savedPlaceId === 'ROVALRA_GROUP');
-    const totalSavings = Math.round(actualTotalPrice * 0.40);
-    
+    const isDonating = useRoValraGroup || savedPlaceId === 'ROVALRA_GROUP';
+    const totalSavings = Math.round(actualTotalPrice * 0.4);
+
     let itemsHtml = '';
     cartItems.forEach((item, index) => {
         const isOwned = ownershipChecks[index];
         itemsHtml += `
             <div style="display: flex; gap: 12px; align-items: center; padding: 8px 4px; ${isOwned ? 'opacity: 0.6;' : ''}">
                 ${
-                    item.thumbnail 
-                    ? `<img src="${item.thumbnail}" alt="${item.name}" style="width: 60px; height: 60px; border-radius: 4px; flex-shrink: 0; object-fit: cover;">` 
-                    : `<div style="width: 60px; height: 60px; background: #bdbebe; border-radius: 4px; flex-shrink: 0;"></div>`
+                    item.thumbnail
+                        ? `<img src="${item.thumbnail}" alt="${item.name}" style="width: 60px; height: 60px; border-radius: 4px; flex-shrink: 0; object-fit: cover;">`
+                        : `<div style="width: 60px; height: 60px; background: #bdbebe; border-radius: 4px; flex-shrink: 0;"></div>`
                 }
                 <div style="flex: 1; min-width: 0;">
                     <div class="text font-body" style="font-size: 14px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 4px;">${item.name}${isOwned ? ' <span style="color: #ffa500;">(Already Owned)</span>' : ''}</div>
@@ -1494,7 +1707,7 @@ const executeCartPurchase = async (cartItems, prefetchData = null, bypassValidat
             </div>
         `;
     });
-    
+
     const finalConfirmBody = document.createElement('div');
     finalConfirmBody.style.cssText = 'padding: 0;';
     finalConfirmBody.innerHTML = DOMPurify.sanitize(`
@@ -1519,11 +1732,15 @@ const executeCartPurchase = async (cartItems, prefetchData = null, bypassValidat
                 </div>
             </summary>
             <div style="padding-top: 8px; display: flex; gap: 10px; align-items: center;">
-                ${gameThumbnailUrl ? `
+                ${
+                    gameThumbnailUrl
+                        ? `
                     <img src="${gameThumbnailUrl}" alt="${gameName}" style="width: 40px; height: 40px; border-radius: 4px; flex-shrink: 0;">
-                ` : `
+                `
+                        : `
                     <div style="width: 40px; height: 40px; background: #bdbebe; border-radius: 4px; flex-shrink: 0;"></div>
-                `}
+                `
+                }
                 <div style="flex: 1; min-width: 0;">
                     <div class="text font-body" style="font-weight: 600; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${gameName}</div>
                     <div class="text font-body" style="font-size: 11px; opacity: 0.7;">Place ID: ${actualPlaceId}</div>
@@ -1561,27 +1778,34 @@ const executeCartPurchase = async (cartItems, prefetchData = null, bypassValidat
     finalCancelBtn.textContent = 'Cancel';
     finalCancelBtn.className = 'btn-secondary-md btn-min-width';
 
-    const { overlay: finalConfirmOverlay, close: origCloseFinalConfirm } = createOverlay({
-        title: 'Confirm Cart Purchase',
-        bodyContent: finalConfirmBody,
-        actions: [finalCancelBtn, finalConfirmBtn],
-        maxWidth: '500px',
-        showLogo: true
-    });
+    const { overlay: finalConfirmOverlay, close: origCloseFinalConfirm } =
+        createOverlay({
+            title: 'Confirm Cart Purchase',
+            bodyContent: finalConfirmBody,
+            actions: [finalCancelBtn, finalConfirmBtn],
+            maxWidth: '500px',
+            showLogo: true,
+        });
 
-    finalConfirmOverlay.addEventListener('click', (e) => {
-        if (e.target === finalConfirmOverlay) {
-            e.stopPropagation();
-            e.stopImmediatePropagation();
-        }
-    }, true);
+    finalConfirmOverlay.addEventListener(
+        'click',
+        (e) => {
+            if (e.target === finalConfirmOverlay) {
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+            }
+        },
+        true,
+    );
 
     const closeFinalConfirm = () => {
         if (!ctx.cancelled) ctx.cancelled = true;
         origCloseFinalConfirm();
     };
 
-    const changeExperienceBtn = finalConfirmBody.querySelector('#change-experience-btn');
+    const changeExperienceBtn = finalConfirmBody.querySelector(
+        '#change-experience-btn',
+    );
     if (changeExperienceBtn) {
         changeExperienceBtn.addEventListener('click', () => {
             closeFinalConfirm();
@@ -1593,34 +1817,62 @@ const executeCartPurchase = async (cartItems, prefetchData = null, bypassValidat
 
     const finalConfirmed = await new Promise((resolve) => {
         let settled = false;
-        const finish = (val) => { if (!settled) { settled = true; resolve(val); } };
-        finalConfirmBtn.addEventListener('click', () => { if (ctx.cancelled) return finish(false); ctx.cancelled = false; origCloseFinalConfirm(); finish(true); });
-        finalCancelBtn.addEventListener('click', () => { ctx.cancelled = true; origCloseFinalConfirm(); finish(false); });
-        const closeBtn = finalConfirmOverlay.querySelector('.foundation-web-dialog-close-container button');
-        if (closeBtn) closeBtn.addEventListener('click', () => { ctx.cancelled = true; finish(false); });
+        const finish = (val) => {
+            if (!settled) {
+                settled = true;
+                resolve(val);
+            }
+        };
+        finalConfirmBtn.addEventListener('click', () => {
+            if (ctx.cancelled) return finish(false);
+            ctx.cancelled = false;
+            origCloseFinalConfirm();
+            finish(true);
+        });
+        finalCancelBtn.addEventListener('click', () => {
+            ctx.cancelled = true;
+            origCloseFinalConfirm();
+            finish(false);
+        });
+        const closeBtn = finalConfirmOverlay.querySelector(
+            '.foundation-web-dialog-close-container button',
+        );
+        if (closeBtn)
+            closeBtn.addEventListener('click', () => {
+                ctx.cancelled = true;
+                finish(false);
+            });
     });
 
     if (!finalConfirmed || ctx.cancelled) {
         return;
     }
 
-    const placeIdToUse = (useRoValraGroup || savedPlaceId === 'ROVALRA_GROUP') ? actualPlaceId : savedPlaceId;
-    
-    const launchDataParts = itemsToPurchase.map(item => `asset:${item.id}`);
+    const placeIdToUse =
+        useRoValraGroup || savedPlaceId === 'ROVALRA_GROUP'
+            ? actualPlaceId
+            : savedPlaceId;
+
+    const launchDataParts = itemsToPurchase.map((item) => `asset:${item.id}`);
     const launchData = launchDataParts.join(',');
 
     launchMultiplayerGame(placeIdToUse, launchData);
-
-
-
-
 };
 
-
-const execute40MethodPurchase = async (itemId, robuxPrice, isGamePass = false, isBundle = false, itemDetails = null, prefetchData = null, bypassValidation = false) => {
+const execute40MethodPurchase = async (
+    itemId,
+    robuxPrice,
+    isGamePass = false,
+    isBundle = false,
+    itemDetails = null,
+    prefetchData = null,
+    bypassValidation = false,
+) => {
     activePurchaseContext = { cancelled: false };
     const ctx = activePurchaseContext || { cancelled: false };
-    const ensureNotCancelled = () => { if (ctx.cancelled) throw new Error('Purchase cancelled'); };
+    const ensureNotCancelled = () => {
+        if (ctx.cancelled) throw new Error('Purchase cancelled');
+    };
     const currentUserId = getCurrentUserId();
     if (!currentUserId) {
         log(logLevel.CRITICAL, "Could not identify your user ID. Please make sure you are logged in.");
@@ -1632,19 +1884,21 @@ const execute40MethodPurchase = async (itemId, robuxPrice, isGamePass = false, i
         result = await prefetchData.storage;
     } else {
         result = await new Promise((resolve) => {
-            chrome.storage.local.get(['RobuxPlaceId', 'useRoValraGroup'], resolve);
+            chrome.storage.local.get(
+                ['RobuxPlaceId', 'useRoValraGroup'],
+                resolve,
+            );
         });
     }
 
     const savedPlaceId = result.RobuxPlaceId;
     const useRoValraGroup = result.useRoValraGroup === true;
-    
+
     if (!savedPlaceId) {
         log(logLevel.CRITICAL, 'No saved Place ID. Please set one up first using the "Save Robux" button.');
         return;
     }
 
-    
     let itemName = itemDetails?.name || 'Unknown Item';
     let itemThumbnail = itemDetails?.thumbnail || '';
     let assetType = null;
@@ -1654,46 +1908,62 @@ const execute40MethodPurchase = async (itemId, robuxPrice, isGamePass = false, i
             const details = await prefetchData.itemDetails;
             if (details && details.data && details.data[0]) {
                 const item = details.data[0];
-                if (!itemName || itemName === 'Unknown Item') itemName = item.name;
+                if (!itemName || itemName === 'Unknown Item')
+                    itemName = item.name;
                 assetType = item.assetType;
             }
         } catch (e) {}
     }
 
-    if (itemId && ((!itemDetails || !itemDetails.thumbnail) || (!isGamePass && !isBundle))) {
+    if (
+        itemId &&
+        (!itemDetails || !itemDetails.thumbnail || (!isGamePass && !isBundle))
+    ) {
         if (isGamePass) {
             try {
                 const thumbnailMap = await fetchThumbnails(
                     [{ id: parseInt(itemId) }],
                     'GamePass',
-                    '150x150'
+                    '150x150',
                 );
                 const thumbnailData = thumbnailMap.get(parseInt(itemId));
                 if (thumbnailData && thumbnailData.state === 'Completed') {
                     itemThumbnail = thumbnailData.imageUrl;
                 }
             } catch (error) {
-                console.warn('RoValra: Could not fetch game pass thumbnail:', error);
+                console.warn(
+                    'RoValra: Could not fetch game pass thumbnail:',
+                    error,
+                );
             }
         } else {
             try {
-                const catalogData = await getItemDetails(itemId, isBundle ? 'Bundle' : 'Asset');
-                
-                if (catalogData && catalogData.data && catalogData.data.length > 0) {
+                const catalogData = await getItemDetails(
+                    itemId,
+                    isBundle ? 'Bundle' : 'Asset',
+                );
+
+                if (
+                    catalogData &&
+                    catalogData.data &&
+                    catalogData.data.length > 0
+                ) {
                     const item = catalogData.data[0];
                     itemName = item.name || 'Unknown Item';
                     assetType = item.assetType;
-                    
+
                     const itemIdForThumbnail = item.collectibleItemId || itemId;
                     let thumbnailType = 'Asset';
                     if (isBundle) thumbnailType = 'BundleThumbnail';
-    
+
                     const thumbnailMap = await fetchThumbnails(
-                        [{ id: parseInt(itemIdForThumbnail) }], 
+                        [{ id: parseInt(itemIdForThumbnail) }],
                         thumbnailType,
-                        '150x150'
+                        '150x150',
                     );
-                    const thumbnailData = thumbnailMap.get(parseInt(itemIdForThumbnail));
+                    const thumbnailData = thumbnailMap.get(
+                        parseInt(itemIdForThumbnail),
+                    );
                     if (thumbnailData && thumbnailData.state === 'Completed') {
                         itemThumbnail = thumbnailData.imageUrl;
                     }
@@ -1713,7 +1983,7 @@ const execute40MethodPurchase = async (itemId, robuxPrice, isGamePass = false, i
         actualPlaceId = ROVALRA_PLACE_ID;
         gameName = 'RoValra Group Experience';
     }
-    
+
     if (prefetchData && prefetchData.gameInfo) {
         try {
             const info = await prefetchData.gameInfo;
@@ -1724,21 +1994,27 @@ const execute40MethodPurchase = async (itemId, robuxPrice, isGamePass = false, i
             if (prefetchData.gameThumb) {
                 gameThumbnailUrl = (await prefetchData.gameThumb) || '';
             }
-        } catch (e) { console.warn('RoValra: Prefetch game info error', e); }
+        } catch (e) {
+            console.warn('RoValra: Prefetch game info error', e);
+        }
     } else {
         try {
             const gameData = await callRobloxApiJson({
                 subdomain: 'games',
                 endpoint: `/v1/games/multiget-place-details?placeIds=${actualPlaceId}`,
-                method: 'GET'
+                method: 'GET',
             });
-            
+
             if (gameData && gameData.length > 0) {
                 gameName = gameData[0].name || 'Unknown Experience';
                 universeId = gameData[0].universeId;
-                
+
                 if (universeId) {
-                    const thumbnailMap = await fetchThumbnails([{ id: universeId }], 'GameIcon', '150x150');
+                    const thumbnailMap = await fetchThumbnails(
+                        [{ id: universeId }],
+                        'GameIcon',
+                        '150x150',
+                    );
                     const thumbnailData = thumbnailMap.get(universeId);
                     if (thumbnailData && thumbnailData.state === 'Completed') {
                         gameThumbnailUrl = thumbnailData.imageUrl;
@@ -1750,24 +2026,52 @@ const execute40MethodPurchase = async (itemId, robuxPrice, isGamePass = false, i
         }
     }
 
-    if (!useRoValraGroup && savedPlaceId !== 'ROVALRA_GROUP' && universeId && !bypassValidation) {
+    if (
+        !useRoValraGroup &&
+        savedPlaceId !== 'ROVALRA_GROUP' &&
+        universeId &&
+        !bypassValidation
+    ) {
         const validation = await validateGameSync(universeId, actualPlaceId);
         if (!validation.valid) {
             let reason = validation.reason;
             if (reason === 'missing_metadata') {
                 reason = 'outdated';
             }
-            createAndShowPopup(() => {
-                const freshPrefetch = prefetchData ? { ...prefetchData, storage: null, gameInfo: null, gameThumb: null } : null;
-                execute40MethodPurchase(itemId, robuxPrice, isGamePass, isBundle, itemDetails, freshPrefetch, true);
-            }, { view: 'validation-warning', reason: reason, placeId: actualPlaceId, universeId: universeId, gameName: gameName });
+            createAndShowPopup(
+                () => {
+                    const freshPrefetch = prefetchData
+                        ? {
+                              ...prefetchData,
+                              storage: null,
+                              gameInfo: null,
+                              gameThumb: null,
+                          }
+                        : null;
+                    execute40MethodPurchase(
+                        itemId,
+                        robuxPrice,
+                        isGamePass,
+                        isBundle,
+                        itemDetails,
+                        freshPrefetch,
+                        true,
+                    );
+                },
+                {
+                    view: 'validation-warning',
+                    reason: reason,
+                    placeId: actualPlaceId,
+                    universeId: universeId,
+                    gameName: gameName,
+                },
+            );
             return;
         }
     }
-    
 
     ensureNotCancelled();
-    
+
     let userRobux = 0;
     if (prefetchData && prefetchData.balance) {
         try {
@@ -1779,45 +2083,52 @@ const execute40MethodPurchase = async (itemId, robuxPrice, isGamePass = false, i
             const balanceData = await callRobloxApiJson({
                 subdomain: 'economy',
                 endpoint: `/v1/users/${currentUserId}/currency`,
-                method: 'GET'
+                method: 'GET',
             });
             userRobux = balanceData.robux || 0;
         } catch (error) {
             console.warn('Could not fetch user balance:', error);
         }
     }
-    
+
     ensureNotCancelled();
     const robuxAfterPurchase = userRobux - robuxPrice;
-    const isDonating = (useRoValraGroup || savedPlaceId === 'ROVALRA_GROUP');
-    let savingsPercentage = isGamePass ? 0.10 : 0.40;
+    const isDonating = useRoValraGroup || savedPlaceId === 'ROVALRA_GROUP';
+    let savingsPercentage = isGamePass ? 0.1 : 0.4;
 
     await fetchCatalogMetadata();
 
-    if (assetType && !isGamePass && !isBundle && assetToSubcategoryMap && classicClothingSubcategories) {
+    if (
+        assetType &&
+        !isGamePass &&
+        !isBundle &&
+        assetToSubcategoryMap &&
+        classicClothingSubcategories
+    ) {
         const subcategoryId = assetToSubcategoryMap[String(assetType)];
         if (classicClothingSubcategories.includes(subcategoryId)) {
             if (robuxPrice < 10) {
                 savingsPercentage = 0;
             } else {
-                savingsPercentage = 0.10;
+                savingsPercentage = 0.1;
             }
         }
     }
     const robuxSaved = Math.floor(robuxPrice * savingsPercentage);
-    
-    const itemType = isGamePass ? 'GamePass' : (isBundle ? 'Bundle' : 'Asset');
-    const alreadyOwned = (prefetchData && prefetchData.ownership) 
-        ? await prefetchData.ownership 
-        : await checkItemOwnership(currentUserId, itemId, itemType);
-    
+
+    const itemType = isGamePass ? 'GamePass' : isBundle ? 'Bundle' : 'Asset';
+    const alreadyOwned =
+        prefetchData && prefetchData.ownership
+            ? await prefetchData.ownership
+            : await checkItemOwnership(currentUserId, itemId, itemType);
+
     if (alreadyOwned) {
         const ownedBody = document.createElement('div');
         ownedBody.innerHTML = DOMPurify.sanitize(`
             <div style="padding: 20px; text-align: center;">
                 <div style="font-size: 48px; margin-bottom: 16px;">✓</div>
                 <h3 class="text font-header-2" style="margin: 0 0 12px 0;">Already Owned</h3>
-                <p class="text font-body" style="margin: 0 0 12px 0;">You already own this ${isGamePass ? 'game pass' : (isBundle ? 'bundle' : 'item')}:</p>
+                <p class="text font-body" style="margin: 0 0 12px 0;">You already own this ${isGamePass ? 'game pass' : isBundle ? 'bundle' : 'item'}:</p>
                 <p class="text font-body" style="margin: 0; font-weight: 600;">${itemName}</p>
                 <p class="text font-body" style="margin: 12px 0 0 0; opacity: 0.7;">No purchase needed!</p>
             </div>
@@ -1827,17 +2138,17 @@ const execute40MethodPurchase = async (itemId, robuxPrice, isGamePass = false, i
             bodyContent: ownedBody,
             actions: [],
             maxWidth: '400px',
-            showLogo: true
+            showLogo: true,
         });
         return;
     }
-    
-        const singleItemHtml = `
+
+    const singleItemHtml = `
             <div style="display: flex; gap: 12px; align-items: center; padding: 8px 4px;">
                 ${
-                    itemThumbnail 
-                    ? `<img src="${itemThumbnail}" alt="${itemName}" style="width: 60px; height: 60px; border-radius: 4px; flex-shrink: 0; object-fit: cover;">` 
-                    : `<div style="width: 60px; height: 60px; background: #bdbebe; border-radius: 4px; flex-shrink: 0;"></div>`
+                    itemThumbnail
+                        ? `<img src="${itemThumbnail}" alt="${itemName}" style="width: 60px; height: 60px; border-radius: 4px; flex-shrink: 0; object-fit: cover;">`
+                        : `<div style="width: 60px; height: 60px; background: #bdbebe; border-radius: 4px; flex-shrink: 0;"></div>`
                 }
                 <div style="flex: 1; min-width: 0;">
                     <div class="text font-body" style="font-size: 14px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 4px;">${itemName}</div>
@@ -1845,10 +2156,10 @@ const execute40MethodPurchase = async (itemId, robuxPrice, isGamePass = false, i
                 </div>
             </div>
         `;
-        
-        const finalConfirmBody = document.createElement('div');
-        finalConfirmBody.style.cssText = 'padding: 0;';
-        finalConfirmBody.innerHTML = DOMPurify.sanitize(`
+
+    const finalConfirmBody = document.createElement('div');
+    finalConfirmBody.style.cssText = 'padding: 0;';
+    finalConfirmBody.innerHTML = DOMPurify.sanitize(`
             <div style="padding: 12px 0 8px; text-align: center; border-bottom: 1px solid rgb(73, 77, 90);">
                 <div class="text font-body" style="font-size: 16px; font-weight: 700;">Purchase Summary</div>
                 ${isDonating ? '<div class="text font-body" style="margin-top: 4px; font-size: 12px;">❤️ Donating to RoValra ❤️</div>' : ''}
@@ -1870,11 +2181,15 @@ const execute40MethodPurchase = async (itemId, robuxPrice, isGamePass = false, i
                     </div>
                 </summary>
                 <div style="padding-top: 8px; display: flex; gap: 10px; align-items: center;">
-                    ${gameThumbnailUrl ? `
+                    ${
+                        gameThumbnailUrl
+                            ? `
                         <img src="${gameThumbnailUrl}" alt="${gameName}" style="width: 40px; height: 40px; border-radius: 4px; flex-shrink: 0;">
-                    ` : `
+                    `
+                            : `
                         <div style="width: 40px; height: 40px; background: #bdbebe; border-radius: 4px; flex-shrink: 0;"></div>
-                    `}
+                    `
+                    }
                     <div style="flex: 1; min-width: 0;">
                         <div class="text font-body" style="font-weight: 600; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${gameName}</div>
                         <div class="text font-body" style="font-size: 11px; opacity: 0.7;">Place ID: ${actualPlaceId}</div>
@@ -1903,97 +2218,156 @@ const execute40MethodPurchase = async (itemId, robuxPrice, isGamePass = false, i
             ${robuxAfterPurchase < 0 ? '<div style="padding: 8px; border-radius: 4px; background: rgba(211, 47, 47, 0.1); margin-bottom: 8px; border: 1px solid rgba(211, 47, 47, 0.3);"><span class="text font-body" style="color: #d32f2f; font-weight: 600; font-size: 13px;">⚠️ Insufficient Balance</span></div>' : ''}
         `);
 
-        const finalConfirmBtn = document.createElement('button');
-        finalConfirmBtn.textContent = 'Join game to purchase';
-        finalConfirmBtn.className = 'btn-cta-md btn-min-width';
-        finalConfirmBtn.disabled = robuxAfterPurchase < 0;
+    const finalConfirmBtn = document.createElement('button');
+    finalConfirmBtn.textContent = 'Join game to purchase';
+    finalConfirmBtn.className = 'btn-cta-md btn-min-width';
+    finalConfirmBtn.disabled = robuxAfterPurchase < 0;
 
-        const finalCancelBtn = document.createElement('button');
-        finalCancelBtn.textContent = 'Cancel';
-        finalCancelBtn.className = 'btn-secondary-md btn-min-width';
+    const finalCancelBtn = document.createElement('button');
+    finalCancelBtn.textContent = 'Cancel';
+    finalCancelBtn.className = 'btn-secondary-md btn-min-width';
 
-        const { overlay: finalConfirmOverlay, close: origCloseFinalConfirm } = createOverlay({
+    const { overlay: finalConfirmOverlay, close: origCloseFinalConfirm } =
+        createOverlay({
             title: 'Confirm Purchase',
             bodyContent: finalConfirmBody,
             actions: [finalCancelBtn, finalConfirmBtn],
             maxWidth: '500px',
-            showLogo: true
+            showLogo: true,
         });
 
-        finalConfirmOverlay.addEventListener('click', (e) => {
+    finalConfirmOverlay.addEventListener(
+        'click',
+        (e) => {
             if (e.target === finalConfirmOverlay) {
                 e.stopPropagation();
                 e.stopImmediatePropagation();
             }
-        }, true);
+        },
+        true,
+    );
 
-        const closeFinalConfirm = () => {
-            if (!ctx.cancelled) ctx.cancelled = true;
-            origCloseFinalConfirm();
-        };
+    const closeFinalConfirm = () => {
+        if (!ctx.cancelled) ctx.cancelled = true;
+        origCloseFinalConfirm();
+    };
 
-        const changeExperienceBtn = finalConfirmBody.querySelector('#change-experience-btn');
-        if (changeExperienceBtn) {
-            changeExperienceBtn.addEventListener('click', () => {
-                closeFinalConfirm();
-                createAndShowPopup(() => {
-                    execute40MethodPurchase(itemId, robuxPrice, isGamePass, isBundle, itemDetails);
-                });
+    const changeExperienceBtn = finalConfirmBody.querySelector(
+        '#change-experience-btn',
+    );
+    if (changeExperienceBtn) {
+        changeExperienceBtn.addEventListener('click', () => {
+            closeFinalConfirm();
+            createAndShowPopup(() => {
+                execute40MethodPurchase(
+                    itemId,
+                    robuxPrice,
+                    isGamePass,
+                    isBundle,
+                    itemDetails,
+                );
             });
-        }
-
-        const finalConfirmed = await new Promise((resolve) => {
-            let settled = false;
-            const finish = (val) => { if (!settled) { settled = true; resolve(val); } };
-            finalConfirmBtn.addEventListener('click', () => { if (ctx.cancelled) ctx.cancelled = false; origCloseFinalConfirm(); finish(true); });
-            finalCancelBtn.addEventListener('click', () => { ctx.cancelled = true; origCloseFinalConfirm(); finish(false); });
-            const closeBtn = finalConfirmOverlay.querySelector('.foundation-web-dialog-close-container button');
-            if (closeBtn) closeBtn.addEventListener('click', () => { ctx.cancelled = true; origCloseFinalConfirm(); finish(false); });
         });
+    }
 
-        if (!finalConfirmed || ctx.cancelled) {
-            return;
-        }
+    const finalConfirmed = await new Promise((resolve) => {
+        let settled = false;
+        const finish = (val) => {
+            if (!settled) {
+                settled = true;
+                resolve(val);
+            }
+        };
+        finalConfirmBtn.addEventListener('click', () => {
+            if (ctx.cancelled) ctx.cancelled = false;
+            origCloseFinalConfirm();
+            finish(true);
+        });
+        finalCancelBtn.addEventListener('click', () => {
+            ctx.cancelled = true;
+            origCloseFinalConfirm();
+            finish(false);
+        });
+        const closeBtn = finalConfirmOverlay.querySelector(
+            '.foundation-web-dialog-close-container button',
+        );
+        if (closeBtn)
+            closeBtn.addEventListener('click', () => {
+                ctx.cancelled = true;
+                origCloseFinalConfirm();
+                finish(false);
+            });
+    });
+
+    if (!finalConfirmed || ctx.cancelled) {
+        return;
+    }
 
     ensureNotCancelled();
     let typePrefix = 'asset';
     if (isGamePass) typePrefix = 'gamepass';
     else if (isBundle) typePrefix = 'bundle';
-    
+
     const launchData = `${typePrefix}:${itemId}`;
-    
-    const placeIdToUse = (useRoValraGroup || savedPlaceId === 'ROVALRA_GROUP') ? actualPlaceId : savedPlaceId;
+
+    const placeIdToUse =
+        useRoValraGroup || savedPlaceId === 'ROVALRA_GROUP'
+            ? actualPlaceId
+            : savedPlaceId;
 
     launchMultiplayerGame(placeIdToUse, launchData);
-
-
 };
 
 const addSaveButton = (modal) => {
-
-    const modalWindow = modal.closest('.modal-window') || modal.closest('.simplemodal-wrap') || modal;
+    const modalWindow =
+        modal.closest('.modal-window') ||
+        modal.closest('.simplemodal-wrap') ||
+        modal;
     if (!modalWindow) return;
 
     const checkElements = () => {
-        const buyNowButton = modalWindow.querySelector('.modal-button.btn-primary-md, #confirm-btn.btn-primary-md, a#confirm-btn');
-        const robuxPriceElement = modalWindow.querySelector('.text-robux, .text-robux-lg');
-        const buttonContainer = modalWindow.querySelector('.modal-footer .modal-buttons, .modal-btns');
-        const closeButton = modalWindow.querySelector('.modal-header .close, .modal-header .modal-close-btn, .modal-header button.close');
+        const buyNowButton = modalWindow.querySelector(
+            '.modal-button.btn-primary-md, #confirm-btn.btn-primary-md, a#confirm-btn',
+        );
+        const robuxPriceElement = modalWindow.querySelector(
+            '.text-robux, .text-robux-lg',
+        );
+        const buttonContainer = modalWindow.querySelector(
+            '.modal-footer .modal-buttons, .modal-btns',
+        );
+        const closeButton = modalWindow.querySelector(
+            '.modal-header .close, .modal-header .modal-close-btn, .modal-header button.close',
+        );
 
-        if (!buyNowButton || !robuxPriceElement || !buttonContainer || !closeButton) {
+        if (
+            !buyNowButton ||
+            !robuxPriceElement ||
+            !buttonContainer ||
+            !closeButton
+        ) {
             return null;
         }
 
-        return { buyNowButton, robuxPriceElement, buttonContainer, closeButton };
+        return {
+            buyNowButton,
+            robuxPriceElement,
+            buttonContainer,
+            closeButton,
+        };
     };
 
+    if (modalWindow.querySelector('.rovalra-save-wrapper')) return;
     const elements = checkElements();
     if (elements) {
         addButtonWithElements(elements);
     }
 
-    async function addButtonWithElements({ buyNowButton, robuxPriceElement, buttonContainer, closeButton }) {
-   
+    async function addButtonWithElements({
+        buyNowButton,
+        robuxPriceElement,
+        buttonContainer,
+        closeButton,
+    }) {
         const currentUserId = getCurrentUserId();
         const prefetchData = {
             storage: null,
@@ -2003,59 +2377,81 @@ const addSaveButton = (modal) => {
             ownership: null,
             itemDetails: null,
             cartOwnership: null,
-            cartThumbnails: null
+            cartThumbnails: null,
         };
 
         if (currentUserId) {
-            prefetchData.storage = new Promise(resolve => chrome.storage.local.get(['RobuxPlaceId', 'useRoValraGroup'], resolve));
-            
+            prefetchData.storage = new Promise((resolve) =>
+                chrome.storage.local.get(
+                    ['RobuxPlaceId', 'useRoValraGroup'],
+                    resolve,
+                ),
+            );
+
             prefetchData.balance = callRobloxApiJson({
                 subdomain: 'economy',
                 endpoint: `/v1/users/${currentUserId}/currency`,
-                method: 'GET'
+                method: 'GET',
             }).catch(() => ({ robux: 0 }));
 
             prefetchData.gameInfo = prefetchData.storage.then(async (res) => {
                 const savedPlaceId = res.RobuxPlaceId;
                 const useRoValraGroup = res.useRoValraGroup === true;
                 if (!savedPlaceId) return null;
-                
+
                 let actualPlaceId = savedPlaceId;
                 if (useRoValraGroup || savedPlaceId === 'ROVALRA_GROUP') {
                     actualPlaceId = ROVALRA_PLACE_ID;
                 }
-                
+
                 try {
                     const data = await callRobloxApiJson({
                         subdomain: 'games',
                         endpoint: `/v1/games/multiget-place-details?placeIds=${actualPlaceId}`,
-                        method: 'GET'
+                        method: 'GET',
                     });
-                    return { data, actualPlaceId, useRoValraGroup, savedPlaceId };
-                } catch (e) { return null; }
+                    return {
+                        data,
+                        actualPlaceId,
+                        useRoValraGroup,
+                        savedPlaceId,
+                    };
+                } catch (e) {
+                    return null;
+                }
             });
 
-            prefetchData.gameThumb = prefetchData.gameInfo.then(async (info) => {
-                if (!info || !info.data || !info.data.length) return null;
-                const universeId = info.data[0].universeId;
-                if (!universeId) return null;
-                try {
-                    const map = await fetchThumbnails([{ id: universeId }], 'GameIcon', '150x150');
-                    const d = map.get(universeId);
-                    return (d && d.state === 'Completed') ? d.imageUrl : null;
-                } catch (e) { return null; }
-            });
+            prefetchData.gameThumb = prefetchData.gameInfo.then(
+                async (info) => {
+                    if (!info || !info.data || !info.data.length) return null;
+                    const universeId = info.data[0].universeId;
+                    if (!universeId) return null;
+                    try {
+                        const map = await fetchThumbnails(
+                            [{ id: universeId }],
+                            'GameIcon',
+                            '150x150',
+                        );
+                        const d = map.get(universeId);
+                        return d && d.state === 'Completed' ? d.imageUrl : null;
+                    } catch (e) {
+                        return null;
+                    }
+                },
+            );
         }
 
         const cartItems = getCartItems();
         const isMultiItemPurchase = cartItems.length >= 2;
-        const isOnGamePage = /^\/([a-z]{2}(-[a-z]{2})?\/)?games\//i.test(window.location.pathname);
-        
+        const isOnGamePage = /^\/([a-z]{2}(-[a-z]{2})?\/)?games\//i.test(
+            window.location.pathname,
+        );
+
         let itemId = null;
         let isGamePassOnGamePage = false;
         let isMismatch = false;
         let capturedItemName = null;
-        
+
         if (isMultiItemPurchase) {
             const batchItemsInModal = getBatchPurchaseItems(modalWindow);
             if (batchItemsInModal.length > 0) {
@@ -2066,21 +2462,31 @@ const addSaveButton = (modal) => {
             }
         } else if (isOnGamePage) {
             const modalMessage = modalWindow.querySelector('.modal-message');
-            const modalItemNameEl = modalMessage?.querySelector('.font-bold, strong');
-            const modalItemPriceEl = modalMessage?.querySelector('.text-robux, .robux-text');
-            
+            const modalItemNameEl =
+                modalMessage?.querySelector('.font-bold, strong');
+            const modalItemPriceEl = modalMessage?.querySelector(
+                '.text-robux, .robux-text',
+            );
+
             if (modalItemNameEl && modalItemPriceEl) {
                 const modalItemName = modalItemNameEl.textContent.trim();
-                const modalItemPrice = parseInt(modalItemPriceEl.textContent.replace(/\D/g, ''), 10);
+                const modalItemPrice = parseInt(
+                    modalItemPriceEl.textContent.replace(/\D/g, ''),
+                    10,
+                );
                 capturedItemName = modalItemName;
 
                 const universeId = getUniverseId();
                 if (universeId) {
-                    const gamePasses = await fetchGamePassesForUniverse(universeId);
-                    const match = gamePasses.find(gp => (
-                        (gp.name && gp.name.trim() === modalItemName) || 
-                        (gp.displayName && gp.displayName.trim() === modalItemName)
-                    ) && gp.price === modalItemPrice);
+                    const gamePasses =
+                        await fetchGamePassesForUniverse(universeId);
+                    const match = gamePasses.find(
+                        (gp) =>
+                            ((gp.name && gp.name.trim() === modalItemName) ||
+                                (gp.displayName &&
+                                    gp.displayName.trim() === modalItemName)) &&
+                            gp.price === modalItemPrice,
+                    );
                     if (match) {
                         itemId = match.id;
                         isGamePassOnGamePage = true;
@@ -2088,19 +2494,38 @@ const addSaveButton = (modal) => {
                 }
 
                 if (!itemId) {
-                    const storeItems = document.querySelectorAll('#store-tab .list-item .store-card, .game-passes-list .list-item');
+                    const storeItems = document.querySelectorAll(
+                        '#store-tab .list-item .store-card, .game-passes-list .list-item',
+                    );
                     for (const itemCard of storeItems) {
-                        const cardNameEl = itemCard.querySelector('.store-card-name, .item-card-name');
-                        const cardPriceEl = itemCard.querySelector('.store-card-price .text-robux, .item-card-price .text-robux');
-                        const cardLinkEl = itemCard.querySelector('a.store-card-link, a.item-card-link');
+                        const cardNameEl = itemCard.querySelector(
+                            '.store-card-name, .item-card-name',
+                        );
+                        const cardPriceEl = itemCard.querySelector(
+                            '.store-card-price .text-robux, .item-card-price .text-robux',
+                        );
+                        const cardLinkEl = itemCard.querySelector(
+                            'a.store-card-link, a.item-card-link',
+                        );
 
                         if (cardNameEl && cardPriceEl && cardLinkEl) {
-                            const cardItemName = (cardNameEl.getAttribute('title') || cardNameEl.textContent).trim();
-                            const cardItemPrice = parseInt(cardPriceEl.textContent.replace(/\D/g, ''), 10);
+                            const cardItemName = (
+                                cardNameEl.getAttribute('title') ||
+                                cardNameEl.textContent
+                            ).trim();
+                            const cardItemPrice = parseInt(
+                                cardPriceEl.textContent.replace(/\D/g, ''),
+                                10,
+                            );
 
-                            if (modalItemName === cardItemName && modalItemPrice === cardItemPrice) {
+                            if (
+                                modalItemName === cardItemName &&
+                                modalItemPrice === cardItemPrice
+                            ) {
                                 const href = cardLinkEl.getAttribute('href');
-                                const match = href.match(/\/(?:[a-z]{2}(?:-[a-z]{2})?\/)?game-pass\/(\d+)/i);
+                                const match = href.match(
+                                    /\/(?:[a-z]{2}(?:-[a-z]{2})?\/)?game-pass\/(\d+)/i,
+                                );
                                 if (match) {
                                     itemId = match[1];
                                     isGamePassOnGamePage = true;
@@ -2113,8 +2538,13 @@ const addSaveButton = (modal) => {
             }
         }
 
-        const isGamePass = /^\/([a-z]{2}(-[a-z]{2})?\/)?game-pass\//i.test(window.location.pathname) || isGamePassOnGamePage;
-        const isBundle = /^\/([a-z]{2}(-[a-z]{2})?\/)?bundles\//i.test(window.location.pathname);
+        const isGamePass =
+            /^\/([a-z]{2}(-[a-z]{2})?\/)?game-pass\//i.test(
+                window.location.pathname,
+            ) || isGamePassOnGamePage;
+        const isBundle = /^\/([a-z]{2}(-[a-z]{2})?\/)?bundles\//i.test(
+            window.location.pathname,
+        );
 
         if (!itemId) {
             if (cartItems.length === 1) {
@@ -2128,18 +2558,37 @@ const addSaveButton = (modal) => {
 
         if (currentUserId) {
             if (!isMultiItemPurchase && itemId) {
-                const itemType = isGamePass ? 'GamePass' : (isBundle ? 'Bundle' : 'Asset');
-                prefetchData.ownership = checkItemOwnership(currentUserId, itemId, itemType);
+                const itemType = isGamePass
+                    ? 'GamePass'
+                    : isBundle
+                      ? 'Bundle'
+                      : 'Asset';
+                prefetchData.ownership = checkItemOwnership(
+                    currentUserId,
+                    itemId,
+                    itemType,
+                );
                 if (!isGamePass && !isBundle) {
                     prefetchData.itemDetails = getItemDetails(itemId, 'Asset');
                 }
             } else if (isMultiItemPurchase) {
-                prefetchData.cartOwnership = Promise.all(cartItems.map(item => checkItemOwnership(currentUserId, item.id, 'Asset')));
-                prefetchData.cartThumbnails = fetchThumbnails(cartItems.map(i => ({id: parseInt(i.id)})), 'Asset', '150x150');
+                prefetchData.cartOwnership = Promise.all(
+                    cartItems.map((item) =>
+                        checkItemOwnership(currentUserId, item.id, 'Asset'),
+                    ),
+                );
+                prefetchData.cartThumbnails = fetchThumbnails(
+                    cartItems.map((i) => ({ id: parseInt(i.id) })),
+                    'Asset',
+                    '150x150',
+                );
             }
         }
 
-        const robuxPrice = parseInt(robuxPriceElement.textContent.replace(/,/g, ''), 10);
+        const robuxPrice = parseInt(
+            robuxPriceElement.textContent.replace(/,/g, ''),
+            10,
+        );
         if (isNaN(robuxPrice)) return;
 
         await fetchCatalogMetadata();
@@ -2152,24 +2601,38 @@ const addSaveButton = (modal) => {
                     const itemData = details.data[0];
                     assetType = itemData.assetType;
 
-                    if (itemData.itemRestrictions && (itemData.itemRestrictions.includes('Collectible') || itemData.itemRestrictions.includes('Limited') || itemData.itemRestrictions.includes('LimitedUnique'))) {
+                    if (
+                        itemData.itemRestrictions &&
+                        (itemData.itemRestrictions.includes('Collectible') ||
+                            itemData.itemRestrictions.includes('Limited') ||
+                            itemData.itemRestrictions.includes('LimitedUnique'))
+                    ) {
                         return;
                     }
                 }
             } catch (e) {
-                console.warn('RoValra: Failed to fetch asset type for button text', e);
+                console.warn(
+                    'RoValra: Failed to fetch asset type for button text',
+                    e,
+                );
             }
         }
 
-        let savingsPercentage = isGamePass ? 0.10 : 0.40;
+        let savingsPercentage = isGamePass ? 0.1 : 0.4;
 
-        if (assetType && !isGamePass && !isBundle && assetToSubcategoryMap && classicClothingSubcategories) {
+        if (
+            assetType &&
+            !isGamePass &&
+            !isBundle &&
+            assetToSubcategoryMap &&
+            classicClothingSubcategories
+        ) {
             const subcategoryId = assetToSubcategoryMap[String(assetType)];
             if (classicClothingSubcategories.includes(subcategoryId)) {
                 if (robuxPrice < 10) {
                     savingsPercentage = 0;
                 } else {
-                    savingsPercentage = 0.10;
+                    savingsPercentage = 0.1;
                 }
             }
         }
@@ -2178,16 +2641,17 @@ const addSaveButton = (modal) => {
         const saveButton = document.createElement('button');
         saveButton.textContent = `Save ${savings} Robux`;
         saveButton.type = 'button';
-        
+
         if (isGamePass) {
             saveButton.className = 'btn-control-md btn-save-robux';
         } else {
-            saveButton.className = 'modal-button btn-control-md btn-min-width btn-save-robux';
+            saveButton.className =
+                'modal-button btn-control-md btn-min-width btn-save-robux';
         }
 
         saveButton.addEventListener('click', async () => {
             closeButton.click();
-            
+
             if (isMismatch) {
                 const errorBody = document.createElement('div');
                 errorBody.innerHTML = DOMPurify.sanitize(`
@@ -2203,23 +2667,29 @@ const addSaveButton = (modal) => {
                     bodyContent: errorBody,
                     actions: [],
                     maxWidth: '450px',
-                    showLogo: true
+                    showLogo: true,
                 });
                 return;
             }
-            
+
             let itemDetails = null;
             if (isGamePassOnGamePage) {
-                const modalImage = modalWindow.querySelector('.modal-image-container img, .modal-thumb');
+                const modalImage = modalWindow.querySelector(
+                    '.modal-image-container img, .modal-thumb',
+                );
                 itemDetails = {
                     name: capturedItemName || 'Game Pass',
-                    thumbnail: modalImage ? modalImage.src : null
+                    thumbnail: modalImage ? modalImage.src : null,
                 };
             } else if (!isMultiItemPurchase && itemId) {
                 try {
-                    const nameElement = document.querySelector('.item-details-name-row h1, .item-name-container h1');
-                    const itemName = nameElement ? nameElement.textContent.trim() : 'Unknown Item';
-                    
+                    const nameElement = document.querySelector(
+                        '.item-details-name-row h1, .item-name-container h1',
+                    );
+                    const itemName = nameElement
+                        ? nameElement.textContent.trim()
+                        : 'Unknown Item';
+
                     let itemThumbnail = null;
                     try {
                         let thumbnailType = 'Asset';
@@ -2227,46 +2697,73 @@ const addSaveButton = (modal) => {
                         else if (isBundle) thumbnailType = 'BundleThumbnail';
 
                         const thumbnailMap = await fetchThumbnails(
-                            [{ id: parseInt(itemId) }], 
-                            thumbnailType, 
-                            '150x150'
+                            [{ id: parseInt(itemId) }],
+                            thumbnailType,
+                            '150x150',
                         );
                         const thumbData = thumbnailMap.get(parseInt(itemId));
                         if (thumbData && thumbData.state === 'Completed') {
                             itemThumbnail = thumbData.imageUrl;
                         }
                     } catch (thumbError) {
-                        console.warn('RoValra: Could not fetch item thumbnail:', thumbError);
+                        console.warn(
+                            'RoValra: Could not fetch item thumbnail:',
+                            thumbError,
+                        );
                     }
-                    
+
                     itemDetails = {
                         name: itemName,
-                        thumbnail: itemThumbnail
+                        thumbnail: itemThumbnail,
                     };
-                    
                 } catch (error) {
-                    console.warn('RoValra: Could not extract item details from page:', error);
+                    console.warn(
+                        'RoValra: Could not extract item details from page:',
+                        error,
+                    );
                 }
             }
-            
+
             const result = await new Promise((resolve) => {
                 chrome.storage.local.get('RobuxPlaceId', resolve);
             });
 
             if (!result.RobuxPlaceId) {
                 createAndShowPopup(() => {
-                    const freshPrefetch = prefetchData ? { ...prefetchData, storage: null, gameInfo: null, gameThumb: null } : null;
+                    const freshPrefetch = prefetchData
+                        ? {
+                              ...prefetchData,
+                              storage: null,
+                              gameInfo: null,
+                              gameThumb: null,
+                          }
+                        : null;
                     if (isMultiItemPurchase) {
                         executeCartPurchase(cartItems, freshPrefetch, true);
                     } else {
-                        execute40MethodPurchase(itemId, robuxPrice, isGamePass, isBundle, itemDetails, freshPrefetch, true);
+                        execute40MethodPurchase(
+                            itemId,
+                            robuxPrice,
+                            isGamePass,
+                            isBundle,
+                            itemDetails,
+                            freshPrefetch,
+                            true,
+                        );
                     }
                 });
             } else {
                 if (isMultiItemPurchase) {
                     executeCartPurchase(cartItems, prefetchData);
                 } else {
-                    execute40MethodPurchase(itemId, robuxPrice, isGamePass, isBundle, itemDetails, prefetchData);
+                    execute40MethodPurchase(
+                        itemId,
+                        robuxPrice,
+                        isGamePass,
+                        isBundle,
+                        itemDetails,
+                        prefetchData,
+                    );
                 }
             }
         });
@@ -2282,17 +2779,22 @@ const addSaveButton = (modal) => {
             `;
             wrapper.appendChild(saveButton);
 
-            const footer = modalWindow.querySelector('.modal-footer') || buttonContainer.parentElement || modalWindow;
+            const footer =
+                modalWindow.querySelector('.modal-footer') ||
+                buttonContainer.parentElement ||
+                modalWindow;
             footer.appendChild(wrapper);
         } else {
         }
     }
 };
 
-
-
 export function init() {
-    if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+    if (
+        typeof chrome !== 'undefined' &&
+        chrome.storage &&
+        chrome.storage.local
+    ) {
         chrome.storage.local.get('SaveLotsRobuxEnabled', (result) => {
             if (result.SaveLotsRobuxEnabled === true) {
                 fetchCatalogMetadata();

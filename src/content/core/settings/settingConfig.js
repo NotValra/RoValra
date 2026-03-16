@@ -771,13 +771,14 @@ export const SETTINGS_CONFIG = {
                 default: false,
                 storageKey: 'rovalra-group-funds-data',
                 childSettings: {
-                    GroupFundsId: {
-                        label: 'Community ID',
+                    GroupFundsIds: {
+                        label: 'Community IDs',
                         description:
-                            'The ID of the community to show funds for.',
-                        type: 'input',
-                        default: '',
-                        placeholder: 'Enter Group ID...',
+                            'The IDs of the communities to show funds for.',
+                        type: 'list',
+                        default: [''],
+                        addButtonText: 'Add Another Community',
+                        placeholder: 'Enter Community ID...',
                     },
                 },
             },

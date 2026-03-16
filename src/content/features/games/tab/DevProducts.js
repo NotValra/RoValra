@@ -8,6 +8,7 @@ import { createStyledInput } from '../../../core/ui/catalog/input.js';
 import { getPlaceIdFromUrl } from '../../../core/idExtractor.js';
 import { createScrollButtons } from '../../../core/ui/general/scrollButtons.js';
 import { log, logLevel } from '../../../core/logging.js';
+import { t, ts } from '../../../core/locale/i18n.js';
 
 async function fetchUniverseId(placeId) {
     const metaData = document.getElementById('game-detail-meta-data');
@@ -19,7 +20,7 @@ async function fetchUniverseId(placeId) {
         const response = await callRobloxApi({
             subdomain: 'games',
             endpoint: `/v1/games/multiget-place-details?placeIds=${placeId}`,
-            method: 'GET'
+            method: 'GET',
         });
 
         if (!response.ok) throw new Error('Failed to fetch universe ID');
@@ -37,20 +38,23 @@ async function fetchDevProducts(universeId) {
 
     try {
         do {
-            const endpoint = `/developer-products/v2/universes/${universeId}/developerproducts?limit=400` + (cursor ? `&cursor=${cursor}` : '');
+            const endpoint =
+                `/developer-products/v2/universes/${universeId}/developerproducts?limit=400` +
+                (cursor ? `&cursor=${cursor}` : '');
             const response = await callRobloxApi({
                 subdomain: 'apis',
                 endpoint: endpoint,
-                method: 'GET'
+                method: 'GET',
             });
 
-            if (!response.ok) throw new Error('Failed to fetch developer products');
+            if (!response.ok)
+                throw new Error('Failed to fetch developer products');
             const data = await response.json();
-            
+
             if (data?.developerProducts) {
                 allProducts = allProducts.concat(data.developerProducts);
             }
-            
+
             cursor = data?.nextPageCursor;
         } while (cursor);
 
@@ -71,23 +75,32 @@ async function loadAndRenderProducts(storeTab, placeId) {
     let products = [];
     let isProductsLoaded = false;
 
-    let gamePassesContainer = storeTab.querySelector('#roseal-game-passes') || storeTab.querySelector('#rbx-game-passes');
-    let passesList = gamePassesContainer ? gamePassesContainer.querySelector('ul.store-cards') : null;
-    let headerContainer = gamePassesContainer ? gamePassesContainer.querySelector('.container-header') : null;
-    let noPassesMessage = gamePassesContainer ? gamePassesContainer.querySelector('.section-content-off') : null;
+    let gamePassesContainer =
+        storeTab.querySelector('#roseal-game-passes') ||
+        storeTab.querySelector('#rbx-game-passes');
+    let passesList = gamePassesContainer
+        ? gamePassesContainer.querySelector('ul.store-cards')
+        : null;
+    let headerContainer = gamePassesContainer
+        ? gamePassesContainer.querySelector('.container-header')
+        : null;
+    let noPassesMessage = gamePassesContainer
+        ? gamePassesContainer.querySelector('.section-content-off')
+        : null;
 
     if (!gamePassesContainer) {
         gamePassesContainer = document.createElement('div');
         gamePassesContainer.id = 'rbx-game-passes';
-        gamePassesContainer.className = 'container-list game-dev-store game-passes';
-        
+        gamePassesContainer.className =
+            'container-list game-dev-store game-passes';
+
         headerContainer = document.createElement('div');
         headerContainer.className = 'container-header';
-        
+
         passesList = document.createElement('ul');
         passesList.id = 'rbx-passes-container';
         passesList.className = 'hlist store-cards gear-passes-container';
-        
+
         gamePassesContainer.appendChild(headerContainer);
         gamePassesContainer.appendChild(passesList);
         storeTab.appendChild(gamePassesContainer);
@@ -106,9 +119,9 @@ async function loadAndRenderProducts(storeTab, placeId) {
     }
 
     const devProductsList = document.createElement('ul');
-    devProductsList.className = 'hlist store-cards rovalra-dev-products-container';
+    devProductsList.className =
+        'hlist store-cards rovalra-dev-products-container';
     devProductsList.style.display = 'none';
-    
 
     const paginationContainer = document.createElement('div');
     paginationContainer.style.display = 'none';
@@ -125,8 +138,10 @@ async function loadAndRenderProducts(storeTab, placeId) {
 
     const updatePaginationControls = () => {
         paginationContainer.innerHTML = '';
-        const totalPages = Math.ceil(currentSortedItems.length / ITEMS_PER_PAGE);
-        
+        const totalPages = Math.ceil(
+            currentSortedItems.length / ITEMS_PER_PAGE,
+        );
+
         if (totalPages <= 1) return;
 
         const { leftButton, rightButton } = createScrollButtons({
@@ -141,7 +156,7 @@ async function loadAndRenderProducts(storeTab, placeId) {
                     currentPage++;
                     renderPage();
                 }
-            }
+            },
         });
 
         if (currentPage === 0) {
@@ -166,19 +181,24 @@ async function loadAndRenderProducts(storeTab, placeId) {
     const renderPage = async () => {
         const currentRenderId = ++renderId;
         devProductsList.innerHTML = '';
-        
+
         const start = currentPage * ITEMS_PER_PAGE;
         const end = start + ITEMS_PER_PAGE;
         const pageItems = currentSortedItems.slice(start, end);
 
         const cardMap = new Map();
 
-        pageItems.forEach(product => {
-            const hasIcon = product.IconImageAssetId && product.IconImageAssetId > 0;
-            let thumbnailData = hasIcon ? { state: 'Pending' } : { state: 'Broken' };
+        pageItems.forEach((product) => {
+            const hasIcon =
+                product.IconImageAssetId && product.IconImageAssetId > 0;
+            let thumbnailData = hasIcon
+                ? { state: 'Pending' }
+                : { state: 'Broken' };
 
             if (hasIcon && globalThumbnailMap.has(product.IconImageAssetId)) {
-                thumbnailData = globalThumbnailMap.get(product.IconImageAssetId);
+                thumbnailData = globalThumbnailMap.get(
+                    product.IconImageAssetId,
+                );
             }
 
             const card = createDevProductCard({
@@ -186,52 +206,61 @@ async function loadAndRenderProducts(storeTab, placeId) {
                 name: product.Name,
                 price: product.PriceInRobux,
                 thumbnail: thumbnailData,
-                universeId
+                universeId,
             });
             devProductsList.appendChild(card);
             cardMap.set(product.ProductId, card);
         });
-        
+
         updatePaginationControls();
 
-        const productsToFetch = pageItems.filter(p => 
-            p.IconImageAssetId > 0 && !globalThumbnailMap.has(p.IconImageAssetId)
+        const productsToFetch = pageItems.filter(
+            (p) =>
+                p.IconImageAssetId > 0 &&
+                !globalThumbnailMap.has(p.IconImageAssetId),
         );
 
         if (productsToFetch.length === 0) return;
 
         const thumbnailMap = await fetchThumbnails(
-            productsToFetch.map(p => ({ id: p.IconImageAssetId })),
+            productsToFetch.map((p) => ({ id: p.IconImageAssetId })),
             'Asset',
-            '150x150'
+            '150x150',
         );
 
         if (currentRenderId !== renderId) return;
 
-        productsToFetch.forEach(product => {
+        productsToFetch.forEach((product) => {
             const thumbData = thumbnailMap.get(product.IconImageAssetId);
             const oldCard = cardMap.get(product.ProductId);
-            
+
             if (thumbData) {
                 globalThumbnailMap.set(product.IconImageAssetId, thumbData);
 
-                if ((thumbData.state === 'Pending' || thumbData.state === 'InReview') && thumbData.finalUpdate) {
-                    thumbData.finalUpdate.then(finalData => {
+                if (
+                    (thumbData.state === 'Pending' ||
+                        thumbData.state === 'InReview') &&
+                    thumbData.finalUpdate
+                ) {
+                    thumbData.finalUpdate.then((finalData) => {
                         if (finalData) {
-                            globalThumbnailMap.set(product.IconImageAssetId, finalData);
+                            globalThumbnailMap.set(
+                                product.IconImageAssetId,
+                                finalData,
+                            );
                         }
                     });
                 }
 
                 if (oldCard) {
-                const newCard = createDevProductCard({
-                    id: product.ProductId,
-                    name: product.Name,
-                    price: product.PriceInRobux,
-                    thumbnail: thumbData,
-                    universeId
-                });
-                oldCard.replaceWith(newCard);
+                    const newCard = createDevProductCard({
+                        id: product.ProductId,
+                        name: product.Name,
+                        price: product.PriceInRobux,
+                        thumbnail: thumbData,
+                        universeId,
+                    });
+                    oldCard.replaceWith(newCard);
                 }
             }
         });
@@ -266,9 +295,9 @@ async function loadAndRenderProducts(storeTab, placeId) {
 
         if (trimmedSearch) {
             const terms = trimmedSearch.toLowerCase().split(/\s+/);
-            items = items.filter(p => {
+            items = items.filter((p) => {
                 const name = (p.Name || '').toLowerCase();
-                return terms.every(term => name.includes(term));
+                return terms.every((term) => name.includes(term));
             });
         }
 
@@ -303,34 +332,34 @@ async function loadAndRenderProducts(storeTab, placeId) {
 
     const sortFieldDropdown = createDropdown({
         items: [
-            { value: 'Created', label: 'Sort by Created' },
-            { value: 'Price', label: 'Sort by Price' },
-            { value: 'Updated', label: 'Sort by Updated' },
-            { value: 'Name', label: 'Sort by Name' }
+            { value: 'Created', label: ts('devProducts.sort.created') },
+            { value: 'Price', label: ts('devProducts.sort.price') },
+            { value: 'Updated', label: ts('devProducts.sort.updated') },
+            { value: 'Name', label: ts('devProducts.sort.name') },
         ],
         initialValue: 'Created',
         onValueChange: (value) => {
             currentSortField = value;
             sortProducts();
-        }
+        },
     });
 
     const sortOrderDropdown = createDropdown({
         items: [
-            { value: 'Asc', label: 'Sort Ascending' },
-            { value: 'Desc', label: 'Sort Descending' }
+            { value: 'Asc', label: ts('devProducts.order.ascending') },
+            { value: 'Desc', label: ts('devProducts.order.descending') },
         ],
         initialValue: 'Desc',
         onValueChange: (value) => {
             currentSortOrder = value;
             sortProducts();
-        }
+        },
     });
-    
+
     const searchInput = createStyledInput({
         id: 'rovalra-dev-product-search',
-        label: 'Search',
-        placeholder: ' '
+        label: ts('devProducts.search'),
+        placeholder: ' ',
     });
     searchInput.container.style.width = '250px';
     searchInput.input.addEventListener('input', (e) => {
@@ -348,32 +377,37 @@ async function loadAndRenderProducts(storeTab, placeId) {
 
     const ensureProductsLoaded = async () => {
         if (isProductsLoaded) return;
-        
-        devProductsList.innerHTML = '<div class="spinner spinner-default" style="margin: 20px auto;"></div>';
+
+        devProductsList.innerHTML =
+            '<div class="spinner spinner-default" style="margin: 20px auto;"></div>';
         devProductsList.style.display = 'flex';
         devProductsList.style.justifyContent = 'center';
-        
+
         const fetchedProducts = await fetchDevProducts(universeId);
         products = fetchedProducts || [];
         isProductsLoaded = true;
-        
+
         devProductsList.style.display = '';
         devProductsList.style.justifyContent = '';
         devProductsList.innerHTML = '';
 
         if (products.length === 0) {
-             devProductsList.innerHTML = '<div class="section-content-off">No developer products found.</div>';
-             paginationContainer.style.display = 'none';
-             filterWrapper.style.display = 'none';
+            devProductsList.innerHTML = `<div class="section-content-off">${await t(
+                'devProducts.noProducts',
+            )}</div>`;
+            paginationContainer.style.display = 'none';
+            filterWrapper.style.display = 'none';
         } else {
-             sortProducts();
-             filterWrapper.style.display = 'flex';
-             paginationContainer.style.display = 'flex';
+            sortProducts();
+            filterWrapper.style.display = 'flex';
+            paginationContainer.style.display = 'flex';
         }
     };
 
     const updateTabState = (isPasses) => {
-        const currentRosealFilters = gamePassesContainer.querySelector('.store-item-filters');
+        const currentRosealFilters = gamePassesContainer.querySelector(
+            '.store-item-filters',
+        );
 
         if (isPasses) {
             passesList.style.display = '';
@@ -384,10 +418,11 @@ async function loadAndRenderProducts(storeTab, placeId) {
             filterWrapper.style.display = 'none';
         } else {
             passesList.style.display = 'none';
-            if (currentRosealFilters) currentRosealFilters.style.display = 'none';
+            if (currentRosealFilters)
+                currentRosealFilters.style.display = 'none';
             if (noPassesMessage) noPassesMessage.style.display = 'none';
             devProductsList.style.display = '';
-            
+
             if (isProductsLoaded && products.length > 0) {
                 paginationContainer.style.display = 'flex';
                 filterWrapper.style.display = 'flex';
@@ -401,11 +436,11 @@ async function loadAndRenderProducts(storeTab, placeId) {
 
     const toggle = createPillToggle({
         options: [
-            { text: 'Passes', value: 'passes' },
-            { text: 'Developer Products', value: 'devProducts' }
+            { text: ts('devProducts.passes'), value: 'passes' },
+            { text: ts('devProducts.developerProducts'), value: 'devProducts' },
         ],
         initialValue: hasPasses ? 'passes' : 'devProducts',
-        onChange: (value) => updateTabState(value === 'passes')
+        onChange: (value) => updateTabState(value === 'passes'),
     });
 
     updateTabState(hasPasses);
@@ -430,11 +465,15 @@ export function init() {
             };
 
             checkActive();
-            observeAttributes(storeTab, (mutation) => {
-                if (mutation.attributeName === 'class') {
-                    checkActive();
-                }
-            }, ['class']);
+            observeAttributes(
+                storeTab,
+                (mutation) => {
+                    if (mutation.attributeName === 'class') {
+                        checkActive();
+                    }
+                },
+                ['class'],
+            );
         });
     });
 }

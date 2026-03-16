@@ -204,15 +204,40 @@ function refreshPillToggle() {
         return indexA - indexB;
     });
     pillToggleWrapper.innerHTML = '';
-    if (options.length === 0) return;
+    if (options.length === 0) {
+        if (accessoriesGrid) accessoriesGrid.style.display = 'none';
+        if (emotesGrid) emotesGrid.style.display = 'none';
+        if (animationsGrid) animationsGrid.style.display = 'none';
+        if (bodyPartsGrid) bodyPartsGrid.style.display = 'none';
+        return;
+    }
+
+    let initialValueForToggle;
+
+    // If user has explicitly selected a category (i.e. not the default 'items') and it's still available, respect it.
+    if (currentFilter !== 'items' && discoveredCategories.has(currentFilter)) {
+        initialValueForToggle = currentFilter;
+    } else {
+        // Otherwise, find the best available default according to the visual order.
+        const bestDefault = categoryOrder.find((cat) =>
+            discoveredCategories.has(cat),
+        );
+        if (bestDefault) {
+            initialValueForToggle = bestDefault;
+        } else if (options.length > 0) {
+            initialValueForToggle = options[0].value; // Fallback
+        } else {
+            updateTabVisibility(null);
+            return;
+        }
+    }
+
     const newPillToggle = createPillToggle({
         options: options,
-        initialValue: discoveredCategories.has(currentFilter)
-            ? currentFilter
-            : options[0].value,
+        initialValue: initialValueForToggle,
         onChange: (value) => {
             currentFilter = value;
-            updateTabVisibility();
+            updateTabVisibility(value);
             const container = document.querySelector(
                 '.rovalra-items-scroll-container',
             );
@@ -227,20 +252,19 @@ function refreshPillToggle() {
         },
     });
     pillToggleWrapper.appendChild(newPillToggle);
-    updateTabVisibility();
+    updateTabVisibility(initialValueForToggle);
 }
 
-function updateTabVisibility() {
+function updateTabVisibility(filter) {
     if (!accessoriesGrid) return;
-    accessoriesGrid.style.display = currentFilter === 'items' ? 'flex' : 'none';
+    accessoriesGrid.style.display = filter === 'items' ? 'flex' : 'none';
     if (emotesGrid)
-        emotesGrid.style.display = currentFilter === 'emotes' ? 'flex' : 'none';
+        emotesGrid.style.display = filter === 'emotes' ? 'flex' : 'none';
     if (animationsGrid)
         animationsGrid.style.display =
-            currentFilter === 'animations' ? 'flex' : 'none';
+            filter === 'animations' ? 'flex' : 'none';
     if (bodyPartsGrid) {
-        bodyPartsGrid.style.display =
-            currentFilter === 'bodyParts' ? 'flex' : 'none';
+        bodyPartsGrid.style.display = filter === 'bodyParts' ? 'flex' : 'none';
     }
     const container = accessoriesGrid.parentElement;
     if (container) container.scrollLeft = 0;

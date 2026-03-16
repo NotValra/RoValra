@@ -5,6 +5,7 @@ import { callRobloxApi } from '../../core/api.js';
 import DOMPurify from 'dompurify';
 import { launchGame } from '../../core/utils/launcher.js';
 import { log, logLevel } from '../../core/logging.js';
+import { t, ts } from '../../core/locale/i18n.js';
 
 import {
     showLoadingOverlay,
@@ -87,8 +88,8 @@ function triggerSuccess() {
         clientStatusReceived = true;
         cleanupPolling();
 
-        showLoadingOverlayResult('Have Fun!', {
-            text: 'Close',
+        showLoadingOverlayResult(ts('revertLogo.haveFun'), {
+            text: ts('revertLogo.close'),
             onClick: () => {
                 cleanupPolling();
                 closeInterface(true);
@@ -133,14 +134,16 @@ async function ensureDatacenterDataIsParsed() {
 }
 
 async function fetchGameDetails(placeId) {
-    if (!placeId) return { name: 'Roblox Experience', iconUrl: null };
+    if (!placeId)
+        return { name: await t('revertLogo.robloxExperience'), iconUrl: null };
     try {
         const detailsReq = await callRobloxApi({
             endpoint: `/v1/games/multiget-place-details?placeIds=${placeId}`,
             subdomain: 'games',
         });
         const detailsData = await detailsReq.json();
-        const name = detailsData[0]?.name || 'Unknown Experience';
+        const name =
+            detailsData[0]?.name || (await t('revertLogo.unknownExperience'));
 
         let iconUrl = null;
         try {
@@ -158,7 +161,7 @@ async function fetchGameDetails(placeId) {
 
         return { name, iconUrl };
     } catch (e) {
-        return { name: 'Roblox Experience', iconUrl: null };
+        return { name: await t('revertLogo.robloxExperience'), iconUrl: null };
     }
 }
 
@@ -222,13 +225,13 @@ const buildInfoList = (
 
     if (gameId) {
         listItems.push(
-            `<li style="white-space: nowrap;" ${liClass}><strong>ServerID:</strong> <span class="rovalra-spoiler" style="white-space: nowrap;">${gameId}</span></li>`,
+            `<li style="white-space: nowrap;" ${liClass}><strong>${ts('revertLogo.serverId')}</strong> <span class="rovalra-spoiler" style="white-space: nowrap;">${gameId}</span></li>`,
         );
     }
 
     if (isPrivateServer)
         listItems.push(
-            `<li ${liClass}>${privIcon}<strong>Private Server</strong></li>`,
+            `<li ${liClass}>${privIcon}<strong>${ts('revertLogo.privateServer')}</strong></li>`,
         );
 
     if (ownerInfo) {
@@ -237,7 +240,7 @@ const buildInfoList = (
             ? `<img src="${ownerInfo.thumbnailUrl}" style="width:16px;height:16px;border-radius:50%;margin-right:6px;vertical-align:text-bottom;" alt="Owner">`
             : `<span style="width:16px;height:16px;border-radius:50%;margin-right:6px;background-color:#555;display:inline-block;vertical-align:text-bottom;"></span>`;
         listItems.push(
-            `<li ${liClass}>${ownerIconHtml}<strong>Owner:</strong> <a href="${ownerProfileUrl}" target="_blank" style="text-decoration: underline;">${ownerInfo.displayName}</a></li>`,
+            `<li ${liClass}>${ownerIconHtml}<strong>${ts('revertLogo.owner')}</strong> <a href="${ownerProfileUrl}" target="_blank" style="text-decoration: underline;">${ownerInfo.displayName}</a></li>`,
         );
     }
 
@@ -251,7 +254,7 @@ const buildInfoList = (
 
     if (placeVersion)
         listItems.push(
-            `<li ${liClass}>${verIcon} <strong>Version:</strong> ${placeVersion}</li>`,
+            `<li ${liClass}>${verIcon} <strong>${ts('revertLogo.version')}</strong> ${placeVersion}</li>`,
         );
 
     if (serverUptime) {
@@ -268,21 +271,21 @@ const buildInfoList = (
         if (hours > 0) parts.push(`${hours}h`);
         if (minutes > 0 || parts.length === 0) parts.push(`${minutes}m`);
         listItems.push(
-            `<li ${liClass}>${timeIcon} <strong>Uptime:</strong> ${parts.join(' ')}</li>`,
+            `<li ${liClass}>${timeIcon} <strong>${ts('revertLogo.uptime')}</strong> ${parts.join(' ')}</li>`,
         );
     }
 
     if (rccVersion)
         listItems.push(
-            `<li ${liClass}>${rccIcon} <strong>RCC:</strong> ${rccVersion}</li>`,
+            `<li ${liClass}>${rccIcon} <strong>${ts('revertLogo.rcc')}</strong> ${rccVersion}</li>`,
         );
 
-    const channelText = serverChannel || 'Production';
+    const channelText = serverChannel || ts('revertLogo.production');
 
     listItems.push(`
         <li ${liClass}>
             ${channelIcon} 
-            <strong>Server Channel:</strong> 
+            <strong>${ts('revertLogo.serverChannel')}</strong> 
             <div class="rovalra-channel-wrapper">
                 <span class="rovalra-channel-truncated">${channelText}</span>
                 <span class="rovalra-channel-tooltip">${channelText}</span>
@@ -304,18 +307,22 @@ async function pollClientStatus(targetPlaceId) {
         if (!clientStatusReceived && !isDownloadOptionShown) {
             isDownloadOptionShown = true;
 
-            showLoadingOverlayResult('Launching Roblox', {
-                text: 'Download Roblox',
+            showLoadingOverlayResult(ts('revertLogo.launchingRoblox'), {
+                text: ts('revertLogo.downloadRoblox'),
                 onClick: showDownloadUI,
             });
 
             setTimeout(() => {
                 const buttons = document.querySelectorAll('button');
                 for (const btn of buttons) {
-                    if (btn.textContent.includes('Download Roblox')) {
+                    if (
+                        btn.textContent.includes(
+                            ts('revertLogo.downloadRoblox'),
+                        )
+                    ) {
                         const wrapper = document.createElement('div');
                         wrapper.innerHTML = DOMPurify.sanitize(
-                            `<button type="button" class="foundation-web-button relative clip group/interactable focus-visible:outline-focus disabled:outline-none cursor-pointer relative flex items-center justify-center stroke-none padding-y-none select-none radius-medium text-label-medium height-1000 padding-x-medium bg-action-emphasis content-action-emphasis grow" style="text-decoration: none;"><div role="presentation" class="absolute inset-[0] transition-colors group-hover/interactable:bg-[var(--color-state-hover)] group-active/interactable:bg-[var(--color-state-press)] group-disabled/interactable:bg-none"></div><span class="padding-y-xsmall text-truncate-end text-no-wrap">Download Roblox</span></button>`,
+                            `<button type="button" class="foundation-web-button relative clip group/interactable focus-visible:outline-focus disabled:outline-none cursor-pointer relative flex items-center justify-center stroke-none padding-y-none select-none radius-medium text-label-medium height-1000 padding-x-medium bg-action-emphasis content-action-emphasis grow" style="text-decoration: none;"><div role="presentation" class="absolute inset-[0] transition-colors group-hover/interactable:bg-[var(--color-state-hover)] group-active/interactable:bg-[var(--color-state-press)] group-disabled/interactable:bg-none"></div><span class="padding-y-xsmall text-truncate-end text-no-wrap">${ts('revertLogo.downloadRoblox')}</span></button>`,
                         );
                         const newBtn = wrapper.firstChild;
                         if (newBtn) {
@@ -350,7 +357,7 @@ async function pollClientStatus(targetPlaceId) {
             'position: fixed; inset: 0; z-index: 99999; display: flex; align-items: center; justify-content: center; background-color: rgba(0,0,0,0.6);';
         // Roblox download ui
         dialogWrapper.innerHTML = DOMPurify.sanitize(
-            `<div role="dialog" id="radix-0" aria-describedby="radix-2" aria-labelledby="radix-1" data-state="open" class="relative radius-large bg-surface-100 stroke-muted stroke-standard foundation-web-dialog-content shadow-transient-high install-dialog" data-size="Large" tabindex="-1" style="pointer-events: auto;"><div class="absolute foundation-web-dialog-close-container"><button type="button" class="foundation-web-close-affordance flex stroke-none bg-none cursor-pointer relative clip group/interactable focus-visible:outline-focus disabled:outline-none bg-over-media-100 padding-medium radius-circle" aria-label="Close"><div role="presentation" class="absolute inset-[0] transition-colors group-hover/interactable:bg-[var(--color-state-hover)] group-active/interactable:bg-[var(--color-state-press)] group-disabled/interactable:bg-none"></div><span role="presentation" class="grow-0 shrink-0 basis-auto icon icon-regular-x size-[var(--icon-size-large)]"></span></button></div><div class="padding-x-xlarge padding-top-xlarge padding-bottom-xlarge content-default"><div class="flex flex-col gap-xlarge padding-xlarge"><div class="flex flex-col gap-xsmall"><h2 id="radix-1" class="text-heading-medium content-emphasis padding-none">Thanks for downloading Roblox</h2><p class="text-body-large">Just follow the steps below to install Roblox. Download should start in a few seconds. If it doesn't, <a id="rovalra-restart-download" href="#" class="download-link-underline">restart the download</a>.</p></div><div></div> <div class="flex gap-xxlarge"><section class="flex flex-col gap-large grow basis-0"><h3 class="text-title-large content-emphasis padding-none">Install Instructions</h3><ol class="download-instructions-list flex flex-col gap-xlarge margin-none padding-left-large text-body-medium"><li class="padding-left-medium">Once downloaded, double-click the <b>RobloxPlayerInstaller.exe</b> file in your Downloads folder.</li><li class="padding-left-medium">Double-click the <b>RobloxPlayerInstaller</b> to install the app.</li><li class="padding-left-medium">Follow the instructions to install Roblox to your computer.</li><li class="padding-left-medium">Now that it’s installed, <a id="download-join-experience" class="download-link-underline" style="cursor: pointer;">join the experience</a>.</li></ol></section><div></div> <div class="stroke-standard stroke-default"></div><div></div> <section class="flex flex-col grow basis-0 gap-xxlarge"><div class="flex flex-col gap-small"><h3 class="text-label-large content-emphasis padding-none">Don't forget the mobile app</h3><p class="text-body-medium">Scan this code with your phone's camera to get Roblox.</p></div><div class="flex grow justify-center items-center bg-shift-100 radius-medium padding-x-large"><div class="radius-medium padding-small bg-[white]"><img class="size-2100" src="https://images.rbxcdn.com/79852c254bf43f36.webp" alt=""></div></div></section></div></div></div></div>`,
+            `<div role="dialog" id="radix-0" aria-describedby="radix-2" aria-labelledby="radix-1" data-state="open" class="relative radius-large bg-surface-100 stroke-muted stroke-standard foundation-web-dialog-content shadow-transient-high install-dialog" data-size="Large" tabindex="-1" style="pointer-events: auto;"><div class="absolute foundation-web-dialog-close-container"><button type="button" class="foundation-web-close-affordance flex stroke-none bg-none cursor-pointer relative clip group/interactable focus-visible:outline-focus disabled:outline-none bg-over-media-100 padding-medium radius-circle" aria-label="Close"><div role="presentation" class="absolute inset-[0] transition-colors group-hover/interactable:bg-[var(--color-state-hover)] group-active/interactable:bg-[var(--color-state-press)] group-disabled/interactable:bg-none"></div><span role="presentation" class="grow-0 shrink-0 basis-auto icon icon-regular-x size-[var(--icon-size-large)]"></span></button></div><div class="padding-x-xlarge padding-top-xlarge padding-bottom-xlarge content-default"><div class="flex flex-col gap-xlarge padding-xlarge"><div class="flex flex-col gap-xsmall"><h2 id="radix-1" class="text-heading-medium content-emphasis padding-none">${ts('revertLogo.thanksDownloading')}</h2><p class="text-body-large">${ts('revertLogo.downloadInstructions')}</p></div><div></div> <div class="flex gap-xxlarge"><section class="flex flex-col gap-large grow basis-0"><h3 class="text-title-large content-emphasis padding-none">${ts('revertLogo.installInstructions')}</h3><ol class="download-instructions-list flex flex-col gap-xlarge margin-none padding-left-large text-body-medium"><li class="padding-left-medium">${ts('revertLogo.step1')}</li><li class="padding-left-medium">${ts('revertLogo.step2')}</li><li class="padding-left-medium">${ts('revertLogo.step3')}</li><li class="padding-left-medium">${ts('revertLogo.step4')}</li></ol></section><div></div> <div class="stroke-standard stroke-default"></div><div></div> <section class="flex flex-col grow basis-0 gap-xxlarge"><div class="flex flex-col gap-small"><h3 class="text-label-large content-emphasis padding-none">${ts('revertLogo.mobileApp')}</h3><p class="text-body-medium">${ts('revertLogo.scanCode')}</p></div><div class="flex grow justify-center items-center bg-shift-100 radius-medium padding-x-large"><div class="radius-medium padding-small bg-[white]"><img class="size-2100" src="https://images.rbxcdn.com/79852c254bf43f36.webp" alt=""></div></div></section></div></div></div></div>`,
             { ADD_ATTR: ['id'] },
         );
 
@@ -418,7 +425,7 @@ async function pollClientStatus(targetPlaceId) {
                 unknownStatusCount = 0;
                 if (isDownloadOptionShown) {
                     isDownloadOptionShown = false;
-                    updateLoadingOverlayText('Joining Server...');
+                    updateLoadingOverlayText(ts('revertLogo.joiningServer'));
                 }
                 if (data.status === 'InGame') {
                     triggerSuccess();
@@ -587,10 +594,13 @@ function initializeJoinDialogEnhancer() {
                     );
                     placeId = urlParams.get('placeId');
                 } catch (e) {
-                    showLoadingOverlayResult('Error parsing URL', {
-                        text: 'Close',
-                        onClick: () => closeInterface(true),
-                    });
+                    showLoadingOverlayResult(
+                        await t('revertLogo.errorParsingUrl'),
+                        {
+                            text: await t('revertLogo.close'),
+                            onClick: () => closeInterface(true),
+                        },
+                    );
                     return;
                 }
 
@@ -600,13 +610,15 @@ function initializeJoinDialogEnhancer() {
                 ) {
                     const userId = urlParams.get('userId');
                     if (userId) {
-                        updateLoadingOverlayText('Finding user...');
+                        updateLoadingOverlayText(
+                            await t('revertLogo.findingUser'),
+                        );
                         placeId = await fetchUserPresence(userId);
                     }
                 }
 
                 let gameDetailsPromise = Promise.resolve({
-                    name: 'Roblox Experience',
+                    name: await t('revertLogo.robloxExperience'),
                     iconUrl: null,
                 });
                 if (placeId) {
@@ -632,7 +644,9 @@ function initializeJoinDialogEnhancer() {
                 let joinApiResponse = null;
 
                 if (settings.AlwaysGetInfo) {
-                    updateLoadingOverlayText('Fetching server info...');
+                    updateLoadingOverlayText(
+                        await t('revertLogo.fetchingServerInfo'),
+                    );
                     try {
                         await ensureDatacenterDataIsParsed();
 
@@ -716,9 +730,13 @@ function initializeJoinDialogEnhancer() {
                                     ) {
                                         showLoadingOverlayResult(
                                             data.message ||
-                                                'Cannot join: Non-root place restrictions.',
+                                                (await t(
+                                                    'revertLogo.nonRootPlaceRestrictions',
+                                                )),
                                             {
-                                                text: 'Close',
+                                                text: await t(
+                                                    'revertLogo.close',
+                                                ),
                                                 onClick: () =>
                                                     closeInterface(true),
                                             },
@@ -832,7 +850,9 @@ function initializeJoinDialogEnhancer() {
                             gameDetails.iconUrl,
                             htmlDetails,
                         );
-                        updateLoadingOverlayText(`Joining Server...`);
+                        updateLoadingOverlayText(
+                            await t('revertLogo.joiningServer'),
+                        );
                     } else {
                         if (currentGameId) {
                             serverUptime = await fetchServerUptime(
@@ -859,7 +879,9 @@ function initializeJoinDialogEnhancer() {
                             details.iconUrl,
                             htmlDetails,
                         );
-                        updateLoadingOverlayText(`Waiting for Roblox...`);
+                        updateLoadingOverlayText(
+                            await t('revertLogo.waitingForRoblox'),
+                        );
                     }
 
                     pollClientStatus(placeId);
@@ -867,7 +889,7 @@ function initializeJoinDialogEnhancer() {
                     console.error('Rendering error:', e);
                     const details = await gameDetailsPromise;
                     updateServerInfo(details.name, details.iconUrl, null);
-                    updateLoadingOverlayText(`Launching...`);
+                    updateLoadingOverlayText(await t('revertLogo.launching'));
                     pollClientStatus(placeId);
                 }
             };

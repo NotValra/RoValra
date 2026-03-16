@@ -3,12 +3,16 @@ import { createButton } from '../../../core/ui/buttons.js';
 import { getAuthenticatedUserId } from '../../../core/user.js';
 import { createOverlay } from '../../../core/ui/overlay.js';
 import { callRobloxApi } from '../../../core/api.js';
-import { fetchThumbnails, createThumbnailElement } from '../../../core/thumbnail/thumbnails.js';
+import {
+    fetchThumbnails,
+    createThumbnailElement,
+} from '../../../core/thumbnail/thumbnails.js';
 import { createScrollButtons } from '../../../core/ui/general/scrollButtons.js';
 import { addTooltip } from '../../../core/ui/tooltip.js';
 import DOMPurify from 'dompurify';
 import { showSystemAlert } from '../../../core/ui/roblox/alert.js';
 import { log, logLevel } from '../../../core/logging.js';
+import { t, ts } from '../../../core/locale/i18n.js';
 
 async function fetchAllOutfits(userId) {
     let outfits = [];
@@ -24,20 +28,20 @@ async function fetchAllOutfits(userId) {
         try {
             const response = await callRobloxApi({
                 subdomain: 'avatar',
-                endpoint: url.replace('https://avatar.roblox.com', '')
+                endpoint: url.replace('https://avatar.roblox.com', ''),
             });
-            
+
             if (!response.ok) break;
-            
+
             const result = await response.json();
             if (result.data) {
                 outfits = outfits.concat(result.data);
             }
-            
+
             paginationToken = result.paginationToken;
             hasMore = !!paginationToken;
         } catch (e) {
-            console.warn("Error fetching outfits", e);
+            console.warn(await t('quickOutfits.errorFetching'), e);
             break;
         }
     }
@@ -49,18 +53,18 @@ async function wearOutfit(outfitId) {
         let retries500 = 0;
         while (true) {
             const response = await callRobloxApi(options);
-            
+
             if (response.ok) return response;
 
             if (response.status === 429) {
-                await new Promise(r => setTimeout(r, 1000));
+                await new Promise((r) => setTimeout(r, 1000));
                 continue;
             }
 
             if (response.status >= 500) {
                 if (retries500 < 3) {
                     retries500++;
-                    await new Promise(r => setTimeout(r, 1000));
+                    await new Promise((r) => setTimeout(r, 1000));
                     continue;
                 }
             }
@@ -71,7 +75,7 @@ async function wearOutfit(outfitId) {
     try {
         const detailsRes = await callWithRetry({
             subdomain: 'avatar',
-            endpoint: `/v1/outfits/${outfitId}/details`
+            endpoint: `/v1/outfits/${outfitId}/details`,
         });
 
         if (!detailsRes.ok) return detailsRes;
@@ -80,43 +84,51 @@ async function wearOutfit(outfitId) {
         const promises = [];
 
         if (details.bodyColors) {
-            promises.push(callWithRetry({
-                subdomain: 'avatar',
-                endpoint: '/v1/avatar/set-body-colors',
-                method: 'POST',
-                body: details.bodyColors
-            }));
+            promises.push(
+                callWithRetry({
+                    subdomain: 'avatar',
+                    endpoint: '/v1/avatar/set-body-colors',
+                    method: 'POST',
+                    body: details.bodyColors,
+                }),
+            );
         }
 
         if (details.assets) {
-            promises.push(callWithRetry({
-                subdomain: 'avatar',
-                endpoint: '/v2/avatar/set-wearing-assets',
-                method: 'POST',
-                body: { assets: details.assets }
-            }));
+            promises.push(
+                callWithRetry({
+                    subdomain: 'avatar',
+                    endpoint: '/v2/avatar/set-wearing-assets',
+                    method: 'POST',
+                    body: { assets: details.assets },
+                }),
+            );
         }
 
         if (details.playerAvatarType) {
-            promises.push(callWithRetry({
-                subdomain: 'avatar',
-                endpoint: '/v1/avatar/set-player-avatar-type',
-                method: 'POST',
-                body: { playerAvatarType: details.playerAvatarType }
-            }));
+            promises.push(
+                callWithRetry({
+                    subdomain: 'avatar',
+                    endpoint: '/v1/avatar/set-player-avatar-type',
+                    method: 'POST',
+                    body: { playerAvatarType: details.playerAvatarType },
+                }),
+            );
         }
 
         if (details.scale) {
-            promises.push(callWithRetry({
-                subdomain: 'avatar',
-                endpoint: '/v1/avatar/set-scales',
-                method: 'POST',
-                body: details.scale
-            }));
+            promises.push(
+                callWithRetry({
+                    subdomain: 'avatar',
+                    endpoint: '/v1/avatar/set-scales',
+                    method: 'POST',
+                    body: details.scale,
+                }),
+            );
         }
 
         const results = await Promise.all(promises);
-        return { ok: results.every(r => r.ok) };
+        return { ok: results.every((r) => r.ok) };
     } catch (e) {
         log(logLevel.ERROR, e);
         return { ok: false };
@@ -134,10 +146,8 @@ function createOutfitCard(outfit, thumbnailData, onSuccess) {
         cursor: 'pointer',
         padding: '8px',
         borderRadius: '8px',
-        transition: 'background-color 0.2s'
+        transition: 'background-color 0.2s',
     });
-    
-
 
     const thumbContainer = document.createElement('div');
     Object.assign(thumbContainer.style, {
@@ -147,12 +157,16 @@ function createOutfitCard(outfit, thumbnailData, onSuccess) {
         overflow: 'hidden',
         marginBottom: '8px',
         backgroundColor: 'var(--rovalra-container-background-color)',
-        position: 'relative'
+        position: 'relative',
     });
-    
-    const thumb = createThumbnailElement(thumbnailData, outfit.name, '', { width: '100%', height: '100%', objectFit: 'cover' });
+
+    const thumb = createThumbnailElement(thumbnailData, outfit.name, '', {
+        width: '100%',
+        height: '100%',
+        objectFit: 'cover',
+    });
     thumbContainer.appendChild(thumb);
-    
+
     const hoverOverlay = document.createElement('div');
     Object.assign(hoverOverlay.style, {
         position: 'absolute',
@@ -163,7 +177,7 @@ function createOutfitCard(outfit, thumbnailData, onSuccess) {
         pointerEvents: 'none',
         transition: 'box-shadow 0.5s ease',
         borderRadius: '8px',
-        boxShadow: 'inset 0 0 0 rgba(0, 0, 0, 0)'
+        boxShadow: 'inset 0 0 0 rgba(0, 0, 0, 0)',
     });
     thumbContainer.appendChild(hoverOverlay);
 
@@ -177,12 +191,12 @@ function createOutfitCard(outfit, thumbnailData, onSuccess) {
         maxHeight: '2.4em',
         overflow: 'hidden',
         color: 'var(--rovalra-main-text-color)',
-        width: '100%'
+        width: '100%',
     });
 
     container.appendChild(thumbContainer);
     container.appendChild(name);
-    
+
     container.addEventListener('mouseenter', () => {
         hoverOverlay.style.boxShadow = 'inset 0 0 30px rgba(0, 0, 0, 0.3)';
         container.style.backgroundColor = 'var(rgba(0,0,0,0.05))';
@@ -194,28 +208,28 @@ function createOutfitCard(outfit, thumbnailData, onSuccess) {
 
     container.onclick = async () => {
         const originalText = name.textContent;
-        name.textContent = "Equipping...";
-        name.style.opacity = "0.7";
-        
+        name.textContent = ts('quickOutfits.equipping');
+        name.style.opacity = '0.7';
+
         try {
             const res = await wearOutfit(outfit.id);
             if (res.ok) {
-                name.textContent = "Equipped!";
-                name.style.color = "#00b06f"; 
+                name.textContent = ts('quickOutfits.equipped');
+                name.style.color = '#00b06f';
                 if (onSuccess) onSuccess();
             } else {
-                name.textContent = "Failed";
-                name.style.color = "#ff4444";
+                name.textContent = ts('quickOutfits.failed');
+                name.style.color = '#ff4444';
             }
         } catch (e) {
-            name.textContent = "Error:", log(logLevel.ERROR, e);
-            name.style.color = "#ff4444";
+            ((name.textContent = ts('quickOutfits.error')), log(logLevel.ERROR, e));
+            name.style.color = '#ff4444';
         }
-        
+
         setTimeout(() => {
             name.textContent = originalText;
-            name.style.color = "";
-            name.style.opacity = "";
+            name.style.color = '';
+            name.style.opacity = '';
         }, 2000);
     };
 
@@ -232,7 +246,7 @@ async function showQuickOutfitsOverlay() {
     const mainContainer = document.createElement('div');
     Object.assign(mainContainer.style, {
         display: 'flex',
-        flexDirection: 'column'
+        flexDirection: 'column',
     });
 
     const gridContainer = document.createElement('div');
@@ -245,9 +259,9 @@ async function showQuickOutfitsOverlay() {
         alignContent: 'flex-start',
         minHeight: '410px',
         maxWidth: '630px',
-        width: '100%'
+        width: '100%',
     });
-    
+
     const paginationContainer = document.createElement('div');
     Object.assign(paginationContainer.style, {
         display: 'flex',
@@ -255,31 +269,35 @@ async function showQuickOutfitsOverlay() {
         alignItems: 'center',
         padding: '10px',
         gap: '15px',
-        minHeight: '40px'
+        minHeight: '40px',
     });
 
     mainContainer.appendChild(gridContainer);
     mainContainer.appendChild(paginationContainer);
 
-    gridContainer.innerHTML = DOMPurify.sanitize('<div style="padding: 20px;">Loading outfits...</div>');
+    gridContainer.innerHTML = DOMPurify.sanitize(
+        `<div style="padding: 20px;">${await t('quickOutfits.loading')}</div>`,
+    );
 
     let resizeObserver;
     const { close } = createOverlay({
-        title: 'Quick Outfits',
+        title: await t('quickOutfits.title'),
         bodyContent: mainContainer,
         maxWidth: 'fit-content',
         maxHeight: '60vh',
         showLogo: true,
         onClose: () => {
             if (resizeObserver) resizeObserver.disconnect();
-        }
+        },
     });
 
     try {
         const outfits = await fetchAllOutfits(userId);
-        
+
         if (outfits.length === 0) {
-            gridContainer.innerHTML = DOMPurify.sanitize('<div style="padding: 20px;">No outfits found.</div>');
+            gridContainer.innerHTML = DOMPurify.sanitize(
+                `<div style="padding: 20px;">${await t('quickOutfits.noneFound')}</div>`,
+            );
             return;
         }
 
@@ -305,7 +323,7 @@ async function showQuickOutfitsOverlay() {
                         currentPage++;
                         renderPage();
                     }
-                }
+                },
             });
 
             if (currentPage === 0) {
@@ -331,33 +349,35 @@ async function showQuickOutfitsOverlay() {
             const end = start + itemsPerPage;
             const pageOutfits = outfits.slice(start, end);
 
-            pageOutfits.forEach(outfit => {
+            pageOutfits.forEach((outfit) => {
                 let thumbData = thumbnailMap.get(outfit.id);
                 if (!thumbData && isFetchingThumbnails) {
                     thumbData = { state: 'Pending' };
                 }
                 const card = createOutfitCard(outfit, thumbData, () => {
                     close();
-                    showSystemAlert("Successfully equipped outfit.");
+                    showSystemAlert(ts('quickOutfits.success'));
                 });
                 gridContainer.appendChild(card);
             });
-            
+
             updatePagination();
         };
 
         const calculateItemsPerPage = () => {
             const containerWidth = gridContainer.clientWidth;
             if (containerWidth <= 0) return 8;
-            
+
             const cardWidth = 140;
             const gap = 8;
-            const padding = 20; 
-            
+            const padding = 20;
+
             const availableWidth = containerWidth - padding;
-            const itemsPerRow = Math.floor((availableWidth + gap) / (cardWidth + gap));
+            const itemsPerRow = Math.floor(
+                (availableWidth + gap) / (cardWidth + gap),
+            );
             const rows = 2;
-            
+
             return Math.max(1, itemsPerRow * rows);
         };
 
@@ -368,29 +388,34 @@ async function showQuickOutfitsOverlay() {
                 itemsPerPage = newItemsPerPage;
                 totalPages = Math.ceil(outfits.length / itemsPerPage);
                 currentPage = Math.floor(firstVisibleItemIndex / itemsPerPage);
-                
-                if (currentPage >= totalPages) currentPage = Math.max(0, totalPages - 1);
-                
+
+                if (currentPage >= totalPages)
+                    currentPage = Math.max(0, totalPages - 1);
+
                 renderPage();
             }
         });
-        
+
         resizeObserver.observe(gridContainer);
 
         renderPage();
 
-        const outfitIds = outfits.map(o => ({ id: o.id }));
-        thumbnailMap = await fetchThumbnails(outfitIds, 'UserOutfit', '150x150');
+        const outfitIds = outfits.map((o) => ({ id: o.id }));
+        thumbnailMap = await fetchThumbnails(
+            outfitIds,
+            'UserOutfit',
+            '150x150',
+        );
         isFetchingThumbnails = false;
-        
-        renderPage();
 
+        renderPage();
     } catch (e) {
         log(logLevel.ERROR, e);
-        gridContainer.innerHTML = DOMPurify.sanitize('<div style="padding: 20px; color: red;">Error loading outfits.</div>');
+        gridContainer.innerHTML = DOMPurify.sanitize(
+            `<div style="padding: 20px; color: red;">${await t('quickOutfits.errorFetching')}</div>`,
+        );
     }
 }
-
 
 function addQuickOutfitsButton(container) {
     if (container.querySelector('.rovalra-quick-outfits-btn-container')) {
@@ -401,7 +426,9 @@ function addQuickOutfitsButton(container) {
     buttonContainer.className = 'rovalra-quick-outfits-btn-container';
     buttonContainer.style.marginTop = '12px';
 
-    const button = createButton('', 'secondary', { onClick: showQuickOutfitsOverlay });
+    const button = createButton('', 'secondary', {
+        onClick: showQuickOutfitsOverlay,
+    });
     button.style.width = '40px';
     button.style.height = '40px';
     button.style.minWidth = '40px';
@@ -410,23 +437,28 @@ function addQuickOutfitsButton(container) {
     button.style.alignItems = 'center';
     button.style.justifyContent = 'center';
 
-    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    svg.setAttribute("viewBox", "0 0 24 24");
-    svg.setAttribute("width", "24");
-    svg.setAttribute("height", "24");
-    svg.style.fill = "currentColor";
-    
-    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    path.setAttribute("d", "M21.6 18.2 13 11.75v-.91c1.65-.49 2.8-2.17 2.43-4.05-.26-1.31-1.3-2.4-2.61-2.7C10.54 3.57 8.5 5.3 8.5 7.5h2c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5c0 .84-.69 1.52-1.53 1.5-.54-.01-.97.45-.97.99v1.76L2.4 18.2c-.77.58-.36 1.8.6 1.8h18c.96 0 1.37-1.22.6-1.8M6 18l6-4.5 6 4.5z");
-    
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.setAttribute('width', '24');
+    svg.setAttribute('height', '24');
+    svg.style.fill = 'currentColor';
+
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute(
+        'd',
+        'M21.6 18.2 13 11.75v-.91c1.65-.49 2.8-2.17 2.43-4.05-.26-1.31-1.3-2.4-2.61-2.7C10.54 3.57 8.5 5.3 8.5 7.5h2c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5c0 .84-.69 1.52-1.53 1.5-.54-.01-.97.45-.97.99v1.76L2.4 18.2c-.77.58-.36 1.8.6 1.8h18c.96 0 1.37-1.22.6-1.8M6 18l6-4.5 6 4.5z',
+    );
+
     svg.appendChild(path);
     button.appendChild(svg);
-    
-    addTooltip(button, "Quick Outfits");
-    
+
+    addTooltip(button, ts('quickOutfits.title'));
+
     buttonContainer.appendChild(button);
 
-    const gameButtonsContainer = container.querySelector('.game-buttons-container');
+    const gameButtonsContainer = container.querySelector(
+        '.game-buttons-container',
+    );
     if (gameButtonsContainer) {
         container.insertBefore(buttonContainer, gameButtonsContainer);
     }

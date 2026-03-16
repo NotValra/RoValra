@@ -1,3 +1,4 @@
+import './patch.js';
 import { observeElement, observeResize } from '../../../core/observer.js';
 import { getUserIdFromUrl } from '../../../core/idExtractor.js';
 import {
@@ -35,7 +36,7 @@ import { log, logLevel } from '../../../core/logging.js';
 
 import * as THREE from 'three';
 FLAGS.ASSETS_PATH = chrome.runtime.getURL('assets/rbxasset/');
-FLAGS.USE_WORKERS = false;
+FLAGS.USE_WORKERS = true;
 
 let currentRig = null;
 let currentRigType = null;
@@ -56,6 +57,7 @@ let isAnimatePatched = false;
 const raycaster = new THREE.Raycaster();
 let intendedDistance = 15;
 let lastAppliedDistance = 15;
+
 function constrainCamera() {
     const controls = RBXRenderer.getRendererControls();
     const camera = RBXRenderer.getRendererCamera();
