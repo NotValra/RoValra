@@ -851,11 +851,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.type === 'OFFLOAD_RBF_MATH') {
         const [_A, _bx, _by, _bz] = request.data;
 
-        const A = _A.map((row) =>
-            row instanceof Float32Array
-                ? row
-                : new Float32Array(Object.values(row)),
-        );
+        const A = _A.map((row) => {
+            if (row instanceof Float32Array) return row;
+            if (Array.isArray(row)) return new Float32Array(row);
+            return new Float32Array(Object.values(row));
+        });
+
         const bx =
             _bx instanceof Float32Array
                 ? _bx
@@ -882,7 +883,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             result[i * 3 + 2] = wz[i];
         }
 
-        sendResponse(Array.from(result));
+        sendResponse([...result]);
     }
     return true;
 });
