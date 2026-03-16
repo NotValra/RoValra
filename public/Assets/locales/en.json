@@ -502,5 +502,19 @@
         "nonRootPlaceRestrictions": "Cannot join: Non-root place restrictions.",
         "waitingForRoblox": "Waiting for Roblox...",
         "launching": "Launching..."
+    },
+    "createRoblox": {
+        "download": "Download"
+    },
+    "priceFloor": {
+        "label": "Price Floor:",
+        "status": "This item is {{status}} the price floor{{difference}}.",
+        "statusTypes": {
+            "above": "above",
+            "below": "below",
+            "at": "at"
+        },
+        "difference": " by <span class=\"icon-robux-16x16\"></span>{{diff}}",
+        "description": "The price floor is a dynamically updating minimum price an item can be sold for."
     }
 }
