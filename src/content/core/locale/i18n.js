@@ -1,8 +1,9 @@
-import i18next from 'i18next';
+import * as ezlocale from 'ezlocale';
 
-let i18nInitialized = false;
-const i18nPromise = (async () => {
-    if (i18nInitialized) return;
+let initialized = false;
+
+const localePromise = (async () => {
+    if (initialized) return;
 
     try {
         const settings = await new Promise(
@@ -15,20 +16,24 @@ const i18nPromise = (async () => {
         ); // Verified
         const translations = await response.json();
 
-        await i18next.init({
-            lng: language,
-            debug: false,
-            resources: {
-                [language]: {
-                    translation: translations,
-                },
-            },
+        const response_EN = await fetch(
+            chrome.runtime.getURL(`public/Assets/locales/en.json`),
+        ); // Verified
+        const translations_EN = await response_EN.json();
+
+        await ezlocale.init();
+        await ezlocale.add_locale(language, translations);
+        await ezlocale.add_locale('en', translations_EN);
+        await ezlocale.config({
+            'lang.current': language,
+            'lang.fallback': 'en'
         });
-        i18nInitialized = true;
+
+        initialized = true;
     } catch (error) {
         console.error('RoValra: Failed to initialize i18n', error);
 
-        i18nInitialized = true;
+        initialized = true;
         throw error;
     }
 })();
@@ -41,8 +46,8 @@ const i18nPromise = (async () => {
  * @returns {Promise<string>} The translated string.
  */
 export async function t(key, options) {
-    await i18nPromise;
-    return i18next.t(key, options);
+    await localePromise;
+    return ezlocale.fmt_locale(key, ...options);
 }
 
 /**
@@ -53,5 +58,5 @@ export async function t(key, options) {
  * @returns {string} The translated string or the key if not available.
  */
 export function ts(key, options) {
-    return i18next.t(key, options);
+    return ezlocale.fmt_locale(key, ...options);
 }
