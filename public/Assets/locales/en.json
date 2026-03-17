@@ -523,5 +523,9 @@
         "multipleBundlesDescription": "This item is likely used as a template and is included in multiple bundles.",
         "partOfBundle": "This item is part of the [{{bundleName}}]({{bundleUrl}}) bundle",
         "viewingFromBundle": "You are currently viewing an item from a bundle."
+    },
+    "rovalraBadges": {
+        "userVerified": "User is ID verified.",
+        "userNotVerified": "User is not ID verified."
     }
 }

@@ -488,6 +488,14 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
+            idVerificationBadgeEnabled: {
+                label: 'ID Verification Badge',
+                description: [
+                    'Shows if a user has verified their ID on their profile.',
+                ],
+                type: 'checkbox',
+                default: true,
+            },
             statusBubbleEnabled: {
                 label: 'Status Bubble',
                 description: [
