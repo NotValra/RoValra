@@ -7,7 +7,7 @@ import { fetchThumbnails as fetchThumbnailsBatch } from '../../core/thumbnail/th
 import { callRobloxApi } from '../../core/api.js';
 import { safeHtml } from '../../core/packages/dompurify';
 import { createGameCard } from '../../core/ui/games/gameCard.js';
-
+import { t } from 'i18next';
 const CONFIG = {
     PAGE_SIZE: 50,
     ACCESS_FILTER: 2,
