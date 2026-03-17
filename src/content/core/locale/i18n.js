@@ -4,6 +4,7 @@ let initialized = false;
 
 const localePromise = (async () => {
     if (initialized) return;
+    initialized = true;
 
     try {
         const settings = await new Promise(
@@ -22,18 +23,16 @@ const localePromise = (async () => {
         const translations_EN = await response_EN.json();
 
         await ezlocale.init();
-        await ezlocale.add_locale(language, translations);
+        if (language != 'en')  await ezlocale.add_locale(language, translations);  // avoid readding the `en` locale
         await ezlocale.add_locale('en', translations_EN);
         await ezlocale.config({
             'lang.current': language,
             'lang.fallback': 'en'
         });
 
-        initialized = true;
     } catch (error) {
         console.error('RoValra: Failed to initialize i18n', error);
 
-        initialized = true;
         throw error;
     }
 })();
@@ -45,7 +44,7 @@ const localePromise = (async () => {
  * @param {object} [options] i18next options.
  * @returns {Promise<string>} The translated string.
  */
-export async function t(key, options) {
+export async function t(key, options = []) {
     await localePromise;
     return ezlocale.fmt_locale(key, ...options);
 }
@@ -57,6 +56,6 @@ export async function t(key, options) {
  * @param {object} [options] i18next options.
  * @returns {string} The translated string or the key if not available.
  */
-export function ts(key, options) {
+export function ts(key, options = []) {
     return ezlocale.fmt_locale(key, ...options);
 }
