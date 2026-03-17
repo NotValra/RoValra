@@ -56,15 +56,26 @@ const raycaster = new THREE.Raycaster();
 let intendedDistance = 15;
 let lastAppliedDistance = 15;
 
+let lastCameraPos = new THREE.Vector3();
+let lastTargetPos = new THREE.Vector3();
+
 function constrainCamera() {
     const controls = RBXRenderer.getRendererControls();
     const camera = RBXRenderer.getRendererCamera();
     if (!controls || !camera) return;
-    const currentCameraDistance = camera.position.distanceTo(controls.target);
 
+    if (
+        camera.position.equals(lastCameraPos) &&
+        controls.target.equals(lastTargetPos)
+    ) {
+        return;
+    }
+
+    const currentCameraDistance = camera.position.distanceTo(controls.target);
     if (Math.abs(currentCameraDistance - lastAppliedDistance) > 0.001) {
         intendedDistance = currentCameraDistance;
     }
+
     const direction = new THREE.Vector3()
         .subVectors(camera.position, controls.target)
         .normalize();
@@ -76,25 +87,22 @@ function constrainCamera() {
         RBXRenderer.scene.children,
         true,
     );
-
-    const environmentHits = intersects.filter((hit) => {
-        return hit.object.userData.isEnvironment === true;
-    });
+    const environmentHits = intersects.filter(
+        (hit) => hit.object.userData.isEnvironment === true,
+    );
 
     let finalDistance = intendedDistance;
-
     if (environmentHits.length > 0) {
-        const hitDistance = environmentHits[0].distance;
-        finalDistance = Math.max(0.1, hitDistance - 0.2);
+        finalDistance = Math.max(0.1, environmentHits[0].distance - 0.2);
     }
 
-    const newPos = new THREE.Vector3()
+    camera.position
         .copy(controls.target)
         .add(direction.multiplyScalar(finalDistance));
 
-    camera.position.copy(newPos);
-
     lastAppliedDistance = finalDistance;
+    lastCameraPos.copy(camera.position);
+    lastTargetPos.copy(controls.target);
 }
 
 function patchAnimateForRotation() {
