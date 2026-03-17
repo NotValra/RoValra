@@ -58,7 +58,6 @@ let lastAppliedDistance = 15;
 
 let lastCameraPos = new THREE.Vector3();
 let lastTargetPos = new THREE.Vector3();
-
 function constrainCamera() {
     const controls = RBXRenderer.getRendererControls();
     const camera = RBXRenderer.getRendererCamera();
@@ -192,27 +191,30 @@ async function loadRig(rigType) {
     if (rigResult instanceof RBX) {
         currentRig = rigResult.generateTree().GetChildren()[0];
         const humanoid = currentRig?.FindFirstChildOfClass('Humanoid');
+
         if (humanoid) {
             const desc = new Instance('HumanoidDescription');
             const wrapper = new HumanoidDescriptionWrapper(desc);
             wrapper.fromOutfit(outfit);
+
+            await new Promise((resolve) => setTimeout(resolve, 0));
             await wrapper.applyDescription(humanoid);
 
             await playIdle();
-
             RBXRenderer.addInstance(currentRig, null);
             currentRigType = rigType;
 
-            // If we just loaded R15, background-trigger the emote loads for this specific rig
             if (rigType === 'R15' && globalAvatarData.emotes) {
                 const animatorW = getAnimatorW(currentRig);
-                globalAvatarData.emotes.forEach((emote) => {
+                for (const emote of globalAvatarData.emotes) {
                     animatorW?.loadAvatarAnimation(
                         BigInt(emote.assetId),
                         true,
                         false,
                     );
-                });
+                    if (Math.random() > 0.5)
+                        await new Promise((r) => setTimeout(r, 0));
+                }
             }
 
             const animToPlay =
@@ -643,13 +645,14 @@ function startAnimationLoop() {
         if (delta >= interval) {
             if (currentRig) {
                 const animatorW = getAnimatorW();
-                if (animatorW) {
+                if (animatorW && animationSpeed > 0) {
                     const deltaTime = (delta / 1000) * animationSpeed;
                     animatorW.renderAnimation(deltaTime);
                     RBXRenderer.addInstance(currentRig, null);
+                } else if (animatorW) {
+                    RBXRenderer.addInstance(currentRig, null);
                 }
             }
-
             lastRenderTime = currentTime - (delta % interval);
         }
     };
@@ -665,22 +668,20 @@ async function loadCustomEnvironment(scene, config) {
         let envUrl = config.url;
 
         try {
-            // This will parse full URLs, and throw on relative paths.
             new URL(envUrl);
         } catch (e) {
-            // If it's not a valid full URL, assume it's a local path within the extension.
-            // This handles cases like "assets/model.glb".
             envUrl = chrome.runtime.getURL(envUrl);
         }
 
         loader.load(
             envUrl,
-            (gltf) => {
+            async (gltf) => {
                 const model = gltf.scene;
 
                 if (config.position) model.position.set(...config.position);
                 if (config.scale) model.scale.set(...config.scale);
 
+                let count = 0;
                 model.traverse((node) => {
                     if (node.isMesh) {
                         node.userData.isEnvironment = true;
@@ -688,6 +689,8 @@ async function loadCustomEnvironment(scene, config) {
                             node.receiveShadow = config.receiveShadow;
                         if (config.castShadow !== undefined)
                             node.castShadow = config.castShadow;
+                    }
+                    if (++count % 100 === 0) {
                     }
                 });
 
@@ -786,7 +789,6 @@ async function preloadAvatar() {
         }
 
         try {
-            // We don't wait for data to start the renderer
             const [settings, avatarData] = await Promise.all([
                 chrome.storage.local.get([
                     'profileRenderRotateEnabled',
@@ -833,36 +835,43 @@ async function preloadAvatar() {
                     subdomain: 'avatar',
                     endpoint: `/v2/avatar/users/${userId}/avatar`,
                 }),
-                (async () => {
-                    if (preloadedCanvas) return;
-                    RegisterWrappers();
-                    patchAnimateForRotation();
-                    await RBXRenderer.fullSetup(true, true);
-                    RBXRenderer.setBackgroundTransparent(true);
-                    preloadedCanvas = RBXRenderer.getRendererElement();
-                    preloadedCanvas.classList.add('rovalra-canvas');
-                    Object.assign(preloadedCanvas.style, {
-                        width: '100%',
-                        height: '100%',
-                        outline: 'none',
-                    });
-                    startAnimationLoop();
-                })(),
             ]);
 
             globalAvatarData = avatarData;
-            const scene = RBXRenderer.getScene();
-            const camera = RBXRenderer.getRendererCamera();
-            const controls = RBXRenderer.getRendererControls();
 
-            if (controls) {
-                controls.autoRotate = !!settings.profileRenderRotateEnabled;
-                controls.autoRotateSpeed = 1.0;
+            await new Promise((r) => setTimeout(r, 0));
+
+            if (!preloadedCanvas) {
+                RegisterWrappers();
+                patchAnimateForRotation();
+                await RBXRenderer.fullSetup(true, true);
+                RBXRenderer.setBackgroundTransparent(true);
+                preloadedCanvas = RBXRenderer.getRendererElement();
+                preloadedCanvas.classList.add('rovalra-canvas');
+                Object.assign(preloadedCanvas.style, {
+                    width: '100%',
+                    height: '100%',
+                    outline: 'none',
+                });
+                startAnimationLoop();
             }
 
-            const rigTask = loadRig(globalAvatarData.playerAvatarType);
+            await new Promise((r) => setTimeout(r, 10));
 
-            (async () => {
+            await loadRig(globalAvatarData.playerAvatarType);
+
+            await new Promise((r) => setTimeout(r, 0));
+
+            const setupEnvironment = async () => {
+                const scene = RBXRenderer.getScene();
+                const camera = RBXRenderer.getRendererCamera();
+                const controls = RBXRenderer.getRendererControls();
+
+                if (controls) {
+                    controls.autoRotate = !!settings.profileRenderRotateEnabled;
+                    controls.autoRotateSpeed = 1.0;
+                }
+
                 const authUserId = await getAuthenticatedUserId();
                 const isOwnProfile = String(userId) === String(authUserId);
                 const useDevEnvironment =
@@ -936,9 +945,8 @@ async function preloadAvatar() {
                         const selectedEnvFromSettings = profileEnvs.find(
                             (opt) => opt.value === profileEnvValue,
                         );
-                        if (selectedEnvFromSettings) {
+                        if (selectedEnvFromSettings)
                             envId = selectedEnvFromSettings.id;
-                        }
 
                         const currentDescription =
                             await getUserDescription(userId);
@@ -952,65 +960,45 @@ async function preloadAvatar() {
                                     envLine.trim().substring(2),
                                     10,
                                 );
-                                if (!isNaN(parsedId)) {
+                                if (!isNaN(parsedId))
                                     descriptionEnvId = parsedId;
-                                }
                             }
 
                             if (envId !== descriptionEnvId) {
                                 const lines = currentDescription.split('\n');
                                 let newDescription;
-
                                 if (envId !== 1) {
-                                    const envLine = `e:${envId}`;
+                                    const envLineStr = `e:${envId}`;
                                     let envFound = false;
                                     const newLines = [];
-
                                     for (const line of lines) {
                                         if (line.trim().startsWith('e:')) {
                                             if (!envFound) {
-                                                newLines.push(envLine);
+                                                newLines.push(envLineStr);
                                                 envFound = true;
                                             }
-                                        } else {
-                                            newLines.push(line);
-                                        }
+                                        } else newLines.push(line);
                                     }
-
                                     if (!envFound) {
-                                        const lastLineIndex =
-                                            newLines.length - 1;
-                                        if (
-                                            lastLineIndex >= 0 &&
-                                            newLines[lastLineIndex].trim() ===
-                                                ''
-                                        ) {
-                                            newLines[lastLineIndex] = envLine;
-                                        } else {
-                                            if (currentDescription.trim()) {
-                                                newLines.push(envLine);
-                                            } else {
-                                                newLines[0] = envLine;
-                                            }
-                                        }
+                                        if (currentDescription.trim())
+                                            newLines.push(envLineStr);
+                                        else newLines[0] = envLineStr;
                                     }
                                     newDescription = newLines.join('\n');
                                 } else {
-                                    // Remove environment
-                                    const newLines = lines.filter(
-                                        (line) => !line.trim().startsWith('e:'),
-                                    );
-                                    newDescription = newLines
+                                    newDescription = lines
+                                        .filter(
+                                            (line) =>
+                                                !line.trim().startsWith('e:'),
+                                        )
                                         .join('\n')
                                         .trimEnd();
                                 }
-
-                                if (newDescription !== currentDescription) {
+                                if (newDescription !== currentDescription)
                                     await updateUserDescription(
                                         userId,
                                         newDescription,
                                     );
-                                }
                             }
                         }
                     } else {
@@ -1027,9 +1015,8 @@ async function preloadAvatar() {
                                 if (
                                     !isNaN(parsedId) &&
                                     profileEnvs.some((e) => e.id === parsedId)
-                                ) {
+                                )
                                     envId = parsedId;
-                                }
                             }
                         }
                     }
@@ -1062,6 +1049,7 @@ async function preloadAvatar() {
                 );
 
                 if (isCustomEnvLoaded && environmentConfig.model) {
+                    await new Promise((r) => setTimeout(r, 0));
                     await loadCustomEnvironment(scene, environmentConfig.model);
                 }
 
@@ -1095,15 +1083,16 @@ async function preloadAvatar() {
                           : 100;
                     camera.updateProjectionMatrix();
                 }
-            })().catch((err) => {
-                console.error(
-                    'RoValra: Failed to load custom environment in background.',
-                    err,
-                );
-                setupAtmosphere(scene, DEFAULT_VOID_CONFIG.atmosphere, false);
-            });
+            };
 
-            await rigTask;
+            await setupEnvironment().catch((err) => {
+                console.error('RoValra: Background env load failed', err);
+                setupAtmosphere(
+                    RBXRenderer.getScene(),
+                    DEFAULT_VOID_CONFIG.atmosphere,
+                    false,
+                );
+            });
 
             return globalAvatarData;
         } catch (err) {
