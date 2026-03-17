@@ -59,6 +59,7 @@ let lastCameraPos = new THREE.Vector3();
 let lastTargetPos = new THREE.Vector3();
 let raycastFrameSkip = 0;
 let raycastTargets = [];
+let isRenderingPaused = false;
 function constrainCamera() {
     const controls = RBXRenderer.getRendererControls();
     const camera = RBXRenderer.getRendererCamera();
@@ -175,6 +176,9 @@ async function playEmote(emoteAssetId, loop = false, durationLimit = null) {
 // Prerendering
 async function loadRig(rigType) {
     if (!globalAvatarData) return;
+
+    isRenderingPaused = true;
+
     if (currentRig) {
         currentRig.Destroy();
         currentRig = null;
@@ -185,45 +189,54 @@ async function loadRig(rigType) {
     outfit.playerAvatarType = rigType;
 
     const rigUrl = chrome.runtime.getURL(`assets/Rig${rigType}.rbxm`);
-    const rigResult = await API.Asset.GetRBX(rigUrl, undefined);
 
-    if (rigResult instanceof RBX) {
-        currentRig = rigResult.generateTree().GetChildren()[0];
-        const humanoid = currentRig?.FindFirstChildOfClass('Humanoid');
+    try {
+        const rigResult = await API.Asset.GetRBX(rigUrl, undefined);
 
-        if (humanoid) {
-            const desc = new Instance('HumanoidDescription');
-            const wrapper = new HumanoidDescriptionWrapper(desc);
-            wrapper.fromOutfit(outfit);
+        if (rigResult instanceof RBX) {
+            await new Promise((r) => setTimeout(r, 10));
 
-            await new Promise((resolve) => setTimeout(resolve, 0));
-            await wrapper.applyDescription(humanoid);
+            currentRig = rigResult.generateTree().GetChildren()[0];
+            const humanoid = currentRig?.FindFirstChildOfClass('Humanoid');
 
-            await playIdle();
-            RBXRenderer.addInstance(currentRig, null);
-            currentRigType = rigType;
+            if (humanoid) {
+                const desc = new Instance('HumanoidDescription');
+                const wrapper = new HumanoidDescriptionWrapper(desc);
+                wrapper.fromOutfit(outfit);
 
-            if (rigType === 'R15' && globalAvatarData.emotes) {
-                const animatorW = getAnimatorW(currentRig);
-                for (const emote of globalAvatarData.emotes) {
-                    animatorW?.loadAvatarAnimation(
-                        BigInt(emote.assetId),
-                        true,
-                        false,
-                    );
-                    if (Math.random() > 0.5)
-                        await new Promise((r) => setTimeout(r, 0));
+                await new Promise((r) => requestAnimationFrame(r));
+                await wrapper.applyDescription(humanoid);
+
+                await playIdle();
+
+                RBXRenderer.addInstance(currentRig, null);
+                currentRigType = rigType;
+
+                if (rigType === 'R15' && globalAvatarData.emotes) {
+                    const animatorW = getAnimatorW(currentRig);
+                    for (const emote of globalAvatarData.emotes) {
+                        animatorW?.loadAvatarAnimation(
+                            BigInt(emote.assetId),
+                            true,
+                            false,
+                        );
+                        if (Math.random() > 0.5)
+                            await new Promise((r) => setTimeout(r, 1));
+                    }
+                }
+
+                const animToPlay =
+                    rigType === 'R6' ? savedAnimationR6 : savedAnimationR15;
+                const animatorW = getAnimatorW();
+                if (animatorW && animToPlay && animToPlay !== 'idle') {
+                    animatorW.playAnimation(animToPlay);
                 }
             }
-
-            const animToPlay =
-                rigType === 'R6' ? savedAnimationR6 : savedAnimationR15;
-            const animatorW = getAnimatorW();
-            if (animatorW && animToPlay && animToPlay !== 'idle') {
-                animatorW.playAnimation(animToPlay);
-                activeEmoteId = null;
-            }
         }
+    } catch (e) {
+        console.error('Rig Load Error:', e);
+    } finally {
+        isRenderingPaused = false;
     }
 }
 
@@ -639,6 +652,8 @@ function startAnimationLoop() {
     const animate = (currentTime) => {
         requestAnimationFrame(animate);
 
+        if (isRenderingPaused) return;
+
         const delta = currentTime - lastRenderTime;
 
         if (delta >= interval) {
@@ -648,7 +663,7 @@ function startAnimationLoop() {
                     const deltaTime = (delta / 1000) * animationSpeed;
                     animatorW.renderAnimation(deltaTime);
                     RBXRenderer.addInstance(currentRig, null);
-                } else if (animatorW) {
+                } else {
                     RBXRenderer.addInstance(currentRig, null);
                 }
             }
@@ -658,7 +673,6 @@ function startAnimationLoop() {
 
     requestAnimationFrame(animate);
 }
-
 async function loadCustomEnvironment(scene, config) {
     if (!config || !config.url) return;
 
