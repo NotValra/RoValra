@@ -14,6 +14,7 @@ import { showConfirmationPrompt } from '../../../core/ui/confirmationPrompt.js';
 import { getAuthenticatedUserId } from '../../../core/user.js';
 import { getAssets } from '../../../core/assets.js';
 import { SETTINGS_CONFIG } from '../../../core/settings/settingConfig.js';
+import { handleSaveSettings } from '../../../core/settings/handlesettings.js';
 import {
     getUserDescription,
     updateUserDescription,
@@ -393,7 +394,7 @@ function injectCustomButtons(toggleButton) {
         fontSize: '12px',
     });
 
-    settingsBtn.addEventListener('click', (e) => {
+    settingsBtn.addEventListener('click', async (e) => {
         e.stopPropagation();
         const contentContainer = document.createElement('div');
         Object.assign(contentContainer.style, {
@@ -402,6 +403,8 @@ function injectCustomButtons(toggleButton) {
             gap: '15px',
             padding: '5px',
         });
+
+        let environmentChanged = false;
 
         const animSection = document.createElement('div');
         animSection.innerHTML =
@@ -531,12 +534,85 @@ function injectCustomButtons(toggleButton) {
         updateAnimationDropdown();
         contentContainer.appendChild(animSection);
 
+        const authUserId = await getAuthenticatedUserId();
+        const userId = getUserIdFromUrl();
+        const isOwnProfile = String(userId) === String(authUserId);
+
+        if (isOwnProfile) {
+            const envSection = document.createElement('div');
+            envSection.innerHTML =
+                '<div class="text-label-small" style="margin-bottom:5px; color:var(--rovalra-secondary-text-color);">Environment</div>';
+
+            const profileEnvs =
+                SETTINGS_CONFIG.Profile.settings.profile3DRenderEnabled
+                    .childSettings.profileRenderEnvironment.options;
+
+            const settings = await chrome.storage.local.get([
+                'profileRenderEnvironment',
+            ]);
+            const currentEnv = settings.profileRenderEnvironment || 'void';
+
+            const { element: envDropdown } = createDropdown({
+                items: profileEnvs,
+                initialValue: currentEnv,
+                onValueChange: async (value) => {
+                    await handleSaveSettings('profileRenderEnvironment', value);
+                    environmentChanged = true;
+
+                    const profileEnvs =
+                        SETTINGS_CONFIG.Profile.settings.profile3DRenderEnabled
+                            .childSettings.profileRenderEnvironment.options;
+                    const selectedEnv = profileEnvs.find(
+                        (opt) => opt.value === value,
+                    );
+                    const envId = selectedEnv ? selectedEnv.id : 1;
+
+                    const currentDescription = await getUserDescription(userId);
+                    if (currentDescription !== null) {
+                        let newDescription = currentDescription
+                            .split('\n')
+                            .filter((line) => !line.trim().startsWith('e:'))
+                            .join('\n')
+                            .trim();
+
+                        if (envId !== 1) {
+                            if (newDescription) {
+                                newDescription += `\n\ne:${envId}`;
+                            } else {
+                                newDescription = `e:${envId}`;
+                            }
+                        }
+
+                        if (newDescription !== currentDescription) {
+                            await updateUserDescription(userId, newDescription);
+                        }
+                    }
+                },
+            });
+            envDropdown.style.width = '100%';
+            envSection.appendChild(envDropdown);
+
+            const helpText = document.createElement('p');
+            helpText.textContent =
+                'Saves environment choice to your about me as "e:X" so other RoValra users can see it.';
+            helpText.style.cssText =
+                'font-size: 11px; color: var(--rovalra-secondary-text-color); margin-top: 5px; margin-bottom: 0;';
+            envSection.appendChild(helpText);
+
+            contentContainer.appendChild(envSection);
+        }
+
         createOverlay({
             title: 'Render Settings',
             bodyContent: contentContainer,
             maxWidth: '400px',
             overflowVisible: true,
             showLogo: true,
+            onClose: () => {
+                if (environmentChanged) {
+                    location.reload();
+                }
+            },
         });
     });
 
