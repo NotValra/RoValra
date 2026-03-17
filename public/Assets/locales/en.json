@@ -56,7 +56,7 @@
         "loading": "Loading..."
     },
     "hiddenGroupGames": {
-        "overlayTitle": "Hidden Group Experiences (%d Total)",
+        "overlayTitle": "Hidden Group Experiences ({count} Total)",
         "noHiddenGames": "This group has no hidden experiences.",
         "buttonText": "Hidden Experiences",
         "labels": {
@@ -87,7 +87,7 @@
         "errorLoadingItems": "Could not load items.",
         "buttonText": "Show Outfits",
         "overlayTitle": "User Outfits",
-        "overlayTitleUser": "%s's Outfits",
+        "overlayTitleUser": "{{displayName}}'s Outfits",
         "noOutfits": "This user has no outfits.",
         "inventoryPrivate": "User's inventory is private.",
         "errorNoUserId": "Could not determine the User ID from the page.",
@@ -96,7 +96,7 @@
     "donationLink": {
         "donate": "Donate",
         "overlayTitle": "Pls Donate",
-        "description": "This will launch \"PLS DONATE\" where you can give an offline donation.\n\nDue to fees from Roblox (30%%) and the game (10%%), the user receives 60%% of the donated amount.\n\nUpon joining, the \"Offline Donations\" UI will appear with their username pre-filled. Simply click the gift button to open their stand and purchase a gamepass to donate.",
+        "description": "This will launch \"PLS DONATE\" where you can give an offline donation.\n\nDue to fees from Roblox (30%) and the game (10%), the user receives 60% of the donated amount.\n\nUpon joining, the \"Offline Donations\" UI will appear with their username pre-filled. Simply click the gift button to open their stand and purchase a gamepass to donate.",
         "joinButton": "Join Pls Donate",
         "goBackButton": "Go Back"
     },
@@ -114,12 +114,12 @@
         "private": "Private",
         "openInRolimons": "Open in Rolimon's",
         "thisUser": "this user",
-        "rolimonsRedirect": "You are about to be redirected to %s's profile on Rolimon's, an external website for trading and item values.<br><br>Do you want to continue?",
+        "rolimonsRedirect": "You are about to be redirected to {{username}}'s profile on Rolimon's, an external website for trading and item values.<br><br>Do you want to continue?",
         "continueToRolimons": "Continue to Rolimon's",
         "user": "User",
         "loadingItems": "Loading more items...",
         "noItemsMatch": "No items match your search.",
-        "collectiblesTitle": "%s's Collectibles (%s RAP)",
+        "collectiblesTitle": "{{displayName}}'s Collectibles ({{totalRapString}} RAP)",
         "inventoryPrivateOrNoLimiteds": "This user's inventory is private or has no limiteds.",
         "searchByName": "Search by item name"
     },
@@ -130,13 +130,13 @@
         "cancelling": "Cancelling...",
         "activating": "Activating",
         "inactivating": "Inactivating",
-        "progressText": "%s server %d of %d...",
+        "progressText": "{{actionText}} server {{current}} of {{total}}...",
         "unknownApiError": "An unknown API error occurred.",
-        "processCancelled": "Process Cancelled. <span class=\"success-text\">%d server(s) processed.</span>",
-        "completed": "Completed: <span class=\"success-text\">%d succeeded</span>, <span class=\"error-text\">%d failed</span>.",
+        "processCancelled": "Process Cancelled. <span class=\"success-text\">{{count}} server(s) processed.</span>",
+        "completed": "Completed: <span class=\"success-text\">{{successCount}} succeeded</span>, <span class=\"error-text\">{{errorCount}} failed</span>.",
         "processingComplete": "Processing Complete",
         "confirmationTitle": "Confirm Action",
-        "confirmationMessage": "You are about to set %d private server(s) as %s.",
+        "confirmationMessage": "You are about to set {{count}} private server(s) as {{action}}.",
         "confirmationJoinable": "This will make the private server joinable.",
         "confirmationUnjoinable": "This will make the private server unjoinable.",
         "confirmationReversible": "You can always change this back later.",
@@ -147,7 +147,7 @@
         "bulkActivate": "Bulk Activate",
         "setInactive": "Set Inactive",
         "setActive": "Set Active",
-        "noServersFound": "No %s private servers found.",
+        "noServersFound": "No {{status}} private servers found.",
         "byCreator": "By "
     },
     "firstAccount": {
@@ -155,7 +155,7 @@
         "yes": "Yes",
         "no": "No",
         "tooltip": "This shows if Roblox thinks your account is your first account. <br>This info comes directly from Roblox but may not be accurate.",
-        "createdDate": "First account created: %s"
+        "createdDate": "First account created: {{date}}"
     },
     "previousPrice": {
         "offSale": "Off Sale",
@@ -164,7 +164,7 @@
     "pendingRobux": {
         "tooltip": "This is an estimate of how many Robux from your pending balance will become available tomorrow, based on your transaction data. The actual amount may vary. And this may be inaccurate.",
         "loading": "Loading...",
-        "error": "Error: %s",
+        "error": "Error: {{message}}",
         "insufficientData": "Insufficient data",
         "insufficientDataTooltip": "Not enough transaction history to make an accurate estimate. Please wait for more transactions to complete.",
         "label": "Unpending Robux tomorrow"
@@ -220,7 +220,7 @@
         "pack": "Pack",
         "stipend": "Stipend",
         "errorUserId": "Could not retrieve user ID.",
-        "errorRetries": "Failed after multiple retries. Last error: %s"
+        "errorRetries": "Failed after multiple retries. Last error: {{error}}"
     },
     "settings": {
         "tabs": {
@@ -283,7 +283,7 @@
         },
         "search": {
             "minLength": "Please enter at least 2 characters to search.",
-            "noResults": "No settings found for \"%s\"."
+            "noResults": "No settings found for \"{{query}}\"."
         }
     },
     "qolToggles": {
@@ -306,13 +306,13 @@
     },
     "quickSearch": {
         "aborted": "Aborted",
-        "apiRequestFailed": "API request failed with status %s",
+        "apiRequestFailed": "API request failed with status {{status}}",
         "friendSearchError": "RoValra: Friend Search Error",
         "userSearchError": "RoValra: User Search Error",
         "gameSearchError": "RoValra: Game Search Error",
         "trustedConnection": "You are trusted connections",
         "connection": "You are connections",
-        "playing": "Playing %s",
+        "playing": "Playing {{gameName}}",
         "verifiedBadge": "Verified Badge",
         "verified": "Verified",
         "permanentlyBanned": "This user has been permanently banned",
@@ -327,7 +327,7 @@
     "regionPlayButton": {
         "ariaLabel": "Select or Join Preferred Server Region",
         "tooltip": "Join Preferred Region",
-        "tooltipWithRegion": "Join Preferred Region<br><b>%s</b>",
+        "tooltipWithRegion": "Join Preferred Region<br><b>{{regionName}}</b>",
         "tooltipBestRegion": "Join Preferred Region<br><b>Best Region (Auto)</b>"
     },
     "quickPlay": {
@@ -372,7 +372,7 @@
         "noSubplaces": "No subplaces found.",
         "failedToLoad": "Failed to load subplaces.",
         "banner": {
-            "title": "You are currently viewing a subplace of [%s](%s).",
+            "title": "You are currently viewing a subplace of [{{rootPlaceName}}]({{rootPlaceUrl}}).",
             "descriptionDefault": "Some experiences may disable joining subplaces.",
             "descriptionRestricted": "This subplace cannot be joined due to join restrictions.",
             "descriptionJoinable": "This subplace can be joined.",
@@ -393,7 +393,7 @@
         "noServersApi": "No servers found via the RoValra API.",
         "loadErrorApi": "Failed to load servers from RoValra API.",
         "join": "Join",
-        "peopleMax": "%s of %s people max",
+        "peopleMax": "{{playing}} of {{maxPlayers}} people max",
         "playerCountUnknownTooltip": "Player count is unknown, this is a Roblox limitation. The thumbnails are not representative of the people in game.",
         "playerCountUnknownLabel": "Player count unknown"
     },
@@ -402,12 +402,12 @@
         "refresh": "Refresh",
         "noneFound": "No Recent Servers Found.",
         "noActiveFound": "No active recent servers found.",
-        "lastJoined": "Last Joined: %s",
+        "lastJoined": "Last Joined: {{time}}",
         "meAlt": "Me",
-        "secondsAgo": "%ds ago",
-        "minutesAgo": "%dm ago",
-        "hoursAgo": "%dh ago",
-        "daysAgo": "%dd ago"
+        "secondsAgo": "{{count}}s ago",
+        "minutesAgo": "{{count}}m ago",
+        "hoursAgo": "{{count}}h ago",
+        "daysAgo": "{{count}}d ago"
     },
     "quickOutfits": {
         "errorFetching": "Error fetching outfits",
@@ -423,32 +423,32 @@
     },
     "botDetector": {
         "tooltip": "Bots are accounts running automated scripts to farm items. A single user can sometimes run 50+ bots. Keep in mind that this is not a fault of the game developers. This information can be inaccurate if an experience is mainly played by new Roblox accounts.",
-        "lotsOfBots": "<span style=\"color: var(--rovalra-main-text-color)\">%s</span> has a lot of bots",
-        "someBots": "<span style=\"color: var(--rovalra-main-text-color)\">%s</span> has some bots but mostly real players",
+        "lotsOfBots": "<span style=\"color: var(--rovalra-main-text-color)\">{{gameName}}</span> has a lot of bots",
+        "someBots": "<span style=\"color: var(--rovalra-main-text-color)\">{{gameName}}</span> has some bots but mostly real players",
         "thisGame": "This game"
     },
     "antiBots": {
-        "reviewMembers": "Review %d selected members:",
+        "reviewMembers": "Review {{count}} selected members:",
         "botWarning": "<strong>Warning:</strong> Ensure these are bots before taking action.",
         "banMembers": "Ban Members",
         "kickMembers": "Kick Members",
         "cancel": "Cancel",
-        "actionRequired": "Action Required (%d)",
+        "actionRequired": "Action Required ({{count}})",
         "noPermission": "You do not have permission to ban or kick members.",
-        "confirmBan": "You are about to <strong>ban %d member(s)</strong>. They will be permanently blocked.",
-        "confirmKick": "You are about to <strong>kick %d member(s)</strong>. They can rejoin anytime.",
+        "confirmBan": "You are about to <strong>ban {{count}} member(s)</strong>. They will be permanently blocked.",
+        "confirmKick": "You are about to <strong>kick {{count}} member(s)</strong>. They can rejoin anytime.",
         "banReminder": "<br><br><div class=\"rovalra-ban-warning\" style=\"margin-top:0;\"><strong>Reminder:</strong> Verify bot scores before banning.</div>",
-        "yesAction": "Yes, %d",
+        "yesAction": "Yes, {{action}}",
         "confirmAction": "Confirm Action",
-        "processing": "Processing %d of %d: %s... ETA: %ds",
-        "rateLimited": "Rate limited. Retrying in %ds...",
-        "apiError": "API Error %s",
+        "processing": "Processing {{current}} of {{total}}: {{displayName}}... ETA: {{time}}s",
+        "rateLimited": "Rate limited. Retrying in {{delay}}s...",
+        "apiError": "API Error {{status}}",
         "unknownError": "Unknown Error",
-        "processComplete": "%d of %d members were successfully %sed.",
-        "processFailed": "%d failed.",
+        "processComplete": "{{successCount}} of {{totalMembers}} members were successfully {{actionType}}ed.",
+        "processFailed": "{{failedCount}} failed.",
         "close": "Close",
-        "score": "Score: %d/100",
-        "actionCount": "Action (%d)",
+        "score": "Score: {{score}}/100",
+        "actionCount": "Action ({{count}})",
         "unselectAll": "Unselect All",
         "selectAll": "Select All",
         "antiBots": "Anti Bots",
@@ -456,12 +456,12 @@
         "quickAction": "Quick Action",
         "members": "Members",
         "loadingMembers": "Loading Members...",
-        "selectMembersForAction": "Select Members for Action (%d Loaded)",
+        "selectMembersForAction": "Select Members for Action ({{count}} Loaded)",
         "noMembersFound": "No members found.",
         "initializingScan": "Initializing Scan...",
-        "scanStatus": "Scanned: %d (%d%%) | Analyzed: %d",
+        "scanStatus": "Scanned: {{loaded}} ({{percent}}%) | Analyzed: {{processed}}",
         "finalizingAnalysis": "Finalizing analysis...",
-        "botsFound": "%d Likely Bots Found",
+        "botsFound": "{{count}} Likely Bots Found",
         "noBotsFound": "No Likely Bots Found",
         "noBotsDetected": "No bots detected.",
         "errorRetry": "Error - Retry",
@@ -470,7 +470,7 @@
         "scoreImpact": "This will select approximately <span id=\"rovalra-score-ban-count\">0</span> members.",
         "confirm": "Confirm",
         "banKickByScore": "Ban/Kick by Score",
-        "confirmCount": "Confirm (%d)"
+        "confirmCount": "Confirm ({{count}})"
     },
     "revertLogo": {
         "haveFun": "Have Fun!",
@@ -509,19 +509,19 @@
     },
     "priceFloor": {
         "label": "Price Floor:",
-        "status": "This item is %s the price floor %s.",
+        "status": "This item is {{status}} the price floor{{difference}}.",
         "statusTypes": {
             "above": "above",
             "below": "below",
             "at": "at"
         },
-        "difference": " by <span class=\"icon-robux-16x16\"></span>%s",
+        "difference": " by <span class=\"icon-robux-16x16\"></span>{{diff}}",
         "description": "The price floor is a dynamically updating minimum price an item can be sold for."
     },
     "parentItem": {
         "multipleBundles": "This item is part of multiple bundles",
         "multipleBundlesDescription": "This item is likely used as a template and is included in multiple bundles.",
-        "partOfBundle": "This item is part of the [%s](%s) bundle",
+        "partOfBundle": "This item is part of the [{{bundleName}}]({{bundleUrl}}) bundle",
         "viewingFromBundle": "You are currently viewing an item from a bundle."
     }
 }
