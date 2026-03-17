@@ -10,6 +10,7 @@ import { createSquareButton } from '../../../core/ui/profile/header/squarebutton
 import { createOverlay } from '../../../core/ui/overlay.js';
 import { createDropdown } from '../../../core/ui/dropdown.js';
 import { addTooltip } from '../../../core/ui/tooltip.js';
+import { createToggle } from '../../../core/ui/general/toggle.js';
 import { showConfirmationPrompt } from '../../../core/ui/confirmationPrompt.js';
 import { getAuthenticatedUserId } from '../../../core/user.js';
 import { getAssets } from '../../../core/assets.js';
@@ -36,7 +37,6 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import * as THREE from 'three';
 FLAGS.ASSETS_PATH = chrome.runtime.getURL('assets/rbxasset/');
 FLAGS.USE_WORKERS = true;
-
 let currentRig = null;
 let currentRigType = null;
 let emoteStopTimer = null;
@@ -538,6 +538,11 @@ function injectCustomButtons(toggleButton) {
         const userId = getUserIdFromUrl();
         const isOwnProfile = String(userId) === String(authUserId);
 
+        const settings = await chrome.storage.local.get([
+            'profileRenderEnvironment',
+            'rendererDeveloperToggles',
+        ]);
+
         if (isOwnProfile) {
             const envSection = document.createElement('div');
             envSection.innerHTML =
@@ -547,9 +552,6 @@ function injectCustomButtons(toggleButton) {
                 SETTINGS_CONFIG.Profile.settings.profile3DRenderEnabled
                     .childSettings.profileRenderEnvironment.options;
 
-            const settings = await chrome.storage.local.get([
-                'profileRenderEnvironment',
-            ]);
             const currentEnv = settings.profileRenderEnvironment || 'void';
 
             const { element: envDropdown } = createDropdown({
@@ -600,6 +602,37 @@ function injectCustomButtons(toggleButton) {
             envSection.appendChild(helpText);
 
             contentContainer.appendChild(envSection);
+        }
+
+        if (settings.rendererDeveloperToggles) {
+            const devSection = document.createElement('div');
+            devSection.innerHTML =
+                '<div class="text-label-small" style="margin-bottom:5px; color:var(--rovalra-secondary-text-color);">Developer</div>';
+
+            const skeletonRow = document.createElement('div');
+            Object.assign(skeletonRow.style, {
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+            });
+
+            const label = document.createElement('span');
+            label.textContent = 'Show Skeleton Helper';
+            label.className = 'text-label-small';
+            label.style.color = 'var(--rovalra-main-text-color)';
+
+            const toggle = createToggle({
+                checked: FLAGS.SHOW_SKELETON_HELPER,
+                onChange: (checked) => {
+                    FLAGS.SHOW_SKELETON_HELPER = checked;
+                    loadRig(currentRigType);
+                },
+            });
+
+            skeletonRow.appendChild(label);
+            skeletonRow.appendChild(toggle);
+            devSection.appendChild(skeletonRow);
+            contentContainer.appendChild(devSection);
         }
 
         createOverlay({

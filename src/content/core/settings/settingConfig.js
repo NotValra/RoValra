@@ -1244,6 +1244,11 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: false,
             },
+            rendererDeveloperToggles: {
+                label: '3D renderer Developer toggles',
+                type: 'checkbox',
+                default: false,
+            },
             environmentTester: {
                 label: 'Environment Tester',
                 description: [
