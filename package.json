@@ -22,7 +22,7 @@
         "dompurify": "^3.3.2",
         "marked": "^17.0.4",
         "roavatar-renderer": "1.2.0",
-        "ezlocale": "^1.1.2"
+        "i18next": "25.8.18"
     },
     "lint-staged": {
         "*.js": "eslint --fix",
