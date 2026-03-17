@@ -55,13 +55,14 @@ let isAnimatePatched = false;
 const raycaster = new THREE.Raycaster();
 let intendedDistance = 15;
 let lastAppliedDistance = 15;
-
 let lastCameraPos = new THREE.Vector3();
 let lastTargetPos = new THREE.Vector3();
+let raycastFrameSkip = 0;
+let raycastTargets = [];
 function constrainCamera() {
     const controls = RBXRenderer.getRendererControls();
     const camera = RBXRenderer.getRendererCamera();
-    if (!controls || !camera) return;
+    if (!controls || !camera || raycastTargets.length === 0) return;
 
     if (
         camera.position.equals(lastCameraPos) &&
@@ -69,6 +70,10 @@ function constrainCamera() {
     ) {
         return;
     }
+
+    // runs the math stuff every second frame, actually reduces cpu by 50%
+    raycastFrameSkip++;
+    if (raycastFrameSkip % 2 !== 0) return;
 
     const currentCameraDistance = camera.position.distanceTo(controls.target);
     if (Math.abs(currentCameraDistance - lastAppliedDistance) > 0.001) {
@@ -82,17 +87,11 @@ function constrainCamera() {
     raycaster.set(controls.target, direction);
     raycaster.far = intendedDistance;
 
-    const intersects = raycaster.intersectObjects(
-        RBXRenderer.scene.children,
-        true,
-    );
-    const environmentHits = intersects.filter(
-        (hit) => hit.object.userData.isEnvironment === true,
-    );
+    const intersects = raycaster.intersectObjects(raycastTargets, false);
 
     let finalDistance = intendedDistance;
-    if (environmentHits.length > 0) {
-        finalDistance = Math.max(0.1, environmentHits[0].distance - 0.2);
+    if (intersects.length > 0) {
+        finalDistance = Math.max(0.1, intersects[0].distance - 0.2);
     }
 
     camera.position
@@ -330,7 +329,7 @@ function injectCustomButtons(toggleButton) {
         alignItems: 'center',
         position: 'absolute',
         bottom: '0px',
-        right: '800px', // Moves it all the way to the left
+        right: '800px',
         zIndex: '100',
         pointerEvents: 'auto',
     });
@@ -678,29 +677,45 @@ async function loadCustomEnvironment(scene, config) {
             async (gltf) => {
                 const model = gltf.scene;
 
+                raycastTargets = [];
+
                 if (config.position) model.position.set(...config.position);
                 if (config.scale) model.scale.set(...config.scale);
 
-                let count = 0;
                 model.traverse((node) => {
                     if (node.isMesh) {
                         node.userData.isEnvironment = true;
+
                         if (config.receiveShadow !== undefined)
                             node.receiveShadow = config.receiveShadow;
                         if (config.castShadow !== undefined)
                             node.castShadow = config.castShadow;
-                    }
-                    if (++count % 100 === 0) {
+
+                        node.matrixAutoUpdate = false;
+                        node.updateMatrix();
+
+                        raycastTargets.push(node);
                     }
                 });
 
                 scene.add(model);
-                if (RBXRenderer.plane) RBXRenderer.plane.visible = false;
+
+                if (RBXRenderer.plane) {
+                    RBXRenderer.plane.visible = false;
+                }
+
+                if (RBXRenderer.shadowPlane) {
+                    RBXRenderer.shadowPlane.visible = false;
+                }
+
                 isCustomEnvLoaded = true;
                 resolve();
             },
             undefined,
-            reject,
+            (error) => {
+                console.error('RoValra: GLTF Load Error', error);
+                reject(error);
+            },
         );
     });
 }
@@ -713,7 +728,9 @@ function setupAtmosphere(scene, config, isCustomEnv = false) {
     } else {
         scene.background = null;
     }
-
+    if (!isCustomEnv && RBXRenderer.plane) {
+        raycastTargets = [RBXRenderer.plane];
+    }
     scene.children
         .filter((obj) => obj.isLight)
         .forEach((light) => scene.remove(light));
