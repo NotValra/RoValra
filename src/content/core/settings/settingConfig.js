@@ -428,11 +428,6 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
-                storageKey: [
-                    'profileRenderAnimationR6',
-                    'profileRenderAnimationR15',
-                    'profileRenderAnimationSpeed',
-                ],
                 childSettings: {
                     profileRenderEnvironment: {
                         label: '3D Profile Environment',

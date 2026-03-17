@@ -47,9 +47,7 @@ let isCustomEnvLoaded = false;
 let environmentConfig = null;
 
 let activeEmoteId = null;
-let animationSpeed = 1;
-let savedAnimationR6 = 'idle';
-let savedAnimationR15 = 'idle';
+const animationSpeed = 1;
 
 let isAnimatePatched = false;
 const raycaster = new THREE.Raycaster();
@@ -223,13 +221,6 @@ async function loadRig(rigType) {
                         if (Math.random() > 0.5)
                             await new Promise((r) => setTimeout(r, 1));
                     }
-                }
-
-                const animToPlay =
-                    rigType === 'R6' ? savedAnimationR6 : savedAnimationR15;
-                const animatorW = getAnimatorW();
-                if (animatorW && animToPlay && animToPlay !== 'idle') {
-                    animatorW.playAnimation(animToPlay);
                 }
             }
         }
@@ -496,10 +487,7 @@ function injectCustomButtons(toggleButton) {
             }
             const { element: dropdownElement } = createDropdown({
                 items: [{ label: 'Idle', value: 'idle' }, ...animItems],
-                initialValue:
-                    (currentRigType === 'R6'
-                        ? savedAnimationR6
-                        : savedAnimationR15) || 'idle',
+                initialValue: 'idle',
                 onValueChange: (value) => {
                     const animatorW = getAnimatorW();
                     if (animatorW) {
@@ -508,17 +496,6 @@ function injectCustomButtons(toggleButton) {
                             animatorW.playAnimation(value);
                             activeEmoteId = null;
                         }
-                    }
-                    if (currentRigType === 'R6') {
-                        savedAnimationR6 = value;
-                        chrome.storage.local.set({
-                            profileRenderAnimationR6: value,
-                        });
-                    } else {
-                        savedAnimationR15 = value;
-                        chrome.storage.local.set({
-                            profileRenderAnimationR15: value,
-                        });
                     }
                 },
             });
@@ -553,52 +530,6 @@ function injectCustomButtons(toggleButton) {
         contentContainer.appendChild(rigSection);
         updateAnimationDropdown();
         contentContainer.appendChild(animSection);
-
-        const speedSection = document.createElement('div');
-        speedSection.innerHTML =
-            '<div class="text-label-small" style="margin-bottom:5px; color:var(--rovalra-secondary-text-color);">Animation Speed</div>';
-
-        const speedSliderWrapper = document.createElement('div');
-        speedSliderWrapper.style.display = 'flex';
-        speedSliderWrapper.style.alignItems = 'center';
-        speedSliderWrapper.style.gap = '10px';
-
-        const speedSlider = document.createElement('input');
-        speedSlider.type = 'range';
-        speedSlider.min = 0;
-        speedSlider.max = 2;
-        speedSlider.step = 0.1;
-        speedSlider.style.flexGrow = '1';
-
-        const speedValueDisplay = document.createElement('span');
-        speedValueDisplay.style.minWidth = '40px';
-        speedValueDisplay.style.textAlign = 'right';
-
-        speedSlider.addEventListener('input', () => {
-            const newSpeed = parseFloat(speedSlider.value);
-            speedValueDisplay.textContent = `${newSpeed.toFixed(1)}x`;
-        });
-
-        speedSlider.addEventListener('change', () => {
-            const newSpeed = parseFloat(speedSlider.value);
-            chrome.storage.local.set({ profileRenderAnimationSpeed: newSpeed });
-        });
-
-        chrome.storage.local.get(
-            { profileRenderAnimationSpeed: 1 },
-            (settings) => {
-                const initialSpeed = parseFloat(
-                    settings.profileRenderAnimationSpeed ?? 1,
-                );
-                speedSlider.value = initialSpeed;
-                speedValueDisplay.textContent = `${initialSpeed.toFixed(1)}x`;
-            },
-        );
-
-        speedSliderWrapper.appendChild(speedSlider);
-        speedSliderWrapper.appendChild(speedValueDisplay);
-        speedSection.appendChild(speedSliderWrapper);
-        contentContainer.appendChild(speedSection);
 
         createOverlay({
             title: 'Render Settings',
@@ -1177,46 +1108,6 @@ async function attachPreloadedAvatar(container) {
 export function init() {
     chrome.storage.local.get({ profile3DRenderEnabled: true }, (result) => {
         if (result.profile3DRenderEnabled) {
-            chrome.storage.onChanged.addListener((changes, area) => {
-                if (area === 'local') {
-                    if (changes.profileRenderAnimationSpeed) {
-                        try {
-                            const newSpeed = parseFloat(
-                                changes.profileRenderAnimationSpeed.newValue,
-                            );
-                            animationSpeed = isNaN(newSpeed) ? 1 : newSpeed;
-                        } catch (e) {
-                            animationSpeed = 1;
-                        }
-                    }
-                    if (changes.profileRenderAnimationR6) {
-                        savedAnimationR6 =
-                            changes.profileRenderAnimationR6.newValue || 'idle';
-                    }
-                    if (changes.profileRenderAnimationR15) {
-                        savedAnimationR15 =
-                            changes.profileRenderAnimationR15.newValue ||
-                            'idle';
-                    }
-                }
-            });
-            chrome.storage.local.get(
-                {
-                    profileRenderAnimationSpeed: 1,
-                    profileRenderAnimationR6: 'idle',
-                    profileRenderAnimationR15: 'idle',
-                },
-                (settings) => {
-                    const initialSpeed = parseFloat(
-                        settings.profileRenderAnimationSpeed ?? 1,
-                    );
-                    animationSpeed = isNaN(initialSpeed) ? 1 : initialSpeed;
-                    savedAnimationR6 =
-                        settings.profileRenderAnimationR6 || 'idle';
-                    savedAnimationR15 =
-                        settings.profileRenderAnimationR15 || 'idle';
-                },
-            );
             const avatarPromise = preloadAvatar();
             injectStylesheet(
                 'css/thumbnailholder.css',
