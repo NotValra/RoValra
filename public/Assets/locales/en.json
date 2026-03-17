@@ -459,7 +459,7 @@
         "selectMembersForAction": "Select Members for Action (%d Loaded)",
         "noMembersFound": "No members found.",
         "initializingScan": "Initializing Scan...",
-        "scanStatus": "Scanned: {%d (%d%%) | Analyzed: %d",
+        "scanStatus": "Scanned: %d (%d%%) | Analyzed: %d",
         "finalizingAnalysis": "Finalizing analysis...",
         "botsFound": "%d Likely Bots Found",
         "noBotsFound": "No Likely Bots Found",
