@@ -8,7 +8,7 @@ import { callRobloxApi } from '../../core/api.js';
 import { safeHtml } from '../../core/packages/dompurify';
 import { createGameCard } from '../../core/ui/games/gameCard.js';
 import { log, logLevel } from '../../core/logging.js';
-import { t } from 'i18next';
+import { t } from '../../core/locale/i18n.js';
 
 const CONFIG = {
     PAGE_SIZE: 50,

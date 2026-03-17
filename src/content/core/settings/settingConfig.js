@@ -428,11 +428,6 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
-                storageKey: [
-                    'profileRenderAnimationR6',
-                    'profileRenderAnimationR15',
-                    'profileRenderAnimationSpeed',
-                ],
                 childSettings: {
                     profileRenderEnvironment: {
                         label: '3D Profile Environment',
@@ -1246,6 +1241,11 @@ export const SETTINGS_CONFIG = {
                 description: [
                     "When enabled, shows the review popup every time it's triggered, ignoring all requirements. For testing purposes.",
                 ],
+                type: 'checkbox',
+                default: false,
+            },
+            rendererDeveloperToggles: {
+                label: '3D renderer Developer toggles',
                 type: 'checkbox',
                 default: false,
             },

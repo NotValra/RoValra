@@ -10,10 +10,12 @@ import { createSquareButton } from '../../../core/ui/profile/header/squarebutton
 import { createOverlay } from '../../../core/ui/overlay.js';
 import { createDropdown } from '../../../core/ui/dropdown.js';
 import { addTooltip } from '../../../core/ui/tooltip.js';
+import { createToggle } from '../../../core/ui/general/toggle.js';
 import { showConfirmationPrompt } from '../../../core/ui/confirmationPrompt.js';
 import { getAuthenticatedUserId } from '../../../core/user.js';
 import { getAssets } from '../../../core/assets.js';
 import { SETTINGS_CONFIG } from '../../../core/settings/settingConfig.js';
+import { handleSaveSettings } from '../../../core/settings/handlesettings.js';
 import {
     getUserDescription,
     updateUserDescription,
@@ -28,6 +30,7 @@ import {
     API,
     FLAGS,
     AnimatorWrapper,
+    AnimationTrack,
     animNamesR15,
     animNamesR6,
 } from 'roavatar-renderer';
@@ -37,7 +40,6 @@ import { log, logLevel } from '../../../core/logging.js';
 import * as THREE from 'three';
 FLAGS.ASSETS_PATH = chrome.runtime.getURL('assets/rbxasset/');
 FLAGS.USE_WORKERS = true;
-
 let currentRig = null;
 let currentRigType = null;
 let emoteStopTimer = null;
@@ -49,9 +51,7 @@ let isCustomEnvLoaded = false;
 let environmentConfig = null;
 
 let activeEmoteId = null;
-let animationSpeed = 1;
-let savedAnimationR6 = 'idle';
-let savedAnimationR15 = 'idle';
+const animationSpeed = 1;
 
 let isAnimatePatched = false;
 const raycaster = new THREE.Raycaster();
@@ -62,6 +62,9 @@ let lastTargetPos = new THREE.Vector3();
 let raycastFrameSkip = 0;
 let raycastTargets = [];
 let isRenderingPaused = false;
+let currentDirectTrack = null;
+let directEmoteTimer = null;
+
 function constrainCamera() {
     const controls = RBXRenderer.getRendererControls();
     const camera = RBXRenderer.getRendererCamera();
@@ -146,10 +149,8 @@ async function playIdle() {
 }
 
 async function playEmote(emoteAssetId, loop = false, durationLimit = null) {
-    if (!currentRig || currentRigType !== 'R15') {
-        console.warn('Emotes are only supported on R15 rigs.');
-        return false;
-    }
+    if (!currentRig) return false;
+
     if (emoteStopTimer) clearTimeout(emoteStopTimer);
 
     const animatorW = getAnimatorW();
@@ -226,13 +227,6 @@ async function loadRig(rigType) {
                             await new Promise((r) => setTimeout(r, 1));
                     }
                 }
-
-                const animToPlay =
-                    rigType === 'R6' ? savedAnimationR6 : savedAnimationR15;
-                const animatorW = getAnimatorW();
-                if (animatorW && animToPlay && animToPlay !== 'idle') {
-                    animatorW.playAnimation(animToPlay);
-                }
             }
         }
     } catch (e) {
@@ -241,7 +235,92 @@ async function loadRig(rigType) {
         isRenderingPaused = false;
     }
 }
+async function playDirectAnimation(
+    animationId,
+    loop = false,
+    durationLimit = 5,
+) {
+    if (!currentRig) return;
 
+    if (directEmoteTimer) clearTimeout(directEmoteTimer);
+
+    if (currentDirectTrack) {
+        currentDirectTrack.Stop();
+    }
+
+    try {
+        const url = `https://assetdelivery.roblox.com/v1/asset/?id=${animationId}`;
+        const assetResult = await API.Asset.GetRBX(url, undefined);
+
+        let root;
+        try {
+            root = assetResult.generateTree();
+        } catch (e) {
+            root = assetResult;
+        }
+
+        let animInstance = root.GetChildren()[0];
+        if (animInstance.className !== 'KeyframeSequence') {
+            animInstance =
+                animInstance.FindFirstChildOfClass('KeyframeSequence');
+        }
+        if (!animInstance) return;
+
+        let maxTime = 0;
+        animInstance.GetChildren().forEach((kf) => {
+            if (kf.className === 'Keyframe') {
+                const time = kf.Prop('Time') || 0;
+                if (time > maxTime) maxTime = time;
+
+                const poses = kf.GetChildren();
+                const hrpPose = poses.find(
+                    (p) => p.Prop('Name') === 'HumanoidRootPart',
+                );
+                const torsoPose = poses.find((p) => p.Prop('Name') === 'Torso');
+
+                if (torsoPose) {
+                    poses.forEach((p) => {
+                        if (
+                            p.className === 'Pose' &&
+                            p !== torsoPose &&
+                            p !== hrpPose
+                        ) {
+                            p.parent = torsoPose;
+                        }
+                    });
+                }
+            }
+        });
+
+        const track = new AnimationTrack();
+        track.loadAnimation(currentRig, animInstance);
+        track.length = maxTime;
+        track.looped = loop;
+        track.shouldUpdateMotors = true;
+
+        track.Play(1, 1);
+
+        currentDirectTrack = track;
+        activeEmoteId = animationId;
+
+        if (loop && durationLimit) {
+            directEmoteTimer = setTimeout(() => {
+                if (currentDirectTrack === track) {
+                    currentDirectTrack.Stop(0);
+                    const animatorW = getAnimatorW();
+                    if (animatorW) {
+                        animatorW.playAnimation('idle', 0);
+                    }
+                    currentDirectTrack = null;
+                    activeEmoteId = null;
+                    directEmoteTimer = null;
+                }
+            }, durationLimit * 1000);
+        }
+    } catch (e) {
+        console.error('Direct Animation Error:', e);
+    }
+}
 // Emote menu
 async function createEmoteRadialMenu(emotesData, onSelect) {
     injectStylesheet('css/profileRender.css', 'rovalra-profile-render-css');
@@ -350,10 +429,27 @@ function injectCustomButtons(toggleButton) {
     });
 
     toggleButton.style.overflow = 'visible';
-
     const assets = getAssets();
 
-    if (globalAvatarData.emotes?.length > 0) {
+    // in reality it is animation ids, but we do take care of that
+    const R6_DEFAULT_EMOTES = [
+        { assetId: 128777973, assetName: 'Wave', position: 1, loop: false },
+        { assetId: 128853357, assetName: 'Point', position: 2, loop: false },
+        { assetId: 182435998, assetName: 'Dance 1', position: 3, loop: true },
+        { assetId: 182436842, assetName: 'Dance 2', position: 4, loop: true },
+        { assetId: 182436935, assetName: 'Dance 3', position: 5, loop: true },
+        { assetId: 129423131, assetName: 'Laugh', position: 6, loop: false },
+        { assetId: 129423030, assetName: 'Cheer', position: 7, loop: false },
+    ];
+
+    let emotesToShow = [];
+    if (currentRigType === 'R6') {
+        emotesToShow = R6_DEFAULT_EMOTES;
+    } else if (globalAvatarData.emotes?.length > 0) {
+        emotesToShow = globalAvatarData.emotes;
+    }
+
+    if (emotesToShow.length > 0) {
         const emoteIconContainer = document.createElement('div');
         emoteIconContainer.innerHTML = decodeURIComponent(
             assets.Emotes.split(',')[1],
@@ -368,15 +464,33 @@ function injectCustomButtons(toggleButton) {
             width: 'auto',
             fontSize: '12px',
         });
+
         emoteBtn.addEventListener('click', async (e) => {
             e.stopPropagation();
+
+            let emotesToShow = [];
+            if (currentRigType === 'R6') {
+                emotesToShow = R6_DEFAULT_EMOTES;
+            } else if (globalAvatarData.emotes?.length > 0) {
+                emotesToShow = globalAvatarData.emotes;
+            }
+
+            if (emotesToShow.length === 0) {
+                return;
+            }
+
             const radialContent = await createEmoteRadialMenu(
-                globalAvatarData.emotes,
+                emotesToShow,
                 async (emote) => {
-                    await playEmote(emote.assetId, false, 10);
+                    if (currentRigType === 'R6') {
+                        await playDirectAnimation(emote.assetId, emote.loop, 5);
+                    } else {
+                        await playEmote(emote.assetId, false, 10);
+                    }
                     overlayHandle.close();
                 },
             );
+
             const overlayHandle = createOverlay({
                 title: 'Emotes',
                 bodyContent: radialContent,
@@ -386,13 +500,14 @@ function injectCustomButtons(toggleButton) {
                 onClose: () => removeStylesheet('rovalra-profile-render-css'),
             });
         });
+
         controlsWrapper.appendChild(emoteBtn);
     }
 
     const settingsIconContainer = document.createElement('div');
     settingsIconContainer.innerHTML = decodeURIComponent(
         assets.settings.split(',')[1],
-    ); // verified
+    ); //Verified
     const settingsIcon = settingsIconContainer.querySelector('svg');
     settingsIcon.style.width = '24px';
     settingsIcon.style.height = '24px';
@@ -404,7 +519,7 @@ function injectCustomButtons(toggleButton) {
         fontSize: '12px',
     });
 
-    settingsBtn.addEventListener('click', (e) => {
+    settingsBtn.addEventListener('click', async (e) => {
         e.stopPropagation();
         const contentContainer = document.createElement('div');
         Object.assign(contentContainer.style, {
@@ -413,6 +528,8 @@ function injectCustomButtons(toggleButton) {
             gap: '15px',
             padding: '5px',
         });
+
+        let environmentChanged = false;
 
         const animSection = document.createElement('div');
         animSection.innerHTML =
@@ -452,14 +569,12 @@ function injectCustomButtons(toggleButton) {
                     })
                     .filter(Boolean);
             } else {
-                // R15
                 const defaultAnims = animNamesR15;
                 const animAssets = globalAvatarData.assets.filter((a) =>
                     a.assetType.name.includes('Animation'),
                 );
                 const animItemsMap = new Map();
 
-                // Add default R15 animations
                 Object.keys(defaultAnims).forEach((animName) => {
                     if (
                         !excludedAnims.includes(animName) &&
@@ -474,7 +589,6 @@ function injectCustomButtons(toggleButton) {
                     }
                 });
 
-                // Add users equipped animations, which may override defaults
                 animAssets.forEach((asset) => {
                     const animName = String(
                         asset.assetType.name
@@ -498,10 +612,7 @@ function injectCustomButtons(toggleButton) {
             }
             const { element: dropdownElement } = createDropdown({
                 items: [{ label: 'Idle', value: 'idle' }, ...animItems],
-                initialValue:
-                    (currentRigType === 'R6'
-                        ? savedAnimationR6
-                        : savedAnimationR15) || 'idle',
+                initialValue: 'idle',
                 onValueChange: (value) => {
                     const animatorW = getAnimatorW();
                     if (animatorW) {
@@ -510,17 +621,6 @@ function injectCustomButtons(toggleButton) {
                             animatorW.playAnimation(value);
                             activeEmoteId = null;
                         }
-                    }
-                    if (currentRigType === 'R6') {
-                        savedAnimationR6 = value;
-                        chrome.storage.local.set({
-                            profileRenderAnimationR6: value,
-                        });
-                    } else {
-                        savedAnimationR15 = value;
-                        chrome.storage.local.set({
-                            profileRenderAnimationR15: value,
-                        });
                     }
                 },
             });
@@ -556,51 +656,88 @@ function injectCustomButtons(toggleButton) {
         updateAnimationDropdown();
         contentContainer.appendChild(animSection);
 
-        const speedSection = document.createElement('div');
-        speedSection.innerHTML =
-            '<div class="text-label-small" style="margin-bottom:5px; color:var(--rovalra-secondary-text-color);">Animation Speed</div>';
+        const authUserId = await getAuthenticatedUserId();
+        const userId = getUserIdFromUrl();
+        const isOwnProfile = String(userId) === String(authUserId);
+        const settings = await chrome.storage.local.get([
+            'profileRenderEnvironment',
+            'rendererDeveloperToggles',
+        ]);
 
-        const speedSliderWrapper = document.createElement('div');
-        speedSliderWrapper.style.display = 'flex';
-        speedSliderWrapper.style.alignItems = 'center';
-        speedSliderWrapper.style.gap = '10px';
+        if (isOwnProfile) {
+            const envSection = document.createElement('div');
+            envSection.innerHTML =
+                '<div class="text-label-small" style="margin-bottom:5px; color:var(--rovalra-secondary-text-color);">Environment</div>';
+            const profileEnvs =
+                SETTINGS_CONFIG.Profile.settings.profile3DRenderEnabled
+                    .childSettings.profileRenderEnvironment.options;
+            const currentEnv = settings.profileRenderEnvironment || 'void';
 
-        const speedSlider = document.createElement('input');
-        speedSlider.type = 'range';
-        speedSlider.min = 0;
-        speedSlider.max = 2;
-        speedSlider.step = 0.1;
-        speedSlider.style.flexGrow = '1';
+            const { element: envDropdown } = createDropdown({
+                items: profileEnvs,
+                initialValue: currentEnv,
+                onValueChange: async (value) => {
+                    await handleSaveSettings('profileRenderEnvironment', value);
+                    environmentChanged = true;
+                    const selectedEnv = profileEnvs.find(
+                        (opt) => opt.value === value,
+                    );
+                    const envId = selectedEnv ? selectedEnv.id : 1;
 
-        const speedValueDisplay = document.createElement('span');
-        speedValueDisplay.style.minWidth = '40px';
-        speedValueDisplay.style.textAlign = 'right';
+                    const currentDescription = await getUserDescription(userId);
+                    if (currentDescription !== null) {
+                        let newDescription = currentDescription
+                            .split('\n')
+                            .filter((line) => !line.trim().startsWith('e:'))
+                            .join('\n')
+                            .trim();
+                        if (envId !== 1)
+                            newDescription = newDescription
+                                ? newDescription + `\n\ne:${envId}`
+                                : `e:${envId}`;
+                        if (newDescription !== currentDescription)
+                            await updateUserDescription(userId, newDescription);
+                    }
+                },
+            });
+            envDropdown.style.width = '100%';
+            envSection.appendChild(envDropdown);
+            const helpText = document.createElement('p');
+            helpText.textContent =
+                'Saves environment choice to your about me as "e:X" so other RoValra users can see it.';
+            helpText.style.cssText =
+                'font-size: 11px; color: var(--rovalra-secondary-text-color); margin-top: 5px; margin-bottom: 0;'; //Verified
+            envSection.appendChild(helpText);
+            contentContainer.appendChild(envSection);
+        }
 
-        speedSlider.addEventListener('input', () => {
-            const newSpeed = parseFloat(speedSlider.value);
-            speedValueDisplay.textContent = `${newSpeed.toFixed(1)}x`;
-        });
+        if (settings.rendererDeveloperToggles) {
+            const devSection = document.createElement('div');
+            devSection.innerHTML =
+                '<div class="text-label-small" style="margin-bottom:5px; color:var(--rovalra-secondary-text-color);">Developer</div>';
+            const skeletonRow = document.createElement('div');
+            Object.assign(skeletonRow.style, {
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+            });
+            const label = document.createElement('span');
+            label.textContent = 'Show Skeleton Helper';
+            label.className = 'text-label-small';
+            label.style.color = 'var(--rovalra-main-text-color)';
 
-        speedSlider.addEventListener('change', () => {
-            const newSpeed = parseFloat(speedSlider.value);
-            chrome.storage.local.set({ profileRenderAnimationSpeed: newSpeed });
-        });
-
-        chrome.storage.local.get(
-            { profileRenderAnimationSpeed: 1 },
-            (settings) => {
-                const initialSpeed = parseFloat(
-                    settings.profileRenderAnimationSpeed ?? 1,
-                );
-                speedSlider.value = initialSpeed;
-                speedValueDisplay.textContent = `${initialSpeed.toFixed(1)}x`;
-            },
-        );
-
-        speedSliderWrapper.appendChild(speedSlider);
-        speedSliderWrapper.appendChild(speedValueDisplay);
-        speedSection.appendChild(speedSliderWrapper);
-        contentContainer.appendChild(speedSection);
+            const toggle = createToggle({
+                checked: FLAGS.SHOW_SKELETON_HELPER,
+                onChange: (checked) => {
+                    FLAGS.SHOW_SKELETON_HELPER = checked;
+                    loadRig(currentRigType);
+                },
+            });
+            skeletonRow.appendChild(label);
+            skeletonRow.appendChild(toggle);
+            devSection.appendChild(skeletonRow);
+            contentContainer.appendChild(devSection);
+        }
 
         createOverlay({
             title: 'Render Settings',
@@ -608,6 +745,9 @@ function injectCustomButtons(toggleButton) {
             maxWidth: '400px',
             overflowVisible: true,
             showLogo: true,
+            onClose: () => {
+                if (environmentChanged) location.reload();
+            },
         });
     });
 
@@ -623,11 +763,9 @@ function injectCustomButtons(toggleButton) {
         infoIcon.style.height = '24px';
         infoIcon.style.cursor = 'pointer';
         infoIcon.style.fill = 'var(--rovalra-main-text-color)';
-
         addTooltip(infoIcon, environmentConfig.tooltip.text, {
             position: 'top',
         });
-
         infoIcon.addEventListener('click', (e) => {
             e.stopPropagation();
             showConfirmationPrompt({
@@ -653,26 +791,48 @@ function startAnimationLoop() {
 
     const animate = (currentTime) => {
         requestAnimationFrame(animate);
-
         if (isRenderingPaused) return;
 
         const delta = currentTime - lastRenderTime;
-
         if (delta >= interval) {
-            if (currentRig) {
-                const animatorW = getAnimatorW();
-                if (animatorW && animationSpeed > 0) {
-                    const deltaTime = (delta / 1000) * animationSpeed;
-                    animatorW.renderAnimation(deltaTime);
-                    RBXRenderer.addInstance(currentRig, null);
-                } else {
-                    RBXRenderer.addInstance(currentRig, null);
+            const deltaTime = (delta / 1000) * animationSpeed;
+            const animatorW = getAnimatorW();
+
+            if (currentDirectTrack) {
+                const hasReachedEnd = currentDirectTrack.tick(deltaTime);
+
+                if (
+                    !currentDirectTrack.looped &&
+                    hasReachedEnd &&
+                    !currentDirectTrack._isStopping
+                ) {
+                    currentDirectTrack.Stop(0);
+                    currentDirectTrack._isStopping = true;
+
+                    if (animatorW) {
+                        animatorW.playAnimation('idle', 0);
+                    }
+
+                    currentDirectTrack = null;
+                    activeEmoteId = null;
                 }
+
+                if (
+                    currentDirectTrack &&
+                    (currentDirectTrack._isStopping ||
+                        currentDirectTrack.weight <= 0.01)
+                ) {
+                    currentDirectTrack = null;
+                    activeEmoteId = null;
+                }
+            } else if (currentRig) {
+                animatorW?.renderAnimation(deltaTime);
             }
+
+            if (currentRig) RBXRenderer.addInstance(currentRig, null);
             lastRenderTime = currentTime - (delta % interval);
         }
     };
-
     requestAnimationFrame(animate);
 }
 async function loadCustomEnvironment(scene, config) {
@@ -1179,46 +1339,6 @@ async function attachPreloadedAvatar(container) {
 export function init() {
     chrome.storage.local.get({ profile3DRenderEnabled: true }, (result) => {
         if (result.profile3DRenderEnabled) {
-            chrome.storage.onChanged.addListener((changes, area) => {
-                if (area === 'local') {
-                    if (changes.profileRenderAnimationSpeed) {
-                        try {
-                            const newSpeed = parseFloat(
-                                changes.profileRenderAnimationSpeed.newValue,
-                            );
-                            animationSpeed = isNaN(newSpeed) ? 1 : newSpeed;
-                        } catch (e) {
-                            animationSpeed = 1;
-                        }
-                    }
-                    if (changes.profileRenderAnimationR6) {
-                        savedAnimationR6 =
-                            changes.profileRenderAnimationR6.newValue || 'idle';
-                    }
-                    if (changes.profileRenderAnimationR15) {
-                        savedAnimationR15 =
-                            changes.profileRenderAnimationR15.newValue ||
-                            'idle';
-                    }
-                }
-            });
-            chrome.storage.local.get(
-                {
-                    profileRenderAnimationSpeed: 1,
-                    profileRenderAnimationR6: 'idle',
-                    profileRenderAnimationR15: 'idle',
-                },
-                (settings) => {
-                    const initialSpeed = parseFloat(
-                        settings.profileRenderAnimationSpeed ?? 1,
-                    );
-                    animationSpeed = isNaN(initialSpeed) ? 1 : initialSpeed;
-                    savedAnimationR6 =
-                        settings.profileRenderAnimationR6 || 'idle';
-                    savedAnimationR15 =
-                        settings.profileRenderAnimationR15 || 'idle';
-                },
-            );
             const avatarPromise = preloadAvatar();
             injectStylesheet(
                 'css/thumbnailholder.css',
