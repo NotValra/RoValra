@@ -80,6 +80,6 @@ export function log(level, message, ...args) {
         return;
     }
 
-    const msg = `${timestamp()}  [${padLevel(logLevelStr[level])}]    ${message}`;
+    const msg = `(RoValra)  ${timestamp()}  [${padLevel(logLevelStr[level])}]    ${String(message)}`;
     logfn[level]()(msg, ...args);
 }
