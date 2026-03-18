@@ -503,6 +503,20 @@ export async function getFriendsList() {
     return currentUserData.friendsList;
 }
 
+export async function getCachedFriendsList() {
+    const userId = await getAuthenticatedUserId();
+    if (!userId) return [];
+
+    const result = await new Promise((resolve) =>
+        chrome.storage.local.get([FRIENDS_DATA_KEY], resolve),
+    );
+
+    const allUsersFriendsData = result[FRIENDS_DATA_KEY] || {};
+    const currentUserData = allUsersFriendsData[userId];
+
+    return currentUserData?.friendsList || [];
+}
+
 export function initFriendsListTracking() {
     getFriendsList();
 }

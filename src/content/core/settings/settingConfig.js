@@ -479,6 +479,13 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
+            friendsSinceEnabled: {
+                label: 'Friends Since',
+                description:
+                    'This feature shows how long you have been friends with someone on your friends list.',
+                type: 'checkbox',
+                default: true,
+            },
             PrivateServerBulkEnabled: {
                 label: 'Private Server Bulk Removal',
                 description: [
