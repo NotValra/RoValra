@@ -5,6 +5,7 @@ import { createDropdownMenu } from '../../core/ui/dropdown.js';
 import { createSpinner } from '../../core/ui/spinner.js';
 import { t } from '../../core/locale/i18n.js';
 import { getAssets } from '../../core/assets.js';
+import { addTooltip } from '../../core/ui/tooltip.js';
 
 async function optInBeta(programId) {
     return callRobloxApi({
@@ -45,7 +46,6 @@ export async function addNavbarButton() {
 
     button.addEventListener('click', async (e) => {
         if (menu) e.stopImmediatePropagation();
-
         if (isLoading) return;
 
         if (menu && menu.panel.getAttribute('data-state') === 'open') {
@@ -88,6 +88,8 @@ export async function addNavbarButton() {
                 value: program.id,
                 description: program.description,
                 checked: program.id === currentOptInId,
+                activeStatus: program.activeStatus,
+                platforms: program.platforms || [],
             }));
 
             if (!menu) {
@@ -99,7 +101,7 @@ export async function addNavbarButton() {
                 });
 
                 menu.panel.style.transform = 'translateX(-50%)';
-                menu.panel.style.setProperty('min-width', '300px', 'important');
+                menu.panel.style.setProperty('min-width', '320px', 'important');
                 menu.panel.style.maxHeight = '400px';
                 menu.panel.style.overflowY = 'auto';
 
@@ -125,19 +127,21 @@ export async function addNavbarButton() {
                 let currentCheckedRadio = null;
                 const radios = [];
 
-                menuItems.forEach((item) => {
+                for (const item of menuItems) {
                     const itemEl = document.createElement('div');
                     itemEl.className =
                         'rovalra-dropdown-item flex items-center justify-between p-2';
-                    itemEl.style.padding = '8px 12px';
+                    itemEl.style.padding = '10px 12px';
                     itemEl.style.cursor = 'pointer';
 
                     const textContainer = document.createElement('div');
                     textContainer.className = 'flex flex-col';
                     textContainer.style.marginRight = '10px';
+                    textContainer.style.flex = '1';
 
                     const label = document.createElement('span');
                     label.className = 'text-body-emphasis';
+                    label.style.fontWeight = '600';
                     label.textContent = item.label;
                     textContainer.appendChild(label);
 
@@ -146,6 +150,102 @@ export async function addNavbarButton() {
                         desc.className = 'text-caption-subtle';
                         desc.textContent = item.description;
                         textContainer.appendChild(desc);
+                    }
+
+                    const iconsRow = document.createElement('div');
+                    iconsRow.style.display = 'flex';
+                    iconsRow.style.alignItems = 'center';
+                    iconsRow.style.gap = '8px';
+                    iconsRow.style.marginTop = '6px';
+                    iconsRow.style.flexWrap = 'wrap';
+                    iconsRow.style.color = 'var(--rovalra-main-text-color)';
+
+                    const addPlatIcon = (assetKey, tooltipText) => {
+                        const el = document.createElement('div');
+                        el.style.display = 'flex';
+                        el.style.alignItems = 'center';
+                        el.style.justifyContent = 'center';
+                        const svgData = assets[assetKey];
+                        if (svgData.startsWith('data:image/svg+xml,')) {
+                            el.innerHTML = decodeURIComponent(
+                                svgData.split(',')[1],
+                            ); // verified
+                        }
+                        addTooltip(el, tooltipText, { position: 'bottom' });
+                        iconsRow.appendChild(el);
+                    };
+
+                    // Allowlist Icon
+                    if (
+                        item.activeStatus === 'PROGRAM_ACTIVE_STATUS_ALLOWLIST'
+                    ) {
+                        addPlatIcon(
+                            'betaAllowlist',
+                            await t('betaPrograms.allowlist'),
+                        );
+                    }
+
+                    const p = item.platforms;
+
+                    // Group Windows
+                    const win = [];
+                    if (p.includes('PROGRAM_PLATFORM_WINDOWS_PLAYER'))
+                        win.push('Player');
+                    if (p.includes('PROGRAM_PLATFORM_WINDOWS_STUDIO'))
+                        win.push('Studio');
+                    if (win.length > 0)
+                        addPlatIcon(
+                            'betaWindowsStudio',
+                            `Windows (${win.join(' & ')})`,
+                        );
+
+                    // Group Mac
+                    const mac = [];
+                    if (p.includes('PROGRAM_PLATFORM_MAC_PLAYER'))
+                        mac.push('Player');
+                    if (p.includes('PROGRAM_PLATFORM_MAC_STUDIO'))
+                        mac.push('Studio');
+                    if (mac.length > 0)
+                        addPlatIcon(
+                            'betaMacPlayer',
+                            `macOS (${mac.join(' & ')})`,
+                        );
+
+                    // Group Android
+                    const andr = [];
+                    if (p.includes('PROGRAM_PLATFORM_GOOGLE_ANDROID_APP'))
+                        andr.push('Google Play');
+                    if (p.includes('PROGRAM_PLATFORM_AMAZON_ANDROID_APP'))
+                        andr.push('Amazon');
+                    if (p.includes('PROGRAM_PLATFORM_TENCENT_ANDROID_APP'))
+                        andr.push('Tencent');
+                    if (andr.length > 0)
+                        addPlatIcon(
+                            'betaAndroid',
+                            `Android (${andr.join(', ')})`,
+                        );
+
+                    // iOS
+                    if (p.includes('PROGRAM_PLATFORM_IOS_APP'))
+                        addPlatIcon('betaIos', 'iOS');
+
+                    // PlayStation
+                    const ps = [];
+                    if (p.includes('PROGRAM_PLATFORM_PS4_APP')) ps.push('PS4');
+                    if (p.includes('PROGRAM_PLATFORM_PS5_APP')) ps.push('PS5');
+                    if (ps.length > 0)
+                        addPlatIcon('betaPlaystation', ps.join(' & '));
+
+                    // Xbox
+                    if (p.includes('PROGRAM_PLATFORM_XBOX_APP'))
+                        addPlatIcon('betaXbox', 'Xbox');
+
+                    // Quest / VR
+                    if (p.includes('PROGRAM_PLATFORM_QUEST_ANDROID_APP'))
+                        addPlatIcon('betaVR', 'Meta Quest');
+
+                    if (iconsRow.children.length > 0) {
+                        textContainer.appendChild(iconsRow);
                     }
 
                     const handleRadioChange = async (newState) => {
@@ -169,9 +269,7 @@ export async function addNavbarButton() {
                     });
                     radios.push(radio);
 
-                    if (item.checked) {
-                        currentCheckedRadio = radio;
-                    }
+                    if (item.checked) currentCheckedRadio = radio;
 
                     itemEl.addEventListener('click', (e) => {
                         if (radio.contains(e.target)) return;
@@ -184,7 +282,7 @@ export async function addNavbarButton() {
                     itemEl.appendChild(textContainer);
                     itemEl.appendChild(radio);
                     menu.panel.appendChild(itemEl);
-                });
+                }
             }
 
             menu.toggle(true);
@@ -193,15 +291,14 @@ export async function addNavbarButton() {
             if (menu) menu.toggle(false);
         } finally {
             isLoading = false;
-            button.innerHTML = originalIcon; //Verified
+            button.innerHTML = originalIcon; // Verified
         }
     });
 }
+
 export function init() {
     chrome.storage.local.get({ betaProgramsEnabled: true }, (settings) => {
-        if (!settings.betaProgramsEnabled) {
-            return;
-        }
+        if (!settings.betaProgramsEnabled) return;
         addNavbarButton();
     });
 }

@@ -302,7 +302,8 @@
     },
     "betaPrograms": {
         "toggleTooltip": "Toggle Beta Programs",
-        "noPrograms": "You are not enrolled into any beta programs."
+        "noPrograms": "You are not enrolled into any beta programs.",
+        "allowlist": "In an allowlist"
     },
     "quickSearch": {
         "aborted": "Aborted",
