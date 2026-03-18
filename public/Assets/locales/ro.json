@@ -279,11 +279,11 @@
             "previousRewards": "+ Toate avantajele nivelelor mai joase",
             "moreComingSoon": "Mai multe apar în curând.",
             "availableBadges": "Insigne disponibile",
-            "note": "Note: Badges may take a few minutes to appear after donation. To manage badge visibility, go to the 'Profile' settings tab. Importantly if you are under the age of 13 and donate you won't be able to toggle the visiblity of your donator badge. Donating through commissions sadly won't give a donator perks, this is a Roblox limitation."
+            "note": "Note: Insignele pot lua câteva minute să apară după donație. TPentru a gestiona vizibilitatea insignei, accesați tab-ul de setări „Profil”. Dacă aveți sub 13 ani și donați, nu veți putea activa/dezactiva vizibilitatea insignei voastre de donator. Din păcate, donațiile prin comisioane nu oferă beneficii — aceasta este o limitare de la Roblox."
         },
         "search": {
             "minLength": "Vă rugăm introduceți măcar două caractere pentru a căuta.",
-            "noResults": "Nici-o setare nu a fost găsită pentru „{{query}}”."
+            "noResults": "Nicio setare nu a fost găsită pentru „{{query}}”."
         }
     },
     "qolToggles": {
@@ -305,24 +305,24 @@
         "noPrograms": "Nu ești înscris în niciun program beta."
     },
     "quickSearch": {
-        "aborted": "Aborted",
-        "apiRequestFailed": "API request failed with status {{status}}",
-        "friendSearchError": "RoValra: Friend Search Error",
-        "userSearchError": "RoValra: User Search Error",
-        "gameSearchError": "RoValra: Game Search Error",
-        "trustedConnection": "You are trusted connections",
-        "connection": "You are connections",
-        "playing": "Playing {{gameName}}",
-        "verifiedBadge": "Verified Badge",
-        "verified": "Verified",
+        "aborted": "Anulat",
+        "apiRequestFailed": "Cerere de API a eșuat cu statutul: {{status}}",
+        "friendSearchError": "RoValra: Eroare Căutare Prieteni",
+        "userSearchError": "RoValra: Eroare Căutare Utilizatori",
+        "gameSearchError": "RoValra: Eroare Căutare Jocuri",
+        "trustedConnection": "Sunteți conecțiuni de încredere",
+        "connection": "Sunteți conecțiuni",
+        "playing": "Se joacă {{gameName}}",
+        "verifiedBadge": "Insignă de Verificare",
+        "verified": "Verificat",
         "permanentlyBanned": "This user has been permanently banned",
         "joinPreferredRegion": "Join Preferred Region",
-        "bestRegionAuto": "Best Region (Auto)",
-        "searchHistory": "Search History",
-        "noSearchHistory": "You don't have any search history.",
-        "deleteSearchHistoryTitle": "Delete Search History",
-        "deleteSearchHistoryMessage": "Are you sure you want to delete this search history entry?",
-        "delete": "Delete"
+        "bestRegionAuto": "Cea mai bună regiune (Auto)",
+        "searchHistory": "Istoricul Căutărilor",
+        "noSearchHistory": "Nu ai niciun istoric de căutări.",
+        "deleteSearchHistoryTitle": "Șterge Istoria Căutorilor",
+        "deleteSearchHistoryMessage": "Sigur dorești să ștergi această intrare din istoricul căutărilor?",
+        "delete": "Șterge"
     },
     "regionPlayButton": {
         "ariaLabel": "Select or Join Preferred Server Region",
@@ -331,22 +331,22 @@
         "tooltipBestRegion": "Join Preferred Region<br><b>Best Region (Auto)</b>"
     },
     "quickPlay": {
-        "loading": "Loading...",
-        "rateLimited": "Rate limited. Retrying...",
-        "loadError": "Could not load servers.",
-        "noPrivateServers": "No active private servers found.",
-        "configure": "Configure",
-        "copyLink": "Copy Link",
-        "copied": "Copied!",
-        "error": "Error!",
-        "generateLink": "Generate New Link",
-        "joinClosestServer": "Join Closest Server",
-        "selectPreferredRegion": "Select Preferred Region",
-        "privateServers": "Private Servers"
+        "loading": "Se încarcă...",
+        "rateLimited": "Limitat de rată (rate limit). Se reîncearcă...",
+        "loadError": "Nu s-au putut încărca serverele.",
+        "noPrivateServers": "Nici-un server privat activ nu a fost găsit.",
+        "configure": "Configurează",
+        "copyLink": "Copiază Link",
+        "copied": "Copiat!",
+        "error": "Eroare!",
+        "generateLink": "Generează Link Nou",
+        "joinClosestServer": "Intră în Cel mai Apropriat Server",
+        "selectPreferredRegion": "Selectează Regiunea Preferată",
+        "privateServers": "Servere Private"
     },
     "privateServerPage": {
-        "regenerateLink": "Regenerate Link",
-        "regenerated": "Regenerated!"
+        "regenerateLink": "Regenerează Link",
+        "regenerated": "Regenerat!"
     },
     "devProducts": {
         "noProducts": "No developer products found.",
