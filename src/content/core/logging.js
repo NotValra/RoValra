@@ -14,7 +14,7 @@ const logLevelStr = {
     [logLevel.CRITICAL]: 'CRITICAL'
 };
 
-const maxLogLevelLength = 8;
+const maxLogLevelLength = 8;  // Used for padding
 
 // Minimum Log Level
 const minLogLevel = logLevel.DEBUG;
