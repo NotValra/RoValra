@@ -45,8 +45,14 @@ const localePromise = (async () => {
  * @returns {Promise<string>} The translated string.
  */
 export async function t(key, options = []) {
-    await localePromise;
-    return ezlocale.fmt_locale(key, ...options);
+    try {
+        await localePromise;
+        return ezlocale.fmt_locale(key, options);
+    }
+    catch (err) {
+        console.error(`RoValra: An unexpected error occured in t(): ${String(err)}`);
+        return key;
+    }
 }
 
 /**
@@ -57,5 +63,11 @@ export async function t(key, options = []) {
  * @returns {string} The translated string or the key if not available.
  */
 export function ts(key, options = []) {
-    return ezlocale.fmt_locale(key, ...options);
+    try {
+        return ezlocale.fmt_locale(key, options) || key;
+    }
+    catch (err) {
+        console.error(`RoValra: An unexpected error occured in ts(): ${String(err)}`);
+        return key;
+    }
 }
