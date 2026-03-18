@@ -116,7 +116,7 @@ function estimateAgeRange(
                 return '18+ or <9';
             case 'Label.AgeGroup18To20':
                 return '<16';
-            case 'Label.AgeGroup21AndOver':
+            case 'Label.AgeGroupOver21':
                 return '<18';
             default:
                 return 'Restricted';
