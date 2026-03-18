@@ -30,6 +30,7 @@ import {
     API,
     FLAGS,
     AnimatorWrapper,
+    AnimationTrack,
     animNamesR15,
     animNamesR6,
 } from 'roavatar-renderer';
@@ -59,6 +60,10 @@ let lastTargetPos = new THREE.Vector3();
 let raycastFrameSkip = 0;
 let raycastTargets = [];
 let isRenderingPaused = false;
+let currentDirectTrack = null;
+let directEmoteTimer = null;
+let hasMovedCamera = false;
+
 function constrainCamera() {
     const controls = RBXRenderer.getRendererControls();
     const camera = RBXRenderer.getRendererCamera();
@@ -102,7 +107,87 @@ function constrainCamera() {
     lastCameraPos.copy(camera.position);
     lastTargetPos.copy(controls.target);
 }
+// freecam stuff
+let recenterBtnRef = null;
+const movementKeys = ['w', 'a', 's', 'd', 'q', 'e'];
+const keysDown = { w: false, a: false, s: false, d: false, q: false, e: false };
+let isLeftMouseDown = false;
 
+window.addEventListener('keydown', (e) => {
+    const key = e.key.toLowerCase();
+    if (key in keysDown) keysDown[key] = true;
+});
+window.addEventListener('keyup', (e) => {
+    const key = e.key.toLowerCase();
+    if (key in keysDown) keysDown[key] = false;
+});
+window.addEventListener('mousedown', (e) => {
+    if (e.button === 0) isLeftMouseDown = true;
+});
+window.addEventListener('mouseup', (e) => {
+    if (e.button === 0) isLeftMouseDown = false;
+});
+
+const isMoving = () => movementKeys.some((key) => keysDown[key]);
+const isFreecamActive = () => isLeftMouseDown && isMoving();
+
+function resetCamera() {
+    const controls = RBXRenderer.getRendererControls();
+    const camera = RBXRenderer.getRendererCamera();
+    if (!controls || !camera) return;
+
+    controls.target.set(0, 4, 0);
+    camera.position.set(0, 4, -45);
+    intendedDistance = 0;
+    controls.update();
+
+    hasMovedCamera = false;
+    if (recenterBtnRef) {
+        recenterBtnRef.style.display = 'none';
+    }
+}
+function updateCameraSystem() {
+    const camera = RBXRenderer.getRendererCamera();
+    const controls = RBXRenderer.getRendererControls();
+    if (!camera || !controls) return;
+
+    controls.enablePan = false;
+
+    if (isFreecamActive()) {
+        const moveSpeed = 0.2;
+        const direction = new THREE.Vector3();
+
+        const front = new THREE.Vector3();
+        camera.getWorldDirection(front);
+        const right = new THREE.Vector3()
+            .crossVectors(camera.up, front)
+            .normalize()
+            .negate();
+
+        if (keysDown.w) direction.add(front);
+        if (keysDown.s) direction.sub(front);
+        if (keysDown.d) direction.add(right);
+        if (keysDown.a) direction.sub(right);
+        if (keysDown.e) direction.y += 1;
+        if (keysDown.q) direction.y -= 1;
+
+        if (direction.length() > 0) {
+            hasMovedCamera = true;
+
+            const delta = direction.normalize().multiplyScalar(moveSpeed);
+            camera.position.add(delta);
+            controls.target.add(delta);
+
+            intendedDistance = camera.position.distanceTo(controls.target);
+        }
+    } else {
+        constrainCamera();
+    }
+
+    if (recenterBtnRef) {
+        recenterBtnRef.style.display = hasMovedCamera ? 'flex' : 'none';
+    }
+}
 function patchAnimateForRotation() {
     if (isAnimatePatched) return;
 
@@ -111,8 +196,8 @@ function patchAnimateForRotation() {
         const camera = RBXRenderer.getRendererCamera();
 
         if (controls && camera) {
+            updateCameraSystem();
             controls.update();
-            constrainCamera();
         }
 
         RBXRenderer.renderer.setRenderTarget(null);
@@ -143,10 +228,8 @@ async function playIdle() {
 }
 
 async function playEmote(emoteAssetId, loop = false, durationLimit = null) {
-    if (!currentRig || currentRigType !== 'R15') {
-        console.warn('Emotes are only supported on R15 rigs.');
-        return false;
-    }
+    if (!currentRig) return false;
+
     if (emoteStopTimer) clearTimeout(emoteStopTimer);
 
     const animatorW = getAnimatorW();
@@ -231,7 +314,92 @@ async function loadRig(rigType) {
         isRenderingPaused = false;
     }
 }
+async function playDirectAnimation(
+    animationId,
+    loop = false,
+    durationLimit = 5,
+) {
+    if (!currentRig) return;
 
+    if (directEmoteTimer) clearTimeout(directEmoteTimer);
+
+    if (currentDirectTrack) {
+        currentDirectTrack.Stop();
+    }
+
+    try {
+        const url = `https://assetdelivery.roblox.com/v1/asset/?id=${animationId}`;
+        const assetResult = await API.Asset.GetRBX(url, undefined);
+
+        let root;
+        try {
+            root = assetResult.generateTree();
+        } catch (e) {
+            root = assetResult;
+        }
+
+        let animInstance = root.GetChildren()[0];
+        if (animInstance.className !== 'KeyframeSequence') {
+            animInstance =
+                animInstance.FindFirstChildOfClass('KeyframeSequence');
+        }
+        if (!animInstance) return;
+
+        let maxTime = 0;
+        animInstance.GetChildren().forEach((kf) => {
+            if (kf.className === 'Keyframe') {
+                const time = kf.Prop('Time') || 0;
+                if (time > maxTime) maxTime = time;
+
+                const poses = kf.GetChildren();
+                const hrpPose = poses.find(
+                    (p) => p.Prop('Name') === 'HumanoidRootPart',
+                );
+                const torsoPose = poses.find((p) => p.Prop('Name') === 'Torso');
+
+                if (torsoPose) {
+                    poses.forEach((p) => {
+                        if (
+                            p.className === 'Pose' &&
+                            p !== torsoPose &&
+                            p !== hrpPose
+                        ) {
+                            p.parent = torsoPose;
+                        }
+                    });
+                }
+            }
+        });
+
+        const track = new AnimationTrack();
+        track.loadAnimation(currentRig, animInstance);
+        track.length = maxTime;
+        track.looped = loop;
+        track.shouldUpdateMotors = true;
+
+        track.Play(1, 1);
+
+        currentDirectTrack = track;
+        activeEmoteId = animationId;
+
+        if (loop && durationLimit) {
+            directEmoteTimer = setTimeout(() => {
+                if (currentDirectTrack === track) {
+                    currentDirectTrack.Stop(0);
+                    const animatorW = getAnimatorW();
+                    if (animatorW) {
+                        animatorW.playAnimation('idle', 0);
+                    }
+                    currentDirectTrack = null;
+                    activeEmoteId = null;
+                    directEmoteTimer = null;
+                }
+            }, durationLimit * 1000);
+        }
+    } catch (e) {
+        console.error('Direct Animation Error:', e);
+    }
+}
 // Emote menu
 async function createEmoteRadialMenu(emotesData, onSelect) {
     injectStylesheet('css/profileRender.css', 'rovalra-profile-render-css');
@@ -340,14 +508,43 @@ function injectCustomButtons(toggleButton) {
     });
 
     toggleButton.style.overflow = 'visible';
-
     const assets = getAssets();
 
-    if (globalAvatarData.emotes?.length > 0) {
+    const recenterBtn = createSquareButton({
+        content: 'Recenter',
+        width: 'auto',
+        fontSize: '12px',
+    });
+    recenterBtn.style.display = 'none';
+    recenterBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        resetCamera();
+    });
+    recenterBtnRef = recenterBtn;
+    controlsWrapper.appendChild(recenterBtn);
+
+    const R6_DEFAULT_EMOTES = [
+        { assetId: 128777973, assetName: 'Wave', position: 1, loop: false },
+        { assetId: 128853357, assetName: 'Point', position: 2, loop: false },
+        { assetId: 182435998, assetName: 'Dance 1', position: 3, loop: true },
+        { assetId: 182436842, assetName: 'Dance 2', position: 4, loop: true },
+        { assetId: 182436935, assetName: 'Dance 3', position: 5, loop: true },
+        { assetId: 129423131, assetName: 'Laugh', position: 6, loop: false },
+        { assetId: 129423030, assetName: 'Cheer', position: 7, loop: false },
+    ];
+
+    let emotesToShow = [];
+    if (currentRigType === 'R6') {
+        emotesToShow = R6_DEFAULT_EMOTES;
+    } else if (globalAvatarData.emotes?.length > 0) {
+        emotesToShow = globalAvatarData.emotes;
+    }
+
+    if (emotesToShow.length > 0) {
         const emoteIconContainer = document.createElement('div');
         emoteIconContainer.innerHTML = decodeURIComponent(
             assets.Emotes.split(',')[1],
-        ); //Verified
+        ); //verified
         const emoteIcon = emoteIconContainer.querySelector('svg');
         emoteIcon.style.width = '24px';
         emoteIcon.style.height = '24px';
@@ -358,15 +555,32 @@ function injectCustomButtons(toggleButton) {
             width: 'auto',
             fontSize: '12px',
         });
+
         emoteBtn.addEventListener('click', async (e) => {
             e.stopPropagation();
+            let emotesToShow = [];
+            if (currentRigType === 'R6') {
+                emotesToShow = R6_DEFAULT_EMOTES;
+            } else if (globalAvatarData.emotes?.length > 0) {
+                emotesToShow = globalAvatarData.emotes;
+            }
+
+            if (emotesToShow.length === 0) {
+                return;
+            }
+
             const radialContent = await createEmoteRadialMenu(
-                globalAvatarData.emotes,
+                emotesToShow,
                 async (emote) => {
-                    await playEmote(emote.assetId, false, 10);
+                    if (currentRigType === 'R6') {
+                        await playDirectAnimation(emote.assetId, emote.loop, 5);
+                    } else {
+                        await playEmote(emote.assetId, false, 10);
+                    }
                     overlayHandle.close();
                 },
             );
+
             const overlayHandle = createOverlay({
                 title: 'Emotes',
                 bodyContent: radialContent,
@@ -382,7 +596,7 @@ function injectCustomButtons(toggleButton) {
     const settingsIconContainer = document.createElement('div');
     settingsIconContainer.innerHTML = decodeURIComponent(
         assets.settings.split(',')[1],
-    ); // verified
+    ); // Verified
     const settingsIcon = settingsIconContainer.querySelector('svg');
     settingsIcon.style.width = '24px';
     settingsIcon.style.height = '24px';
@@ -403,7 +617,6 @@ function injectCustomButtons(toggleButton) {
             gap: '15px',
             padding: '5px',
         });
-
         let environmentChanged = false;
 
         const animSection = document.createElement('div');
@@ -444,14 +657,12 @@ function injectCustomButtons(toggleButton) {
                     })
                     .filter(Boolean);
             } else {
-                // R15
                 const defaultAnims = animNamesR15;
                 const animAssets = globalAvatarData.assets.filter((a) =>
                     a.assetType.name.includes('Animation'),
                 );
                 const animItemsMap = new Map();
 
-                // Add default R15 animations
                 Object.keys(defaultAnims).forEach((animName) => {
                     if (
                         !excludedAnims.includes(animName) &&
@@ -466,7 +677,6 @@ function injectCustomButtons(toggleButton) {
                     }
                 });
 
-                // Add users equipped animations, which may override defaults
                 animAssets.forEach((asset) => {
                     const animName = String(
                         asset.assetType.name
@@ -537,7 +747,6 @@ function injectCustomButtons(toggleButton) {
         const authUserId = await getAuthenticatedUserId();
         const userId = getUserIdFromUrl();
         const isOwnProfile = String(userId) === String(authUserId);
-
         const settings = await chrome.storage.local.get([
             'profileRenderEnvironment',
             'rendererDeveloperToggles',
@@ -547,11 +756,9 @@ function injectCustomButtons(toggleButton) {
             const envSection = document.createElement('div');
             envSection.innerHTML =
                 '<div class="text-label-small" style="margin-bottom:5px; color:var(--rovalra-secondary-text-color);">Environment</div>';
-
             const profileEnvs =
                 SETTINGS_CONFIG.Profile.settings.profile3DRenderEnabled
                     .childSettings.profileRenderEnvironment.options;
-
             const currentEnv = settings.profileRenderEnvironment || 'void';
 
             const { element: envDropdown } = createDropdown({
@@ -560,10 +767,6 @@ function injectCustomButtons(toggleButton) {
                 onValueChange: async (value) => {
                     await handleSaveSettings('profileRenderEnvironment', value);
                     environmentChanged = true;
-
-                    const profileEnvs =
-                        SETTINGS_CONFIG.Profile.settings.profile3DRenderEnabled
-                            .childSettings.profileRenderEnvironment.options;
                     const selectedEnv = profileEnvs.find(
                         (opt) => opt.value === value,
                     );
@@ -576,31 +779,23 @@ function injectCustomButtons(toggleButton) {
                             .filter((line) => !line.trim().startsWith('e:'))
                             .join('\n')
                             .trim();
-
-                        if (envId !== 1) {
-                            if (newDescription) {
-                                newDescription += `\n\ne:${envId}`;
-                            } else {
-                                newDescription = `e:${envId}`;
-                            }
-                        }
-
-                        if (newDescription !== currentDescription) {
+                        if (envId !== 1)
+                            newDescription = newDescription
+                                ? newDescription + `\n\ne:${envId}`
+                                : `e:${envId}`;
+                        if (newDescription !== currentDescription)
                             await updateUserDescription(userId, newDescription);
-                        }
                     }
                 },
             });
             envDropdown.style.width = '100%';
             envSection.appendChild(envDropdown);
-
             const helpText = document.createElement('p');
             helpText.textContent =
                 'Saves environment choice to your about me as "e:X" so other RoValra users can see it.';
             helpText.style.cssText =
-                'font-size: 11px; color: var(--rovalra-secondary-text-color); margin-top: 5px; margin-bottom: 0;';
+                'font-size: 11px; color: var(--rovalra-secondary-text-color); margin-top: 5px; margin-bottom: 0;'; //Verified
             envSection.appendChild(helpText);
-
             contentContainer.appendChild(envSection);
         }
 
@@ -608,14 +803,12 @@ function injectCustomButtons(toggleButton) {
             const devSection = document.createElement('div');
             devSection.innerHTML =
                 '<div class="text-label-small" style="margin-bottom:5px; color:var(--rovalra-secondary-text-color);">Developer</div>';
-
             const skeletonRow = document.createElement('div');
             Object.assign(skeletonRow.style, {
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
             });
-
             const label = document.createElement('span');
             label.textContent = 'Show Skeleton Helper';
             label.className = 'text-label-small';
@@ -628,7 +821,6 @@ function injectCustomButtons(toggleButton) {
                     loadRig(currentRigType);
                 },
             });
-
             skeletonRow.appendChild(label);
             skeletonRow.appendChild(toggle);
             devSection.appendChild(skeletonRow);
@@ -642,9 +834,7 @@ function injectCustomButtons(toggleButton) {
             overflowVisible: true,
             showLogo: true,
             onClose: () => {
-                if (environmentChanged) {
-                    location.reload();
-                }
+                if (environmentChanged) location.reload();
             },
         });
     });
@@ -655,17 +845,15 @@ function injectCustomButtons(toggleButton) {
         const infoIconContainer = document.createElement('div');
         infoIconContainer.innerHTML = decodeURIComponent(
             assets.priceFloorIcon.split(',')[1],
-        ); //Verified
+        ); // Verified
         const infoIcon = infoIconContainer.querySelector('svg');
         infoIcon.style.width = '24px';
         infoIcon.style.height = '24px';
         infoIcon.style.cursor = 'pointer';
         infoIcon.style.fill = 'var(--rovalra-main-text-color)';
-
         addTooltip(infoIcon, environmentConfig.tooltip.text, {
             position: 'top',
         });
-
         infoIcon.addEventListener('click', (e) => {
             e.stopPropagation();
             showConfirmationPrompt({
@@ -691,26 +879,48 @@ function startAnimationLoop() {
 
     const animate = (currentTime) => {
         requestAnimationFrame(animate);
-
         if (isRenderingPaused) return;
 
         const delta = currentTime - lastRenderTime;
-
         if (delta >= interval) {
-            if (currentRig) {
-                const animatorW = getAnimatorW();
-                if (animatorW && animationSpeed > 0) {
-                    const deltaTime = (delta / 1000) * animationSpeed;
-                    animatorW.renderAnimation(deltaTime);
-                    RBXRenderer.addInstance(currentRig, null);
-                } else {
-                    RBXRenderer.addInstance(currentRig, null);
+            const deltaTime = (delta / 1000) * animationSpeed;
+            const animatorW = getAnimatorW();
+
+            if (currentDirectTrack) {
+                const hasReachedEnd = currentDirectTrack.tick(deltaTime);
+
+                if (
+                    !currentDirectTrack.looped &&
+                    hasReachedEnd &&
+                    !currentDirectTrack._isStopping
+                ) {
+                    currentDirectTrack.Stop(0);
+                    currentDirectTrack._isStopping = true;
+
+                    if (animatorW) {
+                        animatorW.playAnimation('idle', 0);
+                    }
+
+                    currentDirectTrack = null;
+                    activeEmoteId = null;
                 }
+
+                if (
+                    currentDirectTrack &&
+                    (currentDirectTrack._isStopping ||
+                        currentDirectTrack.weight <= 0.01)
+                ) {
+                    currentDirectTrack = null;
+                    activeEmoteId = null;
+                }
+            } else if (currentRig) {
+                animatorW?.renderAnimation(deltaTime);
             }
+
+            if (currentRig) RBXRenderer.addInstance(currentRig, null);
             lastRenderTime = currentTime - (delta % interval);
         }
     };
-
     requestAnimationFrame(animate);
 }
 async function loadCustomEnvironment(scene, config) {

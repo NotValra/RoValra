@@ -1,34 +1,35 @@
 [
-  {
-    "id": 1,
-    "priority": 1,
-    "action": {
-      "type": "modifyHeaders",
-      "responseHeaders": [
-        {
-          "header": "content-security-policy",
-          "operation": "set",
-          "value": "connect-src 'self' *.roblox.com *.robloxlabs.com *.rblx.org *.rbx.com *.rbxcdn.com *.roblox.cn *.simulpong.com *.lightstep.com *.ns1p.net *.arkoselabs.com *.kaptcha.com *.google.com *.google-analytics.com *.doubleclick.net *.sentry.io wss://realtime.roblox.com wss://realtime.sitetest1.robloxlabs.com wss://realtime.sitetest2.robloxlabs.com wss://realtime.sitetest3.robloxlabs.com wss://realtime-signalr.roblox.com *.braintree-api.com *.braintreegateway.com d1q2u37vreaobr.cloudfront.net funcaptcha.com robloxcorp.s.llnwi.net roblox-poc.global.ssl.fastly.net d1unuk07s6td74.cloudfront.net *.sierra.chat sierra.chat sc-static.net *.sc-static.net *.snapchat.com *.tapad.com analytics.tiktok.com data:;"
+    {
+        "id": 1,
+        "priority": 1,
+        "action": {
+            "type": "modifyHeaders",
+            "responseHeaders": [
+                {
+                    "header": "content-security-policy",
+                    "operation": "set",
+                    "value": "connect-src 'self' *.roblox.com *.robloxlabs.com *.rblx.org *.rbx.com *.rbxcdn.com *.roblox.cn *.simulpong.com *.lightstep.com *.ns1p.net *.arkoselabs.com *.kaptcha.com *.google.com *.google-analytics.com *.doubleclick.net *.sentry.io wss://realtime.roblox.com wss://realtime.sitetest1.robloxlabs.com wss://realtime.sitetest2.robloxlabs.com wss://realtime.sitetest3.robloxlabs.com wss://realtime-signalr.roblox.com *.braintree-api.com *.braintreegateway.com d1q2u37vreaobr.cloudfront.net funcaptcha.com robloxcorp.s.llnwi.net roblox-poc.global.ssl.fastly.net d1unuk07s6td74.cloudfront.net *.sierra.chat sierra.chat sc-static.net *.sc-static.net *.snapchat.com *.tapad.com analytics.tiktok.com data:;"
+                }
+            ]
+        },
+        "condition": {
+            "urlFilter": "||www.roblox.com",
+            "resourceTypes": ["main_frame"]
         }
-      ]
     },
-    "condition": {
-      "urlFilter": "||www.roblox.com",
-      "resourceTypes": ["main_frame"]
+
+    {
+        "id": 2,
+        "priority": 1,
+        "action": {
+            "type": "redirect",
+            "redirect": {
+                "url": "data:application/json;charset=UTF-8,{\"betaPrograms\":[{\"id\":\"RoValra-fake-Experiment\",\"name\":\"Roblox%20Early%20Access%20Programs%20Showcase\",\"displayName\":\"Roblox%20Early%20Access%20Programs%20Showcase%20by%20RoValra\",\"description\":\"\",\"activeStatus\":\"PROGRAM_ACTIVE_STATUS_ALLOWLIST\",\"visibility\":\"PROGRAM_VISIBILITY_ACTIVE_AND_ALLOWLIST\",\"platforms\":[\"PROGRAM_PLATFORM_AMAZON_ANDROID_APP\",\"PROGRAM_PLATFORM_GOOGLE_ANDROID_APP\",\"PROGRAM_PLATFORM_IOS_APP\",\"PROGRAM_PLATFORM_MAC_PLAYER\",\"PROGRAM_PLATFORM_MAC_STUDIO\",\"PROGRAM_PLATFORM_PS4_APP\",\"PROGRAM_PLATFORM_PS5_APP\",\"PROGRAM_PLATFORM_QUEST_ANDROID_APP\",\"PROGRAM_PLATFORM_RCC\",\"PROGRAM_PLATFORM_TENCENT_ANDROID_APP\",\"PROGRAM_PLATFORM_WINDOWS_PLAYER\",\"PROGRAM_PLATFORM_WINDOWS_STUDIO\",\"PROGRAM_PLATFORM_XBOX_APP\"]}]}"
+            }
+        },
+        "condition": {
+            "urlFilter": "||apis.roblox.com/test-pilot-api/v1/beta-programs",
+            "resourceTypes": ["xmlhttprequest"]
+        }
     }
-  },
-  {
-    "id": 2,
-    "priority": 1,
-    "action": {
-      "type": "redirect",
-      "redirect": {
-        "url": "data:application/json;charset=UTF-8,{\"betaPrograms\":[{\"id\":\"RoValra-fake-Experiment\",\"name\":\"Roblox%20Early%20Access%20Programs%20Showcase\",\"displayName\":\"Roblox%20Early%20Access%20Programs%20Showcase%20by%20RoValra\",\"description\":\"\",\"programActiveStatus\":4,\"programVisibility\":4}]}"
-      }
-    },
-    "condition": {
-      "urlFilter": "||apis.roblox.com/test-pilot-api/v1/beta-programs",
-      "resourceTypes": ["xmlhttprequest"]
-    }
-  }
 ]

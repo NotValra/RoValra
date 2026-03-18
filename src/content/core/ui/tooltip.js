@@ -6,7 +6,8 @@ let activeTooltipCleanup = null;
 export function addTooltip(parent, text, options = {}) {
     const { position = 'bottom', container = document.body } = options;
     let tooltipElement = null;
-    let isUpdateScheduled = false; let scrollListenerRef = null;
+    let isUpdateScheduled = false;
+    let scrollListenerRef = null;
 
     const showTooltip = () => {
         if (activeTooltipCleanup) {
@@ -18,14 +19,14 @@ export function addTooltip(parent, text, options = {}) {
         tooltipElement.style.pointerEvents = 'none';
         tooltipElement.className = `tooltip fade bottom in`;
         tooltipElement.setAttribute('role', 'tooltip');
-        
+
         const arrow = document.createElement('div');
         arrow.className = 'tooltip-arrow';
 
         const inner = document.createElement('div');
         inner.className = 'tooltip-inner';
-        inner.innerHTML = DOMPurify.sanitize(text); 
 
+        inner.innerHTML = DOMPurify.sanitize(text);
 
         tooltipElement.append(arrow, inner);
         container.appendChild(tooltipElement);
@@ -39,31 +40,49 @@ export function addTooltip(parent, text, options = {}) {
             const parentRect = parent.getBoundingClientRect();
             const tooltipWidth = tooltipElement.offsetWidth;
             const tooltipHeight = tooltipElement.offsetHeight;
-            const arrowSize = 0; 
+            const arrowSize = 0;
 
             let targetTop, targetLeft;
 
             switch (position) {
                 case 'top':
                     targetTop = parentRect.top - tooltipHeight;
-                    targetLeft = parentRect.left + (parentRect.width / 2) - (tooltipWidth / 2);
+                    targetLeft =
+                        parentRect.left +
+                        parentRect.width / 2 -
+                        tooltipWidth / 2;
                     break;
                 case 'left':
-                    targetTop = parentRect.top + (parentRect.height / 2) - (tooltipHeight / 2);
+                    targetTop =
+                        parentRect.top +
+                        parentRect.height / 2 -
+                        tooltipHeight / 2;
                     targetLeft = parentRect.left - tooltipWidth - arrowSize;
                     break;
                 case 'right':
-                    targetTop = parentRect.top + (parentRect.height / 2) - (tooltipHeight / 2);
+                    targetTop =
+                        parentRect.top +
+                        parentRect.height / 2 -
+                        tooltipHeight / 2;
                     targetLeft = parentRect.right + arrowSize;
                     break;
-                default: 
+                default:
                     targetTop = parentRect.bottom + arrowSize;
-                    targetLeft = parentRect.left + (parentRect.width / 2) - (tooltipWidth / 2);
+                    targetLeft =
+                        parentRect.left +
+                        parentRect.width / 2 -
+                        tooltipWidth / 2;
                     break;
             }
 
-            let finalLeft = Math.max(5, Math.min(targetLeft, window.innerWidth - tooltipWidth - 5));
-            let finalTop = Math.max(5, Math.min(targetTop, window.innerHeight - tooltipHeight - 5));
+            let finalLeft = Math.max(
+                5,
+                Math.min(targetLeft, window.innerWidth - tooltipWidth - 5),
+            );
+            let finalTop = Math.max(
+                5,
+                Math.min(targetTop, window.innerHeight - tooltipHeight - 5),
+            );
 
             const finalTopAbs = finalTop + window.scrollY;
             const finalLeftAbs = finalLeft + window.scrollX;
@@ -72,20 +91,22 @@ export function addTooltip(parent, text, options = {}) {
             tooltipElement.style.left = `${finalLeftAbs}px`;
 
             if (position === 'top' || position === 'bottom') {
-                const parentCenterX = parentRect.left + window.scrollX + (parentRect.width / 2);
+                const parentCenterX =
+                    parentRect.left + window.scrollX + parentRect.width / 2;
                 const arrowLeft = parentCenterX - finalLeftAbs;
-                arrow.style.top = 'auto'; 
+                arrow.style.top = 'auto';
                 arrow.style.left = `${arrowLeft}px`;
                 if (position === 'top') {
                     arrow.style.transform = 'translateY(-100%) rotate(180deg)';
-                    arrow.style.top = '100%'; 
+                    arrow.style.top = '100%';
                 } else {
                     arrow.style.transform = 'none';
                 }
             } else if (position === 'left' || position === 'right') {
-                const parentCenterY = parentRect.top + window.scrollY + (parentRect.height / 2);
+                const parentCenterY =
+                    parentRect.top + window.scrollY + parentRect.height / 2;
                 const arrowTop = parentCenterY - finalTopAbs;
-                arrow.style.left = 'auto'; 
+                arrow.style.left = 'auto';
                 arrow.style.top = `${arrowTop}px`;
                 arrow.style.transform = `translateY(-50%) rotate(${position === 'left' ? 90 : -90}deg)`;
             }
@@ -100,15 +121,15 @@ export function addTooltip(parent, text, options = {}) {
             }
         };
 
-        updatePosition(); 
-        scrollListenerRef = onScrollOrResize; 
+        updatePosition();
+        scrollListenerRef = onScrollOrResize;
 
         window.addEventListener('scroll', onScrollOrResize, { passive: true });
         window.addEventListener('resize', onScrollOrResize, { passive: true });
-        
-        tooltipElement.style.display = 'block'; 
-        tooltipElement.style.opacity = '1'; 
-        tooltipElement.style.visibility = 'visible'; 
+
+        tooltipElement.style.display = 'block';
+        tooltipElement.style.opacity = '1';
+        tooltipElement.style.visibility = 'visible';
 
         activeTooltipCleanup = hideTooltip;
     };
@@ -128,7 +149,7 @@ export function addTooltip(parent, text, options = {}) {
         }
     };
 
-    parent.addEventListener('mouseenter', showTooltip); 
+    parent.addEventListener('mouseenter', showTooltip);
     parent.addEventListener('mouseleave', hideTooltip);
-    parent.addEventListener('click', hideTooltip); 
+    parent.addEventListener('click', hideTooltip);
 }

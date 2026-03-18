@@ -73,6 +73,7 @@ import { init as initCategorizeWearing } from './features/profile/categorizeWear
 import { init as initTrustedFriends } from './features/profile/trustedfriends.js';
 import { init as initProfileRender } from './features/profile/header/ProfileRender.js';
 import { init as initStatus } from './features/profile/header/status.js';
+import { init as initFriendsSince } from './features/profile/friends/friendsSince.js';
 
 // Settings
 import { init as initSettingsPage } from './features/settings/index.js';
@@ -181,6 +182,7 @@ const featureRoutes = [
             initTrustedFriends,
             initProfileRender,
             initStatus,
+            initFriendsSince,
         ],
     },
 
