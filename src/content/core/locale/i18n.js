@@ -27,7 +27,9 @@ const localePromise = (async () => {
         await ezlocale.add_locale('en', translations_EN);
         await ezlocale.config({
             'lang.current': language,
-            'lang.fallback': 'en'
+            'lang.fallback': 'en',
+            'format.printf': false,
+            'format.named': true
         });
 
     } catch (error) {
