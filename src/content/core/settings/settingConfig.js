@@ -479,6 +479,13 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
+            friendsSinceEnabled: {
+                label: 'Friends Since',
+                description:
+                    'This feature shows how long you have been friends with someone on your friends list.',
+                type: 'checkbox',
+                default: true,
+            },
             PrivateServerBulkEnabled: {
                 label: 'Private Server Bulk Removal',
                 description: [
@@ -502,6 +509,8 @@ export const SETTINGS_CONFIG = {
                     'This allows you to set a status bubble that anyone with RoValra can see.',
                     'Also allows you to view other RoValra users status bubbles.',
                 ],
+                type: 'checkbox',
+                default: true,
             },
             donationbuttonEnable: {
                 label: 'Donation Button',
