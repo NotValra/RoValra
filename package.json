@@ -19,7 +19,6 @@
         "sass": "^1.99.0"
     },
     "dependencies": {
-<<<<<<< HEAD
         "dompurify": "^3.4.3",
         "ezlocale": "1.0.3",
         "marked": "^18.0.3",
@@ -32,12 +31,6 @@
         "lodash": "^4.17.21",
         "minimatch": "^9.0.5",
         "picomatch": "^4.0.2"
-=======
-        "dompurify": "^3.3.2",
-        "marked": "^17.0.4",
-        "roavatar-renderer": "1.2.0",
-        "ezlocale": ">=2.1.0"
->>>>>>> c3f5f68 (locale: first functional version)
     },
     "lint-staged": {
         "*.js": "eslint --fix",
