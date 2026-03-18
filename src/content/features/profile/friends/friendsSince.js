@@ -6,9 +6,21 @@ import { t } from '../../../core/locale/i18n.js';
 
 let watcherSet = false;
 let lastUrl = window.location.href;
+let profileDialogObserver = null;
+let lastMoreButtonClickTime = 0;
+
+document.addEventListener(
+    'click',
+    (e) => {
+        const btn = e.target.closest('button.more-btn');
+        if (btn && btn.getAttribute('aria-label') === 'more') {
+            lastMoreButtonClickTime = Date.now();
+        }
+    },
+    true,
+);
 
 async function addFriendsSinceLabel(friendsMap) {
-    console.log('Adding friends since label');
     const attributeObservers = new Map();
 
     observeElement(
@@ -88,10 +100,72 @@ async function addFriendsSinceLabel(friendsMap) {
     );
 }
 
+function injectDialogStats(dialog, friendData) {
+    const statsHeader = Array.from(
+        dialog.querySelectorAll('span.group-description-dialog-body-header'),
+    ).find((el) => el.textContent.trim() === 'Statistics');
+
+    if (!statsHeader) return;
+    const parent = statsHeader.parentElement;
+    if (!parent) return;
+
+    if (parent.querySelector('.rovalra-friends-since-dialog')) return;
+
+    t('friendsSince.friended').then((friendedText) => {
+        if (parent.querySelector('.rovalra-friends-since-dialog')) return;
+
+        const row = document.createElement('div');
+        row.className =
+            'items-center gap-xsmall flex rovalra-friends-since-dialog';
+
+        const icon = document.createElement('span');
+        icon.className =
+            'grow-0 shrink-0 basis-auto icon icon-filled-circle-i size-[var(--icon-size-xsmall)]';
+        row.appendChild(icon);
+
+        row.appendChild(document.createTextNode(`${friendedText} `));
+
+        const timestamp = createInteractiveTimestamp(friendData.friendsSince);
+        const p = document.createElement('p');
+        p.className = 'text-lead';
+        p.appendChild(timestamp);
+        row.appendChild(p);
+
+        parent.appendChild(row);
+    });
+}
+
+function initProfileAboutDialogObserver(friendData) {
+    if (profileDialogObserver) {
+        profileDialogObserver.disconnect();
+        profileDialogObserver = null;
+    }
+
+    profileDialogObserver = observeElement(
+        'div[role="dialog"]',
+        (dialog) => {
+            const h2 = dialog.querySelector('h2');
+            if (
+                h2 &&
+                h2.textContent === 'About' &&
+                Date.now() - lastMoreButtonClickTime < 1500
+            ) {
+                injectDialogStats(dialog, friendData);
+            }
+        },
+        { multiple: true },
+    );
+}
+
 export async function init() {
     const settings = await new Promise((resolve) =>
         chrome.storage.local.get({ friendsSinceEnabled: true }, resolve),
     );
+
+    if (profileDialogObserver) {
+        profileDialogObserver.disconnect();
+        profileDialogObserver = null;
+    }
 
     if (!settings.friendsSinceEnabled) return;
 
@@ -105,14 +179,6 @@ export async function init() {
         }, 500);
     }
     lastUrl = window.location.href;
-    console.log('Friends Since init');
-    if (
-        getUserIdFromUrl(window.location.href) ||
-        window.location.hash !== '#!/friends' ||
-        !window.location.pathname.endsWith('/friends')
-    ) {
-        return;
-    }
 
     const friendsList = await getCachedFriendsList();
     if (!friendsList || friendsList.length === 0) return;
@@ -120,5 +186,21 @@ export async function init() {
     const friendsMap = new Map(
         friendsList.map((friend) => [friend.id, friend]),
     );
-    addFriendsSinceLabel(friendsMap);
+
+    const userId = getUserIdFromUrl(window.location.href);
+
+    if (userId) {
+        const friendData = friendsMap.get(parseInt(userId, 10));
+        if (friendData && friendData.friendsSince) {
+            initProfileAboutDialogObserver(friendData);
+        }
+    }
+
+    if (
+        !userId &&
+        window.location.hash === '#!/friends' &&
+        window.location.pathname.endsWith('/friends')
+    ) {
+        addFriendsSinceLabel(friendsMap);
+    }
 }

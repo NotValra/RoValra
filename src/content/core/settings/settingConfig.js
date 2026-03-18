@@ -509,6 +509,8 @@ export const SETTINGS_CONFIG = {
                     'This allows you to set a status bubble that anyone with RoValra can see.',
                     'Also allows you to view other RoValra users status bubbles.',
                 ],
+                type: 'checkbox',
+                default: true,
             },
             donationbuttonEnable: {
                 label: 'Donation Button',
