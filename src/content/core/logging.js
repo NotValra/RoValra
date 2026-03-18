@@ -83,3 +83,17 @@ export function log(level, message, ...args) {
     const msg = `(RoValra)  ${timestamp()}  [${padLevel(logLevelStr[level])}]    ${String(message)}`;
     logfn[level]()(msg, ...args);
 }
+
+const debug = (message, ...args) => log(logLevel.DEBUG, message, ...args);
+const info  = (message, ...args) => log(logLevel.INFO, message, ...args);
+const warn  = (message, ...args) => log(logLevel.WARNING, message, ...args);
+const error = (message, ...args) => log(logLevel.ERROR, message, ...args);
+const critical = (message, ...a) => log(logLevel.CRITICAL, message, ...a);
+
+export const logger = Object.freeze({
+    debug: debug,
+    info: info,
+    warn: warn,
+    error: error,
+    critical: critical
+});
