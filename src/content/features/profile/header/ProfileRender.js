@@ -62,6 +62,7 @@ let raycastTargets = [];
 let isRenderingPaused = false;
 let currentDirectTrack = null;
 let directEmoteTimer = null;
+let hasMovedCamera = false;
 
 function constrainCamera() {
     const controls = RBXRenderer.getRendererControls();
@@ -106,7 +107,87 @@ function constrainCamera() {
     lastCameraPos.copy(camera.position);
     lastTargetPos.copy(controls.target);
 }
+// freecam stuff
+let recenterBtnRef = null;
+const movementKeys = ['w', 'a', 's', 'd', 'q', 'e'];
+const keysDown = { w: false, a: false, s: false, d: false, q: false, e: false };
+let isLeftMouseDown = false;
 
+window.addEventListener('keydown', (e) => {
+    const key = e.key.toLowerCase();
+    if (key in keysDown) keysDown[key] = true;
+});
+window.addEventListener('keyup', (e) => {
+    const key = e.key.toLowerCase();
+    if (key in keysDown) keysDown[key] = false;
+});
+window.addEventListener('mousedown', (e) => {
+    if (e.button === 0) isLeftMouseDown = true;
+});
+window.addEventListener('mouseup', (e) => {
+    if (e.button === 0) isLeftMouseDown = false;
+});
+
+const isMoving = () => movementKeys.some((key) => keysDown[key]);
+const isFreecamActive = () => isLeftMouseDown && isMoving();
+
+function resetCamera() {
+    const controls = RBXRenderer.getRendererControls();
+    const camera = RBXRenderer.getRendererCamera();
+    if (!controls || !camera) return;
+
+    controls.target.set(0, 4, 0);
+    camera.position.set(0, 4, -45);
+    intendedDistance = 0;
+    controls.update();
+
+    hasMovedCamera = false;
+    if (recenterBtnRef) {
+        recenterBtnRef.style.display = 'none';
+    }
+}
+function updateCameraSystem() {
+    const camera = RBXRenderer.getRendererCamera();
+    const controls = RBXRenderer.getRendererControls();
+    if (!camera || !controls) return;
+
+    controls.enablePan = false;
+
+    if (isFreecamActive()) {
+        const moveSpeed = 0.2;
+        const direction = new THREE.Vector3();
+
+        const front = new THREE.Vector3();
+        camera.getWorldDirection(front);
+        const right = new THREE.Vector3()
+            .crossVectors(camera.up, front)
+            .normalize()
+            .negate();
+
+        if (keysDown.w) direction.add(front);
+        if (keysDown.s) direction.sub(front);
+        if (keysDown.d) direction.add(right);
+        if (keysDown.a) direction.sub(right);
+        if (keysDown.e) direction.y += 1;
+        if (keysDown.q) direction.y -= 1;
+
+        if (direction.length() > 0) {
+            hasMovedCamera = true;
+
+            const delta = direction.normalize().multiplyScalar(moveSpeed);
+            camera.position.add(delta);
+            controls.target.add(delta);
+
+            intendedDistance = camera.position.distanceTo(controls.target);
+        }
+    } else {
+        constrainCamera();
+    }
+
+    if (recenterBtnRef) {
+        recenterBtnRef.style.display = hasMovedCamera ? 'flex' : 'none';
+    }
+}
 function patchAnimateForRotation() {
     if (isAnimatePatched) return;
 
@@ -115,8 +196,8 @@ function patchAnimateForRotation() {
         const camera = RBXRenderer.getRendererCamera();
 
         if (controls && camera) {
+            updateCameraSystem();
             controls.update();
-            constrainCamera();
         }
 
         RBXRenderer.renderer.setRenderTarget(null);
@@ -429,7 +510,19 @@ function injectCustomButtons(toggleButton) {
     toggleButton.style.overflow = 'visible';
     const assets = getAssets();
 
-    // in reality it is animation ids, but we do take care of that
+    const recenterBtn = createSquareButton({
+        content: 'Recenter',
+        width: 'auto',
+        fontSize: '12px',
+    });
+    recenterBtn.style.display = 'none';
+    recenterBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        resetCamera();
+    });
+    recenterBtnRef = recenterBtn;
+    controlsWrapper.appendChild(recenterBtn);
+
     const R6_DEFAULT_EMOTES = [
         { assetId: 128777973, assetName: 'Wave', position: 1, loop: false },
         { assetId: 128853357, assetName: 'Point', position: 2, loop: false },
@@ -451,7 +544,7 @@ function injectCustomButtons(toggleButton) {
         const emoteIconContainer = document.createElement('div');
         emoteIconContainer.innerHTML = decodeURIComponent(
             assets.Emotes.split(',')[1],
-        ); //Verified
+        ); //verified
         const emoteIcon = emoteIconContainer.querySelector('svg');
         emoteIcon.style.width = '24px';
         emoteIcon.style.height = '24px';
@@ -465,7 +558,6 @@ function injectCustomButtons(toggleButton) {
 
         emoteBtn.addEventListener('click', async (e) => {
             e.stopPropagation();
-
             let emotesToShow = [];
             if (currentRigType === 'R6') {
                 emotesToShow = R6_DEFAULT_EMOTES;
@@ -498,14 +590,13 @@ function injectCustomButtons(toggleButton) {
                 onClose: () => removeStylesheet('rovalra-profile-render-css'),
             });
         });
-
         controlsWrapper.appendChild(emoteBtn);
     }
 
     const settingsIconContainer = document.createElement('div');
     settingsIconContainer.innerHTML = decodeURIComponent(
         assets.settings.split(',')[1],
-    ); //Verified
+    ); // Verified
     const settingsIcon = settingsIconContainer.querySelector('svg');
     settingsIcon.style.width = '24px';
     settingsIcon.style.height = '24px';
@@ -526,7 +617,6 @@ function injectCustomButtons(toggleButton) {
             gap: '15px',
             padding: '5px',
         });
-
         let environmentChanged = false;
 
         const animSection = document.createElement('div');
@@ -755,7 +845,7 @@ function injectCustomButtons(toggleButton) {
         const infoIconContainer = document.createElement('div');
         infoIconContainer.innerHTML = decodeURIComponent(
             assets.priceFloorIcon.split(',')[1],
-        ); //Verified
+        ); // Verified
         const infoIcon = infoIconContainer.querySelector('svg');
         infoIcon.style.width = '24px';
         infoIcon.style.height = '24px';
