@@ -56,7 +56,7 @@
         "loading": "Loading..."
     },
     "hiddenGroupGames": {
-        "overlayTitle": "Hidden Group Experiences ({count} Total)",
+        "overlayTitle": "Hidden Group Experiences ({{count}} Total)",
         "noHiddenGames": "This group has no hidden experiences.",
         "buttonText": "Hidden Experiences",
         "labels": {
