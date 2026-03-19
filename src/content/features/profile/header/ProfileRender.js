@@ -1337,8 +1337,8 @@ async function preloadAvatar() {
                 let skyboxUrls = null;
                 if (useDevEnvironment && settings.skyboxToggle) {
                     skyboxUrls = [
-                        settings.skyboxNx,
                         settings.skyboxPx,
+                        settings.skyboxNx,
                         settings.skyboxPy,
                         settings.skyboxNy,
                         settings.skyboxPz,
@@ -1349,6 +1349,69 @@ async function preloadAvatar() {
                 }
 
                 if (skyboxUrls && skyboxUrls.every((url) => url)) {
+                    const mapping = {
+                        _rt: 0, // px
+                        _lf: 1, // nx
+                        _up: 2, // py
+                        _dn: 3, // ny
+                        _ft: 5, // nz
+                        _bk: 4, // pz
+                    };
+                    const sorted = new Array(6);
+                    let matchCount = 0;
+
+                    for (const url of skyboxUrls) {
+                        const lower = url.toLowerCase();
+                        for (const suffix in mapping) {
+                            if (
+                                lower.includes(suffix) &&
+                                sorted[mapping[suffix]] === undefined
+                            ) {
+                                sorted[mapping[suffix]] = url;
+                                matchCount++;
+                                break;
+                            }
+                        }
+                    }
+                    if (matchCount === 6) skyboxUrls = sorted;
+
+                    const rotateSkyboxImage = (url, angle) => {
+                        return new Promise((resolve) => {
+                            const img = new Image();
+                            img.crossOrigin = 'Anonymous';
+                            img.onload = () => {
+                                const canvas = document.createElement('canvas');
+                                canvas.width = img.height;
+                                canvas.height = img.width;
+                                const ctx = canvas.getContext('2d');
+                                ctx.translate(
+                                    canvas.width / 2,
+                                    canvas.height / 2,
+                                );
+                                ctx.rotate((angle * Math.PI) / 180);
+                                ctx.drawImage(
+                                    img,
+                                    -img.width / 2,
+                                    -img.height / 2,
+                                );
+                                resolve(canvas.toDataURL());
+                            };
+                            img.onerror = () => resolve(url);
+                            img.src = url;
+                        });
+                    };
+
+                    try {
+                        const [up, dn] = await Promise.all([
+                            rotateSkyboxImage(skyboxUrls[2], 270), //top skybox rotation
+                            rotateSkyboxImage(skyboxUrls[3], 90), //bottom skybox rotation
+                        ]);
+                        skyboxUrls[2] = up;
+                        skyboxUrls[3] = dn;
+                    } catch (e) {
+                        console.warn('RoValra: Skybox rotation failed', e);
+                    }
+
                     const cubeLoader = new THREE.CubeTextureLoader();
                     scene.background = cubeLoader.load(skyboxUrls);
                     if (RBXRenderer.plane) RBXRenderer.plane.visible = false;
