@@ -1,5 +1,7 @@
 import { observeElement } from '../../core/observer.js';
 import { callRobloxApiJson, callRobloxApi } from '../../core/api.js';
+import { getItemDetails } from '../../core/catalog/itemPrice.js';
+import { getUserCurrency } from '../../core/user/userCurrency.js';
 import {
     launchMultiplayerGame,
     launchStudioForGame,
@@ -18,7 +20,6 @@ const ROVALRA_PLACE_ID = '107845747621646';
 let assetToSubcategoryMap = null;
 let classicClothingSubcategories = null;
 let metadataPromise = null;
-const itemDetailsCache = new Map();
 const ROVALRA_TEMPLATE_ASSET_ID = 107845747621646;
 
 async function fetchTemplateBlobViaBatch() {
@@ -100,23 +101,6 @@ async function publishTemplateToPlace(targetPlaceId) {
         console.error('RoValra: Auto-publish failed', error);
         throw error;
     }
-}
-function getItemDetails(itemId, itemType = 'Asset') {
-    const key = `${itemId}_${itemType}`;
-    if (itemDetailsCache.has(key)) return itemDetailsCache.get(key);
-
-    const promise = callRobloxApiJson({
-        subdomain: 'catalog',
-        endpoint: '/v1/catalog/items/details',
-        method: 'POST',
-        body: { items: [{ id: parseInt(itemId), itemType: itemType }] },
-    }).catch((err) => {
-        itemDetailsCache.delete(key);
-        return null;
-    });
-
-    itemDetailsCache.set(key, promise);
-    return promise;
 }
 
 async function fetchCatalogMetadata() {
@@ -1661,16 +1645,12 @@ const executeCartPurchase = async (
     if (prefetchData && prefetchData.balance) {
         try {
             const bal = await prefetchData.balance;
-            userRobux = bal.robux || 0;
+            if (bal) userRobux = bal.robux || 0;
         } catch (e) {}
     } else {
         try {
-            const balanceData = await callRobloxApiJson({
-                subdomain: 'economy',
-                endpoint: `/v1/users/${currentUserId}/currency`,
-                method: 'GET',
-            });
-            userRobux = balanceData.robux || 0;
+            const balanceData = await getUserCurrency(currentUserId);
+            if (balanceData) userRobux = balanceData.robux || 0;
         } catch (error) {
             console.warn('Could not fetch user balance:', error);
         }
@@ -1945,9 +1925,8 @@ const execute40MethodPurchase = async (
 
     if (prefetchData && prefetchData.itemDetails) {
         try {
-            const details = await prefetchData.itemDetails;
-            if (details && details.data && details.data[0]) {
-                const item = details.data[0];
+            const item = await prefetchData.itemDetails;
+            if (item) {
                 if (!itemName || itemName === 'Unknown Item')
                     itemName = item.name;
                 assetType = item.assetType;
@@ -1978,17 +1957,12 @@ const execute40MethodPurchase = async (
             }
         } else {
             try {
-                const catalogData = await getItemDetails(
+                const item = await getItemDetails(
                     itemId,
                     isBundle ? 'Bundle' : 'Asset',
                 );
 
-                if (
-                    catalogData &&
-                    catalogData.data &&
-                    catalogData.data.length > 0
-                ) {
-                    const item = catalogData.data[0];
+                if (item) {
                     itemName = item.name || 'Unknown Item';
                     assetType = item.assetType;
 
@@ -2116,16 +2090,12 @@ const execute40MethodPurchase = async (
     if (prefetchData && prefetchData.balance) {
         try {
             const bal = await prefetchData.balance;
-            userRobux = bal.robux || 0;
+            if (bal) userRobux = bal.robux || 0;
         } catch (e) {}
     } else {
         try {
-            const balanceData = await callRobloxApiJson({
-                subdomain: 'economy',
-                endpoint: `/v1/users/${currentUserId}/currency`,
-                method: 'GET',
-            });
-            userRobux = balanceData.robux || 0;
+            const balanceData = await getUserCurrency(currentUserId);
+            if (balanceData) userRobux = balanceData.robux || 0;
         } catch (error) {
             console.warn('Could not fetch user balance:', error);
         }
@@ -2458,11 +2428,9 @@ const addSaveButton = (modal) => {
                 ),
             );
 
-            prefetchData.balance = callRobloxApiJson({
-                subdomain: 'economy',
-                endpoint: `/v1/users/${currentUserId}/currency`,
-                method: 'GET',
-            }).catch(() => ({ robux: 0 }));
+            prefetchData.balance = getUserCurrency(currentUserId).catch(() => ({
+                robux: 0,
+            }));
 
             prefetchData.gameInfo = prefetchData.storage.then(async (res) => {
                 const savedPlaceId = res.RobuxPlaceId;
@@ -2666,9 +2634,8 @@ const addSaveButton = (modal) => {
         let assetType = null;
         if (!isGamePass && !isBundle && !isMultiItemPurchase && itemId) {
             try {
-                const details = await getItemDetails(itemId, 'Asset');
-                if (details && details.data && details.data[0]) {
-                    const itemData = details.data[0];
+                const itemData = await getItemDetails(itemId, 'Asset');
+                if (itemData) {
                     assetType = itemData.assetType;
 
                     if (
