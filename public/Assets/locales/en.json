@@ -290,9 +290,9 @@
         "onlineStatus": "Online Status",
         "joinStatus": "Experience Status",
         "everyone": "Everyone",
-        "friendsFollowingAndFollowers": "Connections, Followers, & Following",
-        "friendsAndFollowing": "Connections & Following",
-        "friends": "Connections",
+        "friendsFollowingAndFollowers": "Friends, Followers, & Following",
+        "friendsAndFollowing": "Friends & Following",
+        "friends": "Friends",
         "noOne": "No one"
     },
     "groupFunds": {
@@ -311,8 +311,8 @@
         "friendSearchError": "RoValra: Friend Search Error",
         "userSearchError": "RoValra: User Search Error",
         "gameSearchError": "RoValra: Game Search Error",
-        "trustedConnection": "You are trusted connections",
-        "connection": "You are connections",
+        "trustedConnection": "You are trusted friends",
+        "connection": "You are friends",
         "playing": "Playing {{gameName}}",
         "verifiedBadge": "Verified Badge",
         "verified": "Verified",

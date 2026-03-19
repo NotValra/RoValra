@@ -303,7 +303,7 @@ export const SETTINGS_CONFIG = {
                 label: 'Server List Modifications',
                 description: [
                     'This adds multiple different features to the server list',
-                    "These modifications will also apply to the 'Servers My Connections Are In'",
+                    "These modifications will also apply to the 'Servers My Friends Are In'",
                 ],
                 type: 'checkbox',
                 default: true,
@@ -347,7 +347,7 @@ export const SETTINGS_CONFIG = {
                         description: [
                             'This shows the entire ServerID',
                             'By default Roblox only shows a part of it.',
-                            'It will hide ServerIDs of servers that you are playing in or connections are playing in unless hovered over.',
+                            'It will hide ServerIDs of servers that you are playing in or friends are playing in unless hovered over.',
                         ],
                         type: 'checkbox',
                         default: true,
@@ -476,9 +476,11 @@ export const SETTINGS_CONFIG = {
                 },
             },
             trustedConnectionsEnabled: {
-                label: 'Trusted Connections',
-                description:
-                    'This feature allows you to accept, request and remove trusted connections on the site for eligible connections.',
+                label: 'Trusted Friends',
+                description: [
+                    'This feature allows you to accept, request and remove trusted friends on the site for eligible friends.',
+                    'An eligible friend is someone who is face scan verified or ID verified and 13-17 if you are less than 18, or 18+ if you are 18+',
+                ],
                 type: 'checkbox',
                 default: true,
             },
@@ -743,7 +745,7 @@ export const SETTINGS_CONFIG = {
             quickSearchEnabled: {
                 label: 'Quick Search',
                 description:
-                    'This adds an autocomplete to the search dropdown for users, connections and experiences',
+                    'This adds an autocomplete to the search dropdown for users, friends and experiences',
                 type: 'checkbox',
                 default: true,
                 childSettings: {
@@ -762,9 +764,9 @@ export const SETTINGS_CONFIG = {
                         default: true,
                     },
                     friendSearchEnabled: {
-                        label: 'Quick Connection Search',
+                        label: 'Quick Friend Search',
                         description:
-                            'Shows a list of connections that has the best match to what you searched in the search dropdown.',
+                            'Shows a list of friends that has the best match to what you searched in the search dropdown.',
                         type: 'checkbox',
                         default: true,
                     },
@@ -972,7 +974,7 @@ export const SETTINGS_CONFIG = {
                 label: 'Spoof status as Offline',
                 description: [
                     'Makes you appear as offline to you and other people.',
-                    'This is useful if you want to appear offline while still allowing connections to join you in experiences, since the official offline status by Roblox does not allow this.',
+                    'This is useful if you want to appear offline while still allowing friends to join you in experiences, since the official offline status by Roblox does not allow this.',
                     'Joining an experience will overwrite this status.',
                     'This may take a few minutes to actually change your status to offline after turning on the feature.',
                 ],
