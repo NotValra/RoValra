@@ -7,6 +7,7 @@ import {
     CAM_BADGE_USER_ID,
     alice_badge_user_id,
     TESTER_USER_IDS,
+    ARTIST_BADGE_USER_ID,
 } from './userIds.js';
 
 const assets = getAssets();
@@ -43,6 +44,15 @@ export const BADGE_CONFIG = {
         style: {
             filter: 'invert(76%) sepia(85%) saturate(1870%) hue-rotate(358deg) brightness(103%) contrast(106%)',
         },
+        size: '28px',
+    },
+    artist: {
+        type: 'header',
+        userIds: [ARTIST_BADGE_USER_ID],
+        icon: assets.artistIcon,
+        tooltip: 'RoValra Artist',
+        confetti: assets.artistIcon,
+        shiny: true,
         size: '28px',
     },
     gilbert: {
