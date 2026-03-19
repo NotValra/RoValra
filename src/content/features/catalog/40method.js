@@ -1,5 +1,7 @@
 import { observeElement } from '../../core/observer.js';
 import { callRobloxApiJson, callRobloxApi } from '../../core/api.js';
+import { getItemDetails } from '../../core/catalog/itemPrice.js';
+import { getUserCurrency } from '../../core/user/userCurrency.js';
 import {
     launchMultiplayerGame,
     launchStudioForGame,
@@ -18,7 +20,6 @@ const ROVALRA_PLACE_ID = '107845747621646';
 let assetToSubcategoryMap = null;
 let classicClothingSubcategories = null;
 let metadataPromise = null;
-const itemDetailsCache = new Map();
 const ROVALRA_TEMPLATE_ASSET_ID = 107845747621646;
 
 async function fetchTemplateBlobViaBatch() {
@@ -100,23 +101,6 @@ async function publishTemplateToPlace(targetPlaceId) {
         console.error('RoValra: Auto-publish failed', error);
         throw error;
     }
-}
-function getItemDetails(itemId, itemType = 'Asset') {
-    const key = `${itemId}_${itemType}`;
-    if (itemDetailsCache.has(key)) return itemDetailsCache.get(key);
-
-    const promise = callRobloxApiJson({
-        subdomain: 'catalog',
-        endpoint: '/v1/catalog/items/details',
-        method: 'POST',
-        body: { items: [{ id: parseInt(itemId), itemType: itemType }] },
-    }).catch((err) => {
-        itemDetailsCache.delete(key);
-        return null;
-    });
-
-    itemDetailsCache.set(key, promise);
-    return promise;
 }
 
 async function fetchCatalogMetadata() {
@@ -428,16 +412,42 @@ async function fetchGamePassesForUniverse(universeId) {
     return gamePasses;
 }
 
+let lastBuyButtonClickTime = 0;
 const detectAndAddSaveButton = () => {
+    document.addEventListener(
+        'click',
+        (e) => {
+            if (e.target.closest('.shopping-cart-buy-button')) {
+                lastBuyButtonClickTime = Date.now();
+            }
+        },
+        { capture: true, passive: true },
+    );
+
     observeElement(
-        '.modal-dialog .modal-content, .modal-footer .modal-buttons, .modal-btns, .text-robux, .text-robux-lg',
+        '.modal-dialog .modal-content, .modal-footer .modal-buttons, .modal-btns, .text-robux, .text-robux-lg, .unified-purchase-dialog-content',
         (element) => {
             const modal =
                 element.closest('.modal-content') ||
                 element.closest(
                     '.modal-dialog .modal-content[role="document"], .modal-dialog .modal-content',
-                );
+                ) ||
+                element.closest('.unified-purchase-dialog-content');
+
             if (modal) {
+                if (
+                    modal.classList.contains('unified-purchase-dialog-content')
+                ) {
+                    const wasTriggeredByButton =
+                        Date.now() - lastBuyButtonClickTime < 2000;
+                    const hasBuyButton = modal.querySelector(
+                        '[data-testid="purchase-confirm-button"]',
+                    );
+
+                    if (!wasTriggeredByButton && !hasBuyButton) {
+                        return;
+                    }
+                }
                 addSaveButton(modal);
             }
         },
@@ -1635,16 +1645,12 @@ const executeCartPurchase = async (
     if (prefetchData && prefetchData.balance) {
         try {
             const bal = await prefetchData.balance;
-            userRobux = bal.robux || 0;
+            if (bal) userRobux = bal.robux || 0;
         } catch (e) {}
     } else {
         try {
-            const balanceData = await callRobloxApiJson({
-                subdomain: 'economy',
-                endpoint: `/v1/users/${currentUserId}/currency`,
-                method: 'GET',
-            });
-            userRobux = balanceData.robux || 0;
+            const balanceData = await getUserCurrency(currentUserId);
+            if (balanceData) userRobux = balanceData.robux || 0;
         } catch (error) {
             console.warn('Could not fetch user balance:', error);
         }
@@ -1919,9 +1925,8 @@ const execute40MethodPurchase = async (
 
     if (prefetchData && prefetchData.itemDetails) {
         try {
-            const details = await prefetchData.itemDetails;
-            if (details && details.data && details.data[0]) {
-                const item = details.data[0];
+            const item = await prefetchData.itemDetails;
+            if (item) {
                 if (!itemName || itemName === 'Unknown Item')
                     itemName = item.name;
                 assetType = item.assetType;
@@ -1952,17 +1957,12 @@ const execute40MethodPurchase = async (
             }
         } else {
             try {
-                const catalogData = await getItemDetails(
+                const item = await getItemDetails(
                     itemId,
                     isBundle ? 'Bundle' : 'Asset',
                 );
 
-                if (
-                    catalogData &&
-                    catalogData.data &&
-                    catalogData.data.length > 0
-                ) {
-                    const item = catalogData.data[0];
+                if (item) {
                     itemName = item.name || 'Unknown Item';
                     assetType = item.assetType;
 
@@ -2090,16 +2090,12 @@ const execute40MethodPurchase = async (
     if (prefetchData && prefetchData.balance) {
         try {
             const bal = await prefetchData.balance;
-            userRobux = bal.robux || 0;
+            if (bal) userRobux = bal.robux || 0;
         } catch (e) {}
     } else {
         try {
-            const balanceData = await callRobloxApiJson({
-                subdomain: 'economy',
-                endpoint: `/v1/users/${currentUserId}/currency`,
-                method: 'GET',
-            });
-            userRobux = balanceData.robux || 0;
+            const balanceData = await getUserCurrency(currentUserId);
+            if (balanceData) userRobux = balanceData.robux || 0;
         } catch (error) {
             console.warn('Could not fetch user balance:', error);
         }
@@ -2340,18 +2336,48 @@ const addSaveButton = (modal) => {
     if (!modalWindow) return;
 
     const checkElements = () => {
-        const buyNowButton = modalWindow.querySelector(
-            '.modal-button.btn-primary-md, #confirm-btn.btn-primary-md, a#confirm-btn',
-        );
-        const robuxPriceElement = modalWindow.querySelector(
+        const buyNowButton =
+            modalWindow.querySelector(
+                '.modal-button.btn-primary-md, #confirm-btn.btn-primary-md, a#confirm-btn',
+            ) ||
+            modalWindow.querySelector(
+                '[data-testid="purchase-confirm-button"]',
+            );
+
+        let robuxPriceElement = modalWindow.querySelector(
             '.text-robux, .text-robux-lg',
         );
-        const buttonContainer = modalWindow.querySelector(
+
+        if (
+            modalWindow.classList.contains('unified-purchase-dialog-content') &&
+            (!robuxPriceElement ||
+                robuxPriceElement.closest('#rbx-unified-purchase-heading'))
+        ) {
+            const potentialPrices = modalWindow.querySelectorAll('.text-robux');
+            for (const el of potentialPrices) {
+                if (!el.closest('#rbx-unified-purchase-heading')) {
+                    robuxPriceElement = el;
+                    break;
+                }
+            }
+        }
+
+        let buttonContainer = modalWindow.querySelector(
             '.modal-footer .modal-buttons, .modal-btns',
         );
-        const closeButton = modalWindow.querySelector(
-            '.modal-header .close, .modal-header .modal-close-btn, .modal-header button.close',
-        );
+
+        if (
+            !buttonContainer &&
+            buyNowButton &&
+            modalWindow.classList.contains('unified-purchase-dialog-content')
+        ) {
+            buttonContainer = buyNowButton.parentElement;
+        }
+
+        const closeButton =
+            modalWindow.querySelector(
+                '.modal-header .close, .modal-header .modal-close-btn, .modal-header button.close',
+            ) || modalWindow.querySelector('button[aria-label="Close"]');
 
         if (
             !buyNowButton ||
@@ -2402,11 +2428,9 @@ const addSaveButton = (modal) => {
                 ),
             );
 
-            prefetchData.balance = callRobloxApiJson({
-                subdomain: 'economy',
-                endpoint: `/v1/users/${currentUserId}/currency`,
-                method: 'GET',
-            }).catch(() => ({ robux: 0 }));
+            prefetchData.balance = getUserCurrency(currentUserId).catch(() => ({
+                robux: 0,
+            }));
 
             prefetchData.gameInfo = prefetchData.storage.then(async (res) => {
                 const savedPlaceId = res.RobuxPlaceId;
@@ -2610,9 +2634,8 @@ const addSaveButton = (modal) => {
         let assetType = null;
         if (!isGamePass && !isBundle && !isMultiItemPurchase && itemId) {
             try {
-                const details = await getItemDetails(itemId, 'Asset');
-                if (details && details.data && details.data[0]) {
-                    const itemData = details.data[0];
+                const itemData = await getItemDetails(itemId, 'Asset');
+                if (itemData) {
                     assetType = itemData.assetType;
 
                     if (
@@ -2653,14 +2676,25 @@ const addSaveButton = (modal) => {
 
         const savings = Math.floor(robuxPrice * savingsPercentage);
         const saveButton = document.createElement('button');
-        saveButton.textContent = `Save ${savings} Robux`;
         saveButton.type = 'button';
 
-        if (isGamePass) {
-            saveButton.className = 'btn-control-md btn-save-robux';
-        } else {
+        if (modalWindow.classList.contains('unified-purchase-dialog-content')) {
             saveButton.className =
-                'modal-button btn-control-md btn-min-width btn-save-robux';
+                'foundation-web-button relative clip group/interactable focus-visible:outline-focus disabled:outline-none cursor-pointer flex items-center justify-center stroke-none padding-y-none select-none radius-medium text-label-large height-1200 padding-x-large bg-action-emphasis content-action-emphasis fill basis-0 btn-save-robux';
+            saveButton.style.textDecoration = 'none';
+            saveButton.style.backgroundColor = 'rgba(208, 217, 251, 0.12)';
+            saveButton.innerHTML = DOMPurify.sanitize(`
+                <div role="presentation" class="absolute inset-[0] transition-colors group-hover/interactable:bg-[var(--color-state-hover)] group-active/interactable:bg-[var(--color-state-press)] group-disabled/interactable:bg-none"></div>
+                <span class="padding-y-xsmall text-truncate-end text-no-wrap">Save ${savings} Robux</span>
+            `);
+        } else {
+            saveButton.textContent = `Save ${savings} Robux`;
+            if (isGamePass) {
+                saveButton.className = 'btn-control-md btn-save-robux';
+            } else {
+                saveButton.className =
+                    'modal-button btn-control-md btn-min-width btn-save-robux';
+            }
         }
 
         saveButton.addEventListener('click', async () => {

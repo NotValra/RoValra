@@ -21,7 +21,7 @@
     "dependencies": {
         "dompurify": "^3.3.2",
         "marked": "^17.0.4",
-        "roavatar-renderer": "1.2.0",
+        "roavatar-renderer": "1.2.2",
         "ezlocale": ">=2.1.0"
     },
     "lint-staged": {

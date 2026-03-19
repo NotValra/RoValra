@@ -53,7 +53,7 @@ function formatRelativeTime(date) {
 function formatTime(date, format) {
     switch (format) {
         case '24h':
-            return date.toLocaleString(undefined, { hour12: false });
+            return date.toLocaleString('en-GB', { hour12: false });
         case 'relative':
             return formatRelativeTime(date);
         case 'local':

@@ -99,14 +99,24 @@ export function init() {
                                 `priceFloor.statusTypes.${statusKey}`,
                             );
 
+                            const diffVal = Math.abs(diff).toLocaleString();
                             const differenceString =
                                 diff !== 0
                                     ? ts('priceFloor.difference', {
-                                          diff: Math.abs(diff).toLocaleString(),
+                                          diff: `___ICON___${diffVal}`,
                                       })
                                     : '';
 
-                            tooltipContent += `<br>${ts('priceFloor.status', { status: status, difference: differenceString })}`;
+                            const statusText = ts('priceFloor.status', {
+                                status: status,
+                                difference: differenceString,
+                            });
+                            const finalStatus = statusText.replace(
+                                '___ICON___',
+                                '<span class="icon-robux-16x16"></span>',
+                            );
+
+                            tooltipContent += `<br>${finalStatus}`;
                         }
 
                         tooltipContent += `<br><br><span class="text-secondary" style="font-size: 12px;">${ts('priceFloor.description')}</span>`;
