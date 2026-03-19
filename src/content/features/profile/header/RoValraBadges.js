@@ -11,7 +11,7 @@ const badgeCache = new Map();
 
 function ensureShineStyle() {
     if (document.getElementById('rovalra-badge-shine-style')) return;
-    const style = document.createElement('style');
+    const style = document.createElement('style'); //Verified
     style.id = 'rovalra-badge-shine-style';
     style.textContent = `
         @keyframes rovalra-badge-shine-move {
@@ -19,7 +19,7 @@ function ensureShineStyle() {
             40% { left: 200%; }
             100% { left: 200%; }
         }
-    `;
+    `; //Verified
     document.head.appendChild(style);
 }
 
@@ -126,7 +126,7 @@ function createRain(imageUrl) {
         position: fixed;
         top: 0; left: 0; width: 100vw; height: 100vh;
         pointer-events: none; z-index: 100000; overflow: hidden;
-    `;
+    `; // Verified
     document.body.appendChild(container);
 
     const interval = setInterval(() => {
@@ -140,7 +140,7 @@ function createRain(imageUrl) {
             position: absolute; top: -100px; left: ${startLeft}vw;
             width: ${size}px; height: auto;
             transition: top ${duration}s linear, transform ${duration}s linear;
-        `;
+        `; //verified
         container.appendChild(drop);
         void drop.offsetWidth;
         drop.style.top = '110vh';
