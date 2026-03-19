@@ -9,6 +9,20 @@ import { getUserIdFromUrl } from '../../../core/idExtractor.js';
 import { t } from '../../../core/locale/i18n.js';
 const badgeCache = new Map();
 
+function ensureShineStyle() {
+    if (document.getElementById('rovalra-badge-shine-style')) return;
+    const style = document.createElement('style');
+    style.id = 'rovalra-badge-shine-style';
+    style.textContent = `
+        @keyframes rovalra-badge-shine-move {
+            0% { left: -100%; }
+            40% { left: 200%; }
+            100% { left: 200%; }
+        }
+    `;
+    document.head.appendChild(style);
+}
+
 function createHeaderBadge(parentContainer, badge) {
     const iconContainer = document.createElement('div');
     iconContainer.className = 'rovalra-header-badge';
@@ -24,8 +38,8 @@ function createHeaderBadge(parentContainer, badge) {
     icon.src = badge.icon;
     icon.dataset.badgeId = badge.tooltip || 'badge';
     Object.assign(icon.style, {
-        width: 'var(--icon-size-large)',
-        height: 'var(--icon-size-large)',
+        width: badge.size || 'var(--icon-size-large)',
+        height: badge.size || 'var(--icon-size-large)',
         cursor: 'pointer',
         ...badge.style,
     });
@@ -45,6 +59,38 @@ function createHeaderBadge(parentContainer, badge) {
 
     if (badge.tooltip) {
         addTooltip(iconContainer, badge.tooltip, { position: 'bottom' });
+    }
+
+    if (badge.shiny) {
+        ensureShineStyle();
+        const shineContainer = document.createElement('div');
+        Object.assign(shineContainer.style, {
+            position: 'absolute',
+            top: '0',
+            left: '0',
+            width: '100%',
+            height: '100%',
+            pointerEvents: 'none',
+            webkitMask: `url("${badge.icon}") center / contain no-repeat`,
+            mask: `url("${badge.icon}") center / contain no-repeat`,
+            zIndex: '2',
+        });
+
+        const shineBar = document.createElement('div');
+        Object.assign(shineBar.style, {
+            position: 'absolute',
+            top: '0',
+            left: '-100%',
+            width: '50%',
+            height: '100%',
+            background:
+                'linear-gradient(to right, transparent, rgba(255,255,255,0.8), transparent)',
+            transform: 'skewX(-25deg)',
+            animation: 'rovalra-badge-shine-move 5s infinite',
+        });
+
+        shineContainer.appendChild(shineBar);
+        iconContainer.appendChild(shineContainer);
     }
 
     iconContainer.appendChild(icon);

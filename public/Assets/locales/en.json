@@ -56,7 +56,7 @@
         "loading": "Loading..."
     },
     "hiddenGroupGames": {
-        "overlayTitle": "Hidden Group Experiences ({count} Total)",
+        "overlayTitle": "Hidden Group Experiences ({{count}} Total)",
         "noHiddenGames": "This group has no hidden experiences.",
         "buttonText": "Hidden Experiences",
         "labels": {
@@ -290,9 +290,9 @@
         "onlineStatus": "Online Status",
         "joinStatus": "Experience Status",
         "everyone": "Everyone",
-        "friendsFollowingAndFollowers": "Connections, Followers, & Following",
-        "friendsAndFollowing": "Connections & Following",
-        "friends": "Connections",
+        "friendsFollowingAndFollowers": "Friends, Followers, & Following",
+        "friendsAndFollowing": "Friends & Following",
+        "friends": "Friends",
         "noOne": "No one"
     },
     "groupFunds": {
@@ -311,8 +311,8 @@
         "friendSearchError": "RoValra: Friend Search Error",
         "userSearchError": "RoValra: User Search Error",
         "gameSearchError": "RoValra: Game Search Error",
-        "trustedConnection": "You are trusted connections",
-        "connection": "You are connections",
+        "trustedConnection": "You are trusted friends",
+        "connection": "You are friends",
         "playing": "Playing {{gameName}}",
         "verifiedBadge": "Verified Badge",
         "verified": "Verified",
@@ -516,7 +516,7 @@
             "below": "below",
             "at": "at"
         },
-        "difference": " by <span class=\"icon-robux-16x16\"></span>{{diff}}",
+        "difference": " by {{diff}}",
         "description": "The price floor is a dynamically updating minimum price an item can be sold for."
     },
     "parentItem": {
@@ -531,6 +531,9 @@
     },
     "friendsSince": {
         "friended": "Friended"
+    },
+    "purchasePrompt": {
+        "balanceAfter": "Your balance after this transaction will be"
     },
     "time": {
         "justNow": "just now",

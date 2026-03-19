@@ -117,6 +117,19 @@ function injectDialogStats(dialog, friendData) {
         const row = document.createElement('div');
         row.className =
             'items-center gap-xsmall flex rovalra-friends-since-dialog';
+        row.id = 'rovalra-friends-since-container';
+
+        const sibling = parent.querySelector('.items-center.gap-xsmall.flex');
+        if (sibling) {
+            const textBody = sibling.querySelector('.text-body-medium');
+            if (textBody) {
+                row.style.fontSize = window.getComputedStyle(textBody).fontSize;
+            } else {
+                row.style.fontSize = window.getComputedStyle(sibling).fontSize;
+            }
+        } else {
+            row.style.fontSize = '14px';
+        }
 
         const icon = document.createElement('span');
         icon.className =
@@ -126,8 +139,7 @@ function injectDialogStats(dialog, friendData) {
         row.appendChild(document.createTextNode(`${friendedText} `));
 
         const timestamp = createInteractiveTimestamp(friendData.friendsSince);
-        const p = document.createElement('p');
-        p.className = 'text-lead';
+        const p = document.createElement('span');
         p.appendChild(timestamp);
         row.appendChild(p);
 
