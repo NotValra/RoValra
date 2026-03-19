@@ -21,7 +21,7 @@
     "dependencies": {
         "dompurify": "^3.3.2",
         "marked": "^17.0.4",
-        "roavatar-renderer": "1.2.2",
+        "roavatar-renderer": "1.2.3",
         "i18next": "25.8.18"
     },
     "lint-staged": {
