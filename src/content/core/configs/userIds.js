@@ -1,5 +1,3 @@
-
-
 export const CREATOR_USER_ID = '447170745';
 
 export const CONTRIBUTOR_USER_IDS = [
@@ -10,7 +8,11 @@ export const CONTRIBUTOR_USER_IDS = [
     '546872490', //Kanibal02
     '48255812', //aliceenight
     '7982684834', //qborder
-    '126448532' //steinann
+    '126448532', //steinann
+];
+
+export const TESTER_USER_IDS = [
+    '1163412141', //Tino
 ];
 
 export const RAT_BADGE_USER_ID = '477516666'; // rat
