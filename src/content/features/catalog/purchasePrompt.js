@@ -1,6 +1,9 @@
 import { observeElement } from '../../core/observer.js';
 import { safeHtml } from '../../core/packages/dompurify.js';
 import { ts } from '../../core/locale/i18n.js';
+import { getPlaceIdFromUrl } from '../../core/idExtractor.js';
+import { getUserCurrency } from '../../core/user/userCurrency.js';
+import { getItemDetails } from '../../core/catalog/itemPrice.js';
 
 let lastBuyClickTime = 0;
 
@@ -19,7 +22,7 @@ function setupClickListener() {
     );
 }
 
-function processDialog(dialog) {
+async function processDialog(dialog) {
     if (Date.now() - lastBuyClickTime > 2000) return;
 
     if (dialog.querySelector('.rovalra-robux-after')) return;
@@ -27,25 +30,62 @@ function processDialog(dialog) {
     const heading = dialog.querySelector('#rbx-unified-purchase-heading');
     if (!heading) return;
 
-    const balanceEl = heading.querySelector('.text-robux');
-    if (!balanceEl) return;
+    let balance = null;
+    let price = null;
 
-    const balanceText = balanceEl.textContent.replace(/,/g, '').trim();
-    const balance = parseInt(balanceText, 10);
+    try {
+        const itemId = getPlaceIdFromUrl();
+        if (itemId) {
+            let itemType = 'Asset';
+            if (window.location.pathname.includes('/bundles/')) {
+                itemType = 'Bundle';
+            }
 
-    if (isNaN(balance)) return;
+            const [currencyData, itemData] = await Promise.all([
+                getUserCurrency().catch(() => null),
+                getItemDetails(itemId, itemType).catch(() => null),
+            ]);
+
+            if (currencyData && typeof currencyData.robux === 'number') {
+                balance = currencyData.robux;
+            }
+
+            if (itemData) {
+                if (typeof itemData.lowestPrice === 'number') {
+                    price = itemData.lowestPrice;
+                } else if (typeof itemData.price === 'number') {
+                    price = itemData.price;
+                }
+            }
+        }
+    } catch (e) {
+        console.warn('RoValra: API fetch failed for purchase prompt', e);
+    }
+
+    if (balance === null) {
+        const balanceEl = heading.querySelector('.text-robux');
+        if (balanceEl) {
+            const balanceText = balanceEl.textContent.replace(/,/g, '').trim();
+            balance = parseInt(balanceText, 10);
+        }
+    }
 
     const allRobuxTexts = Array.from(dialog.querySelectorAll('.text-robux'));
     const priceEl = allRobuxTexts.find((el) => !heading.contains(el));
 
     if (!priceEl) return;
 
-    const priceText = priceEl.textContent.replace(/,/g, '').trim();
-    const price = parseInt(priceText, 10);
+    if (price === null) {
+        const priceText = priceEl.textContent.replace(/,/g, '').trim();
+        price = parseInt(priceText, 10);
+    }
 
-    if (isNaN(price)) return;
+    if (balance === null || isNaN(balance) || price === null || isNaN(price))
+        return;
 
     const after = balance - price;
+
+    if (dialog.querySelector('.rovalra-robux-after')) return;
 
     const container = document.createElement('div');
     container.className = 'rovalra-robux-after';
