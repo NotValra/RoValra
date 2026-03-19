@@ -1151,6 +1151,7 @@ async function preloadAvatar() {
                 if (controls) {
                     controls.autoRotate = !!settings.profileRenderRotateEnabled;
                     controls.autoRotateSpeed = 1.0;
+                    controls.rotateSpeed = 0.5;
                 }
 
                 const authUserId = await getAuthenticatedUserId();
