@@ -479,7 +479,8 @@ export const SETTINGS_CONFIG = {
                 label: 'Trusted Friends',
                 description: [
                     'This feature allows you to accept, request and remove trusted friends on the site for eligible friends.',
-                    'An eligible friend is someone who is face scan verified or ID verified and 13-17 if you are less than 18, or 18+ if you are 18+',
+                    'Eligible friends must be ID or face-scan verified and within your age bracket (13–17 or 18+).',
+                    '**Note:** Roblox uses an algorithm that may prevent adding someone even if they meet these requirements. [Learn more here.](https://en.help.roblox.com/hc/en-us/articles/46158344285204)',
                 ],
                 type: 'checkbox',
                 default: true,
