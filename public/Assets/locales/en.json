@@ -516,7 +516,7 @@
             "below": "below",
             "at": "at"
         },
-        "difference": " by <span class=\"icon-robux-16x16\"></span>{{diff}}",
+        "difference": " by {{diff}}",
         "description": "The price floor is a dynamically updating minimum price an item can be sold for."
     },
     "parentItem": {
