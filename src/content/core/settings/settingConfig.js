@@ -54,6 +54,13 @@ export const SETTINGS_CONFIG = {
                     },
                 },
             },
+            EnableRobuxAfterPurchase: {
+                label: 'Robux After Purchase',
+                description:
+                    "This feature restores the 'Your balance after this transaction will be X' text to the new Roblox purchase UI after it was removed.",
+                type: 'checkbox',
+                default: true,
+            },
             EnableItemDependencies: {
                 label: 'Item Dependencies',
                 description: [

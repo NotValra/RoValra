@@ -532,6 +532,9 @@
     "friendsSince": {
         "friended": "Friended"
     },
+    "purchasePrompt": {
+        "balanceAfter": "Your balance after this transaction will be"
+    },
     "time": {
         "justNow": "just now",
         "secondsAgo": "{{count}}s ago",
