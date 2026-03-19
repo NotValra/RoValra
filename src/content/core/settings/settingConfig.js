@@ -432,9 +432,12 @@ export const SETTINGS_CONFIG = {
                 description: [
                     'Replaces the default profile avatar with a more customizable and feature-rich 3D renderer.',
                     'This feature is required for custom environments and other render-related settings.',
+                    'This feature was made possible cause of [RoAvatar](https://www.roavatar.com) ❤️',
                 ],
                 type: 'checkbox',
-                default: true,
+                default: false,
+                experimental:
+                    'This feature may cause performance issues. And may be buggy',
                 childSettings: {
                     profileRenderEnvironment: {
                         label: '3D Profile Environment',

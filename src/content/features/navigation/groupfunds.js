@@ -30,6 +30,11 @@ export function init() {
                 if (!menu || menu.querySelector('.rovalra-group-funds-section'))
                     return;
 
+                const storageData = await new Promise((resolve) =>
+                    chrome.storage.local.get(cacheKey, resolve),
+                );
+                const allCachedData = storageData[cacheKey] || {};
+
                 const section = document.createElement('div');
                 section.className = 'rovalra-group-funds-section';
 
@@ -60,7 +65,6 @@ export function init() {
                     fundsLink.appendChild(leftContainer);
 
                     const amountSpan = document.createElement('span');
-                    amountSpan.textContent = ts('groupFunds.loading');
                     fundsLink.appendChild(amountSpan);
 
                     fundsLi.appendChild(fundsLink);
@@ -96,13 +100,6 @@ export function init() {
                         }
                     };
 
-                    const updateFromData = (data) => {
-                        if (data.icon) renderIcon(data.icon);
-                        if (data.funds !== undefined) renderFunds(data.funds);
-                        if (data.pending !== undefined)
-                            renderPending(data.pending);
-                    };
-
                     const renderFunds = (amount) => {
                         amountSpan.innerHTML = '';
                         const rbxIcon = document.createElement('span');
@@ -136,19 +133,28 @@ export function init() {
                         pendingLink.append(label, icon, value);
                     };
 
-                    const CACHE_DURATION = 5 * 60 * 1000;
+                    const updateFromData = (data) => {
+                        if (data.icon) renderIcon(data.icon);
+                        if (data.funds !== undefined) renderFunds(data.funds);
+                        if (data.pending !== undefined)
+                            renderPending(data.pending);
+                    };
 
-                    const storageData = await new Promise((resolve) =>
-                        chrome.storage.local.get(cacheKey, resolve),
-                    );
-                    const allCachedData = storageData[cacheKey] || {};
                     const cachedData = allCachedData[groupId];
+
+                    if (cachedData) {
+                        updateFromData(cachedData);
+                    } else {
+                        amountSpan.textContent = ts('groupFunds.loading');
+                    }
+
+                    const CACHE_DURATION = 5 * 60 * 1000;
 
                     if (
                         cachedData &&
                         Date.now() - cachedData.timestamp < CACHE_DURATION
                     ) {
-                        return updateFromData(cachedData);
+                        return;
                     }
 
                     try {
@@ -183,15 +189,24 @@ export function init() {
                         };
 
                         updateFromData(newEntry);
-                        allCachedData[groupId] = newEntry;
-                        chrome.storage.local.set({ [cacheKey]: allCachedData });
+
+                        const freshStorage = await new Promise((resolve) =>
+                            chrome.storage.local.get(cacheKey, resolve),
+                        );
+                        const freshCache = freshStorage[cacheKey] || {};
+                        freshCache[groupId] = newEntry;
+                        chrome.storage.local.set({ [cacheKey]: freshCache });
                     } catch (e) {
                         console.warn(
                             'RoValra: Failed to update group funds data',
                             e,
                         );
-                        amountSpan.textContent = ts('groupFunds.noPermissions');
-                        pendingLink.textContent = '';
+                        if (!cachedData) {
+                            amountSpan.textContent = ts(
+                                'groupFunds.noPermissions',
+                            );
+                            pendingLink.textContent = '';
+                        }
                     }
                 };
 
