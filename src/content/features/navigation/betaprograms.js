@@ -165,6 +165,8 @@ export async function addNavbarButton() {
                         el.style.display = 'flex';
                         el.style.alignItems = 'center';
                         el.style.justifyContent = 'center';
+                        el.style.width = '20px';
+                        el.style.height = '20px';
                         const svgData = assets[assetKey];
                         if (svgData.startsWith('data:image/svg+xml,')) {
                             el.innerHTML = decodeURIComponent(
@@ -243,6 +245,10 @@ export async function addNavbarButton() {
                     // Quest / VR
                     if (p.includes('PROGRAM_PLATFORM_QUEST_ANDROID_APP'))
                         addPlatIcon('betaVR', 'Meta Quest');
+
+                    // RCC
+                    if (p.includes('PROGRAM_PLATFORM_RCC'))
+                        addPlatIcon('betaRcc', 'RCC');
 
                     if (iconsRow.children.length > 0) {
                         textContainer.appendChild(iconsRow);

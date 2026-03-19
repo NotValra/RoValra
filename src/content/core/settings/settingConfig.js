@@ -439,13 +439,6 @@ export const SETTINGS_CONFIG = {
                         options: [
                             { label: 'None', value: 'void', id: 1 },
                             {
-                                label: 'Beachside',
-                                value: 'beachside',
-                                environmentEndpoint:
-                                    '/static/json/beachside_environment.json',
-                                id: 2,
-                            },
-                            {
                                 label: 'Crossroads',
                                 value: 'crossroads',
                                 environmentEndpoint:
