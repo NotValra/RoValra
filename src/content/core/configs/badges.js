@@ -1,4 +1,5 @@
 import { getAssets } from '../assets.js';
+import TranslateIcon from '@mui/icons-material/Translate';
 import {
     CREATOR_USER_ID,
     CONTRIBUTOR_USER_IDS,
@@ -39,19 +40,19 @@ export const BADGE_CONFIG = {
     translator: {
         type: 'header',
         userIds: TRANSLATOR_USER_IDS,
-        icon: assets.translateIcon,
+        icon: TranslateIcon,
         tooltip: 'RoValra Translator',
-        confetti: assets.translateIcon,
+        confetti: TranslateIcon,
         style: {},
         shiny: true
     },
     translatoregg: {
         type: 'badge',
         userIds: TRANSLATOR_USER_IDS,
-        icon: assets.translateIcon,
+        icon: assets.translateGilbert,
         name: 'Translator',
         tooltip: 'RoValra Translator',
-        confetti: assets.translateIcon,
+        confetti: assets.translateGilbert,
     },
     tester: {
         type: 'header',

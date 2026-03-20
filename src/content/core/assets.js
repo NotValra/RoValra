@@ -1,6 +1,6 @@
 const assetPaths = {
     rovalraIcon: 'public/Assets/icon-128.png',
-    translateIcon: 'public/Assets/icon-128-translate.png',
+    translateGilbert: 'public/Assets/icon-128-translate.png',
     ratBadgeIcon: 'https://www.rovalra.com/static/img/return_request.png',
     fishConfetti: 'https://www.rovalra.com/static/img/fishstrap.png',
     rolimonsIcon: `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1094 1466.2"><path fill="#0084dd" d="M1094 521.6 0 0v469.5l141-67.4 250 119.2L0 707.8v369.7l815.6 388.7L315 893l779-371.4z"></path></svg>')}`,

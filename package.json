@@ -19,10 +19,11 @@
         "sass": "^1.97.3"
     },
     "dependencies": {
+        "@mui/icons-material": "^7.3.9",
         "dompurify": "^3.3.2",
+        "i18next": "25.8.18",
         "marked": "^17.0.4",
-        "roavatar-renderer": "1.2.3",
-        "i18next": "25.8.18"
+        "roavatar-renderer": "1.2.3"
     },
     "lint-staged": {
         "*.js": "eslint --fix",
