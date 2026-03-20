@@ -16,8 +16,13 @@ export const TESTER_USER_IDS = [
     '1163412141', //Tino
 ];
 
+export const TRANSLATOR_USER_IDS = [
+    '1564574922', // cornusandu
+];
+
 export const ARTIST_BADGE_USER_ID = '1337447242';
 export const RAT_BADGE_USER_ID = '477516666'; // rat
 export const BLAHAJ_BADGE_USER_ID = '96786935'; // BLAHAJ
 export const CAM_BADGE_USER_ID = '4866259395';
 export const alice_badge_user_id = '48255812';
+export const GILBERT_USER_ID = '146089324';  // WoozyNate
