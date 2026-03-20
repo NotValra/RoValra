@@ -59,17 +59,20 @@ async function fetchAssetDetails(assetIds) {
     if (!assetIds || assetIds.length === 0) return new Map();
 
     const promises = assetIds.map(async (id) => {
-        try {
-            const response = await callRobloxApi({
-                subdomain: 'economy',
-                endpoint: `/v2/assets/${id}/details`,
-                method: 'GET',
-            });
-            if (!response.ok) return null;
-            return await response.json();
-        } catch (e) {
-            return null;
+        for (let i = 0; i < 4; i++) {
+            try {
+                const response = await callRobloxApi({
+                    subdomain: 'economy',
+                    endpoint: `/v2/assets/${id}/details`,
+                    method: 'GET',
+                });
+                if (response.ok) return await response.json();
+                if (i < 3) await new Promise((r) => setTimeout(r, 2000));
+            } catch (e) {
+                if (i < 3) await new Promise((r) => setTimeout(r, 2000));
+            }
         }
+        return null;
     });
 
     const results = await Promise.all(promises);

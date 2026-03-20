@@ -132,6 +132,21 @@ export const handleSaveSettings = async (settingName, value) => {
                     }
                     break;
 
+                case 'list':
+                    if (Array.isArray(value)) {
+                        sanitizedValue = value.map((item) =>
+                            typeof item === 'string'
+                                ? sanitizeString(item)
+                                : '',
+                        );
+                    } else {
+                        console.warn(
+                            `Invalid array value for list setting '${settingName}' - setting to default`,
+                        );
+                        sanitizedValue = settingConfig.default ?? [];
+                    }
+                    break;
+
                 case 'file':
                     if (value === null) {
                         sanitizedValue = null;
@@ -382,6 +397,16 @@ export const initSettings = async (settingsContent) => {
                                 childElement.dispatchEvent(
                                     new Event('input', { bubbles: true }),
                                 );
+                            } else if (childSetting.type === 'list') {
+                                const values = settings[childName] ||
+                                    childSetting.default || [''];
+                                if (
+                                    childElement.rovalraList &&
+                                    typeof childElement.rovalraList
+                                        .setValues === 'function'
+                                ) {
+                                    childElement.rovalraList.setValues(values);
+                                }
                             } else if (childSetting.type === 'number') {
                                 const currentValue =
                                     settings[childName] !== undefined

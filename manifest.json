@@ -32,7 +32,6 @@
     "optional_permissions": ["webNavigation", "contextMenus"],
     "declarative_net_request": {
         "rule_resources": [
-
             {
                 "id": "ruleset_status",
                 "enabled": false,
@@ -55,7 +54,7 @@
                 "intercept.js",
                 "assets/*",
                 "css/*"
-                       ],
+            ],
             "matches": ["https://www.roblox.com/*", "*://*.roblox.com/*"]
         }
     ],

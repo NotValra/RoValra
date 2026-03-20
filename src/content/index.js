@@ -35,6 +35,7 @@ import { init as initDependencies } from './features/catalog/depenencies.js';
 import { init as initPriceFloor } from './features/catalog/pricefloor.js';
 import { init as initCatalogBannerTest } from './features/catalog/bannerTest.js';
 import { init as initParentItem } from './features/catalog/ParentItem.js';
+import { init as initPurchasePrompt } from './features/catalog/purchasePrompt.js';
 
 // Games
 import { init as initBotDetector } from './features/games/about/botDetector.js';
@@ -73,6 +74,7 @@ import { init as initCategorizeWearing } from './features/profile/categorizeWear
 import { init as initTrustedFriends } from './features/profile/trustedfriends.js';
 import { init as initProfileRender } from './features/profile/header/ProfileRender.js';
 import { init as initStatus } from './features/profile/header/status.js';
+import { init as initFriendsSince } from './features/profile/friends/friendsSince.js';
 
 // Settings
 import { init as initSettingsPage } from './features/settings/index.js';
@@ -114,7 +116,7 @@ const featureRoutes = [
     // pretty much just the 40% method
     {
         paths: ['/catalog', '/bundles', '/game-pass', '/games'],
-        features: [init40Method],
+        features: [init40Method, initPurchasePrompt],
     },
     // Catalog and bundle pages
     {
@@ -181,6 +183,7 @@ const featureRoutes = [
             initTrustedFriends,
             initProfileRender,
             initStatus,
+            initFriendsSince,
         ],
     },
 

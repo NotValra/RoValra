@@ -3,7 +3,7 @@ import { checkAssetsInBatch } from '../../core/utils/assetStreamer.js';
 import { observeElement } from '../../core/observer.js';
 import { callRobloxApi } from '../../core/api.js';
 import { getAssets } from '../../core/assets.js';
-
+import { ts } from '../../core/locale/i18n.js';
 
 function saveAsFile(data, fileName, mimeType) {
     const blob = new Blob([data], { type: mimeType });
@@ -18,7 +18,6 @@ function saveAsFile(data, fileName, mimeType) {
 }
 
 async function downloadAsset(assetId) {
-    
     let assetLocation = null;
     let assetTypeId = null;
 
@@ -27,11 +26,13 @@ async function downloadAsset(assetId) {
             subdomain: 'assetdelivery',
             endpoint: '/v2/assets/batch',
             method: 'POST',
-            body: [{
-                requestId: assetId.toString(),
-                assetId: assetId,
-            }],
-            sanitize: false
+            body: [
+                {
+                    requestId: assetId.toString(),
+                    assetId: assetId,
+                },
+            ],
+            sanitize: false,
         });
 
         if (response.ok) {
@@ -52,18 +53,30 @@ async function downloadAsset(assetId) {
         try {
             const response = await fetch(assetLocation); // Verified
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            
+
             const arrayBuffer = await response.arrayBuffer();
-            
+
             const typeMap = {
-                1: 'png', 3: 'ogg', 4: 'mesh', 9: 'rbxl', 10: 'rbxm', 
-                11: 'png', 12: 'png', 13: 'png', 24: 'rbxm', 38: 'rbxm', 40: 'mesh'
+                1: 'png',
+                3: 'ogg',
+                4: 'mesh',
+                9: 'rbxl',
+                10: 'rbxm',
+                11: 'png',
+                12: 'png',
+                13: 'png',
+                24: 'rbxm',
+                38: 'rbxm',
+                40: 'mesh',
             };
             const ext = typeMap[assetTypeId] || 'bin';
-            
-            saveAsFile(arrayBuffer, `${assetId}.${ext}`, 'application/octet-stream');
-            return;
 
+            saveAsFile(
+                arrayBuffer,
+                `${assetId}.${ext}`,
+                'application/octet-stream',
+            );
+            return;
         } catch (e) {
             console.error(`[RoValra DL] Failed to process raw asset:`, e);
         }
@@ -90,7 +103,11 @@ async function downloadAsset(assetId) {
         return;
     }
 
-    saveAsFile(serializedData, `${assetId}.${fileExtension}`, 'application/octet-stream');
+    saveAsFile(
+        serializedData,
+        `${assetId}.${fileExtension}`,
+        'application/octet-stream',
+    );
 }
 
 function addButton(buttonContainer) {
@@ -104,7 +121,8 @@ function addButton(buttonContainer) {
         return;
     }
 
-    const targetContainer = buttonContainer.firstElementChild || buttonContainer;
+    const targetContainer =
+        buttonContainer.firstElementChild || buttonContainer;
     const assets = getAssets();
 
     const downloadButton = document.createElement('button');
@@ -120,7 +138,7 @@ function addButton(buttonContainer) {
         color: 'inherit',
         fontWeight: 'bold',
         fontSize: '14px',
-        fontFamily: 'inherit'
+        fontFamily: 'inherit',
     });
 
     const icon = document.createElement('div');
@@ -130,11 +148,11 @@ function addButton(buttonContainer) {
         marginRight: '4px',
         backgroundColor: 'currentColor',
         webkitMask: `url("${assets.downloadIcon}") no-repeat center / contain`,
-        mask: `url("${assets.downloadIcon}") no-repeat center / contain`
+        mask: `url("${assets.downloadIcon}") no-repeat center / contain`,
     });
 
     const text = document.createElement('span');
-    text.textContent = 'Download';
+    text.textContent = ts('createRoblox.download');
 
     downloadButton.appendChild(icon);
     downloadButton.appendChild(text);
@@ -160,9 +178,12 @@ export function init() {
 
     chrome.storage.local.get({ DownloadCreateEnabled: true }, (result) => {
         if (result.DownloadCreateEnabled) {
-            observeElement('[data-testid="assetButtonsDeprecatedTestId"]', (buttonContainer) => {
-                addButton(buttonContainer);
-            });
+            observeElement(
+                '[data-testid="assetButtonsDeprecatedTestId"]',
+                (buttonContainer) => {
+                    addButton(buttonContainer);
+                },
+            );
         }
     });
 }

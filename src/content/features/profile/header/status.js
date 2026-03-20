@@ -8,6 +8,7 @@ import {
     getUserDescription,
     updateUserDescription,
 } from '../../../core/profile/descriptionhandler.js';
+import { createStyledInput } from '../../../core/ui/catalog/input.js';
 
 const STATUS_PREFIX = 's:';
 const MAX_STATUS_LENGTH = 50;
@@ -18,16 +19,27 @@ function openEditStatusOverlay(currentStatus, onSave) {
         display: 'flex',
         flexDirection: 'column',
         gap: '12px',
+        paddingTop: '5px',
     });
 
-    const input = document.createElement('input');
-    input.type = 'text';
-    input.className = 'form-control input-field';
-    input.value = currentStatus;
+    const { container: inputContainer, input } = createStyledInput({
+        id: 'rovalra-status-edit-input',
+        label: 'Enter new status',
+        value: currentStatus,
+    });
     input.maxLength = MAX_STATUS_LENGTH;
-    input.placeholder = 'Enter new status';
 
-    container.appendChild(input);
+    container.appendChild(inputContainer);
+
+    const helpText = document.createElement('p');
+    helpText.className = 'text-description';
+    helpText.textContent =
+        'This will add a string starting with "s:" to your Roblox about me.';
+    Object.assign(helpText.style, {
+        marginTop: '-8px',
+        fontSize: '12px',
+    });
+    container.appendChild(helpText);
 
     const errorDisplay = document.createElement('p');
     errorDisplay.className = 'text-error';
@@ -72,15 +84,15 @@ function openEditStatusOverlay(currentStatus, onSave) {
             close();
         } else if (result === 'failed') {
             errorDisplay.textContent =
-                'Failed to save status. It may have been censored.';
+                'Failed to save status. It may have been censored. No changes were applied.';
             errorDisplay.style.display = 'block';
         } else if (result === 'limit_exceeded') {
             errorDisplay.textContent =
-                'Unable to add a status, your about me has max characters.';
+                'Unable to add a status, your about me has max characters. No changes were applied.';
             errorDisplay.style.display = 'block';
         } else if (result === false) {
             errorDisplay.textContent =
-                'An unknown error occurred while saving.';
+                'An unknown error occurred while saving. No changes were applied.';
             errorDisplay.style.display = 'block';
         }
     };

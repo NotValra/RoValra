@@ -1,66 +1,72 @@
-.user-profile-header-details-avatar-container, 
-        .avatar-card-fullbody {
-            overflow: visible !important;
-            position: relative !important;
-        }
+.user-profile-header-details-avatar-container,
+.avatar-card-fullbody {
+    overflow: visible !important;
+    position: relative !important;
+}
 
-        .rovalra-status-bubble-wrapper {
-            position: absolute;
-            bottom: 105%;  
-            left: 120%;            
-            transform: translateX(-100%); 
-            z-index: 1001;
-            width: max-content;
-            max-width: 220px;
-            pointer-events: none;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end; 
-            animation: rovalra-pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
+.rovalra-status-bubble-wrapper {
+    position: absolute;
+    bottom: 105%;
+    left: 120%;
+    transform: translateX(-100%);
+    z-index: 1001;
+    width: max-content;
+    max-width: 220px;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    animation: rovalra-pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
 
-        @keyframes rovalra-pop {
-            from { opacity: 0; transform: translateX(-100%) scale(0.8); }
-            to { opacity: 1; transform: translateX(-100%) scale(1); }
-        }
+@keyframes rovalra-pop {
+    from {
+        opacity: 0;
+        transform: translateX(-100%) scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-100%) scale(1);
+    }
+}
 
-        .rovalra-status-bubble {
-            position: relative;
-            background-color: var(--rovalra-container-background-color);
-            backdrop-filter: blur(12px);
-            border-radius: 16px; 
-            padding: 10px 16px;
-            color: var(--rovalra-main-text-color);
-            font-size: 13px;
-            font-weight: 500;
-            line-height: 1.4;
-            text-align: right; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.25);
-            border: 1px solid rgba(255,255,255,0.1);
-            overflow-wrap: break-word;
-            pointer-events: auto;
-        }
+.rovalra-status-bubble {
+    position: relative;
+    background-color: var(--rovalra-container-background-color);
+    backdrop-filter: blur(12px);
+    border-radius: 16px;
+    padding: 10px 16px;
+    color: var(--rovalra-main-text-color);
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.4;
+    text-align: left;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    overflow-wrap: break-word;
+    pointer-events: auto;
+}
 
-        .rovalra-status-bubble::before,
-        .rovalra-status-bubble::after {
-            content: '';
-            position: absolute;
-            background-color: var(--rovalra-container-background-color);
-            backdrop-filter: blur(12px);
-            border-radius: 50%;
-            border: 1px solid rgba(255,255,255,0.05);
-        }
+.rovalra-status-bubble::before,
+.rovalra-status-bubble::after {
+    content: '';
+    position: absolute;
+    background-color: var(--rovalra-container-background-color);
+    backdrop-filter: blur(12px);
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
 
-        .rovalra-status-bubble::before {
-            width: 12px;
-            height: 12px;
-            bottom: -15px;
-            right: 10px; 
-        }
+.rovalra-status-bubble::before {
+    width: 12px;
+    height: 12px;
+    bottom: -15px;
+    right: 10px;
+}
 
-        .rovalra-status-bubble::after {
-            width: 8px;
-            height: 8px;
-            bottom: -24px;
-            right: 24px; 
-        }
+.rovalra-status-bubble::after {
+    width: 8px;
+    height: 8px;
+    bottom: -24px;
+    right: 24px;
+}

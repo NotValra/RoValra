@@ -56,7 +56,7 @@
         "loading": "Loading..."
     },
     "hiddenGroupGames": {
-        "overlayTitle": "Hidden Group Experiences ({count} Total)",
+        "overlayTitle": "Hidden Group Experiences ({{count}} Total)",
         "noHiddenGames": "This group has no hidden experiences.",
         "buttonText": "Hidden Experiences",
         "labels": {
@@ -290,18 +290,20 @@
         "onlineStatus": "Online Status",
         "joinStatus": "Experience Status",
         "everyone": "Everyone",
-        "friendsFollowingAndFollowers": "Connections, Followers, & Following",
-        "friendsAndFollowing": "Connections & Following",
-        "friends": "Connections",
+        "friendsFollowingAndFollowers": "Friends, Followers, & Following",
+        "friendsAndFollowing": "Friends & Following",
+        "friends": "Friends",
         "noOne": "No one"
     },
     "groupFunds": {
         "loading": "Loading...",
-        "pending": "Pending:"
+        "pending": "Pending:",
+        "noPermissions": "No Permission"
     },
     "betaPrograms": {
         "toggleTooltip": "Toggle Beta Programs",
-        "noPrograms": "You are not enrolled into any beta programs."
+        "noPrograms": "You are not enrolled into any beta programs.",
+        "allowlist": "In an allowlist"
     },
     "quickSearch": {
         "aborted": "Aborted",
@@ -309,8 +311,8 @@
         "friendSearchError": "RoValra: Friend Search Error",
         "userSearchError": "RoValra: User Search Error",
         "gameSearchError": "RoValra: Game Search Error",
-        "trustedConnection": "You are trusted connections",
-        "connection": "You are connections",
+        "trustedConnection": "You are trusted friends",
+        "connection": "You are friends",
         "playing": "Playing {{gameName}}",
         "verifiedBadge": "Verified Badge",
         "verified": "Verified",
@@ -322,6 +324,109 @@
         "deleteSearchHistoryTitle": "Delete Search History",
         "deleteSearchHistoryMessage": "Are you sure you want to delete this search history entry?",
         "delete": "Delete"
+    },
+    "regionPlayButton": {
+        "ariaLabel": "Select or Join Preferred Server Region",
+        "tooltip": "Join Preferred Region",
+        "tooltipWithRegion": "Join Preferred Region<br><b>{{regionName}}</b>",
+        "tooltipBestRegion": "Join Preferred Region<br><b>Best Region (Auto)</b>"
+    },
+    "quickPlay": {
+        "loading": "Loading...",
+        "rateLimited": "Rate limited. Retrying...",
+        "loadError": "Could not load servers.",
+        "noPrivateServers": "No active private servers found.",
+        "configure": "Configure",
+        "copyLink": "Copy Link",
+        "copied": "Copied!",
+        "error": "Error!",
+        "generateLink": "Generate New Link",
+        "joinClosestServer": "Join Closest Server",
+        "selectPreferredRegion": "Select Preferred Region",
+        "privateServers": "Private Servers"
+    },
+    "privateServerPage": {
+        "regenerateLink": "Regenerate Link",
+        "regenerated": "Regenerated!"
+    },
+    "devProducts": {
+        "noProducts": "No developer products found.",
+        "passes": "Passes",
+        "developerProducts": "Developer Products",
+        "search": "Search",
+        "sort": {
+            "created": "Sort by Created",
+            "price": "Sort by Price",
+            "updated": "Sort by Updated",
+            "name": "Sort by Name"
+        },
+        "order": {
+            "ascending": "Sort Ascending",
+            "descending": "Sort Descending"
+        }
+    },
+    "subplaces": {
+        "tabTitle": "Subplaces",
+        "searchPlaceholder": "Search subplaces",
+        "loadMore": "Load More",
+        "rootPlace": "Root Place",
+        "noSubplaces": "No subplaces found.",
+        "failedToLoad": "Failed to load subplaces.",
+        "banner": {
+            "title": "You are currently viewing a subplace of [{{rootPlaceName}}]({{rootPlaceUrl}}).",
+            "descriptionDefault": "Some experiences may disable joining subplaces.",
+            "descriptionRestricted": "This subplace cannot be joined due to join restrictions.",
+            "descriptionJoinable": "This subplace can be joined.",
+            "mainExperience": "the main experience"
+        }
+    },
+    "updateHistory": {
+        "tabTitle": "Updates",
+        "title": "Update History",
+        "blocked": {
+            "eighteenPlus": "Update History doesn't work on 18+ experiences",
+            "paidAccess": "Update History doesn't work on paid access experiences",
+            "subplace": "Update History doesn't work on subplaces with join restrictions"
+        }
+    },
+    "serverList": {
+        "clear": "Clear",
+        "noServersApi": "No servers found via the RoValra API.",
+        "loadErrorApi": "Failed to load servers from RoValra API.",
+        "join": "Join",
+        "peopleMax": "{{playing}} of {{maxPlayers}} people max",
+        "playerCountUnknownTooltip": "Player count is unknown, this is a Roblox limitation. The thumbnails are not representative of the people in game.",
+        "playerCountUnknownLabel": "Player count unknown"
+    },
+    "recentServers": {
+        "title": "Recent Servers",
+        "refresh": "Refresh",
+        "noneFound": "No Recent Servers Found.",
+        "noActiveFound": "No active recent servers found.",
+        "lastJoined": "Last Joined: {{time}}",
+        "meAlt": "Me",
+        "secondsAgo": "{{count}}s ago",
+        "minutesAgo": "{{count}}m ago",
+        "hoursAgo": "{{count}}h ago",
+        "daysAgo": "{{count}}d ago"
+    },
+    "quickOutfits": {
+        "errorFetching": "Error fetching outfits",
+        "equipping": "Equipping...",
+        "equipped": "Equipped!",
+        "failed": "Failed",
+        "error": "Error:",
+        "noUserId": "Authenticated user ID not found for quick outfits.",
+        "loading": "Loading outfits...",
+        "title": "Quick Outfits",
+        "noneFound": "No outfits found.",
+        "success": "Successfully equipped outfit."
+    },
+    "botDetector": {
+        "tooltip": "Bots are accounts running automated scripts to farm items. A single user can sometimes run 50+ bots. Keep in mind that this is not a fault of the game developers. This information can be inaccurate if an experience is mainly played by new Roblox accounts.",
+        "lotsOfBots": "<span style=\"color: var(--rovalra-main-text-color)\">{{gameName}}</span> has a lot of bots",
+        "someBots": "<span style=\"color: var(--rovalra-main-text-color)\">{{gameName}}</span> has some bots but mostly real players",
+        "thisGame": "This game"
     },
     "antiBots": {
         "reviewMembers": "Review {{count}} selected members:",
@@ -367,5 +472,91 @@
         "confirm": "Confirm",
         "banKickByScore": "Ban/Kick by Score",
         "confirmCount": "Confirm ({{count}})"
+    },
+    "revertLogo": {
+        "haveFun": "Have Fun!",
+        "close": "Close",
+        "robloxExperience": "Roblox Experience",
+        "unknownExperience": "Unknown Experience",
+        "serverId": "ServerID:",
+        "privateServer": "Private Server",
+        "owner": "Owner:",
+        "version": "Version:",
+        "uptime": "Uptime:",
+        "rcc": "RCC:",
+        "serverChannel": "Server Channel:",
+        "production": "Production",
+        "launchingRoblox": "Launching Roblox",
+        "downloadRoblox": "Download Roblox",
+        "thanksDownloading": "Thanks for downloading Roblox",
+        "downloadInstructions": "Just follow the steps below to install Roblox. Download should start in a few seconds. If it doesn't, <a id=\"rovalra-restart-download\" href=\"#\" class=\"download-link-underline\">restart the download</a>.",
+        "installInstructions": "Install Instructions",
+        "step1": "Once downloaded, double-click the <b>RobloxPlayerInstaller.exe</b> file in your Downloads folder.",
+        "step2": "Double-click the <b>RobloxPlayerInstaller</b> to install the app.",
+        "step3": "Follow the instructions to install Roblox to your computer.",
+        "step4": "Now that it’s installed, <a id=\"download-join-experience\" class=\"download-link-underline\" style=\"cursor: pointer;\">join the experience</a>.",
+        "mobileApp": "Don't forget the mobile app",
+        "scanCode": "Scan this code with your phone's camera to get Roblox.",
+        "joiningServer": "Joining Server...",
+        "errorParsingUrl": "Error parsing URL",
+        "findingUser": "Finding user...",
+        "fetchingServerInfo": "Fetching server info...",
+        "nonRootPlaceRestrictions": "Cannot join: Non-root place restrictions.",
+        "waitingForRoblox": "Waiting for Roblox...",
+        "launching": "Launching..."
+    },
+    "createRoblox": {
+        "download": "Download"
+    },
+    "priceFloor": {
+        "label": "Price Floor:",
+        "status": "This item is {{status}} the price floor{{difference}}.",
+        "statusTypes": {
+            "above": "above",
+            "below": "below",
+            "at": "at"
+        },
+        "difference": " by {{diff}}",
+        "description": "The price floor is a dynamically updating minimum price an item can be sold for."
+    },
+    "parentItem": {
+        "multipleBundles": "This item is part of multiple bundles",
+        "multipleBundlesDescription": "This item is likely used as a template and is included in multiple bundles.",
+        "partOfBundle": "This item is part of the [{{bundleName}}]({{bundleUrl}}) bundle",
+        "viewingFromBundle": "You are currently viewing an item from a bundle."
+    },
+    "rovalraBadges": {
+        "userVerified": "User is ID verified.",
+        "userNotVerified": "User is not ID verified."
+    },
+    "friendsSince": {
+        "friended": "Friended"
+    },
+    "purchasePrompt": {
+        "balanceAfter": "Your balance after this transaction will be"
+    },
+    "time": {
+        "justNow": "just now",
+        "secondsAgo": "{{count}}s ago",
+        "minutesAgo": "{{count}}m ago",
+        "hoursAgo": "{{count}}h ago",
+        "daysAgo": "{{count}}d ago",
+        "weeksAgo": "{{count}}w ago",
+        "monthsAgo": "{{count}}mo ago",
+        "yearsAgo": "{{count}}y ago",
+        "months": {
+            "jan": "Jan",
+            "feb": "Feb",
+            "mar": "Mar",
+            "apr": "Apr",
+            "may": "May",
+            "jun": "Jun",
+            "jul": "Jul",
+            "aug": "Aug",
+            "sep": "Sep",
+            "oct": "Oct",
+            "nov": "Nov",
+            "dec": "Dec"
+        }
     }
 }

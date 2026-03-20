@@ -54,6 +54,13 @@ export const SETTINGS_CONFIG = {
                     },
                 },
             },
+            EnableRobuxAfterPurchase: {
+                label: 'Robux After Purchase',
+                description:
+                    "This feature restores the 'Your balance after this transaction will be X' text to the new Roblox purchase UI after it was removed.",
+                type: 'checkbox',
+                default: true,
+            },
             EnableItemDependencies: {
                 label: 'Item Dependencies',
                 description: [
@@ -296,7 +303,7 @@ export const SETTINGS_CONFIG = {
                 label: 'Server List Modifications',
                 description: [
                     'This adds multiple different features to the server list',
-                    "These modifications will also apply to the 'Servers My Connections Are In'",
+                    "These modifications will also apply to the 'Servers My Friends Are In'",
                 ],
                 type: 'checkbox',
                 default: true,
@@ -340,7 +347,7 @@ export const SETTINGS_CONFIG = {
                         description: [
                             'This shows the entire ServerID',
                             'By default Roblox only shows a part of it.',
-                            'It will hide ServerIDs of servers that you are playing in or connections are playing in unless hovered over.',
+                            'It will hide ServerIDs of servers that you are playing in or friends are playing in unless hovered over.',
                         ],
                         type: 'checkbox',
                         default: true,
@@ -425,14 +432,12 @@ export const SETTINGS_CONFIG = {
                 description: [
                     'Replaces the default profile avatar with a more customizable and feature-rich 3D renderer.',
                     'This feature is required for custom environments and other render-related settings.',
+                    'This feature was made possible cause of [RoAvatar](https://www.roavatar.com) ❤️',
                 ],
                 type: 'checkbox',
-                default: true,
-                storageKey: [
-                    'profileRenderAnimationR6',
-                    'profileRenderAnimationR15',
-                    'profileRenderAnimationSpeed',
-                ],
+                default: false,
+                experimental:
+                    'This feature may cause performance issues. And may be buggy',
                 childSettings: {
                     profileRenderEnvironment: {
                         label: '3D Profile Environment',
@@ -443,13 +448,6 @@ export const SETTINGS_CONFIG = {
                         type: 'select',
                         options: [
                             { label: 'None', value: 'void', id: 1 },
-                            {
-                                label: 'Beachside',
-                                value: 'beachside',
-                                environmentEndpoint:
-                                    '/static/json/beachside_environment.json',
-                                id: 2,
-                            },
                             {
                                 label: 'Crossroads',
                                 value: 'crossroads',
@@ -478,9 +476,19 @@ export const SETTINGS_CONFIG = {
                 },
             },
             trustedConnectionsEnabled: {
-                label: 'Trusted Connections',
+                label: 'Trusted Friends',
+                description: [
+                    'This feature allows you to accept, request and remove trusted friends on the site for eligible friends.',
+                    'Eligible friends must be ID or face-scan verified and within your age bracket (13–17 or 18+).',
+                    '**Note:** Roblox uses an algorithm that may prevent adding someone even if they meet these requirements. [Learn more here.](https://en.help.roblox.com/hc/en-us/articles/46158344285204)',
+                ],
+                type: 'checkbox',
+                default: true,
+            },
+            friendsSinceEnabled: {
+                label: 'Friends Since',
                 description:
-                    'This feature allows you to accept, request and remove trusted connections on the site for eligible connections.',
+                    'This feature shows how long you have been friends with someone on your friends list.',
                 type: 'checkbox',
                 default: true,
             },
@@ -493,12 +501,22 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
+            idVerificationBadgeEnabled: {
+                label: 'ID Verification Badge',
+                description: [
+                    'Shows if a user has verified their ID on their profile.',
+                ],
+                type: 'checkbox',
+                default: true,
+            },
             statusBubbleEnabled: {
                 label: 'Status Bubble',
                 description: [
                     'This allows you to set a status bubble that anyone with RoValra can see.',
                     'Also allows you to view other RoValra users status bubbles.',
                 ],
+                type: 'checkbox',
+                default: true,
             },
             donationbuttonEnable: {
                 label: 'Donation Button',
@@ -728,7 +746,7 @@ export const SETTINGS_CONFIG = {
             quickSearchEnabled: {
                 label: 'Quick Search',
                 description:
-                    'This adds an autocomplete to the search dropdown for users, connections and experiences',
+                    'This adds an autocomplete to the search dropdown for users, friends and experiences',
                 type: 'checkbox',
                 default: true,
                 childSettings: {
@@ -747,9 +765,9 @@ export const SETTINGS_CONFIG = {
                         default: true,
                     },
                     friendSearchEnabled: {
-                        label: 'Quick Connection Search',
+                        label: 'Quick Friend Search',
                         description:
-                            'Shows a list of connections that has the best match to what you searched in the search dropdown.',
+                            'Shows a list of friends that has the best match to what you searched in the search dropdown.',
                         type: 'checkbox',
                         default: true,
                     },
@@ -771,13 +789,14 @@ export const SETTINGS_CONFIG = {
                 default: false,
                 storageKey: 'rovalra-group-funds-data',
                 childSettings: {
-                    GroupFundsId: {
-                        label: 'Community ID',
+                    GroupFundsIds: {
+                        label: 'Community IDs',
                         description:
-                            'The ID of the community to show funds for.',
-                        type: 'input',
-                        default: '',
-                        placeholder: 'Enter Group ID...',
+                            'The IDs of the communities to show funds for.',
+                        type: 'list',
+                        default: [''],
+                        addButtonText: 'Add Another Community',
+                        placeholder: 'Enter Community ID...',
                     },
                 },
             },
@@ -956,7 +975,7 @@ export const SETTINGS_CONFIG = {
                 label: 'Spoof status as Offline',
                 description: [
                     'Makes you appear as offline to you and other people.',
-                    'This is useful if you want to appear offline while still allowing connections to join you in experiences, since the official offline status by Roblox does not allow this.',
+                    'This is useful if you want to appear offline while still allowing friends to join you in experiences, since the official offline status by Roblox does not allow this.',
                     'Joining an experience will overwrite this status.',
                     'This may take a few minutes to actually change your status to offline after turning on the feature.',
                 ],
@@ -1245,6 +1264,11 @@ export const SETTINGS_CONFIG = {
                 description: [
                     "When enabled, shows the review popup every time it's triggered, ignoring all requirements. For testing purposes.",
                 ],
+                type: 'checkbox',
+                default: false,
+            },
+            rendererDeveloperToggles: {
+                label: '3D renderer Developer toggles',
                 type: 'checkbox',
                 default: false,
             },
