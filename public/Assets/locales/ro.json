@@ -349,19 +349,19 @@
         "regenerated": "Regenerat!"
     },
     "devProducts": {
-        "noProducts": "No developer products found.",
+        "noProducts": "Nici-un produs de developer nu a fost găsit.",
         "passes": "Passes",
-        "developerProducts": "Developer Products",
-        "search": "Search",
+        "developerProducts": "Produse de developer",
+        "search": "Caută",
         "sort": {
-            "created": "Sort by Created",
-            "price": "Sort by Price",
-            "updated": "Sort by Updated",
-            "name": "Sort by Name"
+            "created": "Sortează după Creat",
+            "price": "Sortează după Preț",
+            "updated": "Sortează după Updatat",
+            "name": "Sortează după Nume"
         },
         "order": {
-            "ascending": "Sort Ascending",
-            "descending": "Sort Descending"
+            "ascending": "Sortează Ascendent",
+            "descending": "Sortează Descendent"
         }
     },
     "subplaces": {
