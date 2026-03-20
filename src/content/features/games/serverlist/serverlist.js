@@ -10,6 +10,7 @@ import { initVersionFilters } from '../../../core/games/servers/filters/versionf
 import { createButton } from '../../../core/ui/buttons.js';
 import { addTooltip } from '../../../core/ui/tooltip.js';
 import DOMPurify from 'dompurify';
+import { t, ts } from '../../../core/locale/i18n.js';
 import {
     enhanceServer,
     displayPerformance,
@@ -28,7 +29,7 @@ import {
     attachCleanupObserver,
     cleanupServerUI,
     getOrCreateDetailsContainer,
-    createInfoElement
+    createInfoElement,
 } from '../../../core/games/servers/serverdetails.js';
 
 const SHARED_STYLES = `
@@ -70,45 +71,57 @@ export const _state = {
     collectedPlayerTokens: [],
     recentlyUsedTokens: [],
     serverDataCache: new Map(),
-    
+
     originalServerElements: [],
     isFilterActive: false,
     elements: {
         container: null,
-        clearButton: null
+        clearButton: null,
     },
     filterSettings: {
         serverFilter: true,
         region: true,
         uptime: true,
-        version: true
-    }
+        version: true,
+    },
 };
 
 export function init() {
-    if (typeof chrome === 'undefined' || !chrome.storage || !chrome.storage.local) {
+    if (
+        typeof chrome === 'undefined' ||
+        !chrome.storage ||
+        !chrome.storage.local
+    ) {
         safeInitAll();
         return;
     }
-    chrome.storage.local.get([
-        'ServerlistmodificationsEnabled',
-        'ServerFilterEnabled',
-        'RegionFiltersEnabled',
-        'UptimeFiltersEnabled',
-        'VersionFiltersEnabled'
-    ], (settings) => {
-        if (settings && settings.ServerlistmodificationsEnabled === false && settings.ServerFilterEnabled === false) return;
-        
-        if (settings) {
-            _state.filterSettings = {
-                serverFilter: settings.ServerFilterEnabled !== false,
-                region: settings.RegionFiltersEnabled !== false,
-                uptime: settings.UptimeFiltersEnabled !== false,
-                version: settings.VersionFiltersEnabled !== false
-            };
-        }
-        safeInitAll();
-    });
+    chrome.storage.local.get(
+        [
+            'ServerlistmodificationsEnabled',
+            'ServerFilterEnabled',
+            'RegionFiltersEnabled',
+            'UptimeFiltersEnabled',
+            'VersionFiltersEnabled',
+        ],
+        (settings) => {
+            if (
+                settings &&
+                settings.ServerlistmodificationsEnabled === false &&
+                settings.ServerFilterEnabled === false
+            )
+                return;
+
+            if (settings) {
+                _state.filterSettings = {
+                    serverFilter: settings.ServerFilterEnabled !== false,
+                    region: settings.RegionFiltersEnabled !== false,
+                    uptime: settings.UptimeFiltersEnabled !== false,
+                    version: settings.VersionFiltersEnabled !== false,
+                };
+            }
+            safeInitAll();
+        },
+    );
 }
 
 export function forceInit() {
@@ -123,15 +136,27 @@ function safeInitAll() {
         document.head.appendChild(s);
     }
 
-    try { if (typeof loadDatacenterMap === 'function') loadDatacenterMap().catch(() => {}); } catch (e) {}
-    try { if (typeof initServerIdExtraction === 'function') initServerIdExtraction(); } catch (e) {}
-    try { if (typeof initGlobalStatsBar === 'function') initGlobalStatsBar(); } catch (e) {}
-    
+    try {
+        if (typeof loadDatacenterMap === 'function')
+            loadDatacenterMap().catch(() => {});
+    } catch (e) {}
+    try {
+        if (typeof initServerIdExtraction === 'function')
+            initServerIdExtraction();
+    } catch (e) {}
+    try {
+        if (typeof initGlobalStatsBar === 'function') initGlobalStatsBar();
+    } catch (e) {}
+
     startController();
 }
 
 function createFilterUI(parentContainer) {
-    if (_state.elements.container && document.body.contains(_state.elements.container)) return;
+    if (
+        _state.elements.container &&
+        document.body.contains(_state.elements.container)
+    )
+        return;
 
     const container = document.createElement('div');
     container.id = 'rovalra-main-controls';
@@ -147,9 +172,21 @@ function createFilterUI(parentContainer) {
     const filters = _state.filterSettings;
 
     if (filters.serverFilter) {
-        if (filters.version) try { if (typeof initVersionFilters === 'function') initVersionFilters(); } catch (e) {}
-        if (filters.uptime) try { if (typeof initUptimeFilters === 'function') initUptimeFilters(); } catch (e) {}
-        if (filters.region) try { if (typeof initRegionFilters === 'function') initRegionFilters(); } catch (e) {}
+        if (filters.version)
+            try {
+                if (typeof initVersionFilters === 'function')
+                    initVersionFilters();
+            } catch (e) {}
+        if (filters.uptime)
+            try {
+                if (typeof initUptimeFilters === 'function')
+                    initUptimeFilters();
+            } catch (e) {}
+        if (filters.region)
+            try {
+                if (typeof initRegionFilters === 'function')
+                    initRegionFilters();
+            } catch (e) {}
     }
 
     createClearButton(container);
@@ -161,14 +198,16 @@ function createClearButton(container) {
     wrapper.className = 'rbx-refresh-button-wrapper';
     wrapper.style.cssText = 'margin-left: auto; display: none;';
 
-    const btn = createButton('Clear', 'secondary');
+    const btn = createButton(ts('serverList.clear'), 'secondary');
     btn.classList.add('filter-button-alignment');
-    btn.innerHTML = DOMPurify.sanitize(`<span>Clear</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6L18 18"/></svg>`);
-    
+    btn.innerHTML = DOMPurify.sanitize(
+        `<span>${ts('serverList.clear')}</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6L18 18"/></svg>`,
+    );
+
     btn.addEventListener('click', () => {
-         clearAllFilters();
+        clearAllFilters();
     });
-    
+
     wrapper.appendChild(btn);
     container.appendChild(wrapper);
     _state.elements.clearButton = wrapper;
@@ -177,30 +216,38 @@ function createClearButton(container) {
 function handleFilterActivation() {
     if (_state.isFilterActive) return;
 
-    const serverListContainer = document.querySelector('#rbx-public-game-server-item-container');
+    const serverListContainer = document.querySelector(
+        '#rbx-public-game-server-item-container',
+    );
     if (serverListContainer && !_state.originalServerElements.length) {
-        _state.originalServerElements = Array.from(serverListContainer.children);
+        _state.originalServerElements = Array.from(
+            serverListContainer.children,
+        );
     }
 
     _state.isFilterActive = true;
     document.body.classList.add('rovalra-filter-active');
-    
+
     if (_state.elements.clearButton) {
         _state.elements.clearButton.style.display = 'flex';
     }
 
-    const defaultFooter = document.querySelector('.rbx-public-running-games-footer');
+    const defaultFooter = document.querySelector(
+        '.rbx-public-running-games-footer',
+    );
     if (defaultFooter) defaultFooter.style.display = 'none';
 }
 
 function clearAllFilters() {
-    const serverListContainer = document.querySelector('#rbx-public-game-server-item-container');
-    
+    const serverListContainer = document.querySelector(
+        '#rbx-public-game-server-item-container',
+    );
+
     document.getElementById('rovalra-load-more-btn')?.remove();
 
     if (serverListContainer && _state.originalServerElements.length) {
         serverListContainer.innerHTML = '';
-        _state.originalServerElements.forEach(el => {
+        _state.originalServerElements.forEach((el) => {
             el.style.display = 'block';
             serverListContainer.appendChild(el);
         });
@@ -216,35 +263,44 @@ function clearAllFilters() {
 
     const footer = document.querySelector('.rbx-public-running-games-footer');
     if (footer) footer.style.display = 'block';
-    
+
     document.dispatchEvent(new CustomEvent('rovalraClearFilters'));
 
-    const rbxRefresh = document.getElementById('rbx-public-running-games')?.querySelector('.rbx-refresh');
+    const rbxRefresh = document
+        .getElementById('rbx-public-running-games')
+        ?.querySelector('.rbx-refresh');
     if (rbxRefresh) setTimeout(() => rbxRefresh.click(), 50);
 }
 
-
 function attachGlobalListeners() {
-    document.addEventListener('rovalraRegionSelected', (ev) => { if(ev.detail?.regionCode) handleFilterActivation(); });
-    document.addEventListener('rovalraUptimeSelected', () => { handleFilterActivation(); });
-    document.addEventListener('rovalraVersionSelected', () => { handleFilterActivation(); });
+    document.addEventListener('rovalraRegionSelected', (ev) => {
+        if (ev.detail?.regionCode) handleFilterActivation();
+    });
+    document.addEventListener('rovalraUptimeSelected', () => {
+        handleFilterActivation();
+    });
+    document.addEventListener('rovalraVersionSelected', () => {
+        handleFilterActivation();
+    });
 
-    document.addEventListener('rovalraRegionServersLoaded', (ev) => {
+    document.addEventListener('rovalraRegionServersLoaded', async (ev) => {
         const detail = ev && ev.detail;
-        
+
         if (detail && detail.error) {
             displayMessageInContainer(detail.error, true);
             return;
         }
 
         if (!detail) return;
-        
+
         const servers = detail.servers || [];
         const nextCursor = detail.next_cursor;
         const append = !!detail.append;
         const regionCode = detail.regionCode;
 
-        const serverListContainer = document.querySelector('#rbx-public-game-server-item-container');
+        const serverListContainer = document.querySelector(
+            '#rbx-public-game-server-item-container',
+        );
         if (!serverListContainer) return;
 
         if (!append) {
@@ -252,26 +308,34 @@ function attachGlobalListeners() {
         }
 
         if (servers.length > 0) {
-            renderAndAppendServers(servers, serverListContainer, getPlaceIdFromUrl());
+            renderAndAppendServers(
+                servers,
+                serverListContainer,
+                getPlaceIdFromUrl(),
+            );
             manageLoadMoreButton(nextCursor, regionCode);
-        } 
-        else if (!append) {
-            displayMessageInContainer("No servers found via the RoValra API.", false);
-        }
-        else {
+        } else if (!append) {
+            displayMessageInContainer(
+                await t('serverList.noServersApi'),
+                false,
+            );
+        } else {
             document.getElementById('rovalra-load-more-btn')?.remove();
         }
     });
 
-    document.addEventListener('rovalraRequestError', (ev) => {
-        const errorMessage = ev.detail?.message || "Failed to load servers from RoValra API.";
+    document.addEventListener('rovalraRequestError', async (ev) => {
+        const errorMessage =
+            ev.detail?.message || (await t('serverList.loadErrorApi'));
         displayMessageInContainer(errorMessage, true);
     });
 
     document.addEventListener('rovalra-server-inactive', (ev) => {
         const serverId = ev.detail?.serverId;
         if (!serverId) return;
-        const serverElement = document.querySelector(`li[data-rovalra-serverid="${serverId}"]`);
+        const serverElement = document.querySelector(
+            `li[data-rovalra-serverid="${serverId}"]`,
+        );
         if (serverElement) serverElement.remove();
     });
 }
@@ -280,24 +344,30 @@ function manageLoadMoreButton(nextCursor, regionCode) {
     document.getElementById('rovalra-load-more-btn')?.remove();
 
     if (nextCursor) {
-        const serverListContainer = document.querySelector('#rbx-public-game-server-item-container');
+        const serverListContainer = document.querySelector(
+            '#rbx-public-game-server-item-container',
+        );
         const loadMoreButton = document.createElement('button');
         loadMoreButton.id = 'rovalra-load-more-btn';
-        loadMoreButton.textContent = 'Load More';
+        loadMoreButton.textContent = ts('subplaces.loadMore');
         loadMoreButton.className = 'btn-control-sm rbx-upgrade-now-button';
-        loadMoreButton.style.width = "100%";
-        loadMoreButton.style.display = "block";
-        loadMoreButton.style.marginTop = "10px";
-        loadMoreButton.style.cursor = "pointer";
+        loadMoreButton.style.width = '100%';
+        loadMoreButton.style.display = 'block';
+        loadMoreButton.style.marginTop = '10px';
+        loadMoreButton.style.cursor = 'pointer';
 
         loadMoreButton.addEventListener('click', () => {
-            loadMoreButton.innerHTML = DOMPurify.sanitize('<span class="spinner spinner-default"></span>');
+            loadMoreButton.innerHTML = DOMPurify.sanitize(
+                '<span class="spinner spinner-default"></span>',
+            );
             loadMoreButton.disabled = true;
-            document.dispatchEvent(new CustomEvent('rovalraRequestRegionServers', { 
-                detail: { regionCode, cursor: nextCursor } 
-            }));
+            document.dispatchEvent(
+                new CustomEvent('rovalraRequestRegionServers', {
+                    detail: { regionCode, cursor: nextCursor },
+                }),
+            );
         });
-        
+
         if (serverListContainer && serverListContainer.parentElement) {
             serverListContainer.parentElement.appendChild(loadMoreButton);
         }
@@ -308,24 +378,36 @@ const _started = { value: false };
 function startController() {
     if (_started.value) return;
     _started.value = true;
-    
-    try { if (typeof startObserving === 'function') startObserving(); } catch (e) {}
 
-    loadServerIpMap().then(() => {
-        initializeEnhancementObserver();
-    }).catch(() => {
-        initializeEnhancementObserver();
-    });
+    try {
+        if (typeof startObserving === 'function') startObserving();
+    } catch (e) {}
+
+    loadServerIpMap()
+        .then(() => {
+            initializeEnhancementObserver();
+        })
+        .catch(() => {
+            initializeEnhancementObserver();
+        });
 
     attachGlobalListeners();
 
-    observeElement('.server-list-options', (optionsBar) => {
-        createFilterUI(optionsBar);
-    }, { multiple: false });
+    observeElement(
+        '.server-list-options',
+        (optionsBar) => {
+            createFilterUI(optionsBar);
+        },
+        { multiple: false },
+    );
 }
 
 function getPlaceIdFromUrl() {
-    return window.location.pathname.match(/\/games\/(\d+)\//)?.[1] || window.location.pathname.match(/\/(\d{5,})\b/)?.[1] || '';
+    return (
+        window.location.pathname.match(/\/games\/(\d+)\//)?.[1] ||
+        window.location.pathname.match(/\/(\d{5,})\b/)?.[1] ||
+        ''
+    );
 }
 
 async function loadServerIpMap() {
@@ -333,13 +415,19 @@ async function loadServerIpMap() {
         if (typeof loadDatacenterMap === 'function') await loadDatacenterMap();
     } catch (e) {}
 
-    if (typeof chrome === 'undefined' || !chrome.storage || !chrome.storage.local) {
+    if (
+        typeof chrome === 'undefined' ||
+        !chrome.storage ||
+        !chrome.storage.local
+    ) {
         _state.serverIpMap = {};
         return;
     }
 
     try {
-        const result = await new Promise((resolve) => chrome.storage.local.get('rovalraDatacenters', resolve));
+        const result = await new Promise((resolve) =>
+            chrome.storage.local.get('rovalraDatacenters', resolve),
+        );
         const apiData = result && result.rovalraDatacenters;
         if (!apiData || !Array.isArray(apiData)) {
             _state.serverIpMap = {};
@@ -348,7 +436,13 @@ async function loadServerIpMap() {
 
         const map = {};
         for (const dcGroup of apiData) {
-            if (!dcGroup || !dcGroup.dataCenterIds || !Array.isArray(dcGroup.dataCenterIds) || !dcGroup.location) continue;
+            if (
+                !dcGroup ||
+                !dcGroup.dataCenterIds ||
+                !Array.isArray(dcGroup.dataCenterIds) ||
+                !dcGroup.location
+            )
+                continue;
             for (const id of dcGroup.dataCenterIds) {
                 map[id] = dcGroup.location;
             }
@@ -367,12 +461,18 @@ export function processUptimeBatch() {
     const batch = Array.from(_state.uptimeBatch);
     _state.uptimeBatch.clear();
     try {
-        fetchServerUptime(placeId, batch, _state.serverLocations, _state.serverUptimes).catch(() => {});
+        fetchServerUptime(
+            placeId,
+            batch,
+            _state.serverLocations,
+            _state.serverUptimes,
+        ).catch(() => {});
     } catch (e) {}
 }
 
 function initializeEnhancementObserver() {
-    const serverSelector = '.rbx-public-game-server-item, .rbx-friends-game-server-item';
+    const serverSelector =
+        '.rbx-public-game-server-item, .rbx-friends-game-server-item';
     let uptimeDebounce = null;
     const scheduleUptime = () => {
         clearTimeout(uptimeDebounce);
@@ -380,22 +480,28 @@ function initializeEnhancementObserver() {
     };
 
     try {
-        observeElement(serverSelector, (el) => {
-            try {
-                enhanceServer(el, {
-                    serverLocations: _state.serverLocations,
-                    serverUptimes: _state.serverUptimes,
-                    serverPerformanceCache: _state.serverPerformanceCache,
-                    vipStatusCache: _state.vipStatusCache,
-                    uptimeBatch: _state.uptimeBatch,
-                    serverIpMap: _state.serverIpMap,
-                    processUptimeBatch
-                }).catch(() => {});
-            } catch (e) {}
-            scheduleUptime();
-        }, { multiple: true });
+        observeElement(
+            serverSelector,
+            (el) => {
+                try {
+                    enhanceServer(el, {
+                        serverLocations: _state.serverLocations,
+                        serverUptimes: _state.serverUptimes,
+                        serverPerformanceCache: _state.serverPerformanceCache,
+                        vipStatusCache: _state.vipStatusCache,
+                        uptimeBatch: _state.uptimeBatch,
+                        serverIpMap: _state.serverIpMap,
+                        processUptimeBatch,
+                    }).catch(() => {});
+                } catch (e) {}
+                scheduleUptime();
+            },
+            { multiple: true },
+        );
 
-        try { setTimeout(() => processUptimeBatch(), 50); } catch (e) {}
+        try {
+            setTimeout(() => processUptimeBatch(), 50);
+        } catch (e) {}
     } catch (e) {}
 }
 
@@ -406,35 +512,70 @@ try {
             if (!detail) return;
             const placeId = getPlaceIdFromUrl();
             const data = detail.data || detail;
-            const serversArray = Array.isArray(data.data) ? data.data : (Array.isArray(data) ? data : null);
+            const serversArray = Array.isArray(data.data)
+                ? data.data
+                : Array.isArray(data)
+                  ? data
+                  : null;
             if (!serversArray) return;
 
             (async () => {
                 for (const serverData of serversArray) {
-                    const serverId = serverData.id || serverData.server_id || serverData.serverId;
+                    const serverId =
+                        serverData.id ||
+                        serverData.server_id ||
+                        serverData.serverId;
                     if (!serverId) continue;
 
                     _state.serverDataCache.set(serverId, serverData);
-                    const fps = serverData.fps ?? serverData.FPS ?? serverData.performance ?? null;
+                    const fps =
+                        serverData.fps ??
+                        serverData.FPS ??
+                        serverData.performance ??
+                        null;
                     if (typeof fps === 'number') {
                         _state.serverPerformanceCache[serverId] = fps;
                     }
 
-                    if (serverData.playerTokens && Array.isArray(serverData.playerTokens)) {
-                        _state.collectedPlayerTokens.push(...serverData.playerTokens);
-                        if (_state.collectedPlayerTokens.length > 2000) _state.collectedPlayerTokens.splice(0, _state.collectedPlayerTokens.length - 2000);
+                    if (
+                        serverData.playerTokens &&
+                        Array.isArray(serverData.playerTokens)
+                    ) {
+                        _state.collectedPlayerTokens.push(
+                            ...serverData.playerTokens,
+                        );
+                        if (_state.collectedPlayerTokens.length > 2000)
+                            _state.collectedPlayerTokens.splice(
+                                0,
+                                _state.collectedPlayerTokens.length - 2000,
+                            );
                     }
 
-                    const serverElement = document.querySelector(`[data-rovalra-serverid="${serverId}"]`);
+                    const serverElement = document.querySelector(
+                        `[data-rovalra-serverid="${serverId}"]`,
+                    );
                     if (serverElement) {
-                        if (serverElement.querySelector('.rovalra-unknown-count-icon')) {
-                            const newCard = await createServerCardFromApi(serverData, placeId);
+                        if (
+                            serverElement.querySelector(
+                                '.rovalra-unknown-count-icon',
+                            )
+                        ) {
+                            const newCard = await createServerCardFromApi(
+                                serverData,
+                                placeId,
+                            );
                             if (newCard) {
                                 serverElement.replaceWith(newCard);
                             }
                         } else {
                             if (typeof fps === 'number') {
-                                try { displayPerformance(serverElement, fps, _state.serverLocations); } catch (e) {}
+                                try {
+                                    displayPerformance(
+                                        serverElement,
+                                        fps,
+                                        _state.serverLocations,
+                                    );
+                                } catch (e) {}
                             }
                         }
                     }
@@ -446,7 +587,8 @@ try {
 
 export async function createServerCardFromRobloxApi(server, placeId) {
     try {
-        const listItemClass = 'rbx-public-game-server-item col-md-3 col-sm-4 col-xs-6';
+        const listItemClass =
+            'rbx-public-game-server-item col-md-3 col-sm-4 col-xs-6';
         const serverItem = document.createElement('li');
         serverItem.className = listItemClass;
         const serverId = server.id || server.server_id || '';
@@ -456,21 +598,33 @@ export async function createServerCardFromRobloxApi(server, placeId) {
         let playerThumbnailsHTML = '';
 
         if (playerTokens.length > 0) {
-            const thumbnailItems = playerTokens.slice(0, 12).map(token => ({ id: token }));
-            const thumbnailMap = await fetchThumbnails(thumbnailItems, 'PlayerToken', '150x150');
-            
-            playerThumbnailsHTML = playerTokens.slice(0, 12).map(token => {
-                const thumbData = thumbnailMap.get(token);
-                return `<span class="avatar avatar-headshot-md player-avatar"><span class="thumbnail-2d-container avatar-card-image"><img src="${thumbData?.imageUrl || ''}" alt="Player"></span></span>`;
-            }).join('');
+            const thumbnailItems = playerTokens
+                .slice(0, 12)
+                .map((token) => ({ id: token }));
+            const thumbnailMap = await fetchThumbnails(
+                thumbnailItems,
+                'PlayerToken',
+                '150x150',
+            );
+
+            playerThumbnailsHTML = playerTokens
+                .slice(0, 12)
+                .map((token) => {
+                    const thumbData = thumbnailMap.get(token);
+                    return `<span class="avatar avatar-headshot-md player-avatar"><span class="thumbnail-2d-container avatar-card-image"><img src="${thumbData?.imageUrl || ''}" alt="Player"></span></span>`;
+                })
+                .join('');
         }
         const remainingPlayers = server.playing - playerTokens.length;
-        const extraPlayersHTML = remainingPlayers > 0 ? `<span class="avatar avatar-headshot-md player-avatar hidden-players-placeholder">+${remainingPlayers}</span>` : '';
+        const extraPlayersHTML =
+            remainingPlayers > 0
+                ? `<span class="avatar avatar-headshot-md player-avatar hidden-players-placeholder">+${remainingPlayers}</span>`
+                : '';
         const playerThumbnailsContainerHTML = `<div class="player-thumbnails-container">${playerThumbnailsHTML}${extraPlayersHTML}</div>`;
 
         const serverDetailsHTML = `
-            <div class="text-info rbx-game-status rbx-public-game-server-status text-overflow">${server.playing} of ${server.maxPlayers} people max</div>
-            <div class="server-player-count-gauge border"><div class="gauge-inner-bar border" style="width: ${ (server.playing / server.maxPlayers) * 100}%;"></div></div>`;
+            <div class="text-info rbx-game-status rbx-public-game-server-status text-overflow">${await t('serverList.peopleMax', { playing: server.playing, maxPlayers: server.maxPlayers })}</div>
+            <div class="server-player-count-gauge border"><div class="gauge-inner-bar border" style="width: ${(server.playing / server.maxPlayers) * 100}%;"></div></div>`;
 
         serverItem.innerHTML = DOMPurify.sanitize(`
             <div class="card-item card-item-public-server">
@@ -483,13 +637,17 @@ export async function createServerCardFromRobloxApi(server, placeId) {
         if (placeId) {
             const detailsDiv = serverItem.querySelector('.game-server-details');
             const joinBtn = document.createElement('button');
-            joinBtn.className = 'btn-full-width btn-control-xs rbx-public-game-server-join game-server-join-btn btn-primary-md btn-min-width';
-            joinBtn.textContent = 'Join';
+            joinBtn.className =
+                'btn-full-width btn-control-xs rbx-public-game-server-join game-server-join-btn btn-primary-md btn-min-width';
+            joinBtn.textContent = await t('serverList.join');
             joinBtn.onclick = () => launchGame(placeId, serverId);
             detailsDiv.appendChild(joinBtn);
         }
 
-        try { serverItem._rovalraApiData = server; serverItem.setAttribute('data-rovalra-api', '1'); } catch (e) {}
+        try {
+            serverItem._rovalraApiData = server;
+            serverItem.setAttribute('data-rovalra-api', '1');
+        } catch (e) {}
 
         if (typeof server.fps === 'number') {
             _state.serverPerformanceCache[serverId] = server.fps;
@@ -504,7 +662,8 @@ export async function createServerCardFromRobloxApi(server, placeId) {
 
 export async function createServerCardFromApi(server, placeId = '') {
     try {
-        const listItemClass = 'rbx-public-game-server-item col-md-3 col-sm-4 col-xs-6';
+        const listItemClass =
+            'rbx-public-game-server-item col-md-3 col-sm-4 col-xs-6';
         const serverItem = document.createElement('li');
         serverItem.className = listItemClass;
         const serverId = server.server_id || server.id || '';
@@ -512,7 +671,10 @@ export async function createServerCardFromApi(server, placeId = '') {
 
         const cachedServerData = _state.serverDataCache.get(serverId);
         if (cachedServerData) {
-            if (typeof cachedServerData.playing === 'number' && typeof server.playing !== 'number') {
+            if (
+                typeof cachedServerData.playing === 'number' &&
+                typeof server.playing !== 'number'
+            ) {
                 server.playing = cachedServerData.playing;
                 server.maxPlayers = cachedServerData.maxPlayers;
             }
@@ -521,9 +683,12 @@ export async function createServerCardFromApi(server, placeId = '') {
             }
         }
 
-        const hasPlayerCount = typeof server.playing === 'number' && typeof server.maxPlayers === 'number';
+        const hasPlayerCount =
+            typeof server.playing === 'number' &&
+            typeof server.maxPlayers === 'number';
         let thumbnailsHTML = '';
-        const placeholderSrc = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNTAgMTUwIj48cmVjdCB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgZmlsbD0iI0UzRTNFMyIvPjwvc3ZnPg==';
+        const placeholderSrc =
+            'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNTAgMTUwIj48cmVjdCB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgZmlsbD0iI0UzRTNFMyIvPjwvc3ZnPg==';
 
         const playerTokens = server.playerTokens || [];
         const displayLimit = 6;
@@ -537,14 +702,25 @@ export async function createServerCardFromApi(server, placeId = '') {
                 remainingCount = server.playing - itemsToDisplay.length;
             }
 
-            const thumbnailItems = itemsToDisplay.map(token => ({ id: token }));
+            const thumbnailItems = itemsToDisplay.map((token) => ({
+                id: token,
+            }));
             try {
-                const thumbnailMap = await fetchThumbnails(thumbnailItems, 'PlayerToken', '150x150');
-                thumbnailsHTML = thumbnailItems.map(item => {
-                    const thumbData = thumbnailMap.get(item.id);
-                    const src = (thumbData && thumbData.imageUrl) ? thumbData.imageUrl : placeholderSrc;
-                    return `<span class="avatar avatar-headshot-md player-avatar"><span class="thumbnail-2d-container avatar-card-image"><img src="${src}" alt="Player"></span></span>`;
-                }).join('');
+                const thumbnailMap = await fetchThumbnails(
+                    thumbnailItems,
+                    'PlayerToken',
+                    '150x150',
+                );
+                thumbnailsHTML = thumbnailItems
+                    .map((item) => {
+                        const thumbData = thumbnailMap.get(item.id);
+                        const src =
+                            thumbData && thumbData.imageUrl
+                                ? thumbData.imageUrl
+                                : placeholderSrc;
+                        return `<span class="avatar avatar-headshot-md player-avatar"><span class="thumbnail-2d-container avatar-card-image"><img src="${src}" alt="Player"></span></span>`;
+                    })
+                    .join('');
 
                 if (remainingCount > 0) {
                     thumbnailsHTML += `<span class="avatar avatar-headshot-md player-avatar hidden-players-placeholder">+${remainingCount}</span>`;
@@ -562,33 +738,53 @@ export async function createServerCardFromApi(server, placeId = '') {
                 remainingCount = server.playing - fetchCount;
             }
 
-            if (_state.collectedPlayerTokens && _state.collectedPlayerTokens.length > 0) {
-                let availableTokens = _state.collectedPlayerTokens.filter(t => !_state.recentlyUsedTokens.includes(t));
-                
+            if (
+                _state.collectedPlayerTokens &&
+                _state.collectedPlayerTokens.length > 0
+            ) {
+                let availableTokens = _state.collectedPlayerTokens.filter(
+                    (t) => !_state.recentlyUsedTokens.includes(t),
+                );
+
                 if (availableTokens.length < fetchCount) {
                     availableTokens = [..._state.collectedPlayerTokens];
                 }
 
                 for (let i = 0; i < fetchCount; i++) {
                     if (availableTokens.length === 0) break;
-                    const randomIndex = Math.floor(Math.random() * availableTokens.length);
+                    const randomIndex = Math.floor(
+                        Math.random() * availableTokens.length,
+                    );
                     const token = availableTokens[randomIndex];
                     tokensToFetch.push({ id: token });
                     availableTokens.splice(randomIndex, 1);
                     _state.recentlyUsedTokens.push(token);
                 }
-                
-                if (_state.recentlyUsedTokens.length > 60) _state.recentlyUsedTokens.splice(0, _state.recentlyUsedTokens.length - 60);
+
+                if (_state.recentlyUsedTokens.length > 60)
+                    _state.recentlyUsedTokens.splice(
+                        0,
+                        _state.recentlyUsedTokens.length - 60,
+                    );
             }
 
             if (tokensToFetch.length > 0) {
                 try {
-                    const thumbnailMap = await fetchThumbnails(tokensToFetch, 'PlayerToken', '150x150');
-                    thumbnailsHTML = tokensToFetch.map(t => {
-                        const data = thumbnailMap.get(t.id);
-                        const src = (data && data.imageUrl) ? data.imageUrl : placeholderSrc;
-                        return `<span class="avatar avatar-headshot-md player-avatar"><span class="thumbnail-2d-container avatar-card-image"><img src="${src}" alt="Player"></span></span>`;
-                    }).join('');
+                    const thumbnailMap = await fetchThumbnails(
+                        tokensToFetch,
+                        'PlayerToken',
+                        '150x150',
+                    );
+                    thumbnailsHTML = tokensToFetch
+                        .map((t) => {
+                            const data = thumbnailMap.get(t.id);
+                            const src =
+                                data && data.imageUrl
+                                    ? data.imageUrl
+                                    : placeholderSrc;
+                            return `<span class="avatar avatar-headshot-md player-avatar"><span class="thumbnail-2d-container avatar-card-image"><img src="${src}" alt="Player"></span></span>`;
+                        })
+                        .join('');
                 } catch (e) {}
             }
             if (addPlaceholder) {
@@ -624,10 +820,10 @@ export async function createServerCardFromApi(server, placeId = '') {
 
         const serverDetailsHTML = hasPlayerCount
             ? `
-            <div class="text-info rbx-game-status rbx-public-game-server-status text-overflow">${server.playing} of ${server.maxPlayers} people max</div>
-            <div class="server-player-count-gauge border"><div class="gauge-inner-bar border" style="width: ${ (server.playing / server.maxPlayers) * 100}%;"></div></div>`
+            <div class="text-info rbx-game-status rbx-public-game-server-status text-overflow">${await t('serverList.peopleMax', { playing: server.playing, maxPlayers: server.maxPlayers })}</div>
+            <div class="server-player-count-gauge border"><div class="gauge-inner-bar border" style="width: ${(server.playing / server.maxPlayers) * 100}%;"></div></div>`
             : `
-            <div class="text-info rbx-game-status rbx-public-game-server-status text-overflow">Player count unknown</div>
+            <div class="text-info rbx-game-status rbx-public-game-server-status text-overflow">${await t('serverList.playerCountUnknownLabel')}</div>
             <div class="server-player-count-gauge border"><div class="gauge-inner-bar border" style="width: 0%;"></div></div>`;
 
         serverItem.innerHTML = DOMPurify.sanitize(`
@@ -639,22 +835,32 @@ export async function createServerCardFromApi(server, placeId = '') {
             </div>`);
 
         if (!hasPlayerCount) {
-            const infoIcon = serverItem.querySelector('.rovalra-unknown-count-icon');
+            const infoIcon = serverItem.querySelector(
+                '.rovalra-unknown-count-icon',
+            );
             if (infoIcon) {
-                addTooltip(infoIcon, "Player count is unknown, this is a Roblox limitation. the thumbnails are not representative of the people in game", { position: 'top' });
+                addTooltip(
+                    infoIcon,
+                    await t('serverList.playerCountUnknownTooltip'),
+                    { position: 'top' },
+                );
             }
         }
 
         if (placeId) {
             const detailsDiv = serverItem.querySelector('.game-server-details');
             const joinBtn = document.createElement('button');
-            joinBtn.className = 'btn-full-width btn-control-xs rbx-public-game-server-join game-server-join-btn btn-primary-md btn-min-width';
-            joinBtn.textContent = 'Join';
+            joinBtn.className =
+                'btn-full-width btn-control-xs rbx-public-game-server-join game-server-join-btn btn-primary-md btn-min-width';
+            joinBtn.textContent = await t('serverList.join');
             joinBtn.onclick = () => launchGame(placeId, serverId);
             detailsDiv.appendChild(joinBtn);
         }
 
-        try { serverItem._rovalraApiData = server; serverItem.setAttribute('data-rovalra-api', '1'); } catch (e) {}
+        try {
+            serverItem._rovalraApiData = server;
+            serverItem.setAttribute('data-rovalra-api', '1');
+        } catch (e) {}
         enhanceServer(serverItem, _state);
         return serverItem;
     } catch (e) {
@@ -663,7 +869,7 @@ export async function createServerCardFromApi(server, placeId = '') {
 }
 
 async function renderAndAppendServers(servers, serverListContainer, placeId) {
-    const serverCardPromises = servers.map(server => {
+    const serverCardPromises = servers.map((server) => {
         if (server.playerTokens) {
             return createServerCardFromRobloxApi(server, placeId);
         } else {
@@ -672,32 +878,38 @@ async function renderAndAppendServers(servers, serverListContainer, placeId) {
     });
 
     const serverCards = await Promise.all(serverCardPromises);
-    serverCards.forEach(serverItem => {
+    serverCards.forEach((serverItem) => {
         if (serverItem) serverListContainer.appendChild(serverItem);
     });
     equalizeCardHeights();
 }
 
 function equalizeCardHeights() {
-    const serverListContainer = document.querySelector('#rbx-public-game-server-item-container');
+    const serverListContainer = document.querySelector(
+        '#rbx-public-game-server-item-container',
+    );
     if (!serverListContainer) return;
-    const serverCards = serverListContainer.querySelectorAll('.rbx-public-game-server-item .card-item');
+    const serverCards = serverListContainer.querySelectorAll(
+        '.rbx-public-game-server-item .card-item',
+    );
     if (serverCards.length < 2) return;
-    serverCards.forEach(card => card.style.minHeight = '');
+    serverCards.forEach((card) => (card.style.minHeight = ''));
     let maxHeight = 0;
-    serverCards.forEach(card => {
+    serverCards.forEach((card) => {
         if (card.offsetHeight > maxHeight) {
             maxHeight = card.offsetHeight;
         }
     });
-    serverCards.forEach(card => card.style.minHeight = `${maxHeight}px`);
+    serverCards.forEach((card) => (card.style.minHeight = `${maxHeight}px`));
 }
 function displayMessageInContainer(message, isError = false) {
-    const serverListContainer = document.querySelector('#rbx-public-game-server-item-container');
+    const serverListContainer = document.querySelector(
+        '#rbx-public-game-server-item-container',
+    );
     if (!serverListContainer) return;
 
     serverListContainer.innerHTML = '';
-    
+
     document.getElementById('rovalra-load-more-btn')?.remove();
 
     const listItem = document.createElement('li');
@@ -705,11 +917,11 @@ function displayMessageInContainer(message, isError = false) {
     listItem.style.textAlign = 'center';
     listItem.style.padding = '40px 10px';
     listItem.style.listStyleType = 'none';
-    listItem.className = 'rbx-public-game-server-item'; 
+    listItem.className = 'rbx-public-game-server-item';
 
     const textEl = document.createElement('div');
     textEl.textContent = message;
-    
+
     textEl.className = isError ? 'text-error' : 'text-secondary';
     textEl.style.fontSize = '16px';
     textEl.style.fontWeight = '500';
@@ -735,5 +947,5 @@ export {
     attachCleanupObserver,
     cleanupServerUI,
     getOrCreateDetailsContainer,
-    createInfoElement
+    createInfoElement,
 };
