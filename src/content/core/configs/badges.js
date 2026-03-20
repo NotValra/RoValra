@@ -123,6 +123,7 @@ export const BADGE_CONFIG = {
         style: {
             filter: 'sepia(100%) saturate(600%) brightness(90%) hue-rotate(5deg)',
         },
+        shiny: true,
     },
     donator_1: {
         type: 'header',
