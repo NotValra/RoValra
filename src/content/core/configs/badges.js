@@ -1,5 +1,4 @@
 import { getAssets } from '../assets.js';
-import TranslateIcon from '@mui/icons-material/Translate';
 import {
     CREATOR_USER_ID,
     CONTRIBUTOR_USER_IDS,
@@ -44,16 +43,9 @@ export const BADGE_CONFIG = {
         tooltip: 'RoValra Translator',
         confetti: assets.translateIcon,
         style: {},
-        shiny: true
+        shiny: true,
     },
-    translatoregg: {
-        type: 'badge',
-        userIds: TRANSLATOR_USER_IDS,
-        icon: assets.translateGilbert,
-        name: 'Translator',
-        tooltip: 'RoValra Translator',
-        confetti: assets.translateGilbert,
-    },
+
     tester: {
         type: 'header',
         userIds: TESTER_USER_IDS,
@@ -90,7 +82,7 @@ export const BADGE_CONFIG = {
         icon: assets.rovalraIcon,
         name: 'Gilbert',
         tooltip: 'Maker of Fisch, where Gilbert comes from',
-        confetti: assets.rovalraIcon
+        confetti: assets.rovalraIcon,
     },
     rat: {
         type: 'badge',
