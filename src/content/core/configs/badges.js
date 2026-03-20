@@ -40,9 +40,9 @@ export const BADGE_CONFIG = {
     translator: {
         type: 'header',
         userIds: TRANSLATOR_USER_IDS,
-        icon: TranslateIcon,
+        icon: assets.translateIcon,
         tooltip: 'RoValra Translator',
-        confetti: TranslateIcon,
+        confetti: assets.translateIcon,
         style: {},
         shiny: true
     },
