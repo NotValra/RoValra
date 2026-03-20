@@ -1,4 +1,5 @@
 import { getAssets } from '../assets.js';
+import TranslateIcon from '@mui/icons-material/Translate';
 import {
     CREATOR_USER_ID,
     CONTRIBUTOR_USER_IDS,
@@ -8,6 +9,8 @@ import {
     alice_badge_user_id,
     TESTER_USER_IDS,
     ARTIST_BADGE_USER_ID,
+    TRANSLATOR_USER_IDS,
+    GILBERT_USER_ID,
 } from './userIds.js';
 
 const assets = getAssets();
@@ -33,6 +36,23 @@ export const BADGE_CONFIG = {
             filter: 'sepia(80%) saturate(300%) brightness(90%) hue-rotate(-20deg)',
         },
         shiny: true,
+    },
+    translator: {
+        type: 'header',
+        userIds: TRANSLATOR_USER_IDS,
+        icon: assets.translateIcon,
+        tooltip: 'RoValra Translator',
+        confetti: assets.translateIcon,
+        style: {},
+        shiny: true
+    },
+    translatoregg: {
+        type: 'badge',
+        userIds: TRANSLATOR_USER_IDS,
+        icon: assets.translateGilbert,
+        name: 'Translator',
+        tooltip: 'RoValra Translator',
+        confetti: assets.translateGilbert,
     },
     tester: {
         type: 'header',
@@ -63,6 +83,14 @@ export const BADGE_CONFIG = {
         tooltip: 'Creator of RoValra',
         confetti: assets.rovalraIcon,
         alwaysShow: true,
+    },
+    gilbertmaker: {
+        type: 'badge',
+        userIds: [GILBERT_USER_ID],
+        icon: assets.rovalraIcon,
+        name: 'Gilbert',
+        tooltip: 'Maker of Fisch, where Gilbert comes from',
+        confetti: assets.rovalraIcon
     },
     rat: {
         type: 'badge',
