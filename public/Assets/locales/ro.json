@@ -325,10 +325,10 @@
         "delete": "Șterge"
     },
     "regionPlayButton": {
-        "ariaLabel": "Select or Join Preferred Server Region",
-        "tooltip": "Join Preferred Region",
-        "tooltipWithRegion": "Join Preferred Region<br><b>{{regionName}}</b>",
-        "tooltipBestRegion": "Join Preferred Region<br><b>Best Region (Auto)</b>"
+        "ariaLabel": "Selectează sau intră pe Regiunea de Servere Preferată",
+        "tooltip": "Intră pe Regiunea Preferată",
+        "tooltipWithRegion": "Intră pe Regiunea Preferată<br><b>{{regionName}}</b>",
+        "tooltipBestRegion": "Intră pe Regiunea Preferată<br><b>Cea mai Bună Regiune (Auto)</b>"
     },
     "quickPlay": {
         "loading": "Se încarcă...",
