@@ -8,6 +8,7 @@ import {
     alice_badge_user_id,
     TESTER_USER_IDS,
     ARTIST_BADGE_USER_ID,
+    TRANSLATOR_USER_IDS,
 } from './userIds.js';
 
 const assets = getAssets();
@@ -33,6 +34,23 @@ export const BADGE_CONFIG = {
             filter: 'sepia(80%) saturate(300%) brightness(90%) hue-rotate(-20deg)',
         },
         shiny: true,
+    },
+    translator: {
+        type: 'header',
+        userIds: TRANSLATOR_USER_IDS,
+        icon: assets.translateIcon,
+        tooltip: 'RoValra Translator',
+        confetti: assets.translateIcon,
+        style: {},
+        shiny: true
+    },
+    translatoregg: {
+        type: 'badge',
+        userIds: TRANSLATOR_USER_IDS,
+        icon: assets.translateIcon,
+        name: 'Translator',
+        tooltip: 'RoValra Translator',
+        confetti: assets.translateIcon,
     },
     tester: {
         type: 'header',

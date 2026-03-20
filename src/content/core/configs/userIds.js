@@ -15,6 +15,9 @@ export const TESTER_USER_IDS = [
     '1163412141', //Tino
 ];
 
+export const TRANSLATOR_USER_IDS = [
+];
+
 export const ARTIST_BADGE_USER_ID = '1337447242';
 export const RAT_BADGE_USER_ID = '477516666'; // rat
 export const BLAHAJ_BADGE_USER_ID = '96786935'; // BLAHAJ
