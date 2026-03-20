@@ -39,6 +39,8 @@ import { log, logLevel } from '../../../core/logging.js';
 
 import * as THREE from 'three';
 FLAGS.ASSETS_PATH = chrome.runtime.getURL('assets/rbxasset/');
+FLAGS.ENABLE_API_MESH_CACHE = false;
+FLAGS.ENABLE_API_RBX_CACHE = false;
 FLAGS.USE_WORKERS = true;
 let currentRig = null;
 let currentRigType = null;

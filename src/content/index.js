@@ -55,6 +55,8 @@ import { init as initHeatmap } from './features/games/tab/updateHistory.js';
 import { init as initTotalSpent } from './features/transactions/totalspent.js';
 import { init as initPendingRobuxTrans } from './features/transactions/pendingRobuxTrans.js';
 import { init as initTotalEarned } from './features/transactions/totalearned.js';
+// Trading
+import { init as initConfirmTrade } from './features/trading/confirmtrade.js';
 // group
 import { init as initHiddenGroupGames } from './features/groups/hiddenGroupGames.js';
 import { init as initAntiBots } from './features/groups/Antibots.js';
@@ -195,6 +197,11 @@ const featureRoutes = [
     {
         paths: ['/transactions'],
         features: [initTotalSpent, initPendingRobuxTrans, initTotalEarned],
+    },
+    // Trading
+    {
+        paths: ['/trades', '/trade', '/users'],
+        features: [initConfirmTrade],
     },
 
     // API Docs
