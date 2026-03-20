@@ -9,6 +9,7 @@ import {
     TESTER_USER_IDS,
     ARTIST_BADGE_USER_ID,
     TRANSLATOR_USER_IDS,
+    GILBERT_USER_ID,
 } from './userIds.js';
 
 const assets = getAssets();
@@ -81,6 +82,14 @@ export const BADGE_CONFIG = {
         tooltip: 'Creator of RoValra',
         confetti: assets.rovalraIcon,
         alwaysShow: true,
+    },
+    gilbertmaker: {
+        type: 'badge',
+        userIds: [GILBERT_USER_ID],
+        icon: assets.rovalraIcon,
+        name: 'Gilbert',
+        tooltip: 'Maker of Fisch, where Gilbert comes from',
+        confetti: assets.rovalraIcon
     },
     rat: {
         type: 'badge',
