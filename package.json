@@ -20,6 +20,7 @@
     },
     "dependencies": {
         "dompurify": "^3.3.2",
+        "i18next": "25.8.18",
         "marked": "^17.0.4",
         "roavatar-renderer": "1.2.3",
         "ezlocale": ">=2.1.0"
