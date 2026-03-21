@@ -1,27 +1,17 @@
 import { observeElement } from '../../core/observer.js';
 import { addTooltip } from '../../core/ui/tooltip.js';
 import { createPill } from '../../core/ui/general/pill.js';
+import { getAssets } from '../../core/assets.js';
+import { getPlaceIdFromUrl } from '../../core/idExtractor.js';
+import {
+    getCachedItemValue,
+    getCachedRolimonsItem,
+    fetchRolimonsItems,
+    queueRolimonsFetch,
+} from '../../core/trade/itemHandler.js';
 
-const itemValueCache = new Map();
-
-document.addEventListener('rovalra-tradable-items-response', (e) => {
-    const data = e.detail;
-    if (data && Array.isArray(data.items)) {
-        data.items.forEach((item) => {
-            if (Array.isArray(item.instances)) {
-                item.instances.forEach((inst) => {
-                    if (inst.collectibleItemInstanceId) {
-                        itemValueCache.set(inst.collectibleItemInstanceId, {
-                            rap: inst.recentAveragePrice,
-                            serial: inst.serialNumber,
-                            stock: inst.assetStock,
-                        });
-                    }
-                });
-            }
-        });
-    }
-});
+let observerRequest = null;
+let prefetchRequests = [];
 
 export function init() {
     const path = window.location.pathname;
@@ -30,78 +20,236 @@ export function init() {
         path.startsWith('/trade') ||
         /\/users\/\d+\/trade/.test(path);
 
-    if (!isTradePage) return;
+    if (!isTradePage) {
+        if (observerRequest) {
+            observerRequest.active = false;
+            observerRequest = null;
+        }
+        prefetchRequests.forEach((req) => (req.active = false));
+        prefetchRequests = [];
+        return;
+    }
+
+    if (observerRequest) return;
+
+    startPrefetching();
 
     console.log('[RoValra] Initializing confirmtrade feature.');
-    observeElement('.modal-window .modal-body', (modalBody) => {
-        console.log('[RoValra] Modal body observed.', modalBody);
-        if (modalBody.querySelector('.rovalra-trade-preview')) {
-            console.log('[RoValra] Trade preview already exists. Skipping.');
-            return;
-        }
+    observerRequest = observeElement(
+        '.modal-window .modal-body',
+        (modalBody) => {
+            console.log('[RoValra] Modal body observed.', modalBody);
+            if (modalBody.querySelector('.rovalra-trade-preview')) {
+                console.log(
+                    '[RoValra] Trade preview already exists. Skipping.',
+                );
+                return;
+            }
 
-        const tradeOffers = document.querySelectorAll(
-            '.trade-request-window-offer',
-        );
-        console.log(`[RoValra] Found ${tradeOffers.length} trade offers.`);
-
-        if (tradeOffers.length < 2) {
-            console.log(
-                '[RoValra] Not enough trade offers found. Skipping preview injection.',
+            let tradeOffers = document.querySelectorAll(
+                '.trade-request-window-offer',
             );
-            return;
-        }
+            let isDetailView = false;
 
-        console.log('[RoValra] Injecting trade preview.');
-        injectTradePreview(modalBody, tradeOffers);
-    });
+            if (tradeOffers.length < 2) {
+                tradeOffers = document.querySelectorAll(
+                    '.trade-list-detail-offer',
+                );
+                if (tradeOffers.length >= 2) {
+                    isDetailView = true;
+                }
+            }
+
+            console.log(
+                `[RoValra] Found ${tradeOffers.length} trade offers. DetailView: ${isDetailView}`,
+            );
+
+            if (tradeOffers.length < 2) {
+                return;
+            }
+
+            injectTradePreview(modalBody, tradeOffers, isDetailView);
+        },
+    );
 }
 
-function injectTradePreview(modalBody, tradeOffers) {
+function startPrefetching() {
+    prefetchRequests.forEach((req) => (req.active = false));
+    prefetchRequests = [];
+
+    const handleLink = (el) => {
+        const id = getPlaceIdFromUrl(el.href);
+        if (id) queueRolimonsFetch(id);
+    };
+
+    prefetchRequests.push(
+        observeElement('.trade-request-window-offers a', handleLink, {
+            multiple: true,
+        }),
+    );
+    prefetchRequests.push(
+        observeElement('.trade-list-detail-offer a', handleLink, {
+            multiple: true,
+        }),
+    );
+}
+
+async function injectTradePreview(
+    modalBody,
+    tradeOffers,
+    isDetailView = false,
+) {
     console.log('[RoValra] Inside injectTradePreview.');
+    const assets = getAssets();
+    const assetIds = new Set();
+
+    tradeOffers.forEach((offer) => {
+        const selector = isDetailView
+            ? '.item-card-container'
+            : '.trade-request-item[data-collectibleiteminstanceid]';
+        const items = offer.querySelectorAll(selector);
+
+        items.forEach((item) => {
+            let assetId = item.getAttribute('data-collectibleitemid');
+            if (!assetId) {
+                if (isDetailView) {
+                    const link = item.querySelector('a[href*="/catalog/"]');
+                    if (link) assetId = getPlaceIdFromUrl(link.href);
+                } else {
+                    const instanceId = item.getAttribute(
+                        'data-collectibleiteminstanceid',
+                    );
+                    const cached = getCachedItemValue(instanceId);
+                    if (cached && cached.assetId) assetId = cached.assetId;
+                }
+            }
+            if (assetId) assetIds.add(assetId);
+        });
+    });
+
+    let rolimonsData = {};
+    await fetchRolimonsItems([...assetIds]);
+
+    assetIds.forEach((id) => {
+        const data = getCachedRolimonsItem(id);
+        if (data) {
+            rolimonsData[id] = data;
+        }
+    });
+
+    if (!modalBody.isConnected) return;
+    console.log('[RoValra] Injecting trade preview.');
+
     const previewData = {
-        giving: { items: [], robux: 0, totalRap: 0 },
-        receiving: { items: [], robux: 0, totalRap: 0 },
+        giving: { items: [], robux: 0, totalRap: 0, totalValue: 0 },
+        receiving: { items: [], robux: 0, totalRap: 0, totalValue: 0 },
     };
 
     tradeOffers.forEach((offer, index) => {
         const isMyOffer = index === 0;
         const side = isMyOffer ? previewData.giving : previewData.receiving;
 
-        const items = offer.querySelectorAll(
-            '.trade-request-item[data-collectibleiteminstanceid]',
-        );
+        const selector = isDetailView
+            ? '.item-card-container'
+            : '.trade-request-item[data-collectibleiteminstanceid]';
+        const items = offer.querySelectorAll(selector);
+
         items.forEach((item) => {
             const instanceId = item.getAttribute(
                 'data-collectibleiteminstanceid',
             );
+            let assetId = item.getAttribute('data-collectibleitemid');
             const imgEl = item.querySelector('img');
-            const nameEl = item.querySelector('.item-name');
-            const cachedItem = itemValueCache.get(instanceId);
-            const rap = cachedItem ? cachedItem.rap : 0;
+            const nameEl = item.querySelector(
+                isDetailView ? '.item-card-name' : '.item-name',
+            );
+            const cachedItem = getCachedItemValue(instanceId);
+            let rap = cachedItem ? cachedItem.rap : 0;
             const serial = cachedItem ? cachedItem.serial : null;
             const stock = cachedItem ? cachedItem.stock : null;
+
+            if (isDetailView && !assetId) {
+                const link = item.querySelector('a[href*="/catalog/"]');
+                if (link) assetId = getPlaceIdFromUrl(link.href);
+            }
+
+            if (!assetId && cachedItem && cachedItem.assetId) {
+                assetId = cachedItem.assetId;
+            }
+
+            let value = rap;
+            let isProjected = false;
+            let isRare = false;
+            if (assetId && rolimonsData[assetId]) {
+                if (rap === 0 && rolimonsData[assetId].rap)
+                    rap = rolimonsData[assetId].rap;
+                const rItem = rolimonsData[assetId];
+                if (
+                    rItem.default_price !== undefined &&
+                    rItem.default_price !== null
+                ) {
+                    value = rItem.default_price;
+                }
+                if (rItem.is_projected) isProjected = true;
+                if (rItem.is_rare) isRare = true;
+            }
+
+            if (isDetailView && rap === 0) {
+                const priceEl = item.querySelector(
+                    '.item-card-price .text-robux',
+                );
+                if (priceEl) {
+                    const r = parseInt(priceEl.innerText.replace(/,/g, ''), 10);
+                    if (!isNaN(r)) rap = r;
+                }
+            }
 
             if (imgEl && nameEl) {
                 side.items.push({
                     img: imgEl.src,
                     name: nameEl.innerText.trim(),
                     rap: rap,
+                    value: value,
                     serial: serial,
                     stock: stock,
                     isInvalid: item.classList.contains('invalid-request-item'),
+                    isProjected: isProjected,
+                    isRare: isRare,
                 });
             }
         });
 
-        const robuxInput = offer.querySelector('input[name="robux"]');
-        if (robuxInput) {
-            const val = parseInt(robuxInput.value.replace(/,/g, ''), 10);
-            if (!isNaN(val)) side.robux = val;
+        if (isDetailView) {
+            const grayIcon = offer.querySelector('.icon-robux-gray-16x16');
+            if (grayIcon) {
+                const container = grayIcon.closest('.robux-line');
+                if (container && !container.classList.contains('ng-hide')) {
+                    const valEl = container.querySelector('.robux-line-value');
+                    if (valEl) {
+                        const val = parseInt(
+                            valEl.innerText.replace(/,/g, ''),
+                            10,
+                        );
+
+                        if (!isNaN(val)) side.robux = Math.round(val / 0.7);
+                    }
+                }
+            }
+        } else {
+            const robuxInput = offer.querySelector('input[name="robux"]');
+            if (robuxInput) {
+                const val = parseInt(robuxInput.value.replace(/,/g, ''), 10);
+                if (!isNaN(val)) side.robux = val;
+            }
         }
 
         const itemsRap = side.items.reduce((sum, i) => sum + (i.rap || 0), 0);
-        side.totalRap = itemsRap + side.robux;
+        side.totalRap = itemsRap;
+        const itemsValue = side.items.reduce(
+            (sum, i) => sum + (i.value || 0),
+            0,
+        );
+        side.totalValue = itemsValue;
     });
 
     console.log('[RoValra] Scraped preview data:', previewData);
@@ -123,7 +271,7 @@ function injectTradePreview(modalBody, tradeOffers) {
     flex.style.gap = '15px';
     container.appendChild(flex);
 
-    const createSide = (title, data, color) => {
+    const createSide = (title, data, color, isGiving) => {
         const div = document.createElement('div');
         div.style.flex = '1';
         div.style.textAlign = 'center';
@@ -154,7 +302,38 @@ function injectTradePreview(modalBody, tradeOffers) {
             img.style.border = item.isInvalid ? '2px solid #d43f3a' : 'none';
             wrap.appendChild(img);
 
+            if (item.isProjected) {
+                const projIcon = document.createElement('img');
+                projIcon.src = assets.projectedWarning;
+                Object.assign(projIcon.style, {
+                    position: 'absolute',
+                    bottom: '2px',
+                    left: '2px',
+                    width: '16px',
+                    height: '16px',
+                    zIndex: '2',
+                });
+                addTooltip(projIcon, 'Projected', { position: 'top' });
+                wrap.appendChild(projIcon);
+            }
+
+            if (item.isRare) {
+                const rareIcon = document.createElement('img');
+                rareIcon.src = assets.rareIcon;
+                Object.assign(rareIcon.style, {
+                    position: 'absolute',
+                    bottom: '2px',
+                    right: '2px',
+                    width: '16px',
+                    height: '16px',
+                    zIndex: '2',
+                });
+                addTooltip(rareIcon, 'Rare Item', { position: 'top' });
+                wrap.appendChild(rareIcon);
+            }
+
             let tooltipHtml = `<b>${item.name}</b><br>RAP: ${item.rap ? item.rap.toLocaleString() : '?'}`;
+            tooltipHtml += `<br>Value: ${item.value ? item.value.toLocaleString() : '?'}`;
             if (item.serial) {
                 tooltipHtml += `<br>Serial: #${item.serial} / ${item.stock ? item.stock.toLocaleString() : '?'}`;
             }
@@ -177,10 +356,25 @@ function injectTradePreview(modalBody, tradeOffers) {
             icon.className = 'icon-robux-16x16';
             rDiv.appendChild(icon);
 
+            const afterTax = Math.floor(data.robux * 0.7);
+            const displayAmount = isGiving ? data.robux : afterTax;
+            const sign = isGiving ? '-' : '+';
+
             const text = document.createTextNode(
-                ` +${data.robux.toLocaleString()}`,
+                ` ${sign}${displayAmount.toLocaleString()}`,
             );
             rDiv.appendChild(text);
+
+            const tooltipLabel = isGiving ? 'After Tax' : 'Before Tax';
+            const tooltipValue = isGiving ? afterTax : data.robux;
+
+            addTooltip(
+                rDiv,
+                `${tooltipLabel}: ${tooltipValue.toLocaleString()}`,
+                {
+                    position: 'top',
+                },
+            );
 
             div.appendChild(rDiv);
         }
@@ -188,25 +382,43 @@ function injectTradePreview(modalBody, tradeOffers) {
         const totalDiv = document.createElement('div');
         totalDiv.style.marginTop = 'auto';
         totalDiv.style.paddingTop = '10px';
-        totalDiv.style.fontSize = '12px';
-        totalDiv.style.fontWeight = '700';
         totalDiv.style.color = 'var(--rovalra-main-text-color)';
-        totalDiv.style.display = 'flex';
-        totalDiv.style.alignItems = 'center';
-        totalDiv.style.justifyContent = 'center';
-        totalDiv.innerHTML = `<span class="icon-robux-16x16" style="margin-right: 4px;"></span> Total: ${data.totalRap.toLocaleString()}`;
+
+        const rapTotal = document.createElement('div');
+        rapTotal.style.fontSize = '12px';
+        rapTotal.style.fontWeight = '700';
+        rapTotal.style.display = 'flex';
+        rapTotal.style.alignItems = 'center';
+        rapTotal.style.justifyContent = 'center';
+        rapTotal.innerHTML = `<span class="icon-robux-16x16" style="margin-right: 4px;"></span> RAP: ${data.totalRap.toLocaleString()}`;
+        totalDiv.appendChild(rapTotal);
+
+        const valueTotal = document.createElement('div');
+        valueTotal.style.fontSize = '12px';
+        valueTotal.style.fontWeight = '700';
+        valueTotal.style.marginTop = '4px';
+        valueTotal.style.display = 'flex';
+        valueTotal.style.alignItems = 'center';
+        valueTotal.style.justifyContent = 'center';
+        valueTotal.innerHTML = `<img src="${assets.rolimonsIcon}" style="width: 16px; height: 16px; margin-right: 4px;"> Value: ${data.totalValue.toLocaleString()}`;
+        totalDiv.appendChild(valueTotal);
+
         div.appendChild(totalDiv);
 
         return div;
     };
 
-    flex.appendChild(createSide('You Give', previewData.giving, '#d43f3a'));
+    flex.appendChild(
+        createSide('You Give', previewData.giving, '#d43f3a', true),
+    );
 
     const middleDiv = document.createElement('div');
     middleDiv.style.display = 'flex';
     middleDiv.style.flexDirection = 'column';
     middleDiv.style.alignItems = 'center';
     middleDiv.style.justifyContent = 'center';
+    middleDiv.style.flexShrink = '0';
+    middleDiv.style.minWidth = '100px';
 
     const sepTop = document.createElement('div');
     sepTop.style.width = '1px';
@@ -217,8 +429,9 @@ function injectTradePreview(modalBody, tradeOffers) {
     const diff = previewData.receiving.totalRap - previewData.giving.totalRap;
     const diffText = (diff > 0 ? '+' : '') + diff.toLocaleString();
     const pill = createPill(diffText, 'RAP Difference');
-    pill.style.backgroundColor = diff >= 0 ? '#00b06f' : '#d43f3a';
-    pill.style.color = '#fff';
+    pill.style.backgroundColor =
+        diff > 0 ? '#00b06f' : diff < 0 ? '#d43f3a' : '';
+    pill.style.color = diff === 0 ? '' : '#fff';
     pill.style.margin = '10px 0';
     pill.style.fontWeight = '700';
     const pillSpan = pill.querySelector('span');
@@ -229,6 +442,24 @@ function injectTradePreview(modalBody, tradeOffers) {
     }
     middleDiv.appendChild(pill);
 
+    const valDiff =
+        previewData.receiving.totalValue - previewData.giving.totalValue;
+    const valDiffText = (valDiff > 0 ? '+' : '') + valDiff.toLocaleString();
+    const valPill = createPill(valDiffText, 'Value Difference');
+    valPill.style.backgroundColor =
+        valDiff > 0 ? '#00b06f' : valDiff < 0 ? '#d43f3a' : '';
+    valPill.style.border = 'none';
+    valPill.style.color = valDiff === 0 ? '' : '#fff';
+    valPill.style.margin = '0 0 10px 0';
+    valPill.style.fontWeight = '700';
+    const valPillSpan = valPill.querySelector('span');
+    if (valPillSpan) {
+        valPillSpan.style.display = 'flex';
+        valPillSpan.style.alignItems = 'center';
+        valPillSpan.innerHTML = `<img src="${assets.rolimonsIcon}" style="width: 16px; height: 16px; margin-right: 4px;">${valDiffText}`;
+    }
+    middleDiv.appendChild(valPill);
+
     const sepBottom = document.createElement('div');
     sepBottom.style.width = '1px';
     sepBottom.style.flex = '1';
@@ -237,7 +468,9 @@ function injectTradePreview(modalBody, tradeOffers) {
 
     flex.appendChild(middleDiv);
 
-    flex.appendChild(createSide('You Get', previewData.receiving, '#00b06f'));
+    flex.appendChild(
+        createSide('You Get', previewData.receiving, '#00b06f', false),
+    );
 
     modalBody.appendChild(container);
     console.log('[RoValra] Trade preview injected.');
