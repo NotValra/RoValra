@@ -10,9 +10,15 @@ const i18nPromise = (async () => {
         );
         const language = settings.language || 'en';
 
-        const response = await fetch(
+        let response = await fetch(
             chrome.runtime.getURL(`public/Assets/locales/${language}.json`),
         ); // Verified
+        if (response.ok === false && response.status === 404) {
+            // Fallback to english
+            response = await fetch(
+                chrome.runtime.getURL(`public/Assets/locales/en.json`),
+            );
+        }
         const translations = await response.json();
 
         await i18next.init({
