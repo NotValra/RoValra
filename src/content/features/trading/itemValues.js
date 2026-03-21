@@ -1,13 +1,19 @@
 import { observeElement } from '../../core/observer.js';
 import { addTooltip } from '../../core/ui/tooltip.js';
-import { createPill } from '../../core/ui/general/pill.js';
 import { getAssets } from '../../core/assets.js';
 import { getPlaceIdFromUrl } from '../../core/idExtractor.js';
 import {
     getCachedItemValue,
     getCachedRolimonsItem,
+    getCachedRisk,
     queueRolimonsFetch,
+    queueRiskFetch,
 } from '../../core/trade/itemHandler.js';
+import { RISK_LEVELS, RISK_COLORS } from '../../core/trade/riskCalculator.js';
+import {
+    createRapDiffPill,
+    createValueDiffPill,
+} from '../../core/trade/ui/tradePills.js';
 
 let cardObserverRequest = null;
 let summaryObserverRequest = null;
@@ -39,6 +45,7 @@ export function init() {
             'rovalra-rolimons-data-update',
             onRolimonsUpdate,
         );
+        document.removeEventListener('rovalra-risk-data-update', onRiskUpdate);
         pendingCards.clear();
         if (updateSummaryTimeout) clearTimeout(updateSummaryTimeout);
         return;
@@ -47,6 +54,7 @@ export function init() {
     if (cardObserverRequest) return;
 
     document.addEventListener('rovalra-rolimons-data-update', onRolimonsUpdate);
+    document.addEventListener('rovalra-risk-data-update', onRiskUpdate);
     initTradeSummary();
 
     dividerObserverRequest = observeElement(
@@ -98,6 +106,13 @@ export function init() {
                 pendingCards.get(assetId).add(card);
                 queueRolimonsFetch(assetId);
             }
+
+            const riskCached = getCachedRisk(assetId);
+            if (!riskCached) {
+                queueRiskFetch(assetId);
+            } else {
+                updateItemCard(card, assetId);
+            }
             queueUpdateTradeSummary();
         },
         { multiple: true },
@@ -116,6 +131,17 @@ function onRolimonsUpdate(e) {
         }
     });
     queueUpdateTradeSummary();
+}
+
+function onRiskUpdate(e) {
+    const updatedIds = e.detail;
+    if (!Array.isArray(updatedIds)) return;
+    updatedIds.forEach((id) => {
+        const cards = document.querySelectorAll(
+            `.item-card-container[data-rovalra-asset-id="${id}"], .trade-request-item[data-rovalra-asset-id="${id}"]`,
+        );
+        cards.forEach((card) => updateItemCard(card, id));
+    });
 }
 // turns english into numbers so we can add locale support
 function getTrendValue(trendStr) {
@@ -274,11 +300,13 @@ function updateItemCard(card, assetId) {
         }
     }
 
-    if (!card.querySelector('.rovalra-info-icon')) {
-        const thumbContainer =
-            card.querySelector('.item-card-thumb-container') || card;
-        if (thumbContainer) {
-            const infoIcon = document.createElement('div');
+    const thumbContainer =
+        card.querySelector('.item-card-thumb-container') || card;
+
+    if (thumbContainer) {
+        let infoIcon = card.querySelector('.rovalra-info-icon');
+        if (!infoIcon) {
+            infoIcon = document.createElement('div');
             infoIcon.className = 'rovalra-info-icon';
             Object.assign(infoIcon.style, {
                 position: 'absolute',
@@ -305,26 +333,70 @@ function updateItemCard(card, assetId) {
             if (!card.classList.contains('trade-request-item')) {
                 thumbContainer.style.position = 'relative';
             }
+            thumbContainer.appendChild(infoIcon);
+        }
 
-            const tooltipParts = [];
-            if (data.trend) {
-                const trendValue = getTrendValue(data.trend);
-                const trendString = getTrendString(trendValue);
-                tooltipParts.push(`Trend: ${trendString}`);
-            }
-            if (data.demand) {
-                tooltipParts.push(`Demand: ${data.demand}`);
-            }
-            if (data.acronym) {
-                tooltipParts.push(`Acronym: ${data.acronym}`);
-            }
+        const riskCacheData = getCachedRisk(assetId);
+        const riskData = riskCacheData ? riskCacheData.risk : null;
 
-            if (tooltipParts.length > 0) {
-                addTooltip(infoIcon, tooltipParts.join('<br>'), {
-                    position: 'top',
-                });
-                thumbContainer.appendChild(infoIcon);
+        const tooltipParts = [];
+        if (data.trend) {
+            const trendValue = getTrendValue(data.trend);
+            tooltipParts.push(`Trend: ${getTrendString(trendValue)}`);
+        }
+        if (data.demand) {
+            tooltipParts.push(`Demand: ${data.demand}`);
+        }
+        if (data.acronym) {
+            tooltipParts.push(`Acronym: ${data.acronym}`);
+        }
+
+        if (riskData) {
+            const color = RISK_COLORS[riskData.level] || '#fff';
+            tooltipParts.push(
+                `Risk: <span style="color:${color};font-weight:bold;">${riskData.level}</span>`,
+            );
+            if (riskData.score !== undefined) {
+                tooltipParts.push(`Score: ${riskData.score.toFixed(2)}`);
             }
+            if (riskData.metrics) {
+                const m = riskData.metrics;
+                const mList = [];
+                if (m.volatility !== undefined)
+                    mList.push(`Vol: ${m.volatility.toFixed(2)}`);
+                if (m.trendRatio !== undefined)
+                    mList.push(`Trend: ${m.trendRatio.toFixed(2)}x`);
+                if (m.volumeRatio !== undefined)
+                    mList.push(`VolSpike: ${m.volumeRatio.toFixed(1)}x`);
+                if (m.baselineAvg !== undefined)
+                    mList.push(
+                        `Stable: ${m.baselineAvg.toLocaleString(undefined, { maximumFractionDigits: 0 })}`,
+                    );
+                if (m.avgVolume !== undefined)
+                    mList.push(`AvgVol: ${m.avgVolume.toFixed(1)}`);
+                if (m.rapValueDrop !== undefined)
+                    mList.push(
+                        `ValDrop: ${(m.rapValueDrop * 100).toFixed(0)}%`,
+                    );
+                if (m.lppDrag !== undefined)
+                    mList.push(`LPP: -${(m.lppDrag * 100).toFixed(0)}%`);
+                if (m.spikePeak !== undefined && m.spikeDate) {
+                    const d = new Date(m.spikeDate);
+                    const dateStr = d.toLocaleDateString(undefined, {
+                        month: 'short',
+                        day: 'numeric',
+                    });
+                    mList.push(
+                        `Peak: ${m.spikePeak.toLocaleString()} (${dateStr})`,
+                    );
+                }
+            }
+        }
+
+        if (tooltipParts.length > 0) {
+            addTooltip(infoIcon, tooltipParts.join('<br>'), {
+                position: 'top',
+            });
         }
     }
 }
@@ -578,63 +650,19 @@ function renderSummary(giveOffer, receiveOffer, giveStats, receiveStats) {
     const assets = getAssets();
     summaryDiv.innerHTML = '';
 
-    const createPillElement = (
-        text,
-        tooltip,
-        bgColor,
-        textColor,
-        margin,
-        iconHtml,
-    ) => {
-        const pill = createPill(text, tooltip);
-        Object.assign(pill.style, {
-            backgroundColor: bgColor,
-            color: textColor,
-            fontWeight: '700',
-            margin: 0,
-            border: 'none',
-        });
-
-        const span = pill.querySelector('span');
-        if (span) {
-            span.style.display = 'flex';
-            span.style.alignItems = 'center';
-            span.innerHTML = iconHtml + text;
-        }
-        return pill;
-    };
-
     const rapDiff = receiveStats.rap - giveStats.rap;
-    const rapText = (rapDiff > 0 ? '+' : '') + rapDiff.toLocaleString();
-    const rapBg = rapDiff > 0 ? '#00b06f' : rapDiff < 0 ? '#d43f3a' : '';
-    const rapColor = rapDiff === 0 ? '' : '#fff';
+    const rapPill = createRapDiffPill(rapDiff, giveStats.rap, {
+        margin: '10px 0',
+    });
 
-    summaryDiv.appendChild(
-        createPillElement(
-            rapText,
-            'RAP Difference',
-            rapBg,
-            rapColor,
-            '10px 0',
-            `<span class="icon-robux-16x16" style="margin-right: 4px;"></span>`,
-        ),
-    );
+    summaryDiv.appendChild(rapPill);
 
     const valDiff = receiveStats.value - giveStats.value;
-    const valText = (valDiff > 0 ? '+' : '') + valDiff.toLocaleString();
-    const valBg = valDiff > 0 ? '#00b06f' : valDiff < 0 ? '#d43f3a' : '';
-    const valColor = valDiff === 0 ? '' : '#fff';
+    const valPill = createValueDiffPill(valDiff, giveStats.value, {
+        margin: '10px 0',
+    });
 
-    summaryDiv.appendChild(
-        createPillElement(
-            valText,
-            'Value Difference',
-            valBg,
-            valColor,
-            '0 0 10px 0',
-            `<img src="${assets.rolimonsIcon}" style="width: 16px; height: 16px; margin-right: 4px;">`,
-        ),
-    );
+    summaryDiv.appendChild(valPill);
 }
 // turns demand into numbers so we can add locale support.
 function getDemandValue(demandStr) {

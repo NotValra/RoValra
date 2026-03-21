@@ -1,6 +1,5 @@
 import { observeElement } from '../../core/observer.js';
 import { addTooltip } from '../../core/ui/tooltip.js';
-import { createPill } from '../../core/ui/general/pill.js';
 import { getAssets } from '../../core/assets.js';
 import { getPlaceIdFromUrl } from '../../core/idExtractor.js';
 import {
@@ -9,6 +8,10 @@ import {
     fetchRolimonsItems,
     queueRolimonsFetch,
 } from '../../core/trade/itemHandler.js';
+import {
+    createRapDiffPill,
+    createValueDiffPill,
+} from '../../core/trade/ui/tradePills.js';
 
 let observerRequest = null;
 let prefetchRequests = [];
@@ -427,37 +430,20 @@ async function injectTradePreview(
     middleDiv.appendChild(sepTop);
 
     const diff = previewData.receiving.totalRap - previewData.giving.totalRap;
-    const diffText = (diff > 0 ? '+' : '') + diff.toLocaleString();
-    const pill = createPill(diffText, 'RAP Difference');
-    pill.style.backgroundColor =
-        diff > 0 ? '#00b06f' : diff < 0 ? '#d43f3a' : '';
-    pill.style.color = diff === 0 ? '' : '#fff';
-    pill.style.margin = '10px 0';
-    pill.style.fontWeight = '700';
-    const pillSpan = pill.querySelector('span');
-    if (pillSpan) {
-        pillSpan.style.display = 'flex';
-        pillSpan.style.alignItems = 'center';
-        pillSpan.innerHTML = `<span class="icon-robux-16x16" style="margin-right: 4px;"></span>${diffText}`;
-    }
+    const pill = createRapDiffPill(diff, previewData.giving.totalRap, {
+        margin: '10px 0',
+    });
     middleDiv.appendChild(pill);
 
     const valDiff =
         previewData.receiving.totalValue - previewData.giving.totalValue;
-    const valDiffText = (valDiff > 0 ? '+' : '') + valDiff.toLocaleString();
-    const valPill = createPill(valDiffText, 'Value Difference');
-    valPill.style.backgroundColor =
-        valDiff > 0 ? '#00b06f' : valDiff < 0 ? '#d43f3a' : '';
-    valPill.style.border = 'none';
-    valPill.style.color = valDiff === 0 ? '' : '#fff';
-    valPill.style.margin = '0 0 10px 0';
-    valPill.style.fontWeight = '700';
-    const valPillSpan = valPill.querySelector('span');
-    if (valPillSpan) {
-        valPillSpan.style.display = 'flex';
-        valPillSpan.style.alignItems = 'center';
-        valPillSpan.innerHTML = `<img src="${assets.rolimonsIcon}" style="width: 16px; height: 16px; margin-right: 4px;">${valDiffText}`;
-    }
+    const valPill = createValueDiffPill(
+        valDiff,
+        previewData.giving.totalValue,
+        {
+            margin: '0 0 10px 0',
+        },
+    );
     middleDiv.appendChild(valPill);
 
     const sepBottom = document.createElement('div');

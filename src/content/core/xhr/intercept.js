@@ -15,6 +15,7 @@
     const GAME_SERVERS_API_URL = 'https://games.roblox.com/v1/games/';
     const GAMES_ROBLOX_API = 'https://games.roblox.com/';
     const TRADES_API_URL = 'https://trades.roblox.com/v2/users/';
+    const TRADES_LIST_API_URL = 'https://trades.roblox.com/v1/trades/';
 
     let ASSET_TYPE_ACCESSORIES = [8, 41, 42, 43, 44, 45, 46, 47, 57, 58];
     let ASSET_TYPE_LAYERED = [64, 65, 66, 67, 68, 69, 70, 71, 72];
@@ -238,6 +239,19 @@
                     )
                     .catch(() => {});
             }
+            if (url.includes(TRADES_LIST_API_URL)) {
+                response
+                    .clone()
+                    .json()
+                    .then((d) =>
+                        document.dispatchEvent(
+                            new CustomEvent('rovalra-trades-list-response', {
+                                detail: d,
+                            }),
+                        ),
+                    )
+                    .catch(() => {});
+            }
         }
 
         return response;
@@ -425,6 +439,11 @@
                     )
                         triggerEvent(
                             'rovalra-tradable-items-response',
+                            JSON.parse(xhr.responseText),
+                        );
+                    if (url.includes(TRADES_LIST_API_URL))
+                        triggerEvent(
+                            'rovalra-trades-list-response',
                             JSON.parse(xhr.responseText),
                         );
                 } catch (e) {}
