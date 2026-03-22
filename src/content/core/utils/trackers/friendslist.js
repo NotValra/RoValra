@@ -1,7 +1,7 @@
-// This script fetches a users friends list and stores information about it,
-// like last online, mutual friends, estimated age range (idk if that will be used), trusted friends, last location, friends since and some other lesser important stuff.
-import { callRobloxApiJson } from '../../api';
-import { getAuthenticatedUserId } from '../../user';
+import { callRobloxApiJson } from "../../api";
+import { getAuthenticatedUserId } from "../../user";
+import { log, logLevel } from "../../logging";
+
 
 const FRIENDS_DATA_KEY = 'rovalra_friends_data';
 const FRIENDS_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes for heavy data
@@ -173,6 +173,7 @@ async function fetchFriendsPage(userId, cursor = null) {
             endpoint: endpoint,
         });
     } catch (error) {
+        log(logLevel.ERROR, 'RoValra: Failed to fetch friends list page', error);
         return null;
     }
 }
@@ -195,6 +196,7 @@ async function fetchUserProfileData(userIds) {
             },
         });
     } catch (error) {
+        log(logLevel.ERROR, 'RoValra: Failed to fetch user profile data', error);
         return null;
     }
 }
@@ -209,6 +211,7 @@ async function fetchTrustedFriendsStatus(userId, friendIds) {
         });
         return new Set(data?.trustedFriendsId || []);
     } catch (error) {
+        log(logLevel.ERROR, 'RoValra: Failed to fetch trusted friends status', error);
         return new Set();
     }
 }
@@ -418,9 +421,11 @@ export async function updateFriendsList(userId) {
             ),
         );
 
+        await new Promise(resolve => chrome.storage.local.set({ [FRIENDS_DATA_KEY]: allUsersFriendsData }, resolve));
+        log(logLevel.DEBUG, 'RoValra: Friends list and timestamp updated in local storage for user', userId);
         return fullFriendsList;
     } catch (error) {
-        console.error('RoValra: Failed to update friends list', error);
+        log(logLevel.ERROR, 'RoValra: Failed to update friends list', error);
         return [];
     }
 }

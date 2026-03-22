@@ -2,6 +2,7 @@ import { observeElement } from '../../core/observer.js';
 import { callRobloxApiJson } from '../../core/api.js';
 import { getAssets } from '../../core/assets.js';
 import { fetchThumbnails } from '../../core/thumbnail/thumbnails.js';
+import { log, logLevel } from '../../core/logging.js';
 import DOMPurify from 'dompurify';
 
 let currentMode = 'dark';
@@ -43,7 +44,7 @@ async function fetchItemDetails(itemId) {
         const data = await callRobloxApiJson({ subdomain: 'economy', endpoint: `/v2/assets/${itemId}/details` });
         return data || null;
     } catch (err) {
-        console.error('Failed to fetch item details for', itemId, err);
+        log(logLevel.ERROR, 'Failed to fetch item details for', itemId, err);
         return null;
     }
 }
@@ -300,7 +301,7 @@ async function displayItems(itemsWithDetails) {
             }
         });
     } catch (err) {
-        console.error('Hidden Catalog thumbnails error', err);
+        log(logLevel.ERROR, 'Hidden Catalog thumbnails error', err);
     }
 }
 
@@ -330,7 +331,7 @@ async function fetchDataFromAPI(page = 1, limit = 24) {
         const itemsWithDetails = items.map((it, idx) => ({ ...it, details: details[idx] }));
         return itemsWithDetails;
     } catch (err) {
-        console.error('Hidden Catalog fetch failed', err);
+        log(logLevel.ERROR, 'Hidden Catalog fetch failed', err);
         displayApiError('Failed to fetch hidden catalog items.');
         return [];
     }

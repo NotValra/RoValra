@@ -1,6 +1,7 @@
 import { checkAssetsInBatch } from '../../core/utils/assetStreamer.js';
 import { observeElement, observeAttributes } from '../../core/observer.js';
 import { createAvatarFilterUI } from '../../core/ui/FiltersUI.js';
+import { log, logLevel } from '../../core/logging.js';
 
 export function init() {
     if (!window.location.pathname.includes('/my/avatar')) return;
@@ -362,7 +363,7 @@ export function init() {
                         await processItemIds(Array.from(itemIdsToRecheck), currentSession);
                     }
                 } catch(e) {
-                    console.error("Filter process error", e);
+                    log(logLevel.ERROR, "Filter process error", e);
                 } finally {
                     if (currentSession === scanSessionId) {
                         triggerDomUpdate();

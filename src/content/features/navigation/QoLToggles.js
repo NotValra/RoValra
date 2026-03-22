@@ -3,6 +3,7 @@ import { createNavbarButton } from '../../core/ui/navbarButton.js';
 import { createDropdownMenu, createDropdown } from '../../core/ui/dropdown.js';
 import { createRadioButton } from '../../core/ui/general/radio.js';
 import { callRobloxApi } from '../../core/api.js';
+import { log, logLevel } from '../../core/logging.js';
 import { t } from '../../core/locale/i18n.js';
 
 export function init() {
@@ -214,7 +215,7 @@ export function init() {
                                                 newJoinValue,
                                         },
                                     }).catch((e) =>
-                                        console.error(
+                                        log(logLevel.ERROR,
                                             'Failed to update join status',
                                             e,
                                         ),
