@@ -356,9 +356,7 @@ function updateItemCard(card, assetId) {
             tooltipParts.push(
                 `Risk: <span style="color:${color};font-weight:bold;">${riskData.level}</span>`,
             );
-            if (riskData.score !== undefined) {
-                tooltipParts.push(`Score: ${riskData.score.toFixed(2)}`);
-            }
+
             if (
                 riskData.metrics &&
                 riskData.metrics.baselineAvg !== undefined
@@ -383,7 +381,20 @@ function updateItemCard(card, assetId) {
                 tooltipParts.push(
                     `<span style="font-weight:600; text-decoration: underline;">Reasons:</span>`,
                 );
-                riskData.reasons.forEach((r) => tooltipParts.push(`• ${r}`));
+                riskData.reasons.forEach((r) => {
+                    if (typeof r === 'object') {
+                        const color =
+                            r.type === 'good'
+                                ? '#00b06f'
+                                : r.type === 'bad'
+                                  ? '#ff4d4d'
+                                  : '';
+                        const style = color ? `style="color:${color}"` : '';
+                        tooltipParts.push(`<span ${style}>• ${r.text}</span>`);
+                    } else {
+                        tooltipParts.push(`• ${r}`);
+                    }
+                });
             }
         }
 

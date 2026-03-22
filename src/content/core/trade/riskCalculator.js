@@ -146,7 +146,10 @@ export function calculateRisk(
     let riskScore = 0;
 
     if (rolimonsData && rolimonsData.is_projected) {
-        reasons.push('Item is flagged as projected.');
+        reasons.push({
+            text: 'Item is flagged as projected.',
+            type: 'bad',
+        });
     }
 
     // Check for Drastic Differences (Spikes / Drops)
@@ -155,9 +158,10 @@ export function calculateRisk(
     if (percentChange > 10) {
         if (zScore > 1.0) {
             riskScore += 0.4;
-            reasons.push(
-                `Recent price spike detected (+${percentChange.toFixed(0)}% vs total history).`,
-            );
+            reasons.push({
+                text: `Recent price spike detected (+${percentChange.toFixed(0)}% vs total history).`,
+                type: 'bad',
+            });
             if (maxRecentPoint) {
                 metrics.spikePeak = maxRecentPoint.value;
                 metrics.spikeDate = maxRecentPoint.date;
@@ -167,41 +171,47 @@ export function calculateRisk(
         } else {
             // It went up, but this item has a history of high volatility, so it's less "drastic"
             riskScore += 0.2;
-            reasons.push(
-                `Recent price increase (+${percentChange.toFixed(0)}%) consistent with historical volatility.`,
-            );
+            reasons.push({
+                text: `Recent price increase (+${percentChange.toFixed(0)}%) consistent with historical volatility.`,
+                type: 'bad',
+            });
         }
     } else if (percentChange > 5) {
         riskScore -= 0.15;
-        reasons.push(
-            `Gradually increasing price (+${percentChange.toFixed(0)}%).`,
-        );
+        reasons.push({
+            text: `Gradually increasing price (+${percentChange.toFixed(0)}%).`,
+            type: 'good',
+        });
     } else if (percentChange < -25) {
         if (zScore < -1.5) {
             // It's a drastic drop
             riskScore += 0.3;
-            reasons.push(
-                `Recent price drop detected (${percentChange.toFixed(0)}% vs 30-day stable).`,
-            );
+            reasons.push({
+                text: `Recent price drop detected (${percentChange.toFixed(0)}% vs 30-day stable).`,
+                type: 'bad',
+            });
         } else {
             riskScore += 0.15;
-            reasons.push(
-                `Gradually decreasing price (${percentChange.toFixed(0)}%).`,
-            );
+            reasons.push({
+                text: `Gradually decreasing price (${percentChange.toFixed(0)}%).`,
+                type: 'bad',
+            });
         }
     } else if (percentChange < -1) {
         riskScore += 0.1;
-        reasons.push(
-            `Gradually decreasing price (${percentChange.toFixed(0)}%).`,
-        );
+        reasons.push({
+            text: `Gradually decreasing price (${percentChange.toFixed(0)}%).`,
+            type: 'bad',
+        });
     }
 
     // Check for Abnormal Volatility (30d Volatility vs History Volatility)
     if (historyVol > 0 && metrics.volatility > historyVol * 2.5) {
         riskScore += 0.15;
-        reasons.push(
-            `Recent sales are unusually volatile compared to long-term history.`,
-        );
+        reasons.push({
+            text: `Recent sales are unusually volatile compared to long-term history.`,
+            type: 'bad',
+        });
     }
 
     // Basic RAP vs Value Sanity Check
@@ -215,17 +225,22 @@ export function calculateRisk(
 
             if (diff > threshold * 1.5) {
                 riskScore -= 0.25;
-                reasons.push(
-                    'RAP is much higher than Value, value might go up.',
-                );
+                reasons.push({
+                    text: 'RAP is much higher than Value, value might go up.',
+                    type: 'good',
+                });
             } else if (diff > 0) {
                 riskScore -= 0.15;
-                reasons.push('RAP is higher than Value, value might go up.');
+                reasons.push({
+                    text: 'RAP is higher than Value, value might go up.',
+                    type: 'good',
+                });
             } else if (diff < -threshold) {
                 riskScore += 0.3;
-                reasons.push(
-                    'RAP is much lower than Value, value might go down.',
-                );
+                reasons.push({
+                    text: 'RAP is much lower than Value, value might go down.',
+                    type: 'bad',
+                });
                 metrics.rapValueDrop = (value - rap) / value;
             }
         }
@@ -236,15 +251,25 @@ export function calculateRisk(
             const highThreshold = 1.2 + metrics.volatility * 1.5;
 
             if (rapToStableRatio > highThreshold) {
-                riskScore += 0.2;
-                reasons.push(
-                    'RAP is unusually high compared to recent stable sales price.',
-                );
+                if (rolimonsData.best_price > rap) {
+                    riskScore -= 0.1;
+                    reasons.push({
+                        text: 'RAP is higher than sales, but Best Price validates it.',
+                        type: 'good',
+                    });
+                } else {
+                    riskScore += 0.2;
+                    reasons.push({
+                        text: 'RAP is unusually high compared to recent stable sales price.',
+                        type: 'bad',
+                    });
+                }
             } else if (rapToStableRatio > 1.05) {
                 riskScore -= 0.15;
-                reasons.push(
-                    'RAP is higher than stable price (Gradually increasing).',
-                );
+                reasons.push({
+                    text: 'RAP is higher than stable price (Gradually increasing).',
+                    type: 'good',
+                });
             }
         }
 
@@ -254,16 +279,28 @@ export function calculateRisk(
 
             if (ratio < 0.75) {
                 riskScore += 0.3;
-                reasons.push('Best Price is significantly lower than RAP.');
+                reasons.push({
+                    text: 'Best Price is significantly lower than RAP.',
+                    type: 'bad',
+                });
             } else if (ratio < 0.95) {
                 riskScore += 0.15;
-                reasons.push('Best Price is lower than RAP.');
+                reasons.push({
+                    text: 'Best Price is lower than RAP.',
+                    type: 'bad',
+                });
             } else if (ratio > 1.1) {
                 riskScore -= 0.2;
-                reasons.push('Best Price is higher than RAP.');
+                reasons.push({
+                    text: 'Best Price is higher than RAP.',
+                    type: 'good',
+                });
             } else if (ratio > 1.02) {
                 riskScore -= 0.1;
-                reasons.push('Best Price is slightly higher than RAP.');
+                reasons.push({
+                    text: 'Best Price is slightly higher than RAP.',
+                    type: 'good',
+                });
             }
         }
     }
@@ -318,16 +355,18 @@ export function calculateRisk(
                 // Detect Odd Volume Increase (> 100% and statistically significant)
                 if (volPercentChange > 100 && volZScore > 2.0) {
                     riskScore += 0.25;
-                    reasons.push(
-                        `Suspicious increase in sales volume (+${volPercentChange.toFixed(0)}%).`,
-                    );
+                    reasons.push({
+                        text: `Suspicious increase in sales volume (+${volPercentChange.toFixed(0)}%).`,
+                        type: 'bad',
+                    });
                 }
                 // Detect Volume Decrease (Liquidity drying up)
                 else if (volPercentChange < -50 && volZScore < -1.0) {
                     riskScore += 0.15;
-                    reasons.push(
-                        `Significant drop in sales volume (${volPercentChange.toFixed(0)}%).`,
-                    );
+                    reasons.push({
+                        text: `Significant drop in sales volume (${volPercentChange.toFixed(0)}%).`,
+                        type: 'bad',
+                    });
                 }
             }
         }
@@ -366,7 +405,10 @@ export function calculateRisk(
                         p.value > projectionBaseline * 1.1
                     ) {
                         riskScore += 0.5;
-                        reasons.push('Item is suffering from projection.');
+                        reasons.push({
+                            text: 'Item is suffering from projection.',
+                            type: 'bad',
+                        });
                         break;
                     }
                 }
@@ -379,7 +421,7 @@ export function calculateRisk(
     }
 
     if (reasons.length === 0 && riskScore === 0) {
-        reasons.push('Stable price trend.');
+        reasons.push({ text: 'Stable price trend.', type: 'good' });
     }
 
     let level = RISK_LEVELS.NO_RISK;
