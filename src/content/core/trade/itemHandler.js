@@ -66,14 +66,45 @@ export async function fetchRolimonsItems(ids) {
                 if (response.ok) {
                     const json = await response.json();
                     if (json.success && json.items) {
+                        const updatedRiskIds = [];
                         Object.entries(json.items).forEach(([id, data]) => {
                             rolimonsCache.set(id, data);
+
+                            const cachedRisk = riskCache.get(id);
+                            if (cachedRisk && cachedRisk.priceData) {
+                                let riskData = data;
+                                if (cachedRisk.robloxBestPrice) {
+                                    riskData = {
+                                        ...data,
+                                        best_price: cachedRisk.robloxBestPrice,
+                                    };
+                                }
+                                const newRisk = calculateRisk(
+                                    cachedRisk.priceData,
+                                    riskData,
+                                    cachedRisk.volumeData,
+                                );
+                                cachedRisk.risk = newRisk;
+                                updatedRiskIds.push(id);
+                            }
+                        });
+                        chunk.forEach((id) => {
+                            if (!rolimonsCache.has(String(id))) {
+                                rolimonsCache.set(String(id), null);
+                            }
                         });
                         document.dispatchEvent(
                             new CustomEvent('rovalra-rolimons-data-update', {
                                 detail: Object.keys(json.items),
                             }),
                         );
+                        if (updatedRiskIds.length > 0) {
+                            document.dispatchEvent(
+                                new CustomEvent('rovalra-risk-data-update', {
+                                    detail: updatedRiskIds,
+                                }),
+                            );
+                        }
                     }
                 }
             } catch (e) {
@@ -163,10 +194,10 @@ async function fetchRiskData(ids) {
                     if (json.data) {
                         json.data.forEach((item) => {
                             if (item.collectibleItemId) {
-                                assetIdToCollectibleId.set(
-                                    String(item.id),
-                                    item.collectibleItemId,
-                                );
+                                assetIdToCollectibleId.set(String(item.id), {
+                                    collectibleItemId: item.collectibleItemId,
+                                    lowestResalePrice: item.lowestResalePrice,
+                                });
                             } else {
                                 riskCache.set(String(item.id), {
                                     risk: {
@@ -188,16 +219,24 @@ async function fetchRiskData(ids) {
 
     await Promise.all(
         Array.from(assetIdToCollectibleId.entries()).map(
-            async ([assetId, collectibleId]) => {
+            async ([assetId, data]) => {
+                const { collectibleItemId, lowestResalePrice } = data;
                 try {
                     const response = await callRobloxApi({
                         subdomain: 'apis',
-                        endpoint: `/marketplace-sales/v1/item/${collectibleId}/resale-data`,
+                        endpoint: `/marketplace-sales/v1/item/${collectibleItemId}/resale-data`,
                     });
                     if (response.ok) {
                         const json = await response.json();
                         if (json && json.priceDataPoints) {
-                            const rolimonsData = getCachedRolimonsItem(assetId);
+                            let rolimonsData = getCachedRolimonsItem(assetId);
+                            if (lowestResalePrice) {
+                                rolimonsData = {
+                                    ...rolimonsData,
+                                    best_price: lowestResalePrice,
+                                };
+                            }
+
                             const risk = calculateRisk(
                                 json.priceDataPoints,
                                 rolimonsData,
@@ -207,6 +246,7 @@ async function fetchRiskData(ids) {
                                 risk,
                                 priceData: json.priceDataPoints,
                                 volumeData: json.volumeDataPoints,
+                                robloxBestPrice: lowestResalePrice,
                             });
                             return;
                         }

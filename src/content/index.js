@@ -59,6 +59,7 @@ import { init as initTotalEarned } from './features/transactions/totalearned.js'
 import { init as initConfirmTrade } from './features/trading/confirmtrade.js';
 import { init as initItemValues } from './features/trading/itemValues.js';
 import { init as initTradePreview } from './features/trading/tradePreview.js';
+import { init as initTradeFilter } from './features/trading/tradefilter.js';
 // group
 import { init as initHiddenGroupGames } from './features/groups/hiddenGroupGames.js';
 import { init as initAntiBots } from './features/groups/Antibots.js';
@@ -199,7 +200,12 @@ const featureRoutes = [
     // Trading
     {
         paths: ['/trades', '/trade', '/users'],
-        features: [initConfirmTrade, initItemValues, initTradePreview],
+        features: [
+            initConfirmTrade,
+            initItemValues,
+            initTradePreview,
+            initTradeFilter,
+        ],
     },
 
     // API Docs

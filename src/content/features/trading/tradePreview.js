@@ -153,7 +153,8 @@ async function fetchAndRenderTradePreview(tradeId, row) {
     summaryDiv.className = 'rovalra-trade-summary';
     Object.assign(summaryDiv.style, {
         display: 'flex',
-        alignItems: 'center',
+        flexDirection: 'column',
+        alignItems: 'flex-end',
         gap: '5px',
         position: 'absolute',
         right: '9px',

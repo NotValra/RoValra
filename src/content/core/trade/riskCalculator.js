@@ -14,6 +14,10 @@ export const RISK_COLORS = {
     'Insane Risk': '#5a0000',
 };
 
+function getRapValueThreshold(value) {
+    return Math.round(value * 0.1);
+}
+
 export function calculateRisk(
     priceDataPoints,
     rolimonsData = null,
@@ -106,7 +110,7 @@ export function calculateRisk(
     const stableSum = recentPoints.reduce((a, b) => a + b, 0);
     let stableAvg = stableSum / recentPoints.length;
 
-    // Take best price into consideration when calculating stable price (dont work lol cuz the api doesnt have best price yet)
+    // Take best price into consideration when calculating stable price
     if (rolimonsData && rolimonsData.best_price > 0) {
         const bestPrice = rolimonsData.best_price;
         if (bestPrice < stableAvg) {
@@ -140,6 +144,10 @@ export function calculateRisk(
     metrics.trendRatio = stableAvg > 0 ? currentPrice / stableAvg : 1;
 
     let riskScore = 0;
+
+    if (rolimonsData && rolimonsData.is_projected) {
+        reasons.push('Item is flagged as projected.');
+    }
 
     // Check for Drastic Differences (Spikes / Drops)
     // Threshold: Change > 10% AND it is statistically significant (> 1.0 sigma)
@@ -201,11 +209,28 @@ export function calculateRisk(
         const rap = rolimonsData.rap || 0;
         const value = rolimonsData.default_price || rap;
 
-        if (rap > 0 && value > 0 && rap < value * 0.85) {
-            riskScore += 0.3;
-            reasons.push('RAP is significantly lower than Value.');
-            metrics.rapValueDrop = (value - rap) / value;
-        } else if (metrics.baselineAvg > 0 && rap > metrics.baselineAvg) {
+        if (rap > 0 && value > 0 && value !== rap) {
+            const diff = rap - value;
+            const threshold = getRapValueThreshold(value);
+
+            if (diff > threshold * 1.5) {
+                riskScore -= 0.25;
+                reasons.push(
+                    'RAP is much higher than Value, value might go up.',
+                );
+            } else if (diff > 0) {
+                riskScore -= 0.15;
+                reasons.push('RAP is higher than Value, value might go up.');
+            } else if (diff < -threshold) {
+                riskScore += 0.3;
+                reasons.push(
+                    'RAP is much lower than Value, value might go down.',
+                );
+                metrics.rapValueDrop = (value - rap) / value;
+            }
+        }
+
+        if (metrics.baselineAvg > 0 && rap > metrics.baselineAvg) {
             const rapToStableRatio = rap / metrics.baselineAvg;
 
             const highThreshold = 1.2 + metrics.volatility * 1.5;
@@ -233,6 +258,12 @@ export function calculateRisk(
             } else if (ratio < 0.95) {
                 riskScore += 0.15;
                 reasons.push('Best Price is lower than RAP.');
+            } else if (ratio > 1.1) {
+                riskScore -= 0.2;
+                reasons.push('Best Price is higher than RAP.');
+            } else if (ratio > 1.02) {
+                riskScore -= 0.1;
+                reasons.push('Best Price is slightly higher than RAP.');
             }
         }
     }
@@ -341,6 +372,10 @@ export function calculateRisk(
                 }
             }
         }
+    }
+
+    if (rolimonsData && rolimonsData.is_projected) {
+        riskScore = 1;
     }
 
     if (reasons.length === 0 && riskScore === 0) {

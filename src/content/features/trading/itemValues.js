@@ -359,37 +359,31 @@ function updateItemCard(card, assetId) {
             if (riskData.score !== undefined) {
                 tooltipParts.push(`Score: ${riskData.score.toFixed(2)}`);
             }
-            if (riskData.metrics) {
-                const m = riskData.metrics;
-                const mList = [];
-                if (m.volatility !== undefined)
-                    mList.push(`Vol: ${m.volatility.toFixed(2)}`);
-                if (m.trendRatio !== undefined)
-                    mList.push(`Trend: ${m.trendRatio.toFixed(2)}x`);
-                if (m.volumeRatio !== undefined)
-                    mList.push(`VolSpike: ${m.volumeRatio.toFixed(1)}x`);
-                if (m.baselineAvg !== undefined)
-                    mList.push(
-                        `Stable: ${m.baselineAvg.toLocaleString(undefined, { maximumFractionDigits: 0 })}`,
-                    );
-                if (m.avgVolume !== undefined)
-                    mList.push(`AvgVol: ${m.avgVolume.toFixed(1)}`);
-                if (m.rapValueDrop !== undefined)
-                    mList.push(
-                        `ValDrop: ${(m.rapValueDrop * 100).toFixed(0)}%`,
-                    );
-                if (m.lppDrag !== undefined)
-                    mList.push(`LPP: -${(m.lppDrag * 100).toFixed(0)}%`);
-                if (m.spikePeak !== undefined && m.spikeDate) {
-                    const d = new Date(m.spikeDate);
-                    const dateStr = d.toLocaleDateString(undefined, {
-                        month: 'short',
-                        day: 'numeric',
-                    });
-                    mList.push(
-                        `Peak: ${m.spikePeak.toLocaleString()} (${dateStr})`,
-                    );
-                }
+            if (
+                riskData.metrics &&
+                riskData.metrics.baselineAvg !== undefined
+            ) {
+                tooltipParts.push(
+                    `Stable Price: ${riskData.metrics.baselineAvg.toLocaleString(undefined, { maximumFractionDigits: 0 })}`,
+                );
+            }
+            let bestPrice = data.best_price;
+            if (
+                riskCacheData &&
+                riskCacheData.robloxBestPrice !== undefined &&
+                riskCacheData.robloxBestPrice !== null
+            ) {
+                bestPrice = riskCacheData.robloxBestPrice;
+            }
+
+            if (bestPrice > 0) {
+                tooltipParts.push(`Best Price: ${bestPrice.toLocaleString()}`);
+            }
+            if (riskData.reasons && riskData.reasons.length > 0) {
+                tooltipParts.push(
+                    `<span style="font-weight:600; text-decoration: underline;">Reasons:</span>`,
+                );
+                riskData.reasons.forEach((r) => tooltipParts.push(`• ${r}`));
             }
         }
 
