@@ -11,6 +11,7 @@ import {
     createRapDiffPill,
     createValueDiffPill,
 } from '../../core/trade/ui/tradePills.js';
+import { addTooltip } from '../../core/ui/tooltip.js';
 
 let tradeData = [];
 let observer = null;
@@ -218,6 +219,36 @@ function processTradeRow(row) {
 
     if (trade) {
         row.dataset.tradeId = trade.id;
+
+        const userDiv = row.querySelector('.text-lead');
+        if (
+            userDiv &&
+            trade.user?.id &&
+            !userDiv.querySelector('.rovalra-rolimons-user-link')
+        ) {
+            const assets = getAssets();
+            const rolimonsLink = document.createElement('a');
+            rolimonsLink.href = `https://www.rolimons.com/player/${trade.user.id}`;
+            rolimonsLink.target = '_blank';
+            rolimonsLink.className = 'rovalra-rolimons-user-link';
+            rolimonsLink.addEventListener('click', (e) => e.stopPropagation());
+            Object.assign(rolimonsLink.style, {
+                display: 'inline-flex',
+                alignItems: 'center',
+                marginLeft: '6px',
+                verticalAlign: 'middle',
+                textDecoration: 'none',
+            });
+
+            rolimonsLink.innerHTML = `<div style="width: 16px; height: 16px; background-color: var(--rovalra-main-text-color); -webkit-mask: url('${assets.launchIcon}') center/contain no-repeat; mask: url('${assets.launchIcon}') center/contain no-repeat;"></div>`; //Verified
+
+            addTooltip(rolimonsLink, 'Open user on Rolimons', {
+                position: 'top',
+            });
+
+            userDiv.appendChild(rolimonsLink);
+        }
+
         let debounceTimer;
         const observerHandle = observeIntersection(row, async (entry) => {
             if (entry.isIntersecting) {
