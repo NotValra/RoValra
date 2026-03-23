@@ -828,25 +828,6 @@ function luDecompose(A) {
     return { LU, P };
 }
 
-function luSolve({ LU, P }, b) {
-    const n = LU.length;
-    const x = new Float32Array(n);
-    for (let i = 0; i < n; i++) x[i] = b[P[i]];
-    for (let i = 0; i < n; i++) {
-        const row = LU[i];
-        let sum = x[i];
-        for (let j = 0; j < i; j++) sum -= row[j] * x[j];
-        x[i] = sum;
-    }
-    for (let i = n - 1; i >= 0; i--) {
-        const row = LU[i];
-        let sum = x[i];
-        for (let j = i + 1; j < n; j++) sum -= row[j] * x[j];
-        x[i] = sum / row[i];
-    }
-    return x;
-}
-
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.type === 'OFFLOAD_RBF_MATH') {
         const [_A, _bx, _by, _bz] = request.data;
@@ -870,20 +851,53 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 ? _bz
                 : new Float32Array(Object.values(_bz));
 
-        const LU = luDecompose(A);
-        const wx = luSolve(LU, bx);
-        const wy = luSolve(LU, by);
-        const wz = luSolve(LU, bz);
-
-        const n = wx.length;
+        const { LU, P } = luDecompose(A);
+        const n = LU.length;
         const result = new Float32Array(n * 3);
+
         for (let i = 0; i < n; i++) {
-            result[i * 3 + 0] = wx[i];
-            result[i * 3 + 1] = wy[i];
-            result[i * 3 + 2] = wz[i];
+            const pIdx = P[i];
+            result[i * 3 + 0] = bx[pIdx];
+            result[i * 3 + 1] = by[pIdx];
+            result[i * 3 + 2] = bz[pIdx];
         }
 
-        sendResponse([...result]);
+        for (let i = 0; i < n; i++) {
+            const row = LU[i];
+            let sumX = result[i * 3 + 0];
+            let sumY = result[i * 3 + 1];
+            let sumZ = result[i * 3 + 2];
+            for (let j = 0; j < i; j++) {
+                const val = row[j];
+                const rj = j * 3;
+                sumX -= val * result[rj + 0];
+                sumY -= val * result[rj + 1];
+                sumZ -= val * result[rj + 2];
+            }
+            result[i * 3 + 0] = sumX;
+            result[i * 3 + 1] = sumY;
+            result[i * 3 + 2] = sumZ;
+        }
+
+        for (let i = n - 1; i >= 0; i--) {
+            const row = LU[i];
+            let sumX = result[i * 3 + 0];
+            let sumY = result[i * 3 + 1];
+            let sumZ = result[i * 3 + 2];
+            for (let j = i + 1; j < n; j++) {
+                const val = row[j];
+                const rj = j * 3;
+                sumX -= val * result[rj + 0];
+                sumY -= val * result[rj + 1];
+                sumZ -= val * result[rj + 2];
+            }
+            const div = row[i];
+            result[i * 3 + 0] = sumX / div;
+            result[i * 3 + 1] = sumY / div;
+            result[i * 3 + 2] = sumZ / div;
+        }
+
+        sendResponse(result);
     }
     return true;
 });
