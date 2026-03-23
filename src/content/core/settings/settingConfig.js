@@ -560,9 +560,9 @@ export const SETTINGS_CONFIG = {
                 },
             },
             userRapEnabled: {
-                label: 'User RAP',
+                label: 'User RAP/Value',
                 description: [
-                    "This shows a user's total RAP on their profile.",
+                    "This shows a user's total RAP/Value on their profile.",
                 ],
                 type: 'checkbox',
                 default: true,

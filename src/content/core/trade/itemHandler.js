@@ -4,6 +4,7 @@ import { calculateRisk, RISK_LEVELS } from './riskCalculator.js';
 const itemValueCache = new Map();
 const rolimonsCache = new Map();
 const riskCache = new Map();
+const rolimonsCacheTimestamp = new Map();
 
 const fetchQueue = new Set();
 let fetchTimer = null;
@@ -39,15 +40,20 @@ export function getCachedItemValue(instanceId) {
 }
 
 export function getCachedRolimonsItem(assetId) {
-    return rolimonsCache.get(assetId);
+    return rolimonsCache.get(String(assetId));
 }
 
 export function getCachedRisk(assetId) {
-    return riskCache.get(assetId);
+    return riskCache.get(String(assetId));
 }
 
 export async function fetchRolimonsItems(ids) {
-    const uniqueIds = [...new Set(ids)].filter((id) => !rolimonsCache.has(id));
+    const uniqueIds = [...new Set(ids)].filter((id) => {
+        const strId = String(id);
+        if (!rolimonsCache.has(strId)) return true;
+        const timestamp = rolimonsCacheTimestamp.get(strId) || 0;
+        return Date.now() - timestamp > 60000;
+    });
 
     if (uniqueIds.length === 0) return;
 
@@ -69,6 +75,7 @@ export async function fetchRolimonsItems(ids) {
                         const updatedRiskIds = [];
                         Object.entries(json.items).forEach(([id, data]) => {
                             rolimonsCache.set(id, data);
+                            rolimonsCacheTimestamp.set(id, Date.now());
 
                             const cachedRisk = riskCache.get(id);
                             if (cachedRisk && cachedRisk.priceData) {
@@ -89,8 +96,10 @@ export async function fetchRolimonsItems(ids) {
                             }
                         });
                         chunk.forEach((id) => {
-                            if (!rolimonsCache.has(String(id))) {
-                                rolimonsCache.set(String(id), null);
+                            const strId = String(id);
+                            if (!json.items[strId]) {
+                                rolimonsCache.set(strId, null);
+                                rolimonsCacheTimestamp.set(strId, Date.now());
                             }
                         });
                         document.dispatchEvent(
@@ -116,7 +125,12 @@ export async function fetchRolimonsItems(ids) {
 
 export function queueRolimonsFetch(input) {
     const ids = Array.isArray(input) ? input : [input];
-    const newIds = ids.filter((id) => !rolimonsCache.has(id));
+    const newIds = ids.filter((id) => {
+        const strId = String(id);
+        if (!rolimonsCache.has(strId)) return true;
+        const timestamp = rolimonsCacheTimestamp.get(strId) || 0;
+        return Date.now() - timestamp > 60000;
+    });
 
     if (newIds.length === 0) return Promise.resolve();
 
@@ -142,7 +156,7 @@ export function queueRolimonsFetch(input) {
 
 export function queueRiskFetch(input) {
     const ids = Array.isArray(input) ? input : [input];
-    const newIds = ids.filter((id) => !riskCache.has(id));
+    const newIds = ids.filter((id) => !riskCache.has(String(id)));
 
     if (newIds.length === 0) return Promise.resolve();
 

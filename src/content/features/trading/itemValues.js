@@ -170,14 +170,15 @@ function getTrendString(trendValue) {
     return stringMap[trendValue] || 'Unknown';
 }
 
-function updateItemCard(card, assetId) {
+export function updateItemCard(card, assetId, options = {}) {
     const data = getCachedRolimonsItem(assetId);
     if (!data) return;
 
     const assets = getAssets();
     const value = data.default_price || data.rap || 0;
+    const textColor = options.fontColor || 'var(--rovalra-main-text-color)';
 
-    const priceDiv = card.querySelector('.item-card-price');
+    const priceDiv = card.querySelector('.item-card-price, .rovalra-item-rap');
     if (card.classList.contains('trade-request-item')) {
         const itemValueDiv = card.querySelector('.item-value');
         if (itemValueDiv) {
@@ -228,43 +229,64 @@ function updateItemCard(card, assetId) {
 
         valDiv.innerHTML = `
             <img src="${assets.rolimonsIcon}" style="width: 16px; height: 16px; margin-right: 5px; margin-left: 1px">
-            <span class="text-robux" style="color: var(--rovalra-main-text-color);">${value.toLocaleString()}</span>
+            <span class="text-robux" style="color: ${textColor};${options.fontSize ? ` font-size: ${options.fontSize};` : ''}">${value.toLocaleString()}</span>
         `; // verified
 
-        const rolimonsLink = document.createElement('a');
-        rolimonsLink.href = `https://www.rolimons.com/item/${assetId}`;
-        rolimonsLink.target = '_blank';
-        rolimonsLink.style.display = 'flex';
-        rolimonsLink.style.alignItems = 'center';
-        rolimonsLink.style.marginLeft = '4px';
-        rolimonsLink.innerHTML = `<div style="width: 18px; height: 18px; background-color: var(--rovalra-main-text-color); -webkit-mask: url('${assets.launchIcon}')"></div>`; // verified
-        addTooltip(rolimonsLink, 'Open item on Rolimons', {
-            position: 'top',
-        });
+        if (!priceDiv.closest('a') || options.forceLink) {
+            let rolimonsLink;
+            if (options.forceLink) {
+                rolimonsLink = document.createElement('span');
+                rolimonsLink.style.cursor = 'pointer';
+                rolimonsLink.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    window.open(
+                        `https://www.rolimons.com/item/${assetId}`,
+                        '_blank',
+                    );
+                });
+            } else {
+                rolimonsLink = document.createElement('a');
+                rolimonsLink.href = `https://www.rolimons.com/item/${assetId}`;
+                rolimonsLink.target = '_blank';
+            }
+            rolimonsLink.style.display = 'flex';
+            rolimonsLink.style.alignItems = 'center';
+            rolimonsLink.style.marginLeft = '4px';
+            rolimonsLink.innerHTML = `<div style="width: 18px; height: 18px; background-color: var(--rovalra-main-text-color); -webkit-mask: url('${assets.launchIcon}')"></div>`; // verified
+            addTooltip(rolimonsLink, 'Open item on Rolimons', {
+                position: 'top',
+            });
 
-        valDiv.appendChild(rolimonsLink);
+            valDiv.appendChild(rolimonsLink);
+        }
         priceDiv.parentNode.insertBefore(valDiv, priceDiv.nextSibling);
     }
 
     if (data.is_projected && !card.querySelector('.rovalra-projected-icon')) {
         const thumbContainer =
-            card.querySelector('.item-card-thumb-container') || card;
+            card.querySelector(
+                '.item-card-thumb-container, .rovalra-item-thumb-container',
+            ) || card;
         if (thumbContainer) {
             const projIcon = document.createElement('img');
             projIcon.src = assets.projectedWarning;
             projIcon.className = 'rovalra-projected-icon';
-            Object.assign(projIcon.style, {
+            const projIconStyle = {
                 position: 'absolute',
                 bottom: card.classList.contains('trade-request-item')
                     ? '20px'
                     : '4px',
-                left: card.classList.contains('trade-request-item')
-                    ? '4px'
-                    : '100px',
                 width: '20px',
                 height: '20px',
                 zIndex: '10',
-            });
+            };
+            if (card.classList.contains('trade-request-item')) {
+                projIconStyle.left = '4px';
+            } else {
+                projIconStyle.right = '4px';
+            }
+            Object.assign(projIcon.style, projIconStyle);
             addTooltip(projIcon, 'Projected Item', { position: 'top' });
             if (!card.classList.contains('trade-request-item'))
                 thumbContainer.style.position = 'relative';
@@ -274,27 +296,28 @@ function updateItemCard(card, assetId) {
 
     if (data.is_rare && !card.querySelector('.rovalra-rare-icon')) {
         const thumbContainer =
-            card.querySelector('.item-card-thumb-container') || card;
+            card.querySelector(
+                '.item-card-thumb-container, .rovalra-item-thumb-container',
+            ) || card;
         if (thumbContainer) {
             const rareIcon = document.createElement('img');
             rareIcon.src = assets.rareIcon;
             rareIcon.className = 'rovalra-rare-icon';
-            Object.assign(rareIcon.style, {
+            const rareIconStyle = {
                 position: 'absolute',
                 bottom: card.classList.contains('trade-request-item')
                     ? '20px'
                     : '4px',
-                left: card.classList.contains('trade-request-item')
-                    ? data.is_projected
-                        ? '26px'
-                        : '4px'
-                    : data.is_projected
-                      ? '75px'
-                      : '100px',
                 width: '20px',
                 height: '20px',
                 zIndex: '10',
-            });
+            };
+            if (card.classList.contains('trade-request-item')) {
+                rareIconStyle.left = data.is_projected ? '26px' : '4px';
+            } else {
+                rareIconStyle.right = data.is_projected ? '26px' : '4px';
+            }
+            Object.assign(rareIcon.style, rareIconStyle);
             addTooltip(rareIcon, 'Rare Item', { position: 'top' });
             if (!card.classList.contains('trade-request-item'))
                 thumbContainer.style.position = 'relative';
@@ -303,7 +326,9 @@ function updateItemCard(card, assetId) {
     }
 
     const thumbContainer =
-        card.querySelector('.item-card-thumb-container') || card;
+        card.querySelector(
+            '.item-card-thumb-container, .rovalra-item-thumb-container',
+        ) || card;
 
     if (thumbContainer) {
         let infoIcon = card.querySelector('.rovalra-info-icon');
