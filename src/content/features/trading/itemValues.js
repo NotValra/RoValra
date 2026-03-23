@@ -1,4 +1,5 @@
 import { observeElement } from '../../core/observer.js';
+import { createRadioButton } from '../../core/ui/general/radio.js';
 import { addTooltip } from '../../core/ui/tooltip.js';
 import { getAssets } from '../../core/assets.js';
 import { getPlaceIdFromUrl } from '../../core/idExtractor.js';
@@ -20,6 +21,7 @@ let summaryObserverRequest = null;
 let dividerObserverRequest = null;
 let updateSummaryTimeout = null;
 const pendingCards = new Map();
+let isRobuxIncluded = false;
 
 export function init() {
     const path = window.location.pathname;
@@ -456,6 +458,7 @@ function calculateStats(offerEl) {
     let value = 0;
     let totalDemand = 0;
     let itemCount = 0;
+    let robux = 0;
 
     offerEl
         .querySelectorAll('.item-card-container, .trade-request-item')
@@ -532,7 +535,19 @@ function calculateStats(offerEl) {
             value += itemValue;
         });
 
-    return { rap, value, totalDemand, itemCount };
+    const robuxInput = offerEl.querySelector('input[name="robux"]');
+    if (robuxInput) {
+        const val = parseInt(robuxInput.value.replace(/,/g, ''), 10);
+        if (!isNaN(val)) robux = val;
+    } else {
+        const robuxLineVal = offerEl.querySelector('.robux-line-value');
+        if (robuxLineVal) {
+            const val = parseInt(robuxLineVal.innerText.replace(/,/g, ''), 10);
+            if (!isNaN(val)) robux = val;
+        }
+    }
+
+    return { rap, value, totalDemand, itemCount, robux };
 }
 
 function injectTotalValueLine(offer, totalValue) {
@@ -655,19 +670,67 @@ function renderSummary(giveOffer, receiveOffer, giveStats, receiveStats) {
     const assets = getAssets();
     summaryDiv.innerHTML = '';
 
-    const rapDiff = receiveStats.rap - giveStats.rap;
-    const rapPill = createRapDiffPill(rapDiff, giveStats.rap, {
+    let myRap = giveStats.rap;
+    let myValue = giveStats.value;
+    let partnerRap = receiveStats.rap;
+    let partnerValue = receiveStats.value;
+
+    if (isRobuxIncluded) {
+        myRap += giveStats.robux;
+        myValue += giveStats.robux;
+        partnerRap += Math.floor(receiveStats.robux * 0.7);
+        partnerValue += Math.floor(receiveStats.robux * 0.7);
+    }
+
+    const rapDiff = partnerRap - myRap;
+    const rapPill = createRapDiffPill(rapDiff, myRap, {
         margin: '10px 0',
     });
 
     summaryDiv.appendChild(rapPill);
 
-    const valDiff = receiveStats.value - giveStats.value;
-    const valPill = createValueDiffPill(valDiff, giveStats.value, {
+    const valDiff = partnerValue - myValue;
+    const valPill = createValueDiffPill(valDiff, myValue, {
         margin: '10px 0',
     });
 
     summaryDiv.appendChild(valPill);
+
+    if (giveStats.robux > 0 || receiveStats.robux > 0) {
+        const toggleWrapper = document.createElement('div');
+        Object.assign(toggleWrapper.style, {
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px',
+        });
+
+        const radio = createRadioButton({
+            id: 'rovalra-robux-toggle',
+            checked: isRobuxIncluded,
+            onChange: (checked) => {
+                isRobuxIncluded = checked;
+                updateTradeSummary();
+            },
+        });
+        toggleWrapper.appendChild(radio);
+
+        const label = document.createElement('span');
+        label.innerText = '+R$';
+        label.style.fontWeight = '600';
+        label.style.fontSize = '12px';
+        label.style.color = 'var(--rovalra-main-text-color)';
+        toggleWrapper.appendChild(label);
+
+        const totalRaw = giveStats.robux + receiveStats.robux;
+        const tooltipText =
+            totalRaw > 0
+                ? `Includes Robux (After Pending)<br>Before Pending: R$ ${totalRaw.toLocaleString()}`
+                : `Includes Robux (After Pending)`;
+
+        addTooltip(toggleWrapper, tooltipText, { position: 'top' });
+
+        summaryDiv.appendChild(toggleWrapper);
+    }
 }
 // turns demand into numbers so we can add locale support.
 function getDemandValue(demandStr) {

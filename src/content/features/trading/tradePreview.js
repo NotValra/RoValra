@@ -120,8 +120,8 @@ async function fetchAndRenderTradePreview(tradeId, row) {
     if (!row.isConnected) return;
 
     const calculateStats = (offer) => {
-        let rap = offer.robux || 0;
-        let value = offer.robux || 0;
+        let rap = 0;
+        let value = 0;
 
         offer.items.forEach((assetId) => {
             const roliData = getCachedRolimonsItem(assetId);
