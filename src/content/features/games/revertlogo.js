@@ -1,4 +1,3 @@
-import * as storage from "../../core/chrome/localStorage.js";
 import { observeElement } from '../../core/observer.js';
 import { loadDatacenterMap, getRegionData } from '../../core/regions.js';
 import { fetchThumbnails } from '../../core/thumbnail/thumbnails.js';
@@ -112,7 +111,7 @@ async function ensureDatacenterDataIsParsed() {
 
         const result = await Promise.race([
             new Promise((resolve) =>
-                storage.get('rovalraDatacenters').then(resolve),
+                chrome.storage.local.get('rovalraDatacenters', resolve),
             ),
             new Promise((_, reject) =>
                 setTimeout(() => reject(new Error('Timeout')), 2000),
@@ -515,15 +514,18 @@ function applyCustomLogo(imageData, element) {
 }
 
 function initRevertLogo() {
-    storage.get({ revertLogo: false, customLogoData: null }).then((settings) => {
-        if (settings.revertLogo === true && settings.customLogoData) {
-            const callback = (el) =>
-                applyCustomLogo(settings.customLogoData, el);
-            targetSelectors.forEach((selector) =>
-                observeElement(selector, callback),
-            );
-        }
-    });
+    chrome.storage.local.get(
+        { revertLogo: false, customLogoData: null },
+        (settings) => {
+            if (settings.revertLogo === true && settings.customLogoData) {
+                const callback = (el) =>
+                    applyCustomLogo(settings.customLogoData, el);
+                targetSelectors.forEach((selector) =>
+                    observeElement(selector, callback),
+                );
+            }
+        },
+    );
 }
 
 function initializeJoinDialogEnhancer() {
@@ -542,357 +544,360 @@ function initializeJoinDialogEnhancer() {
         }
     });
 
-    storage.get({
-        whatamIJoiningEnabled: true,
-        AlwaysGetInfo: false,
-        customLogoData: null,
-        revertLogo: false,
-        closeUiByClickingTheBackground: true,
-    }).then((settings) => {
-        const processGameLaunchData = async (gameLaunchFrame) => {
-            gameLaunchElementExists = true;
-            const gameLaunchSrc = gameLaunchFrame?.src;
+    chrome.storage.local.get(
+        {
+            whatamIJoiningEnabled: true,
+            AlwaysGetInfo: false,
+            customLogoData: null,
+            revertLogo: false,
+            closeUiByClickingTheBackground: true,
+        },
+        (settings) => {
+            const processGameLaunchData = async (gameLaunchFrame) => {
+                gameLaunchElementExists = true;
+                const gameLaunchSrc = gameLaunchFrame?.src;
 
-            if (
-                !gameLaunchSrc ||
-                !gameLaunchSrc.includes('placelauncherurl:') ||
-                gameLaunchSrc === lastProcessedGameLaunchSrc
-            )
-                return;
+                if (
+                    !gameLaunchSrc ||
+                    !gameLaunchSrc.includes('placelauncherurl:') ||
+                    gameLaunchSrc === lastProcessedGameLaunchSrc
+                )
+                    return;
 
-            lastProcessedGameLaunchSrc = gameLaunchSrc;
-            currentGameId = null;
-            interceptedServerData = null;
+                lastProcessedGameLaunchSrc = gameLaunchSrc;
+                currentGameId = null;
+                interceptedServerData = null;
 
-            const logoToUse =
-                settings.revertLogo === true && settings.customLogoData
-                    ? settings.customLogoData
-                    : null;
+                const logoToUse =
+                    settings.revertLogo === true && settings.customLogoData
+                        ? settings.customLogoData
+                        : null;
 
-            openInterface(
-                null,
-                logoToUse,
-                settings.closeUiByClickingTheBackground,
-            );
-
-            let urlParams;
-            let placeId;
-            try {
-                const urlString = gameLaunchSrc.substring(
-                    gameLaunchSrc.indexOf('placelauncherurl:'),
+                openInterface(
+                    null,
+                    logoToUse,
+                    settings.closeUiByClickingTheBackground,
                 );
-                const decodedUrlString = decodeURIComponent(
-                    urlString.split('+')[0].substring(17),
-                );
-                urlParams = new URLSearchParams(
-                    new URL(decodedUrlString).search,
-                );
-                placeId = urlParams.get('placeId');
-            } catch (e) {
-                showLoadingOverlayResult(
-                    await t('revertLogo.errorParsingUrl'),
-                    {
-                        text: await t('revertLogo.close'),
-                        onClick: () => closeInterface(true),
-                    },
-                );
-                return;
-            }
 
-            if (
-                !placeId &&
-                urlParams.get('request') === 'RequestFollowUser'
-            ) {
-                const userId = urlParams.get('userId');
-                if (userId) {
-                    updateLoadingOverlayText(
-                        await t('revertLogo.findingUser'),
-                    );
-                    placeId = await fetchUserPresence(userId);
-                }
-            }
-
-            let gameDetailsPromise = Promise.resolve({
-                name: await t('revertLogo.robloxExperience'),
-                iconUrl: null,
-            });
-            if (placeId) {
-                gameDetailsPromise = fetchGameDetails(placeId);
-            }
-
-            const requestType = urlParams.get('request');
-            const isRequestGame =
-                requestType === 'RequestGame' ||
-                requestType === 'RequestGameJob';
-
-            const hasGameId = urlParams.has('gameId');
-            const hasAccessCode = urlParams.has('accessCode');
-            const isGenericJoin =
-                isRequestGame && !hasGameId && !hasAccessCode;
-            const isPrivateServer = requestType === 'RequestPrivateGame';
-            const isFollowingUser = requestType === 'RequestFollowUser';
-
-            if (hasGameId) {
-                currentGameId = urlParams.get('gameId');
-            }
-
-            let joinApiResponse = null;
-
-            if (settings.AlwaysGetInfo) {
-                updateLoadingOverlayText(
-                    await t('revertLogo.fetchingServerInfo'),
-                );
+                let urlParams;
+                let placeId;
                 try {
-                    await ensureDatacenterDataIsParsed();
+                    const urlString = gameLaunchSrc.substring(
+                        gameLaunchSrc.indexOf('placelauncherurl:'),
+                    );
+                    const decodedUrlString = decodeURIComponent(
+                        urlString.split('+')[0].substring(17),
+                    );
+                    urlParams = new URLSearchParams(
+                        new URL(decodedUrlString).search,
+                    );
+                    placeId = urlParams.get('placeId');
+                } catch (e) {
+                    showLoadingOverlayResult(
+                        await t('revertLogo.errorParsingUrl'),
+                        {
+                            text: await t('revertLogo.close'),
+                            onClick: () => closeInterface(true),
+                        },
+                    );
+                    return;
+                }
 
-                    let retries = 0;
-                    const MAX_RETRIES = 5;
+                if (
+                    !placeId &&
+                    urlParams.get('request') === 'RequestFollowUser'
+                ) {
+                    const userId = urlParams.get('userId');
+                    if (userId) {
+                        updateLoadingOverlayText(
+                            await t('revertLogo.findingUser'),
+                        );
+                        placeId = await fetchUserPresence(userId);
+                    }
+                }
 
-                    while (
-                        !joinApiResponse &&
-                        document.body.classList.contains(
-                            HIDE_ROBLOX_UI_CLASS,
-                        ) &&
-                        retries < MAX_RETRIES
-                    ) {
-                        retries++;
+                let gameDetailsPromise = Promise.resolve({
+                    name: await t('revertLogo.robloxExperience'),
+                    iconUrl: null,
+                });
+                if (placeId) {
+                    gameDetailsPromise = fetchGameDetails(placeId);
+                }
 
-                        try {
-                            let response = null;
-                            const apiBody = {
-                                gameJoinAttemptId: crypto.randomUUID(),
-                                placeId: parseInt(placeId, 10),
-                            };
+                const requestType = urlParams.get('request');
+                const isRequestGame =
+                    requestType === 'RequestGame' ||
+                    requestType === 'RequestGameJob';
 
-                            if (isGenericJoin) {
-                                response = await callRobloxApi({
-                                    subdomain: 'gamejoin',
-                                    endpoint: '/v1/join-game',
-                                    method: 'POST',
-                                    body: apiBody,
-                                });
-                            } else if (isPrivateServer) {
-                                const accessCode =
-                                    urlParams.get('accessCode');
-                                const linkCode =
-                                    urlParams.get('linkCode') || '';
-                                response = await callRobloxApi({
-                                    subdomain: 'gamejoin',
-                                    endpoint: '/v1/join-private-game',
-                                    method: 'POST',
-                                    body: {
-                                        ...apiBody,
-                                        accessCode,
-                                        linkCode,
-                                        isTeleport: false,
-                                    },
-                                });
-                            } else if (isFollowingUser) {
-                                const userIdToFollow =
-                                    urlParams.get('userId');
-                                response = await callRobloxApi({
-                                    subdomain: 'gamejoin',
-                                    endpoint: '/v1/play-with-user',
-                                    method: 'POST',
-                                    body: {
-                                        userIdToFollow: parseInt(
-                                            userIdToFollow,
-                                            10,
-                                        ),
-                                    },
-                                });
-                            } else if (currentGameId) {
-                                response = await callRobloxApi({
-                                    subdomain: 'gamejoin',
-                                    endpoint: '/v1/join-game-instance',
-                                    method: 'POST',
-                                    body: {
-                                        ...apiBody,
-                                        gameId: currentGameId,
-                                    },
-                                });
-                            }
+                const hasGameId = urlParams.has('gameId');
+                const hasAccessCode = urlParams.has('accessCode');
+                const isGenericJoin =
+                    isRequestGame && !hasGameId && !hasAccessCode;
+                const isPrivateServer = requestType === 'RequestPrivateGame';
+                const isFollowingUser = requestType === 'RequestFollowUser';
 
-                            if (response && response.ok) {
-                                const data = await response.json();
+                if (hasGameId) {
+                    currentGameId = urlParams.get('gameId');
+                }
 
-                                if (
-                                    data?.status === 12 ||
-                                    (data?.message &&
-                                        data.message.includes(
-                                            'non-root place',
-                                        ))
-                                ) {
-                                    showLoadingOverlayResult(
-                                        data.message ||
-                                            (await t(
-                                                'revertLogo.nonRootPlaceRestrictions',
-                                            )),
-                                        {
-                                            text: await t(
-                                                'revertLogo.close',
-                                            ),
-                                            onClick: () =>
-                                                closeInterface(true),
+                let joinApiResponse = null;
+
+                if (settings.AlwaysGetInfo) {
+                    updateLoadingOverlayText(
+                        await t('revertLogo.fetchingServerInfo'),
+                    );
+                    try {
+                        await ensureDatacenterDataIsParsed();
+
+                        let retries = 0;
+                        const MAX_RETRIES = 5;
+
+                        while (
+                            !joinApiResponse &&
+                            document.body.classList.contains(
+                                HIDE_ROBLOX_UI_CLASS,
+                            ) &&
+                            retries < MAX_RETRIES
+                        ) {
+                            retries++;
+
+                            try {
+                                let response = null;
+                                const apiBody = {
+                                    gameJoinAttemptId: crypto.randomUUID(),
+                                    placeId: parseInt(placeId, 10),
+                                };
+
+                                if (isGenericJoin) {
+                                    response = await callRobloxApi({
+                                        subdomain: 'gamejoin',
+                                        endpoint: '/v1/join-game',
+                                        method: 'POST',
+                                        body: apiBody,
+                                    });
+                                } else if (isPrivateServer) {
+                                    const accessCode =
+                                        urlParams.get('accessCode');
+                                    const linkCode =
+                                        urlParams.get('linkCode') || '';
+                                    response = await callRobloxApi({
+                                        subdomain: 'gamejoin',
+                                        endpoint: '/v1/join-private-game',
+                                        method: 'POST',
+                                        body: {
+                                            ...apiBody,
+                                            accessCode,
+                                            linkCode,
+                                            isTeleport: false,
                                         },
-                                    );
-                                    return;
+                                    });
+                                } else if (isFollowingUser) {
+                                    const userIdToFollow =
+                                        urlParams.get('userId');
+                                    response = await callRobloxApi({
+                                        subdomain: 'gamejoin',
+                                        endpoint: '/v1/play-with-user',
+                                        method: 'POST',
+                                        body: {
+                                            userIdToFollow: parseInt(
+                                                userIdToFollow,
+                                                10,
+                                            ),
+                                        },
+                                    });
+                                } else if (currentGameId) {
+                                    response = await callRobloxApi({
+                                        subdomain: 'gamejoin',
+                                        endpoint: '/v1/join-game-instance',
+                                        method: 'POST',
+                                        body: {
+                                            ...apiBody,
+                                            gameId: currentGameId,
+                                        },
+                                    });
                                 }
 
-                                if (data?.joinScript) {
-                                    joinApiResponse = data;
-                                    break;
+                                if (response && response.ok) {
+                                    const data = await response.json();
+
+                                    if (
+                                        data?.status === 12 ||
+                                        (data?.message &&
+                                            data.message.includes(
+                                                'non-root place',
+                                            ))
+                                    ) {
+                                        showLoadingOverlayResult(
+                                            data.message ||
+                                                (await t(
+                                                    'revertLogo.nonRootPlaceRestrictions',
+                                                )),
+                                            {
+                                                text: await t(
+                                                    'revertLogo.close',
+                                                ),
+                                                onClick: () =>
+                                                    closeInterface(true),
+                                            },
+                                        );
+                                        return;
+                                    }
+
+                                    if (data?.joinScript) {
+                                        joinApiResponse = data;
+                                        break;
+                                    }
                                 }
+                            } catch (innerErr) {
+                                console.error(
+                                    'Join API attempt failed:',
+                                    innerErr,
+                                );
                             }
-                        } catch (innerErr) {
-                            console.error(
-                                'Join API attempt failed:',
-                                innerErr,
+
+                            if (!joinApiResponse && retries < MAX_RETRIES) {
+                                await new Promise((r) => setTimeout(r, 2000));
+                            }
+                        }
+
+                        if (joinApiResponse?.joinScript?.GameId) {
+                            currentGameId = joinApiResponse.joinScript.GameId;
+                        }
+                    } catch (e) {
+                        console.error('Error in server info fetch loop:', e);
+                    }
+                }
+
+                if (!document.body.classList.contains(HIDE_ROBLOX_UI_CLASS)) {
+                    return;
+                }
+
+                try {
+                    const joinScript = joinApiResponse?.joinScript;
+                    let regionCode, regionName, ownerInfo, serverUptime;
+
+                    if (joinScript) {
+                        const resolvedGameId =
+                            joinScript.GameId || currentGameId;
+
+                        if (joinScript.PrivateServerOwnerID) {
+                            try {
+                                const ownerId = joinScript.PrivateServerOwnerID;
+                                const [uData, thumbMap] = await Promise.all([
+                                    callRobloxApi({
+                                        subdomain: 'users',
+                                        endpoint: '/v1/users',
+                                        method: 'POST',
+                                        body: { userIds: [ownerId] },
+                                    }).then((r) => r.json()),
+                                    fetchThumbnails(
+                                        [{ id: ownerId }],
+                                        'AvatarHeadshot',
+                                        '48x48',
+                                        false,
+                                    ),
+                                ]);
+                                const thumbData = thumbMap.get(ownerId);
+                                if (uData?.data?.[0]) {
+                                    ownerInfo = {
+                                        id: uData.data[0].id,
+                                        displayName: uData.data[0].displayName,
+                                        thumbnailUrl:
+                                            thumbData?.imageUrl || null,
+                                    };
+                                }
+                            } catch (e) {}
+                        }
+
+                        const dataCenterId = joinScript.DataCenterId;
+                        if (dataCenterId && serverIpMap[dataCenterId]) {
+                            const loc = serverIpMap[dataCenterId];
+                            regionCode = loc.country;
+                            regionName = loc.region
+                                ? `${loc.city}, ${loc.region}`
+                                : loc.city;
+                        }
+
+                        if (resolvedGameId) {
+                            serverUptime = await fetchServerUptime(
+                                placeId,
+                                resolvedGameId,
                             );
                         }
 
-                        if (!joinApiResponse && retries < MAX_RETRIES) {
-                            await new Promise((r) => setTimeout(r, 2000));
-                        }
-                    }
-
-                    if (joinApiResponse?.joinScript?.GameId) {
-                        currentGameId = joinApiResponse.joinScript.GameId;
-                    }
-                } catch (e) {
-                    console.error('Error in server info fetch loop:', e);
-                }
-            }
-
-            if (!document.body.classList.contains(HIDE_ROBLOX_UI_CLASS)) {
-                return;
-            }
-
-            try {
-                const joinScript = joinApiResponse?.joinScript;
-                let regionCode, regionName, ownerInfo, serverUptime;
-
-                if (joinScript) {
-                    const resolvedGameId =
-                        joinScript.GameId || currentGameId;
-
-                    if (joinScript.PrivateServerOwnerID) {
-                        try {
-                            const ownerId = joinScript.PrivateServerOwnerID;
-                            const [uData, thumbMap] = await Promise.all([
-                                callRobloxApi({
-                                    subdomain: 'users',
-                                    endpoint: '/v1/users',
-                                    method: 'POST',
-                                    body: { userIds: [ownerId] },
-                                }).then((r) => r.json()),
-                                fetchThumbnails(
-                                    [{ id: ownerId }],
-                                    'AvatarHeadshot',
-                                    '48x48',
-                                    false,
-                                ),
-                            ]);
-                            const thumbData = thumbMap.get(ownerId);
-                            if (uData?.data?.[0]) {
-                                ownerInfo = {
-                                    id: uData.data[0].id,
-                                    displayName: uData.data[0].displayName,
-                                    thumbnailUrl:
-                                        thumbData?.imageUrl || null,
-                                };
-                            }
-                        } catch (e) {}
-                    }
-
-                    const dataCenterId = joinScript.DataCenterId;
-                    if (dataCenterId && serverIpMap[dataCenterId]) {
-                        const loc = serverIpMap[dataCenterId];
-                        regionCode = loc.country;
-                        regionName = loc.region
-                            ? `${loc.city}, ${loc.region}`
-                            : loc.city;
-                    }
-
-                    if (resolvedGameId) {
-                        serverUptime = await fetchServerUptime(
-                            placeId,
+                        const htmlDetails = buildInfoList(
                             resolvedGameId,
+                            isPrivateServer,
+                            regionCode,
+                            regionName,
+                            interceptedServerData,
+                            joinScript.PlaceVersion,
+                            joinScript.ChannelName,
+                            joinScript.RccVersion,
+                            serverUptime,
+                            ownerInfo,
                         );
-                    }
 
-                    const htmlDetails = buildInfoList(
-                        resolvedGameId,
-                        isPrivateServer,
-                        regionCode,
-                        regionName,
-                        interceptedServerData,
-                        joinScript.PlaceVersion,
-                        joinScript.ChannelName,
-                        joinScript.RccVersion,
-                        serverUptime,
-                        ownerInfo,
-                    );
-
-                    const gameDetails = await gameDetailsPromise;
-                    updateServerInfo(
-                        gameDetails.name,
-                        gameDetails.iconUrl,
-                        htmlDetails,
-                    );
-                    updateLoadingOverlayText(
-                        await t('revertLogo.joiningServer'),
-                    );
-                } else {
-                    if (currentGameId) {
-                        serverUptime = await fetchServerUptime(
-                            placeId,
+                        const gameDetails = await gameDetailsPromise;
+                        updateServerInfo(
+                            gameDetails.name,
+                            gameDetails.iconUrl,
+                            htmlDetails,
+                        );
+                        updateLoadingOverlayText(
+                            await t('revertLogo.joiningServer'),
+                        );
+                    } else {
+                        if (currentGameId) {
+                            serverUptime = await fetchServerUptime(
+                                placeId,
+                                currentGameId,
+                            );
+                        }
+                        const htmlDetails = buildInfoList(
                             currentGameId,
+                            isPrivateServer,
+                            null,
+                            null,
+                            interceptedServerData,
+                            null,
+                            null,
+                            null,
+                            serverUptime,
+                            null,
+                        );
+
+                        const details = await gameDetailsPromise;
+                        updateServerInfo(
+                            details.name,
+                            details.iconUrl,
+                            htmlDetails,
+                        );
+                        updateLoadingOverlayText(
+                            await t('revertLogo.waitingForRoblox'),
                         );
                     }
-                    const htmlDetails = buildInfoList(
-                        currentGameId,
-                        isPrivateServer,
-                        null,
-                        null,
-                        interceptedServerData,
-                        null,
-                        null,
-                        null,
-                        serverUptime,
-                        null,
-                    );
 
+                    pollClientStatus(placeId);
+                } catch (e) {
+                    console.error('Rendering error:', e);
                     const details = await gameDetailsPromise;
-                    updateServerInfo(
-                        details.name,
-                        details.iconUrl,
-                        htmlDetails,
-                    );
-                    updateLoadingOverlayText(
-                        await t('revertLogo.waitingForRoblox'),
-                    );
+                    updateServerInfo(details.name, details.iconUrl, null);
+                    updateLoadingOverlayText(await t('revertLogo.launching'));
+                    pollClientStatus(placeId);
                 }
+            };
 
-                pollClientStatus(placeId);
-            } catch (e) {
-                console.error('Rendering error:', e);
-                const details = await gameDetailsPromise;
-                updateServerInfo(details.name, details.iconUrl, null);
-                updateLoadingOverlayText(await t('revertLogo.launching'));
-                pollClientStatus(placeId);
-            }
-        };
+            if (!settings.whatamIJoiningEnabled) return;
 
-        if (!settings.whatamIJoiningEnabled) return;
-
-        observeElement('#gamelaunch', processGameLaunchData, {
-            observeAttributes: true,
-            onRemove: () => {
-                gameLaunchElementExists = false;
-            },
-        });
-    });
+            observeElement('#gamelaunch', processGameLaunchData, {
+                observeAttributes: true,
+                onRemove: () => {
+                    gameLaunchElementExists = false;
+                },
+            });
+        },
+    );
 }
 
 function initialize() {

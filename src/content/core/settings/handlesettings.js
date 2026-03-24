@@ -1,4 +1,3 @@
-import * as storage from "../chrome/localStorage.js";
 import { SETTINGS_CONFIG } from './settingConfig.js';
 import { findSettingConfig } from './generateSettings.js';
 import { getFullRegionName, REGIONS } from '../regions.js';
@@ -33,7 +32,7 @@ export const loadSettings = async () => {
             }
         }
 
-        storage.get(defaultSettings).then((settings) => {
+        chrome.storage.local.get(defaultSettings, (settings) => {
             if (chrome.runtime.lastError) {
                 console.error(
                     'Failed to load settings:',
@@ -178,7 +177,7 @@ export const handleSaveSettings = async (settingName, value) => {
         const settings = { [settingName]: sanitizedValue };
 
         return new Promise((resolve, reject) => {
-            storage.set(settings).then(() => {
+            chrome.storage.local.set(settings, () => {
                 if (chrome.runtime.lastError) {
                     console.error(
                         'Failed to save setting:',
@@ -199,10 +198,10 @@ export const handleSaveSettings = async (settingName, value) => {
 };
 
 const syncToSettingsKey = (settingName, value) => {
-    storage.get('rovalra_settings').then((result) => {
+    chrome.storage.local.get('rovalra_settings', (result) => {
         const settingsData = result.rovalra_settings || {};
         settingsData[settingName] = value;
-        storage.set({ rovalra_settings: settingsData });
+        chrome.storage.local.set({ rovalra_settings: settingsData });
     });
 };
 
@@ -224,18 +223,21 @@ export const buildSettingsKey = async () => {
             }
         }
 
-        storage.get(allSettingKeys).then((currentSettings) => {
-            storage.set({ rovalra_settings: currentSettings }).then(() => {
-                if (chrome.runtime.lastError) {
-                    console.error(
-                        'Failed to build settings key:',
-                        chrome.runtime.lastError,
-                    );
-                } else {
-                    console.log('RoValra: Settings key initialized');
-                }
-                resolve();
-            });
+        chrome.storage.local.get(allSettingKeys, (currentSettings) => {
+            chrome.storage.local.set(
+                { rovalra_settings: currentSettings },
+                () => {
+                    if (chrome.runtime.lastError) {
+                        console.error(
+                            'Failed to build settings key:',
+                            chrome.runtime.lastError,
+                        );
+                    } else {
+                        console.log('RoValra: Settings key initialized');
+                    }
+                    resolve();
+                },
+            );
         });
     });
 };

@@ -1,7 +1,6 @@
-import * as storage from "../chrome/localStorage.js";
 // file uploading thing
-const MAX_FILE_SIZE = 1024 * 1024;
-const MAX_IMAGE_DIMENSION = 512;
+const MAX_FILE_SIZE = 1024 * 1024; 
+const MAX_IMAGE_DIMENSION = 512; 
 
 
 async function compressImage(base64Image, shouldCompress = true) {
@@ -216,7 +215,7 @@ export function createFileUpload({ id, accept = 'image/*', compress = true, comp
 
                     let shouldCompress = compress;
                     if (compressSettingName) {
-                        const result = await storage.get([compressSettingName]);
+                        const result = await chrome.storage.local.get([compressSettingName]);
                         shouldCompress = result[compressSettingName] !== false; 
                     }
                     

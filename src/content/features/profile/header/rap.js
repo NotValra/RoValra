@@ -1,4 +1,3 @@
-import * as storage from "../../../core/chrome/localStorage.js";
 import { observeElement } from '../../../core/observer.js';
 import { createOverlay } from '../../../core/ui/overlay.js';
 import { callRobloxApi } from '../../../core/api.js';
@@ -401,7 +400,7 @@ async function addUserRapDisplay(observedElement) {
 
         rapDisplay.addEventListener('click', async () => {
             const settings = await new Promise((resolve) =>
-                storage.get({ HideSerial: false }).then(resolve),
+                chrome.storage.local.get({ HideSerial: false }, resolve),
             );
             const cachedData = userCollectiblesCache.get(userId);
             const items = cachedData ? cachedData.items : [];
@@ -417,7 +416,7 @@ async function addUserRapDisplay(observedElement) {
 }
 
 export function init() {
-    storage.get({ userRapEnabled: true }).then(function (data) {
+    chrome.storage.local.get({ userRapEnabled: true }, function (data) {
         if (data.userRapEnabled) {
             observeElement(
                 '.flex-nowrap.gap-small.flex, .profile-header-names',

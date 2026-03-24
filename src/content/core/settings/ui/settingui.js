@@ -1,7 +1,6 @@
-import * as storage from "../../chrome/localStorage.js";
 import { getAssets } from '../../assets.js';
 import { SETTINGS_CONFIG } from '../settingConfig.js';
-import { createDropdown } from '../../ui/dropdown.js';
+import { createDropdown } from '../../ui/dropdown.js'; 
 
 
 function ensureDeveloperSettings() {
@@ -13,7 +12,7 @@ function ensureDeveloperSettings() {
 
 export async function buildSettingsPage({ handleSearch, debounce, loadTabContent, buttonData, REGIONS, initSettings }) {
     const settings = await new Promise(resolve => {
-        storage.get('alwaysShowDeveloperSettings').then(resolve);
+        chrome.storage.local.get('alwaysShowDeveloperSettings', resolve);
     });
 
     let devTabAdded = settings.alwaysShowDeveloperSettings === true;

@@ -1,4 +1,3 @@
-import * as storage from "../../core/chrome/localStorage.js";
 import { observeElement } from '../../core/observer.js';
 import { addTooltip } from '../../core/ui/tooltip.js';
 import { getAssets } from '../../core/assets.js';
@@ -53,7 +52,7 @@ function addPriceIconToCard(card, assetId) {
 }
 
 export function init() {
-    storage.get('PreviousPriceEnabled').then((result) => {
+    chrome.storage.local.get('PreviousPriceEnabled', (result) => {
         if (result.PreviousPriceEnabled !== true) {
             return;
         }

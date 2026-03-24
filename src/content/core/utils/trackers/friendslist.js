@@ -1,4 +1,3 @@
-import * as storage from "../../chrome/localStorage.js";
 // This script fetches a users friends list and stores information about it,
 // like last online, mutual friends, estimated age range (idk if that will be used), trusted friends, last location, friends since and some other lesser important stuff.
 import { callRobloxApiJson } from '../../api';
@@ -413,7 +412,7 @@ export async function updateFriendsList(userId) {
         }
 
         const storageResult = await new Promise((resolve) =>
-            storage.get([FRIENDS_DATA_KEY]).then(resolve),
+            chrome.storage.local.get([FRIENDS_DATA_KEY], resolve),
         );
         const allUsersFriendsData = storageResult[FRIENDS_DATA_KEY] || {};
         allUsersFriendsData[userId] = {
@@ -422,7 +421,10 @@ export async function updateFriendsList(userId) {
             lastOnlineChecked: Date.now(),
         };
         await new Promise((resolve) =>
-            storage.set({ [FRIENDS_DATA_KEY]: allUsersFriendsData }).then(resolve),
+            chrome.storage.local.set(
+                { [FRIENDS_DATA_KEY]: allUsersFriendsData },
+                resolve,
+            ),
         );
 
         return fullFriendsList;
@@ -454,7 +456,7 @@ async function updateOnlineStatusOnly(userId, currentFriendsList) {
         });
 
         const storageResult = await new Promise((resolve) =>
-            storage.get([FRIENDS_DATA_KEY]).then(resolve),
+            chrome.storage.local.get([FRIENDS_DATA_KEY], resolve),
         );
         const allUsersFriendsData = storageResult[FRIENDS_DATA_KEY] || {};
         allUsersFriendsData[userId] = {
@@ -464,7 +466,10 @@ async function updateOnlineStatusOnly(userId, currentFriendsList) {
         };
 
         await new Promise((resolve) =>
-            storage.set({ [FRIENDS_DATA_KEY]: allUsersFriendsData }).then(resolve),
+            chrome.storage.local.set(
+                { [FRIENDS_DATA_KEY]: allUsersFriendsData },
+                resolve,
+            ),
         );
 
         return updatedList;
@@ -478,7 +483,7 @@ export async function getFriendsList() {
     if (!userId) return [];
 
     const result = await new Promise((resolve) =>
-        storage.get([FRIENDS_DATA_KEY]).then(resolve),
+        chrome.storage.local.get([FRIENDS_DATA_KEY], resolve),
     );
 
     const allUsersFriendsData = result[FRIENDS_DATA_KEY] || {};
@@ -512,7 +517,7 @@ export async function getCachedFriendsList() {
     if (!userId) return [];
 
     const result = await new Promise((resolve) =>
-        storage.get([FRIENDS_DATA_KEY]).then(resolve),
+        chrome.storage.local.get([FRIENDS_DATA_KEY], resolve),
     );
 
     const allUsersFriendsData = result[FRIENDS_DATA_KEY] || {};

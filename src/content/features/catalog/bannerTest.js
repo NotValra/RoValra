@@ -1,4 +1,3 @@
-import * as storage from "../../core/chrome/localStorage.js";
 import { init as initBanner } from '../../core/ui/catalog/catalogBanner.js';
 import { observeElement } from '../../core/observer.js';
 
@@ -7,7 +6,7 @@ let isInitialized = false;
 export function init() {
     if (!window.location.href.includes('/catalog')) return;
 
-    storage.get({ EnablebannerTest: false }).then((settings) => {
+    chrome.storage.local.get({ EnablebannerTest: false }, (settings) => {
         if (!settings.EnablebannerTest) return;
 
         initBanner();

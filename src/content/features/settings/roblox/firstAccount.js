@@ -1,4 +1,3 @@
-import * as storage from "../../../core/chrome/localStorage.js";
 import { observeElement } from '../../../core/observer.js';
 import { getAssets } from '../../../core/assets.js';
 import { addTooltip } from '../../../core/ui/tooltip.js';
@@ -68,7 +67,7 @@ export function init() {
         return;
     }
 
-    storage.get({ firstAccountEnabled: true }).then((result) => {
+    chrome.storage.local.get({ firstAccountEnabled: true }, (result) => {
         if (!result.firstAccountEnabled) return;
 
         observeElement(
@@ -85,7 +84,7 @@ export function init() {
 
                         const STORAGE_KEY = 'rovalra_first_account_cache';
 
-                        storage.get([STORAGE_KEY]).then((result) => {
+                        chrome.storage.local.get([STORAGE_KEY], (result) => {
                             const allCache = result[STORAGE_KEY] || {};
                             const userCache = allCache[userId];
                             const now = Date.now();
@@ -143,20 +142,23 @@ export function init() {
                                             data.playerInfo
                                                 .originalAccountCreationTimestampMs;
 
-                                        storage.get([STORAGE_KEY]).then((latestResult) => {
-                                            const currentCache =
-                                                latestResult[STORAGE_KEY] ||
-                                                {};
-                                            currentCache[userId] = {
-                                                isOriginalUser,
-                                                originalAccountCreationTimestampMs:
-                                                    creationTimestamp,
-                                                timestamp: Date.now(),
-                                            };
-                                            storage.set({
-                                                [STORAGE_KEY]: currentCache,
-                                            });
-                                        });
+                                        chrome.storage.local.get(
+                                            [STORAGE_KEY],
+                                            (latestResult) => {
+                                                const currentCache =
+                                                    latestResult[STORAGE_KEY] ||
+                                                    {};
+                                                currentCache[userId] = {
+                                                    isOriginalUser,
+                                                    originalAccountCreationTimestampMs:
+                                                        creationTimestamp,
+                                                    timestamp: Date.now(),
+                                                };
+                                                chrome.storage.local.set({
+                                                    [STORAGE_KEY]: currentCache,
+                                                });
+                                            },
+                                        );
                                         render(
                                             isOriginalUser,
                                             creationTimestamp,

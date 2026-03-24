@@ -1,4 +1,3 @@
-import * as storage from "../../core/chrome/localStorage.js";
 import { observeElement } from '../../core/observer.js';
 import { createButton } from '../../core/ui/buttons.js';
 import { createDropdown } from '../../core/ui/dropdown.js';
@@ -497,7 +496,7 @@ function getUserId() {
 }
 
 export function init() {
-    storage.get(['userGamesEnabled']).then((result) => {
+    chrome.storage.local.get(['userGamesEnabled'], (result) => {
         if (result.userGamesEnabled !== true) return;
 
         const userId = getUserId();

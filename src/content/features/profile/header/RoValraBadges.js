@@ -1,4 +1,3 @@
-import * as storage from "../../../core/chrome/localStorage.js";
 import { observeElement } from '../../../core/observer.js';
 import { addTooltip } from '../../../core/ui/tooltip.js';
 import { createConfetti } from '../../../core/fun/confetti.js';
@@ -169,7 +168,10 @@ async function addHeaderBadges(container) {
         let data = badgeCache.get(currentUserId);
         if (!data) {
             const settings = await new Promise((r) =>
-                storage.get({ idVerificationBadgeEnabled: true }).then(r),
+                chrome.storage.local.get(
+                    { idVerificationBadgeEnabled: true },
+                    r,
+                ),
             );
 
             let verification = null;
@@ -272,7 +274,7 @@ async function addProfileBadgeButtons(buttonContainer) {
     if (!currentUserId) return;
 
     const settings = await new Promise((resolve) =>
-        storage.get({ ShowBadgesEverywhere: false }).then(resolve),
+        chrome.storage.local.get({ ShowBadgesEverywhere: false }, resolve),
     );
 
     for (const key in BADGE_CONFIG) {
@@ -308,7 +310,7 @@ async function addProfileBadgeButtons(buttonContainer) {
 }
 
 export function init() {
-    storage.get({ RoValraBadgesEnable: true }).then((settings) => {
+    chrome.storage.local.get({ RoValraBadgesEnable: true }, (settings) => {
         if (!settings.RoValraBadgesEnable) return;
 
         // Keep the same selector to find the naming container

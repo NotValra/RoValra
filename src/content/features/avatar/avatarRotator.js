@@ -1,5 +1,4 @@
 
-import * as storage from "../../core/chrome/localStorage.js";
 import { observeElement, observeResize } from '../../core/observer.js';
 import { createOverlay } from '../../core/ui/overlay.js';
 import { callRobloxApiJson } from '../../core/api.js';
@@ -10,7 +9,7 @@ import { createStyledInput } from '../../core/ui/catalog/input.js';
 export function init() {
     if (!window.location.pathname.includes('/my/avatar')) return;
 
-    storage.get('avatarRotatorEnabled').then((data) => {
+    chrome.storage.local.get('avatarRotatorEnabled', (data) => {
         if (!data.avatarRotatorEnabled) return;
 
         observeElement('.breadcrumb-container', (container) => {
@@ -51,7 +50,7 @@ export function init() {
         stopBtn.textContent = 'Stop Rotator';
         stopBtn.style.display = 'none';
         stopBtn.onclick = () => {
-            storage.set({ rovalra_avatar_rotator_enabled: false });
+            chrome.storage.local.set({ rovalra_avatar_rotator_enabled: false });
         };
 
         const rotatorBtn = document.createElement('button');
@@ -171,9 +170,7 @@ export function init() {
         }
 
         rotatorBtn.addEventListener('click', () => {
-            storage.get(
-                ['rovalra_avatar_rotator_ids', 'rovalra_avatar_rotator_enabled', 'rovalra_avatar_rotator_interval']
-            ).then((data) => {
+            chrome.storage.local.get(['rovalra_avatar_rotator_ids', 'rovalra_avatar_rotator_enabled', 'rovalra_avatar_rotator_interval'], (data) => {
                 selectedAvatars.clear();
                 if (data.rovalra_avatar_rotator_ids && Array.isArray(data.rovalra_avatar_rotator_ids)) {
                     data.rovalra_avatar_rotator_ids.forEach(id => selectedAvatars.add(id));
@@ -229,7 +226,7 @@ export function init() {
                 setRotatorsBtn.onclick = () => {
                     const avatars = Array.from(selectedAvatars);
                     const interval = parseInt(intervalInput.value, 10) || 5;
-                    storage.set({
+                    chrome.storage.local.set({
                         rovalra_avatar_rotator_ids: avatars,
                         rovalra_avatar_rotator_enabled: true,
                         rovalra_avatar_rotator_interval: interval
@@ -244,7 +241,7 @@ export function init() {
                 disableRotatorBtn.textContent = 'Disable';
                 disableRotatorBtn.style.display = data.rovalra_avatar_rotator_enabled ? 'inline-block' : 'none';
                 disableRotatorBtn.onclick = () => {
-                    storage.set({
+                    chrome.storage.local.set({
                         rovalra_avatar_rotator_enabled: false
                     });
                     disableRotatorBtn.style.display = 'none';
@@ -255,7 +252,7 @@ export function init() {
                 clearBtn.textContent = 'Clear Selection';
                 clearBtn.onclick = () => {
                     selectedAvatars.clear();
-                    storage.set({
+                    chrome.storage.local.set({
                         rovalra_avatar_rotator_ids: []
                     });
                     const radios = avatarListContainer.querySelectorAll('button[role="checkbox"]');
@@ -283,7 +280,7 @@ export function init() {
         container.appendChild(li);
 
         function updateStopButtonVisibility() {
-            storage.get('rovalra_avatar_rotator_enabled').then((data) => {
+            chrome.storage.local.get('rovalra_avatar_rotator_enabled', (data) => {
                 stopBtn.style.display = data.rovalra_avatar_rotator_enabled ? 'inline-block' : 'none';
             });
         }

@@ -1,4 +1,3 @@
-import * as storage from "../../core/chrome/localStorage.js";
 import { createInteractiveTimestamp } from '../../core/ui/time/time.js';
 import { observeElement, observeIntersection } from '../../core/observer.js';
 import { callRobloxApi } from '../../core/api.js';
@@ -24,7 +23,7 @@ const HISTORY_KEY = 'rovalra_trade_history';
 
 async function loadTradeHistory() {
     try {
-        const result = await storage.get(HISTORY_KEY);
+        const result = await chrome.storage.local.get(HISTORY_KEY);
         cachedTradeHistory = result[HISTORY_KEY] || {};
         isHistoryLoaded = true;
     } catch (e) {
@@ -104,7 +103,7 @@ async function fetchAndRenderTradePreview(tradeId, row) {
                 cachedTradeHistory[myUserId] = {};
             }
             cachedTradeHistory[myUserId][tradeId] = { myOffer, partnerOffer };
-            await storage.set({
+            await chrome.storage.local.set({
                 [HISTORY_KEY]: cachedTradeHistory,
             });
         } catch (e) {

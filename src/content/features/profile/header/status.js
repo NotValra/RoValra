@@ -1,4 +1,3 @@
-import * as storage from "../../../core/chrome/localStorage.js";
 import { observeElement, startObserving } from '../../../core/observer.js';
 import { getUserIdFromUrl } from '../../../core/idExtractor.js';
 import { injectStylesheet } from '../../../core/ui/cssInjector.js';
@@ -261,7 +260,7 @@ async function addStatusBubble(avatarContainer) {
 }
 
 export function init() {
-    storage.get({ statusBubbleEnabled: true }).then((settings) => {
+    chrome.storage.local.get({ statusBubbleEnabled: true }, (settings) => {
         if (settings.statusBubbleEnabled) {
             startObserving();
 

@@ -1,4 +1,3 @@
-import * as storage from "../../../core/chrome/localStorage.js";
 import { callRobloxApi } from '../../../core/api.js';
 import { observeElement, observeAttributes } from '../../../core/observer.js';
 import { fetchThumbnails } from '../../../core/thumbnail/thumbnails.js';
@@ -451,7 +450,7 @@ async function loadAndRenderProducts(storeTab, placeId) {
 }
 
 export function init() {
-    storage.get({ EnableDevProducts: true }).then((settings) => {
+    chrome.storage.local.get({ EnableDevProducts: true }, (settings) => {
         if (!settings.EnableDevProducts) return;
 
         observeElement('.tab-pane.store', (storeTab) => {

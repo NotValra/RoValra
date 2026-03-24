@@ -1,4 +1,3 @@
-import * as storage from "../../core/chrome/localStorage.js";
 import { observeElement } from '../../core/observer.js';
 import { getAllCategories } from '../../core/utils/itemCategories.js';
 import { createItemCard } from '../../core/ui/items/items.js';
@@ -426,12 +425,15 @@ function handleItemDetection(itemEl) {
 
 export async function init() {
     const result = await new Promise((resolve) =>
-        storage.get([
-            'categorizeWearingEnabled',
-            'CategorizeBodyParts',
-            'CategorizeAnimations',
-            'CategorizeEmotes',
-        ]).then(resolve),
+        chrome.storage.local.get(
+            [
+                'categorizeWearingEnabled',
+                'CategorizeBodyParts',
+                'CategorizeAnimations',
+                'CategorizeEmotes',
+            ],
+            resolve,
+        ),
     );
     if (!result.categorizeWearingEnabled) return;
 

@@ -1,4 +1,3 @@
-import * as storage from "../../core/chrome/localStorage.js";
 import { observeElement } from '../../core/observer.js';
 import { safeHtml } from '../../core/packages/dompurify.js';
 import { ts } from '../../core/locale/i18n.js';
@@ -103,7 +102,7 @@ async function processDialog(dialog) {
 }
 
 export function init() {
-    storage.get({ EnableRobuxAfterPurchase: true }).then((settings) => {
+    chrome.storage.local.get({ EnableRobuxAfterPurchase: true }, (settings) => {
         if (!settings.EnableRobuxAfterPurchase) return;
 
         setupClickListener();

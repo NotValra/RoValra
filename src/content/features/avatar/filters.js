@@ -1,4 +1,3 @@
-import * as storage from "../../core/chrome/localStorage.js";
 import { checkAssetsInBatch } from '../../core/utils/assetStreamer.js';
 import { observeElement, observeAttributes } from '../../core/observer.js';
 import { createAvatarFilterUI } from '../../core/ui/FiltersUI.js';
@@ -6,10 +5,10 @@ import { createAvatarFilterUI } from '../../core/ui/FiltersUI.js';
 export function init() {
     if (!window.location.pathname.includes('/my/avatar')) return;
 
-    storage.get({
+    chrome.storage.local.get({
         avatarFiltersEnabled: false,
         searchbarEnabled: false
-    }).then((settings) => {
+    }, (settings) => {
         if (!settings.avatarFiltersEnabled && !settings.searchbarEnabled) {
             return;
         } else {

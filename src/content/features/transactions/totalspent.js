@@ -1,4 +1,3 @@
-import * as storage from "../../core/chrome/localStorage.js";
 import { showReviewPopup } from '../../core/review/review.js';
 import { observeElement } from '../../core/observer.js';
 import { callRobloxApiJson } from '../../core/api.js';
@@ -743,7 +742,7 @@ function onElementFound(container) {
 }
 
 export function init() {
-    storage.get('totalspentEnabled').then((result) => {
+    chrome.storage.local.get('totalspentEnabled', (result) => {
         if (result.totalspentEnabled) {
             observeElement(
                 '.dropdown-container.container-header',

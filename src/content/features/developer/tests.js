@@ -1,4 +1,3 @@
-import * as storage from "../../core/chrome/localStorage.js";
 import { createGameCard } from '../../core/ui/games/gameCard.js';
 import { observeElement } from '../../core/observer.js';
 import { createItemCard } from '../../core/ui/items/items.js';
@@ -80,7 +79,7 @@ async function renderTestPage(contentDiv) {
 }
 
 export function init() {
-    storage.get('eastereggslinksEnabled').then((result) => {
+    chrome.storage.local.get('eastereggslinksEnabled', (result) => {
         if (result.eastereggslinksEnabled) {
             observeElement('.content#content', (cDiv) => {
                 renderTestPage(cDiv);

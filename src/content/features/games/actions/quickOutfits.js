@@ -1,4 +1,3 @@
-import * as storage from "../../../core/chrome/localStorage.js";
 import { observeElement } from '../../../core/observer.js';
 import { createButton } from '../../../core/ui/buttons.js';
 import { getAuthenticatedUserId } from '../../../core/user.js';
@@ -465,7 +464,7 @@ function addQuickOutfitsButton(container) {
 }
 
 export function init() {
-    storage.get('QuickOutfitsEnabled').then((data) => {
+    chrome.storage.local.get('QuickOutfitsEnabled', (data) => {
         if (data.QuickOutfitsEnabled) {
             observeElement('.game-calls-to-action', addQuickOutfitsButton);
         }

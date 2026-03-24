@@ -1,4 +1,3 @@
-import * as storage from "../../core/chrome/localStorage.js";
 import { getAssets } from '../../core/assets.js';
 import {
     getRegionData,
@@ -824,11 +823,11 @@ function initializeHeartbeatSpoofer() {
         'spoofAsOffline',
         'EarlyAccessProgram',
     ];
-    storage.get(relevantSettings).then(updateSpoofingMode);
+    chrome.storage.local.get(relevantSettings, updateSpoofingMode);
 
     chrome.storage.onChanged.addListener((changes) => {
         if (relevantSettings.some((setting) => changes[setting])) {
-            storage.get(relevantSettings).then((result) => {
+            chrome.storage.local.get(relevantSettings, (result) => {
                 if (changes.LaunchDelay) {
                     const toggle = document.querySelector(
                         '#LaunchDelay-enabled',

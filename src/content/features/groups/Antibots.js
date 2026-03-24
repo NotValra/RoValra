@@ -1,4 +1,3 @@
-import * as storage from "../../core/chrome/localStorage.js";
 import { showReviewPopup } from '../../core/review/review.js';
 import { observeElement } from '../../core/observer.js';
 import { callRobloxApiJson } from '../../core/api.js';
@@ -39,7 +38,10 @@ let isInitialized = false;
 async function getFeatureSettings() {
     return new Promise((resolve) => {
         if (chrome && chrome.storage && chrome.storage.local) {
-            storage.get({ antibotsEnabled: true, QuickActionsEnabled: true }).then(resolve);
+            chrome.storage.local.get(
+                { antibotsEnabled: true, QuickActionsEnabled: true },
+                resolve,
+            );
         } else {
             resolve({ antibotsEnabled: true, QuickActionsEnabled: true });
         }

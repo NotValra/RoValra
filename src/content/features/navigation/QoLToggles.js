@@ -1,4 +1,3 @@
-import * as storage from "../../core/chrome/localStorage.js";
 import { getAssets } from '../../core/assets.js';
 import { createNavbarButton } from '../../core/ui/navbarButton.js';
 import { createDropdownMenu, createDropdown } from '../../core/ui/dropdown.js';
@@ -7,7 +6,7 @@ import { callRobloxApi } from '../../core/api.js';
 import { t } from '../../core/locale/i18n.js';
 
 export function init() {
-    storage.get({ qolTogglesEnabled: true }).then(async (settings) => {
+    chrome.storage.local.get({ qolTogglesEnabled: true }, async (settings) => {
         if (!settings.qolTogglesEnabled) {
             return;
         }
@@ -86,7 +85,7 @@ export function init() {
             onlineToJoinMap[currentJoinStatus] || currentJoinStatus;
 
         const data = await new Promise((resolve) =>
-            storage.get([]).then(resolve),
+            chrome.storage.local.get([], resolve),
         );
 
         const labelMap = {
@@ -321,7 +320,7 @@ export function init() {
                     id: `rovalra-qol-${value}`,
                     checked: !!data[value],
                     onChange: (newState) => {
-                        storage.set({ [value]: newState });
+                        chrome.storage.local.set({ [value]: newState });
                     },
                 });
                 radio.style.marginLeft = 'auto';
@@ -335,7 +334,7 @@ export function init() {
                     const currentChecked =
                         radio.getAttribute('aria-checked') === 'true';
                     radio.setChecked(!currentChecked);
-                    storage.set({
+                    chrome.storage.local.set({
                         [value]: !currentChecked,
                     });
                 });

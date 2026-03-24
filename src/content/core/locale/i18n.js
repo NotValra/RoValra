@@ -1,4 +1,3 @@
-import * as storage from "../chrome/localStorage.js";
 import i18next from 'i18next';
 
 let i18nInitialized = false;
@@ -7,7 +6,7 @@ const i18nPromise = (async () => {
 
     try {
         const settings = await new Promise(
-            (resolve) => storage.get({ language: 'en' }).then(resolve), //Place holder in case that wasnt clear.
+            (resolve) => chrome.storage.local.get({ language: 'en' }, resolve), //Place holder in case that wasnt clear.
         );
         const language = settings.language || 'en';
 

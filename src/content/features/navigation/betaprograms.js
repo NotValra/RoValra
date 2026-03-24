@@ -1,4 +1,3 @@
-import * as storage from "../../core/chrome/localStorage.js";
 import { createNavbarButton } from '../../core/ui/navbarButton.js';
 import { createRadioButton } from '../../core/ui/general/radio.js';
 import { callRobloxApi, callRobloxApiJson } from '../../core/api.js';
@@ -304,7 +303,7 @@ export async function addNavbarButton() {
 }
 
 export function init() {
-    storage.get({ betaProgramsEnabled: true }).then((settings) => {
+    chrome.storage.local.get({ betaProgramsEnabled: true }, (settings) => {
         if (!settings.betaProgramsEnabled) return;
         addNavbarButton();
     });

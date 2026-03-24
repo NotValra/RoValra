@@ -1,4 +1,3 @@
-import * as storage from "../../core/chrome/localStorage.js";
 import { observeElement } from '../../core/observer.js';
 import { callRobloxApiJson, callRobloxApi } from '../../core/api.js';
 import { getItemDetails } from '../../core/catalog/itemPrice.js';
@@ -772,23 +771,26 @@ export const createAndShowPopup = (onSave, initialState = null) => {
             chrome.storage &&
             chrome.storage.local
         ) {
-            storage.set({
-                RobuxPlaceId: placeId,
-                useRoValraGroup: useGroup,
-            }).then(() => {
-                if (chrome.runtime.lastError) {
-                    console.error(
-                        'RoValra: Storage save error:',
-                        chrome.runtime.lastError,
-                    );
-                    alert(
-                        'Failed to save settings: ' +
-                            chrome.runtime.lastError.message,
-                    );
-                } else {
-                    if (onSuccess) onSuccess();
-                }
-            });
+            chrome.storage.local.set(
+                {
+                    RobuxPlaceId: placeId,
+                    useRoValraGroup: useGroup,
+                },
+                () => {
+                    if (chrome.runtime.lastError) {
+                        console.error(
+                            'RoValra: Storage save error:',
+                            chrome.runtime.lastError,
+                        );
+                        alert(
+                            'Failed to save settings: ' +
+                                chrome.runtime.lastError.message,
+                        );
+                    } else {
+                        if (onSuccess) onSuccess();
+                    }
+                },
+            );
         } else {
             console.error('RoValra: Storage API unavailable.');
             alert('Failed to save settings. Storage API unavailable.');
@@ -1534,7 +1536,10 @@ const executeCartPurchase = async (
         result = await prefetchData.storage;
     } else {
         result = await new Promise((resolve) => {
-            storage.get(['RobuxPlaceId', 'useRoValraGroup']).then(resolve);
+            chrome.storage.local.get(
+                ['RobuxPlaceId', 'useRoValraGroup'],
+                resolve,
+            );
         });
     }
 
@@ -1897,7 +1902,10 @@ const execute40MethodPurchase = async (
         result = await prefetchData.storage;
     } else {
         result = await new Promise((resolve) => {
-            storage.get(['RobuxPlaceId', 'useRoValraGroup']).then(resolve);
+            chrome.storage.local.get(
+                ['RobuxPlaceId', 'useRoValraGroup'],
+                resolve,
+            );
         });
     }
 
@@ -2414,7 +2422,10 @@ const addSaveButton = (modal) => {
 
         if (currentUserId) {
             prefetchData.storage = new Promise((resolve) =>
-                storage.get(['RobuxPlaceId', 'useRoValraGroup']).then(resolve),
+                chrome.storage.local.get(
+                    ['RobuxPlaceId', 'useRoValraGroup'],
+                    resolve,
+                ),
             );
 
             prefetchData.balance = getUserCurrency(currentUserId).catch(() => ({
@@ -2762,7 +2773,7 @@ const addSaveButton = (modal) => {
             }
 
             const result = await new Promise((resolve) => {
-                storage.get('RobuxPlaceId').then(resolve);
+                chrome.storage.local.get('RobuxPlaceId', resolve);
             });
 
             if (!result.RobuxPlaceId) {
@@ -2832,7 +2843,7 @@ export function init() {
         chrome.storage &&
         chrome.storage.local
     ) {
-        storage.get('SaveLotsRobuxEnabled').then((result) => {
+        chrome.storage.local.get('SaveLotsRobuxEnabled', (result) => {
             if (result.SaveLotsRobuxEnabled === true) {
                 fetchCatalogMetadata();
                 detectAndAddSaveButton();

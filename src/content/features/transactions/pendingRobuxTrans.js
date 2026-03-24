@@ -1,4 +1,3 @@
-import * as storage from "../../core/chrome/localStorage.js";
 import { observeElement } from '../../core/observer.js';
 import { callRobloxApi, callRobloxApiJson } from '../../core/api.js';
 import { addTooltip } from '../../core/ui/tooltip.js';
@@ -371,7 +370,7 @@ async function onElementFound(targetElement) {
 }
 
 export function init() {
-    storage.get({ pendingrobuxtrans: true }).then(async (settings) => {
+    chrome.storage.local.get({ pendingrobuxtrans: true }, async (settings) => {
         if (
             !settings.pendingrobuxtrans ||
             !window.location.pathname.includes('/transactions')

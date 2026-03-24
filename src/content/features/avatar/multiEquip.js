@@ -1,4 +1,3 @@
-import * as storage from "../../core/chrome/localStorage.js";
 import { getIdsByCategory, getIdsBySubcategory } from '../../core/utils/itemCategories.js';
 
 export function init() {
@@ -29,7 +28,7 @@ export function init() {
         }
     };
 
-    storage.get('multiEquipEnabled').then((data) => {
+    chrome.storage.local.get('multiEquipEnabled', (data) => {
         updateState(data.multiEquipEnabled === true);
     });
 

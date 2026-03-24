@@ -1,8 +1,7 @@
-import * as storage from "../../core/chrome/localStorage.js";
 import { observeElement } from '../../core/observer.js';
 
 const applyImpersonateAttribute = (headerContainer) => {
-    storage.get('impersonateRobloxStaffSetting').then(function (data) {
+    chrome.storage.local.get('impersonateRobloxStaffSetting', function (data) {
         if (data.impersonateRobloxStaffSetting) {
             headerContainer.setAttribute('data-mayimpersonate', 'true');
         }
@@ -49,7 +48,7 @@ const applyHeaderFix = (profileHeader) => {
 };
 
 const applyHomeHeaderLinkFix = () => {
-    storage.get('giantInvisibleLink').then(function(settings) {
+    chrome.storage.local.get('giantInvisibleLink', function(settings) {
         if (!settings.giantInvisibleLink || window.location.pathname !== '/home') {
             return;
         }
@@ -81,7 +80,7 @@ const applyHomeHeaderLinkFix = () => {
 };
 
 const applyGameTitleFix = () => {
-    storage.get('gameTitleIssueEnable').then(function(settings) {
+    chrome.storage.local.get('gameTitleIssueEnable', function(settings) {
         if (!settings.gameTitleIssueEnable) return;
 
         if (!window.location.href.includes('profile')) return;
@@ -98,7 +97,7 @@ const applyGameTitleFix = () => {
 };
 
 const applyCartRemoveButtonFix = () => {
-    storage.get('FixCartRemoveButton').then(function(settings) {
+    chrome.storage.local.get('FixCartRemoveButton', function(settings) {
         if (!settings.FixCartRemoveButton) return;
 
         const css = `
@@ -114,7 +113,7 @@ const applyCartRemoveButtonFix = () => {
 };
 
 export function init() {
-    storage.get(['cssfixesEnabled', 'giantInvisibleLink']).then(function(data) {
+    chrome.storage.local.get(['cssfixesEnabled', 'giantInvisibleLink'], function(data) {
         if (data.cssfixesEnabled === true) {
             observeElement('#profile-header-container', applyImpersonateAttribute);
             observeElement('.profile-header', applyHeaderFix);

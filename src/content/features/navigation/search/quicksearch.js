@@ -1,4 +1,3 @@
-import * as storage from "../../../core/chrome/localStorage.js";
 import { callRobloxApi } from '../../../core/api.js';
 import {
     observeElement,
@@ -56,15 +55,18 @@ let searchSettings = {
 };
 
 function updateSearchSettings() {
-    storage.get([
-        'quickSearchEnabled',
-        'userSearchEnabled',
-        'gameSearchEnabled',
-        'friendSearchEnabled',
-        'searchHistoryEnabled',
-    ]).then((result) => {
-        if (result) Object.assign(searchSettings, result);
-    });
+    chrome.storage.local.get(
+        [
+            'quickSearchEnabled',
+            'userSearchEnabled',
+            'gameSearchEnabled',
+            'friendSearchEnabled',
+            'searchHistoryEnabled',
+        ],
+        (result) => {
+            if (result) Object.assign(searchSettings, result);
+        },
+    );
 }
 
 async function fetchWithRetry(options, retries = 3, signal = null) {
@@ -133,7 +135,7 @@ async function performUserSearch(query) {
         }
 
         const localFriendsPromise = new Promise((resolve) => {
-            storage.get(['rovalra_friends_data']).then((result) => {
+            chrome.storage.local.get(['rovalra_friends_data'], (result) => {
                 if (!searchSettings.friendSearchEnabled) {
                     resolve([]);
                     return;
@@ -401,7 +403,7 @@ async function performGameSearch(query) {
                 signal,
             ),
             new Promise((resolve) =>
-                storage.get(['PreferredRegionEnabled']).then(resolve),
+                chrome.storage.local.get(['PreferredRegionEnabled'], resolve),
             ),
             friendsPromise,
         ]);
@@ -1008,7 +1010,7 @@ function injectExistingResult() {
 }
 
 async function getHistory() {
-    const result = await storage.get(STORAGE_KEY);
+    const result = await chrome.storage.local.get(STORAGE_KEY);
     return result[STORAGE_KEY] || [];
 }
 
@@ -1051,7 +1053,7 @@ async function addSearchTerm(term) {
     });
     history.unshift(entry);
     if (history.length > MAX_HISTORY) history = history.slice(0, MAX_HISTORY);
-    await storage.set({ [STORAGE_KEY]: history });
+    await chrome.storage.local.set({ [STORAGE_KEY]: history });
 }
 
 async function updateThumbnails(items) {
@@ -1114,7 +1116,7 @@ async function updateThumbnails(items) {
         });
 
         if (changed) {
-            await storage.set({ [STORAGE_KEY]: history });
+            await chrome.storage.local.set({ [STORAGE_KEY]: history });
         }
     }
 }
@@ -1349,7 +1351,7 @@ async function renderSearchHistory(container) {
                             );
                         }
                     });
-                    await storage.set({
+                    await chrome.storage.local.set({
                         [STORAGE_KEY]: newHistory,
                     });
                     renderSearchHistory(container);

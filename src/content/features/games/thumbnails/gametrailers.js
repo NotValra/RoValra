@@ -1,4 +1,3 @@
-import * as storage from "../../../core/chrome/localStorage.js";
 import { observeElement } from '../../../core/observer.js';
 import { callRobloxApiJson } from '../../../core/api.js';
 import { streamRobloxVideo } from '../../../core/utils/videoStreamer.js';
@@ -167,7 +166,7 @@ function hijackFirstSlot(videoId, assetType, carouselContainer, shouldAutoplay) 
 }
 
 export function init() {
-    storage.get(['EnableGameTrailer', 'Enableautoplay']).then((result) => {
+    chrome.storage.local.get(['EnableGameTrailer', 'Enableautoplay'], (result) => {
         if (result && result.EnableGameTrailer === true) {
             
             const shouldAutoplay = result.Enableautoplay === true;

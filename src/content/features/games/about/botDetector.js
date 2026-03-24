@@ -1,4 +1,3 @@
-import * as storage from "../../../core/chrome/localStorage.js";
 import { callRobloxApi } from '../../../core/api.js';
 import { observeElement } from '../../../core/observer.js';
 import { addTooltip } from '../../../core/ui/tooltip.js';
@@ -343,7 +342,7 @@ class BotDetector {
 window.BotDetector = BotDetector;
 
 export function init() {
-    storage.get({ botdataEnabled: false }).then(function (settings) {
+    chrome.storage.local.get({ botdataEnabled: false }, function (settings) {
         if (
             settings.botdataEnabled &&
             window.location.href.includes('/games/')

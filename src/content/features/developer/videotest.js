@@ -1,4 +1,3 @@
-import * as storage from "../../core/chrome/localStorage.js";
 import { streamRobloxVideo } from '../../core/utils/videoStreamer.js';
 import { callRobloxApiJson } from '../../core/api.js';
 
@@ -109,7 +108,7 @@ export async function init() {
             chrome.storage &&
             chrome.storage.local
         ) {
-            storage.get(['EnableVideoTest']).then((result) => {
+            chrome.storage.local.get(['EnableVideoTest'], (result) => {
                 resolve(result && result.EnableVideoTest === true);
             });
         } else {

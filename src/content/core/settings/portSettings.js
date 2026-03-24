@@ -1,4 +1,3 @@
-import * as storage from "../chrome/localStorage.js";
 import { createButton } from '../../core/ui/buttons.js';
 import { sanitizeSettings } from '../utils/sanitize.js';
 import { SETTINGS_CONFIG } from './settingConfig.js';
@@ -8,7 +7,7 @@ const ROVALRA_SETTINGS_UUID = 'a1b2c3d4-e5f6-7890-1234-567890abcdef';
 
 export async function exportSettings() {
     try {
-        storage.get('rovalra_settings').then((result) => {
+        chrome.storage.local.get('rovalra_settings', (result) => {
             if (chrome.runtime.lastError) {
                 console.error('Failed to export settings:', chrome.runtime.lastError);
                 alert('Error exporting settings. Check the console for details.');
@@ -87,12 +86,12 @@ export async function importSettings() {
                             return;
                         }
 
-                        storage.set(sanitizedSettings).then(() => {
+                        chrome.storage.local.set(sanitizedSettings, () => {
                             if (chrome.runtime.lastError) {
                                 console.error('Failed to import settings:', chrome.runtime.lastError);
                                 alert('Error importing settings. Check the console for details.');
                             } else {
-                                storage.set({ rovalra_settings: sanitizedSettings }).then(() => {
+                                chrome.storage.local.set({ rovalra_settings: sanitizedSettings }, () => {
                                     location.reload(); 
                                 });
                             }

@@ -1,4 +1,3 @@
-import * as storage from "../../../core/chrome/localStorage.js";
 import { fetchThumbnails } from '../../../core/thumbnail/thumbnails.js';
 import { launchGame } from '../../../core/utils/launcher.js';
 import { initServerIdExtraction } from '../../../core/games/servers/serverids.js';
@@ -96,30 +95,33 @@ export function init() {
         safeInitAll();
         return;
     }
-    storage.get([
-        'ServerlistmodificationsEnabled',
-        'ServerFilterEnabled',
-        'RegionFiltersEnabled',
-        'UptimeFiltersEnabled',
-        'VersionFiltersEnabled',
-    ]).then((settings) => {
-        if (
-            settings &&
-            settings.ServerlistmodificationsEnabled === false &&
-            settings.ServerFilterEnabled === false
-        )
-            return;
+    chrome.storage.local.get(
+        [
+            'ServerlistmodificationsEnabled',
+            'ServerFilterEnabled',
+            'RegionFiltersEnabled',
+            'UptimeFiltersEnabled',
+            'VersionFiltersEnabled',
+        ],
+        (settings) => {
+            if (
+                settings &&
+                settings.ServerlistmodificationsEnabled === false &&
+                settings.ServerFilterEnabled === false
+            )
+                return;
 
-        if (settings) {
-            _state.filterSettings = {
-                serverFilter: settings.ServerFilterEnabled !== false,
-                region: settings.RegionFiltersEnabled !== false,
-                uptime: settings.UptimeFiltersEnabled !== false,
-                version: settings.VersionFiltersEnabled !== false,
-            };
-        }
-        safeInitAll();
-    });
+            if (settings) {
+                _state.filterSettings = {
+                    serverFilter: settings.ServerFilterEnabled !== false,
+                    region: settings.RegionFiltersEnabled !== false,
+                    uptime: settings.UptimeFiltersEnabled !== false,
+                    version: settings.VersionFiltersEnabled !== false,
+                };
+            }
+            safeInitAll();
+        },
+    );
 }
 
 export function forceInit() {
@@ -424,7 +426,7 @@ async function loadServerIpMap() {
 
     try {
         const result = await new Promise((resolve) =>
-            storage.get('rovalraDatacenters').then(resolve),
+            chrome.storage.local.get('rovalraDatacenters', resolve),
         );
         const apiData = result && result.rovalraDatacenters;
         if (!apiData || !Array.isArray(apiData)) {

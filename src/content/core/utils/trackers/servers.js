@@ -1,4 +1,3 @@
-import * as storage from "../../chrome/localStorage.js";
 import { callRobloxApi } from '../../api.js';
 
 let latestPresence = null;
@@ -19,7 +18,7 @@ chrome.runtime.onMessage.addListener((request) => {
 });
 
 export function init() {
-    storage.get({ recentServersEnabled: true }).then((settings) => {
+    chrome.storage.local.get({ recentServersEnabled: true }, (settings) => {
         if (!settings.recentServersEnabled) return;
 
         const currentUserElement = document.querySelector('meta[name="user-data"]');

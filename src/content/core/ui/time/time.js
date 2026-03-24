@@ -1,4 +1,3 @@
-import * as storage from "../../chrome/localStorage.js";
 import { observeElement } from '../../observer.js';
 import { addTooltip } from '../tooltip.js';
 import { ts } from '../../locale/i18n.js';
@@ -6,7 +5,7 @@ const TIME_FORMAT_KEY = 'rovalra_time_format_preference';
 let preferredFormat = 'local';
 const FORMATS = ['local', '24h', 'relative'];
 
-storage.get([TIME_FORMAT_KEY]).then((result) => {
+chrome.storage.local.get([TIME_FORMAT_KEY], (result) => {
     if (result[TIME_FORMAT_KEY] && FORMATS.includes(result[TIME_FORMAT_KEY])) {
         preferredFormat = result[TIME_FORMAT_KEY];
     }
@@ -160,7 +159,7 @@ export function createInteractiveTimestamp(dateString) {
         const newFormat = FORMATS[nextIndex];
 
         preferredFormat = newFormat;
-        storage.set({ [TIME_FORMAT_KEY]: newFormat });
+        chrome.storage.local.set({ [TIME_FORMAT_KEY]: newFormat });
 
         document.dispatchEvent(
             new CustomEvent('rovalra-time-format-change', {

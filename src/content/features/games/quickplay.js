@@ -1,4 +1,3 @@
-import * as storage from "../../core/chrome/localStorage.js";
 import { showReviewPopup } from '../../core/review/review.js';
 import { observeElement } from '../../core/observer.js';
 import { callRobloxApi } from '../../core/api.js';
@@ -144,18 +143,21 @@ function showTemporaryTooltip(parent, text, duration = 1400) {
 }
 
 function initializeData() {
-    storage.get(['cachedRegions', 'rovalraDatacenters']).then((result) => {
-        if (result.cachedRegions) State.regions = result.cachedRegions;
-        if (result.rovalraDatacenters) {
-            result.rovalraDatacenters.forEach((entry) => {
-                if (entry.location && entry.dataCenterIds) {
-                    entry.dataCenterIds.forEach(
-                        (id) => (State.serverIpMap[id] = entry.location),
-                    );
-                }
-            });
-        }
-    });
+    chrome.storage.local.get(
+        ['cachedRegions', 'rovalraDatacenters'],
+        (result) => {
+            if (result.cachedRegions) State.regions = result.cachedRegions;
+            if (result.rovalraDatacenters) {
+                result.rovalraDatacenters.forEach((entry) => {
+                    if (entry.location && entry.dataCenterIds) {
+                        entry.dataCenterIds.forEach(
+                            (id) => (State.serverIpMap[id] = entry.location),
+                        );
+                    }
+                });
+            }
+        },
+    );
 }
 
 async function getVipServerDetails(vipServerId) {
@@ -802,7 +804,7 @@ async function setupHoverCard(gameLink, settings) {
 
 async function addRegionTooltip(button) {
     const saved = await new Promise((r) =>
-        storage.get('robloxPreferredRegion').then((res) => r(res)),
+        chrome.storage.local.get('robloxPreferredRegion', (res) => r(res)),
     );
     const regionCode = saved.robloxPreferredRegion;
     const text =
@@ -823,37 +825,40 @@ function initializeQuickPlay() {
     initializeData();
     createGlobalPrivateServerContainer();
 
-    storage.get({
-        PreferredRegionEnabled: true,
-        privateservers: true,
-        playbuttonpreferredregionenabled: true,
-        robloxPreferredRegion: 'AUTO',
-    }).then((settings) => {
-        const onCardFound = (gameLink) => {
-            if (gameLink.closest('[data-testid="event-experience-link"]')) {
-                return;
-            }
-            if (gameLink.classList.contains(PROCESSED_MARKER_CLASS)) return;
-            gameLink.classList.add(PROCESSED_MARKER_CLASS);
+    chrome.storage.local.get(
+        {
+            PreferredRegionEnabled: true,
+            privateservers: true,
+            playbuttonpreferredregionenabled: true,
+            robloxPreferredRegion: 'AUTO',
+        },
+        (settings) => {
+            const onCardFound = (gameLink) => {
+                if (gameLink.closest('[data-testid="event-experience-link"]')) {
+                    return;
+                }
+                if (gameLink.classList.contains(PROCESSED_MARKER_CLASS)) return;
+                gameLink.classList.add(PROCESSED_MARKER_CLASS);
 
-            gameLink.addEventListener('mouseenter', () =>
-                setupHoverCard(gameLink, settings),
-            );
-            gameLink.addEventListener('mouseleave', () =>
-                scheduleCardCleanup(gameLink),
-            );
-            gameLink.addEventListener('focus', () =>
-                setupHoverCard(gameLink, settings),
-            );
-            gameLink.addEventListener('blur', () =>
-                scheduleCardCleanup(gameLink),
-            );
-        };
+                gameLink.addEventListener('mouseenter', () =>
+                    setupHoverCard(gameLink, settings),
+                );
+                gameLink.addEventListener('mouseleave', () =>
+                    scheduleCardCleanup(gameLink),
+                );
+                gameLink.addEventListener('focus', () =>
+                    setupHoverCard(gameLink, settings),
+                );
+                gameLink.addEventListener('blur', () =>
+                    scheduleCardCleanup(gameLink),
+                );
+            };
 
-        observeElement('a.game-card-link[href*="/games/"]', onCardFound, {
-            multiple: true,
-        });
-    });
+            observeElement('a.game-card-link[href*="/games/"]', onCardFound, {
+                multiple: true,
+            });
+        },
+    );
 
     window.addEventListener(
         'beforeunload',
@@ -869,7 +874,7 @@ function initializeQuickPlay() {
 }
 
 export function init() {
-    storage.get({ QuickPlayEnable: true }).then((settings) => {
+    chrome.storage.local.get({ QuickPlayEnable: true }, (settings) => {
         if (settings.QuickPlayEnable) {
             if (document.readyState === 'loading')
                 document.addEventListener(
