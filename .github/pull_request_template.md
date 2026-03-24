@@ -12,8 +12,8 @@
 - [ ] Refactor
 
 ## Checklist
-- [ ] The code follows project style
+- [ ] The code follows the project style
 - [ ] The code follows `CONTRIBUTING.md`
 - [ ] The code aligns with the license and the open-source nature of RoValra
 - [ ] This contribution is your original work or you have the right to submit it
-- [ ] I have tested the code, and it works
+- [ ] You have tested the code, and it works
