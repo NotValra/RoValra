@@ -120,6 +120,7 @@
         "loadingItems": "Loading more items...",
         "noItemsMatch": "No items match your search.",
         "collectiblesTitle": "{{displayName}}'s Collectibles ({{totalRapString}} RAP)",
+        "collectiblesTitleValue": "{{displayName}}'s Collectibles ({{totalRapString}} Value)",
         "inventoryPrivateOrNoLimiteds": "This user's inventory is private or has no limiteds.",
         "searchByName": "Search by item name"
     },
