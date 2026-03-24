@@ -1,0 +1,30 @@
+name: "Bug Report"
+fields:
+- type: "input"
+  attributes:
+    label: "Summary"
+    description: "A short summary of what is going wrong"
+    placeholder: "The \"...\" button isn't appearing..."
+  validations:
+    required: true
+- type: "textarea"
+  attributes:
+    label: "Description"
+    description: "Full, detailed description of what is going wrong"
+    placeholder: "The \"...\" button isn't appearing upon opening the settings menu. This issue does not go away when refreshing."
+  validations:
+    required: false
+- type: "textarea"
+  attributes:
+    label: "Expected Behaviour"
+    description: "What were you expecting instead?"
+    placeholder: "The \"...\" button should have appeared upon opening the settings menu."
+  validations:
+    required: true
+- type: "textarea"
+  attributes:
+    label: "Logs"
+    description: "Press F12, go to the \"Console\" tab and copy & paste the logs."
+    value: "```\n\n```"
+  validations:
+    required: true
