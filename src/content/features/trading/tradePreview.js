@@ -311,32 +311,36 @@ function onTradesData(e) {
 }
 
 export function init() {
-    const path = window.location.pathname;
-    if (!path.startsWith('/trades')) {
-        if (observer) {
-            observer.active = false;
-            observer = null;
+    chrome.storage.local.get({ tradePreviewEnabled: true }, (settings) => {
+        if (!settings.tradePreviewEnabled) return;
+
+        const path = window.location.pathname;
+        if (!path.startsWith('/trades')) {
+            if (observer) {
+                observer.active = false;
+                observer = null;
+            }
+            if (initialized) {
+                document.removeEventListener(
+                    'rovalra-trades-list-response',
+                    onTradesData,
+                );
+                initialized = false;
+            }
+            tradeData = [];
+            tradeDetailsCache.clear();
+            return;
         }
-        if (initialized) {
-            document.removeEventListener(
-                'rovalra-trades-list-response',
-                onTradesData,
-            );
-            initialized = false;
-        }
-        tradeData = [];
-        tradeDetailsCache.clear();
-        return;
-    }
 
-    if (initialized) return;
-    initialized = true;
+        if (initialized) return;
+        initialized = true;
 
-    document.addEventListener('rovalra-trades-list-response', onTradesData);
+        document.addEventListener('rovalra-trades-list-response', onTradesData);
 
-    observer = observeElement(
-        '.trade-row:not([data-rovalra-time-processed])',
-        processTradeRow,
-        { multiple: true },
-    );
+        observer = observeElement(
+            '.trade-row:not([data-rovalra-time-processed])',
+            processTradeRow,
+            { multiple: true },
+        );
+    });
 }

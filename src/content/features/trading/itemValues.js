@@ -22,102 +22,123 @@ let dividerObserverRequest = null;
 let updateSummaryTimeout = null;
 const pendingCards = new Map();
 let isRobuxIncluded = false;
+let featureSettings = { tradeValuesEnabled: true, tradeRiskEnabled: true };
 
 export function init() {
-    const path = window.location.pathname;
-    const isTradePage =
-        path.startsWith('/trades') ||
-        path.startsWith('/trade') ||
-        /\/users\/\d+\/trade/.test(path);
+    chrome.storage.local.get(
+        { tradeValuesEnabled: true, tradeRiskEnabled: true },
+        (settings) => {
+            featureSettings = settings;
+            if (!featureSettings.tradeValuesEnabled) return;
 
-    if (!isTradePage) {
-        if (cardObserverRequest) {
-            cardObserverRequest.active = false;
-            cardObserverRequest = null;
-        }
-        if (summaryObserverRequest) {
-            summaryObserverRequest.active = false;
-            summaryObserverRequest = null;
-        }
-        if (dividerObserverRequest) {
-            dividerObserverRequest.active = false;
-            dividerObserverRequest = null;
-        }
-        document.removeEventListener(
-            'rovalra-rolimons-data-update',
-            onRolimonsUpdate,
-        );
-        document.removeEventListener('rovalra-risk-data-update', onRiskUpdate);
-        pendingCards.clear();
-        if (updateSummaryTimeout) clearTimeout(updateSummaryTimeout);
-        return;
-    }
+            const path = window.location.pathname;
+            const isTradePage =
+                path.startsWith('/trades') ||
+                path.startsWith('/trade') ||
+                /\/users\/\d+\/trade/.test(path);
 
-    if (cardObserverRequest) return;
-
-    document.addEventListener('rovalra-rolimons-data-update', onRolimonsUpdate);
-    document.addEventListener('rovalra-risk-data-update', onRiskUpdate);
-    initTradeSummary();
-
-    dividerObserverRequest = observeElement(
-        '.trade-request-window-offers .rbx-divider',
-        (divider) => {
-            divider.style.setProperty('margin', '24px 0px', 'important');
-        },
-    );
-
-    cardObserverRequest = observeElement(
-        '.item-card-container, .trade-request-item',
-        (card) => {
-            if (card.dataset.rovalraProcessed) return;
-
-            let assetId;
-            if (card.classList.contains('trade-request-item')) {
-                if (
-                    card.classList.contains('blank-item') ||
-                    !card.hasAttribute('data-collectibleiteminstanceid')
-                )
-                    return;
-                const instanceId = card.getAttribute(
-                    'data-collectibleiteminstanceid',
+            if (!isTradePage) {
+                if (cardObserverRequest) {
+                    cardObserverRequest.active = false;
+                    cardObserverRequest = null;
+                }
+                if (summaryObserverRequest) {
+                    summaryObserverRequest.active = false;
+                    summaryObserverRequest = null;
+                }
+                if (dividerObserverRequest) {
+                    dividerObserverRequest.active = false;
+                    dividerObserverRequest = null;
+                }
+                document.removeEventListener(
+                    'rovalra-rolimons-data-update',
+                    onRolimonsUpdate,
                 );
-                const cached = getCachedItemValue(instanceId);
-                if (cached && cached.assetId) {
-                    assetId = cached.assetId;
-                } else {
-                    const link = card.querySelector('a[href*="/catalog/"]');
-                    if (link) assetId = getPlaceIdFromUrl(link.href);
-                }
-            } else {
-                const link = card.querySelector('a[href*="/catalog/"]');
-                if (!link) return;
-                assetId = getPlaceIdFromUrl(link.href);
-            }
-            if (!assetId) return;
-
-            card.dataset.rovalraProcessed = 'true';
-            card.dataset.rovalraAssetId = assetId;
-
-            const cached = getCachedRolimonsItem(assetId);
-            if (cached) {
-                updateItemCard(card, assetId);
-            } else {
-                if (!pendingCards.has(assetId)) {
-                    pendingCards.set(assetId, new Set());
-                }
-                pendingCards.get(assetId).add(card);
-                queueRolimonsFetch(assetId);
+                document.removeEventListener(
+                    'rovalra-risk-data-update',
+                    onRiskUpdate,
+                );
+                pendingCards.clear();
+                if (updateSummaryTimeout) clearTimeout(updateSummaryTimeout);
+                return;
             }
 
-            const riskCached = getCachedRisk(assetId);
-            if (!riskCached) {
-                queueRiskFetch(assetId);
-            } else {
-                updateItemCard(card, assetId);
-            }
-            queueUpdateTradeSummary();
+            if (cardObserverRequest) return;
+
+            document.addEventListener(
+                'rovalra-rolimons-data-update',
+                onRolimonsUpdate,
+            );
+            document.addEventListener('rovalra-risk-data-update', onRiskUpdate);
+            initTradeSummary();
+
+            dividerObserverRequest = observeElement(
+                '.trade-request-window-offers .rbx-divider',
+                (divider) => {
+                    divider.style.setProperty(
+                        'margin',
+                        '24px 0px',
+                        'important',
+                    );
+                },
+            );
+
+            cardObserverRequest = observeElement(
+                '.item-card-container, .trade-request-item',
+                (card) => {
+                    if (card.dataset.rovalraProcessed) return;
+
+                    let assetId;
+                    if (card.classList.contains('trade-request-item')) {
+                        if (
+                            card.classList.contains('blank-item') ||
+                            !card.hasAttribute('data-collectibleiteminstanceid')
+                        )
+                            return;
+                        const instanceId = card.getAttribute(
+                            'data-collectibleiteminstanceid',
+                        );
+                        const cached = getCachedItemValue(instanceId);
+                        if (cached && cached.assetId) {
+                            assetId = cached.assetId;
+                        } else {
+                            const link = card.querySelector(
+                                'a[href*="/catalog/"]',
+                            );
+                            if (link) assetId = getPlaceIdFromUrl(link.href);
+                        }
+                    } else {
+                        const link = card.querySelector('a[href*="/catalog/"]');
+                        if (!link) return;
+                        assetId = getPlaceIdFromUrl(link.href);
+                    }
+                    if (!assetId) return;
+
+                    card.dataset.rovalraProcessed = 'true';
+                    card.dataset.rovalraAssetId = assetId;
+
+                    const cached = getCachedRolimonsItem(assetId);
+                    if (cached) {
+                        updateItemCard(card, assetId);
+                    } else {
+                        if (!pendingCards.has(assetId)) {
+                            pendingCards.set(assetId, new Set());
+                        }
+                        pendingCards.get(assetId).add(card);
+                        queueRolimonsFetch(assetId);
+                    }
+
+                    const riskCached = getCachedRisk(assetId);
+                    if (!riskCached && featureSettings.tradeRiskEnabled) {
+                        queueRiskFetch(assetId);
+                    } else {
+                        updateItemCard(card, assetId);
+                    }
+                    queueUpdateTradeSummary();
+                },
+                { multiple: true },
+            );
         },
-        { multiple: true },
     );
 }
 
@@ -378,7 +399,7 @@ export function updateItemCard(card, assetId, options = {}) {
             tooltipParts.push(`Acronym: ${data.acronym}`);
         }
 
-        if (riskData) {
+        if (featureSettings.tradeRiskEnabled && riskData) {
             const color = RISK_COLORS[riskData.level] || '#fff';
             tooltipParts.push(
                 `Risk: <span style="color:${color};font-weight:bold;">${riskData.level}</span>`,

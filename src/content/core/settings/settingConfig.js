@@ -90,6 +90,14 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
+            itemTradingEnabled: {
+                label: 'Item Trading Info',
+                description: [
+                    'Shows Rolimons values, demand, trend, rare, projected and more on item pages.',
+                ],
+                type: 'checkbox',
+                default: true,
+            },
         },
     },
     Games: {
@@ -723,6 +731,59 @@ export const SETTINGS_CONFIG = {
                     'May be inaccurate. And will take ages depending on the amount of sales',
                 type: 'checkbox',
                 default: false,
+            },
+        },
+    },
+    Trading: {
+        title: 'Trading',
+        settings: {
+            tradeValuesEnabled: {
+                label: 'Trade Values',
+                description: [
+                    'This shows a bunch of useful information when trading, stuff like:',
+                    'Rolimons Values, Trade differences in values and rap, item demand, item trend and more.',
+                ],
+                type: 'checkbox',
+                default: true,
+            },
+            tradePreviewEnabled: {
+                label: 'Trade Preview',
+                description: [
+                    'Allows you to preview the value differences of a trade before opening it up.',
+                    'Also changes the timestamp for when the trade was sent to something more readable and adds a "open in Rolimons" beside a users username',
+                ],
+                type: 'checkbox',
+                default: true,
+            },
+            tradeFilterEnabled: {
+                label: 'Trade Filter',
+                description:
+                    'Adds a search bar to the trade page. Allowing you to search for trades containing specific items.',
+                type: 'checkbox',
+                default: true,
+            },
+            tradeSearchEnabled: {
+                label: 'Trade Search',
+                description:
+                    'Allows you to search for items in the create trade pages to quickly find them.',
+                type: 'checkbox',
+                default: true,
+            },
+            confirmTradeEnabled: {
+                label: 'Trade Protection',
+                description:
+                    'This adds a small Preview of the trade you are doing in the accept / decline confirmation pop up.',
+                type: 'checkbox',
+                default: true,
+            },
+            tradeRiskEnabled: {
+                label: 'Show Item Risk',
+                description:
+                    'Shows the calculated risk of an item based on its trading history on item pages and trade pages.',
+                type: 'checkbox',
+                default: false,
+                experimental:
+                    'May be inaccurate. It is not recommended to fully rely on this.',
             },
         },
     },

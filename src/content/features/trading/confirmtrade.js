@@ -17,63 +17,67 @@ let observerRequest = null;
 let prefetchRequests = [];
 
 export function init() {
-    const path = window.location.pathname;
-    const isTradePage =
-        path.startsWith('/trades') ||
-        path.startsWith('/trade') ||
-        /\/users\/\d+\/trade/.test(path);
+    chrome.storage.local.get({ confirmTradeEnabled: true }, (settings) => {
+        if (!settings.confirmTradeEnabled) return;
 
-    if (!isTradePage) {
-        if (observerRequest) {
-            observerRequest.active = false;
-            observerRequest = null;
+        const path = window.location.pathname;
+        const isTradePage =
+            path.startsWith('/trades') ||
+            path.startsWith('/trade') ||
+            /\/users\/\d+\/trade/.test(path);
+
+        if (!isTradePage) {
+            if (observerRequest) {
+                observerRequest.active = false;
+                observerRequest = null;
+            }
+            prefetchRequests.forEach((req) => (req.active = false));
+            prefetchRequests = [];
+            return;
         }
-        prefetchRequests.forEach((req) => (req.active = false));
-        prefetchRequests = [];
-        return;
-    }
 
-    if (observerRequest) return;
+        if (observerRequest) return;
 
-    startPrefetching();
+        startPrefetching();
 
-    console.log('[RoValra] Initializing confirmtrade feature.');
-    observerRequest = observeElement(
-        '.modal-window .modal-body',
-        (modalBody) => {
-            console.log('[RoValra] Modal body observed.', modalBody);
-            if (modalBody.querySelector('.rovalra-trade-preview')) {
-                console.log(
-                    '[RoValra] Trade preview already exists. Skipping.',
-                );
-                return;
-            }
-
-            let tradeOffers = document.querySelectorAll(
-                '.trade-request-window-offer',
-            );
-            let isDetailView = false;
-
-            if (tradeOffers.length < 2) {
-                tradeOffers = document.querySelectorAll(
-                    '.trade-list-detail-offer',
-                );
-                if (tradeOffers.length >= 2) {
-                    isDetailView = true;
+        console.log('[RoValra] Initializing confirmtrade feature.');
+        observerRequest = observeElement(
+            '.modal-window .modal-body',
+            (modalBody) => {
+                console.log('[RoValra] Modal body observed.', modalBody);
+                if (modalBody.querySelector('.rovalra-trade-preview')) {
+                    console.log(
+                        '[RoValra] Trade preview already exists. Skipping.',
+                    );
+                    return;
                 }
-            }
 
-            console.log(
-                `[RoValra] Found ${tradeOffers.length} trade offers. DetailView: ${isDetailView}`,
-            );
+                let tradeOffers = document.querySelectorAll(
+                    '.trade-request-window-offer',
+                );
+                let isDetailView = false;
 
-            if (tradeOffers.length < 2) {
-                return;
-            }
+                if (tradeOffers.length < 2) {
+                    tradeOffers = document.querySelectorAll(
+                        '.trade-list-detail-offer',
+                    );
+                    if (tradeOffers.length >= 2) {
+                        isDetailView = true;
+                    }
+                }
 
-            injectTradePreview(modalBody, tradeOffers, isDetailView);
-        },
-    );
+                console.log(
+                    `[RoValra] Found ${tradeOffers.length} trade offers. DetailView: ${isDetailView}`,
+                );
+
+                if (tradeOffers.length < 2) {
+                    return;
+                }
+
+                injectTradePreview(modalBody, tradeOffers, isDetailView);
+            },
+        );
+    });
 }
 
 function startPrefetching() {

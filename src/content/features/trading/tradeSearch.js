@@ -10,32 +10,36 @@ const PAGING_COOLDOWN = 100;
 const activeSearches = new WeakMap();
 
 export function init() {
-    const path = window.location.pathname;
-    const isTradePage =
-        path.startsWith('/trades') ||
-        path.startsWith('/trade') ||
-        /\/users\/\d+\/trade/.test(path);
+    chrome.storage.local.get({ tradeSearchEnabled: true }, (settings) => {
+        if (!settings.tradeSearchEnabled) return;
 
-    if (!isTradePage) return;
+        const path = window.location.pathname;
+        const isTradePage =
+            path.startsWith('/trades') ||
+            path.startsWith('/trade') ||
+            /\/users\/\d+\/trade/.test(path);
 
-    observeElement(
-        '.inventory-type-dropdown',
-        (dropdown) => {
-            if (
-                dropdown.previousElementSibling?.classList.contains(
-                    'rovalra-trade-search-wrapper',
-                )
-            ) {
-                return;
-            }
+        if (!isTradePage) return;
 
-            const headerRow = dropdown.closest('.row');
-            if (!headerRow) return;
+        observeElement(
+            '.inventory-type-dropdown',
+            (dropdown) => {
+                if (
+                    dropdown.previousElementSibling?.classList.contains(
+                        'rovalra-trade-search-wrapper',
+                    )
+                ) {
+                    return;
+                }
 
-            injectSearchInput(dropdown);
-        },
-        { multiple: true },
-    );
+                const headerRow = dropdown.closest('.row');
+                if (!headerRow) return;
+
+                injectSearchInput(dropdown);
+            },
+            { multiple: true },
+        );
+    });
 }
 
 function injectSearchInput(dropdown) {

@@ -36,6 +36,7 @@ import { init as initPriceFloor } from './features/catalog/pricefloor.js';
 import { init as initCatalogBannerTest } from './features/catalog/bannerTest.js';
 import { init as initParentItem } from './features/catalog/ParentItem.js';
 import { init as initPurchasePrompt } from './features/catalog/purchasePrompt.js';
+import { init as initItemTrading } from './features/catalog/ItemTrading.js';
 
 // Games
 import { init as initBotDetector } from './features/games/about/botDetector.js';
@@ -133,6 +134,7 @@ const featureRoutes = [
             initPriceFloor,
             initCatalogBannerTest,
             initParentItem,
+            initItemTrading,
         ],
     },
     // Group pages

@@ -42,6 +42,11 @@ document.addEventListener('rovalra-rolimons-data-update', () => {
 });
 
 export async function init() {
+    const settings = await chrome.storage.local.get({
+        tradeFilterEnabled: true,
+    });
+    if (!settings.tradeFilterEnabled) return;
+
     const path = window.location.pathname;
     if (!path.startsWith('/trades')) return;
 
