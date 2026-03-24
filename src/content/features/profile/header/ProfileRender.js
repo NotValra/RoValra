@@ -49,7 +49,6 @@ let globalAvatarData = null;
 let avatarDataPromise = null;
 let isCustomEnvLoaded = false;
 let environmentConfig = null;
-
 let activeEmoteId = null;
 const animationSpeed = 1;
 
@@ -263,11 +262,6 @@ async function loadRig(rigType) {
 
     isRenderingPaused = true;
 
-    if (currentRig) {
-        currentRig.Destroy();
-        currentRig = null;
-    }
-
     const outfit = new Outfit();
     outfit.fromJson(globalAvatarData);
     outfit.playerAvatarType = rigType;
@@ -280,8 +274,8 @@ async function loadRig(rigType) {
         if (rigResult instanceof RBX) {
             await new Promise((r) => setTimeout(r, 10));
 
-            currentRig = rigResult.generateTree().GetChildren()[0];
-            const humanoid = currentRig?.FindFirstChildOfClass('Humanoid');
+            const newRig = rigResult.generateTree().GetChildren()[0];
+            const humanoid = newRig?.FindFirstChildOfClass('Humanoid');
 
             if (humanoid) {
                 const desc = new Instance('HumanoidDescription');
@@ -291,8 +285,14 @@ async function loadRig(rigType) {
                 await new Promise((r) => requestAnimationFrame(r));
                 await wrapper.applyDescription(humanoid);
 
+                if (currentRig) {
+                    currentRig.Destroy();
+                }
+                currentRig = newRig;
+
                 await playIdle();
 
+                if (currentRig.preRender) currentRig.preRender();
                 RBXRenderer.addInstance(currentRig, null);
                 currentRigType = rigType;
 
@@ -919,7 +919,10 @@ function startAnimationLoop() {
                 animatorW?.renderAnimation(deltaTime);
             }
 
-            if (currentRig) RBXRenderer.addInstance(currentRig, null);
+            if (currentRig) {
+                if (currentRig.preRender) currentRig.preRender();
+                RBXRenderer.addInstance(currentRig, null);
+            }
             lastRenderTime = currentTime - (delta % interval);
         }
     };
@@ -1135,6 +1138,7 @@ async function preloadAvatar() {
                     width: '100%',
                     height: '100%',
                     outline: 'none',
+                    visibility: 'hidden',
                 });
                 startAnimationLoop();
             }
@@ -1142,6 +1146,10 @@ async function preloadAvatar() {
             await new Promise((r) => setTimeout(r, 10));
 
             await loadRig(globalAvatarData.playerAvatarType);
+
+            if (preloadedCanvas) {
+                preloadedCanvas.style.visibility = 'visible';
+            }
 
             await new Promise((r) => setTimeout(r, 0));
 

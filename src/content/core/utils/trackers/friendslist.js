@@ -69,6 +69,7 @@ async function fetchUserAgeGroup() {
         return await callRobloxApiJson({
             subdomain: 'apis',
             endpoint: '/user-settings-api/v1/account-insights/age-group',
+            useBackground: true,
         });
     } catch (error) {
         console.error('RoValra: Failed to fetch self age group', error);
@@ -84,6 +85,7 @@ async function fetchChatConversationsPage(cursor = null) {
         return await callRobloxApiJson({
             subdomain: 'apis',
             endpoint: endpoint,
+            useBackground: true,
         });
     } catch (error) {
         return null;
@@ -171,6 +173,7 @@ async function fetchFriendsPage(userId, cursor = null) {
         return await callRobloxApiJson({
             subdomain: 'friends',
             endpoint: endpoint,
+            useBackground: true,
         });
     } catch (error) {
         return null;
@@ -183,6 +186,8 @@ async function fetchUserProfileData(userIds) {
             subdomain: 'apis',
             endpoint: USER_PROFILE_API_ENDPOINT,
             method: 'POST',
+            useBackground: true,
+
             body: {
                 userIds: userIds,
                 fields: [
@@ -206,6 +211,7 @@ async function fetchTrustedFriendsStatus(userId, friendIds) {
         const data = await callRobloxApiJson({
             subdomain: 'friends',
             endpoint: `/v1/user/${userId}/multiget-are-trusted-friends?userIds=${friendIdsString}`,
+            useBackground: true,
         });
         return new Set(data?.trustedFriendsId || []);
     } catch (error) {
@@ -219,6 +225,8 @@ async function fetchProfileInsights(userIds) {
             subdomain: 'apis',
             endpoint: '/profile-insights-api/v1/multiProfileInsights',
             method: 'POST',
+            useBackground: true,
+
             body: {
                 userIds: userIds.map((id) => id.toString()),
                 rankingStrategy: 'tc_info_boost',
@@ -234,6 +242,7 @@ async function fetchFriendsOnlineStatus(userId) {
         const response = await callRobloxApiJson({
             subdomain: 'friends',
             endpoint: `/v1/users/${userId}/friends/online`,
+            useBackground: true,
         });
         return response?.data || [];
     } catch (error) {

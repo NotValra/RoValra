@@ -18,11 +18,19 @@ window.Worker = class extends OriginalWorker {
                     if (type === 'patchRBF') {
                         const sanitizedData = [
                             data[0].map((buf) =>
-                                Array.from(new Float32Array(buf)),
+                                buf instanceof Float32Array
+                                    ? buf
+                                    : new Float32Array(buf),
                             ),
-                            Array.from(new Float32Array(data[1])),
-                            Array.from(new Float32Array(data[2])),
-                            Array.from(new Float32Array(data[3])),
+                            data[1] instanceof Float32Array
+                                ? data[1]
+                                : new Float32Array(data[1]),
+                            data[2] instanceof Float32Array
+                                ? data[2]
+                                : new Float32Array(data[2]),
+                            data[3] instanceof Float32Array
+                                ? data[3]
+                                : new Float32Array(data[3]),
                         ];
 
                         chrome.runtime.sendMessage(
@@ -32,9 +40,13 @@ window.Worker = class extends OriginalWorker {
                             },
                             (response) => {
                                 if (this.onmessage && response) {
-                                    const resultFloatArray = new Float32Array(
-                                        response,
-                                    );
+                                    const resultFloatArray =
+                                        response instanceof Float32Array
+                                            ? response
+                                            : new Float32Array(
+                                                  Object.values(response),
+                                              );
+
                                     this.onmessage({
                                         data: [id, resultFloatArray.buffer],
                                     });

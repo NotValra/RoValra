@@ -36,6 +36,7 @@ import { init as initPriceFloor } from './features/catalog/pricefloor.js';
 import { init as initCatalogBannerTest } from './features/catalog/bannerTest.js';
 import { init as initParentItem } from './features/catalog/ParentItem.js';
 import { init as initPurchasePrompt } from './features/catalog/purchasePrompt.js';
+import { init as initItemTrading } from './features/catalog/ItemTrading.js';
 
 // Games
 import { init as initBotDetector } from './features/games/about/botDetector.js';
@@ -57,6 +58,10 @@ import { init as initPendingRobuxTrans } from './features/transactions/pendingRo
 import { init as initTotalEarned } from './features/transactions/totalearned.js';
 // Trading
 import { init as initConfirmTrade } from './features/trading/confirmtrade.js';
+import { init as initItemValues } from './features/trading/itemValues.js';
+import { init as initTradePreview } from './features/trading/tradePreview.js';
+import { init as initTradeFilter } from './features/trading/tradefilter.js';
+import { init as initTradeSearch } from './features/trading/tradeSearch.js';
 // group
 import { init as initHiddenGroupGames } from './features/groups/hiddenGroupGames.js';
 import { init as initAntiBots } from './features/groups/Antibots.js';
@@ -129,6 +134,7 @@ const featureRoutes = [
             initPriceFloor,
             initCatalogBannerTest,
             initParentItem,
+            initItemTrading,
         ],
     },
     // Group pages
@@ -197,7 +203,13 @@ const featureRoutes = [
     // Trading
     {
         paths: ['/trades', '/trade', '/users'],
-        features: [initConfirmTrade],
+        features: [
+            initConfirmTrade,
+            initItemValues,
+            initTradePreview,
+            initTradeFilter,
+            initTradeSearch,
+        ],
     },
 
     // API Docs

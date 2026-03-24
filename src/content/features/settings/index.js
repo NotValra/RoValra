@@ -772,6 +772,7 @@ function initializeHeartbeatSpoofer() {
                 method: 'POST',
                 body: spoofedPulseRequest,
                 headers: { 'RoValra-Internal': 'true' },
+                useBackground: true,
             });
             console.log(
                 `RoValra: Spoofed heartbeat sent. Mode: ${spoofingMode}`,
@@ -891,90 +892,5 @@ function initializeHeartbeatSpoofer() {
     console.log('RoValra: Proactive heartbeat spoofer initialized.');
 }
 
-function manageSingletonExecution() {
-    const KEYS = {
-        ID: 'rovalra_singleton_leader_id',
-        SEEN: 'rovalra_singleton_last_seen',
-    };
-    const INTERVAL = 5000;
-    const LEASE = 10000;
-
-    const instanceId = crypto.randomUUID();
-    let isLeader = false;
-    let timerId = null;
-    let featuresInitialized = false;
-
-    const toggleFeatures = (shouldRun) => {
-        if (shouldRun && !featuresInitialized) {
-            console.log(
-                'RoValra: Leader instance. Initializing singleton features.',
-            );
-            initializeHeartbeatSpoofer();
-            featuresInitialized = true;
-        } else if (!shouldRun && featuresInitialized) {
-            featuresInitialized = false;
-            console.log('RoValra: No longer leader.');
-        }
-    };
-
-    const resetLoop = (nextFn) => {
-        if (timerId) clearInterval(timerId);
-        timerId = setInterval(nextFn, INTERVAL);
-    };
-
-    const attemptToBecomeLeader = () => {
-        isLeader = true;
-        const info = { [KEYS.ID]: instanceId, [KEYS.SEEN]: Date.now() };
-
-        chrome.storage.local.set(info, () => {
-            toggleFeatures(true);
-            resetLoop(renewLease);
-        });
-    };
-
-    const renewLease = () => {
-        if (!isLeader) return;
-
-        if (
-            typeof chrome === 'undefined' ||
-            !chrome.storage ||
-            !chrome.storage.local
-        ) {
-            isLeader = false;
-            toggleFeatures(false);
-            resetLoop(checkForLeader);
-            return;
-        }
-
-        chrome.storage.local.get(KEYS.ID, (result) => {
-            if (chrome.runtime?.lastError || result[KEYS.ID] !== instanceId) {
-                isLeader = false;
-                toggleFeatures(false);
-                resetLoop(checkForLeader);
-            } else {
-                chrome.storage.local.set({ [KEYS.SEEN]: Date.now() });
-            }
-        });
-    };
-
-    const checkForLeader = () => {
-        chrome.storage.local.get([KEYS.ID, KEYS.SEEN], (result) => {
-            const lastSeen = result[KEYS.SEEN];
-            const isLeaseActive = lastSeen && Date.now() - lastSeen < LEASE;
-
-            if (!result[KEYS.ID] || !isLeaseActive) {
-                attemptToBecomeLeader();
-            }
-        });
-    };
-
-    window.addEventListener('beforeunload', () => {
-        if (isLeader) chrome.storage.local.remove([KEYS.ID, KEYS.SEEN]);
-    });
-
-    checkForLeader();
-    resetLoop(checkForLeader);
-}
-
-manageSingletonExecution();
+initializeHeartbeatSpoofer();
 loadDatacenterMap();
