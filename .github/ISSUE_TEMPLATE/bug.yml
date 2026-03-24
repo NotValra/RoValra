@@ -23,6 +23,18 @@ fields:
     required: true
 - type: "textarea"
   attributes:
+    label: "Related Information"
+    description: "RoValra version and Chrome version"
+  validations:
+    required: true
+- type: "textarea"
+  attributes:
+    label: "Steps to Reproduce"
+    description: "How to replicate the problem"
+  validations:
+    required: false
+- type: "textarea"
+  attributes:
     label: "Logs"
     description: "Press F12, go to the \"Console\" tab and copy & paste the logs."
     value: "```\n\n```"
