@@ -49,7 +49,6 @@ let globalAvatarData = null;
 let avatarDataPromise = null;
 let isCustomEnvLoaded = false;
 let environmentConfig = null;
-
 let activeEmoteId = null;
 const animationSpeed = 1;
 

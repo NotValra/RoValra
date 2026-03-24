@@ -293,8 +293,12 @@ async function callRobloxApiBackground(options) {
     const fetchOptions = { method, headers: { ...headers } };
 
     if (body) {
-        fetchOptions.headers['Content-Type'] = 'application/json';
-        fetchOptions.body = JSON.stringify(body);
+        if (typeof body === 'object') {
+            fetchOptions.headers['Content-Type'] = 'application/json';
+            fetchOptions.body = JSON.stringify(body);
+        } else {
+            fetchOptions.body = body;
+        }
     }
 
     if (method !== 'GET' && method !== 'HEAD' && state.csrfTokenCache) {
@@ -550,13 +554,11 @@ function updateAvatarRotator() {
 
 chrome.runtime.onInstalled.addListener((details) => {
     initializeSettings(details.reason);
-    updateUserAgentRule();
     setupContextMenuListener();
 });
 
 chrome.runtime.onStartup.addListener(() => {
     initializeSettings('startup');
-    updateUserAgentRule();
     setupContextMenuListener();
 });
 
@@ -745,6 +747,33 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             wearOutfit(request.outfitId).then(sendResponse);
             return true;
 
+        case 'fetchRobloxApi':
+            callRobloxApiBackground(request.options)
+                .then(async (response) => {
+                    const headers = {};
+                    response.headers.forEach(
+                        (val, key) => (headers[key] = val),
+                    );
+                    const body = await response.text().catch(() => null);
+                    sendResponse({
+                        ok: response.ok,
+                        status: response.status,
+                        statusText: response.statusText,
+                        headers: headers,
+                        body: body,
+                    });
+                })
+                .catch((err) => {
+                    console.error('RoValra: Background API fetch failed', err);
+                    sendResponse({
+                        ok: false,
+                        status: 500,
+                        statusText: 'Extension Error',
+                        body: null,
+                    });
+                });
+            return true;
+
         case 'updateContextMenu':
             if (chrome.contextMenus) {
                 chrome.storage.local.get(
@@ -793,6 +822,7 @@ chrome.storage.local.get('MemoryleakFixEnabled', (result) => {
     }
 });
 
+updateUserAgentRule();
 updateAvatarRotator();
 setupContextMenuListener();
 // RoAvatar-Renderer worker
