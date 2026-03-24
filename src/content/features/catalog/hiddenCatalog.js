@@ -1,3 +1,4 @@
+import * as storage from "../../core/chrome/localStorage.js";
 import { observeElement } from '../../core/observer.js';
 import { callRobloxApiJson } from '../../core/api.js';
 import { getAssets } from '../../core/assets.js';
@@ -391,7 +392,7 @@ export async function removeHiddenCatalogContent() {
 }
 
 export function init() {
-    chrome.storage.local.get({ hiddenCatalogEnabled: false }, function(result) {
+    storage.get({ hiddenCatalogEnabled: false }).then(function(result) {
         if (!result.hiddenCatalogEnabled) return;
 
         window.addEventListener('themeDetected', (event) => {

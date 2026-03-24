@@ -1,3 +1,4 @@
+import * as storage from "../../core/chrome/localStorage.js";
 import { showReviewPopup } from '../../core/review/review.js';
 import { observeElement, observeResize } from '../../core/observer.js';
 import { callRobloxApi } from '../../core/api.js';
@@ -16,7 +17,7 @@ import { createItemCard } from '../../core/ui/items/items.js';
 import { t } from '../../core/locale/i18n.js';
 
 export function init() {
-    chrome.storage.local.get('useroutfitsEnabled', function (data) {
+    storage.get('useroutfitsEnabled').then(function (data) {
         if (data.useroutfitsEnabled !== true) {
             return;
         }

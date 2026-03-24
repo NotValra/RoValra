@@ -1,3 +1,4 @@
+import * as storage from "./chrome/localStorage.js";
 // Gets the user id of the authed user
 
 function waitForDom() {
@@ -11,7 +12,7 @@ function waitForDom() {
 }
 
 export async function getAuthenticatedUserId() {
-    const storage = await chrome.storage.local.get('rovalra_authed_user_id');
+    const storage = await storage.get('rovalra_authed_user_id');
     const cachedId = storage.rovalra_authed_user_id;
 
     const scrapeId = () => {
@@ -19,7 +20,7 @@ export async function getAuthenticatedUserId() {
         const actualId = meta ? parseInt(meta.getAttribute('data-userid'), 10) : null;
         
         if (actualId !== cachedId) {
-            chrome.storage.local.set({ rovalra_authed_user_id: actualId });
+            storage.set({ rovalra_authed_user_id: actualId });
         }
         return actualId;
     };

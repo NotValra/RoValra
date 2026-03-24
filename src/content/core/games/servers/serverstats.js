@@ -1,3 +1,4 @@
+import * as storage from "../../chrome/localStorage.js";
 // Server stats like total servers and versions
 
 import { callRobloxApi } from '../../api.js';
@@ -123,7 +124,7 @@ async function createStatsBarUI(serverListContainer) {
     let settings;
     try {
         settings = await new Promise((resolve, reject) => {
-            chrome.storage.local.get(['TotalServersEnabled', 'GameVersionEnabled', 'OldestVersionEnabled'], result => {
+            storage.get(['TotalServersEnabled', 'GameVersionEnabled', 'OldestVersionEnabled']).then(result => {
                 if (chrome.runtime.lastError) return reject(chrome.runtime.lastError);
                 resolve(result);
             });

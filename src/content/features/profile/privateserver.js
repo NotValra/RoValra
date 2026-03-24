@@ -1,3 +1,4 @@
+import * as storage from "../../core/chrome/localStorage.js";
 import { observeElement } from '../../core/observer.js';
 import { createOverlay } from '../../core/ui/overlay.js';
 import { createButton } from '../../core/ui/buttons.js';
@@ -641,7 +642,7 @@ function handlePageUpdate() {
 }
 
 export function init() {
-    chrome.storage.local.get({ PrivateServerBulkEnabled: true }, (data) => {
+    storage.get({ PrivateServerBulkEnabled: true }).then((data) => {
         if (data.PrivateServerBulkEnabled === true) {
             const wrapHistory = (type) => {
                 const original = history[type];

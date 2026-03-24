@@ -1,9 +1,10 @@
+import * as storage from "../../core/chrome/localStorage.js";
 import { createOverlay } from '../../core/ui/overlay.js';
 import { createButton } from '../../core/ui/buttons.js';
 import { getAssets } from '../../core/assets.js';
 
 export function init() {
-    chrome.storage.local.get({ onboardingShown: false }, function(settings) {
+    storage.get({ onboardingShown: false }).then(function(settings) {
         if (!settings.onboardingShown) {
             const bodyContent = document.createElement('div');
             const assets = getAssets();
@@ -31,7 +32,7 @@ export function init() {
             `;// Verified
 
             const acknowledgeOnboarding = () => {
-                chrome.storage.local.set({ onboardingShown: true }, function() {
+                storage.set({ onboardingShown: true }).then(function() {
                     console.log('RoValra: Onboarding acknowledged and marked as shown.');
                 });
             };

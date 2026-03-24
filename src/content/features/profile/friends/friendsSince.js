@@ -1,3 +1,4 @@
+import * as storage from "../../../core/chrome/localStorage.js";
 import { getUserIdFromUrl } from '../../../core/idExtractor.js';
 import { observeElement, observeAttributes } from '../../../core/observer.js';
 import { getCachedFriendsList } from '../../../core/utils/trackers/friendslist.js';
@@ -171,7 +172,7 @@ function initProfileAboutDialogObserver(friendData) {
 
 export async function init() {
     const settings = await new Promise((resolve) =>
-        chrome.storage.local.get({ friendsSinceEnabled: true }, resolve),
+        storage.get({ friendsSinceEnabled: true }).then(resolve),
     );
 
     if (profileDialogObserver) {

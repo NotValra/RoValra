@@ -1,3 +1,4 @@
+import * as storage from "../../core/chrome/localStorage.js";
 import { getAssetIdFromUrl } from '../../core/idExtractor.js';
 import { checkAssetsInBatch } from '../../core/utils/assetStreamer.js';
 import { observeElement } from '../../core/observer.js';
@@ -176,7 +177,7 @@ export function init() {
         return;
     }
 
-    chrome.storage.local.get({ DownloadCreateEnabled: true }, (result) => {
+    storage.get({ DownloadCreateEnabled: true }).then((result) => {
         if (result.DownloadCreateEnabled) {
             observeElement(
                 '[data-testid="assetButtonsDeprecatedTestId"]',

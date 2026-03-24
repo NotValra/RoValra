@@ -1,3 +1,4 @@
+import * as storage from "../../core/chrome/localStorage.js";
 import { observeElement } from '../../core/observer.js';
 import { callRobloxApiJson } from '../../core/api.js';
 import { createOverlay } from '../../core/ui/overlay.js';
@@ -502,7 +503,7 @@ function onElementFound(container) {
 }
 
 export function init() {
-    chrome.storage.local.get('totalearnedEnabled', (result) => {
+    storage.get('totalearnedEnabled').then((result) => {
         if (result.totalearnedEnabled) {
             observeElement(
                 '.dropdown-container.container-header',

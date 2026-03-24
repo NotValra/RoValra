@@ -1,3 +1,4 @@
+import * as storage from "../../../core/chrome/localStorage.js";
 import { observeElement } from '../../../core/observer.js';
 import { createOverlay } from '../../../core/ui/overlay.js';
 import { launchMultiplayerGame } from '../../../core/utils/launcher.js';
@@ -97,7 +98,7 @@ async function addDonationButton(observedElement) {
 }
 
 export function init() {
-    chrome.storage.local.get({ donationbuttonEnable: true }, function (data) {
+    storage.get({ donationbuttonEnable: true }).then(function (data) {
         if (data.donationbuttonEnable) {
             observeElement(
                 '.flex-nowrap.gap-small.flex, .profile-header-names',

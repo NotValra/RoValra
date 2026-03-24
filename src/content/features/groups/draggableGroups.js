@@ -1,8 +1,9 @@
+import * as storage from "../../core/chrome/localStorage.js";
 import { observeElement, startObserving } from '../../core/observer.js';
 
 const STORAGE_KEY = 'rovalra_groups_order';
 const HOLD_THRESHOLD = 200;
-const MOVE_THRESHOLD = 5; 
+const MOVE_THRESHOLD = 5;
 let dragState = {
     active: false,
     element: null,
@@ -19,7 +20,7 @@ let dropIndicator = null;
 let isEnabled = false;
 
 export function init() {
-    chrome.storage.local.get(['draggableGroupsEnabled'], (result) => {
+    storage.get(['draggableGroupsEnabled']).then((result) => {
         isEnabled = result.draggableGroupsEnabled !== false;
         if (!isEnabled) return;
 
@@ -324,11 +325,11 @@ function persistOrder(container) {
         }
     });
     
-    chrome.storage.local.set({ [STORAGE_KEY]: order });
+    storage.set({ [STORAGE_KEY]: order });
 }
 
 function restoreSavedOrder(container) {
-    chrome.storage.local.get([STORAGE_KEY], (result) => {
+    storage.get([STORAGE_KEY]).then((result) => {
         const savedOrder = result[STORAGE_KEY];
         if (!savedOrder || !savedOrder.length) return;
         

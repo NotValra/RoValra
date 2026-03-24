@@ -1,3 +1,4 @@
+import * as storage from "../../core/chrome/localStorage.js";
 import { observeElement } from '../../core/observer.js';
 import { callRobloxApi } from '../../core/api.js';
 import { createDropdown } from '../../core/ui/dropdown.js';
@@ -86,7 +87,7 @@ function renderDocsPage(contentDiv, suppressWarning = false) {
     clearBtn.style.padding = '8px 16px';
     clearBtn.style.cursor = 'pointer';
     clearBtn.onclick = () => {
-        chrome.storage.local.remove(CAPTURED_APIS_KEY, () => {
+        storage.remove(CAPTURED_APIS_KEY).then(() => {
             renderDocsPage(contentDiv, true);
         });
     };
@@ -99,7 +100,7 @@ function renderDocsPage(contentDiv, suppressWarning = false) {
     container.appendChild(header);
     contentDiv.appendChild(container);
 
-    chrome.storage.local.get(CAPTURED_APIS_KEY, (result) => {
+    storage.get(CAPTURED_APIS_KEY).then((result) => {
         const data = result[CAPTURED_APIS_KEY] || {};
         
         const size = JSON.stringify(data).length;
@@ -470,7 +471,7 @@ function renderDocsPage(contentDiv, suppressWarning = false) {
 export function init() {
     if (window.location.pathname.toLowerCase() !== '/docs') return;
     
-    chrome.storage.local.get('EnableRobloxApiDocs', (result) => {
+    storage.get('EnableRobloxApiDocs').then((result) => {
         if (!result.EnableRobloxApiDocs) return;
 
         const contentDiv = document.querySelector('.content#content');

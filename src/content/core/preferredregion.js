@@ -1,9 +1,11 @@
 
 
+import * as storage from "./chrome/localStorage.js";
+
 import { showReviewPopup } from './review/review.js';
 import { callRobloxApi } from './api.js';
 import { launchGame } from './utils/launcher.js';
-import { getUserLocation } from './utils/location.js'; 
+import { getUserLocation } from './utils/location.js';
 import DOMPurify from 'dompurify';
 import { showLoadingOverlay, hideLoadingOverlay, updateLoadingOverlayText, showLoadingOverlayResult } from './ui/startModal/gamelaunchmodal.js';
 import * as ClosestServer from './regionFinder/ClosestServer.js';
@@ -12,13 +14,13 @@ import { getStateCodeFromRegion } from './regions.js';
 export { getStateCodeFromRegion };
 
 const PREFERRED_REGION_STORAGE_KEY = 'robloxPreferredRegion';
-const MAX_SERVER_PAGES = Infinity; 
+const MAX_SERVER_PAGES = Infinity;
 
 let userRequestedStop = false;
 let isCurrentlyFetchingData = false;
 let serverLocations = {};
 
-const joinedServerIds = new Set(); 
+const joinedServerIds = new Set();
 
 async function fetchServerDetailsWrapper(server, placeId) {
     if (serverLocations[server.id]) return;
@@ -330,13 +332,13 @@ export async function performJoinAction(placeId, universeId, preferredRegionCode
 
 export async function getSavedPreferredRegion() {
     await ClosestServer.dataPromise;
-    const result = await chrome.storage.local.get(PREFERRED_REGION_STORAGE_KEY);
+    const result = await storage.get(PREFERRED_REGION_STORAGE_KEY);
     const region = result[PREFERRED_REGION_STORAGE_KEY];
     const REGIONS = ClosestServer.REGIONS;
 
     if (region && region !== 'AUTO' && !REGIONS[region]) {
         try {
-            await chrome.storage.local.set({ [PREFERRED_REGION_STORAGE_KEY]: 'AUTO' });
+            await storage.set({ [PREFERRED_REGION_STORAGE_KEY]: 'AUTO' });
         } catch (e) {
             console.error("RoValra: Failed to reset invalid preferred region.", e);
         }

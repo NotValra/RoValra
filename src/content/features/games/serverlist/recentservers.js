@@ -1,3 +1,4 @@
+import * as storage from "../../../core/chrome/localStorage.js";
 import { observeElement } from '../../../core/observer.js';
 import DOMPurify from 'dompurify';
 import { getPlaceIdFromUrl } from '../../../core/idExtractor.js';
@@ -117,7 +118,7 @@ async function checkServerIsActive(placeId, gameId) {
 }
 
 export function initRecentServers() {
-    chrome.storage.local.get({ recentServersEnabled: true }, (settings) => {
+    storage.get({ recentServersEnabled: true }).then((settings) => {
         if (!settings.recentServersEnabled) return;
 
         const inject = () => {
@@ -263,10 +264,7 @@ async function renderRecentServers(section) {
 
         const [settings, userId] = await Promise.all([
             new Promise((resolve) =>
-                chrome.storage.local.get(
-                    ['ServerlistmodificationsEnabled'],
-                    resolve,
-                ),
+                storage.get(['ServerlistmodificationsEnabled']).then(resolve),
             ),
             getAuthenticatedUserId(),
         ]);
@@ -296,7 +294,7 @@ async function renderRecentServers(section) {
             settings.ServerlistmodificationsEnabled !== false;
 
         const result = await new Promise((resolve) =>
-            chrome.storage.local.get({ rovalra_server_history: {} }, resolve),
+            storage.get({ rovalra_server_history: {} }).then(resolve),
         );
         const history = result.rovalra_server_history || {};
         const gameHistory = history[placeId] || [];

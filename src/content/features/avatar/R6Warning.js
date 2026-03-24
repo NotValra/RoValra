@@ -1,7 +1,8 @@
+import * as storage from "../../core/chrome/localStorage.js";
 import { observeElement } from '../../core/observer.js';
 
 export function init() {
-    chrome.storage.local.get({ forceR6Enabled: true }, (settings) => {
+    storage.get({ forceR6Enabled: true }).then((settings) => {
         if (!settings.forceR6Enabled) {
             return;
         }

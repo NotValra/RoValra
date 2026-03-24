@@ -1,3 +1,4 @@
+import * as storage from "../../core/chrome/localStorage.js";
 import { createStyledInput } from '../../core/ui/catalog/input.js';
 import { observeElement } from '../../core/observer.js';
 import { callRobloxApi } from '../../core/api.js';
@@ -17,7 +18,7 @@ let debounceTimeout = null;
 async function loadHistory() {
     if (historyLoaded) return;
     try {
-        const result = await chrome.storage.local.get(HISTORY_KEY);
+        const result = await storage.get(HISTORY_KEY);
         tradeHistory = result[HISTORY_KEY] || {};
         historyLoaded = true;
     } catch (e) {
@@ -130,7 +131,7 @@ async function getTradeDetails(tradeId) {
         if (!tradeHistory[myUserId]) tradeHistory[myUserId] = {};
         tradeHistory[myUserId][tradeId] = { myOffer, partnerOffer };
 
-        chrome.storage.local.set({ [HISTORY_KEY]: tradeHistory });
+        storage.set({ [HISTORY_KEY]: tradeHistory });
 
         const allItems = [...myOffer.items, ...partnerOffer.items];
         return { items: allItems };

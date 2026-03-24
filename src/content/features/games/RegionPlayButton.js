@@ -1,3 +1,4 @@
+import * as storage from "../../core/chrome/localStorage.js";
 import { observeElement } from '../../core/observer.js';
 import { addTooltip } from '../../core/ui/tooltip.js';
 import {
@@ -70,7 +71,7 @@ function getFullLocationName(regionCode) {
 async function loadRegionsForTooltip() {
     if (isRegionsLoaded) return;
     return new Promise((resolve) => {
-        chrome.storage.local.get(['cachedRegions'], (result) => {
+        storage.get(['cachedRegions']).then((result) => {
             if (result.cachedRegions) {
                 REGIONS = result.cachedRegions;
             }
@@ -243,7 +244,7 @@ function processContainer(container) {
 }
 
 export function init() {
-    chrome.storage.local.get({ PreferredRegionEnabled: true }, (settings) => {
+    storage.get({ PreferredRegionEnabled: true }).then((settings) => {
         if (!settings.PreferredRegionEnabled) return;
 
         injectCustomCSS();

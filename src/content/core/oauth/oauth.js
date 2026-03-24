@@ -1,7 +1,8 @@
+import * as storage from "../chrome/localStorage.js";
 // TODO Remove console logs
 
 const STORAGE_KEY = "rovalra_oauth_verification";
-const TOKEN_EXPIRATION_BUFFER_MS = 5 * 60 * 1000; 
+const TOKEN_EXPIRATION_BUFFER_MS = 5 * 60 * 1000;
 import { callRobloxApi } from '../api.js';
 import { getAuthenticatedUserId } from '../user.js';
 
@@ -29,14 +30,14 @@ export async function getValidAccessToken(forceRefresh = false) {
     const userId = await getAuthenticatedUserId();
     if (!userId) return null;
 
-    const storage = await chrome.storage.local.get(STORAGE_KEY);
+    const storage = await storage.get(STORAGE_KEY);
     let allVerifications = storage[STORAGE_KEY] || {};
     let storedVerification = allVerifications[userId];
 
     if (!storedVerification || !storedVerification.accessToken) {
         const success = await startOAuthFlow(true);
         if (success) {
-            const newStorage = await chrome.storage.local.get(STORAGE_KEY);
+            const newStorage = await storage.get(STORAGE_KEY);
             return newStorage[STORAGE_KEY]?.[userId]?.accessToken || null;
         }
         return null;
@@ -45,7 +46,7 @@ export async function getValidAccessToken(forceRefresh = false) {
     if (storedVerification.robloxId != userId) {
         const success = await startOAuthFlow(true);
         if (success) {
-            const newStorage = await chrome.storage.local.get(STORAGE_KEY);
+            const newStorage = await storage.get(STORAGE_KEY);
             return newStorage[STORAGE_KEY]?.[userId]?.accessToken || null;
         }
         return null;
@@ -71,14 +72,14 @@ export async function getValidAccessToken(forceRefresh = false) {
             console.warn(`RoValra: Session invalid (Status ${response.status}). Triggering re-auth...`);
             const success = await startOAuthFlow(true);
             if (success) {
-                const updated = await chrome.storage.local.get(STORAGE_KEY);
+                const updated = await storage.get(STORAGE_KEY);
                 return updated[STORAGE_KEY]?.[userId]?.accessToken || null;
             }
             return null;
         }
 
 
-        const updatedStorage = await chrome.storage.local.get(STORAGE_KEY);
+        const updatedStorage = await storage.get(STORAGE_KEY);
         return updatedStorage[STORAGE_KEY]?.[userId]?.accessToken || storedVerification.accessToken;
 
     } catch (error) {
@@ -231,7 +232,7 @@ async function startOAuthFlow(silent = false) {
 
                     const expiresAt = tokenData.expires_at ? tokenData.expires_at * 1000 : null;
                     
-                    const storage = await chrome.storage.local.get(STORAGE_KEY);
+                    const storage = await storage.get(STORAGE_KEY);
                     const allVerifications = storage[STORAGE_KEY] || {};
 
                     allVerifications[userId] = {
@@ -243,7 +244,7 @@ async function startOAuthFlow(silent = false) {
                         timestamp: Date.now()
                     };
 
-                    await chrome.storage.local.set({ [STORAGE_KEY]: allVerifications });
+                    await storage.set({ [STORAGE_KEY]: allVerifications });
                     return true;
                 } else {
                     console.error("RoValra: Invalid token data received from backend.", tokenData);

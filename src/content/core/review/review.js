@@ -1,3 +1,4 @@
+import * as storage from "../chrome/localStorage.js";
 import { createOverlay } from '../../core/ui/overlay.js';
 import { observeElement } from '../../core/observer.js';
 
@@ -28,7 +29,7 @@ function createButton(text, className, onClick) {
 
 export function showReviewPopup(source = 'unknown') {
     observeElement('body', () => {
-        chrome.storage.local.get([STATUS_KEY, STATS_KEY, 'forceReviewPopup'], (result) => {
+        storage.get([STATUS_KEY, STATS_KEY, 'forceReviewPopup']).then((result) => {
             const forceShow = result.forceReviewPopup === true;
 
             if (!forceShow && result[STATUS_KEY] === 'dont_show') return;
@@ -53,7 +54,7 @@ export function showReviewPopup(source = 'unknown') {
 
             if (!stats.sources.includes(source)) stats.sources.push(source);
 
-            chrome.storage.local.set({ [STATS_KEY]: stats });
+            storage.set({ [STATS_KEY]: stats });
 
             if (!forceShow) {
                 if ((now - stats.firstSeen) / (1000 * 60 * 60 * 24) < MIN_DAYS_INSTALLED) return; 
@@ -94,7 +95,7 @@ export function showReviewPopup(source = 'unknown') {
                 const reviewBtn = createButton("Leave a Review", "btn-primary-md", () => {
                     actionTaken = true;
                     window.open(REVIEW_URL, '_blank');
-                    chrome.storage.local.set({ [STATUS_KEY]: 'dont_show' });
+                    storage.set({ [STATUS_KEY]: 'dont_show' });
                     close();
                 });
 
@@ -102,7 +103,7 @@ export function showReviewPopup(source = 'unknown') {
                     actionTaken = true;
                     stats.lastDismissed = Date.now();
                     stats.dismissCount = (stats.dismissCount || 0) + 1;
-                    chrome.storage.local.set({ [STATS_KEY]: stats });
+                    storage.set({ [STATS_KEY]: stats });
                     close();
                 });
 
@@ -111,7 +112,7 @@ export function showReviewPopup(source = 'unknown') {
                 if (stats.dismissCount > 0) {
                     const dontShowBtn = createButton("Do not show again", "btn-control-md", () => {
                         actionTaken = true;
-                        chrome.storage.local.set({ [STATUS_KEY]: 'dont_show' });
+                        storage.set({ [STATUS_KEY]: 'dont_show' });
                         close();
                     });
                     actions.push(dontShowBtn);
@@ -128,7 +129,7 @@ export function showReviewPopup(source = 'unknown') {
                         if (actionTaken) return;
                         stats.lastDismissed = Date.now();
                         stats.dismissCount = (stats.dismissCount || 0) + 1;
-                        chrome.storage.local.set({ [STATS_KEY]: stats });
+                        storage.set({ [STATS_KEY]: stats });
                     }
                 });
             }, 2000);

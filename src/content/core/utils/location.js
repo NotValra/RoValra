@@ -1,7 +1,8 @@
+import * as storage from "../chrome/localStorage.js";
 import { callRobloxApi } from '../api.js';
 
 const LOCATION_STORAGE_KEY = 'robloxUserLocationCache';
-const CACHE_DURATION_MS = 1000 * 60 * 60 * 24; 
+const CACHE_DURATION_MS = 1000 * 60 * 60 * 24;
 
 let hasUpdatedLocation = false;
 
@@ -39,7 +40,7 @@ export async function getUserLocation(placeId, forceRefresh = false) {
                 if (typeof chrome === 'undefined' || !chrome.storage) {
                     resolve(null);
                 } else {
-                    chrome.storage.local.get(LOCATION_STORAGE_KEY, (result) => {
+                    storage.get(LOCATION_STORAGE_KEY).then((result) => {
                         resolve(result[LOCATION_STORAGE_KEY]);
                     });
                 }
@@ -80,7 +81,7 @@ export async function getUserLocation(placeId, forceRefresh = false) {
                 
                 await new Promise((resolve) => {
                     if (typeof chrome !== 'undefined' && chrome.storage) {
-                        chrome.storage.local.set({ [LOCATION_STORAGE_KEY]: cacheObject }, resolve);
+                        storage.set({ [LOCATION_STORAGE_KEY]: cacheObject }).then(resolve);
                     } else { resolve(); }
                 });
 
@@ -137,7 +138,7 @@ export async function updateUserLocationIfChanged(freshCoords) {
         const cacheObject = { ...freshCoords, ...geoNames, timestamp: Date.now() };
 
         if (typeof chrome !== 'undefined' && chrome.storage) {
-            await chrome.storage.local.set({ [LOCATION_STORAGE_KEY]: cacheObject });
+            await storage.set({ [LOCATION_STORAGE_KEY]: cacheObject });
         }
     } catch (e) {
         console.error("Location Util: Error in update", e);

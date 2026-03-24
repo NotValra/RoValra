@@ -1,3 +1,4 @@
+import * as storage from "../content/core/chrome/localStorage.js";
 import { SETTINGS_CONFIG } from '../content/core/settings/settingConfig.js';
 
 // --- Constants & State ---
@@ -41,7 +42,7 @@ function getDefaultSettings() {
 function initializeSettings(reason) {
     const defaults = getDefaultSettings();
 
-    chrome.storage.local.get(null, (currentSettings) => {
+    storage.get(null).then((currentSettings) => {
         const settingsToUpdate = {};
         let needsUpdate = false;
 
@@ -72,7 +73,7 @@ function initializeSettings(reason) {
         }
 
         if (needsUpdate) {
-            chrome.storage.local.set(settingsToUpdate, () => {
+            storage.set(settingsToUpdate).then(() => {
                 if (chrome.runtime.lastError) {
                     console.error(
                         'RoValra: Failed to sync settings.',
@@ -445,32 +446,29 @@ function handlePresenceUpdate(presence) {
                 !isJoiningGame(oldPresence) ||
                 oldPresence.gameId !== presence.gameId
             ) {
-                chrome.storage.local.get(
-                    { rovalra_server_history: {} },
-                    (res) => {
-                        const history = res.rovalra_server_history || {};
-                        const gameId = presence.rootPlaceId.toString();
-                        let gameHistory = history[gameId] || [];
-                        const now = Date.now();
+                storage.get({ rovalra_server_history: {} }).then((res) => {
+                    const history = res.rovalra_server_history || {};
+                    const gameId = presence.rootPlaceId.toString();
+                    let gameHistory = history[gameId] || [];
+                    const now = Date.now();
 
-                        gameHistory = gameHistory.filter(
-                            (entry) =>
-                                now - entry.timestamp < 24 * 60 * 60 * 1000,
-                        );
-                        const serverIndex = gameHistory.findIndex(
-                            (entry) =>
-                                entry.presence.gameId === presence.gameId,
-                        );
-                        if (serverIndex > -1)
-                            gameHistory.splice(serverIndex, 1);
+                    gameHistory = gameHistory.filter(
+                        (entry) =>
+                            now - entry.timestamp < 24 * 60 * 60 * 1000,
+                    );
+                    const serverIndex = gameHistory.findIndex(
+                        (entry) =>
+                            entry.presence.gameId === presence.gameId,
+                    );
+                    if (serverIndex > -1)
+                        gameHistory.splice(serverIndex, 1);
 
-                        gameHistory.unshift({ presence, timestamp: now });
-                        history[gameId] = gameHistory.slice(0, 4);
-                        chrome.storage.local.set({
-                            rovalra_server_history: history,
-                        });
-                    },
-                );
+                    gameHistory.unshift({ presence, timestamp: now });
+                    history[gameId] = gameHistory.slice(0, 4);
+                    storage.set({
+                        rovalra_server_history: history,
+                    });
+                });
             }
         }
     }
@@ -479,75 +477,69 @@ function handlePresenceUpdate(presence) {
 function pollUserPresence() {
     if (!state.currentUserId) return;
 
-    chrome.storage.local.get(
-        { recentServersEnabled: true },
-        async (settings) => {
-            if (!settings.recentServersEnabled) return;
+    storage.get({ recentServersEnabled: true }).then(async (settings) => {
+        if (!settings.recentServersEnabled) return;
 
-            try {
-                const response = await callRobloxApiBackground({
-                    subdomain: 'presence',
-                    endpoint: '/v1/presence/users',
-                    method: 'POST',
-                    body: { userIds: [parseInt(state.currentUserId, 10)] },
-                });
+        try {
+            const response = await callRobloxApiBackground({
+                subdomain: 'presence',
+                endpoint: '/v1/presence/users',
+                method: 'POST',
+                body: { userIds: [parseInt(state.currentUserId, 10)] },
+            });
 
-                if (response.ok) {
-                    const data = await response.json();
-                    const presence = data?.userPresences?.[0];
-                    if (presence) {
-                        handlePresenceUpdate(presence);
-                    }
+            if (response.ok) {
+                const data = await response.json();
+                const presence = data?.userPresences?.[0];
+                if (presence) {
+                    handlePresenceUpdate(presence);
                 }
-            } catch (e) {
-                // ignore
             }
-        },
-    );
+        } catch (e) {
+            // ignore
+        }
+    });
 }
 
 // --- Avatar Rotator ---
 
 function updateAvatarRotator() {
-    chrome.storage.local.get(
-        [
-            'rovalra_avatar_rotator_enabled',
-            'rovalra_avatar_rotator_ids',
-            'rovalra_avatar_rotator_interval',
-        ],
-        (data) => {
-            if (state.rotatorInterval) {
-                clearInterval(state.rotatorInterval);
-                state.rotatorInterval = null;
-            }
+    storage.get([
+        'rovalra_avatar_rotator_enabled',
+        'rovalra_avatar_rotator_ids',
+        'rovalra_avatar_rotator_interval',
+    ]).then((data) => {
+        if (state.rotatorInterval) {
+            clearInterval(state.rotatorInterval);
+            state.rotatorInterval = null;
+        }
 
-            if (
-                data.rovalra_avatar_rotator_enabled &&
-                data.rovalra_avatar_rotator_ids?.length > 0
-            ) {
-                const ids = data.rovalra_avatar_rotator_ids;
-                state.rotatorIndex = 0;
+        if (
+            data.rovalra_avatar_rotator_enabled &&
+            data.rovalra_avatar_rotator_ids?.length > 0
+        ) {
+            const ids = data.rovalra_avatar_rotator_ids;
+            state.rotatorIndex = 0;
 
-                let intervalSeconds = Math.max(
-                    parseInt(data.rovalra_avatar_rotator_interval, 10) || 5,
-                    5,
-                );
+            let intervalSeconds = Math.max(
+                parseInt(data.rovalra_avatar_rotator_interval, 10) || 5,
+                5,
+            );
 
-                const rotate = () => {
-                    if (ids.length === 0) return;
-                    const outfit = ids[state.rotatorIndex];
-                    wearOutfit(outfit);
-                    state.rotatorIndex = (state.rotatorIndex + 1) % ids.length;
-                };
+            const rotate = () => {
+                if (ids.length === 0) return;
+                const outfit = ids[state.rotatorIndex];
+                wearOutfit(outfit);
+                state.rotatorIndex = (state.rotatorIndex + 1) % ids.length;
+            };
 
-                rotate();
-                state.rotatorInterval = setInterval(
-                    rotate,
-                    intervalSeconds * 1000,
-                );
-            }
-        },
-    );
+            rotate();
+            state.rotatorInterval = setInterval(
+                rotate,
+                intervalSeconds * 1000,
+            );
+        }
+    });
 }
 
 // --- Event Listeners ---
@@ -776,37 +768,34 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
         case 'updateContextMenu':
             if (chrome.contextMenus) {
-                chrome.storage.local.get(
-                    ['copyIdEnabled', 'copyUniverseIdEnabled'],
-                    (settings) => {
-                        chrome.contextMenus.removeAll(() => {
-                            if (
-                                !chrome.runtime.lastError &&
-                                request.ids?.length > 0
-                            ) {
-                                request.ids.forEach((item) => {
-                                    if (item.type === 'Universe') {
-                                        if (settings.copyUniverseIdEnabled) {
-                                            chrome.contextMenus.create({
-                                                id: `rovalra-copy-universe-${item.id}`,
-                                                title: 'Copy Universe ID',
-                                                contexts: ['link'],
-                                            });
-                                        }
-                                    } else {
-                                        if (settings.copyIdEnabled) {
-                                            chrome.contextMenus.create({
-                                                id: `rovalra-copy-${item.id}`,
-                                                title: `Copy ${item.type} ID`,
-                                                contexts: ['link'],
-                                            });
-                                        }
+                storage.get(['copyIdEnabled', 'copyUniverseIdEnabled']).then((settings) => {
+                    chrome.contextMenus.removeAll(() => {
+                        if (
+                            !chrome.runtime.lastError &&
+                            request.ids?.length > 0
+                        ) {
+                            request.ids.forEach((item) => {
+                                if (item.type === 'Universe') {
+                                    if (settings.copyUniverseIdEnabled) {
+                                        chrome.contextMenus.create({
+                                            id: `rovalra-copy-universe-${item.id}`,
+                                            title: 'Copy Universe ID',
+                                            contexts: ['link'],
+                                        });
                                     }
-                                });
-                            }
-                        });
-                    },
-                );
+                                } else {
+                                    if (settings.copyIdEnabled) {
+                                        chrome.contextMenus.create({
+                                            id: `rovalra-copy-${item.id}`,
+                                            title: `Copy ${item.type} ID`,
+                                            contexts: ['link'],
+                                        });
+                                    }
+                                }
+                            });
+                        }
+                    });
+                });
             }
             return false;
     }
@@ -815,7 +804,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
 // --- Initialization ---
 
-chrome.storage.local.get('MemoryleakFixEnabled', (result) => {
+storage.get('MemoryleakFixEnabled').then((result) => {
     if (result.MemoryleakFixEnabled) {
         state.isMemoryFixEnabled = true;
         setupNavigationListener();

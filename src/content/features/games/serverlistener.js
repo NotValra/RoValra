@@ -1,3 +1,4 @@
+import * as storage from "../../core/chrome/localStorage.js";
 import { callRobloxApi } from '../../core/api.js';
 
 let isInitialized = false;
@@ -51,7 +52,7 @@ function processServerData(placeId, responseData) {
 export function init() {
     if (isInitialized) return;
 
-    chrome.storage.local.get({ ServerdataEnabled: true }, function(settings) {
+    storage.get({ ServerdataEnabled: true }).then(function(settings) {
         if (!settings.ServerdataEnabled) return;
 
         isInitialized = true;

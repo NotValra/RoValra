@@ -1,3 +1,4 @@
+import * as storage from "../../core/chrome/localStorage.js";
 import { observeElement, observeAttributes } from '../../core/observer.js';
 import { getAuthenticatedUserId } from '../../core/user.js';
 import { createButton } from '../../core/ui/buttons.js';
@@ -23,7 +24,7 @@ export async function init() {
     try {
         await loadDatacenterMap();
         const result = await new Promise((resolve) =>
-            chrome.storage.local.get('rovalraDatacenters', resolve),
+            storage.get('rovalraDatacenters').then(resolve),
         );
         if (result?.rovalraDatacenters) {
             result.rovalraDatacenters.forEach((dc) => {
@@ -37,62 +38,59 @@ export async function init() {
         }
     } catch (e) {}
 
-    chrome.storage.local.get(
-        { PrivateQuickLinkCopy: true, ServerlistmodificationsEnabled: true },
-        (settings) => {
-            const enableControls = settings.PrivateQuickLinkCopy;
-            const enableDetails = settings.ServerlistmodificationsEnabled;
+    storage.get({ PrivateQuickLinkCopy: true, ServerlistmodificationsEnabled: true }).then((settings) => {
+        const enableControls = settings.PrivateQuickLinkCopy;
+        const enableDetails = settings.ServerlistmodificationsEnabled;
 
-            observeElement(
-                '.rbx-private-game-server-item',
-                (serverItem) => {
-                    if (serverItem.dataset.rovalraPrivateEnhanced) return;
-                    serverItem.dataset.rovalraPrivateEnhanced = 'true';
-                    const detailsDiv = serverItem.querySelector(
-                        '.rbx-private-game-server-details',
-                    );
+        observeElement(
+            '.rbx-private-game-server-item',
+            (serverItem) => {
+                if (serverItem.dataset.rovalraPrivateEnhanced) return;
+                serverItem.dataset.rovalraPrivateEnhanced = 'true';
+                const detailsDiv = serverItem.querySelector(
+                    '.rbx-private-game-server-details',
+                );
 
-                    const ownerLink = serverItem.querySelector(
-                        '.rbx-private-owner .avatar-card-fullbody',
-                    );
-                    if (!ownerLink) return;
+                const ownerLink = serverItem.querySelector(
+                    '.rbx-private-owner .avatar-card-fullbody',
+                );
+                if (!ownerLink) return;
 
-                    if (enableDetails) {
-                        enhanceServer(serverItem, privateServerContext);
+                if (enableDetails) {
+                    enhanceServer(serverItem, privateServerContext);
+                }
+
+                const href = ownerLink.getAttribute('href');
+                if (!href) return;
+
+                const match = href.match(/users\/(\d+)\/profile/);
+                if (!match) return;
+
+                const ownerId = parseInt(match[1], 10);
+
+                if (ownerId === userId && enableControls) {
+                    if (serverItem.dataset.privateServerId) {
+                        addOwnerControls(
+                            serverItem,
+                            serverItem.dataset.privateServerId,
+                        );
+                    } else {
+                        const observer =
+                            observeAttributes(serverItem, () => {
+                                if (serverItem.dataset.privateServerId) {
+                                    observer.disconnect();
+                                    addOwnerControls(
+                                        serverItem,
+                                        serverItem.dataset.privateServerId,
+                                    );
+                                }
+                            }, ['data-private-server-id']);
                     }
-
-                    const href = ownerLink.getAttribute('href');
-                    if (!href) return;
-
-                    const match = href.match(/users\/(\d+)\/profile/);
-                    if (!match) return;
-
-                    const ownerId = parseInt(match[1], 10);
-
-                    if (ownerId === userId && enableControls) {
-                        if (serverItem.dataset.privateServerId) {
-                            addOwnerControls(
-                                serverItem,
-                                serverItem.dataset.privateServerId,
-                            );
-                        } else {
-                            const observer =
-                                observeAttributes(serverItem, () => {
-                                    if (serverItem.dataset.privateServerId) {
-                                        observer.disconnect();
-                                        addOwnerControls(
-                                            serverItem,
-                                            serverItem.dataset.privateServerId,
-                                        );
-                                    }
-                                }, ['data-private-server-id']);
-                        }
-                    }
-                },
-                { multiple: true },
-            );
-        },
-    );
+                }
+            },
+            { multiple: true },
+        );
+    });
 }
 
 async function addOwnerControls(serverItem, privateServerId) {

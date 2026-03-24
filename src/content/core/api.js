@@ -1,3 +1,4 @@
+import * as storage from "./chrome/localStorage.js";
 // All api requests should go through this script
 
 import { getCsrfToken } from './utils.js';
@@ -63,52 +64,49 @@ function captureApiCall(options) {
         }
         seenRequests.set(key, hasParams || seenRequests.get(key) || false);
 
-        chrome.storage.local.get(
-            [CAPTURED_APIS_KEY, 'EnableRobloxApiDocs'],
-            (result) => {
-                if (!result.EnableRobloxApiDocs) return;
+        storage.get([CAPTURED_APIS_KEY, 'EnableRobloxApiDocs']).then((result) => {
+            if (!result.EnableRobloxApiDocs) return;
 
-                const data = result[CAPTURED_APIS_KEY] || {};
-                let changed = false;
+            const data = result[CAPTURED_APIS_KEY] || {};
+            let changed = false;
 
-                if (!data[category]) {
-                    data[category] = {};
+            if (!data[category]) {
+                data[category] = {};
+                changed = true;
+            }
+
+            if (!data[category][baseEndpoint]) {
+                data[category][baseEndpoint] = {};
+                changed = true;
+            }
+
+            if (!data[category][baseEndpoint][methodUpper]) {
+                data[category][baseEndpoint][methodUpper] = {
+                    exampleBody: body,
+                    exampleEndpoint: endpoint,
+                };
+                changed = true;
+            } else {
+                const currentDetails =
+                    data[category][baseEndpoint][methodUpper];
+                if (
+                    hasParams &&
+                    (!currentDetails.exampleEndpoint ||
+                        !currentDetails.exampleEndpoint.includes('?'))
+                ) {
+                    currentDetails.exampleEndpoint = endpoint;
                     changed = true;
                 }
-
-                if (!data[category][baseEndpoint]) {
-                    data[category][baseEndpoint] = {};
+                if (body && !currentDetails.exampleBody) {
+                    currentDetails.exampleBody = body;
                     changed = true;
                 }
+            }
 
-                if (!data[category][baseEndpoint][methodUpper]) {
-                    data[category][baseEndpoint][methodUpper] = {
-                        exampleBody: body,
-                        exampleEndpoint: endpoint,
-                    };
-                    changed = true;
-                } else {
-                    const currentDetails =
-                        data[category][baseEndpoint][methodUpper];
-                    if (
-                        hasParams &&
-                        (!currentDetails.exampleEndpoint ||
-                            !currentDetails.exampleEndpoint.includes('?'))
-                    ) {
-                        currentDetails.exampleEndpoint = endpoint;
-                        changed = true;
-                    }
-                    if (body && !currentDetails.exampleBody) {
-                        currentDetails.exampleBody = body;
-                        changed = true;
-                    }
-                }
-
-                if (changed) {
-                    chrome.storage.local.set({ [CAPTURED_APIS_KEY]: data });
-                }
-            },
-        );
+            if (changed) {
+                storage.set({ [CAPTURED_APIS_KEY]: data });
+            }
+        });
     } catch (e) {}
 }
 
@@ -136,7 +134,7 @@ function checkSimulatedDowntime() {
             resolve(false);
             return;
         }
-        chrome.storage.local.get(['simulateRoValraServerErrors'], (result) => {
+        storage.get(['simulateRoValraServerErrors']).then((result) => {
             resolve(!!result.simulateRoValraServerErrors);
         });
     });
@@ -152,7 +150,7 @@ function checkSimulatedLatency() {
             resolve(false);
             return;
         }
-        chrome.storage.local.get(['simulateRoValraServerLatency'], (result) => {
+        storage.get(['simulateRoValraServerLatency']).then((result) => {
             resolve(!!result.simulateRoValraServerLatency);
         });
     });
@@ -327,9 +325,7 @@ export async function callRobloxApi(options) {
                             const authedUserId = await getAuthenticatedUserId();
                             if (authedUserId) {
                                 const storage =
-                                    await chrome.storage.local.get(
-                                        OAUTH_STORAGE_KEY,
-                                    );
+                                    await storage.get(OAUTH_STORAGE_KEY);
                                 let allVerifications =
                                     storage[OAUTH_STORAGE_KEY] || {};
                                 let storedVerification =
@@ -353,7 +349,7 @@ export async function callRobloxApi(options) {
                                     } catch {}
                                     allVerifications[authedUserId] =
                                         storedVerification;
-                                    await chrome.storage.local.set({
+                                    await storage.set({
                                         [OAUTH_STORAGE_KEY]: allVerifications,
                                     });
                                 }

@@ -1,3 +1,4 @@
+import * as storage from "../../core/chrome/localStorage.js";
 import { parseMarkdown } from '../../core/utils/markdown.js';
 import { observeElement } from '../../core/observer.js';
 
@@ -108,7 +109,7 @@ function run() {
 }
 
 export function init() {
-    chrome.storage.local.get('eastereggslinksEnabled', (result) => {
+    storage.get('eastereggslinksEnabled').then((result) => {
         if (result.eastereggslinksEnabled) {
             if (window.location.pathname.toLowerCase() !== '/markdown') return;
 

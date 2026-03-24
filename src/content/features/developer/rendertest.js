@@ -1,3 +1,4 @@
+import * as storage from "../../core/chrome/localStorage.js";
 import { observeElement } from '../../core/observer.js';
 import { callRobloxApiJson } from '../../core/api.js';
 import { 
@@ -13,7 +14,7 @@ import {
 } from 'roavatar-renderer';
 // This script is kinad outdated
 FLAGS.ASSETS_PATH = chrome.runtime.getURL("assets/rbxasset/")
-FLAGS.USE_WORKERS = false 
+FLAGS.USE_WORKERS = false
 
 let currentRig = null;
 let lastFrameTime = Date.now() / 1000;
@@ -146,7 +147,7 @@ function startAnimationLoop() {
 }
 
 export function init() {
-    chrome.storage.local.get('eastereggslinksEnabled', async (result) => {
+    storage.get('eastereggslinksEnabled').then(async (result) => {
         if (result.eastereggslinksEnabled) {
             observeElement('.content#content', (cDiv) => {
                 renderAvatarPage(cDiv);

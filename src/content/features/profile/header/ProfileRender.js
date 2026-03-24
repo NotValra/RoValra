@@ -1,3 +1,4 @@
+import * as storage from "../../../core/chrome/localStorage.js";
 import './patch.js';
 import { observeElement, observeResize } from '../../../core/observer.js';
 import { getUserIdFromUrl } from '../../../core/idExtractor.js';
@@ -749,7 +750,7 @@ function injectCustomButtons(toggleButton) {
         const authUserId = await getAuthenticatedUserId();
         const userId = getUserIdFromUrl();
         const isOwnProfile = String(userId) === String(authUserId);
-        const settings = await chrome.storage.local.get([
+        const settings = await storage.get([
             'profileRenderEnvironment',
             'rendererDeveloperToggles',
         ]);
@@ -1076,7 +1077,7 @@ async function preloadAvatar() {
 
         try {
             const [settings, avatarData] = await Promise.all([
-                chrome.storage.local.get([
+                storage.get([
                     'profileRenderRotateEnabled',
                     'profileRenderEnvironment',
                     'environmentTester',
@@ -1499,7 +1500,7 @@ async function attachPreloadedAvatar(container) {
 }
 
 export function init() {
-    chrome.storage.local.get({ profile3DRenderEnabled: true }, (result) => {
+    storage.get({ profile3DRenderEnabled: true }).then((result) => {
         if (result.profile3DRenderEnabled) {
             const avatarPromise = preloadAvatar();
             injectStylesheet(

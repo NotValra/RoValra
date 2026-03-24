@@ -1,5 +1,6 @@
+import * as storage from "../../core/chrome/localStorage.js";
 export function init() {
-    chrome.storage.local.get({ EnablebannerTest: false }, (settings) => {
+    storage.get({ EnablebannerTest: false }).then((settings) => {
         if (settings.EnablebannerTest) {
             const checkApi = setInterval(() => {
                 if (window.GameBannerManager) {

@@ -1,3 +1,4 @@
+import * as storage from "../../core/chrome/localStorage.js";
 import { observeElement } from '../../core/observer.js';
 import { getPlaceIdFromUrl } from '../../core/idExtractor.js';
 import { callRobloxApiJson } from '../../core/api.js';
@@ -6,7 +7,7 @@ import { addTooltip } from '../../core/ui/tooltip.js';
 import { ts } from '../../core/locale/i18n.js';
 
 export function init() {
-    chrome.storage.local.get('priceFloorEnabled', (data) => {
+    storage.get('priceFloorEnabled').then((data) => {
         if (data.priceFloorEnabled === false) return;
 
         observeElement(

@@ -1,3 +1,4 @@
+import * as storage from "../../core/chrome/localStorage.js";
 import { observeElement } from '../../core/observer.js';
 import { createOverlay } from '../../core/ui/overlay.js';
 import { createButton } from '../../core/ui/buttons.js';
@@ -448,7 +449,7 @@ class HiddenGamesManager {
 }
 
 export function init() {
-    chrome.storage.local.get(['groupGamesEnabled'], (result) => {
+    storage.get(['groupGamesEnabled']).then((result) => {
         if (result.groupGamesEnabled !== true) return;
 
         const getGroupIdFromUrl = () => {

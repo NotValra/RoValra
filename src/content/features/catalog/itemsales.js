@@ -1,3 +1,4 @@
+import * as storage from "../../core/chrome/localStorage.js";
 import { callRobloxApiJson } from '../../core/api.js';
 import { observeElement } from '../../core/observer.js';
 import { addTooltip } from '../../core/ui/tooltip.js';
@@ -7,7 +8,7 @@ let cachedItemsData = null;
 let currentActiveItemId = null;
 
 export function init() {
-    chrome.storage.local.get({ itemSalesEnabled: false }, async (settings) => {
+    storage.get({ itemSalesEnabled: false }).then(async (settings) => {
         if (!settings.itemSalesEnabled) return;
 
         const url = window.location.href;

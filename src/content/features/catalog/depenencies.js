@@ -1,3 +1,4 @@
+import * as storage from "../../core/chrome/localStorage.js";
 import { checkAssetsInBatch } from '../../core/utils/assetStreamer.js';
 import { createDropdown } from '../../core/ui/dropdown.js';
 import { observeElement, startObserving } from '../../core/observer.js';
@@ -287,7 +288,7 @@ async function mountDependencyScanner(favButton) {
 }
 
 export function init() {
-    chrome.storage.local.get('EnableItemDependencies', (data) => {
+    storage.get('EnableItemDependencies').then((data) => {
         if (data.EnableItemDependencies === true) {
             startObserving();
             observeElement('#favorites-button', (el) =>

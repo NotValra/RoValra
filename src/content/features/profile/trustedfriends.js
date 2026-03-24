@@ -1,3 +1,4 @@
+import * as storage from "../../core/chrome/localStorage.js";
 import { observeElement } from '../../core/observer.js';
 import { callRobloxApiJson } from '../../core/api.js';
 import { getUserIdFromUrl } from '../../core/idExtractor.js';
@@ -331,35 +332,32 @@ async function addTrustedFriendButton(menu) {
 }
 
 export function init() {
-    chrome.storage.local.get(
-        { trustedConnectionsEnabled: true },
-        async (settings) => {
-            if (!settings.trustedConnectionsEnabled) return;
+    storage.get({ trustedConnectionsEnabled: true }).then(async (settings) => {
+        if (!settings.trustedConnectionsEnabled) return;
 
-            observeElement(
-                '#user-profile-header-contextual-menu-button',
-                (button) => {
-                    const userId = getUserIdFromUrl();
-                    if (userId) {
-                        getProfileStatus(userId);
-                    }
+        observeElement(
+            '#user-profile-header-contextual-menu-button',
+            (button) => {
+                const userId = getUserIdFromUrl();
+                if (userId) {
+                    getProfileStatus(userId);
+                }
 
-                    if (button.dataset.rovalraTrustedListener) {
-                        return;
-                    }
-                    button.dataset.rovalraTrustedListener = 'true';
+                if (button.dataset.rovalraTrustedListener) {
+                    return;
+                }
+                button.dataset.rovalraTrustedListener = 'true';
 
-                    button.addEventListener('click', () => {
-                        observeElement(
-                            'div[data-radix-popper-content-wrapper] div[role="menu"]',
-                            (menu) => {
-                                addTrustedFriendButton(menu);
-                            },
-                            { once: true },
-                        );
-                    });
-                },
-            );
-        },
-    );
+                button.addEventListener('click', () => {
+                    observeElement(
+                        'div[data-radix-popper-content-wrapper] div[role="menu"]',
+                        (menu) => {
+                            addTrustedFriendButton(menu);
+                        },
+                        { once: true },
+                    );
+                });
+            },
+        );
+    });
 }

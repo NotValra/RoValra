@@ -1,3 +1,4 @@
+import * as storage from "../chrome/localStorage.js";
 import { SETTINGS_CONFIG } from './settingConfig.js';
 import { parseMarkdown } from '../utils/markdown.js';
 import { getFullRegionName, getContinent } from '../regions.js';
@@ -42,7 +43,7 @@ function createClearStorageButton(storageKey, inputElement, settingType) {
             confirmType: 'secondary',
             cancelType: 'primary',
             onConfirm: () => {
-                chrome.storage.local.remove(storageKey, () => {
+                storage.remove(storageKey).then(() => {
                     if (settingType === 'file' && inputElement) {
                         const uploadApi =
                             inputElement._uploadApi ||
@@ -455,7 +456,7 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
             const previewElement = uploadApi.getPreviewElement();
             settingContainer.appendChild(previewElement);
 
-            chrome.storage.local.get([settingName], (result) => {
+            storage.get([settingName]).then((result) => {
                 if (result[settingName]) {
                     const base64Data = result[settingName];
 
@@ -469,7 +470,7 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
                             settingName,
                             '- clearing',
                         );
-                        chrome.storage.local.set({ [settingName]: null });
+                        storage.set({ [settingName]: null });
                         return;
                     }
 
@@ -573,7 +574,7 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
                     const previewElement = uploadApi.getPreviewElement();
                     childContainer.appendChild(previewElement);
 
-                    chrome.storage.local.get([childName], (result) => {
+                    storage.get([childName]).then((result) => {
                         if (result[childName]) {
                             const base64Data = result[childName];
 
@@ -587,7 +588,7 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
                                     childName,
                                     '- clearing',
                                 );
-                                chrome.storage.local.set({ [childName]: null });
+                                storage.set({ [childName]: null });
                                 return;
                             }
 

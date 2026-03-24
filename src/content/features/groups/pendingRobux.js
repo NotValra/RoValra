@@ -1,3 +1,4 @@
+import * as storage from "../../core/chrome/localStorage.js";
 import { observeElement } from '../../core/observer.js';
 import { callRobloxApi } from '../../core/api.js';
 import { addTooltip } from '../../core/ui/tooltip.js';
@@ -338,7 +339,7 @@ async function onElementFound(targetElement) {
 }
 
 export function init() {
-    chrome.storage.local.get({ pendingRobuxEnabled: true }, (settings) => {
+    storage.get({ pendingRobuxEnabled: true }).then((settings) => {
         if (!settings.pendingRobuxEnabled) return;
         if (!window.location.pathname.includes('communities/configure')) return;
 

@@ -1,3 +1,4 @@
+import * as storage from "../../chrome/localStorage.js";
 // adds information about servers
 
 import { callRobloxApi } from '../../api.js';
@@ -56,7 +57,7 @@ let isPlaceVersionEnabled = true;
 let isFullServerIDEnabled = true;
 let isFullServerIndicatorsEnabled = true;
 let isServerPerformanceEnabled = true;
-let isMiscIndicatorsEnabled = true; 
+let isMiscIndicatorsEnabled = true;
 let isDatacenterAndIdEnabled = true;
 let isServerListModificationsEnabled = true;
 
@@ -65,7 +66,7 @@ const serverVersionsCache = {};
 const cacheReadyPromise = new Promise(resolve => {
     if (typeof chrome === 'undefined' || !chrome.storage?.local) return resolve();
 
-    chrome.storage.local.get([
+    storage.get([
         'rovalraDatacenters', 
         'ServerlistmodificationsEnabled',
         'enableShareLink', 
@@ -77,7 +78,7 @@ const cacheReadyPromise = new Promise(resolve => {
         'EnableServerPerformance',
         'EnableMiscIndicators',
         'EnableDatacenterandId'
-    ], (res) => {
+    ]).then((res) => {
         if (res?.rovalraDatacenters) rovalraDatacentersCache = res.rovalraDatacenters;
         
         if (res?.ServerlistmodificationsEnabled !== undefined) isServerListModificationsEnabled = res.ServerlistmodificationsEnabled;

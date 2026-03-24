@@ -1,3 +1,4 @@
+import * as storage from "../../../core/chrome/localStorage.js";
 import { observeElement } from '../../../core/observer.js';
 import { callRobloxApiJson } from '../../../core/api.js';
 import { getPlaceIdFromUrl } from '../../../core/idExtractor.js';
@@ -6,7 +7,7 @@ import { createTab } from '../../../core/ui/games/tab.js';
 import { t, ts } from '../../../core/locale/i18n.js';
 
 export function init() {
-    chrome.storage.local.get({ updateHistoryEnabled: false }, (settings) => {
+    storage.get({ updateHistoryEnabled: false }).then((settings) => {
         if (!settings.updateHistoryEnabled) return;
 
         observeElement(

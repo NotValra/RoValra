@@ -1,3 +1,4 @@
+import * as storage from "../../../core/chrome/localStorage.js";
 import { fetchThumbnails as fetchThumbnailsBatch } from '../../../core/thumbnail/thumbnails.js';
 import { createGameCard } from '../../../core/ui/games/gameCard.js';
 import { callRobloxApi } from '../../../core/api.js';
@@ -11,7 +12,7 @@ import { t, ts } from '../../../core/locale/i18n.js';
 const PAGE_SIZE = 12;
 
 export async function init() {
-    chrome.storage.local.get(['subplacesEnabled'], async (result) => {
+    storage.get(['subplacesEnabled']).then(async (result) => {
         if (result.subplacesEnabled) {
             const fetchUniverseId = async (placeId) => {
                 const response = await callRobloxApi({

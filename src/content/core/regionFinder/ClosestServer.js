@@ -1,3 +1,4 @@
+import * as storage from "../chrome/localStorage.js";
 import { callRobloxApi } from '../api.js';
 import { getUserLocation } from '../utils/location.js';
 import { launchGame } from '../utils/launcher.js';
@@ -16,7 +17,7 @@ export const FINDER_CONFIG = {
 };
 
 export const dataPromise = new Promise((resolve, reject) => {
-    chrome.storage.local.get(['rovalraDatacenters'], (result) => {
+    storage.get(['rovalraDatacenters']).then((result) => {
         REGIONS = {};
         serverIpMap = {};
 

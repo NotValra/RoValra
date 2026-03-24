@@ -1,3 +1,4 @@
+import * as storage from "../../../chrome/localStorage.js";
 import { observeElement, startObserving } from '../../../observer.js';
 import { getAssets } from '../../../assets.js';
 import { callRobloxApiJson } from '../../../api.js';
@@ -1010,7 +1011,7 @@ function onStorageChanged(changes, area) {
 
 async function initializeData() {
     const { rovalraDatacenters } =
-        await chrome.storage.local.get('rovalraDatacenters');
+        await storage.get('rovalraDatacenters');
     processStorageDatacenters(rovalraDatacenters);
     await fetchCounts();
 

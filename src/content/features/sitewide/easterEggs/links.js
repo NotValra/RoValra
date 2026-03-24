@@ -1,3 +1,4 @@
+import * as storage from "../../../core/chrome/localStorage.js";
 import { observeElement } from '../../../core/observer.js';
 
 function handleCatsPage() {
@@ -52,7 +53,7 @@ function handleCatsPage() {
 }
 
 export function init() {
-    chrome.storage.local.get('eastereggslinksEnabled', (result) => {
+    storage.get('eastereggslinksEnabled').then((result) => {
         if (result.eastereggslinksEnabled) {
             const path = window.location.pathname;
             const redirects = {

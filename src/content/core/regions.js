@@ -1,3 +1,4 @@
+import * as storage from "./chrome/localStorage.js";
 // TODO i hate this script...
 
 import { callRobloxApi } from './api.js';
@@ -10,7 +11,7 @@ const STORAGE_KEY_CONTINENTS = 'cachedRegionContinents';
 
 
 let cachedRegionData = null;
-export let REGIONS = {}; 
+export let REGIONS = {};
 const stateMap = {
     'Alabama': 'AL', 'Alaska': 'AK', 'Arizona': 'AZ', 'Arkansas': 'AR', 'California': 'CA',
     'Colorado': 'CO', 'Connecticut': 'CT', 'Delaware': 'DE', 'Florida': 'FL', 'Georgia': 'GA',
@@ -58,7 +59,7 @@ export async function loadDatacenterMap() {
     };
 
     try {
-        const storageResult = await chrome.storage.local.get(STORAGE_KEY_DATACENTERS);
+        const storageResult = await storage.get(STORAGE_KEY_DATACENTERS);
         if (storageResult[STORAGE_KEY_DATACENTERS]) {
             currentData = storageResult[STORAGE_KEY_DATACENTERS];
             processDataIntoMap(currentData);
@@ -75,7 +76,7 @@ export async function loadDatacenterMap() {
 
             const localData = await response.json();
             currentData = localData;
-            await chrome.storage.local.set({ [STORAGE_KEY_DATACENTERS]: localData });
+            await storage.set({ [STORAGE_KEY_DATACENTERS]: localData });
             processDataIntoMap(localData);
         } catch (e) {
             console.error("RoValra: Could not load local fallback JSON.", e);
@@ -100,7 +101,7 @@ export async function loadDatacenterMap() {
         const apiData = await apiResponse.json();
 
         if (JSON.stringify(apiData) !== JSON.stringify(currentData)) {
-            await chrome.storage.local.set({ [STORAGE_KEY_DATACENTERS]: apiData });
+            await storage.set({ [STORAGE_KEY_DATACENTERS]: apiData });
             processDataIntoMap(apiData);
         }
     } catch (e) {
@@ -169,7 +170,7 @@ async function fetchAndProcessRegions() {
         }
     }
 
-    await chrome.storage.local.set({ 
+    await storage.set({ 
         [STORAGE_KEY_REGIONS]: newRegions, 
         [STORAGE_KEY_CONTINENTS]: newContinents 
     });
@@ -185,7 +186,7 @@ export async function getRegionData() {
     if (cachedRegionData) return cachedRegionData;
 
     return new Promise((resolve, reject) => {
-        chrome.storage.local.get([STORAGE_KEY_REGIONS, STORAGE_KEY_CONTINENTS], async (result) => {
+        storage.get([STORAGE_KEY_REGIONS, STORAGE_KEY_CONTINENTS]).then(async (result) => {
             if (result[STORAGE_KEY_REGIONS] && 
                 result[STORAGE_KEY_REGIONS]["AUTO"] && 
                 result[STORAGE_KEY_REGIONS]["AUTO"].city === "Automatic") {
