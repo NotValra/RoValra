@@ -457,6 +457,14 @@ export const SETTINGS_CONFIG = {
                         options: [
                             { label: 'None', value: 'void', id: 1 },
                             {
+                                label: 'Purple Space',
+                                value: 'purple',
+                                environmentEndpoint:
+                                    '/static/json/skyboxSpace.json',
+                                id: 2,
+                            },
+
+                            {
                                 label: 'Crossroads',
                                 value: 'crossroads',
                                 environmentEndpoint:

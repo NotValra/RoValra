@@ -929,8 +929,13 @@ function startAnimationLoop() {
     requestAnimationFrame(animate);
 }
 async function loadCustomEnvironment(scene, config) {
-    if (!config || !config.url) return;
+    if (!config) return;
 
+    if (!config.url) {
+        raycastTargets = [];
+        isCustomEnvLoaded = true;
+        return;
+    }
     return new Promise((resolve, reject) => {
         const loader = new GLTFLoader();
         let envUrl = config.url;
@@ -1166,8 +1171,7 @@ async function preloadAvatar() {
 
                 const authUserId = await getAuthenticatedUserId();
                 const isOwnProfile = String(userId) === String(authUserId);
-                const useDevEnvironment =
-                    settings.environmentTester && settings.modelUrl;
+                const useDevEnvironment = settings.environmentTester;
 
                 if (useDevEnvironment) {
                     environmentConfig = {
