@@ -1,0 +1,8 @@
+name: "Other"
+description: "Not a bug, nor a feature request"
+body:
+- type: "textarea"
+  attributes:
+    
+  validations:
+    required: false
