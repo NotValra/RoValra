@@ -312,45 +312,45 @@ export const buttonData = [
                     </div>
                 </div>
 
-                <div style="margin-top: 20px;">
+                <div style="margin-top: 10px;">
                     <h3 style="color: var(--rovalra-main-text-color); margin-bottom: 10px; font-size: 18px;">${ts('settings.donatorPerks.perkTiers')}</h3>
-                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                        <div style="flex: 1; min-width: 200px; margin-bottom: 10px; padding: 10px; background-color: var(--rovalra-container-background-color, rgba(0,0,0,0.1)); border-radius: 8px; border: 1px solid var(--rovalra-border-color, rgba(128,128,128,0.2));">
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        <div style="padding: 15px; background-color: var(--rovalra-container-background-color, rgba(0,0,0,0.1)); border-radius: 8px; border: 1px solid var(--rovalra-border-color, rgba(128,128,128,0.2));">
                             <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
                                 <img src="${BADGE_CONFIG.donator_1.icon}" style="width: 32px; height: 32px; ${getBadgeStyle('donator_1')}" />
                                 <h4 style="color: var(--rovalra-main-text-color); margin: 0; font-size: 16px;">${ts('settings.donatorPerks.tier1')}</h4>
                             </div>
-                            <p style="color: var(--rovalra-secondary-text-color); font-size: 14px;">${ts('settings.donatorPerks.tier1Desc')}</p>
+                            <p style="color: var(--rovalra-secondary-text-color); font-size: 14px;">${ts('settings.donatorPerks.tier1Desc').replace(/\n/g, '<br>')}</p>
                             <ul style="margin-top: 5px; padding-left: 20px; color: var(--rovalra-secondary-text-color); margin-bottom: 0;">
-                                <li>${ts('settings.donatorPerks.tier1Reward')}</li>
-                                <li>${ts('settings.donatorPerks.moreComingSoon')}</li>
+                                <li>${ts('settings.donatorPerks.tier1Reward').replace(/\n/g, '<br>')}</li>
+                                <li>${ts('settings.donatorPerks.tier1Feature').replace(/\n/g, '<br>')}</li>
+                                <li>${ts('settings.donatorPerks.moreComingSoon').replace(/\n/g, '<br>')}</li>
                             </ul>
                         </div>
 
-                        <div style="flex: 1; min-width: 200px; margin-bottom: 10px; padding: 10px; background-color: var(--rovalra-container-background-color, rgba(0,0,0,0.1)); border-radius: 8px; border: 1px solid var(--rovalra-border-color, rgba(128,128,128,0.2));">
+                        <div style="padding: 15px; background-color: var(--rovalra-container-background-color, rgba(0,0,0,0.1)); border-radius: 8px; border: 1px solid var(--rovalra-border-color, rgba(128,128,128,0.2));">
                             <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
                                 <img src="${BADGE_CONFIG.donator_2.icon}" style="width: 32px; height: 32px; ${getBadgeStyle('donator_2')}" />
                                 <h4 style="color: var(--rovalra-main-text-color); margin: 0; font-size: 16px;">${ts('settings.donatorPerks.tier2')}</h4>
                             </div>
-                            <p style="color: var(--rovalra-secondary-text-color); font-size: 14px;">${ts('settings.donatorPerks.tier2Desc')}</p>
+                            <p style="color: var(--rovalra-secondary-text-color); font-size: 14px;">${ts('settings.donatorPerks.tier2Desc').replace(/\n/g, '<br>')}</p>
                             <ul style="margin-top: 5px; padding-left: 20px; color: var(--rovalra-secondary-text-color); margin-bottom: 0;">
-                                <li>${ts('settings.donatorPerks.tier2Reward')}</li>
-                                <li>${ts('settings.donatorPerks.previousRewards')}</li>
-                                <li>${ts('settings.donatorPerks.moreComingSoon')}</li>
+                                <li>${ts('settings.donatorPerks.tier2Reward').replace(/\n/g, '<br>')}</li>
+                                <li>${ts('settings.donatorPerks.previousRewards').replace(/\n/g, '<br>')}</li>
+                                <li>${ts('settings.donatorPerks.moreComingSoon').replace(/\n/g, '<br>')}</li>
                             </ul>
                         </div>
 
-                        <div style="flex: 1; min-width: 200px; margin-bottom: 10px; padding: 10px; background-color: var(--rovalra-container-background-color, rgba(0,0,0,0.1)); border-radius: 8px; border: 1px solid var(--rovalra-border-color, rgba(128,128,128,0.2));">
+                        <div style="padding: 15px; background-color: var(--rovalra-container-background-color, rgba(0,0,0,0.1)); border-radius: 8px; border: 1px solid var(--rovalra-border-color, rgba(128,128,128,0.2));">
                             <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
                                 <img src="${BADGE_CONFIG.donator_3.icon}" style="width: 32px; height: 32px; ${getBadgeStyle('donator_3')}" />
                                 <h4 style="color: var(--rovalra-main-text-color); margin: 0; font-size: 16px;">${ts('settings.donatorPerks.tier3')}</h4>
                             </div>
-                            <p style="color: var(--rovalra-secondary-text-color); font-size: 14px;">${ts('settings.donatorPerks.tier3Desc')}</p>
+                            <p style="color: var(--rovalra-secondary-text-color); font-size: 14px;">${ts('settings.donatorPerks.tier3Desc').replace(/\n/g, '<br>')}</p>
                             <ul style="margin-top: 5px; padding-left: 20px; color: var(--rovalra-secondary-text-color); margin-bottom: 0;">
-                                <li>${ts('settings.donatorPerks.tier3Reward')}</li>
-                                <li>${ts('settings.donatorPerks.previousRewards')}</li>
-                                <li>${ts('settings.donatorPerks.moreComingSoon')}</li>
-
+                                <li>${ts('settings.donatorPerks.tier3Reward').replace(/\n/g, '<br>')}</li>
+                                <li>${ts('settings.donatorPerks.previousRewards').replace(/\n/g, '<br>')}</li>
+                                <li>${ts('settings.donatorPerks.moreComingSoon').replace(/\n/g, '<br>')}</li>
                             </ul>
                         </div>
                     </div>

@@ -17,6 +17,22 @@ export async function getUserDescription(userId) {
     }
 }
 
+export async function isTextFiltered(text) {
+    if (!text) return false;
+    try {
+        const filterResponse = await callRobloxApiJson({
+            subdomain: 'apis',
+            endpoint: '/game-update-notifications/v1/filter',
+            method: 'POST',
+            body: JSON.stringify(text),
+        });
+        return filterResponse?.isFiltered;
+    } catch (error) {
+        console.error('RoValra: Failed to check text with filter', error);
+        return true; // Assume it's filtered on error to be safe.
+    }
+}
+
 export async function updateUserDescription(userId, newDescription) {
     try {
         const filterResponse = await callRobloxApiJson({

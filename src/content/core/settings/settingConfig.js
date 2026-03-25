@@ -457,6 +457,14 @@ export const SETTINGS_CONFIG = {
                         options: [
                             { label: 'None', value: 'void', id: 1 },
                             {
+                                label: 'Purple Space',
+                                value: 'purple',
+                                environmentEndpoint:
+                                    '/static/json/skyboxSpace.json',
+                                id: 2,
+                            },
+
+                            {
                                 label: 'Crossroads',
                                 value: 'crossroads',
                                 environmentEndpoint:
@@ -1569,6 +1577,16 @@ export const SETTINGS_CONFIG = {
                         type: 'input',
                         default: '',
                         placeholder: 'Enter URL',
+                    },
+
+                    importEnvironmentConfig: {
+                        label: 'Import Environment Config',
+                        description: [
+                            'Import a JSON file with environment settings. This will overwrite the current values in the tester.',
+                        ],
+                        type: 'button',
+                        buttonText: 'Import from JSON',
+                        event: 'rovalra:importEnvironmentJson',
                     },
 
                     // generate button

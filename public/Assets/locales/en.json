@@ -271,16 +271,17 @@
             "tier1": "Tier 1: Supporter",
             "tier1Desc": "Donate <strong>any amount</strong>",
             "tier1Reward": "Supporter 1 Badge",
-            "tier2": "Tier 2: Super Supporter",
+            "tier1Feature": "Set Status and environments without adding a string to your about me.",
+            "tier2": "Tier 2: Supporter",
             "tier2Desc": "Donate <strong>200+ Robux</strong>",
             "tier2Reward": "Supporter 2 Badge",
-            "tier3": "Tier 3: Mega Supporter",
+            "tier3": "Tier 3: Supporter",
             "tier3Desc": "Donate <strong>500+ Robux</strong>",
             "tier3Reward": "Supporter 3 Badge",
             "previousRewards": "+ All previous tier rewards",
             "moreComingSoon": "More coming soon.",
             "availableBadges": "Available Badges",
-            "note": "Note: Badges may take a few minutes to appear after donation. To manage badge visibility, go to the 'Profile' settings tab. Importantly if you are under the age of 13 and donate you won't be able to toggle the visiblity of your donator badge. Donating through commissions sadly won't give a donator perks, this is a Roblox limitation."
+            "note": "Note: Badges may take a few minutes to appear after donation. To manage badge visibility, go to the 'Profile' settings tab. Importantly if you are under the age of 13 please do not donate, you won't be able to use donator perks. Donating through commissions sadly won't give a donator perks, this is a Roblox limitation."
         },
         "search": {
             "minLength": "Please enter at least 2 characters to search.",
