@@ -284,6 +284,7 @@ export const initSettings = async (settingsContent) => {
     }
 
     if (settings) {
+        updateConditionalSettingsVisibility(settingsContent, settings);
         for (const sectionName in SETTINGS_CONFIG) {
             const section = SETTINGS_CONFIG[sectionName];
             for (const [settingName, setting] of Object.entries(
@@ -449,7 +450,7 @@ export const initSettings = async (settingsContent) => {
                 }
             }
         }
-        updateConditionalSettingsVisibility(settingsContent, settings);
+        await checkSettingLocks(settingsContent, settings);
         if (document.querySelector('.permission-manager')) {
             updateAllPermissionToggles();
         }
@@ -457,6 +458,129 @@ export const initSettings = async (settingsContent) => {
     settingsContent.querySelectorAll('.permission-toggle').forEach((toggle) => {
         toggle.addEventListener('change', handlePermissionToggle);
     });
+};
+
+export const applyLockedState = (
+    settingName,
+    parentElement,
+    isLocked,
+    reason = '',
+) => {
+    const inputElement = parentElement.querySelector(
+        `[data-setting-name="${settingName}"]`,
+    );
+    if (!inputElement) return;
+
+    const wrapper =
+        inputElement.closest('.setting') ||
+        inputElement.closest('.child-setting-item');
+    if (!wrapper) return;
+
+    const existingNotice = wrapper.querySelector('.rovalra-lock-notice');
+    if (existingNotice) existingNotice.remove();
+
+    if (isLocked) {
+        const config = findSettingConfig(settingName);
+        const lockType = config?.isPermanent ? 'permanently' : 'temporarily';
+
+        wrapper.classList.add('setting-locked');
+        wrapper.style.setProperty('opacity', '1', 'important');
+        wrapper.style.pointerEvents = 'none';
+
+        const notice = document.createElement('div');
+        notice.className = 'rovalra-lock-notice';
+
+        const statusLine = document.createElement('div');
+        statusLine.className = 'lock-status-text';
+        statusLine.textContent = `This feature has been disabled ${lockType}`;
+
+        const reasonLine = document.createElement('div');
+        reasonLine.className = 'lock-reason-text';
+        reasonLine.textContent = reason;
+
+        notice.append(statusLine, reasonLine);
+        wrapper.prepend(notice);
+
+        Array.from(wrapper.children).forEach((child) => {
+            if (!child.classList.contains('rovalra-lock-notice')) {
+                child.style.opacity = '0.5';
+            }
+        });
+
+        wrapper.querySelectorAll('input, select, button').forEach((el) => {
+            el.disabled = true;
+            if (el.type === 'checkbox') el.checked = false;
+        });
+    } else {
+        wrapper.classList.remove('setting-locked');
+        wrapper.style.removeProperty('opacity');
+        wrapper.style.removeProperty('filter');
+        wrapper.style.setProperty('pointer-events', 'auto');
+
+        Array.from(wrapper.children).forEach((child) => {
+            child.style.opacity = '';
+        });
+
+        wrapper.querySelectorAll('input, select, button').forEach((el) => {
+            if (!wrapper.classList.contains('disabled-setting')) {
+                el.disabled = false;
+            }
+        });
+    }
+};
+
+export const checkSettingLocks = async (settingsContent, currentSettings) => {
+    const data = await chrome.storage.local.get([
+        'profile3DRenderForceDisabled',
+    ]);
+
+    const is3DLocked =
+        data.profile3DRenderForceDisabled === true &&
+        !currentSettings.profile3DRenderBypassCheck;
+
+    if (is3DLocked && currentSettings.profile3DRenderEnabled === true) {
+        await handleSaveSettings('profile3DRenderEnabled', false);
+    }
+
+    applyLockedState(
+        'profile3DRenderEnabled',
+        settingsContent,
+        is3DLocked,
+        'The 3D Profile Renderer was forcefully disabled because WebGL 2 is disabled or your graphics card doesnt support it.',
+    );
+
+    for (const category of Object.values(SETTINGS_CONFIG)) {
+        for (const [settingName, config] of Object.entries(category.settings)) {
+            if (config.locked) {
+                if (currentSettings[settingName] === true) {
+                    await handleSaveSettings(settingName, false);
+                }
+                applyLockedState(
+                    settingName,
+                    settingsContent,
+                    true,
+                    config.locked,
+                );
+            }
+            if (config.childSettings) {
+                for (const [childName, childConfig] of Object.entries(
+                    config.childSettings,
+                )) {
+                    if (childConfig.locked) {
+                        if (currentSettings[childName] === true) {
+                            await handleSaveSettings(childName, false);
+                        }
+                        applyLockedState(
+                            childName,
+                            settingsContent,
+                            true,
+                            childConfig.locked,
+                        );
+                    }
+                }
+            }
+        }
+    }
 };
 
 function applyDisabledState(
@@ -1108,6 +1232,7 @@ export function initializeSettingsEventListeners() {
                         settingsContent,
                         currentSettings,
                     );
+                    await checkSettingLocks(settingsContent, currentSettings);
                     updateAllPermissionToggles();
 
                     if (settingName === 'MemoryleakFixEnabled') {

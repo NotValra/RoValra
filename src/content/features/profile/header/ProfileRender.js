@@ -1110,6 +1110,7 @@ async function preloadAvatar() {
                 chrome.storage.local.get([
                     'profileRenderRotateEnabled',
                     'profileRenderEnvironment',
+                    'profile3DRenderBypassCheck',
                     'environmentTester',
                     'modelUrl',
                     'modelPosX',
@@ -1161,7 +1162,30 @@ async function preloadAvatar() {
             if (!preloadedCanvas) {
                 RegisterWrappers();
                 patchAnimateForRotation();
-                await RBXRenderer.fullSetup(true, true);
+                const setupSuccess = await RBXRenderer.fullSetup(true, true);
+
+                if (!setupSuccess || RBXRenderer.failedToCreate) {
+                    const setupError =
+                        RBXRenderer.error ||
+                        'WebGL 2 is disabled or your graphics card doesnt support it.';
+
+                    if (!settings.profile3DRenderBypassCheck) {
+                        await handleSaveSettings(
+                            'profile3DRenderEnabled',
+                            false,
+                        );
+                        await chrome.storage.local.set({
+                            profile3DRenderForceDisabled: true,
+                        });
+                    }
+                    isPreloading = false;
+                    avatarDataPromise = null;
+                    throw new Error(setupError);
+                }
+                await chrome.storage.local.remove(
+                    'profile3DRenderForceDisabled',
+                );
+
                 RBXRenderer.setBackgroundTransparent(true);
                 preloadedCanvas = RBXRenderer.getRendererElement();
                 preloadedCanvas.classList.add('rovalra-canvas');
@@ -1462,7 +1486,8 @@ async function preloadAvatar() {
             return globalAvatarData;
         } catch (err) {
             console.error('RoValra Preload Error:', err);
-            return null;
+            avatarDataPromise = null;
+            throw err;
         } finally {
             isPreloading = false;
         }
@@ -1483,6 +1508,15 @@ async function attachPreloadedAvatar(container) {
     });
 
     const avatarPromise = preloadAvatar();
+
+    avatarPromise.catch((err) => {
+        container.innerHTML = '';
+        const errorContainer = document.createElement('div');
+        errorContainer.style.cssText =
+            'display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--rovalra-secondary-text-color); padding: 20px; text-align: center; font-size: 12px;';
+        errorContainer.innerHTML = `<span style="font-size: 24px; margin-bottom: 8px;">⚠️</span><div style="font-weight:600; margin-bottom:4px;">3D Renderer Error</div><div>${err.message}</div>`;
+        container.appendChild(errorContainer);
+    });
 
     const ensureCanvasAttached = () => {
         if (preloadedCanvas && !container.contains(preloadedCanvas)) {
@@ -1509,57 +1543,73 @@ async function attachPreloadedAvatar(container) {
 }
 
 export function init() {
-    chrome.storage.local.get({ profile3DRenderEnabled: true }, (result) => {
-        if (result.profile3DRenderEnabled) {
-            const avatarPromise = preloadAvatar();
-            injectStylesheet(
-                'css/thumbnailholder.css',
-                'rovalra-thumbnail-holder-css',
-            );
-
-            observeElement(
-                '.thumbnail-holder-position .thumbnail-3d-container > canvas:not(.rovalra-canvas), .thumbnail-holder-position .thumbnail-3d-container > .placeholder-generated-image',
-                (elementToRemove) => {
-                    elementToRemove.remove();
-                },
-                { multiple: true },
-            );
-
-            observeElement(
-                '.thumbnail-holder-position .thumbnail-3d-container, .avatar-toggle-button',
-                (element) => {
-                    if (element.classList.contains('thumbnail-3d-container')) {
-                        attachPreloadedAvatar(element);
-                    } else if (
-                        element.classList.contains('avatar-toggle-button')
-                    ) {
-                        avatarPromise.then((data) => {
-                            if (data) injectCustomButtons(element);
-                        });
+    chrome.storage.local.get(
+        { profile3DRenderEnabled: true, profile3DRenderForceDisabled: false },
+        (result) => {
+            if (result.profile3DRenderForceDisabled) {
+                try {
+                    const canvas = document.createElement('canvas');
+                    if (canvas.getContext('webgl2')) {
+                        chrome.storage.local.remove(
+                            'profile3DRenderForceDisabled',
+                        );
                     }
-                },
-                { multiple: true },
-            );
+                } catch (e) {}
+            }
 
-            let hasAutoSwitchedTo3D = false;
-            observeElement(
-                'button.foundation-web-button',
-                (button) => {
-                    if (hasAutoSwitchedTo3D) return;
+            if (result.profile3DRenderEnabled) {
+                const avatarPromise = preloadAvatar();
+                injectStylesheet(
+                    'css/thumbnailholder.css',
+                    'rovalra-thumbnail-holder-css',
+                );
 
-                    if (button.textContent.trim() === '3D') {
+                observeElement(
+                    '.thumbnail-holder-position .thumbnail-3d-container > canvas:not(.rovalra-canvas), .thumbnail-holder-position .thumbnail-3d-container > .placeholder-generated-image',
+                    (elementToRemove) => {
+                        elementToRemove.remove();
+                    },
+                    { multiple: true },
+                );
+
+                observeElement(
+                    '.thumbnail-holder-position .thumbnail-3d-container, .avatar-toggle-button',
+                    (element) => {
                         if (
-                            document.querySelector(
-                                '.thumbnail-holder-position .thumbnail-2d-container',
-                            )
+                            element.classList.contains('thumbnail-3d-container')
                         ) {
-                            button.click();
+                            attachPreloadedAvatar(element);
+                        } else if (
+                            element.classList.contains('avatar-toggle-button')
+                        ) {
+                            avatarPromise.then((data) => {
+                                if (data) injectCustomButtons(element);
+                            });
                         }
-                        hasAutoSwitchedTo3D = true;
-                    }
-                },
-                { multiple: true },
-            );
-        }
-    });
+                    },
+                    { multiple: true },
+                );
+
+                let hasAutoSwitchedTo3D = false;
+                observeElement(
+                    'button.foundation-web-button',
+                    (button) => {
+                        if (hasAutoSwitchedTo3D) return;
+
+                        if (button.textContent.trim() === '3D') {
+                            if (
+                                document.querySelector(
+                                    '.thumbnail-holder-position .thumbnail-2d-container',
+                                )
+                            ) {
+                                button.click();
+                            }
+                            hasAutoSwitchedTo3D = true;
+                        }
+                    },
+                    { multiple: true },
+                );
+            }
+        },
+    );
 }

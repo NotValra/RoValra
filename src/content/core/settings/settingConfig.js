@@ -20,6 +20,8 @@ export const SETTINGS_CONFIG = {
                     'Shows Roblox made items before they are on the official marketplace.',
                 ],
                 deprecated: 'Patched by Roblox',
+                locked: 'This feature has been patched by Roblox and is no longer functional.',
+                isPermanent: true,
                 type: 'checkbox',
                 default: false,
             },
@@ -435,6 +437,7 @@ export const SETTINGS_CONFIG = {
                     },
                 },
             },
+
             profile3DRenderEnabled: {
                 label: 'Enable Custom 3D Profile Renderer',
                 description: [
@@ -1290,6 +1293,8 @@ export const SETTINGS_CONFIG = {
                     "Pressing the 'Impersonate User' option does nothing other than error unless you are authorized to use it",
                 ],
                 deprecated: 'Roblox removed it with the new profile overhaul',
+                locked: 'This internal Roblox feature was removed during the profile page redesign.',
+                isPermanent: true,
                 type: 'checkbox',
                 default: false,
             },
@@ -1338,6 +1343,15 @@ export const SETTINGS_CONFIG = {
             },
             rendererDeveloperToggles: {
                 label: '3D renderer Developer toggles',
+                type: 'checkbox',
+                default: false,
+            },
+            profile3DRenderBypassCheck: {
+                label: 'Bypass Graphics Check',
+                description: [
+                    'Bypasses the compatibility check for the 3D Profile Renderer.',
+                    'Only enable this if the 3D renderer was disabled due to graphics issues but you want to try anyway.',
+                ],
                 type: 'checkbox',
                 default: false,
             },
