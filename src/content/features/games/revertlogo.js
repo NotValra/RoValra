@@ -4,6 +4,7 @@ import { fetchThumbnails } from '../../core/thumbnail/thumbnails.js';
 import { callRobloxApi } from '../../core/api.js';
 import DOMPurify from 'dompurify';
 import { launchGame } from '../../core/utils/launcher.js';
+import { log, logLevel } from '../../core/logging.js';
 import { t, ts } from '../../core/locale/i18n.js';
 
 import {
@@ -754,6 +755,9 @@ function initializeJoinDialogEnhancer() {
                                     innerErr,
                                 );
                             }
+                        } catch (innerErr) {
+                            log(logLevel.ERROR, "Join API attempt failed:", innerErr);
+                        }
 
                             if (!joinApiResponse && retries < MAX_RETRIES) {
                                 await new Promise((r) => setTimeout(r, 2000));
@@ -768,6 +772,8 @@ function initializeJoinDialogEnhancer() {
                     }
                 }
 
+                } catch (e) {
+                    log(logLevel.ERROR, "Error in server info fetch loop:", e);
                 if (!document.body.classList.contains(HIDE_ROBLOX_UI_CLASS)) {
                     return;
                 }
@@ -888,7 +894,18 @@ function initializeJoinDialogEnhancer() {
                 }
             };
 
-            if (!settings.whatamIJoiningEnabled) return;
+                pollClientStatus(placeId);
+
+            } catch (e) {
+                log(logLevel.ERROR, "Rendering error:", e);
+                const details = await gameDetailsPromise;
+                updateServerInfo(details.name, details.iconUrl, null);
+                updateLoadingOverlayText(`Launching...`);
+                pollClientStatus(placeId);
+            }
+        };
+
+        if (!settings.whatamIJoiningEnabled) return;
 
             observeElement('#gamelaunch', processGameLaunchData, {
                 observeAttributes: true,

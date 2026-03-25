@@ -7,7 +7,9 @@ import { fetchThumbnails as fetchThumbnailsBatch } from '../../core/thumbnail/th
 import { callRobloxApi } from '../../core/api.js';
 import { safeHtml } from '../../core/packages/dompurify';
 import { createGameCard } from '../../core/ui/games/gameCard.js';
-import { t } from 'i18next';
+import { log, logLevel } from '../../core/logging.js';
+import { t } from '../../core/locale/i18n.js';
+
 const CONFIG = {
     PAGE_SIZE: 50,
     ACCESS_FILTER: 2,
@@ -133,7 +135,7 @@ const Api = {
     async getUserGames(userId) {
         if (userListCache.has(userId)) {
             return userListCache.get(userId).catch((err) => {
-                console.error(err);
+                log(logLevel.ERROR, err);
                 return [];
             });
         }
@@ -147,7 +149,7 @@ const Api = {
 
         userListCache.set(userId, fetchPromise);
         fetchPromise.catch(() => userListCache.delete(userId));
-        return fetchPromise.catch((err) => (console.error(err), []));
+        return fetchPromise.catch((err) => (log(logLevel.ERROR, err), []));
     },
 
     async enrichGameData(games, state) {

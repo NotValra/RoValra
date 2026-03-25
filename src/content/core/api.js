@@ -3,6 +3,7 @@
 import { getCsrfToken } from './utils.js';
 import { getAuthenticatedUserId } from './user.js';
 import { getValidAccessToken } from './oauth/oauth.js';
+import { log, logLevel } from './logging.js';
 
 import { updateUserLocationIfChanged } from './utils/location.js';
 const activeRequests = new Map();
@@ -336,7 +337,7 @@ export async function callRobloxApi(options) {
                                     allVerifications[authedUserId];
 
                                 if (storedVerification) {
-                                    console.log(
+                                    log(logLevel.DEBUG,
                                         'RoValra API: New token received from header. Updating storage.',
                                     );
                                     storedVerification.accessToken =
@@ -359,7 +360,7 @@ export async function callRobloxApi(options) {
                                 }
                             }
                         } catch (e) {
-                            console.error(
+                            log(logLevel.ERROR,
                                 'RoValra API: Failed to update new access token.',
                                 e,
                             );
@@ -423,7 +424,7 @@ export async function callRobloxApi(options) {
                         attempt === 3 ||
                         (endpoint && endpoint.includes('/v1/auth'))
                     ) {
-                        console.error(
+                        log(logLevel.ERROR,
                             `RoValra API: Request to ${fullUrl} failed${attempt === 3 ? ' after multiple retries' : ''}.`,
                             error,
                         );
@@ -435,7 +436,7 @@ export async function callRobloxApi(options) {
                 }
             }
             if (!lastResponse.ok) {
-                console.error(
+                log(logLevel.ERROR,
                     `RoValra API: Request to ${fullUrl} failed with status ${lastResponse.status} after multiple retries.`,
                 );
             }
@@ -486,7 +487,7 @@ export async function callRobloxApi(options) {
         }
 
         if (!response.ok) {
-            console.error(
+            log(logLevel.ERROR,
                 `RoValra API: Request to ${fullUrl} failed with status ${response.status}.`,
             );
         }

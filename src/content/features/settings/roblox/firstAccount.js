@@ -2,6 +2,7 @@ import { observeElement } from '../../../core/observer.js';
 import { getAssets } from '../../../core/assets.js';
 import { addTooltip } from '../../../core/ui/tooltip.js';
 import { getAuthenticatedUserId } from '../../../core/user.js';
+import { log, logLevel } from '../../../core/logging.js';
 import { ts } from '../../../core/locale/i18n.js';
 
 function createFirstAccountElement(isFirst, creationTimestamp) {
@@ -171,6 +172,10 @@ export function init() {
                                         err,
                                     );
                                 });
+                            render(isOriginalUser, creationTimestamp);
+                            }
+                        }).catch(err => {
+                            log(logLevel.ERROR, 'RoValra: Failed to get first account info', err);
                         });
                     }
                 }

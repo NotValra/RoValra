@@ -5,6 +5,7 @@ import { createDropdownMenu } from '../../core/ui/dropdown.js';
 import { createSpinner } from '../../core/ui/spinner.js';
 import { t } from '../../core/locale/i18n.js';
 import { getAssets } from '../../core/assets.js';
+import { log, logLevel} from '../../core/logging.js';
 import { addTooltip } from '../../core/ui/tooltip.js';
 
 async function optInBeta(programId) {
@@ -293,7 +294,7 @@ export async function addNavbarButton() {
 
             menu.toggle(true);
         } catch (error) {
-            console.error('RoValra: Failed to fetch beta programs', error);
+            log(logLevel.ERROR, 'RoValra: Failed to fetch beta programs', error);
             if (menu) menu.toggle(false);
         } finally {
             isLoading = false;

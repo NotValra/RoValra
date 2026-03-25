@@ -9,7 +9,7 @@ export const CONTRIBUTOR_USER_IDS = [
     '48255812', //aliceenight
     '7982684834', //qborder
     '126448532', //steinann
-    '1564574922', //cornusandu
+    '1564574922', // cornusandu
 ];
 
 export const TESTER_USER_IDS = [

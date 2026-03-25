@@ -3,6 +3,8 @@ import { checkAssetsInBatch } from '../../core/utils/assetStreamer.js';
 import { observeElement } from '../../core/observer.js';
 import { callRobloxApi } from '../../core/api.js';
 import { getAssets } from '../../core/assets.js';
+import { log, logLevel } from '../../core/logging.js';
+
 import { ts } from '../../core/locale/i18n.js';
 
 function saveAsFile(data, fileName, mimeType) {
@@ -46,7 +48,7 @@ async function downloadAsset(assetId) {
             }
         }
     } catch (e) {
-        console.error('[RoValra DL] Failed to fetch asset location:', e);
+        log(logLevel.ERROR, '[RoValra DL] Failed to fetch asset location:', e);
     }
 
     if (assetLocation) {
@@ -78,7 +80,7 @@ async function downloadAsset(assetId) {
             );
             return;
         } catch (e) {
-            console.error(`[RoValra DL] Failed to process raw asset:`, e);
+            log(logLevel.ERROR, `[RoValra DL] Failed to process raw asset:`, e);
         }
     }
 
@@ -99,7 +101,7 @@ async function downloadAsset(assetId) {
         serializedData = JSON.stringify(asset.root, null, 2);
         fileExtension = 'rbxmx';
     } else {
-        console.error(`Unknown asset format: ${asset.format}`);
+        log(logLevel.ERROR, `Unknown asset format: ${asset.format}`);
         return;
     }
 
