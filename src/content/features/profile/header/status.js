@@ -40,6 +40,46 @@ const TRUSTED_USER_IDS = [
     GILBERT_USER_ID,
 ].filter(Boolean);
 
+const downloadableExtensions =
+    /\.(zip|rar|7z|tar|gz|exe|msi|dmg|iso|apk|ahk|ps1|cmd)$/i;
+
+DOMPurify.addHook('afterSanitizeAttributes', (currentNode) => {
+    if (currentNode.tagName === 'A' && currentNode.hasAttribute('href')) {
+        const href = currentNode.getAttribute('href');
+        try {
+            const url = new URL(href, window.location.href);
+            if (
+                url.hostname === 'localhost' ||
+                url.hostname === '127.0.0.1' ||
+                url.protocol === 'file:' ||
+                downloadableExtensions.test(url.pathname)
+            ) {
+                currentNode.removeAttribute('href');
+                currentNode.removeAttribute('target');
+                currentNode.removeAttribute('rel');
+                currentNode.style.color = 'inherit';
+                currentNode.style.textDecoration = 'none';
+                currentNode.style.cursor = 'text';
+                currentNode.style.pointerEvents = 'none';
+            }
+        } catch (e) {}
+    }
+
+    if (currentNode.tagName === 'IMG' && currentNode.hasAttribute('src')) {
+        const src = currentNode.getAttribute('src');
+        try {
+            const url = new URL(src, window.location.href);
+            if (
+                url.hostname === 'localhost' ||
+                url.hostname === '127.0.0.1' ||
+                url.protocol === 'file:'
+            ) {
+                currentNode.removeAttribute('src');
+            }
+        } catch (e) {}
+    }
+});
+
 function openEditStatusOverlay(currentStatus, onSave, canUseApi) {
     const container = document.createElement('div');
     Object.assign(container.style, {
@@ -134,6 +174,8 @@ async function addStatusBubble(avatarContainer) {
         const userId = getUserIdFromUrl();
         if (!userId) return;
 
+        const isUserTrusted = TRUSTED_USER_IDS.includes(String(userId));
+
         const [{ status, canUseApi }, authenticatedUserId] = await Promise.all([
             getUserSettings(userId),
             getAuthenticatedUserId(),
@@ -165,7 +207,13 @@ async function addStatusBubble(avatarContainer) {
         const bubble = document.createElement('div');
         bubble.className = 'rovalra-status-bubble text-label-medium';
 
-        bubble.innerHTML = DOMPurify.sanitize(parseMarkdown(statusText));
+        if (isUserTrusted) {
+            bubble.innerHTML = DOMPurify.sanitize(parseMarkdown(statusText), {
+                FORBID_ATTR: ['style'],
+            });
+        } else {
+            bubble.textContent = statusText;
+        }
 
         bubbleWrapper.appendChild(bubble);
         avatarContainer.appendChild(bubbleWrapper);
@@ -186,9 +234,16 @@ async function addStatusBubble(avatarContainer) {
                         : newStatus
                     : '...';
 
-                bubble.innerHTML = DOMPurify.sanitize(
-                    parseMarkdown(textToRender),
-                );
+                if (isUserTrusted) {
+                    bubble.innerHTML = DOMPurify.sanitize(
+                        parseMarkdown(textToRender),
+                        {
+                            FORBID_ATTR: ['style'],
+                        },
+                    );
+                } else {
+                    bubble.textContent = textToRender;
+                }
 
                 const newTooltipText =
                     statusText === '...'

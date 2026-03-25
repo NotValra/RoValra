@@ -224,7 +224,6 @@ function getAnimatorW(rig = currentRig) {
 async function playIdle() {
     const animatorW = getAnimatorW();
     if (animatorW) {
-        animatorW.stopMoodAnimation();
         animatorW.playAnimation('idle');
     }
     activeEmoteId = null;
