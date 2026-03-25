@@ -1541,6 +1541,26 @@ export function init() {
                 },
                 { multiple: true },
             );
+
+            let hasAutoSwitchedTo3D = false;
+            observeElement(
+                'button.foundation-web-button',
+                (button) => {
+                    if (hasAutoSwitchedTo3D) return;
+
+                    if (button.textContent.trim() === '3D') {
+                        if (
+                            document.querySelector(
+                                '.thumbnail-holder-position .thumbnail-2d-container',
+                            )
+                        ) {
+                            button.click();
+                        }
+                        hasAutoSwitchedTo3D = true;
+                    }
+                },
+                { multiple: true },
+            );
         }
     });
 }
