@@ -1579,6 +1579,16 @@ export const SETTINGS_CONFIG = {
                         placeholder: 'Enter URL',
                     },
 
+                    importEnvironmentConfig: {
+                        label: 'Import Environment Config',
+                        description: [
+                            'Import a JSON file with environment settings. This will overwrite the current values in the tester.',
+                        ],
+                        type: 'button',
+                        buttonText: 'Import from JSON',
+                        event: 'rovalra:importEnvironmentJson',
+                    },
+
                     // generate button
                     generateJson: {
                         label: 'Generate and Print JSON',
