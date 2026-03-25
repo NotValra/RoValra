@@ -8,6 +8,7 @@ import {
     fetchRolimonsItems,
     queueRolimonsFetch,
 } from '../../core/trade/itemHandler.js';
+import { getBatchThumbnails } from '../../core/thumbnail/thumbnails.js';
 import {
     createRapDiffPill,
     createValueDiffPill,
@@ -137,6 +138,15 @@ async function injectTradePreview(
     let rolimonsData = {};
     await fetchRolimonsItems([...assetIds]);
 
+    const thumbnailData = await getBatchThumbnails(
+        [...assetIds],
+        'Asset',
+        '150x150',
+    );
+    const thumbMap = new Map(
+        thumbnailData.map((t) => [String(t.targetId), t.imageUrl]),
+    );
+
     assetIds.forEach((id) => {
         const data = getCachedRolimonsItem(id);
         if (data) {
@@ -184,6 +194,12 @@ async function injectTradePreview(
                 assetId = cachedItem.assetId;
             }
 
+            let thumbUrl = imgEl ? imgEl.src : '';
+            if (assetId && thumbMap.has(String(assetId))) {
+                const apiThumb = thumbMap.get(String(assetId));
+                if (apiThumb) thumbUrl = apiThumb;
+            }
+
             let value = rap;
             let isProjected = false;
             let isRare = false;
@@ -211,9 +227,9 @@ async function injectTradePreview(
                 }
             }
 
-            if (imgEl && nameEl) {
+            if (thumbUrl && nameEl) {
                 side.items.push({
-                    img: imgEl.src,
+                    img: thumbUrl,
                     name: nameEl.innerText.trim(),
                     rap: rap,
                     value: value,
