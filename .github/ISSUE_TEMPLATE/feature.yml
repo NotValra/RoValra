@@ -1,7 +1,7 @@
 name: "Feature Request"
 description: "Want something to get added to RoValra?"
 title: "[Feat] "
-labels: ["feature"]
+labels: ["enhancement"]
 assignees:
   - NotValra
 body:
