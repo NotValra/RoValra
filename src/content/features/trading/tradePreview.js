@@ -12,31 +12,12 @@ import {
     createValueDiffPill,
 } from '../../core/trade/ui/tradePills.js';
 import { addTooltip } from '../../core/ui/tooltip.js';
+import * as CacheHandler from '../../core/storage/cacheHandler.js';
 
 let tradeData = [];
 let observer = null;
 let initialized = false;
 const tradeDetailsCache = new Map();
-let cachedTradeHistory = {};
-let isHistoryLoaded = false;
-const HISTORY_KEY = 'rovalra_trade_history';
-
-async function loadTradeHistory() {
-    try {
-        const result = await chrome.storage.local.get(HISTORY_KEY);
-        cachedTradeHistory = result[HISTORY_KEY] || {};
-        isHistoryLoaded = true;
-    } catch (e) {
-        console.warn('[RoValra] Failed to load trade history', e);
-    }
-}
-
-chrome.storage.onChanged.addListener((changes, area) => {
-    if (area === 'local' && changes[HISTORY_KEY]) {
-        cachedTradeHistory = changes[HISTORY_KEY].newValue || {};
-        isHistoryLoaded = true;
-    }
-});
 
 async function fetchAndRenderTradePreview(tradeId, row) {
     if (row.querySelector('.rovalra-trade-summary')) return;
@@ -44,20 +25,14 @@ async function fetchAndRenderTradePreview(tradeId, row) {
     const myUserId = await getAuthenticatedUserId();
     if (!myUserId) return;
 
-    if (!isHistoryLoaded) await loadTradeHistory();
-
-    let storedTrade = null;
-
-    if (cachedTradeHistory[myUserId] && cachedTradeHistory[myUserId][tradeId]) {
-        storedTrade = cachedTradeHistory[myUserId][tradeId];
-    }
+    let storedTrade = await CacheHandler.get('trade_history', tradeId, 'local');
 
     let myOffer = null;
     let partnerOffer = null;
 
-    if (storedTrade) {
-        myOffer = storedTrade.myOffer;
-        partnerOffer = storedTrade.partnerOffer;
+    if (Array.isArray(storedTrade)) {
+        myOffer = { robux: storedTrade[0], items: storedTrade[1] };
+        partnerOffer = { robux: storedTrade[2], items: storedTrade[3] };
     } else {
         let data = tradeDetailsCache.get(tradeId);
         if (!data) {
@@ -98,17 +73,17 @@ async function fetchAndRenderTradePreview(tradeId, row) {
         myOffer = simplifyOffer(rawMyOffer);
         partnerOffer = simplifyOffer(rawPartnerOffer);
 
-        try {
-            if (!cachedTradeHistory[myUserId]) {
-                cachedTradeHistory[myUserId] = {};
-            }
-            cachedTradeHistory[myUserId][tradeId] = { myOffer, partnerOffer };
-            await chrome.storage.local.set({
-                [HISTORY_KEY]: cachedTradeHistory,
-            });
-        } catch (e) {
-            console.warn('[RoValra] Failed to save trade to storage', e);
-        }
+        await CacheHandler.set(
+            'trade_history',
+            tradeId,
+            [
+                myOffer.robux,
+                myOffer.items,
+                partnerOffer.robux,
+                partnerOffer.items,
+            ],
+            'local',
+        );
     }
 
     if (!row.isConnected) return;
@@ -206,7 +181,7 @@ async function fetchAndRenderTradePreview(tradeId, row) {
     }
 }
 
-function processTradeRow(row) {
+async function processTradeRow(row) {
     const allRows = Array.from(document.querySelectorAll('.trade-row'));
     const index = allRows.indexOf(row);
 
@@ -250,32 +225,28 @@ function processTradeRow(row) {
         }
 
         let debounceTimer;
-        const observerHandle = observeIntersection(row, async (entry) => {
-            if (entry.isIntersecting) {
-                const myUserId = await getAuthenticatedUserId();
-                if (!isHistoryLoaded) await loadTradeHistory();
+        const cached = await CacheHandler.get(
+            'trade_history',
+            trade.id,
+            'local',
+        );
 
-                const hasCached =
-                    myUserId &&
-                    cachedTradeHistory[myUserId] &&
-                    cachedTradeHistory[myUserId][trade.id];
-
-                if (hasCached) {
-                    if (row.isConnected)
-                        fetchAndRenderTradePreview(trade.id, row);
-                    observerHandle.unobserve();
-                } else {
+        if (cached) {
+            fetchAndRenderTradePreview(trade.id, row);
+        } else {
+            const observerHandle = observeIntersection(row, (entry) => {
+                if (entry.isIntersecting) {
                     debounceTimer = setTimeout(() => {
                         if (row.isConnected) {
                             fetchAndRenderTradePreview(trade.id, row);
                             observerHandle.unobserve();
                         }
                     }, 500);
+                } else {
+                    clearTimeout(debounceTimer);
                 }
-            } else {
-                clearTimeout(debounceTimer);
-            }
-        });
+            });
+        }
     }
 
     if (trade && dateSpan) {
