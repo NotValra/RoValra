@@ -11,9 +11,34 @@ import {
 import { createStyledInput } from '../../../core/ui/catalog/input.js';
 import { callRobloxApi } from '../../../core/api.js';
 import { getUserSettings } from '../../../core/donators/settingHandler.js';
+import { parseMarkdown } from '../../../core/utils/markdown.js';
+import DOMPurify from 'dompurify';
+import {
+    CREATOR_USER_ID,
+    CONTRIBUTOR_USER_IDS,
+    TESTER_USER_IDS,
+    ARTIST_BADGE_USER_ID,
+    RAT_BADGE_USER_ID,
+    BLAHAJ_BADGE_USER_ID,
+    CAM_BADGE_USER_ID,
+    alice_badge_user_id,
+    GILBERT_USER_ID,
+} from '../../../core/configs/userIds.js';
 
 const STATUS_PREFIX = 's:';
 const MAX_STATUS_LENGTH = 50;
+
+const TRUSTED_USER_IDS = [
+    CREATOR_USER_ID,
+    ...CONTRIBUTOR_USER_IDS,
+    ...TESTER_USER_IDS,
+    ARTIST_BADGE_USER_ID,
+    RAT_BADGE_USER_ID,
+    BLAHAJ_BADGE_USER_ID,
+    CAM_BADGE_USER_ID,
+    alice_badge_user_id,
+    GILBERT_USER_ID,
+].filter(Boolean);
 
 function openEditStatusOverlay(currentStatus, onSave, canUseApi) {
     const container = document.createElement('div');
@@ -139,7 +164,8 @@ async function addStatusBubble(avatarContainer) {
 
         const bubble = document.createElement('div');
         bubble.className = 'rovalra-status-bubble text-label-medium';
-        bubble.textContent = statusText;
+
+        bubble.innerHTML = DOMPurify.sanitize(parseMarkdown(statusText));
 
         bubbleWrapper.appendChild(bubble);
         avatarContainer.appendChild(bubbleWrapper);
@@ -154,11 +180,16 @@ async function addStatusBubble(avatarContainer) {
 
             const updateBubbleUI = (newStatus) => {
                 statusText = newStatus || '...';
-                bubble.textContent = newStatus
+                const textToRender = newStatus
                     ? newStatus.length > MAX_STATUS_LENGTH
                         ? newStatus.substring(0, MAX_STATUS_LENGTH) + '...'
                         : newStatus
                     : '...';
+
+                bubble.innerHTML = DOMPurify.sanitize(
+                    parseMarkdown(textToRender),
+                );
+
                 const newTooltipText =
                     statusText === '...'
                         ? 'Click to add a status'
@@ -171,7 +202,14 @@ async function addStatusBubble(avatarContainer) {
                 openEditStatusOverlay(
                     statusText === '...' ? '' : statusText,
                     async (newStatus) => {
-                        if (newStatus && (await isTextFiltered(newStatus))) {
+                        const isTrusted = TRUSTED_USER_IDS.includes(
+                            String(authenticatedUserId),
+                        );
+                        if (
+                            newStatus &&
+                            !isTrusted &&
+                            (await isTextFiltered(newStatus))
+                        ) {
                             return 'failed';
                         }
 

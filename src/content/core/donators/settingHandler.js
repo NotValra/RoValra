@@ -5,8 +5,32 @@ import {
     updateUserDescription,
     isTextFiltered,
 } from '../profile/descriptionhandler.js';
+import {
+    CREATOR_USER_ID,
+    CONTRIBUTOR_USER_IDS,
+    TESTER_USER_IDS,
+    ARTIST_BADGE_USER_ID,
+    RAT_BADGE_USER_ID,
+    BLAHAJ_BADGE_USER_ID,
+    CAM_BADGE_USER_ID,
+    alice_badge_user_id,
+    GILBERT_USER_ID,
+} from '../configs/userIds.js';
 
 const settingsCache = new Map();
+
+const TRUSTED_USER_IDS = [
+    CREATOR_USER_ID,
+    ...CONTRIBUTOR_USER_IDS,
+    ...TESTER_USER_IDS,
+
+    ARTIST_BADGE_USER_ID,
+    RAT_BADGE_USER_ID,
+    BLAHAJ_BADGE_USER_ID,
+    CAM_BADGE_USER_ID,
+    alice_badge_user_id,
+    GILBERT_USER_ID,
+].filter(Boolean);
 
 async function getStatusFromDescription(userId) {
     const description = await getUserDescription(userId);
@@ -17,7 +41,8 @@ async function getStatusFromDescription(userId) {
         .find((line) => line.trim().startsWith('s:'));
     let status = statusLine ? statusLine.trim().substring(2).trim() : null;
 
-    if (status && (await isTextFiltered(status))) {
+    const isTrusted = TRUSTED_USER_IDS.includes(String(userId));
+    if (status && !isTrusted && (await isTextFiltered(status))) {
         status = null;
     }
     return status;
@@ -128,7 +153,8 @@ async function fetchAndProcessSettings(userId) {
                 environment = await getEnvironmentFromDescription(userId);
             }
 
-            if (status && (await isTextFiltered(status))) {
+            const isTrusted = TRUSTED_USER_IDS.includes(String(userId));
+            if (status && !isTrusted && (await isTextFiltered(status))) {
                 status = null;
             }
 
