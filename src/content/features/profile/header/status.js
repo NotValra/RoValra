@@ -5,15 +5,17 @@ import { addTooltip } from '../../../core/ui/tooltip.js';
 import { getAuthenticatedUserId } from '../../../core/user.js';
 import { createOverlay } from '../../../core/ui/overlay.js';
 import {
-    getUserDescription,
     updateUserDescription,
+    isTextFiltered,
 } from '../../../core/profile/descriptionhandler.js';
 import { createStyledInput } from '../../../core/ui/catalog/input.js';
+import { callRobloxApi } from '../../../core/api.js';
+import { getUserSettings } from '../../../core/donators/settingHandler.js';
 
 const STATUS_PREFIX = 's:';
 const MAX_STATUS_LENGTH = 50;
 
-function openEditStatusOverlay(currentStatus, onSave) {
+function openEditStatusOverlay(currentStatus, onSave, canUseApi) {
     const container = document.createElement('div');
     Object.assign(container.style, {
         display: 'flex',
@@ -39,7 +41,9 @@ function openEditStatusOverlay(currentStatus, onSave) {
         marginTop: '-8px',
         fontSize: '12px',
     });
-    container.appendChild(helpText);
+    if (!canUseApi) {
+        container.appendChild(helpText);
+    }
 
     const errorDisplay = document.createElement('p');
     errorDisplay.className = 'text-error';
@@ -105,24 +109,16 @@ async function addStatusBubble(avatarContainer) {
         const userId = getUserIdFromUrl();
         if (!userId) return;
 
-        const [description, authenticatedUserId] = await Promise.all([
-            getUserDescription(userId),
+        const [{ status, canUseApi }, authenticatedUserId] = await Promise.all([
+            getUserSettings(userId),
             getAuthenticatedUserId(),
         ]);
 
-        if (description === null) return;
+        let statusText = status;
 
         const isOwnProfile =
             authenticatedUserId &&
             String(authenticatedUserId) === String(userId);
-
-        const lines = description.split('\n');
-        const statusLine = lines.find((line) =>
-            line.trim().startsWith(STATUS_PREFIX),
-        );
-        let statusText = statusLine
-            ? statusLine.trim().substring(STATUS_PREFIX.length).trim()
-            : null;
 
         if (!statusText && !isOwnProfile) return;
 
@@ -156,101 +152,147 @@ async function addStatusBubble(avatarContainer) {
                     : 'Click to edit';
             addTooltip(bubble, tooltipText);
 
+            const updateBubbleUI = (newStatus) => {
+                statusText = newStatus || '...';
+                bubble.textContent = newStatus
+                    ? newStatus.length > MAX_STATUS_LENGTH
+                        ? newStatus.substring(0, MAX_STATUS_LENGTH) + '...'
+                        : newStatus
+                    : '...';
+                const newTooltipText =
+                    statusText === '...'
+                        ? 'Click to add a status'
+                        : 'Click to edit';
+                addTooltip(bubble, newTooltipText);
+            };
+
             bubble.addEventListener('click', (e) => {
                 e.stopPropagation();
                 openEditStatusOverlay(
                     statusText === '...' ? '' : statusText,
                     async (newStatus) => {
-                        try {
-                            const currentDescription =
-                                await getUserDescription(userId);
-                            if (currentDescription === null) return false;
+                        if (newStatus && (await isTextFiltered(newStatus))) {
+                            return 'failed';
+                        }
 
-                            let newDescription;
-                            const lines = currentDescription.split('\n');
+                        if (canUseApi) {
+                            try {
+                                const response = await callRobloxApi({
+                                    isRovalraApi: true,
+                                    subdomain: 'apis',
+                                    endpoint: '/v1/auth/settings',
+                                    method: 'POST',
+                                    body: {
+                                        key: 'status',
+                                        value: newStatus,
+                                    },
+                                });
 
-                            if (newStatus) {
-                                const statusLine = `${STATUS_PREFIX}${newStatus}`;
-                                let statusFound = false;
-
-                                const newLines = [];
-                                for (const line of lines) {
-                                    if (line.trim().startsWith(STATUS_PREFIX)) {
-                                        if (!statusFound) {
-                                            newLines.push(statusLine);
-                                            statusFound = true;
-                                        }
-                                    } else {
-                                        newLines.push(line);
-                                    }
+                                if (response.ok) {
+                                    updateBubbleUI(newStatus);
+                                    return true;
                                 }
-
-                                if (!statusFound) {
-                                    const lastLineIndex = newLines.length - 1;
-                                    if (
-                                        lastLineIndex >= 0 &&
-                                        newLines[lastLineIndex].trim() === ''
-                                    ) {
-                                        newLines[lastLineIndex] = statusLine;
-                                    } else {
-                                        if (currentDescription.trim()) {
-                                            newLines.push(statusLine);
-                                        } else {
-                                            newLines[0] = statusLine;
-                                        }
-                                    }
-                                }
-
-                                newDescription = newLines.join('\n');
-
-                                if (newDescription.length > 1000) {
-                                    return 'limit_exceeded';
-                                }
-                            } else {
-                                const newLines = lines.filter(
-                                    (line) =>
-                                        !line.trim().startsWith(STATUS_PREFIX),
-                                );
-                                newDescription = newLines.join('\n').trimEnd();
-                            }
-
-                            const result = await updateUserDescription(
-                                userId,
-                                newDescription,
-                            );
-
-                            if (result === 'Filtered') {
                                 return 'failed';
-                            }
-
-                            if (result !== true) {
+                            } catch (error) {
+                                console.error(
+                                    'RoValra: Failed to update status via API.',
+                                    error,
+                                );
                                 return false;
                             }
+                        } else {
+                            try {
+                                const currentDescription = await (async () => {
+                                    const { getUserDescription } =
+                                        await import('../../../core/profile/descriptionhandler.js');
+                                    return await getUserDescription(userId);
+                                })();
+                                if (currentDescription === null) return false;
 
-                            statusText = newStatus || '...';
-                            bubble.textContent = newStatus
-                                ? newStatus.length > MAX_STATUS_LENGTH
-                                    ? newStatus.substring(
-                                          0,
-                                          MAX_STATUS_LENGTH,
-                                      ) + '...'
-                                    : newStatus
-                                : '...';
-                            const newTooltipText =
-                                statusText === '...'
-                                    ? 'Click to add a status'
-                                    : 'Click to edit';
-                            addTooltip(bubble, newTooltipText);
+                                let newDescription;
+                                const lines = currentDescription.split('\n');
 
-                            return true;
-                        } catch (error) {
-                            console.error(
-                                'RoValra: Failed to update status.',
-                                error,
-                            );
-                            return false;
+                                if (newStatus) {
+                                    const statusLine = `${STATUS_PREFIX}${newStatus}`;
+                                    let statusFound = false;
+
+                                    const newLines = [];
+                                    for (const line of lines) {
+                                        if (
+                                            line
+                                                .trim()
+                                                .startsWith(STATUS_PREFIX)
+                                        ) {
+                                            if (!statusFound) {
+                                                newLines.push(statusLine);
+                                                statusFound = true;
+                                            }
+                                        } else {
+                                            newLines.push(line);
+                                        }
+                                    }
+
+                                    if (!statusFound) {
+                                        const lastLineIndex =
+                                            newLines.length - 1;
+                                        if (
+                                            lastLineIndex >= 0 &&
+                                            newLines[lastLineIndex].trim() ===
+                                                ''
+                                        ) {
+                                            newLines[lastLineIndex] =
+                                                statusLine;
+                                        } else {
+                                            if (currentDescription.trim()) {
+                                                newLines.push(statusLine);
+                                            } else {
+                                                newLines[0] = statusLine;
+                                            }
+                                        }
+                                    }
+
+                                    newDescription = newLines.join('\n');
+
+                                    if (newDescription.length > 1000) {
+                                        return 'limit_exceeded';
+                                    }
+                                } else {
+                                    const newLines = lines.filter(
+                                        (line) =>
+                                            !line
+                                                .trim()
+                                                .startsWith(STATUS_PREFIX),
+                                    );
+                                    newDescription = newLines
+                                        .join('\n')
+                                        .trimEnd();
+                                }
+
+                                const result = await updateUserDescription(
+                                    userId,
+                                    newDescription,
+                                );
+
+                                if (result === 'Filtered') {
+                                    return 'failed';
+                                }
+
+                                if (result !== true) {
+                                    return false;
+                                }
+
+                                updateBubbleUI(newStatus);
+                                return true;
+                            } catch (error) {
+                                console.error(
+                                    'RoValra: Failed to update status.',
+                                    error,
+                                );
+                                return false;
+                            }
                         }
                     },
+                    canUseApi,
                 );
             });
         }
