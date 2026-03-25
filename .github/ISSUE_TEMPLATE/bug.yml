@@ -1,5 +1,9 @@
 name: "Bug Report"
 description: "Encountered a bug or an issue?"
+title: "[Bug] "
+labels: ["bug"]
+assignees:
+  - NotValra
 body:
 - type: "input"
   attributes:

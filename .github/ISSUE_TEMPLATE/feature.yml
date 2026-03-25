@@ -1,0 +1,31 @@
+name: "Feature Request"
+description: "Want something to get added to RoValra?"
+title: "[Feat] "
+labels: ["feature"]
+assignees:
+  - NotValra
+body:
+- type: "input"
+  attributes:
+    label: "Summary"
+    description: "A short summary of what you would like added"
+  validations:
+    required: true
+- type: "textarea"
+  attributes:
+    label: "Description"
+    description: "Full, detailed description of what you would like added"
+  validations:
+    required: false
+- type: "textarea"
+  attributes:
+    label: "Specifications"
+    description: "Specific details about the implementation you would like there to be"
+  validations:
+    required: false
+- type: "textarea"
+  attributes:
+    label: "Examples"
+    description: "Images that the devs can use as inspiration for the feature"
+  validations:
+    required: false
