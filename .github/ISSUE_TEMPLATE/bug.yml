@@ -1,5 +1,6 @@
 name: "Bug Report"
-fields:
+description: "Encountered a bug or an issue?"
+body:
 - type: "input"
   attributes:
     label: "Summary"

@@ -1,5 +1,6 @@
 name: "Other"
-fields:
+description: "Not a bug, nor a feature request"
+body:
 - type: "textarea"
   attributes:
     
