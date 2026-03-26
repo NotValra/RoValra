@@ -815,6 +815,15 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
+            tradeProofEnabled: {
+                label: 'Proof Trades',
+                description:
+                    'This allows you to quickly copy the rolimons proof format for any trade.',
+                type: 'checkbox',
+                default: false,
+                experimental:
+                    'This may be inaccurate, and may in some cases have issues resulting in an inaccurate proof. Please verify it is correct before using.',
+            },
             tradeRiskEnabled: {
                 label: 'Show Item Risk',
                 description:
