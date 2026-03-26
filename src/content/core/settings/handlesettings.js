@@ -11,37 +11,55 @@ import {
 import { createAndShowPopup } from '../../features/catalog/40method.js';
 
 let currentUserTier = 0;
+let donatorTierPromise = null;
 
 export const getCurrentUserTier = () => currentUserTier;
 
 export const syncDonatorTier = async () => {
-    try {
-        const response = await callRobloxApiJson({
-            isRovalraApi: true,
-            subdomain: 'apis',
-            endpoint: '/v1/auth/badges',
-            method: 'GET',
-        });
+    if (donatorTierPromise) return donatorTierPromise;
 
-        if (response.status !== 'success' || !response.badges) {
+    donatorTierPromise = (async () => {
+        try {
+            const response = await callRobloxApiJson({
+                isRovalraApi: true,
+                subdomain: 'apis',
+                endpoint: '/v1/auth/badges',
+                method: 'GET',
+            });
+
+            if (response.status !== 'success' || !response.badges) {
+                donatorTierPromise = null;
+                return null;
+            }
+
+            const badges = response.badges;
+            let tier = 0;
+            if (badges.donator_3 === true || badges.legacy_donator === true) {
+                tier = 3;
+            } else if (badges.donator_2 === true) {
+                tier = 2;
+            } else if (badges.donator_1 === true) {
+                tier = 1;
+            }
+            currentUserTier = tier;
+
+            const settingsContent = document.querySelector(
+                '#setting-section-content',
+            );
+            if (settingsContent) {
+                const settings = await loadSettings();
+                await checkSettingLocks(settingsContent, settings);
+            }
+
+            return response;
+        } catch (error) {
+            console.error('RoValra: Failed to sync donator tier', error);
+            donatorTierPromise = null;
             return null;
         }
+    })();
 
-        const badges = response.badges;
-        let tier = 0;
-        if (badges.donator_3 === true || badges.legacy_donator === true) {
-            tier = 3;
-        } else if (badges.donator_2 === true) {
-            tier = 2;
-        } else if (badges.donator_1 === true) {
-            tier = 1;
-        }
-        currentUserTier = tier;
-        return response;
-    } catch (error) {
-        console.error('RoValra: Failed to sync donator tier', error);
-        return null;
-    }
+    return donatorTierPromise;
 };
 
 export const loadSettings = async () => {

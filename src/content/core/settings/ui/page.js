@@ -24,7 +24,7 @@ export async function checkRoValraPage() {
 
     document.body.classList.add('rovalra-settings-loading');
 
-    await syncDonatorTier().catch(() => {});
+    syncDonatorTier().catch(() => {});
 
     const regionData = await getRegionData().catch((err) => {
         console.error('Settings: Failed to load region data.', err);
