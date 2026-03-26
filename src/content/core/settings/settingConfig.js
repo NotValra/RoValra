@@ -450,6 +450,16 @@ export const SETTINGS_CONFIG = {
                 experimental:
                     'This feature may cause performance issues. And may be buggy',
                 childSettings: {
+                    profileRenderUseApi: {
+                        label: 'Use RoValra API for Environment',
+                        description:
+                            "Uses RoValra's API to save your environment choice instead of your 'About Me' section.",
+                        type: 'checkbox',
+                        default: true,
+                        donatorTier: 1,
+                        donatorReason:
+                            'Donator 1 is required since RoValra doesnt have the resources to track the 200k+ user settings.',
+                    },
                     profileRenderEnvironment: {
                         label: '3D Profile Environment',
                         description: [
@@ -531,11 +541,29 @@ export const SETTINGS_CONFIG = {
             statusBubbleEnabled: {
                 label: 'Status Bubble',
                 description: [
-                    'This allows you to set a status bubble that anyone with RoValra can see.',
+                    'This allows you to set a status bubble on your profile that anyone with RoValra can see.',
                     'Also allows you to view other RoValra users status bubbles.',
+                    'This works by adding a little "s:" string to your about me.',
                 ],
                 type: 'checkbox',
                 default: true,
+                childSettings: {
+                    statusBubbleUseApi: {
+                        label: 'Use RoValra API for Status',
+                        description:
+                            "Uses RoValra's API to save your status instead of your 'About Me' section.",
+                        type: 'checkbox',
+                        default: true,
+                        donatorTier: 1,
+                        donatorReason:
+                            'Donator 1 is required since RoValra doesnt have the resources to track the 200k+ user settings.',
+                    },
+                    statusBubbleHomePage: {
+                        label: 'Status bubble for friends on home page, and other parts of the site where friends might show.',
+                        type: 'checkbox',
+                        default: true,
+                    },
+                },
             },
             donationbuttonEnable: {
                 label: 'Donation Button',
@@ -786,6 +814,15 @@ export const SETTINGS_CONFIG = {
                     'This adds a small Preview of the trade you are doing in the accept / decline confirmation pop up.',
                 type: 'checkbox',
                 default: true,
+            },
+            tradeProofEnabled: {
+                label: 'Proof Trades',
+                description:
+                    'This allows you to quickly copy the rolimons proof format for any trade.',
+                type: 'checkbox',
+                default: false,
+                experimental:
+                    'This may be inaccurate, and may in some cases have issues resulting in an inaccurate proof. Please verify it is correct before using.',
             },
             tradeRiskEnabled: {
                 label: 'Show Item Risk',

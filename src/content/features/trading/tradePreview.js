@@ -17,6 +17,7 @@ import * as CacheHandler from '../../core/storage/cacheHandler.js';
 let tradeData = [];
 let observer = null;
 let initialized = false;
+let featureSettings = { tradePreviewEnabled: true };
 const tradeDetailsCache = new Map();
 
 async function fetchAndRenderTradePreview(tradeId, row) {
@@ -194,12 +195,14 @@ async function processTradeRow(row) {
 
     if (trade) {
         row.dataset.tradeId = trade.id;
+        row.dataset.createdDate = trade.created;
 
         const userDiv = row.querySelector('.text-lead');
         if (
             userDiv &&
             trade.user?.id &&
-            !userDiv.querySelector('.rovalra-rolimons-user-link')
+            !userDiv.querySelector('.rovalra-rolimons-user-link') &&
+            featureSettings.tradePreviewEnabled
         ) {
             const assets = getAssets();
             const rolimonsLink = document.createElement('a');
@@ -214,42 +217,41 @@ async function processTradeRow(row) {
                 verticalAlign: 'middle',
                 textDecoration: 'none',
             });
-
-            rolimonsLink.innerHTML = `<div style="width: 16px; height: 16px; background-color: var(--rovalra-main-text-color); -webkit-mask: url('${assets.launchIcon}') center/contain no-repeat; mask: url('${assets.launchIcon}') center/contain no-repeat;"></div>`; //Verified
-
+            rolimonsLink.innerHTML = `<div style="width: 16px; height: 16px; background-color: var(--rovalra-main-text-color); -webkit-mask: url('${assets.launchIcon}') center/contain no-repeat; mask: url('${assets.launchIcon}') center/contain no-repeat;"></div>`;
             addTooltip(rolimonsLink, 'Open user on Rolimons', {
                 position: 'top',
             });
-
             userDiv.appendChild(rolimonsLink);
         }
 
-        let debounceTimer;
-        const cached = await CacheHandler.get(
-            'trade_history',
-            trade.id,
-            'local',
-        );
+        if (featureSettings.tradePreviewEnabled) {
+            let debounceTimer;
+            const cached = await CacheHandler.get(
+                'trade_history',
+                trade.id,
+                'local',
+            );
 
-        if (cached) {
-            fetchAndRenderTradePreview(trade.id, row);
-        } else {
-            const observerHandle = observeIntersection(row, (entry) => {
-                if (entry.isIntersecting) {
-                    debounceTimer = setTimeout(() => {
-                        if (row.isConnected) {
-                            fetchAndRenderTradePreview(trade.id, row);
-                            observerHandle.unobserve();
-                        }
-                    }, 500);
-                } else {
-                    clearTimeout(debounceTimer);
-                }
-            });
+            if (cached) {
+                fetchAndRenderTradePreview(trade.id, row);
+            } else {
+                const observerHandle = observeIntersection(row, (entry) => {
+                    if (entry.isIntersecting) {
+                        debounceTimer = setTimeout(() => {
+                            if (row.isConnected) {
+                                fetchAndRenderTradePreview(trade.id, row);
+                                observerHandle.unobserve();
+                            }
+                        }, 500);
+                    } else {
+                        clearTimeout(debounceTimer);
+                    }
+                });
+            }
         }
     }
 
-    if (trade && dateSpan) {
+    if (trade && dateSpan && featureSettings.tradePreviewEnabled) {
         const interactiveTimestamp = createInteractiveTimestamp(trade.created);
         dateSpan.innerHTML = '';
         dateSpan.appendChild(interactiveTimestamp);
@@ -282,36 +284,42 @@ function onTradesData(e) {
 }
 
 export function init() {
-    chrome.storage.local.get({ tradePreviewEnabled: true }, (settings) => {
-        if (!settings.tradePreviewEnabled) return;
+    chrome.storage.local.get(
+        { tradePreviewEnabled: true },
+        async (settings) => {
+            featureSettings = settings;
 
-        const path = window.location.pathname;
-        if (!path.startsWith('/trades')) {
-            if (observer) {
-                observer.active = false;
-                observer = null;
+            const path = window.location.pathname;
+            if (!path.startsWith('/trades')) {
+                if (observer) {
+                    observer.active = false;
+                    observer = null;
+                }
+                if (initialized) {
+                    document.removeEventListener(
+                        'rovalra-trades-list-response',
+                        onTradesData,
+                    );
+                    initialized = false;
+                }
+                tradeData = [];
+                tradeDetailsCache.clear();
+                return;
             }
-            if (initialized) {
-                document.removeEventListener(
-                    'rovalra-trades-list-response',
-                    onTradesData,
-                );
-                initialized = false;
-            }
-            tradeData = [];
-            tradeDetailsCache.clear();
-            return;
-        }
 
-        if (initialized) return;
-        initialized = true;
+            if (initialized) return;
+            initialized = true;
 
-        document.addEventListener('rovalra-trades-list-response', onTradesData);
+            document.addEventListener(
+                'rovalra-trades-list-response',
+                onTradesData,
+            );
 
-        observer = observeElement(
-            '.trade-row:not([data-rovalra-time-processed])',
-            processTradeRow,
-            { multiple: true },
-        );
-    });
+            observer = observeElement(
+                '.trade-row:not([data-rovalra-time-processed])',
+                processTradeRow,
+                { multiple: true },
+            );
+        },
+    );
 }
