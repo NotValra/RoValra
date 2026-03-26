@@ -2,12 +2,47 @@ import { SETTINGS_CONFIG } from './settingConfig.js';
 import { findSettingConfig } from './generateSettings.js';
 import { getFullRegionName, REGIONS } from '../regions.js';
 import { sanitizeString } from '../utils/sanitize.js';
+import { callRobloxApiJson } from '../api.js';
 import { getAuthenticatedUserId } from '../user.js';
 import {
     getUserDescription,
     updateUserDescription,
 } from '../profile/descriptionhandler.js';
 import { createAndShowPopup } from '../../features/catalog/40method.js';
+
+let currentUserTier = 0;
+
+export const getCurrentUserTier = () => currentUserTier;
+
+export const syncDonatorTier = async () => {
+    try {
+        const response = await callRobloxApiJson({
+            isRovalraApi: true,
+            subdomain: 'apis',
+            endpoint: '/v1/auth/badges',
+            method: 'GET',
+        });
+
+        if (response.status !== 'success' || !response.badges) {
+            return null;
+        }
+
+        const badges = response.badges;
+        let tier = 0;
+        if (badges.donator_3 === true || badges.legacy_donator === true) {
+            tier = 3;
+        } else if (badges.donator_2 === true) {
+            tier = 2;
+        } else if (badges.donator_1 === true) {
+            tier = 1;
+        }
+        currentUserTier = tier;
+        return response;
+    } catch (error) {
+        console.error('RoValra: Failed to sync donator tier', error);
+        return null;
+    }
+};
 
 export const loadSettings = async () => {
     return new Promise((resolve, reject) => {
@@ -465,6 +500,7 @@ export const applyLockedState = (
     parentElement,
     isLocked,
     reason = '',
+    isDonatorLock = false,
 ) => {
     const inputElement = parentElement.querySelector(
         `[data-setting-name="${settingName}"]`,
@@ -479,20 +515,41 @@ export const applyLockedState = (
     const existingNotice = wrapper.querySelector('.rovalra-lock-notice');
     if (existingNotice) existingNotice.remove();
 
-    if (isLocked) {
+    if (isLocked || isDonatorLock) {
         const config = findSettingConfig(settingName);
         const lockType = config?.isPermanent ? 'permanently' : 'temporarily';
 
-        wrapper.classList.add('setting-locked');
-        wrapper.style.setProperty('opacity', '1', 'important');
-        wrapper.style.pointerEvents = 'none';
+        if (isLocked) {
+            wrapper.classList.add('setting-locked');
+            wrapper.style.setProperty('opacity', '1', 'important');
+            wrapper.style.pointerEvents = 'none';
+        } else {
+            wrapper.classList.remove('setting-locked');
+            wrapper.style.removeProperty('opacity');
+            wrapper.style.setProperty('pointer-events', 'auto');
+        }
+
+        if (isDonatorLock) {
+            wrapper.classList.add('donator-locked');
+        }
 
         const notice = document.createElement('div');
         notice.className = 'rovalra-lock-notice';
+        if (isDonatorLock) {
+            notice.classList.add('donator-notice');
+            if (!isLocked) notice.classList.add('unlocked-donator-notice');
+        }
 
         const statusLine = document.createElement('div');
         statusLine.className = 'lock-status-text';
-        statusLine.textContent = `This feature has been disabled ${lockType}`;
+        if (isDonatorLock) {
+            const tier = config?.donatorTier || '';
+            statusLine.textContent = isLocked
+                ? `RoValra Donator Tier ${tier} Required`
+                : `RoValra Donator Perk (Tier ${tier})`;
+        } else {
+            statusLine.textContent = `This feature has been disabled ${lockType}`;
+        }
 
         const reasonLine = document.createElement('div');
         reasonLine.className = 'lock-reason-text';
@@ -501,18 +558,31 @@ export const applyLockedState = (
         notice.append(statusLine, reasonLine);
         wrapper.prepend(notice);
 
-        Array.from(wrapper.children).forEach((child) => {
-            if (!child.classList.contains('rovalra-lock-notice')) {
-                child.style.opacity = '0.5';
-            }
-        });
+        if (isLocked) {
+            Array.from(wrapper.children).forEach((child) => {
+                if (!child.classList.contains('rovalra-lock-notice')) {
+                    child.style.opacity = '0.5';
+                }
+            });
 
-        wrapper.querySelectorAll('input, select, button').forEach((el) => {
-            el.disabled = true;
-            if (el.type === 'checkbox') el.checked = false;
-        });
+            wrapper.querySelectorAll('input, select, button').forEach((el) => {
+                el.disabled = true;
+                if (el.type === 'checkbox') el.checked = false;
+            });
+        } else {
+            Array.from(wrapper.children).forEach((child) => {
+                child.style.opacity = '';
+            });
+
+            wrapper.querySelectorAll('input, select, button').forEach((el) => {
+                if (!wrapper.classList.contains('disabled-setting')) {
+                    el.disabled = false;
+                }
+            });
+        }
     } else {
         wrapper.classList.remove('setting-locked');
+        wrapper.classList.remove('donator-locked');
         wrapper.style.removeProperty('opacity');
         wrapper.style.removeProperty('filter');
         wrapper.style.setProperty('pointer-events', 'auto');
@@ -534,6 +604,8 @@ export const checkSettingLocks = async (settingsContent, currentSettings) => {
         'profile3DRenderForceDisabled',
     ]);
 
+    const userTier = currentUserTier;
+
     const is3DLocked =
         data.profile3DRenderForceDisabled === true &&
         !currentSettings.profile3DRenderBypassCheck;
@@ -551,32 +623,39 @@ export const checkSettingLocks = async (settingsContent, currentSettings) => {
 
     for (const category of Object.values(SETTINGS_CONFIG)) {
         for (const [settingName, config] of Object.entries(category.settings)) {
-            if (config.locked) {
-                if (currentSettings[settingName] === true) {
-                    await handleSaveSettings(settingName, false);
+            const processSetting = async (name, conf) => {
+                if (conf.donatorTier) {
+                    const isLocked = userTier < conf.donatorTier;
+                    if (isLocked && currentSettings[name] === true) {
+                        await handleSaveSettings(name, false);
+                    }
+                    applyLockedState(
+                        name,
+                        settingsContent,
+                        isLocked,
+                        conf.donatorReason ||
+                            'This is a donator-exclusive feature.',
+                        true,
+                    );
+                    if (isLocked) return true;
                 }
-                applyLockedState(
-                    settingName,
-                    settingsContent,
-                    true,
-                    config.locked,
-                );
-            }
+                if (conf.locked) {
+                    if (currentSettings[name] === true) {
+                        await handleSaveSettings(name, false);
+                    }
+                    applyLockedState(name, settingsContent, true, conf.locked);
+                    return true;
+                }
+                return false;
+            };
+
+            await processSetting(settingName, config);
+
             if (config.childSettings) {
                 for (const [childName, childConfig] of Object.entries(
                     config.childSettings,
                 )) {
-                    if (childConfig.locked) {
-                        if (currentSettings[childName] === true) {
-                            await handleSaveSettings(childName, false);
-                        }
-                        applyLockedState(
-                            childName,
-                            settingsContent,
-                            true,
-                            childConfig.locked,
-                        );
-                    }
+                    await processSetting(childName, childConfig);
                 }
             }
         }

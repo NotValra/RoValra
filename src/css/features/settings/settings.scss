@@ -196,6 +196,20 @@ body:has(#settings-search-input) {
         opacity: 1 !important;
         pointer-events: auto !important;
 
+        &.donator-notice {
+            .lock-status-text,
+            .lock-reason-text {
+                color: rgb(2, 170, 81) !important;
+            }
+
+            &.unlocked-donator-notice {
+                margin-bottom: 4px !important;
+                .lock-reason-text {
+                    display: none !important;
+                }
+            }
+        }
+
         .lock-status-text {
             color: #ff4d4d !important;
             font-weight: 700 !important;
