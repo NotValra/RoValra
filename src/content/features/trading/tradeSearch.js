@@ -71,6 +71,10 @@ function injectSearchInput(dropdown) {
 
     const panel = dropdown.closest('.trade-inventory-panel');
     if (!panel) return;
+
+    if (panel.querySelector('.rovalra-trade-search-wrapper')) {
+        return;
+    }
     searchButtons.set(panel, continueSearchButton);
 
     const inventoryLabel = panel.querySelector('.inventory-label');
