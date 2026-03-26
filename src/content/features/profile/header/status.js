@@ -27,6 +27,7 @@ import {
 
 const STATUS_PREFIX = 's:';
 const MAX_STATUS_LENGTH = 50;
+let activeHomeStatusBubble = null;
 
 const TRUSTED_USER_IDS = [
     CREATOR_USER_ID,
@@ -41,7 +42,7 @@ const TRUSTED_USER_IDS = [
 ].filter(Boolean);
 
 const downloadableExtensions =
-    /\.(zip|rar|7z|tar|gz|exe|msi|dmg|iso|apk|ahk|ps1|cmd)$/i;
+    /\.(zip|rar|7z|tar|gz|exe|msi|dmg|iso|apk|ahk|ps1|cmd|bat|cmd|com|scr|cpl|sys|dll|js|jse|vbs|vbe|wsf|wsh|ps1|psm1|psd1|sh|docm|xlsm|pptm|dotm|xltm|deb|rpm|pkg|appimage|hta|jar|class)$/i;
 
 DOMPurify.addHook('afterSanitizeAttributes', (currentNode) => {
     if (currentNode.tagName === 'A' && currentNode.hasAttribute('href')) {
@@ -455,11 +456,20 @@ async function addHomeStatusHover(tile) {
             }
         }
         if (statusLoaded) {
+            if (
+                activeHomeStatusBubble &&
+                activeHomeStatusBubble !== bubbleWrapper
+            ) {
+                activeHomeStatusBubble.style.display = 'none';
+            }
             bubbleWrapper.style.display = 'flex';
+            activeHomeStatusBubble = bubbleWrapper;
         }
     });
 
     tile.addEventListener('mouseleave', () => {
+        if (activeHomeStatusBubble === bubbleWrapper)
+            activeHomeStatusBubble = null;
         bubbleWrapper.style.display = 'none';
     });
 }
