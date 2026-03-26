@@ -458,7 +458,7 @@ export const SETTINGS_CONFIG = {
                         default: true,
                         donatorTier: 1,
                         donatorReason:
-                            'Requires RoValra Donator Tier 1 to use the API for environments.',
+                            'Donator 1 is required since RoValra doesnt have the resources to track the 200k+ user settings.',
                     },
                     profileRenderEnvironment: {
                         label: '3D Profile Environment',
@@ -556,10 +556,10 @@ export const SETTINGS_CONFIG = {
                         default: true,
                         donatorTier: 1,
                         donatorReason:
-                            'Requires RoValra Donator Tier 1 to use the API for status bubbles.',
+                            'Donator 1 is required since RoValra doesnt have the resources to track the 200k+ user settings.',
                     },
                     statusBubbleHomePage: {
-                        label: 'Status bubble for friends on home page',
+                        label: 'Status bubble for friends on home page, and other parts of the site where friends might show.',
                         type: 'checkbox',
                         default: true,
                     },
