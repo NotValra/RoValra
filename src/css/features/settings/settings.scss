@@ -191,6 +191,38 @@ body:has(#settings-search-input) {
         color: var(--rovalra-secondary-text-color) !important;
     }
 
+    .rovalra-lock-notice {
+        margin-bottom: 12px;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+
+        &.donator-notice {
+            .lock-status-text,
+            .lock-reason-text {
+                color: rgb(2, 170, 81) !important;
+            }
+
+            &.unlocked-donator-notice {
+                margin-bottom: 4px !important;
+                .lock-reason-text {
+                    display: none !important;
+                }
+            }
+        }
+
+        .lock-status-text {
+            color: #ff4d4d !important;
+            font-weight: 700 !important;
+            font-size: 14px !important;
+        }
+
+        .lock-reason-text {
+            color: var(--rovalra-secondary-text-color) !important;
+            font-size: 12px !important;
+            margin-top: 2px !important;
+        }
+    }
+
     .tab-button {
         white-space: nowrap;
         margin-left: 0px;

@@ -23,7 +23,7 @@
         "i18next": "25.8.18",
         "marked": "^17.0.4",
         "ezlocale": ">=2.1.0",
-        "roavatar-renderer": "1.2.5"
+        "roavatar-renderer": "1.2.7"
     },
     "lint-staged": {
         "*.js": "eslint --fix",

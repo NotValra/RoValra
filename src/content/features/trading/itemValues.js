@@ -1,4 +1,8 @@
-import { observeElement } from '../../core/observer.js';
+import {
+    observeElement,
+    observeChildren,
+    observeAttributes,
+} from '../../core/observer.js';
 import { createRadioButton } from '../../core/ui/general/radio.js';
 import { addTooltip } from '../../core/ui/tooltip.js';
 import { getAssets } from '../../core/assets.js';
@@ -10,7 +14,7 @@ import {
     queueRolimonsFetch,
     queueRiskFetch,
 } from '../../core/trade/itemHandler.js';
-import { RISK_LEVELS, RISK_COLORS } from '../../core/trade/riskCalculator.js';
+import { RISK_COLORS } from '../../core/trade/riskCalculator.js';
 import {
     createRapDiffPill,
     createValueDiffPill,
@@ -18,6 +22,7 @@ import {
 
 let cardObserverRequest = null;
 let summaryObserverRequest = null;
+let robuxObserverRequest = null;
 let dividerObserverRequest = null;
 let updateSummaryTimeout = null;
 const pendingCards = new Map();
@@ -41,6 +46,10 @@ export function init() {
                 if (cardObserverRequest) {
                     cardObserverRequest.active = false;
                     cardObserverRequest = null;
+                }
+                if (robuxObserverRequest) {
+                    robuxObserverRequest.active = false;
+                    robuxObserverRequest = null;
                 }
                 if (summaryObserverRequest) {
                     summaryObserverRequest.active = false;
@@ -134,6 +143,18 @@ export function init() {
                     } else {
                         updateItemCard(card, assetId);
                     }
+                    queueUpdateTradeSummary();
+                },
+                { multiple: true, onRemove: () => queueUpdateTradeSummary() },
+            );
+
+            robuxObserverRequest = observeElement(
+                '.robux-line',
+                (line) => {
+                    observeAttributes(line, () => {
+                        if (robuxObserverRequest?.active)
+                            queueUpdateTradeSummary();
+                    }, ['class']);
                     queueUpdateTradeSummary();
                 },
                 { multiple: true },
@@ -456,11 +477,17 @@ export function updateItemCard(card, assetId, options = {}) {
 
 function initTradeSummary() {
     summaryObserverRequest = observeElement(
-        '.trade-list-detail-offer, .trade-request-window-offer',
-        () => {
+        '.trade-request-window-offers, .trade-list-detail-offers',
+        (container) => {
+            observeChildren(container, () => {
+                if (summaryObserverRequest?.active) queueUpdateTradeSummary();
+            });
+            observeAttributes(container, () => {
+                if (summaryObserverRequest?.active) queueUpdateTradeSummary();
+            }, ['class']);
+
             queueUpdateTradeSummary();
         },
-        { multiple: true },
     );
 }
 

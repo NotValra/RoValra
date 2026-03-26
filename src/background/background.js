@@ -13,6 +13,17 @@ const state = {
     rotatorIndex: 0,
 };
 
+// --- Session Storage Configuration ---
+if (chrome.storage.session && chrome.storage.session.setAccessLevel) {
+    chrome.storage.session
+        .setAccessLevel({
+            accessLevel: 'TRUSTED_AND_UNTRUSTED_CONTEXTS',
+        })
+        .catch((err) =>
+            console.error('RoValra: Failed to set session access level', err),
+        );
+}
+
 // --- Settings Management ---
 
 function getDefaultSettings() {

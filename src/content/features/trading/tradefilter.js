@@ -6,34 +6,11 @@ import {
     getCachedRolimonsItem,
     queueRolimonsFetch,
 } from '../../core/trade/itemHandler.js';
+import * as CacheHandler from '../../core/storage/cacheHandler.js';
 
-let historyLoaded = false;
-let tradeHistory = {};
-const HISTORY_KEY = 'rovalra_trade_history';
 let myUserId = null;
 let currentQuery = '';
 let debounceTimeout = null;
-
-async function loadHistory() {
-    if (historyLoaded) return;
-    try {
-        const result = await chrome.storage.local.get(HISTORY_KEY);
-        tradeHistory = result[HISTORY_KEY] || {};
-        historyLoaded = true;
-    } catch (e) {
-        console.warn('[RoValra] Failed to load trade history in filter', e);
-    }
-}
-
-chrome.storage.onChanged.addListener((changes, area) => {
-    if (area === 'local' && changes[HISTORY_KEY]) {
-        tradeHistory = changes[HISTORY_KEY].newValue || {};
-        historyLoaded = true;
-        if (currentQuery) {
-            filterTrades(currentQuery);
-        }
-    }
-});
 
 document.addEventListener('rovalra-rolimons-data-update', () => {
     if (currentQuery) {
@@ -51,7 +28,6 @@ export async function init() {
     if (!path.startsWith('/trades')) return;
 
     myUserId = await getAuthenticatedUserId();
-    await loadHistory();
 
     observeElement('.trade-row-list', (list) => {
         if (list.querySelector('.rovalra-trade-filter-wrapper')) return;
@@ -98,9 +74,9 @@ export async function init() {
 }
 
 async function getTradeDetails(tradeId) {
-    if (tradeHistory[myUserId] && tradeHistory[myUserId][tradeId]) {
-        const trade = tradeHistory[myUserId][tradeId];
-        const allItems = [...trade.myOffer.items, ...trade.partnerOffer.items];
+    const cached = await CacheHandler.get('trade_history', tradeId, 'local');
+    if (Array.isArray(cached)) {
+        const allItems = [...cached[1], ...cached[3]];
         return { items: allItems };
     }
 
@@ -132,10 +108,17 @@ async function getTradeDetails(tradeId) {
             return null;
         }
 
-        if (!tradeHistory[myUserId]) tradeHistory[myUserId] = {};
-        tradeHistory[myUserId][tradeId] = { myOffer, partnerOffer };
-
-        chrome.storage.local.set({ [HISTORY_KEY]: tradeHistory });
+        await CacheHandler.set(
+            'trade_history',
+            tradeId,
+            [
+                myOffer.robux,
+                myOffer.items,
+                partnerOffer.robux,
+                partnerOffer.items,
+            ],
+            'local',
+        );
 
         const allItems = [...myOffer.items, ...partnerOffer.items];
         return { items: allItems };

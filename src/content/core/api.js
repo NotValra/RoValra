@@ -366,26 +366,54 @@ export async function callRobloxApi(options) {
                         }
                     }
 
+                    let isTokenInvalid = lastResponse.status === 401;
+                    let bodyIsInvalid = false;
+
                     if (
-                        lastResponse.status === 401 &&
+                        lastResponse.ok &&
+                        endpoint &&
+                        endpoint.includes('/v1/auth') &&
+                        !skipAutoAuth
+                    ) {
+                        const clonedForBodyCheck = lastResponse.clone();
+                        try {
+                            const bodyJson = await clonedForBodyCheck.json();
+                            if (
+                                bodyJson.status === 'error' &&
+                                bodyJson.message ===
+                                    'Invalid or obsolete token.'
+                            ) {
+                                isTokenInvalid = true;
+                                bodyIsInvalid = true;
+                                console.log(
+                                    'RoValra API: Invalid token from response body detected.',
+                                );
+                            }
+                        } catch (e) {}
+                    }
+
+                    if (
+                        isTokenInvalid &&
                         endpoint &&
                         endpoint.includes('/v1/auth') &&
                         !skipAutoAuth &&
                         !authRetried
                     ) {
                         console.log(
-                            'RoValra API: 401 Unauthorized, attempting token refresh...',
+                            'RoValra API: Invalid token, attempting token refresh...',
                         );
                         authRetried = true;
                         const newToken = await getValidAccessToken(true);
                         if (newToken) {
-                            fetchOptions.headers['Authorization'] =
-                                `Bearer ${newToken}`;
+                            fetchOptions.headers.set(
+                                'Authorization',
+                                `Bearer ${newToken}`,
+                            );
                             continue;
                         }
                     }
 
-                    if (lastResponse.ok) {
+                    if (lastResponse.ok && !bodyIsInvalid) {
                         return lastResponse;
                     }
 
