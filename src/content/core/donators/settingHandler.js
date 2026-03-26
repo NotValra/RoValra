@@ -132,14 +132,17 @@ async function fetchAndProcessSettings(userId, options = {}) {
                 (!apiProvidedMeaningfulSettings || !finalStatus)
             ) {
                 try {
-                    const res = await callRobloxApi({
+                    const res = await callRobloxApiJson({
                         isRovalraApi: true,
                         subdomain: 'apis',
                         endpoint: '/v1/auth/settings',
                         method: 'POST',
-                        body: { key: 'status', value: statusFromDesc },
+                        body: JSON.stringify({
+                            key: 'status',
+                            value: statusFromDesc,
+                        }),
                     });
-                    if (res.ok) {
+                    if (res && res.status === 'success') {
                         finalStatus = statusFromDesc;
                         if (description !== null) {
                             description = description
@@ -175,17 +178,17 @@ async function fetchAndProcessSettings(userId, options = {}) {
                 (!apiProvidedMeaningfulSettings || finalEnvironment === 1)
             ) {
                 try {
-                    const res = await callRobloxApi({
+                    const res = await callRobloxApiJson({
                         isRovalraApi: true,
                         subdomain: 'apis',
                         endpoint: '/v1/auth/settings',
                         method: 'POST',
-                        body: {
+                        body: JSON.stringify({
                             key: 'environment',
                             value: String(envFromDesc),
-                        },
+                        }),
                     });
-                    if (res.ok) {
+                    if (res && res.status === 'success') {
                         finalEnvironment = envFromDesc;
                         if (description !== null) {
                             description = description

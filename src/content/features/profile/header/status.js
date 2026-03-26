@@ -275,7 +275,7 @@ async function addStatusBubble(avatarContainer, userWantsApi) {
                                     'status',
                                     newStatus,
                                 );
-                                if (response.ok) {
+                                if (response) {
                                     updateBubbleUI(newStatus);
                                     return true;
                                 }
@@ -393,54 +393,75 @@ async function addHomeStatusHover(tile) {
     tile.dataset.rovalraStatusObserved = 'true';
 
     const link = tile.querySelector('a.avatar-card-link');
-    const avatarContainer = tile.querySelector('.avatar-card-fullbody');
+    const avatarContainer = tile.querySelector(
+        '.avatar-card-fullbody, .avatar-card-image-container',
+    );
     if (!link || !avatarContainer) return;
 
     const match = link.href.match(/\/users\/(\d+)\//);
     if (!match) return;
     const userId = match[1];
 
-    try {
-        const { status } = await getUserSettings(userId, {
-            useDescription: true,
-        });
-        if (!status) return;
+    const bubbleWrapper = document.createElement('div');
+    bubbleWrapper.className = 'rovalra-status-bubble-wrapper';
+    bubbleWrapper.style.left = '130%';
+    bubbleWrapper.style.display = 'none';
 
-        let statusText = status;
-        if (statusText.length > MAX_STATUS_LENGTH) {
-            statusText = statusText.substring(0, MAX_STATUS_LENGTH) + '...';
+    const bubble = document.createElement('div');
+    bubble.className = 'rovalra-status-bubble text-label-medium';
+    bubbleWrapper.appendChild(bubble);
+    avatarContainer.appendChild(bubbleWrapper);
+
+    let statusLoaded = false;
+
+    tile.addEventListener('mouseenter', async () => {
+        if (!statusLoaded) {
+            try {
+                const { status } = await getUserSettings(userId, {
+                    useDescription: true,
+                });
+
+                if (status) {
+                    let statusText = status;
+                    if (statusText.length > MAX_STATUS_LENGTH) {
+                        statusText =
+                            statusText.substring(0, MAX_STATUS_LENGTH) + '...';
+                    }
+
+                    const isUserTrusted = TRUSTED_USER_IDS.includes(
+                        String(userId),
+                    );
+
+                    if (isUserTrusted) {
+                        bubble.innerHTML = DOMPurify.sanitize(
+                            parseMarkdown(statusText),
+                            { FORBID_ATTR: ['style'] },
+                        );
+                    } else {
+                        bubble.textContent = statusText;
+                    }
+                    statusLoaded = true;
+                } else {
+                    bubbleWrapper.remove();
+                    return;
+                }
+            } catch (error) {
+                console.error(
+                    'RoValra: Error fetching status for home page hover.',
+                    error,
+                );
+                bubbleWrapper.remove();
+                return;
+            }
         }
-
-        const isUserTrusted = TRUSTED_USER_IDS.includes(String(userId));
-
-        const bubbleWrapper = document.createElement('div');
-        bubbleWrapper.className = 'rovalra-status-bubble-wrapper';
-        bubbleWrapper.style.left = '130%';
-        bubbleWrapper.style.display = 'none';
-
-        const bubble = document.createElement('div');
-        bubble.className = 'rovalra-status-bubble text-label-medium';
-
-        if (isUserTrusted) {
-            bubble.innerHTML = DOMPurify.sanitize(parseMarkdown(statusText), {
-                FORBID_ATTR: ['style'],
-            });
-        } else {
-            bubble.textContent = statusText;
-        }
-
-        bubbleWrapper.appendChild(bubble);
-        avatarContainer.appendChild(bubbleWrapper);
-
-        tile.addEventListener('mouseenter', () => {
+        if (statusLoaded) {
             bubbleWrapper.style.display = 'flex';
-        });
-        tile.addEventListener('mouseleave', () => {
-            bubbleWrapper.style.display = 'none';
-        });
-    } catch (error) {
-        // Silently handle errors for background status fetching on the home page
-    }
+        }
+    });
+
+    tile.addEventListener('mouseleave', () => {
+        bubbleWrapper.style.display = 'none';
+    });
 }
 
 export function init() {
