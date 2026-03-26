@@ -118,6 +118,7 @@ const featureRoutes = [
             initQuickSearch,
             initRenderTest,
             initGroupFunds,
+            initStatus,
         ],
     },
     // pretty much just the 40% method
@@ -190,7 +191,6 @@ const featureRoutes = [
             initCategorizeWearing,
             initTrustedFriends,
             initProfileRender,
-            initStatus,
             initFriendsSince,
         ],
     },

@@ -65,3 +65,28 @@ export async function updateUserDescription(userId, newDescription) {
         return false;
     }
 }
+
+/**
+ * Updates a user setting via the RoValra API.
+ * @param {string} key The setting key to update (e.g., 'environment', 'status').
+ * @param {any} value The new value for the setting. Will be converted to string.
+ * @returns {Promise<boolean>} True if the update was successful, false otherwise.
+ */
+export async function updateUserSettingViaApi(key, value) {
+    try {
+        const response = await callRobloxApi({
+            isRovalraApi: true,
+            subdomain: 'apis',
+            endpoint: '/v1/auth/settings',
+            method: 'POST',
+            body: { key, value: String(value) },
+        });
+        return response.ok;
+    } catch (error) {
+        console.error(
+            `RoValra: Failed to update setting '${key}' via API.`,
+            error,
+        );
+        return false;
+    }
+}

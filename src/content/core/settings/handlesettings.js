@@ -508,8 +508,8 @@ export const applyLockedState = (
     if (!inputElement) return;
 
     const wrapper =
-        inputElement.closest('.setting') ||
-        inputElement.closest('.child-setting-item');
+        inputElement.closest('.child-setting-item') ||
+        inputElement.closest('.setting');
     if (!wrapper) return;
 
     const existingNotice = wrapper.querySelector('.rovalra-lock-notice');
@@ -567,7 +567,6 @@ export const applyLockedState = (
 
             wrapper.querySelectorAll('input, select, button').forEach((el) => {
                 el.disabled = true;
-                if (el.type === 'checkbox') el.checked = false;
             });
         } else {
             Array.from(wrapper.children).forEach((child) => {
@@ -626,9 +625,6 @@ export const checkSettingLocks = async (settingsContent, currentSettings) => {
             const processSetting = async (name, conf) => {
                 if (conf.donatorTier) {
                     const isLocked = userTier < conf.donatorTier;
-                    if (isLocked && currentSettings[name] === true) {
-                        await handleSaveSettings(name, false);
-                    }
                     applyLockedState(
                         name,
                         settingsContent,

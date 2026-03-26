@@ -7,9 +7,9 @@ import { createOverlay } from '../../../core/ui/overlay.js';
 import {
     updateUserDescription,
     isTextFiltered,
+    updateUserSettingViaApi,
 } from '../../../core/profile/descriptionhandler.js';
 import { createStyledInput } from '../../../core/ui/catalog/input.js';
-import { callRobloxApi } from '../../../core/api.js';
 import { getUserSettings } from '../../../core/donators/settingHandler.js';
 import { parseMarkdown } from '../../../core/utils/markdown.js';
 import DOMPurify from 'dompurify';
@@ -167,7 +167,7 @@ function openEditStatusOverlay(currentStatus, onSave, canUseApi) {
     };
 }
 
-async function addStatusBubble(avatarContainer) {
+async function addStatusBubble(avatarContainer, userWantsApi) {
     if (avatarContainer.querySelector('.rovalra-status-bubble-wrapper')) return;
 
     try {
@@ -177,7 +177,7 @@ async function addStatusBubble(avatarContainer) {
         const isUserTrusted = TRUSTED_USER_IDS.includes(String(userId));
 
         const [{ status, canUseApi }, authenticatedUserId] = await Promise.all([
-            getUserSettings(userId),
+            getUserSettings(userId, { useDescription: true }),
             getAuthenticatedUserId(),
         ]);
 
@@ -260,6 +260,7 @@ async function addStatusBubble(avatarContainer) {
                         const isTrusted = TRUSTED_USER_IDS.includes(
                             String(authenticatedUserId),
                         );
+                        const effectiveCanUseApi = canUseApi && userWantsApi;
                         if (
                             newStatus &&
                             !isTrusted &&
@@ -268,19 +269,12 @@ async function addStatusBubble(avatarContainer) {
                             return 'failed';
                         }
 
-                        if (canUseApi) {
+                        if (effectiveCanUseApi) {
                             try {
-                                const response = await callRobloxApi({
-                                    isRovalraApi: true,
-                                    subdomain: 'apis',
-                                    endpoint: '/v1/auth/settings',
-                                    method: 'POST',
-                                    body: {
-                                        key: 'status',
-                                        value: newStatus,
-                                    },
-                                });
-
+                                const response = await updateUserSettingViaApi(
+                                    'status',
+                                    newStatus,
+                                );
                                 if (response.ok) {
                                     updateBubbleUI(newStatus);
                                     return true;
@@ -385,7 +379,7 @@ async function addStatusBubble(avatarContainer) {
                             }
                         }
                     },
-                    canUseApi,
+                    canUseApi && userWantsApi,
                 );
             });
         }
@@ -394,17 +388,94 @@ async function addStatusBubble(avatarContainer) {
     }
 }
 
-export function init() {
-    chrome.storage.local.get({ statusBubbleEnabled: true }, (settings) => {
-        if (settings.statusBubbleEnabled) {
-            startObserving();
+async function addHomeStatusHover(tile) {
+    if (tile.dataset.rovalraStatusObserved) return;
+    tile.dataset.rovalraStatusObserved = 'true';
 
-            injectStylesheet(
-                'css/thinkingbubble.css',
-                'rovalra-profile-status-css',
-            );
-            const selector = '.user-profile-header-details-avatar-container';
-            observeElement(selector, addStatusBubble, { multiple: true });
+    const link = tile.querySelector('a.avatar-card-link');
+    const avatarContainer = tile.querySelector('.avatar-card-fullbody');
+    if (!link || !avatarContainer) return;
+
+    const match = link.href.match(/\/users\/(\d+)\//);
+    if (!match) return;
+    const userId = match[1];
+
+    try {
+        const { status } = await getUserSettings(userId, {
+            useDescription: true,
+        });
+        if (!status) return;
+
+        let statusText = status;
+        if (statusText.length > MAX_STATUS_LENGTH) {
+            statusText = statusText.substring(0, MAX_STATUS_LENGTH) + '...';
         }
-    });
+
+        const isUserTrusted = TRUSTED_USER_IDS.includes(String(userId));
+
+        const bubbleWrapper = document.createElement('div');
+        bubbleWrapper.className = 'rovalra-status-bubble-wrapper';
+        bubbleWrapper.style.left = '130%';
+        bubbleWrapper.style.display = 'none';
+
+        const bubble = document.createElement('div');
+        bubble.className = 'rovalra-status-bubble text-label-medium';
+
+        if (isUserTrusted) {
+            bubble.innerHTML = DOMPurify.sanitize(parseMarkdown(statusText), {
+                FORBID_ATTR: ['style'],
+            });
+        } else {
+            bubble.textContent = statusText;
+        }
+
+        bubbleWrapper.appendChild(bubble);
+        avatarContainer.appendChild(bubbleWrapper);
+
+        tile.addEventListener('mouseenter', () => {
+            bubbleWrapper.style.display = 'flex';
+        });
+        tile.addEventListener('mouseleave', () => {
+            bubbleWrapper.style.display = 'none';
+        });
+    } catch (error) {
+        // Silently handle errors for background status fetching on the home page
+    }
+}
+
+export function init() {
+    chrome.storage.local.get(
+        {
+            statusBubbleEnabled: true,
+            statusBubbleHomePage: true,
+            statusBubbleUseApi: true,
+        },
+        (settings) => {
+            if (settings.statusBubbleEnabled) {
+                startObserving();
+
+                injectStylesheet(
+                    'css/thinkingbubble.css',
+                    'rovalra-profile-status-css',
+                );
+                const selector =
+                    '.user-profile-header-details-avatar-container';
+                observeElement(
+                    selector,
+                    (el) => addStatusBubble(el, settings.statusBubbleUseApi),
+                    { multiple: true },
+                );
+
+                if (settings.statusBubbleHomePage) {
+                    observeElement(
+                        '.friends-carousel-tile',
+                        addHomeStatusHover,
+                        {
+                            multiple: true,
+                        },
+                    );
+                }
+            }
+        },
+    );
 }

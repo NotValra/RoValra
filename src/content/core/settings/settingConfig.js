@@ -450,6 +450,16 @@ export const SETTINGS_CONFIG = {
                 experimental:
                     'This feature may cause performance issues. And may be buggy',
                 childSettings: {
+                    profileRenderUseApi: {
+                        label: 'Use RoValra API for Environment',
+                        description:
+                            "Uses RoValra's API to save your environment choice instead of your 'About Me' section.",
+                        type: 'checkbox',
+                        default: true,
+                        donatorTier: 1,
+                        donatorReason:
+                            'Requires RoValra Donator Tier 1 to use the API for environments.',
+                    },
                     profileRenderEnvironment: {
                         label: '3D Profile Environment',
                         description: [
@@ -531,11 +541,29 @@ export const SETTINGS_CONFIG = {
             statusBubbleEnabled: {
                 label: 'Status Bubble',
                 description: [
-                    'This allows you to set a status bubble that anyone with RoValra can see.',
+                    'This allows you to set a status bubble on your profile that anyone with RoValra can see.',
                     'Also allows you to view other RoValra users status bubbles.',
+                    'This works by adding a little "s:" string to your about me.',
                 ],
                 type: 'checkbox',
                 default: true,
+                childSettings: {
+                    statusBubbleUseApi: {
+                        label: 'Use RoValra API for Status',
+                        description:
+                            "Uses RoValra's API to save your status instead of your 'About Me' section.",
+                        type: 'checkbox',
+                        default: true,
+                        donatorTier: 1,
+                        donatorReason:
+                            'Requires RoValra Donator Tier 1 to use the API for status bubbles.',
+                    },
+                    statusBubbleHomePage: {
+                        label: 'Status bubble for friends on home page',
+                        type: 'checkbox',
+                        default: true,
+                    },
+                },
             },
             donationbuttonEnable: {
                 label: 'Donation Button',

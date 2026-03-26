@@ -19,6 +19,7 @@ import { handleSaveSettings } from '../../../core/settings/handlesettings.js';
 import {
     getUserDescription,
     updateUserDescription,
+    updateUserSettingViaApi,
 } from '../../../core/profile/descriptionhandler.js';
 import { getUserSettings } from '../../../core/donators/settingHandler.js';
 import {
@@ -37,6 +38,7 @@ import {
 } from 'roavatar-renderer';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import * as THREE from 'three';
+import { safeHtml } from '../../../core/packages/dompurify.js';
 FLAGS.ASSETS_PATH = chrome.runtime.getURL('assets/rbxasset/');
 FLAGS.ENABLE_API_MESH_CACHE = false;
 FLAGS.ENABLE_API_RBX_CACHE = false;
@@ -753,6 +755,7 @@ function injectCustomButtons(toggleButton) {
         const settings = await chrome.storage.local.get([
             'profileRenderEnvironment',
             'rendererDeveloperToggles',
+            'profileRenderUseApi',
         ]);
 
         if (isOwnProfile) {
@@ -763,6 +766,8 @@ function injectCustomButtons(toggleButton) {
                 SETTINGS_CONFIG.Profile.settings.profile3DRenderEnabled
                     .childSettings.profileRenderEnvironment.options;
             const currentEnv = settings.profileRenderEnvironment || 'void';
+            const effectiveCanUseApi =
+                globalCanUseApiForEnv && settings.profileRenderUseApi;
 
             const { element: envDropdown } = createDropdown({
                 items: profileEnvs,
@@ -774,18 +779,9 @@ function injectCustomButtons(toggleButton) {
                         (opt) => opt.value === value,
                     );
                     const envId = selectedEnv ? selectedEnv.id : 1;
-                    if (globalCanUseApiForEnv) {
+                    if (effectiveCanUseApi) {
                         try {
-                            await callRobloxApi({
-                                isRovalraApi: true,
-                                subdomain: 'apis',
-                                endpoint: '/v1/auth/settings',
-                                method: 'POST',
-                                body: {
-                                    key: 'environment',
-                                    value: String(envId),
-                                },
-                            });
+                            await updateUserSettingViaApi('environment', envId);
                         } catch (error) {
                             console.error(
                                 'RoValra: Failed to save environment via API.',
@@ -821,7 +817,7 @@ function injectCustomButtons(toggleButton) {
                 'Saves environment choice to your about me as "e:X" so other RoValra users can see it.';
             helpText.style.cssText =
                 'font-size: 11px; color: var(--rovalra-secondary-text-color); margin-top: 5px; margin-bottom: 0;'; //Verified
-            if (!globalCanUseApiForEnv) {
+            if (!effectiveCanUseApi) {
                 envSection.appendChild(helpText);
             }
             contentContainer.appendChild(envSection);
@@ -1112,6 +1108,7 @@ async function preloadAvatar() {
                     'profileRenderEnvironment',
                     'profile3DRenderBypassCheck',
                     'environmentTester',
+                    'profileRenderUseApi',
                     'modelUrl',
                     'modelPosX',
                     'modelPosY',
@@ -1284,7 +1281,9 @@ async function preloadAvatar() {
                         SETTINGS_CONFIG.Profile.settings.profile3DRenderEnabled
                             .childSettings.profileRenderEnvironment.options;
                     const { environment: apiEnv, canUseApi } =
-                        await getUserSettings(userId);
+                        await getUserSettings(userId, {
+                            useDescription: true,
+                        });
                     globalCanUseApiForEnv = canUseApi;
                     let envIdToRender;
                     if (isOwnProfile) {
@@ -1298,18 +1297,12 @@ async function preloadAvatar() {
                             : 1;
                         envIdToRender = localEnvId;
                         if (localEnvId !== apiEnv) {
-                            if (canUseApi) {
+                            if (canUseApi && settings.profileRenderUseApi) {
                                 try {
-                                    await callRobloxApi({
-                                        isRovalraApi: true,
-                                        subdomain: 'apis',
-                                        endpoint: '/v1/auth/settings',
-                                        method: 'POST',
-                                        body: {
-                                            key: 'environment',
-                                            value: String(localEnvId),
-                                        },
-                                    });
+                                    await updateUserSettingViaApi(
+                                        'environment',
+                                        localEnvId,
+                                    );
                                 } catch (error) {
                                     console.error(
                                         'RoValra: Failed to sync environment to API.',
@@ -1514,7 +1507,7 @@ async function attachPreloadedAvatar(container) {
         const errorContainer = document.createElement('div');
         errorContainer.style.cssText =
             'display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--rovalra-secondary-text-color); padding: 20px; text-align: center; font-size: 12px;';
-        errorContainer.innerHTML = `<span style="font-size: 24px; margin-bottom: 8px;">⚠️</span><div style="font-weight:600; margin-bottom:4px;">3D Renderer Error</div><div>${err.message}</div>`;
+        errorContainer.innerHTML = safeHtml`<span style="font-size: 24px; margin-bottom: 8px;">⚠️</span><div style="font-weight:600; margin-bottom:4px;">3D Renderer Error</div><div>${err.message}</div>`;
         container.appendChild(errorContainer);
     });
 
