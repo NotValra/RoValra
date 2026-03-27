@@ -3,10 +3,15 @@ let storageSupported = { session: true, local: true };
 let memoryFallback = { session: {}, local: {} };
 
 let _ramcache = new Map();
+const cachevaluemissing = Symbol("CacheValueMissing");
 
 const getramcache = (section, key, area) => {
     return {
-        get x() { return _ramcache.get(`${area}-${section}::${key}`);},
+        get x() { 
+            if (!_ramcache.has(`${area}-${section}::${key}`))
+                return cachevaluemissing;
+            return _ramcache.get(`${area}-${section}::${key}`);
+        },
         set x(value) { _ramcache.set(`${area}-${section}::${key}`, value);}
     }
 }
@@ -96,7 +101,7 @@ export const set = async (section, key, value, area = 'session') => {
  */
 export const get = async (section, key, area = 'session') => {
     const ram = getramcache(section, key, area);
-    if (ram.x != undefined) {
+    if (ram.x != cachevaluemissing) {
         return ram.x;
     }
     const cache = await getCache(area);
