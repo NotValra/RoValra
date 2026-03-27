@@ -79,7 +79,7 @@ const setCache = async (cache, area = 'session') => {
  * @param {string} area - The storage area ('session' or 'local').
  */
 export const set = async (section, key, value, area = 'session') => {
-    const ram = getramcache();
+    const ram = getramcache(section, key, area);
     const cache = await getCache(area);
     ram.x = value;
     cache[section] = cache[section] || {};
@@ -95,7 +95,7 @@ export const set = async (section, key, value, area = 'session') => {
  * @returns {any} The cached value, or undefined if not found.
  */
 export const get = async (section, key, area = 'session') => {
-    const ram = getramcache();
+    const ram = getramcache(section, key, area);
     if (ram.x != undefined) {
         return ram.x;
     }
