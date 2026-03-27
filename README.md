@@ -25,9 +25,9 @@
 
 ## Official Links
 
-- **Website:** https://rovalra.com  
-- **Features:** https://www.rovalra.com/features/  
-- **FAQ & Support:** https://www.rovalra.com/support/  
+- **Website:** https://rovalra.com
+- **Features:** https://www.rovalra.com/features/
+- **FAQ & Support:** https://www.rovalra.com/support/
 
 > [!WARNING]
 > RoValra is only distributed through the official website and Chrome Web Store.
@@ -41,13 +41,17 @@ Or [donate robux.](https://www.roblox.com/games/store-section/9452973012) \
 It helps a lot and supports continued development.
 
 ---
+
 ## Installation
 
 ### Option 1: Chrome Web Store and Firefox Web Store (Recommended)
 
-Install directly from the [Chrome Web Store](https://chromewebstore.google.com/detail/RoValra%20-%20Roblox%20Improved/njcickgebhnpgmoodjdgohkclfplejli)
-> [!NOTE]
-> Firefox port of RoValra was removed by Firefox.
+Install directly from the [Chrome Web Store](https://chromewebstore.google.com/detail/RoValra%20-%20Roblox%20Improved/njcickgebhnpgmoodjdgohkclfplejli) Or [FireFox (Unofficial port)](https://addons.mozilla.org/en-US/firefox/addon/rovalra-rav4/)
+
+> [!WARNING]
+> Firefox port of RoValra is **unofficial and not controlled by us.**\
+> Please verify what you are downloading is trustworthy before you download it by reading the [source code](https://github.com/rav4toy/RoValra-Firefox)\
+> The FireFox port is use at your own risk
 
 ---
 
@@ -61,7 +65,7 @@ Install directly from the [Chrome Web Store](https://chromewebstore.google.com/d
 ```bash
 npm install
 npm run build
-````
+```
 
 ### Load into browser
 
@@ -69,45 +73,42 @@ npm run build
 2. Download and unzip the latest release from
    [https://github.com/NotValra/RoValra/releases](https://github.com/NotValra/RoValra/releases)
 3. Import the folder that directly contains:
-
-   * `manifest.json`
-
+    - `manifest.json`
 
 </details>
 
 ---
 
-
 ## Credits
 
-* **Contributors:**
+- **Contributors:**
   [https://github.com/NotValra/RoValra/graphs/contributors](https://github.com/NotValra/RoValra/graphs/contributors)
 
-* **Sales / Revenue Data:**
+- **Sales / Revenue Data:**
   [https://github.com/workframes/roblox-owner-counts](https://github.com/workframes/roblox-owner-counts)
 
-* **UI & Chrome Store Graphics:**
+- **UI & Chrome Store Graphics:**
   mmfw
 
-* **Development:**
+- **Development:**
   Gemini, Valra and [the contributors](https://github.com/NotValra/RoValra/graphs/contributors)
 
-* **Region Searcher:**
+- **Region Searcher:**
   Originally a Python script by l5se (used with permission, improved and rewritten for the extension)
 
-* **Additional Development Help:**
+- **Additional Development Help:**
   [Aspect](https://github.com/Aspectise)
 
-* **Extension Logo:**
-  *Gilbert*, a fish caught in
+- **Extension Logo:**
+  _Gilbert_, a fish caught in
   [Fisch](https://www.roblox.com/games/16732694052/Fisch)
 
-* **Early help with locating Servers:**
+- **Early help with locating Servers:**
   7_lz (Discord)
 
-* **Roblox Datacenter IP Research:**
+- **Roblox Datacenter IP Research:**
   Julia -
   [Datacenter IP Research](https://github.com/RoSeal-Extension/Top-Secret-Thing)
 
-* **Project Name:**
+- **Project Name:**
   coweggs (Discord)
