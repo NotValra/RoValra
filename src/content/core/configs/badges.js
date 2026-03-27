@@ -138,8 +138,8 @@ export const BADGE_CONFIG = {
         type: 'header',
         userIds: [Robux],
         icon: assets.robux,
-        name: 'robux',
-        tooltip: 'robux',
+        name: 'Robux Lover',
+        tooltip: 'Robux Lover',
         confetti: assets.robux,
     },
     legacy_donator: {
