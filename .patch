@@ -1,0 +1,38 @@
+commit 311ee7ca819244bea282944c000e1dd65c7b216e
+Author: Bogdan Sandu <bogdanelsandu2011@gmail.com>
+Date:   Fri Mar 27 16:53:13 2026 +0200
+
+    cache: add memory-based caching
+
+diff --git a/src/content/core/storage/cacheHandler.js b/src/content/core/storage/cacheHandler.js
+index 9bb4615..0bda148 100644
+--- a/src/content/core/storage/cacheHandler.js
++++ b/src/content/core/storage/cacheHandler.js
+@@ -2,6 +2,8 @@ const CACHE_KEY = 'rovalra_cache';
+ let storageSupported = { session: true, local: true };
+ let memoryFallback = { session: {}, local: {} };
+ 
++let ramcache = new Map();
++
+ /**
+  * Retrieves the entire cache object from the specified storage area.
+  * @param {string} area - The storage area ('session' or 'local').
+@@ -65,6 +67,7 @@ const setCache = async (cache, area = 'session') => {
+  */
+ export const set = async (section, key, value, area = 'session') => {
+     const cache = await getCache(area);
++    ramcache.set(`${section}::${key}`, value);
+     cache[section] = cache[section] || {};
+     cache[section][key] = value;
+     await setCache(cache, area);
+@@ -78,6 +81,10 @@ export const set = async (section, key, value, area = 'session') => {
+  * @returns {any} The cached value, or undefined if not found.
+  */
+ export const get = async (section, key, area = 'session') => {
++    let v;
++    if ((v = ramcache.get(`${section}::${key}`)) != undefined) {
++        return v;
++    }
+     const cache = await getCache(area);
+     return cache[section] ? cache[section][key] : undefined;
+ };

@@ -2,7 +2,20 @@ const CACHE_KEY = 'rovalra_cache';
 let storageSupported = { session: true, local: true };
 let memoryFallback = { session: {}, local: {} };
 
-let ramcache = new Map();
+let _ramcache = new Map();
+
+const getramcache = (section, key, area) => {
+    return {
+        get x() { return _ramcache.get(`${area}-${section}::${key}`);},
+        set x(value) { _ramcache.set(`${area}-${section}::${key}`, value);}
+    }
+}
+
+chrome.storage.onChanged.addListener((changes, areaName) => {
+    if (areaName !== 'local' && areaName !== 'session') return;
+    _ramcache = new Map();
+});
+
 
 /**
  * Retrieves the entire cache object from the specified storage area.
@@ -66,8 +79,9 @@ const setCache = async (cache, area = 'session') => {
  * @param {string} area - The storage area ('session' or 'local').
  */
 export const set = async (section, key, value, area = 'session') => {
+    const ram = getramcache();
     const cache = await getCache(area);
-    ramcache.set(`${section}::${key}`, value);
+    ram.x = value;
     cache[section] = cache[section] || {};
     cache[section][key] = value;
     await setCache(cache, area);
@@ -81,9 +95,9 @@ export const set = async (section, key, value, area = 'session') => {
  * @returns {any} The cached value, or undefined if not found.
  */
 export const get = async (section, key, area = 'session') => {
-    let v;
-    if ((v = ramcache.get(`${section}::${key}`)) != undefined) {
-        return v;
+    const ram = getramcache();
+    if (ram.x != undefined) {
+        return ram.x;
     }
     const cache = await getCache(area);
     return cache[section] ? cache[section][key] : undefined;
@@ -96,6 +110,7 @@ export const get = async (section, key, area = 'session') => {
  * @param {string} area - The storage area ('session' or 'local').
  */
 export const remove = async (section, key, area = 'session') => {
+    _ramcache.delete(`${area}-${section}::${key}`);
     try {
         const cache = await getCache(area);
         if (cache[section]) {
