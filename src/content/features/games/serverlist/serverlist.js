@@ -1,3 +1,4 @@
+import { callRobloxApi } from '../../../core/api.js';
 import { fetchThumbnails } from '../../../core/thumbnail/thumbnails.js';
 import { launchGame } from '../../../core/utils/launcher.js';
 import { initServerIdExtraction } from '../../../core/games/servers/serverids.js';
@@ -74,6 +75,7 @@ export const _state = {
 
     originalServerElements: [],
     isFilterActive: false,
+    targetActiveCount: 0,
     elements: {
         container: null,
         clearButton: null,
@@ -85,6 +87,27 @@ export const _state = {
         version: true,
     },
 };
+
+async function isServerActive(placeId, gameId) {
+    if (!gameId) return false;
+    try {
+        const response = await callRobloxApi({
+            subdomain: 'gamejoin',
+            endpoint: '/v1/join-game-instance',
+            method: 'POST',
+            body: {
+                placeId: parseInt(placeId, 10),
+                gameId: gameId,
+                isTeleport: false,
+            },
+        });
+        if (!response.ok) return false;
+        const data = await response.json();
+        return data.status === 2;
+    } catch (e) {
+        return false;
+    }
+}
 
 export function init() {
     if (
@@ -244,6 +267,7 @@ function clearAllFilters() {
     );
 
     document.getElementById('rovalra-load-more-btn')?.remove();
+    removeAutoLoadingIndicator();
 
     if (serverListContainer && _state.originalServerElements.length) {
         serverListContainer.innerHTML = '';
@@ -305,15 +329,37 @@ function attachGlobalListeners() {
 
         if (!append) {
             serverListContainer.innerHTML = '';
+            _state.targetActiveCount = 6;
+            showAutoLoadingIndicator(serverListContainer);
         }
 
         if (servers.length > 0) {
-            renderAndAppendServers(
+            await renderAndAppendServers(
                 servers,
                 serverListContainer,
                 getPlaceIdFromUrl(),
             );
-            manageLoadMoreButton(nextCursor, regionCode);
+
+            removeAutoLoadingIndicator();
+
+            const activeCount = serverListContainer.querySelectorAll(
+                'li[data-rovalra-serverid]',
+            ).length;
+
+            if (activeCount < _state.targetActiveCount && nextCursor) {
+                showAutoLoadingIndicator(serverListContainer);
+                document.dispatchEvent(
+                    new CustomEvent('rovalraRequestRegionServers', {
+                        detail: {
+                            regionCode,
+                            cursor: nextCursor,
+                            append: true,
+                        },
+                    }),
+                );
+            } else {
+                manageLoadMoreButton(nextCursor, regionCode);
+            }
         } else if (!append) {
             displayMessageInContainer(
                 await t('serverList.noServersApi'),
@@ -328,6 +374,7 @@ function attachGlobalListeners() {
         const errorMessage =
             ev.detail?.message || (await t('serverList.loadErrorApi'));
         displayMessageInContainer(errorMessage, true);
+        removeAutoLoadingIndicator();
     });
 
     document.addEventListener('rovalra-server-inactive', (ev) => {
@@ -340,8 +387,28 @@ function attachGlobalListeners() {
     });
 }
 
+function showAutoLoadingIndicator(container) {
+    removeAutoLoadingIndicator();
+    const loader = document.createElement('div');
+    loader.id = 'rovalra-auto-fetch-loader';
+    loader.style.cssText =
+        'width: 100%; text-align: center; padding: 20px; margin-top: 10px;';
+    loader.innerHTML = DOMPurify.sanitize(`
+
+        <div style="display: flex; justify-content: center;"><span class="spinner spinner-default"></span></div>
+    `);
+    if (container.parentElement) {
+        container.parentElement.appendChild(loader);
+    }
+}
+
+function removeAutoLoadingIndicator() {
+    document.getElementById('rovalra-auto-fetch-loader')?.remove();
+}
+
 function manageLoadMoreButton(nextCursor, regionCode) {
     document.getElementById('rovalra-load-more-btn')?.remove();
+    removeAutoLoadingIndicator();
 
     if (nextCursor) {
         const serverListContainer = document.querySelector(
@@ -357,13 +424,17 @@ function manageLoadMoreButton(nextCursor, regionCode) {
         loadMoreButton.style.cursor = 'pointer';
 
         loadMoreButton.addEventListener('click', () => {
-            loadMoreButton.innerHTML = DOMPurify.sanitize(
-                '<span class="spinner spinner-default"></span>',
-            );
-            loadMoreButton.disabled = true;
+            const currentCount = serverListContainer.querySelectorAll(
+                'li[data-rovalra-serverid]',
+            ).length;
+            _state.targetActiveCount = currentCount + 6;
+
+            showAutoLoadingIndicator(serverListContainer);
+            loadMoreButton.remove();
+
             document.dispatchEvent(
                 new CustomEvent('rovalraRequestRegionServers', {
-                    detail: { regionCode, cursor: nextCursor },
+                    detail: { regionCode, cursor: nextCursor, append: true },
                 }),
             );
         });
@@ -869,7 +940,14 @@ export async function createServerCardFromApi(server, placeId = '') {
 }
 
 async function renderAndAppendServers(servers, serverListContainer, placeId) {
-    const serverCardPromises = servers.map((server) => {
+    const activeServers = [];
+    for (const s of servers) {
+        if (await isServerActive(placeId, s.id || s.server_id)) {
+            activeServers.push(s);
+        }
+    }
+
+    const serverCardPromises = activeServers.map((server) => {
         if (server.playerTokens) {
             return createServerCardFromRobloxApi(server, placeId);
         } else {
@@ -911,6 +989,7 @@ function displayMessageInContainer(message, isError = false) {
     serverListContainer.innerHTML = '';
 
     document.getElementById('rovalra-load-more-btn')?.remove();
+    removeAutoLoadingIndicator();
 
     const listItem = document.createElement('li');
     listItem.style.width = '100%';

@@ -788,16 +788,10 @@ async function startIndependentServerScan() {
             });
             const serversOnPage = response.data || [];
             if (serversOnPage.length > 0) {
-                for (let i = 0; i < serversOnPage.length; i += 10) {
+                for (const s of serversOnPage) {
                     if (!State.isScanning) break;
-                    const batch = serversOnPage.slice(i, i + 10);
-                    await Promise.all(
-                        batch.map((s) => getAndCacheServerRegion(s, placeId)),
-                    );
-                    if (i + 10 < serversOnPage.length)
-                        await new Promise((resolve) =>
-                            setTimeout(resolve, 100),
-                        );
+                    await getAndCacheServerRegion(s, placeId);
+                    await new Promise((resolve) => setTimeout(resolve, 100));
                 }
             }
             if (!response.nextPageCursor) {

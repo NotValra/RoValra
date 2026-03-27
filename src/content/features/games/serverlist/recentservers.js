@@ -312,15 +312,14 @@ async function renderRecentServers(section) {
             return;
         }
 
-        const activityStatus = await Promise.all(
-            gameHistory.map((serverData) =>
-                checkServerIsActive(placeId, serverData.presence.gameId),
-            ),
-        );
-
-        const activeServers = gameHistory.filter(
-            (_, index) => activityStatus[index],
-        );
+        const activeServers = [];
+        for (const serverData of gameHistory) {
+            if (
+                await checkServerIsActive(placeId, serverData.presence.gameId)
+            ) {
+                activeServers.push(serverData);
+            }
+        }
 
         if (activeServers.length === 0) {
             const noActive = document.createElement('div');
