@@ -100,7 +100,9 @@ export const get = async (section, key, area = 'session') => {
         return ram.x;
     }
     const cache = await getCache(area);
-    return cache[section] ? cache[section][key] : undefined;
+    const v = cache[section] ? cache[section][key] : undefined;
+    ram.x = v;
+    return v;
 };
 
 /**
