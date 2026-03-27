@@ -7,12 +7,13 @@ const cachevaluemissing = Symbol("CacheValueMissing");
 
 const getramcache = (section, key, area) => {
     return {
+        k: `(${area})-(${section})::(${key})`,
         get x() { 
-            if (!_ramcache.has(`${area}-${section}::${key}`))
+            if (!_ramcache.has(this.k))
                 return cachevaluemissing;
-            return _ramcache.get(`${area}-${section}::${key}`);
+            return _ramcache.get(this.k);
         },
-        set x(value) { _ramcache.set(`${area}-${section}::${key}`, value);}
+        set x(value) { _ramcache.set(this.k, value);}
     }
 }
 
@@ -117,7 +118,8 @@ export const get = async (section, key, area = 'session') => {
  * @param {string} area - The storage area ('session' or 'local').
  */
 export const remove = async (section, key, area = 'session') => {
-    _ramcache.delete(`${area}-${section}::${key}`);
+    const ramcache = getramcache(section, key, area);
+    _ramcache.delete(ramcache.k);
     try {
         const cache = await getCache(area);
         if (cache[section]) {
