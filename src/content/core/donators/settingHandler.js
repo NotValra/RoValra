@@ -144,18 +144,23 @@ async function fetchAndProcessSettings(userId, options = {}) {
                     });
                     if (res && res.status === 'success') {
                         finalStatus = statusFromDesc;
-                        if (description !== null) {
-                            description = description
-                                .split('\n')
-                                .filter((line) => !line.trim().startsWith('s:'))
-                                .join('\n')
-                                .trimEnd();
-                        }
                         apiProvidedMeaningfulSettings = true;
                     }
                 } catch (e) {
                     console.error('Failed to migrate status to API.', e);
                 }
+            }
+
+            if (
+                statusFromDesc &&
+                apiProvidedMeaningfulSettings &&
+                description !== null
+            ) {
+                description = description
+                    .split('\n')
+                    .filter((line) => !line.trim().startsWith('s:'))
+                    .join('\n')
+                    .trimEnd();
             }
 
             if (!finalStatus && statusFromDesc) {
@@ -190,19 +195,25 @@ async function fetchAndProcessSettings(userId, options = {}) {
                     });
                     if (res && res.status === 'success') {
                         finalEnvironment = envFromDesc;
-                        if (description !== null) {
-                            description = description
-                                .split('\n')
-                                .filter((line) => !line.trim().startsWith('e:'))
-                                .join('\n')
-                                .trimEnd();
-                        }
                         apiProvidedMeaningfulSettings = true;
                     }
                 } catch (e) {
                     console.error('Failed to migrate environment to API.', e);
                 }
             }
+
+            if (
+                envFromDesc &&
+                apiProvidedMeaningfulSettings &&
+                description !== null
+            ) {
+                description = description
+                    .split('\n')
+                    .filter((line) => !line.trim().startsWith('e:'))
+                    .join('\n')
+                    .trimEnd();
+            }
+
             if ((!finalEnvironment || finalEnvironment === 1) && envFromDesc) {
                 finalEnvironment = envFromDesc;
             }

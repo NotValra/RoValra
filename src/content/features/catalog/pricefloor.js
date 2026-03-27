@@ -34,6 +34,10 @@ export function init() {
                         ? details.bundleType
                         : details.assetType;
 
+                    const isFullMask = details.taxonomy?.some(
+                        (t) => t.taxonomyName === 'Full Masks',
+                    );
+
                     if (
                         details.taxonomy?.some(
                             (t) => t.taxonomyName === 'Heads',
@@ -42,7 +46,7 @@ export function init() {
                         assetType = 2;
                     }
 
-                    if (!assetType) return;
+                    if (!assetType && !isFullMask) return;
 
                     const isPbr = details.isPBR || false;
                     const isBodysuit =
@@ -58,9 +62,17 @@ export function init() {
 
                     const typeParam = isBundlePage ? 'bundleType' : 'assetType';
 
+                    let queryParams = `collectibleItemType=${collectibleItemType}&creationType=1&isPbr=${isPbr}&isBodysuit=${isBodysuit}`;
+
+                    if (isFullMask) {
+                        queryParams += `&categoryId=full_mask%7Cm4.1fullmask_20260224%7C6`;
+                    } else {
+                        queryParams += `&${typeParam}=${assetType}`;
+                    }
+
                     const priceFloorData = await callRobloxApiJson({
                         subdomain: 'itemconfiguration',
-                        endpoint: `/v1/items/price-floor?collectibleItemType=${collectibleItemType}&creationType=1&isPbr=${isPbr}&isBodysuit=${isBodysuit}&${typeParam}=${assetType}`,
+                        endpoint: `/v1/items/price-floor?${queryParams}`,
                     });
 
                     if (
