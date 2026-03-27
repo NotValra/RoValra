@@ -10,6 +10,7 @@ import {
     ARTIST_BADGE_USER_ID,
     TRANSLATOR_USER_IDS,
     GILBERT_USER_ID,
+    Robux,
 } from './userIds.js';
 
 const assets = getAssets();
@@ -132,6 +133,14 @@ export const BADGE_CONFIG = {
         name: 'silly goober',
         tooltip: 'silly goober',
         confetti: assets.alice,
+    },
+    robux: {
+        type: 'header',
+        userIds: [Robux],
+        icon: assets.robux,
+        name: 'robux',
+        tooltip: 'robux',
+        confetti: assets.robux,
     },
     legacy_donator: {
         type: 'header',

@@ -25,3 +25,4 @@ export const BLAHAJ_BADGE_USER_ID = '96786935'; // BLAHAJ
 export const CAM_BADGE_USER_ID = '4866259395';
 export const alice_badge_user_id = '48255812';
 export const GILBERT_USER_ID = '146089324'; // WoozyNate
+export const Robux = '1163412141';
