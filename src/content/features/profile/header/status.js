@@ -456,6 +456,8 @@ async function addHomeStatusHover(tile) {
             }
         }
         if (statusLoaded) {
+            if (!tile.matches(':hover')) return;
+
             if (
                 activeHomeStatusBubble &&
                 activeHomeStatusBubble !== bubbleWrapper
