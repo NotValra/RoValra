@@ -2,6 +2,11 @@ const CACHE_KEY = 'rovalra_cache';
 let storageSupported = { session: true, local: true };
 let memoryFallback = { session: {}, local: {} };
 
+const this_tab = (() => {
+    const bytes = crypto.getRandomValues(new Uint8Array(12));
+    return "RoValra-TABUID:" + btoa(String.fromCharCode(...bytes));
+})();
+
 let _ramcache = new Map();
 const cachevaluemissing = Symbol("CacheValueMissing");
 
@@ -19,7 +24,11 @@ const getramcache = (section, key, area) => {
 
 chrome.storage.onChanged.addListener((changes, areaName) => {
     if (areaName !== 'local' && areaName !== 'session') return;
-    _ramcache = new Map();
+
+    const author = changes[CACHE_KEY + '-author'];
+    if (author?.newValue === this_tab) return;
+
+    _ramcache.clear();
 });
 
 
@@ -63,7 +72,7 @@ const setCache = async (cache, area = 'session') => {
     }
 
     try {
-        await chrome.storage[area].set({ [CACHE_KEY]: cache });
+        await chrome.storage[area].set({ [CACHE_KEY]: cache, [CACHE_KEY + '-author']: this_tab });
     } catch (e) {
         if (e.message.includes('Access to storage is not allowed')) {
             storageSupported[area] = false;
