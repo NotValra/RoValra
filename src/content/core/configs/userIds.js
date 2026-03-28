@@ -10,6 +10,7 @@ export const CONTRIBUTOR_USER_IDS = [
     '7982684834', //qborder
     '126448532', //steinann
     '1564574922', //cornusandu
+    '587159802', //zoinbase
 ];
 
 export const TESTER_USER_IDS = [
