@@ -7,7 +7,8 @@ import { fetchThumbnails as fetchThumbnailsBatch } from '../../core/thumbnail/th
 import { callRobloxApi } from '../../core/api.js';
 import { safeHtml } from '../../core/packages/dompurify';
 import { createGameCard } from '../../core/ui/games/gameCard.js';
-import { t } from 'i18next';
+import { t, ts } from '../../core/locale/i18n.js';
+
 const CONFIG = {
     PAGE_SIZE: 50,
     ACCESS_FILTER: 2,
@@ -230,22 +231,22 @@ const UI = {
             items: [
                 {
                     value: 'default',
-                    label: t('hiddenGamesProfile.sort.default'),
+                    label: ts('hiddenGamesProfile.sort.default'),
                 },
                 {
                     value: 'like-ratio',
-                    label: t('hiddenGamesProfile.sort.likeRatio'),
+                    label: ts('hiddenGamesProfile.sort.likeRatio'),
                 },
-                { value: 'likes', label: t('hiddenGamesProfile.sort.likes') },
+                { value: 'likes', label: ts('hiddenGamesProfile.sort.likes') },
                 {
                     value: 'dislikes',
-                    label: t('hiddenGamesProfile.sort.dislikes'),
+                    label: ts('hiddenGamesProfile.sort.dislikes'),
                 },
                 {
                     value: 'players',
-                    label: t('hiddenGamesProfile.sort.players'),
+                    label: ts('hiddenGamesProfile.sort.players'),
                 },
-                { value: 'name', label: t('hiddenGamesProfile.sort.name') },
+                { value: 'name', label: ts('hiddenGamesProfile.sort.name') },
             ],
             initialValue: 'default',
             onValueChange: (v) => onFilterChange('sort', v),
@@ -255,11 +256,11 @@ const UI = {
             items: [
                 {
                     value: 'desc',
-                    label: t('hiddenGamesProfile.order.descending'),
+                    label: ts('hiddenGamesProfile.order.descending'),
                 },
                 {
                     value: 'asc',
-                    label: t('hiddenGamesProfile.order.ascending'),
+                    label: ts('hiddenGamesProfile.order.ascending'),
                 },
             ],
             initialValue: 'desc',
@@ -268,11 +269,11 @@ const UI = {
 
         container.append(
             createFilterSection(
-                t('hiddenGamesProfile.labels.sort'),
+                ts('hiddenGamesProfile.labels.sort'),
                 sortDropdown.element,
             ),
             createFilterSection(
-                t('hiddenGamesProfile.labels.order'),
+                ts('hiddenGamesProfile.labels.order'),
                 orderDropdown.element,
             ),
         );
@@ -290,7 +291,7 @@ const UI = {
             return;
 
         const btn = createButton(
-            t('hiddenGamesProfile.buttonText'),
+            ts('hiddenGamesProfile.buttonText'),
             'secondary',
         );
         btn.classList.add('hidden-games-button');
@@ -305,10 +306,10 @@ const UI = {
 
         const text = document.createElement('p');
         text.className = 'text-label';
-        text.textContent = t('hiddenGamesProfile.noPublicGames');
+        text.textContent = ts('hiddenGamesProfile.noPublicGames');
 
         const btn = createButton(
-            t('hiddenGamesProfile.buttonText'),
+            ts('hiddenGamesProfile.buttonText'),
             'secondary',
         );
         btn.classList.add('hidden-games-button');
@@ -349,7 +350,7 @@ class HiddenGamesManager {
         this.elements = { list, loader, filterPanel };
 
         const { overlay } = createOverlay({
-            title: t('hiddenGamesProfile.overlayText'),
+            title: ts('hiddenGamesProfile.overlayText'),
             bodyContent: body,
             maxWidth: '1200px',
             maxHeight: '85vh',
