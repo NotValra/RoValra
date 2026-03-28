@@ -5,7 +5,7 @@ let memoryFallback = { session: {}, local: {} };
 const this_tab = (() => {
     const bytes = crypto.getRandomValues(new Uint8Array(12));
     return "RoValra-TABUID:" + btoa(String.fromCharCode(...bytes));
-})();
+})();  // generate a 16-character unique identifier for this tab
 
 let _ramcache = new Map();
 const cachevaluemissing = Symbol("CacheValueMissing");
