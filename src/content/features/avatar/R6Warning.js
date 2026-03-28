@@ -1,6 +1,23 @@
 import { observeElement } from '../../core/observer.js';
 
 export function init() {
+    function updateAvatarLayout() {
+        if (window.location.pathname.startsWith('/my/avatar')) {
+            document.body.classList.add('rovalra-avatar-layout-enabled');
+        } else {
+            document.body.classList.remove('rovalra-avatar-layout-enabled');
+        }
+    }
+
+    updateAvatarLayout();
+
+    const _pushState = history.pushState;
+    history.pushState = function (...args) {
+        _pushState.apply(this, args);
+        setTimeout(updateAvatarLayout, 300);
+    };
+    window.addEventListener('popstate', () => setTimeout(updateAvatarLayout, 300));
+
     chrome.storage.local.get({ forceR6Enabled: true }, (settings) => {
         if (!settings.forceR6Enabled) {
             return;
