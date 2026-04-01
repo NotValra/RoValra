@@ -1,11 +1,10 @@
-import './patch.js';
 import { observeElement, observeResize } from '../../../core/observer.js';
 import { getUserIdFromUrl } from '../../../core/idExtractor.js';
 import {
     injectStylesheet,
     removeStylesheet,
 } from '../../../core/ui/cssInjector.js';
-import { callRobloxApiJson, callRobloxApi } from '../../../core/api.js';
+import { callRobloxApiJson } from '../../../core/api.js';
 import { createSquareButton } from '../../../core/ui/profile/header/squarebutton.js';
 import { createOverlay } from '../../../core/ui/overlay.js';
 import { createDropdown } from '../../../core/ui/dropdown.js';
@@ -45,7 +44,7 @@ import * as THREE from 'three';
 import { safeHtml } from '../../../core/packages/dompurify.js';
 FLAGS.ENABLE_API_MESH_CACHE = false;
 FLAGS.ENABLE_API_RBX_CACHE = false;
-FLAGS.USE_WORKERS = true;
+FLAGS.USE_WORKERS = false;
 FLAGS.ONLINE_ASSETS = true;
 
 let currentRig = null;
