@@ -710,6 +710,13 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
+            stickyAvatarEnabled: {
+                label: 'Sticky Avatar Preview',
+                description:
+                    'This forces the avatar preview to always be in view on the avatar editor.',
+                type: 'checkbox',
+                default: true,
+            },
             avatarFiltersEnabled: {
                 label: 'Avatar Filters',
                 description: [
