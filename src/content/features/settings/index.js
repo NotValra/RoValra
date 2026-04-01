@@ -343,6 +343,10 @@ export const buttonData = [
                 <h2 style="margin-bottom: 10px; color: var(--rovalra-main-text-color) !important;">${ts('settings.donatorPerks.title')}</h2>
                 <p>${ts('settings.donatorPerks.subtitle')}</p>
                 
+                <div style="margin-top: 15px; font-size: 13px; color: var(--rovalra-secondary-text-color);">
+                    ${parseMarkdown(ts('settings.donatorPerks.note'), themeColors)}
+                </div>
+
                 <div style="margin-top: 15px;">
                     <h3 style="color: var(--rovalra-main-text-color); margin-bottom: 5px; font-size: 18px;">${ts('settings.donatorPerks.howToGet')}</h3>
                     <p>${ts('settings.donatorPerks.howToGetDesc')}</p>
@@ -400,10 +404,6 @@ export const buttonData = [
                         ${getDonatorBadgesHtml()}
                     </div>
                 </div>
-                
-                <p style="margin-top: 15px; font-size: 12px; color: var(--rovalra-secondary-text-color);">
-                    ${ts('settings.donatorPerks.note')}
-                </p>
             </div>`;
         },
     },
