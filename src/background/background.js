@@ -360,7 +360,7 @@ async function wearOutfit(outfitData) {
 
         const detailsRes = await callWithRetry({
             subdomain: 'avatar',
-            endpoint: `/v1/outfits/${outfitId}/details`,
+            endpoint: `/v3/outfits/${outfitId}/details`,
         });
         if (!detailsRes?.ok) return { ok: false };
 
@@ -395,25 +395,13 @@ async function wearOutfit(outfitData) {
                 }),
             );
 
-        if (
-            typeof outfitData === 'object' &&
-            outfitData?.outfitDetail?.bodyColor3s
-        ) {
+        if (details.bodyColor3s) {
             promises.push(
                 callWithRetry({
                     subdomain: 'avatar',
-                    endpoint: '/v3/avatar/set-body-colors',
+                    endpoint: '/v2/avatar/set-body-colors',
                     method: 'POST',
-                    body: outfitData.outfitDetail.bodyColor3s,
-                }),
-            );
-        } else if (details.bodyColors) {
-            promises.push(
-                callWithRetry({
-                    subdomain: 'avatar',
-                    endpoint: '/v1/avatar/set-body-colors',
-                    method: 'POST',
-                    body: details.bodyColors,
+                    body: details.bodyColor3s,
                 }),
             );
         }
