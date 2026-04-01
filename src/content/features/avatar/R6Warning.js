@@ -1,35 +1,50 @@
 import { observeElement } from '../../core/observer.js';
 
 export function init() {
-    function updateAvatarLayout() {
-        if (window.location.pathname.startsWith('/my/avatar')) {
-            document.body.classList.add('rovalra-avatar-layout-enabled');
-        } else {
-            document.body.classList.remove('rovalra-avatar-layout-enabled');
-        }
+    function injectLayoutStyles() {
+        if (document.getElementById('rovalra-avatar-layout-styles')) return;
+        const link = document.createElement('link');
+        link.id = 'rovalra-avatar-layout-styles';
+        link.rel = 'stylesheet';
+        link.href = chrome.runtime.getURL('css/avatar-layout.css');
+        document.head.appendChild(link);
     }
 
+    function updateAvatarLayout() {
+        chrome.storage.local.get({ stickyAvatarEnabled: true }, (settings) => {
+            if (
+                window.location.pathname.startsWith('/my/avatar') &&
+                settings.stickyAvatarEnabled
+            ) {
+                injectLayoutStyles();
+                document.body.classList.add('rovalra-avatar-layout-enabled');
+            } else {
+                document.body.classList.remove('rovalra-avatar-layout-enabled');
+            }
+        });
+    }
     updateAvatarLayout();
-
     const _pushState = history.pushState;
     history.pushState = function (...args) {
         _pushState.apply(this, args);
         setTimeout(updateAvatarLayout, 300);
     };
-    window.addEventListener('popstate', () => setTimeout(updateAvatarLayout, 300));
+    window.addEventListener('popstate', () =>
+        setTimeout(updateAvatarLayout, 300),
+    );
 
     chrome.storage.local.get({ forceR6Enabled: true }, (settings) => {
         if (!settings.forceR6Enabled) {
             return;
         }
 
-        const toggleGroupSelector = '.avatar-type-contents-container .MuiToggleButtonGroup-root';
+        const toggleGroupSelector =
+            '.avatar-type-contents-container .MuiToggleButtonGroup-root';
         const modalSelector = 'div[role="presentation"].MuiDialog-root';
         const viewToggleSelector = '.toggle-three-dee';
 
         let lastToggleClickTime = 0;
 
-   
         function forceViewRefresh() {
             const toggleBtn = document.querySelector(viewToggleSelector);
             if (!toggleBtn) return;
@@ -46,50 +61,51 @@ export function init() {
             }, 150);
         }
 
-
         function handleToggleGroupFound(groupContainer) {
             if (groupContainer.dataset.rovalraR6Patched) return;
             groupContainer.dataset.rovalraR6Patched = 'true';
 
             const buttons = groupContainer.querySelectorAll('button');
 
-            buttons.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    lastToggleClickTime = Date.now();
-                    
-          
-                    buttons.forEach(b => {
-                        const isSelected = b === btn;
-                        b.setAttribute('aria-pressed', isSelected);
-                        if(isSelected) b.classList.add('selected', 'Mui-selected');
-                        else b.classList.remove('selected', 'Mui-selected');
-                    });
+            buttons.forEach((btn) => {
+                btn.addEventListener(
+                    'click',
+                    () => {
+                        lastToggleClickTime = Date.now();
 
-                }, { capture: true });
+                        buttons.forEach((b) => {
+                            const isSelected = b === btn;
+                            b.setAttribute('aria-pressed', isSelected);
+                            if (isSelected)
+                                b.classList.add('selected', 'Mui-selected');
+                            else b.classList.remove('selected', 'Mui-selected');
+                        });
+                    },
+                    { capture: true },
+                );
             });
         }
 
-
         function handleModalFound(modal) {
-
             if (Date.now() - lastToggleClickTime > 500) {
                 return;
             }
 
             const allButtons = modal.querySelectorAll('button');
-            const switchBtn = Array.from(allButtons).find(
-                b => b.textContent.trim().toLowerCase() === 'switch'
-            ) || (allButtons.length > 0 ? allButtons[allButtons.length - 1] : null);
+            const switchBtn =
+                Array.from(allButtons).find(
+                    (b) => b.textContent.trim().toLowerCase() === 'switch',
+                ) ||
+                (allButtons.length > 0
+                    ? allButtons[allButtons.length - 1]
+                    : null);
 
             if (switchBtn) {
-
                 modal.style.visibility = 'hidden';
                 modal.style.opacity = '0';
                 modal.style.pointerEvents = 'none';
 
-              
                 switchBtn.click();
-
 
                 setTimeout(() => {
                     forceViewRefresh();
@@ -97,7 +113,9 @@ export function init() {
             }
         }
 
-        observeElement(toggleGroupSelector, handleToggleGroupFound, { multiple: true });
+        observeElement(toggleGroupSelector, handleToggleGroupFound, {
+            multiple: true,
+        });
         observeElement(modalSelector, handleModalFound, { multiple: true });
     });
 }
