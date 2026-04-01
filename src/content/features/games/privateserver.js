@@ -3,7 +3,7 @@ import { getAuthenticatedUserId } from '../../core/user.js';
 import { createButton } from '../../core/ui/buttons.js';
 import { callRobloxApi } from '../../core/api.js';
 import { enhanceServer } from '../../core/games/servers/serverdetails.js';
-import { loadDatacenterMap } from '../../core/regions.js';
+import { loadDatacenterMap, serverIpMap } from '../../core/regions.js';
 import { t } from '../../core/locale/i18n.js';
 
 const privateServerContext = {
@@ -22,19 +22,7 @@ export async function init() {
 
     try {
         await loadDatacenterMap();
-        const result = await new Promise((resolve) =>
-            chrome.storage.local.get('rovalraDatacenters', resolve),
-        );
-        if (result?.rovalraDatacenters) {
-            result.rovalraDatacenters.forEach((dc) => {
-                if (dc.location && dc.dataCenterIds)
-                    dc.dataCenterIds.forEach(
-                        (id) =>
-                            (privateServerContext.serverIpMap[id] =
-                                dc.location),
-                    );
-            });
-        }
+        privateServerContext.serverIpMap = serverIpMap;
     } catch (e) {}
 
     chrome.storage.local.get(

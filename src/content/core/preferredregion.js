@@ -10,6 +10,7 @@ import {
     showLoadingOverlayResult,
 } from './ui/startModal/gamelaunchmodal.js';
 import * as ClosestServer from './regionFinder/ClosestServer.js';
+import { getRegionData, REGIONS } from './regions.js';
 import { getStateCodeFromRegion } from './regions.js';
 
 export { getStateCodeFromRegion };
@@ -48,6 +49,7 @@ async function fetchServerDetailsWrapper(server, placeId) {
     if (userRequestedStop) return;
 
     const regionCode = await ClosestServer.fetchServerRegion(server, placeId);
+    await getRegionData();
     if (userRequestedStop) return;
     if (regionCode) {
         serverLocations[server.id] = { c: regionCode };
@@ -61,7 +63,6 @@ export async function performJoinAction(
     onCancel = null,
 ) {
     if (isCurrentlyFetchingData) return;
-
     userRequestedStop = false;
     isCurrentlyFetchingData = true;
     serverLocations = {};
@@ -93,10 +94,10 @@ export async function performJoinAction(
         await ClosestServer.dataPromise;
 
         updateLoadingOverlayText('Detecting your location...');
+        await getRegionData();
         const locationData = await getUserLocation(placeId);
 
         let allRegionsByDistance = [];
-        const REGIONS = ClosestServer.REGIONS;
         if (locationData) {
             const { userLat, userLon } = locationData;
             const regionsWithDistance = Object.keys(REGIONS).map(
@@ -160,6 +161,10 @@ export async function performJoinAction(
 
             if (rovalraResult.status === 'JOINED') {
                 joined = true;
+                runManualScan = false;
+            } else if (rovalraResult.status === 'FOUND_FALLBACK') {
+                bestServerFoundSoFar = rovalraResult.servers[0];
+                bestServerRegionCode = rovalraResult.regionCode;
                 runManualScan = false;
             } else if (rovalraResult.status === 'NO_SERVERS') {
                 runManualScan = true;
@@ -493,12 +498,12 @@ export async function performJoinAction(
 }
 
 export async function getSavedPreferredRegion() {
-    await ClosestServer.dataPromise;
+    const data = await getRegionData();
     const result = await chrome.storage.local.get(PREFERRED_REGION_STORAGE_KEY);
     const region = result[PREFERRED_REGION_STORAGE_KEY];
-    const REGIONS = ClosestServer.REGIONS;
+    const regionMap = data.regions;
 
-    if (region && region !== 'AUTO' && !REGIONS[region]) {
+    if (region && region !== 'AUTO' && !regionMap[region]) {
         try {
             await chrome.storage.local.set({
                 [PREFERRED_REGION_STORAGE_KEY]: 'AUTO',

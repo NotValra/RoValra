@@ -799,50 +799,6 @@ window.addEventListener('beforeunload', () => {
     document.removeEventListener('roblox-dom-changed', handleGlobalDomChange);
 });
 
-document.addEventListener('DOMContentLoaded', function () {
-    const PreferredRegionEnabled = document.getElementById(
-        'PreferredRegionEnabled',
-    );
-    const preferredRegionSelect = document.getElementById(
-        'preferredRegionSelect',
-    );
-    const regionSettingDiv = document.getElementById(
-        'setting-preferred-region',
-    );
-
-    function updateRegionSelectVisibility() {
-        if (PreferredRegionEnabled && regionSettingDiv) {
-            const isEnabled = PreferredRegionEnabled.checked;
-            regionSettingDiv.style.display = isEnabled ? 'flex' : 'none';
-            if (preferredRegionSelect)
-                preferredRegionSelect.disabled = !isEnabled;
-        }
-    }
-
-    if (PreferredRegionEnabled) {
-        PreferredRegionEnabled.addEventListener('change', function () {
-            updateRegionSelectVisibility();
-            handleSaveSettings('PreferredRegionEnabled', this.checked);
-        });
-    }
-
-    if (preferredRegionSelect) {
-        preferredRegionSelect.addEventListener('change', function () {
-            handleSaveSettings('robloxPreferredRegion', this.value);
-        });
-
-        if (preferredRegionSelect.options.length === 0) {
-            Object.keys(REGIONS).forEach((regionCode) => {
-                const option = document.createElement('option');
-                option.value = regionCode;
-                option.textContent = getFullRegionName(regionCode);
-                preferredRegionSelect.appendChild(option);
-            });
-        }
-    }
-    updateRegionSelectVisibility();
-});
-
 function initializeHeartbeatSpoofer() {
     const originalFetch = window.fetch;
     let pulseInterval = null;

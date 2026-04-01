@@ -2,7 +2,13 @@ import { observeElement, startObserving } from '../../../observer.js';
 import { getAssets } from '../../../assets.js';
 import { callRobloxApiJson } from '../../../api.js';
 import { addTooltip } from '../../../ui/tooltip.js';
-import { getStateCodeFromRegion } from '../../../preferredregion.js';
+import {
+    loadDatacenterMap,
+    getRegionData,
+    serverIpMap,
+    getContinent,
+    getStateCodeFromRegion,
+} from '../../../regions.js';
 import { createButton } from '../../../ui/buttons.js';
 import { showReviewPopup } from '../../../review/review.js';
 import DOMPurify from 'dompurify';
@@ -199,14 +205,8 @@ function closeGlobalPanels() {
 }
 
 function getInternalStateCode(stateName) {
-    if (!stateName) return '';
-    const upper = stateName.toUpperCase().trim();
-    if (US_STATE_NAME_TO_CODE[upper]) return US_STATE_NAME_TO_CODE[upper];
-    if (typeof getStateCodeFromRegion === 'function') {
-        const res = getStateCodeFromRegion(stateName);
-        if (res) return res;
-    }
-    return '';
+    const code = getStateCodeFromRegion(stateName);
+    return code || '';
 }
 
 function resolveApiRegionCode(internalCode) {
@@ -308,53 +308,9 @@ function buildServerCountsMap(apiJson) {
 function generateRegionKey(country, city, regionName) {
     if (country === 'US' && regionName) {
         const stateCode = getInternalStateCode(regionName);
-        return `US-${stateCode}-${city.replace(/\s+/g, '')}`;
+        return `US-${stateCode}-${city.replace(/\s+/g, '').toUpperCase()}`;
     }
-    return `${country}-${city.replace(/\s+/g, '')}`;
-}
-
-function processStorageDatacenters(apiData) {
-    if (!Array.isArray(apiData)) return;
-
-    const newRegions = {};
-    const newCounts = {};
-    const newIpMap = {};
-
-    apiData.forEach((dc) => {
-        if (!dc.location || !dc.location.country || !dc.location.city) return;
-
-        if (Array.isArray(dc.dataCenterIds)) {
-            dc.dataCenterIds.forEach((id) => (newIpMap[id] = dc));
-        }
-
-        const loc = dc.location;
-        const regionKey = generateRegionKey(loc.country, loc.city, loc.region);
-        const count = Array.isArray(dc.dataCenterIds)
-            ? dc.dataCenterIds.length
-            : 0;
-
-        newCounts[regionKey] = (newCounts[regionKey] || 0) + count;
-
-        const continent = loc.continent || 'Other';
-        if (!newRegions[continent]) {
-            newRegions[continent] = {};
-        }
-        if (!newRegions[continent][regionKey]) {
-            newRegions[continent][regionKey] = {
-                city: loc.city,
-                country: loc.country_name || loc.country,
-                coords: {
-                    lat: parseFloat(loc.latLong[0]),
-                    lon: parseFloat(loc.latLong[1]),
-                },
-            };
-        }
-    });
-
-    State.regions = newRegions;
-    State.dataCenterCounts = newCounts;
-    State.serverIpMap = newIpMap;
-    document.dispatchEvent(new CustomEvent(EVT_REGIONS_UPDATED));
+    return `${country}-${city.replace(/\s+/g, '').toUpperCase()}`;
 }
 
 async function fetchCounts() {
@@ -996,22 +952,35 @@ function attachGlobalListeners() {
     State.listenersAttached = true;
 }
 
-function onStorageChanged(changes, area) {
-    if (area === 'local' && changes.rovalraDatacenters) {
-        processStorageDatacenters(changes.rovalraDatacenters.newValue);
-    }
-}
-
 async function initializeData() {
-    const { rovalraDatacenters } =
-        await chrome.storage.local.get('rovalraDatacenters');
-    processStorageDatacenters(rovalraDatacenters);
-    await fetchCounts();
+    await loadDatacenterMap();
+    const data = await getRegionData();
 
-    if (!State.storageListenerAttached && chrome.storage.onChanged) {
-        chrome.storage.onChanged.addListener(onStorageChanged);
-        State.storageListenerAttached = true;
+    State.serverIpMap = serverIpMap;
+
+    const counts = {};
+    for (const dc of Object.values(serverIpMap)) {
+        const loc = dc.location || dc;
+        const key = generateRegionKey(loc.country, loc.city, loc.region);
+        counts[key] = (counts[key] || 0) + 1;
     }
+    State.dataCenterCounts = counts;
+
+    const grouped = {};
+    for (const [code, info] of Object.entries(data.regions)) {
+        if (code === 'AUTO') continue;
+        const continent = getContinent(info.country) || 'Other';
+        if (!grouped[continent]) grouped[continent] = {};
+        grouped[continent][code] = {
+            city: info.city,
+            country: info.countryName || info.country,
+            coords: { lat: info.latitude, lon: info.longitude },
+        };
+    }
+    State.regions = grouped;
+
+    document.dispatchEvent(new CustomEvent(EVT_REGIONS_UPDATED));
+    await fetchCounts();
 }
 
 function setupUI() {

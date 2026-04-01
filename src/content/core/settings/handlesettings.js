@@ -158,16 +158,20 @@ export const handleSaveSettings = async (settingName, value) => {
                             settingConfig.type === 'select' &&
                             settingConfig.options
                         ) {
-                            const validValues = Array.isArray(
-                                settingConfig.options,
-                            )
-                                ? settingConfig.options.map((opt) =>
-                                      typeof opt === 'object' ? opt.value : opt,
-                                  )
-                                : [];
+                            let validValues = [];
+                            if (settingConfig.options === 'REGIONS') {
+                                validValues = ['AUTO', ...Object.keys(REGIONS)];
+                            } else if (Array.isArray(settingConfig.options)) {
+                                validValues = settingConfig.options.map(
+                                    (opt) =>
+                                        typeof opt === 'object'
+                                            ? opt.value
+                                            : opt,
+                                );
+                            }
 
                             if (
-                                validValues.length > 0 &&
+                                validValues.length > 1 &&
                                 !validValues.includes(sanitizedValue)
                             ) {
                                 console.warn(

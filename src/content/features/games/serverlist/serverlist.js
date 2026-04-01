@@ -2,7 +2,7 @@ import { callRobloxApi } from '../../../core/api.js';
 import { fetchThumbnails } from '../../../core/thumbnail/thumbnails.js';
 import { launchGame } from '../../../core/utils/launcher.js';
 import { initServerIdExtraction } from '../../../core/games/servers/serverids.js';
-import { loadDatacenterMap } from '../../../core/regions.js';
+import { loadDatacenterMap, serverIpMap } from '../../../core/regions.js';
 import { initGlobalStatsBar } from '../../../core/games/servers/serverstats.js';
 import { observeElement, startObserving } from '../../../core/observer.js';
 import { initRegionFilters } from '../../../core/games/servers/filters/regionfilters.js';
@@ -484,44 +484,10 @@ function getPlaceIdFromUrl() {
 async function loadServerIpMap() {
     try {
         if (typeof loadDatacenterMap === 'function') await loadDatacenterMap();
+        _state.serverIpMap = serverIpMap;
     } catch (e) {}
 
-    if (
-        typeof chrome === 'undefined' ||
-        !chrome.storage ||
-        !chrome.storage.local
-    ) {
-        _state.serverIpMap = {};
-        return;
-    }
-
-    try {
-        const result = await new Promise((resolve) =>
-            chrome.storage.local.get('rovalraDatacenters', resolve),
-        );
-        const apiData = result && result.rovalraDatacenters;
-        if (!apiData || !Array.isArray(apiData)) {
-            _state.serverIpMap = {};
-            return;
-        }
-
-        const map = {};
-        for (const dcGroup of apiData) {
-            if (
-                !dcGroup ||
-                !dcGroup.dataCenterIds ||
-                !Array.isArray(dcGroup.dataCenterIds) ||
-                !dcGroup.location
-            )
-                continue;
-            for (const id of dcGroup.dataCenterIds) {
-                map[id] = dcGroup.location;
-            }
-        }
-        _state.serverIpMap = map;
-    } catch (err) {
-        _state.serverIpMap = {};
-    }
+    _state.serverIpMap = null;
 }
 
 export function processUptimeBatch() {

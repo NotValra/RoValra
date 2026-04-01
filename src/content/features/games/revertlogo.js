@@ -1,6 +1,11 @@
 import { observeElement } from '../../core/observer.js';
-import { loadDatacenterMap, getRegionData } from '../../core/regions.js';
 import { fetchThumbnails } from '../../core/thumbnail/thumbnails.js';
+import {
+    loadDatacenterMap,
+    getRegionData,
+    REGIONS,
+    serverIpMap,
+} from '../../core/regions.js';
 import { callRobloxApi } from '../../core/api.js';
 import DOMPurify from 'dompurify';
 import { launchGame } from '../../core/utils/launcher.js';
@@ -62,8 +67,6 @@ function closeInterface(force = false) {
     hideLoadingOverlay(force);
 }
 
-let serverIpMap = {};
-let REGIONS = {};
 let lastProcessedGameLaunchSrc = null;
 let gameLaunchElementExists = false;
 let interceptedServerData = null;
@@ -106,27 +109,7 @@ async function ensureDatacenterDataIsParsed() {
         if (Object.keys(serverIpMap).length > 0) return;
 
         await loadDatacenterMap();
-        const regionData = await getRegionData();
-        REGIONS = regionData.regions;
-
-        const result = await Promise.race([
-            new Promise((resolve) =>
-                chrome.storage.local.get('rovalraDatacenters', resolve),
-            ),
-            new Promise((_, reject) =>
-                setTimeout(() => reject(new Error('Timeout')), 2000),
-            ),
-        ]);
-
-        const serverListData = result.rovalraDatacenters;
-        if (serverListData && Array.isArray(serverListData)) {
-            serverListData.forEach((entry) => {
-                if (!entry.location || !entry.dataCenterIds) return;
-                entry.dataCenterIds.forEach((id) => {
-                    serverIpMap[id] = entry.location;
-                });
-            });
-        }
+        await getRegionData();
     } catch (error) {
         console.warn('Rovalra: Failed to load datacenter map', error);
     }
