@@ -20,6 +20,7 @@ import {
     updateConditionalSettingsVisibility,
     buildSettingsKey,
     getCurrentUserTier,
+    syncDonatorTier,
 } from '../../core/settings/handlesettings.js';
 import {
     addCustomButton,
@@ -502,6 +503,7 @@ export async function updateContent(buttonInfo, contentContainer) {
     }
 
     if (buttonId === 'donatorPerks') {
+        await syncDonatorTier();
         const userTier = getCurrentUserTier();
         if (userTier > 0) {
             const userId = await getAuthenticatedUserId();
