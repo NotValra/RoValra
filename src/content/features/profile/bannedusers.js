@@ -352,6 +352,12 @@ async function loadStats(userId) {
             }).catch(() => ({ count: 0 })),
         ]);
 
+        if (
+            document.querySelector('.profile-platform-container')?.dataset
+                .profileId !== String(userId)
+        )
+            return;
+
         const updateCount = (id, count) => {
             const el = document.getElementById(id);
             if (el) {
@@ -378,6 +384,12 @@ async function loadCurrentlyWearing(userId) {
         const assetIds = wearingRes?.assetIds || [];
         if (assetIds.length === 0) return;
 
+        if (
+            document.querySelector('.profile-platform-container')?.dataset
+                .profileId !== String(userId)
+        )
+            return;
+
         const container = document.getElementById(
             'rovalra-banned-wearing-container',
         );
@@ -394,6 +406,12 @@ async function loadCurrentlyWearing(userId) {
             method: 'POST',
             body: { assets: assetIds.map((id) => ({ id })) },
         }).catch(() => null);
+
+        if (
+            document.querySelector('.profile-platform-container')?.dataset
+                .profileId !== String(userId)
+        )
+            return;
 
         if (catalogResponse?.look?.items) {
             const processedIds = new Set();
@@ -442,6 +460,11 @@ async function loadFavorites(userId) {
         }).catch(() => null);
         const favoriteGames = favoritesRes?.data || [];
         if (favoriteGames.length === 0) return;
+        if (
+            document.querySelector('.profile-platform-container')?.dataset
+                .profileId !== String(userId)
+        )
+            return;
 
         const container = document.getElementById(
             'rovalra-banned-favorites-container',
@@ -469,6 +492,7 @@ async function loadFavorites(userId) {
         const favoritesList = document.getElementById(
             'rovalra-banned-favorites-list',
         );
+        favoritesList.innerHTML = '';
         favoriteGames.slice(0, 6).forEach((game) => {
             const itemWrapper = document.createElement('div');
             itemWrapper.id = 'collection-carousel-item';
@@ -493,6 +517,11 @@ async function loadFriends(userId) {
         }).catch(() => null);
         const friendItems = friendsListRes?.PageItems || [];
         if (friendItems.length === 0) return;
+        if (
+            document.querySelector('.profile-platform-container')?.dataset
+                .profileId !== String(userId)
+        )
+            return;
 
         const container = document.getElementById(
             'rovalra-banned-friends-container',
@@ -535,6 +564,12 @@ async function loadFriends(userId) {
             getBatchThumbnails(friendIds, 'AvatarHeadshot', '150x150'),
         ]);
 
+        if (
+            document.querySelector('.profile-platform-container')?.dataset
+                .profileId !== String(userId)
+        )
+            return;
+
         const friendProfilesMap = new Map(
             (profilesRes?.profileDetails || []).map((p) => [p.userId, p]),
         );
@@ -542,6 +577,7 @@ async function loadFriends(userId) {
         const friendsList = document.getElementById(
             'rovalra-banned-friends-list',
         );
+        friendsList.innerHTML = '';
 
         friendItems.forEach((item) => {
             const isHidden = item.id === -1;
@@ -599,6 +635,11 @@ async function loadGroups(userId) {
         }).catch(() => null);
         const userGroups = groupsRes?.data || [];
         if (userGroups.length === 0) return;
+        if (
+            document.querySelector('.profile-platform-container')?.dataset
+                .profileId !== String(userId)
+        )
+            return;
 
         const container = document.getElementById(
             'rovalra-banned-groups-container',
@@ -662,10 +703,18 @@ async function loadGroups(userId) {
             'GroupIcon',
             '150x150',
         );
+
+        if (
+            document.querySelector('.profile-platform-container')?.dataset
+                .profileId !== String(userId)
+        )
+            return;
+
         const groupThumbMap = new Map(thumbs.map((t) => [t.targetId, t]));
         const groupsList = document.getElementById(
             'rovalra-banned-groups-list',
         );
+        groupsList.innerHTML = '';
 
         userGroups.forEach((item) => {
             const group = item.group;
@@ -705,6 +754,12 @@ async function loadBadges(userId) {
         const userBadges = badgesRes?.data || [];
         if (userBadges.length === 0) return;
 
+        if (
+            document.querySelector('.profile-platform-container')?.dataset
+                .profileId !== String(userId)
+        )
+            return;
+
         const container = document.getElementById(
             'rovalra-banned-badges-container',
         );
@@ -726,10 +781,18 @@ async function loadBadges(userId) {
             'BadgeIcon',
             '150x150',
         );
+
+        if (
+            document.querySelector('.profile-platform-container')?.dataset
+                .profileId !== String(userId)
+        )
+            return;
+
         const badgeThumbMap = new Map(thumbs.map((t) => [t.targetId, t]));
         const badgesList = document.getElementById(
             'rovalra-banned-badges-list',
         );
+        badgesList.innerHTML = '';
 
         userBadges.slice(0, 6).forEach((badge) => {
             const thumbData = badgeThumbMap.get(badge.id);
@@ -760,11 +823,19 @@ async function loadExperiences(userId) {
             endpoint: `/v2/users/${userId}/games?accessFilter=2&limit=50&sortOrder=Asc`,
         }).catch(() => null);
         const userGames = gamesRes?.data || [];
+
+        if (
+            document.querySelector('.profile-platform-container')?.dataset
+                .profileId !== String(userId)
+        )
+            return;
+
         const creationsList = document.getElementById(
             'rovalra-banned-creations-list',
         );
         if (!creationsList) return;
 
+        creationsList.innerHTML = '';
         if (userGames.length > 0) {
             userGames.forEach((game) => {
                 const li = document.createElement('li');
