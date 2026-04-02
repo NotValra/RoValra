@@ -549,6 +549,7 @@ export async function init() {
         .rovalra-scroll-btn.right { right: 5px; }
         .rovalra-scroll-btn.rovalra-btn-disabled { opacity: 0.25 !important; cursor: default; pointer-events: auto; }
     `;
+    document.body.style.overflowX = 'hidden';
     document.head.appendChild(hideStyle);
 
     const selectors = [
