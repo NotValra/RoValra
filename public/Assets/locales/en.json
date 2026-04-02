@@ -560,5 +560,21 @@
             "nov": "Nov",
             "dec": "Dec"
         }
+    },
+    "bannedUsers": {
+        "connections": "Friends",
+        "followers": "Followers",
+        "following": "Following",
+        "about": "About",
+        "creations": "Creations",
+        "experiences": "Experiences",
+        "bannedStatus": "Banned",
+        "seeAll": "See All",
+        "hiddenUser": "Hidden User",
+        "communities": "Communities",
+        "badges": "Badges",
+        "noExperiences": "This user has no public experiences.",
+        "favorites": "Favorites",
+        "joinedDate": "Joined"
     }
 }
