@@ -54,6 +54,8 @@ async function renderTestPage(contentDiv) {
     container.appendChild(freeitemCard);
     const ugclimited = createItemCard(126708761692926);
     container.appendChild(ugclimited);
+    const deletedItem = createItemCard(17845088792);
+    container.appendChild(deletedItem);
 
     const limiteduid = 16477149823;
     const limiteduitemCard = createItemCard(limiteduid);

@@ -128,6 +128,7 @@ async function processBatch() {
                 const realCard = createItemCard(item, thumbMap, request.config);
                 request.placeholder.replaceWith(realCard);
             } else {
+                let item = null;
                 try {
                     const economyRes = await callRobloxApi({
                         subdomain: 'economy',
@@ -142,7 +143,7 @@ async function processBatch() {
                         if (data.IsLimitedUnique)
                             restrictions.push('LimitedUnique');
 
-                        const item = {
+                        item = {
                             assetId: request.id,
                             name: data.Name,
                             recentAveragePrice: data.PriceInRobux || 0,
@@ -159,23 +160,57 @@ async function processBatch() {
                             if (data.PriceInRobux === 0)
                                 item.priceText = 'Free';
                         }
-
-                        const realCard = createItemCard(
-                            item,
-                            thumbMap,
-                            request.config,
-                        );
-                        request.placeholder.replaceWith(realCard);
-                        return;
                     }
                 } catch (e) {
                     console.warn(
-                        `RoValra: Fallback failed for item ${request.id}`,
+                        `RoValra: Economy fallback failed for item ${request.id}`,
                         e,
                     );
                 }
-                request.placeholder.innerHTML =
-                    '<div style="padding: 10px; ;">Not Found</div>';
+
+                if (!item) {
+                    try {
+                        const developRes = await callRobloxApi({
+                            subdomain: 'develop',
+                            endpoint: `/v1/assets?assetIds=${request.id}`,
+                            method: 'GET',
+                        });
+
+                        if (developRes.ok) {
+                            const devData = await developRes.json();
+                            const assetInfo = devData.data?.[0];
+                            if (assetInfo) {
+                                item = {
+                                    assetId: request.id,
+                                    name: assetInfo.name,
+                                    recentAveragePrice: 0,
+                                    itemRestrictions: [],
+                                    itemType: 'Asset',
+                                    isOnHold: false,
+                                    bundleId: null,
+                                    priceText: 'Off Sale',
+                                };
+                            }
+                        }
+                    } catch (e) {
+                        console.warn(
+                            `RoValra: Develop fallback failed for item ${request.id}`,
+                            e,
+                        );
+                    }
+                }
+
+                if (item) {
+                    const realCard = createItemCard(
+                        item,
+                        thumbMap,
+                        request.config,
+                    );
+                    request.placeholder.replaceWith(realCard);
+                } else {
+                    request.placeholder.innerHTML =
+                        '<div style="padding: 10px;">Not Found</div>';
+                }
             }
         });
     } catch (e) {
