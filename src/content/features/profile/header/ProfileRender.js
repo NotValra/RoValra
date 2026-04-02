@@ -1,11 +1,10 @@
-import './patch.js';
 import { observeElement, observeResize } from '../../../core/observer.js';
 import { getUserIdFromUrl } from '../../../core/idExtractor.js';
 import {
     injectStylesheet,
     removeStylesheet,
 } from '../../../core/ui/cssInjector.js';
-import { callRobloxApiJson, callRobloxApi } from '../../../core/api.js';
+import { callRobloxApiJson } from '../../../core/api.js';
 import { createSquareButton } from '../../../core/ui/profile/header/squarebutton.js';
 import { createOverlay } from '../../../core/ui/overlay.js';
 import { createDropdown } from '../../../core/ui/dropdown.js';
@@ -15,7 +14,11 @@ import { showConfirmationPrompt } from '../../../core/ui/confirmationPrompt.js';
 import { getAuthenticatedUserId } from '../../../core/user.js';
 import { getAssets } from '../../../core/assets.js';
 import { SETTINGS_CONFIG } from '../../../core/settings/settingConfig.js';
-import { handleSaveSettings } from '../../../core/settings/handlesettings.js';
+import {
+    handleSaveSettings,
+    syncDonatorTier,
+    getCurrentUserTier,
+} from '../../../core/settings/handlesettings.js';
 import {
     getUserDescription,
     updateUserDescription,
@@ -39,10 +42,11 @@ import {
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import * as THREE from 'three';
 import { safeHtml } from '../../../core/packages/dompurify.js';
-FLAGS.ASSETS_PATH = chrome.runtime.getURL('assets/rbxasset/');
 FLAGS.ENABLE_API_MESH_CACHE = false;
 FLAGS.ENABLE_API_RBX_CACHE = false;
-FLAGS.USE_WORKERS = true;
+FLAGS.USE_WORKERS = false;
+FLAGS.ONLINE_ASSETS = true;
+
 let currentRig = null;
 let currentRigType = null;
 let emoteStopTimer = null;
@@ -53,7 +57,6 @@ let avatarDataPromise = null;
 let isCustomEnvLoaded = false;
 let environmentConfig = null;
 let activeEmoteId = null;
-let globalCanUseApiForEnv = false;
 const animationSpeed = 1;
 
 let isAnimatePatched = false;
@@ -766,8 +769,9 @@ function injectCustomButtons(toggleButton) {
                 SETTINGS_CONFIG.Profile.settings.profile3DRenderEnabled
                     .childSettings.profileRenderEnvironment.options;
             const currentEnv = settings.profileRenderEnvironment || 'void';
+            const isDonator = getCurrentUserTier() >= 1;
             const effectiveCanUseApi =
-                globalCanUseApiForEnv && settings.profileRenderUseApi;
+                isDonator && settings.profileRenderUseApi;
 
             const { element: envDropdown } = createDropdown({
                 items: profileEnvs,
@@ -1280,11 +1284,12 @@ async function preloadAvatar() {
                     const profileEnvs =
                         SETTINGS_CONFIG.Profile.settings.profile3DRenderEnabled
                             .childSettings.profileRenderEnvironment.options;
-                    const { environment: apiEnv, canUseApi } =
-                        await getUserSettings(userId, {
+                    const { environment: apiEnv } = await getUserSettings(
+                        userId,
+                        {
                             useDescription: true,
-                        });
-                    globalCanUseApiForEnv = canUseApi;
+                        },
+                    );
                     let envIdToRender;
                     if (isOwnProfile) {
                         const profileEnvValue =
@@ -1297,7 +1302,8 @@ async function preloadAvatar() {
                             : 1;
                         envIdToRender = localEnvId;
                         if (localEnvId !== apiEnv) {
-                            if (canUseApi && settings.profileRenderUseApi) {
+                            const isDonator = getCurrentUserTier() >= 1;
+                            if (isDonator && settings.profileRenderUseApi) {
                                 try {
                                     await updateUserSettingViaApi(
                                         'environment',
@@ -1536,6 +1542,7 @@ async function attachPreloadedAvatar(container) {
 }
 
 export function init() {
+    syncDonatorTier();
     chrome.storage.local.get(
         { profile3DRenderEnabled: true, profile3DRenderForceDisabled: false },
         (result) => {

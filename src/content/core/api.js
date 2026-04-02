@@ -6,6 +6,7 @@ import { getValidAccessToken } from './oauth/oauth.js';
 
 import { updateUserLocationIfChanged } from './utils/location.js';
 const activeRequests = new Map();
+let lastGameJoinRequestTime = 0;
 
 const OAUTH_STORAGE_KEY = 'rovalra_oauth_verification';
 const CAPTURED_APIS_KEY = 'rovalra_captured_apis';
@@ -160,6 +161,20 @@ function checkSimulatedLatency() {
 
 export async function callRobloxApi(options) {
     captureApiCall(options);
+
+    if (options.subdomain === 'gamejoin') {
+        const now = Date.now();
+        const nextAllowedTime = lastGameJoinRequestTime + 100;
+        if (now < nextAllowedTime) {
+            lastGameJoinRequestTime = nextAllowedTime;
+            await new Promise((resolve) =>
+                setTimeout(resolve, nextAllowedTime - now),
+            );
+        } else {
+            lastGameJoinRequestTime = now;
+        }
+    }
+
     const requestKey = getRequestKey(options);
 
     const shouldCache = !options.noCache && options.subdomain !== 'gamejoin';

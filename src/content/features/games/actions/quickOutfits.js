@@ -74,7 +74,7 @@ async function wearOutfit(outfitId) {
     try {
         const detailsRes = await callWithRetry({
             subdomain: 'avatar',
-            endpoint: `/v1/outfits/${outfitId}/details`,
+            endpoint: `/v3/outfits/${outfitId}/details`,
         });
 
         if (!detailsRes.ok) return detailsRes;
@@ -82,13 +82,13 @@ async function wearOutfit(outfitId) {
         const details = await detailsRes.json();
         const promises = [];
 
-        if (details.bodyColors) {
+        if (details.bodyColor3s) {
             promises.push(
                 callWithRetry({
                     subdomain: 'avatar',
-                    endpoint: '/v1/avatar/set-body-colors',
+                    endpoint: '/v2/avatar/set-body-colors',
                     method: 'POST',
-                    body: details.bodyColors,
+                    body: details.bodyColor3s,
                 }),
             );
         }

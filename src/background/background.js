@@ -11,6 +11,7 @@ const state = {
     csrfTokenCache: null,
     rotatorInterval: null,
     rotatorIndex: 0,
+    bannedUserRedirects: new Map(),
 };
 
 // --- Session Storage Configuration ---
@@ -176,6 +177,49 @@ function updateUserAgentRule() {
     chrome.declarativeNetRequest.updateDynamicRules({
         removeRuleIds: [999, 1000],
         addRules: rules,
+    });
+}
+
+// --- Banned User Redirect Tracking ---
+
+function onBeforeRedirectHandler(details) {
+    const match = details.url.match(/users\/(\d+)\/profile/);
+    if (match && match[1]) {
+        state.bannedUserRedirects.set(details.tabId, match[1]);
+    }
+}
+
+function updateBannedUserListener() {
+    if (!chrome.webRequest) return;
+
+    chrome.permissions.contains({ permissions: ['webRequest'] }, (granted) => {
+        if (granted) {
+            chrome.storage.local.get(
+                { bannedUserDetectionEnabled: false },
+                (data) => {
+                    if (data.bannedUserDetectionEnabled) {
+                        if (
+                            !chrome.webRequest.onBeforeRedirect.hasListener(
+                                onBeforeRedirectHandler,
+                            )
+                        ) {
+                            chrome.webRequest.onBeforeRedirect.addListener(
+                                onBeforeRedirectHandler,
+                                {
+                                    urls: [
+                                        '*://www.roblox.com/users/*/profile*',
+                                    ],
+                                },
+                            );
+                        }
+                    } else {
+                        chrome.webRequest.onBeforeRedirect.removeListener(
+                            onBeforeRedirectHandler,
+                        );
+                    }
+                },
+            );
+        }
     });
 }
 
@@ -360,7 +404,7 @@ async function wearOutfit(outfitData) {
 
         const detailsRes = await callWithRetry({
             subdomain: 'avatar',
-            endpoint: `/v1/outfits/${outfitId}/details`,
+            endpoint: `/v3/outfits/${outfitId}/details`,
         });
         if (!detailsRes?.ok) return { ok: false };
 
@@ -395,25 +439,13 @@ async function wearOutfit(outfitData) {
                 }),
             );
 
-        if (
-            typeof outfitData === 'object' &&
-            outfitData?.outfitDetail?.bodyColor3s
-        ) {
+        if (details.bodyColor3s) {
             promises.push(
                 callWithRetry({
                     subdomain: 'avatar',
-                    endpoint: '/v3/avatar/set-body-colors',
+                    endpoint: '/v2/avatar/set-body-colors',
                     method: 'POST',
-                    body: outfitData.outfitDetail.bodyColor3s,
-                }),
-            );
-        } else if (details.bodyColors) {
-            promises.push(
-                callWithRetry({
-                    subdomain: 'avatar',
-                    endpoint: '/v1/avatar/set-body-colors',
-                    method: 'POST',
-                    body: details.bodyColors,
+                    body: details.bodyColor3s,
                 }),
             );
         }
@@ -586,6 +618,9 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
         ) {
             updateAvatarRotator();
         }
+        if (changes.bannedUserDetectionEnabled) {
+            updateBannedUserListener();
+        }
     }
 });
 
@@ -594,6 +629,8 @@ chrome.permissions.onAdded.addListener((permissions) => {
         setupNavigationListener();
     if (permissions.permissions?.includes('contextMenus'))
         setupContextMenuListener();
+    if (permissions.permissions?.includes('webRequest'))
+        updateBannedUserListener();
 
     chrome.tabs.query({}, (tabs) => {
         tabs.forEach((tab) =>
@@ -618,6 +655,11 @@ chrome.permissions.onRemoved.addListener((permissions) => {
         chrome.contextMenus?.onClicked.hasListener(contextMenuClickListener)
     ) {
         chrome.contextMenus.onClicked.removeListener(contextMenuClickListener);
+    }
+    if (permissions.permissions?.includes('webRequest')) {
+        chrome.webRequest.onBeforeRedirect.removeListener(
+            onBeforeRedirectHandler,
+        );
     }
 
     chrome.tabs.query({}, (tabs) => {
@@ -747,6 +789,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             }
             return false;
 
+        case 'getBannedUserRedirect':
+            sendResponse({
+                userId: state.bannedUserRedirects.get(sender.tab?.id),
+            });
+            return false;
+
         case 'presencePollResult':
             return false;
 
@@ -836,109 +884,4 @@ chrome.storage.local.get('MemoryleakFixEnabled', (result) => {
 updateUserAgentRule();
 updateAvatarRotator();
 setupContextMenuListener();
-// RoAvatar-Renderer worker
-
-function luDecompose(A) {
-    const n = A.length;
-    const LU = A;
-    const P = new Int32Array(n);
-    for (let i = 0; i < n; i++) P[i] = i;
-    for (let k = 0; k < n; k++) {
-        let pivot = k;
-        for (let i = k + 1; i < n; i++) {
-            if (Math.abs(LU[i][k]) > Math.abs(LU[pivot][k])) pivot = i;
-        }
-        if (pivot !== k) {
-            const tmpRow = LU[k];
-            LU[k] = LU[pivot];
-            LU[pivot] = tmpRow;
-            const tmpP = P[k];
-            P[k] = P[pivot];
-            P[pivot] = tmpP;
-        }
-        const pivotVal = LU[k][k];
-        if (Math.abs(pivotVal) < 1e-18) continue;
-        for (let i = k + 1; i < n; i++) {
-            LU[i][k] /= pivotVal;
-            const mult = LU[i][k];
-            const rowI = LU[i];
-            const rowK = LU[k];
-            for (let j = k + 1; j < n; j++) rowI[j] -= mult * rowK[j];
-        }
-    }
-    return { LU, P };
-}
-
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    if (request.type === 'OFFLOAD_RBF_MATH') {
-        const [_A, _bx, _by, _bz] = request.data;
-
-        const A = _A.map((row) => {
-            if (row instanceof Float32Array) return row;
-            if (Array.isArray(row)) return new Float32Array(row);
-            return new Float32Array(Object.values(row));
-        });
-
-        const bx =
-            _bx instanceof Float32Array
-                ? _bx
-                : new Float32Array(Object.values(_bx));
-        const by =
-            _by instanceof Float32Array
-                ? _by
-                : new Float32Array(Object.values(_by));
-        const bz =
-            _bz instanceof Float32Array
-                ? _bz
-                : new Float32Array(Object.values(_bz));
-
-        const { LU, P } = luDecompose(A);
-        const n = LU.length;
-        const result = new Float32Array(n * 3);
-
-        for (let i = 0; i < n; i++) {
-            const pIdx = P[i];
-            result[i * 3 + 0] = bx[pIdx];
-            result[i * 3 + 1] = by[pIdx];
-            result[i * 3 + 2] = bz[pIdx];
-        }
-
-        for (let i = 0; i < n; i++) {
-            const row = LU[i];
-            let sumX = result[i * 3 + 0];
-            let sumY = result[i * 3 + 1];
-            let sumZ = result[i * 3 + 2];
-            for (let j = 0; j < i; j++) {
-                const val = row[j];
-                const rj = j * 3;
-                sumX -= val * result[rj + 0];
-                sumY -= val * result[rj + 1];
-                sumZ -= val * result[rj + 2];
-            }
-            result[i * 3 + 0] = sumX;
-            result[i * 3 + 1] = sumY;
-            result[i * 3 + 2] = sumZ;
-        }
-
-        for (let i = n - 1; i >= 0; i--) {
-            const row = LU[i];
-            let sumX = result[i * 3 + 0];
-            let sumY = result[i * 3 + 1];
-            let sumZ = result[i * 3 + 2];
-            for (let j = i + 1; j < n; j++) {
-                const val = row[j];
-                const rj = j * 3;
-                sumX -= val * result[rj + 0];
-                sumY -= val * result[rj + 1];
-                sumZ -= val * result[rj + 2];
-            }
-            const div = row[i];
-            result[i * 3 + 0] = sumX / div;
-            result[i * 3 + 1] = sumY / div;
-            result[i * 3 + 2] = sumZ / div;
-        }
-
-        sendResponse(result);
-    }
-    return true;
-});
+updateBannedUserListener();

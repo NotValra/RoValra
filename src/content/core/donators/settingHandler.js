@@ -6,6 +6,10 @@ import {
     isTextFiltered,
 } from '../profile/descriptionhandler.js';
 import {
+    syncDonatorTier,
+    getCurrentUserTier,
+} from '../settings/handlesettings.js';
+import {
     CREATOR_USER_ID,
     CONTRIBUTOR_USER_IDS,
     TESTER_USER_IDS,
@@ -63,6 +67,11 @@ async function fetchAndProcessSettings(userId, options = {}) {
     const isOwnProfile =
         authenticatedUserId && String(authenticatedUserId) === String(userId);
 
+    if (isOwnProfile) {
+        await syncDonatorTier();
+    }
+    const isDonator = getCurrentUserTier() >= 1;
+
     let apiSettings = {};
     let apiProvidedMeaningfulSettings = false;
     try {
@@ -78,7 +87,8 @@ async function fetchAndProcessSettings(userId, options = {}) {
             apiSettings = data.settings;
 
             if (
-                apiSettings.environment === 0 &&
+                (apiSettings.environment === 0 ||
+                    apiSettings.environment === 1) &&
                 apiSettings.status === '' &&
                 Object.keys(apiSettings).length === 2
             ) {
@@ -98,10 +108,7 @@ async function fetchAndProcessSettings(userId, options = {}) {
     let description = null;
     let originalDescription = null;
 
-    if (
-        options.useDescription &&
-        (!apiProvidedMeaningfulSettings || isOwnProfile)
-    ) {
+    if (options.useDescription) {
         originalDescription = await getUserDescription(userId);
         description = originalDescription;
     }
@@ -128,6 +135,7 @@ async function fetchAndProcessSettings(userId, options = {}) {
     ) {
         if (isOwnProfile) {
             if (
+                isDonator &&
                 statusFromDesc &&
                 (!apiProvidedMeaningfulSettings || !finalStatus)
             ) {
@@ -144,13 +152,6 @@ async function fetchAndProcessSettings(userId, options = {}) {
                     });
                     if (res && res.status === 'success') {
                         finalStatus = statusFromDesc;
-                        if (description !== null) {
-                            description = description
-                                .split('\n')
-                                .filter((line) => !line.trim().startsWith('s:'))
-                                .join('\n')
-                                .trimEnd();
-                        }
                         apiProvidedMeaningfulSettings = true;
                     }
                 } catch (e) {
@@ -158,13 +159,24 @@ async function fetchAndProcessSettings(userId, options = {}) {
                 }
             }
 
-            if (!finalStatus && statusFromDesc) {
+            if (
+                isDonator &&
+                statusFromDesc &&
+                apiProvidedMeaningfulSettings &&
+                description !== null
+            ) {
+                description = description
+                    .split('\n')
+                    .filter((line) => !line.trim().startsWith('s:'))
+                    .join('\n')
+                    .trimEnd();
+            }
+
+            if ((!isDonator || !finalStatus) && statusFromDesc) {
                 finalStatus = statusFromDesc;
             }
         } else {
-            if (!apiProvidedMeaningfulSettings) {
-                finalStatus = statusFromDesc;
-            }
+            if (!finalStatus) finalStatus = statusFromDesc;
         }
     }
 
@@ -174,6 +186,7 @@ async function fetchAndProcessSettings(userId, options = {}) {
     ) {
         if (isOwnProfile) {
             if (
+                isDonator &&
                 envFromDesc &&
                 (!apiProvidedMeaningfulSettings || finalEnvironment === 1)
             ) {
@@ -190,26 +203,35 @@ async function fetchAndProcessSettings(userId, options = {}) {
                     });
                     if (res && res.status === 'success') {
                         finalEnvironment = envFromDesc;
-                        if (description !== null) {
-                            description = description
-                                .split('\n')
-                                .filter((line) => !line.trim().startsWith('e:'))
-                                .join('\n')
-                                .trimEnd();
-                        }
                         apiProvidedMeaningfulSettings = true;
                     }
                 } catch (e) {
                     console.error('Failed to migrate environment to API.', e);
                 }
             }
-            if ((!finalEnvironment || finalEnvironment === 1) && envFromDesc) {
+
+            if (
+                isDonator &&
+                envFromDesc &&
+                apiProvidedMeaningfulSettings &&
+                description !== null
+            ) {
+                description = description
+                    .split('\n')
+                    .filter((line) => !line.trim().startsWith('e:'))
+                    .join('\n')
+                    .trimEnd();
+            }
+
+            if (
+                (!isDonator || !finalEnvironment || finalEnvironment === 1) &&
+                envFromDesc
+            ) {
                 finalEnvironment = envFromDesc;
             }
         } else {
-            if (!apiProvidedMeaningfulSettings) {
+            if (!finalEnvironment || finalEnvironment === 1)
                 finalEnvironment = envFromDesc;
-            }
         }
     }
 

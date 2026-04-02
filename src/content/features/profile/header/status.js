@@ -24,7 +24,10 @@ import {
     alice_badge_user_id,
     GILBERT_USER_ID,
 } from '../../../core/configs/userIds.js';
-
+import {
+    syncDonatorTier,
+    getCurrentUserTier,
+} from '../../../core/settings/handlesettings.js';
 const STATUS_PREFIX = 's:';
 const MAX_STATUS_LENGTH = 50;
 let activeHomeStatusBubble = null;
@@ -255,13 +258,14 @@ async function addStatusBubble(avatarContainer, userWantsApi) {
 
             bubble.addEventListener('click', (e) => {
                 e.stopPropagation();
+                const isDonator = getCurrentUserTier() >= 1;
                 openEditStatusOverlay(
                     statusText === '...' ? '' : statusText,
                     async (newStatus) => {
                         const isTrusted = TRUSTED_USER_IDS.includes(
                             String(authenticatedUserId),
                         );
-                        const effectiveCanUseApi = canUseApi && userWantsApi;
+                        const effectiveCanUseApi = isDonator && userWantsApi;
                         if (
                             newStatus &&
                             !isTrusted &&
@@ -380,7 +384,7 @@ async function addStatusBubble(avatarContainer, userWantsApi) {
                             }
                         }
                     },
-                    canUseApi && userWantsApi,
+                    isDonator && userWantsApi,
                 );
             });
         }
@@ -456,6 +460,8 @@ async function addHomeStatusHover(tile) {
             }
         }
         if (statusLoaded) {
+            if (!tile.matches(':hover')) return;
+
             if (
                 activeHomeStatusBubble &&
                 activeHomeStatusBubble !== bubbleWrapper
@@ -475,6 +481,7 @@ async function addHomeStatusHover(tile) {
 }
 
 export function init() {
+    syncDonatorTier();
     chrome.storage.local.get(
         {
             statusBubbleEnabled: true,

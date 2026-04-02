@@ -79,6 +79,7 @@ import { init as initUserGames } from './features/profile/hiddengames.js';
 import { init as initPrivateServerControls } from './features/games/privateserver.js';
 import { init as initPreviousPrice } from './features/sitewide/PreviousPrice.js';
 import { init as initCategorizeWearing } from './features/profile/categorizeWearing.js';
+import { init as initBannedUsers } from './features/profile/bannedusers.js';
 import { init as initTrustedFriends } from './features/profile/trustedfriends.js';
 import { init as initProfileRender } from './features/profile/header/ProfileRender.js';
 import { init as initStatus } from './features/profile/header/status.js';
@@ -118,6 +119,7 @@ const featureRoutes = [
             initPreviousPrice,
             initQuickSearch,
             initRenderTest,
+            initBannedUsers,
             initGroupFunds,
             initStatus,
         ],
@@ -189,11 +191,14 @@ const featureRoutes = [
             initPrivateServers,
             initRovalraBadges,
             initUserGames,
-            initCategorizeWearing,
             initTrustedFriends,
             initProfileRender,
             initFriendsSince,
         ],
+    },
+    {
+        paths: ['/users/', '/banned-users/'],
+        features: [initCategorizeWearing],
     },
 
     // Transactions page

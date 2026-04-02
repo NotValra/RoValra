@@ -29,8 +29,6 @@ const ENDPOINTS = {
 
     VOTES_V1: (ids) => `/v1/games/votes?universeIds=${ids}`,
     GAMES_V1: (ids) => `/v1/games?universeIds=${ids}`,
-
-    GAME_LINK: (placeId) => `https://www.roblox.com/games/${placeId}/unnamed`, // adding an extra parameter after placeid adds support for btroblox's copy placeid context menu item
 };
 
 const userListCache = new Map();
@@ -121,7 +119,15 @@ const Api = {
             const data = res ? await res.json().catch(() => null) : null;
 
             if (data?.data) {
-                games = games.concat(data.data);
+                const formattedGames = data.data
+                    .filter((item) => item.id != null && item.rootPlace)
+                    .map((item) => ({
+                        id: item.id,
+                        name: item.name,
+                        rootPlaceId: item.rootPlace.id,
+                    }));
+
+                games = games.concat(formattedGames);
                 nextCursor = data.nextPageCursor;
             } else {
                 nextCursor = null;

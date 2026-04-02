@@ -20,6 +20,7 @@ import {
     updateConditionalSettingsVisibility,
     buildSettingsKey,
     getCurrentUserTier,
+    syncDonatorTier,
 } from '../../core/settings/handlesettings.js';
 import {
     addCustomButton,
@@ -343,6 +344,10 @@ export const buttonData = [
                 <h2 style="margin-bottom: 10px; color: var(--rovalra-main-text-color) !important;">${ts('settings.donatorPerks.title')}</h2>
                 <p>${ts('settings.donatorPerks.subtitle')}</p>
                 
+                <div style="margin-top: 15px; font-size: 13px; color: var(--rovalra-secondary-text-color);">
+                    ${parseMarkdown(ts('settings.donatorPerks.note'), themeColors)}
+                </div>
+
                 <div style="margin-top: 15px;">
                     <h3 style="color: var(--rovalra-main-text-color); margin-bottom: 5px; font-size: 18px;">${ts('settings.donatorPerks.howToGet')}</h3>
                     <p>${ts('settings.donatorPerks.howToGetDesc')}</p>
@@ -400,10 +405,6 @@ export const buttonData = [
                         ${getDonatorBadgesHtml()}
                     </div>
                 </div>
-                
-                <p style="margin-top: 15px; font-size: 12px; color: var(--rovalra-secondary-text-color);">
-                    ${ts('settings.donatorPerks.note')}
-                </p>
             </div>`;
         },
     },
@@ -502,6 +503,7 @@ export async function updateContent(buttonInfo, contentContainer) {
     }
 
     if (buttonId === 'donatorPerks') {
+        await syncDonatorTier();
         const userTier = getCurrentUserTier();
         if (userTier > 0) {
             const userId = await getAuthenticatedUserId();
@@ -795,50 +797,6 @@ export function init() {
 
 window.addEventListener('beforeunload', () => {
     document.removeEventListener('roblox-dom-changed', handleGlobalDomChange);
-});
-
-document.addEventListener('DOMContentLoaded', function () {
-    const PreferredRegionEnabled = document.getElementById(
-        'PreferredRegionEnabled',
-    );
-    const preferredRegionSelect = document.getElementById(
-        'preferredRegionSelect',
-    );
-    const regionSettingDiv = document.getElementById(
-        'setting-preferred-region',
-    );
-
-    function updateRegionSelectVisibility() {
-        if (PreferredRegionEnabled && regionSettingDiv) {
-            const isEnabled = PreferredRegionEnabled.checked;
-            regionSettingDiv.style.display = isEnabled ? 'flex' : 'none';
-            if (preferredRegionSelect)
-                preferredRegionSelect.disabled = !isEnabled;
-        }
-    }
-
-    if (PreferredRegionEnabled) {
-        PreferredRegionEnabled.addEventListener('change', function () {
-            updateRegionSelectVisibility();
-            handleSaveSettings('PreferredRegionEnabled', this.checked);
-        });
-    }
-
-    if (preferredRegionSelect) {
-        preferredRegionSelect.addEventListener('change', function () {
-            handleSaveSettings('robloxPreferredRegion', this.value);
-        });
-
-        if (preferredRegionSelect.options.length === 0) {
-            Object.keys(REGIONS).forEach((regionCode) => {
-                const option = document.createElement('option');
-                option.value = regionCode;
-                option.textContent = getFullRegionName(regionCode);
-                preferredRegionSelect.appendChild(option);
-            });
-        }
-    }
-    updateRegionSelectVisibility();
 });
 
 function initializeHeartbeatSpoofer() {
