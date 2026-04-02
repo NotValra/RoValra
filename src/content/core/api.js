@@ -445,9 +445,9 @@ export async function callRobloxApi(options) {
                         await new Promise(r => setTimeout(r, 50));  // wait for the flag to become false. the polling interval can be changed as needed
                     }
                     callRobloxApi_retrying = true;
-                    const retryDelay = (attempt ** 1.4 + 1) * 1000;
+                    const retryDelay = (attempt ** 1.3 + 1) * 1000;
                     console.debug(
-                        `RoValra API: Request to ${fullUrl} failed with status ${lastResponse.status}. Retrying in ${retryDelay / 1000} seconds`
+                        `RoValra API: Request to ${fullUrl} failed with status ${String(lastResponse?.status ?? "(undefined.status)")}. Retrying in ${retryDelay / 1000} seconds`
                     );
                     await new Promise((res) => setTimeout(res, retryDelay));  // sub-exponential backoff
                     callRobloxApi_retrying = false;
