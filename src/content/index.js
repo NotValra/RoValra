@@ -191,7 +191,6 @@ const featureRoutes = [
             initInstantJoiner,
             initOutfits,
             initPrivateServers,
-            initRovalraBadges,
             initUserGames,
             initTrustedFriends,
             initProfileRender,
@@ -200,7 +199,7 @@ const featureRoutes = [
     },
     {
         paths: ['/users/', '/banned-users/'],
-        features: [initCategorizeWearing],
+        features: [initCategorizeWearing, initRovalraBadges],
     },
 
     // Transactions page

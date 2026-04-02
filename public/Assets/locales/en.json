@@ -318,7 +318,7 @@
         "playing": "Playing {{gameName}}",
         "verifiedBadge": "Verified Badge",
         "verified": "Verified",
-        "permanentlyBanned": "This user has been permanently banned",
+        "permanentlyBanned": "This user is terminated or deactived their account.",
         "joinPreferredRegion": "Join Preferred Region",
         "bestRegionAuto": "Best Region (Auto)",
         "searchHistory": "Search History",

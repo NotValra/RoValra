@@ -142,14 +142,19 @@ async function renderBannedUserProfile(user, settings) {
     `;
     document.head.appendChild(style);
 
-    // 1. Setup the skeleton structure immediately
     const headshotData = await fetchUserThumbnailWithApiKey(user.id);
-    let fullAvatarUrl = '';
+    const assets = getAssets();
+    const brokenStyles =
+        'width: 300px; height: 300px; object-fit: contain; display: block; margin: 50px auto;';
+    let fullAvatarUrl = assets.brokenAvatar;
+    let isInitiallyBroken = true;
+
     if (headshotData && headshotData.imageUrl) {
         fullAvatarUrl = headshotData.imageUrl
             .replace(/AvatarHeadshot/g, 'Avatar')
             .replace(/150\/150/g, '420/420')
             .replace(/\/Png\/?$/, '/Png/noFilter');
+        isInitiallyBroken = false;
     }
 
     const getStatPillHtml = (id, label, url) => `
@@ -175,7 +180,7 @@ async function renderBannedUserProfile(user, settings) {
                     <div class="thumbnail-3d-container">
                         <div class="avatar-thumbnail-container">
                             <span class="thumbnail-2d-container no-background-thumbnail thumbnail-span" style="background-color: transparent;">
-                                <img id="rovalra-banned-avatar-img" src="${fullAvatarUrl}" style="opacity: ${fullAvatarUrl ? '1' : '0'};">
+                                <img id="rovalra-banned-avatar-img" src="${fullAvatarUrl}" style="opacity: 1; ${isInitiallyBroken ? brokenStyles : ''}">
                             </span>
                         </div>
                     </div>
@@ -242,6 +247,18 @@ async function renderBannedUserProfile(user, settings) {
         </div>
     `);
 
+    const bannedAvatarImg = content.querySelector('#rovalra-banned-avatar-img');
+    if (bannedAvatarImg && !isInitiallyBroken) {
+        bannedAvatarImg.addEventListener(
+            'error',
+            () => {
+                bannedAvatarImg.src = assets.brokenAvatar;
+                bannedAvatarImg.style.cssText += brokenStyles;
+            },
+            { once: true },
+        );
+    }
+
     const tabLinks = content.querySelectorAll('.profile-tab');
     const tabPanes = content.querySelectorAll('.tab-pane');
     tabLinks.forEach((link) => {
@@ -268,7 +285,6 @@ async function renderBannedUserProfile(user, settings) {
         'profile-header-title-container-name',
     );
     if (nameHeader) {
-        const assets = getAssets();
         const lockIcon = document.createElement('div');
         addTooltip(lockIcon, ts('quickSearch.permanentlyBanned'), {
             position: 'bottom',

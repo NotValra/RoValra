@@ -67,16 +67,24 @@ async function processBatch() {
             });
         });
 
-        currentBatch.forEach((request) => {
+        currentBatch.forEach(async (request) => {
             const catalogItemData = catalogDetailsMap.get(request.id);
             const looksItemData = looksDetailsMap.get(request.id);
             const itemData = looksItemData || catalogItemData;
 
             if (catalogItemData) {
+                // using the catalog api for limiteds CUZ ROBLOX ISNT CONSISTENT AT ALL
+                const restrictions = [
+                    ...new Set([
+                        ...(catalogItemData.itemRestrictions || []),
+                        ...(looksItemData?.itemRestrictions || []),
+                    ]),
+                ];
+
                 const isLimited =
-                    itemData.itemRestrictions?.includes('Limited') ||
-                    itemData.itemRestrictions?.includes('LimitedUnique') ||
-                    itemData.itemRestrictions?.includes('Collectible');
+                    restrictions.includes('Limited') ||
+                    restrictions.includes('LimitedUnique') ||
+                    restrictions.includes('Collectible');
 
                 const rawPrice =
                     itemData.priceInRobux ??
@@ -87,7 +95,7 @@ async function processBatch() {
                     assetId: request.id,
                     name: catalogItemData.name,
                     recentAveragePrice: rawPrice || 0,
-                    itemRestrictions: itemData.itemRestrictions || [],
+                    itemRestrictions: restrictions,
                     itemType: catalogItemData.itemType,
                     isOnHold: false,
                     bundleId: null,
@@ -120,15 +128,61 @@ async function processBatch() {
                 const realCard = createItemCard(item, thumbMap, request.config);
                 request.placeholder.replaceWith(realCard);
             } else {
+                try {
+                    const economyRes = await callRobloxApi({
+                        subdomain: 'economy',
+                        endpoint: `/v2/assets/${request.id}/details`,
+                        method: 'GET',
+                    });
+
+                    if (economyRes.ok) {
+                        const data = await economyRes.json();
+                        const restrictions = [];
+                        if (data.IsLimited) restrictions.push('Limited');
+                        if (data.IsLimitedUnique)
+                            restrictions.push('LimitedUnique');
+
+                        const item = {
+                            assetId: request.id,
+                            name: data.Name,
+                            recentAveragePrice: data.PriceInRobux || 0,
+                            itemRestrictions: restrictions,
+                            itemType: 'Asset',
+                            isOnHold: false,
+                            bundleId: null,
+                        };
+
+                        if (!data.IsForSale) {
+                            item.priceText = 'Off Sale';
+                        } else {
+                            item.price = data.PriceInRobux;
+                            if (data.PriceInRobux === 0)
+                                item.priceText = 'Free';
+                        }
+
+                        const realCard = createItemCard(
+                            item,
+                            thumbMap,
+                            request.config,
+                        );
+                        request.placeholder.replaceWith(realCard);
+                        return;
+                    }
+                } catch (e) {
+                    console.warn(
+                        `RoValra: Fallback failed for item ${request.id}`,
+                        e,
+                    );
+                }
                 request.placeholder.innerHTML =
-                    '<div style="padding: 10px; color: var(--text-error);">Not Found</div>';
+                    '<div style="padding: 10px; ;">Not Found</div>';
             }
         });
     } catch (e) {
         console.warn('RoValra: Batch request failed', e);
         currentBatch.forEach((request) => {
             request.placeholder.innerHTML =
-                '<div style="padding: 10px; color: var(--text-error);">Failed to load</div>';
+                '<div style="padding: 10px;">Failed to load</div>';
         });
     }
 }
@@ -252,7 +306,8 @@ export function createItemCard(itemOrId, thumbnailCacheOrConfig, config = {}) {
             item.itemRestrictions.includes('LimitedUnique');
         const hasCollectible = item.itemRestrictions.includes('Collectible');
         showLimitedIcon = hasLimited || hasLimitedUnique || hasCollectible;
-        isUnique = hasLimitedUnique || hasCollectible;
+
+        isUnique = hasLimitedUnique || (hasCollectible && !hasLimited);
     } else {
         isUnique = item.serialNumber != null;
         if (isUnique || item.recentAveragePrice !== undefined) {
