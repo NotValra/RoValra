@@ -11,6 +11,7 @@ const state = {
     csrfTokenCache: null,
     rotatorInterval: null,
     rotatorIndex: 0,
+    bannedUserRedirects: new Map(),
 };
 
 // --- Session Storage Configuration ---
@@ -176,6 +177,49 @@ function updateUserAgentRule() {
     chrome.declarativeNetRequest.updateDynamicRules({
         removeRuleIds: [999, 1000],
         addRules: rules,
+    });
+}
+
+// --- Banned User Redirect Tracking ---
+
+function onBeforeRedirectHandler(details) {
+    const match = details.url.match(/users\/(\d+)\/profile/);
+    if (match && match[1]) {
+        state.bannedUserRedirects.set(details.tabId, match[1]);
+    }
+}
+
+function updateBannedUserListener() {
+    if (!chrome.webRequest) return;
+
+    chrome.permissions.contains({ permissions: ['webRequest'] }, (granted) => {
+        if (granted) {
+            chrome.storage.local.get(
+                { bannedUserDetectionEnabled: false },
+                (data) => {
+                    if (data.bannedUserDetectionEnabled) {
+                        if (
+                            !chrome.webRequest.onBeforeRedirect.hasListener(
+                                onBeforeRedirectHandler,
+                            )
+                        ) {
+                            chrome.webRequest.onBeforeRedirect.addListener(
+                                onBeforeRedirectHandler,
+                                {
+                                    urls: [
+                                        '*://www.roblox.com/users/*/profile*',
+                                    ],
+                                },
+                            );
+                        }
+                    } else {
+                        chrome.webRequest.onBeforeRedirect.removeListener(
+                            onBeforeRedirectHandler,
+                        );
+                    }
+                },
+            );
+        }
     });
 }
 
@@ -574,6 +618,9 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
         ) {
             updateAvatarRotator();
         }
+        if (changes.bannedUserDetectionEnabled) {
+            updateBannedUserListener();
+        }
     }
 });
 
@@ -582,6 +629,8 @@ chrome.permissions.onAdded.addListener((permissions) => {
         setupNavigationListener();
     if (permissions.permissions?.includes('contextMenus'))
         setupContextMenuListener();
+    if (permissions.permissions?.includes('webRequest'))
+        updateBannedUserListener();
 
     chrome.tabs.query({}, (tabs) => {
         tabs.forEach((tab) =>
@@ -606,6 +655,11 @@ chrome.permissions.onRemoved.addListener((permissions) => {
         chrome.contextMenus?.onClicked.hasListener(contextMenuClickListener)
     ) {
         chrome.contextMenus.onClicked.removeListener(contextMenuClickListener);
+    }
+    if (permissions.permissions?.includes('webRequest')) {
+        chrome.webRequest.onBeforeRedirect.removeListener(
+            onBeforeRedirectHandler,
+        );
     }
 
     chrome.tabs.query({}, (tabs) => {
@@ -735,6 +789,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             }
             return false;
 
+        case 'getBannedUserRedirect':
+            sendResponse({
+                userId: state.bannedUserRedirects.get(sender.tab?.id),
+            });
+            return false;
+
         case 'presencePollResult':
             return false;
 
@@ -824,3 +884,4 @@ chrome.storage.local.get('MemoryleakFixEnabled', (result) => {
 updateUserAgentRule();
 updateAvatarRotator();
 setupContextMenuListener();
+updateBannedUserListener();

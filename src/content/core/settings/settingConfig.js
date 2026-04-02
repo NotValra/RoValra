@@ -640,6 +640,13 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
+            bannedUserDetectionEnabled: {
+                label: 'View Banned Users Profile',
+                description: ['Allows you to view banned users Profile.'],
+                type: 'checkbox',
+                default: false,
+                requiredPermissions: ['webRequest'],
+            },
         },
     },
     Communities: {

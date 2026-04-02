@@ -55,6 +55,7 @@ async function fetchBatchData(
             path: '/v1/users/avatar-headshot',
             idParam: 'userIds',
         },
+
         GameIcon: { path: '/v1/games/icons', idParam: 'universeIds' },
         Asset: { path: '/v1/assets', idParam: 'assetIds' },
         BundleThumbnail: {
@@ -313,5 +314,15 @@ export function createThumbnailElement(
 export async function getBatchThumbnails(ids, type, size = '150x150') {
     const items = ids.map((id) => ({ id }));
     const thumbnailMap = await fetchThumbnails(items, type, size);
-    return Array.from(thumbnailMap.values());
+    return ids.map((id) => {
+        const key = type === 'PlayerToken' ? id : String(id);
+        return (
+            thumbnailMap.get(key) || {
+                targetId: id,
+                state: 'Error',
+                imageUrl: '',
+                thumbnailType: type,
+            }
+        );
+    });
 }
