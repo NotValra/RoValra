@@ -7,9 +7,9 @@ import { createOverlay } from '../../../core/ui/overlay.js';
 import {
     updateUserDescription,
     isTextFiltered,
+    updateUserSettingViaApi,
 } from '../../../core/profile/descriptionhandler.js';
 import { createStyledInput } from '../../../core/ui/catalog/input.js';
-import { callRobloxApi } from '../../../core/api.js';
 import { getUserSettings } from '../../../core/donators/settingHandler.js';
 import { parseMarkdown } from '../../../core/utils/markdown.js';
 import DOMPurify from 'dompurify';
@@ -24,9 +24,13 @@ import {
     alice_badge_user_id,
     GILBERT_USER_ID,
 } from '../../../core/configs/userIds.js';
-
+import {
+    syncDonatorTier,
+    getCurrentUserTier,
+} from '../../../core/settings/handlesettings.js';
 const STATUS_PREFIX = 's:';
 const MAX_STATUS_LENGTH = 50;
+let activeHomeStatusBubble = null;
 
 const TRUSTED_USER_IDS = [
     CREATOR_USER_ID,
@@ -39,6 +43,46 @@ const TRUSTED_USER_IDS = [
     alice_badge_user_id,
     GILBERT_USER_ID,
 ].filter(Boolean);
+
+const downloadableExtensions =
+    /\.(zip|rar|7z|tar|gz|exe|msi|dmg|iso|apk|ahk|ps1|cmd|bat|cmd|com|scr|cpl|sys|dll|js|jse|vbs|vbe|wsf|wsh|ps1|psm1|psd1|sh|docm|xlsm|pptm|dotm|xltm|deb|rpm|pkg|appimage|hta|jar|class)$/i;
+
+DOMPurify.addHook('afterSanitizeAttributes', (currentNode) => {
+    if (currentNode.tagName === 'A' && currentNode.hasAttribute('href')) {
+        const href = currentNode.getAttribute('href');
+        try {
+            const url = new URL(href, window.location.href);
+            if (
+                url.hostname === 'localhost' ||
+                url.hostname === '127.0.0.1' ||
+                url.protocol === 'file:' ||
+                downloadableExtensions.test(url.pathname)
+            ) {
+                currentNode.removeAttribute('href');
+                currentNode.removeAttribute('target');
+                currentNode.removeAttribute('rel');
+                currentNode.style.color = 'inherit';
+                currentNode.style.textDecoration = 'none';
+                currentNode.style.cursor = 'text';
+                currentNode.style.pointerEvents = 'none';
+            }
+        } catch (e) {}
+    }
+
+    if (currentNode.tagName === 'IMG' && currentNode.hasAttribute('src')) {
+        const src = currentNode.getAttribute('src');
+        try {
+            const url = new URL(src, window.location.href);
+            if (
+                url.hostname === 'localhost' ||
+                url.hostname === '127.0.0.1' ||
+                url.protocol === 'file:'
+            ) {
+                currentNode.removeAttribute('src');
+            }
+        } catch (e) {}
+    }
+});
 
 function openEditStatusOverlay(currentStatus, onSave, canUseApi) {
     const container = document.createElement('div');
@@ -127,15 +171,17 @@ function openEditStatusOverlay(currentStatus, onSave, canUseApi) {
     };
 }
 
-async function addStatusBubble(avatarContainer) {
+async function addStatusBubble(avatarContainer, userWantsApi) {
     if (avatarContainer.querySelector('.rovalra-status-bubble-wrapper')) return;
 
     try {
         const userId = getUserIdFromUrl();
         if (!userId) return;
 
+        const isUserTrusted = TRUSTED_USER_IDS.includes(String(userId));
+
         const [{ status, canUseApi }, authenticatedUserId] = await Promise.all([
-            getUserSettings(userId),
+            getUserSettings(userId, { useDescription: true }),
             getAuthenticatedUserId(),
         ]);
 
@@ -165,7 +211,13 @@ async function addStatusBubble(avatarContainer) {
         const bubble = document.createElement('div');
         bubble.className = 'rovalra-status-bubble text-label-medium';
 
-        bubble.innerHTML = DOMPurify.sanitize(parseMarkdown(statusText));
+        if (isUserTrusted) {
+            bubble.innerHTML = DOMPurify.sanitize(parseMarkdown(statusText), {
+                FORBID_ATTR: ['style'],
+            });
+        } else {
+            bubble.textContent = statusText;
+        }
 
         bubbleWrapper.appendChild(bubble);
         avatarContainer.appendChild(bubbleWrapper);
@@ -186,9 +238,16 @@ async function addStatusBubble(avatarContainer) {
                         : newStatus
                     : '...';
 
-                bubble.innerHTML = DOMPurify.sanitize(
-                    parseMarkdown(textToRender),
-                );
+                if (isUserTrusted) {
+                    bubble.innerHTML = DOMPurify.sanitize(
+                        parseMarkdown(textToRender),
+                        {
+                            FORBID_ATTR: ['style'],
+                        },
+                    );
+                } else {
+                    bubble.textContent = textToRender;
+                }
 
                 const newTooltipText =
                     statusText === '...'
@@ -199,12 +258,14 @@ async function addStatusBubble(avatarContainer) {
 
             bubble.addEventListener('click', (e) => {
                 e.stopPropagation();
+                const isDonator = getCurrentUserTier() >= 1;
                 openEditStatusOverlay(
                     statusText === '...' ? '' : statusText,
                     async (newStatus) => {
                         const isTrusted = TRUSTED_USER_IDS.includes(
                             String(authenticatedUserId),
                         );
+                        const effectiveCanUseApi = isDonator && userWantsApi;
                         if (
                             newStatus &&
                             !isTrusted &&
@@ -213,20 +274,13 @@ async function addStatusBubble(avatarContainer) {
                             return 'failed';
                         }
 
-                        if (canUseApi) {
+                        if (effectiveCanUseApi) {
                             try {
-                                const response = await callRobloxApi({
-                                    isRovalraApi: true,
-                                    subdomain: 'apis',
-                                    endpoint: '/v1/auth/settings',
-                                    method: 'POST',
-                                    body: {
-                                        key: 'status',
-                                        value: newStatus,
-                                    },
-                                });
-
-                                if (response.ok) {
+                                const response = await updateUserSettingViaApi(
+                                    'status',
+                                    newStatus,
+                                );
+                                if (response) {
                                     updateBubbleUI(newStatus);
                                     return true;
                                 }
@@ -330,7 +384,7 @@ async function addStatusBubble(avatarContainer) {
                             }
                         }
                     },
-                    canUseApi,
+                    isDonator && userWantsApi,
                 );
             });
         }
@@ -339,17 +393,127 @@ async function addStatusBubble(avatarContainer) {
     }
 }
 
-export function init() {
-    chrome.storage.local.get({ statusBubbleEnabled: true }, (settings) => {
-        if (settings.statusBubbleEnabled) {
-            startObserving();
+async function addHomeStatusHover(tile) {
+    if (tile.dataset.rovalraStatusObserved) return;
+    tile.dataset.rovalraStatusObserved = 'true';
 
-            injectStylesheet(
-                'css/thinkingbubble.css',
-                'rovalra-profile-status-css',
-            );
-            const selector = '.user-profile-header-details-avatar-container';
-            observeElement(selector, addStatusBubble, { multiple: true });
+    const link = tile.querySelector('a.avatar-card-link');
+    const avatarContainer = tile.querySelector(
+        '.avatar-card-fullbody, .avatar-card-image-container',
+    );
+    if (!link || !avatarContainer) return;
+
+    const match = link.href.match(/\/users\/(\d+)\//);
+    if (!match) return;
+    const userId = match[1];
+
+    const bubbleWrapper = document.createElement('div');
+    bubbleWrapper.className = 'rovalra-status-bubble-wrapper';
+    bubbleWrapper.style.left = '130%';
+    bubbleWrapper.style.display = 'none';
+
+    const bubble = document.createElement('div');
+    bubble.className = 'rovalra-status-bubble text-label-medium';
+    bubbleWrapper.appendChild(bubble);
+    avatarContainer.appendChild(bubbleWrapper);
+
+    let statusLoaded = false;
+
+    tile.addEventListener('mouseenter', async () => {
+        if (!statusLoaded) {
+            try {
+                const { status } = await getUserSettings(userId, {
+                    useDescription: true,
+                });
+
+                if (status) {
+                    let statusText = status;
+                    if (statusText.length > MAX_STATUS_LENGTH) {
+                        statusText =
+                            statusText.substring(0, MAX_STATUS_LENGTH) + '...';
+                    }
+
+                    const isUserTrusted = TRUSTED_USER_IDS.includes(
+                        String(userId),
+                    );
+
+                    if (isUserTrusted) {
+                        bubble.innerHTML = DOMPurify.sanitize(
+                            parseMarkdown(statusText),
+                            { FORBID_ATTR: ['style'] },
+                        );
+                    } else {
+                        bubble.textContent = statusText;
+                    }
+                    statusLoaded = true;
+                } else {
+                    bubbleWrapper.remove();
+                    return;
+                }
+            } catch (error) {
+                console.error(
+                    'RoValra: Error fetching status for home page hover.',
+                    error,
+                );
+                bubbleWrapper.remove();
+                return;
+            }
+        }
+        if (statusLoaded) {
+            if (!tile.matches(':hover')) return;
+
+            if (
+                activeHomeStatusBubble &&
+                activeHomeStatusBubble !== bubbleWrapper
+            ) {
+                activeHomeStatusBubble.style.display = 'none';
+            }
+            bubbleWrapper.style.display = 'flex';
+            activeHomeStatusBubble = bubbleWrapper;
         }
     });
+
+    tile.addEventListener('mouseleave', () => {
+        if (activeHomeStatusBubble === bubbleWrapper)
+            activeHomeStatusBubble = null;
+        bubbleWrapper.style.display = 'none';
+    });
+}
+
+export function init() {
+    syncDonatorTier();
+    chrome.storage.local.get(
+        {
+            statusBubbleEnabled: true,
+            statusBubbleHomePage: true,
+            statusBubbleUseApi: true,
+        },
+        (settings) => {
+            if (settings.statusBubbleEnabled) {
+                startObserving();
+
+                injectStylesheet(
+                    'css/thinkingbubble.css',
+                    'rovalra-profile-status-css',
+                );
+                const selector =
+                    '.user-profile-header-details-avatar-container';
+                observeElement(
+                    selector,
+                    (el) => addStatusBubble(el, settings.statusBubbleUseApi),
+                    { multiple: true },
+                );
+
+                if (settings.statusBubbleHomePage) {
+                    observeElement(
+                        '.friends-carousel-tile',
+                        addHomeStatusHover,
+                        {
+                            multiple: true,
+                        },
+                    );
+                }
+            }
+        },
+    );
 }

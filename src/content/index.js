@@ -62,6 +62,7 @@ import { init as initItemValues } from './features/trading/itemValues.js';
 import { init as initTradePreview } from './features/trading/tradePreview.js';
 import { init as initTradeFilter } from './features/trading/tradefilter.js';
 import { init as initTradeSearch } from './features/trading/tradeSearch.js';
+import { init as initTradeProof } from './features/trading/tradeProof.js';
 // group
 import { init as initHiddenGroupGames } from './features/groups/hiddenGroupGames.js';
 import { init as initAntiBots } from './features/groups/Antibots.js';
@@ -78,6 +79,7 @@ import { init as initUserGames } from './features/profile/hiddengames.js';
 import { init as initPrivateServerControls } from './features/games/privateserver.js';
 import { init as initPreviousPrice } from './features/sitewide/PreviousPrice.js';
 import { init as initCategorizeWearing } from './features/profile/categorizeWearing.js';
+import { init as initBannedUsers } from './features/profile/bannedusers.js';
 import { init as initTrustedFriends } from './features/profile/trustedfriends.js';
 import { init as initProfileRender } from './features/profile/header/ProfileRender.js';
 import { init as initStatus } from './features/profile/header/status.js';
@@ -121,7 +123,9 @@ const featureRoutes = [
             initPreviousPrice,
             initQuickSearch,
             initRenderTest,
+            initBannedUsers,
             initGroupFunds,
+            initStatus,
         ],
     },
     // pretty much just the 40% method
@@ -191,12 +195,14 @@ const featureRoutes = [
             initPrivateServers,
             initRovalraBadges,
             initUserGames,
-            initCategorizeWearing,
             initTrustedFriends,
             initProfileRender,
-            initStatus,
             initFriendsSince,
         ],
+    },
+    {
+        paths: ['/users/', '/banned-users/'],
+        features: [initCategorizeWearing],
     },
 
     // Transactions page
@@ -213,6 +219,7 @@ const featureRoutes = [
             initTradePreview,
             initTradeFilter,
             initTradeSearch,
+            initTradeProof,
         ],
     },
 

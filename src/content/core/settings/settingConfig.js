@@ -20,6 +20,8 @@ export const SETTINGS_CONFIG = {
                     'Shows Roblox made items before they are on the official marketplace.',
                 ],
                 deprecated: 'Patched by Roblox',
+                locked: 'This feature has been patched by Roblox and is no longer functional.',
+                isPermanent: true,
                 type: 'checkbox',
                 default: false,
             },
@@ -435,18 +437,29 @@ export const SETTINGS_CONFIG = {
                     },
                 },
             },
+
             profile3DRenderEnabled: {
                 label: 'Enable Custom 3D Profile Renderer',
                 description: [
                     'Replaces the default profile avatar with a more customizable and feature-rich 3D renderer.',
                     'This feature is required for custom environments and other render-related settings.',
-                    'This feature was made possible cause of [RoAvatar](https://www.roavatar.com) ❤️',
+                    'This feature was made possible cause of [RoAvatar](https://github.com/steinann/RoAvatar) ❤️',
                 ],
                 type: 'checkbox',
                 default: false,
                 experimental:
                     'This feature may cause performance issues. And may be buggy',
                 childSettings: {
+                    profileRenderUseApi: {
+                        label: 'Use RoValra API for Environment',
+                        description:
+                            "Uses RoValra's API to save your environment choice instead of your 'About Me' section.",
+                        type: 'checkbox',
+                        default: true,
+                        donatorTier: 1,
+                        donatorReason:
+                            'Donator 1 is required since RoValra doesnt have the resources to track the 200k+ user settings.',
+                    },
                     profileRenderEnvironment: {
                         label: '3D Profile Environment',
                         description: [
@@ -528,11 +541,29 @@ export const SETTINGS_CONFIG = {
             statusBubbleEnabled: {
                 label: 'Status Bubble',
                 description: [
-                    'This allows you to set a status bubble that anyone with RoValra can see.',
+                    'This allows you to set a status bubble on your profile that anyone with RoValra can see.',
                     'Also allows you to view other RoValra users status bubbles.',
+                    'This works by adding a little "s:" string to your about me.',
                 ],
                 type: 'checkbox',
                 default: true,
+                childSettings: {
+                    statusBubbleUseApi: {
+                        label: 'Use RoValra API for Status',
+                        description:
+                            "Uses RoValra's API to save your status instead of your 'About Me' section.",
+                        type: 'checkbox',
+                        default: true,
+                        donatorTier: 1,
+                        donatorReason:
+                            'Donator 1 is required since RoValra doesnt have the resources to track the 200k+ user settings.',
+                    },
+                    statusBubbleHomePage: {
+                        label: 'Status bubble for friends on home page, and other parts of the site where friends might show.',
+                        type: 'checkbox',
+                        default: true,
+                    },
+                },
             },
             donationbuttonEnable: {
                 label: 'Donation Button',
@@ -609,6 +640,13 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
+            bannedUserDetectionEnabled: {
+                label: 'View Banned Users Profile',
+                description: ['Allows you to view banned users Profile.'],
+                type: 'checkbox',
+                default: false,
+                requiredPermissions: ['webRequest'],
+            },
         },
     },
     Communities: {
@@ -676,6 +714,13 @@ export const SETTINGS_CONFIG = {
                 description: [
                     'Allows you to equip multiple items like accessories seamlessly without having to use the advanced tab.',
                 ],
+                type: 'checkbox',
+                default: true,
+            },
+            stickyAvatarEnabled: {
+                label: 'Sticky Avatar Preview',
+                description:
+                    'This forces the avatar preview to always be in view on the avatar editor.',
                 type: 'checkbox',
                 default: true,
             },
@@ -783,6 +828,15 @@ export const SETTINGS_CONFIG = {
                     'This adds a small Preview of the trade you are doing in the accept / decline confirmation pop up.',
                 type: 'checkbox',
                 default: true,
+            },
+            tradeProofEnabled: {
+                label: 'Proof Trades',
+                description:
+                    'This allows you to quickly copy the rolimons proof format for any trade.',
+                type: 'checkbox',
+                default: false,
+                experimental:
+                    'This may be inaccurate, and may in some cases have issues resulting in an inaccurate proof. Please verify it is correct before using.',
             },
             tradeRiskEnabled: {
                 label: 'Show Item Risk',
@@ -1290,6 +1344,8 @@ export const SETTINGS_CONFIG = {
                     "Pressing the 'Impersonate User' option does nothing other than error unless you are authorized to use it",
                 ],
                 deprecated: 'Roblox removed it with the new profile overhaul',
+                locked: 'This internal Roblox feature was removed during the profile page redesign.',
+                isPermanent: true,
                 type: 'checkbox',
                 default: false,
             },
@@ -1338,6 +1394,15 @@ export const SETTINGS_CONFIG = {
             },
             rendererDeveloperToggles: {
                 label: '3D renderer Developer toggles',
+                type: 'checkbox',
+                default: false,
+            },
+            profile3DRenderBypassCheck: {
+                label: 'Bypass Graphics Check',
+                description: [
+                    'Bypasses the compatibility check for the 3D Profile Renderer.',
+                    'Only enable this if the 3D renderer was disabled due to graphics issues but you want to try anyway.',
+                ],
                 type: 'checkbox',
                 default: false,
             },

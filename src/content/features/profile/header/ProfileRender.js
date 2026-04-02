@@ -1,11 +1,10 @@
-import './patch.js';
 import { observeElement, observeResize } from '../../../core/observer.js';
 import { getUserIdFromUrl } from '../../../core/idExtractor.js';
 import {
     injectStylesheet,
     removeStylesheet,
 } from '../../../core/ui/cssInjector.js';
-import { callRobloxApiJson, callRobloxApi } from '../../../core/api.js';
+import { callRobloxApiJson } from '../../../core/api.js';
 import { createSquareButton } from '../../../core/ui/profile/header/squarebutton.js';
 import { createOverlay } from '../../../core/ui/overlay.js';
 import { createDropdown } from '../../../core/ui/dropdown.js';
@@ -15,10 +14,15 @@ import { showConfirmationPrompt } from '../../../core/ui/confirmationPrompt.js';
 import { getAuthenticatedUserId } from '../../../core/user.js';
 import { getAssets } from '../../../core/assets.js';
 import { SETTINGS_CONFIG } from '../../../core/settings/settingConfig.js';
-import { handleSaveSettings } from '../../../core/settings/handlesettings.js';
+import {
+    handleSaveSettings,
+    syncDonatorTier,
+    getCurrentUserTier,
+} from '../../../core/settings/handlesettings.js';
 import {
     getUserDescription,
     updateUserDescription,
+    updateUserSettingViaApi,
 } from '../../../core/profile/descriptionhandler.js';
 import { getUserSettings } from '../../../core/donators/settingHandler.js';
 import {
@@ -39,10 +43,12 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { log, logLevel } from '../../../core/logging.js';
 
 import * as THREE from 'three';
-FLAGS.ASSETS_PATH = chrome.runtime.getURL('assets/rbxasset/');
+import { safeHtml } from '../../../core/packages/dompurify.js';
 FLAGS.ENABLE_API_MESH_CACHE = false;
 FLAGS.ENABLE_API_RBX_CACHE = false;
-FLAGS.USE_WORKERS = true;
+FLAGS.USE_WORKERS = false;
+FLAGS.ONLINE_ASSETS = true;
+
 let currentRig = null;
 let currentRigType = null;
 let emoteStopTimer = null;
@@ -53,7 +59,6 @@ let avatarDataPromise = null;
 let isCustomEnvLoaded = false;
 let environmentConfig = null;
 let activeEmoteId = null;
-let globalCanUseApiForEnv = false;
 const animationSpeed = 1;
 
 let isAnimatePatched = false;
@@ -226,7 +231,6 @@ function getAnimatorW(rig = currentRig) {
 async function playIdle() {
     const animatorW = getAnimatorW();
     if (animatorW) {
-        animatorW.stopMoodAnimation();
         animatorW.playAnimation('idle');
     }
     activeEmoteId = null;
@@ -756,6 +760,7 @@ function injectCustomButtons(toggleButton) {
         const settings = await chrome.storage.local.get([
             'profileRenderEnvironment',
             'rendererDeveloperToggles',
+            'profileRenderUseApi',
         ]);
 
         if (isOwnProfile) {
@@ -766,6 +771,9 @@ function injectCustomButtons(toggleButton) {
                 SETTINGS_CONFIG.Profile.settings.profile3DRenderEnabled
                     .childSettings.profileRenderEnvironment.options;
             const currentEnv = settings.profileRenderEnvironment || 'void';
+            const isDonator = getCurrentUserTier() >= 1;
+            const effectiveCanUseApi =
+                isDonator && settings.profileRenderUseApi;
 
             const { element: envDropdown } = createDropdown({
                 items: profileEnvs,
@@ -777,18 +785,9 @@ function injectCustomButtons(toggleButton) {
                         (opt) => opt.value === value,
                     );
                     const envId = selectedEnv ? selectedEnv.id : 1;
-                    if (globalCanUseApiForEnv) {
+                    if (effectiveCanUseApi) {
                         try {
-                            await callRobloxApi({
-                                isRovalraApi: true,
-                                subdomain: 'apis',
-                                endpoint: '/v1/auth/settings',
-                                method: 'POST',
-                                body: {
-                                    key: 'environment',
-                                    value: String(envId),
-                                },
-                            });
+                            await updateUserSettingViaApi('environment', envId);
                         } catch (error) {
                             console.error(
                                 'RoValra: Failed to save environment via API.',
@@ -824,7 +823,7 @@ function injectCustomButtons(toggleButton) {
                 'Saves environment choice to your about me as "e:X" so other RoValra users can see it.';
             helpText.style.cssText =
                 'font-size: 11px; color: var(--rovalra-secondary-text-color); margin-top: 5px; margin-bottom: 0;'; //Verified
-            if (!globalCanUseApiForEnv) {
+            if (!effectiveCanUseApi) {
                 envSection.appendChild(helpText);
             }
             contentContainer.appendChild(envSection);
@@ -1113,7 +1112,9 @@ async function preloadAvatar() {
                 chrome.storage.local.get([
                     'profileRenderRotateEnabled',
                     'profileRenderEnvironment',
+                    'profile3DRenderBypassCheck',
                     'environmentTester',
+                    'profileRenderUseApi',
                     'modelUrl',
                     'modelPosX',
                     'modelPosY',
@@ -1164,7 +1165,30 @@ async function preloadAvatar() {
             if (!preloadedCanvas) {
                 RegisterWrappers();
                 patchAnimateForRotation();
-                await RBXRenderer.fullSetup(true, true);
+                const setupSuccess = await RBXRenderer.fullSetup(true, true);
+
+                if (!setupSuccess || RBXRenderer.failedToCreate) {
+                    const setupError =
+                        RBXRenderer.error ||
+                        'WebGL 2 is disabled or your graphics card doesnt support it.';
+
+                    if (!settings.profile3DRenderBypassCheck) {
+                        await handleSaveSettings(
+                            'profile3DRenderEnabled',
+                            false,
+                        );
+                        await chrome.storage.local.set({
+                            profile3DRenderForceDisabled: true,
+                        });
+                    }
+                    isPreloading = false;
+                    avatarDataPromise = null;
+                    throw new Error(setupError);
+                }
+                await chrome.storage.local.remove(
+                    'profile3DRenderForceDisabled',
+                );
+
                 RBXRenderer.setBackgroundTransparent(true);
                 preloadedCanvas = RBXRenderer.getRendererElement();
                 preloadedCanvas.classList.add('rovalra-canvas');
@@ -1262,9 +1286,12 @@ async function preloadAvatar() {
                     const profileEnvs =
                         SETTINGS_CONFIG.Profile.settings.profile3DRenderEnabled
                             .childSettings.profileRenderEnvironment.options;
-                    const { environment: apiEnv, canUseApi } =
-                        await getUserSettings(userId);
-                    globalCanUseApiForEnv = canUseApi;
+                    const { environment: apiEnv } = await getUserSettings(
+                        userId,
+                        {
+                            useDescription: true,
+                        },
+                    );
                     let envIdToRender;
                     if (isOwnProfile) {
                         const profileEnvValue =
@@ -1277,18 +1304,13 @@ async function preloadAvatar() {
                             : 1;
                         envIdToRender = localEnvId;
                         if (localEnvId !== apiEnv) {
-                            if (canUseApi) {
+                            const isDonator = getCurrentUserTier() >= 1;
+                            if (isDonator && settings.profileRenderUseApi) {
                                 try {
-                                    await callRobloxApi({
-                                        isRovalraApi: true,
-                                        subdomain: 'apis',
-                                        endpoint: '/v1/auth/settings',
-                                        method: 'POST',
-                                        body: {
-                                            key: 'environment',
-                                            value: String(localEnvId),
-                                        },
-                                    });
+                                    await updateUserSettingViaApi(
+                                        'environment',
+                                        localEnvId,
+                                    );
                                 } catch (error) {
                                     console.error(
                                         'RoValra: Failed to sync environment to API.',
@@ -1465,7 +1487,8 @@ async function preloadAvatar() {
             return globalAvatarData;
         } catch (err) {
             log(logLevel.ERROR, "RoValra Preload Error:", err);
-            return null;
+            avatarDataPromise = null;
+            throw err;
         } finally {
             isPreloading = false;
         }
@@ -1486,6 +1509,15 @@ async function attachPreloadedAvatar(container) {
     });
 
     const avatarPromise = preloadAvatar();
+
+    avatarPromise.catch((err) => {
+        container.innerHTML = '';
+        const errorContainer = document.createElement('div');
+        errorContainer.style.cssText =
+            'display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--rovalra-secondary-text-color); padding: 20px; text-align: center; font-size: 12px;';
+        errorContainer.innerHTML = safeHtml`<span style="font-size: 24px; margin-bottom: 8px;">⚠️</span><div style="font-weight:600; margin-bottom:4px;">3D Renderer Error</div><div>${err.message}</div>`;
+        container.appendChild(errorContainer);
+    });
 
     const ensureCanvasAttached = () => {
         if (preloadedCanvas && !container.contains(preloadedCanvas)) {
@@ -1512,57 +1544,74 @@ async function attachPreloadedAvatar(container) {
 }
 
 export function init() {
-    chrome.storage.local.get({ profile3DRenderEnabled: true }, (result) => {
-        if (result.profile3DRenderEnabled) {
-            const avatarPromise = preloadAvatar();
-            injectStylesheet(
-                'css/thumbnailholder.css',
-                'rovalra-thumbnail-holder-css',
-            );
-
-            observeElement(
-                '.thumbnail-holder-position .thumbnail-3d-container > canvas:not(.rovalra-canvas), .thumbnail-holder-position .thumbnail-3d-container > .placeholder-generated-image',
-                (elementToRemove) => {
-                    elementToRemove.remove();
-                },
-                { multiple: true },
-            );
-
-            observeElement(
-                '.thumbnail-holder-position .thumbnail-3d-container, .avatar-toggle-button',
-                (element) => {
-                    if (element.classList.contains('thumbnail-3d-container')) {
-                        attachPreloadedAvatar(element);
-                    } else if (
-                        element.classList.contains('avatar-toggle-button')
-                    ) {
-                        avatarPromise.then((data) => {
-                            if (data) injectCustomButtons(element);
-                        });
+    syncDonatorTier();
+    chrome.storage.local.get(
+        { profile3DRenderEnabled: true, profile3DRenderForceDisabled: false },
+        (result) => {
+            if (result.profile3DRenderForceDisabled) {
+                try {
+                    const canvas = document.createElement('canvas');
+                    if (canvas.getContext('webgl2')) {
+                        chrome.storage.local.remove(
+                            'profile3DRenderForceDisabled',
+                        );
                     }
-                },
-                { multiple: true },
-            );
+                } catch (e) {}
+            }
 
-            let hasAutoSwitchedTo3D = false;
-            observeElement(
-                'button.foundation-web-button',
-                (button) => {
-                    if (hasAutoSwitchedTo3D) return;
+            if (result.profile3DRenderEnabled) {
+                const avatarPromise = preloadAvatar();
+                injectStylesheet(
+                    'css/thumbnailholder.css',
+                    'rovalra-thumbnail-holder-css',
+                );
 
-                    if (button.textContent.trim() === '3D') {
+                observeElement(
+                    '.thumbnail-holder-position .thumbnail-3d-container > canvas:not(.rovalra-canvas), .thumbnail-holder-position .thumbnail-3d-container > .placeholder-generated-image',
+                    (elementToRemove) => {
+                        elementToRemove.remove();
+                    },
+                    { multiple: true },
+                );
+
+                observeElement(
+                    '.thumbnail-holder-position .thumbnail-3d-container, .avatar-toggle-button',
+                    (element) => {
                         if (
-                            document.querySelector(
-                                '.thumbnail-holder-position .thumbnail-2d-container',
-                            )
+                            element.classList.contains('thumbnail-3d-container')
                         ) {
-                            button.click();
+                            attachPreloadedAvatar(element);
+                        } else if (
+                            element.classList.contains('avatar-toggle-button')
+                        ) {
+                            avatarPromise.then((data) => {
+                                if (data) injectCustomButtons(element);
+                            });
                         }
-                        hasAutoSwitchedTo3D = true;
-                    }
-                },
-                { multiple: true },
-            );
-        }
-    });
+                    },
+                    { multiple: true },
+                );
+
+                let hasAutoSwitchedTo3D = false;
+                observeElement(
+                    'button.foundation-web-button',
+                    (button) => {
+                        if (hasAutoSwitchedTo3D) return;
+
+                        if (button.textContent.trim() === '3D') {
+                            if (
+                                document.querySelector(
+                                    '.thumbnail-holder-position .thumbnail-2d-container',
+                                )
+                            ) {
+                                button.click();
+                            }
+                            hasAutoSwitchedTo3D = true;
+                        }
+                    },
+                    { multiple: true },
+                );
+            }
+        },
+    );
 }

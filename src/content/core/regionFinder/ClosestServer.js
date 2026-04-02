@@ -6,8 +6,7 @@ import { hideLoadingOverlay } from '../ui/startModal/gamelaunchmodal.js';
 import { getStateCodeFromRegion } from '../regions.js';
 import { log, logLevel } from '../logging.js';
 
-export let REGIONS = {};
-export let serverIpMap = {};
+import { REGIONS, serverIpMap } from '../regions.js';
 
 export const FINDER_CONFIG = {
     logScores: true,
@@ -16,55 +15,7 @@ export const FINDER_CONFIG = {
     maxManualScanPages: 3,
 };
 
-export const dataPromise = new Promise((resolve, reject) => {
-    chrome.storage.local.get(['rovalraDatacenters'], (result) => {
-        REGIONS = {};
-        serverIpMap = {};
-
-        if (
-            result.rovalraDatacenters &&
-            Array.isArray(result.rovalraDatacenters)
-        ) {
-            for (const entry of result.rovalraDatacenters) {
-                if (entry.location && entry.location_id) {
-                    const loc = entry.location;
-                    const countryCode = loc.country;
-                    const state = loc.region;
-                    const city = loc.city;
-                    let regionCode = countryCode;
-
-                    if (countryCode === 'US' && state && city) {
-                        const stateCode = getStateCodeFromRegion(state);
-                        const cityCode = city.replace(/\s+/g, '').toUpperCase();
-                        regionCode = `US-${stateCode}-${cityCode}`;
-                    } else if (countryCode === 'US' && state) {
-                        regionCode = `US-${getStateCodeFromRegion(state)}`;
-                    } else if (city) {
-                        regionCode = `${countryCode}-${city.replace(/\s+/g, '').toUpperCase()}`;
-                    }
-
-                    REGIONS[regionCode] = {
-                        id: regionCode,
-                        city: loc.city,
-                        country: loc.country,
-                        region: loc.region,
-                        latitude: parseFloat(loc.latLong[0]),
-                        longitude: parseFloat(loc.latLong[1]),
-                        loadbalancing: entry.loadbalancing,
-                        inactive: entry.inactive,
-                    };
-
-                    if (entry.dataCenterIds) {
-                        for (const id of entry.dataCenterIds) {
-                            serverIpMap[id] = regionCode;
-                        }
-                    }
-                }
-            }
-        }
-        resolve();
-    });
-});
+export const dataPromise = Promise.resolve();
 
 export function getRegionName(regionId) {
     if (regionId === 'AUTO') return 'Automatic';
@@ -113,26 +64,27 @@ export async function findClosestServerViaApi(
     originRegionId,
     userRequestedStop,
 ) {
-    if (!REGIONS[originRegionId]) return null;
+    const origin = REGIONS[originRegionId];
+    if (!origin) return null;
 
-    const allRegions = Object.values(REGIONS).filter(
-        (r) => r.id !== originRegionId,
-    );
-    const regionsWithDistance = allRegions.map((region) => ({
-        region,
-        distance: getDistance(
-            REGIONS[originRegionId].latitude,
-            REGIONS[originRegionId].longitude,
-            region.latitude,
-            region.longitude,
-        ),
-    }));
+    const regionsWithDistance = Object.entries(REGIONS)
+        .filter(([id, r]) => id !== originRegionId && id !== 'AUTO')
+        .map(([id, region]) => ({
+            id,
+            region,
+            distance: getDistance(
+                origin.latitude,
+                origin.longitude,
+                region.latitude,
+                region.longitude,
+            ),
+        }));
 
     regionsWithDistance.sort((a, b) => a.distance - b.distance);
 
     const regionsToCheck = regionsWithDistance.slice(0, 10);
 
-    for (const { region } of regionsToCheck) {
+    for (const { id, region } of regionsToCheck) {
         if (userRequestedStop) return null;
 
         let url = `/v1/servers/region?place_id=${placeId}`;
@@ -175,7 +127,7 @@ export async function findClosestServerViaApi(
                                                 server.max_players ||
                                                 server.maxPlayers,
                                         },
-                                        regionCode: region.id,
+                                        regionCode: id,
                                     };
                                 }
                             }
@@ -235,7 +187,6 @@ export async function findServerViaRovalraApi(
         );
         if (rankedRegions.length === 0) return { joined: false };
 
-        let apiCandidate = null;
         let apiSucceededAtLeastOnce = false;
 
         for (const { region } of rankedRegions) {
@@ -251,15 +202,24 @@ export async function findServerViaRovalraApi(
                 );
 
                 if (unjoinedServers.length > 0) {
-                    apiCandidate = {
-                        servers: unjoinedServers,
-                        region,
-                        distance: getRegionDistance(
-                            region.id,
-                            rankedRegions[0].region.id,
-                        ),
-                    };
-                    break;
+                    if (!preferredRegionId || region.id === preferredRegionId) {
+                        if (
+                            await attemptJoinServers(
+                                placeId,
+                                unjoinedServers,
+                                joinedServerIds,
+                                userRequestedStopCheck,
+                            )
+                        ) {
+                            return { status: 'JOINED' };
+                        }
+                    } else {
+                        return {
+                            status: 'FOUND_FALLBACK',
+                            servers: unjoinedServers,
+                            regionCode: region.id,
+                        };
+                    }
                 } else {
                     failedRegionNames.add(getRegionName(region.id));
                 }
@@ -268,51 +228,22 @@ export async function findServerViaRovalraApi(
             }
         }
 
-        let manualCandidate = null;
         const bestPossibleRegion = rankedRegions[0].region;
 
-        if (!apiCandidate || apiCandidate.region.id !== bestPossibleRegion.id) {
-            const beatDistance = apiCandidate
-                ? getRegionDistance(
-                      apiCandidate.region.id,
-                      bestPossibleRegion.id,
-                  )
-                : Infinity;
-
-            manualCandidate = await findBestManualServer(
-                placeId,
-                rankedRegions,
-                beatDistance,
-                joinedServerIds,
-                userRequestedStopCheck,
-            );
-        }
-
-        let finalCandidate = apiCandidate;
+        const manualCandidate = await findBestManualServer(
+            placeId,
+            rankedRegions,
+            Infinity,
+            joinedServerIds,
+            userRequestedStopCheck,
+        );
 
         if (manualCandidate) {
-            if (
-                !apiCandidate ||
-                manualCandidate.distance < apiCandidate.distance
-            ) {
-                finalCandidate = manualCandidate;
-            }
-        }
-
-        if (finalCandidate) {
-            const serversToJoin = finalCandidate.servers || [
-                finalCandidate.server,
-            ];
-            if (
-                await attemptJoinServers(
-                    placeId,
-                    serversToJoin,
-                    joinedServerIds,
-                    userRequestedStopCheck,
-                )
-            ) {
-                return { status: 'JOINED' };
-            }
+            return {
+                status: 'FOUND_FALLBACK',
+                servers: [manualCandidate.server],
+                regionCode: manualCandidate.region.id,
+            };
         }
 
         if (apiSucceededAtLeastOnce) {
@@ -348,31 +279,38 @@ async function checkGameActivity(universeId) {
 
 async function getRankedRegions(placeId, preferredRegionId) {
     let ranked = [];
+    const locationData = await getUserLocation(placeId);
 
-    if (preferredRegionId) {
-        if (REGIONS[preferredRegionId]) {
-            ranked = [
-                { region: REGIONS[preferredRegionId], score: 0, distance: 0 },
-            ];
-        }
-    } else {
-        const locationData = await getUserLocation(placeId);
-        if (!locationData) return [];
+    const userLat = locationData?.userLat;
+    const userLon = locationData?.userLon;
 
-        const { userLat, userLon } = locationData;
-
-        ranked = Object.values(REGIONS).map((region) => {
-            const distance = getDistance(
+    ranked = Object.entries(REGIONS).map(([id, region]) => {
+        let distance = Infinity;
+        if (userLat != null && userLon != null && region.latitude != null) {
+            distance = getDistance(
                 userLat,
                 userLon,
                 region.latitude,
                 region.longitude,
             );
-            const score = Math.floor(distance / 10) + 1;
-            return { region, score, distance };
-        });
+        }
+        let score = Math.floor(distance / 10) + 1;
 
-        ranked.sort((a, b) => a.score - b.score);
+        if (preferredRegionId && id === preferredRegionId) {
+            score = 0;
+            distance = 0;
+        }
+        return { region: { ...region, id }, score, distance };
+    });
+
+    ranked.sort((a, b) => a.score - b.score);
+
+    if (preferredRegionId) {
+        const idx = ranked.findIndex((r) => r.region.id === preferredRegionId);
+        if (idx > 0) {
+            const [item] = ranked.splice(idx, 1);
+            ranked.unshift(item);
+        }
     }
 
     if (FINDER_CONFIG.logScores) {

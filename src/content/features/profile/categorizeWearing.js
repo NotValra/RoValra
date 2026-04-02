@@ -8,7 +8,7 @@ import { ts } from '../../core/locale/i18n.js';
 let totalPrice = 0;
 const processedBundleIds = new Set();
 let totalPriceElement = null;
-
+export const assetInfoCache = new Map();
 function debounce(func, wait) {
     let timeout;
     return function executedFunction(...args) {
@@ -39,13 +39,19 @@ let emotesGrid = null;
 let animationsGrid = null;
 let bodyPartsGrid = null;
 let currentFilter = 'items';
-const discoveredCategories = new Set();
+export const discoveredCategories = new Set();
 let pillToggleWrapper = null;
-let isBodyPartsCategoryEnabled = true;
-let isAnimationsCategoryEnabled = true;
-let isEmotesCategoryEnabled = true;
+export let isBodyPartsCategoryEnabled = true;
+export let isAnimationsCategoryEnabled = true;
+export let isEmotesCategoryEnabled = true;
 
-async function loadAssetTypeIds() {
+export function enableAllCategories() {
+    isBodyPartsCategoryEnabled = true;
+    isAnimationsCategoryEnabled = true;
+    isEmotesCategoryEnabled = true;
+}
+
+export async function loadAssetTypeIds() {
     try {
         const allCategories = await getAllCategories();
         allCategories.forEach((cat) => {
@@ -87,14 +93,23 @@ async function loadAssetTypeIds() {
                     );
                 });
             }
+            if (catName.includes('bodyparts')) {
+                cat.assetTypeIds?.forEach((id) =>
+                    ASSET_TYPE_IDS.BODY_PARTS.add(id),
+                );
+                cat.subcategories?.forEach((sub) => {
+                    sub.assetTypeIds?.forEach((id) =>
+                        ASSET_TYPE_IDS.BODY_PARTS.add(id),
+                    );
+                });
+            }
         });
     } catch (e) {
         console.error('RoValra: Failed to load dynamic asset type IDs', e);
     }
 }
 
-const assetInfoCache = new Map();
-const pendingItems = new Map();
+export const pendingItems = new Map();
 
 function updateTotalDisplay() {
     if (!totalPriceElement) {
@@ -114,7 +129,7 @@ function updateTotalDisplay() {
     }
 }
 
-function recalculateTotalPrice() {
+export function recalculateTotalPrice() {
     totalPrice = 0;
     processedBundleIds.clear();
 
@@ -270,7 +285,8 @@ function updateTabVisibility(filter) {
     if (container) container.scrollLeft = 0;
 }
 
-function createCategorizedWearingSection() {
+export function createCategorizedWearingSection() {
+    discoveredCategories.clear();
     const section = document.createElement('div');
     section.className = 'section rovalra-container';
     section.style.cssText =
@@ -358,11 +374,11 @@ function createCategorizedWearingSection() {
     return section;
 }
 
-function addItemToCategoryView(itemEl, assetId) {
-    if (itemEl.dataset.rovalraCategorized === 'true') return;
+export function addItemToCategoryView(itemEl, assetId) {
+    if (itemEl && itemEl.dataset.rovalraCategorized === 'true') return;
     const info = assetInfoCache.get(assetId);
-    if (!info || !accessoriesGrid) return;
-    const category = getCategoryName(info.assetType.id);
+    if (!accessoriesGrid) return;
+    const category = info ? getCategoryName(info.assetType.id) : 'items';
     let targetGrid;
     switch (category) {
         case 'emotes':
@@ -385,11 +401,11 @@ function addItemToCategoryView(itemEl, assetId) {
     );
 
     if (!exists) {
-        itemEl.dataset.rovalraCategorized = 'true';
+        if (itemEl) itemEl.dataset.rovalraCategorized = 'true';
         const card = createItemCard(
             assetId,
             {},
-            { cardStyles: { width: '150px', flexShrink: 0 } },
+            { cardStyles: { width: '120px', flexShrink: 0 } },
         );
         card.dataset.rovalraPendingId = assetId;
         targetGrid.appendChild(card);
@@ -403,8 +419,9 @@ function addItemToCategoryView(itemEl, assetId) {
             container.parentElement.querySelector('.left'),
             container.parentElement.querySelector('.right'),
         );
+        recalculateTotalPrice();
     }
-    itemEl.style.display = 'none';
+    if (itemEl) itemEl.style.display = 'none';
 }
 
 function handleItemDetection(itemEl) {
@@ -482,16 +499,24 @@ export async function init() {
         const data = e.detail?.data;
         if (!Array.isArray(data)) return;
         data.forEach((item) => {
-            const typeId = item.assetType || item.assetTypeId;
+            let typeId = item.assetType || item.assetTypeId;
+            if (typeId && typeof typeId === 'object') {
+                typeId = typeId.id;
+            }
             if (item.id && typeId) {
                 assetInfoCache.set(item.id, {
                     id: item.id,
                     assetType: { id: typeId },
                 });
                 if (pendingItems.has(item.id)) {
-                    pendingItems
-                        .get(item.id)
-                        .forEach((el) => addItemToCategoryView(el, item.id));
+                    const elements = pendingItems.get(item.id);
+                    if (elements.length === 0) {
+                        addItemToCategoryView(null, item.id);
+                    } else {
+                        elements.forEach((el) =>
+                            addItemToCategoryView(el, item.id),
+                        );
+                    }
                     pendingItems.delete(item.id);
                 }
             }

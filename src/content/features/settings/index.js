@@ -19,6 +19,8 @@ import {
     handleSaveSettings,
     updateConditionalSettingsVisibility,
     buildSettingsKey,
+    getCurrentUserTier,
+    syncDonatorTier,
 } from '../../core/settings/handlesettings.js';
 import {
     addCustomButton,
@@ -32,6 +34,9 @@ import { BADGE_CONFIG } from '../../core/configs/badges.js';
 import { log, logLevel } from '../../core/logging.js';
 import { ts } from '../../core/locale/i18n.js';
 import { CONTRIBUTOR_USER_IDS } from '../../core/configs/userIds.js';
+import { getAuthenticatedUserId } from '../../core/user.js';
+import { parseMarkdown } from '../../core/utils/markdown.js';
+import { getCurrentTheme, THEME_CONFIG } from '../../core/theme.js';
 import {
     getBatchThumbnails,
     createThumbnailElement,
@@ -110,6 +115,39 @@ function getDonatorBadgesHtml() {
         `;
         })
         .join('');
+}
+
+function getFeaturesByTier(tier) {
+    const features = [];
+    for (const [categoryKey, category] of Object.entries(SETTINGS_CONFIG)) {
+        const tabId = categoryKey.toLowerCase();
+        if (tabId === 'info' || tabId === 'credits' || tabId === 'donatorperks')
+            continue;
+
+        for (const [settingName, setting] of Object.entries(
+            category.settings,
+        )) {
+            if (setting.donatorTier === tier) {
+                features.push(
+                    `<li><a href="#!/search?q=${settingName}" class="rovalra-perk-link" data-setting="${settingName}" style="color: var(--rovalra-main-text-color); text-decoration: underline; cursor: pointer;">${setting.label}</a></li>`,
+                );
+            }
+            if (setting.childSettings) {
+                for (const [childName, childSetting] of Object.entries(
+                    setting.childSettings,
+                )) {
+                    if (childSetting.donatorTier === tier) {
+                        features.push(
+                            `<li><a href="#!/search?q=${childName}" class="rovalra-perk-link" data-setting="${childName}" style="color: var(--rovalra-main-text-color); text-decoration: underline; cursor: pointer;">${childSetting.label}</a></li>`,
+                        );
+                    }
+                }
+            }
+        }
+    }
+    return features.length > 0
+        ? features.join('')
+        : `<li>${ts('settings.donatorPerks.moreComingSoon')}</li>`;
 }
 
 let contributorsCache = null;
@@ -299,11 +337,18 @@ export const buttonData = [
             return ts('settings.tabs.donatorPerks');
         },
         get content() {
+            const theme = getCurrentTheme();
+            const themeColors = THEME_CONFIG[theme] || THEME_CONFIG.dark;
+
             return `
             <div style="padding: 8px;">
                 <h2 style="margin-bottom: 10px; color: var(--rovalra-main-text-color) !important;">${ts('settings.donatorPerks.title')}</h2>
                 <p>${ts('settings.donatorPerks.subtitle')}</p>
                 
+                <div style="margin-top: 15px; font-size: 13px; color: var(--rovalra-secondary-text-color);">
+                    ${parseMarkdown(ts('settings.donatorPerks.note'), themeColors)}
+                </div>
+
                 <div style="margin-top: 15px;">
                     <h3 style="color: var(--rovalra-main-text-color); margin-bottom: 5px; font-size: 18px;">${ts('settings.donatorPerks.howToGet')}</h3>
                     <p>${ts('settings.donatorPerks.howToGetDesc')}</p>
@@ -316,41 +361,40 @@ export const buttonData = [
                     <h3 style="color: var(--rovalra-main-text-color); margin-bottom: 10px; font-size: 18px;">${ts('settings.donatorPerks.perkTiers')}</h3>
                     <div style="display: flex; flex-direction: column; gap: 15px;">
                         <div style="padding: 15px; background-color: var(--rovalra-container-background-color, rgba(0,0,0,0.1)); border-radius: 8px; border: 1px solid var(--rovalra-border-color, rgba(128,128,128,0.2));">
-                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
+                            <div id="donator-tier-1-header" style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
                                 <img src="${BADGE_CONFIG.donator_1.icon}" style="width: 32px; height: 32px; ${getBadgeStyle('donator_1')}" />
                                 <h4 style="color: var(--rovalra-main-text-color); margin: 0; font-size: 16px;">${ts('settings.donatorPerks.tier1')}</h4>
                             </div>
-                            <p style="color: var(--rovalra-secondary-text-color); font-size: 14px;">${ts('settings.donatorPerks.tier1Desc').replace(/\n/g, '<br>')}</p>
+                            <div style="color: var(--rovalra-secondary-text-color); font-size: 14px;">${parseMarkdown(ts('settings.donatorPerks.tier1Desc'), themeColors)}</div>
                             <ul style="margin-top: 5px; padding-left: 20px; color: var(--rovalra-secondary-text-color); margin-bottom: 0;">
                                 <li>${ts('settings.donatorPerks.tier1Reward').replace(/\n/g, '<br>')}</li>
-                                <li>${ts('settings.donatorPerks.tier1Feature').replace(/\n/g, '<br>')}</li>
-                                <li>${ts('settings.donatorPerks.moreComingSoon').replace(/\n/g, '<br>')}</li>
+                                ${getFeaturesByTier(1)}
                             </ul>
                         </div>
 
                         <div style="padding: 15px; background-color: var(--rovalra-container-background-color, rgba(0,0,0,0.1)); border-radius: 8px; border: 1px solid var(--rovalra-border-color, rgba(128,128,128,0.2));">
-                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
+                            <div id="donator-tier-2-header" style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
                                 <img src="${BADGE_CONFIG.donator_2.icon}" style="width: 32px; height: 32px; ${getBadgeStyle('donator_2')}" />
                                 <h4 style="color: var(--rovalra-main-text-color); margin: 0; font-size: 16px;">${ts('settings.donatorPerks.tier2')}</h4>
                             </div>
-                            <p style="color: var(--rovalra-secondary-text-color); font-size: 14px;">${ts('settings.donatorPerks.tier2Desc').replace(/\n/g, '<br>')}</p>
+                            <div style="color: var(--rovalra-secondary-text-color); font-size: 14px;">${parseMarkdown(ts('settings.donatorPerks.tier2Desc'), themeColors)}</div>
                             <ul style="margin-top: 5px; padding-left: 20px; color: var(--rovalra-secondary-text-color); margin-bottom: 0;">
                                 <li>${ts('settings.donatorPerks.tier2Reward').replace(/\n/g, '<br>')}</li>
                                 <li>${ts('settings.donatorPerks.previousRewards').replace(/\n/g, '<br>')}</li>
-                                <li>${ts('settings.donatorPerks.moreComingSoon').replace(/\n/g, '<br>')}</li>
+                                ${getFeaturesByTier(2)}
                             </ul>
                         </div>
 
                         <div style="padding: 15px; background-color: var(--rovalra-container-background-color, rgba(0,0,0,0.1)); border-radius: 8px; border: 1px solid var(--rovalra-border-color, rgba(128,128,128,0.2));">
-                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
+                            <div id="donator-tier-3-header" style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
                                 <img src="${BADGE_CONFIG.donator_3.icon}" style="width: 32px; height: 32px; ${getBadgeStyle('donator_3')}" />
                                 <h4 style="color: var(--rovalra-main-text-color); margin: 0; font-size: 16px;">${ts('settings.donatorPerks.tier3')}</h4>
                             </div>
-                            <p style="color: var(--rovalra-secondary-text-color); font-size: 14px;">${ts('settings.donatorPerks.tier3Desc').replace(/\n/g, '<br>')}</p>
+                            <div style="color: var(--rovalra-secondary-text-color); font-size: 14px;">${parseMarkdown(ts('settings.donatorPerks.tier3Desc'), themeColors)}</div>
                             <ul style="margin-top: 5px; padding-left: 20px; color: var(--rovalra-secondary-text-color); margin-bottom: 0;">
                                 <li>${ts('settings.donatorPerks.tier3Reward').replace(/\n/g, '<br>')}</li>
                                 <li>${ts('settings.donatorPerks.previousRewards').replace(/\n/g, '<br>')}</li>
-                                <li>${ts('settings.donatorPerks.moreComingSoon').replace(/\n/g, '<br>')}</li>
+                                ${getFeaturesByTier(3)}
                             </ul>
                         </div>
                     </div>
@@ -362,10 +406,6 @@ export const buttonData = [
                         ${getDonatorBadgesHtml()}
                     </div>
                 </div>
-                
-                <p style="margin-top: 15px; font-size: 12px; color: var(--rovalra-secondary-text-color);">
-                    ${ts('settings.donatorPerks.note')}
-                </p>
             </div>`;
         },
     },
@@ -463,6 +503,34 @@ export async function updateContent(buttonInfo, contentContainer) {
         loadContributors();
     }
 
+    if (buttonId === 'donatorPerks') {
+        await syncDonatorTier();
+        const userTier = getCurrentUserTier();
+        if (userTier > 0) {
+            const userId = await getAuthenticatedUserId();
+            if (userId) {
+                const thumbs = await getBatchThumbnails(
+                    [userId],
+                    'AvatarHeadshot',
+                    '60x60',
+                );
+                const userThumb = thumbs[0]?.imageUrl;
+                if (userThumb) {
+                    const tierContainer = contentContainer.querySelector(
+                        `#donator-tier-${userTier}-header`,
+                    );
+                    if (tierContainer) {
+                        const img = document.createElement('img');
+                        img.src = userThumb;
+                        img.style.cssText =
+                            'width: 32px; height: 32px; border-radius: 50%; border: 2px solid rgb(2, 170, 81); margin-left: auto;';
+                        tierContainer.appendChild(img);
+                    }
+                }
+            }
+        }
+    }
+
     const rovalraHeader = document.querySelector(
         '#react-user-account-base > h1',
     );
@@ -483,6 +551,21 @@ export async function handleSearch(event) {
 
     const contentContainer = document.querySelector('#content-container');
     if (!contentContainer) return;
+
+    const url = new URL(window.location.href);
+    if (query) {
+        url.searchParams.set('q', query);
+    } else {
+        url.searchParams.delete('q');
+    }
+
+    if (url.searchParams.get('rovalra') === 'search') {
+        window.history.replaceState(
+            null,
+            '',
+            url.pathname + url.search + window.location.hash,
+        );
+    }
 
     document
         .querySelectorAll('#unified-menu .menu-option-content')
@@ -521,7 +604,8 @@ export async function handleSearch(event) {
 
             let isMatch =
                 fullText.includes(query) ||
-                fullText.replace(/\s+/g, '').includes(queryNoSpaces);
+                fullText.replace(/\s+/g, '').includes(queryNoSpaces) ||
+                settingName.toLowerCase() === query;
 
             if (!isMatch) {
                 const words = fullText.split(/\s+/);
@@ -532,7 +616,7 @@ export async function handleSearch(event) {
             }
 
             if (!isMatch && settingDef.childSettings) {
-                for (const childDef of Object.values(
+                for (const [childName, childDef] of Object.entries(
                     settingDef.childSettings,
                 )) {
                     const childLabel = (
@@ -545,7 +629,10 @@ export async function handleSearch(event) {
                             ? childDef.description.join(' ')
                             : childDef.description || ''
                     ).toLowerCase();
-                    if (`${childLabel} ${childDesc}`.includes(query)) {
+                    if (
+                        `${childLabel} ${childDesc}`.includes(query) ||
+                        childName.toLowerCase() === query
+                    ) {
                         isMatch = true;
                         break;
                     }
@@ -616,6 +703,17 @@ export async function handleSearch(event) {
 
 document.addEventListener('click', (event) => {
     const target = event.target;
+
+    const perkLink = target.closest('.rovalra-perk-link');
+    if (perkLink) {
+        event.preventDefault();
+        const settingName = perkLink.dataset.setting;
+        const url = new URL(window.location.href);
+        url.searchParams.set('rovalra', 'search');
+        url.searchParams.set('q', settingName);
+        window.location.href = url.pathname + url.search + '#!/search';
+        return;
+    }
 
     if (target.id === 'export-rovalra-settings') return exportSettings();
     if (target.id === 'import-rovalra-settings') return importSettings();
@@ -700,50 +798,6 @@ export function init() {
 
 window.addEventListener('beforeunload', () => {
     document.removeEventListener('roblox-dom-changed', handleGlobalDomChange);
-});
-
-document.addEventListener('DOMContentLoaded', function () {
-    const PreferredRegionEnabled = document.getElementById(
-        'PreferredRegionEnabled',
-    );
-    const preferredRegionSelect = document.getElementById(
-        'preferredRegionSelect',
-    );
-    const regionSettingDiv = document.getElementById(
-        'setting-preferred-region',
-    );
-
-    function updateRegionSelectVisibility() {
-        if (PreferredRegionEnabled && regionSettingDiv) {
-            const isEnabled = PreferredRegionEnabled.checked;
-            regionSettingDiv.style.display = isEnabled ? 'flex' : 'none';
-            if (preferredRegionSelect)
-                preferredRegionSelect.disabled = !isEnabled;
-        }
-    }
-
-    if (PreferredRegionEnabled) {
-        PreferredRegionEnabled.addEventListener('change', function () {
-            updateRegionSelectVisibility();
-            handleSaveSettings('PreferredRegionEnabled', this.checked);
-        });
-    }
-
-    if (preferredRegionSelect) {
-        preferredRegionSelect.addEventListener('change', function () {
-            handleSaveSettings('robloxPreferredRegion', this.value);
-        });
-
-        if (preferredRegionSelect.options.length === 0) {
-            Object.keys(REGIONS).forEach((regionCode) => {
-                const option = document.createElement('option');
-                option.value = regionCode;
-                option.textContent = getFullRegionName(regionCode);
-                preferredRegionSelect.appendChild(option);
-            });
-        }
-    }
-    updateRegionSelectVisibility();
 });
 
 function initializeHeartbeatSpoofer() {

@@ -383,14 +383,17 @@ async function addUserRapDisplay(observedElement) {
         const displayAmount = useValue ? totalValue : totalRap;
 
         if (useValue) {
+            rapDisplay.style.backgroundColor =
+                'var(--rovalra-playbutton-color)';
             robuxIcon.className = '';
             Object.assign(robuxIcon.style, {
                 width: '16px',
                 height: '16px',
+                marginRight: '2px',
                 display: 'inline-block',
-                backgroundImage: `url('${getAssets().rolimonsIcon}')`,
-                backgroundSize: 'contain',
-                backgroundRepeat: 'no-repeat',
+                backgroundColor: 'currentColor',
+                webkitMask: `url('${getAssets().rolimonsIcon}') center/contain no-repeat`,
+                mask: `url('${getAssets().rolimonsIcon}') center/contain no-repeat`,
                 verticalAlign: 'text-bottom',
             });
         }

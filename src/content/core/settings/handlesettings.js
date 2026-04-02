@@ -2,6 +2,7 @@ import { SETTINGS_CONFIG } from './settingConfig.js';
 import { findSettingConfig } from './generateSettings.js';
 import { getFullRegionName, REGIONS } from '../regions.js';
 import { sanitizeString } from '../utils/sanitize.js';
+import { callRobloxApiJson } from '../api.js';
 import { getAuthenticatedUserId } from '../user.js';
 import {
     getUserDescription,
@@ -9,6 +10,58 @@ import {
 } from '../profile/descriptionhandler.js';
 import { createAndShowPopup } from '../../features/catalog/40method.js';
 import { log, logLevel } from '../../core/logging.js';
+
+let currentUserTier = 0;
+let donatorTierPromise = null;
+
+export const getCurrentUserTier = () => currentUserTier;
+
+export const syncDonatorTier = async () => {
+    if (donatorTierPromise) return donatorTierPromise;
+
+    donatorTierPromise = (async () => {
+        try {
+            const response = await callRobloxApiJson({
+                isRovalraApi: true,
+                subdomain: 'apis',
+                endpoint: '/v1/auth/badges',
+                method: 'GET',
+            });
+
+            if (response.status !== 'success' || !response.badges) {
+                donatorTierPromise = null;
+                return null;
+            }
+
+            const badges = response.badges;
+            let tier = 0;
+            if (badges.donator_3 === true || badges.legacy_donator === true) {
+                tier = 3;
+            } else if (badges.donator_2 === true) {
+                tier = 2;
+            } else if (badges.donator_1 === true) {
+                tier = 1;
+            }
+            currentUserTier = tier;
+
+            const settingsContent = document.querySelector(
+                '#setting-section-content',
+            );
+            if (settingsContent) {
+                const settings = await loadSettings();
+                await checkSettingLocks(settingsContent, settings);
+            }
+
+            return response;
+        } catch (error) {
+            console.error('RoValra: Failed to sync donator tier', error);
+            donatorTierPromise = null;
+            return null;
+        }
+    })();
+
+    return donatorTierPromise;
+};
 
 export const loadSettings = async () => {
     return new Promise((resolve, reject) => {
@@ -105,16 +158,20 @@ export const handleSaveSettings = async (settingName, value) => {
                             settingConfig.type === 'select' &&
                             settingConfig.options
                         ) {
-                            const validValues = Array.isArray(
-                                settingConfig.options,
-                            )
-                                ? settingConfig.options.map((opt) =>
-                                      typeof opt === 'object' ? opt.value : opt,
-                                  )
-                                : [];
+                            let validValues = [];
+                            if (settingConfig.options === 'REGIONS') {
+                                validValues = ['AUTO', ...Object.keys(REGIONS)];
+                            } else if (Array.isArray(settingConfig.options)) {
+                                validValues = settingConfig.options.map(
+                                    (opt) =>
+                                        typeof opt === 'object'
+                                            ? opt.value
+                                            : opt,
+                                );
+                            }
 
                             if (
-                                validValues.length > 0 &&
+                                validValues.length > 1 &&
                                 !validValues.includes(sanitizedValue)
                             ) {
                                 console.warn(
@@ -279,6 +336,7 @@ export const initSettings = async (settingsContent) => {
     }
 
     if (settings) {
+        updateConditionalSettingsVisibility(settingsContent, settings);
         for (const sectionName in SETTINGS_CONFIG) {
             const section = SETTINGS_CONFIG[sectionName];
             for (const [settingName, setting] of Object.entries(
@@ -444,7 +502,7 @@ export const initSettings = async (settingsContent) => {
                 }
             }
         }
-        updateConditionalSettingsVisibility(settingsContent, settings);
+        await checkSettingLocks(settingsContent, settings);
         if (document.querySelector('.permission-manager')) {
             updateAllPermissionToggles();
         }
@@ -452,6 +510,169 @@ export const initSettings = async (settingsContent) => {
     settingsContent.querySelectorAll('.permission-toggle').forEach((toggle) => {
         toggle.addEventListener('change', handlePermissionToggle);
     });
+};
+
+export const applyLockedState = (
+    settingName,
+    parentElement,
+    isLocked,
+    reason = '',
+    isDonatorLock = false,
+) => {
+    const inputElement = parentElement.querySelector(
+        `[data-setting-name="${settingName}"]`,
+    );
+    if (!inputElement) return;
+
+    const wrapper =
+        inputElement.closest('.child-setting-item') ||
+        inputElement.closest('.setting');
+    if (!wrapper) return;
+
+    const existingNotice = wrapper.querySelector('.rovalra-lock-notice');
+    if (existingNotice) existingNotice.remove();
+
+    if (isLocked || isDonatorLock) {
+        const config = findSettingConfig(settingName);
+        const lockType = config?.isPermanent ? 'permanently' : 'temporarily';
+
+        if (isLocked) {
+            wrapper.classList.add('setting-locked');
+            wrapper.style.setProperty('opacity', '1', 'important');
+            wrapper.style.pointerEvents = 'none';
+        } else {
+            wrapper.classList.remove('setting-locked');
+            wrapper.style.removeProperty('opacity');
+            wrapper.style.setProperty('pointer-events', 'auto');
+        }
+
+        if (isDonatorLock) {
+            wrapper.classList.add('donator-locked');
+        }
+
+        const notice = document.createElement('div');
+        notice.className = 'rovalra-lock-notice';
+        if (isDonatorLock) {
+            notice.classList.add('donator-notice');
+            if (!isLocked) notice.classList.add('unlocked-donator-notice');
+        }
+
+        const statusLine = document.createElement('div');
+        statusLine.className = 'lock-status-text';
+        if (isDonatorLock) {
+            const tier = config?.donatorTier || '';
+            statusLine.textContent = isLocked
+                ? `RoValra Donator Tier ${tier} Required`
+                : `RoValra Donator Perk (Tier ${tier})`;
+        } else {
+            statusLine.textContent = `This feature has been disabled ${lockType}`;
+        }
+
+        const reasonLine = document.createElement('div');
+        reasonLine.className = 'lock-reason-text';
+        reasonLine.textContent = reason;
+
+        notice.append(statusLine, reasonLine);
+        wrapper.prepend(notice);
+
+        if (isLocked) {
+            Array.from(wrapper.children).forEach((child) => {
+                if (!child.classList.contains('rovalra-lock-notice')) {
+                    child.style.opacity = '0.5';
+                }
+            });
+
+            wrapper.querySelectorAll('input, select, button').forEach((el) => {
+                el.disabled = true;
+            });
+        } else {
+            Array.from(wrapper.children).forEach((child) => {
+                child.style.opacity = '';
+            });
+
+            wrapper.querySelectorAll('input, select, button').forEach((el) => {
+                if (!wrapper.classList.contains('disabled-setting')) {
+                    el.disabled = false;
+                }
+            });
+        }
+    } else {
+        wrapper.classList.remove('setting-locked');
+        wrapper.classList.remove('donator-locked');
+        wrapper.style.removeProperty('opacity');
+        wrapper.style.removeProperty('filter');
+        wrapper.style.setProperty('pointer-events', 'auto');
+
+        Array.from(wrapper.children).forEach((child) => {
+            child.style.opacity = '';
+        });
+
+        wrapper.querySelectorAll('input, select, button').forEach((el) => {
+            if (!wrapper.classList.contains('disabled-setting')) {
+                el.disabled = false;
+            }
+        });
+    }
+};
+
+export const checkSettingLocks = async (settingsContent, currentSettings) => {
+    const data = await chrome.storage.local.get([
+        'profile3DRenderForceDisabled',
+    ]);
+
+    const userTier = currentUserTier;
+
+    const is3DLocked =
+        data.profile3DRenderForceDisabled === true &&
+        !currentSettings.profile3DRenderBypassCheck;
+
+    if (is3DLocked && currentSettings.profile3DRenderEnabled === true) {
+        await handleSaveSettings('profile3DRenderEnabled', false);
+    }
+
+    applyLockedState(
+        'profile3DRenderEnabled',
+        settingsContent,
+        is3DLocked,
+        'The 3D Profile Renderer was forcefully disabled because WebGL 2 is disabled or your graphics card doesnt support it.',
+    );
+
+    for (const category of Object.values(SETTINGS_CONFIG)) {
+        for (const [settingName, config] of Object.entries(category.settings)) {
+            const processSetting = async (name, conf) => {
+                if (conf.donatorTier) {
+                    const isLocked = userTier < conf.donatorTier;
+                    applyLockedState(
+                        name,
+                        settingsContent,
+                        isLocked,
+                        conf.donatorReason ||
+                            'This is a donator-exclusive feature.',
+                        true,
+                    );
+                    if (isLocked) return true;
+                }
+                if (conf.locked) {
+                    if (currentSettings[name] === true) {
+                        await handleSaveSettings(name, false);
+                    }
+                    applyLockedState(name, settingsContent, true, conf.locked);
+                    return true;
+                }
+                return false;
+            };
+
+            await processSetting(settingName, config);
+
+            if (config.childSettings) {
+                for (const [childName, childConfig] of Object.entries(
+                    config.childSettings,
+                )) {
+                    await processSetting(childName, childConfig);
+                }
+            }
+        }
+    }
 };
 
 function applyDisabledState(
@@ -1090,6 +1311,7 @@ export function initializeSettingsEventListeners() {
                         settingsContent,
                         currentSettings,
                     );
+                    await checkSettingLocks(settingsContent, currentSettings);
                     updateAllPermissionToggles();
 
                     if (settingName === 'MemoryleakFixEnabled') {

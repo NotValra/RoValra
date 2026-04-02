@@ -2668,10 +2668,11 @@ const addSaveButton = (modal) => {
             saveButton.className =
                 'foundation-web-button relative clip group/interactable focus-visible:outline-focus disabled:outline-none cursor-pointer flex items-center justify-center stroke-none padding-y-none select-none radius-medium text-label-large height-1200 padding-x-large bg-action-emphasis content-action-emphasis fill basis-0 btn-save-robux';
             saveButton.style.textDecoration = 'none';
-            saveButton.style.backgroundColor = 'rgba(208, 217, 251, 0.12)';
+            saveButton.style.backgroundColor =
+                'var(--rovalra-button-background-color)';
             saveButton.innerHTML = DOMPurify.sanitize(`
                 <div role="presentation" class="absolute inset-[0] transition-colors group-hover/interactable:bg-[var(--color-state-hover)] group-active/interactable:bg-[var(--color-state-press)] group-disabled/interactable:bg-none"></div>
-                <span class="padding-y-xsmall text-truncate-end text-no-wrap">Save ${savings} Robux</span>
+                <span class="padding-y-xsmall text-truncate-end text-no-wrap" style="color: var(--rovalra-main-text-color)">Save ${savings} Robux</span>
             `);
         } else {
             saveButton.textContent = `Save ${savings} Robux`;
