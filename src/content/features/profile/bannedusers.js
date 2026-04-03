@@ -3,6 +3,7 @@ import {
     getBatchThumbnails,
     createThumbnailElement,
     fetchUserThumbnailWithApiKey,
+    renderAvatarThumbnail,
 } from '../../core/thumbnail/thumbnails.js';
 import DOMPurify from '../../core/packages/dompurify.js';
 import { createGameCard } from '../../core/ui/games/gameCard.js';
@@ -144,8 +145,17 @@ async function renderBannedUserProfile(user, settings) {
 
     const headshotData = await fetchUserThumbnailWithApiKey(user.id);
     const assets = getAssets();
-    const brokenStyles =
-        'width: 300px; height: 300px; object-fit: contain; display: block; margin: 50px auto;';
+
+    const renderStyles = {
+        width: '100%',
+        height: '100%',
+        maxWidth: '100%',
+        maxHeight: '100%',
+        objectFit: 'contain',
+        display: 'block',
+        margin: '0 auto',
+    };
+
     let fullAvatarUrl = assets.brokenAvatar;
     let isInitiallyBroken = true;
 
@@ -171,17 +181,14 @@ async function renderBannedUserProfile(user, settings) {
                 <div class="alert-system-feedback"><div class="alert"><span class="alert-content"></span></div></div>
             </div>
 
-            <div class="relative flex flex-col items-center" style="height: 300px;">
-                <div class="profile-avatar-gradient" style="width: 100%;">
+                <div class="relative flex flex-col items-center" style="height: 300px; width: 100%;">
+                <div class="profile-avatar-gradient" style="width: 100%; height: 300px;">
                     <div style="background: var(--rovalra-profile-main-gradient); width: 100vw; margin-left: calc(50% - 50vw); height: 300px; margin-top: -24px; position: relative; background-color: var(--rovalra-profile-header-bg); padding: 0 12px;"></div>
                     <div class="cover-gradient-overlay" style="position: absolute; bottom: 0; width: 100vw; margin-left: calc(50% - 50vw); left: 0; height: 64px; z-index: 10; pointer-events: none; mask-image: linear-gradient(rgba(255,255,255,0) 0%, rgba(255,255,255,.5) 40%, rgba(255,255,255,.8) 60%, #fff 100%); background: var(--rovalra-profile-overlay-gradient);"></div>
                 </div>
-                <div class="thumbnail-holder" style="position: relative; margin-top: -350px; z-index: 1;">
-                    <div class="thumbnail-3d-container">
-                        <div class="avatar-thumbnail-container">
-                            <span class="thumbnail-2d-container no-background-thumbnail thumbnail-span" style="background-color: transparent;">
-                                <img id="rovalra-banned-avatar-img" src="${fullAvatarUrl}" style="opacity: 1; ${isInitiallyBroken ? brokenStyles : ''}">
-                            </span>
+                    <div class="thumbnail-holder" style="position: absolute; top: -25px; left: 0; right: 0; bottom: 0; z-index: 1; display: flex; justify-content: center; align-items: center; pointer-events: none; overflow: hidden; height: 300px;">
+                        <div class="thumbnail-3d-container" style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center;">
+                            <div id="rovalra-banned-avatar-wrapper" class="avatar-thumbnail-container" style="display: flex; justify-content: center; align-items: center; width: 100%; height: 100%; max-width: 100%; max-height: 100%;">
                         </div>
                     </div>
                 </div>
@@ -247,13 +254,55 @@ async function renderBannedUserProfile(user, settings) {
         </div>
     `);
 
-    const bannedAvatarImg = content.querySelector('#rovalra-banned-avatar-img');
-    if (bannedAvatarImg && !isInitiallyBroken) {
-        bannedAvatarImg.addEventListener(
+    const avatarWrapper = content.querySelector(
+        '#rovalra-banned-avatar-wrapper',
+    );
+
+    const updateAvatarUI = (data, style) => {
+        avatarWrapper.innerHTML = '';
+        const el = createThumbnailElement(
+            data,
+            user.displayName,
+            'no-background-thumbnail',
+            style,
+        );
+        avatarWrapper.appendChild(el);
+        return el;
+    };
+
+    const handleRenderFallback = () => {
+        const renderThumb = renderAvatarThumbnail(user.id);
+
+        const originalPromise = renderThumb.finalUpdate;
+        renderThumb.finalUpdate = originalPromise.then((result) => {
+            if (result) return result;
+
+            return {
+                state: 'Completed',
+                imageUrl: assets.brokenAvatar,
+                thumbnailType: 'Avatar',
+            };
+        });
+
+        updateAvatarUI(renderThumb, renderStyles);
+    };
+
+    if (isInitiallyBroken) {
+        handleRenderFallback();
+    } else {
+        const primaryImg = updateAvatarUI(
+            {
+                state: 'Completed',
+                imageUrl: fullAvatarUrl,
+                thumbnailType: 'Avatar',
+            },
+            renderStyles,
+        );
+
+        primaryImg.addEventListener(
             'error',
             () => {
-                bannedAvatarImg.src = assets.brokenAvatar;
-                bannedAvatarImg.style.cssText += brokenStyles;
+                handleRenderFallback();
             },
             { once: true },
         );

@@ -374,3 +374,79 @@ export async function fetchUserThumbnailWithApiKey(userId) {
         thumbnailType: 'AvatarHeadshot',
     };
 }
+
+/**
+ * Allows you to render a custom avatar thumbnail.
+ * @param {string|number} userId
+ * @returns {Object}
+ */
+export function renderAvatarThumbnail(userId) {
+    const fetchRender = async () => {
+        try {
+            const avatarRes = await callRobloxApi({
+                subdomain: 'avatar',
+                endpoint: `/v2/avatar/users/${userId}/avatar`,
+            });
+            if (!avatarRes.ok) return null;
+            const avatarData = await avatarRes.json();
+
+            const payload = {
+                thumbnailConfig: {
+                    thumbnailId: 1,
+                    thumbnailType: '2d',
+                    size: '420x420',
+                },
+                avatarDefinition: {
+                    assets: (avatarData.assets || []).map((a) => ({
+                        id: a.id,
+                        name: a.name,
+                        assetType: a.assetType,
+                        currentVersionId: a.currentVersionId,
+                    })),
+                    bodyColors: {
+                        headColor: avatarData.bodyColor3s.headColor3,
+                        torsoColor: avatarData.bodyColor3s.torsoColor3,
+                        rightArmColor: avatarData.bodyColor3s.rightArmColor3,
+                        leftArmColor: avatarData.bodyColor3s.leftArmColor3,
+                        rightLegColor: avatarData.bodyColor3s.rightLegColor3,
+                        leftLegColor: avatarData.bodyColor3s.leftLegColor3,
+                    },
+                    scales: avatarData.scales,
+                    playerAvatarType: {
+                        playerAvatarType: avatarData.playerAvatarType,
+                    },
+                },
+            };
+
+            const renderRes = await callRobloxApi({
+                subdomain: 'avatar',
+                endpoint: '/v1/avatar/render',
+                method: 'POST',
+                body: payload,
+            });
+
+            if (renderRes.ok) {
+                const data = await renderRes.json();
+                if (data && data.imageUrl) {
+                    return {
+                        state: 'Completed',
+                        imageUrl: data.imageUrl,
+                        thumbnailType: 'Avatar',
+                    };
+                }
+            }
+        } catch (e) {
+            console.error(
+                `RoValra Thumbnails: Avatar render fallback failed for ${userId}`,
+                e,
+            );
+        }
+        return null;
+    };
+
+    return {
+        state: 'Pending',
+        thumbnailType: 'Avatar',
+        finalUpdate: fetchRender(),
+    };
+}
