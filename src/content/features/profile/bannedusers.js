@@ -7,6 +7,7 @@ import {
 } from '../../core/thumbnail/thumbnails.js';
 import DOMPurify from '../../core/packages/dompurify.js';
 import { createGameCard } from '../../core/ui/games/gameCard.js';
+import { createFriendTile } from '../../core/ui/profile/userCard.js';
 import { getAssets } from '../../core/assets.js';
 import { addTooltip } from '../../core/ui/tooltip.js';
 import { createScrollButtons } from '../../core/ui/general/scrollButtons.js';
@@ -586,7 +587,7 @@ async function loadFriends(userId) {
                     </div>
                     <div class="friends-carousel-container">
                         <div class="friends-carousel-list-container">
-                            <div id="rovalra-banned-friends-list" style="display: flex; gap: 27px; overflow-x: auto; padding-bottom: 10px;"></div>
+                            <div id="rovalra-banned-friends-list" style="display: flex; gap: 45px; overflow-x: auto; padding-bottom: 10px;"></div>
                         </div>
                     </div>
                 </div>
@@ -642,36 +643,12 @@ async function loadFriends(userId) {
 
             const username = isHidden ? '' : `@${profile.names.username}`;
 
-            const tileContainer = document.createElement('div');
-            const innerHtml = `
-                <div class="friend-tile-content" style="width: 100px;">
-                    <div class="avatar avatar-card-fullbody" style="width: 100px; height: 100px; position: relative;">
-                        ${!isHidden ? `<a href="https://www.roblox.com/users/${item.id}/profile" class="avatar-card-link">` : ''}
-                            <span class="thumbnail-2d-container avatar-card-image" style="width: 100%; height: 100%; display: block; overflow: hidden; border-radius: 50%; background: var(--rovalra-button-background-color);"></span>
-                        ${!isHidden ? `</a>` : ''}
-                        <div class="avatar-status"><span data-testid="presence-icon" class="offline icon-offline"></span></div>
-                    </div>
-                    <div class="friends-carousel-tile-labels" style="display: block; margin-top: 8px;">
-                        <div class="friends-carousel-tile-label" style="overflow: hidden; line-height: 1.2;">
-                            <div class="friends-carousel-tile-name">
-                                <span style="font-weight: 600; font-size: 14px; color: var(--rovalra-main-text-color); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block;">${displayName}</span>
-                            </div>
-                        </div>
-                        <div class="friends-carousel-tile-sublabel" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; color: var(--rovalra-secondary-text-color);">${username}</div>
-                    </div>
-                </div>
-            `;
-            tileContainer.innerHTML = DOMPurify.sanitize(
-                `<div class="friends-carousel-tile">${innerHtml}</div>`,
-            );
-            const thumbEl = createThumbnailElement(thumbData, displayName, '', {
-                width: '100%',
-                height: '100%',
+            const tile = createFriendTile(item, thumbData, {
+                displayName,
+                username,
+                isHidden,
             });
-            tileContainer
-                .querySelector('.avatar-card-image')
-                .appendChild(thumbEl);
-            friendsList.appendChild(tileContainer.firstElementChild);
+            friendsList.appendChild(tile);
         });
     } catch (e) {}
 }
