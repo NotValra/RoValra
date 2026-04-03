@@ -1,0 +1,99 @@
+.rovalra-banned-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 400px;
+}
+
+.profile-platform-container .profile-tabs {
+    border-bottom: 1px solid var(--rovalra-border-color);
+    margin-bottom: 24px;
+}
+
+.profile-platform-container .profile-tab {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 12px 0;
+    color: var(--rovalra-gray-text-color) !important;
+    text-decoration: none;
+    border-bottom: 0.5px solid transparent;
+
+    &:hover {
+        color: var(--rovalra-main-text-color) !important;
+        box-shadow: none;
+        border-bottom: 0.5px solid var(--rovalra-main-text-color);
+    }
+
+    &.active {
+        color: var(--rovalra-main-text-color) !important;
+        box-shadow: none;
+        border-bottom: 3px solid var(--rovalra-main-text-color);
+        padding-bottom: 9.5px;
+    }
+}
+
+.profile-platform-container .tab-pane {
+    display: none !important;
+
+    &.active {
+        display: block !important;
+    }
+}
+
+.profile-platform-container .profile-tab-content-wrapper {
+    & > .tab-pane {
+        display: none;
+
+        &.active {
+            display: block;
+        }
+    }
+}
+
+.rovalra-stat-placeholder {
+    width: 60px;
+    height: 20px;
+    border-radius: 10px;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+#content.content {
+    background: none !important;
+    background-color: transparent !important;
+}
+
+.rovalra-scroll-btn {
+    position: absolute;
+    z-index: 10;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.6) !important;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+    color: white;
+    opacity: 1;
+    transition: opacity 0.25s ease;
+    pointer-events: auto;
+
+    &.left {
+        left: 5px;
+    }
+
+    &.right {
+        right: 5px;
+    }
+
+    &.rovalra-btn-disabled {
+        opacity: 0.25 !important;
+        cursor: default;
+        pointer-events: auto;
+    }
+}

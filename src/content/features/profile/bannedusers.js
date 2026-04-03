@@ -22,6 +22,7 @@ import {
     addItemToCategoryView,
     enableAllCategories,
 } from './categorizeWearing.js';
+import { injectStylesheet } from '../../core/ui/cssInjector.js';
 
 export function init() {
     chrome.storage.local.get(
@@ -40,7 +41,7 @@ export function init() {
                 const content = document.getElementById('content');
                 if (content) {
                     content.innerHTML =
-                        '<div class="rovalra-banned-loading" style="display: flex; justify-content: center; align-items: center; height: 400px;"><div class="spinner spinner-default"></div></div>';
+                        '<div class="rovalra-banned-loading"><div class="spinner spinner-default"></div></div>';
                 }
 
                 try {
@@ -108,7 +109,7 @@ export function init() {
                 const content = document.getElementById('content');
                 if (content) {
                     content.innerHTML =
-                        '<div class="rovalra-banned-loading" style="display: flex; justify-content: center; align-items: center; height: 400px;"><div class="spinner spinner-default"></div></div>';
+                        '<div class="rovalra-banned-loading"><div class="spinner spinner-default"></div></div>';
                 }
 
                 callRobloxApiJson({
@@ -195,48 +196,14 @@ async function renderBannedUserProfile(user, settings) {
     const content = document.getElementById('content');
     if (!content) return;
 
-    document.title = `${user.displayName} (@${user.name}) - Roblox`;
+    const computedBg = getComputedStyle(content).backgroundColor;
+    if (computedBg && computedBg !== 'transparent' && computedBg !== 'rgba(0, 0, 0, 0)') {
+        content.style.backgroundColor = 'transparent';
+        content.style.backgroundImage = 'none';
+    }
 
-    const style = document.createElement('style');
-    style.innerHTML = `
-        .profile-tabs {
-            border-bottom: 1px solid var(--rovalra-border-color);
-            margin-bottom: 24px;
-        }
-        .profile-tab {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 12px 0;
-            color: var(--rovalra-gray-text-color);
-            transition: color 0.2s ease, border-bottom-color 0.2s ease, border-bottom-width 0.2s ease;
-            border-bottom: 1px solid var(--rovalra-gray-text-color); 
-            text-decoration: none; 
-        }
-        .profile-tab:hover {
-            color: var(--rovalra-main-text-color);
-            border-bottom-color: var(--rovalra-main-text-color); 
-            border-bottom-width: 1px; 
-        }
-        .profile-tab.active {
-            color: var(--rovalra-main-text-color);
-            border-bottom: 3px solid var(--rovalra-main-text-color); 
-        }
-        .tab-pane { display: none; }
-        .tab-pane.active { display: block; }
-        .rovalra-stat-placeholder { width: 60px; height: 20px; border-radius: 10px; display: inline-block; vertical-align: middle; }
-        .rovalra-scroll-btn {
-            position: absolute; z-index: 10; top: 50%; transform: translateY(-50%);
-            background: rgba(0, 0, 0, 0.6) !important; border-radius: 50%;
-            width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
-            border: none; cursor: pointer; color: white; opacity: 1; 
-            transition: opacity 0.25s ease; pointer-events: auto;
-        }
-        .rovalra-scroll-btn.left { left: 5px; }
-        .rovalra-scroll-btn.right { right: 5px; }
-        .rovalra-scroll-btn.rovalra-btn-disabled { opacity: 0.25 !important; cursor: default; pointer-events: auto; }
-    `;
-    document.head.appendChild(style);
+    injectStylesheet('css/bannedusers.css', 'rovalra-bannedusers-css');
+    document.title = `${user.displayName} (@${user.name}) - Roblox`;
 
     const headshotData = await fetchUserThumbnailWithApiKey(user.id);
     const assets = getAssets();
@@ -330,11 +297,11 @@ async function renderBannedUserProfile(user, settings) {
 
             <div style="max-width: 1140px; margin: 0 auto; padding: 0 15px;">
                 <ul class="profile-tabs flex">
-                    <li class="justify-center flex fill"><a id="tab-about-link" href="#about" class="profile-tab active justify-center text-label-medium flex fill">${ts('bannedUsers.about')}</a></li>
-                    <li class="justify-center flex fill"><a id="tab-creations-link" href="#creations" class="profile-tab justify-center text-label-medium flex fill">${ts('bannedUsers.creations')}</a></li>
+                    <li class="justify-center flex fill"><a id="rovalra-banned-tab-about-link" href="#rovalra-banned-about-content" class="profile-tab active justify-center text-label-medium flex fill">${ts('bannedUsers.about')}</a></li>
+                    <li class="justify-center flex fill"><a id="rovalra-banned-tab-creations-link" href="#rovalra-banned-creations-content" class="profile-tab justify-center text-label-medium flex fill">${ts('bannedUsers.creations')}</a></li>
                 </ul>
                 <div class="profile-tab-content-wrapper padding-top-xxlarge">
-                    <div id="about-content" class="tab-pane active">
+                    <div id="rovalra-banned-about-content" class="tab-pane active">
                         <div id="rovalra-banned-sections-container">
                             <div id="rovalra-banned-wearing-container"></div>
                             <div id="rovalra-banned-store-container"></div>
@@ -344,7 +311,7 @@ async function renderBannedUserProfile(user, settings) {
                             <div id="rovalra-banned-badges-container"></div>
                         </div>
                     </div>
-                    <div id="creations-content" class="tab-pane">
+                    <div id="rovalra-banned-creations-content" class="tab-pane">
                         <div class="profile-game section container-list">
                             <div class="container-header"><h3>${ts('bannedUsers.experiences')}</h3></div>
                             <div class="game-grid"><ul id="rovalra-banned-creations-list" class="hlist game-cards" style="display: flex; flex-wrap: wrap; gap: 12px; list-style: none; padding: 0;"></ul></div>
@@ -409,6 +376,15 @@ async function renderBannedUserProfile(user, settings) {
         );
     }
 
+    const currentUser = content.querySelector('.profile-platform-container')?.dataset.profileId;
+
+    const redirectBannedUrl = (e) => {
+        if (!currentUser) return;
+        e.preventDefault();
+        const bannedUrl = `/banned-users/${currentUser}/profile`;
+        window.history.pushState({}, '', bannedUrl);
+    };
+
     const tabLinks = content.querySelectorAll('.profile-tab');
     const tabPanes = content.querySelectorAll('.tab-pane');
     tabLinks.forEach((link) => {
@@ -421,15 +397,26 @@ async function renderBannedUserProfile(user, settings) {
                 pane.style.display = 'none';
             });
             link.classList.add('active');
-            const activePane = document.getElementById(
-                `${targetTabId}-content`,
-            );
+            const activePane = document.getElementById(targetTabId);
             if (activePane) {
                 activePane.classList.add('active');
                 activePane.style.display = 'block';
             }
         });
     });
+
+    content.querySelectorAll('#rovalra-banned-stat-pills a').forEach((link) => {
+        link.addEventListener('click', (e) => redirectBannedUrl(e));
+    });
+
+    content.querySelectorAll('#rovalra-banned-groups-list a').forEach((link) => {
+        link.addEventListener('click', (e) => redirectBannedUrl(e));
+    });
+
+    const seeAllLink = content.querySelector('#friends-carousel-container .btn-more');
+    if (seeAllLink) {
+        seeAllLink.addEventListener('click', (e) => redirectBannedUrl(e));
+    }
 
     const nameHeader = document.getElementById(
         'profile-header-title-container-name',
