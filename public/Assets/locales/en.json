@@ -575,6 +575,7 @@
         "badges": "Badges",
         "noExperiences": "This user has no public experiences.",
         "favorites": "Favorites",
-        "joinedDate": "Joined"
+        "joinedDate": "Joined",
+        "store": "Store"
     }
 }

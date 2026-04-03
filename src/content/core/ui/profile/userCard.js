@@ -4,6 +4,7 @@ import {
     getBatchThumbnails,
 } from '../../thumbnail/thumbnails';
 import { callRobloxApiJson } from '../../api';
+import { getAssets } from '../../assets';
 
 const PRESENCE_MAP = {
     0: { class: 'offline icon-offline', title: 'Offline' },
@@ -69,6 +70,7 @@ export function createUserCard({
     showUsername = true,
     presenceInfo = 0,
     gameName,
+    isVerified = false,
 }) {
     const presence = PRESENCE_MAP[presenceInfo] || PRESENCE_MAP[0];
     const showSublabel = showUsername && gameName ? true : showUsername;
@@ -76,6 +78,10 @@ export function createUserCard({
     const sublabelFontSize = gameName ? '9.6px' : '12px';
     const presenceTitle =
         presenceInfo === 2 && gameName ? gameName : presence.title;
+    const assets = getAssets();
+    const verifiedSvg = isVerified
+        ? `<img src="${assets.verifiedBadgeMono}" alt="" style="width: 14px; height: 14px; flex-shrink: 0; margin-left: 2px; vertical-align: middle; color: var(--rovalra-playbutton-color);">`
+        : '';
 
     const tileContainer = document.createElement('div');
     tileContainer.className = 'user-card';
@@ -92,7 +98,7 @@ export function createUserCard({
                     ? `
             <div class="user-card-labels" style="display: block; margin-top: 8px; max-width: 90px; width: 90px;">
                 <div class="user-card-name" style="overflow: hidden; line-height: 1.2;">
-                    <span style="font-weight: 400; font-size: 12.8px; color: var(--rovalra-main-text-color); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; max-width: 90px; text-align: center; transition: text-decoration 0.2s ease;">${displayName}</span>
+                    <span style="font-weight: 400; font-size: 12.8px; color: var(--rovalra-main-text-color); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; max-width: 90px; text-align: center; transition: text-decoration 0.2s ease;">${displayName}${verifiedSvg}</span>
                 </div>
                 <div class="user-card-subname" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: ${sublabelFontSize}; color: var(--rovalra-secondary-text-color); max-width: 90px; display: block; text-align: center; transition: text-decoration 0.2s ease;">${sublabelText}</div>
             </div>
@@ -100,7 +106,7 @@ export function createUserCard({
                     : `
             <div class="user-card-labels-no-username" style="margin-top: 8px; max-width: 90px; width: 90px; text-align: center;">
                 <div class="user-card-name" style="overflow: hidden; line-height: 1.2;">
-                    <span style="font-weight: 400; font-size: 12.8px; color: var(--rovalra-main-text-color); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; max-width: 90px; text-align: center; transition: text-decoration 0.2s ease;">${displayName}</span>
+                    <span style="font-weight: 400; font-size: 12.8px; color: var(--rovalra-main-text-color); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; max-width: 90px; text-align: center; transition: text-decoration 0.2s ease;">${displayName}${verifiedSvg}</span>
                 </div>
             </div>
             `
@@ -135,7 +141,7 @@ export function createUserCard({
 export function createFriendTile(
     item,
     thumbData,
-    { displayName, username, isHidden },
+    { displayName, username, isHidden, isVerified = false },
 ) {
     const href = isHidden
         ? ''
@@ -146,6 +152,7 @@ export function createFriendTile(
         thumbData: thumbData || { state: 'Error' },
         href,
         presenceInfo: 0,
+        isVerified,
     });
 
     if (!isHidden) {
@@ -258,6 +265,7 @@ export async function createUserCardsFromIds(containerEl, ids, limit = 7) {
             displayName: profile.names.combinedName,
             username: `@${profile.names.username}`,
             showUsername: true,
+            isVerified: profile.names.isVerified || false,
             thumbData: thumbMap.get(id) || { state: 'Error' },
             href: `https://www.roblox.com/users/${id}/profile`,
             presenceInfo: presenceType,
