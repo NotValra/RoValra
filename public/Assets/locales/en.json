@@ -576,6 +576,7 @@
         "noExperiences": "This user has no public experiences.",
         "favorites": "Favorites",
         "joinedDate": "Joined",
-        "store": "Store"
+        "store": "Store",
+        "members": "Members"
     }
 }

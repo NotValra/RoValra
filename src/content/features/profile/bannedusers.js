@@ -11,6 +11,7 @@ import { createFriendTile } from '../../core/ui/profile/userCard.js';
 import { createItemCard } from '../../core/ui/items/items.js';
 import { getAssets } from '../../core/assets.js';
 import { addTooltip } from '../../core/ui/tooltip.js';
+import { formatPlayerCount } from '../../core/games/playerCount.js';
 import { createScrollButtons } from '../../core/ui/general/scrollButtons.js';
 import { ts } from '../../core/locale/i18n.js';
 import { createInteractiveTimestamp } from '../../core/ui/time/time.js';
@@ -77,51 +78,62 @@ export function init() {
                 document.title.includes('Page not found') ||
                 !!document.querySelector('.error-page-container');
 
-            if (!isErrorPage) return;
+            function handleBannedRedirect(userId) {
+                const content = document.getElementById('content');
+                if (content) {
+                    content.innerHTML =
+                        '<div class="rovalra-banned-loading" style="display: flex; justify-content: center; align-items: center; height: 400px;"><div class="spinner spinner-default"></div></div>';
+                }
+
+                callRobloxApiJson({
+                    subdomain: 'users',
+                    endpoint: `/v1/users/${userId}`,
+                    method: 'GET',
+                })
+                    .then(async (user) => {
+                        if (!user?.isBanned) return;
+
+                        const profileRes = await callRobloxApiJson({
+                            subdomain: 'apis',
+                            endpoint:
+                                '/user-profile-api/v1/user/profiles/get-profiles',
+                            method: 'POST',
+                            body: {
+                                userIds: [userId],
+                                fields: ['isVerified'],
+                            },
+                        }).catch(() => null);
+
+                        const profile = (profileRes?.profileDetails || [])[0];
+                        user.isVerified = profile?.names?.isVerified || false;
+
+                        const newUrl = `https://www.roblox.com/banned-users/${user.id}/profile`;
+                        window.history.replaceState({}, '', newUrl);
+
+                        renderBannedUserProfile(user, data);
+                    })
+                    .catch((e) =>
+                        console.error('RoValra: Failed to fetch info', e),
+                    );
+            }
 
             chrome.runtime.sendMessage(
                 { action: 'getBannedUserRedirect' },
-                async (response) => {
+                (response) => {
                     if (response && response.userId) {
-                        const content = document.getElementById('content');
-                        if (content) {
-                            content.innerHTML =
-                                '<div class="rovalra-banned-loading" style="display: flex; justify-content: center; align-items: center; height: 400px;"><div class="spinner spinner-default"></div></div>';
-                        }
-
-                        try {
-                            const [user, profileRes] = await Promise.all([
-                                callRobloxApiJson({
-                                    subdomain: 'users',
-                                    endpoint: `/v1/users/${response.userId}`,
-                                    method: 'GET',
-                                }),
-                                callRobloxApiJson({
-                                    subdomain: 'apis',
-                                    endpoint:
-                                        '/user-profile-api/v1/user/profiles/get-profiles',
-                                    method: 'POST',
-                                    body: {
-                                        userIds: [response.userId],
-                                        fields: ['isVerified'],
-                                    },
-                                }).catch(() => null),
-                            ]);
-
-                            if (user && user.isBanned) {
-                                const profile = (profileRes?.profileDetails ||
-                                    [])[0];
-                                user.isVerified =
-                                    profile?.names?.isVerified || false;
-                                const newUrl = `https://www.roblox.com/banned-users/${user.id}/profile`;
-                                window.history.replaceState({}, '', newUrl);
-
-                                renderBannedUserProfile(user, data);
-                            }
-                        } catch (e) {
-                            console.error('RoValra: Failed to fetch info', e);
-                        }
+                        handleBannedRedirect(response.userId);
+                        return;
                     }
+
+                    if (!isErrorPage) return;
+
+                    chrome.runtime.sendMessage(
+                        { action: 'getBannedUserRedirect' },
+                        (r2) => {
+                            if (r2 && r2.userId)
+                                handleBannedRedirect(r2.userId);
+                        },
+                    );
                 },
             );
         },
@@ -847,6 +859,25 @@ async function loadGroups(userId) {
         )
             return;
 
+        const groupInfoMap = new Map();
+        groupIds.forEach((gid) => assetInfoCache.set(gid, { id: gid }));
+
+        const groupsDetailRes = await callRobloxApiJson({
+            subdomain: 'groups',
+            endpoint: `/v1/groups?groupIds=${groupIds.join(',')}`,
+            method: 'GET',
+        }).catch(() => null);
+
+        if (
+            document.querySelector('.profile-platform-container')?.dataset
+                .profileId !== String(userId)
+        )
+            return;
+
+        if (groupsDetailRes?.data) {
+            groupsDetailRes.data.forEach((g) => groupInfoMap.set(g.id, g));
+        }
+
         const groupThumbMap = new Map(thumbs.map((t) => [t.targetId, t]));
         const groupsList = document.getElementById(
             'rovalra-banned-groups-list',
@@ -857,9 +888,16 @@ async function loadGroups(userId) {
             const group = item.group;
             const thumbData = groupThumbMap.get(group.id);
             const isVerified = group.hasVerifiedBadge || false;
+            const groupDetails = groupInfoMap.get(group.id);
+            const memberCount =
+                groupDetails?.memberCount || group.memberCount || 0;
             const verifiedBadge = isVerified
                 ? `<img src="${assets.verifiedBadgeMono}" alt="" style="width: 16px; height: 16px; flex-shrink: 0; margin-left: 4px; vertical-align: middle; color: var(--rovalra-playbutton-color);">`
                 : '';
+            const memberCountStr =
+                memberCount >= 1000
+                    ? `${formatPlayerCount(memberCount)}+`
+                    : formatPlayerCount(memberCount);
             const itemWrapper = document.createElement('div');
             itemWrapper.className = 'css-nhhfrx-carouselItem';
             itemWrapper.style.width = '150px';
@@ -867,8 +905,9 @@ async function loadGroups(userId) {
                 <div class="base-tile">
                     <a class="flex flex-col" href="https://www.roblox.com/groups/${group.id}/-" style="text-decoration: none;">
                         <span class="thumbnail-2d-container radius-medium" style="width: 150px; height: 150px; display: block; background: var(--rovalra-button-background-color); border-radius: 8px; overflow: hidden;"></span>
-                        <div style="font-weight: 600; margin-top: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--rovalra-main-text-color); display: flex; align-items: center;">${group.name}${verifiedBadge}</div>
-                        <div style="font-size: 12px; color: var(--rovalra-secondary-text-color); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${item.role.name}</div>
+                        <div style="font-weight: 600; margin-top: 8px; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; color: var(--rovalra-main-text-color); display: flex; align-items: center;">${group.name}${verifiedBadge}</div>
+                        <div style="font-size: 14px; color: var(--rovalra-secondary-text-color);">${memberCountStr} ${ts('bannedUsers.members')}</div>
+                        <div style="font-size: 14px; color: var(--rovalra-secondary-text-color); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${item.role.name}</div>
                     </a>
                 </div>
             `);
