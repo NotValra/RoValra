@@ -44,28 +44,54 @@ export function init() {
                 }
 
                 try {
-                    const [user, profileRes] = await Promise.all([
-                        callRobloxApiJson({
-                            subdomain: 'users',
-                            endpoint: `/v1/users/${userId}`,
-                            method: 'GET',
-                        }),
-                        callRobloxApiJson({
-                            subdomain: 'apis',
-                            endpoint:
-                                '/user-profile-api/v1/user/profiles/get-profiles',
-                            method: 'POST',
-                            body: {
-                                userIds: [userId],
-                                fields: ['isVerified'],
-                            },
-                        }).catch(() => null),
-                    ]);
+                    const user = await callRobloxApiJson({
+                        subdomain: 'users',
+                        endpoint: `/v1/users/${userId}`,
+                        method: 'GET',
+                    }).catch(() => null);
+
+                    const profileRes = await callRobloxApiJson({
+                        subdomain: 'apis',
+                        endpoint:
+                            '/user-profile-api/v1/user/profiles/get-profiles',
+                        method: 'POST',
+                        body: {
+                            userIds: [userId],
+                            fields: [
+                                'names.combinedName',
+                                'isVerified',
+                                'names.username',
+                            ],
+                        },
+                    }).catch(() => null);
+
+                    const profile = (profileRes?.profileDetails || [])[0];
 
                     if (user && user.isBanned) {
-                        const profile = (profileRes?.profileDetails || [])[0];
-                        user.isVerified = profile?.names?.isVerified || false;
+                        user.isVerified = profile?.isVerified || false;
+                        if (profile?.names?.combinedName) {
+                            user.displayName = profile.names.combinedName;
+                            user.name = profile.names.username;
+                        }
+                        if (user?.name === 'Account Forgotten') {
+                            user.isAccountForgotten = true;
+                        }
                         renderBannedUserProfile(user, data);
+                    } else if (profile) {
+                        const syntheticUser = {
+                            id: parseInt(userId),
+                            displayName:
+                                profile.names?.combinedName ||
+                                'Account Forgotten',
+                            name:
+                                profile.names?.username || 'Account Forgotten',
+                            isVerified: profile.isVerified || false,
+                            description: '',
+                            created: '',
+                            isBanned: true,
+                            isAccountForgotten: true,
+                        };
+                        renderBannedUserProfile(syntheticUser, data);
                     }
                 } catch (e) {
                     console.error('RoValra: Failed to fetch info', e);
@@ -90,9 +116,8 @@ export function init() {
                     endpoint: `/v1/users/${userId}`,
                     method: 'GET',
                 })
+                    .catch(() => null)
                     .then(async (user) => {
-                        if (!user?.isBanned) return;
-
                         const profileRes = await callRobloxApiJson({
                             subdomain: 'apis',
                             endpoint:
@@ -100,21 +125,47 @@ export function init() {
                             method: 'POST',
                             body: {
                                 userIds: [userId],
-                                fields: ['isVerified'],
+                                fields: [
+                                    'names.combinedName',
+                                    'isVerified',
+                                    'names.username',
+                                ],
                             },
                         }).catch(() => null);
 
                         const profile = (profileRes?.profileDetails || [])[0];
-                        user.isVerified = profile?.names?.isVerified || false;
 
-                        const newUrl = `https://www.roblox.com/banned-users/${user.id}/profile`;
-                        window.history.replaceState({}, '', newUrl);
+                        if (user && user.isBanned) {
+                            user.isVerified = profile?.isVerified || false;
+                            if (profile?.names?.combinedName) {
+                                user.displayName = profile.names.combinedName;
+                                user.name = profile.names.username;
+                            }
 
-                        renderBannedUserProfile(user, data);
-                    })
-                    .catch((e) =>
-                        console.error('RoValra: Failed to fetch info', e),
-                    );
+                            const newUrl = `https://www.roblox.com/banned-users/${user.id}/profile`;
+                            window.history.replaceState({}, '', newUrl);
+
+                            renderBannedUserProfile(user, data);
+                        } else if (profile) {
+                            const syntheticUser = {
+                                id: parseInt(userId),
+                                displayName:
+                                    profile.names?.combinedName ||
+                                    'Account Forgotten',
+                                name:
+                                    profile.names?.username ||
+                                    'Account Forgotten',
+                                isVerified: profile.isVerified || false,
+                                description: '',
+                                created: '',
+                                isBanned: true,
+                                isAccountForgotten: true,
+                            };
+                            const newUrl = `https://www.roblox.com/banned-users/${syntheticUser.id}/profile`;
+                            window.history.replaceState({}, '', newUrl);
+                            renderBannedUserProfile(syntheticUser, data);
+                        }
+                    });
             }
 
             chrome.runtime.sendMessage(
@@ -207,7 +258,8 @@ async function renderBannedUserProfile(user, settings) {
         fullAvatarUrl = headshotData.imageUrl
             .replace(/AvatarHeadshot/g, 'Avatar')
             .replace(/150\/150/g, '420/420')
-            .replace(/\/Png\/?$/, '/Png/noFilter');
+            .replace(/\/Png\/?$/, '/Png/noFilter')
+            .replace(/\/isCircular$/, '/noFilter');
         isInitiallyBroken = false;
     }
 
@@ -265,9 +317,13 @@ async function renderBannedUserProfile(user, settings) {
                             ${getStatPillHtml('rovalra-banned-following-count', ts('bannedUsers.following'), `/users/${user.id}/friends#!/following`)}
                         </div>
                         <div><pre class="content-default text-body-medium description-content" style="white-space: pre-wrap; word-break: break-word;">${user.description || ''}</pre></div>
-                        <div id="rovalra-banned-join-date" class="content-default text-body-medium" style="margin-top: 4px; display: flex; gap: 4px; align-items: center;">
+                        ${
+                            user.created
+                                ? `<div id="rovalra-banned-join-date" class="content-default text-body-medium" style="margin-top: 4px; display: flex; gap: 4px; align-items: center;">
                             <span style="color: var(--rovalra-main-text-color);">${ts('bannedUsers.joinedDate')}:</span>
-                        </div>
+                        </div>`
+                                : ''
+                        }
                     </div>
                 </div>
             </div>
@@ -380,7 +436,10 @@ async function renderBannedUserProfile(user, settings) {
     );
     if (nameHeader) {
         const lockIcon = document.createElement('div');
-        addTooltip(lockIcon, ts('quickSearch.permanentlyBanned'), {
+        const tooltipText = user.isAccountForgotten
+            ? ts('bannedUsers.accountForgotten')
+            : ts('quickSearch.permanentlyBanned');
+        addTooltip(lockIcon, tooltipText, {
             position: 'bottom',
         });
         Object.assign(lockIcon.style, {

@@ -577,6 +577,7 @@
         "favorites": "Favorites",
         "joinedDate": "Joined",
         "store": "Store",
-        "members": "Members"
+        "members": "Members",
+        "accountForgotten": "Account Forgotten"
     }
 }
