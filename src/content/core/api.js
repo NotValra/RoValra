@@ -4,6 +4,7 @@ import { getCsrfToken } from './utils.js';
 import { getAuthenticatedUserId } from './user.js';
 import { getValidAccessToken } from './oauth/oauth.js';
 import { log, logLevel } from './logging.js';
+import { getValidApiKey, invalidateApiKey } from './utils/trackers/apiKey.js';
 
 import { updateUserLocationIfChanged } from './utils/location.js';
 const activeRequests = new Map();
@@ -206,7 +207,15 @@ export async function callRobloxApi(options) {
             skipAutoAuth = false,
             signal,
             useBackground = false,
+            useApiKey = false,
         } = options;
+
+        if (useApiKey) {
+            const apiKey = await getValidApiKey();
+            if (apiKey) {
+                headers['x-api-key'] = apiKey;
+            }
+        }
 
         if (useBackground) {
             return new Promise((resolve) => {
@@ -225,6 +234,9 @@ export async function callRobloxApi(options) {
                         if (chrome.runtime.lastError || !response) {
                             resolve(Response.error());
                             return;
+                        }
+                        if (useApiKey && response.status === 401) {
+                            invalidateApiKey();
                         }
                         const { body, ...init } = response;
                         resolve(new Response(body, init));
@@ -505,6 +517,10 @@ export async function callRobloxApi(options) {
             log(logLevel.ERROR,
                 `RoValra API: Request to ${fullUrl} failed with status ${response.status}.`,
             );
+
+            if (useApiKey && response.status === 401) {
+                await invalidateApiKey();
+            }
         }
 
         return response;

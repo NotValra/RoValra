@@ -2,28 +2,60 @@
 
 :root:has(.dark-theme),
 :root.dark-theme,
-:root[color-scheme=dark],
-:root:has(meta[name=theme-color][content="#111216"]) {
+:root[color-scheme='dark'],
+:root:has(meta[name='theme-color'][content='#111216']) {
     --rovalra-main-text-color: #f7f7f8;
     --rovalra-secondary-text-color: #d5d7dd;
     --rovalra-container-background-color: #272930;
     --rovalra-playbutton-color: #335fff;
     --rovalra-main-background-color: #121215;
-    --rovalra-button-background-color: rgba(208, 217, 251, .12);
+    --rovalra-button-background-color: rgba(208, 217, 251, 0.12);
     --rovalra-border-color: rgba(255, 255, 255, 0.2);
-    
-
+    --rovalra-gray-text-color: rgb(188, 190, 200);
+    --rovalra-profile-header-bg: #191a1f;
+    --rovalra-profile-main-gradient:
+        linear-gradient(
+            91deg,
+            rgba(18, 18, 21, 0.2) 5.83%,
+            rgba(255, 255, 255, 0.2) 47.76%,
+            rgba(18, 18, 21, 0.2) 93.93%
+        ),
+        var(--rovalra-profile-header-bg);
+    --rovalra-profile-overlay-gradient: linear-gradient(
+        rgba(18, 18, 21, 0) 0%,
+        rgba(18, 18, 21, 0.5) 45%,
+        rgba(18, 18, 21, 0.85) 70%,
+        #121215 90%,
+        #121215 100%
+    );
 }
 
 :root:has(.light-theme),
 :root.light-theme,
-:root[color-scheme=light],
-:root:has(meta[name=theme-color][content="#F9F9F9"]) {
+:root[color-scheme='light'],
+:root:has(meta[name='theme-color'][content='#F9F9F9']) {
     --rovalra-main-text-color: #202227;
     --rovalra-secondary-text-color: #494d5a;
     --rovalra-container-background-color: #f7f7f8;
     --rovalra-playbutton-color: #335fff;
     --rovalra-main-background-color: #fff;
-    --rovalra-button-background-color: rgba(27, 37, 75, .12);
+    --rovalra-button-background-color: rgba(27, 37, 75, 0.12);
     --rovalra-border-color: rgba(0, 0, 0, 0.2);
+    --rovalra-gray-text-color: rgb(106, 111, 129);
+    --rovalra-profile-header-bg: rgb(247, 247, 248);
+    --rovalra-profile-main-gradient:
+        linear-gradient(
+            91deg,
+            rgba(18, 18, 21, 0.05) 5.83%,
+            rgba(255, 255, 255, 0.1) 47.76%,
+            rgba(18, 18, 21, 0.05) 93.93%
+        ),
+        var(--rovalra-profile-header-bg);
+    --rovalra-profile-overlay-gradient: linear-gradient(
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.5) 45%,
+        rgba(255, 255, 255, 0.85) 70%,
+        #fff 90%,
+        #fff 100%
+    );
 }

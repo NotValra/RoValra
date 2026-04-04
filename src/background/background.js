@@ -790,11 +790,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             }
             return false;
 
-        case 'getBannedUserRedirect':
-            sendResponse({
-                userId: state.bannedUserRedirects.get(sender.tab?.id),
-            });
+        case 'getBannedUserRedirect': {
+            const userId = state.bannedUserRedirects.get(sender.tab?.id);
+            state.bannedUserRedirects.delete(sender.tab?.id);
+            sendResponse({ userId });
             return false;
+        }
 
         case 'presencePollResult':
             return false;

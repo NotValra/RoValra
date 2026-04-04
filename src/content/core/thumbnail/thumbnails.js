@@ -66,6 +66,7 @@ async function fetchBatchData(
         UserOutfit: { path: '/v1/users/outfits', idParam: 'userOutfitIds' },
         Outfit: { path: '/v1/users/outfits', idParam: 'userOutfitIds' },
         GamePass: { path: '/v1/game-passes', idParam: 'gamePassIds' },
+        BadgeIcon: { path: '/v1/badges/icons', idParam: 'badgeIds' },
         GroupIcon: { path: '/v1/groups/icons', idParam: 'groupIds' },
     };
 
@@ -230,6 +231,11 @@ export function createThumbnailElement(
     let thumbnailElement;
     const state = thumbnailData ? thumbnailData.state : 'Error';
 
+    const isAvatar =
+        thumbnailData &&
+        (thumbnailData.thumbnailType === 'AvatarHeadshot' ||
+            thumbnailData.thumbnailType === 'PlayerToken');
+
     const applyStyles = (el) => {
         el.alt = altText;
         Object.assign(el.style, style);
@@ -246,6 +252,7 @@ export function createThumbnailElement(
     if (state === 'Blocked') {
         thumbnailElement = document.createElement('div');
         thumbnailElement.className = 'thumbnail-2d-container icon-blocked';
+        thumbnailElement.style.borderRadius = isAvatar ? '50%' : '8px';
         return applyStyles(thumbnailElement);
     }
 
@@ -260,7 +267,7 @@ export function createThumbnailElement(
             className += ' icon-blocked';
         }
         container.className = className;
-        container.style.borderRadius = '8px';
+        container.style.borderRadius = isAvatar ? '50%' : '8px';
         applyStyles(container);
 
         if (thumbnailData && thumbnailData.finalUpdate) {
@@ -269,7 +276,7 @@ export function createThumbnailElement(
                     if (!updatedData) {
                         container.className =
                             'thumbnail-2d-container icon-blocked';
-                        container.style.borderRadius = '8px';
+                        container.style.borderRadius = isAvatar ? '50%' : '8px';
                         container.classList.remove('shimmer');
                         return;
                     }
@@ -291,13 +298,13 @@ export function createThumbnailElement(
                     } else {
                         container.className =
                             'thumbnail-2d-container icon-broken';
-                        container.style.borderRadius = '8px';
+                        container.style.borderRadius = isAvatar ? '50%' : '8px';
                         container.classList.remove('shimmer');
                     }
                 })
                 .catch(() => {
                     container.className = 'thumbnail-2d-container icon-broken';
-                    container.style.borderRadius = '8px';
+                    container.style.borderRadius = isAvatar ? '50%' : '8px';
                     container.classList.remove('shimmer');
                 });
         }
@@ -307,7 +314,7 @@ export function createThumbnailElement(
 
     thumbnailElement = document.createElement('div');
     thumbnailElement.className = 'thumbnail-2d-container icon-broken';
-    thumbnailElement.style.borderRadius = '8px';
+    thumbnailElement.style.borderRadius = isAvatar ? '50%' : '8px';
     return applyStyles(thumbnailElement);
 }
 
@@ -315,14 +322,131 @@ export async function getBatchThumbnails(ids, type, size = '150x150') {
     const items = ids.map((id) => ({ id }));
     const thumbnailMap = await fetchThumbnails(items, type, size);
     return ids.map((id) => {
-        const key = type === 'PlayerToken' ? id : String(id);
+        const key = type === 'PlayerToken' ? String(id) : Number(id);
         return (
             thumbnailMap.get(key) || {
                 targetId: id,
-                state: 'Error',
+                state: 'Blocked',
                 imageUrl: '',
                 thumbnailType: type,
             }
         );
     });
+}
+
+/**
+ * Generates a user thumbnail that works for banned users
+ *
+ * @param {string|number} userId
+ * @returns {Promise<Object>} Thumbnail data compatible with createThumbnailElement
+ */
+export async function fetchUserThumbnailWithApiKey(userId) {
+    try {
+        const response = await callRobloxApi({
+            subdomain: 'apis',
+            endpoint: `/cloud/v2/users/${userId}:generateThumbnail`,
+            method: 'GET',
+            useApiKey: true,
+            useBackground: true,
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            if (data.done && data.response?.imageUri) {
+                return {
+                    targetId: userId,
+                    state: 'Completed',
+                    imageUrl: data.response.imageUri,
+                    thumbnailType: 'AvatarHeadshot',
+                };
+            }
+        }
+    } catch (error) {
+        console.error(
+            `RoValra Thumbnails: Cloud generateThumbnail failed for ${userId}`,
+            error,
+        );
+    }
+    return {
+        targetId: userId,
+        state: 'Blocked',
+        imageUrl: '',
+        thumbnailType: 'AvatarHeadshot',
+    };
+}
+
+/**
+ * Allows you to render a custom avatar thumbnail.
+ * @param {string|number} userId
+ * @returns {Object}
+ */
+export function renderAvatarThumbnail(userId) {
+    const fetchRender = async () => {
+        try {
+            const avatarRes = await callRobloxApi({
+                subdomain: 'avatar',
+                endpoint: `/v2/avatar/users/${userId}/avatar`,
+            });
+            if (!avatarRes.ok) return null;
+            const avatarData = await avatarRes.json();
+
+            const payload = {
+                thumbnailConfig: {
+                    thumbnailId: 1,
+                    thumbnailType: '2d',
+                    size: '420x420',
+                },
+                avatarDefinition: {
+                    assets: (avatarData.assets || []).map((a) => ({
+                        id: a.id,
+                        name: a.name,
+                        assetType: a.assetType,
+                        currentVersionId: a.currentVersionId,
+                    })),
+                    bodyColors: {
+                        headColor: avatarData.bodyColor3s.headColor3,
+                        torsoColor: avatarData.bodyColor3s.torsoColor3,
+                        rightArmColor: avatarData.bodyColor3s.rightArmColor3,
+                        leftArmColor: avatarData.bodyColor3s.leftArmColor3,
+                        rightLegColor: avatarData.bodyColor3s.rightLegColor3,
+                        leftLegColor: avatarData.bodyColor3s.leftLegColor3,
+                    },
+                    scales: avatarData.scales,
+                    playerAvatarType: {
+                        playerAvatarType: avatarData.playerAvatarType,
+                    },
+                },
+            };
+
+            const renderRes = await callRobloxApi({
+                subdomain: 'avatar',
+                endpoint: '/v1/avatar/render',
+                method: 'POST',
+                body: payload,
+            });
+
+            if (renderRes.ok) {
+                const data = await renderRes.json();
+                if (data && data.imageUrl) {
+                    return {
+                        state: 'Completed',
+                        imageUrl: data.imageUrl,
+                        thumbnailType: 'Avatar',
+                    };
+                }
+            }
+        } catch (e) {
+            console.error(
+                `RoValra Thumbnails: Avatar render fallback failed for ${userId}`,
+                e,
+            );
+        }
+        return null;
+    };
+
+    return {
+        state: 'Pending',
+        thumbnailType: 'Avatar',
+        finalUpdate: fetchRender(),
+    };
 }
