@@ -103,7 +103,7 @@ async function isServerActive(placeId, gameId) {
         });
         if (!response.ok) return false;
         const data = await response.json();
-        return data.status === 2;
+        return data.status === 2 || data.status === 22;
     } catch (e) {
         return false;
     }
