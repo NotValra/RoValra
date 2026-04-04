@@ -133,10 +133,33 @@ export async function fetchThumbnails(
     const initialResults = await Promise.all(initialPromises);
     processResults(initialResults);
 
+    items.forEach((item) => {
+        const id = type === 'PlayerToken' ? item.id : Number(item.id);
+        if (!thumbnailMap.has(id)) {
+            thumbnailMap.set(id, {
+                targetId: id,
+                state: 'Blocked',
+                imageUrl: '',
+                thumbnailType: type,
+            });
+        }
+    });
+
     const pendingItems = [];
     const pendingResolvers = new Map();
 
     for (const [id, data] of thumbnailMap.entries()) {
+        if (data.state === 'Blocked' && type === 'AvatarHeadshot') {
+            data.state = 'Pending';
+            data.finalUpdate = fetchUserThumbnailWithApiKey(id).then(
+                (updated) => {
+                    if (updated) Object.assign(data, updated);
+                    return updated;
+                },
+            );
+            continue;
+        }
+
         if (data.state === 'Pending' || data.state === 'InReview') {
             let resolver;
             const updatePromise = new Promise((resolve) => {

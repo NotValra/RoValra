@@ -21,7 +21,6 @@ import { addTooltip } from '../../../core/ui/tooltip.js';
 import { createPill } from '../../../core/ui/general/pill.js';
 import { getFullRegionName, getRegionData } from '../../../core/regions.js';
 import { createScrollButtons } from '../../../core/ui/general/scrollButtons.js';
-import { showFriendListOverlay } from '../../../core/ui/games/friendListOverlay.js';
 import { showConfirmationPrompt } from '../../../core/ui/confirmationPrompt.js';
 import { t, ts } from '../../../core/locale/i18n.js';
 
