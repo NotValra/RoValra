@@ -45,12 +45,6 @@ export function init() {
                 }
 
                 try {
-                    const user = await callRobloxApiJson({
-                        subdomain: 'users',
-                        endpoint: `/v1/users/${userId}`,
-                        method: 'GET',
-                    }).catch(() => null);
-
                     const profileRes = await callRobloxApiJson({
                         subdomain: 'apis',
                         endpoint:
@@ -68,31 +62,42 @@ export function init() {
 
                     const profile = (profileRes?.profileDetails || [])[0];
 
-                    if (user && user.isBanned) {
-                        user.isVerified = profile?.isVerified || false;
-                        if (profile?.names?.combinedName) {
-                            user.displayName = profile.names.combinedName;
-                            user.name = profile.names.username;
-                        }
-                        if (user?.name === 'Account Forgotten') {
-                            user.isAccountForgotten = true;
-                        }
-                        renderBannedUserProfile(user, data);
+                    const userRes = await callRobloxApiJson({
+                        subdomain: 'users',
+                        endpoint: `/v1/users/${userId}`,
+                        method: 'GET',
+                    }).catch(() => null);
+
+                    if (userRes && !userRes.isBanned) {
+                        window.location.replace(
+                            `https://www.roblox.com/users/${userId}/profile`,
+                        );
+                        return;
+                    }
+
+                    if (userRes && userRes.isBanned) {
+                        userRes.isVerified = profile?.isVerified || false;
+                        userRes.isAccountForgotten =
+                            userRes?.name === 'Account Forgotten';
+                        renderBannedUserProfile(userRes, data);
                     } else if (profile) {
-                        const syntheticUser = {
-                            id: parseInt(userId),
-                            displayName:
-                                profile.names?.combinedName ||
-                                'Account Forgotten',
-                            name:
-                                profile.names?.username || 'Account Forgotten',
-                            isVerified: profile.isVerified || false,
-                            description: '',
-                            created: '',
-                            isBanned: true,
-                            isAccountForgotten: true,
-                        };
-                        renderBannedUserProfile(syntheticUser, data);
+                        renderBannedUserProfile(
+                            {
+                                id: parseInt(userId),
+                                displayName:
+                                    profile.names?.combinedName ||
+                                    'Account Forgotten',
+                                name:
+                                    profile.names?.username ||
+                                    'Account Forgotten',
+                                isVerified: profile.isVerified || false,
+                                description: '',
+                                created: '',
+                                isBanned: true,
+                                isAccountForgotten: true,
+                            },
+                            data,
+                        );
                     }
                 } catch (e) {
                     console.error('RoValra: Failed to fetch info', e);
@@ -136,12 +141,15 @@ export function init() {
 
                         const profile = (profileRes?.profileDetails || [])[0];
 
+                        if (user && !user.isBanned) {
+                            window.location.replace(
+                                `https://www.roblox.com/users/${userId}/profile`,
+                            );
+                            return;
+                        }
+
                         if (user && user.isBanned) {
                             user.isVerified = profile?.isVerified || false;
-                            if (profile?.names?.combinedName) {
-                                user.displayName = profile.names.combinedName;
-                                user.name = profile.names.username;
-                            }
 
                             const newUrl = `https://www.roblox.com/banned-users/${user.id}/profile`;
                             window.history.replaceState({}, '', newUrl);
