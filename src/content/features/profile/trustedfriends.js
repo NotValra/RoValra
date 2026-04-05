@@ -4,6 +4,7 @@ import { getUserIdFromUrl } from '../../core/idExtractor.js';
 import { addTooltip } from '../../core/ui/tooltip.js';
 import { showConfirmationPrompt } from '../../core/ui/confirmationPrompt.js';
 import { showSystemAlert } from '../../core/ui/roblox/alert.js';
+import { log, logLevel } from '../../core/logging.js';
 import { t } from '../../core/locale/i18n.js';
 
 const profileStatusCache = new Map();
@@ -51,11 +52,10 @@ async function getProfileStatus(userId) {
 
             return null;
         } catch (err) {
-            console.error(
+            log(logLevel.ERROR,
                 'RoValra: Failed to fetch trusted friend status.',
-                err,
-            );
-            profileStatusCache.delete(userId);
+                err);
+            profileStatusCache.delete(userId); 
             throw err;
         }
     })();
@@ -131,34 +131,32 @@ async function createAddButton(userId) {
                     });
                 };
 
-                action()
-                    .then(async () => {
-                        showSystemAlert(
-                            await t('trustedFriends.requestSent'),
-                            'success',
-                        );
-                        await refreshButtonState(button, userId);
-                    })
-                    .catch(async (err) => {
-                        console.error(
-                            'RoValra: Failed to send trusted friend request.',
-                            err,
-                        );
-                        showSystemAlert(
-                            await t('trustedFriends.requestFailed'),
-                            'warning',
-                        );
-                        titleSpan.textContent = await t(
+                action().then(async () => {
+                    showSystemAlert(
+                      await t('trustedFriends.requestSent'),
+                      'success'
+                    );
+                    await refreshButtonState(button, userId);
+                }).catch(err => {
+                    log(logLevel.ERROR,
+                        'RoValra: Failed to send trusted friend request.',
+                        err
+                    );
+                    showSystemAlert(
+                      await t('trustedFriends.requestFailed'),
+                      'warning'
+                    );
+                    titleSpan.textContent = await t(
                             'trustedFriends.errorSending',
-                        );
-                        setTimeout(async () => {
-                            titleSpan.textContent = await t(
+                    );
+                    setTimeout(() => {
+                        titleSpan.textContent = await t(
                                 'trustedFriends.addConnection',
-                            );
-                            button.disabled = false;
-                        }, 2000);
-                    });
-            },
+                        );
+                        button.disabled = false;
+                    }, 2000);
+                });
+            }
         });
     });
     return button;
@@ -187,34 +185,28 @@ async function createAcceptButton(userId) {
                     });
                 };
 
-                action()
-                    .then(async () => {
-                        showSystemAlert(
-                            await t('trustedFriends.requestAccepted'),
-                            'success',
-                        );
-                        await refreshButtonState(button, userId);
-                    })
-                    .catch(async (err) => {
-                        console.error(
-                            'RoValra: Failed to accept trusted friend request.',
-                            err,
-                        );
-                        showSystemAlert(
-                            await t('trustedFriends.acceptFailed'),
-                            'warning',
-                        );
-                        titleSpan.textContent = await t(
+                action().then(async () => {
+                    showSystemAlert(
+                      await t('trustedFriends.requestAccepted'),
+                      'success'
+                    );
+                    await refreshButtonState(button, userId);
+                }).catch(err => {
+                    log(logLevel.ERROR, 'RoValra: Failed to accept trusted friend request.', err);
+                    showSystemAlert(
+                      await t('trustedFriends.acceptFailed'), 'warning'
+                    );
+                    titleSpan.textContent = await t(
                             'trustedFriends.errorAccepting',
                         );
-                        setTimeout(async () => {
+                    setTimeout(async () => {
                             titleSpan.textContent = await t(
                                 'trustedFriends.acceptConnection',
                             );
                             button.disabled = false;
-                        }, 2000);
-                    });
-            },
+                    }, 2000);
+                });
+            }
         });
     });
     return button;
@@ -244,34 +236,32 @@ async function createRemoveButton(userId) {
                     });
                 };
 
-                action()
-                    .then(async () => {
-                        showSystemAlert(
-                            await t('trustedFriends.connectionRemoved'),
-                            'success',
-                        );
-                        await refreshButtonState(button, userId);
-                    })
-                    .catch(async (err) => {
-                        console.error(
-                            'RoValra: Failed to remove trusted friend.',
-                            err,
-                        );
-                        showSystemAlert(
-                            await t('trustedFriends.removeFailed'),
-                            'warning',
-                        );
+                action().then(async () => {
+                    showSystemAlert(
+                        await t('trustedFriends.connectionRemoved'),
+                        'success'
+                    );
+                    await refreshButtonState(button, userId);
+                }).catch(err => {
+                    log(logLevel.ERROR,
+                        'RoValra: Failed to remove trusted friend.',
+                        err
+                    );
+                    showSystemAlert(
+                        await t('trustedFriends.removeFailed'),
+                        'warning',
+                    );
+                    titleSpan.textContent = await t(
+                        'trustedFriends.errorRemoving',
+                    );
+                    setTimeout(async () => {
                         titleSpan.textContent = await t(
-                            'trustedFriends.errorRemoving',
+                            'trustedFriends.removeConnection',
                         );
-                        setTimeout(async () => {
-                            titleSpan.textContent = await t(
-                                'trustedFriends.removeConnection',
-                            );
-                            button.disabled = false;
-                        }, 2000);
-                    });
-            },
+                        button.disabled = false;
+                    }, 2000);
+                });
+            }
         });
     });
     return button;

@@ -4,6 +4,7 @@ import { callRobloxApi } from '../../api.js';
 import { addTooltip } from '../../ui/tooltip.js';
 import DOMPurify from 'dompurify';
 import { observeElement, startObserving } from '../../observer.js';
+import { log, logLevel } from '../../logging.js';
 
 
 let versionDataCache = null;
@@ -40,7 +41,7 @@ async function fetchLatestPlaceVersion(placeId) {
 
         return null;
     } catch (error) {
-        console.error('RoValra Server Stats: Failed to fetch latest place version from Roblox.', error);
+        log(logLevel.ERROR, 'RoValra Server Stats: Failed to fetch latest place version from Roblox.', error);
         return null;
     }
 }
@@ -78,7 +79,7 @@ export async function fetchServerStats(placeId) {
 
         return data.counts;
     } catch (error) {
-        console.error('RoValra Server Stats: Failed to fetch server statistics.', error);
+        log(logLevel.ERROR, 'RoValra Server Stats: Failed to fetch server statistics.', error);
         return null;
     }
 }
@@ -129,7 +130,7 @@ async function createStatsBarUI(serverListContainer) {
             });
         });
     } catch (error) {
-        console.error('RoValra Server Stats: Failed to fetch settings.', error);
+        log(logLevel.ERROR, 'RoValra Server Stats: Failed to fetch settings.', error);
         return;
     }
 
@@ -238,7 +239,7 @@ export async function initGlobalStatsBar() {
             }
         }
     } catch (error) {
-        console.error('RoValra Server Stats: Failed to initialize stats bar.', error);
+        log(logLevel.ERROR, 'RoValra Server Stats: Failed to initialize stats bar.', error);
     }
 }
 

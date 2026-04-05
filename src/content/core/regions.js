@@ -2,6 +2,7 @@
 
 import { callRobloxApi } from './api.js';
 import { getAssets } from './assets.js';
+import { log, logLevel } from './logging.js';
 import * as CacheHandler from './storage/cacheHandler.js';
 
 const API_ENDPOINT_DATACENTERS_LIST = '/v1/datacenters/list';
@@ -121,7 +122,7 @@ export async function loadDatacenterMap() {
             processDataIntoMap(currentData);
         }
     } catch (e) {
-        console.error('RoValra: Error reading datacenter map from storage.', e);
+        log(logLevel.ERROR, "RoValra: Error reading datacenter map from storage.", e);
     }
     if (!currentData) {
         try {
@@ -139,7 +140,7 @@ export async function loadDatacenterMap() {
             );
             processDataIntoMap(localData);
         } catch (e) {
-            console.error('RoValra: Could not load local fallback JSON.', e);
+            log(logLevel.ERROR, "RoValra: Could not load local fallback JSON.", e);
             serverIpMap = {};
         }
     }
@@ -208,9 +209,10 @@ async function fetchAndProcessRegions() {
             if (!response.ok) throw new Error(`Status ${response.status}`);
             data = await response.json();
         } catch (fallbackError) {
-            console.error(
-                'RoValra Critical: Could not load region data.',
-                fallbackError,
+            log(
+              logLevel.ERROR,
+              "RoValra Critical: Could not load region data.",
+              fallbackError
             );
             return { regions: newRegions, continents: newContinents };
         }

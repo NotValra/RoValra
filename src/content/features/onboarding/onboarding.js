@@ -1,6 +1,7 @@
 import { createOverlay } from '../../core/ui/overlay.js';
 import { createButton } from '../../core/ui/buttons.js';
 import { getAssets } from '../../core/assets.js';
+import { log, logLevel } from '../../core/logging.js';
 
 export function init() {
     chrome.storage.local.get({ onboardingShown: false }, function(settings) {
@@ -32,7 +33,7 @@ export function init() {
 
             const acknowledgeOnboarding = () => {
                 chrome.storage.local.set({ onboardingShown: true }, function() {
-                    console.log('RoValra: Onboarding acknowledged and marked as shown.');
+                    log(logLevel.DEBUG, 'RoValra: Onboarding acknowledged and marked as shown.');
                 });
             };
 

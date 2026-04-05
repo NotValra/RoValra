@@ -40,6 +40,8 @@ import {
     animNamesR6,
 } from 'roavatar-renderer';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { log, logLevel } from '../../../core/logging.js';
+
 import * as THREE from 'three';
 import { safeHtml } from '../../../core/packages/dompurify.js';
 FLAGS.ENABLE_API_MESH_CACHE = false;
@@ -427,7 +429,7 @@ async function createEmoteRadialMenu(emotesData, onSelect) {
                 thumbMap[item.targetId] = item.imageUrl;
             });
         } catch (e) {
-            console.error(e);
+          log(logLevel.ERROR, e);
         }
     }
 
@@ -1474,7 +1476,7 @@ async function preloadAvatar() {
             };
 
             await setupEnvironment().catch((err) => {
-                console.error('RoValra: Background env load failed', err);
+                log(logLevel.ERROR,'RoValra: Background env load failed', err);
                 setupAtmosphere(
                     RBXRenderer.getScene(),
                     DEFAULT_VOID_CONFIG.atmosphere,
@@ -1484,7 +1486,7 @@ async function preloadAvatar() {
 
             return globalAvatarData;
         } catch (err) {
-            console.error('RoValra Preload Error:', err);
+            log(logLevel.ERROR, "RoValra Preload Error:", err);
             avatarDataPromise = null;
             throw err;
         } finally {

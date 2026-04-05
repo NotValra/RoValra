@@ -3,6 +3,9 @@ import { getUserLocation } from '../utils/location.js';
 import { launchGame } from '../utils/launcher.js';
 import { showReviewPopup } from '../review/review.js';
 import { hideLoadingOverlay } from '../ui/startModal/gamelaunchmodal.js';
+import { getStateCodeFromRegion } from '../regions.js';
+import { log, logLevel } from '../logging.js';
+
 import { REGIONS, serverIpMap } from '../regions.js';
 
 export const FINDER_CONFIG = {
@@ -311,10 +314,10 @@ async function getRankedRegions(placeId, preferredRegionId) {
     }
 
     if (FINDER_CONFIG.logScores) {
-        console.log(`[RoValra] Region Scores for Place ${placeId}:`);
-        ranked.forEach((r) => {
-            console.log(
-                ` - ${getRegionName(r.region.id)}: Score ${r.score} (${Math.round(r.distance)} km)`,
+        log(logLevel.DEBUG, `[RoValra] Region Scores for Place ${placeId}:`);
+        ranked.forEach(r => {
+            log(logLevel.DEBUG,
+                ` - ${getRegionName(r.region.id)}: Score ${r.score} (${Math.round(r.distance)} km)`
             );
         });
     }
