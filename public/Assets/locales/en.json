@@ -103,7 +103,7 @@
     "instantJoiner": {
         "instantJoin": "Instant Join",
         "stopJoining": "Stop Joining",
-        "description": "This will automatically attempts to join the user as soon as they get into an experience.<br><br>This requires the user to have their joins enabled for everyone or for you to be friends with them.",
+        "description": "This will automatically attempt to join the user as soon as they get into an experience.<br><br>This requires the user to have their joins enabled for everyone or for you to be friends with them.",
         "searchPlaceholder": "Search for an experience or enter a Place ID (Optional)",
         "continue": "Continue",
         "cancel": "Cancel",
@@ -234,7 +234,7 @@
             "title": "RoValra Information!",
             "desc1": "RoValra is an extension that's trying to make basic quality of life features free and accessible to everyone, by making everything completely open-source.",
             "desc2": "This is possible by running almost everything locally.",
-            "desc3": "And the server side features doesn't cost me anything to run which is why I can afford to make this free.",
+            "desc3": "And the server side features don't cost me anything to run which is why I can afford to make this free.",
             "desc4": "This extension is also a project to learn, so a lot of stuff might change or get reworked overtime as I learn more.",
             "gilbert": "WE ALL LOVE GILBERT",
             "suggestions": "If you have any feature suggestions please let me know in my Discord server or via GitHub",
