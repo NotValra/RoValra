@@ -205,7 +205,11 @@ async function renderBannedUserProfile(user, settings) {
     if (!content) return;
 
     const computedBg = getComputedStyle(content).backgroundColor;
-    if (computedBg && computedBg !== 'transparent' && computedBg !== 'rgba(0, 0, 0, 0)') {
+    if (
+        computedBg &&
+        computedBg !== 'transparent' &&
+        computedBg !== 'rgba(0, 0, 0, 0)'
+    ) {
         content.style.backgroundColor = 'transparent';
         content.style.backgroundImage = 'none';
     }
@@ -384,7 +388,8 @@ async function renderBannedUserProfile(user, settings) {
         );
     }
 
-    const currentUser = content.querySelector('.profile-platform-container')?.dataset.profileId;
+    const currentUser = content.querySelector('.profile-platform-container')
+        ?.dataset.profileId;
 
     const redirectBannedUrl = (e) => {
         if (!currentUser) return;
@@ -417,11 +422,15 @@ async function renderBannedUserProfile(user, settings) {
         link.addEventListener('click', (e) => redirectBannedUrl(e));
     });
 
-    content.querySelectorAll('#rovalra-banned-groups-list a').forEach((link) => {
-        link.addEventListener('click', (e) => redirectBannedUrl(e));
-    });
+    content
+        .querySelectorAll('#rovalra-banned-groups-list a')
+        .forEach((link) => {
+            link.addEventListener('click', (e) => redirectBannedUrl(e));
+        });
 
-    const seeAllLink = content.querySelector('#friends-carousel-container .btn-more');
+    const seeAllLink = content.querySelector(
+        '#friends-carousel-container .btn-more',
+    );
     if (seeAllLink) {
         seeAllLink.addEventListener('click', (e) => redirectBannedUrl(e));
     }
@@ -916,21 +925,11 @@ async function loadGroups(userId) {
         const groupInfoMap = new Map();
         groupIds.forEach((gid) => assetInfoCache.set(gid, { id: gid }));
 
-        const groupsDetailRes = await callRobloxApiJson({
-            subdomain: 'groups',
-            endpoint: `/v1/groups?groupIds=${groupIds.join(',')}`,
-            method: 'GET',
-        }).catch(() => null);
-
         if (
             document.querySelector('.profile-platform-container')?.dataset
                 .profileId !== String(userId)
         )
             return;
-
-        if (groupsDetailRes?.data) {
-            groupsDetailRes.data.forEach((g) => groupInfoMap.set(g.id, g));
-        }
 
         const groupThumbMap = new Map(thumbs.map((t) => [t.targetId, t]));
         const groupsList = document.getElementById(

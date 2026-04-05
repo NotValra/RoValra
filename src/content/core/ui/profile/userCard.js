@@ -155,6 +155,34 @@ export function createFriendTile(
         isVerified,
     });
 
+    if (
+        !isHidden &&
+        (displayName === 'Account Deleted' ||
+            username?.includes('Account Deleted'))
+    ) {
+        callRobloxApiJson({
+            subdomain: 'users',
+            endpoint: `/v1/users/${item.id}`,
+            method: 'GET',
+        })
+            .then((user) => {
+                if (user && user.name) {
+                    const nameSpan = card.querySelector('.user-card-name span');
+                    const subname = card.querySelector('.user-card-subname');
+                    if (nameSpan) {
+                        const textNode = Array.from(nameSpan.childNodes).find(
+                            (n) => n.nodeType === Node.TEXT_NODE,
+                        );
+                        if (textNode) textNode.textContent = user.displayName;
+                    }
+                    if (subname) {
+                        subname.textContent = `@${user.name}`;
+                    }
+                }
+            })
+            .catch(() => {});
+    }
+
     if (!isHidden) {
         callRobloxApiJson({
             subdomain: 'presence',
@@ -187,16 +215,31 @@ export async function createFriendTiles(
     const friendIds = items.filter((i) => i.id > 0).map((i) => i.id);
     const presenceMap = await batchFetchPresence(friendIds);
 
-    items.forEach((item) => {
+    for (const item of items) {
         const isHidden = item.id === -1;
         const profile = isHidden ? null : profiles.get(item.id);
-        if (!isHidden && !profile) return;
+        if (!isHidden && !profile) continue;
 
         const thumb = isHidden ? { state: 'Error' } : thumbData.get(item.id);
-        const displayName = isHidden
-            ? 'Hidden User'
-            : profile.names.combinedName;
-        const username = isHidden ? '' : `@${profile.names.username}`;
+        let displayName = isHidden ? 'Hidden User' : profile.names.combinedName;
+        let username = isHidden ? '' : profile.names.username;
+
+        if (
+            !isHidden &&
+            (displayName === 'Account Deleted' ||
+                username === 'Account Deleted')
+        ) {
+            const userRes = await callRobloxApiJson({
+                subdomain: 'users',
+                endpoint: `/v1/users/${item.id}`,
+                method: 'GET',
+            }).catch(() => null);
+
+            if (userRes && userRes.name) {
+                displayName = userRes.displayName;
+                username = userRes.name;
+            }
+        }
 
         const presence = isHidden ? null : presenceMap.get(item.id);
         const presenceType = presence?.userPresenceType ?? 0;
@@ -207,7 +250,7 @@ export async function createFriendTiles(
 
         const card = createUserCard({
             displayName,
-            username: gameName || username || '',
+            username: gameName || (username ? `@${username}` : ''),
             thumbData: thumb,
             href: isHidden
                 ? ''
@@ -216,7 +259,7 @@ export async function createFriendTiles(
             gameName: isHidden || !gameName ? '' : gameName,
         });
         containerEl.appendChild(card);
-    });
+    }
 }
 
 export async function createUserCardsFromIds(containerEl, ids, limit = 7) {
@@ -250,9 +293,28 @@ export async function createUserCardsFromIds(containerEl, ids, limit = 7) {
         (presenceRes?.userPresences || []).map((p) => [p.userId, p]),
     );
 
-    validIds.forEach((id) => {
+    for (const id of validIds) {
         const profile = profileMap.get(id);
-        if (!profile) return;
+        if (!profile) continue;
+
+        let displayName = profile.names.combinedName;
+        let username = profile.names.username;
+
+        if (
+            displayName === 'Account Deleted' ||
+            username === 'Account Deleted'
+        ) {
+            const userRes = await callRobloxApiJson({
+                subdomain: 'users',
+                endpoint: `/v1/users/${id}`,
+                method: 'GET',
+            }).catch(() => null);
+
+            if (userRes && userRes.name) {
+                displayName = userRes.displayName;
+                username = userRes.name;
+            }
+        }
 
         const presence = presenceMap.get(id);
         const presenceType = presence?.userPresenceType ?? 0;
@@ -262,8 +324,8 @@ export async function createUserCardsFromIds(containerEl, ids, limit = 7) {
                 : null;
 
         const card = createUserCard({
-            displayName: profile.names.combinedName,
-            username: `@${profile.names.username}`,
+            displayName: displayName,
+            username: `@${username}`,
             showUsername: true,
             isVerified: profile.names.isVerified || false,
             thumbData: thumbMap.get(id) || { state: 'Error' },
@@ -272,5 +334,5 @@ export async function createUserCardsFromIds(containerEl, ids, limit = 7) {
             gameName,
         });
         containerEl.appendChild(card);
-    });
+    }
 }
