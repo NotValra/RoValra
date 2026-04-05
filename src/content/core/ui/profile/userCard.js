@@ -6,6 +6,67 @@ import {
 import { callRobloxApiJson } from '../../api';
 import { getAssets } from '../../assets';
 
+const presenceQueue = {
+    pendingIds: new Set(),
+    promises: new Map(),
+    timer: null,
+    BATCH_DELAY: 50,
+};
+
+function flushPresenceQueue() {
+    const userIds = Array.from(presenceQueue.pendingIds);
+    presenceQueue.pendingIds.clear();
+    presenceQueue.timer = null;
+
+    if (userIds.length === 0) return;
+
+    callRobloxApiJson({
+        subdomain: 'presence',
+        endpoint: '/v1/presence/users',
+        method: 'POST',
+        body: { userIds },
+    })
+        .then((res) => {
+            const presenceMap = new Map(
+                (res?.userPresences || []).map((p) => [p.userId, p]),
+            );
+            for (const userId of userIds) {
+                const presence = presenceMap.get(userId) || null;
+                const resolvers = presenceQueue.promises.get(userId) || [];
+                presenceQueue.promises.delete(userId);
+                for (const resolve of resolvers) {
+                    resolve(presence);
+                }
+            }
+        })
+        .catch(() => {
+            for (const userId of userIds) {
+                const resolvers = presenceQueue.promises.get(userId) || [];
+                presenceQueue.promises.delete(userId);
+                for (const resolve of resolvers) {
+                    resolve(null);
+                }
+            }
+        });
+}
+
+export function fetchPresenceBatched(userId) {
+    return new Promise((resolve) => {
+        presenceQueue.pendingIds.add(userId);
+        if (!presenceQueue.promises.has(userId)) {
+            presenceQueue.promises.set(userId, []);
+        }
+        presenceQueue.promises.get(userId).push(resolve);
+
+        if (!presenceQueue.timer) {
+            presenceQueue.timer = setTimeout(
+                flushPresenceQueue,
+                presenceQueue.BATCH_DELAY,
+            );
+        }
+    });
+}
+
 const PRESENCE_MAP = {
     0: { class: 'offline icon-offline', title: 'Offline' },
     1: { class: 'online icon-online', title: 'Website' },
@@ -32,20 +93,14 @@ export function updateUserCardPresence(card, presenceType, gameName) {
 }
 
 export async function updateFriendTilePresence(card, userId) {
-    try {
-        const res = await callRobloxApiJson({
-            subdomain: 'presence',
-            endpoint: '/v1/presence/users',
-            method: 'POST',
-            body: { userIds: [userId] },
-        }).catch(() => null);
-        if (!res?.userPresences?.length) return;
-        const p = res.userPresences[0];
-        const presenceType = p.userPresenceType ?? 0;
-        const gameName =
-            presenceType === 2 && p.lastLocation ? p.lastLocation : null;
-        updateUserCardPresence(card, presenceType, gameName);
-    } catch (e) {}
+    const presence = await fetchPresenceBatched(userId);
+    if (!presence) return;
+    const presenceType = presence.userPresenceType ?? 0;
+    const gameName =
+        presenceType === 2 && presence.lastLocation
+            ? presence.lastLocation
+            : null;
+    updateUserCardPresence(card, presenceType, gameName);
 }
 
 export async function batchFetchPresence(userIds) {
@@ -184,23 +239,15 @@ export function createFriendTile(
     }
 
     if (!isHidden) {
-        callRobloxApiJson({
-            subdomain: 'presence',
-            endpoint: '/v1/presence/users',
-            method: 'POST',
-            body: { userIds: [item.id] },
-        })
-            .then((res) => {
-                if (!res?.userPresences?.length) return;
-                const p = res.userPresences[0];
-                const presenceType = p.userPresenceType ?? 0;
-                const gameName =
-                    presenceType === 2 && p.lastLocation
-                        ? p.lastLocation
-                        : null;
-                updateUserCardPresence(card, presenceType, gameName);
-            })
-            .catch(() => {});
+        fetchPresenceBatched(item.id).then((presence) => {
+            if (!presence) return;
+            const presenceType = presence.userPresenceType ?? 0;
+            const gameName =
+                presenceType === 2 && presence.lastLocation
+                    ? presence.lastLocation
+                    : null;
+            updateUserCardPresence(card, presenceType, gameName);
+        });
     }
 
     return card;
