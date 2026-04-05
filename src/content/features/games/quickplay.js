@@ -1,8 +1,16 @@
 import { showReviewPopup } from '../../core/review/review.js';
 import { observeElement } from '../../core/observer.js';
 import { callRobloxApi } from '../../core/api.js';
-import { launchGame, launchPrivateGame } from '../../core/utils/launcher.js';
-import { getRegionData, getFullRegionName } from '../../core/regions.js';
+import {
+    launchGame,
+    launchPrivateGame,
+    launchMultiplayerGame,
+} from '../../core/utils/launcher.js';
+import {
+    getRegionData,
+    getFullRegionName,
+    REGIONS,
+} from '../../core/regions.js';
 import { createDropdownContent } from '../../core/ui/selects.js';
 import { createButton } from '../../core/ui/buttons.js';
 import { addTooltip as attachTooltip } from '../../core/ui/tooltip.js';
@@ -34,9 +42,6 @@ const State = {
     hideOverlayTimer: null,
     isLoadingPrivateServers: false,
     currentNextPageCursor: null,
-
-    regions: {},
-    serverIpMap: {},
 
     cleanupTimers: new WeakMap(),
 };
@@ -140,24 +145,6 @@ function showTemporaryTooltip(parent, text, duration = 1400) {
         temp.style.opacity = '0';
         setTimeout(() => temp.remove(), 150);
     }, duration);
-}
-
-function initializeData() {
-    chrome.storage.local.get(
-        ['cachedRegions', 'rovalraDatacenters'],
-        (result) => {
-            if (result.cachedRegions) State.regions = result.cachedRegions;
-            if (result.rovalraDatacenters) {
-                result.rovalraDatacenters.forEach((entry) => {
-                    if (entry.location && entry.dataCenterIds) {
-                        entry.dataCenterIds.forEach(
-                            (id) => (State.serverIpMap[id] = entry.location),
-                        );
-                    }
-                });
-            }
-        },
-    );
 }
 
 async function getVipServerDetails(vipServerId) {
@@ -808,7 +795,7 @@ async function addRegionTooltip(button) {
     );
     const regionCode = saved.robloxPreferredRegion;
     const text =
-        regionCode && State.regions[regionCode]
+        regionCode && REGIONS[regionCode]
             ? await t('regionPlayButton.tooltipWithRegion', {
                   regionName: getFullRegionName(regionCode),
               })
@@ -821,8 +808,6 @@ function initializeQuickPlay() {
     window.hasRunQuickPlayScript = true;
     window.EMULATE_API_FAILURE = true;
 
-    State.currentUserId = getCurrentUserId();
-    initializeData();
     createGlobalPrivateServerContainer();
 
     chrome.storage.local.get(
@@ -833,6 +818,7 @@ function initializeQuickPlay() {
             robloxPreferredRegion: 'AUTO',
         },
         (settings) => {
+            State.currentUserId = getCurrentUserId();
             const onCardFound = (gameLink) => {
                 if (gameLink.closest('[data-testid="event-experience-link"]')) {
                     return;

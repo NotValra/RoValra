@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
     "name": "RoValra - Roblox Improved",
-    "version": "2.4.11",
+    "version": "2.4.12.5",
     "description": "An extension aiming to provide features that other Roblox extensions paywall!",
     "content_scripts": [
         {
@@ -29,7 +29,7 @@
     "background": {
         "service_worker": "background.js"
     },
-    "optional_permissions": ["webNavigation", "contextMenus"],
+    "optional_permissions": ["webNavigation", "contextMenus", "webRequest"],
     "declarative_net_request": {
         "rule_resources": [
             {

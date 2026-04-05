@@ -9,7 +9,8 @@ export const CONTRIBUTOR_USER_IDS = [
     '48255812', //aliceenight
     '7982684834', //qborder
     '126448532', //steinann
-    '1564574922', // cornusandu
+    '1564574922', //cornusandu
+    '587159802', //zoinbase
 ];
 
 export const TESTER_USER_IDS = [
@@ -20,9 +21,11 @@ export const TRANSLATOR_USER_IDS = [
     '1564574922', // cornusandu
 ];
 
+export const TRUSTED_USER_IDS = ['1996279003'];
 export const ARTIST_BADGE_USER_ID = '1337447242';
 export const RAT_BADGE_USER_ID = '477516666'; // rat
 export const BLAHAJ_BADGE_USER_ID = '96786935'; // BLAHAJ
 export const CAM_BADGE_USER_ID = '4866259395';
 export const alice_badge_user_id = '48255812';
-export const GILBERT_USER_ID = '146089324';  // WoozyNate
+export const GILBERT_USER_ID = '146089324'; // WoozyNate
+export const Robux = '1163412141';

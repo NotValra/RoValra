@@ -20,6 +20,8 @@ export const SETTINGS_CONFIG = {
                     'Shows Roblox made items before they are on the official marketplace.',
                 ],
                 deprecated: 'Patched by Roblox',
+                locked: 'This feature has been patched by Roblox and is no longer functional.',
+                isPermanent: true,
                 type: 'checkbox',
                 default: false,
             },
@@ -87,6 +89,14 @@ export const SETTINGS_CONFIG = {
                 label: 'Previous Price to item cards and on item pages.',
                 description:
                     'This shows the price of an offsale item before it went offsale.',
+                type: 'checkbox',
+                default: true,
+            },
+            itemTradingEnabled: {
+                label: 'Item Trading Info',
+                description: [
+                    'Shows Rolimons values, demand, trend, rare, projected and more on item pages.',
+                ],
                 type: 'checkbox',
                 default: true,
             },
@@ -427,18 +437,29 @@ export const SETTINGS_CONFIG = {
                     },
                 },
             },
+
             profile3DRenderEnabled: {
                 label: 'Enable Custom 3D Profile Renderer',
                 description: [
                     'Replaces the default profile avatar with a more customizable and feature-rich 3D renderer.',
                     'This feature is required for custom environments and other render-related settings.',
-                    'This feature was made possible cause of [RoAvatar](https://www.roavatar.com) ❤️',
+                    'This feature was made possible cause of [RoAvatar](https://github.com/steinann/RoAvatar) ❤️',
                 ],
                 type: 'checkbox',
                 default: false,
                 experimental:
                     'This feature may cause performance issues. And may be buggy',
                 childSettings: {
+                    profileRenderUseApi: {
+                        label: 'Use RoValra API for Environment',
+                        description:
+                            "Uses RoValra's API to save your environment choice instead of your 'About Me' section.",
+                        type: 'checkbox',
+                        default: true,
+                        donatorTier: 1,
+                        donatorReason:
+                            'Donator 1 is required since RoValra doesnt have the resources to track the 200k+ user settings.',
+                    },
                     profileRenderEnvironment: {
                         label: '3D Profile Environment',
                         description: [
@@ -448,6 +469,14 @@ export const SETTINGS_CONFIG = {
                         type: 'select',
                         options: [
                             { label: 'None', value: 'void', id: 1 },
+                            {
+                                label: 'Purple Space',
+                                value: 'purple',
+                                environmentEndpoint:
+                                    '/static/json/skyboxSpace.json',
+                                id: 2,
+                            },
+
                             {
                                 label: 'Crossroads',
                                 value: 'crossroads',
@@ -512,11 +541,29 @@ export const SETTINGS_CONFIG = {
             statusBubbleEnabled: {
                 label: 'Status Bubble',
                 description: [
-                    'This allows you to set a status bubble that anyone with RoValra can see.',
+                    'This allows you to set a status bubble on your profile that anyone with RoValra can see.',
                     'Also allows you to view other RoValra users status bubbles.',
+                    'This works by adding a little "s:" string to your about me.',
                 ],
                 type: 'checkbox',
                 default: true,
+                childSettings: {
+                    statusBubbleUseApi: {
+                        label: 'Use RoValra API for Status',
+                        description:
+                            "Uses RoValra's API to save your status instead of your 'About Me' section.",
+                        type: 'checkbox',
+                        default: true,
+                        donatorTier: 1,
+                        donatorReason:
+                            'Donator 1 is required since RoValra doesnt have the resources to track the 200k+ user settings.',
+                    },
+                    statusBubbleHomePage: {
+                        label: 'Status bubble for friends on home page, and other parts of the site where friends might show.',
+                        type: 'checkbox',
+                        default: true,
+                    },
+                },
             },
             donationbuttonEnable: {
                 label: 'Donation Button',
@@ -560,9 +607,9 @@ export const SETTINGS_CONFIG = {
                 },
             },
             userRapEnabled: {
-                label: 'User RAP',
+                label: 'User RAP/Value',
                 description: [
-                    "This shows a user's total RAP on their profile.",
+                    "This shows a user's total RAP/Value on their profile.",
                 ],
                 type: 'checkbox',
                 default: true,
@@ -592,6 +639,13 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
+            },
+            bannedUserDetectionEnabled: {
+                label: 'View Banned Users Profile',
+                description: ['Allows you to view banned users Profile.'],
+                type: 'checkbox',
+                default: false,
+                requiredPermissions: ['webRequest'],
             },
         },
     },
@@ -663,6 +717,13 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
+            stickyAvatarEnabled: {
+                label: 'Sticky Avatar Preview',
+                description:
+                    'This forces the avatar preview to always be in view on the avatar editor.',
+                type: 'checkbox',
+                default: true,
+            },
             avatarFiltersEnabled: {
                 label: 'Avatar Filters',
                 description: [
@@ -723,6 +784,68 @@ export const SETTINGS_CONFIG = {
                     'May be inaccurate. And will take ages depending on the amount of sales',
                 type: 'checkbox',
                 default: false,
+            },
+        },
+    },
+    Trading: {
+        title: 'Trading',
+        settings: {
+            tradeValuesEnabled: {
+                label: 'Trade Values',
+                description: [
+                    'This shows a bunch of useful information when trading, stuff like:',
+                    'Rolimons Values, Trade differences in values and rap, item demand, item trend and more.',
+                ],
+                type: 'checkbox',
+                default: true,
+            },
+            tradePreviewEnabled: {
+                label: 'Trade Preview',
+                description: [
+                    'Allows you to preview the value differences of a trade before opening it up.',
+                    'Also changes the timestamp for when the trade was sent to something more readable and adds a "open in Rolimons" beside a users username',
+                ],
+                type: 'checkbox',
+                default: true,
+            },
+            tradeFilterEnabled: {
+                label: 'Trade Filter',
+                description:
+                    'Adds a search bar to the trade page. Allowing you to search for trades containing specific items.',
+                type: 'checkbox',
+                default: true,
+            },
+            tradeSearchEnabled: {
+                label: 'Trade Search',
+                description:
+                    'Allows you to search for items in the create trade pages to quickly find them.',
+                type: 'checkbox',
+                default: true,
+            },
+            confirmTradeEnabled: {
+                label: 'Trade Protection',
+                description:
+                    'This adds a small Preview of the trade you are doing in the accept / decline confirmation pop up.',
+                type: 'checkbox',
+                default: true,
+            },
+            tradeProofEnabled: {
+                label: 'Proof Trades',
+                description:
+                    'This allows you to quickly copy the rolimons proof format for any trade.',
+                type: 'checkbox',
+                default: false,
+                experimental:
+                    'This may be inaccurate, and may in some cases have issues resulting in an inaccurate proof. Please verify it is correct before using.',
+            },
+            tradeRiskEnabled: {
+                label: 'Show Item Risk',
+                description:
+                    'Shows the calculated risk of an item based on its trading history on item pages and trade pages.',
+                type: 'checkbox',
+                default: false,
+                experimental:
+                    'May be inaccurate. It is not recommended to fully rely on this.',
             },
         },
     },
@@ -1221,6 +1344,8 @@ export const SETTINGS_CONFIG = {
                     "Pressing the 'Impersonate User' option does nothing other than error unless you are authorized to use it",
                 ],
                 deprecated: 'Roblox removed it with the new profile overhaul',
+                locked: 'This internal Roblox feature was removed during the profile page redesign.',
+                isPermanent: true,
                 type: 'checkbox',
                 default: false,
             },
@@ -1269,6 +1394,15 @@ export const SETTINGS_CONFIG = {
             },
             rendererDeveloperToggles: {
                 label: '3D renderer Developer toggles',
+                type: 'checkbox',
+                default: false,
+            },
+            profile3DRenderBypassCheck: {
+                label: 'Bypass Graphics Check',
+                description: [
+                    'Bypasses the compatibility check for the 3D Profile Renderer.',
+                    'Only enable this if the 3D renderer was disabled due to graphics issues but you want to try anyway.',
+                ],
                 type: 'checkbox',
                 default: false,
             },
@@ -1508,6 +1642,16 @@ export const SETTINGS_CONFIG = {
                         type: 'input',
                         default: '',
                         placeholder: 'Enter URL',
+                    },
+
+                    importEnvironmentConfig: {
+                        label: 'Import Environment Config',
+                        description: [
+                            'Import a JSON file with environment settings. This will overwrite the current values in the tester.',
+                        ],
+                        type: 'button',
+                        buttonText: 'Import from JSON',
+                        event: 'rovalra:importEnvironmentJson',
                     },
 
                     // generate button

@@ -27,7 +27,10 @@
  * });
  * document.body.appendChild(customCard);
  */
-import { createThumbnailElement, fetchThumbnails } from '../../thumbnail/thumbnails.js';
+import {
+    createThumbnailElement,
+    fetchThumbnails,
+} from '../../thumbnail/thumbnails.js';
 import { safeHtml } from '../../packages/dompurify.js';
 import { formatPlayerCount } from '../../games/playerCount.js';
 import { callRobloxApi } from '../../api.js';
@@ -42,14 +45,14 @@ async function fetchWithRetry(subdomain, endpoint, retries = 3) {
     try {
         const res = await callRobloxApi({ subdomain, endpoint, method: 'GET' });
         if (res.status === 429 && retries > 0) {
-            await new Promise(r => setTimeout(r, 1000 * (4 - retries)));
+            await new Promise((r) => setTimeout(r, 1000 * (4 - retries)));
             return fetchWithRetry(subdomain, endpoint, retries - 1);
         }
         if (!res.ok) throw new Error(`API Error: ${res.status}`);
         return res.json();
     } catch (e) {
         if (retries > 0) {
-            await new Promise(r => setTimeout(r, 1000));
+            await new Promise((r) => setTimeout(r, 1000));
             return fetchWithRetry(subdomain, endpoint, retries - 1);
         }
         throw e;
@@ -60,7 +63,7 @@ async function getUniverseIdFromPlaceId(placeId) {
     const res = await callRobloxApi({
         subdomain: 'games',
         endpoint: `/v1/games/multiget-place-details?placeIds=${placeId}`,
-        method: 'GET'
+        method: 'GET',
     });
     const data = await res.json();
     if (Array.isArray(data) && data[0] && data[0].universeId) {
@@ -79,34 +82,42 @@ function flushUniverseQueue() {
 
     for (let i = 0; i < ids.length; i += MAX_BATCH) {
         const chunk = ids.slice(i, i + MAX_BATCH);
-        const idsStr = chunk.length > 2 ? chunk.join(',') : `1,${chunk.join(',')}`;
-        
+        const idsStr =
+            chunk.length > 2 ? chunk.join(',') : `1,${chunk.join(',')}`;
+
         Promise.all([
             fetchWithRetry('games', `/v1/games?universeIds=${idsStr}`),
-            fetchWithRetry('games', `/v1/games/votes?universeIds=${idsStr}`)
-        ]).then(([gamesData, votesData]) => {
-            const games = gamesData.data || [];
-            const votes = votesData.data || [];
-            const gameMap = new Map(games.map(g => [g.id, g]));
-            const voteMap = new Map(votes.map(v => [v.id, v]));
+            fetchWithRetry('games', `/v1/games/votes?universeIds=${idsStr}`),
+        ])
+            .then(([gamesData, votesData]) => {
+                const games = gamesData.data || [];
+                const votes = votesData.data || [];
+                const gameMap = new Map(games.map((g) => [g.id, g]));
+                const voteMap = new Map(votes.map((v) => [v.id, v]));
 
-            chunk.forEach(id => {
-                const resolvers = currentMap.get(id);
-                const game = gameMap.get(id);
-                const vote = voteMap.get(id) || { upVotes: 0, downVotes: 0 };
-                
-                if (game) {
-                    resolvers.forEach(r => r.resolve({ game, vote }));
-                } else {
-                    resolvers.forEach(r => r.reject(new Error('Game not found')));
-                }
+                chunk.forEach((id) => {
+                    const resolvers = currentMap.get(id);
+                    const game = gameMap.get(id);
+                    const vote = voteMap.get(id) || {
+                        upVotes: 0,
+                        downVotes: 0,
+                    };
+
+                    if (game) {
+                        resolvers.forEach((r) => r.resolve({ game, vote }));
+                    } else {
+                        resolvers.forEach((r) =>
+                            r.reject(new Error('Game not found')),
+                        );
+                    }
+                });
+            })
+            .catch((err) => {
+                chunk.forEach((id) => {
+                    const resolvers = currentMap.get(id);
+                    if (resolvers) resolvers.forEach((r) => r.reject(err));
+                });
             });
-        }).catch(err => {
-            chunk.forEach(id => {
-                const resolvers = currentMap.get(id);
-                if (resolvers) resolvers.forEach(r => r.reject(err));
-            });
-        });
     }
 }
 
@@ -129,12 +140,16 @@ function getOnlineFriends(userId) {
         friendCachePromise = callRobloxApi({
             subdomain: 'friends',
             endpoint: `/v1/users/${userId}/friends/online`,
-            method: 'GET'
-        }).then(res => res.json()).catch(e => {
-            console.warn('RoValra: Friend fetch error', e);
-            return { data: [] };
-        });
-        setTimeout(() => { friendCachePromise = null; }, 5000);
+            method: 'GET',
+        })
+            .then((res) => res.json())
+            .catch((e) => {
+                console.warn('RoValra: Friend fetch error', e);
+                return { data: [] };
+            });
+        setTimeout(() => {
+            friendCachePromise = null;
+        }, 5000);
     }
     return friendCachePromise;
 }
@@ -172,13 +187,19 @@ export function createGameCard(options) {
                     targetUniverseId = await getUniverseIdFromPlaceId(placeId);
                 }
 
-                if (!targetUniverseId) throw new Error('Could not resolve Universe ID');
+                if (!targetUniverseId)
+                    throw new Error('Could not resolve Universe ID');
 
-                const userId = document.querySelector('meta[name="user-data"]')?.dataset?.userid;
+                const userId = document.querySelector('meta[name="user-data"]')
+                    ?.dataset?.userid;
 
                 const promises = [
                     getGameData(targetUniverseId),
-                    fetchThumbnails([{ id: targetUniverseId }], 'GameIcon', '150x150')
+                    fetchThumbnails(
+                        [{ id: targetUniverseId }],
+                        'GameIcon',
+                        '150x150',
+                    ),
                 ];
 
                 if (userId) {
@@ -194,28 +215,54 @@ export function createGameCard(options) {
 
                 const universeId = gameInfo.id;
                 const fetchedStats = {
-                    likes: new Map([[universeId, { ratio: Math.floor((voteInfo.upVotes / (voteInfo.upVotes + voteInfo.downVotes)) * 100) || 0, total: voteInfo.upVotes + voteInfo.downVotes }]]),
+                    likes: new Map([
+                        [
+                            universeId,
+                            {
+                                ratio:
+                                    Math.floor(
+                                        (voteInfo.upVotes /
+                                            (voteInfo.upVotes +
+                                                voteInfo.downVotes)) *
+                                            100,
+                                    ) || 0,
+                                total: voteInfo.upVotes + voteInfo.downVotes,
+                            },
+                        ],
+                    ]),
                     players: new Map([[universeId, gameInfo.playing]]),
-                    thumbnails: thumbMap
+                    thumbnails: thumbMap,
                 };
 
                 let fetchedFriendData = null;
                 if (friendsData) {
                     try {
-                        const friend = friendsData.data?.find(f => f.userPresence?.universeId === universeId);
+                        const friend = friendsData.data?.find(
+                            (f) => f.userPresence?.universeId === universeId,
+                        );
 
                         if (friend) {
-                            const [userRes, friendThumbMap] = await Promise.all([
-                                callRobloxApi({ subdomain: 'users', endpoint: `/v1/users/${friend.id}`, method: 'GET' }),
-                                fetchThumbnails([{ id: friend.id }], 'AvatarHeadshot', '48x48')
-                            ]);
+                            const [userRes, friendThumbMap] = await Promise.all(
+                                [
+                                    callRobloxApi({
+                                        subdomain: 'users',
+                                        endpoint: `/v1/users/${friend.id}`,
+                                        method: 'GET',
+                                    }),
+                                    fetchThumbnails(
+                                        [{ id: friend.id }],
+                                        'AvatarHeadshot',
+                                        '48x48',
+                                    ),
+                                ],
+                            );
 
                             if (userRes.ok) {
                                 const userData = await userRes.json();
                                 fetchedFriendData = {
                                     id: friend.id,
                                     name: userData.displayName,
-                                    thumbnail: friendThumbMap.get(friend.id)
+                                    thumbnail: friendThumbMap.get(friend.id),
                                 };
                             }
                         }
@@ -224,11 +271,19 @@ export function createGameCard(options) {
                     }
                 }
 
-                const realCard = createGameCard({ game: gameInfo, stats: fetchedStats, showVotes, showPlayers, thumbStyle, friendData: fetchedFriendData });
+                const realCard = createGameCard({
+                    game: gameInfo,
+                    stats: fetchedStats,
+                    showVotes,
+                    showPlayers,
+                    thumbStyle,
+                    friendData: fetchedFriendData,
+                });
                 card.replaceWith(realCard);
             } catch (e) {
                 console.warn('RoValra: Error creating game card from ID', e);
-                card.innerHTML = '<div style="padding: 10px; color: var(--text-error);">Failed to load game</div>';
+                card.innerHTML =
+                    '<div style="padding: 10px; color: var(--text-error);">Failed to load game</div>';
             }
         })();
         return card;
@@ -300,8 +355,6 @@ export function createGameCard(options) {
             ),
         );
     }
-
-
 
     return card;
 }

@@ -1,5 +1,6 @@
 import { observeElement } from '../../core/observer.js';
 import { addTooltip } from '../../core/ui/tooltip.js';
+import { getRegionData } from '../../core/regions.js';
 import {
     performJoinAction,
     getSavedPreferredRegion,
@@ -69,15 +70,9 @@ function getFullLocationName(regionCode) {
 
 async function loadRegionsForTooltip() {
     if (isRegionsLoaded) return;
-    return new Promise((resolve) => {
-        chrome.storage.local.get(['cachedRegions'], (result) => {
-            if (result.cachedRegions) {
-                REGIONS = result.cachedRegions;
-            }
-            isRegionsLoaded = true;
-            resolve();
-        });
-    });
+    const data = await getRegionData();
+    REGIONS = data.regions;
+    isRegionsLoaded = true;
 }
 
 function injectCustomCSS() {

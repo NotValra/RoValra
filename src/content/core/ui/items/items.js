@@ -1,12 +1,14 @@
-import { createThumbnailElement, fetchThumbnails } from '../../thumbnail/thumbnails.js';
+import {
+    createThumbnailElement,
+    fetchThumbnails,
+} from '../../thumbnail/thumbnails.js';
 import { addTooltip } from '../tooltip.js';
 import { createSerialIcon } from './serials.js';
 import { callRobloxApi } from '../../api.js';
 
 let batchQueue = [];
 let batchTimeout = null;
-const BATCH_DELAY = 50; 
-
+const BATCH_DELAY = 50;
 
 async function processBatch() {
     const currentBatch = [...batchQueue];
@@ -14,67 +16,103 @@ async function processBatch() {
     batchTimeout = null;
 
     try {
-        const ids = currentBatch.map(item => item.id);
+        const ids = currentBatch.map((item) => item.id);
         const [detailsRes, looksRes, thumbMap] = await Promise.all([
             callRobloxApi({
                 subdomain: 'catalog',
                 endpoint: `/v1/catalog/items/details`,
                 method: 'POST',
-                body: { items: ids.map(id => ({ itemType: 'Asset', id })) }
+                body: { items: ids.map((id) => ({ itemType: 'Asset', id })) },
             }),
             callRobloxApi({
                 subdomain: 'apis',
                 endpoint: '/look-api/v1/looks/purchase-details',
                 method: 'POST',
-                body: { assets: ids.map(id => ({ id })) }
+                body: { assets: ids.map((id) => ({ id })) },
             }),
-            fetchThumbnails(ids.map(id => ({ id })), 'Asset', '150x150')
+            fetchThumbnails(
+                ids.map((id) => ({ id })),
+                'Asset',
+                '150x150',
+            ),
         ]);
 
         if (!detailsRes.ok) throw new Error('Failed to fetch batch details');
-        if (!looksRes.ok) console.warn('RoValra: Looks API request failed, prices may be incomplete.');
+        if (!looksRes.ok)
+            console.warn(
+                'RoValra: Looks API request failed, prices may be incomplete.',
+            );
 
         const detailsData = await detailsRes.json();
         const looksData = looksRes.ok ? await looksRes.json() : null;
 
-        const catalogDetailsMap = new Map(detailsData.data?.map(item => [item.id, item]));
+        if (detailsData?.data) {
+            window.dispatchEvent(
+                new CustomEvent('rovalra-catalog-details', {
+                    detail: { data: detailsData.data },
+                }),
+            );
+        }
+
+        const catalogDetailsMap = new Map(
+            detailsData.data?.map((item) => [item.id, item]),
+        );
         const looksDetailsMap = new Map();
-        looksData?.look?.items?.forEach(item => {
+        looksData?.look?.items?.forEach((item) => {
             looksDetailsMap.set(item.id, item);
-            item.assetsInBundle?.forEach(bundleAsset => {
+            item.assetsInBundle?.forEach((bundleAsset) => {
                 if (!looksDetailsMap.has(bundleAsset.id)) {
                     looksDetailsMap.set(bundleAsset.id, item);
                 }
             });
         });
-        
-        currentBatch.forEach(request => {
+
+        currentBatch.forEach(async (request) => {
             const catalogItemData = catalogDetailsMap.get(request.id);
             const looksItemData = looksDetailsMap.get(request.id);
             const itemData = looksItemData || catalogItemData;
-            
-            if (catalogItemData) {
-                const isLimited = itemData.itemRestrictions?.includes('Limited') || 
-                                 itemData.itemRestrictions?.includes('LimitedUnique') ||
-                                 itemData.itemRestrictions?.includes('Collectible');
 
-                const rawPrice = itemData.priceInRobux ?? itemData.lowestPrice ?? itemData.price;
+            if (catalogItemData) {
+                // using the catalog api for limiteds CUZ ROBLOX ISNT CONSISTENT AT ALL
+                const restrictions = [
+                    ...new Set([
+                        ...(catalogItemData.itemRestrictions || []),
+                        ...(looksItemData?.itemRestrictions || []),
+                    ]),
+                ];
+
+                const isLimited =
+                    restrictions.includes('Limited') ||
+                    restrictions.includes('LimitedUnique') ||
+                    restrictions.includes('Collectible');
+
+                const rawPrice =
+                    itemData.priceInRobux ??
+                    itemData.lowestPrice ??
+                    itemData.price;
 
                 const item = {
                     assetId: request.id,
                     name: catalogItemData.name,
                     recentAveragePrice: rawPrice || 0,
-                    itemRestrictions: itemData.itemRestrictions || [],
+                    itemRestrictions: restrictions,
                     itemType: catalogItemData.itemType,
                     isOnHold: false,
-                    bundleId: null
+                    bundleId: null,
                 };
 
-                if (looksItemData?.itemType === 'Bundle' && looksItemData.id !== request.id) {
+                if (
+                    looksItemData?.itemType === 'Bundle' &&
+                    looksItemData.id !== request.id
+                ) {
                     item.bundleId = looksItemData.id;
                 }
 
-                if (itemData.isOffSale || itemData.noPriceStatus === 'OffSale' || !itemData.isPurchasable) {
+                if (
+                    itemData.isOffSale ||
+                    itemData.noPriceStatus === 'OffSale' ||
+                    !itemData.isPurchasable
+                ) {
                     if (isLimited && rawPrice != null) {
                         item.price = rawPrice;
                     } else {
@@ -90,21 +128,106 @@ async function processBatch() {
                 const realCard = createItemCard(item, thumbMap, request.config);
                 request.placeholder.replaceWith(realCard);
             } else {
-                request.placeholder.innerHTML = '<div style="padding: 10px; color: var(--text-error);">Not Found</div>';
+                let item = null;
+                try {
+                    const economyRes = await callRobloxApi({
+                        subdomain: 'economy',
+                        endpoint: `/v2/assets/${request.id}/details`,
+                        method: 'GET',
+                    });
+
+                    if (economyRes.ok) {
+                        const data = await economyRes.json();
+                        const restrictions = [];
+                        if (data.IsLimited) restrictions.push('Limited');
+                        if (data.IsLimitedUnique)
+                            restrictions.push('LimitedUnique');
+
+                        item = {
+                            assetId: request.id,
+                            name: data.Name,
+                            recentAveragePrice: data.PriceInRobux || 0,
+                            itemRestrictions: restrictions,
+                            itemType: 'Asset',
+                            isOnHold: false,
+                            bundleId: null,
+                        };
+
+                        if (!data.IsForSale) {
+                            item.priceText = 'Off Sale';
+                        } else {
+                            item.price = data.PriceInRobux;
+                            if (data.PriceInRobux === 0)
+                                item.priceText = 'Free';
+                        }
+                    }
+                } catch (e) {
+                    console.warn(
+                        `RoValra: Economy fallback failed for item ${request.id}`,
+                        e,
+                    );
+                }
+
+                if (!item) {
+                    try {
+                        const developRes = await callRobloxApi({
+                            subdomain: 'develop',
+                            endpoint: `/v1/assets?assetIds=${request.id}`,
+                            method: 'GET',
+                        });
+
+                        if (developRes.ok) {
+                            const devData = await developRes.json();
+                            const assetInfo = devData.data?.[0];
+                            if (assetInfo) {
+                                item = {
+                                    assetId: request.id,
+                                    name: assetInfo.name,
+                                    recentAveragePrice: 0,
+                                    itemRestrictions: [],
+                                    itemType: 'Asset',
+                                    isOnHold: false,
+                                    bundleId: null,
+                                    priceText: 'Off Sale',
+                                };
+                            }
+                        }
+                    } catch (e) {
+                        console.warn(
+                            `RoValra: Develop fallback failed for item ${request.id}`,
+                            e,
+                        );
+                    }
+                }
+
+                if (item) {
+                    const realCard = createItemCard(
+                        item,
+                        thumbMap,
+                        request.config,
+                    );
+                    request.placeholder.replaceWith(realCard);
+                } else {
+                    request.placeholder.innerHTML =
+                        '<div style="padding: 10px;">Not Found</div>';
+                }
             }
         });
-
     } catch (e) {
         console.warn('RoValra: Batch request failed', e);
-        currentBatch.forEach(request => {
-            request.placeholder.innerHTML = '<div style="padding: 10px; color: var(--text-error);">Failed to load</div>';
+        currentBatch.forEach((request) => {
+            request.placeholder.innerHTML =
+                '<div style="padding: 10px;">Failed to load</div>';
         });
     }
 }
 export function createItemCard(itemOrId, thumbnailCacheOrConfig, config = {}) {
     if (typeof itemOrId === 'number' || typeof itemOrId === 'string') {
         const itemId = parseInt(itemOrId);
-        const actualConfig = (thumbnailCacheOrConfig && !thumbnailCacheOrConfig.get) ? thumbnailCacheOrConfig : config;
+        const actualConfig =
+            thumbnailCacheOrConfig && !thumbnailCacheOrConfig.get
+                ? thumbnailCacheOrConfig
+                : config;
 
         const card = document.createElement('div');
         card.className = 'rovalra-item-card';
@@ -125,7 +248,7 @@ export function createItemCard(itemOrId, thumbnailCacheOrConfig, config = {}) {
         batchQueue.push({
             id: itemId,
             placeholder: card,
-            config: actualConfig
+            config: actualConfig,
         });
 
         if (batchTimeout) clearTimeout(batchTimeout);
@@ -155,7 +278,9 @@ export function createItemCard(itemOrId, thumbnailCacheOrConfig, config = {}) {
         }
     }
 
-    const thumbData = thumbnailCache?.get ? thumbnailCache.get(item.assetId) : null;
+    const thumbData = thumbnailCache?.get
+        ? thumbnailCache.get(item.assetId)
+        : null;
     const itemType = item.itemType || 'Asset';
     const itemUrl =
         itemType === 'Bundle'
@@ -179,7 +304,7 @@ export function createItemCard(itemOrId, thumbnailCacheOrConfig, config = {}) {
     thumbContainer.style.width = '100%';
     thumbContainer.style.height = '100%';
     thumbContainer.style.maxHeight = '150px';
-    
+
     const thumbnailElement = createThumbnailElement(
         thumbData,
         item.name,
@@ -212,10 +337,12 @@ export function createItemCard(itemOrId, thumbnailCacheOrConfig, config = {}) {
 
     if (Array.isArray(item.itemRestrictions)) {
         const hasLimited = item.itemRestrictions.includes('Limited');
-        const hasLimitedUnique = item.itemRestrictions.includes('LimitedUnique');
+        const hasLimitedUnique =
+            item.itemRestrictions.includes('LimitedUnique');
         const hasCollectible = item.itemRestrictions.includes('Collectible');
         showLimitedIcon = hasLimited || hasLimitedUnique || hasCollectible;
-        isUnique = hasLimitedUnique || hasCollectible;
+
+        isUnique = hasLimitedUnique || (hasCollectible && !hasLimited);
     } else {
         isUnique = item.serialNumber != null;
         if (isUnique || item.recentAveragePrice !== undefined) {

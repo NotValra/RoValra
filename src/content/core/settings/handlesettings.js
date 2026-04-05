@@ -2,12 +2,65 @@ import { SETTINGS_CONFIG } from './settingConfig.js';
 import { findSettingConfig } from './generateSettings.js';
 import { getFullRegionName, REGIONS } from '../regions.js';
 import { sanitizeString } from '../utils/sanitize.js';
+import { callRobloxApiJson } from '../api.js';
 import { getAuthenticatedUserId } from '../user.js';
 import {
     getUserDescription,
     updateUserDescription,
 } from '../profile/descriptionhandler.js';
 import { createAndShowPopup } from '../../features/catalog/40method.js';
+
+let currentUserTier = 0;
+let donatorTierPromise = null;
+
+export const getCurrentUserTier = () => currentUserTier;
+
+export const syncDonatorTier = async () => {
+    if (donatorTierPromise) return donatorTierPromise;
+
+    donatorTierPromise = (async () => {
+        try {
+            const response = await callRobloxApiJson({
+                isRovalraApi: true,
+                subdomain: 'apis',
+                endpoint: '/v1/auth/badges',
+                method: 'GET',
+            });
+
+            if (response.status !== 'success' || !response.badges) {
+                donatorTierPromise = null;
+                return null;
+            }
+
+            const badges = response.badges;
+            let tier = 0;
+            if (badges.donator_3 === true || badges.legacy_donator === true) {
+                tier = 3;
+            } else if (badges.donator_2 === true) {
+                tier = 2;
+            } else if (badges.donator_1 === true) {
+                tier = 1;
+            }
+            currentUserTier = tier;
+
+            const settingsContent = document.querySelector(
+                '#setting-section-content',
+            );
+            if (settingsContent) {
+                const settings = await loadSettings();
+                await checkSettingLocks(settingsContent, settings);
+            }
+
+            return response;
+        } catch (error) {
+            console.error('RoValra: Failed to sync donator tier', error);
+            donatorTierPromise = null;
+            return null;
+        }
+    })();
+
+    return donatorTierPromise;
+};
 
 export const loadSettings = async () => {
     return new Promise((resolve, reject) => {
@@ -105,16 +158,20 @@ export const handleSaveSettings = async (settingName, value) => {
                             settingConfig.type === 'select' &&
                             settingConfig.options
                         ) {
-                            const validValues = Array.isArray(
-                                settingConfig.options,
-                            )
-                                ? settingConfig.options.map((opt) =>
-                                      typeof opt === 'object' ? opt.value : opt,
-                                  )
-                                : [];
+                            let validValues = [];
+                            if (settingConfig.options === 'REGIONS') {
+                                validValues = ['AUTO', ...Object.keys(REGIONS)];
+                            } else if (Array.isArray(settingConfig.options)) {
+                                validValues = settingConfig.options.map(
+                                    (opt) =>
+                                        typeof opt === 'object'
+                                            ? opt.value
+                                            : opt,
+                                );
+                            }
 
                             if (
-                                validValues.length > 0 &&
+                                validValues.length > 1 &&
                                 !validValues.includes(sanitizedValue)
                             ) {
                                 console.warn(
@@ -284,6 +341,7 @@ export const initSettings = async (settingsContent) => {
     }
 
     if (settings) {
+        updateConditionalSettingsVisibility(settingsContent, settings);
         for (const sectionName in SETTINGS_CONFIG) {
             const section = SETTINGS_CONFIG[sectionName];
             for (const [settingName, setting] of Object.entries(
@@ -449,7 +507,7 @@ export const initSettings = async (settingsContent) => {
                 }
             }
         }
-        updateConditionalSettingsVisibility(settingsContent, settings);
+        await checkSettingLocks(settingsContent, settings);
         if (document.querySelector('.permission-manager')) {
             updateAllPermissionToggles();
         }
@@ -457,6 +515,169 @@ export const initSettings = async (settingsContent) => {
     settingsContent.querySelectorAll('.permission-toggle').forEach((toggle) => {
         toggle.addEventListener('change', handlePermissionToggle);
     });
+};
+
+export const applyLockedState = (
+    settingName,
+    parentElement,
+    isLocked,
+    reason = '',
+    isDonatorLock = false,
+) => {
+    const inputElement = parentElement.querySelector(
+        `[data-setting-name="${settingName}"]`,
+    );
+    if (!inputElement) return;
+
+    const wrapper =
+        inputElement.closest('.child-setting-item') ||
+        inputElement.closest('.setting');
+    if (!wrapper) return;
+
+    const existingNotice = wrapper.querySelector('.rovalra-lock-notice');
+    if (existingNotice) existingNotice.remove();
+
+    if (isLocked || isDonatorLock) {
+        const config = findSettingConfig(settingName);
+        const lockType = config?.isPermanent ? 'permanently' : 'temporarily';
+
+        if (isLocked) {
+            wrapper.classList.add('setting-locked');
+            wrapper.style.setProperty('opacity', '1', 'important');
+            wrapper.style.pointerEvents = 'none';
+        } else {
+            wrapper.classList.remove('setting-locked');
+            wrapper.style.removeProperty('opacity');
+            wrapper.style.setProperty('pointer-events', 'auto');
+        }
+
+        if (isDonatorLock) {
+            wrapper.classList.add('donator-locked');
+        }
+
+        const notice = document.createElement('div');
+        notice.className = 'rovalra-lock-notice';
+        if (isDonatorLock) {
+            notice.classList.add('donator-notice');
+            if (!isLocked) notice.classList.add('unlocked-donator-notice');
+        }
+
+        const statusLine = document.createElement('div');
+        statusLine.className = 'lock-status-text';
+        if (isDonatorLock) {
+            const tier = config?.donatorTier || '';
+            statusLine.textContent = isLocked
+                ? `RoValra Donator Tier ${tier} Required`
+                : `RoValra Donator Perk (Tier ${tier})`;
+        } else {
+            statusLine.textContent = `This feature has been disabled ${lockType}`;
+        }
+
+        const reasonLine = document.createElement('div');
+        reasonLine.className = 'lock-reason-text';
+        reasonLine.textContent = reason;
+
+        notice.append(statusLine, reasonLine);
+        wrapper.prepend(notice);
+
+        if (isLocked) {
+            Array.from(wrapper.children).forEach((child) => {
+                if (!child.classList.contains('rovalra-lock-notice')) {
+                    child.style.opacity = '0.5';
+                }
+            });
+
+            wrapper.querySelectorAll('input, select, button').forEach((el) => {
+                el.disabled = true;
+            });
+        } else {
+            Array.from(wrapper.children).forEach((child) => {
+                child.style.opacity = '';
+            });
+
+            wrapper.querySelectorAll('input, select, button').forEach((el) => {
+                if (!wrapper.classList.contains('disabled-setting')) {
+                    el.disabled = false;
+                }
+            });
+        }
+    } else {
+        wrapper.classList.remove('setting-locked');
+        wrapper.classList.remove('donator-locked');
+        wrapper.style.removeProperty('opacity');
+        wrapper.style.removeProperty('filter');
+        wrapper.style.setProperty('pointer-events', 'auto');
+
+        Array.from(wrapper.children).forEach((child) => {
+            child.style.opacity = '';
+        });
+
+        wrapper.querySelectorAll('input, select, button').forEach((el) => {
+            if (!wrapper.classList.contains('disabled-setting')) {
+                el.disabled = false;
+            }
+        });
+    }
+};
+
+export const checkSettingLocks = async (settingsContent, currentSettings) => {
+    const data = await chrome.storage.local.get([
+        'profile3DRenderForceDisabled',
+    ]);
+
+    const userTier = currentUserTier;
+
+    const is3DLocked =
+        data.profile3DRenderForceDisabled === true &&
+        !currentSettings.profile3DRenderBypassCheck;
+
+    if (is3DLocked && currentSettings.profile3DRenderEnabled === true) {
+        await handleSaveSettings('profile3DRenderEnabled', false);
+    }
+
+    applyLockedState(
+        'profile3DRenderEnabled',
+        settingsContent,
+        is3DLocked,
+        'The 3D Profile Renderer was forcefully disabled because WebGL 2 is disabled or your graphics card doesnt support it.',
+    );
+
+    for (const category of Object.values(SETTINGS_CONFIG)) {
+        for (const [settingName, config] of Object.entries(category.settings)) {
+            const processSetting = async (name, conf) => {
+                if (conf.donatorTier) {
+                    const isLocked = userTier < conf.donatorTier;
+                    applyLockedState(
+                        name,
+                        settingsContent,
+                        isLocked,
+                        conf.donatorReason ||
+                            'This is a donator-exclusive feature.',
+                        true,
+                    );
+                    if (isLocked) return true;
+                }
+                if (conf.locked) {
+                    if (currentSettings[name] === true) {
+                        await handleSaveSettings(name, false);
+                    }
+                    applyLockedState(name, settingsContent, true, conf.locked);
+                    return true;
+                }
+                return false;
+            };
+
+            await processSetting(settingName, config);
+
+            if (config.childSettings) {
+                for (const [childName, childConfig] of Object.entries(
+                    config.childSettings,
+                )) {
+                    await processSetting(childName, childConfig);
+                }
+            }
+        }
+    }
 };
 
 function applyDisabledState(
@@ -801,6 +1022,152 @@ export function initializeSettingsEventListeners() {
         alert('Environment JSON has been printed to the console (F12).');
     });
 
+    document.addEventListener('rovalra:importEnvironmentJson', () => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.json';
+
+        input.onchange = (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async (readerEvent) => {
+                try {
+                    const config = JSON.parse(readerEvent.target.result);
+                    const updates = {};
+
+                    const set = (key, value) => {
+                        updates[key] = value;
+                    };
+
+                    if (config.model) {
+                        if (config.model.url) set('modelUrl', config.model.url);
+                        if (Array.isArray(config.model.position)) {
+                            set('modelPosX', config.model.position[0]);
+                            set('modelPosY', config.model.position[1]);
+                            set('modelPosZ', config.model.position[2]);
+                        }
+                        if (Array.isArray(config.model.scale)) {
+                            set('modelScaleX', config.model.scale[0]);
+                            set('modelScaleY', config.model.scale[1]);
+                            set('modelScaleZ', config.model.scale[2]);
+                        }
+                        if (typeof config.model.castShadow === 'boolean')
+                            set('modelCastShadow', config.model.castShadow);
+                        if (typeof config.model.receiveShadow === 'boolean')
+                            set(
+                                'modelReceiveShadow',
+                                config.model.receiveShadow,
+                            );
+                    }
+
+                    if (config.atmosphere) {
+                        if (config.atmosphere.background)
+                            set('bgColor', config.atmosphere.background);
+                        if (typeof config.atmosphere.showFloor === 'boolean')
+                            set('showFloor', config.atmosphere.showFloor);
+
+                        set('ambientLightToggle', false);
+                        set('dirLightToggle', false);
+
+                        if (Array.isArray(config.atmosphere.lights)) {
+                            config.atmosphere.lights.forEach((light) => {
+                                if (light.type === 'AmbientLight') {
+                                    set('ambientLightToggle', true);
+                                    if (light.color)
+                                        set('ambientLightColor', light.color);
+                                    if (light.intensity !== undefined)
+                                        set(
+                                            'ambientLightIntensity',
+                                            light.intensity,
+                                        );
+                                } else if (light.type === 'DirectionalLight') {
+                                    set('dirLightToggle', true);
+                                    if (light.color)
+                                        set('dirLightColor', light.color);
+                                    if (light.intensity !== undefined)
+                                        set(
+                                            'dirLightIntensity',
+                                            light.intensity,
+                                        );
+                                    if (Array.isArray(light.position)) {
+                                        set('dirLightPosX', light.position[0]);
+                                        set('dirLightPosY', light.position[1]);
+                                        set('dirLightPosZ', light.position[2]);
+                                    }
+                                    if (typeof light.castShadow === 'boolean')
+                                        set(
+                                            'dirLightCastShadow',
+                                            light.castShadow,
+                                        );
+                                }
+                            });
+                        }
+
+                        if (config.atmosphere.fog) {
+                            set('fogToggle', true);
+                            if (config.atmosphere.fog.color)
+                                set('fogColor', config.atmosphere.fog.color);
+                            if (config.atmosphere.fog.near !== undefined)
+                                set('fogNear', config.atmosphere.fog.near);
+                            if (config.atmosphere.fog.far !== undefined)
+                                set('fogFar', config.atmosphere.fog.far);
+                        } else {
+                            set('fogToggle', false);
+                        }
+                    }
+
+                    if (config.camera && config.camera.far) {
+                        set('cameraFar', config.camera.far);
+                    }
+
+                    if (
+                        Array.isArray(config.skybox) &&
+                        config.skybox.length === 6
+                    ) {
+                        set('skyboxToggle', true);
+                        set('skyboxPx', config.skybox[0]);
+                        set('skyboxNx', config.skybox[1]);
+                        set('skyboxPy', config.skybox[2]);
+                        set('skyboxNy', config.skybox[3]);
+                        set('skyboxPz', config.skybox[4]);
+                        set('skyboxNz', config.skybox[5]);
+                    } else {
+                        set('skyboxToggle', false);
+                    }
+
+                    if (config.tooltip) {
+                        set('tooltipToggle', true);
+                        set('tooltipText', config.tooltip.text || '');
+                        set('tooltipLink', config.tooltip.link || '');
+                    } else {
+                        set('tooltipToggle', false);
+                    }
+
+                    const promises = Object.entries(updates).map(
+                        ([key, value]) => handleSaveSettings(key, value),
+                    );
+                    await Promise.all(promises);
+
+                    alert(
+                        'Environment config imported successfully. The page will reload to apply changes.',
+                    );
+                    location.reload();
+                } catch (error) {
+                    console.error(
+                        'Failed to import environment config:',
+                        error,
+                    );
+                    alert('Failed to parse the JSON file.');
+                }
+            };
+            reader.readAsText(file);
+        };
+
+        input.click();
+    });
+
     chrome.runtime.onMessage.addListener((request) => {
         if (request.action === 'permissionsUpdated') {
             updateAllPermissionToggles();
@@ -962,6 +1329,7 @@ export function initializeSettingsEventListeners() {
                         settingsContent,
                         currentSettings,
                     );
+                    await checkSettingLocks(settingsContent, currentSettings);
                     updateAllPermissionToggles();
 
                     if (settingName === 'MemoryleakFixEnabled') {

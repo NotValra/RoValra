@@ -14,6 +14,7 @@ import { init as initStreamerMode } from './features/sitewide/streamermode.js';
 import { init as initMarkDownTest } from './features/developer/markdowntest.js';
 import { init as initTests } from './features/developer/tests.js';
 import { init as initApiDocs } from './features/developer/apiDocs.js';
+import { init as initApiKey } from './core/utils/trackers/apiKey.js';
 import { init as initServerTracker } from './core/utils/trackers/servers.js';
 import { initFriendsListTracking } from './core/utils/trackers/friendslist.js';
 import { init as initQoLToggles } from './features/navigation/QoLToggles.js';
@@ -36,6 +37,7 @@ import { init as initPriceFloor } from './features/catalog/pricefloor.js';
 import { init as initCatalogBannerTest } from './features/catalog/bannerTest.js';
 import { init as initParentItem } from './features/catalog/ParentItem.js';
 import { init as initPurchasePrompt } from './features/catalog/purchasePrompt.js';
+import { init as initItemTrading } from './features/catalog/ItemTrading.js';
 
 // Games
 import { init as initBotDetector } from './features/games/about/botDetector.js';
@@ -57,6 +59,11 @@ import { init as initPendingRobuxTrans } from './features/transactions/pendingRo
 import { init as initTotalEarned } from './features/transactions/totalearned.js';
 // Trading
 import { init as initConfirmTrade } from './features/trading/confirmtrade.js';
+import { init as initItemValues } from './features/trading/itemValues.js';
+import { init as initTradePreview } from './features/trading/tradePreview.js';
+import { init as initTradeFilter } from './features/trading/tradefilter.js';
+import { init as initTradeSearch } from './features/trading/tradeSearch.js';
+import { init as initTradeProof } from './features/trading/tradeProof.js';
 // group
 import { init as initHiddenGroupGames } from './features/groups/hiddenGroupGames.js';
 import { init as initAntiBots } from './features/groups/Antibots.js';
@@ -73,6 +80,7 @@ import { init as initUserGames } from './features/profile/hiddengames.js';
 import { init as initPrivateServerControls } from './features/games/privateserver.js';
 import { init as initPreviousPrice } from './features/sitewide/PreviousPrice.js';
 import { init as initCategorizeWearing } from './features/profile/categorizeWearing.js';
+import { init as initBannedUsers } from './features/profile/bannedusers.js';
 import { init as initTrustedFriends } from './features/profile/trustedfriends.js';
 import { init as initProfileRender } from './features/profile/header/ProfileRender.js';
 import { init as initStatus } from './features/profile/header/status.js';
@@ -104,6 +112,7 @@ const featureRoutes = [
             initStreamerMode,
             initMarkDownTest,
             initTests,
+            initApiKey,
             initServerTracker,
             initFriendsListTracking,
             initQoLToggles,
@@ -112,7 +121,9 @@ const featureRoutes = [
             initPreviousPrice,
             initQuickSearch,
             initRenderTest,
+            initBannedUsers,
             initGroupFunds,
+            initStatus,
         ],
     },
     // pretty much just the 40% method
@@ -129,6 +140,7 @@ const featureRoutes = [
             initPriceFloor,
             initCatalogBannerTest,
             initParentItem,
+            initItemTrading,
         ],
     },
     // Group pages
@@ -179,14 +191,15 @@ const featureRoutes = [
             initInstantJoiner,
             initOutfits,
             initPrivateServers,
-            initRovalraBadges,
             initUserGames,
-            initCategorizeWearing,
             initTrustedFriends,
             initProfileRender,
-            initStatus,
             initFriendsSince,
         ],
+    },
+    {
+        paths: ['/users/', '/banned-users/'],
+        features: [initCategorizeWearing, initRovalraBadges],
     },
 
     // Transactions page
@@ -197,7 +210,14 @@ const featureRoutes = [
     // Trading
     {
         paths: ['/trades', '/trade', '/users'],
-        features: [initConfirmTrade],
+        features: [
+            initConfirmTrade,
+            initItemValues,
+            initTradePreview,
+            initTradeFilter,
+            initTradeSearch,
+            initTradeProof,
+        ],
     },
 
     // API Docs

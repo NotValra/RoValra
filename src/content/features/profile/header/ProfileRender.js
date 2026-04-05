@@ -1,4 +1,3 @@
-import './patch.js';
 import { observeElement, observeResize } from '../../../core/observer.js';
 import { getUserIdFromUrl } from '../../../core/idExtractor.js';
 import {
@@ -15,11 +14,17 @@ import { showConfirmationPrompt } from '../../../core/ui/confirmationPrompt.js';
 import { getAuthenticatedUserId } from '../../../core/user.js';
 import { getAssets } from '../../../core/assets.js';
 import { SETTINGS_CONFIG } from '../../../core/settings/settingConfig.js';
-import { handleSaveSettings } from '../../../core/settings/handlesettings.js';
+import {
+    handleSaveSettings,
+    syncDonatorTier,
+    getCurrentUserTier,
+} from '../../../core/settings/handlesettings.js';
 import {
     getUserDescription,
     updateUserDescription,
+    updateUserSettingViaApi,
 } from '../../../core/profile/descriptionhandler.js';
+import { getUserSettings } from '../../../core/donators/settingHandler.js';
 import {
     RegisterWrappers,
     RBXRenderer,
@@ -36,10 +41,12 @@ import {
 } from 'roavatar-renderer';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import * as THREE from 'three';
-FLAGS.ASSETS_PATH = chrome.runtime.getURL('assets/rbxasset/');
+import { safeHtml } from '../../../core/packages/dompurify.js';
 FLAGS.ENABLE_API_MESH_CACHE = false;
 FLAGS.ENABLE_API_RBX_CACHE = false;
-FLAGS.USE_WORKERS = true;
+FLAGS.USE_WORKERS = false;
+FLAGS.ONLINE_ASSETS = true;
+
 let currentRig = null;
 let currentRigType = null;
 let emoteStopTimer = null;
@@ -49,7 +56,6 @@ let globalAvatarData = null;
 let avatarDataPromise = null;
 let isCustomEnvLoaded = false;
 let environmentConfig = null;
-
 let activeEmoteId = null;
 const animationSpeed = 1;
 
@@ -223,7 +229,6 @@ function getAnimatorW(rig = currentRig) {
 async function playIdle() {
     const animatorW = getAnimatorW();
     if (animatorW) {
-        animatorW.stopMoodAnimation();
         animatorW.playAnimation('idle');
     }
     activeEmoteId = null;
@@ -263,11 +268,6 @@ async function loadRig(rigType) {
 
     isRenderingPaused = true;
 
-    if (currentRig) {
-        currentRig.Destroy();
-        currentRig = null;
-    }
-
     const outfit = new Outfit();
     outfit.fromJson(globalAvatarData);
     outfit.playerAvatarType = rigType;
@@ -280,8 +280,8 @@ async function loadRig(rigType) {
         if (rigResult instanceof RBX) {
             await new Promise((r) => setTimeout(r, 10));
 
-            currentRig = rigResult.generateTree().GetChildren()[0];
-            const humanoid = currentRig?.FindFirstChildOfClass('Humanoid');
+            const newRig = rigResult.generateTree().GetChildren()[0];
+            const humanoid = newRig?.FindFirstChildOfClass('Humanoid');
 
             if (humanoid) {
                 const desc = new Instance('HumanoidDescription');
@@ -291,8 +291,14 @@ async function loadRig(rigType) {
                 await new Promise((r) => requestAnimationFrame(r));
                 await wrapper.applyDescription(humanoid);
 
+                if (currentRig) {
+                    currentRig.Destroy();
+                }
+                currentRig = newRig;
+
                 await playIdle();
 
+                if (currentRig.preRender) currentRig.preRender();
                 RBXRenderer.addInstance(currentRig, null);
                 currentRigType = rigType;
 
@@ -752,6 +758,7 @@ function injectCustomButtons(toggleButton) {
         const settings = await chrome.storage.local.get([
             'profileRenderEnvironment',
             'rendererDeveloperToggles',
+            'profileRenderUseApi',
         ]);
 
         if (isOwnProfile) {
@@ -762,6 +769,9 @@ function injectCustomButtons(toggleButton) {
                 SETTINGS_CONFIG.Profile.settings.profile3DRenderEnabled
                     .childSettings.profileRenderEnvironment.options;
             const currentEnv = settings.profileRenderEnvironment || 'void';
+            const isDonator = getCurrentUserTier() >= 1;
+            const effectiveCanUseApi =
+                isDonator && settings.profileRenderUseApi;
 
             const { element: envDropdown } = createDropdown({
                 items: profileEnvs,
@@ -773,20 +783,34 @@ function injectCustomButtons(toggleButton) {
                         (opt) => opt.value === value,
                     );
                     const envId = selectedEnv ? selectedEnv.id : 1;
-
-                    const currentDescription = await getUserDescription(userId);
-                    if (currentDescription !== null) {
-                        let newDescription = currentDescription
-                            .split('\n')
-                            .filter((line) => !line.trim().startsWith('e:'))
-                            .join('\n')
-                            .trim();
-                        if (envId !== 1)
-                            newDescription = newDescription
-                                ? newDescription + `\n\ne:${envId}`
-                                : `e:${envId}`;
-                        if (newDescription !== currentDescription)
-                            await updateUserDescription(userId, newDescription);
+                    if (effectiveCanUseApi) {
+                        try {
+                            await updateUserSettingViaApi('environment', envId);
+                        } catch (error) {
+                            console.error(
+                                'RoValra: Failed to save environment via API.',
+                                error,
+                            );
+                        }
+                    } else {
+                        const currentDescription =
+                            await getUserDescription(userId);
+                        if (currentDescription !== null) {
+                            let newDescription = currentDescription
+                                .split('\n')
+                                .filter((line) => !line.trim().startsWith('e:'))
+                                .join('\n')
+                                .trim();
+                            if (envId !== 1)
+                                newDescription = newDescription
+                                    ? newDescription + `\n\ne:${envId}`
+                                    : `e:${envId}`;
+                            if (newDescription !== currentDescription)
+                                await updateUserDescription(
+                                    userId,
+                                    newDescription,
+                                );
+                        }
                     }
                 },
             });
@@ -797,7 +821,9 @@ function injectCustomButtons(toggleButton) {
                 'Saves environment choice to your about me as "e:X" so other RoValra users can see it.';
             helpText.style.cssText =
                 'font-size: 11px; color: var(--rovalra-secondary-text-color); margin-top: 5px; margin-bottom: 0;'; //Verified
-            envSection.appendChild(helpText);
+            if (!effectiveCanUseApi) {
+                envSection.appendChild(helpText);
+            }
             contentContainer.appendChild(envSection);
         }
 
@@ -919,15 +945,23 @@ function startAnimationLoop() {
                 animatorW?.renderAnimation(deltaTime);
             }
 
-            if (currentRig) RBXRenderer.addInstance(currentRig, null);
+            if (currentRig) {
+                if (currentRig.preRender) currentRig.preRender();
+                RBXRenderer.addInstance(currentRig, null);
+            }
             lastRenderTime = currentTime - (delta % interval);
         }
     };
     requestAnimationFrame(animate);
 }
 async function loadCustomEnvironment(scene, config) {
-    if (!config || !config.url) return;
+    if (!config) return;
 
+    if (!config.url) {
+        raycastTargets = [];
+        isCustomEnvLoaded = true;
+        return;
+    }
     return new Promise((resolve, reject) => {
         const loader = new GLTFLoader();
         let envUrl = config.url;
@@ -1076,7 +1110,9 @@ async function preloadAvatar() {
                 chrome.storage.local.get([
                     'profileRenderRotateEnabled',
                     'profileRenderEnvironment',
+                    'profile3DRenderBypassCheck',
                     'environmentTester',
+                    'profileRenderUseApi',
                     'modelUrl',
                     'modelPosX',
                     'modelPosY',
@@ -1127,7 +1163,30 @@ async function preloadAvatar() {
             if (!preloadedCanvas) {
                 RegisterWrappers();
                 patchAnimateForRotation();
-                await RBXRenderer.fullSetup(true, true);
+                const setupSuccess = await RBXRenderer.fullSetup(true, true);
+
+                if (!setupSuccess || RBXRenderer.failedToCreate) {
+                    const setupError =
+                        RBXRenderer.error ||
+                        'WebGL 2 is disabled or your graphics card doesnt support it.';
+
+                    if (!settings.profile3DRenderBypassCheck) {
+                        await handleSaveSettings(
+                            'profile3DRenderEnabled',
+                            false,
+                        );
+                        await chrome.storage.local.set({
+                            profile3DRenderForceDisabled: true,
+                        });
+                    }
+                    isPreloading = false;
+                    avatarDataPromise = null;
+                    throw new Error(setupError);
+                }
+                await chrome.storage.local.remove(
+                    'profile3DRenderForceDisabled',
+                );
+
                 RBXRenderer.setBackgroundTransparent(true);
                 preloadedCanvas = RBXRenderer.getRendererElement();
                 preloadedCanvas.classList.add('rovalra-canvas');
@@ -1135,6 +1194,7 @@ async function preloadAvatar() {
                     width: '100%',
                     height: '100%',
                     outline: 'none',
+                    visibility: 'hidden',
                 });
                 startAnimationLoop();
             }
@@ -1142,6 +1202,10 @@ async function preloadAvatar() {
             await new Promise((r) => setTimeout(r, 10));
 
             await loadRig(globalAvatarData.playerAvatarType);
+
+            if (preloadedCanvas) {
+                preloadedCanvas.style.visibility = 'visible';
+            }
 
             await new Promise((r) => setTimeout(r, 0));
 
@@ -1158,8 +1222,7 @@ async function preloadAvatar() {
 
                 const authUserId = await getAuthenticatedUserId();
                 const isOwnProfile = String(userId) === String(authUserId);
-                const useDevEnvironment =
-                    settings.environmentTester && settings.modelUrl;
+                const useDevEnvironment = settings.environmentTester;
 
                 if (useDevEnvironment) {
                     environmentConfig = {
@@ -1218,95 +1281,73 @@ async function preloadAvatar() {
                         };
                     isCustomEnvLoaded = true;
                 } else {
-                    let envId = 1;
                     const profileEnvs =
                         SETTINGS_CONFIG.Profile.settings.profile3DRenderEnabled
                             .childSettings.profileRenderEnvironment.options;
-
+                    const { environment: apiEnv } = await getUserSettings(
+                        userId,
+                        {
+                            useDescription: true,
+                        },
+                    );
+                    let envIdToRender;
                     if (isOwnProfile) {
                         const profileEnvValue =
                             settings.profileRenderEnvironment || 'void';
                         const selectedEnvFromSettings = profileEnvs.find(
                             (opt) => opt.value === profileEnvValue,
                         );
-                        if (selectedEnvFromSettings)
-                            envId = selectedEnvFromSettings.id;
-
-                        const currentDescription =
-                            await getUserDescription(userId);
-                        if (currentDescription !== null) {
-                            let descriptionEnvId = 1;
-                            const envLine = currentDescription
-                                .split('\n')
-                                .find((line) => line.trim().startsWith('e:'));
-                            if (envLine) {
-                                const parsedId = parseInt(
-                                    envLine.trim().substring(2),
-                                    10,
-                                );
-                                if (!isNaN(parsedId))
-                                    descriptionEnvId = parsedId;
-                            }
-
-                            if (envId !== descriptionEnvId) {
-                                const lines = currentDescription.split('\n');
-                                let newDescription;
-                                if (envId !== 1) {
-                                    const envLineStr = `e:${envId}`;
-                                    let envFound = false;
-                                    const newLines = [];
-                                    for (const line of lines) {
-                                        if (line.trim().startsWith('e:')) {
-                                            if (!envFound) {
-                                                newLines.push(envLineStr);
-                                                envFound = true;
-                                            }
-                                        } else newLines.push(line);
-                                    }
-                                    if (!envFound) {
-                                        if (currentDescription.trim())
-                                            newLines.push(envLineStr);
-                                        else newLines[0] = envLineStr;
-                                    }
-                                    newDescription = newLines.join('\n');
-                                } else {
-                                    newDescription = lines
+                        const localEnvId = selectedEnvFromSettings
+                            ? selectedEnvFromSettings.id
+                            : 1;
+                        envIdToRender = localEnvId;
+                        if (localEnvId !== apiEnv) {
+                            const isDonator = getCurrentUserTier() >= 1;
+                            if (isDonator && settings.profileRenderUseApi) {
+                                try {
+                                    await updateUserSettingViaApi(
+                                        'environment',
+                                        localEnvId,
+                                    );
+                                } catch (error) {
+                                    console.error(
+                                        'RoValra: Failed to sync environment to API.',
+                                        error,
+                                    );
+                                }
+                            } else {
+                                const currentDescription =
+                                    await getUserDescription(userId);
+                                if (currentDescription !== null) {
+                                    let newDescription = currentDescription
+                                        .split('\n')
                                         .filter(
                                             (line) =>
                                                 !line.trim().startsWith('e:'),
                                         )
                                         .join('\n')
-                                        .trimEnd();
+                                        .trim();
+                                    if (localEnvId !== 1) {
+                                        newDescription = newDescription
+                                            ? newDescription +
+                                              `\n\ne:${localEnvId}`
+                                            : `e:${localEnvId}`;
+                                    }
+                                    if (newDescription !== currentDescription) {
+                                        await updateUserDescription(
+                                            userId,
+                                            newDescription,
+                                        );
+                                    }
                                 }
-                                if (newDescription !== currentDescription)
-                                    await updateUserDescription(
-                                        userId,
-                                        newDescription,
-                                    );
                             }
                         }
                     } else {
-                        const description = await getUserDescription(userId);
-                        if (description) {
-                            const envLine = description
-                                .split('\n')
-                                .find((line) => line.trim().startsWith('e:'));
-                            if (envLine) {
-                                const parsedId = parseInt(
-                                    envLine.trim().substring(2),
-                                    10,
-                                );
-                                if (
-                                    !isNaN(parsedId) &&
-                                    profileEnvs.some((e) => e.id === parsedId)
-                                )
-                                    envId = parsedId;
-                            }
-                        }
+                        envIdToRender = apiEnv;
                     }
 
                     const selectedEnv = profileEnvs.find(
-                        (opt) => opt.id === envId,
+                        (opt) => opt.id === envIdToRender,
                     );
                     const environmentEndpoint =
                         selectedEnv?.environmentEndpoint || null;
@@ -1444,7 +1485,8 @@ async function preloadAvatar() {
             return globalAvatarData;
         } catch (err) {
             console.error('RoValra Preload Error:', err);
-            return null;
+            avatarDataPromise = null;
+            throw err;
         } finally {
             isPreloading = false;
         }
@@ -1465,6 +1507,15 @@ async function attachPreloadedAvatar(container) {
     });
 
     const avatarPromise = preloadAvatar();
+
+    avatarPromise.catch((err) => {
+        container.innerHTML = '';
+        const errorContainer = document.createElement('div');
+        errorContainer.style.cssText =
+            'display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--rovalra-secondary-text-color); padding: 20px; text-align: center; font-size: 12px;';
+        errorContainer.innerHTML = safeHtml`<span style="font-size: 24px; margin-bottom: 8px;">⚠️</span><div style="font-weight:600; margin-bottom:4px;">3D Renderer Error</div><div>${err.message}</div>`;
+        container.appendChild(errorContainer);
+    });
 
     const ensureCanvasAttached = () => {
         if (preloadedCanvas && !container.contains(preloadedCanvas)) {
@@ -1491,37 +1542,74 @@ async function attachPreloadedAvatar(container) {
 }
 
 export function init() {
-    chrome.storage.local.get({ profile3DRenderEnabled: true }, (result) => {
-        if (result.profile3DRenderEnabled) {
-            const avatarPromise = preloadAvatar();
-            injectStylesheet(
-                'css/thumbnailholder.css',
-                'rovalra-thumbnail-holder-css',
-            );
-
-            observeElement(
-                '.thumbnail-holder-position .thumbnail-3d-container > canvas:not(.rovalra-canvas), .thumbnail-holder-position .thumbnail-3d-container > .placeholder-generated-image',
-                (elementToRemove) => {
-                    elementToRemove.remove();
-                },
-                { multiple: true },
-            );
-
-            observeElement(
-                '.thumbnail-holder-position .thumbnail-3d-container, .avatar-toggle-button',
-                (element) => {
-                    if (element.classList.contains('thumbnail-3d-container')) {
-                        attachPreloadedAvatar(element);
-                    } else if (
-                        element.classList.contains('avatar-toggle-button')
-                    ) {
-                        avatarPromise.then((data) => {
-                            if (data) injectCustomButtons(element);
-                        });
+    syncDonatorTier();
+    chrome.storage.local.get(
+        { profile3DRenderEnabled: true, profile3DRenderForceDisabled: false },
+        (result) => {
+            if (result.profile3DRenderForceDisabled) {
+                try {
+                    const canvas = document.createElement('canvas');
+                    if (canvas.getContext('webgl2')) {
+                        chrome.storage.local.remove(
+                            'profile3DRenderForceDisabled',
+                        );
                     }
-                },
-                { multiple: true },
-            );
-        }
-    });
+                } catch (e) {}
+            }
+
+            if (result.profile3DRenderEnabled) {
+                const avatarPromise = preloadAvatar();
+                injectStylesheet(
+                    'css/thumbnailholder.css',
+                    'rovalra-thumbnail-holder-css',
+                );
+
+                observeElement(
+                    '.thumbnail-holder-position .thumbnail-3d-container > canvas:not(.rovalra-canvas), .thumbnail-holder-position .thumbnail-3d-container > .placeholder-generated-image',
+                    (elementToRemove) => {
+                        elementToRemove.remove();
+                    },
+                    { multiple: true },
+                );
+
+                observeElement(
+                    '.thumbnail-holder-position .thumbnail-3d-container, .avatar-toggle-button',
+                    (element) => {
+                        if (
+                            element.classList.contains('thumbnail-3d-container')
+                        ) {
+                            attachPreloadedAvatar(element);
+                        } else if (
+                            element.classList.contains('avatar-toggle-button')
+                        ) {
+                            avatarPromise.then((data) => {
+                                if (data) injectCustomButtons(element);
+                            });
+                        }
+                    },
+                    { multiple: true },
+                );
+
+                let hasAutoSwitchedTo3D = false;
+                observeElement(
+                    'button.foundation-web-button',
+                    (button) => {
+                        if (hasAutoSwitchedTo3D) return;
+
+                        if (button.textContent.trim() === '3D') {
+                            if (
+                                document.querySelector(
+                                    '.thumbnail-holder-position .thumbnail-2d-container',
+                                )
+                            ) {
+                                button.click();
+                            }
+                            hasAutoSwitchedTo3D = true;
+                        }
+                    },
+                    { multiple: true },
+                );
+            }
+        },
+    );
 }

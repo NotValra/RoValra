@@ -3,6 +3,7 @@ import { createOverlay } from '../../../core/ui/overlay.js';
 import { callRobloxApi } from '../../../core/api.js';
 import { createItemCard } from '../../../core/ui/items/items.js';
 import { fetchThumbnails as fetchThumbnailsBatch } from '../../../core/thumbnail/thumbnails.js';
+import { getAssets } from '../../../core/assets.js';
 import { addTooltip } from '../../../core/ui/tooltip.js';
 import {
     getUsernameFromPageData,
@@ -13,6 +14,11 @@ import { createProfileHeaderButton } from '../../../core/ui/profile/header/butto
 import { createStyledInput } from '../../../core/ui/catalog/input.js';
 import DOMPurify from 'dompurify';
 import { ts } from '../../../core/locale/i18n.js';
+import {
+    fetchRolimonsItems,
+    getCachedRolimonsItem,
+} from '../../../core/trade/itemHandler.js';
+import { updateItemCard } from '../../trading/itemValues.js';
 
 const userCollectiblesCache = new Map();
 const itemThumbnailCache = new Map();
@@ -58,6 +64,7 @@ async function fetchUserCollectibles(userId) {
         return userCollectiblesCache.get(userId);
 
     let totalRap = 0;
+    let totalValue = 0;
     let allItems = [];
     let cursor = '';
     const limit = 100;
@@ -112,7 +119,20 @@ async function fetchUserCollectibles(userId) {
             cursor = currentPageData.nextPageCursor;
         } while (cursor);
 
-        const result = { totalRap, items: allItems };
+        const assetIds = allItems.map((item) => item.assetId);
+        await fetchRolimonsItems(assetIds);
+
+        allItems.forEach((item) => {
+            const data = getCachedRolimonsItem(item.assetId);
+            let val = item.recentAveragePrice || 0;
+            if (data && typeof data.default_price === 'number') {
+                val = data.default_price;
+            }
+            item.value = val;
+            totalValue += val;
+        });
+
+        const result = { totalRap, totalValue, items: allItems };
         userCollectiblesCache.set(userId, result);
         return result;
     } catch (error) {
@@ -141,10 +161,17 @@ async function fetchItemThumbnails(items, thumbnailCache, signal) {
     });
 }
 
-async function showInventoryOverlay(userId, items, totalRapString, hideSerial) {
+async function showInventoryOverlay(
+    userId,
+    items,
+    totalRapString,
+    hideSerial,
+    useValue = false,
+) {
     const displayName = (await getDisplayNameFromPageData()) || ts('rap.user');
+    const sortKey = useValue ? 'value' : 'recentAveragePrice';
     const allItems = items.sort(
-        (a, b) => (b.recentAveragePrice || 0) - (a.recentAveragePrice || 0),
+        (a, b) => (b[sortKey] || 0) - (a[sortKey] || 0),
     );
     let filteredItems = [...allItems];
     let currentLoadController = null;
@@ -177,6 +204,12 @@ async function showInventoryOverlay(userId, items, totalRapString, hideSerial) {
                 const card = createItemCard(item, itemThumbnailCache, {
                     showSerial: true,
                     hideSerial,
+                });
+
+                updateItemCard(card, item.assetId, {
+                    fontSize: '12px',
+                    fontColor: 'var(--rovalra-secondary-text-color)',
+                    forceLink: true,
                 });
                 itemListContainer.appendChild(card);
             });
@@ -232,10 +265,13 @@ async function showInventoryOverlay(userId, items, totalRapString, hideSerial) {
         'display: inline-flex; align-items: center; margin-left: 12px; color: var(--rovalra-secondary-text-color);'; // Verified
     rolimonsLink.innerHTML = `<svg focusable="false" aria-hidden="true" viewBox="0 0 24 24" style="width:20px;height:20px;fill:currentColor;"><path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3z"></path></svg>`;
 
-    const overlayTitleText = ts('rap.collectiblesTitle', {
-        displayName,
-        totalRapString,
-    });
+    const overlayTitleText = ts(
+        useValue ? 'rap.collectiblesTitleValue' : 'rap.collectiblesTitle',
+        {
+            displayName,
+            totalRapString,
+        },
+    );
 
     const { overlay, close } = createOverlay({
         title: overlayTitleText,
@@ -342,8 +378,28 @@ async function addUserRapDisplay(observedElement) {
             });
         });
     } else {
-        const rapString = collectibleResult.totalRap.toLocaleString();
-        rapText.innerText = rapString;
+        const { totalRap, totalValue } = collectibleResult;
+        const useValue = totalValue > totalRap;
+        const displayAmount = useValue ? totalValue : totalRap;
+
+        if (useValue) {
+            rapDisplay.style.backgroundColor =
+                'var(--rovalra-playbutton-color)';
+            robuxIcon.className = '';
+            Object.assign(robuxIcon.style, {
+                width: '16px',
+                height: '16px',
+                marginRight: '2px',
+                display: 'inline-block',
+                backgroundColor: 'currentColor',
+                webkitMask: `url('${getAssets().rolimonsIcon}') center/contain no-repeat`,
+                mask: `url('${getAssets().rolimonsIcon}') center/contain no-repeat`,
+                verticalAlign: 'text-bottom',
+            });
+        }
+
+        const displayString = displayAmount.toLocaleString();
+        rapText.innerText = displayString;
 
         rapDisplay.addEventListener('click', async () => {
             const settings = await new Promise((resolve) =>
@@ -351,7 +407,13 @@ async function addUserRapDisplay(observedElement) {
             );
             const cachedData = userCollectiblesCache.get(userId);
             const items = cachedData ? cachedData.items : [];
-            showInventoryOverlay(userId, items, rapString, settings.HideSerial);
+            showInventoryOverlay(
+                userId,
+                items,
+                displayString,
+                settings.HideSerial,
+                useValue,
+            );
         });
     }
 }

@@ -127,14 +127,23 @@ if (sass && fs.existsSync(cssDir)) {
 
     const independentCssDir = path.join(cssDir, 'independent');
     if (fs.existsSync(independentCssDir)) {
-        const independentScssFiles = fs
-            .readdirSync(independentCssDir)
-            .filter((file) => file.endsWith('.scss'));
-        independentScssFiles.forEach((file) => {
-            compileScssFile(
-                path.join(independentCssDir, file),
-                path.join('dist', 'css', file.replace('.scss', '.css')),
-            );
+        const walkSync = (dir, callback) => {
+            fs.readdirSync(dir).forEach((file) => {
+                const filePath = path.join(dir, file);
+                if (fs.statSync(filePath).isDirectory()) {
+                    walkSync(filePath, callback);
+                } else if (file.endsWith('.scss')) {
+                    callback(filePath);
+                }
+            });
+        };
+
+        walkSync(independentCssDir, (filePath) => {
+            const relativePath = path.relative(independentCssDir, filePath);
+            const outputName = relativePath
+                .replace(/\\|\//g, '-')
+                .replace('.scss', '.css');
+            compileScssFile(filePath, path.join('dist', 'css', outputName));
         });
     }
 }

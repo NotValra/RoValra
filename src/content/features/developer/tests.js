@@ -5,8 +5,13 @@ import { createRadioButton } from '../../core/ui/general/radio.js';
 import { createToggle } from '../../core/ui/general/toggle.js';
 import { createPillToggle } from '../../core/ui/general/pillToggle.js';
 import { createPill } from '../../core/ui/general/pill.js';
+import { createFriendTile } from '../../core/ui/profile/userCard.js';
+import { callRobloxApiJson } from '../../core/api.js';
+import { getBatchThumbnails } from '../../core/thumbnail/thumbnails.js';
 function removeHomeElement() {
-    const homeElementToRemove = document.querySelector('li.cursor-pointer.btr-nav-node-header_home.btr-nav-header_home');
+    const homeElementToRemove = document.querySelector(
+        'li.cursor-pointer.btr-nav-node-header_home.btr-nav-header_home',
+    );
     if (homeElementToRemove) homeElementToRemove.remove();
 }
 
@@ -29,6 +34,79 @@ async function renderTestPage(contentDiv) {
     headerContainer.appendChild(h1);
     contentDiv.appendChild(headerContainer);
 
+    const friendSection = document.createElement('div');
+    friendSection.style.marginBottom = '24px';
+    const friendHeading = document.createElement('h2');
+    friendHeading.textContent = 'Friend Tiles (user 847685835)';
+    friendHeading.style.marginBottom = '12px';
+    friendSection.appendChild(friendHeading);
+    const friendList = document.createElement('div');
+    friendList.style.display = 'flex';
+    friendList.style.gap = '12px';
+    friendList.style.flexWrap = 'wrap';
+    friendSection.appendChild(friendList);
+    contentDiv.appendChild(friendSection);
+
+    const testUserId = 847685835;
+    try {
+        const friendsRes = await callRobloxApiJson({
+            subdomain: 'friends',
+            endpoint: `/v1/users/${testUserId}/friends/find?userSort=2&limit=7`,
+        }).catch(() => null);
+        const friendItems = friendsRes?.PageItems || [];
+
+        if (friendItems.length > 0) {
+            const friendIds = friendItems
+                .map((item) => item.id)
+                .filter((id) => id > 0);
+
+            const [profilesRes, thumbs] = await Promise.all([
+                callRobloxApiJson({
+                    subdomain: 'apis',
+                    endpoint: '/user-profile-api/v1/user/profiles/get-profiles',
+                    method: 'POST',
+                    body: {
+                        userIds: friendIds,
+                        fields: [
+                            'names.combinedName',
+                            'isVerified',
+                            'names.username',
+                        ],
+                    },
+                }),
+                getBatchThumbnails(friendIds, 'AvatarHeadshot', '150x150'),
+            ]);
+
+            const profileMap = new Map(
+                (profilesRes?.profileDetails || []).map((p) => [p.userId, p]),
+            );
+            const thumbMap = new Map(thumbs.map((t) => [t.targetId, t]));
+
+            friendItems.forEach((item) => {
+                const isHidden = item.id === -1;
+                const profile = isHidden ? null : profileMap.get(item.id);
+                if (!isHidden && !profile) return;
+
+                const thumbData = isHidden
+                    ? { state: 'Error' }
+                    : thumbMap.get(item.id);
+                const displayName = isHidden
+                    ? 'Hidden User'
+                    : profile.names.combinedName;
+                const username = isHidden ? '' : `@${profile.names.username}`;
+
+                const tile = createFriendTile(item, thumbData, {
+                    displayName,
+                    username,
+                    isHidden,
+                });
+                friendList.appendChild(tile);
+            });
+        }
+    } catch (e) {
+        console.error('RoValra: Failed to load friend tiles', e);
+    }
+
     const container = document.createElement('div');
     container.style.display = 'flex';
     container.style.gap = '20px';
@@ -50,7 +128,10 @@ async function renderTestPage(contentDiv) {
     const freeitemId = 3443038622;
     const freeitemCard = createItemCard(freeitemId);
     container.appendChild(freeitemCard);
-
+    const ugclimited = createItemCard(126708761692926);
+    container.appendChild(ugclimited);
+    const deletedItem = createItemCard(17845088792);
+    container.appendChild(deletedItem);
 
     const limiteduid = 16477149823;
     const limiteduitemCard = createItemCard(limiteduid);
@@ -60,9 +141,9 @@ async function renderTestPage(contentDiv) {
     container.appendChild(limiteditemCard);
     const radio = createRadioButton();
     container.appendChild(radio);
-    const toggle = createToggle("RoValra-Toggle");
+    const toggle = createToggle('RoValra-Toggle');
     container.appendChild(toggle);
-    const pill = createPill("Test test");
+    const pill = createPill('Test test');
     container.appendChild(pill);
     const pillToggle = createPillToggle({
         options: [

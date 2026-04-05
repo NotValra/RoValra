@@ -5,15 +5,86 @@ import { addTooltip } from '../../../core/ui/tooltip.js';
 import { getAuthenticatedUserId } from '../../../core/user.js';
 import { createOverlay } from '../../../core/ui/overlay.js';
 import {
-    getUserDescription,
     updateUserDescription,
+    isTextFiltered,
+    updateUserSettingViaApi,
 } from '../../../core/profile/descriptionhandler.js';
 import { createStyledInput } from '../../../core/ui/catalog/input.js';
-
+import { getUserSettings } from '../../../core/donators/settingHandler.js';
+import { parseMarkdown } from '../../../core/utils/markdown.js';
+import DOMPurify from 'dompurify';
+import {
+    CREATOR_USER_ID,
+    CONTRIBUTOR_USER_IDS,
+    TESTER_USER_IDS,
+    ARTIST_BADGE_USER_ID,
+    RAT_BADGE_USER_ID,
+    BLAHAJ_BADGE_USER_ID,
+    CAM_BADGE_USER_ID,
+    alice_badge_user_id,
+    GILBERT_USER_ID,
+} from '../../../core/configs/userIds.js';
+import {
+    syncDonatorTier,
+    getCurrentUserTier,
+} from '../../../core/settings/handlesettings.js';
 const STATUS_PREFIX = 's:';
 const MAX_STATUS_LENGTH = 50;
+let activeHomeStatusBubble = null;
 
-function openEditStatusOverlay(currentStatus, onSave) {
+const TRUSTED_USER_IDS = [
+    CREATOR_USER_ID,
+    ...CONTRIBUTOR_USER_IDS,
+    ...TESTER_USER_IDS,
+    ARTIST_BADGE_USER_ID,
+    RAT_BADGE_USER_ID,
+    BLAHAJ_BADGE_USER_ID,
+    CAM_BADGE_USER_ID,
+    alice_badge_user_id,
+    GILBERT_USER_ID,
+].filter(Boolean);
+
+const downloadableExtensions =
+    /\.(zip|rar|7z|tar|gz|exe|msi|dmg|iso|apk|ahk|ps1|cmd|bat|cmd|com|scr|cpl|sys|dll|js|jse|vbs|vbe|wsf|wsh|ps1|psm1|psd1|sh|docm|xlsm|pptm|dotm|xltm|deb|rpm|pkg|appimage|hta|jar|class)$/i;
+
+DOMPurify.addHook('afterSanitizeAttributes', (currentNode) => {
+    if (currentNode.tagName === 'A' && currentNode.hasAttribute('href')) {
+        const href = currentNode.getAttribute('href');
+        try {
+            const url = new URL(href, window.location.href);
+            if (
+                url.hostname === 'localhost' ||
+                url.hostname === '127.0.0.1' ||
+                url.protocol === 'file:' ||
+                downloadableExtensions.test(url.pathname)
+            ) {
+                currentNode.removeAttribute('href');
+                currentNode.removeAttribute('target');
+                currentNode.removeAttribute('rel');
+                currentNode.style.color = 'inherit';
+                currentNode.style.textDecoration = 'none';
+                currentNode.style.cursor = 'text';
+                currentNode.style.pointerEvents = 'none';
+            }
+        } catch (e) {}
+    }
+
+    if (currentNode.tagName === 'IMG' && currentNode.hasAttribute('src')) {
+        const src = currentNode.getAttribute('src');
+        try {
+            const url = new URL(src, window.location.href);
+            if (
+                url.hostname === 'localhost' ||
+                url.hostname === '127.0.0.1' ||
+                url.protocol === 'file:'
+            ) {
+                currentNode.removeAttribute('src');
+            }
+        } catch (e) {}
+    }
+});
+
+function openEditStatusOverlay(currentStatus, onSave, canUseApi) {
     const container = document.createElement('div');
     Object.assign(container.style, {
         display: 'flex',
@@ -39,7 +110,9 @@ function openEditStatusOverlay(currentStatus, onSave) {
         marginTop: '-8px',
         fontSize: '12px',
     });
-    container.appendChild(helpText);
+    if (!canUseApi) {
+        container.appendChild(helpText);
+    }
 
     const errorDisplay = document.createElement('p');
     errorDisplay.className = 'text-error';
@@ -98,31 +171,25 @@ function openEditStatusOverlay(currentStatus, onSave) {
     };
 }
 
-async function addStatusBubble(avatarContainer) {
+async function addStatusBubble(avatarContainer, userWantsApi) {
     if (avatarContainer.querySelector('.rovalra-status-bubble-wrapper')) return;
 
     try {
         const userId = getUserIdFromUrl();
         if (!userId) return;
 
-        const [description, authenticatedUserId] = await Promise.all([
-            getUserDescription(userId),
+        const isUserTrusted = TRUSTED_USER_IDS.includes(String(userId));
+
+        const [{ status, canUseApi }, authenticatedUserId] = await Promise.all([
+            getUserSettings(userId, { useDescription: true }),
             getAuthenticatedUserId(),
         ]);
 
-        if (description === null) return;
+        let statusText = status;
 
         const isOwnProfile =
             authenticatedUserId &&
             String(authenticatedUserId) === String(userId);
-
-        const lines = description.split('\n');
-        const statusLine = lines.find((line) =>
-            line.trim().startsWith(STATUS_PREFIX),
-        );
-        let statusText = statusLine
-            ? statusLine.trim().substring(STATUS_PREFIX.length).trim()
-            : null;
 
         if (!statusText && !isOwnProfile) return;
 
@@ -143,7 +210,14 @@ async function addStatusBubble(avatarContainer) {
 
         const bubble = document.createElement('div');
         bubble.className = 'rovalra-status-bubble text-label-medium';
-        bubble.textContent = statusText;
+
+        if (isUserTrusted) {
+            bubble.innerHTML = DOMPurify.sanitize(parseMarkdown(statusText), {
+                FORBID_ATTR: ['style'],
+            });
+        } else {
+            bubble.textContent = statusText;
+        }
 
         bubbleWrapper.appendChild(bubble);
         avatarContainer.appendChild(bubbleWrapper);
@@ -156,101 +230,161 @@ async function addStatusBubble(avatarContainer) {
                     : 'Click to edit';
             addTooltip(bubble, tooltipText);
 
+            const updateBubbleUI = (newStatus) => {
+                statusText = newStatus || '...';
+                const textToRender = newStatus
+                    ? newStatus.length > MAX_STATUS_LENGTH
+                        ? newStatus.substring(0, MAX_STATUS_LENGTH) + '...'
+                        : newStatus
+                    : '...';
+
+                if (isUserTrusted) {
+                    bubble.innerHTML = DOMPurify.sanitize(
+                        parseMarkdown(textToRender),
+                        {
+                            FORBID_ATTR: ['style'],
+                        },
+                    );
+                } else {
+                    bubble.textContent = textToRender;
+                }
+
+                const newTooltipText =
+                    statusText === '...'
+                        ? 'Click to add a status'
+                        : 'Click to edit';
+                addTooltip(bubble, newTooltipText);
+            };
+
             bubble.addEventListener('click', (e) => {
                 e.stopPropagation();
+                const isDonator = getCurrentUserTier() >= 1;
                 openEditStatusOverlay(
                     statusText === '...' ? '' : statusText,
                     async (newStatus) => {
-                        try {
-                            const currentDescription =
-                                await getUserDescription(userId);
-                            if (currentDescription === null) return false;
+                        const isTrusted = TRUSTED_USER_IDS.includes(
+                            String(authenticatedUserId),
+                        );
+                        const effectiveCanUseApi = isDonator && userWantsApi;
+                        if (
+                            newStatus &&
+                            !isTrusted &&
+                            (await isTextFiltered(newStatus))
+                        ) {
+                            return 'failed';
+                        }
 
-                            let newDescription;
-                            const lines = currentDescription.split('\n');
-
-                            if (newStatus) {
-                                const statusLine = `${STATUS_PREFIX}${newStatus}`;
-                                let statusFound = false;
-
-                                const newLines = [];
-                                for (const line of lines) {
-                                    if (line.trim().startsWith(STATUS_PREFIX)) {
-                                        if (!statusFound) {
-                                            newLines.push(statusLine);
-                                            statusFound = true;
-                                        }
-                                    } else {
-                                        newLines.push(line);
-                                    }
-                                }
-
-                                if (!statusFound) {
-                                    const lastLineIndex = newLines.length - 1;
-                                    if (
-                                        lastLineIndex >= 0 &&
-                                        newLines[lastLineIndex].trim() === ''
-                                    ) {
-                                        newLines[lastLineIndex] = statusLine;
-                                    } else {
-                                        if (currentDescription.trim()) {
-                                            newLines.push(statusLine);
-                                        } else {
-                                            newLines[0] = statusLine;
-                                        }
-                                    }
-                                }
-
-                                newDescription = newLines.join('\n');
-
-                                if (newDescription.length > 1000) {
-                                    return 'limit_exceeded';
-                                }
-                            } else {
-                                const newLines = lines.filter(
-                                    (line) =>
-                                        !line.trim().startsWith(STATUS_PREFIX),
+                        if (effectiveCanUseApi) {
+                            try {
+                                const response = await updateUserSettingViaApi(
+                                    'status',
+                                    newStatus,
                                 );
-                                newDescription = newLines.join('\n').trimEnd();
-                            }
-
-                            const result = await updateUserDescription(
-                                userId,
-                                newDescription,
-                            );
-
-                            if (result === 'Filtered') {
+                                if (response) {
+                                    updateBubbleUI(newStatus);
+                                    return true;
+                                }
                                 return 'failed';
-                            }
-
-                            if (result !== true) {
+                            } catch (error) {
+                                console.error(
+                                    'RoValra: Failed to update status via API.',
+                                    error,
+                                );
                                 return false;
                             }
+                        } else {
+                            try {
+                                const currentDescription = await (async () => {
+                                    const { getUserDescription } =
+                                        await import('../../../core/profile/descriptionhandler.js');
+                                    return await getUserDescription(userId);
+                                })();
+                                if (currentDescription === null) return false;
 
-                            statusText = newStatus || '...';
-                            bubble.textContent = newStatus
-                                ? newStatus.length > MAX_STATUS_LENGTH
-                                    ? newStatus.substring(
-                                          0,
-                                          MAX_STATUS_LENGTH,
-                                      ) + '...'
-                                    : newStatus
-                                : '...';
-                            const newTooltipText =
-                                statusText === '...'
-                                    ? 'Click to add a status'
-                                    : 'Click to edit';
-                            addTooltip(bubble, newTooltipText);
+                                let newDescription;
+                                const lines = currentDescription.split('\n');
 
-                            return true;
-                        } catch (error) {
-                            console.error(
-                                'RoValra: Failed to update status.',
-                                error,
-                            );
-                            return false;
+                                if (newStatus) {
+                                    const statusLine = `${STATUS_PREFIX}${newStatus}`;
+                                    let statusFound = false;
+
+                                    const newLines = [];
+                                    for (const line of lines) {
+                                        if (
+                                            line
+                                                .trim()
+                                                .startsWith(STATUS_PREFIX)
+                                        ) {
+                                            if (!statusFound) {
+                                                newLines.push(statusLine);
+                                                statusFound = true;
+                                            }
+                                        } else {
+                                            newLines.push(line);
+                                        }
+                                    }
+
+                                    if (!statusFound) {
+                                        const lastLineIndex =
+                                            newLines.length - 1;
+                                        if (
+                                            lastLineIndex >= 0 &&
+                                            newLines[lastLineIndex].trim() ===
+                                                ''
+                                        ) {
+                                            newLines[lastLineIndex] =
+                                                statusLine;
+                                        } else {
+                                            if (currentDescription.trim()) {
+                                                newLines.push(statusLine);
+                                            } else {
+                                                newLines[0] = statusLine;
+                                            }
+                                        }
+                                    }
+
+                                    newDescription = newLines.join('\n');
+
+                                    if (newDescription.length > 1000) {
+                                        return 'limit_exceeded';
+                                    }
+                                } else {
+                                    const newLines = lines.filter(
+                                        (line) =>
+                                            !line
+                                                .trim()
+                                                .startsWith(STATUS_PREFIX),
+                                    );
+                                    newDescription = newLines
+                                        .join('\n')
+                                        .trimEnd();
+                                }
+
+                                const result = await updateUserDescription(
+                                    userId,
+                                    newDescription,
+                                );
+
+                                if (result === 'Filtered') {
+                                    return 'failed';
+                                }
+
+                                if (result !== true) {
+                                    return false;
+                                }
+
+                                updateBubbleUI(newStatus);
+                                return true;
+                            } catch (error) {
+                                console.error(
+                                    'RoValra: Failed to update status.',
+                                    error,
+                                );
+                                return false;
+                            }
                         }
                     },
+                    isDonator && userWantsApi,
                 );
             });
         }
@@ -259,17 +393,127 @@ async function addStatusBubble(avatarContainer) {
     }
 }
 
-export function init() {
-    chrome.storage.local.get({ statusBubbleEnabled: true }, (settings) => {
-        if (settings.statusBubbleEnabled) {
-            startObserving();
+async function addHomeStatusHover(tile) {
+    if (tile.dataset.rovalraStatusObserved) return;
+    tile.dataset.rovalraStatusObserved = 'true';
 
-            injectStylesheet(
-                'css/thinkingbubble.css',
-                'rovalra-profile-status-css',
-            );
-            const selector = '.user-profile-header-details-avatar-container';
-            observeElement(selector, addStatusBubble, { multiple: true });
+    const link = tile.querySelector('a.avatar-card-link');
+    const avatarContainer = tile.querySelector(
+        '.avatar-card-fullbody, .avatar-card-image-container',
+    );
+    if (!link || !avatarContainer) return;
+
+    const match = link.href.match(/\/users\/(\d+)\//);
+    if (!match) return;
+    const userId = match[1];
+
+    const bubbleWrapper = document.createElement('div');
+    bubbleWrapper.className = 'rovalra-status-bubble-wrapper';
+    bubbleWrapper.style.left = '130%';
+    bubbleWrapper.style.display = 'none';
+
+    const bubble = document.createElement('div');
+    bubble.className = 'rovalra-status-bubble text-label-medium';
+    bubbleWrapper.appendChild(bubble);
+    avatarContainer.appendChild(bubbleWrapper);
+
+    let statusLoaded = false;
+
+    tile.addEventListener('mouseenter', async () => {
+        if (!statusLoaded) {
+            try {
+                const { status } = await getUserSettings(userId, {
+                    useDescription: true,
+                });
+
+                if (status) {
+                    let statusText = status;
+                    if (statusText.length > MAX_STATUS_LENGTH) {
+                        statusText =
+                            statusText.substring(0, MAX_STATUS_LENGTH) + '...';
+                    }
+
+                    const isUserTrusted = TRUSTED_USER_IDS.includes(
+                        String(userId),
+                    );
+
+                    if (isUserTrusted) {
+                        bubble.innerHTML = DOMPurify.sanitize(
+                            parseMarkdown(statusText),
+                            { FORBID_ATTR: ['style'] },
+                        );
+                    } else {
+                        bubble.textContent = statusText;
+                    }
+                    statusLoaded = true;
+                } else {
+                    bubbleWrapper.remove();
+                    return;
+                }
+            } catch (error) {
+                console.error(
+                    'RoValra: Error fetching status for home page hover.',
+                    error,
+                );
+                bubbleWrapper.remove();
+                return;
+            }
+        }
+        if (statusLoaded) {
+            if (!tile.matches(':hover')) return;
+
+            if (
+                activeHomeStatusBubble &&
+                activeHomeStatusBubble !== bubbleWrapper
+            ) {
+                activeHomeStatusBubble.style.display = 'none';
+            }
+            bubbleWrapper.style.display = 'flex';
+            activeHomeStatusBubble = bubbleWrapper;
         }
     });
+
+    tile.addEventListener('mouseleave', () => {
+        if (activeHomeStatusBubble === bubbleWrapper)
+            activeHomeStatusBubble = null;
+        bubbleWrapper.style.display = 'none';
+    });
+}
+
+export function init() {
+    syncDonatorTier();
+    chrome.storage.local.get(
+        {
+            statusBubbleEnabled: true,
+            statusBubbleHomePage: true,
+            statusBubbleUseApi: true,
+        },
+        (settings) => {
+            if (settings.statusBubbleEnabled) {
+                startObserving();
+
+                injectStylesheet(
+                    'css/thinkingbubble.css',
+                    'rovalra-profile-status-css',
+                );
+                const selector =
+                    '.user-profile-header-details-avatar-container';
+                observeElement(
+                    selector,
+                    (el) => addStatusBubble(el, settings.statusBubbleUseApi),
+                    { multiple: true },
+                );
+
+                if (settings.statusBubbleHomePage) {
+                    observeElement(
+                        '.friends-carousel-tile',
+                        addHomeStatusHover,
+                        {
+                            multiple: true,
+                        },
+                    );
+                }
+            }
+        },
+    );
 }

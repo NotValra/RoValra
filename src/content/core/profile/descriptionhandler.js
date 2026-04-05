@@ -17,6 +17,22 @@ export async function getUserDescription(userId) {
     }
 }
 
+export async function isTextFiltered(text) {
+    if (!text) return false;
+    try {
+        const filterResponse = await callRobloxApiJson({
+            subdomain: 'apis',
+            endpoint: '/game-update-notifications/v1/filter',
+            method: 'POST',
+            body: JSON.stringify(text),
+        });
+        return filterResponse?.isFiltered;
+    } catch (error) {
+        console.error('RoValra: Failed to check text with filter', error);
+        return true; // Assume it's filtered on error to be safe.
+    }
+}
+
 export async function updateUserDescription(userId, newDescription) {
     try {
         const filterResponse = await callRobloxApiJson({
@@ -44,6 +60,31 @@ export async function updateUserDescription(userId, newDescription) {
     } catch (error) {
         console.error(
             `RoValra: Failed to update description for user ${userId}`,
+            error,
+        );
+        return false;
+    }
+}
+
+/**
+ * Updates a user setting via the RoValra API.
+ * @param {string} key The setting key to update (e.g., 'environment', 'status').
+ * @param {any} value The new value for the setting. Will be converted to string.
+ * @returns {Promise<boolean>} True if the update was successful, false otherwise.
+ */
+export async function updateUserSettingViaApi(key, value) {
+    try {
+        const response = await callRobloxApiJson({
+            isRovalraApi: true,
+            subdomain: 'apis',
+            endpoint: '/v1/auth/settings',
+            method: 'POST',
+            body: JSON.stringify({ key, value: String(value) }),
+        });
+        return response && response.status === 'success';
+    } catch (error) {
+        console.error(
+            `RoValra: Failed to update setting '${key}' via API.`,
             error,
         );
         return false;

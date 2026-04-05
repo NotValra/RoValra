@@ -11,7 +11,19 @@ const state = {
     csrfTokenCache: null,
     rotatorInterval: null,
     rotatorIndex: 0,
+    bannedUserRedirects: new Map(),
 };
+
+// --- Session Storage Configuration ---
+if (chrome.storage.session && chrome.storage.session.setAccessLevel) {
+    chrome.storage.session
+        .setAccessLevel({
+            accessLevel: 'TRUSTED_AND_UNTRUSTED_CONTEXTS',
+        })
+        .catch((err) =>
+            console.error('RoValra: Failed to set session access level', err),
+        );
+}
 
 // --- Settings Management ---
 
@@ -168,6 +180,49 @@ function updateUserAgentRule() {
     });
 }
 
+// --- Banned User Redirect Tracking ---
+
+function onBeforeRedirectHandler(details) {
+    const match = details.url.match(/users\/(\d+)\/profile/);
+    if (match && match[1]) {
+        state.bannedUserRedirects.set(details.tabId, match[1]);
+    }
+}
+
+function updateBannedUserListener() {
+    if (!chrome.webRequest) return;
+
+    chrome.permissions.contains({ permissions: ['webRequest'] }, (granted) => {
+        if (granted) {
+            chrome.storage.local.get(
+                { bannedUserDetectionEnabled: false },
+                (data) => {
+                    if (data.bannedUserDetectionEnabled) {
+                        if (
+                            !chrome.webRequest.onBeforeRedirect.hasListener(
+                                onBeforeRedirectHandler,
+                            )
+                        ) {
+                            chrome.webRequest.onBeforeRedirect.addListener(
+                                onBeforeRedirectHandler,
+                                {
+                                    urls: [
+                                        '*://www.roblox.com/users/*/profile*',
+                                    ],
+                                },
+                            );
+                        }
+                    } else {
+                        chrome.webRequest.onBeforeRedirect.removeListener(
+                            onBeforeRedirectHandler,
+                        );
+                    }
+                },
+            );
+        }
+    });
+}
+
 // --- Memory Leak Fix ---
 
 const handleMemoryLeakNavigation = (details) => {
@@ -293,8 +348,12 @@ async function callRobloxApiBackground(options) {
     const fetchOptions = { method, headers: { ...headers } };
 
     if (body) {
-        fetchOptions.headers['Content-Type'] = 'application/json';
-        fetchOptions.body = JSON.stringify(body);
+        if (typeof body === 'object') {
+            fetchOptions.headers['Content-Type'] = 'application/json';
+            fetchOptions.body = JSON.stringify(body);
+        } else {
+            fetchOptions.body = body;
+        }
     }
 
     if (method !== 'GET' && method !== 'HEAD' && state.csrfTokenCache) {
@@ -345,7 +404,7 @@ async function wearOutfit(outfitData) {
 
         const detailsRes = await callWithRetry({
             subdomain: 'avatar',
-            endpoint: `/v1/outfits/${outfitId}/details`,
+            endpoint: `/v3/outfits/${outfitId}/details`,
         });
         if (!detailsRes?.ok) return { ok: false };
 
@@ -380,25 +439,13 @@ async function wearOutfit(outfitData) {
                 }),
             );
 
-        if (
-            typeof outfitData === 'object' &&
-            outfitData?.outfitDetail?.bodyColor3s
-        ) {
+        if (details.bodyColor3s) {
             promises.push(
                 callWithRetry({
                     subdomain: 'avatar',
-                    endpoint: '/v3/avatar/set-body-colors',
+                    endpoint: '/v2/avatar/set-body-colors',
                     method: 'POST',
-                    body: outfitData.outfitDetail.bodyColor3s,
-                }),
-            );
-        } else if (details.bodyColors) {
-            promises.push(
-                callWithRetry({
-                    subdomain: 'avatar',
-                    endpoint: '/v1/avatar/set-body-colors',
-                    method: 'POST',
-                    body: details.bodyColors,
+                    body: details.bodyColor3s,
                 }),
             );
         }
@@ -550,13 +597,11 @@ function updateAvatarRotator() {
 
 chrome.runtime.onInstalled.addListener((details) => {
     initializeSettings(details.reason);
-    updateUserAgentRule();
     setupContextMenuListener();
 });
 
 chrome.runtime.onStartup.addListener(() => {
     initializeSettings('startup');
-    updateUserAgentRule();
     setupContextMenuListener();
 });
 
@@ -573,6 +618,9 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
         ) {
             updateAvatarRotator();
         }
+        if (changes.bannedUserDetectionEnabled) {
+            updateBannedUserListener();
+        }
     }
 });
 
@@ -581,6 +629,8 @@ chrome.permissions.onAdded.addListener((permissions) => {
         setupNavigationListener();
     if (permissions.permissions?.includes('contextMenus'))
         setupContextMenuListener();
+    if (permissions.permissions?.includes('webRequest'))
+        updateBannedUserListener();
 
     chrome.tabs.query({}, (tabs) => {
         tabs.forEach((tab) =>
@@ -605,6 +655,11 @@ chrome.permissions.onRemoved.addListener((permissions) => {
         chrome.contextMenus?.onClicked.hasListener(contextMenuClickListener)
     ) {
         chrome.contextMenus.onClicked.removeListener(contextMenuClickListener);
+    }
+    if (permissions.permissions?.includes('webRequest')) {
+        chrome.webRequest.onBeforeRedirect.removeListener(
+            onBeforeRedirectHandler,
+        );
     }
 
     chrome.tabs.query({}, (tabs) => {
@@ -734,6 +789,13 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             }
             return false;
 
+        case 'getBannedUserRedirect': {
+            const userId = state.bannedUserRedirects.get(sender.tab?.id);
+            state.bannedUserRedirects.delete(sender.tab?.id);
+            sendResponse({ userId });
+            return false;
+        }
+
         case 'presencePollResult':
             return false;
 
@@ -743,6 +805,33 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
         case 'wearOutfit':
             wearOutfit(request.outfitId).then(sendResponse);
+            return true;
+
+        case 'fetchRobloxApi':
+            callRobloxApiBackground(request.options)
+                .then(async (response) => {
+                    const headers = {};
+                    response.headers.forEach(
+                        (val, key) => (headers[key] = val),
+                    );
+                    const body = await response.text().catch(() => null);
+                    sendResponse({
+                        ok: response.ok,
+                        status: response.status,
+                        statusText: response.statusText,
+                        headers: headers,
+                        body: body,
+                    });
+                })
+                .catch((err) => {
+                    console.error('RoValra: Background API fetch failed', err);
+                    sendResponse({
+                        ok: false,
+                        status: 500,
+                        statusText: 'Extension Error',
+                        body: null,
+                    });
+                });
             return true;
 
         case 'updateContextMenu':
@@ -793,97 +882,7 @@ chrome.storage.local.get('MemoryleakFixEnabled', (result) => {
     }
 });
 
+updateUserAgentRule();
 updateAvatarRotator();
 setupContextMenuListener();
-// RoAvatar-Renderer worker
-
-function luDecompose(A) {
-    const n = A.length;
-    const LU = A;
-    const P = new Int32Array(n);
-    for (let i = 0; i < n; i++) P[i] = i;
-    for (let k = 0; k < n; k++) {
-        let pivot = k;
-        for (let i = k + 1; i < n; i++) {
-            if (Math.abs(LU[i][k]) > Math.abs(LU[pivot][k])) pivot = i;
-        }
-        if (pivot !== k) {
-            const tmpRow = LU[k];
-            LU[k] = LU[pivot];
-            LU[pivot] = tmpRow;
-            const tmpP = P[k];
-            P[k] = P[pivot];
-            P[pivot] = tmpP;
-        }
-        const pivotVal = LU[k][k];
-        if (Math.abs(pivotVal) < 1e-18) continue;
-        for (let i = k + 1; i < n; i++) {
-            LU[i][k] /= pivotVal;
-            const mult = LU[i][k];
-            const rowI = LU[i];
-            const rowK = LU[k];
-            for (let j = k + 1; j < n; j++) rowI[j] -= mult * rowK[j];
-        }
-    }
-    return { LU, P };
-}
-
-function luSolve({ LU, P }, b) {
-    const n = LU.length;
-    const x = new Float32Array(n);
-    for (let i = 0; i < n; i++) x[i] = b[P[i]];
-    for (let i = 0; i < n; i++) {
-        const row = LU[i];
-        let sum = x[i];
-        for (let j = 0; j < i; j++) sum -= row[j] * x[j];
-        x[i] = sum;
-    }
-    for (let i = n - 1; i >= 0; i--) {
-        const row = LU[i];
-        let sum = x[i];
-        for (let j = i + 1; j < n; j++) sum -= row[j] * x[j];
-        x[i] = sum / row[i];
-    }
-    return x;
-}
-
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    if (request.type === 'OFFLOAD_RBF_MATH') {
-        const [_A, _bx, _by, _bz] = request.data;
-
-        const A = _A.map((row) => {
-            if (row instanceof Float32Array) return row;
-            if (Array.isArray(row)) return new Float32Array(row);
-            return new Float32Array(Object.values(row));
-        });
-
-        const bx =
-            _bx instanceof Float32Array
-                ? _bx
-                : new Float32Array(Object.values(_bx));
-        const by =
-            _by instanceof Float32Array
-                ? _by
-                : new Float32Array(Object.values(_by));
-        const bz =
-            _bz instanceof Float32Array
-                ? _bz
-                : new Float32Array(Object.values(_bz));
-
-        const LU = luDecompose(A);
-        const wx = luSolve(LU, bx);
-        const wy = luSolve(LU, by);
-        const wz = luSolve(LU, bz);
-
-        const n = wx.length;
-        const result = new Float32Array(n * 3);
-        for (let i = 0; i < n; i++) {
-            result[i * 3 + 0] = wx[i];
-            result[i * 3 + 1] = wy[i];
-            result[i * 3 + 2] = wz[i];
-        }
-
-        sendResponse([...result]);
-    }
-    return true;
-});
+updateBannedUserListener();

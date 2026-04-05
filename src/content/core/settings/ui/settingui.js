@@ -1,17 +1,22 @@
 import { getAssets } from '../../assets.js';
 import { SETTINGS_CONFIG } from '../settingConfig.js';
-import { createDropdown } from '../../ui/dropdown.js'; 
-
+import { createDropdown } from '../../ui/dropdown.js';
 
 function ensureDeveloperSettings() {
-
     if (!SETTINGS_CONFIG.Developer) {
-        SETTINGS_CONFIG.Developer = { title: "Developer", settings: {} };
+        SETTINGS_CONFIG.Developer = { title: 'Developer', settings: {} };
     }
 }
 
-export async function buildSettingsPage({ handleSearch, debounce, loadTabContent, buttonData, REGIONS, initSettings }) {
-    const settings = await new Promise(resolve => {
+export async function buildSettingsPage({
+    handleSearch,
+    debounce,
+    loadTabContent,
+    buttonData,
+    REGIONS,
+    initSettings,
+}) {
+    const settings = await new Promise((resolve) => {
         chrome.storage.local.get('alwaysShowDeveloperSettings', resolve);
     });
 
@@ -20,7 +25,9 @@ export async function buildSettingsPage({ handleSearch, debounce, loadTabContent
     const assets = getAssets();
     const containerMain = document.querySelector('main.container-main');
     if (!containerMain) {
-        console.error("RoValra: Main container not found. Cannot build settings page.");
+        console.error(
+            'RoValra: Main container not found. Cannot build settings page.',
+        );
         return {};
     }
 
@@ -34,24 +41,30 @@ export async function buildSettingsPage({ handleSearch, debounce, loadTabContent
     contentDiv.classList.add('content');
     contentDiv.id = 'content';
     let userAccountDiv = document.createElement('div');
-    userAccountDiv.classList.add('row', 'page-content', 'new-username-pwd-rule');
+    userAccountDiv.classList.add(
+        'row',
+        'page-content',
+        'new-username-pwd-rule',
+    );
     userAccountDiv.id = 'user-account';
 
     let headerContainer = document.createElement('div');
-    headerContainer.style.cssText = 'display: flex; align-items: center; justify-content: center; margin-bottom: 20px;';
+    headerContainer.style.cssText =
+        'display: flex; align-items: center; justify-content: center; margin-bottom: 20px;';
 
     let rovalraIcon = document.createElement('img');
     rovalraIcon.src = assets.rovalraIcon;
-    rovalraIcon.style.cssText = 'width: 35px; height: 35px; margin-left: 5px;  user-select: none;'; 
+    rovalraIcon.style.cssText =
+        'width: 35px; height: 35px; margin-left: 5px;  user-select: none;';
 
     let rovalraHeader = document.createElement('h1');
     rovalraHeader.textContent = 'RoValra Settings';
     rovalraHeader.style.margin = '0';
-    rovalraHeader.style.color = 'var(--rovalra-main-text-color)'; 
+    rovalraHeader.style.color = 'var(--rovalra-main-text-color)';
 
     headerContainer.appendChild(rovalraHeader);
     rovalraHeader.appendChild(rovalraIcon);
-    
+
     let settingsContainer = document.createElement('div');
     settingsContainer.id = 'settings-container';
 
@@ -62,37 +75,42 @@ export async function buildSettingsPage({ handleSearch, debounce, loadTabContent
     containerMain.appendChild(contentDiv);
 
     contentDiv.style.cssText = `width: 100% !important; height: auto !important; border-radius: 10px !important; overflow: hidden !important; padding-bottom: 25px !important; padding-top: 25px !important; min-height: 800px !important; position: relative !important;`;
-    
+
     if (userAccountDiv) {
         userAccountDiv.style.cssText = `display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; padding-left: 0px !important; padding-right: 0px !important; margin-left: auto !important; margin-right: auto !important; width: 100% !important;`;
     }
 
-
     const mobileMenuContainer = document.createElement('div');
     mobileMenuContainer.id = 'rovalra-mobile-menu-container';
-    mobileMenuContainer.style.width = '100%'; 
-    
+    mobileMenuContainer.style.width = '100%';
+
     settingsContainer.appendChild(mobileMenuContainer);
 
-
     const renderMobileDropdown = () => {
-        mobileMenuContainer.innerHTML = ''; 
+        mobileMenuContainer.innerHTML = '';
 
         const urlParams = new URLSearchParams(window.location.search);
         const initialTab = urlParams.get('rovalra') || 'info';
         const dropdownItems = [];
-        
-        buttonData.filter(item => item.text === "Info" || item.text === "Credits" || item.text === "Donator Perks").forEach(item => {
-            dropdownItems.push({
-                value: item.text.toLowerCase(),
-                label: item.text
+
+        buttonData
+            .filter(
+                (item) =>
+                    item.text === 'Info' ||
+                    item.text === 'Credits' ||
+                    item.text === 'Donator Perks',
+            )
+            .forEach((item) => {
+                dropdownItems.push({
+                    value: item.text.toLowerCase(),
+                    label: item.text,
+                });
             });
-        });
-        
-        Object.keys(SETTINGS_CONFIG).forEach(sectionName => {
+
+        Object.keys(SETTINGS_CONFIG).forEach((sectionName) => {
             dropdownItems.push({
                 value: sectionName.toLowerCase(),
-                label: SETTINGS_CONFIG[sectionName].title
+                label: SETTINGS_CONFIG[sectionName].title,
             });
         });
 
@@ -104,14 +122,22 @@ export async function buildSettingsPage({ handleSearch, debounce, loadTabContent
                 const newUrl = new URL(window.location.href);
                 if (newUrl.searchParams.get('rovalra') !== value) {
                     newUrl.searchParams.set('rovalra', value);
-                    history.pushState(null, '', newUrl.pathname + newUrl.search);
+                    history.pushState(
+                        null,
+                        '',
+                        newUrl.pathname + newUrl.search,
+                    );
                 }
 
+                const selectedItem = dropdownItems.find(
+                    (item) => item.value === value,
+                );
 
-                const selectedItem = dropdownItems.find(item => item.value === value);
-                
                 if (selectedItem) {
-                    const textSpan = mobileDropdown.trigger.querySelector('.text-truncate-split span') || mobileDropdown.trigger.querySelector('span');
+                    const textSpan =
+                        mobileDropdown.trigger.querySelector(
+                            '.text-truncate-split span',
+                        ) || mobileDropdown.trigger.querySelector('span');
                     if (textSpan) {
                         textSpan.textContent = selectedItem.label;
                     }
@@ -119,33 +145,38 @@ export async function buildSettingsPage({ handleSearch, debounce, loadTabContent
 
                 await loadTabContent(value);
                 stripInlineStyles(document.getElementById('content-container'));
-            }
+            },
         });
 
         mobileDropdown.element.style.width = '100%';
         mobileDropdown.element.style.display = 'block';
         mobileDropdown.trigger.style.width = '100%';
         mobileMenuContainer.appendChild(mobileDropdown.element);
-        
-        const currentItem = dropdownItems.find(item => item.value === initialTab);
+
+        const currentItem = dropdownItems.find(
+            (item) => item.value === initialTab,
+        );
         if (currentItem) {
-             const textSpan = mobileDropdown.trigger.querySelector('.text-truncate-split span') || mobileDropdown.trigger.querySelector('span');
-             if (textSpan) textSpan.textContent = currentItem.label;
+            const textSpan =
+                mobileDropdown.trigger.querySelector(
+                    '.text-truncate-split span',
+                ) || mobileDropdown.trigger.querySelector('span');
+            if (textSpan) textSpan.textContent = currentItem.label;
         }
     };
 
     renderMobileDropdown();
 
-
-
     const uiContainer = document.createElement('div');
-    uiContainer.id = 'rovalra-ui-container'; 
-    uiContainer.style.cssText = 'display: flex; flex-direction: row; gap: 10px; align-items: flex-start; position: relative; overflow: visible; width: 100%; justify-content: flex-start;';
-    
-    settingsContainer.appendChild(uiContainer);
-    settingsContainer.style.cssText = 'display: block; position: relative; overflow: visible; width: 100%;';
+    uiContainer.id = 'rovalra-ui-container';
+    uiContainer.style.cssText =
+        'display: flex; flex-direction: row; gap: 10px; align-items: flex-start; position: relative; overflow: visible; width: 100%; justify-content: flex-start;';
 
-    settingsContainer.insertAdjacentElement("afterbegin", rovalraHeader);
+    settingsContainer.appendChild(uiContainer);
+    settingsContainer.style.cssText =
+        'display: block; position: relative; overflow: visible; width: 100%;';
+
+    settingsContainer.insertAdjacentElement('afterbegin', rovalraHeader);
 
     uiContainer.innerHTML = '';
 
@@ -164,7 +195,15 @@ export async function buildSettingsPage({ handleSearch, debounce, loadTabContent
         min-width: 0;
     `;
 
-    const unifiedMenu = createUnifiedMenu({ handleSearch, debounce, buttonData, devTabAdded, loadTabContent, REGIONS, initSettings });
+    const unifiedMenu = createUnifiedMenu({
+        handleSearch,
+        debounce,
+        buttonData,
+        devTabAdded,
+        loadTabContent,
+        REGIONS,
+        initSettings,
+    });
 
     rovalraIcon.addEventListener('click', () => {
         let rovalraIconClickCount = (rovalraIcon.dataset.clickCount || 0) * 1;
@@ -174,12 +213,12 @@ export async function buildSettingsPage({ handleSearch, debounce, loadTabContent
         if (rovalraIconClickCount >= 10 && !devTabAdded) {
             devTabAdded = true;
             ensureDeveloperSettings();
-            addDeveloperTabUI({ 
-                REGIONS, 
-                initSettings, 
-                menuList: unifiedMenu, 
-                loadTabContent, 
-                renderMobileDropdown 
+            addDeveloperTabUI({
+                REGIONS,
+                initSettings,
+                menuList: unifiedMenu,
+                loadTabContent,
+                renderMobileDropdown,
             });
         }
     });
@@ -192,20 +231,37 @@ export async function buildSettingsPage({ handleSearch, debounce, loadTabContent
 
 function stripInlineStyles(container) {
     if (!container) return;
-    const selectors = ['.setting', '.setting-description', '.setting-controls', '.setting-label-divider', 'label', 'span', 'div'];
+    const selectors = [
+        '.setting',
+        '.setting-description',
+        '.setting-controls',
+        '.setting-label-divider',
+        'label',
+        'span',
+        'div',
+    ];
     const elements = container.querySelectorAll(selectors.join(','));
-    elements.forEach(el => {
+    elements.forEach((el) => {
         if (el.style.color) el.style.removeProperty('color');
-        if (el.style.backgroundColor) el.style.removeProperty('background-color');
+        if (el.style.backgroundColor)
+            el.style.removeProperty('background-color');
     });
 }
 
-function createUnifiedMenu({ handleSearch, debounce, buttonData, devTabAdded, loadTabContent, REGIONS, initSettings }) {
+function createUnifiedMenu({
+    handleSearch,
+    debounce,
+    buttonData,
+    devTabAdded,
+    loadTabContent,
+    REGIONS,
+    initSettings,
+}) {
     const menuList = document.createElement('ul');
     menuList.id = 'unified-menu';
     menuList.className = 'menu-vertical rovalra-sidebar';
     menuList.setAttribute('role', 'tablist');
-    
+
     const searchListItem = document.createElement('li');
     searchListItem.id = 'search-tab';
     searchListItem.className = 'menu-option search-container';
@@ -216,45 +272,55 @@ function createUnifiedMenu({ handleSearch, debounce, buttonData, devTabAdded, lo
     searchInput.type = 'search';
     searchInput.id = 'settings-search-input';
     searchInput.placeholder = 'Search Settings...';
-    searchInput.style.cssText = 'width: 89%; padding: 8px; border-radius: 0px; font-size: 14px; border: 0px solid var(--rovalra-container-background-color) !important; background: transparent !important; color: var(--rovalra-main-text-color) !important;';
-    
+    searchInput.style.cssText =
+        'width: 89%; padding: 8px; border-radius: 0px; font-size: 14px; border: 0px solid var(--rovalra-container-background-color) !important; background: transparent !important; color: var(--rovalra-main-text-color) !important;';
 
     const performSearch = debounce((query) => {
         try {
-
-            const mockEvent = { 
-                target: { 
-                    value: query 
-                } 
+            const mockEvent = {
+                target: {
+                    value: query,
+                },
             };
             handleSearch(mockEvent);
         } catch (error) {
-            console.warn("RoValra: Search handler failed:", error);
+            console.warn('RoValra: Search handler failed:', error);
         }
     }, 300);
 
     searchInput.addEventListener('input', (e) => {
-
         performSearch(e.target.value);
     });
 
     searchInput.addEventListener('focus', () => {
-        document.querySelectorAll('#unified-menu .menu-option-content').forEach(el => {
-            el.classList.remove('active');
-            el.removeAttribute('aria-current');
-        });
+        document
+            .querySelectorAll('#unified-menu .menu-option-content')
+            .forEach((el) => {
+                el.classList.remove('active');
+                el.removeAttribute('aria-current');
+            });
         const newUrl = new URL(window.location.href);
         if (newUrl.searchParams.get('rovalra') !== 'search') {
             newUrl.searchParams.set('rovalra', 'search');
-            history.pushState(null, '', newUrl.pathname + newUrl.search);
+            history.pushState(
+                null,
+                '',
+                newUrl.pathname + newUrl.search + '#!/search',
+            );
+            loadTabContent('search');
         }
     });
 
     searchListItem.appendChild(searchInput);
     menuList.appendChild(searchListItem);
 
-    const staticItems = buttonData.filter(item => item.text === "Info" || item.text === "Credits" || item.text === "Donator Perks");
-    staticItems.forEach(item => {
+    const staticItems = buttonData.filter(
+        (item) =>
+            item.text === 'Info' ||
+            item.text === 'Credits' ||
+            item.text === 'Donator Perks',
+    );
+    staticItems.forEach((item) => {
         const listItem = document.createElement('li');
         listItem.id = `${item.text.toLowerCase()}-tab`;
         listItem.dataset.text = item.text;
@@ -279,21 +345,28 @@ function createUnifiedMenu({ handleSearch, debounce, buttonData, devTabAdded, lo
             }
             await loadTabContent(newHashKey);
             stripInlineStyles(document.getElementById('content-container'));
-            
-            const dropdownTrigger = document.querySelector('#rovalra-mobile-menu-container .rovalra-dropdown-trigger span');
-            if(dropdownTrigger) dropdownTrigger.textContent = item.text;
+
+            const dropdownTrigger = document.querySelector(
+                '#rovalra-mobile-menu-container .rovalra-dropdown-trigger span',
+            );
+            if (dropdownTrigger) dropdownTrigger.textContent = item.text;
         });
     });
 
     const separator = document.createElement('li');
     separator.classList.add('menu-separator');
-    separator.style.cssText = 'height: 1px; background-color: var(--rovalra-secondary-text-color); opacity: 0.3; margin: 10px 0;';
+    separator.style.cssText =
+        'height: 1px; background-color: var(--rovalra-secondary-text-color); opacity: 0.3; margin: 10px 0;';
     separator.setAttribute('role', 'separator');
     menuList.appendChild(separator);
 
-    Object.keys(SETTINGS_CONFIG).forEach(sectionName => {
-        if (sectionName === "Developer" && !devTabAdded) return;
-        const listItem = createSidebarItem(sectionName, SETTINGS_CONFIG[sectionName].title, loadTabContent);
+    Object.keys(SETTINGS_CONFIG).forEach((sectionName) => {
+        if (sectionName === 'Developer' && !devTabAdded) return;
+        const listItem = createSidebarItem(
+            sectionName,
+            SETTINGS_CONFIG[sectionName].title,
+            loadTabContent,
+        );
         menuList.appendChild(listItem);
     });
     return menuList;
@@ -316,12 +389,14 @@ function createSidebarItem(sectionName, title, loadTabContent) {
     link.appendChild(span);
     listItem.appendChild(link);
 
-    link.addEventListener('click', async function(e) {
+    link.addEventListener('click', async function (e) {
         e.preventDefault();
-        document.querySelectorAll('#unified-menu .menu-option-content').forEach(el => {
-            el.classList.remove('active');
-            el.removeAttribute('aria-current');
-        });
+        document
+            .querySelectorAll('#unified-menu .menu-option-content')
+            .forEach((el) => {
+                el.classList.remove('active');
+                el.removeAttribute('aria-current');
+            });
         this.classList.add('active');
         this.setAttribute('aria-current', 'page');
 
@@ -333,9 +408,11 @@ function createSidebarItem(sectionName, title, loadTabContent) {
 
         await loadTabContent(sectionName);
         stripInlineStyles(document.getElementById('content-container'));
-        
-        const dropdownTrigger = document.querySelector('#rovalra-mobile-menu-container .rovalra-dropdown-trigger span');
-        if(dropdownTrigger) dropdownTrigger.textContent = title;
+
+        const dropdownTrigger = document.querySelector(
+            '#rovalra-mobile-menu-container .rovalra-dropdown-trigger span',
+        );
+        if (dropdownTrigger) dropdownTrigger.textContent = title;
     });
 
     return listItem;
@@ -343,13 +420,17 @@ function createSidebarItem(sectionName, title, loadTabContent) {
 
 function addDeveloperTabUI({ menuList, loadTabContent, renderMobileDropdown }) {
     if (menuList && loadTabContent) {
-        const devItem = createSidebarItem("Developer", "Developer", loadTabContent);
-        
+        const devItem = createSidebarItem(
+            'Developer',
+            'Developer',
+            loadTabContent,
+        );
+
         devItem.style.opacity = '0';
         devItem.style.transition = 'opacity 0.5s ease';
-        
+
         menuList.appendChild(devItem);
-        
+
         requestAnimationFrame(() => {
             devItem.style.opacity = '1';
         });
