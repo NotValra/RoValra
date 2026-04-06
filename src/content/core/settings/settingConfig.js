@@ -941,6 +941,26 @@ export const SETTINGS_CONFIG = {
                 default: false,
                 requiredPermissions: ['webNavigation'],
             },
+			Customfont: {
+                label: 'Custom font',
+                description: [
+                    'This allows to set custom font for the Roblox website.',
+                ],
+                type: 'checkbox',
+                default: false,
+                childSettings: {
+                    Customfontlink: {
+                        label: 'Google Fonts link',
+                        description: [
+                            'You can find Fonts at https://fonts.google.com/',
+							'The link should look like "https://fonts.google.com/specimen/Comic+Neue"',
+                        ],
+                        type: 'input',
+                        default: null,
+                        placeholder: 'Enter Font Link here...',
+                    },
+                },
+            },
             ServerdataEnabled: {
                 label: "Send Server IDs and Place IDs to RoValra's API",
                 description: [
