@@ -8,6 +8,7 @@ import { callRobloxApiJson } from '../../core/api.js';
 import DOMPurify from 'dompurify';
 import { t, ts } from '../../core/locale/i18n.js';
 import { createGameCard } from '../../core/ui/games/gameCard.js';
+import { getGroupIdFromUrl } from '../../core/idExtractor.js';
 
 const PAGE_SIZE = 50;
 const ACCESS_FILTER = { ALL: 1, PUBLIC: 2 };
@@ -451,119 +452,101 @@ export function init() {
     chrome.storage.local.get(['groupGamesEnabled'], (result) => {
         if (result.groupGamesEnabled !== true) return;
 
-        const getGroupIdFromUrl = () => {
-            const match = window.location.href.match(
-                /(?:groups|communities)\/(\d+)/,
-            );
-            return match ? match[1] : null;
+        let buttonExists = document.querySelector(
+            '.rovalra-hidden-games-container',
+        );
+
+        const cleanupButtons = () => {
+            document
+                .querySelectorAll('.rovalra-hidden-games-container')
+                .forEach((el) => el.remove());
+            buttonExists = false;
         };
 
-        const cleanupLegacyButtons = (header) => {
+        const insertButton = async () => {
+            if (buttonExists) return;
+
+            const header = document.querySelector('.group-profile-header');
             if (!header) return;
-            const selectors = [
-                '.rovalra-hidden-games-container',
-                '.hidden-games-button',
-            ];
-            selectors.forEach((sel) => {
-                const els = header.querySelectorAll(sel);
-                els.forEach((el) => el.remove());
-            });
-        };
 
-        const initHeader = async (header) => {
-            if (!header || !header.isConnected) return;
+            cleanupButtons();
 
-            const currentGroupId = getGroupIdFromUrl();
-            if (!currentGroupId) return;
+            const btn = createButton(
+                await t('hiddenGroupGames.buttonText'),
+                'secondary',
+            );
+            btn.addEventListener('click', async () => {
+                const groupId = getGroupIdFromUrl();
+                if (!groupId) return;
 
-            const attachedGroupId = header.dataset.rovalraGroupId;
+                try {
+                    const [allGames, publicGames] = await Promise.all([
+                        api.getGroupGames(groupId, ACCESS_FILTER.ALL),
+                        api.getGroupGames(groupId, ACCESS_FILTER.PUBLIC),
+                    ]);
 
-            if (attachedGroupId) {
-                if (attachedGroupId === currentGroupId) {
-                    const existing = header.querySelectorAll(
-                        '.rovalra-hidden-games-container',
+                    const publicIds = new Set(publicGames.map((g) => g.id));
+                    const hiddenGames = allGames.filter(
+                        (g) => !publicIds.has(g.id),
                     );
-                    if (existing.length > 1) {
-                        cleanupLegacyButtons(header);
-                        delete header.dataset.rovalraGroupId;
-                    } else if (existing.length === 1) {
-                        return;
-                    }
-                } else {
-                    cleanupLegacyButtons(header);
-                    delete header.dataset.rovalraGroupId;
+
+                    new HiddenGamesManager(hiddenGames);
+                } catch (err) {
+                    console.warn('RoValra: Failed to load hidden games', err);
                 }
+            });
+
+            const container = el(
+                'div',
+                'rovalra-hidden-games-container',
+                {
+                    style: { marginTop: '10px' },
+                },
+                [btn],
+            );
+
+            const description = header.querySelector('.description-container');
+            if (description) {
+                description.after(container);
+            } else {
+                header.appendChild(container);
             }
-
-            header.dataset.rovalraGroupId = currentGroupId;
-
-            try {
-                const [allGames, publicGames] = await Promise.all([
-                    api.getGroupGames(currentGroupId, ACCESS_FILTER.ALL),
-                    api.getGroupGames(currentGroupId, ACCESS_FILTER.PUBLIC),
-                ]);
-
-                const freshId = getGroupIdFromUrl();
-                if (freshId !== currentGroupId || !header.isConnected) {
-                    return;
-                }
-
-                const publicIds = new Set(publicGames.map((g) => g.id));
-                const hiddenGames = allGames.filter(
-                    (g) => !publicIds.has(g.id),
-                );
-
-                cleanupLegacyButtons(header);
-
-                const btn = createButton(
-                    await t('hiddenGroupGames.buttonText'),
-                    'secondary',
-                );
-                btn.addEventListener(
-                    'click',
-                    () => new HiddenGamesManager(hiddenGames),
-                );
-
-                const container = el(
-                    'div',
-                    'rovalra-hidden-games-container',
-                    {
-                        style: { marginTop: '10px' },
-                    },
-                    [btn],
-                );
-
-                const description = header.querySelector(
-                    '.description-container',
-                );
-                if (description) {
-                    description.after(container);
-                } else {
-                    header.appendChild(container);
-                }
-            } catch (err) {
-                delete header.dataset.rovalraGroupId;
-                cleanupLegacyButtons(header);
-            }
+            buttonExists = true;
         };
 
-        observeElement('.group-profile-header', (header) => {
-            initHeader(header);
-        });
+        observeElement(
+            '.group-profile-header',
+            () => {
+                if (!buttonExists) {
+                    insertButton();
+                }
+            },
+            {
+                onRemove: () => {
+                    cleanupButtons();
+                },
+            },
+        );
 
         let lastUrl = window.location.href;
         const checkForUrlChange = () => {
             const currentUrl = window.location.href;
             if (currentUrl !== lastUrl) {
                 lastUrl = currentUrl;
-                const header = document.querySelector('.group-profile-header');
-                if (header) {
-                    initHeader(header);
+                cleanupButtons();
+                if (getGroupIdFromUrl()) {
+                    requestAnimationFrame(() => {
+                        insertButton();
+                    });
                 }
             }
         };
 
         setInterval(checkForUrlChange, 1000);
         window.addEventListener('popstate', checkForUrlChange);
+
+        if (getGroupIdFromUrl()) {
+            insertButton();
+        }
     });
 }

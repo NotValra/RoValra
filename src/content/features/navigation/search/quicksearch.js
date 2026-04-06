@@ -32,6 +32,7 @@ const assets = getAssets();
 const STORAGE_KEY = 'rovalra_search_history';
 const MAX_HISTORY = 50;
 let initialSearchValue = '';
+let searchHistoryRenderVersion = 0;
 
 const debounce = (func, delay) => {
     let timeout;
@@ -1576,7 +1577,17 @@ export function init() {
                 'section[data-testid="SearchLandingPageOmniFeedTestId"]',
                 (container) => {
                     if (searchSettings.searchHistoryEnabled) {
-                        renderSearchHistory(container);
+                        searchHistoryRenderVersion++;
+                        const myVersion = searchHistoryRenderVersion;
+                        renderSearchHistory(container).then(() => {
+                            if (searchHistoryRenderVersion !== myVersion) {
+                                container
+                                    .querySelectorAll(
+                                        '.rovalra-search-history-section',
+                                    )
+                                    .forEach((el) => el.remove());
+                            }
+                        });
                     }
                 },
                 {

@@ -7,7 +7,7 @@ import { fetchThumbnails as fetchThumbnailsBatch } from '../../core/thumbnail/th
 import { callRobloxApi } from '../../core/api.js';
 import { safeHtml } from '../../core/packages/dompurify';
 import { createGameCard } from '../../core/ui/games/gameCard.js';
-import { t } from 'i18next';
+import { t } from '../../core/locale/i18n.js';
 const CONFIG = {
     PAGE_SIZE: 50,
     ACCESS_FILTER: 2,
@@ -220,7 +220,7 @@ const Api = {
 };
 
 const UI = {
-    createFilterPanel(onFilterChange) {
+    async createFilterPanel(onFilterChange) {
         const container = document.createElement('div');
         container.className = 'rovalra-filters-container';
 
@@ -236,22 +236,28 @@ const UI = {
             items: [
                 {
                     value: 'default',
-                    label: t('hiddenGamesProfile.sort.default'),
+                    label: await t('hiddenGamesProfile.sort.default'),
                 },
                 {
                     value: 'like-ratio',
-                    label: t('hiddenGamesProfile.sort.likeRatio'),
+                    label: await t('hiddenGamesProfile.sort.likeRatio'),
                 },
-                { value: 'likes', label: t('hiddenGamesProfile.sort.likes') },
+                {
+                    value: 'likes',
+                    label: await t('hiddenGamesProfile.sort.likes'),
+                },
                 {
                     value: 'dislikes',
-                    label: t('hiddenGamesProfile.sort.dislikes'),
+                    label: await t('hiddenGamesProfile.sort.dislikes'),
                 },
                 {
                     value: 'players',
-                    label: t('hiddenGamesProfile.sort.players'),
+                    label: await t('hiddenGamesProfile.sort.players'),
                 },
-                { value: 'name', label: t('hiddenGamesProfile.sort.name') },
+                {
+                    value: 'name',
+                    label: await t('hiddenGamesProfile.sort.name'),
+                },
             ],
             initialValue: 'default',
             onValueChange: (v) => onFilterChange('sort', v),
@@ -261,11 +267,11 @@ const UI = {
             items: [
                 {
                     value: 'desc',
-                    label: t('hiddenGamesProfile.order.descending'),
+                    label: await t('hiddenGamesProfile.order.descending'),
                 },
                 {
                     value: 'asc',
-                    label: t('hiddenGamesProfile.order.ascending'),
+                    label: await t('hiddenGamesProfile.order.ascending'),
                 },
             ],
             initialValue: 'desc',
@@ -274,11 +280,11 @@ const UI = {
 
         container.append(
             createFilterSection(
-                t('hiddenGamesProfile.labels.sort'),
+                await t('hiddenGamesProfile.labels.sort'),
                 sortDropdown.element,
             ),
             createFilterSection(
-                t('hiddenGamesProfile.labels.order'),
+                await t('hiddenGamesProfile.labels.order'),
                 orderDropdown.element,
             ),
         );
@@ -286,7 +292,7 @@ const UI = {
         return container;
     },
 
-    injectButton(header, onClick) {
+    async injectButton(header, onClick) {
         if (!header || header.querySelector('.hidden-games-button')) return;
 
         if (
@@ -296,7 +302,7 @@ const UI = {
             return;
 
         const btn = createButton(
-            t('hiddenGamesProfile.buttonText'),
+            await t('hiddenGamesProfile.buttonText'),
             'secondary',
         );
         btn.classList.add('hidden-games-button');
@@ -305,16 +311,16 @@ const UI = {
         header.appendChild(btn);
     },
 
-    createEmptyState(onClick) {
+    async createEmptyState(onClick) {
         const container = document.createElement('div');
         container.className = 'rovalra-empty-state section';
 
         const text = document.createElement('p');
         text.className = 'text-label';
-        text.textContent = t('hiddenGamesProfile.noPublicGames');
+        text.textContent = await t('hiddenGamesProfile.noPublicGames');
 
         const btn = createButton(
-            t('hiddenGamesProfile.buttonText'),
+            await t('hiddenGamesProfile.buttonText'),
             'secondary',
         );
         btn.classList.add('hidden-games-button');
@@ -336,10 +342,10 @@ class HiddenGamesManager {
         this.elements = {};
     }
 
-    openOverlay() {
+    async openOverlay() {
         const body = document.createElement('div');
 
-        const filterPanel = UI.createFilterPanel(
+        const filterPanel = await UI.createFilterPanel(
             this.handleFilterChange.bind(this),
         );
 
@@ -355,14 +361,14 @@ class HiddenGamesManager {
         this.elements = { list, loader, filterPanel };
 
         const { overlay } = createOverlay({
-            title: t('hiddenGamesProfile.overlayText'),
+            title: await t('hiddenGamesProfile.overlayText'),
             bodyContent: body,
             maxWidth: '1200px',
             maxHeight: '85vh',
         });
 
         if (this.allGames.length === 0) {
-            this.elements.list.innerHTML = `<p class="no-hidden-games-message">${t('hiddenGamesProfile.noHiddenGames')}</p>`; // Verified
+            this.elements.list.innerHTML = `<p class="no-hidden-games-message">${await t('hiddenGamesProfile.noHiddenGames')}</p>`; // Verified
             this.elements.filterPanel.style.display = 'none';
             return;
         }
@@ -458,7 +464,7 @@ class HiddenGamesManager {
 
         this.elements.list.innerHTML = '';
         if (this.processedGames.length === 0) {
-            this.elements.list.innerHTML = `<p class="no-hidden-games-message">${t('hiddenGamesProfile.noMatches')}</p>`;
+            this.elements.list.innerHTML = `<p class="no-hidden-games-message">${await t('hiddenGamesProfile.noMatches')}</p>`;
         } else {
             await this.loadMore();
         }
@@ -471,7 +477,7 @@ class HiddenGamesManager {
         )
             return;
 
-        this.elements.loader.innerHTML = `<p class="rovalra-loading-text">${t('hiddenGamesProfile.loading')}</p>`;
+        this.elements.loader.innerHTML = `<p class="rovalra-loading-text">${await t('hiddenGamesProfile.loading')}</p>`;
 
         try {
             const nextBatch = this.processedGames.slice(
@@ -501,30 +507,35 @@ function getUserId() {
     return match ? match[1] : null;
 }
 
+let isInitialized = false;
 export function init() {
     chrome.storage.local.get(['userGamesEnabled'], (result) => {
         if (result.userGamesEnabled !== true) return;
 
-        const userId = getUserId();
-        if (!userId) return;
+        if (isInitialized) return;
+        isInitialized = true;
 
         const handleButtonClick = async () => {
+            const userId = getUserId();
+            if (!userId) return;
             const games = await Api.getUserGames(userId);
-            new HiddenGamesManager(games).openOverlay();
+            await new HiddenGamesManager(games).openOverlay();
         };
 
         observeElement(
             '.btr-profile-right .profile-game .container-header, .profile-tab-content .container-header, .placeholder-games .container-header',
             (header) => {
+                if (header.dataset.rovalraProcessed) return;
+                header.dataset.rovalraProcessed = 'true';
                 UI.injectButton(header, handleButtonClick);
             },
         );
 
-        const checkEmptyState = () => {
+        const checkEmptyState = async () => {
             if (!window.location.hash.includes('#creations')) return;
 
             const contents = document.querySelectorAll('.profile-tab-content');
-            contents.forEach((content) => {
+            for (const content of contents) {
                 if (content.classList.contains('ng-hide')) return;
 
                 if (content.children.length === 1) {
@@ -538,11 +549,11 @@ export function init() {
                             return;
                         content.innerHTML = '';
                         content.appendChild(
-                            UI.createEmptyState(handleButtonClick),
+                            await UI.createEmptyState(handleButtonClick),
                         );
                     }
                 }
-            });
+            }
         };
 
         window.addEventListener('hashchange', checkEmptyState);

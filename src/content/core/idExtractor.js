@@ -69,3 +69,31 @@ export function getUserIdFromUrl(url = window.location.href) {
 
     return null;
 }
+
+export function getGroupIdFromUrl(url = window.location.href) {
+    try {
+        const urlObj = new URL(url, window.location.origin);
+        const queryGroupId = urlObj.searchParams.get('id');
+        if (
+            queryGroupId &&
+            /\/groups\/configure/.test(urlObj.pathname)
+        ) {
+            return queryGroupId;
+        }
+        const match = urlObj.pathname.match(
+            /^(?:\/[a-z]{2}(?:-[a-z]{2})?)?\/(?:groups|communities)\/(\d+)/i,
+        );
+        if (match && match[1]) {
+            return match[1];
+        }
+    } catch (e) {
+        console.warn('RoValra: URL parsing failed', e);
+    }
+
+    const match = url.match(/(?:groups|communities)\/(\d+)/);
+    if (match) {
+        return match[1];
+    }
+
+    return null;
+}
