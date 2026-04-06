@@ -1,0 +1,381 @@
+.rovalra-game-hero {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 0px;
+    padding: 16px 0;
+
+    .game-details-carousel-container {
+        flex-shrink: 0;
+        width: 640px;
+        height: 360px;
+        max-width: 640px;
+        max-height: 360px;
+
+        .carousel-item {
+            width: 640px;
+            height: 360px;
+
+            img#rovalra-game-thumbnail {
+                width: 640px;
+                height: 360px;
+                object-fit: cover;
+            }
+        }
+    }
+
+    .game-calls-to-action {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        height: 360px;
+
+        .game-title-container {
+            margin-bottom: 16px;
+        }
+
+        .game-buttons-container {
+            margin-top: auto;
+
+            .rovalra-private-actions {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                gap: 24px;
+                list-style: none;
+                padding: 0;
+                margin: 12px 0 0 0;
+
+                .game-favorite-button-container,
+                .game-follow-button-container {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                }
+
+                .tooltip-container {
+                    text-align: center;
+                }
+
+                .favorite-button,
+                .follow-button {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    cursor: pointer;
+                }
+
+                .rovalra-action-icon {
+                    display: block;
+                    margin-bottom: 4px;
+                    font-size: 24px;
+                }
+
+                .rovalra-action-label {
+                    font-size: 12px;
+                    color: var(--rovalra-secondary-text-color);
+                    font-weight: 400;
+                    text-align: center;
+                }
+
+                .rovalra-voting-section {
+                    width: 110px;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+
+                    .rovalra-voting-controls {
+                        position: relative;
+                        width: 110px;
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+
+                        .vote-btn-row {
+                            width: 100%;
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+
+                            .rovalra-vote-btn {
+                                padding: 2px;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                pointer-events: none;
+                                opacity: 0.7;
+
+                                &.upvote .icon-like,
+                                &.downvote .icon-dislike {
+                                    font-size: 16px;
+                                }
+                            }
+                        }
+                        .vote-container {
+                            position: relative;
+                            width: 110px;
+                            height: 2px;
+                            margin-top: 6px;
+
+                            .vote-background {
+                                position: absolute;
+                                top: 0;
+                                left: 0;
+                                width: 100%;
+                                height: 100%;
+                                background-color: rgb(25, 26, 31);
+
+                                &.has-votes {
+                                }
+                            }
+
+                            .vote-percentage {
+                                position: absolute;
+                                top: 0;
+                                left: 0;
+                                height: 100%;
+                                background-color: rgb(247, 247, 248);
+                                transition: width 0.3s ease;
+                            }
+
+                            .vote-mask {
+                                position: absolute;
+                                top: 0;
+                                left: 0;
+                                width: 100%;
+                                height: 100%;
+
+                                .segment {
+                                    position: absolute;
+                                    width: 2px;
+                                    height: 100%;
+                                    background-color: rgb(39, 41, 48);
+
+                                    &.seg-1 {
+                                        left: 20px;
+                                    }
+                                    &.seg-2 {
+                                        left: 40px;
+                                    }
+                                    &.seg-3 {
+                                        left: 60px;
+                                    }
+                                    &.seg-4 {
+                                        left: 80px;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    .rovalra-vote-counts {
+                        width: 100%;
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        margin-top: 2px;
+
+                        .rovalra-vote-count {
+                            font-size: 11px;
+                            color: var(--rovalra-secondary-text-color);
+                            font-weight: 400;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+div.game-stat-container.rovalra-horizontal-stats,
+ul.game-stat-container.rovalra-horizontal-stats {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 12px 0 !important;
+    margin: 0 !important;
+    list-style: none !important;
+    width: 100% !important;
+    height: 86px !important;
+    box-sizing: border-box !important;
+
+    .game-stat,
+    li.game-stat {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-align: center !important;
+        box-sizing: border-box !important;
+        flex: 1 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+
+        .text-label {
+            font-size: 12px !important;
+            font-weight: 500 !important;
+            line-height: 18px !important;
+            color: var(--rovalra-secondary-text-color) !important;
+            text-align: center !important;
+            margin: 0 !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+        }
+
+        .text-lead {
+            font-size: 12px !important;
+            font-weight: 400 !important;
+            line-height: 18px !important;
+            color: var(--rovalra-main-text-color) !important;
+            text-align: center !important;
+            margin: 0 !important;
+        }
+    }
+}
+
+div[data-testid='content-maturity-label-container'] {
+    display: block !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+    height: 0 !important;
+}
+
+.game-description {
+    padding-bottom: 12px !important;
+}
+
+.age-rating-details {
+    position: relative !important;
+    display: inline-block !important;
+    padding: 15px !important;
+    margin-bottom: 18px !important;
+    width: auto !important;
+    box-sizing: border-box !important;
+    border-radius: 8px !important;
+
+    .age-rating-age-bracket {
+        font-size: 16px !important;
+        font-weight: 400 !important;
+        text-decoration: none !important;
+
+        &:hover {
+            text-decoration: underline !important;
+        }
+    }
+}
+
+.rovalra-private-game-page {
+    .nav-tabs {
+        border-bottom: 1px solid var(--rovalra-border-color);
+        display: flex;
+        padding: 0;
+        margin: 0;
+        list-style: none;
+
+        .rbx-tab {
+            cursor: pointer;
+            padding: 10px 24px;
+            position: relative;
+
+            &.active {
+                border-bottom: 3px solid var(--rovalra-playbutton-color);
+
+                .text-lead {
+                    color: var(--rovalra-main-text-color);
+                    font-weight: 700;
+                }
+            }
+
+            .text-lead {
+                font-size: 16px;
+                color: var(--rovalra-secondary-text-color);
+                transition: color 0.2s;
+            }
+        }
+    }
+}
+
+#rovalra-media-carousel {
+    position: relative;
+
+    #rovalra-media-slides {
+        display: flex;
+        height: 100%;
+        transition: transform 0.3s ease;
+
+        .rovalra-media-slide {
+            min-width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            img {
+                max-height: 100%;
+                max-width: 100%;
+                object-fit: contain;
+            }
+
+            &.rovalra-video-slide {
+                background: #000;
+            }
+
+            video {
+                max-height: 100%;
+                max-width: 100%;
+                object-fit: contain;
+            }
+        }
+    }
+
+    #rovalra-media-controls {
+        position: absolute;
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 8px;
+        z-index: 20;
+
+        .rovalra-carousel-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.5);
+            transition: background 0.2s;
+
+            &.active {
+                background: var(--rovalra-main-text-color, #fff);
+            }
+        }
+    }
+
+    .rovalra-carousel-arrow {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 15;
+        background: rgba(0, 0, 0, 0.5);
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+
+        &.rovalra-carousel-arrow-left {
+            left: 10px;
+        }
+
+        &.rovalra-carousel-arrow-right {
+            right: 10px;
+        }
+    }
+}

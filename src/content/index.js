@@ -17,6 +17,7 @@ import { init as initApiDocs } from './features/developer/apiDocs.js';
 import { init as initApiKey } from './core/utils/trackers/apiKey.js';
 import { init as initServerTracker } from './core/utils/trackers/servers.js';
 import { initFriendsListTracking } from './core/utils/trackers/friendslist.js';
+import { init as initPrivateGames } from './features/games/privateGames.js';
 import { init as initQoLToggles } from './features/navigation/QoLToggles.js';
 import { init as initCopyId } from './features/sitewide/copyid.js';
 import { init as initQuickSearch } from './features/navigation/search/quicksearch.js';
@@ -121,6 +122,7 @@ const featureRoutes = [
             initPreviousPrice,
             initQuickSearch,
             initRenderTest,
+            initPrivateGames,
             initBannedUsers,
             initGroupFunds,
             initStatus,
