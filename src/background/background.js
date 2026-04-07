@@ -227,9 +227,10 @@ function updateBannedUserListener() {
 // --- Private Game Redirect Tracking ---
 
 function onPrivateGameRedirectHandler(details) {
-    const match = details.url.match(/games\/(\d+)\//);
+    const match = details.url.match(/games\/(\d+)/);
     if (match && match[1]) {
-        state.privateGameRedirects.set(details.tabId, match[1]);
+        const placeId = match[1];
+        state.privateGameRedirects.set(details.tabId, placeId);
     }
 }
 
@@ -250,9 +251,7 @@ function updatePrivateGameListener() {
                             chrome.webRequest.onBeforeRedirect.addListener(
                                 onPrivateGameRedirectHandler,
                                 {
-                                    urls: [
-                                        '*://www.roblox.com/games/*',
-                                    ],
+                                    urls: ['*://www.roblox.com/games/*'],
                                 },
                             );
                         }

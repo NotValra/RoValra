@@ -216,6 +216,15 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: false,
             },
+            privateGameDetectionEnabled: {
+                label: 'Private / Moderated Experience',
+                description: [
+                    'This recreates the experience page of private / moderated experiences, allowing you to view them.',
+                ],
+                type: 'checkbox',
+                default: false,
+                requiredPermissions: ['webRequest'],
+            },
             botdataEnabled: {
                 label: 'Bot Data',
                 description: [

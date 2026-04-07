@@ -438,11 +438,11 @@ async function loadAndRenderProducts(storeTab, placeId) {
             { text: ts('devProducts.passes'), value: 'passes' },
             { text: ts('devProducts.developerProducts'), value: 'devProducts' },
         ],
-        initialValue: hasPasses ? 'passes' : 'devProducts',
+        initialValue: 'passes',
         onChange: (value) => updateTabState(value === 'passes'),
     });
 
-    updateTabState(hasPasses);
+    updateTabState(true);
 
     controlsDiv.appendChild(toggle);
     headerContainer.appendChild(controlsDiv);

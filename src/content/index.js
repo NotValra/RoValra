@@ -87,6 +87,7 @@ import { init as initTrustedFriends } from './features/profile/trustedfriends.js
 import { init as initProfileRender } from './features/profile/header/ProfileRender.js';
 import { init as initStatus } from './features/profile/header/status.js';
 import { init as initFriendsSince } from './features/profile/friends/friendsSince.js';
+import { init as initRobuxIcons } from './core/ui/robuxIcon.js';
 
 // Settings
 import { init as initSettingsPage } from './features/settings/index.js';
@@ -127,7 +128,8 @@ const featureRoutes = [
             initBannedUsers,
             initGroupFunds,
             initStatus,
-			initCustomFont,
+            initCustomFont,
+            initRobuxIcons,
         ],
     },
     // pretty much just the 40% method
@@ -166,15 +168,23 @@ const featureRoutes = [
             initBotDetector,
             initServerList,
             initRegionPlayButton,
-            initSubplaces,
             bannertest,
             initGameTrailers,
             quickOutfits,
             initRecentServers,
             initPrivateServerControls,
-            initDevProductLoader,
             initHeatmap,
         ],
+    },
+    // private games and game pages
+    {
+        paths: ['/games/', '/private-games'],
+        features: [initDevProductLoader, initSubplaces],
+    },
+    // Private games page
+    {
+        paths: ['/private-games/'],
+        features: [initPrivateGames],
     },
     // avatar
     {

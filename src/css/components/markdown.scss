@@ -1,7 +1,7 @@
 .rovalra-markdown {
     a {
-        text-decoration: underline !important;
-        cursor: pointer !important;
+        text-decoration: underline;
+        cursor: pointer;
         color: inherit;
 
         &:hover {
@@ -15,7 +15,8 @@
         margin: 15px 0;
     }
 
-    th, td {
+    th,
+    td {
         border: 1px solid var(--rovalra-container-background-color);
         padding: 8px 12px;
         text-align: left;
@@ -53,7 +54,8 @@
         border-radius: 4px;
     }
 
-    ul, ol {
+    ul,
+    ol {
         padding-left: 20px;
         margin: 15px 0;
     }

@@ -1,33 +1,5 @@
 import { callRobloxApiJson } from '../../core/api.js';
-
-const PLAYABILITY_STATUS_MAP = {
-    0: 'This experience is unavailable',
-    1: 'Playable',
-    2: 'Guests cannot join this experience',
-    3: 'This experience has not been approved',
-    4: 'This experience is incorrectly configured',
-    5: 'This experience is private',
-    6: 'Only friends can join this experience',
-    7: 'Only group members can join this experience',
-    8: 'This experience is restricted on your device',
-    9: 'This experience is under review',
-    10: 'Purchase required to play',
-    11: 'Your account is restricted',
-    12: 'This experience is temporarily unavailable',
-    13: 'This experience has no published version',
-    14: 'This experience is blocked for compliance reasons',
-    15: 'This experience is not available in your region',
-    16: 'This experience is blocked for regional compliance reasons',
-    17: 'This experience is restricted by parental controls',
-    18: 'This experience is blocked by parental controls',
-    19: 'This experience is age-gated',
-    20: 'Verification required for 17+ experiences',
-    21: 'Purchase required to play',
-    22: 'Purchase restricted on this device',
-    23: 'This experience is unrated',
-    24: 'This experience is age-gated by content descriptor',
-    25: 'This experience is available',
-};
+import { t, ts } from '../../core/locale/i18n.js';
 
 const PLAYABILITY_STATUS_STRING_TO_CODE = {
     UnplayableOtherReason: 0,
@@ -97,41 +69,10 @@ export function toStatusCode(status) {
     return 0;
 }
 
-export async function getPlayabilityStatus(universeId) {
-    try {
-        const res = await callRobloxApiJson({
-            subdomain: 'games',
-            endpoint: `/v1/games/multiget-playability-status?universeIds=${universeId}`,
-        });
-
-        const dataArray = Array.isArray(res) ? res : res?.data;
-        if (!dataArray || !dataArray[0]) {
-            console.warn('RoValra: No playability status data', res);
-            return null;
-        }
-
-        const statusData = dataArray[0];
-        const statusCode = statusData.playabilityStatus;
-
-        return {
-            status: statusCode,
-            statusName: PLAYABILITY_STATUS_NAMES[statusCode] || 'Unknown',
-            displayText:
-                statusData.unplayableDisplayText ||
-                PLAYABILITY_STATUS_MAP[statusCode] ||
-                'This experience is unavailable',
-            isPlayable: statusData.isPlayable || false,
-        };
-    } catch (e) {
-        console.warn('RoValra: Failed to fetch playability status', e);
-        return null;
-    }
-}
-
 export function getPlayabilityDisplayText(statusCode) {
-    return (
-        PLAYABILITY_STATUS_MAP[statusCode] || 'This experience is unavailable'
-    );
+    return ts(`playabilityStatus.${statusCode}`, {
+        defaultValue: ts('playabilityStatus.unknown'),
+    });
 }
 
 export function getPlayabilityStatusName(statusCode) {
@@ -144,6 +85,12 @@ export function isUnderReview(statusCode) {
 
 export function isPrivate(statusCode) {
     return statusCode === 5;
+}
+
+export async function getPlayabilityDisplayTextAsync(statusCode) {
+    return await t(`playabilityStatus.${statusCode}`, {
+        defaultValue: await t('playabilityStatus.unknown'),
+    });
 }
 
 const REASON_TO_STATUS_CODE = {
@@ -178,7 +125,41 @@ const REASON_TO_STATUS_CODE = {
 export function getReasonProhibitedDisplayText(reason) {
     const code = REASON_TO_STATUS_CODE[reason];
     if (code !== undefined) {
-        return PLAYABILITY_STATUS_MAP[code] || 'This experience is unavailable';
+        return ts(`playabilityStatus.${code}`, {
+            defaultValue: ts('playabilityStatus.unknown'),
+        });
     }
-    return 'This experience is unavailable';
+    return ts('playabilityStatus.unknown');
+}
+
+export async function getPlayabilityStatus(universeId) {
+    try {
+        const res = await callRobloxApiJson({
+            subdomain: 'games',
+            endpoint: `/v1/games/multiget-playability-status?universeIds=${universeId}`,
+        });
+
+        const dataArray = Array.isArray(res) ? res : res?.data;
+        if (!dataArray || !dataArray[0]) {
+            console.warn('RoValra: No playability status data', res);
+            return null;
+        }
+
+        const statusData = dataArray[0];
+        const statusCode = statusData.playabilityStatus;
+
+        return {
+            status: statusCode,
+            statusName: PLAYABILITY_STATUS_NAMES[statusCode] || 'Unknown',
+            displayText:
+                statusData.unplayableDisplayText ||
+                ts(`playabilityStatus.${statusCode}`, {
+                    defaultValue: ts('playabilityStatus.unknown'),
+                }),
+            isPlayable: statusData.isPlayable || false,
+        };
+    } catch (e) {
+        console.warn('RoValra: Failed to fetch playability status', e);
+        return null;
+    }
 }
