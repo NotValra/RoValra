@@ -247,6 +247,11 @@ div[data-testid='content-maturity-label-container'] {
 
 .game-description {
     padding-bottom: 12px !important;
+    overflow-wrap: break-word !important;
+    word-wrap: break-word !important;
+    word-break: break-word !important;
+    white-space: pre-wrap !important;
+    overflow-x: hidden !important;
 }
 
 .age-rating-details {
@@ -376,6 +381,97 @@ div[data-testid='content-maturity-label-container'] {
 
         &.rovalra-carousel-arrow-right {
             right: 10px;
+        }
+    }
+}
+
+.stack-row.badge-row {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: stretch !important;
+    padding: 12px !important;
+    min-height: 72px !important;
+
+    .badge-image {
+        flex-shrink: 0 !important;
+        background: transparent !important;
+
+        .badge-image-container {
+            background: transparent !important;
+        }
+    }
+
+    .badge-content {
+        flex: 1 !important;
+        min-width: 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
+        padding: 0 12px !important;
+        min-height: 80px !important;
+
+        .badge-data-container {
+            min-width: 0 !important;
+            max-width: 100% !important;
+            overflow: hidden !important;
+
+            .badge-name {
+                font-size: 16px !important;
+                font-weight: 700 !important;
+                line-height: 22px !important;
+                color: var(--rovalra-main-text-color) !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+                white-space: nowrap !important;
+            }
+
+            .para-overflow {
+                font-size: 16px !important;
+                font-weight: 400 !important;
+                line-height: 20px !important;
+                color: var(--rovalra-secondary-text-color) !important;
+                margin: 4px 0 0 0 !important;
+                overflow-wrap: break-word !important;
+                word-wrap: break-word !important;
+                word-break: break-word !important;
+                white-space: normal !important;
+                overflow: hidden !important;
+            }
+        }
+
+        .badge-stats-container {
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            list-style: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+
+            li {
+                flex: 1 !important;
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                text-align: center !important;
+
+                .badge-stats-info {
+                    font-size: 16px !important;
+                    font-weight: 400 !important;
+                    line-height: 24px !important;
+                    color: var(--rovalra-main-text-color) !important;
+                    margin: 0 !important;
+                }
+
+                .text-label {
+                    font-size: 16px !important;
+                    font-weight: 400 !important;
+                    line-height: 20px !important;
+                    color: var(--rovalra-secondary-text-color) !important;
+                    margin: 0 !important;
+                }
+            }
         }
     }
 }

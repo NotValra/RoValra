@@ -151,6 +151,19 @@ async function loadAndRenderPrivateGame(placeId, settings) {
             }
         }
 
+        if (gameRes?.data) {
+            const gameApiData = gameRes.data.find((g) => g.id === universeId);
+            if (gameApiData) {
+                if (gameApiData.untranslated_genre_l1) {
+                    gameData.genre = gameApiData.untranslated_genre_l1
+                        .replace(/_/g, ' ')
+                        .replace(/\b\w/g, (c) => c.toUpperCase());
+                } else if (gameApiData.genre) {
+                    gameData.genre = gameApiData.genre;
+                }
+            }
+        }
+
         if (playabilityStatus) {
             gameData._playabilityStatus = playabilityStatus;
         }
@@ -444,10 +457,16 @@ async function renderPrivateGamePage(game, placeId, settings) {
         label: ts('tabs.about') || 'About',
         container: tabsContainer,
         contentContainer: tabContentContainer,
-        hash: '#!/about',
     });
     aboutTab.tab.classList.add('active');
     aboutTab.contentPane.classList.add('active');
+
+    const storeTab = createTab({
+        id: 'store',
+        label: ts('tabs.store') || 'Store',
+        container: tabsContainer,
+        contentContainer: tabContentContainer,
+    });
 
     const descriptionText =
         universeDetails?.description ||
@@ -513,14 +532,6 @@ async function renderPrivateGamePage(game, placeId, settings) {
         </div>
     `);
 
-    const storeTab = createTab({
-        id: 'store',
-        label: ts('tabs.store') || 'Store',
-        container: tabsContainer,
-        contentContainer: tabContentContainer,
-        hash: '#!/store',
-    });
-
     storeTab.contentPane.innerHTML = DOMPurify.sanitize(`
         <div id="rbx-game-passes" class="container-list game-dev-store game-passes">
             <div class="container-header"><h3>Passes</h3></div>
@@ -530,6 +541,59 @@ async function renderPrivateGamePage(game, placeId, settings) {
 
     let badgesLoaded = false;
     let passesLoaded = false;
+
+    const switchToStoreTab = () => {
+        aboutTab.tab.classList.remove('active');
+        aboutTab.contentPane.classList.remove('active');
+        storeTab.tab.classList.add('active');
+        storeTab.contentPane.classList.add('active');
+        if (!passesLoaded) {
+            passesLoaded = true;
+            loadPasses(game.universeId || game.id);
+        }
+    };
+
+    const switchToAboutTab = () => {
+        storeTab.tab.classList.remove('active');
+        storeTab.contentPane.classList.remove('active');
+        aboutTab.tab.classList.add('active');
+        aboutTab.contentPane.classList.add('active');
+    };
+
+    storeTab.tab.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        switchToStoreTab();
+        if (window.location.hash !== '#!/store') {
+            window.location.hash = '#!/store';
+        }
+    });
+
+    aboutTab.tab.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        switchToAboutTab();
+        if (window.location.hash !== '#!/about') {
+            window.location.hash = '#!/about';
+        }
+    });
+
+    const handleHashChange = () => {
+        const hash = window.location.hash;
+        if (hash.includes('#!/store')) {
+            switchToStoreTab();
+        } else {
+            switchToAboutTab();
+        }
+    };
+
+    if (!window.location.hash || !window.location.hash.includes('#!')) {
+        window.location.hash = '#!/about';
+    } else {
+        handleHashChange();
+    }
+
+    window.addEventListener('hashchange', handleHashChange);
 
     if (game.created) {
         const createdEl = document.getElementById('rovalra-created-date');
@@ -546,31 +610,6 @@ async function renderPrivateGamePage(game, placeId, settings) {
 
     loadBadges(game.universeId || game.id);
     badgesLoaded = true;
-
-    const checkHashAndShowTab = () => {
-        const hash = window.location.hash;
-        if (hash.includes('#!/store')) {
-            aboutTab.tab.classList.remove('active');
-            aboutTab.contentPane.classList.remove('active');
-            storeTab.tab.classList.add('active');
-            storeTab.contentPane.classList.add('active');
-            if (!passesLoaded) {
-                passesLoaded = true;
-                loadPasses(game.universeId || game.id);
-            }
-        } else {
-            storeTab.tab.classList.remove('active');
-            storeTab.contentPane.classList.remove('active');
-            aboutTab.tab.classList.add('active');
-            aboutTab.contentPane.classList.add('active');
-        }
-    };
-
-    if (!window.location.hash || !window.location.hash.includes('#!')) {
-        window.location.hash = '#!/about';
-    }
-
-    window.addEventListener('hashchange', checkHashAndShowTab);
 }
 
 function setupFavoriteButton(universeId, initialFavorited) {
@@ -648,6 +687,12 @@ async function loadBadges(universeId) {
         });
         const badges = res?.data || [];
 
+        badges.sort((a, b) => {
+            const rateA = (a.statistics?.winRatePercentage ?? 0) * 100;
+            const rateB = (b.statistics?.winRatePercentage ?? 0) * 100;
+            return rateB - rateA;
+        });
+
         const thumbMap = await fetchThumbnails(
             badges.map((b) => ({ id: b.id })),
             'BadgeIcon',
@@ -665,11 +710,17 @@ async function loadBadges(universeId) {
 
         badges.forEach((badge) => {
             const thumb = thumbMap.get(badge.id);
+            const stats = badge.statistics || {};
+            const winRate = (stats.winRatePercentage ?? 0) * 100;
+            const pastDayAwarded = stats.pastDayAwardedCount ?? 0;
+            const awardedCount = stats.awardedCount ?? 0;
+            const rarityText = winRate.toFixed(1) + '%';
+
             const li = document.createElement('li');
             li.className = 'stack-row badge-row';
             li.innerHTML = DOMPurify.sanitize(`
                 <div class="badge-image">
-                    <a href="https://www.roblox.com/badges/${badge.id}/${encodeURIComponent(badge.name)}">
+                    <a href="https://www.roblox.com/badges/${badge.id}/${encodeURIComponent(badge.displayName || badge.name)}">
                         <span class="thumbnail-2d-container badge-image-container">
                             <img class="" src="${thumb?.imageUrl || ''}" alt="${badge.name}" title="${badge.name}">
                         </span>
@@ -677,9 +728,23 @@ async function loadBadges(universeId) {
                 </div>
                 <div class="badge-content">
                     <div class="badge-data-container">
-                        <div class="font-header-2 badge-name">${badge.name}</div>
-                        <p class="para-overflow">${badge.description || ''}</p>
+                        <div class="font-header-2 badge-name">${badge.displayName || badge.name}</div>
+                        <p class="para-overflow">${badge.displayDescription || badge.description || ''}</p>
                     </div>
+                    <ul class="badge-stats-container">
+                        <li>
+                            <div class="text-label">Rarity</div>
+                            <div class="font-header-2 badge-stats-info">${rarityText}</div>
+                        </li>
+                        <li>
+                            <div class="text-label">Won Yesterday</div>
+                            <div class="font-header-2 badge-stats-info">${pastDayAwarded.toLocaleString()}</div>
+                        </li>
+                        <li>
+                            <div class="text-label">Won Ever</div>
+                            <div class="font-header-2 badge-stats-info">${awardedCount.toLocaleString()}</div>
+                        </li>
+                    </ul>
                 </div>
             `);
             container.appendChild(li);
