@@ -561,6 +561,96 @@
             "dec": "Dec"
         }
     },
+    "privateGames": {
+        "tabs": {
+            "about": "About",
+            "store": "Store"
+        },
+        "privateExperience": "Private Experience",
+        "experienceIsPrivate": "This experience is private.",
+        "unknown": "Unknown",
+        "rovalraNotice": "Only RoValra users can view this page.",
+        "unavailable": "Unavailable",
+        "favorite": {
+            "add": "Add to Favorites",
+            "remove": "Remove from Favorites",
+            "favorited": "Favorited",
+            "favorite": "Favorite"
+        },
+        "notify": {
+            "tooltip": "Turn on Notifications",
+            "label": "Notify"
+        },
+        "description": {
+            "title": "Description",
+            "noDescription": "No description available."
+        },
+        "stats": {
+            "active": "Active",
+            "favorites": "Favorites",
+            "visits": "Visits",
+            "maxPlayers": "Max Players",
+            "genre": "Genre",
+            "created": "Created",
+            "updated": "Updated",
+            "voiceChat": "Voice Chat",
+            "supported": "Supported",
+            "unsupported": "Unsupported"
+        },
+        "reportAbuse": "Report Abuse",
+        "badges": {
+            "title": "Badges",
+            "noBadges": "No badges yet",
+            "rarity": "Rarity",
+            "wonYesterday": "Won Yesterday",
+            "wonEver": "Won Ever"
+        },
+        "subscriptions": {
+            "title": "Subscriptions",
+            "subscribe": "Subscribe"
+        },
+        "passes": {
+            "title": "Passes",
+            "showOffSale": "Show Off Sale",
+            "noPasses": "No passes available",
+            "offSale": "Off Sale",
+            "owned": "Owned",
+            "buy": "Buy"
+        },
+        "products": {
+            "title": "Products",
+            "buy": "Buy"
+        }
+    },
+    "playabilityStatus": {
+        "0": "This experience is unavailable",
+        "1": "This experience is playable",
+        "2": "Guests cannot join this experience",
+        "3": "This experience has been moderated because it broke Roblox's Community Standards",
+        "4": "This experience is incorrectly configured",
+        "5": "This experience is private",
+        "6": "Only friends can join this experience",
+        "7": "Only community members can join this experience",
+        "8": "This experience is restricted on your device",
+        "9": "This experience is under review because it broke Roblox's Community Standards",
+        "10": "Purchase required to play",
+        "11": "Your account is restricted",
+        "12": "This experience is temporarily unavailable",
+        "13": "This experience has no published version",
+        "14": "This experience is blocked for compliance reasons",
+        "15": "This experience is not available in your region",
+        "16": "This experience is blocked for regional compliance reasons",
+        "17": "This experience is restricted by parental controls",
+        "18": "This experience is blocked by parental controls",
+        "19": "This experience is age-gated",
+        "20": "Verification required for 18+ experiences",
+        "21": "Purchase required to play",
+        "22": "Purchase restricted on this device",
+        "23": "This experience is unrated",
+        "24": "This experience is age-gated by content descriptor",
+        "25": "This experience is available",
+        "unknown": "This experience is unavailable"
+    },
     "bannedUsers": {
         "connections": "Friends",
         "followers": "Followers",

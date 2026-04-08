@@ -15,16 +15,28 @@ export function init() {
 
     if (!window.GameBannerManager) {
         window.GameBannerManager = {
-            addNotice: function (title, iconHtml = '', description = '') {
+            addNotice: function (
+                title,
+                iconHtml = '',
+                description = '',
+                fontSize = null,
+                descriptionFontSize = null,
+            ) {
                 const banner = document.getElementById(BANNER_ID);
                 if (!banner) return;
 
-                let fontSize = '20px';
-                if (title.length > 100) {
-                    fontSize = '14px';
-                } else if (title.length > 50) {
-                    fontSize = '16px';
+                let finalFontSize = fontSize;
+                if (!finalFontSize) {
+                    if (title.length > 100) {
+                        finalFontSize = '14px';
+                    } else if (title.length > 50) {
+                        finalFontSize = '16px';
+                    } else {
+                        finalFontSize = '20px';
+                    }
                 }
+
+                let finalDescFontSize = descriptionFontSize;
 
                 const parsedTitle = DOMPurify.sanitize(parseMarkdown(title));
                 const parsedDescription = DOMPurify.sanitize(
@@ -39,11 +51,19 @@ export function init() {
                     const tempDiv = document.createElement('div');
                     tempDiv.innerHTML = DOMPurify.sanitize(iconHtml);
                     const svgElement = tempDiv.querySelector('svg');
+                    const imgElement = tempDiv.querySelector('img');
 
                     if (svgElement) {
                         svgElement.setAttribute('fill', 'currentColor');
                         const modifiedIconHtml = svgElement.outerHTML;
                         iconContent = `<div class="rovalra-game-notice-icon">${modifiedIconHtml}</div>`;
+                    } else if (imgElement) {
+                        if (!imgElement.style.width)
+                            imgElement.style.width = '48px';
+                        if (!imgElement.style.height)
+                            imgElement.style.height = '48px';
+                        const imgHtml = imgElement.outerHTML;
+                        iconContent = `<div class="rovalra-game-notice-icon">${imgHtml}</div>`;
                     }
                 }
 
@@ -52,9 +72,9 @@ export function init() {
 
                 const titleDiv = document.createElement('div');
                 titleDiv.className = 'rovalra-game-notice-title';
-                titleDiv.innerHTML = parsedTitle; // Verified
+                titleDiv.innerHTML = DOMPurify.sanitize(parsedTitle);
 
-                titleDiv.style.fontSize = fontSize;
+                titleDiv.style.fontSize = finalFontSize;
                 titleDiv.style.fontWeight = description ? '600' : '400';
 
                 const mdWrapper = titleDiv.querySelector('.rovalra-markdown');
@@ -77,7 +97,11 @@ export function init() {
                 if (description) {
                     const descDiv = document.createElement('div');
                     descDiv.className = 'rovalra-game-notice-description';
-                    descDiv.innerHTML = parsedDescription; // Verified
+                    descDiv.innerHTML = DOMPurify.sanitize(parsedDescription);
+
+                    if (finalDescFontSize) {
+                        descDiv.style.fontSize = finalDescFontSize;
+                    }
 
                     const descWrapper =
                         descDiv.querySelector('.rovalra-markdown');
@@ -87,6 +111,9 @@ export function init() {
                     descParagraphs.forEach((p) => {
                         p.style.margin = '0';
                         p.style.color = 'inherit';
+                        if (finalDescFontSize) {
+                            p.style.fontSize = finalDescFontSize;
+                        }
                     });
 
                     textContainer.appendChild(descDiv);

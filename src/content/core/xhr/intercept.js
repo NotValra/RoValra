@@ -307,11 +307,17 @@
             Object.defineProperty(xhr, 'responseText', {
                 configurable: true,
                 get: function () {
-                    const original = Object.getOwnPropertyDescriptor(
+                    if (xhr._rovalra_cached_response)
+                        return xhr._rovalra_cached_response;
+
+                    const descriptor = Object.getOwnPropertyDescriptor(
                         XMLHttpRequest.prototype,
                         'responseText',
-                    ).get.call(this);
+                    );
+                    const original = descriptor.get.call(this);
+
                     if (this.readyState !== 4) return original;
+
                     try {
                         const data = JSON.parse(original);
                         if (xhr._rovalra_spoof_settings) {
@@ -368,7 +374,8 @@
                                 s.lastAccessedTimestampEpochMilliseconds = '0';
                             });
                         }
-                        return JSON.stringify(data);
+                        xhr._rovalra_cached_response = JSON.stringify(data);
+                        return xhr._rovalra_cached_response;
                     } catch (e) {
                         return original;
                     }

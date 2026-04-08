@@ -21,7 +21,6 @@ import { addTooltip } from '../../../core/ui/tooltip.js';
 import { createPill } from '../../../core/ui/general/pill.js';
 import { getFullRegionName, getRegionData } from '../../../core/regions.js';
 import { createScrollButtons } from '../../../core/ui/general/scrollButtons.js';
-import { showFriendListOverlay } from '../../../core/ui/games/friendListOverlay.js';
 import { showConfirmationPrompt } from '../../../core/ui/confirmationPrompt.js';
 import { log, logLevel } from '../../../core/logging.js';
 import { t, ts } from '../../../core/locale/i18n.js';
@@ -34,6 +33,7 @@ const assets = getAssets();
 const STORAGE_KEY = 'rovalra_search_history';
 const MAX_HISTORY = 50;
 let initialSearchValue = '';
+let searchHistoryRenderVersion = 0;
 
 const debounce = (func, delay) => {
     let timeout;
@@ -1579,7 +1579,17 @@ export function init() {
                 'section[data-testid="SearchLandingPageOmniFeedTestId"]',
                 (container) => {
                     if (searchSettings.searchHistoryEnabled) {
-                        renderSearchHistory(container);
+                        searchHistoryRenderVersion++;
+                        const myVersion = searchHistoryRenderVersion;
+                        renderSearchHistory(container).then(() => {
+                            if (searchHistoryRenderVersion !== myVersion) {
+                                container
+                                    .querySelectorAll(
+                                        '.rovalra-search-history-section',
+                                    )
+                                    .forEach((el) => el.remove());
+                            }
+                        });
                     }
                 },
                 {

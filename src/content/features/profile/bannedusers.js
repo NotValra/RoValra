@@ -45,12 +45,6 @@ export function init() {
                 }
 
                 try {
-                    const user = await callRobloxApiJson({
-                        subdomain: 'users',
-                        endpoint: `/v1/users/${userId}`,
-                        method: 'GET',
-                    }).catch(() => null);
-
                     const profileRes = await callRobloxApiJson({
                         subdomain: 'apis',
                         endpoint:
@@ -68,31 +62,42 @@ export function init() {
 
                     const profile = (profileRes?.profileDetails || [])[0];
 
-                    if (user && user.isBanned) {
-                        user.isVerified = profile?.isVerified || false;
-                        if (profile?.names?.combinedName) {
-                            user.displayName = profile.names.combinedName;
-                            user.name = profile.names.username;
-                        }
-                        if (user?.name === 'Account Forgotten') {
-                            user.isAccountForgotten = true;
-                        }
-                        renderBannedUserProfile(user, data);
+                    const userRes = await callRobloxApiJson({
+                        subdomain: 'users',
+                        endpoint: `/v1/users/${userId}`,
+                        method: 'GET',
+                    }).catch(() => null);
+
+                    if (userRes && !userRes.isBanned) {
+                        window.location.replace(
+                            `https://www.roblox.com/users/${userId}/profile`,
+                        );
+                        return;
+                    }
+
+                    if (userRes && userRes.isBanned) {
+                        userRes.isVerified = profile?.isVerified || false;
+                        userRes.isAccountForgotten =
+                            userRes?.name === 'Account Forgotten';
+                        renderBannedUserProfile(userRes, data);
                     } else if (profile) {
-                        const syntheticUser = {
-                            id: parseInt(userId),
-                            displayName:
-                                profile.names?.combinedName ||
-                                'Account Forgotten',
-                            name:
-                                profile.names?.username || 'Account Forgotten',
-                            isVerified: profile.isVerified || false,
-                            description: '',
-                            created: '',
-                            isBanned: true,
-                            isAccountForgotten: true,
-                        };
-                        renderBannedUserProfile(syntheticUser, data);
+                        renderBannedUserProfile(
+                            {
+                                id: parseInt(userId),
+                                displayName:
+                                    profile.names?.combinedName ||
+                                    'Account Forgotten',
+                                name:
+                                    profile.names?.username ||
+                                    'Account Forgotten',
+                                isVerified: profile.isVerified || false,
+                                description: '',
+                                created: '',
+                                isBanned: true,
+                                isAccountForgotten: true,
+                            },
+                            data,
+                        );
                     }
                 } catch (e) {
                     console.error('RoValra: Failed to fetch info', e);
@@ -136,12 +141,15 @@ export function init() {
 
                         const profile = (profileRes?.profileDetails || [])[0];
 
+                        if (user && !user.isBanned) {
+                            window.location.replace(
+                                `https://www.roblox.com/users/${userId}/profile`,
+                            );
+                            return;
+                        }
+
                         if (user && user.isBanned) {
                             user.isVerified = profile?.isVerified || false;
-                            if (profile?.names?.combinedName) {
-                                user.displayName = profile.names.combinedName;
-                                user.name = profile.names.username;
-                            }
 
                             const newUrl = `https://www.roblox.com/banned-users/${user.id}/profile`;
                             window.history.replaceState({}, '', newUrl);
@@ -197,7 +205,11 @@ async function renderBannedUserProfile(user, settings) {
     if (!content) return;
 
     const computedBg = getComputedStyle(content).backgroundColor;
-    if (computedBg && computedBg !== 'transparent' && computedBg !== 'rgba(0, 0, 0, 0)') {
+    if (
+        computedBg &&
+        computedBg !== 'transparent' &&
+        computedBg !== 'rgba(0, 0, 0, 0)'
+    ) {
         content.style.backgroundColor = 'transparent';
         content.style.backgroundImage = 'none';
     }
@@ -376,7 +388,8 @@ async function renderBannedUserProfile(user, settings) {
         );
     }
 
-    const currentUser = content.querySelector('.profile-platform-container')?.dataset.profileId;
+    const currentUser = content.querySelector('.profile-platform-container')
+        ?.dataset.profileId;
 
     const redirectBannedUrl = (e) => {
         if (!currentUser) return;
@@ -409,11 +422,15 @@ async function renderBannedUserProfile(user, settings) {
         link.addEventListener('click', (e) => redirectBannedUrl(e));
     });
 
-    content.querySelectorAll('#rovalra-banned-groups-list a').forEach((link) => {
-        link.addEventListener('click', (e) => redirectBannedUrl(e));
-    });
+    content
+        .querySelectorAll('#rovalra-banned-groups-list a')
+        .forEach((link) => {
+            link.addEventListener('click', (e) => redirectBannedUrl(e));
+        });
 
-    const seeAllLink = content.querySelector('#friends-carousel-container .btn-more');
+    const seeAllLink = content.querySelector(
+        '#friends-carousel-container .btn-more',
+    );
     if (seeAllLink) {
         seeAllLink.addEventListener('click', (e) => redirectBannedUrl(e));
     }
@@ -908,21 +925,11 @@ async function loadGroups(userId) {
         const groupInfoMap = new Map();
         groupIds.forEach((gid) => assetInfoCache.set(gid, { id: gid }));
 
-        const groupsDetailRes = await callRobloxApiJson({
-            subdomain: 'groups',
-            endpoint: `/v1/groups?groupIds=${groupIds.join(',')}`,
-            method: 'GET',
-        }).catch(() => null);
-
         if (
             document.querySelector('.profile-platform-container')?.dataset
                 .profileId !== String(userId)
         )
             return;
-
-        if (groupsDetailRes?.data) {
-            groupsDetailRes.data.forEach((g) => groupInfoMap.set(g.id, g));
-        }
 
         const groupThumbMap = new Map(thumbs.map((t) => [t.targetId, t]));
         const groupsList = document.getElementById(

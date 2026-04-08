@@ -216,6 +216,15 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: false,
             },
+            privateGameDetectionEnabled: {
+                label: 'Private / Moderated Experience',
+                description: [
+                    'This recreates the experience page of private / moderated experiences, allowing you to view them.',
+                ],
+                type: 'checkbox',
+                default: false,
+                requiredPermissions: ['webRequest'],
+            },
             botdataEnabled: {
                 label: 'Bot Data',
                 description: [
@@ -422,7 +431,7 @@ export const SETTINGS_CONFIG = {
                 description: [
                     'This joins a user instantly when they go into an experience, best used for people with a lot of people trying to join them.',
                     '### Requirements',
-                    '- This feature requires the user to have their joins enabled for everyone or for you to be connected with them.',
+                    '- This feature requires the user to have their joins enabled for everyone or for you to be friends with them.',
                 ],
                 type: 'checkbox',
                 default: true,
@@ -465,6 +474,7 @@ export const SETTINGS_CONFIG = {
                         description: [
                             "Choose a custom environment for your own profile's 3D render.",
                             'This only applies when viewing your own profile.',
+                            'If you arent a RoValra donator it will add a e:x into your about me so other RoValra users can see your environment',
                         ],
                         type: 'select',
                         options: [
@@ -509,6 +519,7 @@ export const SETTINGS_CONFIG = {
                 description: [
                     'This feature allows you to accept, request and remove trusted friends on the site for eligible friends.',
                     'Eligible friends must be ID or face-scan verified and within your age bracket (13–17 or 18+).',
+                    'Trusted Friends might not be available in some regions.',
                     '**Note:** Roblox uses an algorithm that may prevent adding someone even if they meet these requirements. [Learn more here.](https://en.help.roblox.com/hc/en-us/articles/46158344285204)',
                 ],
                 type: 'checkbox',
@@ -517,7 +528,7 @@ export const SETTINGS_CONFIG = {
             friendsSinceEnabled: {
                 label: 'Friends Since',
                 description:
-                    'This feature shows how long you have been friends with someone on your friends list.',
+                    'This feature shows how long you have been friends with someone on their profile and in your friends list.',
                 type: 'checkbox',
                 default: true,
             },
@@ -940,6 +951,26 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: false,
                 requiredPermissions: ['webNavigation'],
+            },
+            Customfont: {
+                label: 'Custom font',
+                description: [
+                    'This allows to set custom font for the Roblox website.',
+                ],
+                type: 'checkbox',
+                default: false,
+                childSettings: {
+                    Customfontlink: {
+                        label: 'Google Fonts link',
+                        description: [
+                            'You can find Fonts at https://fonts.google.com/',
+                            'The link should look like "https://fonts.google.com/specimen/Comic+Neue"',
+                        ],
+                        type: 'input',
+                        default: null,
+                        placeholder: 'Enter Font Link here...',
+                    },
+                },
             },
             ServerdataEnabled: {
                 label: "Send Server IDs and Place IDs to RoValra's API",

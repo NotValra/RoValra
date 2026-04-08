@@ -17,11 +17,13 @@ import { init as initApiDocs } from './features/developer/apiDocs.js';
 import { init as initApiKey } from './core/utils/trackers/apiKey.js';
 import { init as initServerTracker } from './core/utils/trackers/servers.js';
 import { initFriendsListTracking } from './core/utils/trackers/friendslist.js';
+import { init as initPrivateGames } from './features/games/privateGames.js';
 import { init as initQoLToggles } from './features/navigation/QoLToggles.js';
 import { init as initCopyId } from './features/sitewide/copyid.js';
 import { init as initQuickSearch } from './features/navigation/search/quicksearch.js';
 import { init as initRenderTest } from './features/developer/rendertest.js';
 import { init as initGroupFunds } from './features/navigation/groupfunds.js';
+import { init as initCustomFont } from './features/sitewide/customFont.js';
 
 // Avatar
 import { init as initAvatarFilters } from './features/avatar/filters.js';
@@ -85,6 +87,7 @@ import { init as initTrustedFriends } from './features/profile/trustedfriends.js
 import { init as initProfileRender } from './features/profile/header/ProfileRender.js';
 import { init as initStatus } from './features/profile/header/status.js';
 import { init as initFriendsSince } from './features/profile/friends/friendsSince.js';
+import { init as initRobuxIcons } from './core/ui/robuxIcon.js';
 
 // Settings
 import { init as initSettingsPage } from './features/settings/index.js';
@@ -125,9 +128,12 @@ const featureRoutes = [
             initPreviousPrice,
             initQuickSearch,
             initRenderTest,
+            initPrivateGames,
             initBannedUsers,
             initGroupFunds,
             initStatus,
+            initCustomFont,
+            initRobuxIcons,
         ],
     },
     // pretty much just the 40% method
@@ -166,15 +172,23 @@ const featureRoutes = [
             initBotDetector,
             initServerList,
             initRegionPlayButton,
-            initSubplaces,
             bannertest,
             initGameTrailers,
             quickOutfits,
             initRecentServers,
             initPrivateServerControls,
-            initDevProductLoader,
             initHeatmap,
         ],
+    },
+    // private games and game pages
+    {
+        paths: ['/games/', '/private-games'],
+        features: [initDevProductLoader, initSubplaces],
+    },
+    // Private games page
+    {
+        paths: ['/private-games/'],
+        features: [initPrivateGames],
     },
     // avatar
     {

@@ -1,4 +1,5 @@
-#rovalra-game-notice-banner, #rovalra-catalog-notice-banner {
+#rovalra-game-notice-banner,
+#rovalra-catalog-notice-banner {
     background-color: var(--rovalra-container-background-color);
     width: 100%;
     padding: 10px 15px;
@@ -9,16 +10,19 @@
     &.rovalra-banner-compact {
         padding: 6px 15px;
 
-        .rovalra-game-notice-entry, .rovalra-catalog-notice-entry {
+        .rovalra-game-notice-entry,
+        .rovalra-catalog-notice-entry {
             padding: 3px 0;
         }
 
-        .rovalra-game-notice-description, .rovalra-catalog-notice-description {
+        .rovalra-game-notice-description,
+        .rovalra-catalog-notice-description {
             margin-top: 1px;
         }
     }
 
-    .rovalra-game-notice-entry, .rovalra-catalog-notice-entry {
+    .rovalra-game-notice-entry,
+    .rovalra-catalog-notice-entry {
         display: flex;
         position: relative;
         align-items: center;
@@ -27,24 +31,34 @@
         color: var(--rovalra-main-text-color);
     }
 
-    .rovalra-game-notice-icon, .rovalra-catalog-notice-icon {
+    .rovalra-game-notice-icon,
+    .rovalra-catalog-notice-icon {
         display: flex;
         align-items: center;
         justify-content: center;
         flex-shrink: 0;
-        > svg {
+        color: var(--rovalra-main-text-color);
+
+        > svg,
+        > img {
             width: 48px;
             height: 48px;
         }
+
+        > img {
+            opacity: 0.85;
+        }
     }
 
-    .rovalra-game-notice-text-container, .rovalra-catalog-notice-text-container {
+    .rovalra-game-notice-text-container,
+    .rovalra-catalog-notice-text-container {
         display: flex;
         flex-direction: column;
         justify-content: center;
     }
 
-    .rovalra-game-notice-title, .rovalra-catalog-notice-title {
+    .rovalra-game-notice-title,
+    .rovalra-catalog-notice-title {
         line-height: 1.2;
         color: var(--rovalra-main-text-color);
 
@@ -57,7 +71,8 @@
         font-size: 16px !important;
     }
 
-    .rovalra-game-notice-description, .rovalra-catalog-notice-description {
+    .rovalra-game-notice-description,
+    .rovalra-catalog-notice-description {
         font-size: 14px;
         margin-top: 4px;
         color: var(--rovalra-secondary-text-color);

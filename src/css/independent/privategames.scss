@@ -1,0 +1,825 @@
+.rovalra-game-hero {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 0px;
+    padding: 16px 0;
+
+    .game-details-carousel-container {
+        flex-shrink: 0;
+        width: 640px;
+        height: 360px;
+        max-width: 640px;
+        max-height: 360px;
+
+        .carousel-item {
+            width: 640px;
+            height: 360px;
+        }
+    }
+
+    .game-calls-to-action {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        height: 360px;
+
+        .game-title-container {
+            margin-bottom: 16px;
+        }
+
+        .game-buttons-container {
+            margin-top: auto;
+
+            .rovalra-private-actions {
+                display: flex;
+                justify-content: flex-start;
+                align-items: center;
+                gap: 24px;
+                list-style: none;
+                padding: 0;
+                margin: 12px 0 0 0;
+
+                .game-favorite-button-container,
+                .game-follow-button-container {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                }
+
+                .tooltip-container {
+                    text-align: center;
+                }
+
+                .favorite-button,
+                .follow-button {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    cursor: pointer;
+                }
+
+                .follow-button.disabled {
+                    opacity: 0.7;
+                    cursor: not-allowed;
+                    pointer-events: none;
+                }
+
+                .rovalra-action-icon {
+                    display: block;
+                    margin-bottom: 4px;
+                    font-size: 24px;
+                }
+
+                .rovalra-action-label {
+                    font-size: 12px;
+                    color: var(--rovalra-secondary-text-color);
+                    font-weight: 400;
+                    text-align: center;
+                }
+
+                .rovalra-voting-section {
+                    width: 110px;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+
+                    .rovalra-voting-controls {
+                        position: relative;
+                        width: 110px;
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+
+                        .vote-btn-row {
+                            width: 100%;
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+
+                            .rovalra-vote-btn {
+                                padding: 2px;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                pointer-events: none;
+                                opacity: 0.7;
+
+                                &.upvote .icon-like,
+                                &.downvote .icon-dislike {
+                                    font-size: 16px;
+                                }
+                            }
+                        }
+                        .vote-container {
+                            position: relative;
+                            width: 110px;
+                            height: 2px;
+                            margin-top: 6px;
+
+                            .vote-background {
+                                position: absolute;
+                                top: 0;
+                                left: 0;
+                                width: 100%;
+                                height: 100%;
+                                background-color: rgb(25, 26, 31);
+                            }
+
+                            .vote-percentage {
+                                position: absolute;
+                                top: 0;
+                                left: 0;
+                                height: 100%;
+                                background-color: rgb(247, 247, 248);
+                                transition: width 0.3s ease;
+                            }
+
+                            .vote-mask {
+                                position: absolute;
+                                top: 0;
+                                left: 0;
+                                width: 100%;
+                                height: 100%;
+
+                                .segment {
+                                    position: absolute;
+                                    width: 2px;
+                                    height: 100%;
+                                    background-color: rgb(39, 41, 48);
+
+                                    &.seg-1 {
+                                        left: 20px;
+                                    }
+                                    &.seg-2 {
+                                        left: 40px;
+                                    }
+                                    &.seg-3 {
+                                        left: 60px;
+                                    }
+                                    &.seg-4 {
+                                        left: 80px;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    .rovalra-vote-counts {
+                        width: 100%;
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        margin-top: 2px;
+
+                        .rovalra-vote-count {
+                            font-size: 11px;
+                            color: var(--rovalra-secondary-text-color);
+                            font-weight: 400;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+div.game-stat-container.rovalra-horizontal-stats,
+ul.game-stat-container.rovalra-horizontal-stats {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    margin: 0;
+    list-style: none;
+    width: 100%;
+    height: 86px;
+    box-sizing: border-box;
+
+    .game-stat,
+    li.game-stat {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        box-sizing: border-box;
+        flex: 1;
+        padding: 0;
+        margin: 0;
+
+        .text-label {
+            font-size: 12px;
+            font-weight: 500;
+            line-height: 18px;
+            color: var(--rovalra-secondary-text-color);
+            text-align: center;
+            margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .text-lead {
+            font-size: 12px;
+            font-weight: 400;
+            line-height: 18px;
+            color: var(--rovalra-main-text-color);
+            text-align: center;
+            margin: 0;
+        }
+    }
+}
+
+div[data-testid='content-maturity-label-container'] {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    height: 0;
+}
+.verified-badge-icon-experience-creator {
+    width: 20px;
+    height: 20px;
+    margin-left: 4px;
+    vertical-align: middle;
+    transform: translateY(-1px);
+}
+.game-description {
+    padding-bottom: 12px;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    word-break: break-word;
+    white-space: pre-wrap;
+    overflow-x: hidden;
+}
+
+.age-rating-details {
+    position: relative;
+    display: inline-block;
+    padding: 15px;
+    margin-bottom: 18px;
+    width: auto;
+    box-sizing: border-box;
+    border-radius: 8px;
+
+    .age-rating-age-bracket {
+        font-size: 16px;
+        font-weight: 400;
+        text-decoration: none;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+}
+
+.game-passes .gear-passes-asset,
+#rbx-game-passes .gear-passes-asset,
+.store-developer-products-row .gear-passes-asset,
+#rbx-developer-products .gear-passes-asset {
+    background: transparent !important;
+}
+
+.game-passes .store-card-image,
+#rbx-game-passes .store-card-image,
+.store-developer-products-row .store-product-card-thumbnail,
+#rbx-developer-products .store-product-card-thumbnail {
+    background: transparent !important;
+}
+
+#rbx-developer-products,
+#rbx-developer-products.container-list,
+#rbx-developer-products.game-passes,
+#rbx-developer-products.game-dev-store {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+#rbx-developer-products .store-developer-products-row,
+#rbx-developer-products .store-cards.hlist {
+    padding-left: 0 !important;
+    margin-left: 0 !important;
+}
+
+#rbx-developer-products .list-item.developer-product-tile,
+#rbx-developer-products .list-item {
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+}
+
+.store-developer-products-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    list-style: none;
+    padding: 0 !important;
+    margin: 0 !important;
+    align-items: flex-start;
+    justify-content: flex-start !important;
+
+    .list-item.developer-product-tile {
+        margin: 0 !important;
+        padding: 0 !important;
+        flex: 0 0 150px;
+        max-width: 150px;
+
+        .store-card {
+            width: 150px;
+            display: flex;
+            flex-direction: column;
+
+            .store-product-card-thumbnail {
+                width: 150px;
+                height: 150px;
+                display: block;
+                background: transparent;
+
+                img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                }
+            }
+
+            .store-product-card-caption {
+                display: flex;
+                flex-direction: column;
+                padding: 8px 0;
+                min-height: 60px;
+
+                .store-product-card-name {
+                    font-size: 14px;
+                    font-weight: 600;
+                    line-height: 18px;
+                    color: var(--rovalra-main-text-color);
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                    display: block;
+                    min-height: 18px;
+                    text-align: left;
+                    margin-left: 0;
+                    margin-right: 0;
+                }
+
+                .store-card-price {
+                    display: flex;
+                    align-items: center;
+                    gap: 4px;
+                    margin-top: 4px;
+                    font-size: 13px;
+                    font-weight: 500;
+                    color: var(--rovalra-secondary-text-color);
+                    min-height: 16px;
+
+                    .icon-robux-16x16 {
+                        width: 18px;
+                        height: 18px;
+                    }
+
+                    .text-robux {
+                        font-size: 13px;
+                        font-weight: 500;
+                    }
+                }
+
+                .store-card-footer {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin-top: 6px;
+                    min-height: 24px;
+
+                    .btn-buy-md {
+                        cursor: pointer;
+
+                        &.disabled {
+                            opacity: 0.5;
+                            cursor: not-allowed;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+.game-passes .game-passes-container,
+#rbx-game-passes .gear-passes-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    .store-card {
+        width: 150px;
+        display: flex;
+        flex-direction: column;
+
+        .store-card-image {
+            width: 150px;
+            height: 150px;
+            display: block;
+
+            img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+        }
+
+        .store-card-caption {
+            display: flex;
+            flex-direction: column;
+            padding: 8px 0;
+            min-height: 60px;
+
+            .store-card-name {
+                font-size: 14px;
+                font-weight: 600;
+                line-height: 18px;
+                color: var(--rovalra-main-text-color);
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                display: block;
+                min-height: 18px;
+                text-align: left;
+                margin-left: 0;
+                margin-right: 0;
+            }
+
+            .store-card-price {
+                display: flex;
+                align-items: center;
+                gap: 4px;
+                margin-top: 4px;
+                font-size: 13px;
+                font-weight: 500;
+                color: var(--rovalra-secondary-text-color);
+                min-height: 16px;
+
+                &.offsale {
+                    color: var(--rovalra-secondary-text-color,);
+
+                    .text-label {
+                        color: inherit;
+                    }
+                }
+
+                .icon-robux-16x16 {
+                    width: 18px;
+                    height: 18px;
+                }
+
+                .text-robux {
+                    font-size: 13px;
+                    font-weight: 500;
+                }
+            }
+
+            .store-card-footer {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin-top: 6px;
+                min-height: 24px;
+
+                .btn-buy-md {
+                    cursor: pointer;
+
+                    &.disabled {
+                        opacity: 0.5;
+                        cursor: not-allowed;
+                    }
+                }
+
+                h5 {
+                    margin: 0;
+                    font-size: 16px;
+                    font-weight: 500;
+                    color: var(--rovalra-secondary-text-color);
+                }
+            }
+        }
+    }
+}
+
+li.rovalra-offsale-toggle-item {
+    list-style: none;
+    display: block;
+    width: 100%;
+    break-before: column;
+}
+
+#rbx-subscriptions-container {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+
+    #rbx-subscriptions-container-content {
+        margin-bottom: 24px !important;
+    }
+}
+
+.subscriptions-scroll-container {
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+    padding-bottom: 4px;
+    margin-top: 0px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    cursor: grab;
+    user-select: none;
+
+    .subscription-card-item {
+        box-sizing: border-box;
+        overflow: hidden;
+        display: flex;
+        flex-basis: calc(50% - 8px);
+        flex-direction: column;
+        flex-grow: 0;
+        flex-shrink: 0;
+        height: 144px;
+        min-width: 0;
+        padding: 12px;
+        background-color: rgba(208, 217, 251, 0.08);
+        border-radius: 8px;
+        cursor: pointer;
+        user-select: none;
+        color: rgb(247, 247, 248);
+        column-gap: 8px;
+        row-gap: 8px;
+
+        &.bg-shift-200 {
+            background-color: rgba(208, 217, 251, 0.08);
+        }
+
+        .subscription-card-info {
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            flex-basis: 0%;
+            flex-grow: 1;
+            flex-shrink: 1;
+            height: 72px;
+            min-height: 0;
+            min-width: 0;
+            overflow-x: hidden;
+            overflow-y: hidden;
+            column-gap: 8px;
+            row-gap: 8px;
+            cursor: pointer;
+            user-select: none;
+
+            .subscription-card-thumbnail {
+                box-sizing: border-box;
+                display: block;
+                flex-shrink: 0;
+                height: 56px;
+                width: 56px;
+                background: transparent !important;
+                border-radius: 8px;
+                overflow: hidden;
+
+                .subscription-thumbnail-container-class {
+                    border-radius: 8px;
+                    overflow: hidden;
+
+                    .subscription-thumbnail {
+                        width: 100%;
+                        height: 100%;
+                        object-fit: cover;
+                        border-radius: 8px;
+                    }
+                }
+            }
+
+            .subscription-card-text {
+                box-sizing: border-box;
+                display: flex;
+                flex-basis: 0%;
+                flex-direction: column;
+                flex-grow: 1;
+                flex-shrink: 1;
+                min-width: 0;
+                cursor: pointer;
+                user-select: none;
+
+                .subscription-card-title {
+                    font-size: 14px;
+                    font-weight: 600;
+                    line-height: 18px;
+                    color: rgb(247, 247, 248);
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                    display: block;
+                }
+
+                .subscription-card-description {
+                    font-size: 14px;
+                    font-weight: 400;
+                    line-height: 16px;
+                    color: var(--rovalra-secondary-text-color);
+                    margin-top: 2px;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                }
+
+                .subscription-card-price {
+                    display: flex;
+                    align-items: center;
+                    gap: 4px;
+                    margin-top: 4px;
+                    font-size: 13px;
+                    font-weight: 500;
+                    color: rgb(247, 247, 248);
+                    min-height: 16px;
+
+                    .subscription-robux-icon {
+                        flex-shrink: 0;
+                    }
+                }
+            }
+        }
+
+        .subscription-card-overlays {
+            display: none;
+        }
+
+        button[type='button'] {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 40px;
+            width: 100%;
+            margin: 0;
+            padding: 0 12px;
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 14px;
+            text-align: center;
+            color: rgb(247, 247, 248);
+            background-color: rgba(208, 217, 251, 0.12);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            user-select: none;
+            -webkit-font-smoothing: antialiased;
+            text-rendering: auto;
+            text-decoration: none;
+
+            .padding-y-xsmall {
+                padding-top: 4px;
+                padding-bottom: 4px;
+            }
+
+            &:hover:not(:disabled):not(.disabled) {
+                background-color: rgba(208, 217, 251, 0.2);
+            }
+
+            &:active:not(:disabled):not(.disabled) {
+                background-color: rgba(208, 217, 251, 0.25);
+            }
+
+            &:disabled,
+            &.disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+                pointer-events: none;
+            }
+        }
+    }
+}
+
+.stack-row.badge-row {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    padding: 12px;
+    min-height: 72px;
+
+    .badge-image {
+        flex-shrink: 0;
+        background: transparent;
+
+        .badge-image-container {
+            background: transparent;
+        }
+    }
+
+    .badge-content {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 0 12px;
+        min-height: 80px;
+
+        .badge-data-container {
+            min-width: 0;
+            max-width: 100%;
+            overflow: hidden;
+
+            .badge-name {
+                font-size: 16px;
+                font-weight: 700;
+                line-height: 22px;
+                color: var(--rovalra-main-text-color);
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+            .para-overflow {
+                font-size: 16px;
+                font-weight: 400;
+                line-height: 20px;
+                color: var(--rovalra-secondary-text-color);
+                margin: 4px 0 0 0;
+                overflow-wrap: break-word;
+                word-wrap: break-word;
+                word-break: break-word;
+                white-space: normal;
+                overflow: hidden;
+            }
+        }
+
+        .badge-stats-container {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+
+            li {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                padding: 0;
+                margin: 0;
+                text-align: center;
+
+                .badge-stats-info {
+                    font-size: 16px;
+                    font-weight: 400;
+                    line-height: 24px;
+                    color: var(--rovalra-main-text-color);
+                    margin: 0;
+                }
+
+                .text-label {
+                    font-size: 16px;
+                    font-weight: 400;
+                    line-height: 20px;
+                    color: var(--rovalra-secondary-text-color);
+                    margin: 0;
+                }
+            }
+        }
+    }
+}
+
+:root:has(.light-theme),
+:root.light-theme,
+:root[color-scheme='light'],
+:root:has(meta[name='theme-color'][content='#F9F9F9']) {
+    .rovalra-voting-controls {
+        .vote-container {
+            .vote-background.has-votes {
+                background-color: rgb(247, 247, 248) !important;
+            }
+
+            .vote-percentage {
+                background-color: rgb(32, 34, 39) !important;
+            }
+
+            .vote-mask {
+                .segment.seg-1,
+                .segment.seg-2,
+                .segment.seg-3,
+                .segment.seg-4 {
+                    background-color: rgb(247, 247, 248) !important;
+                }
+            }
+        }
+    }
+}

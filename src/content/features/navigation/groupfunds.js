@@ -7,6 +7,9 @@ import {
 } from '../../core/thumbnail/thumbnails.js';
 
 export function init() {
+    if (init._run) return;
+    init._run = true;
+
     chrome.storage.local.get(
         { GroupFundsEnabled: false, GroupFundsIds: [] },
         (settings) => {
@@ -24,11 +27,18 @@ export function init() {
                 return;
 
             const cacheKey = 'rovalra-group-funds-data';
+            let version = 0;
 
-            observeElement('#buy-robux-popover', async (popover) => {
+            const renderSection = async (popover) => {
                 const menu = popover.querySelector('.dropdown-menu');
-                if (!menu || menu.querySelector('.rovalra-group-funds-section'))
-                    return;
+                if (!menu) return;
+
+                version++;
+                const myVersion = version;
+
+                menu.querySelectorAll('.rovalra-group-funds-section').forEach(
+                    (el) => el.remove(),
+                );
 
                 const storageData = await new Promise((resolve) =>
                     chrome.storage.local.get(cacheKey, resolve),
@@ -181,6 +191,8 @@ export function init() {
                                 }).then((data) => data.pendingRobux || 0),
                             ]);
 
+                        if (version !== myVersion) return;
+
                         const newEntry = {
                             icon: iconData,
                             funds: fundsData,
@@ -197,6 +209,7 @@ export function init() {
                         freshCache[groupId] = newEntry;
                         chrome.storage.local.set({ [cacheKey]: freshCache });
                     } catch (e) {
+                        if (version !== myVersion) return;
                         console.warn(
                             'RoValra: Failed to update group funds data',
                             e,
@@ -210,10 +223,33 @@ export function init() {
                     }
                 };
 
+                if (version !== myVersion) return;
+
                 groupIds.forEach((id) => renderGroup(id));
 
                 menu.appendChild(section);
-            });
+            };
+
+            observeElement(
+                '#buy-robux-popover',
+                (popover) => {
+                    const menu = popover.querySelector('.dropdown-menu');
+                    if (
+                        menu &&
+                        menu.querySelector('.rovalra-group-funds-section')
+                    )
+                        return;
+                    renderSection(popover);
+                },
+                {
+                    onRemove: () => {
+                        version++;
+                        document
+                            .querySelectorAll('.rovalra-group-funds-section')
+                            .forEach((el) => el.remove());
+                    },
+                },
+            );
         },
     );
 }

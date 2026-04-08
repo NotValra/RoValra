@@ -13,6 +13,7 @@ const state = {
     rotatorInterval: null,
     rotatorIndex: 0,
     bannedUserRedirects: new Map(),
+    privateGameRedirects: new Map(),
 };
 
 // --- Session Storage Configuration ---
@@ -216,6 +217,48 @@ function updateBannedUserListener() {
                     } else {
                         chrome.webRequest.onBeforeRedirect.removeListener(
                             onBeforeRedirectHandler,
+                        );
+                    }
+                },
+            );
+        }
+    });
+}
+
+// --- Private Game Redirect Tracking ---
+
+function onPrivateGameRedirectHandler(details) {
+    const match = details.url.match(/games\/(\d+)/);
+    if (match && match[1]) {
+        const placeId = match[1];
+        state.privateGameRedirects.set(details.tabId, placeId);
+    }
+}
+
+function updatePrivateGameListener() {
+    if (!chrome.webRequest) return;
+
+    chrome.permissions.contains({ permissions: ['webRequest'] }, (granted) => {
+        if (granted) {
+            chrome.storage.local.get(
+                { privateGameDetectionEnabled: true },
+                (data) => {
+                    if (data.privateGameDetectionEnabled) {
+                        if (
+                            !chrome.webRequest.onBeforeRedirect.hasListener(
+                                onPrivateGameRedirectHandler,
+                            )
+                        ) {
+                            chrome.webRequest.onBeforeRedirect.addListener(
+                                onPrivateGameRedirectHandler,
+                                {
+                                    urls: ['*://www.roblox.com/games/*'],
+                                },
+                            );
+                        }
+                    } else {
+                        chrome.webRequest.onBeforeRedirect.removeListener(
+                            onPrivateGameRedirectHandler,
                         );
                     }
                 },
@@ -619,6 +662,9 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
         ) {
             updateAvatarRotator();
         }
+        if (changes.privateGameDetectionEnabled) {
+            updatePrivateGameListener();
+        }
         if (changes.bannedUserDetectionEnabled) {
             updateBannedUserListener();
         }
@@ -630,8 +676,10 @@ chrome.permissions.onAdded.addListener((permissions) => {
         setupNavigationListener();
     if (permissions.permissions?.includes('contextMenus'))
         setupContextMenuListener();
-    if (permissions.permissions?.includes('webRequest'))
+    if (permissions.permissions?.includes('webRequest')) {
         updateBannedUserListener();
+        updatePrivateGameListener();
+    }
 
     chrome.tabs.query({}, (tabs) => {
         tabs.forEach((tab) =>
@@ -797,6 +845,13 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             return false;
         }
 
+        case 'getPrivateGameRedirect': {
+            const placeId = state.privateGameRedirects.get(sender.tab?.id);
+            state.privateGameRedirects.delete(sender.tab?.id);
+            sendResponse({ placeId });
+            return false;
+        }
+
         case 'presencePollResult':
             return false;
 
@@ -887,3 +942,4 @@ updateUserAgentRule();
 updateAvatarRotator();
 setupContextMenuListener();
 updateBannedUserListener();
+updatePrivateGameListener();
