@@ -14,10 +14,7 @@ import {
 import { createInteractiveTimestamp } from '../../../core/ui/time/time.js';
 import { t, ts } from '../../../core/locale/i18n.js';
 import { showSystemAlert } from '../../../core/ui/roblox/alert.js';
-import {
-    getUserIdFromFriendUrl,
-    getUserIdFromUrl,
-} from '../../../core/idExtractor.js';
+import { getUserIdFromFriendUrl } from '../../../core/idExtractor.js';
 import { getAuthenticatedUserId } from '../../../core/user.js';
 
 const selectedFriends = new Set();
