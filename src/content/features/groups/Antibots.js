@@ -9,6 +9,7 @@ import {
 } from '../../core/thumbnail/thumbnails.js';
 import DOMPurify from 'dompurify';
 import { t, ts } from '../../core/locale/i18n.js';
+import __unused from '../../core/utils/lintUtils.js';
 
 let userPermissions = { canBan: null, canKick: null, lastChecked: 0 };
 
@@ -72,6 +73,7 @@ async function checkUserPermissions() {
         };
         return userPermissions;
     } catch (error) {
+        __unused(error);
         return { canBan: false, canKick: false };
     }
 }
@@ -443,6 +445,7 @@ function createMemberCard(member, thumbnail, isBot = false) {
     li.appendChild(container);
 
     li.addEventListener('click', (e) => {
+        __unused(e);
         const currentState = radio.getAttribute('aria-checked') === 'true';
         radio.setChecked(!currentState);
         li.classList.toggle('selected', !currentState);

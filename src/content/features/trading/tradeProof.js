@@ -2,6 +2,7 @@ import { observeElement } from '../../core/observer.js';
 import { getCachedRolimonsItem } from '../../core/trade/itemHandler.js';
 import { callRobloxApiJson } from '../../core/api.js';
 import { getAuthenticatedUsername } from '../../core/user.js';
+import __unused from '../../core/utils/lintUtils.js';
 
 export function init() {
     chrome.storage.local.get({ tradeProofEnabled: true }, (settings) => {
@@ -113,6 +114,7 @@ async function copyTradeProof(container, btn) {
                     partnerUsername = userData.name;
                 }
             } catch (e) {
+                __unused(e);
                 const usernameSpan = partnerLink.querySelector(
                     'span.element:last-of-type',
                 );

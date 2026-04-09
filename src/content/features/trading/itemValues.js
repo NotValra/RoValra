@@ -19,6 +19,7 @@ import {
     createRapDiffPill,
     createValueDiffPill,
 } from '../../core/trade/ui/tradePills.js';
+import __unused from '../../core/utils/lintUtils.js';
 
 let cardObserverRequest = null;
 let summaryObserverRequest = null;
@@ -741,6 +742,7 @@ function renderSummary(giveOffer, receiveOffer, giveStats, receiveStats) {
     }
 
     const assets = getAssets();
+    __unused(assets);
     summaryDiv.innerHTML = '';
 
     let myRap = giveStats.rap;

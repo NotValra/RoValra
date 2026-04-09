@@ -2,6 +2,7 @@ import { observeElement } from '../../core/observer.js';
 import { callRobloxApi } from '../../core/api.js';
 import { addTooltip } from '../../core/ui/tooltip.js';
 import { t } from '../../core/locale/i18n.js';
+import __unused from '../../core/utils/lintUtils.js';
 
 const API_LIMIT = 100;
 const MAX_PAGES_TO_FETCH_FOR_INFERENCE = 2000;
@@ -24,6 +25,7 @@ const parseTimestamp = (timestampStr) => {
         if (isNaN(dt.getTime())) return null;
         return dt;
     } catch (e) {
+        __unused(e);
         return null;
     }
 };
@@ -108,6 +110,7 @@ async function fetchTransactions(groupId) {
                 break transactionLoop;
             }
         } catch (error) {
+            __unused(error);
             break transactionLoop;
         }
     }

@@ -4,11 +4,13 @@
     "description": "An extension aiming to provide features that other Roblox extensions pay wall!",
     "private": true,
     "scripts": {
-        "build": "npm run clean && node build.js",
+        "build": "npm run clean && node build.cjs",
         "clean": "rimraf dist",
         "lint": "eslint ."
     },
     "devDependencies": {
+        "@babel/parser": "^7.29.2",
+        "@babel/traverse": "^7.29.0",
         "esbuild": "^0.27.3",
         "eslint": "^9.39.4",
         "eslint-config-prettier": "^10.1.8",

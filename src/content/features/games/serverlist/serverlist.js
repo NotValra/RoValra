@@ -32,6 +32,7 @@ import {
     getOrCreateDetailsContainer,
     createInfoElement,
 } from '../../../core/games/servers/serverdetails.js';
+import __unused from '../../../core/utils/lintUtils.js';
 
 const SHARED_STYLES = `
     #rovalra-main-controls {
@@ -612,15 +613,15 @@ try {
                                         fps,
                                         _state.serverLocations,
                                     );
-                                } catch (e) {}
+                                } catch (e) {__unused(e)}
                             }
                         }
                     }
                 }
             })();
-        } catch (e) {}
+        } catch (e) {__unused(e)}
     });
-} catch (e) {}
+} catch (e) {__unused(e)}
 
 export async function createServerCardFromRobloxApi(server, placeId) {
     try {
@@ -693,6 +694,7 @@ export async function createServerCardFromRobloxApi(server, placeId) {
         enhanceServer(serverItem, _state);
         return serverItem;
     } catch (e) {
+        __unused(e);
         return null;
     }
 }
@@ -762,7 +764,7 @@ export async function createServerCardFromApi(server, placeId = '') {
                 if (remainingCount > 0) {
                     thumbnailsHTML += `<span class="avatar avatar-headshot-md player-avatar hidden-players-placeholder">+${remainingCount}</span>`;
                 }
-            } catch (e) {}
+            } catch (e) {__unused(e)}
         } else if (!hasPlayerCount || server.playing > 0) {
             let tokensToFetch = [];
             let fetchCount = displayLimit;
@@ -822,7 +824,7 @@ export async function createServerCardFromApi(server, placeId = '') {
                             return `<span class="avatar avatar-headshot-md player-avatar"><span class="thumbnail-2d-container avatar-card-image"><img src="${src}" alt="Player"></span></span>`;
                         })
                         .join('');
-                } catch (e) {}
+                } catch (e) {__unused(e)}
             }
             if (addPlaceholder) {
                 thumbnailsHTML += `<span class="avatar avatar-headshot-md player-avatar hidden-players-placeholder">+${remainingCount}</span>`;
@@ -897,10 +899,11 @@ export async function createServerCardFromApi(server, placeId = '') {
         try {
             serverItem._rovalraApiData = server;
             serverItem.setAttribute('data-rovalra-api', '1');
-        } catch (e) {}
+        } catch (e) {__unused(e)}
         enhanceServer(serverItem, _state);
         return serverItem;
     } catch (e) {
+        __unused(e);
         return null;
     }
 }

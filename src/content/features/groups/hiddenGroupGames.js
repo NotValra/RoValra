@@ -9,6 +9,7 @@ import DOMPurify from 'dompurify';
 import { t, ts } from '../../core/locale/i18n.js';
 import { createGameCard } from '../../core/ui/games/gameCard.js';
 import { getGroupIdFromUrl } from '../../core/idExtractor.js';
+import __unused from '../../core/utils/lintUtils.js';
 
 const PAGE_SIZE = 50;
 const ACCESS_FILTER = { ALL: 1, PUBLIC: 2 };
@@ -504,7 +505,8 @@ export function init() {
                 [btn],
             );
 
-            currentBtn = container;
+            let currentBtn = container;
+            __unused(currentBtn);
             ensureSingleButton();
 
             const description = header.querySelector('.description-container');

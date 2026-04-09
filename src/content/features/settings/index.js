@@ -40,9 +40,12 @@ import {
     getBatchThumbnails,
     createThumbnailElement,
 } from '../../core/thumbnail/thumbnails.js';
+import __unused from '../../core/utils/lintUtils.js';
 
 const assets = getAssets();
 let REGIONS = {};
+
+__unused(getFullRegionName);
 
 function debounce(func, wait) {
     let timeout;

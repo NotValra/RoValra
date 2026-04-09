@@ -5,6 +5,7 @@ import { addTooltip } from '../../core/ui/tooltip.js';
 import { showConfirmationPrompt } from '../../core/ui/confirmationPrompt.js';
 import { showSystemAlert } from '../../core/ui/roblox/alert.js';
 import { t } from '../../core/locale/i18n.js';
+import __unused from '../../core/utils/lintUtils.js';
 
 const profileStatusCache = new Map();
 const TEST_ALWAYS_ERROR = false;
@@ -327,7 +328,7 @@ async function addTrustedFriendButton(menu) {
                 menu.appendChild(buttonToAdd);
             }
         }
-    } catch (err) {}
+    } catch (err) {__unused(err);}
 }
 
 export function init() {

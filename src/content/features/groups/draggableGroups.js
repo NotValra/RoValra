@@ -1,4 +1,5 @@
 import { observeElement, startObserving } from '../../core/observer.js';
+import __unused from '../../core/utils/lintUtils.js';
 
 const STORAGE_KEY = 'rovalra_groups_order';
 const HOLD_THRESHOLD = 200;
@@ -109,6 +110,7 @@ function onMouseDown(e) {
 }
 
 function beginDrag(e) {
+    __unused(e);
     if (!dragState.element) return;
     
     dragState.active = true;

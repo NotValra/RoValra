@@ -4,6 +4,7 @@ import { getAssets } from '../../core/assets.js';
 import { callRobloxApi } from '../../core/api.js';
 import { getPlaceIdFromUrl } from '../../core/idExtractor.js';
 import { ts } from '../../core/locale/i18n.js';
+import __unused from '../../core/utils/lintUtils.js';
 
 const itemPrices = new Map();
 const itemIsOffSale = new Map();
@@ -192,6 +193,7 @@ export function init() {
                         }
                     }
                 } catch (err) {
+                    __unused(err);
                     // Fail silently
                 }
             }

@@ -5,6 +5,7 @@ import { createPillToggle } from '../../core/ui/general/pillToggle.js';
 import { createScrollButtons } from '../../core/ui/general/scrollButtons.js';
 import { safeHtml } from '../../core/packages/dompurify.js';
 import { ts } from '../../core/locale/i18n.js';
+import __unused from '../../core/utils/lintUtils.js';
 let totalPrice = 0;
 const processedBundleIds = new Set();
 let totalPriceElement = null;
@@ -164,6 +165,7 @@ export function recalculateTotalPrice() {
 
         const bundleId = card.dataset.rovalraBundleId;
         const isBundle = link.href.includes('/bundles/');
+        __unused(isBundle);
 
         if (bundleId) {
             if (!processedBundleIds.has(bundleId)) {

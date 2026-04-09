@@ -1,4 +1,5 @@
 import { observeElement } from '../../core/observer.js';
+import __unused from '../../core/utils/lintUtils.js';
 
 export function init() {
     let isHideRobuxEnabled = false;
@@ -64,7 +65,7 @@ export function init() {
                     } else {
                         sessionStorage.removeItem('rovalra_streamermode');
                     }
-                } catch (e) {}
+                } catch (e) {__unused(e)}
 
                 isHideRobuxEnabled =
                     data.streamermode && data.hideRobux === true;

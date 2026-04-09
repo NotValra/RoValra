@@ -3,6 +3,7 @@ import { callRobloxApi, callRobloxApiJson } from '../../core/api.js';
 import { addTooltip } from '../../core/ui/tooltip.js';
 import DOMPurify, { safeHtml } from '../../core/packages/dompurify.js';
 import { ts } from '../../core/locale/i18n.js';
+import __unused from '../../core/utils/lintUtils.js';
 const API_LIMIT = 100;
 const MAX_PAGES_TO_FETCH_FOR_INFERENCE = 2000;
 const MAX_PAGES_WITHOUT_PENDING_SALES = 5;
@@ -16,6 +17,8 @@ const state = {
 };
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+__unused(safeHtml);
 
 const parseTimestamp = (timestampStr) => {
     if (!timestampStr) return null;

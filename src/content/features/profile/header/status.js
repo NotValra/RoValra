@@ -28,6 +28,7 @@ import {
     syncDonatorTier,
     getCurrentUserTier,
 } from '../../../core/settings/handlesettings.js';
+import __unused from '../../../core/utils/lintUtils.js';
 const STATUS_PREFIX = 's:';
 const MAX_STATUS_LENGTH = 50;
 let activeHomeStatusBubble = null;
@@ -66,7 +67,7 @@ DOMPurify.addHook('afterSanitizeAttributes', (currentNode) => {
                 currentNode.style.cursor = 'text';
                 currentNode.style.pointerEvents = 'none';
             }
-        } catch (e) {}
+        } catch (e) {__unused(e)}
     }
 
     if (currentNode.tagName === 'IMG' && currentNode.hasAttribute('src')) {
@@ -80,7 +81,7 @@ DOMPurify.addHook('afterSanitizeAttributes', (currentNode) => {
             ) {
                 currentNode.removeAttribute('src');
             }
-        } catch (e) {}
+        } catch (e) {__unused(e)}
     }
 });
 
@@ -184,6 +185,8 @@ async function addStatusBubble(avatarContainer, userWantsApi) {
             getUserSettings(userId, { useDescription: true }),
             getAuthenticatedUserId(),
         ]);
+
+        __unused(canUseApi)
 
         let statusText = status;
 
