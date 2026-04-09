@@ -40,6 +40,7 @@ import {
     getBatchThumbnails,
     createThumbnailElement,
 } from '../../core/thumbnail/thumbnails.js';
+import { injectStylesheet } from '../../core/ui/cssInjector.js';
 
 const assets = getAssets();
 let REGIONS = {};
@@ -768,6 +769,11 @@ async function initializeExtension() {
     }
 
     await applyTheme();
+
+    if (window.location.href.includes('rovalra=')) {
+        injectStylesheet('css/settings_layout.css', 'rovalra-settings-layout-css');
+    }
+
     await buildSettingsKey();
 
     addCustomButton(debouncedAddPopoverButton);
