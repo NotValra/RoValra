@@ -19,6 +19,7 @@ import {
     createRapDiffPill,
     createValueDiffPill,
 } from '../../core/trade/ui/tradePills.js';
+import * as CacheHandler from '../../core/storage/cacheHandler.js';
 
 let cardObserverRequest = null;
 let summaryObserverRequest = null;
@@ -26,7 +27,7 @@ let robuxObserverRequest = null;
 let dividerObserverRequest = null;
 let updateSummaryTimeout = null;
 const pendingCards = new Map();
-let isRobuxIncluded = false;
+let isRobuxIncluded = true;
 let featureSettings = { tradeValuesEnabled: true, tradeRiskEnabled: true };
 
 export function init() {
@@ -265,12 +266,12 @@ export function updateItemCard(card, assetId, options = {}) {
     } else if (priceDiv && !card.querySelector('.rovalra-value-label')) {
         const valDiv = document.createElement('div');
         valDiv.className = 'text-overflow item-card-price rovalra-value-label';
-        valDiv.style.marginTop = '-4px';
+        valDiv.style.marginTop = '-1px';
         valDiv.style.display = 'flex';
         valDiv.style.alignItems = 'center';
 
         valDiv.innerHTML = `
-            <img src="${assets.rolimonsIcon}" style="width: 16px; height: 16px; margin-right: 5px; margin-left: 1px">
+            <img src="${assets.rolimonsIcon}" style="width: 16px; height: 16px; margin-right: 7px; margin-left: 1px">
             <span class="text-robux" style="color: ${textColor};${options.fontSize ? ` font-size: ${options.fontSize};` : ''}">${value.toLocaleString()}</span>
         `; // verified
 
@@ -608,15 +609,36 @@ function calculateStats(offerEl) {
             value += itemValue;
         });
 
-    const robuxInput = offerEl.querySelector('input[name="robux"]');
-    if (robuxInput) {
-        const val = parseInt(robuxInput.value.replace(/,/g, ''), 10);
-        if (!isNaN(val)) robux = val;
-    } else {
-        const robuxLineVal = offerEl.querySelector('.robux-line-value');
-        if (robuxLineVal) {
-            const val = parseInt(robuxLineVal.innerText.replace(/,/g, ''), 10);
+    const tradeRow = offerEl.closest('.trade-row');
+    if (tradeRow && tradeRow.dataset.tradeId) {
+        CacheHandler.get(
+            'trade_history',
+            tradeRow.dataset.tradeId,
+            'local',
+        ).then((storedTrade) => {
+            if (Array.isArray(storedTrade)) {
+                const offerIndex = Array.from(
+                    offerEl.parentNode.children,
+                ).indexOf(offerEl);
+                robux = offerIndex === 0 ? storedTrade[0] : storedTrade[2];
+            }
+        });
+    }
+
+    if (robux === 0) {
+        const robuxInput = offerEl.querySelector('input[name="robux"]');
+        if (robuxInput) {
+            const val = parseInt(robuxInput.value.replace(/,/g, ''), 10);
             if (!isNaN(val)) robux = val;
+        } else {
+            const robuxLineVal = offerEl.querySelector('.robux-line-value');
+            if (robuxLineVal) {
+                const val = parseInt(
+                    robuxLineVal.innerText.replace(/,/g, ''),
+                    10,
+                );
+                if (!isNaN(val)) robux = val;
+            }
         }
     }
 
@@ -797,8 +819,8 @@ function renderSummary(giveOffer, receiveOffer, giveStats, receiveStats) {
         const totalRaw = giveStats.robux + receiveStats.robux;
         const tooltipText =
             totalRaw > 0
-                ? `Includes Robux (After Pending)<br>Before Pending: R$ ${totalRaw.toLocaleString()}`
-                : `Includes Robux (After Pending)`;
+                ? `Include Robux (After Pending)`
+                : `Include Robux (After Pending)`;
 
         addTooltip(toggleWrapper, tooltipText, { position: 'top' });
 

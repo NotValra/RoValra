@@ -126,6 +126,11 @@ async function fetchAndRenderTradePreview(tradeId, row) {
     const myStats = calculateStats(myOffer);
     const partnerStats = calculateStats(partnerOffer);
 
+    myStats.rap += myOffer.robux || 0;
+    myStats.value += myOffer.robux || 0;
+    partnerStats.rap += Math.floor((partnerOffer.robux || 0) * 0.7);
+    partnerStats.value += Math.floor((partnerOffer.robux || 0) * 0.7);
+
     const summaryDiv = document.createElement('div');
     summaryDiv.className = 'rovalra-trade-summary';
     Object.assign(summaryDiv.style, {

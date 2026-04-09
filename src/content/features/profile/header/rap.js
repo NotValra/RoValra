@@ -395,7 +395,9 @@ async function addUserRapDisplay(observedElement) {
                 webkitMask: `url('${getAssets().rolimonsIcon}') center/contain no-repeat`,
                 mask: `url('${getAssets().rolimonsIcon}') center/contain no-repeat`,
                 verticalAlign: 'text-bottom',
+                color: 'rgb(247, 247, 248)',
             });
+            rapText.style.color = 'rgb(247, 247, 248)';
         }
 
         const displayString = displayAmount.toLocaleString();
