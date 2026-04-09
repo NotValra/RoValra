@@ -642,6 +642,9 @@
             "owned": "Owned",
             "buy": "Buy"
         },
+        "disabled": "View Private / Moderated Games is Disabled",
+        "disabledDescription": "To view private and moderated games you need to enable the setting here:",
+        "disabledLinkText": "View Private / Moderated Games",
         "products": {
             "title": "Products",
             "buy": "Buy"

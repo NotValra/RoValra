@@ -217,9 +217,9 @@ export const SETTINGS_CONFIG = {
                 default: false,
             },
             privateGameDetectionEnabled: {
-                label: 'Private / Moderated Experience',
+                label: 'View Private / Moderated Games',
                 description: [
-                    'This recreates the experience page of private / moderated experiences, allowing you to view them.',
+                    'This recreates the experience page of private / moderated games, allowing you to view them.',
                 ],
                 type: 'checkbox',
                 default: false,
@@ -532,13 +532,7 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
-            showUserAgeEnabled: {
-                label: 'Show Friend Age Range',
-                description:
-                    'This shows the account age range of anyone on your friends list.',
-                type: 'checkbox',
-                default: true,
-            },
+
             showFriendedFromEnabled: {
                 label: 'Show Friended From',
                 description:
@@ -1410,6 +1404,15 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: false,
+            },
+            showUserAgeEnabled: {
+                label: 'Show Friend Age Range',
+                description:
+                    'This shows the account age range of anyone on your friends list.',
+                type: 'checkbox',
+                default: false,
+                locked: 'This was made when Roblox decided it was a good idea to leak everyones age range. It was only made to spread light on the issue and the issue has now been resolved.',
+                isPermanent: true,
             },
             EnableVideoTest: {
                 label: ['Video test'],

@@ -57,8 +57,8 @@ export function init() {
                     content.innerHTML = DOMPurify.sanitize(`
                         <div class="section-content default-error-page" style="max-width: 600px; margin: 60px auto; text-align: center; padding: 40px;">
                             <svg viewBox="0 0 24 24" style="width: 64px; height: 64px; margin-bottom: 24px; fill: var(--rovalra-secondary-text-color);"><path d="m5.2494 8.0688 2.83-2.8269 14.1343 14.15-2.83 2.8269zm4.2363-4.2415 2.828-2.8289 5.6577 5.656-2.828 2.8289zM.9989 12.3147l2.8284-2.8285 5.6569 5.6569-2.8285 2.8284zM1 21h12v2H1z"></path></svg>
-                            <h3 style="margin-bottom: 20px;">View Private / Moderated Games is Disabled</h3>
-                            ${parseMarkdown('To view private and moderated games you need to enable the setting here:\n\n[View Private / Moderated Games](https://www.roblox.com/my/account?rovalra=search&q=privategamedetectionenabled#!/search)')}
+                             <h3 style="margin-bottom: 20px;">${ts('privateGames.disabled')}</h3>
+                            ${parseMarkdown(`${ts('privateGames.disabledDescription')}\n\n[${ts('privateGames.disabledLinkText')}](https://www.roblox.com/my/account?rovalra=search&q=privategamedetectionenabled#!/search)`)}
                         </div>
                     `);
                 }
@@ -372,7 +372,7 @@ function createFallbackGame(placeDetails, cloudData) {
             placeInfo?.description || ts('privateGames.experienceIsPrivate'),
         creator: {
             id: placeInfo?.builderId || 0,
-            name: placeInfo?.builder || 'Unknown',
+            name: placeInfo?.builder || ts('privateGames.unknown'),
             type: 'User',
             hasVerifiedBadge: placeInfo?.hasVerifiedBadge || false,
         },
@@ -536,23 +536,23 @@ async function renderPrivateGamePage(game, placeId, settings) {
                             <div class="game-details-play-button-container">
                                 <button type="button" class="btn-common-play-game-unplayable-lg btn-primary-md btn-full-width" disabled="" data-testid="play-unplayable-button">
                                     <span class="icon-status-unavailable-secondary"></span>
-                                    <span class="btn-text">Unavailable</span>
+                                     <span class="btn-text">${ts('privateGames.unavailable')}</span>
                                 </button>
                             </div>
                         <ul class="favorite-follow-vote-share rovalra-private-actions">
                             <li class="game-favorite-button-container">
-                                <div class="tooltip-container" data-toggle="tooltip" title="Add to Favorites">
+                                 <div class="tooltip-container" data-toggle="tooltip" title="${ts('privateGames.favorite.add')}">
                                     <div class="favorite-button" id="rovalra-favorite-btn" data-universe-id="${game.id}">
                                         <div id="game-favorite-icon" class="icon-favorite rovalra-action-icon${isFavoritedByUser ? ' favorited' : ''}"></div>
-                                        <div id="game-favorite-icon-label" class="icon-label rovalra-action-label">${isFavoritedByUser ? 'Favorited' : 'Favorite'}</div>
+                                         <div id="game-favorite-icon-label" class="icon-label rovalra-action-label">${isFavoritedByUser ? ts('privateGames.favorite.favorited') : ts('privateGames.favorite.favorite')}</div>
                                     </div>
                                 </div>
                             </li>
                              <li class="game-follow-button-container">
-                                 <div class="tooltip-container" data-toggle="tooltip" title="Turn on Notifications">
+                                  <div class="tooltip-container" data-toggle="tooltip" title="${ts('privateGames.notify.tooltip')}">
                                      <div class="follow-button disabled">
                                          <div id="game-follow-icon" class="icon-notifications-bell rovalra-action-icon"></div>
-                                         <div id="game-follow-icon-label" class="icon-label rovalra-action-label">Notify</div>
+                                          <div id="game-follow-icon-label" class="icon-label rovalra-action-label">${ts('privateGames.notify.label')}</div>
                                      </div>
                                  </div>
                              </li>
@@ -918,16 +918,22 @@ function setupFavoriteButton(universeId, initialFavorited) {
             }
         }
         if (label) {
-            label.textContent = favorited ? 'Favorited' : 'Favorite';
+            label.textContent = favorited
+                ? ts('privateGames.favorite.favorited')
+                : ts('privateGames.favorite.favorite');
         }
         if (tooltip) {
             tooltip.setAttribute(
                 'title',
-                favorited ? 'Remove from Favorites' : 'Add to Favorites',
+                favorited
+                    ? ts('privateGames.favorite.remove')
+                    : ts('privateGames.favorite.add'),
             );
             tooltip.setAttribute(
                 'data-original-title',
-                favorited ? 'Remove from Favorites' : 'Add to Favorites',
+                favorited
+                    ? ts('privateGames.favorite.remove')
+                    : ts('privateGames.favorite.add'),
             );
         }
     };
