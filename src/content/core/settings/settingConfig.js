@@ -892,6 +892,13 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: false,
             },
+            transactionsSidebarLinkEnabled: {
+                label: 'My Transactions sidebar link',
+                description:
+                    'Adds a My Transactions link below Communities in the Roblox sidebar.',
+                type: 'checkbox',
+                default: false,
+            },
             quickSearchEnabled: {
                 label: 'Quick Search',
                 description:

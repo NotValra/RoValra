@@ -80,15 +80,6 @@ function compileScssFile(inputFile, outputFile) {
 esbuild
     .build({
         ...commonConfig,
-        entryPoints: ['src/content/index.js'],
-        outfile: 'dist/content.js',
-        bundle: true,
-    })
-    .catch(() => process.exit(1));
-
-esbuild
-    .build({
-        ...commonConfig,
         entryPoints: ['src/background/background.js'],
         outfile: 'dist/background.js',
         bundle: true,

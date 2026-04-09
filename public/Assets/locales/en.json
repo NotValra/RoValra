@@ -302,6 +302,9 @@
         "pending": "Pending:",
         "noPermissions": "No Permission"
     },
+    "navigation": {
+        "transactions": "My Transactions"
+    },
     "betaPrograms": {
         "toggleTooltip": "Toggle Beta Programs",
         "noPrograms": "You are not enrolled into any beta programs.",

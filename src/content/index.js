@@ -23,6 +23,7 @@ import { init as initQuickSearch } from './features/navigation/search/quicksearc
 import { init as initRenderTest } from './features/developer/rendertest.js';
 import { init as initGroupFunds } from './features/navigation/groupfunds.js';
 import { init as initCustomFont } from './features/sitewide/customFont.js';
+import { init as initTransactionsLink } from './features/navigation/transactionslink.js';
 
 // Avatar
 import { init as initAvatarFilters } from './features/avatar/filters.js';
@@ -127,6 +128,7 @@ const featureRoutes = [
             initPrivateGames,
             initBannedUsers,
             initGroupFunds,
+            initTransactionsLink,
             initStatus,
             initCustomFont,
             initRobuxIcons,
