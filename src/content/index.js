@@ -1,6 +1,5 @@
 import { initializeObserver, startObserving } from './core/observer.js';
 import { detectTheme, dispatchThemeEvent } from './core/theme.js';
-// --- Feature Imports --- //
 // Site wide
 import { init as initOnboarding } from './features/onboarding/onboarding.js';
 import { init as initWhatAmIJoining } from './features/games/revertlogo.js';
@@ -87,6 +86,7 @@ import { init as initTrustedFriends } from './features/profile/trustedfriends.js
 import { init as initProfileRender } from './features/profile/header/ProfileRender.js';
 import { init as initStatus } from './features/profile/header/status.js';
 import { init as initFriendsSince } from './features/profile/friends/friendsSince.js';
+import { init as initUnfriend } from './features/profile/friends/unfriend.js';
 import { init as initRobuxIcons } from './core/ui/robuxIcon.js';
 
 // Settings
@@ -210,6 +210,7 @@ const featureRoutes = [
             initTrustedFriends,
             initProfileRender,
             initFriendsSince,
+            initUnfriend,
         ],
     },
     {
@@ -303,7 +304,7 @@ async function initializePage() {
     );
 }
 
-function handleUrlChange() {
+async function handleUrlChange() {
     const currentPath = window.location.pathname;
 
     if (currentPath !== lastPath) {

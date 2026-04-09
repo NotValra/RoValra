@@ -49,6 +49,26 @@ export function getAssetIdFromUrl(url = window.location.href) {
     return null;
 }
 
+export async function getUserIdFromFriendUrl(url = window.location.href) {
+    try {
+        const urlObj = new URL(url, window.location.origin);
+        const match = urlObj.pathname.match(
+            /^(?:\/[a-z]{2}(?:-[a-z]{2})?)?\/users\/(\d+)\/friends/i,
+        );
+        if (match && match[1]) {
+            return match[1];
+        }
+    } catch (e) {
+        console.warn('RoValra: URL parsing failed', e);
+    }
+
+    const match = url.match(/\/(?:users|banned-users)\/(\d+)\/profile/);
+    if (match) {
+        return match[1];
+    }
+
+    return null;
+}
 export function getUserIdFromUrl(url = window.location.href) {
     try {
         const urlObj = new URL(url, window.location.origin);
@@ -69,7 +89,6 @@ export function getUserIdFromUrl(url = window.location.href) {
 
     return null;
 }
-
 export function getGroupIdFromUrl(url = window.location.href) {
     try {
         const urlObj = new URL(url, window.location.origin);

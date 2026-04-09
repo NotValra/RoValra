@@ -532,7 +532,32 @@
         "userNotVerified": "User is not ID verified."
     },
     "friendsSince": {
-        "friended": "Friended"
+        "friended": "Friended",
+        "lastSeen": "Seen",
+        "age": "Age",
+        "friendedVia": "Friended via",
+        "originFrom": "From",
+        "originSearch": "Search",
+        "originInGame": "In Game",
+        "originProfile": "Profile",
+        "originQrCode": "QR Code",
+        "originPeopleYouMayKnow": "People You May Know",
+        "originUnknown": "Unknown"
+    },
+    "unfriend": {
+        "confirmUnfriend": "Confirm Unfriend",
+        "confirmUnfriends": "Confirm Unfriends",
+        "descriptionSingle": "You are about to unfriend 1 friend. This action cannot be undone.",
+        "descriptionPlural": "You are about to unfriend {{count}} friends. This action cannot be undone.",
+        "cancel": "Cancel",
+        "unfriend": "Unfriend",
+        "unfriendCount": "Unfriend ({{count}})",
+        "unfriendCountAction": "Unfriend {{count}} friend",
+        "unfriendCountActionPlural": "Unfriend {{count}} friends",
+        "unfriending": "Unfriending...",
+        "bulkUnfriend": "Bulk Unfriend",
+        "exitBulkMode": "Exit Bulk Mode",
+        "successMessage": "Successfully unfriended {{successCount}}/{{totalCount}} friends!"
     },
     "purchasePrompt": {
         "balanceAfter": "Your balance after this transaction will be"

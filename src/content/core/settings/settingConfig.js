@@ -532,6 +532,27 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
+            showUserAgeEnabled: {
+                label: 'Show Friend Age Range',
+                description:
+                    'This shows the account age range of anyone on your friends list.',
+                type: 'checkbox',
+                default: true,
+            },
+            showFriendedFromEnabled: {
+                label: 'Show Friended From',
+                description:
+                    'This shows where you became friends with a user e.g in game, profile etc',
+                type: 'checkbox',
+                default: true,
+            },
+            bulkUnfriendEnabled: {
+                label: 'Bulk Unfriend',
+                description:
+                    'This allows you to unfriend people from your friends list in bulk',
+                type: 'checkbox',
+                default: true,
+            },
             PrivateServerBulkEnabled: {
                 label: 'Private Server Bulk Removal',
                 description: [
@@ -1427,6 +1448,25 @@ export const SETTINGS_CONFIG = {
                 label: '3D renderer Developer toggles',
                 type: 'checkbox',
                 default: false,
+            },
+            forceFallbackAuth: {
+                label: 'Force Fallback Authentication',
+                description: [
+                    'Forces the use of the fallback verification system instead of OAuth.',
+                    'This auth is used in cases where OAuth doesnt work',
+                ],
+                type: 'checkbox',
+                default: false,
+                childSettings: {
+                    forceFallbackOnEveryRefresh: {
+                        label: 'Force Fallback on Every Refresh',
+                        description: [
+                            'Clears any existing token and forces the fallback verification flow on every page load.',
+                        ],
+                        type: 'checkbox',
+                        default: false,
+                    },
+                },
             },
             profile3DRenderBypassCheck: {
                 label: 'Bypass Graphics Check',

@@ -169,6 +169,61 @@ async function loadAndRenderPrivateGame(placeId, settings) {
 
         const gameData = game || createFallbackGame(placeDetails, cloudData);
 
+        if (!game) {
+            try {
+                const favCountRes = await callRobloxApiJson({
+                    subdomain: 'games',
+                    endpoint: `/v1/games/${universeId}/favorites/count`,
+                });
+                if (favCountRes?.favoritesCount !== undefined) {
+                    gameData.favoritedCount = favCountRes.favoritesCount;
+                }
+            } catch (e) {
+                console.warn('RoValra: Failed to fetch favorites count', e);
+            }
+
+            try {
+                const placeCloudRes = await callRobloxApiJson({
+                    subdomain: 'apis',
+                    endpoint: `/cloud/v2/universes/${universeId}/places/${placeId}`,
+                    useApiKey: true,
+                    useBackground: true,
+                });
+                if (placeCloudRes?.serverSize !== undefined) {
+                    gameData.maxPlayers = placeCloudRes.serverSize;
+                }
+            } catch (e) {
+                console.warn('RoValra: Failed to fetch place server size', e);
+            }
+
+            try {
+                const creatorId = gameData.creator?.id;
+                if (creatorId && creatorId > 0) {
+                    const creatorGamesRes = await callRobloxApiJson({
+                        subdomain: 'games',
+                        endpoint: `/v2/users/${creatorId}/games?accessFilter=2&limit=50&sortOrder=Asc`,
+                    });
+
+                    if (
+                        creatorGamesRes?.data &&
+                        Array.isArray(creatorGamesRes.data)
+                    ) {
+                        const matchingGame = creatorGamesRes.data.find(
+                            (g) => g.id === universeId,
+                        );
+                        if (matchingGame?.placeVisits !== undefined) {
+                            gameData.visits = matchingGame.placeVisits;
+                        }
+                    }
+                }
+            } catch (e) {
+                console.warn(
+                    'RoValra: Failed to fetch visit count from creator games',
+                    e,
+                );
+            }
+        }
+
         if (cloudData) {
             gameData.created = cloudData.createTime || gameData.created;
             gameData.updated = cloudData.updateTime || gameData.updated;
