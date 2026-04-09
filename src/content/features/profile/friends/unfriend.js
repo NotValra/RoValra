@@ -170,39 +170,21 @@ async function showConfirmationOverlay() {
 
             infoContainer.appendChild(friendsSinceRow);
 
-            const detailsRow = document.createElement('div');
-            detailsRow.style.display = 'flex';
-            detailsRow.style.alignItems = 'center';
-            detailsRow.style.gap = '6px';
-            detailsRow.style.fontSize = '12px';
-            detailsRow.style.opacity = '0.7';
-            detailsRow.style.marginTop = '2px';
-
-            let ageRange =
-                friendData.verifiedAgeRange || friendData.estimatedAgeRange;
-            if (ageRange) {
-                const ageLabel = document.createElement('span');
-
-                ageLabel.textContent = `${ts('friendsSince.age')} ${ageRange}`;
-                detailsRow.appendChild(ageLabel);
-            }
-
             if (friendData.friendRequestOrigin) {
-                if (ageRange) {
-                    const separator = document.createElement('span');
-                    separator.style.opacity = '0.5';
-                    separator.textContent = ' • ';
-                    detailsRow.appendChild(separator);
-                }
+                const detailsRow = document.createElement('div');
+                detailsRow.style.display = 'flex';
+                detailsRow.style.alignItems = 'center';
+                detailsRow.style.gap = '6px';
+                detailsRow.style.fontSize = '12px';
+                detailsRow.style.opacity = '0.7';
+                detailsRow.style.marginTop = '2px';
 
                 const originLabel = document.createElement('span');
                 originLabel.textContent = getFriendRequestOriginText(
                     friendData.friendRequestOrigin,
                 );
                 detailsRow.appendChild(originLabel);
-            }
 
-            if (detailsRow.hasChildNodes()) {
                 infoContainer.appendChild(detailsRow);
             }
         }
