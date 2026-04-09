@@ -17,6 +17,7 @@ import {
     getPlayabilityDisplayText,
     toStatusCode,
 } from '../../core/games/playabilityStatus.js';
+import { parseMarkdown } from '../../core/utils/markdown.js';
 
 function formatVoteCount(count) {
     count = Number(count) || 0;
@@ -45,11 +46,26 @@ export function init() {
     hasLoaded = true;
 
     chrome.storage.local.get({ privateGameDetectionEnabled: true }, (data) => {
-        if (!data.privateGameDetectionEnabled) return;
-
         const privateUrlMatch = window.location.pathname.match(
             /^\/private-games\/(\d+)/,
         );
+
+        if (!data.privateGameDetectionEnabled) {
+            if (privateUrlMatch) {
+                const content = document.getElementById('content');
+                if (content) {
+                    content.innerHTML = DOMPurify.sanitize(`
+                        <div class="section-content default-error-page" style="max-width: 600px; margin: 60px auto; text-align: center; padding: 40px;">
+                            <svg viewBox="0 0 24 24" style="width: 64px; height: 64px; margin-bottom: 24px; fill: var(--rovalra-secondary-text-color);"><path d="m5.2494 8.0688 2.83-2.8269 14.1343 14.15-2.83 2.8269zm4.2363-4.2415 2.828-2.8289 5.6577 5.656-2.828 2.8289zM.9989 12.3147l2.8284-2.8285 5.6569 5.6569-2.8285 2.8284zM1 21h12v2H1z"></path></svg>
+                            <h3 style="margin-bottom: 20px;">View Private / Moderated Games is Disabled</h3>
+                            ${parseMarkdown('To view private and moderated games you need to enable the setting here:\n\n[View Private / Moderated Games](https://www.roblox.com/my/account?rovalra=search&q=privategamedetectionenabled#!/search)')}
+                        </div>
+                    `);
+                }
+            }
+            return;
+        }
+
         if (privateUrlMatch) {
             const placeId = privateUrlMatch[1];
             loadPrivateGame(placeId);
