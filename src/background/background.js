@@ -904,16 +904,22 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                                         if (settings.copyUniverseIdEnabled) {
                                             chrome.contextMenus.create({
                                                 id: `rovalra-copy-universe-${item.id}`,
-                                                title: 'Copy Universe ID',
+                                                title: item.title,
                                                 contexts: ['link'],
+                                                documentUrlPatterns: [
+                                                    '*://*.roblox.com/*',
+                                                ],
                                             });
                                         }
                                     } else {
                                         if (settings.copyIdEnabled) {
                                             chrome.contextMenus.create({
                                                 id: `rovalra-copy-${item.id}`,
-                                                title: `Copy ${item.type} ID`,
+                                                title: item.title,
                                                 contexts: ['link'],
+                                                documentUrlPatterns: [
+                                                    '*://*.roblox.com/*',
+                                                ],
                                             });
                                         }
                                     }
