@@ -9,6 +9,7 @@ import {
     updateUserDescription,
 } from '../profile/descriptionhandler.js';
 import { createAndShowPopup } from '../../features/catalog/40method.js';
+import * as CacheHandler from '../storage/cacheHandler.js';
 
 let currentUserTier = 0;
 let donatorTierPromise = null;
@@ -17,6 +18,52 @@ export const getCurrentUserTier = () => currentUserTier;
 
 export const syncDonatorTier = async () => {
     if (donatorTierPromise) return donatorTierPromise;
+
+    const now = Date.now();
+    const currentHref = window.location.href;
+    const currentPath = window.location.pathname;
+    const storePageUrl = 'store-section/9452973012';
+    const currentUserId = await getAuthenticatedUserId();
+
+    const state = (await CacheHandler.get(
+        'donator_info',
+        'sync_state',
+        'local',
+    )) || {
+        lastSync: 0,
+        cachedResponse: null,
+        priorityActive: false,
+        checksLeft: 0,
+        lastPath: '',
+        lastTier: 0,
+        userId: null,
+    };
+
+    if (state.userId !== currentUserId) {
+        state.lastSync = 0;
+        state.cachedResponse = null;
+        state.lastTier = 0;
+        state.userId = currentUserId;
+        currentUserTier = 0;
+
+        await CacheHandler.set('donator_info', 'sync_state', state, 'local');
+    }
+
+    if (state.lastTier !== undefined) currentUserTier = state.lastTier;
+
+    if (currentHref.includes(storePageUrl)) {
+        state.priorityActive = true;
+        state.checksLeft = 10;
+    }
+
+    const isUrlChange = currentPath !== state.lastPath;
+    const isPriorityCheck =
+        state.priorityActive && isUrlChange && state.checksLeft > 0;
+    const isExpired = now - state.lastSync > 5 * 60 * 1000;
+
+    if (state.cachedResponse && !isPriorityCheck && !isExpired) {
+        return state.cachedResponse;
+    }
 
     donatorTierPromise = (async () => {
         try {
@@ -28,8 +75,7 @@ export const syncDonatorTier = async () => {
             });
 
             if (response.status !== 'success' || !response.badges) {
-                donatorTierPromise = null;
-                return null;
+                return state.cachedResponse || null;
             }
 
             const badges = response.badges;
@@ -41,7 +87,32 @@ export const syncDonatorTier = async () => {
             } else if (badges.donator_1 === true) {
                 tier = 1;
             }
+
+            if (state.priorityActive && isUrlChange) {
+                if (tier !== state.lastTier) {
+                    state.priorityActive = false;
+                    state.checksLeft = 0;
+                } else {
+                    state.checksLeft--;
+                    if (state.checksLeft <= 0) {
+                        state.priorityActive = false;
+                    }
+                }
+            }
+
             currentUserTier = tier;
+            state.lastTier = tier;
+            state.lastSync = Date.now();
+            state.lastPath = currentPath;
+            state.cachedResponse = response;
+            state.userId = currentUserId;
+
+            await CacheHandler.set(
+                'donator_info',
+                'sync_state',
+                state,
+                'local',
+            );
 
             const settingsContent = document.querySelector(
                 '#setting-section-content',
@@ -54,8 +125,9 @@ export const syncDonatorTier = async () => {
             return response;
         } catch (error) {
             console.error('RoValra: Failed to sync donator tier', error);
+            return state.cachedResponse || null;
+        } finally {
             donatorTierPromise = null;
-            return null;
         }
     })();
 
