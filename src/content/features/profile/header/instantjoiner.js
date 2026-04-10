@@ -7,6 +7,7 @@ import { callRobloxApi } from '../../../core/api.js';
 import DOMPurify from 'dompurify';
 import { getUserIdFromUrl } from '../../../core/idExtractor.js';
 import { ts } from '../../../core/locale/i18n.js';
+import __unused from '../../../core/utils/lintUtils.js';
 
 export function init() {
     chrome.storage.local.get(
@@ -104,6 +105,7 @@ export function init() {
                     canMakeRequest = true;
                     return data;
                 } catch (error) {
+                    __unused(error);
                     canMakeRequest = true;
                 }
             }

@@ -19,6 +19,7 @@ import {
     getCachedRolimonsItem,
 } from '../../../core/trade/itemHandler.js';
 import { updateItemCard } from '../../trading/itemValues.js';
+import __unused from '../../../core/utils/lintUtils.js';
 
 const userCollectiblesCache = new Map();
 const itemThumbnailCache = new Map();
@@ -279,6 +280,8 @@ async function showInventoryOverlay(
         maxWidth: '1000px',
         maxHeight: '85vh',
     });
+
+    __unused(close);
 
     const actualTitleElement = overlay.querySelector('.rovalra-overlay-header');
     if (actualTitleElement) {

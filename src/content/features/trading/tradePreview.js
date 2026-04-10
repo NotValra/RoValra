@@ -13,6 +13,7 @@ import {
 } from '../../core/trade/ui/tradePills.js';
 import { addTooltip } from '../../core/ui/tooltip.js';
 import * as CacheHandler from '../../core/storage/cacheHandler.js';
+import __unused from '../../core/utils/lintUtils.js';
 
 let tradeData = [];
 let observer = null;
@@ -48,6 +49,7 @@ async function fetchAndRenderTradePreview(tradeId, row) {
                     tradeDetailsCache.set(tradeId, data);
                 }
             } catch (e) {
+                __unused(e);
                 return;
             }
         }

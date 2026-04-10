@@ -11,6 +11,7 @@ import { launchGame } from '../../../core/utils/launcher.js';
 import { getAuthenticatedUserId } from '../../../core/user.js';
 import { fetchThumbnails } from '../../../core/thumbnail/thumbnails.js';
 import { t, ts } from '../../../core/locale/i18n.js';
+import __unused from '../../../core/utils/lintUtils.js';
 
 let isRenderingRecentServers = false;
 
@@ -112,6 +113,7 @@ async function checkServerIsActive(placeId, gameId) {
 
         return false;
     } catch (error) {
+        __unused(error);
         return false;
     }
 }

@@ -15,6 +15,101 @@ const dracoPath = path.join(
     'draco_decoder.js',
 );
 
+
+const { parse } = require('@babel/parser');
+const traverse = require('@babel/traverse').default;
+
+function checkUseOf__unused_Variables(filePath) {
+    const stat = fs.statSync(filePath);
+    if (!stat.isFile()) return;
+
+    const code = fs.readFileSync(filePath, 'utf8');
+
+    const ast = parse(code, {
+        sourceType: 'module',
+        plugins: ['jsx'],
+        locations: true
+    });
+
+    const unusedBindings = new Map();
+
+    // Get __unused() variables
+    traverse(ast, {
+        CallExpression(path) {
+            const callee = path.node.callee;
+
+            if (
+                callee.type === 'Identifier' &&
+                callee.name === '__unused' &&
+                path.node.arguments.length === 1 &&
+                path.node.arguments[0].type === 'Identifier'
+            ) {
+                const name = path.node.arguments[0].name;
+                const binding = path.scope.getBinding(name);
+
+                if (binding) {
+                    unusedBindings.set(binding, path.node.loc.start);
+                }
+            }
+        },
+    });
+
+    if (unusedBindings.size === 0) return;
+
+    // Find usage of __unused() variables
+    traverse(ast, {
+        Identifier(path) {
+            const name = path.node.name;
+            const binding = path.scope.getBinding(name);
+
+            if (!binding || !unusedBindings.get(binding)) return;
+
+            const parent = path.parent;
+
+            // ignore the __unused(x) call
+            if (parent.type === 'CallExpression' && parent.callee.name === '__unused')
+                return;
+
+            if (path.isBindingIdentifier()) {
+                return;
+            }
+
+            if (!path.isReferencedIdentifier()) {
+                return;
+            }
+
+            const markedLoc = unusedBindings.get(binding);
+            const usedLoc = path.node.loc.start;
+
+            throw new Error(`Build failed: "${name}" marked as __unused at ${filePath}:${markedLoc.line}:${markedLoc.column + 1} but used in ${filePath}:${usedLoc.line}:${usedLoc.column + 1}`);
+        },
+    });
+}
+
+function checkUseOf__unused_VariablesDir(dir) {
+    const entries = fs.readdirSync(dir);
+
+    for (const name of entries) {
+        const fullPath = path.join(dir, name);
+        const stat = fs.statSync(fullPath);
+
+        if (stat.isDirectory()) {
+            checkUseOf__unused_VariablesDir(fullPath);
+        } else if (stat.isFile() && name.endsWith('.js')) {
+            checkUseOf__unused_Variables(fullPath);
+        }
+    }
+}
+
+try {
+    checkUseOf__unused_VariablesDir(path.join(__dirname, 'src'));
+} catch (err) {
+    console.error(err.message);
+    process.exit(1);
+}
+
+
+
 const manifestPath = path.join(__dirname, 'manifest.json');
 const packagePath = path.join(__dirname, 'package.json');
 let pkg;

@@ -14,6 +14,7 @@ import { safeHtml } from '../../core/packages/dompurify';
 import { createOverlay } from '../../core/ui/overlay.js';
 import { createItemCard } from '../../core/ui/items/items.js';
 import { t } from '../../core/locale/i18n.js';
+import __unused from '../../core/utils/lintUtils.js';
 
 export function init() {
     chrome.storage.local.get('useroutfitsEnabled', function (data) {
@@ -73,6 +74,7 @@ export function init() {
                 const data = await response.json();
                 return !!data.canView;
             } catch (error) {
+                __unused(error);
                 return false;
             }
         }
@@ -91,7 +93,6 @@ export function init() {
             displayName,
         ) {
             let selectedOutfitId = null;
-            let selectedListItem = null;
             const outfitDetailsCache = new Map();
 
             const panelsWrapper = document.createElement('div');
@@ -724,6 +725,7 @@ export function init() {
                         if (selectedOutfitId !== outfit.id) return;
                         await renderOutfitDetails(newOutfitData);
                     } catch (error) {
+                        __unused(error);
                         itemsContainer.innerHTML = DOMPurify.sanitize(
                             `<p style="color: var(--rovalra-secondary-text-color); font-style: italic; text-align: center; margin-right: auto; margin-left: auto;">${await t('userOutfits.errorLoadingItems')}</p>`,
                         );
@@ -802,6 +804,7 @@ export function init() {
                         outfitsLoaded = true;
                     }
                     outfits.forEach((outfit, index) => {
+                        __unused(index);
                         const listItem = renderOutfitListItem(
                             outfit,
                             thumbnails,
@@ -847,6 +850,7 @@ export function init() {
             }
 
             const clickHandler = async (event) => {
+                __unused(event);
                 showReviewPopup('outfits');
                 const displayNameElement = document.querySelector(
                     '#profile-header-title-container-name',
@@ -895,8 +899,10 @@ export function init() {
                         alert(await t('userOutfits.errorNoUserId'));
                     }
                 } catch (error) {
-                    if (!loadingControl.cancelled)
+                    if (!loadingControl.cancelled) {
                         alert(await t('userOutfits.errorFetch'));
+                        console.error(error);
+                    }
                 }
             };
 

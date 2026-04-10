@@ -23,6 +23,7 @@ import { getFullRegionName, getRegionData } from '../../../core/regions.js';
 import { createScrollButtons } from '../../../core/ui/general/scrollButtons.js';
 import { showConfirmationPrompt } from '../../../core/ui/confirmationPrompt.js';
 import { t, ts } from '../../../core/locale/i18n.js';
+import __unused from '../../../core/utils/lintUtils.js';
 
 let lastSearchedQuery = '';
 let userSearchAbortController = null;
@@ -254,6 +255,7 @@ async function performUserSearch(query) {
             (f) => !userResult || f.id !== userResult.id,
         );
         const uniqueFriendIds = uniqueFriends.map((f) => f.id);
+        __unused(uniqueFriendIds);
 
         if (userResult) {
             if (signal.aborted) return;
@@ -770,6 +772,7 @@ function createResultHtml(
     settings,
     friendsInfo,
 ) {
+    __unused(friendsInfo);
     const li = document.createElement('li');
     li.className =
         'navbar-search-option rbx-clickable-li improved-search rovalra-quick-search-result';
@@ -871,6 +874,7 @@ function createResultHtml(
                 }
                 addTooltip(regionBtn, tooltipText, { position: 'top' });
             } catch (e) {
+                __unused(e);
                 addTooltip(regionBtn, ts('quickSearch.joinPreferredRegion'), {
                     position: 'top',
                 });

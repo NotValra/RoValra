@@ -94,6 +94,7 @@ import { init as initSettingsPage } from './features/settings/index.js';
 import { init as initFirstAccount } from './features/settings/roblox/firstAccount.js';
 // create
 import { init as initCreateDownload } from './features/create.roblox.com/download.js';
+import __unused from './core/utils/lintUtils.js';
 
 let pageLoaded = false;
 let lastPath = window.location.pathname;
@@ -340,6 +341,7 @@ function setupUrlChangeListeners() {
             handleUrlChange();
         }
     }, 500);
+    __unused(urlCheckInterval);
 }
 
 initializePage();

@@ -7,6 +7,7 @@ import { createSquareButton } from '../../../core/ui/profile/header/squarebutton
 import { getAssets } from '../../../core/assets.js';
 import { getUserIdFromUrl } from '../../../core/idExtractor.js';
 import { t } from '../../../core/locale/i18n.js';
+import __unused from '../../../core/utils/lintUtils.js';
 const badgeCache = new Map();
 
 function ensureShineStyle() {
@@ -183,7 +184,7 @@ async function addHeaderBadges(container) {
                         method: 'GET',
                     });
                     verification = res?.data?.[0];
-                } catch (e) {}
+                } catch (e) {__unused(e)}
             }
 
             let apiBadges = [];
@@ -195,7 +196,7 @@ async function addHeaderBadges(container) {
                     method: 'GET',
                 });
                 if (res?.status === 'success') apiBadges = res.badges;
-            } catch (e) {}
+            } catch (e) {__unused(e)}
 
             data = { verification, apiBadges };
             badgeCache.set(currentUserId, data);

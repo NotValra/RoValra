@@ -42,6 +42,7 @@ import {
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import * as THREE from 'three';
 import { safeHtml } from '../../../core/packages/dompurify.js';
+import __unused from '../../../core/utils/lintUtils.js';
 FLAGS.ENABLE_API_MESH_CACHE = false;
 FLAGS.ENABLE_API_RBX_CACHE = false;
 FLAGS.USE_WORKERS = false;
@@ -343,6 +344,7 @@ async function playDirectAnimation(
         try {
             root = assetResult.generateTree();
         } catch (e) {
+            __unused(e);
             root = assetResult;
         }
 
@@ -969,6 +971,7 @@ async function loadCustomEnvironment(scene, config) {
         try {
             new URL(envUrl);
         } catch (e) {
+            __unused(e);
             envUrl = chrome.runtime.getURL(envUrl);
         }
 
@@ -1511,8 +1514,7 @@ async function attachPreloadedAvatar(container) {
     avatarPromise.catch((err) => {
         container.innerHTML = '';
         const errorContainer = document.createElement('div');
-        errorContainer.style.cssText =
-            'display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--rovalra-secondary-text-color); padding: 20px; text-align: center; font-size: 12px;';
+        errorContainer.classList.add("profilerender_errorcontainer");
         errorContainer.innerHTML = safeHtml`<span style="font-size: 24px; margin-bottom: 8px;">⚠️</span><div style="font-weight:600; margin-bottom:4px;">3D Renderer Error</div><div>${err.message}</div>`;
         container.appendChild(errorContainer);
     });
@@ -1554,7 +1556,7 @@ export function init() {
                             'profile3DRenderForceDisabled',
                         );
                     }
-                } catch (e) {}
+                } catch (e) {__unused(e)}
             }
 
             if (result.profile3DRenderEnabled) {

@@ -8,6 +8,7 @@ import { callRobloxApi } from '../../core/api.js';
 import { safeHtml } from '../../core/packages/dompurify';
 import { createGameCard } from '../../core/ui/games/gameCard.js';
 import { t } from '../../core/locale/i18n.js';
+import __unused from '../../core/utils/lintUtils.js';
 const CONFIG = {
     PAGE_SIZE: 50,
     ACCESS_FILTER: 2,
@@ -57,6 +58,7 @@ const Api = {
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 return response;
             } catch (err) {
+                __unused(err);
                 if (i >= CONFIG.RETRY.MAX_ATTEMPTS) return null;
                 await new Promise((r) => setTimeout(r, delay));
                 delay *= 2;
