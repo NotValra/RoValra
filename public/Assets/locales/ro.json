@@ -224,7 +224,7 @@
     },
     "settings": {
         "tabs": {
-            "info": "Info",
+            "info": "Informație",
             "credits": "Credite",
             "donatorPerks": "Avantaje de donator",
             "settings": "Setări"
@@ -235,7 +235,7 @@
             "desc2": "Acest lucru este posibil prin a rula aproape totul local.",
             "desc3": "Și funcționalitățile de pe server nu mă costă nimic, motiv pentru care îmi pot permite să le fac gratuite.",
             "desc4": "Această extensie este și un proiect pentru a învăța, deci multe lucruri se pot schimba sau reface în timp ce învăț mai multe.",
-            "gilbert": "WE ALL LOVE GILBERT",
+            "gilbert": "NOI TOȚI IUBIM GILBERT",
             "suggestions": "Dacă aveți sugestii, vă rog să mă anunțați pe serverul meu Discord sau prin GitHub.",
             "bugs": "Dacă aveți probleme / buguri, vă rog să mă anunțați pe serverul meu Discord sau prin GitHub.",
             "review": "Dacă vă place această extensie, vă rog să considerați <a href=\"https://chromewebstore.google.com/detail/rovalra-roblox-improved/njcickgebhnpgmoodjdgohkclfplejli/reviews\" target=\"_blank\" class=\"rovalra-review-link\">lăsând un review</a>, ajută mult ❤️",
@@ -287,8 +287,8 @@
         }
     },
     "qolToggles": {
-        "onlineStatus": "Online Status",
-        "joinStatus": "Experience Status",
+        "onlineStatus": "Status Online",
+        "joinStatus": "Status Experieță",
         "everyone": "Toți",
         "friendsFollowingAndFollowers": "Prieteni, Urmăriri, & Urmași",
         "friendsAndFollowing": "Prieteni & Urmași",
@@ -434,7 +434,7 @@
         "kickMembers": "Dă afară membri",
         "cancel": "Anulează",
         "actionRequired": "Acțiune necesară ({{count}})",
-        "noPermission": "Nu ai permisiunea de a bana sau da afară membri.",
+        "noPermission": "Nu ai permisiunea de a bana sau a da afară membri.",
         "confirmBan": "Ești pe cale să <strong>banezi {{count}} membru/membri</strong>. Aceștia vor fi blocați permanent.",
         "confirmKick": "Ești pe cale să <strong>dai afară {{count}} membru/membri</strong>. Se pot alătura din nou oricând.",
         "banReminder": "<br><br><div class=\"rovalra-ban-warning\" style=\"margin-top:0;\"><strong>Reamintire:</strong> Verifică scorurile de bot înainte de a bana.</div>",
