@@ -11,6 +11,7 @@ export const CONTRIBUTOR_USER_IDS = [
     '126448532', //steinann
     '1564574922', //cornusandu
     '587159802', //zoinbase
+    '193520242', // contributor
 ];
 
 export const TESTER_USER_IDS = [
