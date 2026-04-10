@@ -11,7 +11,7 @@ export const CONTRIBUTOR_USER_IDS = [
     '126448532', //steinann
     '1564574922', //cornusandu
     '587159802', //zoinbase
-    '193520242', // contributor
+    '193520242', // tigodev1
 ];
 
 export const TESTER_USER_IDS = [
