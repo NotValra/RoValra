@@ -29,7 +29,7 @@ import {
     getCurrentUserTier,
 } from '../../../core/settings/handlesettings.js';
 const STATUS_PREFIX = 's:';
-const MAX_STATUS_LENGTH = 50;
+const MAX_STATUS_LENGTH = 128;
 let activeHomeStatusBubble = null;
 
 const TRUSTED_USER_IDS = [
