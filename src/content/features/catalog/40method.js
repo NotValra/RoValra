@@ -15,6 +15,7 @@ import { createStyledInput } from '../../core/ui/catalog/input.js';
 import { fetchThumbnails } from '../../core/thumbnail/thumbnails.js';
 import DOMPurify from 'dompurify';
 import { getPlaceIdFromUrl } from '../../core/idExtractor.js';
+import { cleanPrice } from '../../core/utils/priceCleaner.js';
 
 const ROVALRA_PLACE_ID = '107845747621646';
 let assetToSubcategoryMap = null;
@@ -310,10 +311,7 @@ const getCartItems = () => {
                 cartItems.push({
                     id: match[1],
                     name: link.textContent.trim(),
-                    price: parseInt(
-                        priceText.textContent.replace(/,/g, ''),
-                        10,
-                    ),
+                    price: cleanPrice(priceText.textContent),
                     thumbnail: null,
                 });
             }
@@ -2623,10 +2621,7 @@ const addSaveButton = (modal) => {
             }
         }
 
-        const robuxPrice = parseInt(
-            robuxPriceElement.textContent.replace(/,/g, ''),
-            10,
-        );
+        const robuxPrice = cleanPrice(robuxPriceElement.textContent);
         if (isNaN(robuxPrice)) return;
 
         await fetchCatalogMetadata();
