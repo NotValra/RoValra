@@ -190,6 +190,8 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: false,
+                locked: 'Feature broke and Roblox made their own version.',
+                isPermanent: true,
                 childSettings: {
                     Enableautoplay: {
                         label: 'Auto Play Trailer',
