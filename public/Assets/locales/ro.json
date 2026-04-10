@@ -287,8 +287,8 @@
         }
     },
     "qolToggles": {
-        "onlineStatus": "Status Online",
-        "joinStatus": "Status Experieță",
+        "onlineStatus": "Stare Online",
+        "joinStatus": "Stare Experieță",
         "everyone": "Toți",
         "friendsFollowingAndFollowers": "Prieteni, Urmăriri, & Urmași",
         "friendsAndFollowing": "Prieteni & Urmași",
@@ -434,7 +434,7 @@
         "kickMembers": "Dă afară membri",
         "cancel": "Anulează",
         "actionRequired": "Acțiune necesară ({{count}})",
-        "noPermission": "Nu ai permisiunea de a bana sau a da afară membri.",
+        "noPermission": "Nu ai permisiunea de a bana sau de a da afară membri.",
         "confirmBan": "Ești pe cale să <strong>banezi {{count}} membru/membri</strong>. Aceștia vor fi blocați permanent.",
         "confirmKick": "Ești pe cale să <strong>dai afară {{count}} membru/membri</strong>. Se pot alătura din nou oricând.",
         "banReminder": "<br><br><div class=\"rovalra-ban-warning\" style=\"margin-top:0;\"><strong>Reamintire:</strong> Verifică scorurile de bot înainte de a bana.</div>",
