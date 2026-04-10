@@ -257,7 +257,7 @@ function injectDialogStats(dialog, friendData, settings) {
             originRow.appendChild(originIcon);
 
             originRow.appendChild(
-                document.createTextNode(`${ts('friendsSince.friendedVia')} `),
+                document.createTextNode(`${ts('friendsSince.friended')} `),
             );
 
             const originValue = document.createElement('span');

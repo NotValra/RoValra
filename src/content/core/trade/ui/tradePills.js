@@ -54,6 +54,7 @@ export function createRapDiffPill(
         const icon = document.createElement('span');
         icon.className = 'icon-robux-16x16';
         icon.style.marginRight = '4px';
+        icon.style.filter = 'brightness(0) invert(1)';
 
         Object.assign(icon.style, iconStyles);
 
