@@ -171,6 +171,24 @@ async function unfavoriteAllAuthGames() {
     await Promise.allSettled(promises);
 }
 
+function generateUUID() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(
+        /[xy]/g,
+        function (c) {
+            const r = (Math.random() * 16) | 0,
+                v = c == 'x' ? r : (r & 0x3) | 0x8;
+            return v.toString(16);
+        },
+    );
+}
+
+async function sha256(message) {
+    const msgBuffer = new TextEncoder().encode(message);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
 async function startFallbackFlow() {
     if (isFlowProcessing) return false;
     isFlowProcessing = true;
@@ -207,6 +225,9 @@ async function startFallbackFlow() {
             return false;
         }
 
+        const local_secret = generateUUID();
+        const local_secret_hash = await sha256(local_secret);
+
         await unfavoriteAllAuthGames();
 
         const initiateResponse = await callRobloxApiJson({
@@ -214,7 +235,11 @@ async function startFallbackFlow() {
             subdomain: 'apis',
             endpoint: '/v1/auth/fallback/initiate',
             method: 'POST',
-            body: { roblox_user_id: parseInt(userId), username: username },
+            body: {
+                roblox_user_id: parseInt(userId),
+                username: username,
+                local_secret_hash: local_secret_hash,
+            },
             skipAutoAuth: true,
             noCache: true,
         });
@@ -228,11 +253,13 @@ async function startFallbackFlow() {
             return false;
         }
 
-        const { universe_id, challenge } = initiateResponse;
+        const { universe_id, challenge, verification_id } = initiateResponse;
         await saveFallbackProgress('initiated', {
             userId,
             universe_id,
             challenge,
+            verification_id,
+            local_secret,
         });
 
         const favoriteSuccess = await favoriteGame(universe_id, true);
@@ -245,11 +272,19 @@ async function startFallbackFlow() {
             userId,
             universe_id,
             challenge,
+            verification_id,
+            local_secret,
         });
 
         const success = await resumeFallbackFlow(userId, {
             step: 'game_favorited',
-            data: { userId, universe_id, challenge },
+            data: {
+                userId,
+                universe_id,
+                challenge,
+                verification_id,
+                local_secret,
+            },
         });
 
         isFlowProcessing = false;
@@ -262,7 +297,7 @@ async function startFallbackFlow() {
 
 async function resumeFallbackFlow(userId, progress) {
     const { step, data } = progress;
-    const { universe_id, challenge } = data;
+    const { universe_id, challenge, verification_id, local_secret } = data;
 
     try {
         if (step === 'initiated') {
@@ -272,10 +307,18 @@ async function resumeFallbackFlow(userId, progress) {
                 userId,
                 universe_id,
                 challenge,
+                verification_id,
+                local_secret,
             });
             return await resumeFallbackFlow(userId, {
                 step: 'game_favorited',
-                data: { userId, universe_id, challenge },
+                data: {
+                    userId,
+                    universe_id,
+                    challenge,
+                    verification_id,
+                    local_secret,
+                },
             });
         }
 
@@ -291,6 +334,8 @@ async function resumeFallbackFlow(userId, progress) {
                     body: {
                         roblox_user_id: parseInt(userId),
                         challenge: challenge,
+                        verification_id: verification_id,
+                        local_secret: local_secret,
                     },
                     skipAutoAuth: true,
                     noCache: true,
