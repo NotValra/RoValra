@@ -397,6 +397,7 @@
     "serverList": {
         "clear": "Clear",
         "noServersApi": "No servers found via the RoValra API.",
+        "allServersInactive": "All servers in this region went inactive",
         "loadErrorApi": "Failed to load servers from RoValra API.",
         "join": "Join",
         "peopleMax": "{{playing}} of {{maxPlayers}} people max",
