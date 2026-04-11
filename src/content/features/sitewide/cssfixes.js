@@ -1,4 +1,5 @@
 import { observeElement } from '../../core/observer.js';
+import { getPlaceIdFromUrl } from '../../core/idExtractor.js';
 
 const applyImpersonateAttribute = (headerContainer) => {
     chrome.storage.local.get('impersonateRobloxStaffSetting', function (data) {
@@ -134,12 +135,12 @@ const applyProfileGameCardFix = () => {
 
     const css = `
         .profile-favorite-experiences .css-1jynqc0-carouselContainer,
-        .profile-favorite-experiences .css-1i465w8-carousel {
+        .profile-favorite-experiences .css-1i465w8-carousel,
+        [class*="collectionCarouselContainer"] [class*="carouselContainer"],
+        [class*="collectionCarouselContainer"] [class*="carousel"] {
             height: 250px !important;
             overflow: visible !important;
         }
-
-
     `;
     const style = document.createElement('style');
     style.textContent = css;
@@ -147,18 +148,23 @@ const applyProfileGameCardFix = () => {
 
     import('../../core/ui/games/gameCard.js').then(({ createGameCard }) => {
         observeElement(
-            '.profile-favorite-experiences .game-card-container',
+            '[class*="collectionCarouselContainer"] .game-card-container, .profile-favorite-experiences .game-card-container',
             (originalCard) => {
                 if (originalCard.dataset.fixed) return;
                 originalCard.dataset.fixed = 'true';
 
                 try {
                     const link = originalCard.querySelector('.game-card-link');
-                    if (!link || !link.id) return;
+                    if (!link) return;
 
-                    const universeId = link.id;
+                    const universeId = link.id || link.dataset.universeId;
+                    const placeId = getPlaceIdFromUrl(link.href);
 
-                    const newCard = createGameCard({ gameId: universeId });
+                    if (!universeId && !placeId) return;
+
+                    const newCard = universeId
+                        ? createGameCard({ gameId: universeId })
+                        : createGameCard({ placeId: placeId });
                     originalCard.innerHTML = '';
                     originalCard.appendChild(newCard);
                 } catch (e) {
