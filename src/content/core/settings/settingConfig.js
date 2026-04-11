@@ -1469,16 +1469,6 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: false,
-                childSettings: {
-                    forceFallbackOnEveryRefresh: {
-                        label: 'Force Fallback on Every Refresh',
-                        description: [
-                            'Clears any existing token and forces the fallback verification flow on every page load.',
-                        ],
-                        type: 'checkbox',
-                        default: false,
-                    },
-                },
             },
             profile3DRenderBypassCheck: {
                 label: 'Bypass Graphics Check',

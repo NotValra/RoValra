@@ -374,35 +374,14 @@ async function resumeFallbackFlow(userId, progress) {
     }
 }
 
-async function shouldForceOnEveryRefresh() {
-    return new Promise((resolve) => {
-        chrome.storage.local.get(
-            { forceFallbackOnEveryRefresh: false },
-            (settings) => {
-                resolve(!!settings.forceFallbackOnEveryRefresh);
-            },
-        );
-    });
-}
-
 export async function initFallback() {
-    const forceOnRefresh = await shouldForceOnEveryRefresh();
     const forceFallback = await shouldForceFallback();
-
-    if (forceOnRefresh && forceFallback) {
-        if (document.readyState !== 'complete') {
-            await new Promise((resolve) => {
-                window.addEventListener('load', resolve, { once: true });
-            });
-        }
-        await clearFallbackVerification();
-    }
 
     const userId = await getAuthenticatedUserId();
     if (!userId) return null;
 
     const stored = await getStoredFallback();
-    if (stored?.accessToken && !forceOnRefresh) return stored.accessToken;
+    if (stored?.accessToken) return stored.accessToken;
 
     const useFallback = await shouldUseFallback();
     if (useFallback || forceFallback) return await getValidFallbackToken(true);
