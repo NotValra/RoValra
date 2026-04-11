@@ -221,6 +221,33 @@ async function showConfirmationOverlay() {
             setTimeout(() => {
                 friendItem.remove();
                 updateUnfriendButton();
+
+                const count = selectedFriends.size;
+                confirmButton.disabled = count === 0;
+                confirmButton.textContent =
+                    count === 1
+                        ? ts('unfriend.unfriendCountAction', { count })
+                        : ts('unfriend.unfriendCountActionPlural', { count });
+
+                if (count === 0) {
+                    confirmButton.textContent = ts('unfriend.unfriend');
+                }
+
+                if (count === 1) {
+                    description.textContent = ts('unfriend.descriptionSingle');
+                } else {
+                    description.textContent = ts('unfriend.descriptionPlural', {
+                        count,
+                    });
+                }
+
+                const titleEl = overlay.overlay?.querySelector('h2');
+                if (titleEl) {
+                    titleEl.textContent =
+                        count === 1
+                            ? ts('unfriend.confirmUnfriend')
+                            : ts('unfriend.confirmUnfriends');
+                }
             }, 150);
         });
 
