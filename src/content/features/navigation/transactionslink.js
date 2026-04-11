@@ -150,6 +150,9 @@ function createTransactionsItem(sidebar, communityLink, label) {
 
     stripClonedState(item);
 
+    link.className =
+        'content-emphasis text-title-large flex items-center gap-small padding-left-xsmall padding-right-xxsmall radius-medium relative clip group/interactable focus-visible:outline-focus disabled:outline-none';
+
     const iconHost = findIconHost(link);
     if (iconHost) {
         iconHost.replaceChildren(createTransactionsIcon());
@@ -175,7 +178,9 @@ function clearInlineActiveStyles(item) {
 }
 
 function updateTransactionsActiveState(sidebar) {
-    const item = sidebar.querySelector('[data-rovalra-transactions-item="true"]');
+    const item = sidebar.querySelector(
+        '[data-rovalra-transactions-item="true"]',
+    );
     const link = sidebar.querySelector(
         'a[data-rovalra-transactions-link="true"]',
     );
@@ -185,11 +190,12 @@ function updateTransactionsActiveState(sidebar) {
     item.dataset.rovalraTransactionsItem = 'true';
     link.dataset.rovalraTransactionsLink = 'true';
 
+    link.className =
+        'content-emphasis text-title-large flex items-center gap-small padding-left-xsmall padding-right-xxsmall radius-medium relative clip group/interactable focus-visible:outline-focus disabled:outline-none';
+
     if (matchesRoute(window.location.pathname, TRANSACTIONS_PATH)) {
         link.setAttribute('aria-current', 'page');
-        link.style.backgroundColor = ACTIVE_BACKGROUND_COLOR;
-        link.style.borderRadius = '8px';
-        link.style.color = 'inherit';
+        link.classList.add('bg-surface-300');
     } else {
         clearInlineActiveStyles(item);
     }
@@ -270,7 +276,9 @@ function removeTransactionsLinks() {
 function addTransactionsLinks(label) {
     document
         .querySelectorAll('a[href*="/communities"]')
-        .forEach((communityLink) => insertTransactionsLink(communityLink, label));
+        .forEach((communityLink) =>
+            insertTransactionsLink(communityLink, label),
+        );
 }
 
 export function init() {
