@@ -1,4 +1,4 @@
-import { observeElement } from '../../../core/observer.js';
+import { observeElement, observeAttributes } from '../../../core/observer.js';
 import { createOverlay } from '../../../core/ui/overlay.js';
 import { callRobloxApi } from '../../../core/api.js';
 import { createButton } from '../../../core/ui/buttons.js';
@@ -21,7 +21,11 @@ const selectedFriends = new Set();
 let unfriendButton = null;
 let enableBulkUnfriend = false;
 let bulkToggleButton = null;
+let isInjectingHeader = false;
 let friendsMap = null;
+let headerObserver = null;
+let cardsObserver = null;
+const cardAttributeObservers = new Map();
 
 async function unfriendUser(userId, attempt = 1) {
     const MAX_RETRIES = 3;
@@ -88,6 +92,11 @@ async function showConfirmationOverlay() {
     friendList.style.maxHeight = '400px';
     friendList.style.overflowY = 'auto';
 
+    const friendsList = await getCachedFriendsList();
+    if (friendsList) {
+        friendsMap = new Map(friendsList.map((friend) => [friend.id, friend]));
+    }
+
     const selectedIds = Array.from(selectedFriends);
     const thumbnails = await fetchThumbnails(
         selectedIds.map((id) => ({ id })),
@@ -98,10 +107,11 @@ async function showConfirmationOverlay() {
 
     for (const friendId of Array.from(selectedFriends)) {
         const friendData = friendsMap?.get(parseInt(friendId, 10));
-        const friendName =
+        const displayName =
             friendData?.displayName ||
             friendData?.username ||
             `User ${friendId}`;
+        const username = friendData?.username;
 
         const friendItem = document.createElement('div');
         friendItem.style.display = 'flex';
@@ -116,7 +126,7 @@ async function showConfirmationOverlay() {
         if (thumbnail) {
             const thumbElement = createThumbnailElement(
                 thumbnail,
-                friendName,
+                displayName,
                 '',
                 {
                     width: '48px',
@@ -138,14 +148,14 @@ async function showConfirmationOverlay() {
         const nameText = document.createElement('span');
         nameText.style.fontWeight = '500';
         nameText.style.lineHeight = '1.2';
-        nameText.textContent = friendName;
+        nameText.textContent = displayName;
         infoContainer.appendChild(nameText);
 
         const usernameText = document.createElement('span');
         usernameText.style.opacity = '0.6';
         usernameText.style.fontSize = '12px';
         usernameText.style.lineHeight = '1.2';
-        usernameText.textContent = `@${friendName.toLowerCase()}`;
+        usernameText.textContent = username ? `@${username}` : '';
         infoContainer.appendChild(usernameText);
 
         if (friendData) {
@@ -352,19 +362,40 @@ function updateUnfriendButton() {
     }
 }
 
-function addUnfriendButtonToHeader() {
-    if (unfriendButton) return;
+function getFriendIdFromCard(card) {
+    if (card.id && /^\d+$/.test(card.id)) return card.id;
+    const profileLink = card.querySelector(
+        '.avatar-card-link, a[href*="/users/"]',
+    );
+    if (profileLink) {
+        const match = profileLink.href.match(/\/users\/(\d+)\//);
+        return match ? match[1] : null;
+    }
+    return null;
+}
 
-    const urlUserId = getUserIdFromFriendUrl();
-    const authedUserId = getAuthenticatedUserId();
+async function addUnfriendButtonToHeader(headerContainer) {
+    if (
+        isInjectingHeader ||
+        headerContainer.querySelector('.rovalra-bulk-unfriend-btn')
+    )
+        return;
 
-    if (urlUserId && String(urlUserId) !== String(authedUserId)) {
-        cleanupBulkMode();
+    isInjectingHeader = true;
+
+    const urlUserId = await getUserIdFromFriendUrl();
+    const authedUserId = await getAuthenticatedUserId();
+
+    if (!isOnFriendsPage()) {
+        isInjectingHeader = false;
         return;
     }
 
-    const headerContainer = document.querySelector('.friends-left');
-    if (!headerContainer) return;
+    if (urlUserId != null && String(urlUserId) !== String(authedUserId)) {
+        cleanupBulkMode();
+        isInjectingHeader = false;
+        return;
+    }
 
     bulkToggleButton = createButton(ts('unfriend.bulkUnfriend'), 'secondary', {
         onClick: () => {
@@ -423,6 +454,7 @@ function addUnfriendButtonToHeader() {
                 : ts('unfriend.bulkUnfriend');
         },
     });
+    bulkToggleButton.classList.add('rovalra-bulk-unfriend-btn');
     bulkToggleButton.style.marginLeft = '12px';
     headerContainer.appendChild(bulkToggleButton);
 
@@ -432,6 +464,8 @@ function addUnfriendButtonToHeader() {
     unfriendButton.style.display = 'none';
     unfriendButton.style.marginLeft = '8px';
     headerContainer.appendChild(unfriendButton);
+
+    isInjectingHeader = false;
 }
 
 function handleCardClick(e) {
@@ -445,19 +479,22 @@ function handleCardClick(e) {
     }
 }
 
-function addSelectionCheckboxToCard(card) {
+function addSelectionCheckboxToCard(card, friendId) {
     if (card.querySelector('.rovalra-unfriend-radio')) return;
 
-    const friendId = card.id;
     const contentContainer = card.querySelector('.avatar-card-content');
     if (!contentContainer) return;
 
     const radio = createRadioButton({
         onChange: (checked) => {
+            const currentId = getFriendIdFromCard(card);
+            if (!currentId) return;
+
             if (checked) {
-                selectedFriends.add(friendId);
+                selectedFriends.add(currentId);
             } else {
-                selectedFriends.delete(friendId);
+                selectedFriends.delete(currentId);
+
                 card.style.outline = '';
             }
             updateUnfriendButton();
@@ -478,9 +515,29 @@ function addSelectionCheckboxToCard(card) {
 function cleanupBulkMode() {
     enableBulkUnfriend = false;
     selectedFriends.clear();
-    unfriendButton = null;
-    bulkToggleButton = null;
+
+    if (unfriendButton) {
+        unfriendButton.remove();
+        unfriendButton = null;
+    }
+    if (bulkToggleButton) {
+        bulkToggleButton.remove();
+        bulkToggleButton = null;
+    }
+
+    cardAttributeObservers.forEach((obs) => obs.disconnect());
+    cardAttributeObservers.clear();
+
     friendsMap = null;
+
+    if (headerObserver) {
+        headerObserver.disconnect();
+        headerObserver = null;
+    }
+    if (cardsObserver) {
+        cardsObserver.disconnect();
+        cardsObserver = null;
+    }
 
     document.querySelectorAll('.rovalra-unfriend-radio').forEach((radio) => {
         radio.remove();
@@ -500,7 +557,7 @@ function cleanupBulkMode() {
 }
 
 function isOnFriendsPage() {
-    return window.location.hash === '#!/friends';
+    return window.location.hash.includes('#!/friends');
 }
 
 async function initializeIfOnFriendsPage() {
@@ -527,36 +584,66 @@ async function initializeIfOnFriendsPage() {
         return;
     }
 
-    if (unfriendButton) return;
+    if (headerObserver) return;
 
     const friendsList = await getCachedFriendsList();
     if (friendsList) {
         friendsMap = new Map(friendsList.map((friend) => [friend.id, friend]));
     }
 
-    addUnfriendButtonToHeader();
+    headerObserver = observeElement(
+        '.friends-left, .friends-subtitle',
+        (header) => addUnfriendButtonToHeader(header),
+        { multiple: true },
+    );
 
-    observeElement(
+    cardsObserver = observeElement(
         'li.list-item.avatar-card',
         (card) => {
-            addSelectionCheckboxToCard(card);
+            const updateCardState = () => {
+                const friendId = getFriendIdFromCard(card);
+                if (!friendId) return;
 
-            if (selectedFriends.has(card.id)) {
+                addSelectionCheckboxToCard(card);
+
                 const radio = card.querySelector('.rovalra-unfriend-radio');
                 if (radio) {
-                    radio.setChecked(true);
+                    radio.setChecked(selectedFriends.has(friendId));
                 }
-            }
 
-            if (enableBulkUnfriend) {
-                card.style.cursor = 'pointer';
-                card.addEventListener('click', handleCardClick);
+                if (enableBulkUnfriend) {
+                    card.style.cursor = 'pointer';
+                    card.addEventListener('click', handleCardClick);
+                }
+            };
+
+            updateCardState();
+
+            const profileLink = card.querySelector(
+                '.avatar-card-link, a[href*="/users/"]',
+            );
+            if (profileLink) {
+                const attrObserver = observeAttributes(
+                    profileLink,
+                    (mutation) => {
+                        if (mutation.attributeName === 'href') {
+                            updateCardState();
+                        }
+                    },
+                    ['href'],
+                );
+                cardAttributeObservers.set(card, attrObserver);
             }
         },
         {
             multiple: true,
             onRemove: (card) => {
                 card.removeEventListener('click', handleCardClick);
+                const obs = cardAttributeObservers.get(card);
+                if (obs) {
+                    obs.disconnect();
+                    cardAttributeObservers.delete(card);
+                }
             },
         },
     );
@@ -568,28 +655,31 @@ export async function init() {
         return;
     }
 
-    const urlUserId = await getUserIdFromFriendUrl();
-    const authedUserId = await getAuthenticatedUserId();
-    console.log(urlUserId, authedUserId);
+    const handlePageChange = async () => {
+        const urlUserId = await getUserIdFromFriendUrl();
+        const authedUserId = await getAuthenticatedUserId();
 
-    if (urlUserId != null && String(urlUserId) !== String(authedUserId)) {
-        return;
-    } else {
-        await initializeIfOnFriendsPage();
+        if (urlUserId != null && String(urlUserId) !== String(authedUserId)) {
+            cleanupBulkMode();
+            return;
+        }
 
-        let lastUrl = location.href;
-        observeElement(
-            'body',
-            () => {
-                const url = location.href;
-                if (url !== lastUrl) {
-                    lastUrl = url;
-                    initializeIfOnFriendsPage();
-                }
-            },
-            { multiple: false },
-        );
+        initializeIfOnFriendsPage();
+    };
 
-        window.addEventListener('popstate', initializeIfOnFriendsPage);
-    }
+    handlePageChange();
+
+    let lastUrl = location.href;
+    observeElement(
+        'body',
+        () => {
+            if (location.href !== lastUrl) {
+                lastUrl = location.href;
+                handlePageChange();
+            }
+        },
+        { multiple: false },
+    );
+
+    window.addEventListener('popstate', handlePageChange);
 }
