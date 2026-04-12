@@ -241,7 +241,7 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
             const inp = document.createElement('input');
             inp.type = 'color';
             inp.style.cssText =
-                'width: 32px; height: 32px; border: 2px solid white; border-radius: 8px; cursor: pointer; background: none; padding: 0;';
+                'width: 32px; height: 32px; border: 2px solid var(--rovalra-main-text-color); border-radius: 8px; cursor: pointer; background: none; padding: 0;';
             return inp;
         };
 
@@ -286,21 +286,22 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
 
         const angleCircle = document.createElement('div');
         angleCircle.style.cssText = `
-            width: 40px; height: 40px; border: 2px dashed rgba(255,255,255,0.5);
+            width: 40px; height: 40px; border: 2px dashed var(--rovalra-main-text-color);
+            opacity: 0.5;
             border-radius: 50%; position: relative; pointer-events: none;
-            background: rgba(0,0,0,0.1);
+            background: var(--rovalra-container-background-color);
         `;
 
         const angleLine = document.createElement('div');
         angleLine.style.cssText = `
-            position: absolute; width: 2px; height: 20px; background: white;
+            position: absolute; width: 2px; height: 20px; background: var(--rovalra-main-text-color);
             bottom: 50%; left: calc(50% - 1px); transform-origin: bottom center;
         `;
 
         const handle = document.createElement('div');
         handle.style.cssText = `
-            position: absolute; width: 14px; height: 14px; background: white;
-            border: 2px solid #333; border-radius: 50%; top: -7px; left: -6px;
+            position: absolute; width: 14px; height: 14px; background: var(--rovalra-main-text-color);
+            border: 2px solid var(--rovalra-main-background-color); border-radius: 50%; top: -7px; left: -6px;
         `;
 
         angleLine.appendChild(handle);

@@ -1,4 +1,5 @@
 import { observeElement, startObserving } from '../../../core/observer.js';
+import * as cache from '../../../core/storage/cacheHandler.js';
 import { getUserIdFromUrl } from '../../../core/idExtractor.js';
 import { injectStylesheet } from '../../../core/ui/cssInjector.js';
 import { addTooltip } from '../../../core/ui/tooltip.js';
@@ -180,16 +181,31 @@ async function addStatusBubble(avatarContainer, userWantsApi) {
 
         const isUserTrusted = TRUSTED_USER_IDS.includes(String(userId));
 
-        const [{ status, canUseApi }, authenticatedUserId] = await Promise.all([
-            getUserSettings(userId, { useDescription: true }),
-            getAuthenticatedUserId(),
-        ]);
-
-        let statusText = status;
-
+        const authenticatedUserId = await getAuthenticatedUserId();
         const isOwnProfile =
             authenticatedUserId &&
             String(authenticatedUserId) === String(userId);
+
+        let settings;
+        if (!isOwnProfile) {
+            const cached = await cache.get('status', userId);
+            if (cached && Date.now() - cached.timestamp < 60000) {
+                settings = cached.data;
+            }
+        }
+
+        if (!settings) {
+            settings = await getUserSettings(userId, { useDescription: true });
+            if (!isOwnProfile) {
+                await cache.set('status', userId, {
+                    data: settings,
+                    timestamp: Date.now(),
+                });
+            }
+        }
+
+        const { status, canUseApi } = settings;
+        let statusText = status;
 
         if (!statusText && !isOwnProfile) return;
 
@@ -422,9 +438,32 @@ async function addHomeStatusHover(tile) {
     tile.addEventListener('mouseenter', async () => {
         if (!statusLoaded) {
             try {
-                const { status } = await getUserSettings(userId, {
-                    useDescription: true,
-                });
+                const authenticatedUserId = await getAuthenticatedUserId();
+                const isOwnProfile =
+                    authenticatedUserId &&
+                    String(authenticatedUserId) === String(userId);
+
+                let settings;
+                if (!isOwnProfile) {
+                    const cached = await cache.get('status', userId);
+                    if (cached && Date.now() - cached.timestamp < 60000) {
+                        settings = cached.data;
+                    }
+                }
+
+                if (!settings) {
+                    settings = await getUserSettings(userId, {
+                        useDescription: true,
+                    });
+                    if (!isOwnProfile) {
+                        await cache.set('status', userId, {
+                            data: settings,
+                            timestamp: Date.now(),
+                        });
+                    }
+                }
+
+                const { status } = settings;
 
                 if (status) {
                     let statusText = status;
