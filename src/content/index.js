@@ -88,6 +88,7 @@ import { init as initProfileRender } from './features/profile/header/ProfileRend
 import { init as initStatus } from './features/profile/header/status.js';
 import { init as initFriendsSince } from './features/profile/friends/friendsSince.js';
 import { init as initUnfriend } from './features/profile/friends/unfriend.js';
+import { init as initProfileBackground } from './features/profile/header/profileBackground.js';
 import { init as initRobuxIcons } from './core/ui/robuxIcon.js';
 
 // Settings
@@ -212,6 +213,7 @@ const featureRoutes = [
             initProfileRender,
             initFriendsSince,
             initUnfriend,
+            initProfileBackground,
         ],
     },
     {

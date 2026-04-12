@@ -7,11 +7,13 @@ import { getAuthenticatedUserId } from '../user.js';
 import {
     getUserDescription,
     updateUserDescription,
+    updateUserSettingViaApi,
 } from '../profile/descriptionhandler.js';
 import { createAndShowPopup } from '../../features/catalog/40method.js';
 import * as CacheHandler from '../storage/cacheHandler.js';
 
 let currentUserTier = 0;
+let gradientSyncTimeout = null;
 let donatorTierPromise = null;
 
 export const getCurrentUserTier = () => currentUserTier;
@@ -221,6 +223,8 @@ export const handleSaveSettings = async (settingName, value) => {
                 case 'text':
                 case 'input':
                 case 'select':
+                case 'color':
+                case 'gradient':
                     if (value === null) {
                         sanitizedValue = null;
                     } else if (typeof value === 'string') {
@@ -253,6 +257,27 @@ export const handleSaveSettings = async (settingName, value) => {
                                     settingConfig.default ?? validValues[0];
                             }
                         }
+                    } else if (
+                        settingConfig.type === 'gradient' &&
+                        typeof value === 'object'
+                    ) {
+                        sanitizedValue = {
+                            enabled: value.enabled !== false,
+                            color1: sanitizeString(
+                                String(value.color1 || '#667eea'),
+                            ),
+                            color2: sanitizeString(
+                                String(value.color2 || '#764ba2'),
+                            ),
+                            angle: Math.max(
+                                0,
+                                Math.min(360, parseInt(value.angle, 10) || 0),
+                            ),
+                            fade: Math.max(
+                                0,
+                                Math.min(100, parseInt(value.fade, 10) || 0),
+                            ),
+                        };
                     } else {
                         console.warn(
                             `Invalid string value for '${settingName}' - converting to string and sanitizing`,
@@ -316,6 +341,26 @@ export const handleSaveSettings = async (settingName, value) => {
                     reject(chrome.runtime.lastError);
                 } else {
                     syncToSettingsKey(settingName, sanitizedValue);
+                    if (settingName === 'profileGradient' && sanitizedValue) {
+                        if (gradientSyncTimeout)
+                            clearTimeout(gradientSyncTimeout);
+                        gradientSyncTimeout = setTimeout(async () => {
+                            const isDonator = currentUserTier >= 2;
+                            if (isDonator) {
+                                const val = sanitizedValue.enabled
+                                    ? `${sanitizedValue.color1}, ${sanitizedValue.color2}, ${sanitizedValue.fade}, ${sanitizedValue.angle}`
+                                    : '';
+
+                                updateUserSettingViaApi('gradient', val).catch(
+                                    (error) =>
+                                        console.error(
+                                            'RoValra: Gradient sync failed',
+                                            error,
+                                        ),
+                                );
+                            }
+                        }, 1000);
+                    }
                     resolve();
                 }
             });
@@ -436,7 +481,16 @@ export const initSettings = async (settingsContent) => {
                         if (element._dropdownApi) {
                             element._dropdownApi.setValue(savedValue);
                         }
-                    } else if (setting.type === 'input') {
+                    } else if (setting.type === 'gradient') {
+                        if (element.rovalraGradientApi) {
+                            element.rovalraGradientApi.setValue(
+                                settings[settingName] || setting.default,
+                            );
+                        }
+                    } else if (
+                        setting.type === 'input' ||
+                        setting.type === 'color'
+                    ) {
                         element.value = settings[settingName] || '';
                         element.dispatchEvent(
                             new Event('input', { bubbles: true }),
@@ -522,7 +576,17 @@ export const initSettings = async (settingsContent) => {
                                         },
                                     );
                                 }
-                            } else if (childSetting.type === 'input') {
+                            } else if (childSetting.type === 'gradient') {
+                                if (childElement.rovalraGradientApi) {
+                                    childElement.rovalraGradientApi.setValue(
+                                        settings[childName] ||
+                                            childSetting.default,
+                                    );
+                                }
+                            } else if (
+                                childSetting.type === 'input' ||
+                                childSetting.type === 'color'
+                            ) {
                                 childElement.value = settings[childName] || '';
                                 childElement.dispatchEvent(
                                     new Event('input', { bubbles: true }),

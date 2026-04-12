@@ -115,10 +115,12 @@ async function fetchAndProcessSettings(userId, options = {}) {
 
     let finalStatus = null;
     let finalEnvironment = 1;
+    let finalGradient = null;
 
     if (apiProvidedMeaningfulSettings) {
         finalStatus = apiSettings.status;
         finalEnvironment = apiSettings.environment;
+        finalGradient = apiSettings.gradient;
     }
     const statusFromDesc =
         description !== null
@@ -251,6 +253,7 @@ async function fetchAndProcessSettings(userId, options = {}) {
     return {
         status: finalStatus,
         environment: finalEnvironment || 1,
+        gradient: finalGradient,
         canUseApi: apiProvidedMeaningfulSettings,
     };
 }

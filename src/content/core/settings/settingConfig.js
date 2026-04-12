@@ -679,6 +679,32 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
+            profileBackgroundGradientEnabled: {
+                label: 'Custom Profile Background Gradient',
+                description: [
+                    'Shows a users selected gradient on their profile',
+                ],
+                type: 'checkbox',
+                default: true,
+                childSettings: {
+                    profileGradient: {
+                        label: 'Profile Gradient',
+                        description:
+                            'Set your own gradient for your own profile',
+                        type: 'gradient',
+                        donatorTier: 2,
+                        donatorReason:
+                            'Donator 2 is required to set a custom profile gradient. This feature is purely cosmetic in order to reward donators',
+                        default: {
+                            enabled: false,
+                            color1: '#667eea',
+                            color2: '#764ba2',
+                            angle: 135,
+                            fade: 100,
+                        },
+                    },
+                },
+            },
             bannedUserDetectionEnabled: {
                 label: 'View Banned Users Profile',
                 description: ['Allows you to view banned users Profile.'],
