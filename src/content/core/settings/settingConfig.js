@@ -517,7 +517,10 @@ export const SETTINGS_CONFIG = {
                     environmentTester: {
                         label: 'Enable Environment Tester',
                         description: [
-                            'Shows the Environment Creator tool on profiles to make custom client sided environments that can be submitted in the Discord server for a chance of getting featured in the extension.',
+                            [
+                                'Shows the Environment Creator tool on profiles to make custom client sided environments that can be submitted in the Discord server for a chance of getting featured in the extension.',
+                                'This will overwrite all environment on profiles',
+                            ],
                         ],
                         type: 'checkbox',
                         default: false,
