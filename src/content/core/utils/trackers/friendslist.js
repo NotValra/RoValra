@@ -306,6 +306,14 @@ export async function updateFriendsList(userId) {
     let allFriends = [];
     let friendsCursor = null;
 
+    const storageResult = await new Promise((resolve) =>
+        chrome.storage.local.get([FRIENDS_DATA_KEY], resolve),
+    );
+    const allUsersFriendsData = storageResult[FRIENDS_DATA_KEY] || {};
+    const existingMap = new Map(
+        (allUsersFriendsData[userId]?.friendsList || []).map((f) => [f.id, f]),
+    );
+
     try {
         const [conversations, ageData, onlineData] = await Promise.all([
             fetchAllConversations(),
@@ -407,6 +415,7 @@ export async function updateFriendsList(userId) {
                         const chatStatus = chatAnalysisMap.get(friendId);
                         const userInsights = insightMap.get(friendId) || [];
                         const presence = onlineMap.get(friendId);
+                        const existingFriend = existingMap.get(friendId);
 
                         let mutualFriends = [];
                         let accountCreated = null;
@@ -497,8 +506,14 @@ export async function updateFriendsList(userId) {
                             accountCreated: accountCreated,
                             friendsSince: friendsSince,
                             friendRequestOrigin: friendRequestOrigin,
-                            lastOnline: presence?.lastOnline || null,
-                            lastLocation: presence?.lastLocation || null,
+                            lastOnline:
+                                presence?.lastOnline ||
+                                existingFriend?.lastOnline ||
+                                null,
+                            lastLocation:
+                                presence?.lastLocation ||
+                                existingFriend?.lastLocation ||
+                                null,
                         };
                     },
                 );
@@ -506,10 +521,6 @@ export async function updateFriendsList(userId) {
             }
         }
 
-        const storageResult = await new Promise((resolve) =>
-            chrome.storage.local.get([FRIENDS_DATA_KEY], resolve),
-        );
-        const allUsersFriendsData = storageResult[FRIENDS_DATA_KEY] || {};
         allUsersFriendsData[userId] = {
             friendsList: fullFriendsList,
             lastChecked: Date.now(),
@@ -546,8 +557,8 @@ async function updateOnlineStatusOnly(userId, currentFriendsList) {
             if (presence) {
                 return {
                     ...friend,
-                    lastOnline: presence.lastOnline,
-                    lastLocation: presence.lastLocation,
+                    lastOnline: presence.lastOnline || friend.lastOnline,
+                    lastLocation: presence.lastLocation || friend.lastLocation,
                 };
             }
             return friend;
