@@ -771,7 +771,10 @@ async function initializeExtension() {
     await applyTheme();
 
     if (window.location.href.includes('rovalra=')) {
-        injectStylesheet('css/settings_layout.css', 'rovalra-settings-layout-css');
+        injectStylesheet(
+            'css/settings_layout.css',
+            'rovalra-settings-layout-css',
+        );
     }
 
     await buildSettingsKey();
