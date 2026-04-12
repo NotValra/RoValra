@@ -28,6 +28,7 @@
         #121215 90%,
         #121215 100%
     );
+    --rovalra-icon-blocked-color: #646668;
 }
 
 :root:has(.light-theme),
@@ -58,4 +59,5 @@
         #fff 90%,
         #fff 100%
     );
+    --rovalra-icon-blocked-color: #ffffff;
 }
