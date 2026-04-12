@@ -39,7 +39,7 @@ export function getMarketplaceItemDetails(itemId) {
  * Fetches item details from the catalog API, caching the result in memory.
  *
  * @param {string|number} itemId - The ID of the item to fetch.
- * @param {string} [itemType] - The type of the item ('Asset' or 'Bundle'). Required for non-collectible IDs.
+ * @param {string} [itemType] - The type of the item ('Asset' or 'Bundle').
  * @returns {Promise<Object>} - A promise resolving to the item details.
  */
 export function getItemDetails(itemId, itemType) {

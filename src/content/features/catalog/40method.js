@@ -2706,6 +2706,7 @@ const addSaveButton = (modal) => {
         if (modalWindow.classList.contains('unified-purchase-dialog-content')) {
             saveButton.className =
                 'foundation-web-button relative clip group/interactable focus-visible:outline-focus disabled:outline-none cursor-pointer flex items-center justify-center stroke-none padding-y-none select-none radius-medium text-label-large height-1200 padding-x-large bg-action-emphasis content-action-emphasis fill basis-0 btn-save-robux';
+            saveButton.style.height = '48px';
             saveButton.style.textDecoration = 'none';
             saveButton.style.backgroundColor =
                 'var(--rovalra-button-background-color)';
@@ -2718,11 +2719,6 @@ const addSaveButton = (modal) => {
             `);
         } else {
             if (isRestricted) {
-                saveButton.style.height = 'auto';
-                saveButton.style.padding = '8px 12px';
-                saveButton.style.display = 'flex';
-                saveButton.style.flexDirection = 'column';
-                saveButton.style.alignItems = 'center';
                 saveButton.innerHTML = DOMPurify.sanitize(`
                     <span style="font-weight: inherit;">Save ${savings} Robux</span>
                     ${warningHtml}
@@ -2865,7 +2861,6 @@ const addSaveButton = (modal) => {
                 margin-top: 8px;
                 display: flex;
                 justify-content: center;
-                flex-direction: column;
                 width: 100%;
             `;
             wrapper.appendChild(saveButton);
