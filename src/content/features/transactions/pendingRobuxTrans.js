@@ -29,18 +29,28 @@ const parseTimestamp = (timestampStr) => {
     }
 };
 
-async function fetchTransactions(userId) {
+async function fetchTransactions(userId, statusCallback) {
     const allTransactionsData = [];
-    let currentCursor = '';
-    let pagesFetched = 0;
-    let consecutivePagesWithoutPendingSales = 0;
+    
+    const transactionConfigs = [
+        { type: 'Sale', itemPricingType: 'PaidAndLimited' },
+        { type: 'GroupPayout' }
+    ];
 
-    transactionLoop: while (pagesFetched < MAX_PAGES_TO_FETCH_FOR_INFERENCE) {
-        pagesFetched++;
-        let endpoint = `/v2/users/${userId}/transactions?limit=${API_LIMIT}&transactionType=Sale&itemPricingType=PaidAndLimited`;
-        if (currentCursor) {
-            endpoint += `&cursor=${currentCursor}`;
-        }
+    for (const config of transactionConfigs) {
+        let currentCursor = '';
+        let pagesFetched = 0;
+        let consecutivePagesWithoutPendingSales = 0;
+
+        transactionLoop: while (pagesFetched < MAX_PAGES_TO_FETCH_FOR_INFERENCE) {
+            pagesFetched++;
+            let endpoint = `/v2/users/${userId}/transactions?limit=${API_LIMIT}&transactionType=${config.type}`;
+            if (config.itemPricingType) {
+                endpoint += `&itemPricingType=${config.itemPricingType}`;
+            }
+            if (currentCursor) {
+                endpoint += `&cursor=${currentCursor}`;
+            }
 
         let data;
         try {
@@ -51,10 +61,39 @@ async function fetchTransactions(userId) {
                 });
 
                 if (response.ok) {
+                    if (statusCallback && pagesFetched > 1) statusCallback('gathering');
                     data = await response.json();
+                    
+                    const remainingStr = response.headers.get('x-ratelimit-remaining');
+                    if (remainingStr) {
+                        const remaining = Number(remainingStr);
+                        if (!isNaN(remaining) && remaining <= 1) { // Apply +1 logic to make sure
+                            let delayMs = 2000;
+                            const resetStr = response.headers.get('x-ratelimit-reset');
+                            if (resetStr) {
+                                const resetVal = Number(resetStr);
+                                if (!isNaN(resetVal)) {
+                                    delayMs = (resetVal > 1e9 ? Math.max(0, (resetVal * 1000) - Date.now()) : resetVal * 1000) + 1000;
+                                }
+                            }
+                            await sleep(delayMs);
+                        }
+                    }
+                    
                     break;
                 } else if (response.status === 429) {
-                    await sleep(2000);
+                    if (statusCallback) statusCallback('rate_limited');
+                    let delayMs = 2000;
+                    
+                    const resetStr = response.headers.get('x-ratelimit-reset');
+                    if (resetStr) {
+                        const resetVal = Number(resetStr);
+                        if (!isNaN(resetVal)) {
+                            delayMs = (resetVal > 1e9 ? Math.max(0, (resetVal * 1000) - Date.now()) : resetVal * 1000) + 1000;
+                        }
+                    }
+                    
+                    await sleep(delayMs);
                     continue;
                 } else {
                     break;
@@ -114,6 +153,7 @@ async function fetchTransactions(userId) {
             console.error(e);
             break transactionLoop;
         }
+    }
     }
     return allTransactionsData;
 }
@@ -267,7 +307,8 @@ function injectResultElement(targetElement, result) {
     let tooltipText = ts('pendingRobux.tooltip');
 
     if (result.isLoading) {
-        amountHtml = `<span style="color: var(--rovalra-main-text-color); font-weight: 400; font-size: 13px;">${ts('pendingRobux.loading')}</span>`;
+        const baseText = ts('pendingRobux.loading').replace(/\.+$/, '');
+        amountHtml = `<span style="color: var(--rovalra-main-text-color); font-weight: 400; font-size: 13px;"><span class="rovalra-unpending-state-text">${baseText}</span><span class="rovalra-unpending-dots">...</span></span>`;
     } else if (result.errorMessage) {
         amountHtml = `<span style="color: red; font-weight: 400; font-size: 13px;">${ts('pendingRobux.error', { message: result.errorMessage })}</span>`;
     } else if (!result.hasEnoughData) {
@@ -350,7 +391,56 @@ async function onElementFound(targetElement) {
         return;
     }
 
-    const transactions = await fetchTransactions(state.userId);
+    let loadingStatusObj = {
+        state: 'normal',
+        startTime: Date.now()
+    };
+    let loadDotCount = 0;
+    
+    const loadingInterval = setInterval(() => {
+        const textSpan = document.querySelector('.rovalra-unpending-state-text');
+        const dotsSpan = document.querySelector('.rovalra-unpending-dots');
+        
+        if (!textSpan || !dotsSpan) {
+            if (!document.querySelector('.estimator-row')) {
+                 // Element isn't in DOM at all, stop interval
+                 clearInterval(loadingInterval);
+            }
+            return;
+        }
+
+        loadDotCount = (loadDotCount % 3) + 1; // 1, 2, 3
+        dotsSpan.textContent = '.'.repeat(loadDotCount);
+
+        let mainText = ts('pendingRobux.loading').replace(/\.+$/, '');
+        
+        if (loadingStatusObj.state === 'rate_limited') {
+            mainText += ' (Rate Limited)';
+        } else if (loadingStatusObj.state === 'gathering') {
+            mainText += ' (Gathering Data)';
+        } else {
+            if (Date.now() - loadingStatusObj.startTime > 10000) {
+                loadingStatusObj.state = 'gathering'; 
+                mainText += ' (Gathering Data)';
+            }
+        }
+        
+        textSpan.textContent = mainText;
+    }, 500);
+
+    const statusCallback = (stateStr) => {
+        if (stateStr === 'rate_limited') {
+            loadingStatusObj.state = 'rate_limited';
+        } else if (stateStr === 'gathering') {
+            if (loadingStatusObj.state === 'rate_limited') {
+                loadingStatusObj.state = 'gathering';
+            }
+        }
+    };
+
+    const transactions = await fetchTransactions(state.userId, statusCallback);
+    
+    clearInterval(loadingInterval);
 
     const pendingDaysToUse = inferPendingDuration(transactions);
     const unpendingResult = calculateUnpendingRobux(
