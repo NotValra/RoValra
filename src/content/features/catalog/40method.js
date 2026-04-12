@@ -2627,9 +2627,11 @@ const addSaveButton = (modal) => {
         await fetchCatalogMetadata();
 
         let assetType = null;
+        let itemData = null;
         if (!isGamePass && !isBundle && !isMultiItemPurchase && itemId) {
             try {
-                const itemData = await getItemDetails(itemId, 'Asset');
+                itemData = await (prefetchData.itemDetails ||
+                    getItemDetails(itemId, 'Asset'));
                 if (itemData) {
                     assetType = itemData.assetType;
 
@@ -2647,6 +2649,27 @@ const addSaveButton = (modal) => {
                     'RoValra: Failed to fetch asset type for button text',
                     e,
                 );
+            }
+        }
+
+        let isRestricted = false;
+        if (itemData) {
+            if (itemData.saleLocationType === 'ShopOnly') {
+                isRestricted = true;
+            } else if (itemData.saleLocationType === 'ShopAndExperiencesById') {
+                const allowedUniverses = itemData.universeIds || [];
+                try {
+                    const gameInfo = await prefetchData.gameInfo;
+                    const selectedUniverseId = gameInfo?.data?.[0]?.universeId;
+                    if (
+                        selectedUniverseId &&
+                        !allowedUniverses.some(
+                            (uId) => String(uId) === String(selectedUniverseId),
+                        )
+                    ) {
+                        isRestricted = true;
+                    }
+                } catch (e) {}
             }
         }
 
@@ -2673,6 +2696,13 @@ const addSaveButton = (modal) => {
         const saveButton = document.createElement('button');
         saveButton.type = 'button';
 
+        const creatorName = itemData?.creatorName
+            ? ` (${itemData.creatorName})`
+            : '';
+        const warningHtml = isRestricted
+            ? `<span style="font-size: 10px; color: #d32f2f; display: block; line-height: 1.2; margin-top: 2px; font-weight: 500;">The creator of this Item${creatorName} may have disabled buying in experiences</span>`
+            : '';
+
         if (modalWindow.classList.contains('unified-purchase-dialog-content')) {
             saveButton.className =
                 'foundation-web-button relative clip group/interactable focus-visible:outline-focus disabled:outline-none cursor-pointer flex items-center justify-center stroke-none padding-y-none select-none radius-medium text-label-large height-1200 padding-x-large bg-action-emphasis content-action-emphasis fill basis-0 btn-save-robux';
@@ -2681,10 +2711,26 @@ const addSaveButton = (modal) => {
                 'var(--rovalra-button-background-color)';
             saveButton.innerHTML = DOMPurify.sanitize(`
                 <div role="presentation" class="absolute inset-[0] transition-colors group-hover/interactable:bg-[var(--color-state-hover)] group-active/interactable:bg-[var(--color-state-press)] group-disabled/interactable:bg-none"></div>
-                <span class="padding-y-xsmall text-truncate-end text-no-wrap" style="color: var(--rovalra-main-text-color)">Save ${savings} Robux</span>
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; text-align: center; padding: 4px 0;">
+                    <span class="text-truncate-end text-no-wrap" style="color: var(--rovalra-main-text-color)">Save ${savings} Robux</span>
+                    ${warningHtml}
+                </div>
             `);
         } else {
-            saveButton.textContent = `Save ${savings} Robux`;
+            if (isRestricted) {
+                saveButton.style.height = 'auto';
+                saveButton.style.padding = '8px 12px';
+                saveButton.style.display = 'flex';
+                saveButton.style.flexDirection = 'column';
+                saveButton.style.alignItems = 'center';
+                saveButton.innerHTML = DOMPurify.sanitize(`
+                    <span style="font-weight: inherit;">Save ${savings} Robux</span>
+                    ${warningHtml}
+                `);
+            } else {
+                saveButton.textContent = `Save ${savings} Robux`;
+            }
+
             if (isGamePass) {
                 saveButton.className = 'btn-control-md btn-save-robux';
             } else {
@@ -2819,10 +2865,10 @@ const addSaveButton = (modal) => {
                 margin-top: 8px;
                 display: flex;
                 justify-content: center;
+                flex-direction: column;
                 width: 100%;
             `;
             wrapper.appendChild(saveButton);
-
             const footer =
                 modalWindow.querySelector('.modal-footer') ||
                 buttonContainer.parentElement ||
@@ -2842,6 +2888,20 @@ export function init() {
         chrome.storage.local.get('SaveLotsRobuxEnabled', (result) => {
             if (result.SaveLotsRobuxEnabled === true) {
                 fetchCatalogMetadata();
+
+                const itemId = getPlaceIdFromUrl();
+                const isCatalog = /\/(catalog|bundles)\//i.test(
+                    window.location.pathname,
+                );
+                if (itemId && isCatalog) {
+                    const itemType = window.location.pathname.includes(
+                        '/bundles/',
+                    )
+                        ? 'Bundle'
+                        : 'Asset';
+                    getItemDetails(itemId, itemType).catch(() => {});
+                }
+
                 detectAndAddSaveButton();
             }
         });
