@@ -27,10 +27,44 @@ async function addFriendsSinceLabel(friendsMap, settings) {
     const attributeObservers = new Map();
 
     observeElement(
+        '.avatar-cards',
+        (container) => {
+            Object.assign(container.style, {
+                display: 'flex',
+                flexWrap: 'wrap',
+                alignItems: 'stretch',
+                gap: '0',
+            });
+        },
+        { multiple: true },
+    );
+
+    observeElement(
         '.avatar-card-caption a.avatar-name',
         (profileLink) => {
             const card = profileLink.closest('.avatar-card-caption');
-            if (!card) return;
+            const cardItem = profileLink.closest('.avatar-card');
+            const cardContainer = profileLink.closest('.avatar-card-container');
+            if (!card || !cardItem || !cardContainer) return;
+
+            cardItem.style.display = 'inline-flex';
+            cardItem.style.height = 'auto';
+
+            Object.assign(cardContainer.style, {
+                flex: '1',
+                display: 'flex',
+                flexDirection: 'column',
+            });
+
+            const cardContent = cardContainer.querySelector(
+                '.avatar-card-content',
+            );
+            if (cardContent) {
+                cardContent.style.flex = '1';
+                cardContent.style.display = 'flex';
+                cardContent.style.flexDirection = 'row';
+                cardContent.style.alignItems = 'stretch';
+            }
 
             const updateLabel = async () => {
                 const friendId = getUserIdFromUrl(profileLink.href);
@@ -56,6 +90,12 @@ async function addFriendsSinceLabel(friendsMap, settings) {
                     '.rovalra-friends-details-label',
                 );
                 if (existingDetailsLabel) existingDetailsLabel.remove();
+
+                Object.assign(card.style, {
+                    display: 'flex',
+                    flexDirection: 'column',
+                    flex: '1',
+                });
 
                 label = document.createElement('div');
                 label.className =
@@ -314,14 +354,17 @@ export async function init() {
 
     if (!watcherSet) {
         watcherSet = true;
-        setInterval(() => {
-            if (window.location.href !== lastUrl) {
-                lastUrl = window.location.href;
-                init();
-            }
-        }, 500);
+        observeElement(
+            'body',
+            () => {
+                if (window.location.href !== lastUrl) {
+                    lastUrl = window.location.href;
+                    init();
+                }
+            },
+            { multiple: false },
+        );
     }
-    lastUrl = window.location.href;
 
     const friendsList = await getCachedFriendsList();
     if (!friendsList || friendsList.length === 0) return;
