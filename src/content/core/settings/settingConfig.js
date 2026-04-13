@@ -518,7 +518,8 @@ export const SETTINGS_CONFIG = {
                         label: 'Enable Environment Tester',
                         description: [
                             [
-                                'Shows the Environment Creator tool on profiles to make custom client sided environments that can be submitted in the Discord server for a chance of getting featured in the extension.',
+                                'Shows the Environment Creator tool on profiles to make custom client sided environments.',
+                                'This is to prepare for community environments',
                                 'This will overwrite all environment on profiles',
                             ],
                         ],
@@ -702,6 +703,14 @@ export const SETTINGS_CONFIG = {
                             angle: 135,
                             fade: 100,
                         },
+                    },
+                    applyGradientToAvatarTile: {
+                        label: 'Apply Gradient Background to Profile Thumbnails',
+                        description: [
+                            'This adds the Gradient Background to profile thumbnails across the site like on the home page',
+                        ],
+                        type: 'checkbox',
+                        default: true,
                     },
                 },
             },

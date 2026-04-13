@@ -6,8 +6,6 @@ import {
 import { getUserIdFromUrl } from '../../../core/idExtractor.js';
 import { loadSettings } from '../../../core/settings/handlesettings.js';
 import { getUserSettings } from '../../../core/donators/settingHandler.js';
-import * as cache from '../../../core/storage/cacheHandler.js';
-import { getAuthenticatedUserId } from '../../../core/user.js';
 
 function applyGradientToElement(element, gradient, isSmallScale = false) {
     element.style.background = gradient;
@@ -129,9 +127,15 @@ export async function init() {
             }
         }
 
-        observeElement('.friends-carousel-tile', applyGradientToAvatarTile, {
-            multiple: true,
-        });
+        if (settings.applyGradientToAvatarTile) {
+            observeElement(
+                '.friends-carousel-tile',
+                applyGradientToAvatarTile,
+                {
+                    multiple: true,
+                },
+            );
+        }
     } catch (error) {
         console.error(
             'RoValra: Profile background gradient init failed',
