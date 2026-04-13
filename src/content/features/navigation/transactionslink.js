@@ -5,6 +5,11 @@ const COMMUNITY_PATH = '/communities';
 const TRANSACTIONS_PATH = '/transactions';
 const ACTIVE_BACKGROUND_COLOR = 'rgba(255, 255, 255, 0.1)';
 const STATE_SYNC_DELAYS = [0, 50, 150, 350, 750, 1200];
+const SIDEBAR_COMMUNITY_SELECTOR = [
+    '#left-navigation-container a[href*="/communities"]',
+    '#navigation a[href*="/communities"]',
+    '.navigation a[href*="/communities"]',
+].join(', ');
 
 let lastObservedPath = window.location.pathname;
 let sidebarLinkEnabled = false;
@@ -275,7 +280,8 @@ function removeTransactionsLinks() {
 
 function addTransactionsLinks(label) {
     document
-        .querySelectorAll('a[href*="/communities"]')
+        .querySelectorAll(SIDEBAR_COMMUNITY_SELECTOR)
+
         .forEach((communityLink) =>
             insertTransactionsLink(communityLink, label),
         );
@@ -293,7 +299,7 @@ export function init() {
             sidebarLinkEnabled = settings.transactionsSidebarLinkEnabled;
 
             observeElement(
-                'a[href*="/communities"]',
+                SIDEBAR_COMMUNITY_SELECTOR,
                 (communityLink) => {
                     insertTransactionsLink(communityLink, label);
                 },
