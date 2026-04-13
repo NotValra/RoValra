@@ -230,6 +230,7 @@ async function addStatusBubble(avatarContainer, userWantsApi) {
         if (isUserTrusted) {
             bubble.innerHTML = DOMPurify.sanitize(parseMarkdown(statusText), {
                 FORBID_ATTR: ['style'],
+                FORBID_TAGS: ['audio'],
             });
         } else {
             bubble.textContent = statusText;
@@ -259,6 +260,7 @@ async function addStatusBubble(avatarContainer, userWantsApi) {
                         parseMarkdown(textToRender),
                         {
                             FORBID_ATTR: ['style'],
+                            FORBID_TAGS: ['audio'],
                         },
                     );
                 } else {
@@ -479,7 +481,10 @@ async function addHomeStatusHover(tile) {
                     if (isUserTrusted) {
                         bubble.innerHTML = DOMPurify.sanitize(
                             parseMarkdown(statusText),
-                            { FORBID_ATTR: ['style'] },
+                            {
+                                FORBID_ATTR: ['style'],
+                                FORBID_TAGS: ['audio'],
+                            },
                         );
                     } else {
                         bubble.textContent = statusText;
