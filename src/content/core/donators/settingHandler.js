@@ -20,8 +20,7 @@ import {
     alice_badge_user_id,
     GILBERT_USER_ID,
 } from '../configs/userIds.js';
-
-const settingsCache = new Map();
+import * as cache from '../storage/cacheHandler.js';
 
 const TRUSTED_USER_IDS = [
     CREATOR_USER_ID,
@@ -81,6 +80,7 @@ async function fetchAndProcessSettings(userId, options = {}) {
             endpoint: `/v1/users/${userId}/settings`,
             method: 'GET',
             skipAutoAuth: true,
+            noCache: isOwnProfile,
         });
 
         if (data.status === 'success' && data.settings) {
@@ -258,10 +258,29 @@ async function fetchAndProcessSettings(userId, options = {}) {
     };
 }
 
-export function getUserSettings(userId, options = {}) {
+export async function getUserSettings(userId, options = {}) {
+    const authenticatedUserId = await getAuthenticatedUserId();
+    const isOwnProfile =
+        authenticatedUserId && String(authenticatedUserId) === String(userId);
+
     const cacheKey = `${userId}-${options.useDescription || false}`;
-    if (!settingsCache.has(cacheKey)) {
-        settingsCache.set(cacheKey, fetchAndProcessSettings(userId, options));
+
+    const cached = await cache.get('user_settings', cacheKey, 'local');
+    if (cached && Date.now() - cached.timestamp < 60000) {
+        return cached.data;
     }
-    return settingsCache.get(cacheKey);
+
+    const settings = await fetchAndProcessSettings(userId, options);
+
+    await cache.set(
+        'user_settings',
+        cacheKey,
+        {
+            data: settings,
+            timestamp: Date.now(),
+        },
+        'local',
+    );
+
+    return settings;
 }

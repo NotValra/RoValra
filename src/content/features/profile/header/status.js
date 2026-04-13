@@ -186,23 +186,9 @@ async function addStatusBubble(avatarContainer, userWantsApi) {
             authenticatedUserId &&
             String(authenticatedUserId) === String(userId);
 
-        let settings;
-        if (!isOwnProfile) {
-            const cached = await cache.get('status', userId);
-            if (cached && Date.now() - cached.timestamp < 60000) {
-                settings = cached.data;
-            }
-        }
-
-        if (!settings) {
-            settings = await getUserSettings(userId, { useDescription: true });
-            if (!isOwnProfile) {
-                await cache.set('status', userId, {
-                    data: settings,
-                    timestamp: Date.now(),
-                });
-            }
-        }
+        const settings = await getUserSettings(userId, {
+            useDescription: true,
+        });
 
         const { status, canUseApi } = settings;
         let statusText = status;
@@ -445,25 +431,9 @@ async function addHomeStatusHover(tile) {
                     authenticatedUserId &&
                     String(authenticatedUserId) === String(userId);
 
-                let settings;
-                if (!isOwnProfile) {
-                    const cached = await cache.get('status', userId);
-                    if (cached && Date.now() - cached.timestamp < 60000) {
-                        settings = cached.data;
-                    }
-                }
-
-                if (!settings) {
-                    settings = await getUserSettings(userId, {
-                        useDescription: true,
-                    });
-                    if (!isOwnProfile) {
-                        await cache.set('status', userId, {
-                            data: settings,
-                            timestamp: Date.now(),
-                        });
-                    }
-                }
+                const settings = await getUserSettings(userId, {
+                    useDescription: true,
+                });
 
                 const { status } = settings;
 

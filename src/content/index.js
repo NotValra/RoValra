@@ -133,6 +133,7 @@ const featureRoutes = [
             initStatus,
             initCustomFont,
             initRobuxIcons,
+            initProfileBackground,
         ],
     },
     // pretty much just the 40% method
@@ -213,7 +214,6 @@ const featureRoutes = [
             initProfileRender,
             initFriendsSince,
             initUnfriend,
-            initProfileBackground,
         ],
     },
     {

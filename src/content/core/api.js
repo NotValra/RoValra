@@ -207,6 +207,7 @@ export async function callRobloxApi(options) {
             signal,
             useBackground = false,
             useApiKey = false,
+            noCache = false,
         } = options;
 
         if (useApiKey) {
@@ -227,6 +228,7 @@ export async function callRobloxApi(options) {
                             method,
                             body,
                             headers,
+                            noCache,
                         },
                     },
                     (response) => {
@@ -301,9 +303,9 @@ export async function callRobloxApi(options) {
         let fullUrl = customFullUrl || `${baseUrl}${endpoint}`;
 
         if (fullUrl.includes('?')) {
-            fullUrl += `&_RoValraRequest=`;
+            fullUrl += `&_RoValraRequest=${noCache ? Date.now() : ''}`;
         } else {
-            fullUrl += `?_RoValraRequest=`;
+            fullUrl += `?_RoValraRequest=${noCache ? Date.now() : ''}`;
         }
 
         const isMutatingMethod = ['POST', 'PATCH', 'DELETE'].includes(
@@ -323,6 +325,7 @@ export async function callRobloxApi(options) {
             headers: normalizedHeaders,
             credentials,
             signal,
+            cache: noCache ? 'no-store' : 'default',
         };
 
         if (body) {
