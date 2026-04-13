@@ -23,7 +23,7 @@ jobs:
         run: npm ci
 
       - name: Build extension
-        run: npm run build
+        run: npm run prod
 
       - name: Package extension
         run: |
