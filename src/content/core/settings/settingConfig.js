@@ -515,11 +515,12 @@ export const SETTINGS_CONFIG = {
                         default: false,
                     },
                     environmentTester: {
-                        label: 'Enable Environment Tester',
+                        label: 'Enable Environment Creator',
                         description: [
                             'Shows the Environment Creator tool on profiles to make custom client sided environments.',
                             'This is to prepare for community environments',
                             'This will overwrite all environment on profiles',
+                            '**This feature should only be enabled if you plan to make environments**',
                         ],
                         type: 'checkbox',
                         default: false,
