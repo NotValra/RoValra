@@ -255,6 +255,9 @@ async function fetchAndProcessSettings(userId, options = {}) {
         environment: finalEnvironment || 1,
         gradient: finalGradient,
         canUseApi: apiProvidedMeaningfulSettings,
+        anonymous_leaderboard:
+            apiSettings.anonymous_leaderboard === 'true' ||
+            apiSettings.anonymous_leaderboard === true,
     };
 }
 
@@ -266,7 +269,7 @@ export async function getUserSettings(userId, options = {}) {
     const cacheKey = `${userId}-${options.useDescription || false}`;
 
     const cached = await cache.get('user_settings', cacheKey, 'local');
-    if (cached && Date.now() - cached.timestamp < 60000) {
+    if (!options.noCache && cached && Date.now() - cached.timestamp < 60000) {
         return cached.data;
     }
 

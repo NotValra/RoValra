@@ -41,6 +41,9 @@ import {
     createThumbnailElement,
 } from '../../core/thumbnail/thumbnails.js';
 import { injectStylesheet } from '../../core/ui/cssInjector.js';
+import { addTooltip } from '../../core/ui/tooltip.js';
+import { updateUserSettingViaApi } from '../../core/profile/descriptionhandler.js';
+import { getUserSettings } from '../../core/donators/settingHandler.js';
 
 const assets = getAssets();
 let REGIONS = {};
@@ -239,6 +242,314 @@ async function loadContributors() {
     }
 }
 
+function createAnonymousToggle(isAnonymous, onToggle) {
+    const anonBtn = document.createElement('button');
+    anonBtn.style.cssText =
+        'background: none; border: none; padding: 0; cursor: pointer; display: flex; align-items: center; margin-left: 5px; color: var(--rovalra-secondary-text-color); flex-shrink: 0; transition: color 0.2s;';
+
+    const path1 =
+        'M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7M2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2m4.31-.78 3.15 3.15.02-.16c0-1.66-1.34-3-3-3z';
+    const path2 =
+        'M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5M12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5m0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3';
+
+    anonBtn.innerHTML = `<svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1phnduy" focusable="false" aria-hidden="true" viewBox="0 0 24 24" style="width: 18px; height: 18px; fill: currentColor;"><path d="${isAnonymous ? path2 : path1}"></path></svg>`;
+
+    addTooltip(
+        anonBtn,
+        isAnonymous ? 'Disable anonymous mode' : 'Enable anonymous mode',
+    );
+
+    anonBtn.onclick = onToggle;
+    return anonBtn;
+}
+
+function renderTopDonators(container, donators, thumbMap, currentUserId) {
+    container.innerHTML = '';
+    const wrapper = document.createElement('div');
+    wrapper.style.cssText = 'margin-top: 15px;';
+
+    const top3 = donators.slice(0, 3);
+    if (top3.length > 0) {
+        const pedestalContainer = document.createElement('div');
+        pedestalContainer.style.cssText =
+            'display: flex; align-items: flex-end; justify-content: center; gap: 20px; margin-bottom: 30px; padding: 20px 0; border-bottom: 1px solid var(--rovalra-border-color);';
+
+        const podiumData = [
+            donators[2]
+                ? {
+                      ...donators[2],
+                      rank: 3,
+                      color: '#cd7f32',
+                      height: '60px',
+                      size: '64px',
+                  }
+                : null,
+            donators[0]
+                ? {
+                      ...donators[0],
+                      rank: 1,
+                      color: '#ffd700',
+                      height: '100px',
+                      size: '80px',
+                  }
+                : null,
+            donators[1]
+                ? {
+                      ...donators[1],
+                      rank: 2,
+                      color: '#c0c0c0',
+                      height: '80px',
+                      size: '72px',
+                  }
+                : null,
+        ].filter(Boolean);
+
+        podiumData.forEach((data) => {
+            const column = document.createElement('div');
+            column.style.cssText =
+                'display: flex; flex-direction: column; align-items: center; width: 110px;';
+
+            const thumbData = thumbMap.get(String(data.user_id));
+            const thumbElement = createThumbnailElement(
+                thumbData,
+                data.username,
+                '',
+                {
+                    width: data.size,
+                    height: data.size,
+                    borderRadius: '50%',
+                    border: `3px solid ${data.color}`,
+                    marginBottom: '10px',
+                    backgroundColor:
+                        'var(--rovalra-container-background-color)',
+                },
+            );
+
+            const isAnonymous = String(data.user_id) === '1';
+
+            const thumbLink = document.createElement(isAnonymous ? 'div' : 'a');
+            if (!isAnonymous) {
+                thumbLink.href = `https://www.roblox.com/users/${data.user_id}/profile`;
+                thumbLink.target = '_blank';
+            }
+            thumbLink.style.display = 'block';
+            if (isAnonymous) thumbLink.style.cursor = 'default';
+            thumbLink.appendChild(thumbElement);
+
+            const name = document.createElement(isAnonymous ? 'span' : 'a');
+            if (!isAnonymous) {
+                name.href = `https://www.roblox.com/users/${data.user_id}/profile`;
+                name.target = '_blank';
+            }
+            name.textContent = data.username;
+            name.style.cssText =
+                'color: var(--rovalra-main-text-color); font-weight: bold; font-size: 13px; text-decoration: none; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;';
+            if (isAnonymous) {
+                name.style.cursor = 'default';
+                addTooltip(thumbLink, 'This user has enabled anonymous mode');
+                addTooltip(name, 'This user has enabled anonymous mode');
+            }
+
+            const amount = document.createElement('div');
+            amount.innerHTML = `<span class="icon-robux-16x16"></span>${data.amount.toLocaleString()}`;
+            amount.style.cssText =
+                'color: var(--rovalra-main-text-color); font-size: 13px; font-weight: bold; margin-bottom: 10px; display: flex; align-items: center; gap: 2px;';
+
+            const stool = document.createElement('div');
+            stool.style.cssText = `width: 80px; height: ${data.height}; background-color: var(--rovalra-container-background-color); border-radius: 8px 8px 0 0; border: 1px solid var(--rovalra-border-color); display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 800; color: ${data.color};`;
+            stool.textContent = data.rank;
+
+            column.append(thumbLink, name, amount, stool);
+            pedestalContainer.appendChild(column);
+        });
+        wrapper.appendChild(pedestalContainer);
+    }
+
+    const remaining = donators.slice(3);
+    if (remaining.length > 0) {
+        const list = document.createElement('div');
+        list.style.cssText =
+            'display: flex; flex-direction: column; gap: 10px;';
+
+        remaining.forEach((donor, idx) => {
+            const rank = idx + 4;
+            const item = document.createElement('div');
+            item.style.cssText =
+                'display: flex; align-items: center; padding: 10px 15px; background-color: var(--rovalra-container-background-color, rgba(0,0,0,0.1)); border-radius: 8px; border: 1px solid var(--rovalra-border-color);';
+
+            const rankEl = document.createElement('span');
+            rankEl.textContent = `#${rank}`;
+            rankEl.style.cssText =
+                'width: 40px; font-weight: bold; color: var(--rovalra-secondary-text-color); font-size: 14px;';
+
+            const thumbData = thumbMap.get(String(donor.user_id));
+            const thumb = createThumbnailElement(
+                thumbData,
+                donor.username,
+                '',
+                {
+                    width: '36px',
+                    height: '36px',
+                    borderRadius: '50%',
+                    marginRight: '15px',
+                },
+            );
+
+            const isAnonymous = String(donor.user_id) === '1';
+
+            const thumbLink = document.createElement(isAnonymous ? 'div' : 'a');
+            if (!isAnonymous) {
+                thumbLink.href = `https://www.roblox.com/users/${donor.user_id}/profile`;
+                thumbLink.target = '_blank';
+            }
+            thumbLink.style.display = 'flex';
+            if (isAnonymous) thumbLink.style.cursor = 'default';
+            thumbLink.appendChild(thumb);
+
+            const userInfo = document.createElement('div');
+            userInfo.style.cssText =
+                'flex: 1; display: flex; align-items: center; justify-content: space-between;';
+
+            const name = document.createElement(isAnonymous ? 'span' : 'a');
+            if (!isAnonymous) {
+                name.href = `https://www.roblox.com/users/${donor.user_id}/profile`;
+                name.target = '_blank';
+            }
+            name.textContent = donor.username;
+            name.style.cssText =
+                'color: var(--rovalra-main-text-color); font-weight: 500; text-decoration: none; font-size: 14px;';
+            if (isAnonymous) {
+                name.style.cursor = 'default';
+                addTooltip(thumbLink, 'This user has enabled anonymous mode');
+                addTooltip(name, 'This user has enabled anonymous mode');
+            }
+            const amount = document.createElement('span');
+            amount.innerHTML = `<span class="icon-robux-16x16" style="margin-right: 2px;"></span>${donor.amount.toLocaleString()}`;
+            amount.style.cssText =
+                'color: var(--rovalra-secondary-text-color); font-size: 12px; font-weight: bold; display: flex; align-items: center;';
+
+            userInfo.append(name, amount);
+            item.append(rankEl, thumbLink, userInfo);
+            list.appendChild(item);
+        });
+        wrapper.appendChild(list);
+    }
+
+    container.appendChild(wrapper);
+}
+
+async function loadTopDonators() {
+    const container = document.getElementById('rovalra-top-donators');
+    const toggleContainer = document.getElementById(
+        'rovalra-anon-toggle-container',
+    );
+    if (!container) return;
+
+    try {
+        const response = await callRobloxApi({
+            isRovalraApi: true,
+            subdomain: 'apis',
+            endpoint: '/v1/donators/top',
+            method: 'GET',
+        });
+
+        if (!response.ok) throw new Error('Failed to fetch top donators');
+        const data = await response.json();
+        const donators = data.donators || [];
+
+        if (donators.length === 0) {
+            container.innerHTML = '';
+            return;
+        }
+
+        const userIds = donators.map((d) => d.user_id);
+        const thumbnails = await getBatchThumbnails(
+            userIds,
+            'AvatarHeadshot',
+            '150x150',
+        );
+        const thumbMap = new Map();
+        thumbnails.forEach((t) => {
+            thumbMap.set(String(t.targetId), t);
+        });
+
+        const authenticatedUserId = await getAuthenticatedUserId();
+        const userTier = getCurrentUserTier();
+
+        if (authenticatedUserId && userTier >= 1 && toggleContainer) {
+            try {
+                const settings = await getUserSettings(authenticatedUserId, {
+                    noCache: true,
+                });
+                const isAnonymous = settings.anonymous_leaderboard === true;
+
+                const userResponse = await callRobloxApi({
+                    subdomain: 'users',
+                    endpoint: `/v1/users/${authenticatedUserId}`,
+                    method: 'GET',
+                });
+
+                if (userResponse.ok) {
+                    const userData = await userResponse.json();
+                    const thumbs = await getBatchThumbnails(
+                        [authenticatedUserId],
+                        'AvatarHeadshot',
+                        '60x60',
+                    );
+                    const thumbData = thumbs[0];
+
+                    toggleContainer.innerHTML = '';
+                    toggleContainer.style.cssText =
+                        'display: flex; align-items: center; gap: 8px; background-color: var(--rovalra-container-background-color, rgba(0,0,0,0.1)); padding: 4px 10px; border-radius: 20px; border: 1px solid var(--rovalra-border-color);';
+
+                    const thumb = createThumbnailElement(
+                        thumbData,
+                        userData.name,
+                        '',
+                        {
+                            width: '24px',
+                            height: '24px',
+                            borderRadius: '50%',
+                        },
+                    );
+
+                    const nameSpan = document.createElement('span');
+                    nameSpan.textContent =
+                        userData.displayName || userData.name;
+                    nameSpan.style.cssText =
+                        'color: var(--rovalra-main-text-color); font-size: 12px; font-weight: 600;';
+
+                    const toggle = createAnonymousToggle(
+                        isAnonymous,
+                        async (e) => {
+                            e.preventDefault();
+                            const success = await updateUserSettingViaApi(
+                                'anonymous_leaderboard',
+                                !isAnonymous,
+                            );
+                            if (success) {
+                                loadTopDonators();
+                            }
+                        },
+                    );
+
+                    toggleContainer.append(thumb, nameSpan, toggle);
+                }
+            } catch (error) {
+                console.error(
+                    'RoValra: Error rendering anon toggle area',
+                    error,
+                );
+            }
+        }
+
+        renderTopDonators(container, donators, thumbMap, authenticatedUserId);
+    } catch (err) {
+        console.error('RoValra: Error loading top donators', err);
+        container.innerHTML = '';
+    }
+}
+
 export const buttonData = [
     {
         id: 'info',
@@ -406,6 +717,16 @@ export const buttonData = [
                         ${getDonatorBadgesHtml()}
                     </div>
                 </div>
+
+                <div style="margin-top: 25px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                        <h3 style="color: var(--rovalra-main-text-color); margin: 0; font-size: 18px;">Top Donators</h3>
+                        <div id="rovalra-anon-toggle-container"></div>
+                    </div>
+                    <div id="rovalra-top-donators">
+                        <div style="color: var(--rovalra-secondary-text-color);">${ts('settings.credits.loadingContributors')}</div>
+                    </div>
+                </div>
             </div>`;
         },
     },
@@ -529,6 +850,8 @@ export async function updateContent(buttonInfo, contentContainer) {
                 }
             }
         }
+
+        loadTopDonators();
     }
 
     const rovalraHeader = document.querySelector(
