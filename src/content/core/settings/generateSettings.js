@@ -348,13 +348,21 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
             const cy = rect.top + rect.height / 2;
             const dx = e.clientX - cx;
             const dy = e.clientY - cy;
-            currentAngle = Math.round(
-                ((Math.atan2(dy, dx) * 180) / Math.PI + 90 + 360) % 360,
-            );
+
+            let angle = ((Math.atan2(dy, dx) * 180) / Math.PI + 90 + 360) % 360;
+
+            const snapInterval = e.shiftKey ? 1 : 15;
+            currentAngle = Math.round(angle / snapInterval) * snapInterval;
+
+            currentAngle = currentAngle % 360;
+            if (currentAngle < 0) currentAngle += 360;
+
             update();
         };
 
         preview.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
             isDragging = true;
             onMove(e);
             window.addEventListener('mousemove', onMove);
