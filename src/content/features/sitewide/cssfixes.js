@@ -135,9 +135,7 @@ const applyProfileGameCardFix = () => {
 
     const css = `
         .profile-favorite-experiences .css-1jynqc0-carouselContainer,
-        .profile-favorite-experiences .css-1i465w8-carousel,
-        [class*="collectionCarouselContainer"] [class*="carouselContainer"],
-        [class*="collectionCarouselContainer"] [class*="carousel"] {
+        .profile-favorite-experiences .css-1i465w8-carousel {
             height: 250px !important;
             overflow: visible !important;
         }
@@ -148,7 +146,7 @@ const applyProfileGameCardFix = () => {
 
     import('../../core/ui/games/gameCard.js').then(({ createGameCard }) => {
         observeElement(
-            '[class*="collectionCarouselContainer"] .game-card-container, .profile-favorite-experiences .game-card-container',
+            '.profile-favorite-experiences .game-card-container',
             (originalCard) => {
                 if (originalCard.dataset.fixed) return;
                 originalCard.dataset.fixed = 'true';
