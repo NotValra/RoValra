@@ -11,6 +11,8 @@ let watcherSet = false;
 let lastUrl = window.location.href;
 let profileDialogObserver = null;
 let lastMoreButtonClickTime = 0;
+let cardsObserver = null;
+let containerObserver = null;
 
 document.addEventListener(
     'click',
@@ -26,7 +28,8 @@ document.addEventListener(
 async function addFriendsSinceLabel(friendsMap, settings) {
     const attributeObservers = new Map();
 
-    observeElement(
+    if (containerObserver) containerObserver.disconnect();
+    containerObserver = observeElement(
         '.avatar-cards',
         (container) => {
             Object.assign(container.style, {
@@ -39,7 +42,8 @@ async function addFriendsSinceLabel(friendsMap, settings) {
         { multiple: true },
     );
 
-    observeElement(
+    if (cardsObserver) cardsObserver.disconnect();
+    cardsObserver = observeElement(
         '.avatar-card-caption a.avatar-name',
         (profileLink) => {
             const card = profileLink.closest('.avatar-card-caption');
@@ -333,7 +337,22 @@ function initProfileAboutDialogObserver(friendData, settings) {
     );
 }
 
-export async function init() {
+function cleanup() {
+    if (profileDialogObserver) {
+        profileDialogObserver.disconnect();
+        profileDialogObserver = null;
+    }
+    if (cardsObserver) {
+        cardsObserver.disconnect();
+        cardsObserver = null;
+    }
+    if (containerObserver) {
+        containerObserver.disconnect();
+        containerObserver = null;
+    }
+}
+
+async function run() {
     const settings = await new Promise((resolve) =>
         chrome.storage.local.get(
             {
@@ -345,26 +364,9 @@ export async function init() {
         ),
     );
 
-    if (profileDialogObserver) {
-        profileDialogObserver.disconnect();
-        profileDialogObserver = null;
-    }
+    cleanup();
 
     if (!settings.friendsSinceEnabled) return;
-
-    if (!watcherSet) {
-        watcherSet = true;
-        observeElement(
-            'body',
-            () => {
-                if (window.location.href !== lastUrl) {
-                    lastUrl = window.location.href;
-                    init();
-                }
-            },
-            { multiple: false },
-        );
-    }
 
     const friendsList = await getCachedFriendsList();
     if (!friendsList || friendsList.length === 0) return;
@@ -382,11 +384,28 @@ export async function init() {
         }
     }
 
-    if (
-        !userId &&
-        window.location.hash === '#!/friends' &&
-        window.location.pathname.endsWith('/friends')
-    ) {
+    const isOnFriendsPage =
+        window.location.hash.includes('#!/friends') ||
+        window.location.pathname.includes('/friends');
+
+    if (isOnFriendsPage) {
         addFriendsSinceLabel(friendsMap, settings);
     }
+}
+
+export async function init() {
+    if (watcherSet) return;
+    watcherSet = true;
+
+    const handlePageChange = () => {
+        if (window.location.href !== lastUrl) {
+            lastUrl = window.location.href;
+            run();
+        }
+    };
+
+    window.addEventListener('popstate', handlePageChange);
+    observeElement('body', handlePageChange, { multiple: false });
+
+    run();
 }
