@@ -39,7 +39,7 @@ export function getMarketplaceItemDetails(itemId) {
  * Fetches item details from the catalog API, caching the result in memory.
  *
  * @param {string|number} itemId - The ID of the item to fetch.
- * @param {string} [itemType] - The type of the item ('Asset' or 'Bundle').
+ * @param {string} [itemType] - The type of the item ('Asset', 'Bundle', or 'GamePass').
  * @returns {Promise<Object>} - A promise resolving to the item details.
  */
 export function getItemDetails(itemId, itemType) {
@@ -55,12 +55,26 @@ export function getItemDetails(itemId, itemType) {
         );
     }
 
-    if (!itemType) throw new Error('itemType is required (Asset or Bundle)');
+    if (!itemType)
+        throw new Error('itemType is required (Asset, Bundle, or GamePass)');
 
     const key = `${itemId}|${itemType}`;
 
     if (itemDetailsCache.has(key)) {
         return itemDetailsCache.get(key);
+    }
+
+    if (itemType === 'GamePass') {
+        const requestPromise = callRobloxApiJson({
+            subdomain: 'apis',
+            endpoint: `/game-passes/v1/game-passes/${itemId}/details`,
+            method: 'GET',
+        }).catch((error) => {
+            itemDetailsCache.delete(key);
+            throw error;
+        });
+        itemDetailsCache.set(key, requestPromise);
+        return requestPromise;
     }
 
     const requestPromise = callRobloxApiJson({

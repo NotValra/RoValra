@@ -423,29 +423,31 @@ const detectAndAddSaveButton = () => {
     );
 
     observeElement(
-        '.modal-dialog .modal-content, .modal-footer .modal-buttons, .modal-btns, .text-robux, .text-robux-lg, .unified-purchase-dialog-content',
+        '.modal-content, .unified-purchase-dialog-content, .modal-dialog',
         (element) => {
-            const modal =
-                element.closest('.modal-content') ||
-                element.closest(
-                    '.modal-dialog .modal-content[role="document"], .modal-dialog .modal-content',
-                ) ||
-                element.closest('.unified-purchase-dialog-content');
+            const modal = element.classList.contains('modal-dialog')
+                ? element.querySelector('.modal-content')
+                : element;
 
-            if (modal) {
-                if (
-                    modal.classList.contains('unified-purchase-dialog-content')
-                ) {
-                    const wasTriggeredByButton =
-                        Date.now() - lastBuyButtonClickTime < 2000;
-                    const hasBuyButton = modal.querySelector(
-                        '[data-testid="purchase-confirm-button"]',
-                    );
+            if (!modal) return;
 
-                    if (!wasTriggeredByButton && !hasBuyButton) {
-                        return;
-                    }
+            if (modal.classList.contains('unified-purchase-dialog-content')) {
+                const wasTriggeredByButton =
+                    Date.now() - lastBuyButtonClickTime < 2000;
+                const hasBuyButton = modal.querySelector(
+                    '[data-testid="purchase-confirm-button"]',
+                );
+
+                if (!wasTriggeredByButton && !hasBuyButton) {
+                    return;
                 }
+            }
+
+            modal.addEventListener('rovalraPurchasePromptReady', () => {
+                addSaveButton(modal);
+            });
+
+            if (modal.getAttribute('data-rovalra-item-processed') === 'true') {
                 addSaveButton(modal);
             }
         },
@@ -2331,51 +2333,58 @@ const addSaveButton = (modal) => {
         modal.closest('.modal-window') ||
         modal.closest('.simplemodal-wrap') ||
         modal;
+
     if (!modalWindow) return;
+    const existingButton = modalWindow.querySelector(
+        '.rovalra-save-wrapper, .btn-save-robux',
+    );
+
+    if (modalWindow.dataset.rovalraSaveButtonProcessing === 'true') return;
+
+    modalWindow.dataset.rovalraSaveButtonProcessing = 'true';
 
     const checkElements = () => {
         const buyNowButton =
             modalWindow.querySelector(
-                '.modal-button.btn-primary-md, #confirm-btn.btn-primary-md, a#confirm-btn',
+                '[data-testid="purchase-confirm-button"]',
             ) ||
             modalWindow.querySelector(
-                '[data-testid="purchase-confirm-button"]',
+                '.modal-button.btn-primary-md, #confirm-btn.btn-primary-md, a#confirm-btn, .modal-footer .btn-primary-md',
             );
 
-        let robuxPriceElement = modalWindow.querySelector(
+        const isUnified =
+            modalWindow.classList.contains('unified-purchase-dialog-content') ||
+            modalWindow.classList.contains('foundation-web-dialog-content') ||
+            modalWindow.querySelector('.unified-purchase-dialog-content');
+
+        let robuxPriceElement = null;
+        const potentialPrices = modalWindow.querySelectorAll(
             '.text-robux, .text-robux-lg',
         );
 
-        if (
-            modalWindow.classList.contains('unified-purchase-dialog-content') &&
-            (!robuxPriceElement ||
-                robuxPriceElement.closest('#rbx-unified-purchase-heading'))
-        ) {
-            const potentialPrices = modalWindow.querySelectorAll('.text-robux');
-            for (const el of potentialPrices) {
+        for (const el of potentialPrices) {
+            if (isUnified) {
                 if (!el.closest('#rbx-unified-purchase-heading')) {
                     robuxPriceElement = el;
                     break;
                 }
+            } else {
+                robuxPriceElement = el;
+                break;
             }
         }
 
-        let buttonContainer = modalWindow.querySelector(
-            '.modal-footer .modal-buttons, .modal-btns',
-        );
-
-        if (
-            !buttonContainer &&
-            buyNowButton &&
-            modalWindow.classList.contains('unified-purchase-dialog-content')
-        ) {
-            buttonContainer = buyNowButton.parentElement;
-        }
+        const buttonContainer =
+            (buyNowButton ? buyNowButton.parentElement : null) ||
+            modalWindow.querySelector(
+                '.modal-footer .modal-buttons, .modal-btns',
+            );
 
         const closeButton =
-            modalWindow.querySelector(
-                '.modal-header .close, .modal-header .modal-close-btn, .modal-header button.close',
-            ) || modalWindow.querySelector('button[aria-label="Close"]');
+            modalWindow.querySelector('button[aria-label="Close"]') ||
+            modalWindow.querySelector('.modal-header .close') ||
+            modalWindow.querySelector('.modal-header .modal-close-btn') ||
+            modalWindow.querySelector('.simplemodal-close');
 
         if (
             !buyNowButton ||
@@ -2394,11 +2403,22 @@ const addSaveButton = (modal) => {
         };
     };
 
-    if (modalWindow.querySelector('.rovalra-save-wrapper')) return;
-    const elements = checkElements();
-    if (elements) {
-        addButtonWithElements(elements);
-    }
+    let attempts = 0;
+    const maxAttempts = 20;
+
+    const tryAdd = () => {
+        const elements = checkElements();
+        if (elements) {
+            addButtonWithElements(elements);
+        } else if (attempts < maxAttempts) {
+            attempts++;
+            setTimeout(tryAdd, 100);
+        } else {
+            delete modalWindow.dataset.rovalraSaveButtonProcessing;
+        }
+    };
+
+    tryAdd();
 
     async function addButtonWithElements({
         buyNowButton,
@@ -2406,6 +2426,11 @@ const addSaveButton = (modal) => {
         buttonContainer,
         closeButton,
     }) {
+        const existing = modalWindow.querySelector(
+            '.rovalra-save-wrapper, .btn-save-robux',
+        );
+        const currentId = modal.getAttribute('data-rovalra-item-id');
+
         const currentUserId = getCurrentUserId();
         const prefetchData = {
             storage: null,
@@ -2477,152 +2502,54 @@ const addSaveButton = (modal) => {
             );
         }
 
-        const cartItems = getCartItems();
-        const isMultiItemPurchase = cartItems.length >= 2;
-        const isOnGamePage = /^\/([a-z]{2}(-[a-z]{2})?\/)?games\//i.test(
-            window.location.pathname,
+        const isMultiItemPurchase =
+            modal.getAttribute('data-rovalra-purchase-type') === 'cart';
+        const isMismatch =
+            modal.getAttribute('data-rovalra-cart-mismatch') === 'true';
+
+        let itemId = modal.getAttribute('data-rovalra-item-id');
+        const robuxPriceAttr = modal.getAttribute(
+            'data-rovalra-expected-price',
         );
-
-        let itemId = null;
-        let isGamePassOnGamePage = false;
-        let isMismatch = false;
-        let capturedItemName = null;
-
-        if (isMultiItemPurchase) {
-            const batchItemsInModal = getBatchPurchaseItems(modalWindow);
-            if (batchItemsInModal.length > 0) {
-                isMismatch = !validateCartMatch(batchItemsInModal, cartItems);
-                if (isMismatch) {
-                    console.warn('Cart mismatch detected!');
-                }
-            }
-        } else if (isOnGamePage) {
-            const modalMessage = modalWindow.querySelector('.modal-message');
-            const modalItemNameEl =
-                modalMessage?.querySelector('.font-bold, strong');
-            const modalItemPriceEl = modalMessage?.querySelector(
-                '.text-robux, .robux-text',
-            );
-
-            if (modalItemNameEl && modalItemPriceEl) {
-                const modalItemName = modalItemNameEl.textContent.trim();
-                const modalItemPrice = parseInt(
-                    modalItemPriceEl.textContent.replace(/\D/g, ''),
-                    10,
-                );
-                capturedItemName = modalItemName;
-
-                const universeId = getUniverseId();
-                if (universeId) {
-                    const gamePasses =
-                        await fetchGamePassesForUniverse(universeId);
-                    const match = gamePasses.find(
-                        (gp) =>
-                            ((gp.name && gp.name.trim() === modalItemName) ||
-                                (gp.displayName &&
-                                    gp.displayName.trim() === modalItemName)) &&
-                            gp.price === modalItemPrice,
-                    );
-                    if (match) {
-                        itemId = match.id;
-                        isGamePassOnGamePage = true;
-                    }
-                }
-
-                if (!itemId) {
-                    const storeItems = document.querySelectorAll(
-                        '#store-tab .list-item .store-card, .game-passes-list .list-item',
-                    );
-                    for (const itemCard of storeItems) {
-                        const cardNameEl = itemCard.querySelector(
-                            '.store-card-name, .item-card-name',
-                        );
-                        const cardPriceEl = itemCard.querySelector(
-                            '.store-card-price .text-robux, .item-card-price .text-robux',
-                        );
-                        const cardLinkEl = itemCard.querySelector(
-                            'a.store-card-link, a.item-card-link',
-                        );
-
-                        if (cardNameEl && cardPriceEl && cardLinkEl) {
-                            const cardItemName = (
-                                cardNameEl.getAttribute('title') ||
-                                cardNameEl.textContent
-                            ).trim();
-                            const cardItemPrice = parseInt(
-                                cardPriceEl.textContent.replace(/\D/g, ''),
-                                10,
-                            );
-
-                            if (
-                                modalItemName === cardItemName &&
-                                modalItemPrice === cardItemPrice
-                            ) {
-                                const href = cardLinkEl.getAttribute('href');
-                                const match = href.match(
-                                    /\/(?:[a-z]{2}(?:-[a-z]{2})?\/)?game-pass\/(\d+)/i,
-                                );
-                                if (match) {
-                                    itemId = match[1];
-                                    isGamePassOnGamePage = true;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
+        let robuxPrice = robuxPriceAttr
+            ? parseInt(robuxPriceAttr)
+            : cleanPrice(robuxPriceElement.textContent);
         const isGamePass =
-            /^\/([a-z]{2}(-[a-z]{2})?\/)?game-pass\//i.test(
-                window.location.pathname,
-            ) || isGamePassOnGamePage;
-        const isBundle = /^\/([a-z]{2}(-[a-z]{2})?\/)?bundles\//i.test(
-            window.location.pathname,
-        );
+            modal.getAttribute('data-rovalra-is-gamepass') === 'true';
+        const isBundle =
+            modal.getAttribute('data-rovalra-is-bundle') === 'true';
+        const itemType = modal.getAttribute('data-rovalra-item-type');
 
-        if (!itemId) {
-            if (cartItems.length === 1) {
-                itemId = cartItems[0].id;
-            } else if (!isOnGamePage) {
-                itemId = getPlaceIdFromUrl(window.location.href);
+        if (existing && currentId === itemId) {
+            delete modalWindow.dataset.rovalraSaveButtonProcessing;
+            return;
+        }
+        if (existing) existing.remove();
+
+        let cartItems = [];
+        if (isMultiItemPurchase) {
+            const itemCount =
+                parseInt(modal.getAttribute('data-rovalra-item-count')) || 0;
+            for (let i = 0; i < itemCount; i++) {
+                cartItems.push({
+                    id: modal.getAttribute(`data-rovalra-item-id-${i}`),
+                    name: modal.getAttribute(`data-rovalra-item-name-${i}`),
+                    price:
+                        parseInt(
+                            modal.getAttribute(`data-rovalra-item-price-${i}`),
+                        ) || 0,
+                });
             }
         }
 
-        if (!itemId && !isMultiItemPurchase) return;
-
-        if (currentUserId) {
-            if (!isMultiItemPurchase && itemId) {
-                const itemType = isGamePass
-                    ? 'GamePass'
-                    : isBundle
-                      ? 'Bundle'
-                      : 'Asset';
-                prefetchData.ownership = checkItemOwnership(
-                    currentUserId,
-                    itemId,
-                    itemType,
-                );
-                if (!isGamePass && !isBundle) {
-                    prefetchData.itemDetails = getItemDetails(itemId, 'Asset');
-                }
-            } else if (isMultiItemPurchase) {
-                prefetchData.cartOwnership = Promise.all(
-                    cartItems.map((item) =>
-                        checkItemOwnership(currentUserId, item.id, 'Asset'),
-                    ),
-                );
-                prefetchData.cartThumbnails = fetchThumbnails(
-                    cartItems.map((i) => ({ id: parseInt(i.id) })),
-                    'Asset',
-                    '150x150',
-                );
-            }
+        if (!itemId && !isMultiItemPurchase) {
+            delete modalWindow.dataset.rovalraSaveButtonProcessing;
+            return;
         }
-
-        const robuxPrice = cleanPrice(robuxPriceElement.textContent);
-        if (isNaN(robuxPrice)) return;
+        if (isNaN(robuxPrice)) {
+            delete modalWindow.dataset.rovalraSaveButtonProcessing;
+            return;
+        }
 
         await fetchCatalogMetadata();
 
@@ -2673,26 +2600,59 @@ const addSaveButton = (modal) => {
             }
         }
 
-        let savingsPercentage = isGamePass ? 0.1 : 0.4;
+        let savings = 0;
 
-        if (
-            assetType &&
-            !isGamePass &&
-            !isBundle &&
-            assetToSubcategoryMap &&
-            classicClothingSubcategories
-        ) {
-            const subcategoryId = assetToSubcategoryMap[String(assetType)];
-            if (classicClothingSubcategories.includes(subcategoryId)) {
-                if (robuxPrice < 10) {
-                    savingsPercentage = 0;
-                } else {
-                    savingsPercentage = 0.1;
+        if (isMultiItemPurchase && cartItems.length > 0) {
+            for (const item of cartItems) {
+                if (item.id && item.price) {
+                    let itemSavingsPercent = 0.4;
+
+                    try {
+                        const details = await getItemDetails(item.id, 'Asset');
+                        if (details && details.assetType) {
+                            const subcategoryId =
+                                assetToSubcategoryMap[
+                                    String(details.assetType)
+                                ];
+                            if (
+                                classicClothingSubcategories.includes(
+                                    subcategoryId,
+                                )
+                            ) {
+                                if (item.price < 10) {
+                                    itemSavingsPercent = 0;
+                                } else {
+                                    itemSavingsPercent = 0.1;
+                                }
+                            }
+                        }
+                    } catch (e) {}
+
+                    savings += Math.floor(item.price * itemSavingsPercent);
                 }
             }
-        }
+        } else {
+            let savingsPercentage = isGamePass ? 0.1 : 0.4;
 
-        const savings = Math.floor(robuxPrice * savingsPercentage);
+            if (
+                assetType &&
+                !isGamePass &&
+                !isBundle &&
+                assetToSubcategoryMap &&
+                classicClothingSubcategories
+            ) {
+                const subcategoryId = assetToSubcategoryMap[String(assetType)];
+                if (classicClothingSubcategories.includes(subcategoryId)) {
+                    if (robuxPrice < 10) {
+                        savingsPercentage = 0;
+                    } else {
+                        savingsPercentage = 0.1;
+                    }
+                }
+            }
+
+            savings = Math.floor(robuxPrice * savingsPercentage);
+        }
         const saveButton = document.createElement('button');
         saveButton.type = 'button';
 
@@ -2703,7 +2663,11 @@ const addSaveButton = (modal) => {
             ? `<span style="font-size: 10px; color: #d32f2f; display: block; line-height: 1.2; margin-top: 2px; font-weight: 500;">The creator of this Item${creatorName} may have disabled buying in experiences</span>`
             : '';
 
-        if (modalWindow.classList.contains('unified-purchase-dialog-content')) {
+        const isUnified = modalWindow.classList.contains(
+            'unified-purchase-dialog-content',
+        );
+
+        if (isUnified) {
             saveButton.className =
                 'foundation-web-button relative clip group/interactable focus-visible:outline-focus disabled:outline-none cursor-pointer flex items-center justify-center stroke-none padding-y-none select-none radius-medium text-label-large height-1200 padding-x-large bg-action-emphasis content-action-emphasis fill basis-0 btn-save-robux';
             saveButton.style.height = '48px';
@@ -2718,25 +2682,18 @@ const addSaveButton = (modal) => {
                 </div>
             `);
         } else {
-            if (isRestricted) {
-                saveButton.innerHTML = DOMPurify.sanitize(`
-                    <span style="font-weight: inherit;">Save ${savings} Robux</span>
-                    ${warningHtml}
-                `);
-            } else {
-                saveButton.textContent = `Save ${savings} Robux`;
-            }
-
-            if (isGamePass) {
-                saveButton.className = 'btn-control-md btn-save-robux';
-            } else {
-                saveButton.className =
-                    'modal-button btn-control-md btn-min-width btn-save-robux';
-            }
+            saveButton.className =
+                'modal-button btn-control-md btn-min-width btn-save-robux';
+            saveButton.innerHTML = DOMPurify.sanitize(`
+                <span style="display: flex; flex-direction: column; align-items: center;">
+                    <span>Save ${savings} Robux</span>
+                    ${warningHtml ? `<span style="font-size: 9px; opacity: 0.8; line-height: 1;">(Click for details)</span>` : ''}
+                </span>
+            `);
         }
 
         saveButton.addEventListener('click', async () => {
-            closeButton.click();
+            if (closeButton) closeButton.click();
 
             if (isMismatch) {
                 const errorBody = document.createElement('div');
@@ -2759,29 +2716,32 @@ const addSaveButton = (modal) => {
             }
 
             let itemDetails = null;
-            if (isGamePassOnGamePage) {
+            if (!isMultiItemPurchase && itemId) {
                 const modalImage = modalWindow.querySelector(
-                    '.modal-image-container img, .modal-thumb',
+                    '.modal-image-container img, .modal-thumb, .unified-modal-thumbnail img',
                 );
-                itemDetails = {
-                    name: capturedItemName || 'Game Pass',
-                    thumbnail: modalImage ? modalImage.src : null,
-                };
-            } else if (!isMultiItemPurchase && itemId) {
-                try {
+                const attrItemName = modal.getAttribute(
+                    'data-rovalra-item-name',
+                );
+
+                let itemName =
+                    attrItemName || (isGamePass ? 'Game Pass' : 'Unknown Item');
+                if (!attrItemName && !isGamePass) {
                     const nameElement = document.querySelector(
                         '.item-details-name-row h1, .item-name-container h1',
                     );
-                    const itemName = nameElement
-                        ? nameElement.textContent.trim()
-                        : 'Unknown Item';
+                    if (nameElement) itemName = nameElement.textContent.trim();
+                }
 
-                    let itemThumbnail = null;
+                let itemThumbnail = modalImage ? modalImage.src : null;
+
+                if (!itemThumbnail) {
                     try {
-                        let thumbnailType = 'Asset';
-                        if (isGamePass) thumbnailType = 'GamePass';
-                        else if (isBundle) thumbnailType = 'BundleThumbnail';
-
+                        const thumbnailType = isGamePass
+                            ? 'GamePass'
+                            : isBundle
+                              ? 'BundleThumbnail'
+                              : 'Asset';
                         const thumbnailMap = await fetchThumbnails(
                             [{ id: parseInt(itemId) }],
                             thumbnailType,
@@ -2797,17 +2757,12 @@ const addSaveButton = (modal) => {
                             thumbError,
                         );
                     }
-
-                    itemDetails = {
-                        name: itemName,
-                        thumbnail: itemThumbnail,
-                    };
-                } catch (error) {
-                    console.warn(
-                        'RoValra: Could not extract item details from page:',
-                        error,
-                    );
                 }
+
+                itemDetails = {
+                    name: itemName,
+                    thumbnail: itemThumbnail,
+                };
             }
 
             const result = await new Promise((resolve) => {
@@ -2858,18 +2813,20 @@ const addSaveButton = (modal) => {
             const wrapper = document.createElement('div');
             wrapper.className = 'rovalra-save-wrapper';
             wrapper.style.cssText = `
-                margin-top: 8px;
+                margin-top: 12px;
+                margin-bottom: 8px;
                 display: flex;
                 justify-content: center;
                 width: 100%;
             `;
             wrapper.appendChild(saveButton);
-            const footer =
-                modalWindow.querySelector('.modal-footer') ||
-                buttonContainer.parentElement ||
-                modalWindow;
-            footer.appendChild(wrapper);
-        } else {
+
+            if (isUnified) {
+                const footer = buttonContainer.parentElement || modalWindow;
+                footer.appendChild(wrapper);
+            } else {
+                buttonContainer.insertAdjacentElement('afterend', wrapper);
+            }
         }
     }
 };
