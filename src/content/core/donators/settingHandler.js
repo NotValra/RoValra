@@ -10,9 +10,7 @@ import {
     getCurrentUserTier,
 } from '../settings/handlesettings.js';
 import {
-    CREATOR_USER_ID,
-    CONTRIBUTOR_USER_IDS,
-    TESTER_USER_IDS,
+    TRUSTED_USER_IDS,
     ARTIST_BADGE_USER_ID,
     RAT_BADGE_USER_ID,
     BLAHAJ_BADGE_USER_ID,
@@ -28,19 +26,6 @@ let batchQueue = [];
 let batchTimeout = null;
 let batchInProgress = false;
 const pendingResolvers = new Map();
-
-const TRUSTED_USER_IDS = [
-    CREATOR_USER_ID,
-    ...CONTRIBUTOR_USER_IDS,
-    ...TESTER_USER_IDS,
-
-    ARTIST_BADGE_USER_ID,
-    RAT_BADGE_USER_ID,
-    BLAHAJ_BADGE_USER_ID,
-    CAM_BADGE_USER_ID,
-    alice_badge_user_id,
-    GILBERT_USER_ID,
-].filter(Boolean);
 
 const DESCRIPTION_BASED_SETTINGS = ['status', 'environment'];
 

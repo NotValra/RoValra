@@ -20,7 +20,19 @@ export const TESTER_USER_IDS = [
 
 export const TRANSLATOR_USER_IDS = [];
 
-export const TRUSTED_USER_IDS = ['1996279003'];
+export const TRUSTED_USER_IDS = [
+    CREATOR_USER_ID,
+    ...CONTRIBUTOR_USER_IDS,
+    ...TESTER_USER_IDS,
+    ...TRANSLATOR_USER_IDS,
+    ARTIST_BADGE_USER_ID,
+    RAT_BADGE_USER_ID,
+    BLAHAJ_BADGE_USER_ID,
+    CAM_BADGE_USER_ID,
+    alice_badge_user_id,
+    GILBERT_USER_ID,
+    '1996279003', // Bloodraven (stinky)
+].filter(Boolean);
 export const ARTIST_BADGE_USER_ID = '1337447242';
 export const RAT_BADGE_USER_ID = '477516666'; // rat
 export const BLAHAJ_BADGE_USER_ID = '96786935'; // BLAHAJ

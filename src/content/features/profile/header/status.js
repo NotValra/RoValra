@@ -15,9 +15,7 @@ import { getUserSettings } from '../../../core/donators/settingHandler.js';
 import { parseMarkdown } from '../../../core/utils/markdown.js';
 import DOMPurify from 'dompurify';
 import {
-    CREATOR_USER_ID,
-    CONTRIBUTOR_USER_IDS,
-    TESTER_USER_IDS,
+    TRUSTED_USER_IDS,
     ARTIST_BADGE_USER_ID,
     RAT_BADGE_USER_ID,
     BLAHAJ_BADGE_USER_ID,
@@ -32,18 +30,6 @@ import {
 const STATUS_PREFIX = 's:';
 const MAX_STATUS_LENGTH = 128;
 let activeHomeStatusBubble = null;
-
-const TRUSTED_USER_IDS = [
-    CREATOR_USER_ID,
-    ...CONTRIBUTOR_USER_IDS,
-    ...TESTER_USER_IDS,
-    ARTIST_BADGE_USER_ID,
-    RAT_BADGE_USER_ID,
-    BLAHAJ_BADGE_USER_ID,
-    CAM_BADGE_USER_ID,
-    alice_badge_user_id,
-    GILBERT_USER_ID,
-].filter(Boolean);
 
 const downloadableExtensions =
     /\.(zip|rar|7z|tar|gz|exe|msi|dmg|iso|apk|ahk|ps1|cmd|bat|cmd|com|scr|cpl|sys|dll|js|jse|vbs|vbe|wsf|wsh|ps1|psm1|psd1|sh|docm|xlsm|pptm|dotm|xltm|deb|rpm|pkg|appimage|hta|jar|class)$/i;
