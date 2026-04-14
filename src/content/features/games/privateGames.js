@@ -160,6 +160,26 @@ async function loadAndRenderPrivateGame(placeId, settings) {
                 });
         }
 
+        callRobloxApiJson({
+            subdomain: 'economy',
+            endpoint: `/v2/assets/${placeId}/details`,
+        })
+            .then((assetDetails) => {
+                if (assetDetails) {
+                    if (assetDetails.Created)
+                        gameData.created = assetDetails.Created;
+                    if (assetDetails.Updated)
+                        gameData.updated = assetDetails.Updated;
+                    updateGameDataUpdated(gameData);
+                }
+            })
+            .catch((e) =>
+                console.warn(
+                    'RoValra: Failed to fetch economy asset details',
+                    e,
+                ),
+            );
+
         renderPrivateGamePage(gameData, placeId, settings);
 
         if (!universeId) {
