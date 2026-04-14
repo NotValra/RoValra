@@ -23,12 +23,15 @@ const getCartItems = () => {
         if (link) {
             const href = link.getAttribute('href');
             const match = href.match(
-                /\/(?:[a-z]{2}(?:-[a-z]{2})?\/)?catalog\/(\d+)\//i,
+                /\/(?:[a-z]{2}(?:-[a-z]{2})?\/)?(catalog|bundles)\/(\d+)/i,
             );
             if (match) {
+                const type =
+                    match[1].toLowerCase() === 'bundles' ? 'Bundle' : 'Asset';
                 cartItems.push({
-                    id: match[1],
+                    id: match[2],
                     name: link.textContent.trim(),
+                    type: type,
                 });
             }
         }
@@ -128,17 +131,23 @@ export const getPurchasePromptItemInfo = async (modal) => {
                     const nameEl = card.querySelector(
                         '.item-name, .card-name, .name',
                     );
-                    const linkEl = card.querySelector('a[href*="/catalog/"]');
+                    const linkEl = card.querySelector(
+                        'a[href*="/catalog/"], a[href*="/bundles/"]',
+                    );
 
                     if (nameEl && linkEl) {
                         const cardName = nameEl.textContent.trim();
                         if (cardName === cartItems[i].name) {
                             const href = linkEl.getAttribute('href');
                             const match = href.match(
-                                /\/(?:[a-z]{2}(?:-[a-z]{2})?\/)?catalog\/(\d+)\//i,
+                                /\/(?:[a-z]{2}(?:-[a-z]{2})?\/)?(catalog|bundles)\/(\d+)/i,
                             );
                             if (match) {
-                                cartItems[i].id = match[1];
+                                cartItems[i].id = match[2];
+                                cartItems[i].type =
+                                    match[1].toLowerCase() === 'bundles'
+                                        ? 'Bundle'
+                                        : 'Asset';
                             }
                             break;
                         }
@@ -161,13 +170,14 @@ export const getPurchasePromptItemInfo = async (modal) => {
     }
 
     if (cartItems.length === 1) {
+        const item = cartItems[0];
         return {
             isMultiItem: false,
-            itemId: cartItems[0].id,
-            itemType: 'Asset',
+            itemId: item.id,
+            itemType: item.type || 'Asset',
             isGamePass: false,
-            isBundle: false,
-            itemName: cartItems[0].name,
+            isBundle: item.type === 'Bundle',
+            itemName: item.name,
         };
     }
 
@@ -343,6 +353,12 @@ const attachItemDataToPurchasePrompt = (modal, force = false) => {
             for (let index = 0; index < itemInfo.items.length; index++) {
                 const item = itemInfo.items[index];
                 modal.setAttribute(`data-rovalra-item-id-${index}`, item.id);
+                if (item.type) {
+                    modal.setAttribute(
+                        `data-rovalra-item-type-${index}`,
+                        item.type,
+                    );
+                }
                 if (item.name) {
                     modal.setAttribute(
                         `data-rovalra-item-name-${index}`,
@@ -352,7 +368,10 @@ const attachItemDataToPurchasePrompt = (modal, force = false) => {
 
                 if (item.id) {
                     try {
-                        const details = await getItemDetails(item.id, 'Asset');
+                        const details = await getItemDetails(
+                            item.id,
+                            item.type || 'Asset',
+                        );
                         if (details && details.price) {
                             modal.setAttribute(
                                 `data-rovalra-item-price-${index}`,

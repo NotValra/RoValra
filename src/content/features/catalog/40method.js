@@ -305,13 +305,16 @@ const getCartItems = () => {
         if (link && priceText) {
             const href = link.getAttribute('href');
             const match = href.match(
-                /\/(?:[a-z]{2}(?:-[a-z]{2})?\/)?catalog\/(\d+)\//i,
+                /\/(?:[a-z]{2}(?:-[a-z]{2})?\/)?(catalog|bundles)\/(\d+)/i,
             );
             if (match) {
+                const type =
+                    match[1].toLowerCase() === 'bundles' ? 'Bundle' : 'Asset';
                 cartItems.push({
-                    id: match[1],
+                    id: match[2],
                     name: link.textContent.trim(),
                     price: cleanPrice(priceText.textContent),
+                    type: type,
                     thumbnail: null,
                 });
             }
@@ -1869,7 +1872,11 @@ const executeCartPurchase = async (
             ? actualPlaceId
             : savedPlaceId;
 
-    const launchDataParts = itemsToPurchase.map((item) => `asset:${item.id}`);
+    const launchDataParts = itemsToPurchase.map((item) => {
+        const prefix =
+            item.type?.toLowerCase() === 'bundle' ? 'bundle' : 'asset';
+        return `${prefix}:${item.id}`;
+    });
     const launchData = launchDataParts.join(',');
 
     launchMultiplayerGame(placeIdToUse, launchData);
@@ -2538,6 +2545,9 @@ const addSaveButton = (modal) => {
                         parseInt(
                             modal.getAttribute(`data-rovalra-item-price-${i}`),
                         ) || 0,
+                    type:
+                        modal.getAttribute(`data-rovalra-item-type-${i}`) ||
+                        'Asset',
                 });
             }
         }
@@ -2608,7 +2618,10 @@ const addSaveButton = (modal) => {
                     let itemSavingsPercent = 0.4;
 
                     try {
-                        const details = await getItemDetails(item.id, 'Asset');
+                        const details = await getItemDetails(
+                            item.id,
+                            item.type || 'Asset',
+                        );
                         if (details && details.assetType) {
                             const subcategoryId =
                                 assetToSubcategoryMap[
