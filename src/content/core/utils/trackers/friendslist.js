@@ -257,7 +257,10 @@ async function fetchTrustedFriendsStatus(userId, friendIds) {
     }
 }
 
-async function fetchProfileInsights(userIds) {
+async function fetchProfileInsights(
+    userIds,
+    rankingStrategy = 'tc_info_boost',
+) {
     try {
         return await callRobloxApiJson({
             subdomain: 'apis',
@@ -267,7 +270,7 @@ async function fetchProfileInsights(userIds) {
 
             body: {
                 userIds: userIds.map((id) => id.toString()),
-                rankingStrategy: 'tc_info_boost',
+                rankingStrategy: rankingStrategy,
             },
         });
     } catch (error) {
@@ -381,17 +384,32 @@ export async function updateFriendsList(userId) {
             const batchIds = allFriends
                 .slice(i, i + batchSize)
                 .map((f) => f.id);
-            const [profileData, trustedFriendsSet, insightsData] =
-                await Promise.all([
-                    fetchUserProfileData(batchIds),
-                    fetchTrustedFriendsStatus(userId, batchIds),
-                    fetchProfileInsights(batchIds),
-                ]);
+            const [
+                profileData,
+                trustedFriendsSet,
+                insightsData,
+                playedTogetherData,
+            ] = await Promise.all([
+                fetchUserProfileData(batchIds),
+                fetchTrustedFriendsStatus(userId, batchIds),
+                fetchProfileInsights(batchIds, 'tc_info_boost'),
+                fetchProfileInsights(batchIds, 'profile_info_boost'),
+            ]);
 
             const insightMap = new Map();
             if (insightsData?.userInsights) {
                 insightsData.userInsights.forEach((insight) => {
                     insightMap.set(insight.targetUser, insight.profileInsights);
+                });
+            }
+
+            const playedTogetherMap = new Map();
+            if (playedTogetherData?.userInsights) {
+                playedTogetherData.userInsights.forEach((insight) => {
+                    playedTogetherMap.set(
+                        insight.targetUser,
+                        insight.profileInsights,
+                    );
                 });
             }
 
@@ -414,6 +432,8 @@ export async function updateFriendsList(userId) {
                         const isTrusted = trustedFriendsSet.has(friendId);
                         const chatStatus = chatAnalysisMap.get(friendId);
                         const userInsights = insightMap.get(friendId) || [];
+                        const playedTogetherInsights =
+                            playedTogetherMap.get(friendId) || [];
                         const presence = onlineMap.get(friendId);
                         const existingFriend = existingMap.get(friendId);
 
@@ -467,6 +487,35 @@ export async function updateFriendsList(userId) {
                             }
                         });
 
+                        let havePlayedTogether =
+                            existingFriend?.havePlayedTogether || false;
+                        let mostFrequentUniverseId =
+                            existingFriend?.mostFrequentUniverseId || null;
+
+                        playedTogetherInsights.forEach((item) => {
+                            if (
+                                item.insightCase === 8 &&
+                                item.playedTogetherInsight
+                            ) {
+                                const newUniverseId =
+                                    item.playedTogetherInsight
+                                        .mostFrequentUniverseId;
+                                const newHavePlayedTogether =
+                                    item.playedTogetherInsight
+                                        .havePlayedTogether;
+
+                                if (
+                                    mostFrequentUniverseId === null ||
+                                    (newUniverseId !== null &&
+                                        newUniverseId !==
+                                            mostFrequentUniverseId)
+                                ) {
+                                    mostFrequentUniverseId = newUniverseId;
+                                    havePlayedTogether = newHavePlayedTogether;
+                                }
+                            }
+                        });
+
                         let finalAgeRange = 'No Chat Data';
                         if (isTrusted) {
                             finalAgeRange = 'Trusted Friend';
@@ -506,6 +555,8 @@ export async function updateFriendsList(userId) {
                             accountCreated: accountCreated,
                             friendsSince: friendsSince,
                             friendRequestOrigin: friendRequestOrigin,
+                            havePlayedTogether: havePlayedTogether,
+                            mostFrequentUniverseId: mostFrequentUniverseId,
                             lastOnline:
                                 presence?.lastOnline ||
                                 existingFriend?.lastOnline ||

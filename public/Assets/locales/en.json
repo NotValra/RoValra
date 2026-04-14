@@ -548,6 +548,9 @@
         "originPeopleYouMayKnow": "People You May Know",
         "originUnknown": "Unknown"
     },
+    "lastPlayed": {
+        "together": "Last Played Together"
+    },
     "unfriend": {
         "confirmUnfriend": "Confirm Unfriend",
         "confirmUnfriends": "Confirm Unfriends",

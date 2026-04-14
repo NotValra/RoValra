@@ -553,6 +553,13 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
+            lastPlayedTogetherEnabled: {
+                label: 'Last Played Together',
+                description:
+                    'Shows the experience you last played with a friend on their profile.',
+                type: 'checkbox',
+                default: true,
+            },
             bulkUnfriendEnabled: {
                 label: 'Bulk Unfriend',
                 description:
