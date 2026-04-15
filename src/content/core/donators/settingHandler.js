@@ -27,6 +27,7 @@ let batchTimeout = null;
 let batchInProgress = false;
 const pendingResolvers = new Map();
 
+const CACHE_DURATION = 300000;
 const DESCRIPTION_BASED_SETTINGS = ['status', 'environment'];
 
 async function getStatusFromDescription(description) {
@@ -562,7 +563,30 @@ export async function getUserSettings(userId, options = {}) {
     const cacheKey = `${userId}-${options.useDescription || false}`;
 
     const cached = await cache.get('user_settings', cacheKey, 'local');
-    if (!options.noCache && cached && Date.now() - cached.timestamp < 60000) {
+    const isCacheStale =
+        cached && Date.now() - cached.timestamp > CACHE_DURATION;
+
+    if (!options.noCache && cached) {
+        if (isCacheStale && !options.noBackgroundUpdate) {
+            fetchAndProcessSettings(userId, options)
+                .then((newSettings) => {
+                    cache.set(
+                        'user_settings',
+                        cacheKey,
+                        {
+                            data: newSettings,
+                            timestamp: Date.now(),
+                        },
+                        'local',
+                    );
+                })
+                .catch((e) =>
+                    console.error(
+                        'RoValra: Background update failed for user settings',
+                        e,
+                    ),
+                );
+        }
         return cached.data;
     }
 
@@ -582,9 +606,15 @@ export async function getUserSettings(userId, options = {}) {
         return settings;
     }
 
+    if (pendingResolvers.has(userId)) {
+        return new Promise((resolve, reject) => {
+            pendingResolvers.get(userId).push({ resolve, reject });
+        });
+    }
+
     return new Promise((resolve, reject) => {
         batchQueue.push({ userId, options });
-        pendingResolvers.set(userId, { resolve, reject });
+        pendingResolvers.set(userId, [{ resolve, reject }]);
 
         if (!batchTimeout) {
             batchTimeout = setTimeout(processBatchQueue, BATCH_DELAY_MS);
