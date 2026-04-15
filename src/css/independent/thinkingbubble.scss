@@ -49,6 +49,8 @@
     border: 1px solid rgba(255, 255, 255, 0.1);
     overflow-wrap: break-word;
     pointer-events: auto;
+    max-width: 220px;
+    width: 100%;
 }
 
 .rovalra-status-bubble::before,
@@ -73,4 +75,22 @@
     height: 8px;
     bottom: -24px;
     right: 24px;
+}
+img,
+video,
+iframe,
+embed,
+object {
+    max-width: 100% !important;
+    height: auto !important;
+    box-sizing: border-box;
+}
+
+video {
+    object-fit: contain;
+}
+
+* {
+    max-width: 100vw;
+    overflow-wrap: break-word;
 }

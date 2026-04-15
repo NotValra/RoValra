@@ -31,6 +31,24 @@ const STATUS_PREFIX = 's:';
 const MAX_STATUS_LENGTH = 128;
 let activeHomeStatusBubble = null;
 
+function cleanupStatusElements(container) {
+    if (!container) return;
+
+    const mediaElements = container.querySelectorAll(
+        'video, audio, iframe, source',
+    );
+    for (const element of mediaElements) {
+        try {
+            if (element.tagName === 'VIDEO' || element.tagName === 'AUDIO') {
+                element.pause();
+                element.src = '';
+                element.load();
+            }
+            element.remove();
+        } catch (e) {}
+    }
+}
+
 const downloadableExtensions =
     /\.(zip|rar|7z|tar|gz|exe|msi|dmg|iso|apk|ahk|ps1|cmd|bat|cmd|com|scr|cpl|sys|dll|js|jse|vbs|vbe|wsf|wsh|ps1|psm1|psd1|sh|docm|xlsm|pptm|dotm|xltm|deb|rpm|pkg|appimage|hta|jar|class)$/i;
 
@@ -204,6 +222,19 @@ async function addStatusBubble(avatarContainer, userWantsApi) {
                 FORBID_ATTR: ['style'],
                 FORBID_TAGS: ['audio'],
             });
+
+            const videos = bubble.querySelectorAll('video');
+            for (const video of videos) {
+                video.muted = true;
+                video.volume = 0.1;
+
+                video
+                    .play()
+                    .then(() => {
+                        video.muted = false;
+                    })
+                    .catch(() => {});
+            }
         } else {
             bubble.textContent = statusText;
         }
@@ -235,6 +266,19 @@ async function addStatusBubble(avatarContainer, userWantsApi) {
                             FORBID_TAGS: ['audio'],
                         },
                     );
+
+                    const videos = bubble.querySelectorAll('video');
+                    for (const video of videos) {
+                        video.muted = true;
+                        video.volume = 0.1;
+
+                        video
+                            .play()
+                            .then(() => {
+                                video.muted = false;
+                            })
+                            .catch(() => {});
+                    }
                 } else {
                     bubble.textContent = textToRender;
                 }
@@ -408,72 +452,114 @@ async function addHomeStatusHover(tile) {
     avatarContainer.appendChild(bubbleWrapper);
 
     let statusLoaded = false;
+    let isHovering = false;
+    let pendingLoad = null;
 
     tile.addEventListener('mouseenter', async () => {
+        isHovering = true;
+
         if (!statusLoaded) {
-            try {
-                const authenticatedUserId = await getAuthenticatedUserId();
-                const isOwnProfile =
-                    authenticatedUserId &&
-                    String(authenticatedUserId) === String(userId);
+            if (pendingLoad) return;
 
-                const settings = await getUserSettings(userId, {
-                    useDescription: true,
-                });
+            const loadPromise = (async () => {
+                try {
+                    const authenticatedUserId = await getAuthenticatedUserId();
+                    const isOwnProfile =
+                        authenticatedUserId &&
+                        String(authenticatedUserId) === String(userId);
 
-                const { status } = settings;
+                    const settings = await getUserSettings(userId, {
+                        useDescription: true,
+                    });
 
-                if (status) {
-                    let statusText = status;
-                    if (statusText.length > MAX_STATUS_LENGTH) {
-                        statusText =
-                            statusText.substring(0, MAX_STATUS_LENGTH) + '...';
-                    }
+                    const { status } = settings;
 
-                    const isUserTrusted = TRUSTED_USER_IDS.includes(
-                        String(userId),
-                    );
+                    if (!isHovering) return;
 
-                    if (isUserTrusted) {
-                        bubble.innerHTML = DOMPurify.sanitize(
-                            parseMarkdown(statusText),
-                            {
-                                FORBID_ATTR: ['style'],
-                                FORBID_TAGS: ['audio'],
-                            },
+                    if (status) {
+                        let statusText = status;
+                        if (statusText.length > MAX_STATUS_LENGTH) {
+                            statusText =
+                                statusText.substring(0, MAX_STATUS_LENGTH) +
+                                '...';
+                        }
+
+                        const isUserTrusted = TRUSTED_USER_IDS.includes(
+                            String(userId),
                         );
+
+                        if (isUserTrusted) {
+                            bubble.innerHTML = DOMPurify.sanitize(
+                                parseMarkdown(statusText),
+                                {
+                                    FORBID_ATTR: ['style'],
+                                    FORBID_TAGS: ['audio'],
+                                },
+                            );
+                        } else {
+                            bubble.textContent = statusText;
+                        }
+                        statusLoaded = true;
                     } else {
-                        bubble.textContent = statusText;
+                        bubbleWrapper.remove();
+                        return;
                     }
-                    statusLoaded = true;
-                } else {
+                } catch (error) {
+                    if (!isHovering) return;
+                    console.error(
+                        'RoValra: Error fetching status for home page hover.',
+                        error,
+                    );
                     bubbleWrapper.remove();
                     return;
                 }
-            } catch (error) {
-                console.error(
-                    'RoValra: Error fetching status for home page hover.',
-                    error,
-                );
-                bubbleWrapper.remove();
-                return;
-            }
+            })();
+
+            pendingLoad = loadPromise;
+            await loadPromise;
+            pendingLoad = null;
         }
-        if (statusLoaded) {
+
+        if (statusLoaded && isHovering) {
             if (!tile.matches(':hover')) return;
 
             if (
                 activeHomeStatusBubble &&
                 activeHomeStatusBubble !== bubbleWrapper
             ) {
+                const activeBubble = activeHomeStatusBubble.querySelector(
+                    '.rovalra-status-bubble',
+                );
+                cleanupStatusElements(activeBubble);
+                activeBubble.textContent = '';
                 activeHomeStatusBubble.style.display = 'none';
             }
             bubbleWrapper.style.display = 'flex';
             activeHomeStatusBubble = bubbleWrapper;
+
+            const videos = bubble.querySelectorAll('video');
+            for (const video of videos) {
+                video.muted = true;
+                video.volume = 0.1;
+
+                video
+                    .play()
+                    .then(() => {
+                        if (isHovering) {
+                            video.muted = false;
+                        }
+                    })
+                    .catch(() => {});
+            }
         }
     });
 
     tile.addEventListener('mouseleave', () => {
+        isHovering = false;
+        cleanupStatusElements(bubble);
+        bubble.textContent = '';
+        statusLoaded = false;
+
         if (activeHomeStatusBubble === bubbleWrapper)
             activeHomeStatusBubble = null;
         bubbleWrapper.style.display = 'none';
