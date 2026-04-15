@@ -20,6 +20,7 @@ import {
     createValueDiffPill,
 } from '../../core/trade/ui/tradePills.js';
 import * as CacheHandler from '../../core/storage/cacheHandler.js';
+import { cleanPrice } from '../../core/utils/priceCleaner.js';
 
 let cardObserverRequest = null;
 let summaryObserverRequest = null;
@@ -27,7 +28,6 @@ let robuxObserverRequest = null;
 let dividerObserverRequest = null;
 let updateSummaryTimeout = null;
 const pendingCards = new Map();
-let isRobuxIncluded = true;
 let featureSettings = { tradeValuesEnabled: true, tradeRiskEnabled: true };
 
 export function init() {
@@ -561,10 +561,7 @@ function calculateStats(offerEl) {
                         '.item-value .text-robux',
                     );
                     if (priceEl) {
-                        const r = parseInt(
-                            priceEl.innerText.replace(/,/g, ''),
-                            10,
-                        );
+                        const r = cleanPrice(priceEl.innerText);
                         if (!isNaN(r)) itemRap = r;
                     }
                 }
@@ -575,7 +572,7 @@ function calculateStats(offerEl) {
                         '.item-card-price:not(.rovalra-value-label) .text-robux',
                     );
                 if (priceEl) {
-                    const r = parseInt(priceEl.innerText.replace(/,/g, ''), 10);
+                    const r = cleanPrice(priceEl.innerText);
                     if (!isNaN(r)) itemRap = r;
                 }
             }
@@ -626,19 +623,10 @@ function calculateStats(offerEl) {
     }
 
     if (robux === 0) {
-        const robuxInput = offerEl.querySelector('input[name="robux"]');
-        if (robuxInput) {
-            const val = parseInt(robuxInput.value.replace(/,/g, ''), 10);
+        const robuxLineVal = offerEl.querySelector('.robux-line-value');
+        if (robuxLineVal) {
+            const val = cleanPrice(robuxLineVal.innerText);
             if (!isNaN(val)) robux = val;
-        } else {
-            const robuxLineVal = offerEl.querySelector('.robux-line-value');
-            if (robuxLineVal) {
-                const val = parseInt(
-                    robuxLineVal.innerText.replace(/,/g, ''),
-                    10,
-                );
-                if (!isNaN(val)) robux = val;
-            }
         }
     }
 
@@ -756,7 +744,8 @@ function renderSummary(giveOffer, receiveOffer, giveStats, receiveStats) {
             alignItems: 'center',
             width: '100%',
             marginTop: '5px',
-            gap: '15px',
+            marginBottom: '8px',
+            gap: '6px',
         });
 
         target.appendChild(summaryDiv);
@@ -770,12 +759,10 @@ function renderSummary(giveOffer, receiveOffer, giveStats, receiveStats) {
     let partnerRap = receiveStats.rap;
     let partnerValue = receiveStats.value;
 
-    if (isRobuxIncluded) {
-        myRap += giveStats.robux;
-        myValue += giveStats.robux;
-        partnerRap += Math.floor(receiveStats.robux * 0.7);
-        partnerValue += Math.floor(receiveStats.robux * 0.7);
-    }
+    myRap += giveStats.robux;
+    myValue += giveStats.robux;
+    partnerRap += receiveStats.robux;
+    partnerValue += receiveStats.robux;
 
     const rapDiff = partnerRap - myRap;
     const rapPill = createRapDiffPill(rapDiff, myRap, {
@@ -790,42 +777,6 @@ function renderSummary(giveOffer, receiveOffer, giveStats, receiveStats) {
     });
 
     summaryDiv.appendChild(valPill);
-
-    if (giveStats.robux > 0 || receiveStats.robux > 0) {
-        const toggleWrapper = document.createElement('div');
-        Object.assign(toggleWrapper.style, {
-            display: 'flex',
-            alignItems: 'center',
-            gap: '4px',
-        });
-
-        const radio = createRadioButton({
-            id: 'rovalra-robux-toggle',
-            checked: isRobuxIncluded,
-            onChange: (checked) => {
-                isRobuxIncluded = checked;
-                updateTradeSummary();
-            },
-        });
-        toggleWrapper.appendChild(radio);
-
-        const label = document.createElement('span');
-        label.innerText = '+R$';
-        label.style.fontWeight = '600';
-        label.style.fontSize = '12px';
-        label.style.color = 'var(--rovalra-main-text-color)';
-        toggleWrapper.appendChild(label);
-
-        const totalRaw = giveStats.robux + receiveStats.robux;
-        const tooltipText =
-            totalRaw > 0
-                ? `Include Robux (After Pending)`
-                : `Include Robux (After Pending)`;
-
-        addTooltip(toggleWrapper, tooltipText, { position: 'top' });
-
-        summaryDiv.appendChild(toggleWrapper);
-    }
 }
 // turns demand into numbers so we can add locale support.
 function getDemandValue(demandStr) {

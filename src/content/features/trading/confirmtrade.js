@@ -13,6 +13,7 @@ import {
     createRapDiffPill,
     createValueDiffPill,
 } from '../../core/trade/ui/tradePills.js';
+import { cleanPrice } from '../../core/utils/priceCleaner.js';
 
 let observerRequest = null;
 let prefetchRequests = [];
@@ -222,7 +223,7 @@ async function injectTradePreview(
                     '.item-card-price .text-robux',
                 );
                 if (priceEl) {
-                    const r = parseInt(priceEl.innerText.replace(/,/g, ''), 10);
+                    const r = cleanPrice(priceEl.innerText);
                     if (!isNaN(r)) rap = r;
                 }
             }
@@ -249,10 +250,7 @@ async function injectTradePreview(
                 if (container && !container.classList.contains('ng-hide')) {
                     const valEl = container.querySelector('.robux-line-value');
                     if (valEl) {
-                        const val = parseInt(
-                            valEl.innerText.replace(/,/g, ''),
-                            10,
-                        );
+                        const val = cleanPrice(valEl.innerText);
 
                         if (!isNaN(val)) side.robux = Math.round(val / 0.7);
                     }
@@ -261,7 +259,7 @@ async function injectTradePreview(
         } else {
             const robuxInput = offer.querySelector('input[name="robux"]');
             if (robuxInput) {
-                const val = parseInt(robuxInput.value.replace(/,/g, ''), 10);
+                const val = cleanPrice(robuxInput.value);
                 if (!isNaN(val)) side.robux = val;
             }
         }
