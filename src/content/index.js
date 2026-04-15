@@ -16,6 +16,7 @@ import { init as initApiDocs } from './features/developer/apiDocs.js';
 import { init as initApiKey } from './core/utils/trackers/apiKey.js';
 import { init as initServerTracker } from './core/utils/trackers/servers.js';
 import { initFriendsListTracking } from './core/utils/trackers/friendslist.js';
+import { initTransactionsTracking } from './core/utils/trackers/transactions.js';
 import { init as initPrivateGames } from './features/games/privateGames.js';
 import { init as initQoLToggles } from './features/navigation/QoLToggles.js';
 import { init as initCopyId } from './features/sitewide/copyid.js';
@@ -55,6 +56,7 @@ import { init as bannertest } from './features/games/banner.js';
 import { init as quickOutfits } from './features/games/actions/quickOutfits.js';
 import { init as initDevProductLoader } from './features/games/tab/DevProducts.js';
 import { init as initHeatmap } from './features/games/tab/updateHistory.js';
+import { init as initTotalSpentGames } from './features/games/tab/totalSpentGames.js';
 // transactions
 import { init as initTotalSpent } from './features/transactions/totalspent.js';
 import { init as initPendingRobuxTrans } from './features/transactions/pendingRobuxTrans.js';
@@ -122,6 +124,7 @@ const featureRoutes = [
             initApiKey,
             initServerTracker,
             initFriendsListTracking,
+            initTransactionsTracking,
             initQoLToggles,
             initCopyId,
             initBetaPrograms,
@@ -186,7 +189,7 @@ const featureRoutes = [
     // private games and game pages
     {
         paths: ['/games/', '/private-games'],
-        features: [initDevProductLoader, initSubplaces],
+        features: [initDevProductLoader, initSubplaces, initTotalSpentGames],
     },
     // Private games page
     {

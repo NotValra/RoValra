@@ -630,6 +630,7 @@ export async function callRobloxApiJson(options) {
             `API request failed with status ${response.status}`,
         );
         error.response = errorBody;
+        error.status = response.status;
         throw error;
     }
     return await response.json();

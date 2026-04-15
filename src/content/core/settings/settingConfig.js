@@ -280,6 +280,15 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
+            TotalSpentGamesEnabled: {
+                label: 'Total Spent on Experience',
+                description: [
+                    'This shows how much Robux you have spent total on this experience.',
+                    'This may take a few mins before it works when first installing the extension.',
+                ],
+                type: 'checkbox',
+                default: true,
+            },
             OldestVersionEnabled: {
                 label: 'Oldest Server Version',
                 description: [

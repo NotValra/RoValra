@@ -223,6 +223,13 @@
         "errorUserId": "Could not retrieve user ID.",
         "errorRetries": "Failed after multiple retries. Last error: {{error}}"
     },
+    "totalSpentGames": {
+        "label": "Total Spent",
+        "loading": "Loading...",
+        "failedToLoad": "Failed to load",
+        "singlePurchase": "1 purchase",
+        "multiplePurchases": "{{count}} purchases"
+    },
     "settings": {
         "tabs": {
             "info": "Info",
