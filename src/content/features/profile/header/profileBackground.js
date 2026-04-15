@@ -93,7 +93,7 @@ export async function init() {
 
             if (gradient) {
                 observeElement(
-                    '.profile-header, .profile-avatar-left.profile-avatar-gradient, .user-profile-header-details-avatar-container .avatar-card-image',
+                    '.profile-header, .profile-avatar-left.profile-avatar-gradient, .user-profile-header-details-avatar-container .avatar-card-image, .avatar-toggle-button',
                     (element) => {
                         if (element.classList.contains('profile-header')) {
                             const profileContainer = element.querySelector(
@@ -118,6 +118,19 @@ export async function init() {
                             element.classList.contains('avatar-card-image')
                         ) {
                             applyToAvatarContainer(element, gradient, false);
+                        } else if (
+                            element.classList.contains('avatar-toggle-button')
+                        ) {
+                            const updateButtons = () => {
+                                element
+                                    .querySelectorAll('button')
+                                    .forEach((btn) => {
+                                        btn.style.backgroundColor =
+                                            'var(--rovalra-container-background-color)';
+                                    });
+                            };
+                            updateButtons();
+                            observeChildren(element, updateButtons);
                         } else {
                             applyGradientToElement(element, gradient, false);
                         }

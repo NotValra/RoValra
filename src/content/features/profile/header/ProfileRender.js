@@ -1,4 +1,8 @@
-import { observeElement, observeResize } from '../../../core/observer.js';
+import {
+    observeElement,
+    observeResize,
+    observeChildren,
+} from '../../../core/observer.js';
 import { getUserIdFromUrl } from '../../../core/idExtractor.js';
 import {
     injectStylesheet,
@@ -2110,6 +2114,16 @@ export function init() {
                         } else if (
                             element.classList.contains('avatar-toggle-button')
                         ) {
+                            const updateButtons = () => {
+                                element
+                                    .querySelectorAll('button')
+                                    .forEach((btn) => {
+                                        btn.style.backgroundColor =
+                                            'var(--rovalra-container-background-color)';
+                                    });
+                            };
+                            updateButtons();
+                            observeChildren(element, updateButtons);
                             avatarPromise.then((data) => {
                                 if (data) injectCustomButtons(element);
                             });
