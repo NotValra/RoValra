@@ -547,6 +547,15 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
+            lastOnlineEnabled: {
+                label: 'Show Last Online / Last Seen',
+                description: [
+                    'Shows when a user was last online / seen on their profile.',
+                    'Only works for friends.',
+                ],
+                type: 'checkbox',
+                default: true,
+            },
             friendsSinceEnabled: {
                 label: 'Friends Since',
                 description:
