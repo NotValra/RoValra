@@ -47,7 +47,7 @@ export function init() {
 
     chrome.storage.local.get({ privateGameDetectionEnabled: true }, (data) => {
         const privateUrlMatch = window.location.pathname.match(
-            /^\/private-games\/(\d+)/,
+            /^(?:\/[a-z]{2})?\/private-games\/(\d+)/,
         );
 
         if (!data.privateGameDetectionEnabled) {
@@ -73,7 +73,7 @@ export function init() {
         }
 
         const checkUrlMatch = window.location.pathname.match(
-            /^\/games\/check\/(\d+)/,
+            /^(?:\/[a-z]{2})?\/games\/check\/(\d+)/,
         );
         if (checkUrlMatch) {
             const placeId = checkUrlMatch[1];
