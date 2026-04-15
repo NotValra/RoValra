@@ -630,6 +630,7 @@
             "visits": "Visits",
             "maxPlayers": "Max Players",
             "genre": "Genre",
+            "subgenre": "Subgenre",
             "created": "Created",
             "updated": "Updated",
             "voiceChat": "Voice Chat",

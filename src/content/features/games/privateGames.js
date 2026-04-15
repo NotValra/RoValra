@@ -18,6 +18,7 @@ import {
 } from '../../core/games/playabilityStatus.js';
 import { parseMarkdown } from '../../core/utils/markdown.js';
 
+import { addTooltip } from '../../core/ui/tooltip.js';
 function formatVoteCount(count) {
     count = Number(count) || 0;
     if (count >= 1000000) {
@@ -137,7 +138,7 @@ async function loadAndRenderPrivateGame(placeId, settings) {
         const placeInfo = placeDetails?.[0];
         const universeId = placeInfo?.universeId;
 
-        let gameData = createFallbackGame(placeDetails, null);
+        let gameData = createFallbackGame(placeDetails);
         gameData._placeId = placeId;
 
         const builderId = placeInfo?.builderId;
@@ -159,26 +160,6 @@ async function loadAndRenderPrivateGame(placeId, settings) {
                     if (universeId) fetchVisitsForCreator(gameData, universeId);
                 });
         }
-
-        callRobloxApiJson({
-            subdomain: 'economy',
-            endpoint: `/v2/assets/${placeId}/details`,
-        })
-            .then((assetDetails) => {
-                if (assetDetails) {
-                    if (assetDetails.Created)
-                        gameData.created = assetDetails.Created;
-                    if (assetDetails.Updated)
-                        gameData.updated = assetDetails.Updated;
-                    updateGameDataUpdated(gameData);
-                }
-            })
-            .catch((e) =>
-                console.warn(
-                    'RoValra: Failed to fetch economy asset details',
-                    e,
-                ),
-            );
 
         renderPrivateGamePage(gameData, placeId, settings);
 
@@ -222,13 +203,24 @@ async function loadAndRenderPrivateGame(placeId, settings) {
             .then((gameRes) => {
                 const game = gameRes?.data?.find((g) => g.id === universeId);
                 if (game) {
-                    Object.assign(gameData, game);
-                    if (game.untranslated_genre_l1) {
-                        gameData.genre = game.untranslated_genre_l1
+                    // Explicitly update only specific non-timestamp fields to ensure consistency
+                    if (game.playing !== undefined && gameData.playing !== 0) {
+                        gameData.playing = game.playing;
+                    }
+
+                    if (game.visits !== undefined) {
+                        gameData.visits = game.visits;
+                    }
+
+                    if (game.genre_l1) {
+                        gameData.genre = game.genre_l1
                             .replace(/_/g, ' ')
                             .replace(/\b\w/g, (c) => c.toUpperCase());
-                    } else if (game.genre) {
-                        gameData.genre = game.genre;
+                    }
+                    if (game.genre_l2) {
+                        gameData.subgenre = game.genre_l2
+                            .replace(/_/g, ' ')
+                            .replace(/\b\w/g, (c) => c.toUpperCase());
                     }
                     updateGameDataUpdated(gameData);
                 }
@@ -242,8 +234,6 @@ async function loadAndRenderPrivateGame(placeId, settings) {
             useBackground: true,
         })
             .then((cloudData) => {
-                gameData.created = cloudData.createTime || gameData.created;
-                gameData.updated = cloudData.updateTime || gameData.updated;
                 gameData.ageRating = cloudData.ageRating || gameData.genre;
                 gameData.voiceChatEnabled = cloudData.voiceChatEnabled || false;
                 gameData._cloudData = cloudData;
@@ -283,10 +273,16 @@ async function loadAndRenderPrivateGame(placeId, settings) {
             useBackground: true,
         })
             .then((placeCloudRes) => {
+                if (placeCloudRes?.createTime) {
+                    gameData.created = placeCloudRes.createTime;
+                }
+                if (placeCloudRes?.updateTime) {
+                    gameData.updated = placeCloudRes.updateTime;
+                }
                 if (placeCloudRes?.serverSize !== undefined) {
                     gameData.maxPlayers = placeCloudRes.serverSize;
-                    updateGameDataUpdated(gameData);
                 }
+                updateGameDataUpdated(gameData);
             })
             .catch((e) =>
                 console.warn('RoValra: Failed to fetch place server size', e),
@@ -316,46 +312,60 @@ async function loadAndRenderPrivateGame(placeId, settings) {
         }
     } catch (e) {
         console.error('RoValra: Failed to fetch info for private game', e);
-        const fallbackGame = createFallbackGame(null, null);
+        const fallbackGame = createFallbackGame(null);
         renderPrivateGamePage(fallbackGame, placeId, settings);
     }
 }
 
 function updateGameDataUpdated(gameData) {
-    const statsElements = document.querySelectorAll('.game-stat .text-lead');
+    const updateText = (id, text) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = text;
+    };
 
-    if (statsElements[0]) {
-        statsElements[0].textContent =
-            gameData.playing !== null
-                ? formatVoteCount(gameData.playing)
-                : ts('privateGames.unknown');
-    }
-    if (statsElements[1]) {
-        statsElements[1].textContent =
-            gameData.favoritedCount !== null
-                ? formatVoteCount(gameData.favoritedCount)
-                : ts('privateGames.unknown');
-    }
-    if (statsElements[2]) {
-        statsElements[2].textContent =
-            gameData.visits !== null
-                ? formatVoteCount(gameData.visits)
-                : ts('privateGames.unknown');
-    }
-    if (statsElements[3]) {
-        statsElements[3].textContent =
-            gameData.maxPlayers !== null
-                ? gameData.maxPlayers.toLocaleString()
-                : ts('privateGames.unknown');
-    }
-    if (statsElements[4]) {
-        statsElements[4].textContent =
-            gameData.genre !== null
-                ? gameData.genre
-                : ts('privateGames.unknown');
-    }
-    if (statsElements[7]) {
-        statsElements[7].textContent =
+    updateText(
+        'rovalra-active-playing',
+        gameData.playing !== null
+            ? formatVoteCount(gameData.playing)
+            : ts('privateGames.unknown'),
+    );
+
+    updateText(
+        'rovalra-favorited-count',
+        gameData.favoritedCount !== null
+            ? formatVoteCount(gameData.favoritedCount)
+            : ts('privateGames.unknown'),
+    );
+
+    updateText(
+        'rovalra-visits-count',
+        gameData.visits !== null
+            ? formatVoteCount(gameData.visits)
+            : ts('privateGames.unknown'),
+    );
+
+    updateText(
+        'rovalra-max-players',
+        gameData.maxPlayers !== null
+            ? gameData.maxPlayers.toLocaleString()
+            : ts('privateGames.unknown'),
+    );
+
+    updateText(
+        'rovalra-genre-text',
+        gameData.genre !== null ? gameData.genre : ts('privateGames.unknown'),
+    );
+
+    updateText(
+        'rovalra-subgenre-text',
+        gameData.subgenre !== null
+            ? gameData.subgenre
+            : ts('privateGames.unknown'),
+    );
+
+    const voiceChatEl = document.getElementById('rovalra-voice-chat-status');
+    if (voiceChatEl) {
+        voiceChatEl.textContent =
             gameData.voiceChatEnabled === true
                 ? ts('privateGames.stats.supported')
                 : gameData.voiceChatEnabled === false
@@ -419,7 +429,7 @@ async function fetchVisitsForCreator(gameData, universeId) {
     }
 }
 
-function createFallbackGame(placeDetails, cloudData) {
+function createFallbackGame(placeDetails) {
     const placeInfo = Array.isArray(placeDetails)
         ? placeDetails[0]
         : placeDetails;
@@ -441,11 +451,13 @@ function createFallbackGame(placeDetails, cloudData) {
         visits: null,
         maxPlayers: placeInfo?.maxPlayers || null,
         genre: placeInfo?.genre || null,
-        created: cloudData?.createTime || null,
-        updated: cloudData?.updateTime || null,
+        subgenre: null,
+
+        created: null,
+        updated: null,
         isFavoritedByUser: false,
-        voiceChatEnabled: cloudData?.voiceChatEnabled ?? null,
-        ageRating: cloudData?.ageRating || null,
+        voiceChatEnabled: null,
+        ageRating: null,
     };
 }
 
@@ -545,7 +557,7 @@ async function renderPrivateGamePage(game, placeId, settings) {
 
     const isFavoritedByUser = game.isFavoritedByUser || false;
 
-    const voiceChatEnabled = universeDetails?.voiceChatEnabled || false;
+    const voiceChatEnabled = game.voiceChatEnabled;
 
     const totalVotes = upVotes + downVotes;
     const likeRatio =
@@ -696,23 +708,27 @@ async function renderPrivateGamePage(game, placeId, settings) {
                     <ul class="border-top border-bottom game-stat-container rovalra-horizontal-stats">
                         <li class="game-stat">
                             <p class="text-label text-overflow font-caption-header">${ts('privateGames.stats.active')}</p>
-                            <p class="text-lead font-caption-body">${game.playing !== null ? formatVoteCount(game.playing) : ts('privateGames.unknown')}</p>
+                            <p class="text-lead font-caption-body" id="rovalra-active-playing">${game.playing !== null ? formatVoteCount(game.playing) : ts('privateGames.unknown')}</p>
                         </li>
                         <li class="game-stat">
                             <p class="text-label text-overflow font-caption-header">${ts('privateGames.stats.favorites')}</p>
-                            <p class="text-lead font-caption-body">${game.favoritedCount !== null ? formatVoteCount(game.favoritedCount) : ts('privateGames.unknown')}</p>
+                            <p class="text-lead font-caption-body" id="rovalra-favorited-count">${game.favoritedCount !== null ? formatVoteCount(game.favoritedCount) : ts('privateGames.unknown')}</p>
                         </li>
                         <li class="game-stat">
                             <p class="text-label text-overflow font-caption-header">${ts('privateGames.stats.visits')}</p>
-                            <p class="text-label text-lead font-caption-body">${game.visits !== null ? formatVoteCount(game.visits) : ts('privateGames.unknown')}</p>
+                            <p class="text-lead font-caption-body" id="rovalra-visits-count">${game.visits !== null ? formatVoteCount(game.visits) : ts('privateGames.unknown')}</p>
                         </li>
                         <li class="game-stat">
                             <p class="text-label text-overflow font-caption-header">${ts('privateGames.stats.maxPlayers')}</p>
-                            <p class="text-lead font-caption-body">${game.maxPlayers !== null ? game.maxPlayers.toLocaleString() : ts('privateGames.unknown')}</p>
+                            <p class="text-lead font-caption-body" id="rovalra-max-players">${game.maxPlayers !== null ? game.maxPlayers.toLocaleString() : ts('privateGames.unknown')}</p>
                         </li>
                         <li class="game-stat">
                             <p class="text-label text-overflow font-caption-header">${ts('privateGames.stats.genre')}</p>
-                            <p class="text-label text-lead font-caption-body">${game.genre !== null ? game.genre : ts('privateGames.unknown')}</p>
+                            <p class="text-lead font-caption-body" id="rovalra-genre-text">${game.genre !== null ? game.genre : ts('privateGames.unknown')}</p>
+                        </li>
+                        <li class="game-stat">
+                            <p class="text-label text-overflow font-caption-header">${ts('privateGames.stats.subgenre') || 'Subgenre'}</p>
+                            <p class="text-lead font-caption-body" id="rovalra-subgenre-text">${game.subgenre !== null ? game.subgenre : ts('privateGames.unknown')}</p>
                         </li>
                         <li class="game-stat">
                             <p class="text-label text-overflow font-caption-header">${ts('privateGames.stats.created')}</p>
@@ -724,7 +740,7 @@ async function renderPrivateGamePage(game, placeId, settings) {
                         </li>
                         <li class="game-stat">
                             <p class="text-label text-overflow font-caption-header">${ts('privateGames.stats.voiceChat')}</p>
-                            <p class="text-lead font-caption-body">${voiceChatEnabled === true ? ts('privateGames.stats.supported') : voiceChatEnabled === false ? ts('privateGames.stats.unsupported') : ts('privateGames.unknown')}</p>
+                            <p class="text-lead font-caption-body" id="rovalra-voice-chat-status">${voiceChatEnabled === true ? ts('privateGames.stats.supported') : voiceChatEnabled === false ? ts('privateGames.stats.unsupported') : ts('privateGames.unknown')}</p>
                         </li>
                     </ul>
                     <div class="game-description-footer">
@@ -895,6 +911,30 @@ async function renderPrivateGamePage(game, placeId, settings) {
         const updatedEl = document.getElementById('rovalra-updated-date');
         if (updatedEl)
             updatedEl.appendChild(createInteractiveTimestamp(game.updated));
+    }
+
+    // Add tooltips for exact numbers
+    const addTooltipToStat = (elementId, value) => {
+        const element = document.getElementById(elementId);
+        if (element && value !== null && typeof value !== 'undefined') {
+            addTooltip(element, value.toLocaleString(), { position: 'bottom' });
+        }
+    };
+
+    if (game.playing !== null) {
+        addTooltipToStat('rovalra-active-playing', game.playing);
+    }
+
+    if (game.favoritedCount !== null) {
+        addTooltipToStat('rovalra-favorited-count', game.favoritedCount);
+    }
+
+    if (game.visits !== null) {
+        addTooltipToStat('rovalra-visits-count', game.visits);
+    }
+
+    if (game.maxPlayers !== null) {
+        addTooltipToStat('rovalra-max-players', game.maxPlayers);
     }
 
     setupFavoriteButton(game.id, isFavoritedByUser);
