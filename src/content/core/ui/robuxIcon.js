@@ -57,6 +57,8 @@ export function createRobuxIcon(options = {}) {
 
     applyRobuxIcon(icon, { size, color, verticalAlign });
 
+    icon.dataset.rovalraProcessed = 'true';
+
     return icon;
 }
 
@@ -86,7 +88,11 @@ export function init() {
         '.rovalra-robux-icon',
         (element) => {
             if (!element.dataset.rovalraProcessed) {
-                applyRobuxIcon(element);
+                const size = element.dataset.size || DEFAULT_SIZE;
+                const color = element.dataset.color || DEFAULT_COLOR;
+                const verticalAlign = element.dataset.verticalAlign || 'middle';
+
+                applyRobuxIcon(element, { size, color, verticalAlign });
                 element.dataset.rovalraProcessed = 'true';
             }
         },

@@ -4,7 +4,14 @@ import { getPlaceIdFromUrl } from '../../../core/idExtractor.js';
 import { getGameSpending } from '../../../core/utils/trackers/transactions.js';
 import { t } from '../../../core/locale/i18n.js';
 
+let isTotalSpentGamesInitialized = false;
+
 export function init() {
+    if (isTotalSpentGamesInitialized) {
+        return;
+    }
+    isTotalSpentGamesInitialized = true;
+
     observeElement(
         '#rbx-game-passes, #roseal-game-passes',
         async (container) => {
@@ -22,14 +29,15 @@ export function init() {
             const totalContainer = document.createElement('div');
             totalContainer.style.cssText = `
                 margin-bottom: 16px;
-                font-weight: 500;
-                font-size: 15px;
+                font-weight: 400;
+                font-size: 14px;
+                margin-top: 2px;
             `;
 
             const valueContainer = document.createElement('div');
             valueContainer.style.display = 'flex';
             valueContainer.style.alignItems = 'center';
-            valueContainer.style.gap = '6px';
+            valueContainer.style.gap = '4px';
             valueContainer.textContent = await t('totalSpent.calculatingText');
 
             totalContainer.appendChild(valueContainer);
@@ -42,7 +50,7 @@ export function init() {
 
                 valueContainer.textContent = `${await t('totalSpent.totalRobuxSpent')} `;
 
-                const robuxIcon = createRobuxIcon({ size: '16px' });
+                const robuxIcon = createRobuxIcon({ size: '17px' });
                 const amountText = document.createElement('span');
                 amountText.className = 'text-robux';
                 amountText.textContent =
