@@ -34,6 +34,7 @@ import {
 import { safeHtml } from '../../packages/dompurify.js';
 import { formatPlayerCount } from '../../games/playerCount.js';
 import { callRobloxApi } from '../../api.js';
+import { showFriendListOverlay } from './friendListOverlay.js';
 
 const BATCH_WAIT = 50;
 const MAX_BATCH = 50;
@@ -235,13 +236,17 @@ export function createGameCard(options) {
                 };
 
                 let fetchedFriendData = null;
+                let gameFriends = [];
                 if (friendsData) {
                     try {
-                        const friend = friendsData.data?.find(
-                            (f) => f.userPresence?.universeId === universeId,
-                        );
+                        gameFriends =
+                            friendsData.data?.filter(
+                                (f) =>
+                                    f.userPresence?.universeId === universeId,
+                            ) || [];
 
-                        if (friend) {
+                        if (gameFriends.length > 0) {
+                            const friend = gameFriends[0];
                             const [userRes, friendThumbMap] = await Promise.all(
                                 [
                                     callRobloxApi({
@@ -263,6 +268,7 @@ export function createGameCard(options) {
                                     id: friend.id,
                                     name: userData.displayName,
                                     thumbnail: friendThumbMap.get(friend.id),
+                                    allFriends: gameFriends,
                                 };
                             }
                         }
@@ -343,6 +349,19 @@ export function createGameCard(options) {
             ${infoHtml}
         </a>
     `; // Verified
+
+    if (friendData?.allFriends && friendData.allFriends.length > 0) {
+        const friendInfoElement = card.querySelector('.game-card-friend-info');
+        if (friendInfoElement) {
+            friendInfoElement.style.cursor = 'pointer';
+            friendInfoElement.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+
+                showFriendListOverlay(friendData.allFriends, game.name);
+            });
+        }
+    }
 
     const thumbContainer = card.querySelector('.game-card-thumb-container');
     if (thumbContainer) {
