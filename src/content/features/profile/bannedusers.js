@@ -778,7 +778,7 @@ async function loadFriends(userId) {
                     </div>
                     <div class="friends-carousel-container">
                         <div class="friends-carousel-list-container">
-                            <div id="rovalra-banned-friends-list" style="display: flex; gap: 45px; overflow-x: auto; padding-bottom: 10px;"></div>
+                            <div id="rovalra-banned-friends-list" style="display: flex; gap: 35px; overflow-x: auto; padding-bottom: 10px;"></div>
                         </div>
                     </div>
                 </div>

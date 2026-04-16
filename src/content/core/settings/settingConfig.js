@@ -572,9 +572,9 @@ export const SETTINGS_CONFIG = {
                 default: true,
             },
             lastPlayedTogetherEnabled: {
-                label: 'Last Played Together',
+                label: 'Most Played Together',
                 description:
-                    'Shows the experience you last played with a friend on their profile.',
+                    'Shows the experience you played the most with a friend on their profile.',
                 type: 'checkbox',
                 default: true,
             },
