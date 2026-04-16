@@ -13,15 +13,24 @@ const USER_PROFILE_API_ENDPOINT =
 export function getFriendRequestOriginText(originId) {
     const fromText = ts('friendsSince.originFrom');
     switch (originId) {
-        case 1:
+        // Thanks to RoSeal
+        case 1: // PLAYER_SEARCH
             return `${fromText} ${ts('friendsSince.originSearch')}`;
-        case 2:
+        case 2: // IN_GAME
             return `${fromText} ${ts('friendsSince.originInGame')}`;
-        case 3:
+        case 3: // PROFILE
             return `${fromText} ${ts('friendsSince.originProfile')}`;
-        case 6:
+        case 4: // QQ_CONTACT_IMPORTER
+            return `${fromText} ${ts('friendsSince.originQQContacts')}`;
+        case 5: // WECHAT_CONTACT_IMPORTER
+            return `${fromText} ${ts('friendsSince.originWeChatContacts')}`;
+        case 6: // QR_CODE
             return `${fromText} ${ts('friendsSince.originQrCode')}`;
-        case 10:
+        case 7: // PROFILE_SHARE
+            return `${fromText} ${ts('friendsSince.originProfileShare')}`;
+        case 8: // PHONE_CONTACT_IMPORTER
+            return `${fromText} ${ts('friendsSince.originPhoneContacts')}`;
+        case 10: // FRIEND_RECOMMENDATIONS
             return `${fromText} ${ts('friendsSince.originPeopleYouMayKnow')}`;
         default:
             return `${fromText} ${ts('friendsSince.originUnknown')}`;

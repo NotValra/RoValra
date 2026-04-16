@@ -551,7 +551,11 @@
         "originSearch": "Search",
         "originInGame": "In Game",
         "originProfile": "Profile",
+        "originQQContacts": "QQ Contacts",
+        "originWeChatContacts": "WeChat Contacts",
         "originQrCode": "QR Code",
+        "originProfileShare": "Profile Share",
+        "originPhoneContacts": "Phone Contacts",
         "originPeopleYouMayKnow": "People You May Know",
         "originUnknown": "Unknown"
     },
