@@ -27,7 +27,6 @@ let batchTimeout = null;
 let batchInProgress = false;
 const pendingResolvers = new Map();
 
-const CACHE_DURATION = 300000;
 const DESCRIPTION_BASED_SETTINGS = ['status', 'environment'];
 
 async function getStatusFromDescription(description) {
@@ -264,18 +263,21 @@ async function processBatchQueue() {
     batchTimeout = null;
 
     try {
-        const authenticatedUserId = await getAuthenticatedUserId();
+        const authedId = await getAuthenticatedUserId();
+        const authenticatedUserId = authedId ? String(authedId) : null;
 
         const userIdsToFetch = currentBatch
             .map((item) => item.userId)
-            .filter((id) => String(id) !== String(authenticatedUserId))
+            .filter((id) => String(id) !== authenticatedUserId)
             .slice(0, BATCH_MAX_SIZE);
+
+        const userIdsToFetchStrings = userIdsToFetch.map((id) => String(id));
 
         if (userIdsToFetch.length > 0) {
             const data = await callRobloxApiJson({
                 isRovalraApi: true,
                 subdomain: 'apis',
-                endpoint: `/v1/users/settings?user_ids=${userIdsToFetch.join(',')}`,
+                endpoint: `/v1/users/settings?user_ids=${userIdsToFetchStrings.join(',')}`,
                 method: 'GET',
                 skipAutoAuth: true,
             });
@@ -295,16 +297,21 @@ async function processBatchQueue() {
                         batchItem.options,
                     );
 
+                    const isOwnProfile =
+                        authenticatedUserId &&
+                        String(userId) === authenticatedUserId;
                     const cacheKey = `${userId}-${batchItem.options.useDescription || false}`;
-                    await cache.set(
-                        'user_settings',
-                        cacheKey,
-                        {
-                            data: settings,
-                            timestamp: Date.now(),
-                        },
-                        'local',
-                    );
+                    if (!isOwnProfile) {
+                        await cache.set(
+                            'user_settings',
+                            cacheKey,
+                            {
+                                data: settings,
+                                timestamp: Date.now(),
+                            },
+                            'local',
+                        );
+                    }
 
                     if (pendingResolvers.has(userId)) {
                         pendingResolvers.get(userId).resolve(settings);
@@ -316,9 +323,11 @@ async function processBatchQueue() {
 
         for (const batchItem of currentBatch) {
             const isOwnProfile =
-                String(batchItem.userId) === String(authenticatedUserId);
+                authenticatedUserId &&
+                String(batchItem.userId) === authenticatedUserId;
             const wasNotInBatch =
-                !userIdsToFetch.includes(batchItem.userId) && !isOwnProfile;
+                !userIdsToFetchStrings.includes(String(batchItem.userId)) &&
+                !isOwnProfile;
 
             if (isOwnProfile || wasNotInBatch) {
                 const settings = await fetchAndProcessSettings(
@@ -327,15 +336,17 @@ async function processBatchQueue() {
                 );
 
                 const cacheKey = `${batchItem.userId}-${batchItem.options.useDescription || false}`;
-                await cache.set(
-                    'user_settings',
-                    cacheKey,
-                    {
-                        data: settings,
-                        timestamp: Date.now(),
-                    },
-                    'local',
-                );
+                if (!isOwnProfile) {
+                    await cache.set(
+                        'user_settings',
+                        cacheKey,
+                        {
+                            data: settings,
+                            timestamp: Date.now(),
+                        },
+                        'local',
+                    );
+                }
 
                 if (pendingResolvers.has(batchItem.userId)) {
                     pendingResolvers.get(batchItem.userId).resolve(settings);
@@ -556,65 +567,77 @@ async function processApiSettings(userId, apiSettings, options) {
 }
 
 export async function getUserSettings(userId, options = {}) {
-    const authenticatedUserId = await getAuthenticatedUserId();
+    const authedId = await getAuthenticatedUserId();
+    const authenticatedUserId = authedId ? String(authedId) : null;
+    const strUserId = String(userId);
     const isOwnProfile =
-        authenticatedUserId && String(authenticatedUserId) === String(userId);
+        authenticatedUserId && strUserId === authenticatedUserId;
 
-    const cacheKey = `${userId}-${options.useDescription || false}`;
+    if (isOwnProfile) {
+        options.noCache = true;
+    }
 
-    const cached = await cache.get('user_settings', cacheKey, 'local');
-    const isCacheStale =
-        cached && Date.now() - cached.timestamp > CACHE_DURATION;
+    const cacheKey = `${strUserId}-${options.useDescription || false}`;
 
-    if (!options.noCache && cached) {
-        if (isCacheStale && !options.noBackgroundUpdate) {
-            fetchAndProcessSettings(userId, options)
-                .then((newSettings) => {
-                    cache.set(
-                        'user_settings',
-                        cacheKey,
-                        {
-                            data: newSettings,
-                            timestamp: Date.now(),
+    if (!isOwnProfile) {
+        const cached = await cache.get('user_settings', cacheKey, 'local');
+        if (cached) {
+            const isStale = Date.now() - (cached.timestamp || 0) > 300000;
+            if (
+                isStale &&
+                !options.noCache &&
+                !pendingResolvers.has(strUserId)
+            ) {
+                if (options.disableBatch) {
+                    fetchAndProcessSettings(userId, options).then(
+                        (settings) => {
+                            cache.set(
+                                'user_settings',
+                                cacheKey,
+                                { data: settings, timestamp: Date.now() },
+                                'local',
+                            );
                         },
-                        'local',
                     );
-                })
-                .catch((e) =>
-                    console.error(
-                        'RoValra: Background update failed for user settings',
-                        e,
-                    ),
-                );
+                } else {
+                    batchQueue.push({ userId, options });
+                    pendingResolvers.set(strUserId, {
+                        resolve: () => {},
+                        reject: () => {},
+                    });
+                    if (!batchTimeout) {
+                        batchTimeout = setTimeout(
+                            processBatchQueue,
+                            BATCH_DELAY_MS,
+                        );
+                    }
+                }
+            }
+            return cached.data;
         }
-        return cached.data;
     }
 
     if (options.disableBatch || isOwnProfile) {
         const settings = await fetchAndProcessSettings(userId, options);
 
-        await cache.set(
-            'user_settings',
-            cacheKey,
-            {
-                data: settings,
-                timestamp: Date.now(),
-            },
-            'local',
-        );
+        if (!isOwnProfile) {
+            await cache.set(
+                'user_settings',
+                cacheKey,
+                {
+                    data: settings,
+                    timestamp: Date.now(),
+                },
+                'local',
+            );
+        }
 
         return settings;
     }
 
-    if (pendingResolvers.has(userId)) {
-        return new Promise((resolve, reject) => {
-            pendingResolvers.get(userId).push({ resolve, reject });
-        });
-    }
-
     return new Promise((resolve, reject) => {
         batchQueue.push({ userId, options });
-        pendingResolvers.set(userId, [{ resolve, reject }]);
+        pendingResolvers.set(strUserId, { resolve, reject });
 
         if (!batchTimeout) {
             batchTimeout = setTimeout(processBatchQueue, BATCH_DELAY_MS);
