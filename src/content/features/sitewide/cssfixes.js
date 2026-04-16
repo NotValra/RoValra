@@ -1,5 +1,6 @@
 import { observeElement } from '../../core/observer.js';
 import { getPlaceIdFromUrl } from '../../core/idExtractor.js';
+import { getAuthenticatedUserId } from '../../core/user.js';
 
 const applyImpersonateAttribute = (headerContainer) => {
     chrome.storage.local.get('impersonateRobloxStaffSetting', function (data) {
@@ -177,6 +178,35 @@ const applyProfileGameCardFix = () => {
     });
 };
 
+// Cuz RoSeal is broken and im the only one having this issue i have to fix it myself 🙄
+const applyFriendsCarouselPaddingFix = async () => {
+    const userId = await getAuthenticatedUserId();
+
+    if (userId !== 447170745) return;
+
+    observeElement(
+        '.react-friends-carousel-container.roseal-friends-carousel-container',
+        () => {
+            const css = `
+            .friends-carousel-container {
+                padding: 0 !important;
+            }
+        `;
+            const style = document.createElement('style');
+            style.setAttribute('data-rovalra-friends-carousel-fix', 'true');
+            style.textContent = css;
+
+            if (
+                !document.querySelector(
+                    'style[data-rovalra-friends-carousel-fix]',
+                )
+            ) {
+                document.head.appendChild(style);
+            }
+        },
+    );
+};
+
 export function init() {
     chrome.storage.local.get(
         ['cssfixesEnabled', 'giantInvisibleLink'],
@@ -191,6 +221,7 @@ export function init() {
                 applyGameTitleFix();
                 applyCartRemoveButtonFix();
                 applyProfileGameCardFix();
+                applyFriendsCarouselPaddingFix();
             }
         },
     );
