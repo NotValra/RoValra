@@ -39,7 +39,23 @@ export function initializeObserver() {
 
         for (const mutation of mutationsList) {
             if (mutation.type === 'attributes') {
-                const listener = attributeListeners.get(mutation.target);
+                let listener = attributeListeners.get(mutation.target);
+
+                if (!listener) {
+                    for (const [
+                        observedElement,
+                        callback,
+                    ] of attributeListeners) {
+                        if (
+                            observedElement !== mutation.target &&
+                            observedElement.contains(mutation.target)
+                        ) {
+                            listener = callback;
+                            break;
+                        }
+                    }
+                }
+
                 if (listener) listener(mutation);
                 continue;
             }
@@ -128,11 +144,20 @@ export const observeElement = (selector, callback, options = {}) => {
     return request;
 };
 
-export const observeAttributes = (element, callback, attributeFilter = []) => {
+export const observeAttributes = (
+    element,
+    callback,
+    attributeFilter = [],
+    options = {},
+) => {
     if (!observerInitialized) initializeObserver();
 
     attributeListeners.set(element, callback);
-    globalObserver.observe(element, { attributes: true, attributeFilter });
+    globalObserver.observe(element, {
+        attributes: true,
+        attributeFilter,
+        subtree: options.subtree || false,
+    });
 
     return {
         disconnect: () => {

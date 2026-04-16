@@ -3,6 +3,7 @@ import {
     observeElement,
     observeIntersection,
     observeResize,
+    observeAttributes,
 } from '../../../core/observer.js';
 import {
     fetchThumbnails,
@@ -33,6 +34,7 @@ const STORAGE_KEY = 'rovalra_search_history';
 const MAX_HISTORY = 50;
 let initialSearchValue = '';
 let searchHistoryRenderVersion = 0;
+let selectedIndex = 0;
 
 const debounce = (func, delay) => {
     let timeout;
@@ -45,6 +47,21 @@ const debounce = (func, delay) => {
 let cachedFriendsData = null;
 let friendsFetchPromise = null;
 let cachedUserId = null;
+
+function syncSelection() {
+    const menu = document.querySelector('ul.new-dropdown-menu');
+    if (!menu) return;
+
+    const items = Array.from(menu.querySelectorAll('li.navbar-search-option'));
+    if (items.length === 0) return;
+
+    if (selectedIndex < 0) selectedIndex = items.length - 1;
+    if (selectedIndex >= items.length) selectedIndex = 0;
+
+    items.forEach((item, index) => {
+        item.classList.toggle('new-selected', index === selectedIndex);
+    });
+}
 
 let searchSettings = {
     quickSearchEnabled: true,
@@ -937,7 +954,7 @@ function createResultHtml(
     return li;
 }
 
-function injectIntoMenu() {
+function injectIntoMenu(resetSelection = false) {
     const menu = document.querySelector('ul.new-dropdown-menu');
     if (!menu) return;
 
@@ -963,16 +980,10 @@ function injectIntoMenu() {
         menu.prepend(window._lastRoValraUserResult);
     }
 
-    const firstResult = menu.querySelector('.rovalra-quick-search-result');
-    const currentlySelected = menu.querySelector('.new-selected');
-    if (
-        firstResult &&
-        currentlySelected &&
-        !currentlySelected.classList.contains('rovalra-quick-search-result')
-    ) {
-        currentlySelected.classList.remove('new-selected');
-        firstResult.classList.add('new-selected');
+    if (resetSelection) {
+        selectedIndex = 0;
     }
+    syncSelection();
 }
 
 function injectExistingResult() {
@@ -996,17 +1007,7 @@ function injectExistingResult() {
             menu.prepend(window._lastRoValraUserResult);
         }
     }
-
-    const firstResult = menu?.querySelector('.rovalra-quick-search-result');
-    const currentlySelected = menu?.querySelector('.new-selected');
-    if (
-        firstResult &&
-        currentlySelected &&
-        !currentlySelected.classList.contains('rovalra-quick-search-result')
-    ) {
-        currentlySelected.classList.remove('new-selected');
-        firstResult.classList.add('new-selected');
-    }
+    syncSelection();
 }
 
 async function getHistory() {
@@ -1471,11 +1472,22 @@ export function init() {
             clearInterval(seeker);
             initialSearchValue = input.value;
 
-            input.addEventListener('input', () => {
+            const triggerSearch = (force = false) => {
                 if (!searchSettings.quickSearchEnabled) return;
                 const currentVal = (input.value || '').trim();
 
-                if (currentVal === lastSearchedQuery) return;
+                if (!force && currentVal === lastSearchedQuery) return;
+
+                if (force && currentVal === lastSearchedQuery) {
+                    injectExistingResult();
+                    if (
+                        window._lastRoValraUserResult ||
+                        window._lastRoValraGameResult ||
+                        window._lastRoValraFriendResults?.length
+                    )
+                        return;
+                }
+
                 lastSearchedQuery = currentVal;
 
                 if (userSearchAbortController)
@@ -1483,64 +1495,79 @@ export function init() {
                 if (gameSearchAbortController)
                     gameSearchAbortController.abort('New search initiated');
 
+                selectedIndex = 0;
                 window._lastRoValraUserResult = null;
                 window._lastRoValraGameResult = null;
                 window._lastRoValraFriendResults = [];
-                injectIntoMenu();
+                injectIntoMenu(true);
 
-                if (currentVal.length < 1) {
-                    return;
-                }
+                if (currentVal.length < 1) return;
 
                 debouncedUserSearch(currentVal);
+                if (currentVal.length >= 2) debouncedGameSearch(currentVal);
+            };
 
-                if (currentVal.length >= 2) {
-                    debouncedGameSearch(currentVal);
-                } else {
-                    window._lastRoValraUserResult = null;
-                    window._lastRoValraGameResult = null;
-                }
-            });
+            input.addEventListener('input', () => triggerSearch());
+            input.addEventListener('focus', () => triggerSearch(true));
 
             input.addEventListener('keydown', (e) => {
                 if (!searchSettings.quickSearchEnabled) return;
 
                 const menu = document.querySelector('ul.new-dropdown-menu');
-                const isMenuVisible = menu && menu.offsetParent !== null;
+                const isMenuVisible =
+                    menu &&
+                    (menu.offsetParent !== null ||
+                        menu.classList.contains('show'));
 
-                if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+                if (
+                    e.key === 'ArrowDown' ||
+                    e.key === 'ArrowUp' ||
+                    e.key === 'Tab'
+                ) {
                     if (isMenuVisible) {
                         const items = Array.from(
                             menu.querySelectorAll('li.navbar-search-option'),
                         );
                         if (items.length > 0) {
                             e.preventDefault();
-                            e.stopPropagation();
+                            e.stopImmediatePropagation();
 
-                            let selectedIndex = items.findIndex((item) =>
-                                item.classList.contains('new-selected'),
-                            );
-
-                            if (selectedIndex !== -1) {
-                                items[selectedIndex].classList.remove(
-                                    'new-selected',
-                                );
-                            }
-
-                            if (e.key === 'ArrowDown') {
+                            if (
+                                e.key === 'ArrowDown' ||
+                                (e.key === 'Tab' && !e.shiftKey)
+                            ) {
                                 selectedIndex++;
-                                if (selectedIndex >= items.length)
-                                    selectedIndex = 0;
                             } else {
                                 selectedIndex--;
-                                if (selectedIndex < 0)
-                                    selectedIndex = items.length - 1;
                             }
-
-                            items[selectedIndex].classList.add('new-selected');
+                            syncSelection();
                         }
                     }
                 } else if (e.key === 'Enter') {
+                    if (
+                        isMenuVisible &&
+                        menu.querySelector(
+                            'li.navbar-search-option.new-selected',
+                        )
+                    ) {
+                        e.preventDefault();
+                        e.stopImmediatePropagation();
+                    }
+                }
+            });
+
+            input.addEventListener(
+                'keyup',
+                (e) => {
+                    if (!searchSettings.quickSearchEnabled || e.key !== 'Enter')
+                        return;
+
+                    const menu = document.querySelector('ul.new-dropdown-menu');
+                    const isMenuVisible =
+                        menu &&
+                        (menu.offsetParent !== null ||
+                            menu.classList.contains('show'));
+
                     let handled = false;
                     if (isMenuVisible) {
                         const selected = menu.querySelector(
@@ -1550,8 +1577,15 @@ export function init() {
                             const link = selected.querySelector('a');
                             if (link) {
                                 e.preventDefault();
+                                e.stopImmediatePropagation();
                                 e.stopPropagation();
-                                link.click();
+
+                                if (link.href) {
+                                    link.click();
+                                    if (window.location.href !== link.href) {
+                                        window.location.href = link.href;
+                                    }
+                                }
                                 handled = true;
                             }
                         }
@@ -1564,13 +1598,55 @@ export function init() {
                             initialSearchValue = val;
                         }
                     }
-                }
-            });
+                },
+                { capture: true },
+            );
 
-            observeElement('ul.new-dropdown-menu', () => {
+            observeElement('ul.new-dropdown-menu', (menu) => {
                 if (searchSettings.quickSearchEnabled) {
                     injectExistingResult();
                 }
+
+                observeAttributes(
+                    menu,
+                    (mutation) => {
+                        if (
+                            mutation.target.classList.contains(
+                                'navbar-search-option',
+                            )
+                        ) {
+                            const items = Array.from(
+                                menu.querySelectorAll(
+                                    'li.navbar-search-option',
+                                ),
+                            );
+                            const idx = items.indexOf(mutation.target);
+                            if (idx !== -1) {
+                                if (
+                                    idx === selectedIndex &&
+                                    !mutation.target.classList.contains(
+                                        'new-selected',
+                                    )
+                                ) {
+                                    mutation.target.classList.add(
+                                        'new-selected',
+                                    );
+                                } else if (
+                                    idx !== selectedIndex &&
+                                    mutation.target.classList.contains(
+                                        'new-selected',
+                                    )
+                                ) {
+                                    mutation.target.classList.remove(
+                                        'new-selected',
+                                    );
+                                }
+                            }
+                        }
+                    },
+                    ['class'],
+                    { subtree: true },
+                );
             });
 
             observeElement(
