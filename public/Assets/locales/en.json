@@ -728,5 +728,9 @@
             "universe": "Universe",
             "user": "User"
         }
+    },
+    "friendsListOverlay": {
+        "title": "Friends playing {{gameName}}",
+        "join": "Join"
     }
 }

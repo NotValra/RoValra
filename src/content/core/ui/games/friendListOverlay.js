@@ -6,6 +6,7 @@ import {
 import { followUser } from '../../utils/launcher.js';
 import { createButton } from '../buttons.js';
 import { getCachedFriendsList } from '../../utils/trackers/friendslist.js';
+import { t } from '../../locale/i18n.js';
 
 export async function showFriendListOverlay(friends, gameName) {
     const container = document.createElement('div');
@@ -23,7 +24,17 @@ export async function showFriendListOverlay(friends, gameName) {
         true,
     );
 
-    friends.forEach((friend) => {
+    const overlayTitle = await t('friendsListOverlay.title', { gameName });
+    const overlayInstance = createOverlay({
+        title: overlayTitle,
+        bodyContent: container,
+        showLogo: true,
+        maxWidth: '600px',
+    });
+
+    const joinButtonText = await t('friendsListOverlay.join');
+
+    for (const friend of friends) {
         const friendData = friendCache.get(friend.id) || {};
 
         const row = document.createElement('div');
@@ -87,24 +98,18 @@ export async function showFriendListOverlay(friends, gameName) {
         left.appendChild(thumbContainer);
         left.appendChild(nameContainer);
 
-        const joinBtn = createButton('Join', 'primary');
+        const joinBtn = createButton(joinButtonText, 'primary');
         joinBtn.style.backgroundColor = 'var(--rovalra-playbutton-color)';
         joinBtn.style.border = 'none';
-        joinBtn.style.color = '#ffffff';
+        joinBtn.style.color = 'var(--rovalra-main-text-color)';
         joinBtn.style.minWidth = '80px';
         joinBtn.onclick = () => {
             followUser(friend.id);
+            overlayInstance.close();
         };
 
         row.appendChild(left);
         row.appendChild(joinBtn);
         container.appendChild(row);
-    });
-
-    createOverlay({
-        title: `Connections playing ${gameName}`,
-        bodyContent: container,
-        showLogo: true,
-        maxWidth: '600px',
-    });
+    }
 }
