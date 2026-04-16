@@ -169,6 +169,7 @@ export function createGameCard(options) {
         showPlayers = true,
         thumbStyle = {},
         friendData,
+        customInfoText = null,
     } = options;
 
     if (!game && (gameId || placeId)) {
@@ -319,27 +320,45 @@ export function createGameCard(options) {
             </div>
         `;
     } else {
-        infoHtml = `
-            <div class="game-card-info">
-                ${
-                    showVotes
-                        ? `
-                    <span class="info-label icon-votes-gray"></span>
-                    <span class="info-label vote-percentage-label ${voteData.total > 0 ? '' : 'hidden'}">${voteData.ratio}%</span>
-                    <span class="info-label no-vote ${voteData.total === 0 ? '' : 'hidden'}"></span>
-                `
-                        : ''
-                }
-                ${
-                    showPlayers
-                        ? `
-                    <span class="info-label icon-playing-counts-gray"></span>
-                    <span class="info-label playing-counts-label" title="${playerCount.toLocaleString()}">${formattedPlayerCount}</span>
-                `
-                        : ''
-                }
-            </div>
-        `;
+        if (customInfoText) {
+            const lines = Array.isArray(customInfoText)
+                ? customInfoText
+                : [customInfoText];
+            const lineElements = lines
+                .map(
+                    (line) =>
+                        `<span class="info-label">${safeHtml`${line}`}</span>`,
+                )
+                .join('');
+
+            infoHtml = `
+                <div class="game-card-info" style="flex-direction: column; align-items: flex-start; gap: 2px;">
+                    ${lineElements}
+                </div>
+            `;
+        } else {
+            infoHtml = `
+                <div class="game-card-info">
+                    ${
+                        showVotes
+                            ? `
+                        <span class="info-label icon-votes-gray"></span>
+                        <span class="info-label vote-percentage-label ${voteData.total > 0 ? '' : 'hidden'}">${voteData.ratio}%</span>
+                        <span class="info-label no-vote ${voteData.total === 0 ? '' : 'hidden'}"></span>
+                    `
+                            : ''
+                    }
+                    ${
+                        showPlayers
+                            ? `
+                        <span class="info-label icon-playing-counts-gray"></span>
+                        <span class="info-label playing-counts-label" title="${playerCount.toLocaleString()}">${formattedPlayerCount}</span>
+                    `
+                            : ''
+                    }
+                </div>
+            `;
+        }
     }
 
     card.innerHTML = `

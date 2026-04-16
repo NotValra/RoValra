@@ -197,6 +197,43 @@ export async function init() {
                 }
             };
 
+            const fetchPlaceVersions = async (placeIds) => {
+                if (placeIds.length === 0) return new Map();
+                try {
+                    const response = await callRobloxApi({
+                        subdomain: 'develop',
+                        endpoint: '/v1/assets/latest-versions',
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            assetIds: placeIds,
+                            versionStatus: 'Published',
+                        }),
+                    });
+
+                    if (!response.ok) return new Map();
+
+                    const data = await response.json();
+                    const versionMap = new Map();
+
+                    if (data?.results) {
+                        data.results.forEach((result) => {
+                            versionMap.set(
+                                result.assetId,
+                                result.versionNumber,
+                            );
+                        });
+                    }
+
+                    return versionMap;
+                } catch (e) {
+                    console.warn('RoValra: Failed to fetch place versions', e);
+                    return new Map();
+                }
+            };
+
             const checkAndDisplaySubplaceBanner = async (
                 universeId,
                 placeId,
@@ -315,8 +352,14 @@ export async function init() {
                         let allDisplayed = false;
 
                         const displaySubplaces = async (gamesToDisplay) => {
-                            const thumbnails =
-                                await fetchThumbnails(gamesToDisplay);
+                            const [thumbnails, placeVersions] =
+                                await Promise.all([
+                                    fetchThumbnails(gamesToDisplay),
+                                    fetchPlaceVersions(
+                                        gamesToDisplay.map((s) => s.id),
+                                    ),
+                                ]);
+
                             for (const subplace of gamesToDisplay) {
                                 const gameData = {
                                     id: subplace.id,
@@ -324,11 +367,30 @@ export async function init() {
                                     rootPlaceId: subplace.id,
                                 };
                                 const stats = { thumbnails };
+
+                                const version = placeVersions.get(subplace.id);
+
+                                let infoParts = [];
+                                if (version) {
+                                    infoParts.push(
+                                        `v${version.toLocaleString()}`,
+                                    );
+                                }
+                                if (subplace.isRootPlace) {
+                                    infoParts.push(
+                                        await t('subplaces.rootPlace'),
+                                    );
+                                }
+
+                                const customInfoText =
+                                    infoParts.length > 0 ? infoParts : null;
+
                                 const card = createGameCard({
                                     game: gameData,
                                     stats,
                                     showVotes: false,
                                     showPlayers: false,
+                                    customInfoText,
                                 });
                                 card.classList.add(
                                     'rovalra-subplace-card',
@@ -338,17 +400,6 @@ export async function init() {
                                     card.querySelector('.game-card-name');
                                 if (nameEl)
                                     nameEl.dataset.fullName = subplace.name;
-                                if (subplace.isRootPlace) {
-                                    const rootLabel =
-                                        document.createElement('p');
-                                    rootLabel.textContent = await t(
-                                        'subplaces.rootPlace',
-                                    );
-                                    rootLabel.className = 'root-place-label';
-                                    const link =
-                                        card.querySelector('.game-card-link');
-                                    if (link) link.appendChild(rootLabel);
-                                }
                                 subplacesContainer.appendChild(card);
                             }
                         };
