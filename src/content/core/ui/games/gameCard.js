@@ -246,31 +246,23 @@ export function createGameCard(options) {
                             ) || [];
 
                         if (gameFriends.length > 0) {
-                            const friend = gameFriends[0];
-                            const [userRes, friendThumbMap] = await Promise.all(
-                                [
-                                    callRobloxApi({
-                                        subdomain: 'users',
-                                        endpoint: `/v1/users/${friend.id}`,
-                                        method: 'GET',
-                                    }),
-                                    fetchThumbnails(
-                                        [{ id: friend.id }],
-                                        'AvatarHeadshot',
-                                        '48x48',
-                                    ),
-                                ],
+                            const displayFriends = gameFriends.slice(0, 3);
+
+                            const friendIds = displayFriends.map((f) => f.id);
+                            const friendThumbMap = await fetchThumbnails(
+                                friendIds.map((id) => ({ id })),
+                                'AvatarHeadshot',
+                                '48x48',
                             );
 
-                            if (userRes.ok) {
-                                const userData = await userRes.json();
-                                fetchedFriendData = {
+                            fetchedFriendData = {
+                                friends: displayFriends.map((friend, idx) => ({
                                     id: friend.id,
-                                    name: userData.displayName,
+                                    name: friend.displayName,
                                     thumbnail: friendThumbMap.get(friend.id),
-                                    allFriends: gameFriends,
-                                };
-                            }
+                                })),
+                                allFriends: gameFriends,
+                            };
                         }
                     } catch (e) {
                         console.warn('RoValra: Error fetching friend info', e);
@@ -307,14 +299,22 @@ export function createGameCard(options) {
 
     let infoHtml;
     if (friendData) {
+        const friendAvatarsHtml = friendData.friends
+            .map(
+                (friend, index) => `
+            <div class="avatar-card" role="button" tabindex="0" style="z-index: ${3 - index}; margin-left: ${index > 0 ? '-1px' : '0'};">
+                <span class="thumbnail-2d-container avatar avatar-headshot avatar-headshot-xs">
+                    <img class="avatar-card-image" src="${friend.thumbnail?.imageUrl || ''}" alt="${friend.name}" title="${friend.name}">
+                </span>
+            </div>
+        `,
+            )
+            .join('');
+
         infoHtml = `
             <div class="game-card-friend-info game-card-info" data-testid="game-tile-stats-friends">
-                <div class="info-avatar" style="width: 32px;">
-                    <div class="avatar-card" role="button" tabindex="0">
-                        <span class="thumbnail-2d-container avatar avatar-headshot avatar-headshot-xs">
-                            <img class="avatar-card-image" src="${friendData.thumbnail?.imageUrl || ''}" alt="${friendData.name}" title="${friendData.name}">
-                        </span>
-                    </div>
+                <div class="info-avatar" style="width: 54px; display: flex; align-items: center;">
+                    ${friendAvatarsHtml}
                 </div>
             </div>
         `;
