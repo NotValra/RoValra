@@ -1,4 +1,6 @@
 import { getUserIdFromUrl } from '../../../core/idExtractor.js';
+import { getUserIdFromFriendUrl } from '../../../core/idExtractor.js';
+import { getAuthenticatedUserId } from '../../../core/user.js';
 import { observeElement, observeAttributes } from '../../../core/observer.js';
 import {
     getCachedFriendsList,
@@ -389,7 +391,14 @@ async function run() {
         window.location.pathname.includes('/friends');
 
     if (isOnFriendsPage) {
-        addFriendsSinceLabel(friendsMap, settings);
+        const urlUserId = await getUserIdFromFriendUrl();
+        const authedUserId = await getAuthenticatedUserId();
+
+        if (urlUserId == null || String(urlUserId) === String(authedUserId)) {
+            addFriendsSinceLabel(friendsMap, settings);
+        } else {
+            cleanup();
+        }
     }
 }
 
