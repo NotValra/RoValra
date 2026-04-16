@@ -29,6 +29,7 @@ let dividerObserverRequest = null;
 let updateSummaryTimeout = null;
 const pendingCards = new Map();
 let featureSettings = { tradeValuesEnabled: true, tradeRiskEnabled: true };
+let includeRobuxInCalculation = true;
 
 export function init() {
     chrome.storage.local.get(
@@ -759,24 +760,71 @@ function renderSummary(giveOffer, receiveOffer, giveStats, receiveStats) {
     let partnerRap = receiveStats.rap;
     let partnerValue = receiveStats.value;
 
-    myRap += giveStats.robux;
-    myValue += giveStats.robux;
-    partnerRap += receiveStats.robux;
-    partnerValue += receiveStats.robux;
+    if (includeRobuxInCalculation) {
+        myRap += giveStats.robux;
+        myValue += giveStats.robux;
+        partnerRap += receiveStats.robux;
+        partnerValue += receiveStats.robux;
+    }
+
+    const pillsContainer = document.createElement('div');
+    Object.assign(pillsContainer.style, {
+        display: 'flex',
+        gap: '6px',
+        alignItems: 'center',
+        justifyContent: 'center',
+    });
 
     const rapDiff = partnerRap - myRap;
     const rapPill = createRapDiffPill(rapDiff, myRap, {
         margin: '10px 0',
     });
 
-    summaryDiv.appendChild(rapPill);
+    pillsContainer.appendChild(rapPill);
 
     const valDiff = partnerValue - myValue;
     const valPill = createValueDiffPill(valDiff, myValue, {
         margin: '10px 0',
     });
 
-    summaryDiv.appendChild(valPill);
+    pillsContainer.appendChild(valPill);
+
+    summaryDiv.appendChild(pillsContainer);
+
+    const totalRobux = giveStats.robux + receiveStats.robux;
+    if (totalRobux > 0) {
+        summaryDiv.style.flexDirection = 'column';
+        summaryDiv.style.gap = '4px';
+
+        const toggleContainer = document.createElement('div');
+        Object.assign(toggleContainer.style, {
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '6px',
+            marginTop: '2px',
+            fontSize: '13px',
+            color: 'var(--rovalra-main-text-color)',
+        });
+
+        const robuxToggle = createRadioButton({
+            checked: includeRobuxInCalculation,
+            onChange: (checked) => {
+                includeRobuxInCalculation = checked;
+                queueUpdateTradeSummary();
+            },
+        });
+
+        const toggleLabel = document.createElement('span');
+        toggleLabel.innerText = 'Include Robux';
+
+        toggleContainer.appendChild(robuxToggle);
+        toggleContainer.appendChild(toggleLabel);
+        summaryDiv.appendChild(toggleContainer);
+    } else {
+        summaryDiv.style.flexDirection = 'row';
+        summaryDiv.style.gap = '6px';
+    }
 }
 // turns demand into numbers so we can add locale support.
 function getDemandValue(demandStr) {
