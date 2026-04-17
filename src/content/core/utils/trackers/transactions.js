@@ -382,12 +382,21 @@ export async function getTransactionData() {
     const allUsersTransactions = result[TRANSACTIONS_DATA_KEY] || {};
     const currentUserData = allUsersTransactions[userId];
 
+    if (isScanning) {
+        return {
+            totals: { totalSpent: 0, totalTransactions: 0 },
+            creators: {},
+            ...(currentUserData || {}),
+            isScanning: true,
+        };
+    }
+
     const now = Date.now();
 
     if (!currentUserData || !currentUserData.isFullyScanned) {
         const scannedData = await fullScanTransactions(userId);
         if (scannedData) {
-            return scannedData;
+            return { ...scannedData, isScanning: false };
         }
         return null;
     }
@@ -427,7 +436,7 @@ export async function getTransactionData() {
         }
     }
 
-    return currentUserData;
+    return { ...currentUserData, isScanning: false };
 }
 
 export async function getCachedTransactionData() {
@@ -478,10 +487,11 @@ export async function getGameSpending(id) {
     const data = await getTransactionData();
 
     if (!data) {
-        return { totalSpent: 0, totalTransactions: 0 };
+        return { totalSpent: 0, totalTransactions: 0, isScanning: false };
     }
 
     id = String(id);
+    const isScanning = !!data.isScanning;
     let totalSpent = 0;
     let totalTransactions = 0;
     let gameName = '';
@@ -494,7 +504,12 @@ export async function getGameSpending(id) {
             totalTransactions += creator.games[id].totalTransactions;
             gameName = creator.games[id].name;
 
-            return { name: gameName, totalSpent, totalTransactions };
+            return {
+                name: gameName,
+                totalSpent,
+                totalTransactions,
+                isScanning,
+            };
         }
     }
 
@@ -514,7 +529,7 @@ export async function getGameSpending(id) {
         }
     }
 
-    return { name: gameName, totalSpent, totalTransactions };
+    return { name: gameName, totalSpent, totalTransactions, isScanning };
 }
 
 export async function getTotalSpent() {

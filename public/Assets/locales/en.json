@@ -228,7 +228,8 @@
         "loading": "Loading...",
         "failedToLoad": "Failed to load",
         "singlePurchase": "1 purchase",
-        "multiplePurchases": "{{count}} purchases"
+        "multiplePurchases": "{{count}} purchases",
+        "stillCalculating": "Total Spent is still calculating."
     },
     "settings": {
         "tabs": {

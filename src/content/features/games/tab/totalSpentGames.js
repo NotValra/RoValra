@@ -48,6 +48,13 @@ export function init() {
             try {
                 const gameSpending = await getGameSpending(placeId);
 
+                if (gameSpending.isScanning) {
+                    valueContainer.textContent = await t(
+                        'totalSpentGames.stillCalculating',
+                    );
+                    return;
+                }
+
                 valueContainer.textContent = `${await t('totalSpent.totalRobuxSpent')} `;
 
                 const robuxIcon = createRobuxIcon({ size: '17px' });
