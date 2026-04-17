@@ -545,8 +545,507 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
         };
 
         return listContainer;
+    } else if (setting.type === 'banGenerator') {
+        return createBanGeneratorUI(setting);
     }
     return document.createElement('div');
+}
+
+function renderPreviewToBlob(previewCard) {
+    return new Promise((resolve, reject) => {
+        const w = previewCard.offsetWidth;
+        const h = previewCard.offsetHeight;
+        const scale = 2;
+        const canvas = document.createElement('canvas');
+        canvas.width = w * scale;
+        canvas.height = h * scale;
+        const ctx = canvas.getContext('2d');
+        ctx.scale(scale, scale);
+
+        // Background
+        ctx.fillStyle = '#232527';
+        ctx.fillRect(0, 0, w, h);
+
+        const px = 44;
+        const py = 36;
+        let y = py;
+
+        // Title
+        const titleEl = previewCard.querySelector(
+            '.rovalra-ban-preview-title',
+        );
+        if (titleEl) {
+            ctx.font = '300 28px "Source Sans Pro", "Helvetica Neue", Helvetica, Arial, sans-serif';
+            ctx.fillStyle = '#e8e8e8';
+            ctx.fillText(titleEl.textContent, px, y + 24);
+            y += 44;
+            // Divider
+            ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(px, y);
+            ctx.lineTo(w - px, y);
+            ctx.stroke();
+            y += 20;
+        }
+
+        ctx.font = '400 14px "Source Sans Pro", "Helvetica Neue", Helvetica, Arial, sans-serif';
+        const lineHeight = 22;
+        const maxTextWidth = w - px * 2;
+
+        function wrapText(text, x, startY, color, boldColor, isBold) {
+            ctx.fillStyle = color;
+            const font = isBold
+                ? '700 14px "Source Sans Pro", "Helvetica Neue", Helvetica, Arial, sans-serif'
+                : '400 14px "Source Sans Pro", "Helvetica Neue", Helvetica, Arial, sans-serif';
+            ctx.font = font;
+
+            const words = text.split(' ');
+            let line = '';
+            let cy = startY;
+
+            for (const word of words) {
+                const testLine = line + (line ? ' ' : '') + word;
+                if (ctx.measureText(testLine).width > maxTextWidth && line) {
+                    ctx.fillText(line, x, cy);
+                    line = word;
+                    cy += lineHeight;
+                } else {
+                    line = testLine;
+                }
+            }
+            if (line) {
+                ctx.fillText(line, x, cy);
+                cy += lineHeight;
+            }
+            return cy;
+        }
+
+        // Collect visible text elements
+        const bodyEl = previewCard.querySelector('.rovalra-ban-preview-body');
+        if (bodyEl) {
+            const children = bodyEl.children;
+            for (const child of children) {
+                if (
+                    child.classList.contains('rovalra-ban-hidden') ||
+                    child.style.display === 'none'
+                )
+                    continue;
+
+                if (child.classList.contains('rovalra-ban-preview-intro')) {
+                    y = wrapText(
+                        child.textContent,
+                        px,
+                        y,
+                        '#b0b0b0',
+                        null,
+                        false,
+                    );
+                    y += 4;
+                } else if (
+                    child.classList.contains('rovalra-ban-preview-reviewed')
+                ) {
+                    const plain = child.childNodes[0]?.textContent || '';
+                    const bold =
+                        child.querySelector('strong')?.textContent || '';
+                    const after = child.childNodes[2]?.textContent || '';
+                    ctx.font = '400 14px "Source Sans Pro", "Helvetica Neue", Helvetica, Arial, sans-serif';
+                    ctx.fillStyle = '#999';
+                    const plainW = ctx.measureText(plain).width;
+                    ctx.fillText(plain, px, y);
+                    ctx.font = '700 14px "Source Sans Pro", "Helvetica Neue", Helvetica, Arial, sans-serif';
+                    ctx.fillStyle = '#d0d0d0';
+                    const boldW = ctx.measureText(bold).width;
+                    ctx.fillText(bold, px + plainW, y);
+                    ctx.font = '400 14px "Source Sans Pro", "Helvetica Neue", Helvetica, Arial, sans-serif';
+                    ctx.fillStyle = '#999';
+                    ctx.fillText(after, px + plainW + boldW, y);
+                    y += lineHeight + 4;
+                } else if (
+                    child.classList.contains('rovalra-ban-preview-modnote')
+                ) {
+                    const plain = 'Moderator Note: ';
+                    const boldText =
+                        child.querySelector('strong')?.textContent || '';
+                    ctx.font = '400 14px "Source Sans Pro", "Helvetica Neue", Helvetica, Arial, sans-serif';
+                    ctx.fillStyle = '#999';
+                    const plainW = ctx.measureText(plain).width;
+                    ctx.fillText(plain, px, y);
+                    // Bold part with wrapping
+                    ctx.font = '700 14px "Source Sans Pro", "Helvetica Neue", Helvetica, Arial, sans-serif';
+                    ctx.fillStyle = '#ff6b6b';
+                    const boldWords = boldText.split(' ');
+                    let bLine = '';
+                    let bx = px + plainW;
+                    let firstLine = true;
+                    for (const word of boldWords) {
+                        const test = bLine + (bLine ? ' ' : '') + word;
+                        const testW = ctx.measureText(test).width;
+                        const availW = firstLine
+                            ? maxTextWidth - plainW
+                            : maxTextWidth;
+                        if (testW > availW && bLine) {
+                            ctx.fillText(bLine, bx, y);
+                            y += lineHeight;
+                            bLine = word;
+                            bx = px;
+                            firstLine = false;
+                        } else {
+                            bLine = test;
+                        }
+                    }
+                    if (bLine) {
+                        ctx.fillText(bLine, bx, y);
+                        y += lineHeight;
+                    }
+                    y += 6;
+                } else if (
+                    child.classList.contains(
+                        'rovalra-ban-preview-guidelines',
+                    ) ||
+                    child.classList.contains('rovalra-ban-preview-reactivate')
+                ) {
+                    y = wrapText(
+                        child.textContent,
+                        px,
+                        y,
+                        '#b0b0b0',
+                        null,
+                        false,
+                    );
+                    y += 4;
+                } else if (
+                    child.classList.contains('rovalra-ban-preview-agree-row')
+                ) {
+                    // Checkbox + text
+                    const cx = w / 2 - 40;
+                    ctx.strokeStyle = '#6ea8d9';
+                    ctx.lineWidth = 1.5;
+                    ctx.strokeRect(cx, y - 10, 14, 14);
+                    ctx.font = '400 14px "Source Sans Pro", "Helvetica Neue", Helvetica, Arial, sans-serif';
+                    ctx.fillStyle = '#b0b0b0';
+                    ctx.fillText('I Agree', cx + 22, y + 2);
+                    y += lineHeight + 6;
+                } else if (
+                    child.classList.contains('rovalra-ban-preview-buttons')
+                ) {
+                    const btns = child.querySelectorAll('button');
+                    for (const btn of btns) {
+                        if (btn.classList.contains('rovalra-ban-hidden'))
+                            continue;
+                        const bw = Math.max(220, ctx.measureText(btn.textContent).width + 64);
+                        const bx = (w - bw) / 2;
+                        if (
+                            btn.classList.contains(
+                                'rovalra-ban-preview-btn-primary',
+                            )
+                        ) {
+                            ctx.fillStyle = '#4a4a4d';
+                            ctx.beginPath();
+                            ctx.roundRect(bx, y - 4, bw, 36, 4);
+                            ctx.fill();
+                            ctx.font = '600 14px "Source Sans Pro", "Helvetica Neue", Helvetica, Arial, sans-serif';
+                            ctx.fillStyle = '#e0e0e0';
+                            ctx.textAlign = 'center';
+                            ctx.fillText(btn.textContent, w / 2, y + 18);
+                            ctx.textAlign = 'left';
+                        } else {
+                            ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+                            ctx.lineWidth = 1;
+                            ctx.beginPath();
+                            ctx.roundRect(bx, y - 4, bw, 34, 4);
+                            ctx.stroke();
+                            ctx.font = '500 14px "Source Sans Pro", "Helvetica Neue", Helvetica, Arial, sans-serif';
+                            ctx.fillStyle = '#999';
+                            ctx.textAlign = 'center';
+                            ctx.fillText(btn.textContent, w / 2, y + 17);
+                            ctx.textAlign = 'left';
+                        }
+                        y += 44;
+                    }
+                }
+            }
+        }
+
+        canvas.toBlob(
+            (blob) => {
+                if (blob) resolve(blob);
+                else reject(new Error('Failed to create blob'));
+            },
+            'image/png',
+        );
+    });
+}
+
+function createBanGeneratorUI(setting) {
+    const TERMS_URL =
+        'https://en.help.roblox.com/hc/en-us/articles/115004647846-Roblox-Terms-of-Use';
+    const GUIDELINES_URL = 'https://about.roblox.com/community-standards';
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'rovalra-ban-generator';
+
+    // --- Disclaimer banner ---
+    const disclaimer = document.createElement('div');
+    disclaimer.className = 'rovalra-ban-disclaimer';
+    disclaimer.innerHTML = DOMPurify.sanitize(
+        '<strong>FOR FUN ONLY</strong> — This is a mock screen generator. It does <strong>not</strong> issue any real Roblox moderation action, ban, or warning.',
+    );
+    wrapper.appendChild(disclaimer);
+
+    // --- Controls panel ---
+    const controls = document.createElement('div');
+    controls.className = 'rovalra-ban-controls';
+
+    // Duration selector
+    const durationSection = document.createElement('div');
+    durationSection.className = 'rovalra-ban-control-section';
+    const durationLabel = document.createElement('div');
+    durationLabel.className = 'rovalra-ban-control-label';
+    durationLabel.textContent = 'Ban Duration';
+    durationSection.appendChild(durationLabel);
+
+    const durationList = document.createElement('div');
+    durationList.className = 'rovalra-ban-scroll-list';
+    let selectedDuration = setting.banDurations[5];
+    setting.banDurations.forEach((duration) => {
+        const item = document.createElement('div');
+        item.className = 'rovalra-ban-scroll-item';
+        if (duration === selectedDuration) item.classList.add('selected');
+        item.textContent = duration;
+        item.addEventListener('click', () => {
+            durationList
+                .querySelectorAll('.rovalra-ban-scroll-item')
+                .forEach((el) => el.classList.remove('selected'));
+            item.classList.add('selected');
+            selectedDuration = duration;
+            updatePreview();
+        });
+        durationList.appendChild(item);
+    });
+    durationSection.appendChild(durationList);
+    controls.appendChild(durationSection);
+
+    // Reason selector
+    const reasonSection = document.createElement('div');
+    reasonSection.className = 'rovalra-ban-control-section';
+    const reasonLabel = document.createElement('div');
+    reasonLabel.className = 'rovalra-ban-control-label';
+    reasonLabel.textContent = 'Ban Reason';
+    reasonSection.appendChild(reasonLabel);
+
+    const reasonList = document.createElement('div');
+    reasonList.className = 'rovalra-ban-scroll-list';
+    const modNotes = setting.moderatorNotes || {};
+    let selectedReason = setting.banReasons[0];
+    setting.banReasons.forEach((reason) => {
+        const item = document.createElement('div');
+        item.className = 'rovalra-ban-scroll-item';
+        if (reason === selectedReason) item.classList.add('selected');
+        item.textContent = reason;
+        item.addEventListener('click', () => {
+            reasonList
+                .querySelectorAll('.rovalra-ban-scroll-item')
+                .forEach((el) => el.classList.remove('selected'));
+            item.classList.add('selected');
+            selectedReason = reason;
+            // Auto-fill moderator note from mapped notes
+            if (modNotes[reason]) {
+                noteInput.value = modNotes[reason];
+            }
+            updatePreview();
+        });
+        reasonList.appendChild(item);
+    });
+    reasonSection.appendChild(reasonList);
+    controls.appendChild(reasonSection);
+
+    // Moderator note input
+    const noteSection = document.createElement('div');
+    noteSection.className =
+        'rovalra-ban-control-section rovalra-ban-note-section';
+    const noteLabel = document.createElement('div');
+    noteLabel.className = 'rovalra-ban-control-label';
+    noteLabel.textContent = 'Moderator Note (optional)';
+    noteSection.appendChild(noteLabel);
+
+    const noteInput = document.createElement('textarea');
+    noteInput.className = 'rovalra-ban-note-input';
+    noteInput.placeholder = 'Leave empty to use the auto-generated note';
+    noteInput.rows = 3;
+    // Pre-fill with the mapped note for the default reason
+    if (modNotes[selectedReason]) {
+        noteInput.value = modNotes[selectedReason];
+    }
+    noteInput.addEventListener('input', () => updatePreview());
+    noteSection.appendChild(noteInput);
+    controls.appendChild(noteSection);
+
+    wrapper.appendChild(controls);
+
+    // --- Live Preview header row with copy button ---
+    const previewHeader = document.createElement('div');
+    previewHeader.className = 'rovalra-ban-preview-header';
+
+    const previewLabel = document.createElement('div');
+    previewLabel.className = 'rovalra-ban-control-label';
+    previewLabel.textContent = 'Live Preview';
+    previewHeader.appendChild(previewLabel);
+
+    const copyBtn = createButton('Copy as Image', 'secondary');
+    copyBtn.className = 'rovalra-ban-copy-btn btn-control-xs';
+    copyBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        try {
+            const blob = await renderPreviewToBlob(previewCard);
+            await navigator.clipboard.write([
+                new ClipboardItem({ 'image/png': blob }),
+            ]);
+            copyBtn.textContent = 'Copied!';
+            setTimeout(() => {
+                copyBtn.textContent = 'Copy as Image';
+            }, 2000);
+        } catch {
+            copyBtn.textContent = 'Failed';
+            setTimeout(() => {
+                copyBtn.textContent = 'Copy as Image';
+            }, 2000);
+        }
+    });
+    previewHeader.appendChild(copyBtn);
+    wrapper.appendChild(previewHeader);
+
+    // --- Preview card ---
+    const previewContainer = document.createElement('div');
+    previewContainer.className = 'rovalra-ban-preview-container';
+
+    const previewCard = document.createElement('div');
+    previewCard.className = 'rovalra-ban-preview-card';
+
+    const previewTitle = document.createElement('h2');
+    previewTitle.className = 'rovalra-ban-preview-title';
+    previewTitle.textContent = 'Banned for 1 Day';
+
+    const previewBody = document.createElement('div');
+    previewBody.className = 'rovalra-ban-preview-body';
+
+    const previewIntro = document.createElement('p');
+    previewIntro.className = 'rovalra-ban-preview-intro';
+    previewIntro.innerHTML = DOMPurify.sanitize(
+        `Our content monitors have determined that your behavior at Roblox has been in violation of our <a href="${TERMS_URL}" target="_blank" rel="noopener noreferrer">Terms of Use</a>.`,
+    );
+
+    const previewReviewed = document.createElement('p');
+    previewReviewed.className = 'rovalra-ban-preview-reviewed';
+
+    const previewModNote = document.createElement('p');
+    previewModNote.className = 'rovalra-ban-preview-modnote';
+
+    const previewGuidelines = document.createElement('p');
+    previewGuidelines.className = 'rovalra-ban-preview-guidelines';
+    previewGuidelines.innerHTML = DOMPurify.sanitize(
+        `Please abide by the <a href="${GUIDELINES_URL}" target="_blank" rel="noopener noreferrer">Roblox Community Guidelines</a> so that Roblox can be fun for users of all ages.`,
+    );
+
+    const previewReactivate = document.createElement('p');
+    previewReactivate.className = 'rovalra-ban-preview-reactivate';
+    previewReactivate.innerHTML = DOMPurify.sanitize(
+        `You may re-activate your account by agreeing to our <a href="${TERMS_URL}" target="_blank" rel="noopener noreferrer">Terms of Use</a>.`,
+    );
+
+    const agreeRow = document.createElement('div');
+    agreeRow.className = 'rovalra-ban-preview-agree-row';
+    agreeRow.innerHTML = DOMPurify.sanitize(
+        '<label><input type="checkbox" disabled> I Agree</label>',
+    );
+
+    const buttonRow = document.createElement('div');
+    buttonRow.className = 'rovalra-ban-preview-buttons';
+
+    const reactivateBtn = document.createElement('button');
+    reactivateBtn.className = 'rovalra-ban-preview-btn-primary';
+    reactivateBtn.textContent = 'Re-activate My Account';
+    reactivateBtn.disabled = true;
+
+    const logoutBtn = document.createElement('button');
+    logoutBtn.className = 'rovalra-ban-preview-btn-secondary';
+    logoutBtn.textContent = 'Logout';
+    logoutBtn.disabled = true;
+
+    buttonRow.appendChild(reactivateBtn);
+    buttonRow.appendChild(logoutBtn);
+
+    previewBody.appendChild(previewIntro);
+    previewBody.appendChild(previewReviewed);
+    previewBody.appendChild(previewModNote);
+    previewBody.appendChild(previewGuidelines);
+    previewBody.appendChild(previewReactivate);
+    previewBody.appendChild(agreeRow);
+    previewBody.appendChild(buttonRow);
+
+    previewCard.appendChild(previewTitle);
+    previewCard.appendChild(previewBody);
+
+    previewContainer.appendChild(previewCard);
+    wrapper.appendChild(previewContainer);
+
+    // Footer disclaimer
+    const bottomNote = document.createElement('div');
+    bottomNote.className = 'rovalra-ban-bottom-note';
+    bottomNote.textContent =
+        'This mock screen is generated locally for entertainment purposes only. It does not issue any real moderation action. No data is sent, no account is affected.';
+    wrapper.appendChild(bottomNote);
+
+    function updatePreview() {
+        const now = new Date();
+        const dateStr =
+            now.toLocaleDateString('en-US', {
+                month: 'numeric',
+                day: 'numeric',
+                year: 'numeric',
+            }) +
+            ' ' +
+            now.toLocaleTimeString('en-US', {
+                hour: 'numeric',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true,
+            });
+
+        previewTitle.textContent = selectedDuration;
+
+        previewReviewed.innerHTML = DOMPurify.sanitize(
+            `Reviewed: <strong>${dateStr}</strong> (CT)`,
+        );
+
+        const noteText =
+            noteInput.value.trim() ||
+            modNotes[selectedReason] ||
+            `Your account has been suspended for violating our Terms of Use for ${selectedReason.toLowerCase()}.`;
+        previewModNote.innerHTML = DOMPurify.sanitize(
+            `Moderator Note: <strong>${noteText}</strong>`,
+        );
+
+        const isTerminal = selectedDuration === 'Account Terminated';
+        const isWarning = selectedDuration === 'Warning';
+
+        previewReactivate.classList.toggle(
+            'rovalra-ban-hidden',
+            isTerminal || isWarning,
+        );
+        agreeRow.classList.toggle(
+            'rovalra-ban-hidden',
+            isTerminal || isWarning,
+        );
+        reactivateBtn.classList.toggle('rovalra-ban-hidden', isTerminal);
+        reactivateBtn.textContent = isWarning
+            ? 'Acknowledge'
+            : 'Re-activate My Account';
+    }
+
+    updatePreview();
+
+    return wrapper;
 }
 
 export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
@@ -554,6 +1053,13 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
     const settingContainer = document.createElement('div');
     settingContainer.className = 'setting';
     settingContainer.id = `setting-container-${settingName}`;
+
+    // Ban generator gets its own full-width layout (no side-by-side label)
+    if (setting.type === 'banGenerator') {
+        const inputElement = generateSettingInput(settingName, setting, REGIONS);
+        settingContainer.appendChild(inputElement);
+        return settingContainer;
+    }
 
     const controlsContainer = document.createElement('div');
     controlsContainer.className = 'setting-controls';

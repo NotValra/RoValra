@@ -313,4 +313,314 @@ body:has(#settings-search-input) {
             padding-top: 10px !important;
         }
     }
+
+    // ===== Ban Generator (Fun Stuff) =====
+    .rovalra-ban-generator {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .rovalra-ban-hidden {
+        display: none !important;
+    }
+
+    .rovalra-ban-disclaimer {
+        background: var(--rovalra-container-background-color);
+        border: 1px solid var(--rovalra-border-color, rgba(128, 128, 128, 0.25));
+        border-left: 3px solid var(--rovalra-playbutton-color, #00a2ff);
+        border-radius: 6px;
+        padding: 12px 18px;
+        margin-bottom: 20px;
+        font-size: 13px;
+        color: var(--rovalra-secondary-text-color);
+        text-align: center;
+        line-height: 1.6;
+        width: 100%;
+        max-width: 600px;
+        box-sizing: border-box;
+
+        strong {
+            color: var(--rovalra-main-text-color);
+        }
+    }
+
+    .rovalra-ban-controls {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        width: 100%;
+        max-width: 600px;
+    }
+
+    .rovalra-ban-control-section {
+        flex: 1;
+        min-width: 200px;
+    }
+
+    .rovalra-ban-note-section {
+        flex-basis: 100%;
+    }
+
+    .rovalra-ban-control-label {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--rovalra-main-text-color);
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .rovalra-ban-scroll-list {
+        max-height: 200px;
+        overflow-y: auto;
+        border: 1px solid var(--rovalra-border-color, rgba(128, 128, 128, 0.25));
+        border-radius: 8px;
+        background: var(--rovalra-main-background-color);
+
+        &::-webkit-scrollbar {
+            width: 5px;
+        }
+        &::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        &::-webkit-scrollbar-thumb {
+            background: rgba(128, 128, 128, 0.3);
+            border-radius: 3px;
+        }
+    }
+
+    .rovalra-ban-scroll-item {
+        padding: 8px 14px;
+        font-size: 13px;
+        cursor: pointer;
+        color: var(--rovalra-secondary-text-color);
+        transition: background-color 0.12s, color 0.12s;
+        border-bottom: 1px solid var(--rovalra-border-color, rgba(128, 128, 128, 0.08));
+        user-select: none;
+
+        &:last-child {
+            border-bottom: none;
+        }
+
+        &:hover {
+            background: rgba(128, 128, 128, 0.1);
+            color: var(--rovalra-main-text-color);
+        }
+
+        &.selected {
+            background: var(--rovalra-playbutton-color, #00a2ff);
+            color: #fff;
+            font-weight: 600;
+        }
+    }
+
+    .rovalra-ban-note-input {
+        width: 100%;
+        padding: 10px 14px;
+        border: 1px solid var(--rovalra-border-color, rgba(128, 128, 128, 0.25));
+        border-radius: 8px;
+        background: var(--rovalra-main-background-color);
+        color: var(--rovalra-main-text-color);
+        font-size: 13px;
+        font-family: inherit;
+        resize: vertical;
+        min-height: 60px;
+        transition: border-color 0.2s;
+        box-sizing: border-box;
+
+        &::placeholder {
+            color: var(--rovalra-secondary-text-color);
+            opacity: 0.5;
+        }
+
+        &:focus {
+            outline: none;
+            border-color: var(--rovalra-playbutton-color, #00a2ff);
+        }
+    }
+
+    // Preview header (label + copy button)
+    .rovalra-ban-preview-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        max-width: 600px;
+        margin-bottom: 10px;
+    }
+
+    .rovalra-ban-copy-btn {
+        font-size: 12px !important;
+        padding: 5px 14px !important;
+        border-radius: 6px !important;
+        cursor: pointer;
+        white-space: nowrap;
+    }
+
+    // Preview container - Roblox moderation page style (dark/grey theme)
+    .rovalra-ban-preview-container {
+        position: relative;
+        border-radius: 10px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        background: #232527;
+        width: 100%;
+        max-width: 600px;
+    }
+
+    .rovalra-ban-preview-card {
+        padding: 36px 44px 32px;
+        font-family: "Source Sans Pro", "Helvetica Neue", Helvetica, Arial, sans-serif;
+        color: #d4d4d4;
+    }
+
+    .rovalra-ban-preview-title {
+        font-size: 28px;
+        font-weight: 300;
+        color: #e8e8e8;
+        margin: 0 0 20px 0;
+        padding-bottom: 16px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .rovalra-ban-preview-body {
+        font-size: 14px;
+        line-height: 1.75;
+        color: #b0b0b0;
+    }
+
+    .rovalra-ban-preview-intro {
+        margin: 0 0 12px 0;
+
+        a {
+            color: #6ea8d9;
+            text-decoration: none;
+            cursor: pointer;
+            pointer-events: auto;
+
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+    }
+
+    .rovalra-ban-preview-reviewed {
+        margin: 0 0 10px 0;
+        color: #999;
+
+        strong {
+            font-weight: 700;
+            color: #d0d0d0;
+        }
+    }
+
+    .rovalra-ban-preview-modnote {
+        margin: 0 0 16px 0;
+        color: #999;
+
+        strong {
+            font-weight: 700;
+            color: #ff6b6b;
+        }
+    }
+
+    .rovalra-ban-preview-guidelines {
+        margin: 0 0 12px 0;
+
+        a {
+            color: #6ea8d9;
+            text-decoration: none;
+            cursor: pointer;
+            pointer-events: auto;
+
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+    }
+
+    .rovalra-ban-preview-reactivate {
+        margin: 0 0 22px 0;
+
+        a {
+            color: #6ea8d9;
+            text-decoration: none;
+            cursor: pointer;
+            pointer-events: auto;
+
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+    }
+
+    .rovalra-ban-preview-agree-row {
+        margin: 0 0 16px 0;
+        display: flex;
+        justify-content: center;
+
+        label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            color: #b0b0b0;
+            cursor: default;
+
+            input[type="checkbox"] {
+                width: 15px;
+                height: 15px;
+                accent-color: #6ea8d9;
+            }
+        }
+    }
+
+    .rovalra-ban-preview-buttons {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        margin-top: 8px;
+    }
+
+    .rovalra-ban-preview-btn-primary {
+        background: #4a4a4d;
+        color: #e0e0e0;
+        border: none;
+        padding: 10px 32px;
+        border-radius: 4px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: default;
+        min-width: 220px;
+        text-align: center;
+    }
+
+    .rovalra-ban-preview-btn-secondary {
+        background: transparent;
+        color: #999;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        padding: 8px 32px;
+        border-radius: 4px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: default;
+        min-width: 120px;
+        text-align: center;
+    }
+
+    .rovalra-ban-bottom-note {
+        margin-top: 14px;
+        text-align: center;
+        font-size: 11px;
+        color: var(--rovalra-secondary-text-color);
+        opacity: 0.6;
+        font-style: italic;
+        width: 100%;
+        max-width: 600px;
+        line-height: 1.5;
+    }
 }
