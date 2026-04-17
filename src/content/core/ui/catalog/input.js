@@ -5,6 +5,7 @@ export function createStyledInput({
     label = '',
     placeholder = ' ',
     value = '',
+    multiline = false,
 }) {
     const container = document.createElement('div');
     container.className = 'rovalra-catalog-input-wrapper';
@@ -12,9 +13,9 @@ export function createStyledInput({
     const inputBase = document.createElement('div');
     inputBase.className = 'rovalra-catalog-input-base';
 
-    const input = document.createElement('input');
+    const input = document.createElement(multiline ? 'textarea' : 'input');
+    if (!multiline) input.type = 'text';
 
-    input.type = 'text';
     input.id = id;
     input.value = value;
 
@@ -55,6 +56,19 @@ export function createStyledInput({
             labelElement.classList.remove('MuiInputLabel-shrink');
         }
     };
+    if (multiline) {
+        Object.assign(input.style, {
+            resize: 'none',
+            overflow: 'hidden',
+            minHeight: '40px',
+        });
+        const autoResize = () => {
+            input.style.height = 'auto';
+            input.style.height = input.scrollHeight + 'px';
+        };
+        input.addEventListener('input', autoResize);
+        setTimeout(autoResize, 0);
+    }
 
     input.addEventListener('focus', () => {
         labelElement.classList.add('Mui-focused');

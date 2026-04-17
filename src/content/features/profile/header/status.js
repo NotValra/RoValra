@@ -89,20 +89,23 @@ DOMPurify.addHook('afterSanitizeAttributes', (currentNode) => {
     }
 });
 
-function openEditStatusOverlay(currentStatus, onSave, canUseApi) {
+function openEditStatusOverlay(currentStatus, onSave, canUseApi, isTrusted) {
     const container = document.createElement('div');
     Object.assign(container.style, {
         display: 'flex',
         flexDirection: 'column',
         gap: '12px',
         paddingTop: '5px',
+        alignItems: 'center',
     });
 
     const { container: inputContainer, input } = createStyledInput({
         id: 'rovalra-status-edit-input',
         label: 'Enter new status',
         value: currentStatus,
+        multiline: true,
     });
+    inputContainer.style.width = '222px';
     input.maxLength = MAX_STATUS_LENGTH;
 
     container.appendChild(inputContainer);
@@ -117,6 +120,20 @@ function openEditStatusOverlay(currentStatus, onSave, canUseApi) {
     });
     if (!canUseApi) {
         container.appendChild(helpText);
+    }
+
+    if (isTrusted) {
+        const trustedHelpText = document.createElement('p');
+        trustedHelpText.className = 'text-description';
+        trustedHelpText.innerHTML = DOMPurify.sanitize(`
+            You are a trusted RoValra user, you can add any text, embed videos, and images.
+            <br><br>
+            <strong>Note:</strong> If you are found to add inappropriate content, your donator and custom badges will be revoked.
+        `);
+        Object.assign(trustedHelpText.style, {
+            fontSize: '12px',
+        });
+        container.appendChild(trustedHelpText);
     }
 
     const errorDisplay = document.createElement('p');
@@ -140,7 +157,7 @@ function openEditStatusOverlay(currentStatus, onSave, canUseApi) {
         title: 'Edit Status',
         bodyContent: container,
         actions: [cancelBtn, saveBtn],
-        maxWidth: '400px',
+        maxWidth: '330px',
         preventBackdropClose: true,
     });
 
@@ -293,12 +310,12 @@ async function addStatusBubble(avatarContainer, userWantsApi) {
             bubble.addEventListener('click', (e) => {
                 e.stopPropagation();
                 const isDonator = getCurrentUserTier() >= 1;
+                const isTrusted = TRUSTED_USER_IDS.includes(
+                    String(authenticatedUserId),
+                );
                 openEditStatusOverlay(
                     statusText === '...' ? '' : statusText,
                     async (newStatus) => {
-                        const isTrusted = TRUSTED_USER_IDS.includes(
-                            String(authenticatedUserId),
-                        );
                         const effectiveCanUseApi = isDonator && userWantsApi;
                         if (
                             newStatus &&
@@ -419,6 +436,7 @@ async function addStatusBubble(avatarContainer, userWantsApi) {
                         }
                     },
                     isDonator && userWantsApi,
+                    isTrusted,
                 );
             });
         }
