@@ -1,3 +1,5 @@
+// types success, warning
+
 export function showSystemAlert(message, type = 'success') {
     let feedbackContainer = document.querySelector('.sg-system-feedback');
     if (!feedbackContainer) {
