@@ -449,18 +449,13 @@ export async function performJoinAction(
                         message = `${shortTargetName} is used for load balancing and is likely only active under heavy load.`;
                     }
 
-                    showLoadingOverlayResult(DOMPurify.sanitize(message), {
-                        text: DOMPurify.sanitize(`Join ${foundRegionName}`),
-                        onClick: async () => {
-                            updateLoadingOverlayText(
-                                'Verifying server status...',
-                            );
-                            if (
-                                await isServerActive(
-                                    placeId,
-                                    bestServerFoundSoFar.id,
-                                )
-                            ) {
+                    updateLoadingOverlayText('Verifying server status...');
+                    if (
+                        await isServerActive(placeId, bestServerFoundSoFar.id)
+                    ) {
+                        showLoadingOverlayResult(DOMPurify.sanitize(message), {
+                            text: DOMPurify.sanitize(`Join ${foundRegionName}`),
+                            onClick: async () => {
                                 hideLoadingOverlay(true);
                                 joinedServerIds.add(bestServerFoundSoFar.id);
                                 launchGame(placeId, bestServerFoundSoFar.id);
@@ -469,17 +464,17 @@ export async function performJoinAction(
                                     endpoint: `/v1/games/${placeId}/servers/Public?limit=100`,
                                 }).catch(() => {});
                                 showReviewPopup('region_filters');
-                            } else {
-                                showLoadingOverlayResult(
-                                    'This server is no longer active.',
-                                    {
-                                        text: 'Close',
-                                        onClick: () => hideLoadingOverlay(true),
-                                    },
-                                );
-                            }
-                        },
-                    });
+                            },
+                        });
+                    } else {
+                        showLoadingOverlayResult(
+                            'No suitable active servers found.',
+                            {
+                                text: 'Close',
+                                onClick: () => hideLoadingOverlay(true),
+                            },
+                        );
+                    }
                 }
             } else {
                 showLoadingOverlayResult('No suitable servers found.', {
