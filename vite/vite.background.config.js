@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite';
 import { terser } from './shared.terser.js';
+import path from 'path';
 
 export default defineConfig({
     build: {
@@ -15,5 +16,10 @@ export default defineConfig({
                 entryFileNames: 'background.js',
             },
         },
+    },
+    resolve: {
+      alias: {
+        "@": path.resolve(__dirname, "../src/content"),
+      },
     },
 });
