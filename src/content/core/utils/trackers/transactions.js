@@ -2,10 +2,10 @@ import { callRobloxApiJson } from '../../api';
 import { getAuthenticatedUserId } from '../../user';
 
 const TRANSACTIONS_DATA_KEY = 'rovalra_transactions_data';
-const TRANSACTIONS_CACHE_DURATION = 30 * 60 * 1000;
-const INCREMENTAL_REFRESH_DURATION = 1 * 60 * 1000;
+const INCREMENTAL_REFRESH_DURATION = 2 * 60 * 1000;
 const EMPTY_PAGE_CONFIRMATION_COUNT = 3;
 const API_REQUEST_DELAY = 5000;
+const MAX_INCREMENTAL_PAGES = 5;
 let isScanning = false;
 
 async function fetchTransactionsPage(userId, cursor = null) {
@@ -145,7 +145,7 @@ export async function fullScanTransactions(userId) {
 
     let cursor = null;
     let emptyPageCount = 0;
-    let latestPurchaseToken = null;
+    let latestPurchaseTokens = [];
     let aggregatedData = {
         totals: { totalSpent: 0, totalTransactions: 0 },
         creators: {},
@@ -160,6 +160,9 @@ export async function fullScanTransactions(userId) {
 
         if (existingData.scanCursor && !existingData.isFullyScanned) {
             cursor = existingData.scanCursor;
+            latestPurchaseTokens =
+                existingData.latestPurchaseTokens ||
+                [existingData.latestPurchaseToken].filter(Boolean);
             aggregatedData = {
                 totals: existingData.totals || aggregatedData.totals,
                 creators: existingData.creators || aggregatedData.creators,
@@ -195,10 +198,6 @@ export async function fullScanTransactions(userId) {
                 return latestCheck[TRANSACTIONS_DATA_KEY][userId];
             }
 
-            if (data.data.length > 0 && !latestPurchaseToken) {
-                latestPurchaseToken = data.data[0].purchaseToken;
-            }
-
             aggregatedData = mergeTransactionsIntoAggregated(
                 aggregatedData,
                 data.data,
@@ -206,16 +205,29 @@ export async function fullScanTransactions(userId) {
 
             cursor = data.nextPageCursor;
 
+            // Stores 2 purchase tokens in case one were to get removed from something like a refund
+            if (data.data.length > 0 && latestPurchaseTokens.length < 2) {
+                const currentBatchTokens = data.data
+                    .slice(0, 2)
+                    .map((tx) => tx.purchaseToken);
+                latestPurchaseTokens = [
+                    ...new Set([
+                        ...latestPurchaseTokens,
+                        ...currentBatchTokens,
+                    ]),
+                ].slice(0, 2);
+            }
+
             const progressUpdate = await new Promise((resolve) =>
                 chrome.storage.local.get([TRANSACTIONS_DATA_KEY], resolve),
             );
             const currentAllData = progressUpdate[TRANSACTIONS_DATA_KEY] || {};
-
             currentAllData[userId] = {
                 ...(currentAllData[userId] || {}),
                 ...aggregatedData,
+                latestPurchaseTokens,
                 latestPurchaseToken:
-                    latestPurchaseToken ||
+                    latestPurchaseTokens[0] ||
                     currentAllData[userId]?.latestPurchaseToken ||
                     existingData.latestPurchaseToken,
                 scanCursor: cursor,
@@ -237,13 +249,10 @@ export async function fullScanTransactions(userId) {
             chrome.storage.local.get([TRANSACTIONS_DATA_KEY], resolve),
         );
         const finalAllData = finalStorageFetch[TRANSACTIONS_DATA_KEY] || {};
-
         const finalData = {
             ...(finalAllData[userId] || {}),
             ...aggregatedData,
-            latestPurchaseToken:
-                latestPurchaseToken ||
-                finalAllData[userId]?.latestPurchaseToken,
+            latestPurchaseTokens: latestPurchaseTokens,
             isFullyScanned: true,
             lastFullScan: Date.now(),
             scanCursor: null,
@@ -266,64 +275,93 @@ export async function fullScanTransactions(userId) {
 
 export async function incrementalUpdate(userId, existingData) {
     try {
-        const data = await fetchTransactionsPage(userId, null);
-
-        if (!data || !data.data) {
-            return existingData;
-        }
-
+        let cursor = null;
+        let pagesChecked = 0;
+        let foundMatch = false;
         const newTransactions = [];
-        for (const tx of data.data) {
-            if (tx.purchaseToken === existingData.latestPurchaseToken) {
-                break;
+        let firstPageData = null;
+        const latestTokens =
+            existingData.latestPurchaseTokens ||
+            [existingData.latestPurchaseToken].filter(Boolean);
+
+        while (pagesChecked < MAX_INCREMENTAL_PAGES && !foundMatch) {
+            const data = await fetchTransactionsPage(userId, cursor);
+
+            if (!data || !data.data) break;
+            if (pagesChecked === 0) firstPageData = data.data;
+
+            for (const tx of data.data) {
+                if (latestTokens.includes(tx.purchaseToken)) {
+                    foundMatch = true;
+                    break;
+                }
+                newTransactions.push(tx);
             }
-            newTransactions.push(tx);
+
+            if (!data.nextPageCursor) break;
+            cursor = data.nextPageCursor;
+            pagesChecked++;
         }
 
-        if (newTransactions.length === 0) {
-            return {
-                ...existingData,
-                lastIncrementalCheck: Date.now(),
-            };
+        if (!foundMatch && pagesChecked >= MAX_INCREMENTAL_PAGES - 1) {
+            console.warn(
+                'RoValra: Stored transaction tokens not found after 5 pages, running full scan',
+            );
+            return await fullScanTransactions(userId);
         }
-
-        const processedNew = newTransactions.map(processTransaction);
 
         const merged = { ...existingData };
 
-        processedNew.forEach((tx) => {
-            merged.totals.totalSpent += tx.amount;
-            merged.totals.totalTransactions += 1;
+        if (newTransactions.length > 0) {
+            const processedNew = newTransactions.map(processTransaction);
 
-            const creatorKey = `${tx.creatorId}_${tx.creatorName}`;
-            if (!merged.creators[creatorKey]) {
-                merged.creators[creatorKey] = {
-                    name: tx.creatorName,
-                    type: tx.creatorType,
-                    totalSpent: 0,
-                    totalTransactions: 0,
-                    games: {},
-                };
-            }
-            const creator = merged.creators[creatorKey];
-            creator.totalSpent += tx.amount;
-            creator.totalTransactions += 1;
+            processedNew.forEach((tx) => {
+                merged.totals.totalSpent += tx.amount;
+                merged.totals.totalTransactions += 1;
 
-            if (tx.universeId) {
-                if (!creator.games[tx.universeId]) {
-                    creator.games[tx.universeId] = {
-                        name: tx.gameName,
+                const creatorKey = `${tx.creatorId}_${tx.creatorName}`;
+                if (!merged.creators[creatorKey]) {
+                    merged.creators[creatorKey] = {
+                        name: tx.creatorName,
+                        type: tx.creatorType,
                         totalSpent: 0,
                         totalTransactions: 0,
+                        games: {},
                     };
                 }
-                const game = creator.games[tx.universeId];
-                game.totalSpent += tx.amount;
-                game.totalTransactions += 1;
-            }
-        });
+                const creator = merged.creators[creatorKey];
+                creator.totalSpent += tx.amount;
+                creator.totalTransactions += 1;
 
-        merged.latestPurchaseToken = data.data[0].purchaseToken;
+                if (tx.universeId) {
+                    if (!creator.games[tx.universeId]) {
+                        creator.games[tx.universeId] = {
+                            name: tx.gameName,
+                            totalSpent: 0,
+                            totalTransactions: 0,
+                        };
+                    }
+                    const game = creator.games[tx.universeId];
+                    game.totalSpent += tx.amount;
+                    game.totalTransactions += 1;
+                }
+            });
+        }
+
+        const updatedTokens = [
+            ...newTransactions.map((tx) => tx.purchaseToken),
+            ...latestTokens,
+        ];
+
+        if (updatedTokens.length < 2 && firstPageData) {
+            updatedTokens.push(...firstPageData.map((tx) => tx.purchaseToken));
+        }
+
+        merged.latestPurchaseTokens = [...new Set(updatedTokens)].slice(0, 2);
+        if (merged.latestPurchaseTokens.length > 0) {
+            merged.latestPurchaseToken = merged.latestPurchaseTokens[0];
+        }
+
         merged.lastIncrementalCheck = Date.now();
 
         return merged;
@@ -354,19 +392,23 @@ export async function getTransactionData() {
         return null;
     }
 
+    if (
+        !currentUserData.latestPurchaseTokens &&
+        currentUserData.latestPurchaseToken
+    ) {
+        currentUserData.latestPurchaseTokens = [
+            currentUserData.latestPurchaseToken,
+        ];
+    }
+
     if (currentUserData.isFullyScanned) {
-        const needsFullRefresh =
-            now - currentUserData.lastFullScan > TRANSACTIONS_CACHE_DURATION;
         const needsIncrementalUpdate =
             now -
                 (currentUserData.lastIncrementalCheck ||
                     currentUserData.lastFullScan) >
             INCREMENTAL_REFRESH_DURATION;
 
-        if (needsFullRefresh) {
-            const scannedData = await fullScanTransactions(userId);
-            if (scannedData) return scannedData;
-        } else if (needsIncrementalUpdate) {
+        if (needsIncrementalUpdate) {
             const updatedData = await incrementalUpdate(
                 userId,
                 currentUserData,
