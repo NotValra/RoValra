@@ -1081,6 +1081,34 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             wearOutfit(request.outfitId).then(sendResponse);
             return true;
 
+        case 'fetchCurrencyRate':
+            (async () => {
+                try {
+                    const base = String(request.base || 'USD').toUpperCase();
+                    const target = String(request.target || 'USD').toUpperCase();
+                    const url = `https://api.frankfurter.dev/v1/latest?base=${encodeURIComponent(base)}&symbols=${encodeURIComponent(target)}`;
+                    const res = await fetch(url);
+                    if (!res.ok) {
+                        throw new Error(`Frankfurter fetch failed: ${res.status}`);
+                    }
+                    const data = await res.json();
+                    const rate = Number(data?.rates?.[target]);
+                    if (!Number.isFinite(rate) || rate <= 0) {
+                        throw new Error(
+                            `Invalid conversion rate for ${base}/${target}`,
+                        );
+                    }
+                    sendResponse({ rate });
+                } catch (error) {
+                    console.error(
+                        'RoValra: Currency rate fetch failed',
+                        error,
+                    );
+                    sendResponse({ error: error.message || String(error) });
+                }
+            })();
+            return true;
+
         case 'fetchRobloxApi':
             callRobloxApiBackground(request.options)
                 .then(async (response) => {

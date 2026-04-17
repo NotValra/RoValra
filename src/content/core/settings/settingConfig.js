@@ -1,3 +1,8 @@
+import {
+    TRANSACTION_FIAT_CURRENCY_OPTIONS,
+    TRANSACTION_FIAT_RATE_OPTIONS,
+} from '../transactions/fiatConfig.js';
+
 // Settings config (not developer settings)
 
 export const SETTINGS_CONFIG = {
@@ -857,6 +862,37 @@ export const SETTINGS_CONFIG = {
     transactions: {
         title: 'Transactions',
         settings: {
+            robuxFiatEstimatesEnabled: {
+                label: 'Robux Fiat Estimates',
+                description: [
+                    'Shows a money estimate beside Robux values on the transactions page, group revenue pages, and related Robux UI.',
+                    'You can choose both the display currency and whether the estimate uses Roblox purchase pricing or the current DevEx cash-out rate.',
+                ],
+                type: 'checkbox',
+                default: false,
+                childSettings: {
+                    robuxFiatDisplayCurrency: {
+                        label: 'Display Currency',
+                        description: [
+                            'Select which currency RoValra should convert Robux estimates into.',
+                            'Exchange rates are fetched from the Frankfurter currency API and cached locally.',
+                        ],
+                        type: 'select',
+                        options: TRANSACTION_FIAT_CURRENCY_OPTIONS,
+                        default: 'USD',
+                    },
+                    robuxFiatRateMode: {
+                        label: 'Valuation Mode',
+                        description: [
+                            'Normal Purchase Rate uses Roblox purchase pricing as the estimate source.',
+                            'DevEx Cash-Out Rate uses the current Roblox DevEx cash-out rate of $0.0038 per Earned Robux before converting to your selected currency.',
+                        ],
+                        type: 'select',
+                        options: TRANSACTION_FIAT_RATE_OPTIONS,
+                        default: 'normal',
+                    },
+                },
+            },
             totalspentEnabled: {
                 label: 'Total Spent',
                 description: [
