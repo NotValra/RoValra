@@ -3,7 +3,6 @@ import { getAuthenticatedUserId } from '../user.js';
 import {
     getUserDescription,
     updateUserDescription,
-    isTextFiltered,
 } from '../profile/descriptionhandler.js';
 import {
     syncDonatorTier,
@@ -235,11 +234,6 @@ async function fetchAndProcessSettings(userId, options = {}) {
         description !== originalDescription
     ) {
         await updateUserDescription(userId, description);
-    }
-
-    const isTrusted = TRUSTED_USER_IDS.includes(String(userId));
-    if (finalStatus && !isTrusted && (await isTextFiltered(finalStatus))) {
-        finalStatus = null;
     }
 
     return {
@@ -548,11 +542,6 @@ async function processApiSettings(userId, apiSettings, options) {
         description !== originalDescription
     ) {
         await updateUserDescription(userId, description);
-    }
-
-    const isTrusted = TRUSTED_USER_IDS.includes(String(userId));
-    if (finalStatus && !isTrusted && (await isTextFiltered(finalStatus))) {
-        finalStatus = null;
     }
 
     return {

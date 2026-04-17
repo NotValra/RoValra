@@ -49,6 +49,17 @@ function cleanupStatusElements(container) {
     }
 }
 
+function pauseStatusMedia(container) {
+    if (!container) return;
+
+    const mediaElements = container.querySelectorAll('video, audio');
+    for (const element of mediaElements) {
+        try {
+            element.pause();
+        } catch (e) {}
+    }
+}
+
 const downloadableExtensions =
     /\.(zip|rar|7z|tar|gz|exe|msi|dmg|iso|apk|ahk|ps1|cmd|bat|cmd|com|scr|cpl|sys|dll|js|jse|vbs|vbe|wsf|wsh|ps1|psm1|psd1|sh|docm|xlsm|pptm|dotm|xltm|deb|rpm|pkg|appimage|hta|jar|class)$/i;
 
@@ -472,119 +483,129 @@ async function addHomeStatusHover(tile) {
     let statusLoaded = false;
     let isHovering = false;
     let pendingLoad = null;
+    let hoverIntentTimer = null;
+    let hasStatus = true;
 
-    tile.addEventListener('mouseenter', async () => {
-        isHovering = true;
+    const renderStatus = (status) => {
+        let statusText = status;
+        if (statusText.length > MAX_STATUS_LENGTH) {
+            statusText = statusText.substring(0, MAX_STATUS_LENGTH) + '...';
+        }
 
-        if (!statusLoaded) {
-            if (pendingLoad) return;
+        const isUserTrusted = TRUSTED_USER_IDS.includes(String(userId));
 
-            const loadPromise = (async () => {
-                try {
-                    const authenticatedUserId = await getAuthenticatedUserId();
-                    const isOwnProfile =
-                        authenticatedUserId &&
-                        String(authenticatedUserId) === String(userId);
+        if (isUserTrusted) {
+            bubble.innerHTML = DOMPurify.sanitize(parseMarkdown(statusText), {
+                FORBID_ATTR: ['style'],
+                FORBID_TAGS: ['audio'],
+            });
+        } else {
+            bubble.textContent = statusText;
+        }
 
-                    const settings = await getUserSettings(userId, {
-                        useDescription: true,
-                    });
+        statusLoaded = true;
+    };
 
-                    const { status } = settings;
+    const ensureStatusLoaded = async () => {
+        if (statusLoaded || pendingLoad || !hasStatus) return;
 
-                    if (!isHovering) return;
+        pendingLoad = (async () => {
+            try {
+                const settings = await getUserSettings(userId, {
+                    useDescription: true,
+                });
 
-                    if (status) {
-                        let statusText = status;
-                        if (statusText.length > MAX_STATUS_LENGTH) {
-                            statusText =
-                                statusText.substring(0, MAX_STATUS_LENGTH) +
-                                '...';
-                        }
-
-                        const isUserTrusted = TRUSTED_USER_IDS.includes(
-                            String(userId),
-                        );
-
-                        if (isUserTrusted) {
-                            bubble.innerHTML = DOMPurify.sanitize(
-                                parseMarkdown(statusText),
-                                {
-                                    FORBID_ATTR: ['style'],
-                                    FORBID_TAGS: ['audio'],
-                                },
-                            );
-                        } else {
-                            bubble.textContent = statusText;
-                        }
-                        statusLoaded = true;
-                    } else {
-                        bubbleWrapper.remove();
-                        return;
-                    }
-                } catch (error) {
-                    if (!isHovering) return;
-                    if (
-                        error &&
-                        typeof error.message === 'string' &&
-                        error.message.includes('Extension context invalidated')
-                    ) {
-                        bubbleWrapper.remove();
-                        return;
-                    }
-                    console.error(
-                        'RoValra: Error fetching status for home page hover.',
-                        error,
-                    );
+                const { status } = settings;
+                if (!status) {
+                    hasStatus = false;
                     bubbleWrapper.remove();
                     return;
                 }
-            })();
 
-            pendingLoad = loadPromise;
-            await loadPromise;
-            pendingLoad = null;
-        }
+                renderStatus(status);
+            } catch (error) {
+                if (
+                    error &&
+                    typeof error.message === 'string' &&
+                    error.message.includes('Extension context invalidated')
+                ) {
+                    hasStatus = false;
+                    bubbleWrapper.remove();
+                    return;
+                }
 
-        if (statusLoaded && isHovering) {
-            if (!tile.matches(':hover')) return;
-
-            if (
-                activeHomeStatusBubble &&
-                activeHomeStatusBubble !== bubbleWrapper
-            ) {
-                const activeBubble = activeHomeStatusBubble.querySelector(
-                    '.rovalra-status-bubble',
+                console.error(
+                    'RoValra: Error fetching status for home page hover.',
+                    error,
                 );
-                cleanupStatusElements(activeBubble);
-                activeBubble.textContent = '';
-                activeHomeStatusBubble.style.display = 'none';
+                hasStatus = false;
+                bubbleWrapper.remove();
+            } finally {
+                pendingLoad = null;
             }
-            bubbleWrapper.style.display = 'flex';
-            activeHomeStatusBubble = bubbleWrapper;
+        })();
 
-            const videos = bubble.querySelectorAll('video');
-            for (const video of videos) {
-                video.muted = true;
-                video.volume = 0.1;
+        await pendingLoad;
+    };
 
-                video
-                    .play()
-                    .then(() => {
-                        if (isHovering) {
-                            video.muted = false;
-                        }
-                    })
-                    .catch(() => {});
+    setTimeout(() => {
+        if (!tile.isConnected) return;
+        ensureStatusLoaded();
+    }, 0);
+
+    tile.addEventListener('mouseenter', () => {
+        isHovering = true;
+
+        if (hoverIntentTimer) clearTimeout(hoverIntentTimer);
+        hoverIntentTimer = setTimeout(async () => {
+            hoverIntentTimer = null;
+            if (!tile.isConnected || !isHovering || !tile.matches(':hover')) {
+                return;
             }
-        }
+
+            if (!statusLoaded) await ensureStatusLoaded();
+
+            if (statusLoaded && isHovering) {
+                if (!tile.matches(':hover')) return;
+
+                if (
+                    activeHomeStatusBubble &&
+                    activeHomeStatusBubble !== bubbleWrapper
+                ) {
+                    const activeBubble = activeHomeStatusBubble.querySelector(
+                        '.rovalra-status-bubble',
+                    );
+                    pauseStatusMedia(activeBubble);
+                    activeHomeStatusBubble.style.display = 'none';
+                }
+                bubbleWrapper.style.display = 'flex';
+                activeHomeStatusBubble = bubbleWrapper;
+
+                const videos = bubble.querySelectorAll('video');
+                for (const video of videos) {
+                    video.muted = true;
+                    video.volume = 0.1;
+
+                    video
+                        .play()
+                        .then(() => {
+                            if (isHovering) {
+                                video.muted = false;
+                            }
+                        })
+                        .catch(() => {});
+                }
+            }
+        }, 40);
     });
 
     tile.addEventListener('mouseleave', () => {
         isHovering = false;
-        cleanupStatusElements(bubble);
-        bubble.textContent = '';
-        statusLoaded = false;
+        if (hoverIntentTimer) {
+            clearTimeout(hoverIntentTimer);
+            hoverIntentTimer = null;
+        }
+        pauseStatusMedia(bubble);
 
         if (activeHomeStatusBubble === bubbleWrapper)
             activeHomeStatusBubble = null;

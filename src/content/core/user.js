@@ -1,4 +1,6 @@
 // Gets the user id of the authed user
+let cachedAuthenticatedUserId = undefined;
+let pendingAuthenticatedUserId = null;
 
 function waitForDom() {
     return new Promise((resolve) => {
@@ -13,6 +15,15 @@ function waitForDom() {
 }
 
 export async function getAuthenticatedUserId() {
+    if (cachedAuthenticatedUserId !== undefined) {
+        return cachedAuthenticatedUserId;
+    }
+
+    if (pendingAuthenticatedUserId) {
+        return pendingAuthenticatedUserId;
+    }
+
+    pendingAuthenticatedUserId = (async () => {
     let cachedId = null;
 
     try {
@@ -23,7 +34,8 @@ export async function getAuthenticatedUserId() {
             error instanceof Error &&
             error.message.includes('Extension context invalidated')
         ) {
-            return null;
+            cachedAuthenticatedUserId = null;
+            return cachedAuthenticatedUserId;
         }
         throw error;
     }
@@ -53,7 +65,8 @@ export async function getAuthenticatedUserId() {
                     }
                 });
         }
-        return actualId;
+        cachedAuthenticatedUserId = actualId;
+        return cachedAuthenticatedUserId;
     };
 
     if (document.readyState !== 'loading') {
@@ -62,7 +75,8 @@ export async function getAuthenticatedUserId() {
 
     if (cachedId) {
         document.addEventListener('DOMContentLoaded', scrapeId, { once: true });
-        return cachedId;
+        cachedAuthenticatedUserId = cachedId;
+        return cachedAuthenticatedUserId;
     }
 
     await new Promise((resolve) => {
@@ -70,6 +84,13 @@ export async function getAuthenticatedUserId() {
     });
 
     return scrapeId();
+    })();
+
+    try {
+        return await pendingAuthenticatedUserId;
+    } finally {
+        pendingAuthenticatedUserId = null;
+    }
 }
 export async function getAuthenticatedUsername() {
     await waitForDom();
