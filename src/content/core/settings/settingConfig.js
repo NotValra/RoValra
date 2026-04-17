@@ -1,4 +1,7 @@
 import {
+    ROBUX_FIAT_ESTIMATE_DEFAULT_GRADIENT,
+    ROBUX_FIAT_ESTIMATE_STYLE_MODE_SOLID,
+    ROBUX_FIAT_ESTIMATE_STYLE_OPTIONS,
     TRANSACTION_FIAT_CURRENCY_OPTIONS,
     TRANSACTION_FIAT_RATE_OPTIONS,
 } from '../transactions/fiatConfig.js';
@@ -890,6 +893,47 @@ export const SETTINGS_CONFIG = {
                         type: 'select',
                         options: TRANSACTION_FIAT_RATE_OPTIONS,
                         default: 'normal',
+                    },
+                    robuxFiatEstimateStyleMode: {
+                        label: 'Text Style',
+                        description: [
+                            'Choose between a solid color or a two-color gradient for the fiat estimate text.',
+                        ],
+                        type: 'select',
+                        options: ROBUX_FIAT_ESTIMATE_STYLE_OPTIONS,
+                        default: ROBUX_FIAT_ESTIMATE_STYLE_MODE_SOLID,
+                    },
+                    robuxFiatEstimateColor: {
+                        label: 'Estimate Text Color',
+                        description: [
+                            'Pick the color used for the fiat estimate text shown next to Robux values. Used when Text Style is set to Solid Color.',
+                        ],
+                        type: 'color',
+                        default: '#7a7d81',
+                    },
+                    robuxFiatEstimateGradient: {
+                        label: 'Estimate Text Gradient',
+                        description: [
+                            'Customize the gradient used for the fiat estimate text. Used when Text Style is set to Gradient.',
+                        ],
+                        type: 'gradient',
+                        default: ROBUX_FIAT_ESTIMATE_DEFAULT_GRADIENT,
+                    },
+                    robuxFiatEstimateBold: {
+                        label: 'Bold Estimate Text',
+                        description: [
+                            'Render the fiat estimate text in bold.',
+                        ],
+                        type: 'checkbox',
+                        default: false,
+                    },
+                    robuxFiatEstimateItalic: {
+                        label: 'Italic Estimate Text',
+                        description: [
+                            'Render the fiat estimate text in italic.',
+                        ],
+                        type: 'checkbox',
+                        default: false,
                     },
                 },
             },

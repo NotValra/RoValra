@@ -6,6 +6,9 @@ import {
     DEVEX_USD_RATE,
     formatDisplayCurrency,
     getRobuxFiatSettings,
+    ROBUX_FIAT_ESTIMATE_DEFAULT_COLOR,
+    ROBUX_FIAT_ESTIMATE_DEFAULT_GRADIENT,
+    ROBUX_FIAT_ESTIMATE_STYLE_MODE_GRADIENT,
     ROBUX_FIAT_RATE_MODE_DEVEX,
 } from '../transactions/fiat.js';
 
@@ -255,11 +258,31 @@ function isValidEstimateContainer(element) {
     return true;
 }
 
+function buildEstimateStyle(fiatSettings) {
+    return {
+        styleMode:
+            fiatSettings.robuxFiatEstimateStyleMode ===
+            ROBUX_FIAT_ESTIMATE_STYLE_MODE_GRADIENT
+                ? ROBUX_FIAT_ESTIMATE_STYLE_MODE_GRADIENT
+                : 'solid',
+        color:
+            fiatSettings.robuxFiatEstimateColor ||
+            ROBUX_FIAT_ESTIMATE_DEFAULT_COLOR,
+        gradient: {
+            ...ROBUX_FIAT_ESTIMATE_DEFAULT_GRADIENT,
+            ...(fiatSettings.robuxFiatEstimateGradient || {}),
+        },
+        bold: fiatSettings.robuxFiatEstimateBold === true,
+        italic: fiatSettings.robuxFiatEstimateItalic === true,
+    };
+}
+
 async function getFormattedRobuxEstimate(robuxAmount, pricingData) {
     const fiatSettings = await getRobuxFiatSettings();
     if (!fiatSettings.robuxFiatEstimatesEnabled) return null;
 
     const targetCurrency = fiatSettings.robuxFiatDisplayCurrency || 'USD';
+    const style = buildEstimateStyle(fiatSettings);
 
     if (fiatSettings.robuxFiatRateMode === ROBUX_FIAT_RATE_MODE_DEVEX) {
         const usdAmount = robuxAmount * DEVEX_USD_RATE;
@@ -270,7 +293,10 @@ async function getFormattedRobuxEstimate(robuxAmount, pricingData) {
         );
         if (!Number.isFinite(convertedAmount)) return null;
 
-        return formatDisplayCurrency(convertedAmount, targetCurrency);
+        return {
+            text: formatDisplayCurrency(convertedAmount, targetCurrency),
+            style,
+        };
     }
 
     const estimatedBaseAmount = estimateUsdValue(robuxAmount, pricingData);
@@ -284,14 +310,60 @@ async function getFormattedRobuxEstimate(robuxAmount, pricingData) {
     );
     if (!Number.isFinite(convertedAmount)) return null;
 
-    return formatDisplayCurrency(convertedAmount, targetCurrency);
+    return {
+        text: formatDisplayCurrency(convertedAmount, targetCurrency),
+        style,
+    };
 }
 
-function upsertEstimate(anchorElement, text, options = {}) {
+function applyEstimateStyle(el, style) {
+    if (!(el instanceof HTMLElement)) return;
+
+    const useGradient =
+        style?.styleMode === ROBUX_FIAT_ESTIMATE_STYLE_MODE_GRADIENT &&
+        style.gradient?.enabled !== false &&
+        style.gradient?.color1 &&
+        style.gradient?.color2;
+
+    if (useGradient) {
+        const g = style.gradient;
+        const fade = Number.isFinite(g.fade) ? g.fade : 100;
+        const s1 = (100 - fade) / 2;
+        const s2 = 100 - s1;
+        const angle = Number.isFinite(g.angle) ? g.angle : 90;
+        const bg = `linear-gradient(${angle}deg, ${g.color1} ${s1}%, ${g.color2} ${s2}%)`;
+
+        if (el.style.backgroundImage !== bg) {
+            el.style.backgroundImage = bg;
+        }
+        el.style.backgroundClip = 'text';
+        el.style.webkitBackgroundClip = 'text';
+        el.style.color = 'transparent';
+        el.style.webkitTextFillColor = 'transparent';
+    } else {
+        if (el.style.backgroundImage) el.style.backgroundImage = '';
+        if (el.style.backgroundClip) el.style.backgroundClip = '';
+        if (el.style.webkitBackgroundClip) el.style.webkitBackgroundClip = '';
+        if (el.style.webkitTextFillColor) el.style.webkitTextFillColor = '';
+        const color = style?.color || ROBUX_FIAT_ESTIMATE_DEFAULT_COLOR;
+        if (el.style.color !== color) el.style.color = color;
+    }
+
+    const fontWeight = style?.bold ? '700' : '';
+    if (el.style.fontWeight !== fontWeight) el.style.fontWeight = fontWeight;
+    const fontStyle = style?.italic ? 'italic' : '';
+    if (el.style.fontStyle !== fontStyle) el.style.fontStyle = fontStyle;
+}
+
+function upsertEstimate(anchorElement, estimate, options = {}) {
     const anchor = getEstimateAnchor(anchorElement);
     if (!(anchor instanceof HTMLElement)) return null;
     const compact = options.compact === true;
     const appendInside = options.appendInside === true;
+
+    const text = typeof estimate === 'string' ? estimate : estimate?.text;
+    if (!text) return null;
+    const style = typeof estimate === 'object' ? estimate?.style : null;
 
     let estimateEl = null;
 
@@ -314,7 +386,6 @@ function upsertEstimate(anchorElement, text, options = {}) {
         estimateEl.className = 'rovalra-usd-estimate';
         Object.assign(estimateEl.style, {
             marginLeft: compact ? '2px' : '4px',
-            color: 'var(--text-secondary, var(--rovalra-secondary-text-color, #7a7d81))',
             fontSize: compact ? '0.85em' : '0.9em',
             whiteSpace: 'nowrap',
             display: 'inline-block',
@@ -326,12 +397,13 @@ function upsertEstimate(anchorElement, text, options = {}) {
         }
     }
 
+    applyEstimateStyle(estimateEl, style);
+
     const nextText = ` \u2248 ${text}`;
-    if (estimateEl.textContent === nextText) {
-        return estimateEl;
+    if (estimateEl.textContent !== nextText) {
+        estimateEl.textContent = nextText;
     }
 
-    estimateEl.textContent = nextText;
     return estimateEl;
 }
 
@@ -762,11 +834,35 @@ export function init() {
 
     chrome.storage.onChanged.addListener((changes, areaName) => {
         if (areaName !== 'local') return;
-        const relevant =
-            'robuxFiatEstimatesEnabled' in changes ||
-            'robuxFiatDisplayCurrency' in changes ||
-            'robuxFiatRateMode' in changes;
-        if (!relevant) return;
+
+        const styleKeys = [
+            'robuxFiatEstimateColor',
+            'robuxFiatEstimateStyleMode',
+            'robuxFiatEstimateGradient',
+            'robuxFiatEstimateBold',
+            'robuxFiatEstimateItalic',
+        ];
+        const rerenderKeys = [
+            'robuxFiatEstimatesEnabled',
+            'robuxFiatDisplayCurrency',
+            'robuxFiatRateMode',
+        ];
+
+        const hasStyleChange = styleKeys.some((key) => key in changes);
+        const hasRerenderChange = rerenderKeys.some((key) => key in changes);
+
+        if (hasStyleChange && !hasRerenderChange) {
+            getRobuxFiatSettings().then((fiatSettings) => {
+                if (!fiatSettings.robuxFiatEstimatesEnabled) return;
+                const style = buildEstimateStyle(fiatSettings);
+                document
+                    .querySelectorAll('.rovalra-usd-estimate')
+                    .forEach((el) => applyEstimateStyle(el, style));
+            });
+            return;
+        }
+
+        if (!hasRerenderChange && !hasStyleChange) return;
 
         removeAllEstimates();
         scheduleUsdRefresh(0);

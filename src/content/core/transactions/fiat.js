@@ -1,6 +1,11 @@
 import * as CacheHandler from '../storage/cacheHandler.js';
 export {
     DEVEX_USD_RATE,
+    ROBUX_FIAT_ESTIMATE_DEFAULT_COLOR,
+    ROBUX_FIAT_ESTIMATE_DEFAULT_GRADIENT,
+    ROBUX_FIAT_ESTIMATE_STYLE_MODE_GRADIENT,
+    ROBUX_FIAT_ESTIMATE_STYLE_MODE_SOLID,
+    ROBUX_FIAT_ESTIMATE_STYLE_OPTIONS,
     ROBUX_FIAT_RATE_MODE_DEVEX,
     ROBUX_FIAT_RATE_MODE_NORMAL,
     ROBUX_FIAT_SETTINGS_DEFAULTS,
@@ -22,7 +27,12 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
     if (
         changes.robuxFiatEstimatesEnabled ||
         changes.robuxFiatDisplayCurrency ||
-        changes.robuxFiatRateMode
+        changes.robuxFiatRateMode ||
+        changes.robuxFiatEstimateColor ||
+        changes.robuxFiatEstimateStyleMode ||
+        changes.robuxFiatEstimateGradient ||
+        changes.robuxFiatEstimateBold ||
+        changes.robuxFiatEstimateItalic
     ) {
         fiatSettingsPromise = null;
     }

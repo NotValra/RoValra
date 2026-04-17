@@ -15,6 +15,7 @@ import * as CacheHandler from '../storage/cacheHandler.js';
 let currentUserTier = 0;
 let gradientSyncTimeout = null;
 let donatorTierPromise = null;
+const colorLiveSaveTimeouts = new Map();
 
 export const getCurrentUserTier = () => currentUserTier;
 
@@ -1448,6 +1449,9 @@ export function initializeSettingsEventListeners() {
                 toggleElement.checked = value > 0;
             }
             savePromises.push(handleSaveSettings(settingName, value));
+        } else if (target.matches('input[type="color"]')) {
+            value = target.value;
+            savePromises.push(handleSaveSettings(settingName, value));
         } else {
             return;
         }
@@ -1479,6 +1483,24 @@ export function initializeSettingsEventListeners() {
             .catch((error) => {
                 console.error('Error saving one or more settings:', error);
             });
+    });
+
+    document.addEventListener('input', (event) => {
+        const target = event.target;
+        if (!(target instanceof HTMLInputElement)) return;
+        if (target.type !== 'color') return;
+        const settingName = target.dataset.settingName;
+        if (!settingName) return;
+
+        const existing = colorLiveSaveTimeouts.get(settingName);
+        if (existing) clearTimeout(existing);
+        const timeoutId = setTimeout(() => {
+            colorLiveSaveTimeouts.delete(settingName);
+            handleSaveSettings(settingName, target.value).catch((error) => {
+                console.error('Error saving color setting:', error);
+            });
+        }, 80);
+        colorLiveSaveTimeouts.set(settingName, timeoutId);
     });
 
     document.addEventListener('click', (event) => {

@@ -2,11 +2,40 @@ export const ROBUX_FIAT_RATE_MODE_NORMAL = 'normal';
 export const ROBUX_FIAT_RATE_MODE_DEVEX = 'devex';
 export const DEVEX_USD_RATE = 0.0038;
 
+export const ROBUX_FIAT_ESTIMATE_DEFAULT_COLOR = '#7a7d81';
+
+export const ROBUX_FIAT_ESTIMATE_STYLE_MODE_SOLID = 'solid';
+export const ROBUX_FIAT_ESTIMATE_STYLE_MODE_GRADIENT = 'gradient';
+
+export const ROBUX_FIAT_ESTIMATE_DEFAULT_GRADIENT = {
+    enabled: true,
+    color1: '#5fa8ff',
+    color2: '#d05bff',
+    angle: 90,
+    fade: 100,
+};
+
 export const ROBUX_FIAT_SETTINGS_DEFAULTS = {
     robuxFiatEstimatesEnabled: false,
     robuxFiatDisplayCurrency: 'USD',
     robuxFiatRateMode: ROBUX_FIAT_RATE_MODE_NORMAL,
+    robuxFiatEstimateColor: ROBUX_FIAT_ESTIMATE_DEFAULT_COLOR,
+    robuxFiatEstimateStyleMode: ROBUX_FIAT_ESTIMATE_STYLE_MODE_SOLID,
+    robuxFiatEstimateGradient: ROBUX_FIAT_ESTIMATE_DEFAULT_GRADIENT,
+    robuxFiatEstimateBold: false,
+    robuxFiatEstimateItalic: false,
 };
+
+export const ROBUX_FIAT_ESTIMATE_STYLE_OPTIONS = [
+    {
+        value: ROBUX_FIAT_ESTIMATE_STYLE_MODE_SOLID,
+        label: 'Solid Color',
+    },
+    {
+        value: ROBUX_FIAT_ESTIMATE_STYLE_MODE_GRADIENT,
+        label: 'Gradient',
+    },
+];
 
 export const TRANSACTION_FIAT_CURRENCY_OPTIONS = [
     { value: 'USD', label: 'USD - US Dollar' },
