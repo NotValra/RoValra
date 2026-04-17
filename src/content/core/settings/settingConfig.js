@@ -1386,6 +1386,58 @@ export const SETTINGS_CONFIG = {
                     'Trademark Violation': 'Roblox does not permit users to violate intellectual property rights.',
                     'Other': 'Your account has been suspended for violating our Terms of Use.',
                 },
+                appealStatuses: [
+                    'Appeal received',
+                    'Appeal denied',
+                    'Appeal accepted',
+                ],
+                appealMessages: {
+                    'Appeal received':
+                        "We have received your appeal request. Thanks for bringing this to our attention. We'll follow up with an update soon.",
+                    'Appeal denied':
+                        'We have reviewed your appeal. This activity is still in violation of Roblox Community Standards.',
+                    'Appeal accepted':
+                        'We have reviewed your appeal. This activity is not in violation of Roblox Community Standards. Any consequence related to this activity is reversed.',
+                    'Appeal category updated':
+                        "We have reviewed your appeal. This activity is still in violation of Roblox Community Standards. However, we've updated the violation category.",
+                },
+                appealInformation: [
+                    'Appeal something not shown',
+                    'Request Appeal',
+                    'Additional info (optional)',
+                    'You can appeal by {date}',
+                    'View past violations and manage your appeals. All content and behavior must adhere to the {link}Roblox Community Standards{linkEnd}.',
+                    'Reviews are based on {link}Roblox Community Standards{linkEnd}.',
+                    'Learn more about appeals {link}here{linkEnd}.',
+                ],
+                appealErrors: [
+                    'Appeals information not found',
+                    'If you would like to appeal something not shown here please visit {link}Support{linkEnd}.',
+                    "You've reached the maximum number of appeals. You may no longer appeal this {assetType}.",
+                ],
+                captchaLocations: [
+                    'Sign up',
+                    'Login',
+                    'Change password',
+                    'Redeeming a gift card',
+                    'Submitting a support ticket',
+                    'Buying an item (speculation, might have been removed)',
+                    'Posting on a group wall',
+                    'Joining a group',
+                    "Generic challenge",
+                    'Following a user',
+                    "Uploading clothing assets",
+                    'Posting a comment on an asset',
+                ],
+                appealAssetTypes: [
+                    'Model',
+                    'Audio',
+                    'Image',
+                    'Decal',
+                    'Mesh',
+                    'Plugin',
+                    'Video',
+                ],
             },
         },
     },

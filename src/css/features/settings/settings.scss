@@ -326,6 +326,23 @@ body:has(#settings-search-input) {
         display: none !important;
     }
 
+    .rovalra-ban-section-header {
+        width: 100%;
+        max-width: 600px;
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--rovalra-main-text-color);
+        margin: 6px 0 12px;
+        padding-top: 4px;
+        border-top: 1px solid rgba(128, 128, 128, 0.18);
+
+        &:first-of-type {
+            margin-top: 0;
+            padding-top: 0;
+            border-top: none;
+        }
+    }
+
     .rovalra-ban-disclaimer {
         background: var(--rovalra-container-background-color);
         border: 1px solid var(--rovalra-border-color, rgba(128, 128, 128, 0.25));
@@ -346,6 +363,14 @@ body:has(#settings-search-input) {
         }
     }
 
+    .rovalra-ban-section-note {
+        margin-top: 20px;
+        margin-bottom: 18px;
+        text-align: left;
+        border-left-width: 2px;
+        background: rgba(128, 128, 128, 0.06);
+    }
+
     .rovalra-ban-controls {
         display: flex;
         gap: 16px;
@@ -353,6 +378,18 @@ body:has(#settings-search-input) {
         flex-wrap: wrap;
         width: 100%;
         max-width: 600px;
+    }
+
+    .rovalra-ban-appeal-controls {
+        padding: 18px;
+        border: 1px solid var(--rovalra-border-color, rgba(128, 128, 128, 0.18));
+        border-radius: 12px;
+        background: linear-gradient(
+            180deg,
+            rgba(128, 128, 128, 0.08),
+            rgba(128, 128, 128, 0.03)
+        );
+        box-sizing: border-box;
     }
 
     .rovalra-ban-control-section {
@@ -442,6 +479,27 @@ body:has(#settings-search-input) {
         }
     }
 
+    .rovalra-ban-text-input {
+        width: 100%;
+        padding: 10px 14px;
+        border: 1px solid var(--rovalra-border-color, rgba(128, 128, 128, 0.25));
+        border-radius: 8px;
+        background: var(--rovalra-main-background-color);
+        color: var(--rovalra-main-text-color);
+        font-size: 13px;
+        box-sizing: border-box;
+
+        &::placeholder {
+            color: var(--rovalra-secondary-text-color);
+            opacity: 0.55;
+        }
+
+        &:focus {
+            outline: none;
+            border-color: var(--rovalra-playbutton-color, #00a2ff);
+        }
+    }
+
     // Preview header (label + copy button)
     .rovalra-ban-preview-header {
         display: flex;
@@ -460,156 +518,230 @@ body:has(#settings-search-input) {
         white-space: nowrap;
     }
 
-    // Preview container - Roblox moderation page style (dark/grey theme)
-    .rovalra-ban-preview-container {
-        position: relative;
-        border-radius: 10px;
-        overflow: hidden;
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        background: #232527;
+    .rovalra-ban-preview-hint {
         width: 100%;
         max-width: 600px;
+        margin: -2px 0 10px;
+        font-size: 12px;
+        line-height: 1.45;
+        color: var(--rovalra-secondary-text-color);
+    }
+
+    // Preview container - Roblox moderation card style
+    .rovalra-ban-preview-container {
+        position: relative;
+        border-radius: 0;
+        overflow: visible;
+        border: none;
+        background: transparent;
+        width: 100%;
+        max-width: 600px;
+        box-shadow: none;
+    }
+
+    .rovalra-preview-menu {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        z-index: 4;
+    }
+
+    .rovalra-preview-menu-trigger {
+        width: 34px;
+        height: 34px;
+        border-radius: 8px;
+        border: 1px solid rgba(34, 39, 45, 0.08);
+        background: rgba(243, 244, 247, 0.95);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 3px;
+        cursor: pointer;
+        padding: 0;
+
+        span {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: #2e3339;
+            display: block;
+        }
+    }
+
+    .rovalra-preview-menu-done {
+        width: auto;
+        min-width: 58px;
+        padding: 0 12px;
+        font-size: 12px;
+        font-weight: 700;
+        color: #243041;
+    }
+
+    .rovalra-preview-menu-dropdown {
+        position: absolute;
+        top: calc(100% + 8px);
+        right: 0;
+        min-width: 88px;
+        padding: 6px;
+        border-radius: 10px;
+        background: rgba(20, 21, 22, 0.98);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+    }
+
+    .rovalra-preview-menu-action {
+        width: 100%;
+        border: none;
+        background: transparent;
+        color: #f1f1f1;
+        font-size: 13px;
+        font-weight: 600;
+        text-align: left;
+        padding: 8px 10px;
+        border-radius: 6px;
+        cursor: pointer;
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+    }
+
+    .rovalra-preview-editing {
+        outline: 1px dashed rgba(110, 168, 217, 0.8);
+        outline-offset: 3px;
+        border-radius: 4px;
     }
 
     .rovalra-ban-preview-card {
-        padding: 36px 44px 32px;
+        padding: 24px 20px 20px;
         font-family: "Source Sans Pro", "Helvetica Neue", Helvetica, Arial, sans-serif;
-        color: #d4d4d4;
+        color: #2b3137;
+        background: linear-gradient(180deg, #f4f4f7, #efeff3);
+        margin: 24px;
+        border-radius: 18px;
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
+    }
+
+    .rovalra-ban-preview-toprow {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 24px;
+        padding-right: 34px;
+    }
+
+    .rovalra-ban-preview-titlewrap {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .rovalra-ban-preview-icon {
+        width: 26px;
+        height: 26px;
+        color: #eda800;
+
+        svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+            fill: currentColor;
+        }
     }
 
     .rovalra-ban-preview-title {
-        font-size: 28px;
-        font-weight: 300;
-        color: #e8e8e8;
-        margin: 0 0 20px 0;
-        padding-bottom: 16px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        font-size: 23px;
+        font-weight: 700;
+        color: #2c3138;
+        margin: 0;
+        padding: 0;
+        border: none;
     }
 
     .rovalra-ban-preview-body {
         font-size: 14px;
-        line-height: 1.75;
-        color: #b0b0b0;
+        line-height: 1.55;
+        color: #444c55;
     }
 
     .rovalra-ban-preview-intro {
+        margin: 0 0 18px 0;
+        font-size: 16px;
+        color: #343b43;
+    }
+
+    .rovalra-ban-preview-section-title {
+        font-size: 15px;
+        font-weight: 700;
+        color: #2d3339;
         margin: 0 0 12px 0;
+    }
 
-        a {
-            color: #6ea8d9;
-            text-decoration: none;
-            cursor: pointer;
-            pointer-events: auto;
+    .rovalra-ban-preview-panel {
+        background: #e0e3ea;
+        border-radius: 10px;
+        padding: 16px;
+        margin-bottom: 20px;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
 
-            &:hover {
-                text-decoration: underline;
-            }
+    .rovalra-ban-preview-detail {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 3px;
+        margin-bottom: 10px;
+        color: #3f4750;
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+
+        strong {
+            font-size: 13px;
+            font-weight: 700;
+            color: #232931;
+        }
+
+        span {
+            font-size: 15px;
+            color: #4b5460;
         }
     }
 
     .rovalra-ban-preview-reviewed {
-        margin: 0 0 10px 0;
-        color: #999;
+        margin: 0;
+        display: grid;
+        gap: 2px;
+        color: #47515a;
 
         strong {
             font-weight: 700;
-            color: #d0d0d0;
+            font-size: 13px;
+            color: #232931;
+        }
+
+        span {
+            font-size: 15px;
+            color: #48515b;
+            margin-bottom: 8px;
+        }
+
+        span:last-child {
+            margin-bottom: 0;
         }
     }
 
     .rovalra-ban-preview-modnote {
-        margin: 0 0 16px 0;
-        color: #999;
-
-        strong {
-            font-weight: 700;
-            color: #ff6b6b;
-        }
+        margin: 0;
     }
 
-    .rovalra-ban-preview-guidelines {
-        margin: 0 0 12px 0;
-
-        a {
-            color: #6ea8d9;
-            text-decoration: none;
-            cursor: pointer;
-            pointer-events: auto;
-
-            &:hover {
-                text-decoration: underline;
-            }
-        }
-    }
-
-    .rovalra-ban-preview-reactivate {
-        margin: 0 0 22px 0;
-
-        a {
-            color: #6ea8d9;
-            text-decoration: none;
-            cursor: pointer;
-            pointer-events: auto;
-
-            &:hover {
-                text-decoration: underline;
-            }
-        }
-    }
-
-    .rovalra-ban-preview-agree-row {
-        margin: 0 0 16px 0;
-        display: flex;
-        justify-content: center;
-
-        label {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 14px;
-            color: #b0b0b0;
-            cursor: default;
-
-            input[type="checkbox"] {
-                width: 15px;
-                height: 15px;
-                accent-color: #6ea8d9;
-            }
-        }
-    }
-
-    .rovalra-ban-preview-buttons {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 10px;
-        margin-top: 8px;
-    }
-
-    .rovalra-ban-preview-btn-primary {
-        background: #4a4a4d;
-        color: #e0e0e0;
-        border: none;
-        padding: 10px 32px;
-        border-radius: 4px;
-        font-size: 14px;
-        font-weight: 600;
-        cursor: default;
-        min-width: 220px;
-        text-align: center;
-    }
-
-    .rovalra-ban-preview-btn-secondary {
-        background: transparent;
-        color: #999;
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        padding: 8px 32px;
-        border-radius: 4px;
-        font-size: 14px;
-        font-weight: 500;
-        cursor: default;
-        min-width: 120px;
-        text-align: center;
+    .rovalra-ban-preview-footer-note {
+        margin: 4px 0 0;
+        padding-top: 16px;
+        border-top: 1px solid rgba(61, 70, 80, 0.14);
+        font-size: 12px;
+        line-height: 1.55;
+        color: #6c7682;
     }
 
     .rovalra-ban-bottom-note {
@@ -622,5 +754,239 @@ body:has(#settings-search-input) {
         width: 100%;
         max-width: 600px;
         line-height: 1.5;
+    }
+
+    .rovalra-appeal-preview {
+        width: 100%;
+        max-width: 600px;
+        background: #242526;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 10px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .rovalra-appeal-page {
+        padding: 28px 26px 10px;
+        color: #f1f1f1;
+        font-family: "Source Sans Pro", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    }
+
+    .rovalra-appeal-page-title {
+        font-size: 34px;
+        line-height: 1.1;
+        font-weight: 700;
+        margin: 0 0 18px 0;
+        color: #fff;
+    }
+
+    .rovalra-appeal-breadcrumb {
+        margin-bottom: 28px;
+        color: #d8d8d8;
+        font-size: 17px;
+        line-height: 1.4;
+    }
+
+    .rovalra-appeal-timeline {
+        position: relative;
+        padding-left: 14px;
+    }
+
+    .rovalra-appeal-timeline::before {
+        content: '';
+        position: absolute;
+        left: 12px;
+        top: 10px;
+        bottom: 26px;
+        width: 1px;
+        background: rgba(255, 255, 255, 0.7);
+    }
+
+    .rovalra-appeal-timeline-item {
+        position: relative;
+        display: flex;
+        gap: 22px;
+        padding-bottom: 34px;
+    }
+
+    .rovalra-appeal-marker {
+        width: 16px;
+        height: 16px;
+        margin-top: 6px;
+        border-radius: 50%;
+        background: #bebebe;
+        border: 3px solid #242526;
+        flex-shrink: 0;
+        position: relative;
+        z-index: 1;
+    }
+
+    .rovalra-appeal-entry {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .rovalra-appeal-entry-title {
+        color: #fff;
+        font-size: 25px;
+        line-height: 1.15;
+        font-weight: 700;
+        margin-bottom: 2px;
+    }
+
+    .rovalra-appeal-entry-date {
+        color: #d7d7d7;
+        font-size: 13px;
+        margin-bottom: 14px;
+    }
+
+    .rovalra-appeal-entry-text {
+        color: #e3e3e3;
+        font-size: 15px;
+        line-height: 1.5;
+        margin: 0 0 14px 0;
+    }
+
+    .rovalra-appeal-detail-box {
+        margin-top: 18px;
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        padding: 20px 22px 16px;
+        max-width: 440px;
+    }
+
+    .rovalra-appeal-detail-row {
+        margin-bottom: 16px;
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+
+    .rovalra-appeal-detail-label {
+        color: #d2d2d2;
+        font-size: 13px;
+        margin-bottom: 4px;
+    }
+
+    .rovalra-appeal-detail-value {
+        color: #fff;
+        font-size: 19px;
+        font-weight: 700;
+        line-height: 1.2;
+        word-break: break-word;
+    }
+
+    .rovalra-ban-reference-grid {
+        width: 100%;
+        max-width: 600px;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+    }
+
+    .rovalra-ban-reference-card {
+        background: var(--rovalra-container-background-color);
+        border: 1px solid var(--rovalra-border-color, rgba(128, 128, 128, 0.2));
+        border-radius: 10px;
+        padding: 16px 18px;
+        min-width: 0;
+    }
+
+    .rovalra-ban-reference-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--rovalra-main-text-color);
+        margin-bottom: 12px;
+    }
+
+    .rovalra-ban-reference-subtitle {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.4px;
+        text-transform: uppercase;
+        color: var(--rovalra-secondary-text-color);
+        margin: 14px 0 8px;
+
+        &:first-of-type {
+            margin-top: 0;
+        }
+    }
+
+    .rovalra-ban-reference-list {
+        margin: 0;
+        padding-left: 18px;
+        color: var(--rovalra-secondary-text-color);
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        font-size: 13px;
+        line-height: 1.5;
+
+        a {
+            color: var(--rovalra-playbutton-color, #00a2ff);
+            text-decoration: underline;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .rovalra-ban-preview-card {
+            margin: 16px;
+            padding: 18px;
+        }
+
+        .rovalra-ban-preview-title {
+            font-size: 20px;
+        }
+
+        .rovalra-ban-preview-header {
+            gap: 10px;
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .rovalra-ban-preview-hint {
+            margin-top: -4px;
+        }
+
+        .rovalra-ban-preview-toprow {
+            padding-right: 38px;
+        }
+
+        .rovalra-ban-preview-panel {
+            padding: 14px;
+        }
+
+        .rovalra-ban-appeal-controls {
+            padding: 14px;
+        }
+
+        .rovalra-appeal-page {
+            padding: 22px 18px 8px;
+        }
+
+        .rovalra-appeal-page-title {
+            font-size: 28px;
+        }
+
+        .rovalra-appeal-breadcrumb {
+            font-size: 15px;
+        }
+
+        .rovalra-appeal-entry-title {
+            font-size: 20px;
+        }
+
+        .rovalra-appeal-entry-text {
+            font-size: 14px;
+        }
+
+        .rovalra-appeal-detail-box {
+            max-width: none;
+            padding: 16px;
+        }
+
+        .rovalra-ban-reference-grid {
+            grid-template-columns: 1fr;
+        }
     }
 }

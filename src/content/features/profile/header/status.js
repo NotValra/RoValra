@@ -524,6 +524,14 @@ async function addHomeStatusHover(tile) {
                     }
                 } catch (error) {
                     if (!isHovering) return;
+                    if (
+                        error &&
+                        typeof error.message === 'string' &&
+                        error.message.includes('Extension context invalidated')
+                    ) {
+                        bubbleWrapper.remove();
+                        return;
+                    }
                     console.error(
                         'RoValra: Error fetching status for home page hover.',
                         error,

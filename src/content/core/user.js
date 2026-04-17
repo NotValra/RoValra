@@ -13,8 +13,20 @@ function waitForDom() {
 }
 
 export async function getAuthenticatedUserId() {
-    const storage = await chrome.storage.local.get('rovalra_authed_user_id');
-    const cachedId = storage.rovalra_authed_user_id;
+    let cachedId = null;
+
+    try {
+        const storage = await chrome.storage.local.get('rovalra_authed_user_id');
+        cachedId = storage.rovalra_authed_user_id;
+    } catch (error) {
+        if (
+            error instanceof Error &&
+            error.message.includes('Extension context invalidated')
+        ) {
+            return null;
+        }
+        throw error;
+    }
 
     const scrapeId = () => {
         const meta = document.querySelector('meta[name="user-data"]');
@@ -23,7 +35,23 @@ export async function getAuthenticatedUserId() {
             : null;
 
         if (actualId !== cachedId) {
-            chrome.storage.local.set({ rovalra_authed_user_id: actualId });
+            chrome.storage.local
+                .set({ rovalra_authed_user_id: actualId })
+                .catch((error) => {
+                    if (
+                        !(
+                            error instanceof Error &&
+                            error.message.includes(
+                                'Extension context invalidated',
+                            )
+                        )
+                    ) {
+                        console.error(
+                            'RoValra: Failed to cache authenticated user id.',
+                            error,
+                        );
+                    }
+                });
         }
         return actualId;
     };
