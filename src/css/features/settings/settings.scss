@@ -434,8 +434,11 @@ body:has(#settings-search-input) {
         font-size: 13px;
         cursor: pointer;
         color: var(--rovalra-secondary-text-color);
-        transition: background-color 0.12s, color 0.12s;
-        border-bottom: 1px solid var(--rovalra-border-color, rgba(128, 128, 128, 0.08));
+        transition:
+            background-color 0.12s,
+            color 0.12s;
+        border-bottom: 1px solid
+            var(--rovalra-border-color, rgba(128, 128, 128, 0.08));
         user-select: none;
 
         &:last-child {
@@ -462,7 +465,6 @@ body:has(#settings-search-input) {
         background: var(--rovalra-main-background-color);
         color: var(--rovalra-main-text-color);
         font-size: 13px;
-        font-family: inherit;
         resize: vertical;
         min-height: 60px;
         transition: border-color 0.2s;
@@ -614,7 +616,7 @@ body:has(#settings-search-input) {
 
     .rovalra-ban-preview-card {
         padding: 24px 20px 20px;
-        font-family: "Source Sans Pro", "Helvetica Neue", Helvetica, Arial, sans-serif;
+
         color: #2b3137;
         background: linear-gradient(180deg, #f4f4f7, #efeff3);
         margin: 24px;
@@ -637,8 +639,8 @@ body:has(#settings-search-input) {
     }
 
     .rovalra-ban-preview-icon {
-        width: 26px;
-        height: 26px;
+        width: 40px;
+        height: 40px;
         color: #eda800;
 
         svg {
@@ -666,7 +668,7 @@ body:has(#settings-search-input) {
 
     .rovalra-ban-preview-intro {
         margin: 0 0 18px 0;
-        font-size: 16px;
+        font-size: 13px;
         color: #343b43;
     }
 
@@ -697,13 +699,14 @@ body:has(#settings-search-input) {
         }
 
         strong {
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 700;
             color: #232931;
         }
 
         span {
-            font-size: 15px;
+            font-size: 14px;
+            font-weight: 400;
             color: #4b5460;
         }
     }
@@ -769,7 +772,6 @@ body:has(#settings-search-input) {
     .rovalra-appeal-page {
         padding: 28px 26px 10px;
         color: #f1f1f1;
-        font-family: "Source Sans Pro", "Helvetica Neue", Helvetica, Arial, sans-serif;
     }
 
     .rovalra-appeal-page-title {

@@ -572,6 +572,12 @@ function renderPreviewToBlob(previewCard) {
             ctx.closePath();
         };
 
+        const getFont = (el) => {
+            if (!el) return '14px sans-serif';
+            const style = window.getComputedStyle(el);
+            return `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+        };
+
         const wrapText = (
             ctx,
             text,
@@ -580,9 +586,13 @@ function renderPreviewToBlob(previewCard) {
             maxWidth,
             lineHeight,
             color,
+            font,
         ) => {
+            if (font) ctx.font = font;
             ctx.fillStyle = color;
-            const words = String(text || '').split(/\s+/).filter(Boolean);
+            const words = String(text || '')
+                .split(/\s+/)
+                .filter(Boolean);
             let line = '';
             let currentY = y;
 
@@ -647,14 +657,13 @@ function renderPreviewToBlob(previewCard) {
             ctx.fillRect(padX + 10.5, y + 1, 1.5, 8);
             ctx.fillRect(padX + 10.5, y + 12, 1.5, 1.5);
 
-            ctx.font =
-                '700 23px "Source Sans Pro", "Helvetica Neue", Helvetica, Arial, sans-serif';
             ctx.fillStyle = '#2c3138';
+            ctx.font = getFont(
+                previewCard.querySelector('.rovalra-ban-preview-title'),
+            );
             ctx.fillText(title || 'Warning', padX + 30, y + 14);
             y += 50;
 
-            ctx.font =
-                '400 16px "Source Sans Pro", "Helvetica Neue", Helvetica, Arial, sans-serif';
             y = wrapText(
                 ctx,
                 intro,
@@ -663,12 +672,16 @@ function renderPreviewToBlob(previewCard) {
                 width - padX * 2,
                 22,
                 '#343b43',
+                getFont(
+                    previewCard.querySelector('.rovalra-ban-preview-intro'),
+                ),
             );
             y += 8;
 
-            ctx.font =
-                '700 15px "Source Sans Pro", "Helvetica Neue", Helvetica, Arial, sans-serif';
             ctx.fillStyle = '#2d3339';
+            ctx.font = getFont(
+                previewCard.querySelector('.rovalra-ban-preview-section-title'),
+            );
             ctx.fillText(whatHeading || 'What happened', padX, y);
             y += 12;
 
@@ -683,40 +696,46 @@ function renderPreviewToBlob(previewCard) {
                     92,
                     18 +
                         blocks.reduce((sum, block) => {
-                            const strong = block.querySelector('strong')?.textContent || '';
-                            const span = block.querySelector('span')?.textContent || '';
-                            const measurementCanvas = document.createElement('canvas');
-                            const measurementCtx =
-                                measurementCanvas.getContext('2d');
-                            measurementCtx.font =
-                                '400 15px "Source Sans Pro", "Helvetica Neue", Helvetica, Arial, sans-serif';
+                            const spanEl = block.querySelector('span');
+                            const span = spanEl?.textContent || '';
+                            const font = getFont(spanEl);
+
+                            const originalFont = ctx.font;
+                            ctx.font = font;
                             const approxLines = Math.max(
                                 1,
                                 Math.ceil(
-                                    measurementCtx.measureText(span).width /
+                                    ctx.measureText(span).width /
                                         (panelWidth - 32),
                                 ),
                             );
+                            ctx.font = originalFont;
                             return sum + 18 + approxLines * lineHeight + 10;
                         }, 0),
                 );
 
                 ctx.fillStyle = '#e0e3ea';
-                drawRoundedRect(ctx, panelX, panelY, panelWidth, estimatedHeight, 10);
+                drawRoundedRect(
+                    ctx,
+                    panelX,
+                    panelY,
+                    panelWidth,
+                    estimatedHeight,
+                    10,
+                );
                 ctx.fill();
 
                 blocks.forEach((block, index) => {
-                    const strong = block.querySelector('strong')?.textContent || '';
-                    const span = block.querySelector('span')?.textContent || '';
+                    const strongEl = block.querySelector('strong');
+                    const spanEl = block.querySelector('span');
+                    const strong = strongEl?.textContent || '';
+                    const span = spanEl?.textContent || '';
 
-                    ctx.font =
-                        '700 13px "Source Sans Pro", "Helvetica Neue", Helvetica, Arial, sans-serif';
                     ctx.fillStyle = '#232931';
+                    ctx.font = getFont(strongEl);
                     ctx.fillText(strong, panelX + 16, contentY);
                     contentY += 18;
 
-                    ctx.font =
-                        '400 15px "Source Sans Pro", "Helvetica Neue", Helvetica, Arial, sans-serif';
                     contentY = wrapText(
                         ctx,
                         span,
@@ -725,6 +744,7 @@ function renderPreviewToBlob(previewCard) {
                         panelWidth - 32,
                         lineHeight,
                         '#4b5460',
+                        getFont(spanEl),
                     );
 
                     if (index !== blocks.length - 1) {
@@ -739,9 +759,10 @@ function renderPreviewToBlob(previewCard) {
                 drawDetailPanel(topDetails);
             }
 
-            ctx.font =
-                '700 15px "Source Sans Pro", "Helvetica Neue", Helvetica, Arial, sans-serif';
             ctx.fillStyle = '#2d3339';
+            ctx.font = getFont(
+                previewCard.querySelector('.rovalra-ban-preview-section-title'),
+            );
             ctx.fillText('Latest activity we reviewed', padX, y);
             y += 12;
 
@@ -749,20 +770,24 @@ function renderPreviewToBlob(previewCard) {
                 drawDetailPanel(bottomDetails);
             }
 
-            ctx.font =
-                '400 13px "Source Sans Pro", "Helvetica Neue", Helvetica, Arial, sans-serif';
             y += 4;
             ctx.fillStyle = '#7a838e';
             ctx.fillRect(padX, y, width - padX * 2, 1);
             y += 18;
             wrapText(
                 ctx,
-                footerNote || 'Moderation previews are generated locally for entertainment purposes only.',
+                footerNote ||
+                    'Moderation previews are generated locally for entertainment purposes only.',
                 padX,
                 y,
                 width - padX * 2,
                 18,
                 '#6c7682',
+                getFont(
+                    previewCard.querySelector(
+                        '.rovalra-ban-preview-footer-note',
+                    ),
+                ),
             );
         };
 
@@ -783,14 +808,13 @@ function renderPreviewToBlob(previewCard) {
             let y = 34;
             const padX = 26;
 
-            ctx.font =
-                '700 34px "Source Sans Pro", "Helvetica Neue", Helvetica, Arial, sans-serif';
             ctx.fillStyle = '#ffffff';
+            ctx.font = getFont(
+                previewCard.querySelector('.rovalra-appeal-page-title'),
+            );
             ctx.fillText(title || 'Details', padX, y);
             y += 30;
 
-            ctx.font =
-                '400 17px "Source Sans Pro", "Helvetica Neue", Helvetica, Arial, sans-serif';
             y = wrapText(
                 ctx,
                 breadcrumb,
@@ -799,6 +823,9 @@ function renderPreviewToBlob(previewCard) {
                 width - padX * 2,
                 24,
                 '#d8d8d8',
+                getFont(
+                    previewCard.querySelector('.rovalra-appeal-breadcrumb'),
+                ),
             );
             y += 8;
 
@@ -835,20 +862,20 @@ function renderPreviewToBlob(previewCard) {
                 let contentY = itemY + 8;
                 const contentX = padX + 34;
 
-                ctx.font =
-                    '700 22px "Source Sans Pro", "Helvetica Neue", Helvetica, Arial, sans-serif';
                 ctx.fillStyle = '#ffffff';
+                ctx.font = getFont(
+                    item.querySelector('.rovalra-appeal-entry-title'),
+                );
                 ctx.fillText(titleText || '', contentX, contentY);
                 contentY += 24;
 
-                ctx.font =
-                    '400 14px "Source Sans Pro", "Helvetica Neue", Helvetica, Arial, sans-serif';
                 ctx.fillStyle = '#d4d4d4';
+                ctx.font = getFont(
+                    item.querySelector('.rovalra-appeal-entry-date'),
+                );
                 ctx.fillText(dateText || '', contentX, contentY);
                 contentY += 26;
 
-                ctx.font =
-                    '400 15px "Source Sans Pro", "Helvetica Neue", Helvetica, Arial, sans-serif';
                 paragraphs.forEach((paragraph) => {
                     contentY = wrapText(
                         ctx,
@@ -858,43 +885,84 @@ function renderPreviewToBlob(previewCard) {
                         width - contentX - 26,
                         24,
                         '#e0e0e0',
+                        getFont(paragraph),
                     );
                     contentY += 10;
                 });
 
                 if (detailRows.length) {
                     const boxX = contentX;
+                    const boxWidth = Math.min(440, width - contentX - 30);
+
+                    let measuredHeight = 24;
+                    detailRows.forEach((row) => {
+                        const valueEl = row.querySelector(
+                            '.rovalra-appeal-detail-value',
+                        );
+                        const value = valueEl?.textContent || '';
+                        measuredHeight += 24;
+
+                        const font = getFont(valueEl);
+                        const originalFont = ctx.font;
+                        ctx.font = font;
+
+                        const words = String(value)
+                            .split(/\s+/)
+                            .filter(Boolean);
+                        let line = '';
+                        let rowLines = 0;
+                        const maxWidth = boxWidth - 44;
+                        words.forEach((word) => {
+                            const nextLine = line ? `${line} ${word}` : word;
+                            if (
+                                ctx.measureText(nextLine).width > maxWidth &&
+                                line
+                            ) {
+                                rowLines++;
+                                line = word;
+                            } else {
+                                line = nextLine;
+                            }
+                        });
+                        if (line || words.length === 0) rowLines++;
+                        ctx.font = originalFont;
+
+                        measuredHeight += rowLines * 22;
+                        measuredHeight += 12;
+                    });
+
+                    const boxHeight = measuredHeight;
                     const boxY = contentY;
-                    const boxWidth = Math.min(390, width - contentX - 30);
-                    const boxHeight = 26 + detailRows.length * 56;
                     ctx.strokeStyle = 'rgba(255,255,255,0.35)';
                     drawRoundedRect(ctx, boxX, boxY, boxWidth, boxHeight, 0);
                     ctx.stroke();
 
                     let rowY = boxY + 24;
                     detailRows.forEach((row) => {
-                        const label = row.querySelector(
+                        const labelEl = row.querySelector(
                             '.rovalra-appeal-detail-label',
-                        )?.textContent;
-                        const value = row.querySelector(
+                        );
+                        const valueEl = row.querySelector(
                             '.rovalra-appeal-detail-value',
-                        )?.textContent;
-                        ctx.font =
-                            '400 13px "Source Sans Pro", "Helvetica Neue", Helvetica, Arial, sans-serif';
+                        );
+                        const label = labelEl?.textContent;
+                        const value = valueEl?.textContent;
+
                         ctx.fillStyle = '#cfcfcf';
-                        ctx.fillText(label || '', boxX + 18, rowY);
+                        ctx.font = getFont(labelEl);
+                        ctx.fillText(label || '', boxX + 22, rowY);
                         rowY += 24;
-                        ctx.font =
-                            '700 15px "Source Sans Pro", "Helvetica Neue", Helvetica, Arial, sans-serif';
+
                         ctx.fillStyle = '#ffffff';
                         rowY = wrapText(
                             ctx,
                             value,
-                            boxX + 18,
+                            boxX + 22,
                             rowY,
-                            boxWidth - 36,
+                            boxWidth - 44,
                             22,
                             '#ffffff',
+                            getFont(valueEl),
                         );
                         rowY += 12;
                     });
@@ -932,7 +1000,6 @@ function renderPreviewToBlob(previewCard) {
         }, 'image/png');
     });
 }
-
 
 function formatModerationReviewDate(date) {
     return (
@@ -1000,7 +1067,12 @@ function createBanGeneratorUI(setting) {
     let selectedAssetType = setting.appealAssetTypes?.[0] || 'Model';
     let selectedAppealReason = selectedReason;
 
-    const createScrollSection = (labelText, values, selectedValue, onSelect) => {
+    const createScrollSection = (
+        labelText,
+        values,
+        selectedValue,
+        onSelect,
+    ) => {
         const section = document.createElement('div');
         section.className = 'rovalra-ban-control-section';
 
@@ -1020,8 +1092,8 @@ function createBanGeneratorUI(setting) {
             }
             item.textContent = value;
             item.addEventListener('click', () => {
-                list.querySelectorAll('.rovalra-ban-scroll-item').forEach((el) =>
-                    el.classList.remove('selected'),
+                list.querySelectorAll('.rovalra-ban-scroll-item').forEach(
+                    (el) => el.classList.remove('selected'),
                 );
                 item.classList.add('selected');
                 onSelect(value);
@@ -1413,7 +1485,8 @@ function createBanGeneratorUI(setting) {
     wrapper.appendChild(appealSectionHeader);
 
     const appealControls = document.createElement('div');
-    appealControls.className = 'rovalra-ban-controls rovalra-ban-appeal-controls';
+    appealControls.className =
+        'rovalra-ban-controls rovalra-ban-appeal-controls';
 
     appealControls.appendChild(
         createScrollSection(
@@ -1504,7 +1577,7 @@ function createBanGeneratorUI(setting) {
     appealCommentInput.placeholder =
         'Describe why the moderation action should be reviewed';
     appealCommentInput.value =
-        "This content is not in violation of the Roblox Community Standards. This asset keeps triggering the same false flag whenever it is updated.";
+        'This content is not in violation of the Roblox Community Standards. This asset keeps triggering the same false flag whenever it is updated.';
     appealCommentInput.addEventListener('input', () => updatePreview());
     appealCommentSection.appendChild(appealCommentInput);
     appealControls.appendChild(appealCommentSection);
@@ -1833,7 +1906,11 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
 
     // Ban generator gets its own full-width layout (no side-by-side label)
     if (setting.type === 'banGenerator') {
-        const inputElement = generateSettingInput(settingName, setting, REGIONS);
+        const inputElement = generateSettingInput(
+            settingName,
+            setting,
+            REGIONS,
+        );
         settingContainer.appendChild(inputElement);
         return settingContainer;
     }
