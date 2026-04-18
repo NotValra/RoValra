@@ -292,10 +292,12 @@ export const SETTINGS_CONFIG = {
                 label: 'Total Spent on Experience',
                 description: [
                     'This shows how much Robux you have spent total on this experience.',
+                    'This will scan your transactions in the background and store the total spent (locally)',
                     'This may take a few mins before it works when first installing the extension.',
                 ],
                 type: 'checkbox',
                 default: true,
+                storageKey: 'rovalra_transactions_data',
             },
             OldestVersionEnabled: {
                 label: 'Oldest Server Version',
@@ -921,9 +923,7 @@ export const SETTINGS_CONFIG = {
                     },
                     robuxFiatEstimateBold: {
                         label: 'Bold Estimate Text',
-                        description: [
-                            'Render the fiat estimate text in bold.',
-                        ],
+                        description: ['Render the fiat estimate text in bold.'],
                         type: 'checkbox',
                         default: false,
                     },
