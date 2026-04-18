@@ -158,6 +158,11 @@
         "tooltip": "This shows if Roblox thinks your account is your first account. <br>This info comes directly from Roblox but may not be accurate.",
         "createdDate": "First account created: {{date}}"
     },
+    "legacyThemeSwitcher": {
+        "label": "Theme",
+        "light": "Light",
+        "dark": "Dark"
+    },
     "previousPrice": {
         "offSale": "Off Sale",
         "text": "Previous Price:"

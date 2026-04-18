@@ -1165,6 +1165,15 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
+            legacyThemeSwitcherEnabled: {
+                label: 'Legacy Theme Switcher',
+                description: [
+                    'This adds a dropdown in the Roblox settings which replicates how the old theme switcher worked',
+                    "This means you won't have to switch to your preferred theme when logging in on a new browser"
+                ],
+                type: 'checkbox',
+                default: false
+            },
 
             copyIdEnabled: {
                 label: 'Allows you to quickly copy an id of a thing you are right clicking.',

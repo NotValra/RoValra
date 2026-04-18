@@ -73,50 +73,46 @@ export async function getCurrencyConversionRate(baseCurrency, targetCurrency) {
         return cachedRate;
     }
 
-    const endpoints = [
-        `https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/${encodeURIComponent(base)}.json`,
-        `https://latest.currency-api.pages.dev/v1/currencies/${encodeURIComponent(base)}.json`,
-    ];
+    try {
+        const data = await callRobloxApiJson({
+            isRovalraApi: true,
+            subdomain: 'apis',
+            endpoint: '/v1/currency/rates',
+        });
 
-    let lastError = null;
-    let rate = null;
-
-    for (const url of endpoints) {
-        try {
-            const data = await callRobloxApiJson({
-                fullUrl: url,
-                credentials: 'omit',
-            });
-            const fetchedRate = Number(data?.[base]?.[target]);
-            if (!Number.isFinite(fetchedRate) || fetchedRate <= 0) {
-                lastError = new Error(
-                    `Invalid conversion rate for ${base}/${target}`,
-                );
-                continue;
-            }
-            rate = fetchedRate;
-            break;
-        } catch (error) {
-            lastError = error;
+        const usdRates = data?.usd;
+        if (!usdRates) {
+            throw new Error('RoValra: Invalid currency API response structure');
         }
-    }
 
-    if (rate === null) {
-        console.error('RoValra: Currency rate fetch failed', lastError);
-        throw (
-            lastError ||
-            new Error(`Failed to fetch conversion rate for ${base}/${target}`)
+        const rateToBase = base === 'usd' ? 1 : Number(usdRates[base]);
+        const rateToTarget = target === 'usd' ? 1 : Number(usdRates[target]);
+
+        if (
+            !Number.isFinite(rateToBase) ||
+            rateToBase <= 0 ||
+            !Number.isFinite(rateToTarget) ||
+            rateToTarget <= 0
+        ) {
+            throw new Error(
+                `RoValra: Invalid conversion data for ${base}/${target}`,
+            );
+        }
+
+        const rate = rateToTarget / rateToBase;
+
+        await CacheHandler.set(
+            'currency_conversion_rates',
+            cacheKey,
+            rate,
+            'local',
         );
+
+        return rate;
+    } catch (error) {
+        console.error('RoValra: Currency rate fetch failed', error);
+        throw error;
     }
-
-    await CacheHandler.set(
-        'currency_conversion_rates',
-        cacheKey,
-        rate,
-        'local',
-    );
-
-    return rate;
 }
 
 export async function convertCurrencyAmount(
