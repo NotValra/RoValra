@@ -976,6 +976,55 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
+                childSettings: {
+                    tradeShowItemValues: {
+                        label: 'Show Item Values',
+                        description:
+                            'Display Rolimons item values on individual trade item cards',
+                        type: 'checkbox',
+                        default: true,
+                    },
+                    tradeShowProjectedIndicator: {
+                        label: 'Show Projected Item Indicator',
+                        description: 'Display warning icon for projected items',
+                        type: 'checkbox',
+                        default: true,
+                    },
+                    tradeShowRareIndicator: {
+                        label: 'Show Rare Item Indicator',
+                        description: 'Display rare item indicator icon',
+                        type: 'checkbox',
+                        default: true,
+                    },
+                    tradeShowItemInfo: {
+                        label: 'Show Item Info / Trend / Demand',
+                        description:
+                            'Display item information tooltip with trend, demand and risk data',
+                        type: 'checkbox',
+                        default: true,
+                    },
+                    tradeShowTotalValue: {
+                        label: 'Show Total Trade Value',
+                        description:
+                            'Display total value summary line in trade offers',
+                        type: 'checkbox',
+                        default: true,
+                    },
+                    tradeShowTotalDemand: {
+                        label: 'Show Average Demand',
+                        description:
+                            'Display average demand summary line in trade offers',
+                        type: 'checkbox',
+                        default: true,
+                    },
+                    tradeShowDiffPills: {
+                        label: 'Show Value / RAP Difference Pills',
+                        description:
+                            'Display the value and RAP difference comparison pills at the bottom of the trade window',
+                        type: 'checkbox',
+                        default: true,
+                    },
+                },
             },
             tradePreviewEnabled: {
                 label: 'Trade Preview',
@@ -1169,10 +1218,10 @@ export const SETTINGS_CONFIG = {
                 label: 'Legacy Theme Switcher',
                 description: [
                     'This adds a dropdown in the Roblox settings which replicates how the old theme switcher worked',
-                    "This means you won't have to switch to your preferred theme when logging in on a new browser"
+                    "This means you won't have to switch to your preferred theme when logging in on a new browser",
                 ],
                 type: 'checkbox',
-                default: false
+                default: false,
             },
 
             copyIdEnabled: {

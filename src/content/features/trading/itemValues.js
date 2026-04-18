@@ -28,12 +28,32 @@ let robuxObserverRequest = null;
 let dividerObserverRequest = null;
 let updateSummaryTimeout = null;
 const pendingCards = new Map();
-let featureSettings = { tradeValuesEnabled: true, tradeRiskEnabled: true };
+let featureSettings = {
+    tradeValuesEnabled: true,
+    tradeRiskEnabled: true,
+    tradeShowItemValues: true,
+    tradeShowProjectedIndicator: true,
+    tradeShowRareIndicator: true,
+    tradeShowItemInfo: true,
+    tradeShowTotalValue: true,
+    tradeShowTotalDemand: true,
+    tradeShowDiffPills: true,
+};
 let includeRobuxInCalculation = true;
 
 export function init() {
     chrome.storage.local.get(
-        { tradeValuesEnabled: true, tradeRiskEnabled: true },
+        {
+            tradeValuesEnabled: true,
+            tradeRiskEnabled: true,
+            tradeShowItemValues: true,
+            tradeShowProjectedIndicator: true,
+            tradeShowRareIndicator: true,
+            tradeShowItemInfo: true,
+            tradeShowTotalValue: true,
+            tradeShowTotalDemand: true,
+            tradeShowDiffPills: true,
+        },
         (settings) => {
             featureSettings = settings;
             if (!featureSettings.tradeValuesEnabled) return;
@@ -222,92 +242,101 @@ export function updateItemCard(card, assetId, options = {}) {
     const value = data.default_price || data.rap || 0;
     const textColor = options.fontColor || 'var(--rovalra-main-text-color)';
 
-    const priceDiv = card.querySelector('.item-card-price, .rovalra-item-rap');
-    if (card.classList.contains('trade-request-item')) {
-        const itemValueDiv = card.querySelector('.item-value');
-        if (itemValueDiv) {
-            itemValueDiv.style.display = 'flex';
-            itemValueDiv.style.alignItems = 'center';
-            itemValueDiv.style.justifyContent = 'center';
-            itemValueDiv.style.gap = '6px';
-            if (!itemValueDiv.querySelector('.rovalra-value-label')) {
+    if (featureSettings.tradeShowItemValues) {
+        const priceDiv = card.querySelector(
+            '.item-card-price, .rovalra-item-rap',
+        );
+        if (card.classList.contains('trade-request-item')) {
+            const itemValueDiv = card.querySelector('.item-value');
+            if (itemValueDiv) {
+                itemValueDiv.style.display = 'flex';
+                itemValueDiv.style.alignItems = 'center';
+                itemValueDiv.style.justifyContent = 'center';
+                itemValueDiv.style.gap = '6px';
+                if (!itemValueDiv.querySelector('.rovalra-value-label')) {
+                    const valDiv = document.createElement('div');
+                    valDiv.className = 'rovalra-value-label';
+                    valDiv.style.display = 'flex';
+                    valDiv.style.alignItems = 'center';
+                    valDiv.style.marginTop = '0px';
+                    valDiv.innerHTML = `
+                        <img src="${assets.rolimonsIcon}" style="width: 14px; height: 14px; margin-right: 4px;">
+                        <span class="text-robux" style="font-weight: 600;">${value.toLocaleString()}</span>
+                    `; //Verified
+                    itemValueDiv.appendChild(valDiv);
+                }
+            } else if (!card.querySelector('.rovalra-value-label')) {
                 const valDiv = document.createElement('div');
                 valDiv.className = 'rovalra-value-label';
-                valDiv.style.display = 'flex';
-                valDiv.style.alignItems = 'center';
-                valDiv.style.marginTop = '0px';
-                valDiv.innerHTML = `
-                    <img src="${assets.rolimonsIcon}" style="width: 14px; height: 14px; margin-right: 4px;">
-                    <span class="text-robux" style="font-weight: 600;">${value.toLocaleString()}</span>
-                `; //Verified
-                itemValueDiv.appendChild(valDiv);
-            }
-        } else if (!card.querySelector('.rovalra-value-label')) {
-            const valDiv = document.createElement('div');
-            valDiv.className = 'rovalra-value-label';
-            Object.assign(valDiv.style, {
-                position: 'absolute',
-                bottom: '0',
-                left: '0',
-                width: '100%',
-                textAlign: 'center',
-                backgroundColor: 'rgba(0,0,0,0.5)',
-                color: '#fff',
-                fontSize: '10px',
-                padding: '2px 0',
-                zIndex: '5',
-            });
-            valDiv.innerHTML = `
-                <img src="${assets.rolimonsIcon}" style="width: 10px; height: 10px; margin-right: 2px; vertical-align: middle;">
-                ${value.toLocaleString()}
-            `; // Verified
-            card.style.position = 'relative';
-            card.appendChild(valDiv);
-        }
-    } else if (priceDiv && !card.querySelector('.rovalra-value-label')) {
-        const valDiv = document.createElement('div');
-        valDiv.className = 'text-overflow item-card-price rovalra-value-label';
-        valDiv.style.marginTop = '-1px';
-        valDiv.style.display = 'flex';
-        valDiv.style.alignItems = 'center';
-
-        valDiv.innerHTML = `
-            <img src="${assets.rolimonsIcon}" style="width: 16px; height: 16px; margin-right: 7px; margin-left: 1px">
-            <span class="text-robux" style="color: ${textColor};${options.fontSize ? ` font-size: ${options.fontSize};` : ''}">${value.toLocaleString()}</span>
-        `; // verified
-
-        if (!priceDiv.closest('a') || options.forceLink) {
-            let rolimonsLink;
-            if (options.forceLink) {
-                rolimonsLink = document.createElement('span');
-                rolimonsLink.style.cursor = 'pointer';
-                rolimonsLink.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    window.open(
-                        `https://www.rolimons.com/item/${assetId}`,
-                        '_blank',
-                    );
+                Object.assign(valDiv.style, {
+                    position: 'absolute',
+                    bottom: '0',
+                    left: '0',
+                    width: '100%',
+                    textAlign: 'center',
+                    backgroundColor: 'rgba(0,0,0,0.5)',
+                    color: '#fff',
+                    fontSize: '10px',
+                    padding: '2px 0',
+                    zIndex: '5',
                 });
-            } else {
-                rolimonsLink = document.createElement('a');
-                rolimonsLink.href = `https://www.rolimons.com/item/${assetId}`;
-                rolimonsLink.target = '_blank';
+                valDiv.innerHTML = `
+                    <img src="${assets.rolimonsIcon}" style="width: 10px; height: 10px; margin-right: 2px; vertical-align: middle;">
+                    ${value.toLocaleString()}
+                `; // Verified
+                card.style.position = 'relative';
+                card.appendChild(valDiv);
             }
-            rolimonsLink.style.display = 'flex';
-            rolimonsLink.style.alignItems = 'center';
-            rolimonsLink.style.marginLeft = '4px';
-            rolimonsLink.innerHTML = `<div style="width: 18px; height: 18px; background-color: var(--rovalra-main-text-color); -webkit-mask: url('${assets.launchIcon}')"></div>`; // verified
-            addTooltip(rolimonsLink, 'Open item on Rolimons', {
-                position: 'top',
-            });
+        } else if (priceDiv && !card.querySelector('.rovalra-value-label')) {
+            const valDiv = document.createElement('div');
+            valDiv.className =
+                'text-overflow item-card-price rovalra-value-label';
+            valDiv.style.marginTop = '-1px';
+            valDiv.style.display = 'flex';
+            valDiv.style.alignItems = 'center';
 
-            valDiv.appendChild(rolimonsLink);
+            valDiv.innerHTML = `
+                <img src="${assets.rolimonsIcon}" style="width: 16px; height: 16px; margin-right: 7px; margin-left: 1px">
+                <span class="text-robux" style="color: ${textColor};${options.fontSize ? ` font-size: ${options.fontSize};` : ''}">${value.toLocaleString()}</span>
+            `; // verified
+
+            if (!priceDiv.closest('a') || options.forceLink) {
+                let rolimonsLink;
+                if (options.forceLink) {
+                    rolimonsLink = document.createElement('span');
+                    rolimonsLink.style.cursor = 'pointer';
+                    rolimonsLink.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        window.open(
+                            `https://www.rolimons.com/item/${assetId}`,
+                            '_blank',
+                        );
+                    });
+                } else {
+                    rolimonsLink = document.createElement('a');
+                    rolimonsLink.href = `https://www.rolimons.com/item/${assetId}`;
+                    rolimonsLink.target = '_blank';
+                }
+                rolimonsLink.style.display = 'flex';
+                rolimonsLink.style.alignItems = 'center';
+                rolimonsLink.style.marginLeft = '4px';
+                rolimonsLink.innerHTML = `<div style="width: 18px; height: 18px; background-color: var(--rovalra-main-text-color); -webkit-mask: url('${assets.launchIcon}')"></div>`; // verified
+                addTooltip(rolimonsLink, 'Open item on Rolimons', {
+                    position: 'top',
+                });
+
+                valDiv.appendChild(rolimonsLink);
+            }
+            priceDiv.parentNode.insertBefore(valDiv, priceDiv.nextSibling);
         }
-        priceDiv.parentNode.insertBefore(valDiv, priceDiv.nextSibling);
     }
 
-    if (data.is_projected && !card.querySelector('.rovalra-projected-icon')) {
+    if (
+        featureSettings.tradeShowProjectedIndicator &&
+        data.is_projected &&
+        !card.querySelector('.rovalra-projected-icon')
+    ) {
         const thumbContainer =
             card.querySelector(
                 '.item-card-thumb-container, .rovalra-item-thumb-container',
@@ -338,7 +367,11 @@ export function updateItemCard(card, assetId, options = {}) {
         }
     }
 
-    if (data.is_rare && !card.querySelector('.rovalra-rare-icon')) {
+    if (
+        featureSettings.tradeShowRareIndicator &&
+        data.is_rare &&
+        !card.querySelector('.rovalra-rare-icon')
+    ) {
         const thumbContainer =
             card.querySelector(
                 '.item-card-thumb-container, .rovalra-item-thumb-container',
@@ -369,110 +402,116 @@ export function updateItemCard(card, assetId, options = {}) {
         }
     }
 
-    const thumbContainer =
-        card.querySelector(
-            '.item-card-thumb-container, .rovalra-item-thumb-container',
-        ) || card;
+    if (featureSettings.tradeShowItemInfo) {
+        const thumbContainer =
+            card.querySelector(
+                '.item-card-thumb-container, .rovalra-item-thumb-container',
+            ) || card;
 
-    if (thumbContainer) {
-        let infoIcon = card.querySelector('.rovalra-info-icon');
-        if (!infoIcon) {
-            infoIcon = document.createElement('div');
-            infoIcon.className = 'rovalra-info-icon';
-            Object.assign(infoIcon.style, {
-                position: 'absolute',
-                top: '4px',
-                right: '4px',
-                width: '20px',
-                height: '20px',
-                zIndex: '10',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-            });
+        if (thumbContainer) {
+            let infoIcon = card.querySelector('.rovalra-info-icon');
+            if (!infoIcon) {
+                infoIcon = document.createElement('div');
+                infoIcon.className = 'rovalra-info-icon';
+                Object.assign(infoIcon.style, {
+                    position: 'absolute',
+                    top: '4px',
+                    right: '4px',
+                    width: '20px',
+                    height: '20px',
+                    zIndex: '10',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                });
 
-            const innerIcon = document.createElement('div');
-            Object.assign(innerIcon.style, {
-                width: '16px',
-                height: '16px',
-                backgroundColor: 'var(--rovalra-main-text-color)',
-                webkitMask: `url('${assets.priceFloorIcon}') center/contain no-repeat`,
-                mask: `url('${assets.priceFloorIcon}') center/contain no-repeat`,
-            });
-            infoIcon.appendChild(innerIcon);
+                const innerIcon = document.createElement('div');
+                Object.assign(innerIcon.style, {
+                    width: '16px',
+                    height: '16px',
+                    backgroundColor: 'var(--rovalra-main-text-color)',
+                    webkitMask: `url('${assets.priceFloorIcon}') center/contain no-repeat`,
+                    mask: `url('${assets.priceFloorIcon}') center/contain no-repeat`,
+                });
+                infoIcon.appendChild(innerIcon);
 
-            if (!card.classList.contains('trade-request-item')) {
-                thumbContainer.style.position = 'relative';
+                if (!card.classList.contains('trade-request-item')) {
+                    thumbContainer.style.position = 'relative';
+                }
+                thumbContainer.appendChild(infoIcon);
             }
-            thumbContainer.appendChild(infoIcon);
-        }
 
-        const riskCacheData = getCachedRisk(assetId);
-        const riskData = riskCacheData ? riskCacheData.risk : null;
+            const riskCacheData = getCachedRisk(assetId);
+            const riskData = riskCacheData ? riskCacheData.risk : null;
 
-        const tooltipParts = [];
-        if (data.trend) {
-            const trendValue = getTrendValue(data.trend);
-            tooltipParts.push(`Trend: ${getTrendString(trendValue)}`);
-        }
-        if (data.demand) {
-            tooltipParts.push(`Demand: ${data.demand}`);
-        }
-        if (data.acronym) {
-            tooltipParts.push(`Acronym: ${data.acronym}`);
-        }
+            const tooltipParts = [];
+            if (data.trend) {
+                const trendValue = getTrendValue(data.trend);
+                tooltipParts.push(`Trend: ${getTrendString(trendValue)}`);
+            }
+            if (data.demand) {
+                tooltipParts.push(`Demand: ${data.demand}`);
+            }
+            if (data.acronym) {
+                tooltipParts.push(`Acronym: ${data.acronym}`);
+            }
 
-        if (featureSettings.tradeRiskEnabled && riskData) {
-            const color = RISK_COLORS[riskData.level] || '#fff';
-            tooltipParts.push(
-                `Risk: <span style="color:${color};font-weight:bold;">${riskData.level}</span>`,
-            );
-
-            if (
-                riskData.metrics &&
-                riskData.metrics.baselineAvg !== undefined
-            ) {
+            if (featureSettings.tradeRiskEnabled && riskData) {
+                const color = RISK_COLORS[riskData.level] || '#fff';
                 tooltipParts.push(
-                    `Stable Price: ${riskData.metrics.baselineAvg.toLocaleString(undefined, { maximumFractionDigits: 0 })}`,
+                    `Risk: <span style="color:${color};font-weight:bold;">${riskData.level}</span>`,
                 );
-            }
-            let bestPrice = data.best_price;
-            if (
-                riskCacheData &&
-                riskCacheData.robloxBestPrice !== undefined &&
-                riskCacheData.robloxBestPrice !== null
-            ) {
-                bestPrice = riskCacheData.robloxBestPrice;
+
+                if (
+                    riskData.metrics &&
+                    riskData.metrics.baselineAvg !== undefined
+                ) {
+                    tooltipParts.push(
+                        `Stable Price: ${riskData.metrics.baselineAvg.toLocaleString(undefined, { maximumFractionDigits: 0 })}`,
+                    );
+                }
+                let bestPrice = data.best_price;
+                if (
+                    riskCacheData &&
+                    riskCacheData.robloxBestPrice !== undefined &&
+                    riskCacheData.robloxBestPrice !== null
+                ) {
+                    bestPrice = riskCacheData.robloxBestPrice;
+                }
+
+                if (bestPrice > 0) {
+                    tooltipParts.push(
+                        `Best Price: ${bestPrice.toLocaleString()}`,
+                    );
+                }
+                if (riskData.reasons && riskData.reasons.length > 0) {
+                    tooltipParts.push(
+                        `<span style="font-weight:600; text-decoration: underline;">Reasons:</span>`,
+                    );
+                    riskData.reasons.forEach((r) => {
+                        if (typeof r === 'object') {
+                            const color =
+                                r.type === 'good'
+                                    ? '#00b06f'
+                                    : r.type === 'bad'
+                                      ? '#ff4d4d'
+                                      : '';
+                            const style = color ? `style="color:${color}"` : '';
+                            tooltipParts.push(
+                                `<span ${style}>• ${r.text}</span>`,
+                            );
+                        } else {
+                            tooltipParts.push(`• ${r}`);
+                        }
+                    });
+                }
             }
 
-            if (bestPrice > 0) {
-                tooltipParts.push(`Best Price: ${bestPrice.toLocaleString()}`);
-            }
-            if (riskData.reasons && riskData.reasons.length > 0) {
-                tooltipParts.push(
-                    `<span style="font-weight:600; text-decoration: underline;">Reasons:</span>`,
-                );
-                riskData.reasons.forEach((r) => {
-                    if (typeof r === 'object') {
-                        const color =
-                            r.type === 'good'
-                                ? '#00b06f'
-                                : r.type === 'bad'
-                                  ? '#ff4d4d'
-                                  : '';
-                        const style = color ? `style="color:${color}"` : '';
-                        tooltipParts.push(`<span ${style}>• ${r.text}</span>`);
-                    } else {
-                        tooltipParts.push(`• ${r}`);
-                    }
+            if (tooltipParts.length > 0) {
+                addTooltip(infoIcon, tooltipParts.join('<br>'), {
+                    position: 'top',
                 });
             }
-        }
-
-        if (tooltipParts.length > 0) {
-            addTooltip(infoIcon, tooltipParts.join('<br>'), {
-                position: 'top',
-            });
         }
     }
 }
@@ -511,19 +550,23 @@ function updateTradeSummary() {
     const giveStats = calculateStats(giveOffer);
     const receiveStats = calculateStats(receiveOffer);
 
-    injectTotalValueLine(giveOffer, giveStats.value);
-    injectTotalValueLine(receiveOffer, receiveStats.value);
+    if (featureSettings.tradeShowTotalValue) {
+        injectTotalValueLine(giveOffer, giveStats.value);
+        injectTotalValueLine(receiveOffer, receiveStats.value);
+    }
 
-    injectTotalDemandLine(
-        giveOffer,
-        giveStats.totalDemand,
-        giveStats.itemCount,
-    );
-    injectTotalDemandLine(
-        receiveOffer,
-        receiveStats.totalDemand,
-        receiveStats.itemCount,
-    );
+    if (featureSettings.tradeShowTotalDemand) {
+        injectTotalDemandLine(
+            giveOffer,
+            giveStats.totalDemand,
+            giveStats.itemCount,
+        );
+        injectTotalDemandLine(
+            receiveOffer,
+            receiveStats.totalDemand,
+            receiveStats.itemCount,
+        );
+    }
 
     renderSummary(giveOffer, receiveOffer, giveStats, receiveStats);
 }
@@ -767,29 +810,31 @@ function renderSummary(giveOffer, receiveOffer, giveStats, receiveStats) {
         partnerValue += receiveStats.robux;
     }
 
-    const pillsContainer = document.createElement('div');
-    Object.assign(pillsContainer.style, {
-        display: 'flex',
-        gap: '6px',
-        alignItems: 'center',
-        justifyContent: 'center',
-    });
+    if (featureSettings.tradeShowDiffPills) {
+        const pillsContainer = document.createElement('div');
+        Object.assign(pillsContainer.style, {
+            display: 'flex',
+            gap: '6px',
+            alignItems: 'center',
+            justifyContent: 'center',
+        });
 
-    const rapDiff = partnerRap - myRap;
-    const rapPill = createRapDiffPill(rapDiff, myRap, {
-        margin: '10px 0',
-    });
+        const rapDiff = partnerRap - myRap;
+        const rapPill = createRapDiffPill(rapDiff, myRap, {
+            margin: '10px 0',
+        });
 
-    pillsContainer.appendChild(rapPill);
+        pillsContainer.appendChild(rapPill);
 
-    const valDiff = partnerValue - myValue;
-    const valPill = createValueDiffPill(valDiff, myValue, {
-        margin: '10px 0',
-    });
+        const valDiff = partnerValue - myValue;
+        const valPill = createValueDiffPill(valDiff, myValue, {
+            margin: '10px 0',
+        });
 
-    pillsContainer.appendChild(valPill);
+        pillsContainer.appendChild(valPill);
 
-    summaryDiv.appendChild(pillsContainer);
+        summaryDiv.appendChild(pillsContainer);
+    }
 
     const totalRobux = giveStats.robux + receiveStats.robux;
     if (totalRobux > 0) {
