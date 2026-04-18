@@ -30,7 +30,7 @@ YourFeatureName: {
         "**Markdown** is supported here."
     ],
     type: "checkbox", // Common types: "checkbox", "input", "select"
-    default: true,    // Set the default state
+    default: true,    // Set the default state, only features that are likely to be useful to everyone should be on by default.
     storageKey: ["What Ever Storage Key Your Feature Uses", "In case of multiple keys"] // Add this if your feature stores stuff for its functionality. So a user is able to clear the storage
     // Optional properties that adds a pill beside the title with a tooltip explaining why its there
     // experimental: "reason why its experimental",
@@ -38,8 +38,16 @@ YourFeatureName: {
     // beta: "Reason for it being a beta",
     // Any feature that is, experimental, a beta or deprecated should not be on by default.
     // childSettings: { ... } // If this setting has sub-settings
+    // locked: 'Reason for locked', This is used to forcefully disable a feature, e.i if it broke.
+    //  isPermanent: true, tells the script if its locked permanently
 }
 ```
+
+## Donator perks
+
+If you plan on making donator perks please let me know before hand so I can help update this api `https://apis.rovalra.com/v1/users/447170745/settings` accordingly.
+
+To access the user settings api we use `settingHandler.js`
 
 ## Contributor Badge
 
@@ -66,8 +74,9 @@ The badge is completely optional.
 - Keep code clean and readable.
 - Follow the existing coding style of the project.
 - Test your changes before submitting.
-- For safety reasons, all `innerHTML` should be purified with `DOMPurify`, or preferably using `safeHtml`
+- For safety reasons, all `innerHTML` should be purified with `DOMPurify`, or preferably using `safeHtml` differences between DOMPurify and safeHtml is safeHtml prevents everything including styling, and DOMPurify doesn't by default.
 - Generally follow how other scripts do things and how they import other scripts to implement functionality.
 - All api requests should go through `api.js`
-- Never use third party apis that isn't RoValra.com, Roblox.com or rbxcdn.com in your prs
+- Never use third party apis that isn't RoValra.com, Roblox.com or rbxcdn.com in your PRS. You can however use a third party API as a proof of concept in your PR so we know how to make an official API that works for your PR.
 - Make addtions to the site look as close to Roblox as possible.
+- Never update host permissions or permissions of the extension.
