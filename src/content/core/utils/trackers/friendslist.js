@@ -231,19 +231,26 @@ async function fetchFriendsPage(userId, cursor = null) {
     }
 }
 
-async function fetchTrustedFriendsStatus(userId, friendIds) {
-    if (!friendIds || friendIds.length === 0) return new Set();
+async function fetchAllTrustedFriends(userId) {
+    const trustedIds = new Set();
+    let cursor = null;
     try {
-        const friendIdsString = friendIds.join('%2C');
-        const data = await callRobloxApiJson({
-            subdomain: 'friends',
-            endpoint: `/v1/user/${userId}/multiget-are-trusted-friends?userIds=${friendIdsString}`,
-            useBackground: true,
-        });
-        return new Set(data?.trustedFriendsId || []);
+        do {
+            let endpoint = `/v1/users/${userId}/friends/find?findFriendsType=FindTrustedFriends&limit=100`;
+            if (cursor) endpoint += `&cursor=${encodeURIComponent(cursor)}`;
+            const response = await callRobloxApiJson({
+                subdomain: 'friends',
+                endpoint,
+                useBackground: true,
+            });
+            if (!response || !response.PageItems) break;
+            response.PageItems.forEach((item) => trustedIds.add(item.id));
+            cursor = response.NextCursor;
+        } while (cursor);
     } catch (error) {
-        return new Set();
+        console.error('RoValra: Failed to fetch all trusted friends', error);
     }
+    return trustedIds;
 }
 
 async function fetchFriendsOnlineStatus(userId) {
@@ -286,11 +293,13 @@ export async function updateFriendsList(userId) {
     );
 
     try {
-        const [conversations, ageData, onlineData] = await Promise.all([
-            fetchAllConversations(),
-            fetchUserAgeGroup(),
-            fetchFriendsOnlineStatus(userId),
-        ]);
+        const [conversations, ageData, onlineData, allTrustedFriendsSet] =
+            await Promise.all([
+                fetchAllConversations(),
+                fetchUserAgeGroup(),
+                fetchFriendsOnlineStatus(userId),
+                fetchAllTrustedFriends(userId),
+            ]);
 
         const onlineMap = new Map();
         onlineData.forEach((item) => {
@@ -352,23 +361,18 @@ export async function updateFriendsList(userId) {
             const batchIds = allFriends
                 .slice(i, i + batchSize)
                 .map((f) => f.id);
-            const [
-                profileData,
-                trustedFriendsSet,
-                insightsData,
-                playedTogetherData,
-            ] = await Promise.all([
-                getUserProfileData(batchIds),
-                fetchTrustedFriendsStatus(userId, batchIds),
-                getMultiProfileInsights(
-                    batchIds,
-                    RANKING_STRATEGIES.TC_INFO_BOOST,
-                ),
-                getMultiProfileInsights(
-                    batchIds,
-                    RANKING_STRATEGIES.PROFILE_INFO_BOOST,
-                ),
-            ]);
+            const [profileData, insightsData, playedTogetherData] =
+                await Promise.all([
+                    getUserProfileData(batchIds),
+                    getMultiProfileInsights(
+                        batchIds,
+                        RANKING_STRATEGIES.TC_INFO_BOOST,
+                    ),
+                    getMultiProfileInsights(
+                        batchIds,
+                        RANKING_STRATEGIES.PROFILE_INFO_BOOST,
+                    ),
+                ]);
 
             const insightMap = new Map();
             if (insightsData?.userInsights) {
@@ -403,7 +407,7 @@ export async function updateFriendsList(userId) {
                 const enrichedFriends = profileData.profileDetails.map(
                     (profile) => {
                         const friendId = profile.userId;
-                        const isTrusted = trustedFriendsSet.has(friendId);
+                        const isTrusted = allTrustedFriendsSet.has(friendId);
                         const chatStatus = chatAnalysisMap.get(friendId);
                         const userInsights = insightMap.get(friendId) || [];
                         const playedTogetherInsights =
