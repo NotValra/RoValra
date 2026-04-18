@@ -236,7 +236,7 @@ async function fetchAllTrustedFriends(userId) {
     let cursor = null;
     try {
         do {
-            let endpoint = `/v1/users/${userId}/friends/find?findFriendsType=FindTrustedFriends&limit=100`;
+            let endpoint = `/v1/users/${userId}/friends/find?findFriendsType=FindTrustedFriends`;
             if (cursor) endpoint += `&cursor=${encodeURIComponent(cursor)}`;
             const response = await callRobloxApiJson({
                 subdomain: 'friends',
