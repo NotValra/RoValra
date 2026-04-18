@@ -1,3 +1,11 @@
+import {
+    ROBUX_FIAT_ESTIMATE_DEFAULT_GRADIENT,
+    ROBUX_FIAT_ESTIMATE_STYLE_MODE_SOLID,
+    ROBUX_FIAT_ESTIMATE_STYLE_OPTIONS,
+    TRANSACTION_FIAT_CURRENCY_OPTIONS,
+    TRANSACTION_FIAT_RATE_OPTIONS,
+} from '../transactions/fiatConfig.js';
+
 // Settings config (not developer settings)
 
 export const SETTINGS_CONFIG = {
@@ -284,10 +292,12 @@ export const SETTINGS_CONFIG = {
                 label: 'Total Spent on Experience',
                 description: [
                     'This shows how much Robux you have spent total on this experience.',
+                    'This will scan your transactions in the background and store the total spent (locally)',
                     'This may take a few mins before it works when first installing the extension.',
                 ],
                 type: 'checkbox',
                 default: true,
+                storageKey: 'rovalra_transactions_data',
             },
             OldestVersionEnabled: {
                 label: 'Oldest Server Version',
@@ -857,6 +867,76 @@ export const SETTINGS_CONFIG = {
     transactions: {
         title: 'Transactions',
         settings: {
+            robuxFiatEstimatesEnabled: {
+                label: 'Robux Fiat Estimates',
+                description: [
+                    'Shows a money estimate beside Robux values on the transactions page, group revenue pages, and related Robux UI.',
+                    'You can choose both the display currency and whether the estimate uses Roblox purchase pricing or the current DevEx cash-out rate.',
+                ],
+                type: 'checkbox',
+                default: false,
+                childSettings: {
+                    robuxFiatDisplayCurrency: {
+                        label: 'Display Currency',
+                        description: [
+                            'Select which currency RoValra should convert Robux estimates into.',
+                            'Exchange rates are fetched from the Frankfurter currency API and cached locally.',
+                        ],
+                        type: 'select',
+                        options: TRANSACTION_FIAT_CURRENCY_OPTIONS,
+                        default: 'USD',
+                    },
+                    robuxFiatRateMode: {
+                        label: 'Valuation Mode',
+                        description: [
+                            'Normal Purchase Rate uses Roblox purchase pricing as the estimate source.',
+                            'DevEx Cash-Out Rate uses the current Roblox DevEx cash-out rate of $0.0038 per Earned Robux before converting to your selected currency.',
+                        ],
+                        type: 'select',
+                        options: TRANSACTION_FIAT_RATE_OPTIONS,
+                        default: 'normal',
+                    },
+                    robuxFiatEstimateStyleMode: {
+                        label: 'Text Style',
+                        description: [
+                            'Choose between a solid color or a two-color gradient for the fiat estimate text.',
+                        ],
+                        type: 'select',
+                        options: ROBUX_FIAT_ESTIMATE_STYLE_OPTIONS,
+                        default: ROBUX_FIAT_ESTIMATE_STYLE_MODE_SOLID,
+                    },
+                    robuxFiatEstimateColor: {
+                        label: 'Estimate Text Color',
+                        description: [
+                            'Pick the color used for the fiat estimate text shown next to Robux values. Used when Text Style is set to Solid Color.',
+                        ],
+                        type: 'color',
+                        default: '#7a7d81',
+                    },
+                    robuxFiatEstimateGradient: {
+                        label: 'Estimate Text Gradient',
+                        description: [
+                            'Customize the gradient used for the fiat estimate text. Used when Text Style is set to Gradient.',
+                        ],
+                        type: 'gradient',
+                        default: ROBUX_FIAT_ESTIMATE_DEFAULT_GRADIENT,
+                    },
+                    robuxFiatEstimateBold: {
+                        label: 'Bold Estimate Text',
+                        description: ['Render the fiat estimate text in bold.'],
+                        type: 'checkbox',
+                        default: false,
+                    },
+                    robuxFiatEstimateItalic: {
+                        label: 'Italic Estimate Text',
+                        description: [
+                            'Render the fiat estimate text in italic.',
+                        ],
+                        type: 'checkbox',
+                        default: false,
+                    },
+                },
+            },
             totalspentEnabled: {
                 label: 'Total Spent',
                 description: [

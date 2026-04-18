@@ -734,6 +734,11 @@ function mergeTransactionsIntoAggregated(existingAggregated, rawTransactions) {
 }
 
 async function handleBackgroundTransactionScan(userId) {
+    const settings = await chrome.storage.local.get({
+        TotalSpentGamesEnabled: true,
+    });
+    if (!settings.TotalSpentGamesEnabled) return;
+
     if (state.scanningUsers.has(userId)) return;
     state.scanningUsers.add(userId);
 
@@ -873,6 +878,21 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
         }
         if (changes.bannedUserDetectionEnabled) {
             updateBannedUserListener();
+        }
+        if (changes.TotalSpentGamesEnabled) {
+            if (changes.TotalSpentGamesEnabled.newValue === false) {
+                if (state.transactionInterval) {
+                    clearInterval(state.transactionInterval);
+                    state.transactionInterval = null;
+                }
+            } else if (state.currentUserId) {
+                handleBackgroundTransactionScan(state.currentUserId);
+                if (state.transactionInterval)
+                    clearInterval(state.transactionInterval);
+                state.transactionInterval = setInterval(() => {
+                    handleBackgroundTransactionScan(state.currentUserId);
+                }, TRANSACTION_REFRESH_DURATION);
+            }
         }
     }
 });
@@ -1042,13 +1062,26 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 pollUserPresence();
                 state.pollingInterval = setInterval(pollUserPresence, 5000);
 
-                if (state.transactionInterval)
+                if (state.transactionInterval) {
                     clearInterval(state.transactionInterval);
+                    state.transactionInterval = null;
+                }
 
-                handleBackgroundTransactionScan(state.currentUserId);
-                state.transactionInterval = setInterval(() => {
-                    handleBackgroundTransactionScan(state.currentUserId);
-                }, TRANSACTION_REFRESH_DURATION);
+                chrome.storage.local.get(
+                    { TotalSpentGamesEnabled: true },
+                    (settings) => {
+                        if (settings.TotalSpentGamesEnabled) {
+                            handleBackgroundTransactionScan(
+                                state.currentUserId,
+                            );
+                            state.transactionInterval = setInterval(() => {
+                                handleBackgroundTransactionScan(
+                                    state.currentUserId,
+                                );
+                            }, TRANSACTION_REFRESH_DURATION);
+                        }
+                    },
+                );
             }
             return false;
 
