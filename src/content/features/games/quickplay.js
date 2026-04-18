@@ -44,6 +44,7 @@ const State = {
     currentNextPageCursor: null,
 
     cleanupTimers: new WeakMap(),
+    hoverSetupTimers: new WeakMap(),
 };
 
 const Icons = {
@@ -656,6 +657,27 @@ function scheduleCardCleanup(gameLink) {
     State.cleanupTimers.set(gameLink, timerId);
 }
 
+function scheduleHoverCardSetup(gameLink, settings, delay = 25) {
+    const existing = State.hoverSetupTimers.get(gameLink);
+    if (existing) clearTimeout(existing);
+
+    const timerId = setTimeout(() => {
+        State.hoverSetupTimers.delete(gameLink);
+        if (!gameLink.isConnected || !gameLink.matches(':hover')) return;
+        setupHoverCard(gameLink, settings);
+    }, delay);
+
+    State.hoverSetupTimers.set(gameLink, timerId);
+}
+
+function cancelHoverCardSetup(gameLink) {
+    const existing = State.hoverSetupTimers.get(gameLink);
+    if (!existing) return;
+
+    clearTimeout(existing);
+    State.hoverSetupTimers.delete(gameLink);
+}
+
 async function setupHoverCard(gameLink, settings) {
     forceCleanOtherCards(gameLink);
 
@@ -826,18 +848,20 @@ function initializeQuickPlay() {
                 if (gameLink.classList.contains(PROCESSED_MARKER_CLASS)) return;
                 gameLink.classList.add(PROCESSED_MARKER_CLASS);
 
-                gameLink.addEventListener('mouseenter', () =>
-                    setupHoverCard(gameLink, settings),
-                );
-                gameLink.addEventListener('mouseleave', () =>
-                    scheduleCardCleanup(gameLink),
-                );
+                gameLink.addEventListener('mouseenter', () => {
+                    scheduleHoverCardSetup(gameLink, settings);
+                });
+                gameLink.addEventListener('mouseleave', () => {
+                    cancelHoverCardSetup(gameLink);
+                    scheduleCardCleanup(gameLink);
+                });
                 gameLink.addEventListener('focus', () =>
                     setupHoverCard(gameLink, settings),
                 );
-                gameLink.addEventListener('blur', () =>
-                    scheduleCardCleanup(gameLink),
-                );
+                gameLink.addEventListener('blur', () => {
+                    cancelHoverCardSetup(gameLink);
+                    scheduleCardCleanup(gameLink);
+                });
             };
 
             observeElement('a.game-card-link[href*="/games/"]', onCardFound, {

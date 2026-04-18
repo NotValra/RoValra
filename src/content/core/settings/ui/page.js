@@ -10,6 +10,8 @@ import {
     applyTheme,
 } from '../../../features/settings/index.js';
 import { createBadgeSettings } from '../badgeSettings.js';
+import DOMPurify from 'dompurify';
+import { ts } from '../../locale/i18n.js';
 
 let isSettingsPage = false;
 
@@ -51,6 +53,7 @@ export async function checkRoValraPage() {
         let targetMenuLink = document.querySelector(
             `#unified-menu li[id="${hashKey.toLowerCase()}-tab"] a.menu-option-content`,
         );
+        const isSearchTab = hashKey.toLowerCase() === 'search';
         if (!targetMenuLink) {
             const capitalizedHash =
                 hashKey.charAt(0).toUpperCase() + hashKey.slice(1);
@@ -62,6 +65,11 @@ export async function checkRoValraPage() {
         if (targetMenuLink) {
             targetMenuLink.classList.add('active');
             targetMenuLink.setAttribute('aria-current', 'page');
+        } else if (isSearchTab) {
+            const searchInput = document.getElementById('settings-search-input');
+            if (searchInput) {
+                searchInput.setAttribute('aria-current', 'page');
+            }
         } else {
             console.warn(
                 `Menu link for hashKey "${hashKey}" not found. Defaulting to info tab.`,
