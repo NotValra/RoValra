@@ -98,6 +98,7 @@ import { init as initPurchasePromptItemId } from './core/catalog/purchasePromptI
 // Settings
 import { init as initSettingsPage } from './features/settings/index.js';
 import { init as initFirstAccount } from './features/settings/roblox/firstAccount.js';
+import { init as initLegacyThemeSwitcher } from './features/settings/roblox/legacyThemeSwitcher.js';
 // create
 import { init as initCreateDownload } from './features/create.roblox.com/download.js';
 
@@ -258,7 +259,7 @@ const featureRoutes = [
     },
     {
         paths: ['/my/account'],
-        features: [initFirstAccount],
+        features: [initFirstAccount, initLegacyThemeSwitcher],
     },
 ];
 
