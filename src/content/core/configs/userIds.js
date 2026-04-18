@@ -41,4 +41,5 @@ export const TRUSTED_USER_IDS = [
     alice_badge_user_id,
     GILBERT_USER_ID,
     '1996279003', // Bloodraven (stinky)
+    '129425241', // sky (jailbreak tester *blushes slightly*)
 ].filter(Boolean);
