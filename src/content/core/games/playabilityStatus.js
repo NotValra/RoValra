@@ -1,7 +1,7 @@
 import { callRobloxApiJson } from '../../core/api.js';
 import { t, ts } from '../../core/locale/i18n.js';
 
-const PLAYABILITY_STATUS_STRING_TO_CODE = {
+export const PLAYABILITY_STATUS_STRING_TO_CODE = {
     UnplayableOtherReason: 0,
     Playable: 1,
     GuestProhibited: 2,

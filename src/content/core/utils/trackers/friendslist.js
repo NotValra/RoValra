@@ -3,12 +3,16 @@
 import { callRobloxApiJson } from '../../api';
 import { getAuthenticatedUserId } from '../../user';
 import { ts } from '../../locale/i18n.js';
+import {
+    getMultiProfileInsights,
+    getUserProfileData,
+    INSIGHT_CASES,
+    RANKING_STRATEGIES,
+} from '../../apis/users.js';
 
 const FRIENDS_DATA_KEY = 'rovalra_friends_data';
 const FRIENDS_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes for heavy data
 const ONLINE_STATUS_CACHE_DURATION = 1 * 60 * 1000; // 1 minute for online status
-const USER_PROFILE_API_ENDPOINT =
-    '/user-profile-api/v1/user/profiles/get-profiles';
 
 export function getFriendRequestOriginText(originId) {
     const fromText = ts('friendsSince.originFrom');
@@ -227,30 +231,6 @@ async function fetchFriendsPage(userId, cursor = null) {
     }
 }
 
-async function fetchUserProfileData(userIds) {
-    try {
-        return await callRobloxApiJson({
-            subdomain: 'apis',
-            endpoint: USER_PROFILE_API_ENDPOINT,
-            method: 'POST',
-            useBackground: true,
-
-            body: {
-                userIds: userIds,
-                fields: [
-                    'isVerified',
-                    'isDeleted',
-                    'names.combinedName',
-                    'names.displayName',
-                    'names.username',
-                ],
-            },
-        });
-    } catch (error) {
-        return null;
-    }
-}
-
 async function fetchTrustedFriendsStatus(userId, friendIds) {
     if (!friendIds || friendIds.length === 0) return new Set();
     try {
@@ -263,27 +243,6 @@ async function fetchTrustedFriendsStatus(userId, friendIds) {
         return new Set(data?.trustedFriendsId || []);
     } catch (error) {
         return new Set();
-    }
-}
-
-async function fetchProfileInsights(
-    userIds,
-    rankingStrategy = 'tc_info_boost',
-) {
-    try {
-        return await callRobloxApiJson({
-            subdomain: 'apis',
-            endpoint: '/profile-insights-api/v1/multiProfileInsights',
-            method: 'POST',
-            useBackground: true,
-
-            body: {
-                userIds: userIds.map((id) => id.toString()),
-                rankingStrategy: rankingStrategy,
-            },
-        });
-    } catch (error) {
-        return null;
     }
 }
 
@@ -399,10 +358,16 @@ export async function updateFriendsList(userId) {
                 insightsData,
                 playedTogetherData,
             ] = await Promise.all([
-                fetchUserProfileData(batchIds),
+                getUserProfileData(batchIds),
                 fetchTrustedFriendsStatus(userId, batchIds),
-                fetchProfileInsights(batchIds, 'tc_info_boost'),
-                fetchProfileInsights(batchIds, 'profile_info_boost'),
+                getMultiProfileInsights(
+                    batchIds,
+                    RANKING_STRATEGIES.TC_INFO_BOOST,
+                ),
+                getMultiProfileInsights(
+                    batchIds,
+                    RANKING_STRATEGIES.PROFILE_INFO_BOOST,
+                ),
             ]);
 
             const insightMap = new Map();
@@ -454,7 +419,8 @@ export async function updateFriendsList(userId) {
 
                         userInsights.forEach((item) => {
                             if (
-                                item.insightCase === 1 &&
+                                item.insightCase ===
+                                    INSIGHT_CASES.MUTUAL_FRIENDS &&
                                 item.mutualFriendInsight
                             ) {
                                 mutualFriends = Object.keys(
@@ -462,7 +428,8 @@ export async function updateFriendsList(userId) {
                                 );
                             }
                             if (
-                                item.insightCase === 4 &&
+                                item.insightCase ===
+                                    INSIGHT_CASES.FRIENDSHIP_AGE &&
                                 item.friendshipAgeInsight
                             ) {
                                 friendsSince =
@@ -470,7 +437,8 @@ export async function updateFriendsList(userId) {
                                         .friendsSinceDateTime.seconds * 1000;
                             }
                             if (
-                                item.insightCase === 6 &&
+                                item.insightCase ===
+                                    INSIGHT_CASES.ACCOUNT_CREATION_DATE &&
                                 item.accountCreationDateInsight
                             ) {
                                 accountCreated =
@@ -478,7 +446,8 @@ export async function updateFriendsList(userId) {
                                         .accountCreatedDateTime.seconds * 1000;
                             }
                             if (
-                                item.insightCase === 5 &&
+                                item.insightCase ===
+                                    INSIGHT_CASES.AGE_VERIFIED &&
                                 item.userAgeVerifiedInsight
                             ) {
                                 verifiedAgeRange = convertVerifiedAgeLabel(
@@ -487,7 +456,8 @@ export async function updateFriendsList(userId) {
                                 );
                             }
                             if (
-                                item.insightCase === 2 &&
+                                item.insightCase ===
+                                    INSIGHT_CASES.FRIEND_REQUEST_ORIGIN &&
                                 item.friendRequestOriginInsight
                             ) {
                                 friendRequestOrigin =
@@ -503,7 +473,8 @@ export async function updateFriendsList(userId) {
 
                         playedTogetherInsights.forEach((item) => {
                             if (
-                                item.insightCase === 8 &&
+                                item.insightCase ===
+                                    INSIGHT_CASES.PLAYED_TOGETHER &&
                                 item.playedTogetherInsight
                             ) {
                                 const newUniverseId =
