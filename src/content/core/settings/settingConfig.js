@@ -875,6 +875,8 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: false,
+                experimental:
+                    'Sometimes shows the wrong amount. And it might causes some issues on the site.',
                 childSettings: {
                     robuxFiatDisplayCurrency: {
                         label: 'Display Currency',
