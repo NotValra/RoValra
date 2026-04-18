@@ -892,7 +892,6 @@ export const SETTINGS_CONFIG = {
                         label: 'Display Currency',
                         description: [
                             'Select which currency RoValra should convert Robux estimates into.',
-                            'Exchange rates are fetched from the Frankfurter currency API and cached locally.',
                         ],
                         type: 'select',
                         options: TRANSACTION_FIAT_CURRENCY_OPTIONS,
