@@ -1081,50 +1081,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             wearOutfit(request.outfitId).then(sendResponse);
             return true;
 
-        case 'fetchCurrencyRate':
-            (async () => {
-                const base = String(request.base || 'USD').toLowerCase();
-                const target = String(request.target || 'USD').toLowerCase();
-                const endpoints = [
-                    `https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/${encodeURIComponent(base)}.json`,
-                    `https://latest.currency-api.pages.dev/v1/currencies/${encodeURIComponent(base)}.json`,
-                ];
-
-                let lastError = null;
-                for (const url of endpoints) {
-                    try {
-                        const res = await fetch(url);
-                        if (!res.ok) {
-                            lastError = new Error(
-                                `Currency fetch failed: ${res.status}`,
-                            );
-                            continue;
-                        }
-                        const data = await res.json();
-                        const rate = Number(data?.[base]?.[target]);
-                        if (!Number.isFinite(rate) || rate <= 0) {
-                            lastError = new Error(
-                                `Invalid conversion rate for ${base}/${target}`,
-                            );
-                            continue;
-                        }
-                        sendResponse({ rate });
-                        return;
-                    } catch (error) {
-                        lastError = error;
-                    }
-                }
-
-                console.error(
-                    'RoValra: Currency rate fetch failed',
-                    lastError,
-                );
-                sendResponse({
-                    error: lastError?.message || String(lastError),
-                });
-            })();
-            return true;
-
         case 'fetchRobloxApi':
             callRobloxApiBackground(request.options)
                 .then(async (response) => {

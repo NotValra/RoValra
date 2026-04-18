@@ -1,4 +1,5 @@
 import * as CacheHandler from '../storage/cacheHandler.js';
+import { callRobloxApiJson } from '../api.js';
 export {
     DEVEX_USD_RATE,
     ROBUX_FIAT_ESTIMATE_DEFAULT_COLOR,
@@ -57,12 +58,12 @@ export async function getRobuxFiatSettings() {
 }
 
 export async function getCurrencyConversionRate(baseCurrency, targetCurrency) {
-    const base = String(baseCurrency || 'USD').toUpperCase();
-    const target = String(targetCurrency || 'USD').toUpperCase();
+    const base = String(baseCurrency || 'USD').toLowerCase();
+    const target = String(targetCurrency || 'USD').toLowerCase();
 
     if (base === target) return 1;
 
-    const cacheKey = `${base}_${target}`;
+    const cacheKey = `${base.toUpperCase()}_${target.toUpperCase()}`;
     const cachedRate = await CacheHandler.get(
         'currency_conversion_rates',
         cacheKey,
@@ -72,29 +73,40 @@ export async function getCurrencyConversionRate(baseCurrency, targetCurrency) {
         return cachedRate;
     }
 
-    const rate = await new Promise((resolve, reject) => {
-        chrome.runtime.sendMessage(
-            { action: 'fetchCurrencyRate', base, target },
-            (response) => {
-                if (chrome.runtime.lastError) {
-                    reject(new Error(chrome.runtime.lastError.message));
-                    return;
-                }
-                if (!response) {
-                    reject(new Error('No response from background worker'));
-                    return;
-                }
-                if (response.error) {
-                    reject(new Error(response.error));
-                    return;
-                }
-                resolve(Number(response.rate));
-            },
-        );
-    });
+    const endpoints = [
+        `https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/${encodeURIComponent(base)}.json`,
+        `https://latest.currency-api.pages.dev/v1/currencies/${encodeURIComponent(base)}.json`,
+    ];
 
-    if (!Number.isFinite(rate) || rate <= 0) {
-        throw new Error(`Invalid conversion rate for ${base}/${target}`);
+    let lastError = null;
+    let rate = null;
+
+    for (const url of endpoints) {
+        try {
+            const data = await callRobloxApiJson({
+                fullUrl: url,
+                credentials: 'omit',
+            });
+            const fetchedRate = Number(data?.[base]?.[target]);
+            if (!Number.isFinite(fetchedRate) || fetchedRate <= 0) {
+                lastError = new Error(
+                    `Invalid conversion rate for ${base}/${target}`,
+                );
+                continue;
+            }
+            rate = fetchedRate;
+            break;
+        } catch (error) {
+            lastError = error;
+        }
+    }
+
+    if (rate === null) {
+        console.error('RoValra: Currency rate fetch failed', lastError);
+        throw (
+            lastError ||
+            new Error(`Failed to fetch conversion rate for ${base}/${target}`)
+        );
     }
 
     await CacheHandler.set(

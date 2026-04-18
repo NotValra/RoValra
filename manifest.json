@@ -24,9 +24,7 @@
         "https://games.roblox.com/*",
         "*://*.roblox.com/*",
         "https://gamejoin.roblox.com/v1/join-game-instance",
-        "https://users.roblox.com/*",
-        "https://cdn.jsdelivr.net/*",
-        "https://latest.currency-api.pages.dev/*"
+        "https://users.roblox.com/*"
     ],
     "background": {
         "service_worker": "background.js"
