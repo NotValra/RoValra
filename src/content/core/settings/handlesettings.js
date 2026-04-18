@@ -681,11 +681,13 @@ export const applyLockedState = (
         if (isLocked) {
             wrapper.classList.add('setting-locked');
             wrapper.style.setProperty('opacity', '1', 'important');
-            wrapper.style.pointerEvents = 'none';
+            wrapper.style.setProperty('pointer-events', 'none', 'important');
         } else {
             wrapper.classList.remove('setting-locked');
             wrapper.style.removeProperty('opacity');
-            wrapper.style.setProperty('pointer-events', 'auto');
+            if (!wrapper.classList.contains('disabled-setting')) {
+                wrapper.style.setProperty('pointer-events', 'auto');
+            }
         }
 
         if (isDonatorLock) {
@@ -725,7 +727,9 @@ export const applyLockedState = (
             });
 
             wrapper.querySelectorAll('input, select, button').forEach((el) => {
-                el.disabled = true;
+                if (!el.dataset.forceEnabled) {
+                    el.disabled = true;
+                }
             });
         } else {
             Array.from(wrapper.children).forEach((child) => {
@@ -733,7 +737,10 @@ export const applyLockedState = (
             });
 
             wrapper.querySelectorAll('input, select, button').forEach((el) => {
-                if (!wrapper.classList.contains('disabled-setting')) {
+                if (
+                    !wrapper.classList.contains('disabled-setting') &&
+                    !wrapper.classList.contains('setting-locked')
+                ) {
                     el.disabled = false;
                 }
             });
@@ -743,14 +750,19 @@ export const applyLockedState = (
         wrapper.classList.remove('donator-locked');
         wrapper.style.removeProperty('opacity');
         wrapper.style.removeProperty('filter');
-        wrapper.style.setProperty('pointer-events', 'auto');
+        if (!wrapper.classList.contains('disabled-setting')) {
+            wrapper.style.setProperty('pointer-events', 'auto');
+        }
 
         Array.from(wrapper.children).forEach((child) => {
             child.style.opacity = '';
         });
 
         wrapper.querySelectorAll('input, select, button').forEach((el) => {
-            if (!wrapper.classList.contains('disabled-setting')) {
+            if (
+                !wrapper.classList.contains('disabled-setting') &&
+                !wrapper.classList.contains('setting-locked')
+            ) {
                 el.disabled = false;
             }
         });
@@ -840,26 +852,36 @@ function applyDisabledState(
     if (isDisabled && isPermissionRelated) {
         if (toggleSwitch) {
             toggleSwitch.style.opacity = '0.5';
-            toggleSwitch.style.pointerEvents = 'none';
+            toggleSwitch.style.setProperty(
+                'pointer-events',
+                'none',
+                'important',
+            );
         }
         if (inputElement.type === 'checkbox') inputElement.disabled = true;
     } else if (isDisabled) {
         wrapper.classList.add('disabled-setting');
         wrapper.style.opacity = '0.5';
-        wrapper.style.pointerEvents = 'none';
+        wrapper.style.setProperty('pointer-events', 'none', 'important');
         wrapper.querySelectorAll('input, select, button').forEach((el) => {
             el.disabled = true;
         });
     } else {
         wrapper.classList.remove('disabled-setting');
         wrapper.style.opacity = '1';
-        wrapper.style.pointerEvents = 'auto';
+        if (!wrapper.classList.contains('setting-locked')) {
+            wrapper.style.setProperty('pointer-events', 'auto');
+        }
         wrapper.querySelectorAll('input, select, button').forEach((el) => {
-            el.disabled = false;
+            if (!wrapper.classList.contains('setting-locked')) {
+                el.disabled = false;
+            }
         });
         if (toggleSwitch) {
             toggleSwitch.style.opacity = '1';
-            toggleSwitch.style.pointerEvents = 'auto';
+            if (!wrapper.classList.contains('setting-locked')) {
+                toggleSwitch.style.setProperty('pointer-events', 'auto');
+            }
         }
     }
 }
