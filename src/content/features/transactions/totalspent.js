@@ -5,6 +5,13 @@ import { createOverlay } from '../../core/ui/overlay.js';
 import { createButton } from '../../core/ui/buttons.js';
 import DOMPurify from 'dompurify';
 import { ts } from '../../core/locale/i18n.js';
+import {
+    convertCurrencyAmount,
+    DEVEX_USD_RATE,
+    formatDisplayCurrency,
+    getRobuxFiatSettings,
+    ROBUX_FIAT_RATE_MODE_DEVEX,
+} from '../../core/transactions/fiat.js';
 
 function onElementFound(container) {
     const buttonIdentifier = 'rovalra-total-spent-btn';
@@ -28,6 +35,8 @@ function onElementFound(container) {
         totalSpent: 0,
         totalMoneySpent: 0,
         currencyCode: 'USD',
+        moneyRateMode: 'normal',
+        devexPerRobux: DEVEX_USD_RATE,
         transactionsProcessed: 0,
         purchaseCounts: {},
         stipendCounts: {},
@@ -106,6 +115,10 @@ function onElementFound(container) {
             this.updateDOM();
         },
         getPriceForRobuxAmount(amount) {
+            if (state.moneyRateMode === ROBUX_FIAT_RATE_MODE_DEVEX) {
+                return amount * state.devexPerRobux;
+            }
+
             let closestAmount = 0;
             let smallestDiff = Infinity;
             for (const robuxAmount of this.robuxToPriceMap.keys()) {
@@ -154,10 +167,7 @@ function onElementFound(container) {
             const formatRobux = (amount) =>
                 `${amount.toLocaleString()} ${robuxIcon}`;
             const formatCurrency = (amount) =>
-                amount.toLocaleString(undefined, {
-                    style: 'currency',
-                    currency: state.currencyCode,
-                });
+                formatDisplayCurrency(amount, state.currencyCode);
 
             if (transEl)
                 transEl.textContent =
@@ -167,10 +177,7 @@ function onElementFound(container) {
                     formatRobux(state.totalSpent),
                 );
             if (moneySpentEl)
-                moneySpentEl.textContent = state.totalMoneySpent.toLocaleString(
-                    undefined,
-                    { style: 'currency', currency: state.currencyCode },
-                );
+                moneySpentEl.textContent = formatCurrency(state.totalMoneySpent);
 
             if (itemTypeBreakdownEl) {
                 const sortedTypes = Object.keys(state.itemTypeBreakdown).sort(
@@ -270,9 +277,9 @@ function onElementFound(container) {
         isUIUpdate = true;
         if (overlayInstance) overlayInstance.close();
 
-        const moneySpentValue = state.totalMoneySpent.toLocaleString(
-            undefined,
-            { style: 'currency', currency: state.currencyCode },
+        const moneySpentValue = formatDisplayCurrency(
+            state.totalMoneySpent,
+            state.currencyCode,
         );
         const robuxSpentValue = state.totalSpent.toLocaleString();
         const transactionsValue = state.transactionsProcessed.toLocaleString();
@@ -527,31 +534,70 @@ function onElementFound(container) {
                 state.calculationType === CALCULATION_TYPE.MONEY_SPENT &&
                 animationController.robuxToPriceMap.size === 0
             ) {
+                const fiatSettings = await getRobuxFiatSettings();
+                state.currencyCode =
+                    fiatSettings.robuxFiatDisplayCurrency || 'USD';
+                state.moneyRateMode =
+                    fiatSettings.robuxFiatRateMode || 'normal';
+
+                if (state.moneyRateMode === ROBUX_FIAT_RATE_MODE_DEVEX) {
+                    state.devexPerRobux = await convertCurrencyAmount(
+                        DEVEX_USD_RATE,
+                        'USD',
+                        state.currencyCode,
+                    );
+                }
+
                 const productsData = await callRobloxApiJson({
                     subdomain: 'premiumfeatures',
                     endpoint: '/v1/products?skipPremiumUserCheck=true',
                 });
-                productsData.products.forEach((p) => {
-                    if (p.premiumFeatureTypeName === 'Subscription') {
-                        animationController.premiumRobuxToProductMap.set(
-                            p.robuxAmount,
-                            {
-                                price: p.price.amount,
-                                name: p.defaultDisplayName,
-                            },
-                        );
-                    } else {
-                        animationController.robuxToPriceMap.set(
-                            p.robuxAmount,
+
+                await Promise.all(
+                    productsData.products.map(async (p) => {
+                        const convertedPrice = await convertCurrencyAmount(
                             p.price.amount,
+                            p.price?.currency?.currencyCode || 'USD',
+                            state.currencyCode,
                         );
-                    }
-                });
-                state.currencyCode =
-                    productsData.products[0]?.price.currency.currencyCode ||
-                    'USD';
-                if (!animationController.robuxToPriceMap.has(80))
-                    animationController.robuxToPriceMap.set(80, 0.99);
+
+                        const effectivePrice =
+                            state.moneyRateMode === ROBUX_FIAT_RATE_MODE_DEVEX
+                                ? p.robuxAmount * state.devexPerRobux
+                                : convertedPrice;
+
+                        const stipendName =
+                            p.defaultDisplayName ||
+                            `${p.robuxAmount.toLocaleString()} Robux`;
+
+                        if (p.premiumFeatureTypeName === 'Subscription') {
+                            animationController.premiumRobuxToProductMap.set(
+                                p.robuxAmount,
+                                {
+                                    price: effectivePrice,
+                                    name: stipendName,
+                                },
+                            );
+                        } else {
+                            animationController.robuxToPriceMap.set(
+                                p.robuxAmount,
+                                effectivePrice,
+                            );
+                        }
+                    }),
+                );
+
+                if (!animationController.robuxToPriceMap.has(80)) {
+                    const fallbackPrice =
+                        state.moneyRateMode === ROBUX_FIAT_RATE_MODE_DEVEX
+                            ? 80 * state.devexPerRobux
+                            : await convertCurrencyAmount(
+                                  0.99,
+                                  'USD',
+                                  state.currencyCode,
+                              );
+                    animationController.robuxToPriceMap.set(80, fallbackPrice);
+                }
             }
 
             const transactionTasks =
@@ -690,12 +736,17 @@ function onElementFound(container) {
     };
 
     const startCalculation = (type) => {
+        animationController.robuxToPriceMap.clear();
+        animationController.premiumRobuxToProductMap.clear();
         state = {
             ...state,
             status: CALCULATION_STATE.IDLE,
             calculationType: type,
             totalSpent: 0,
             totalMoneySpent: 0,
+            currencyCode: 'USD',
+            moneyRateMode: 'normal',
+            devexPerRobux: DEVEX_USD_RATE,
             transactionsProcessed: 0,
             purchaseCounts: {},
             stipendCounts: {},
