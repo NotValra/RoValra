@@ -207,11 +207,15 @@ async function addStatusBubble(avatarContainer, userWantsApi) {
             authenticatedUserId &&
             String(authenticatedUserId) === String(userId);
 
-        const settings = await getUserSettings(userId, {
+        const { disableVideoAudio } = await chrome.storage.local.get({
+            disableVideoAudio: false,
+        });
+
+        const profileSettings = await getUserSettings(userId, {
             useDescription: true,
         });
 
-        const { status, canUseApi } = settings;
+        const { status, canUseApi } = profileSettings;
         let statusText = status;
 
         if (!statusText && !isOwnProfile) return;
@@ -243,12 +247,14 @@ async function addStatusBubble(avatarContainer, userWantsApi) {
             const videos = bubble.querySelectorAll('video');
             for (const video of videos) {
                 video.muted = true;
-                video.volume = 0.1;
+                video.volume = disableVideoAudio ? 0 : 0.1;
 
                 video
                     .play()
                     .then(() => {
-                        video.muted = false;
+                        if (!disableVideoAudio) {
+                            video.muted = false;
+                        }
                     })
                     .catch(() => {});
             }
@@ -267,7 +273,7 @@ async function addStatusBubble(avatarContainer, userWantsApi) {
                     : 'Click to edit';
             addTooltip(bubble, tooltipText);
 
-            const updateBubbleUI = (newStatus) => {
+            const updateBubbleUI = async (newStatus) => {
                 statusText = newStatus || '...';
                 const textToRender = newStatus
                     ? newStatus.length > MAX_STATUS_LENGTH
@@ -276,6 +282,11 @@ async function addStatusBubble(avatarContainer, userWantsApi) {
                     : '...';
 
                 if (isUserTrusted) {
+                    const { disableVideoAudio: localDisableAudio } =
+                        await chrome.storage.local.get({
+                            disableVideoAudio: false,
+                        });
+
                     bubble.innerHTML = DOMPurify.sanitize(
                         parseMarkdown(textToRender),
                         {
@@ -287,12 +298,14 @@ async function addStatusBubble(avatarContainer, userWantsApi) {
                     const videos = bubble.querySelectorAll('video');
                     for (const video of videos) {
                         video.muted = true;
-                        video.volume = 0.1;
+                        video.volume = localDisableAudio ? 0 : 0.1;
 
                         video
                             .play()
                             .then(() => {
-                                video.muted = false;
+                                if (!localDisableAudio) {
+                                    video.muted = false;
+                                }
                             })
                             .catch(() => {});
                     }
@@ -555,15 +568,19 @@ async function addHomeStatusHover(tile) {
             bubbleWrapper.style.display = 'flex';
             activeHomeStatusBubble = bubbleWrapper;
 
+            const { disableVideoAudio } = await chrome.storage.local.get({
+                disableVideoAudio: false,
+            });
+
             const videos = bubble.querySelectorAll('video');
             for (const video of videos) {
                 video.muted = true;
-                video.volume = 0.1;
+                video.volume = disableVideoAudio ? 0 : 0.1;
 
                 video
                     .play()
                     .then(() => {
-                        if (isHovering) {
+                        if (!disableVideoAudio && isHovering) {
                             video.muted = false;
                         }
                     })
@@ -591,6 +608,7 @@ export function init() {
             statusBubbleEnabled: true,
             statusBubbleHomePage: true,
             statusBubbleUseApi: true,
+            disableVideoAudio: false,
         },
         (settings) => {
             if (settings.statusBubbleEnabled) {

@@ -637,6 +637,16 @@ export const SETTINGS_CONFIG = {
                         type: 'checkbox',
                         default: true,
                     },
+                    disableVideoAudio: {
+                        label: 'Disable Video Audio In status',
+                        description: [
+                            'Mutes audio on videos in statuses.',
+                            'Select people can set videos in their status, and this mutes it.',
+                            '**Only select people can add videos to their status, and the list wont expand**',
+                        ],
+                        type: 'checkbox',
+                        default: false,
+                    },
                 },
             },
             donationbuttonEnable: {
