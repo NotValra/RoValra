@@ -127,7 +127,8 @@ function openEditStatusOverlay(currentStatus, onSave, canUseApi, isTrusted) {
         trustedHelpText.className = 'text-description';
         trustedHelpText.innerHTML = DOMPurify.sanitize(`
             You are a trusted RoValra user, you can add any text, embed videos, and images.
-            <br><br>
+            <br>Only embed images and videos if you have at least donator tier 1. Without Donator tier 1 it will add the text to your description.
+            <br>
             <strong>Note:</strong> If you are found to add inappropriate content, your donator and custom badges will be revoked.
         `);
         Object.assign(trustedHelpText.style, {
