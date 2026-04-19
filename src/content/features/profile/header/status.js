@@ -201,7 +201,7 @@ async function addStatusBubble(avatarContainer, userWantsApi) {
         const userId = getUserIdFromUrl();
         if (!userId) return;
 
-        const isUserTrusted = TRUSTED_USER_IDS.includes(String(userId));
+        const isUserTrusted = TRUSTED_USER_IDS.has(String(userId));
 
         const authenticatedUserId = await getAuthenticatedUserId();
         const isOwnProfile =
@@ -324,7 +324,7 @@ async function addStatusBubble(avatarContainer, userWantsApi) {
             bubble.addEventListener('click', (e) => {
                 e.stopPropagation();
                 const isDonator = getCurrentUserTier() >= 1;
-                const isTrusted = TRUSTED_USER_IDS.includes(
+                const isTrusted = TRUSTED_USER_IDS.has(
                     String(authenticatedUserId),
                 );
                 openEditStatusOverlay(
@@ -516,7 +516,7 @@ async function addHomeStatusHover(tile) {
                                 '...';
                         }
 
-                        const isUserTrusted = TRUSTED_USER_IDS.includes(
+                        const isUserTrusted = TRUSTED_USER_IDS.has(
                             String(userId),
                         );
 

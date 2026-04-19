@@ -67,7 +67,7 @@ export async function getFriendshipAge(userId) {
     const seconds = item?.friendshipAgeInsight?.friendsSinceDateTime?.seconds;
     return seconds ? seconds * 1000 : null;
 }
-export async function getofflineFrequents(userId) {
+export async function getOfflineFrequents(userId) {
     const insights = await getUserInsights(
         userId,
         RANKING_STRATEGIES.NO_INFO_BOOST,
@@ -294,6 +294,7 @@ export default {
     getPlayedTogetherInsight,
     getUserProfileData,
     getProfilePlatformData,
+    getOfflineFrequents,
     INSIGHT_CASES,
     RANKING_STRATEGIES,
     PROFILE_TYPES,

@@ -237,7 +237,7 @@ async function fetchAndProcessSettings(userId, options = {}) {
         await updateUserDescription(userId, description);
     }
 
-    const isTrusted = TRUSTED_USER_IDS.includes(String(userId));
+    const isTrusted = TRUSTED_USER_IDS.has(String(userId));
     if (finalStatus && !isTrusted && (await isTextFiltered(finalStatus))) {
         finalStatus = null;
     }
@@ -550,7 +550,7 @@ async function processApiSettings(userId, apiSettings, options) {
         await updateUserDescription(userId, description);
     }
 
-    const isTrusted = TRUSTED_USER_IDS.includes(String(userId));
+    const isTrusted = TRUSTED_USER_IDS.has(String(userId));
     if (finalStatus && !isTrusted && (await isTextFiltered(finalStatus))) {
         finalStatus = null;
     }
