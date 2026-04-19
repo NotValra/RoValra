@@ -205,7 +205,10 @@ function closeGlobalPanels() {
 }
 
 function getInternalStateCode(stateName) {
-    const code = getStateCodeFromRegion(stateName);
+    if (!stateName) return '';
+    const normalized = stateName.toUpperCase().replace(/-/g, ' ');
+    const code =
+        US_STATE_NAME_TO_CODE[normalized] || getStateCodeFromRegion(stateName);
     return code || '';
 }
 
