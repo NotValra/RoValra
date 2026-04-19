@@ -1,0 +1,7 @@
+The vite/ directory contains vite rules for each of the following build targets:
+* content.js
+* background.js
+* intercept.js
+* rovalra.css and sitewide.css
+
+shared.terser.js is shared configs for minimisation (not applied to CSS files).

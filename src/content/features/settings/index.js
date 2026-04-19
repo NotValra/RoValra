@@ -1,17 +1,17 @@
-import { getAssets } from '../../core/assets.js';
+import { getAssets } from '@/core/assets.js';
 import {
     getRegionData,
     loadDatacenterMap,
     getFullRegionName,
-} from '../../core/regions.js';
-import { observeElement } from '../../core/observer.js';
-import { generateSingleSettingHTML } from '../../core/settings/generateSettings.js';
-import { SETTINGS_CONFIG } from '../../core/settings/settingConfig.js';
+} from '@/core/regions.js';
+import { observeElement } from '@/core/observer.js';
+import { generateSingleSettingHTML } from '@/core/settings/generateSettings.js';
+import { SETTINGS_CONFIG } from '@/core/settings/settingConfig.js';
 import {
     exportSettings,
     importSettings,
     createExportImportButtons,
-} from '../../core/settings/portSettings.js';
+} from '@/core/settings/portSettings.js';
 import {
     initSettings,
     initializeSettingsEventListeners,
@@ -21,11 +21,11 @@ import {
     buildSettingsKey,
     getCurrentUserTier,
     syncDonatorTier,
-} from '../../core/settings/handlesettings.js';
+} from '@/core/settings/handlesettings.js';
 import {
     addCustomButton,
     addPopoverButton,
-} from '../../core/settings/ui/settingsbutton.js';
+} from '@/core/settings/ui/settingsbutton.js';
 import { checkRoValraPage } from '../../core/settings/ui/page.js';
 import { callRobloxApi } from '../../core/api.js';
 import { safeHtml } from '../../core/packages/dompurify';

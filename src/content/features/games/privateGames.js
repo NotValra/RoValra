@@ -1,4 +1,4 @@
-import { callRobloxApiJson, callRobloxApi } from '../../core/api.js';
+import { callRobloxApiJson, callRobloxApi } from '@/core/api.js';
 import {
     fetchThumbnails,
     createThumbnailElement,
