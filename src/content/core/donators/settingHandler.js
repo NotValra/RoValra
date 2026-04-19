@@ -272,13 +272,19 @@ async function processBatchQueue() {
     clearTimeout(batchTimeout);
     batchTimeout = null;
 
+    const processedKeys = new Set();
+
     try {
         const authedId = await getAuthenticatedUserId();
         const authenticatedUserId = authedId ? String(authedId) : null;
 
         const userIdsToFetch = currentBatch
             .map((item) => item.userId)
-            .filter((id) => String(id) !== authenticatedUserId)
+            .filter(
+                (id, index, self) =>
+                    String(id) !== authenticatedUserId &&
+                    self.indexOf(id) === index,
+            )
             .slice(0, BATCH_MAX_SIZE);
 
         const userIdsToFetchStrings = userIdsToFetch.map((id) => String(id));
@@ -296,51 +302,48 @@ async function processBatchQueue() {
                 for (const [userId, apiSettings] of Object.entries(
                     data.settings,
                 )) {
-                    const batchItem = currentBatch.find(
+                    const batchItems = currentBatch.filter(
                         (item) => String(item.userId) === String(userId),
                     );
-                    if (!batchItem) continue;
 
-                    const settings = await processApiSettings(
-                        userId,
-                        apiSettings,
-                        batchItem.options,
-                    );
+                    for (const item of batchItems) {
+                        const cacheKey = `${userId}-${item.options.useDescription || false}`;
+                        if (processedKeys.has(cacheKey)) continue;
 
-                    const isOwnProfile =
-                        authenticatedUserId &&
-                        String(userId) === authenticatedUserId;
-                    const cacheKey = `${userId}-${batchItem.options.useDescription || false}`;
-                    await saveToCache(cacheKey, settings);
+                        const settings = await processApiSettings(
+                            userId,
+                            apiSettings,
+                            item.options,
+                        );
 
-                    if (pendingResolvers.has(userId)) {
-                        pendingResolvers.get(userId).resolve(settings);
-                        pendingResolvers.delete(userId);
+                        await saveToCache(cacheKey, settings);
+                        processedKeys.add(cacheKey);
+
+                        const resolvers = pendingResolvers.get(cacheKey);
+                        if (resolvers) {
+                            resolvers.forEach((r) => r.resolve(settings));
+                            pendingResolvers.delete(cacheKey);
+                        }
                     }
                 }
             }
         }
 
         for (const batchItem of currentBatch) {
-            const isOwnProfile =
-                authenticatedUserId &&
-                String(batchItem.userId) === authenticatedUserId;
-            const wasNotInBatch =
-                !userIdsToFetchStrings.includes(String(batchItem.userId)) &&
-                !isOwnProfile;
-
-            if (isOwnProfile || wasNotInBatch) {
+            const cacheKey = `${batchItem.userId}-${batchItem.options.useDescription || false}`;
+            if (!processedKeys.has(cacheKey)) {
                 const settings = await fetchAndProcessSettings(
                     batchItem.userId,
                     batchItem.options,
                 );
 
-                const cacheKey = `${batchItem.userId}-${batchItem.options.useDescription || false}`;
                 await saveToCache(cacheKey, settings);
+                processedKeys.add(cacheKey);
 
-                if (pendingResolvers.has(batchItem.userId)) {
-                    pendingResolvers.get(batchItem.userId).resolve(settings);
-                    pendingResolvers.delete(batchItem.userId);
+                const resolvers = pendingResolvers.get(cacheKey);
+                if (resolvers) {
+                    resolvers.forEach((r) => r.resolve(settings));
+                    pendingResolvers.delete(cacheKey);
                 }
             }
         }
@@ -351,20 +354,23 @@ async function processBatchQueue() {
         );
 
         for (const batchItem of currentBatch) {
+            const cacheKey = `${batchItem.userId}-${batchItem.options.useDescription || false}`;
             try {
                 const settings = await fetchAndProcessSettings(
                     batchItem.userId,
                     batchItem.options,
                 );
 
-                if (pendingResolvers.has(batchItem.userId)) {
-                    pendingResolvers.get(batchItem.userId).resolve(settings);
-                    pendingResolvers.delete(batchItem.userId);
+                const resolvers = pendingResolvers.get(cacheKey);
+                if (resolvers) {
+                    resolvers.forEach((r) => r.resolve(settings));
+                    pendingResolvers.delete(cacheKey);
                 }
             } catch (e) {
-                if (pendingResolvers.has(batchItem.userId)) {
-                    pendingResolvers.get(batchItem.userId).reject(e);
-                    pendingResolvers.delete(batchItem.userId);
+                const resolvers = pendingResolvers.get(cacheKey);
+                if (resolvers) {
+                    resolvers.forEach((r) => r.reject(e));
+                    pendingResolvers.delete(cacheKey);
                 }
             }
         }
@@ -571,17 +577,19 @@ export async function getUserSettings(userId, options = {}) {
             const staleThreshold = isOwnProfile ? 30000 : 300000;
             const isStale =
                 Date.now() - (memCached.timestamp || 0) > staleThreshold;
-            if (isStale && !pendingResolvers.has(strUserId)) {
+            if (isStale && !pendingResolvers.has(cacheKey)) {
                 if (options.disableBatch) {
                     fetchAndProcessSettings(userId, options).then((settings) =>
                         saveToCache(cacheKey, settings),
                     );
                 } else {
                     batchQueue.push({ userId, options });
-                    pendingResolvers.set(strUserId, {
-                        resolve: () => {},
-                        reject: () => {},
-                    });
+                    pendingResolvers.set(cacheKey, [
+                        {
+                            resolve: () => {},
+                            reject: () => {},
+                        },
+                    ]);
                     if (!batchTimeout) {
                         batchTimeout = setTimeout(
                             processBatchQueue,
@@ -599,17 +607,19 @@ export async function getUserSettings(userId, options = {}) {
             const staleThreshold = isOwnProfile ? 30000 : 300000;
             const isStale =
                 Date.now() - (cached.timestamp || 0) > staleThreshold;
-            if (isStale && !pendingResolvers.has(strUserId)) {
+            if (isStale && !pendingResolvers.has(cacheKey)) {
                 if (options.disableBatch) {
                     fetchAndProcessSettings(userId, options).then((settings) =>
                         saveToCache(cacheKey, settings),
                     );
                 } else {
                     batchQueue.push({ userId, options });
-                    pendingResolvers.set(strUserId, {
-                        resolve: () => {},
-                        reject: () => {},
-                    });
+                    pendingResolvers.set(cacheKey, [
+                        {
+                            resolve: () => {},
+                            reject: () => {},
+                        },
+                    ]);
                     if (!batchTimeout) {
                         batchTimeout = setTimeout(
                             processBatchQueue,
@@ -622,6 +632,12 @@ export async function getUserSettings(userId, options = {}) {
         }
     }
 
+    if (pendingResolvers.has(cacheKey)) {
+        return new Promise((resolve, reject) => {
+            pendingResolvers.get(cacheKey).push({ resolve, reject });
+        });
+    }
+
     if (options.disableBatch) {
         const settings = await fetchAndProcessSettings(userId, options);
         await saveToCache(cacheKey, settings);
@@ -631,7 +647,7 @@ export async function getUserSettings(userId, options = {}) {
 
     return new Promise((resolve, reject) => {
         batchQueue.push({ userId, options });
-        pendingResolvers.set(strUserId, { resolve, reject });
+        pendingResolvers.set(cacheKey, [{ resolve, reject }]);
 
         if (!batchTimeout) {
             batchTimeout = setTimeout(processBatchQueue, BATCH_DELAY_MS);
