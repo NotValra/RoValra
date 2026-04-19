@@ -17,6 +17,7 @@ import {
     toStatusCode,
 } from '../../core/games/playabilityStatus.js';
 import { parseMarkdown } from '../../core/utils/markdown.js';
+import { checkAndInjectEvents } from '../../features/games/about/events.js';
 
 import { addTooltip } from '../../core/ui/tooltip.js';
 function formatVoteCount(count) {
@@ -755,6 +756,12 @@ async function renderPrivateGamePage(game, placeId, settings) {
         </div>
     `);
 
+    const aboutTabContainer = aboutTab.contentPane.querySelector(
+        '.game-details-about-tab-container',
+    );
+    if (aboutTabContainer) {
+        checkAndInjectEvents(aboutTabContainer, placeId);
+    }
     const subscriptionsContainer = document.createElement('div');
     subscriptionsContainer.id = 'rbx-subscriptions-container';
     subscriptionsContainer.style.display = 'none';

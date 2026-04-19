@@ -190,6 +190,13 @@ export const SETTINGS_CONFIG = {
                     },
                 },
             },
+            EnableImprovedEvents: {
+                label: 'Improved Events',
+                description:
+                    'This allows you to view past events on experiences and how many are going.',
+                type: 'checkbox',
+                default: true,
+            },
             EnableGameTrailer: {
                 label: 'Experience Trailer',
                 description: [

@@ -57,6 +57,7 @@ import { init as quickOutfits } from './features/games/actions/quickOutfits.js';
 import { init as initDevProductLoader } from './features/games/tab/DevProducts.js';
 import { init as initHeatmap } from './features/games/tab/updateHistory.js';
 import { init as initTotalSpentGames } from './features/games/tab/totalSpentGames.js';
+import { init as initEvents } from './features/games/about/events.js';
 // transactions
 import { init as initTotalSpent } from './features/transactions/totalspent.js';
 import { init as initPendingRobuxTrans } from './features/transactions/pendingRobuxTrans.js';
@@ -190,7 +191,12 @@ const featureRoutes = [
     // private games and game pages
     {
         paths: ['/games/', '/private-games'],
-        features: [initDevProductLoader, initSubplaces, initTotalSpentGames],
+        features: [
+            initDevProductLoader,
+            initSubplaces,
+            initTotalSpentGames,
+            initEvents,
+        ],
     },
     // Private games page
     {
