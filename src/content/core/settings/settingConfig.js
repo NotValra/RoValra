@@ -810,6 +810,8 @@ export const SETTINGS_CONFIG = {
                 experimental: 'Takes ages since Roblox has heavy rate limits.',
                 type: 'checkbox',
                 default: true,
+                locked: "This broke in a UI update, it wasn' that good to begin with cuz of rate limits",
+                isPermanent: false,
             },
             QuickActionsEnabled: {
                 label: 'Quick Actions',
@@ -818,6 +820,8 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
+                locked: "This broke in a UI update, it wasn' that good to begin with cuz of rate limits",
+                isPermanent: false,
             },
             draggableGroupsEnabled: {
                 label: 'Draggable Communities',
@@ -829,6 +833,14 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
                 storageKey: 'rovalra_groups_order',
+            },
+            groupPlaceVisitsEnabled: {
+                label: 'Total Community Place Visits',
+                description: [
+                    "Shows the total number of visits across all of a community's experiences in the insights section.",
+                ],
+                type: 'checkbox',
+                default: true,
             },
         },
     },

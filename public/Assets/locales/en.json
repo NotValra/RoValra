@@ -743,5 +743,9 @@
     "friendsListOverlay": {
         "title": "Friends playing {{gameName}}",
         "join": "Join"
+    },
+    "placeVisits": {
+        "label": "{{count}} Place Visits",
+        "tooltip": "Total Community Place Visits"
     }
 }
