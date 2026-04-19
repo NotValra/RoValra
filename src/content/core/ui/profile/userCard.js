@@ -139,10 +139,10 @@ export function createUserCard({
         : '';
 
     const tileContainer = document.createElement('div');
-    tileContainer.className = 'user-card';
+    tileContainer.className = 'friends-carousel-tile';
     const innerHtml = `
-        <div class="user-card-content" style="width: 90px;">
-            <div class="avatar avatar-card-fullbody" style="width: 90px; height: 90px; position: relative;">
+        <div class="user-card user-card-content rovalra-user-card" style="width: 90px;">
+            <div class="avatar avatar-card-fullbody avatar-card-image-container user-profile-header-details-avatar-container" style="width: 90px; height: 90px; position: relative;">
                 ${href ? `<a href="${href}" class="avatar-card-link">` : ''}
                     <span class="thumbnail-2d-container avatar-card-image" style="width: 100%; height: 100%; display: block; overflow: hidden; border-radius: 50%; background: var(--rovalra-button-background-color);"></span>
                 ${href ? `</a>` : ''}
@@ -176,21 +176,20 @@ export function createUserCard({
         height: '90px',
     });
     tileContainer.querySelector('.avatar-card-image').appendChild(thumbEl);
-    const card = tileContainer.firstElementChild;
-    card.style.cursor = href ? 'pointer' : 'default';
-    card.addEventListener('mouseenter', () => {
-        const nameSpan = card.querySelector('.user-card-name span');
+    tileContainer.style.cursor = href ? 'pointer' : 'default';
+    tileContainer.addEventListener('mouseenter', () => {
+        const nameSpan = tileContainer.querySelector('.user-card-name span');
         if (nameSpan) nameSpan.style.textDecoration = 'underline';
-        const subname = card.querySelector('.user-card-subname');
+        const subname = tileContainer.querySelector('.user-card-subname');
         if (subname) subname.style.textDecoration = 'underline';
     });
-    card.addEventListener('mouseleave', () => {
-        const nameSpan = card.querySelector('.user-card-name span');
+    tileContainer.addEventListener('mouseleave', () => {
+        const nameSpan = tileContainer.querySelector('.user-card-name span');
         if (nameSpan) nameSpan.style.textDecoration = 'none';
-        const subname = card.querySelector('.user-card-subname');
+        const subname = tileContainer.querySelector('.user-card-subname');
         if (subname) subname.style.textDecoration = 'none';
     });
-    return card;
+    return tileContainer;
 }
 
 export function createFriendTile(

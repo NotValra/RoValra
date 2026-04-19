@@ -1,6 +1,5 @@
 import { initializeObserver, startObserving } from './core/observer.js';
 import { detectTheme, dispatchThemeEvent } from './core/theme.js';
-// --- Feature Imports --- //
 // Site wide
 import { init as initOnboarding } from './features/onboarding/onboarding.js';
 import { init as initWhatAmIJoining } from './features/games/revertlogo.js';
@@ -17,6 +16,7 @@ import { init as initApiDocs } from './features/developer/apiDocs.js';
 import { init as initApiKey } from './core/utils/trackers/apiKey.js';
 import { init as initServerTracker } from './core/utils/trackers/servers.js';
 import { initFriendsListTracking } from './core/utils/trackers/friendslist.js';
+import { initTransactionsTracking } from './core/utils/trackers/transactions.js';
 import { init as initPrivateGames } from './features/games/privateGames.js';
 import { init as initQoLToggles } from './features/navigation/QoLToggles.js';
 import { init as initCopyId } from './features/sitewide/copyid.js';
@@ -24,6 +24,7 @@ import { init as initQuickSearch } from './features/navigation/search/quicksearc
 import { init as initRenderTest } from './features/developer/rendertest.js';
 import { init as initGroupFunds } from './features/navigation/groupfunds.js';
 import { init as initCustomFont } from './features/sitewide/customFont.js';
+import { init as initTransactionsLink } from './features/navigation/transactionslink.js';
 
 // Avatar
 import { init as initAvatarFilters } from './features/avatar/filters.js';
@@ -55,6 +56,7 @@ import { init as bannertest } from './features/games/banner.js';
 import { init as quickOutfits } from './features/games/actions/quickOutfits.js';
 import { init as initDevProductLoader } from './features/games/tab/DevProducts.js';
 import { init as initHeatmap } from './features/games/tab/updateHistory.js';
+import { init as initTotalSpentGames } from './features/games/tab/totalSpentGames.js';
 // transactions
 import { init as initTotalSpent } from './features/transactions/totalspent.js';
 import { init as initPendingRobuxTrans } from './features/transactions/pendingRobuxTrans.js';
@@ -86,12 +88,17 @@ import { init as initBannedUsers } from './features/profile/bannedusers.js';
 import { init as initTrustedFriends } from './features/profile/trustedfriends.js';
 import { init as initProfileRender } from './features/profile/header/ProfileRender.js';
 import { init as initStatus } from './features/profile/header/status.js';
+import { init as initLastPlayed } from './features/profile/header/lastplayed.js';
 import { init as initFriendsSince } from './features/profile/friends/friendsSince.js';
+import { init as initUnfriend } from './features/profile/friends/unfriend.js';
+import { init as initProfileBackground } from './features/profile/header/profileBackground.js';
 import { init as initRobuxIcons } from './core/ui/robuxIcon.js';
+import { init as initPurchasePromptItemId } from './core/catalog/purchasePromptItemId.js';
 
 // Settings
 import { init as initSettingsPage } from './features/settings/index.js';
 import { init as initFirstAccount } from './features/settings/roblox/firstAccount.js';
+import { init as initLegacyThemeSwitcher } from './features/settings/roblox/legacyThemeSwitcher.js';
 // create
 import { init as initCreateDownload } from './features/create.roblox.com/download.js';
 
@@ -122,6 +129,7 @@ const featureRoutes = [
             initApiKey,
             initServerTracker,
             initFriendsListTracking,
+            initTransactionsTracking,
             initQoLToggles,
             initCopyId,
             initBetaPrograms,
@@ -131,9 +139,12 @@ const featureRoutes = [
             initPrivateGames,
             initBannedUsers,
             initGroupFunds,
+            initTransactionsLink,
             initStatus,
             initCustomFont,
             initRobuxIcons,
+            initProfileBackground,
+            initPurchasePromptItemId,
         ],
     },
     // pretty much just the 40% method
@@ -183,7 +194,7 @@ const featureRoutes = [
     // private games and game pages
     {
         paths: ['/games/', '/private-games'],
-        features: [initDevProductLoader, initSubplaces],
+        features: [initDevProductLoader, initSubplaces, initTotalSpentGames],
     },
     // Private games page
     {
@@ -213,6 +224,8 @@ const featureRoutes = [
             initTrustedFriends,
             initProfileRender,
             initFriendsSince,
+            initUnfriend,
+            initLastPlayed,
         ],
     },
     {
@@ -250,7 +263,7 @@ const featureRoutes = [
     },
     {
         paths: ['/my/account'],
-        features: [initFirstAccount],
+        features: [initFirstAccount, initLegacyThemeSwitcher],
     },
 ];
 
@@ -306,7 +319,7 @@ async function initializePage() {
      );
 }
 
-function handleUrlChange() {
+async function handleUrlChange() {
     const currentPath = window.location.pathname;
 
   if (currentPath !== lastPath) {

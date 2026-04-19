@@ -6,6 +6,7 @@ import { callRobloxApiJson } from '../../../core/api.js';
 import { createSquareButton } from '../../../core/ui/profile/header/squarebutton.js';
 import { getAssets } from '../../../core/assets.js';
 import { getUserIdFromUrl } from '../../../core/idExtractor.js';
+import { getAuthenticatedUserId } from '../../../core/user.js';
 import { t } from '../../../core/locale/i18n.js';
 const badgeCache = new Map();
 
@@ -165,7 +166,12 @@ async function addHeaderBadges(container) {
     container.dataset.rovalraBusy = 'true';
 
     try {
-        let data = badgeCache.get(currentUserId);
+        const authenticatedUserId = await getAuthenticatedUserId();
+        const isOwnProfile =
+            authenticatedUserId &&
+            String(authenticatedUserId) === String(currentUserId);
+
+        let data = isOwnProfile ? null : badgeCache.get(currentUserId);
         if (!data) {
             const settings = await new Promise((r) =>
                 chrome.storage.local.get(
@@ -181,6 +187,7 @@ async function addHeaderBadges(container) {
                         subdomain: 'apis',
                         endpoint: `/talent/v1/users/verification?userIds=${currentUserId}`,
                         method: 'GET',
+                        noCache: isOwnProfile,
                     });
                     verification = res?.data?.[0];
                 } catch (e) {}
@@ -193,12 +200,13 @@ async function addHeaderBadges(container) {
                     subdomain: 'apis',
                     endpoint: `/v1/users/${currentUserId}/badges`,
                     method: 'GET',
+                    noCache: isOwnProfile,
                 });
                 if (res?.status === 'success') apiBadges = res.badges;
             } catch (e) {}
 
             data = { verification, apiBadges };
-            badgeCache.set(currentUserId, data);
+            if (!isOwnProfile) badgeCache.set(currentUserId, data);
         }
 
         container

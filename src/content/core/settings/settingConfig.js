@@ -1,3 +1,11 @@
+import {
+    ROBUX_FIAT_ESTIMATE_DEFAULT_GRADIENT,
+    ROBUX_FIAT_ESTIMATE_STYLE_MODE_SOLID,
+    ROBUX_FIAT_ESTIMATE_STYLE_OPTIONS,
+    TRANSACTION_FIAT_CURRENCY_OPTIONS,
+    TRANSACTION_FIAT_RATE_OPTIONS,
+} from '../transactions/fiatConfig.js';
+
 // Settings config (not developer settings)
 
 export const SETTINGS_CONFIG = {
@@ -190,6 +198,8 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: false,
+                locked: 'Feature broke and Roblox made their own version.',
+                isPermanent: true,
                 childSettings: {
                     Enableautoplay: {
                         label: 'Auto Play Trailer',
@@ -217,9 +227,9 @@ export const SETTINGS_CONFIG = {
                 default: false,
             },
             privateGameDetectionEnabled: {
-                label: 'Private / Moderated Experience',
+                label: 'View Private / Moderated Games',
                 description: [
-                    'This recreates the experience page of private / moderated experiences, allowing you to view them.',
+                    'This recreates the experience page of private / moderated games, allowing you to view them.',
                 ],
                 type: 'checkbox',
                 default: false,
@@ -277,6 +287,17 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
+            },
+            TotalSpentGamesEnabled: {
+                label: 'Total Spent on Experience',
+                description: [
+                    'This shows how much Robux you have spent total on this experience.',
+                    'This will scan your transactions in the background and store the total spent (locally)',
+                    'This may take a few mins before it works when first installing the extension.',
+                ],
+                type: 'checkbox',
+                default: true,
+                storageKey: 'rovalra_transactions_data',
             },
             OldestVersionEnabled: {
                 label: 'Oldest Server Version',
@@ -512,15 +533,35 @@ export const SETTINGS_CONFIG = {
                         type: 'checkbox',
                         default: false,
                     },
+                    environmentTester: {
+                        label: 'Enable Environment Creator',
+                        description: [
+                            'Shows the Environment Creator tool on profiles to make custom client sided environments.',
+                            'This is to prepare for community environments',
+                            'This will overwrite all environment on profiles',
+                            '**This feature should only be enabled if you plan to make environments**',
+                        ],
+                        type: 'checkbox',
+                        default: false,
+                    },
                 },
             },
             trustedConnectionsEnabled: {
                 label: 'Trusted Friends',
                 description: [
-                    'This feature allows you to accept, request and remove trusted friends on the site for eligible friends.',
+                    'This feature allows you to accept, request and remove trusted friends on the site by pressing the (...) on their profile, this will only work for eligible friends.',
                     'Eligible friends must be ID or face-scan verified and within your age bracket (13–17 or 18+).',
                     'Trusted Friends might not be available in some regions.',
                     '**Note:** Roblox uses an algorithm that may prevent adding someone even if they meet these requirements. [Learn more here.](https://en.help.roblox.com/hc/en-us/articles/46158344285204)',
+                ],
+                type: 'checkbox',
+                default: true,
+            },
+            lastOnlineEnabled: {
+                label: 'Show Last Online / Last Seen',
+                description: [
+                    'Shows when a user was last online / seen on their profile.',
+                    'Only works for friends.',
                 ],
                 type: 'checkbox',
                 default: true,
@@ -529,6 +570,28 @@ export const SETTINGS_CONFIG = {
                 label: 'Friends Since',
                 description:
                     'This feature shows how long you have been friends with someone on their profile and in your friends list.',
+                type: 'checkbox',
+                default: true,
+            },
+
+            showFriendedFromEnabled: {
+                label: 'Show Friended From',
+                description:
+                    'This shows where you became friends with a user e.g in game, profile etc',
+                type: 'checkbox',
+                default: true,
+            },
+            lastPlayedTogetherEnabled: {
+                label: 'Most Played Together',
+                description:
+                    'Shows the experience you played the most with a friend on their profile.',
+                type: 'checkbox',
+                default: true,
+            },
+            bulkUnfriendEnabled: {
+                label: 'Bulk Unfriend',
+                description:
+                    'This allows you to unfriend people from your friends list in bulk',
                 type: 'checkbox',
                 default: true,
             },
@@ -573,6 +636,16 @@ export const SETTINGS_CONFIG = {
                         label: 'Status bubble for friends on home page, and other parts of the site where friends might show.',
                         type: 'checkbox',
                         default: true,
+                    },
+                    disableVideoAudio: {
+                        label: 'Disable Video Audio In status',
+                        description: [
+                            'Mutes audio on videos in statuses.',
+                            'Select people can set videos in their status, and this mutes it.',
+                            '**Only select people can add videos to their status, and the list wont expand**',
+                        ],
+                        type: 'checkbox',
+                        default: false,
                     },
                 },
             },
@@ -650,6 +723,40 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
+            },
+            profileBackgroundGradientEnabled: {
+                label: 'Custom Profile Background Gradient',
+                description: [
+                    'Shows a users selected gradient on their profile',
+                ],
+                type: 'checkbox',
+                default: true,
+                childSettings: {
+                    profileGradient: {
+                        label: 'Profile Gradient',
+                        description:
+                            'Set your own gradient for your own profile',
+                        type: 'gradient',
+                        donatorTier: 2,
+                        donatorReason:
+                            'Donator 2 is required to set a custom profile gradient. This feature is purely cosmetic in order to reward donators',
+                        default: {
+                            enabled: false,
+                            color1: '#667eea',
+                            color2: '#764ba2',
+                            angle: 135,
+                            fade: 100,
+                        },
+                    },
+                    applyGradientToAvatarTile: {
+                        label: 'Apply Gradient Background to Profile Thumbnails',
+                        description: [
+                            'This adds the Gradient Background to profile thumbnails across the site like on the home page',
+                        ],
+                        type: 'checkbox',
+                        default: true,
+                    },
+                },
             },
             bannedUserDetectionEnabled: {
                 label: 'View Banned Users Profile',
@@ -770,6 +877,77 @@ export const SETTINGS_CONFIG = {
     transactions: {
         title: 'Transactions',
         settings: {
+            robuxFiatEstimatesEnabled: {
+                label: 'Robux Fiat Estimates',
+                description: [
+                    'Shows a money estimate beside Robux values on the transactions page, group revenue pages, and related Robux UI.',
+                    'You can choose both the display currency and whether the estimate uses Roblox purchase pricing or the current DevEx cash-out rate.',
+                ],
+                type: 'checkbox',
+                default: false,
+                experimental:
+                    'Sometimes shows the wrong amount. And it might causes some issues on the site.',
+                childSettings: {
+                    robuxFiatDisplayCurrency: {
+                        label: 'Display Currency',
+                        description: [
+                            'Select which currency RoValra should convert Robux estimates into.',
+                        ],
+                        type: 'select',
+                        options: TRANSACTION_FIAT_CURRENCY_OPTIONS,
+                        default: 'USD',
+                    },
+                    robuxFiatRateMode: {
+                        label: 'Valuation Mode',
+                        description: [
+                            'Normal Purchase Rate uses Roblox purchase pricing as the estimate source.',
+                            'DevEx Cash-Out Rate uses the current Roblox DevEx cash-out rate of $0.0038 per Earned Robux before converting to your selected currency.',
+                        ],
+                        type: 'select',
+                        options: TRANSACTION_FIAT_RATE_OPTIONS,
+                        default: 'normal',
+                    },
+                    robuxFiatEstimateStyleMode: {
+                        label: 'Text Style',
+                        description: [
+                            'Choose between a solid color or a two-color gradient for the fiat estimate text.',
+                        ],
+                        type: 'select',
+                        options: ROBUX_FIAT_ESTIMATE_STYLE_OPTIONS,
+                        default: ROBUX_FIAT_ESTIMATE_STYLE_MODE_SOLID,
+                    },
+                    robuxFiatEstimateColor: {
+                        label: 'Estimate Text Color',
+                        description: [
+                            'Pick the color used for the fiat estimate text shown next to Robux values. Used when Text Style is set to Solid Color.',
+                        ],
+                        type: 'color',
+                        default: '#7a7d81',
+                    },
+                    robuxFiatEstimateGradient: {
+                        label: 'Estimate Text Gradient',
+                        description: [
+                            'Customize the gradient used for the fiat estimate text. Used when Text Style is set to Gradient.',
+                        ],
+                        type: 'gradient',
+                        default: ROBUX_FIAT_ESTIMATE_DEFAULT_GRADIENT,
+                    },
+                    robuxFiatEstimateBold: {
+                        label: 'Bold Estimate Text',
+                        description: ['Render the fiat estimate text in bold.'],
+                        type: 'checkbox',
+                        default: false,
+                    },
+                    robuxFiatEstimateItalic: {
+                        label: 'Italic Estimate Text',
+                        description: [
+                            'Render the fiat estimate text in italic.',
+                        ],
+                        type: 'checkbox',
+                        default: false,
+                    },
+                },
+            },
             totalspentEnabled: {
                 label: 'Total Spent',
                 description: [
@@ -809,6 +987,55 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
+                childSettings: {
+                    tradeShowItemValues: {
+                        label: 'Show Item Values',
+                        description:
+                            'Display Rolimons item values on individual trade item cards',
+                        type: 'checkbox',
+                        default: true,
+                    },
+                    tradeShowProjectedIndicator: {
+                        label: 'Show Projected Item Indicator',
+                        description: 'Display warning icon for projected items',
+                        type: 'checkbox',
+                        default: true,
+                    },
+                    tradeShowRareIndicator: {
+                        label: 'Show Rare Item Indicator',
+                        description: 'Display rare item indicator icon',
+                        type: 'checkbox',
+                        default: true,
+                    },
+                    tradeShowItemInfo: {
+                        label: 'Show Item Info / Trend / Demand',
+                        description:
+                            'Display item information tooltip with trend, demand and risk data',
+                        type: 'checkbox',
+                        default: true,
+                    },
+                    tradeShowTotalValue: {
+                        label: 'Show Total Trade Value',
+                        description:
+                            'Display total value summary line in trade offers',
+                        type: 'checkbox',
+                        default: true,
+                    },
+                    tradeShowTotalDemand: {
+                        label: 'Show Average Demand',
+                        description:
+                            'Display average demand summary line in trade offers',
+                        type: 'checkbox',
+                        default: true,
+                    },
+                    tradeShowDiffPills: {
+                        label: 'Show Value / RAP Difference Pills',
+                        description:
+                            'Display the value and RAP difference comparison pills at the bottom of the trade window',
+                        type: 'checkbox',
+                        default: true,
+                    },
+                },
             },
             tradePreviewEnabled: {
                 label: 'Trade Preview',
@@ -874,6 +1101,13 @@ export const SETTINGS_CONFIG = {
                 label: 'Adds a beta programs toggle to the navigation bar',
                 description:
                     'This allows you to toggle beta programs you are enrolled into easily.',
+                type: 'checkbox',
+                default: false,
+            },
+            transactionsSidebarLinkEnabled: {
+                label: 'My Transactions sidebar link',
+                description:
+                    'Adds a My Transactions link below Communities in the Roblox sidebar.',
                 type: 'checkbox',
                 default: false,
             },
@@ -990,6 +1224,15 @@ export const SETTINGS_CONFIG = {
                     'This feature allows you to download assets like meshes, images, audios, etc from the create page.',
                 type: 'checkbox',
                 default: true,
+            },
+            legacyThemeSwitcherEnabled: {
+                label: 'Legacy Theme Switcher',
+                description: [
+                    'This adds a dropdown in the Roblox settings which replicates how the old theme switcher worked',
+                    "This means you won't have to switch to your preferred theme when logging in on a new browser",
+                ],
+                type: 'checkbox',
+                default: false,
             },
 
             copyIdEnabled: {
@@ -1390,6 +1633,15 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: false,
             },
+            showUserAgeEnabled: {
+                label: 'Show Friend Age Range',
+                description:
+                    'This shows the account age range of anyone on your friends list.',
+                type: 'checkbox',
+                default: false,
+                locked: 'This was made when Roblox decided it was a good idea to leak everyones age range. It was only made to spread light on the issue and the issue has now been resolved.',
+                isPermanent: true,
+            },
             EnableVideoTest: {
                 label: ['Video test'],
                 description: [
@@ -1428,6 +1680,15 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: false,
             },
+            forceFallbackAuth: {
+                label: 'Force Fallback Authentication',
+                description: [
+                    'Forces the use of the fallback verification system instead of OAuth.',
+                    'This auth is used in cases where OAuth doesnt work',
+                ],
+                type: 'checkbox',
+                default: false,
+            },
             profile3DRenderBypassCheck: {
                 label: 'Bypass Graphics Check',
                 description: [
@@ -1436,265 +1697,6 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: false,
-            },
-            environmentTester: {
-                label: 'Environment Tester',
-                description: [
-                    "Tool to test custom .glb environments for the profile renderer. Configure the settings and press 'Generate JSON' to get the configuration for an API.",
-                ],
-                type: 'checkbox',
-                default: false,
-                childSettings: {
-                    // model settings
-                    modelUrl: {
-                        label: 'GLB Model Path',
-                        description: [
-                            'Enter a local path (e.g., `assets/environments/model.glb`) or a full URL to a `.glb` model file.',
-                        ],
-                        type: 'input',
-                        default: '',
-                        placeholder: 'Path or URL to .glb file...',
-                        storageKey: 'envTester_modelUrl',
-                    },
-                    modelPosX: {
-                        label: 'Model Pos X',
-                        type: 'input',
-                        default: '0',
-                        placeholder: 'e.g. 0',
-                    },
-                    modelPosY: {
-                        label: 'Model Pos Y',
-                        type: 'input',
-                        default: '0',
-                        placeholder: 'e.g. 0',
-                    },
-                    modelPosZ: {
-                        label: 'Model Pos Z',
-                        type: 'input',
-                        default: '0',
-                        placeholder: 'e.g. 0',
-                    },
-                    modelScaleX: {
-                        label: 'Model Scale X',
-                        type: 'input',
-                        default: '1',
-                        placeholder: 'e.g. 1',
-                    },
-                    modelScaleY: {
-                        label: 'Model Scale Y',
-                        type: 'input',
-                        default: '1',
-                        placeholder: 'e.g. 1',
-                    },
-                    modelScaleZ: {
-                        label: 'Model Scale Z',
-                        type: 'input',
-                        default: '1',
-                        placeholder: 'e.g. 1',
-                    },
-                    modelCastShadow: {
-                        label: 'Model Cast Shadow',
-                        type: 'checkbox',
-                        default: false,
-                    },
-                    modelReceiveShadow: {
-                        label: 'Model Receive Shadow',
-                        type: 'checkbox',
-                        default: true,
-                    },
-
-                    // atmosphere settings
-                    bgColor: {
-                        label: 'Background Color',
-                        type: 'input',
-                        default: '',
-                        placeholder:
-                            'Hex color (e.g. #123456), empty for transparent',
-                    },
-                    showFloor: {
-                        label: 'Show Floor',
-                        type: 'checkbox',
-                        default: false,
-                    },
-
-                    // ambient light
-                    ambientLightToggle: {
-                        label: 'Enable Ambient Light',
-                        type: 'checkbox',
-                        default: true,
-                    },
-                    ambientLightColor: {
-                        label: 'Ambient Light Color',
-                        type: 'input',
-                        default: '#ffffff',
-                        placeholder: 'Hex color',
-                    },
-                    ambientLightIntensity: {
-                        label: 'Ambient Light Intensity',
-                        type: 'input',
-                        default: '1.2',
-                        placeholder: 'e.g. 1.2',
-                    },
-
-                    // directional light
-                    dirLightToggle: {
-                        label: 'Enable Directional Light',
-                        type: 'checkbox',
-                        default: true,
-                    },
-                    dirLightColor: {
-                        label: 'Directional Light Color',
-                        type: 'input',
-                        default: '#ffffff',
-                        placeholder: 'Hex color',
-                    },
-                    dirLightIntensity: {
-                        label: 'Directional Light Intensity',
-                        type: 'input',
-                        default: '1.5',
-                        placeholder: 'e.g. 1.5',
-                    },
-                    dirLightPosX: {
-                        label: 'Dir Light Pos X',
-                        type: 'input',
-                        default: '10',
-                        placeholder: 'e.g. 10',
-                    },
-                    dirLightPosY: {
-                        label: 'Dir Light Pos Y',
-                        type: 'input',
-                        default: '20',
-                        placeholder: 'e.g. 20',
-                    },
-                    dirLightPosZ: {
-                        label: 'Dir Light Pos Z',
-                        type: 'input',
-                        default: '10',
-                        placeholder: 'e.g. 10',
-                    },
-                    dirLightCastShadow: {
-                        label: 'Dir Light Cast Shadow',
-                        type: 'checkbox',
-                        default: true,
-                    },
-
-                    // fog
-                    fogToggle: {
-                        label: 'Enable Fog',
-                        type: 'checkbox',
-                        default: false,
-                    },
-                    fogColor: {
-                        label: 'Fog Color',
-                        type: 'input',
-                        default: '#ffffff',
-                        placeholder: 'Hex color',
-                    },
-                    fogNear: {
-                        label: 'Fog Near',
-                        type: 'input',
-                        default: '30',
-                        placeholder: 'e.g. 30',
-                    },
-                    fogFar: {
-                        label: 'Fog Far',
-                        type: 'input',
-                        default: '120',
-                        placeholder: 'e.g. 120',
-                    },
-
-                    cameraFar: {
-                        label: 'Camera Far',
-                        description: [
-                            'Sets the far clipping plane of the camera for the renderer.',
-                        ],
-                        type: 'input',
-                        default: '100',
-                        placeholder: 'e.g. 100',
-                    },
-
-                    // skybox settings
-                    skyboxToggle: {
-                        label: 'Enable Skybox',
-                        type: 'checkbox',
-                        default: false,
-                    },
-                    skyboxPx: {
-                        label: 'Skybox Rt (Right)',
-                        type: 'input',
-                        default: 'https://www.rovalra.com/static/img/',
-                        placeholder: 'URL to image',
-                    },
-                    skyboxNx: {
-                        label: 'Skybox Lf (Left)',
-                        type: 'input',
-                        default: 'https://www.rovalra.com/static/img/',
-                        placeholder: 'URL to image',
-                    },
-                    skyboxNy: {
-                        label: 'Skybox Dn (Down)',
-                        type: 'input',
-                        default: 'https://www.rovalra.com/static/img/',
-                        placeholder: 'URL to image',
-                    },
-                    skyboxPy: {
-                        label: 'Skybox Up (Top)',
-                        type: 'input',
-                        default: 'https://www.rovalra.com/static/img/',
-                        placeholder: 'URL to image',
-                    },
-                    skyboxPz: {
-                        label: 'Skybox Ft (Front)',
-                        type: 'input',
-                        default: 'https://www.rovalra.com/static/img/',
-                        placeholder: 'URL to image',
-                    },
-                    skyboxNz: {
-                        label: 'Skybox Bk (Back)',
-                        type: 'input',
-                        default: 'https://www.rovalra.com/static/img/',
-                        placeholder: 'URL to image',
-                    },
-
-                    // tooltip settings
-                    tooltipToggle: {
-                        label: 'Enable Tooltip',
-                        type: 'checkbox',
-                        default: false,
-                    },
-                    tooltipText: {
-                        label: 'Tooltip Text',
-                        type: 'input',
-                        default: 'Environment by...',
-                        placeholder: 'Enter tooltip text',
-                    },
-                    tooltipLink: {
-                        label: 'Tooltip Link',
-                        type: 'input',
-                        default: '',
-                        placeholder: 'Enter URL',
-                    },
-
-                    importEnvironmentConfig: {
-                        label: 'Import Environment Config',
-                        description: [
-                            'Import a JSON file with environment settings. This will overwrite the current values in the tester.',
-                        ],
-                        type: 'button',
-                        buttonText: 'Import from JSON',
-                        event: 'rovalra:importEnvironmentJson',
-                    },
-
-                    // generate button
-                    generateJson: {
-                        label: 'Generate and Print JSON',
-                        description:
-                            'Generates the JSON config based on the settings above and prints it to the console.',
-                        type: 'button',
-                        buttonText: 'Generate JSON',
-                        event: 'rovalra:generateEnvironmentJson',
-                    },
-                },
             },
         },
     },

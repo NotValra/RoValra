@@ -13,11 +13,12 @@ import { init as initGameBanner } from '../../core/ui/games/banner.js';
 import { createRadioButton } from '../../core/ui/general/radio.js';
 import { createRobuxIcon } from '../../core/ui/robuxIcon.js';
 import {
-    getReasonProhibitedDisplayText,
     getPlayabilityDisplayText,
     toStatusCode,
 } from '../../core/games/playabilityStatus.js';
+import { parseMarkdown } from '../../core/utils/markdown.js';
 
+import { addTooltip } from '../../core/ui/tooltip.js';
 function formatVoteCount(count) {
     count = Number(count) || 0;
     if (count >= 1000000) {
@@ -45,11 +46,26 @@ export function init() {
     hasLoaded = true;
 
     chrome.storage.local.get({ privateGameDetectionEnabled: true }, (data) => {
-        if (!data.privateGameDetectionEnabled) return;
-
         const privateUrlMatch = window.location.pathname.match(
-            /^\/private-games\/(\d+)/,
+            /^(?:\/[a-z]{2})?\/private-games\/(\d+)/,
         );
+
+        if (!data.privateGameDetectionEnabled) {
+            if (privateUrlMatch) {
+                const content = document.getElementById('content');
+                if (content) {
+                    content.innerHTML = DOMPurify.sanitize(`
+                        <div class="section-content default-error-page" style="max-width: 600px; margin: 60px auto; text-align: center; padding: 40px;">
+                            <svg viewBox="0 0 24 24" style="width: 64px; height: 64px; margin-bottom: 24px; fill: var(--rovalra-secondary-text-color);"><path d="m5.2494 8.0688 2.83-2.8269 14.1343 14.15-2.83 2.8269zm4.2363-4.2415 2.828-2.8289 5.6577 5.656-2.828 2.8289zM.9989 12.3147l2.8284-2.8285 5.6569 5.6569-2.8285 2.8284zM1 21h12v2H1z"></path></svg>
+                             <h3 style="margin-bottom: 20px;">${ts('privateGames.disabled')}</h3>
+                            ${parseMarkdown(`${ts('privateGames.disabledDescription')}\n\n[${ts('privateGames.disabledLinkText')}](https://www.roblox.com/my/account?rovalra=search&q=privategamedetectionenabled#!/search)`)}
+                        </div>
+                    `);
+                }
+            }
+            return;
+        }
+
         if (privateUrlMatch) {
             const placeId = privateUrlMatch[1];
             loadPrivateGame(placeId);
@@ -57,7 +73,7 @@ export function init() {
         }
 
         const checkUrlMatch = window.location.pathname.match(
-            /^\/games\/check\/(\d+)/,
+            /^(?:\/[a-z]{2})?\/games\/check\/(\d+)/,
         );
         if (checkUrlMatch) {
             const placeId = checkUrlMatch[1];
@@ -122,98 +138,168 @@ async function loadAndRenderPrivateGame(placeId, settings) {
         const placeInfo = placeDetails?.[0];
         const universeId = placeInfo?.universeId;
 
+        let gameData = createFallbackGame(placeDetails);
+        gameData._placeId = placeId;
+
+        const builderId = placeInfo?.builderId;
+        const builderName = placeInfo?.builder;
+        if (builderId && builderName) {
+            callRobloxApiJson({
+                subdomain: 'users',
+                endpoint: `/v1/users/${builderId}`,
+            })
+                .then((userData) => {
+                    const isUser = userData && userData.name === builderName;
+                    gameData.creator.type = isUser ? 'User' : 'Group';
+                    updateGameDataUpdated(gameData);
+                    if (universeId) fetchVisitsForCreator(gameData, universeId);
+                })
+                .catch(() => {
+                    gameData.creator.type = 'Group';
+                    updateGameDataUpdated(gameData);
+                    if (universeId) fetchVisitsForCreator(gameData, universeId);
+                });
+        }
+
+        renderPrivateGamePage(gameData, placeId, settings);
+
         if (!universeId) {
-            const fallbackGame = createFallbackGame(placeDetails);
-            fallbackGame._playabilityStatus = null;
-            renderPrivateGamePage(fallbackGame, placeId, settings);
             return;
         }
 
-        let playabilityStatus = null;
-        try {
-            const playabilityData = await callRobloxApiJson({
-                subdomain: 'games',
-                endpoint: `/v1/games/multiget-playability-status?universeIds=${universeId}`,
-            });
-            if (playabilityData?.[0]) {
-                const statusRaw = playabilityData[0].playabilityStatus;
-                playabilityStatus = {
-                    raw: statusRaw,
-                    isPlayable: playabilityData[0].isPlayable || false,
-                    displayText:
-                        playabilityData[0].unplayableDisplayText || null,
-                };
-            }
-        } catch (e) {
-            console.warn('RoValra: Failed to fetch playability status', e);
-        }
+        callRobloxApiJson({
+            subdomain: 'games',
+            endpoint: `/v1/games/multiget-playability-status?universeIds=${universeId}`,
+        })
+            .then((playabilityData) => {
+                if (playabilityData?.[0]) {
+                    const statusRaw = playabilityData[0].playabilityStatus;
+                    const statusCode = toStatusCode(statusRaw);
 
-        const gameRes = await callRobloxApiJson({
+                    if (statusCode === 3 || statusCode === 9) {
+                        gameData.playing = 0;
+                    }
+
+                    gameData._playabilityStatus = {
+                        raw: statusRaw,
+                        isPlayable: playabilityData[0].isPlayable || false,
+                        displayText:
+                            playabilityData[0].unplayableDisplayText || null,
+                    };
+                    showStatusBannerForPlayabilityStatus(
+                        gameData._playabilityStatus,
+                    );
+                    updateGameDataUpdated(gameData);
+                }
+            })
+            .catch((e) =>
+                console.warn('RoValra: Failed to fetch playability status', e),
+            );
+
+        callRobloxApiJson({
             subdomain: 'games',
             endpoint: `/v1/games?universeIds=1,${universeId}`,
-        }).catch(() => null);
+        })
+            .then((gameRes) => {
+                const game = gameRes?.data?.find((g) => g.id === universeId);
+                if (game) {
+                    // Explicitly update only specific non-timestamp fields to ensure consistency
+                    if (game.playing !== undefined && gameData.playing !== 0) {
+                        gameData.playing = game.playing;
+                    }
 
-        const game = gameRes?.data?.find((g) => g.id === universeId);
+                    if (game.visits !== undefined) {
+                        gameData.visits = game.visits;
+                    }
 
-        let cloudData = null;
-        try {
-            cloudData = await callRobloxApiJson({
-                subdomain: 'apis',
-                endpoint: `/cloud/v2/universes/${universeId}`,
-                useApiKey: true,
-                useBackground: true,
-            });
-        } catch (e) {
-            console.warn('RoValra: Cloud API failed, using fallback data');
-        }
-
-        const gameData = game || createFallbackGame(placeDetails, cloudData);
-
-        if (cloudData) {
-            gameData.created = cloudData.createTime || gameData.created;
-            gameData.updated = cloudData.updateTime || gameData.updated;
-            gameData.ageRating = cloudData.ageRating || gameData.genre;
-            gameData.voiceChatEnabled = cloudData.voiceChatEnabled || false;
-            gameData._cloudData = cloudData;
-            if (cloudData.displayName) {
-                gameData.name = cloudData.displayName;
-            }
-            if (cloudData.description !== undefined) {
-                gameData.description = cloudData.description;
-            }
-        }
-
-        if (gameRes?.data) {
-            const gameApiData = gameRes.data.find((g) => g.id === universeId);
-            if (gameApiData) {
-                if (gameApiData.untranslated_genre_l1) {
-                    gameData.genre = gameApiData.untranslated_genre_l1
-                        .replace(/_/g, ' ')
-                        .replace(/\b\w/g, (c) => c.toUpperCase());
-                } else if (gameApiData.genre) {
-                    gameData.genre = gameApiData.genre;
+                    if (game.genre_l1) {
+                        gameData.genre = game.genre_l1
+                            .replace(/_/g, ' ')
+                            .replace(/\b\w/g, (c) => c.toUpperCase());
+                    }
+                    if (game.genre_l2) {
+                        gameData.subgenre = game.genre_l2
+                            .replace(/_/g, ' ')
+                            .replace(/\b\w/g, (c) => c.toUpperCase());
+                    }
+                    updateGameDataUpdated(gameData);
                 }
-            }
-        }
+            })
+            .catch(() => null);
 
-        if (playabilityStatus) {
-            gameData._playabilityStatus = playabilityStatus;
-        }
-        gameData._reasonProhibited = placeInfo?.reasonProhibited || null;
-        gameData._placeId = placeId;
+        callRobloxApiJson({
+            subdomain: 'apis',
+            endpoint: `/cloud/v2/universes/${universeId}`,
+            useApiKey: true,
+            useBackground: true,
+        })
+            .then((cloudData) => {
+                gameData.ageRating = cloudData.ageRating || gameData.genre;
+                gameData.voiceChatEnabled = cloudData.voiceChatEnabled || false;
+                gameData._cloudData = cloudData;
+                if (cloudData.displayName) {
+                    gameData.name = cloudData.displayName;
+                }
+                if (cloudData.description !== undefined) {
+                    gameData.description = cloudData.description;
+                }
+                updateGameDataUpdated(gameData);
+            })
+            .catch((e) =>
+                console.warn(
+                    'RoValra: Cloud API failed, using fallback data',
+                    e,
+                ),
+            );
 
-        if (!game || gameData.isFavoritedByUser === undefined) {
-            try {
-                const favRes = await callRobloxApiJson({
-                    subdomain: 'games',
-                    endpoint: `/v1/games/${universeId}/favorites`,
-                });
+        callRobloxApiJson({
+            subdomain: 'games',
+            endpoint: `/v1/games/${universeId}/favorites/count`,
+        })
+            .then((favCountRes) => {
+                if (favCountRes?.favoritesCount !== undefined) {
+                    gameData.favoritedCount = favCountRes.favoritesCount;
+                    updateGameDataUpdated(gameData);
+                }
+            })
+            .catch((e) =>
+                console.warn('RoValra: Failed to fetch favorites count', e),
+            );
+
+        callRobloxApiJson({
+            subdomain: 'apis',
+            endpoint: `/cloud/v2/universes/${universeId}/places/${placeId}`,
+            useApiKey: true,
+            useBackground: true,
+        })
+            .then((placeCloudRes) => {
+                if (placeCloudRes?.createTime) {
+                    gameData.created = placeCloudRes.createTime;
+                }
+                if (placeCloudRes?.updateTime) {
+                    gameData.updated = placeCloudRes.updateTime;
+                }
+                if (placeCloudRes?.serverSize !== undefined) {
+                    gameData.maxPlayers = placeCloudRes.serverSize;
+                }
+                updateGameDataUpdated(gameData);
+            })
+            .catch((e) =>
+                console.warn('RoValra: Failed to fetch place server size', e),
+            );
+
+        callRobloxApiJson({
+            subdomain: 'games',
+            endpoint: `/v1/games/${universeId}/favorites`,
+        })
+            .then((favRes) => {
                 gameData.isFavoritedByUser = favRes?.isFavorited || false;
-            } catch (e) {
+                updateFavoriteUI(gameData.isFavoritedByUser);
+            })
+            .catch((e) => {
                 console.warn('RoValra: Failed to fetch favorites status');
                 gameData.isFavoritedByUser = false;
-            }
-        }
+            });
 
         const gameNameSlug = slugifyGameName(gameData.name);
         const desiredPath = `/private-games/${placeId}/${gameNameSlug}`;
@@ -224,16 +310,126 @@ async function loadAndRenderPrivateGame(placeId, settings) {
                 desiredPath,
             );
         }
-
-        renderPrivateGamePage(gameData, placeId, settings);
     } catch (e) {
         console.error('RoValra: Failed to fetch info for private game', e);
-        const fallbackGame = createFallbackGame(null, null);
+        const fallbackGame = createFallbackGame(null);
         renderPrivateGamePage(fallbackGame, placeId, settings);
     }
 }
 
-function createFallbackGame(placeDetails, cloudData) {
+function updateGameDataUpdated(gameData) {
+    const updateText = (id, text) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = text;
+    };
+
+    updateText(
+        'rovalra-active-playing',
+        gameData.playing !== null
+            ? formatVoteCount(gameData.playing)
+            : ts('privateGames.unknown'),
+    );
+
+    updateText(
+        'rovalra-favorited-count',
+        gameData.favoritedCount !== null
+            ? formatVoteCount(gameData.favoritedCount)
+            : ts('privateGames.unknown'),
+    );
+
+    updateText(
+        'rovalra-visits-count',
+        gameData.visits !== null
+            ? formatVoteCount(gameData.visits)
+            : ts('privateGames.unknown'),
+    );
+
+    updateText(
+        'rovalra-max-players',
+        gameData.maxPlayers !== null
+            ? gameData.maxPlayers.toLocaleString()
+            : ts('privateGames.unknown'),
+    );
+
+    updateText(
+        'rovalra-genre-text',
+        gameData.genre !== null ? gameData.genre : ts('privateGames.unknown'),
+    );
+
+    updateText(
+        'rovalra-subgenre-text',
+        gameData.subgenre !== null
+            ? gameData.subgenre
+            : ts('privateGames.unknown'),
+    );
+
+    const voiceChatEl = document.getElementById('rovalra-voice-chat-status');
+    if (voiceChatEl) {
+        voiceChatEl.textContent =
+            gameData.voiceChatEnabled === true
+                ? ts('privateGames.stats.supported')
+                : gameData.voiceChatEnabled === false
+                  ? ts('privateGames.stats.unsupported')
+                  : ts('privateGames.unknown');
+    }
+
+    const createdEl = document.getElementById('rovalra-created-date');
+    if (createdEl && gameData.created) {
+        createdEl.innerHTML = '';
+        createdEl.appendChild(createInteractiveTimestamp(gameData.created));
+    }
+    const updatedEl = document.getElementById('rovalra-updated-date');
+    if (updatedEl && gameData.updated) {
+        updatedEl.innerHTML = '';
+        updatedEl.appendChild(createInteractiveTimestamp(gameData.updated));
+    }
+
+    const titleEl = document.querySelector('.game-name');
+    if (titleEl && gameData.name) {
+        titleEl.textContent = gameData.name;
+        document.title = `${gameData.name} - Roblox`;
+    }
+
+    const descEl = document.querySelector('.game-description');
+    if (descEl && gameData.description) {
+        descEl.textContent = gameData.description;
+    }
+
+    const creatorLink = document.querySelector('.game-creator a.text-name');
+    if (creatorLink && gameData.creator) {
+        const typePath =
+            gameData.creator.type === 'Group' ? 'communities' : 'users';
+        creatorLink.href = `https://www.roblox.com/${typePath}/${gameData.creator.id}`;
+    }
+}
+
+async function fetchVisitsForCreator(gameData, universeId) {
+    if (!gameData.creator?.id || gameData.creator.id <= 0) return;
+
+    const isGroup = gameData.creator.type === 'Group';
+    const endpoint = isGroup
+        ? `/v2/groups/${gameData.creator.id}/gamesV2?accessFilter=2&limit=50&sortOrder=Desc`
+        : `/v2/users/${gameData.creator.id}/games?accessFilter=2&limit=50&sortOrder=Asc`;
+
+    try {
+        const res = await callRobloxApiJson({
+            subdomain: 'games',
+            endpoint: endpoint,
+        });
+
+        if (res?.data && Array.isArray(res.data)) {
+            const matchingGame = res.data.find((g) => g.id === universeId);
+            if (matchingGame?.placeVisits !== undefined) {
+                gameData.visits = matchingGame.placeVisits;
+                updateGameDataUpdated(gameData);
+            }
+        }
+    } catch (e) {
+        console.warn('RoValra: Failed to fetch visit count from creator', e);
+    }
+}
+
+function createFallbackGame(placeDetails) {
     const placeInfo = Array.isArray(placeDetails)
         ? placeDetails[0]
         : placeDetails;
@@ -246,7 +442,7 @@ function createFallbackGame(placeDetails, cloudData) {
             placeInfo?.description || ts('privateGames.experienceIsPrivate'),
         creator: {
             id: placeInfo?.builderId || 0,
-            name: placeInfo?.builder || 'Unknown',
+            name: placeInfo?.builder || ts('privateGames.unknown'),
             type: 'User',
             hasVerifiedBadge: placeInfo?.hasVerifiedBadge || false,
         },
@@ -255,11 +451,13 @@ function createFallbackGame(placeDetails, cloudData) {
         visits: null,
         maxPlayers: placeInfo?.maxPlayers || null,
         genre: placeInfo?.genre || null,
-        created: cloudData?.createTime || null,
-        updated: cloudData?.updateTime || null,
+        subgenre: null,
+
+        created: null,
+        updated: null,
         isFavoritedByUser: false,
-        voiceChatEnabled: cloudData?.voiceChatEnabled ?? null,
-        ageRating: cloudData?.ageRating || null,
+        voiceChatEnabled: null,
+        ageRating: null,
     };
 }
 
@@ -277,33 +475,11 @@ function showStatusBannerForPlayabilityStatus(status) {
     const showBanner = (retries = 0) => {
         const banner = document.getElementById('rovalra-game-notice-banner');
         if (banner && window.GameBannerManager) {
+            if (window.GameBannerManager.clearNotices) {
+                window.GameBannerManager.clearNotices();
+            }
             window.GameBannerManager.addNotice(
                 bannerText,
-                icon,
-                ts('privateGames.rovalraNotice'),
-                '16px',
-                '14px',
-            );
-        } else if (retries < 30) {
-            setTimeout(() => showBanner(retries + 1), 100);
-        }
-    };
-    showBanner();
-}
-
-function showStatusBannerForReason(reason) {
-    const isModerated = reason === 'UnderReview' || reason === 'GameUnapproved';
-    const icon = isModerated
-        ? '<svg viewBox="0 0 24 24"><path d="m5.2494 8.0688 2.83-2.8269 14.1343 14.15-2.83 2.8269zm4.2363-4.2415 2.828-2.8289 5.6577 5.656-2.828 2.8289zM.9989 12.3147l2.8284-2.8285 5.6569 5.6569-2.8285 2.8284zM1 21h12v2H1z"></path></svg>'
-        : '<svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2m-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2m3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1s3.1 1.39 3.1 3.1z"></path></svg>';
-
-    const displayText = getReasonProhibitedDisplayText(reason);
-
-    const showBanner = (retries = 0) => {
-        const banner = document.getElementById('rovalra-game-notice-banner');
-        if (banner && window.GameBannerManager) {
-            window.GameBannerManager.addNotice(
-                displayText,
                 icon,
                 ts('privateGames.rovalraNotice'),
                 '16px',
@@ -331,8 +507,6 @@ async function renderPrivateGamePage(game, placeId, settings) {
 
     if (hasStatusData) {
         showStatusBannerForPlayabilityStatus(playabilityStatus);
-    } else if (game._reasonProhibited) {
-        showStatusBannerForReason(game._reasonProhibited);
     }
 
     let upVotes = 0;
@@ -383,7 +557,7 @@ async function renderPrivateGamePage(game, placeId, settings) {
 
     const isFavoritedByUser = game.isFavoritedByUser || false;
 
-    const voiceChatEnabled = universeDetails?.voiceChatEnabled || false;
+    const voiceChatEnabled = game.voiceChatEnabled;
 
     const totalVotes = upVotes + downVotes;
     const likeRatio =
@@ -396,7 +570,7 @@ async function renderPrivateGamePage(game, placeId, settings) {
             <div class="col-xs-12 section-content game-main-content remove-panel">
                 <div class="rovalra-game-hero">
                     <div class="game-details-carousel-container">
-                        <div class="thumbnail-2d-container shimmer carousel-item carousel-item-active" style="border-radius: 8px;"></div>
+                        <div class="thumbnail-2d-container shimmer carousel-item carousel-item-active"></div>
                     </div>
                     <div class="game-calls-to-action">
                         <div class="game-title-container">
@@ -410,23 +584,23 @@ async function renderPrivateGamePage(game, placeId, settings) {
                             <div class="game-details-play-button-container">
                                 <button type="button" class="btn-common-play-game-unplayable-lg btn-primary-md btn-full-width" disabled="" data-testid="play-unplayable-button">
                                     <span class="icon-status-unavailable-secondary"></span>
-                                    <span class="btn-text">Unavailable</span>
+                                     <span class="btn-text">${ts('privateGames.unavailable')}</span>
                                 </button>
                             </div>
                         <ul class="favorite-follow-vote-share rovalra-private-actions">
                             <li class="game-favorite-button-container">
-                                <div class="tooltip-container" data-toggle="tooltip" title="Add to Favorites">
+                                 <div class="tooltip-container" data-toggle="tooltip" title="${ts('privateGames.favorite.add')}">
                                     <div class="favorite-button" id="rovalra-favorite-btn" data-universe-id="${game.id}">
                                         <div id="game-favorite-icon" class="icon-favorite rovalra-action-icon${isFavoritedByUser ? ' favorited' : ''}"></div>
-                                        <div id="game-favorite-icon-label" class="icon-label rovalra-action-label">${isFavoritedByUser ? 'Favorited' : 'Favorite'}</div>
+                                         <div id="game-favorite-icon-label" class="icon-label rovalra-action-label">${isFavoritedByUser ? ts('privateGames.favorite.favorited') : ts('privateGames.favorite.favorite')}</div>
                                     </div>
                                 </div>
                             </li>
                              <li class="game-follow-button-container">
-                                 <div class="tooltip-container" data-toggle="tooltip" title="Turn on Notifications">
+                                  <div class="tooltip-container" data-toggle="tooltip" title="${ts('privateGames.notify.tooltip')}">
                                      <div class="follow-button disabled">
                                          <div id="game-follow-icon" class="icon-notifications-bell rovalra-action-icon"></div>
-                                         <div id="game-follow-icon-label" class="icon-label rovalra-action-label">Notify</div>
+                                          <div id="game-follow-icon-label" class="icon-label rovalra-action-label">${ts('privateGames.notify.label')}</div>
                                      </div>
                                  </div>
                              </li>
@@ -479,7 +653,7 @@ async function renderPrivateGamePage(game, placeId, settings) {
                     thumbData,
                     game.name,
                     'carousel-item carousel-item-active',
-                    { width: '100%', height: '100%' },
+                    { width: '100%', height: '100%', borderRadius: '0px' },
                 );
                 if (thumbEl) {
                     thumbnailContainer.innerHTML = '';
@@ -487,7 +661,7 @@ async function renderPrivateGamePage(game, placeId, settings) {
                 } else if (thumbData.state === 'Blocked') {
                     thumbnailContainer.className =
                         'thumbnail-2d-container icon-blocked carousel-item carousel-item-active';
-                    thumbnailContainer.style.borderRadius = '8px';
+                    thumbnailContainer.style.borderRadius = '0px';
                 }
             }
         },
@@ -534,23 +708,27 @@ async function renderPrivateGamePage(game, placeId, settings) {
                     <ul class="border-top border-bottom game-stat-container rovalra-horizontal-stats">
                         <li class="game-stat">
                             <p class="text-label text-overflow font-caption-header">${ts('privateGames.stats.active')}</p>
-                            <p class="text-lead font-caption-body">${game.playing !== null ? formatVoteCount(game.playing) : ts('privateGames.unknown')}</p>
+                            <p class="text-lead font-caption-body" id="rovalra-active-playing">${game.playing !== null ? formatVoteCount(game.playing) : ts('privateGames.unknown')}</p>
                         </li>
                         <li class="game-stat">
                             <p class="text-label text-overflow font-caption-header">${ts('privateGames.stats.favorites')}</p>
-                            <p class="text-lead font-caption-body">${game.favoritedCount !== null ? formatVoteCount(game.favoritedCount) : ts('privateGames.unknown')}</p>
+                            <p class="text-lead font-caption-body" id="rovalra-favorited-count">${game.favoritedCount !== null ? formatVoteCount(game.favoritedCount) : ts('privateGames.unknown')}</p>
                         </li>
                         <li class="game-stat">
                             <p class="text-label text-overflow font-caption-header">${ts('privateGames.stats.visits')}</p>
-                            <p class="text-label text-lead font-caption-body">${game.visits !== null ? formatVoteCount(game.visits) : ts('privateGames.unknown')}</p>
+                            <p class="text-lead font-caption-body" id="rovalra-visits-count">${game.visits !== null ? formatVoteCount(game.visits) : ts('privateGames.unknown')}</p>
                         </li>
                         <li class="game-stat">
                             <p class="text-label text-overflow font-caption-header">${ts('privateGames.stats.maxPlayers')}</p>
-                            <p class="text-lead font-caption-body">${game.maxPlayers !== null ? game.maxPlayers.toLocaleString() : ts('privateGames.unknown')}</p>
+                            <p class="text-lead font-caption-body" id="rovalra-max-players">${game.maxPlayers !== null ? game.maxPlayers.toLocaleString() : ts('privateGames.unknown')}</p>
                         </li>
                         <li class="game-stat">
                             <p class="text-label text-overflow font-caption-header">${ts('privateGames.stats.genre')}</p>
-                            <p class="text-label text-lead font-caption-body">${game.genre !== null ? game.genre : ts('privateGames.unknown')}</p>
+                            <p class="text-lead font-caption-body" id="rovalra-genre-text">${game.genre !== null ? game.genre : ts('privateGames.unknown')}</p>
+                        </li>
+                        <li class="game-stat">
+                            <p class="text-label text-overflow font-caption-header">${ts('privateGames.stats.subgenre') || 'Subgenre'}</p>
+                            <p class="text-lead font-caption-body" id="rovalra-subgenre-text">${game.subgenre !== null ? game.subgenre : ts('privateGames.unknown')}</p>
                         </li>
                         <li class="game-stat">
                             <p class="text-label text-overflow font-caption-header">${ts('privateGames.stats.created')}</p>
@@ -562,7 +740,7 @@ async function renderPrivateGamePage(game, placeId, settings) {
                         </li>
                         <li class="game-stat">
                             <p class="text-label text-overflow font-caption-header">${ts('privateGames.stats.voiceChat')}</p>
-                            <p class="text-lead font-caption-body">${voiceChatEnabled === true ? ts('privateGames.stats.supported') : voiceChatEnabled === false ? ts('privateGames.stats.unsupported') : ts('privateGames.unknown')}</p>
+                            <p class="text-lead font-caption-body" id="rovalra-voice-chat-status">${voiceChatEnabled === true ? ts('privateGames.stats.supported') : voiceChatEnabled === false ? ts('privateGames.stats.unsupported') : ts('privateGames.unknown')}</p>
                         </li>
                     </ul>
                     <div class="game-description-footer">
@@ -735,6 +913,30 @@ async function renderPrivateGamePage(game, placeId, settings) {
             updatedEl.appendChild(createInteractiveTimestamp(game.updated));
     }
 
+    // Add tooltips for exact numbers
+    const addTooltipToStat = (elementId, value) => {
+        const element = document.getElementById(elementId);
+        if (element && value !== null && typeof value !== 'undefined') {
+            addTooltip(element, value.toLocaleString(), { position: 'bottom' });
+        }
+    };
+
+    if (game.playing !== null) {
+        addTooltipToStat('rovalra-active-playing', game.playing);
+    }
+
+    if (game.favoritedCount !== null) {
+        addTooltipToStat('rovalra-favorited-count', game.favoritedCount);
+    }
+
+    if (game.visits !== null) {
+        addTooltipToStat('rovalra-visits-count', game.visits);
+    }
+
+    if (game.maxPlayers !== null) {
+        addTooltipToStat('rovalra-max-players', game.maxPlayers);
+    }
+
     setupFavoriteButton(game.id, isFavoritedByUser);
 
     loadBadges(game.universeId || game.id);
@@ -777,10 +979,12 @@ function setupFavoriteButton(universeId, initialFavorited) {
         }
     });
 
-    function updateFavoriteUI(favorited) {
+    window.updateFavoriteUI = function (favorited) {
         const icon = document.getElementById('game-favorite-icon');
         const label = document.getElementById('game-favorite-icon-label');
-        const tooltip = favBtn.closest('.tooltip-container');
+        const tooltip = document
+            .querySelector('#rovalra-favorite-btn')
+            ?.closest('.tooltip-container');
 
         if (icon) {
             if (favorited) {
@@ -790,19 +994,25 @@ function setupFavoriteButton(universeId, initialFavorited) {
             }
         }
         if (label) {
-            label.textContent = favorited ? 'Favorited' : 'Favorite';
+            label.textContent = favorited
+                ? ts('privateGames.favorite.favorited')
+                : ts('privateGames.favorite.favorite');
         }
         if (tooltip) {
             tooltip.setAttribute(
                 'title',
-                favorited ? 'Remove from Favorites' : 'Add to Favorites',
+                favorited
+                    ? ts('privateGames.favorite.remove')
+                    : ts('privateGames.favorite.add'),
             );
             tooltip.setAttribute(
                 'data-original-title',
-                favorited ? 'Remove from Favorites' : 'Add to Favorites',
+                favorited
+                    ? ts('privateGames.favorite.remove')
+                    : ts('privateGames.favorite.add'),
             );
         }
-    }
+    };
 }
 
 async function loadBadges(universeId) {
@@ -967,7 +1177,7 @@ function renderPasses(list, noPassesMsg, passes, showNotForSale) {
                         thumbData,
                         name,
                         '',
-                        { width: '100%', height: '100%' },
+                        { width: '100%', height: '100%', borderRadius: '0px' },
                     );
                     thumbContainer.innerHTML = '';
                     thumbContainer.appendChild(thumbEl);
@@ -1350,7 +1560,7 @@ function renderDeveloperProducts(devProducts, universeId) {
                         thumbData,
                         name,
                         '',
-                        { width: '100%', height: '100%' },
+                        { width: '100%', height: '100%', borderRadius: '0px' },
                     );
                     thumbContainer.innerHTML = '';
                     thumbContainer.appendChild(thumbEl);

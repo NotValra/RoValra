@@ -158,6 +158,11 @@
         "tooltip": "This shows if Roblox thinks your account is your first account. <br>This info comes directly from Roblox but may not be accurate.",
         "createdDate": "First account created: {{date}}"
     },
+    "legacyThemeSwitcher": {
+        "label": "Theme",
+        "light": "Light",
+        "dark": "Dark"
+    },
     "previousPrice": {
         "offSale": "Off Sale",
         "text": "Previous Price:"
@@ -223,6 +228,14 @@
         "errorUserId": "Could not retrieve user ID.",
         "errorRetries": "Failed after multiple retries. Last error: {{error}}"
     },
+    "totalSpentGames": {
+        "label": "Total Spent",
+        "loading": "Loading...",
+        "failedToLoad": "Failed to load",
+        "singlePurchase": "1 purchase",
+        "multiplePurchases": "{{count}} purchases",
+        "stillCalculating": "Total Spent is still calculating."
+    },
     "settings": {
         "tabs": {
             "info": "Info",
@@ -281,7 +294,7 @@
             "previousRewards": "+ All previous tier rewards",
             "moreComingSoon": "More coming soon.",
             "availableBadges": "Available Badges",
-            "note": "Note:\n- Badges may take a few minutes to appear after donation.\n- To manage badge visibility, go to the 'Profile' settings tab.\n- Importantly if you are under the age of 13 please do not donate, you won't be able to use donator perks.\n- Donating through commissions sadly won't give a donator perks, this is a Roblox limitation.\n- When donating you agree to [RoValra's Terms of Use](https://www.rovalra.com/tou/)"
+            "note": "Note:\n- Badges may take a few minutes to appear after donation.\n- To manage badge visibility, go to the 'Profile' settings tab. \n- Donating through commissions sadly won't give a donator perks, this is a Roblox limitation.\n- When donating you agree to [RoValra's Terms of Use](https://www.rovalra.com/tou/)"
         },
         "search": {
             "minLength": "Please enter at least 2 characters to search.",
@@ -301,6 +314,9 @@
         "loading": "Loading...",
         "pending": "Pending:",
         "noPermissions": "No Permission"
+    },
+    "navigation": {
+        "transactions": "Transactions"
     },
     "betaPrograms": {
         "toggleTooltip": "Toggle Beta Programs",
@@ -388,12 +404,14 @@
         "blocked": {
             "eighteenPlus": "Update History doesn't work on 18+ experiences",
             "paidAccess": "Update History doesn't work on paid access experiences",
-            "subplace": "Update History doesn't work on subplaces with join restrictions"
+            "subplace": "Update History doesn't work on subplaces with join restrictions",
+            "noDesktopSupport": "Update History isn't supported on experiences without PC support"
         }
     },
     "serverList": {
         "clear": "Clear",
         "noServersApi": "No servers found via the RoValra API.",
+        "allServersInactive": "All servers in this region went inactive",
         "loadErrorApi": "Failed to load servers from RoValra API.",
         "join": "Join",
         "peopleMax": "{{playing}} of {{maxPlayers}} people max",
@@ -532,7 +550,39 @@
         "userNotVerified": "User is not ID verified."
     },
     "friendsSince": {
-        "friended": "Friended"
+        "friended": "Friended",
+        "lastSeen": "Seen",
+        "age": "Age",
+        "friendedVia": "Friended via",
+        "originFrom": "From",
+        "originSearch": "Search",
+        "originInGame": "In Game",
+        "originProfile": "Profile",
+        "originQQContacts": "QQ Contacts",
+        "originWeChatContacts": "WeChat Contacts",
+        "originQrCode": "QR Code",
+        "originProfileShare": "Profile Share",
+        "originPhoneContacts": "Phone Contacts",
+        "originPeopleYouMayKnow": "People You May Know",
+        "originUnknown": "Unknown"
+    },
+    "lastPlayed": {
+        "together": "Most Played Together"
+    },
+    "unfriend": {
+        "confirmUnfriend": "Confirm Unfriend",
+        "confirmUnfriends": "Confirm Unfriends",
+        "descriptionSingle": "You are about to unfriend 1 friend. This action cannot be undone.",
+        "descriptionPlural": "You are about to unfriend {{count}} friends. This action cannot be undone.",
+        "cancel": "Cancel",
+        "unfriend": "Unfriend",
+        "unfriendCount": "Unfriend ({{count}})",
+        "unfriendCountAction": "Unfriend {{count}} friend",
+        "unfriendCountActionPlural": "Unfriend {{count}} friends",
+        "unfriending": "Unfriending...",
+        "bulkUnfriend": "Bulk Unfriend",
+        "exitBulkMode": "Exit Bulk Mode",
+        "successMessage": "Successfully unfriended {{successCount}}/{{totalCount}} friends!"
     },
     "purchasePrompt": {
         "balanceAfter": "Your balance after this transaction will be"
@@ -591,6 +641,7 @@
             "visits": "Visits",
             "maxPlayers": "Max Players",
             "genre": "Genre",
+            "subgenre": "Subgenre",
             "created": "Created",
             "updated": "Updated",
             "voiceChat": "Voice Chat",
@@ -617,6 +668,9 @@
             "owned": "Owned",
             "buy": "Buy"
         },
+        "disabled": "View Private / Moderated Games is Disabled",
+        "disabledDescription": "To view private and moderated games you need to enable the setting here:",
+        "disabledLinkText": "View Private / Moderated Games",
         "products": {
             "title": "Products",
             "buy": "Buy"
@@ -669,5 +723,25 @@
         "store": "Store",
         "members": "Members",
         "accountForgotten": "Account Forgotten"
+    },
+    "copyId": {
+        "copyId": "Copy {{type}} ID",
+        "copyUniverseId": "Copy Universe ID",
+        "types": {
+            "bundle": "Bundle",
+            "asset": "Asset",
+            "gamePass": "GamePass",
+            "badge": "Badge",
+            "community": "Community",
+            "event": "Event",
+            "developerProduct": "Developer Product",
+            "place": "Place",
+            "universe": "Universe",
+            "user": "User"
+        }
+    },
+    "friendsListOverlay": {
+        "title": "Friends playing {{gameName}}",
+        "join": "Join"
     }
 }

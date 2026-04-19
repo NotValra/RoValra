@@ -68,6 +68,7 @@ export async function fetchRolimonsItems(ids) {
                 const response = await callRobloxApi({
                     isRovalraApi: true,
                     endpoint: `/v1/rolimons/items?item_ids=${chunk.join(',')}`,
+                    noCache: true,
                 });
                 if (response.ok) {
                     const json = await response.json();

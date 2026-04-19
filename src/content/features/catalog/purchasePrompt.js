@@ -1,62 +1,25 @@
-import { observeElement } from '../../core/observer.js';
+import { observeElement, observeAttributes } from '../../core/observer.js';
 import { safeHtml } from '../../core/packages/dompurify.js';
 import { ts } from '../../core/locale/i18n.js';
-import { getPlaceIdFromUrl } from '../../core/idExtractor.js';
 import { getUserCurrency } from '../../core/user/userCurrency.js';
-import { getItemDetails } from '../../core/catalog/itemPrice.js';
-
-let lastBuyClickTime = 0;
-
-function setupClickListener() {
-    document.addEventListener(
-        'click',
-        (e) => {
-            const target = e.target;
-            const buyBtn = target.closest('.shopping-cart-buy-button');
-
-            if (buyBtn) {
-                lastBuyClickTime = Date.now();
-            }
-        },
-        { capture: true },
-    );
-}
 
 async function processDialog(dialog) {
-    if (Date.now() - lastBuyClickTime > 2000) return;
-
-    if (dialog.querySelector('.rovalra-robux-after')) return;
+    const priceAttr = dialog.getAttribute('data-rovalra-expected-price');
+    if (!priceAttr) return;
 
     const heading = dialog.querySelector('#rbx-unified-purchase-heading');
     if (!heading) return;
 
     let balance = null;
-    let price = null;
+    const price = parseInt(priceAttr, 10);
+
+    if (isNaN(price)) return;
 
     try {
-        const itemId = getPlaceIdFromUrl();
-        if (itemId) {
-            let itemType = 'Asset';
-            if (window.location.pathname.includes('/bundles/')) {
-                itemType = 'Bundle';
-            }
+        const currencyData = await getUserCurrency().catch(() => null);
 
-            const [currencyData, itemData] = await Promise.all([
-                getUserCurrency().catch(() => null),
-                getItemDetails(itemId, itemType).catch(() => null),
-            ]);
-
-            if (currencyData && typeof currencyData.robux === 'number') {
-                balance = currencyData.robux;
-            }
-
-            if (itemData) {
-                if (typeof itemData.lowestPrice === 'number') {
-                    price = itemData.lowestPrice;
-                } else if (typeof itemData.price === 'number') {
-                    price = itemData.price;
-                }
-            }
+        if (currencyData && typeof currencyData.robux === 'number') {
+            balance = currencyData.robux;
         }
     } catch (e) {
         console.warn('RoValra: API fetch failed for purchase prompt', e);
@@ -75,39 +38,42 @@ async function processDialog(dialog) {
 
     if (!priceEl) return;
 
-    if (price === null) {
-        const priceText = priceEl.textContent.replace(/,/g, '').trim();
-        price = parseInt(priceText, 10);
-    }
-
-    if (balance === null || isNaN(balance) || price === null || isNaN(price))
-        return;
+    if (balance === null || isNaN(balance)) return;
 
     const after = balance - price;
 
-    if (dialog.querySelector('.rovalra-robux-after')) return;
+    let container = dialog.querySelector('.rovalra-robux-after');
+    if (!container) {
+        container = document.createElement('div');
+        container.className = 'rovalra-robux-after';
+        container.style.width = '100%';
 
-    const container = document.createElement('div');
-    container.className = 'rovalra-robux-after';
-    container.style.width = '100%';
+        const infoContainer = priceEl.closest(
+            '.min-w-0.flex.flex-col.gap-small',
+        );
+        if (infoContainer) {
+            infoContainer.appendChild(container);
+        }
+    }
 
     container.innerHTML = safeHtml`
         <span class="text-body-medium" style="color: var(--rovalra-secondary-text-color);">${ts('purchasePrompt.balanceAfter')} <span class="icon-robux-16x16" style="vertical-align: middle; position: relative; top: -1px;"></span> <span class="text-robux" style="${after < 0 ? 'color: #d32f2f;' : ''}">${after.toLocaleString()}</span></span>
     `;
-
-    const infoContainer = priceEl.closest('.min-w-0.flex.flex-col.gap-small');
-    if (infoContainer) {
-        infoContainer.appendChild(container);
-    }
 }
 
 export function init() {
     chrome.storage.local.get({ EnableRobuxAfterPurchase: true }, (settings) => {
         if (!settings.EnableRobuxAfterPurchase) return;
 
-        setupClickListener();
-        observeElement('.unified-purchase-dialog-content', (el) => {
-            processDialog(el);
-        });
+        observeElement(
+            '.unified-purchase-dialog-content',
+            (el) => {
+                processDialog(el);
+                observeAttributes(el, () => processDialog(el), [
+                    'data-rovalra-expected-price',
+                ]);
+            },
+            { multiple: true },
+        );
     });
 }

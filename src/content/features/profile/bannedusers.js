@@ -351,11 +351,21 @@ async function renderBannedUserProfile(user, settings) {
     };
 
     const handleRenderFallback = () => {
-        const renderThumb = renderAvatarThumbnail(user.id);
+        const renderThumb = renderAvatarThumbnail
+            ? renderAvatarThumbnail(user.id)
+            : null;
+        if (!renderThumb) return;
 
         const originalPromise = renderThumb.finalUpdate;
+        if (!originalPromise) {
+            updateAvatarUI(renderThumb, renderStyles);
+            return;
+        }
+
         renderThumb.finalUpdate = originalPromise.then((result) => {
             if (result) return result;
+
+            if (user.isAccountForgotten) return null;
 
             return {
                 state: 'Completed',
@@ -416,10 +426,6 @@ async function renderBannedUserProfile(user, settings) {
                 activePane.style.display = 'block';
             }
         });
-    });
-
-    content.querySelectorAll('#rovalra-banned-stat-pills a').forEach((link) => {
-        link.addEventListener('click', (e) => redirectBannedUrl(e));
     });
 
     content
@@ -772,7 +778,7 @@ async function loadFriends(userId) {
                     </div>
                     <div class="friends-carousel-container">
                         <div class="friends-carousel-list-container">
-                            <div id="rovalra-banned-friends-list" style="display: flex; gap: 45px; overflow-x: auto; padding-bottom: 10px;"></div>
+                            <div id="rovalra-banned-friends-list" style="display: flex; gap: 35px; overflow-x: auto; padding-bottom: 10px;"></div>
                         </div>
                     </div>
                 </div>

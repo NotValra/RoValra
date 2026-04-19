@@ -1,13 +1,66 @@
-import { callRobloxApiJson } from "../../api";
-import { getAuthenticatedUserId } from "../../user";
 import { log, logLevel } from "../../logging";
 
+// This script fetches a users friends list and stores information about it,
+// like last online, mutual friends, estimated age range (idk if that will be used), trusted friends, last location, friends since and some other lesser important stuff.
+import { callRobloxApiJson } from '../../api';
+import { getAuthenticatedUserId } from '../../user';
+import { ts } from '../../locale/i18n.js';
+import {
+    getMultiProfileInsights,
+    getUserProfileData,
+    INSIGHT_CASES,
+    RANKING_STRATEGIES,
+} from '../../apis/users.js';
 
 const FRIENDS_DATA_KEY = 'rovalra_friends_data';
 const FRIENDS_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes for heavy data
 const ONLINE_STATUS_CACHE_DURATION = 1 * 60 * 1000; // 1 minute for online status
-const USER_PROFILE_API_ENDPOINT =
-    '/user-profile-api/v1/user/profiles/get-profiles';
+
+export function getFriendRequestOriginText(originId) {
+    const fromText = ts('friendsSince.originFrom');
+    switch (originId) {
+        // Thanks to RoSeal
+        case 1: // PLAYER_SEARCH
+            return `${fromText} ${ts('friendsSince.originSearch')}`;
+        case 2: // IN_GAME
+            return `${fromText} ${ts('friendsSince.originInGame')}`;
+        case 3: // PROFILE
+            return `${fromText} ${ts('friendsSince.originProfile')}`;
+        case 4: // QQ_CONTACT_IMPORTER
+            return `${fromText} ${ts('friendsSince.originQQContacts')}`;
+        case 5: // WECHAT_CONTACT_IMPORTER
+            return `${fromText} ${ts('friendsSince.originWeChatContacts')}`;
+        case 6: // QR_CODE
+            return `${fromText} ${ts('friendsSince.originQrCode')}`;
+        case 7: // PROFILE_SHARE
+            return `${fromText} ${ts('friendsSince.originProfileShare')}`;
+        case 8: // PHONE_CONTACT_IMPORTER
+            return `${fromText} ${ts('friendsSince.originPhoneContacts')}`;
+        case 10: // FRIEND_RECOMMENDATIONS
+            return `${fromText} ${ts('friendsSince.originPeopleYouMayKnow')}`;
+        default:
+            return `${fromText} ${ts('friendsSince.originUnknown')}`;
+    }
+}
+
+function convertVerifiedAgeLabel(label) {
+    switch (label) {
+        case 'Label.AgeGroupUnder9':
+            return '<9';
+        case 'Label.AgeGroup9To12':
+            return '9-12';
+        case 'Label.AgeGroup13To15':
+            return '13-15';
+        case 'Label.AgeGroup16To17':
+            return '16-17';
+        case 'Label.AgeGroup18To20':
+            return '18-20';
+        case 'Label.AgeGroupOver21':
+            return '21+';
+        default:
+            return null;
+    }
+}
 
 function refineAgeWithAccountAge(estimatedRange, accountCreatedTimestamp) {
     if (
@@ -181,63 +234,26 @@ async function fetchFriendsPage(userId, cursor = null) {
     }
 }
 
-async function fetchUserProfileData(userIds) {
+async function fetchAllTrustedFriends(userId) {
+    const trustedIds = new Set();
+    let cursor = null;
     try {
-        return await callRobloxApiJson({
-            subdomain: 'apis',
-            endpoint: USER_PROFILE_API_ENDPOINT,
-            method: 'POST',
-            useBackground: true,
-
-            body: {
-                userIds: userIds,
-                fields: [
-                    'isVerified',
-                    'isDeleted',
-                    'names.combinedName',
-                    'names.displayName',
-                    'names.username',
-                ],
-            },
-        });
+        do {
+            let endpoint = `/v1/users/${userId}/friends/find?findFriendsType=FindTrustedFriends`;
+            if (cursor) endpoint += `&cursor=${encodeURIComponent(cursor)}`;
+            const response = await callRobloxApiJson({
+                subdomain: 'friends',
+                endpoint,
+                useBackground: true,
+            });
+            if (!response || !response.PageItems) break;
+            response.PageItems.forEach((item) => trustedIds.add(item.id));
+            cursor = response.NextCursor;
+        } while (cursor);
     } catch (error) {
-        log(logLevel.ERROR, 'RoValra: Failed to fetch user profile data', error);
-        return null;
+        console.error('RoValra: Failed to fetch all trusted friends', error);
     }
-}
-
-async function fetchTrustedFriendsStatus(userId, friendIds) {
-    if (!friendIds || friendIds.length === 0) return new Set();
-    try {
-        const friendIdsString = friendIds.join('%2C');
-        const data = await callRobloxApiJson({
-            subdomain: 'friends',
-            endpoint: `/v1/user/${userId}/multiget-are-trusted-friends?userIds=${friendIdsString}`,
-            useBackground: true,
-        });
-        return new Set(data?.trustedFriendsId || []);
-    } catch (error) {
-        log(logLevel.ERROR, 'RoValra: Failed to fetch trusted friends status', error);
-        return new Set();
-    }
-}
-
-async function fetchProfileInsights(userIds) {
-    try {
-        return await callRobloxApiJson({
-            subdomain: 'apis',
-            endpoint: '/profile-insights-api/v1/multiProfileInsights',
-            method: 'POST',
-            useBackground: true,
-
-            body: {
-                userIds: userIds.map((id) => id.toString()),
-                rankingStrategy: 'tc_info_boost',
-            },
-        });
-    } catch (error) {
-        return null;
-    }
+    return trustedIds;
 }
 
 async function fetchFriendsOnlineStatus(userId) {
@@ -254,16 +270,39 @@ async function fetchFriendsOnlineStatus(userId) {
     }
 }
 
+async function fetchDeletedAccountData(userId) {
+    try {
+        return await callRobloxApiJson({
+            subdomain: 'users',
+            endpoint: `/v1/users/${userId}`,
+            useBackground: true,
+        });
+    } catch (error) {
+        console.error('RoValra: Failed to fetch deleted account data', error);
+        return null;
+    }
+}
+
 export async function updateFriendsList(userId) {
     let allFriends = [];
     let friendsCursor = null;
 
+    const storageResult = await new Promise((resolve) =>
+        chrome.storage.local.get([FRIENDS_DATA_KEY], resolve),
+    );
+    const allUsersFriendsData = storageResult[FRIENDS_DATA_KEY] || {};
+    const existingMap = new Map(
+        (allUsersFriendsData[userId]?.friendsList || []).map((f) => [f.id, f]),
+    );
+
     try {
-        const [conversations, ageData, onlineData] = await Promise.all([
-            fetchAllConversations(),
-            fetchUserAgeGroup(),
-            fetchFriendsOnlineStatus(userId),
-        ]);
+        const [conversations, ageData, onlineData, allTrustedFriendsSet] =
+            await Promise.all([
+                fetchAllConversations(),
+                fetchUserAgeGroup(),
+                fetchFriendsOnlineStatus(userId),
+                fetchAllTrustedFriends(userId),
+            ]);
 
         const onlineMap = new Map();
         onlineData.forEach((item) => {
@@ -325,11 +364,17 @@ export async function updateFriendsList(userId) {
             const batchIds = allFriends
                 .slice(i, i + batchSize)
                 .map((f) => f.id);
-            const [profileData, trustedFriendsSet, insightsData] =
+            const [profileData, insightsData, playedTogetherData] =
                 await Promise.all([
-                    fetchUserProfileData(batchIds),
-                    fetchTrustedFriendsStatus(userId, batchIds),
-                    fetchProfileInsights(batchIds),
+                    getUserProfileData(batchIds),
+                    getMultiProfileInsights(
+                        batchIds,
+                        RANKING_STRATEGIES.TC_INFO_BOOST,
+                    ),
+                    getMultiProfileInsights(
+                        batchIds,
+                        RANKING_STRATEGIES.PROFILE_INFO_BOOST,
+                    ),
                 ]);
 
             const insightMap = new Map();
@@ -339,34 +384,59 @@ export async function updateFriendsList(userId) {
                 });
             }
 
+            const playedTogetherMap = new Map();
+            if (playedTogetherData?.userInsights) {
+                playedTogetherData.userInsights.forEach((insight) => {
+                    playedTogetherMap.set(
+                        insight.targetUser,
+                        insight.profileInsights,
+                    );
+                });
+            }
+
             if (profileData?.profileDetails) {
+                const deletedUserIds = profileData.profileDetails
+                    .filter((profile) => profile.isDeleted)
+                    .map((profile) => profile.userId);
+
+                const deletedAccountsMap = new Map();
+                for (const userId of deletedUserIds) {
+                    const accountData = await fetchDeletedAccountData(userId);
+                    if (accountData) {
+                        deletedAccountsMap.set(userId, accountData);
+                    }
+                }
+
                 const enrichedFriends = profileData.profileDetails.map(
                     (profile) => {
                         const friendId = profile.userId;
-                        const isTrusted = trustedFriendsSet.has(friendId);
+                        const isTrusted = allTrustedFriendsSet.has(friendId);
                         const chatStatus = chatAnalysisMap.get(friendId);
                         const userInsights = insightMap.get(friendId) || [];
+                        const playedTogetherInsights =
+                            playedTogetherMap.get(friendId) || [];
                         const presence = onlineMap.get(friendId);
+                        const existingFriend = existingMap.get(friendId);
 
                         let mutualFriends = [];
                         let accountCreated = null;
                         let friendsSince = null;
+                        let verifiedAgeRange = null;
+                        let friendRequestOrigin = null;
 
                         userInsights.forEach((item) => {
                             if (
-                                item.insightCase === 1 &&
+                                item.insightCase ===
+                                    INSIGHT_CASES.MUTUAL_FRIENDS &&
                                 item.mutualFriendInsight
                             ) {
-                                mutualFriends = Object.entries(
+                                mutualFriends = Object.keys(
                                     item.mutualFriendInsight.mutualFriends,
-                                ).map(([id, info]) => ({
-                                    userId: id,
-                                    username: info.username,
-                                    displayName: info.displayName,
-                                }));
+                                );
                             }
                             if (
-                                item.insightCase === 4 &&
+                                item.insightCase ===
+                                    INSIGHT_CASES.FRIENDSHIP_AGE &&
                                 item.friendshipAgeInsight
                             ) {
                                 friendsSince =
@@ -374,12 +444,62 @@ export async function updateFriendsList(userId) {
                                         .friendsSinceDateTime.seconds * 1000;
                             }
                             if (
-                                item.insightCase === 6 &&
+                                item.insightCase ===
+                                    INSIGHT_CASES.ACCOUNT_CREATION_DATE &&
                                 item.accountCreationDateInsight
                             ) {
                                 accountCreated =
                                     item.accountCreationDateInsight
                                         .accountCreatedDateTime.seconds * 1000;
+                            }
+                            if (
+                                item.insightCase ===
+                                    INSIGHT_CASES.AGE_VERIFIED &&
+                                item.userAgeVerifiedInsight
+                            ) {
+                                verifiedAgeRange = convertVerifiedAgeLabel(
+                                    item.userAgeVerifiedInsight
+                                        .verifiedAgeBandLabel,
+                                );
+                            }
+                            if (
+                                item.insightCase ===
+                                    INSIGHT_CASES.FRIEND_REQUEST_ORIGIN &&
+                                item.friendRequestOriginInsight
+                            ) {
+                                friendRequestOrigin =
+                                    item.friendRequestOriginInsight
+                                        .friendRequestOriginSource;
+                            }
+                        });
+
+                        let havePlayedTogether =
+                            existingFriend?.havePlayedTogether || false;
+                        let mostFrequentUniverseId =
+                            existingFriend?.mostFrequentUniverseId || null;
+
+                        playedTogetherInsights.forEach((item) => {
+                            if (
+                                item.insightCase ===
+                                    INSIGHT_CASES.PLAYED_TOGETHER &&
+                                item.playedTogetherInsight
+                            ) {
+                                const newUniverseId =
+                                    item.playedTogetherInsight
+                                        .mostFrequentUniverseId;
+                                const newHavePlayedTogether =
+                                    item.playedTogetherInsight
+                                        .havePlayedTogether;
+
+                                if (
+                                    mostFrequentUniverseId === null ||
+                                    (newUniverseId !== null &&
+                                        newUniverseId !==
+                                            mostFrequentUniverseId)
+                                ) {
+                                    mostFrequentUniverseId = newUniverseId;
+                                    havePlayedTogether = newHavePlayedTogether;
+                                }
                             }
                         });
 
@@ -393,20 +513,45 @@ export async function updateFriendsList(userId) {
                             );
                         }
 
+                        let username = profile.names.username;
+                        let displayName = profile.names.displayName;
+                        let combinedName = profile.names.combinedName;
+
+                        if (
+                            profile.isDeleted &&
+                            deletedAccountsMap.has(friendId)
+                        ) {
+                            const accountData =
+                                deletedAccountsMap.get(friendId);
+                            username = accountData.name;
+                            displayName = accountData.displayName;
+                            combinedName = `${displayName} (@${username})`;
+                        }
+
                         return {
                             id: friendId,
-                            username: profile.names.username,
-                            displayName: profile.names.displayName,
-                            combinedName: profile.names.combinedName,
+                            username: username,
+                            displayName: displayName,
+                            combinedName: combinedName,
                             isVerified: profile.isVerified,
                             isDeleted: profile.isDeleted,
                             isTrusted: isTrusted,
                             estimatedAgeRange: finalAgeRange,
+                            verifiedAgeRange: verifiedAgeRange,
                             mutualFriends: mutualFriends,
                             accountCreated: accountCreated,
                             friendsSince: friendsSince,
-                            lastOnline: presence?.lastOnline || null,
-                            lastLocation: presence?.lastLocation || null,
+                            friendRequestOrigin: friendRequestOrigin,
+                            havePlayedTogether: havePlayedTogether,
+                            mostFrequentUniverseId: mostFrequentUniverseId,
+                            lastOnline:
+                                presence?.lastOnline ||
+                                existingFriend?.lastOnline ||
+                                null,
+                            lastLocation:
+                                presence?.lastLocation ||
+                                existingFriend?.lastLocation ||
+                                null,
                         };
                     },
                 );
@@ -414,10 +559,6 @@ export async function updateFriendsList(userId) {
             }
         }
 
-        const storageResult = await new Promise((resolve) =>
-            chrome.storage.local.get([FRIENDS_DATA_KEY], resolve),
-        );
-        const allUsersFriendsData = storageResult[FRIENDS_DATA_KEY] || {};
         allUsersFriendsData[userId] = {
             friendsList: fullFriendsList,
             lastChecked: Date.now(),
@@ -452,12 +593,15 @@ async function updateOnlineStatusOnly(userId, currentFriendsList) {
 
         const updatedList = currentFriendsList.map((friend) => {
             const presence = onlineMap.get(friend.id);
-            if (!presence) return friend;
-            return {
-                ...friend,
-                lastOnline: presence.lastOnline,
-                lastLocation: presence.lastLocation,
-            };
+
+            if (presence) {
+                return {
+                    ...friend,
+                    lastOnline: presence.lastOnline || friend.lastOnline,
+                    lastLocation: presence.lastLocation || friend.lastLocation,
+                };
+            }
+            return friend;
         });
 
         const storageResult = await new Promise((resolve) =>
@@ -531,6 +675,36 @@ export async function getCachedFriendsList() {
     return currentUserData?.friendsList || [];
 }
 
+let onlineStatusInterval = null;
+
 export function initFriendsListTracking() {
     getFriendsList();
+
+    if (!onlineStatusInterval) {
+        onlineStatusInterval = setInterval(async () => {
+            const userId = await getAuthenticatedUserId();
+            if (!userId) return;
+
+            const result = await new Promise((resolve) =>
+                chrome.storage.local.get([FRIENDS_DATA_KEY], resolve),
+            );
+
+            const allUsersFriendsData = result[FRIENDS_DATA_KEY] || {};
+            const currentUserData = allUsersFriendsData[userId];
+
+            if (currentUserData?.friendsList) {
+                const now = Date.now();
+                const needsOnlineRefresh =
+                    now - (currentUserData.lastOnlineChecked || 0) >
+                    ONLINE_STATUS_CACHE_DURATION;
+
+                if (needsOnlineRefresh) {
+                    await updateOnlineStatusOnly(
+                        userId,
+                        currentUserData.friendsList,
+                    );
+                }
+            }
+        }, ONLINE_STATUS_CACHE_DURATION);
+    }
 }

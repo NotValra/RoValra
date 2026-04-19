@@ -14,6 +14,8 @@ const state = {
     rotatorIndex: 0,
     bannedUserRedirects: new Map(),
     privateGameRedirects: new Map(),
+    scanningUsers: new Set(),
+    transactionInterval: null,
 };
 
 // --- Session Storage Configuration ---
@@ -637,6 +639,216 @@ function updateAvatarRotator() {
     );
 }
 
+// --- Transaction Tracking ---
+
+const TRANSACTIONS_DATA_KEY = 'rovalra_transactions_data';
+const TRANSACTION_REFRESH_DURATION = 5 * 60 * 1000;
+const TRANSACTION_REQUEST_DELAY = 5000;
+
+async function fetchTransactionsPage(userId, cursor = null) {
+    let endpoint = `/transaction-records/v1/users/${userId}/transactions?limit=100&transactionType=Purchase&itemPricingType=PaidAndLimited`;
+    if (cursor) endpoint += `&cursor=${encodeURIComponent(cursor)}`;
+
+    while (true) {
+        try {
+            const response = await callRobloxApiBackground({
+                subdomain: 'apis',
+                endpoint: endpoint,
+            });
+
+            if (response.status === 429) {
+                await new Promise((resolve) => setTimeout(resolve, 10000));
+                continue;
+            }
+
+            if (!response.ok) return null;
+            return await response.json();
+        } catch (error) {
+            console.error('RoValra: Failed to fetch transactions page', error);
+            return null;
+        }
+    }
+}
+
+function processTransaction(transaction) {
+    const base = {
+        amount: Math.abs(transaction.currency.amount),
+        purchaseToken: transaction.purchaseToken,
+        creatorId: transaction.agent.id,
+        creatorType: transaction.agent.type,
+        creatorName: transaction.agent.name,
+    };
+
+    if (transaction.details.place) {
+        return {
+            ...base,
+            universeId: transaction.details.place.universeId,
+            gameName: transaction.details.place.name,
+        };
+    }
+    return base;
+}
+
+function mergeTransactionsIntoAggregated(existingAggregated, rawTransactions) {
+    const updated = existingAggregated || {
+        totals: { totalSpent: 0, totalTransactions: 0 },
+        creators: {},
+    };
+
+    rawTransactions.forEach((tx) => {
+        const processed = processTransaction(tx);
+
+        updated.totals.totalSpent += processed.amount;
+        updated.totals.totalTransactions += 1;
+
+        const creatorKey = String(processed.creatorId);
+        if (!updated.creators[creatorKey]) {
+            updated.creators[creatorKey] = {
+                name: processed.creatorName,
+                type: processed.creatorType,
+                totalSpent: 0,
+                totalTransactions: 0,
+                games: {},
+            };
+        }
+
+        const creator = updated.creators[creatorKey];
+        creator.name = processed.creatorName || creator.name;
+        creator.totalSpent += processed.amount;
+        creator.totalTransactions += 1;
+
+        if (processed.universeId) {
+            if (!creator.games[processed.universeId]) {
+                creator.games[processed.universeId] = {
+                    name: processed.gameName,
+                    totalSpent: 0,
+                    totalTransactions: 0,
+                };
+            }
+            const game = creator.games[processed.universeId];
+            game.totalSpent += processed.amount;
+            game.totalTransactions += 1;
+        }
+    });
+
+    return updated;
+}
+
+async function handleBackgroundTransactionScan(userId) {
+    const settings = await chrome.storage.local.get({
+        TotalSpentGamesEnabled: true,
+    });
+    if (!settings.TotalSpentGamesEnabled) return;
+
+    if (state.scanningUsers.has(userId)) return;
+    state.scanningUsers.add(userId);
+
+    try {
+        const storage = await chrome.storage.local.get([TRANSACTIONS_DATA_KEY]);
+        const allData = storage[TRANSACTIONS_DATA_KEY] || {};
+        const userData = allData[userId] || {};
+
+        const now = Date.now();
+        if (userData.isFullyScanned) {
+            const lastCheck =
+                userData.lastIncrementalCheck || userData.lastFullScan || 0;
+            if (now - lastCheck < TRANSACTION_REFRESH_DURATION) return;
+
+            await runTransactionLoop(userId, userData, true);
+        } else {
+            await runTransactionLoop(userId, userData, false);
+        }
+    } finally {
+        state.scanningUsers.delete(userId);
+    }
+}
+
+async function runTransactionLoop(userId, existingData, isIncremental) {
+    let cursor = isIncremental ? null : existingData.scanCursor || null;
+    let pagesChecked = 0;
+    let foundMatch = false;
+    let emptyPageCount = 0;
+    const seenTokens = new Set();
+
+    let currentAggregated = {
+        totals: existingData.totals || { totalSpent: 0, totalTransactions: 0 },
+        creators: existingData.creators || {},
+        latestPurchaseTokens: existingData.latestPurchaseTokens || [],
+    };
+
+    while (true) {
+        const data = await fetchTransactionsPage(userId, cursor);
+        if (!data) break;
+
+        if (!data.data || data.data.length === 0) {
+            emptyPageCount++;
+            if (emptyPageCount >= 3 || !data.nextPageCursor) break;
+            cursor = data.nextPageCursor;
+            continue;
+        }
+        emptyPageCount = 0;
+
+        const newBatch = [];
+        for (const tx of data.data) {
+            if (seenTokens.has(tx.purchaseToken)) continue;
+            seenTokens.add(tx.purchaseToken);
+
+            if (
+                isIncremental &&
+                currentAggregated.latestPurchaseTokens.includes(
+                    tx.purchaseToken,
+                )
+            ) {
+                foundMatch = true;
+                break;
+            }
+            newBatch.push(tx);
+        }
+
+        currentAggregated = mergeTransactionsIntoAggregated(
+            currentAggregated,
+            newBatch,
+        );
+
+        if (pagesChecked === 0) {
+            const firstTokens = data.data
+                .slice(0, 2)
+                .map((tx) => tx.purchaseToken);
+            currentAggregated.latestPurchaseTokens = [
+                ...new Set([
+                    ...firstTokens,
+                    ...currentAggregated.latestPurchaseTokens,
+                ]),
+            ].slice(0, 2);
+        }
+
+        cursor = data.nextPageCursor;
+        pagesChecked++;
+
+        const storage = await chrome.storage.local.get([TRANSACTIONS_DATA_KEY]);
+        const allData = storage[TRANSACTIONS_DATA_KEY] || {};
+        allData[userId] = {
+            ...existingData,
+            ...currentAggregated,
+            latestPurchaseToken: currentAggregated.latestPurchaseTokens[0],
+            scanCursor: isIncremental ? null : cursor,
+            isFullyScanned: isIncremental || !cursor,
+            isScanning: !isIncremental && !!cursor,
+            [isIncremental ? 'lastIncrementalCheck' : 'lastFullScan']:
+                Date.now(),
+        };
+        await chrome.storage.local.set({ [TRANSACTIONS_DATA_KEY]: allData });
+
+        if (!cursor || foundMatch || (isIncremental && pagesChecked >= 5))
+            break;
+        await new Promise((r) => setTimeout(r, TRANSACTION_REQUEST_DELAY));
+    }
+
+    if (isIncremental && !foundMatch && pagesChecked >= 5) {
+        await runTransactionLoop(userId, currentAggregated, false);
+    }
+}
+
 // --- Event Listeners ---
 
 chrome.runtime.onInstalled.addListener((details) => {
@@ -667,6 +879,21 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
         }
         if (changes.bannedUserDetectionEnabled) {
             updateBannedUserListener();
+        }
+        if (changes.TotalSpentGamesEnabled) {
+            if (changes.TotalSpentGamesEnabled.newValue === false) {
+                if (state.transactionInterval) {
+                    clearInterval(state.transactionInterval);
+                    state.transactionInterval = null;
+                }
+            } else if (state.currentUserId) {
+                handleBackgroundTransactionScan(state.currentUserId);
+                if (state.transactionInterval)
+                    clearInterval(state.transactionInterval);
+                state.transactionInterval = setInterval(() => {
+                    handleBackgroundTransactionScan(state.currentUserId);
+                }, TRANSACTION_REFRESH_DURATION);
+            }
         }
     }
 });
@@ -835,7 +1062,32 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 if (state.pollingInterval) clearInterval(state.pollingInterval);
                 pollUserPresence();
                 state.pollingInterval = setInterval(pollUserPresence, 5000);
+
+                if (state.transactionInterval) {
+                    clearInterval(state.transactionInterval);
+                    state.transactionInterval = null;
+                }
+
+                chrome.storage.local.get(
+                    { TotalSpentGamesEnabled: true },
+                    (settings) => {
+                        if (settings.TotalSpentGamesEnabled) {
+                            handleBackgroundTransactionScan(
+                                state.currentUserId,
+                            );
+                            state.transactionInterval = setInterval(() => {
+                                handleBackgroundTransactionScan(
+                                    state.currentUserId,
+                                );
+                            }, TRANSACTION_REFRESH_DURATION);
+                        }
+                    },
+                );
             }
+            return false;
+
+        case 'triggerTransactionScan':
+            handleBackgroundTransactionScan(request.userId);
             return false;
 
         case 'getBannedUserRedirect': {
@@ -905,16 +1157,22 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                                         if (settings.copyUniverseIdEnabled) {
                                             chrome.contextMenus.create({
                                                 id: `rovalra-copy-universe-${item.id}`,
-                                                title: 'Copy Universe ID',
+                                                title: item.title,
                                                 contexts: ['link'],
+                                                documentUrlPatterns: [
+                                                    '*://*.roblox.com/*',
+                                                ],
                                             });
                                         }
                                     } else {
                                         if (settings.copyIdEnabled) {
                                             chrome.contextMenus.create({
                                                 id: `rovalra-copy-${item.id}`,
-                                                title: `Copy ${item.type} ID`,
+                                                title: item.title,
                                                 contexts: ['link'],
+                                                documentUrlPatterns: [
+                                                    '*://*.roblox.com/*',
+                                                ],
                                             });
                                         }
                                     }

@@ -207,6 +207,206 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
         container.style.width = '200px';
 
         return container;
+    } else if (setting.type === 'gradient') {
+        const wrapper = document.createElement('div');
+        wrapper.id = settingName;
+        wrapper.dataset.settingName = settingName;
+
+        wrapper.style.marginLeft = 'auto';
+
+        const toggleWrapper = document.createElement('label');
+        toggleWrapper.className = 'toggle-switch';
+        toggleWrapper.innerHTML = DOMPurify.sanitize(
+            '<input type="checkbox"><span class="slider"></span>',
+        );
+        const toggleInput = toggleWrapper.querySelector('input');
+        toggleInput.checked = setting.default.enabled ?? true;
+
+        wrapper.append(toggleWrapper);
+
+        const contentBody = document.createElement('div');
+        contentBody.style.cssText = `
+            display: flex; flex-direction: column; gap: 12px;
+            background: var(--rovalra-container-background-color);
+            padding: 15px; border-radius: 12px;
+            margin-top: 10px; margin-left: 24px;
+        `;
+        wrapper.rovalraVisualizer = contentBody;
+
+        const controls = document.createElement('div');
+        controls.style.cssText =
+            'display: flex; gap: 10px; align-items: center; justify-content: center;';
+
+        const createSwatch = (id) => {
+            const inp = document.createElement('input');
+            inp.type = 'color';
+            inp.style.cssText =
+                'width: 32px; height: 32px; border: 2px solid var(--rovalra-main-text-color); border-radius: 8px; cursor: pointer; background: none; padding: 0;';
+            return inp;
+        };
+
+        const color1 = createSwatch('c1');
+        const color2 = createSwatch('c2');
+        color1.value = setting.default.color1;
+        color2.value = setting.default.color2;
+
+        const fadeContainer = document.createElement('div');
+        fadeContainer.style.cssText =
+            'display: flex; flex-direction: column; gap: 10px; width: 100%;';
+
+        const fadeLabel = document.createElement('div');
+        fadeLabel.className = 'text-label-small';
+        fadeLabel.textContent = 'Fade Strength';
+        fadeLabel.style.fontSize = '12px';
+
+        const fadeSlider = document.createElement('input');
+        fadeSlider.type = 'range';
+        fadeSlider.min = '0';
+        fadeSlider.max = '100';
+        fadeSlider.value = setting.default.fade;
+        fadeSlider.style.cssText = `
+            width: 100%; height: 6px; border-radius: 5px; background: var(--rovalra-border-color);
+            outline: none; cursor: pointer; appearance: none;
+        `;
+
+        const rangeStyle = document.createElement('style');
+        rangeStyle.textContent = `
+            #${settingName} input[type=range]::-webkit-slider-thumb { appearance: none; width: 16px; height: 16px; border-radius: 50%; background: var(--rovalra-main-text-color); cursor: pointer; }
+            #${settingName} input[type=range]::-moz-range-thumb { width: 16px; height: 16px; border-radius: 50%; background: var(--rovalra-main-text-color); cursor: pointer; border: none; }
+        `;
+        wrapper.append(rangeStyle);
+        fadeContainer.append(fadeLabel, fadeSlider);
+
+        const preview = document.createElement('div');
+        preview.style.cssText = `
+            width: 100%; height: 60px; border-radius: 8px; position: relative;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); overflow: hidden;
+            cursor: crosshair; display: flex; align-items: center; justify-content: center;
+        `;
+
+        const angleCircle = document.createElement('div');
+        angleCircle.style.cssText = `
+            width: 40px; height: 40px; border: 2px dashed var(--rovalra-main-text-color);
+            opacity: 0.5;
+            border-radius: 50%; position: relative; pointer-events: none;
+            background: var(--rovalra-container-background-color);
+        `;
+
+        const angleLine = document.createElement('div');
+        angleLine.style.cssText = `
+            position: absolute; width: 2px; height: 20px; background: var(--rovalra-main-text-color);
+            bottom: 50%; left: calc(50% - 1px); transform-origin: bottom center;
+        `;
+
+        const handle = document.createElement('div');
+        handle.style.cssText = `
+            position: absolute; width: 14px; height: 14px; background: var(--rovalra-main-text-color);
+            border: 2px solid var(--rovalra-main-background-color); border-radius: 50%; top: -7px; left: -6px;
+        `;
+
+        angleLine.appendChild(handle);
+        angleCircle.appendChild(angleLine);
+        preview.appendChild(angleCircle);
+        controls.append(color1, color2);
+        contentBody.append(controls, fadeContainer, preview);
+
+        let currentAngle = setting.default.angle;
+        let isDragging = false;
+
+        const update = (save = true) => {
+            const isEnabled = toggleInput.checked;
+
+            contentBody.style.opacity = isEnabled ? '1' : '0.5';
+            contentBody.style.pointerEvents = isEnabled ? 'auto' : 'none';
+            if (isEnabled) {
+                contentBody.classList.remove('disabled-setting');
+            } else {
+                contentBody.classList.add('disabled-setting');
+            }
+            contentBody
+                .querySelectorAll('input')
+                .forEach((input) => (input.disabled = !isEnabled));
+
+            const val = {
+                enabled: isEnabled,
+                color1: color1.value,
+                color2: color2.value,
+                angle: currentAngle,
+                fade: parseInt(fadeSlider.value, 10),
+            };
+            const s1 = (100 - val.fade) / 2;
+            const s2 = 100 - s1;
+            preview.style.background = `linear-gradient(${currentAngle}deg, ${val.color1} ${s1}%, ${val.color2} ${s2}%)`;
+            angleLine.style.transform = `rotate(${currentAngle}deg)`;
+            if (save) handleSaveSettings(settingName, val);
+        };
+
+        const onMove = (e) => {
+            if (!isDragging) return;
+            const rect = preview.getBoundingClientRect();
+            const cx = rect.left + rect.width / 2;
+            const cy = rect.top + rect.height / 2;
+            const dx = e.clientX - cx;
+            const dy = e.clientY - cy;
+
+            let angle = ((Math.atan2(dy, dx) * 180) / Math.PI + 90 + 360) % 360;
+
+            const snapInterval = e.shiftKey ? 1 : 15;
+            currentAngle = Math.round(angle / snapInterval) * snapInterval;
+
+            currentAngle = currentAngle % 360;
+            if (currentAngle < 0) currentAngle += 360;
+
+            update();
+        };
+
+        preview.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            isDragging = true;
+            onMove(e);
+            window.addEventListener('mousemove', onMove);
+            window.addEventListener(
+                'mouseup',
+                () => {
+                    isDragging = false;
+                    window.removeEventListener('mousemove', onMove);
+                },
+                { once: true },
+            );
+        });
+
+        toggleInput.addEventListener('change', () => update());
+        color1.addEventListener('input', () => update());
+        color2.addEventListener('input', () => update());
+        fadeSlider.addEventListener('input', () => update());
+
+        wrapper.rovalraGradientApi = {
+            setValue: (val) => {
+                if (!val) return;
+                toggleInput.checked = val.enabled !== false;
+                color1.value = val.color1;
+                color2.value = val.color2;
+                fadeSlider.value = val.fade ?? 100;
+                currentAngle = val.angle;
+                update(false);
+            },
+        };
+
+        setTimeout(() => update(false), 0);
+
+        return wrapper;
+    } else if (setting.type === 'color') {
+        const colorInput = document.createElement('input');
+        colorInput.type = 'color';
+        colorInput.id = settingName;
+        colorInput.dataset.settingName = settingName;
+        colorInput.style.cssText = `
+            width: 32px; height: 32px; border: none; padding: 0; 
+            background: none; cursor: pointer; margin-left: auto;
+            border-radius: 4px;
+        `;
+        return colorInput;
     } else if (setting.type === 'file') {
         const fileUpload = createFileUpload({
             id: settingName,
@@ -398,6 +598,10 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
     controlsContainer.appendChild(inputElement);
     settingContainer.appendChild(controlsContainer);
 
+    if (inputElement.rovalraVisualizer) {
+        settingContainer.appendChild(inputElement.rovalraVisualizer);
+    }
+
     if (setting.description) {
         const divider = document.createElement('div');
         divider.className = 'setting-label-divider';
@@ -410,7 +614,7 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
             const descElement = document.createElement('div');
             descElement.className = 'setting-description';
             descElement.innerHTML = DOMPurify.sanitize(
-                parseMarkdown(desc, themeColors),
+                parseMarkdown(String(desc), themeColors),
             );
             settingContainer.appendChild(descElement);
         });
@@ -544,6 +748,10 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
             childControls.appendChild(childInput);
             childContainer.appendChild(childControls);
 
+            if (childInput.rovalraVisualizer) {
+                childContainer.appendChild(childInput.rovalraVisualizer);
+            }
+
             if (childSetting.description) {
                 const childDivider = document.createElement('div');
                 childDivider.className = 'setting-label-divider';
@@ -558,7 +766,7 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
                     const childDescElement = document.createElement('div');
                     childDescElement.className = 'setting-description';
                     childDescElement.innerHTML = DOMPurify.sanitize(
-                        parseMarkdown(desc, themeColors),
+                        parseMarkdown(String(desc), themeColors),
                     );
                     childContainer.appendChild(childDescElement);
                 });

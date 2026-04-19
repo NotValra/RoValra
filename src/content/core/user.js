@@ -5,7 +5,9 @@ function waitForDom() {
         if (document.readyState !== 'loading') {
             resolve();
         } else {
-            document.addEventListener('DOMContentLoaded', resolve, { once: true });
+            document.addEventListener('DOMContentLoaded', resolve, {
+                once: true,
+            });
         }
     });
 }
@@ -16,8 +18,10 @@ export async function getAuthenticatedUserId() {
 
     const scrapeId = () => {
         const meta = document.querySelector('meta[name="user-data"]');
-        const actualId = meta ? parseInt(meta.getAttribute('data-userid'), 10) : null;
-        
+        const actualId = meta
+            ? parseInt(meta.getAttribute('data-userid'), 10)
+            : null;
+
         if (actualId !== cachedId) {
             chrome.storage.local.set({ rovalra_authed_user_id: actualId });
         }
@@ -33,10 +37,10 @@ export async function getAuthenticatedUserId() {
         return cachedId;
     }
 
-    await new Promise(resolve => {
+    await new Promise((resolve) => {
         document.addEventListener('DOMContentLoaded', resolve, { once: true });
     });
-    
+
     return scrapeId();
 }
 export async function getAuthenticatedUsername() {

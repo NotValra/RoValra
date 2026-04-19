@@ -34,6 +34,7 @@ import {
 import { safeHtml } from '../../packages/dompurify.js';
 import { formatPlayerCount } from '../../games/playerCount.js';
 import { callRobloxApi } from '../../api.js';
+import { showFriendListOverlay } from './friendListOverlay.js';
 
 const BATCH_WAIT = 50;
 const MAX_BATCH = 50;
@@ -168,6 +169,7 @@ export function createGameCard(options) {
         showPlayers = true,
         thumbStyle = {},
         friendData,
+        customInfoText = null,
     } = options;
 
     if (!game && (gameId || placeId)) {
@@ -235,36 +237,33 @@ export function createGameCard(options) {
                 };
 
                 let fetchedFriendData = null;
+                let gameFriends = [];
                 if (friendsData) {
                     try {
-                        const friend = friendsData.data?.find(
-                            (f) => f.userPresence?.universeId === universeId,
-                        );
+                        gameFriends =
+                            friendsData.data?.filter(
+                                (f) =>
+                                    f.userPresence?.universeId === universeId,
+                            ) || [];
 
-                        if (friend) {
-                            const [userRes, friendThumbMap] = await Promise.all(
-                                [
-                                    callRobloxApi({
-                                        subdomain: 'users',
-                                        endpoint: `/v1/users/${friend.id}`,
-                                        method: 'GET',
-                                    }),
-                                    fetchThumbnails(
-                                        [{ id: friend.id }],
-                                        'AvatarHeadshot',
-                                        '48x48',
-                                    ),
-                                ],
+                        if (gameFriends.length > 0) {
+                            const displayFriends = gameFriends.slice(0, 3);
+
+                            const friendIds = displayFriends.map((f) => f.id);
+                            const friendThumbMap = await fetchThumbnails(
+                                friendIds.map((id) => ({ id })),
+                                'AvatarHeadshot',
+                                '48x48',
                             );
 
-                            if (userRes.ok) {
-                                const userData = await userRes.json();
-                                fetchedFriendData = {
+                            fetchedFriendData = {
+                                friends: displayFriends.map((friend, idx) => ({
                                     id: friend.id,
-                                    name: userData.displayName,
+                                    name: friend.displayName,
                                     thumbnail: friendThumbMap.get(friend.id),
-                                };
-                            }
+                                })),
+                                allFriends: gameFriends,
+                            };
                         }
                     } catch (e) {
                         console.warn('RoValra: Error fetching friend info', e);
@@ -301,39 +300,65 @@ export function createGameCard(options) {
 
     let infoHtml;
     if (friendData) {
+        const friendAvatarsHtml = friendData.friends
+            .map(
+                (friend, index) => `
+            <div class="avatar-card" role="button" tabindex="0" style="z-index: ${3 - index}; margin-left: ${index > 0 ? '-1px' : '0'};">
+                <span class="thumbnail-2d-container avatar avatar-headshot avatar-headshot-xs">
+                    <img class="avatar-card-image" src="${friend.thumbnail?.imageUrl || ''}" alt="${friend.name}" title="${friend.name}">
+                </span>
+            </div>
+        `,
+            )
+            .join('');
+
         infoHtml = `
             <div class="game-card-friend-info game-card-info" data-testid="game-tile-stats-friends">
-                <div class="info-avatar" style="width: 32px;">
-                    <div class="avatar-card" role="button" tabindex="0">
-                        <span class="thumbnail-2d-container avatar avatar-headshot avatar-headshot-xs">
-                            <img class="avatar-card-image" src="${friendData.thumbnail?.imageUrl || ''}" alt="${friendData.name}" title="${friendData.name}">
-                        </span>
-                    </div>
+                <div class="info-avatar" style="width: 54px; display: flex; align-items: center;">
+                    ${friendAvatarsHtml}
                 </div>
             </div>
         `;
     } else {
-        infoHtml = `
-            <div class="game-card-info">
-                ${
-                    showVotes
-                        ? `
-                    <span class="info-label icon-votes-gray"></span>
-                    <span class="info-label vote-percentage-label ${voteData.total > 0 ? '' : 'hidden'}">${voteData.ratio}%</span>
-                    <span class="info-label no-vote ${voteData.total === 0 ? '' : 'hidden'}"></span>
-                `
-                        : ''
-                }
-                ${
-                    showPlayers
-                        ? `
-                    <span class="info-label icon-playing-counts-gray"></span>
-                    <span class="info-label playing-counts-label" title="${playerCount.toLocaleString()}">${formattedPlayerCount}</span>
-                `
-                        : ''
-                }
-            </div>
-        `;
+        if (customInfoText) {
+            const lines = Array.isArray(customInfoText)
+                ? customInfoText
+                : [customInfoText];
+            const lineElements = lines
+                .map(
+                    (line) =>
+                        `<span class="info-label">${safeHtml`${line}`}</span>`,
+                )
+                .join('');
+
+            infoHtml = `
+                <div class="game-card-info" style="flex-direction: column; align-items: flex-start; gap: 2px;">
+                    ${lineElements}
+                </div>
+            `;
+        } else {
+            infoHtml = `
+                <div class="game-card-info">
+                    ${
+                        showVotes
+                            ? `
+                        <span class="info-label icon-votes-gray"></span>
+                        <span class="info-label vote-percentage-label ${voteData.total > 0 ? '' : 'hidden'}">${voteData.ratio}%</span>
+                        <span class="info-label no-vote ${voteData.total === 0 ? '' : 'hidden'}"></span>
+                    `
+                            : ''
+                    }
+                    ${
+                        showPlayers
+                            ? `
+                        <span class="info-label icon-playing-counts-gray"></span>
+                        <span class="info-label playing-counts-label" title="${playerCount.toLocaleString()}">${formattedPlayerCount}</span>
+                    `
+                            : ''
+                    }
+                </div>
+            `;
+        }
     }
 
     card.innerHTML = `
@@ -343,6 +368,19 @@ export function createGameCard(options) {
             ${infoHtml}
         </a>
     `; // Verified
+
+    if (friendData?.allFriends && friendData.allFriends.length > 0) {
+        const friendInfoElement = card.querySelector('.game-card-friend-info');
+        if (friendInfoElement) {
+            friendInfoElement.style.cursor = 'pointer';
+            friendInfoElement.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+
+                showFriendListOverlay(friendData.allFriends, game.name);
+            });
+        }
+    }
 
     const thumbContainer = card.querySelector('.game-card-thumb-container');
     if (thumbContainer) {

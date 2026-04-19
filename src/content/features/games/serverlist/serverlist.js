@@ -359,6 +359,18 @@ function attachGlobalListeners() {
                 );
             } else {
                 manageLoadMoreButton(nextCursor, regionCode);
+                if (activeCount === 0) {
+                    const isRegion =
+                        regionCode &&
+                        !['newest', 'oldest'].includes(regionCode) &&
+                        !regionCode.startsWith('version-');
+                    if (isRegion) {
+                        displayMessageInContainer(
+                            ts('serverList.allServersInactive'),
+                            false,
+                        );
+                    }
+                }
             }
         } else if (!append) {
             displayMessageInContainer(

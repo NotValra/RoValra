@@ -1,5 +1,7 @@
 import { observeElement } from '../../core/observer.js';
 import { log, logLevel } from '../../core/logging.js';
+import { getPlaceIdFromUrl } from '../../core/idExtractor.js';
+import { getAuthenticatedUserId } from '../../core/user.js';
 
 const applyImpersonateAttribute = (headerContainer) => {
     chrome.storage.local.get('impersonateRobloxStaffSetting', function (data) {
@@ -14,9 +16,13 @@ const applyHeaderFix = (profileHeader) => {
     profileHeader.dataset.headerFixApplied = 'true';
 
     const headerNames = profileHeader.querySelector('.profile-header-names');
-    const headerDetails = profileHeader.querySelector('.profile-header-details');
+    const headerDetails = profileHeader.querySelector(
+        '.profile-header-details',
+    );
     const headerMain = profileHeader.querySelector('.profile-header-main');
-    const headerButtons = profileHeader.querySelector('.profile-header-buttons');
+    const headerButtons = profileHeader.querySelector(
+        '.profile-header-buttons',
+    );
     const headerMisc = profileHeader.querySelector('.header-misc');
 
     if (headerNames && headerDetails && headerMain && headerButtons) {
@@ -49,39 +55,52 @@ const applyHeaderFix = (profileHeader) => {
 };
 
 const applyHomeHeaderLinkFix = () => {
-    chrome.storage.local.get('giantInvisibleLink', function(settings) {
-        if (!settings.giantInvisibleLink || window.location.pathname !== '/home') {
+    chrome.storage.local.get('giantInvisibleLink', function (settings) {
+        if (
+            !settings.giantInvisibleLink ||
+            window.location.pathname !== '/home'
+        ) {
             return;
         }
 
-        const selector = 'a[data-testid="section-header-title-subtitle-container"]';
+        const selector =
+            'a[data-testid="section-header-title-subtitle-container"]';
 
-        observeElement(selector, (anchor) => {
-            if (anchor.dataset.rovalraLinkFixApplied) return;
-            anchor.dataset.rovalraLinkFixApplied = 'true';
+        observeElement(
+            selector,
+            (anchor) => {
+                if (anchor.dataset.rovalraLinkFixApplied) return;
+                anchor.dataset.rovalraLinkFixApplied = 'true';
 
-            const innerDiv = anchor.querySelector('div[data-testid="text-icon-row"]');
-            if (!innerDiv) return;
+                const innerDiv = anchor.querySelector(
+                    'div[data-testid="text-icon-row"]',
+                );
+                if (!innerDiv) return;
 
-            const newAnchor = document.createElement('a');
-            newAnchor.href = anchor.href;
-            newAnchor.className = 'css-j5e4nw-textIconRow';
-            newAnchor.setAttribute('aria-label', anchor.getAttribute('aria-label'));
-            newAnchor.style.display = 'inline-flex';
-            newAnchor.style.width = 'fit-content';
-            newAnchor.style.minWidth = 'fit-content';
+                const newAnchor = document.createElement('a');
+                newAnchor.href = anchor.href;
+                newAnchor.className = 'css-j5e4nw-textIconRow';
+                newAnchor.setAttribute(
+                    'aria-label',
+                    anchor.getAttribute('aria-label'),
+                );
+                newAnchor.style.display = 'inline-flex';
+                newAnchor.style.width = 'fit-content';
+                newAnchor.style.minWidth = 'fit-content';
 
-            while (innerDiv.firstChild) {
-                newAnchor.appendChild(innerDiv.firstChild);
-            }
+                while (innerDiv.firstChild) {
+                    newAnchor.appendChild(innerDiv.firstChild);
+                }
 
-            anchor.replaceWith(newAnchor);
-        }, { multiple: true });
+                anchor.replaceWith(newAnchor);
+            },
+            { multiple: true },
+        );
     });
 };
 
 const applyGameTitleFix = () => {
-    chrome.storage.local.get('gameTitleIssueEnable', function(settings) {
+    chrome.storage.local.get('gameTitleIssueEnable', function (settings) {
         if (!settings.gameTitleIssueEnable) return;
 
         if (!window.location.href.includes('profile')) return;
@@ -98,7 +117,7 @@ const applyGameTitleFix = () => {
 };
 
 const applyCartRemoveButtonFix = () => {
-    chrome.storage.local.get('FixCartRemoveButton', function(settings) {
+    chrome.storage.local.get('FixCartRemoveButton', function (settings) {
         if (!settings.FixCartRemoveButton) return;
 
         const css = `
@@ -113,14 +132,98 @@ const applyCartRemoveButtonFix = () => {
     });
 };
 
-export function init() {
-    chrome.storage.local.get(['cssfixesEnabled', 'giantInvisibleLink'], function(data) {
-        if (data.cssfixesEnabled === true) {
-            observeElement('#profile-header-container', applyImpersonateAttribute);
-            observeElement('.profile-header', applyHeaderFix);
-            applyHomeHeaderLinkFix();
-            applyGameTitleFix();
-            applyCartRemoveButtonFix();
+const applyProfileGameCardFix = () => {
+    if (!window.location.href.includes('profile')) return;
+
+    const css = `
+        .profile-favorite-experiences .css-1jynqc0-carouselContainer,
+        .profile-favorite-experiences .css-1i465w8-carousel {
+            height: 250px !important;
+            overflow: visible !important;
         }
+    `;
+    const style = document.createElement('style');
+    style.textContent = css;
+    document.head.appendChild(style);
+
+    import('../../core/ui/games/gameCard.js').then(({ createGameCard }) => {
+        observeElement(
+            '.profile-favorite-experiences .game-card-container',
+            (originalCard) => {
+                if (originalCard.dataset.fixed) return;
+                originalCard.dataset.fixed = 'true';
+
+                try {
+                    const link = originalCard.querySelector('.game-card-link');
+                    if (!link) return;
+
+                    const universeId = link.id || link.dataset.universeId;
+                    const placeId = getPlaceIdFromUrl(link.href);
+
+                    if (!universeId && !placeId) return;
+
+                    const newCard = universeId
+                        ? createGameCard({ gameId: universeId })
+                        : createGameCard({ placeId: placeId });
+                    originalCard.innerHTML = '';
+                    originalCard.appendChild(newCard);
+                } catch (e) {
+                    console.warn(
+                        'RoValra: Failed to replace profile game card',
+                        e,
+                    );
+                }
+            },
+            { multiple: true },
+        );
     });
+};
+
+// Cuz RoSeal is broken and im the only one having this issue i have to fix it myself 🙄
+const applyFriendsCarouselPaddingFix = async () => {
+    const userId = await getAuthenticatedUserId();
+
+    if (userId !== 447170745) return;
+
+    observeElement(
+        '.react-friends-carousel-container.roseal-friends-carousel-container',
+        () => {
+            const css = `
+            .friends-carousel-container {
+                padding: 0 !important;
+            }
+        `;
+            const style = document.createElement('style');
+            style.setAttribute('data-rovalra-friends-carousel-fix', 'true');
+            style.textContent = css;
+
+            if (
+                !document.querySelector(
+                    'style[data-rovalra-friends-carousel-fix]',
+                )
+            ) {
+                document.head.appendChild(style);
+            }
+        },
+    );
+};
+
+export function init() {
+    chrome.storage.local.get(
+        ['cssfixesEnabled', 'giantInvisibleLink'],
+        function (data) {
+            if (data.cssfixesEnabled === true) {
+                observeElement(
+                    '#profile-header-container',
+                    applyImpersonateAttribute,
+                );
+                observeElement('.profile-header', applyHeaderFix);
+                applyHomeHeaderLinkFix();
+                applyGameTitleFix();
+                applyCartRemoveButtonFix();
+                applyProfileGameCardFix();
+                applyFriendsCarouselPaddingFix();
+            }
+        },
+    );
 }

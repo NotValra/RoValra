@@ -1,7 +1,7 @@
 import { callRobloxApiJson } from '../../core/api.js';
 import { t, ts } from '../../core/locale/i18n.js';
 
-const PLAYABILITY_STATUS_STRING_TO_CODE = {
+export const PLAYABILITY_STATUS_STRING_TO_CODE = {
     UnplayableOtherReason: 0,
     Playable: 1,
     GuestProhibited: 2,
@@ -70,13 +70,15 @@ export function toStatusCode(status) {
 }
 
 export function getPlayabilityDisplayText(statusCode) {
-    return ts(`playabilityStatus.${statusCode}`, {
+    const code = toStatusCode(statusCode);
+    return ts(`playabilityStatus.${code}`, {
         defaultValue: ts('playabilityStatus.unknown'),
     });
 }
 
 export function getPlayabilityStatusName(statusCode) {
-    return PLAYABILITY_STATUS_NAMES[statusCode] || 'Unknown';
+    const code = toStatusCode(statusCode);
+    return PLAYABILITY_STATUS_NAMES[code] || 'Unknown';
 }
 
 export function isUnderReview(statusCode) {
@@ -88,7 +90,8 @@ export function isPrivate(statusCode) {
 }
 
 export async function getPlayabilityDisplayTextAsync(statusCode) {
-    return await t(`playabilityStatus.${statusCode}`, {
+    const code = toStatusCode(statusCode);
+    return await t(`playabilityStatus.${code}`, {
         defaultValue: await t('playabilityStatus.unknown'),
     });
 }
@@ -123,6 +126,7 @@ const REASON_TO_STATUS_CODE = {
 };
 
 export function getReasonProhibitedDisplayText(reason) {
+    if (!reason || reason === 'None') return null;
     const code = REASON_TO_STATUS_CODE[reason];
     if (code !== undefined) {
         return ts(`playabilityStatus.${code}`, {
@@ -146,7 +150,8 @@ export async function getPlayabilityStatus(universeId) {
         }
 
         const statusData = dataArray[0];
-        const statusCode = statusData.playabilityStatus;
+        const rawStatus = statusData.playabilityStatus;
+        const statusCode = toStatusCode(rawStatus);
 
         return {
             status: statusCode,
