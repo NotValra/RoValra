@@ -18,6 +18,7 @@ import {
 } from '../../core/games/playabilityStatus.js';
 import { parseMarkdown } from '../../core/utils/markdown.js';
 import { checkAndInjectEvents } from '../../features/games/about/events.js';
+import { createScrollButtons } from '../../core/ui/general/scrollButtons.js';
 
 import { addTooltip } from '../../core/ui/tooltip.js';
 function formatVoteCount(count) {
@@ -40,11 +41,49 @@ function slugifyGameName(name) {
     );
 }
 
+async function fetchAllGameThumbnails(universeId) {
+    try {
+        const response = await callRobloxApiJson({
+            subdomain: 'thumbnails',
+            endpoint: `/v1/games/multiget/thumbnails?universeIds=${universeId}&countPerUniverse=100&defaults=true&size=768x432&format=Png&isCircular=false`,
+        });
+        return response.data?.[0]?.thumbnails || [];
+    } catch (e) {
+        console.warn('RoValra: Failed to fetch all game thumbnails', e);
+        return [];
+    }
+}
+
 let hasLoaded = false;
 
 export function init() {
     if (hasLoaded) return;
     hasLoaded = true;
+
+    const scrollBtnStyle = document.createElement('style');
+    scrollBtnStyle.innerHTML = `
+        .rovalra-scroll-btn {
+            position: absolute; z-index: 10; top: 50%; transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.6) !important; border-radius: 50%;
+            width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;
+            border: none; cursor: pointer; color: white; opacity: 1; 
+            transition: opacity 0.25s ease; pointer-events: auto;
+        }
+        .rovalra-scroll-btn.left { left: 5px; }
+        .rovalra-scroll-btn.right { right: 5px; }
+        .rovalra-scroll-btn.rovalra-btn-disabled { opacity: 0.25 !important; cursor: default; pointer-events: auto; }
+
+        .game-details-carousel-container .carousel-item {
+            opacity: 0;
+            transition: opacity 0.6s ease;
+            pointer-events: none;
+        }
+        .game-details-carousel-container .carousel-item-active {
+            opacity: 1 !important;
+            pointer-events: auto !important;
+        }
+    `;
+    document.head.appendChild(scrollBtnStyle);
 
     chrome.storage.local.get({ privateGameDetectionEnabled: true }, (data) => {
         const privateUrlMatch = window.location.pathname.match(
@@ -646,27 +685,126 @@ async function renderPrivateGamePage(game, placeId, settings) {
     const thumbnailContainer = document.querySelector(
         '.game-details-carousel-container',
     );
-    fetchThumbnails([{ id: placeId }], 'GameThumbnail', '768x432').then(
-        (map) => {
-            const thumbData = map.get(Number(placeId));
-            if (thumbData && thumbnailContainer) {
-                const thumbEl = createThumbnailElement(
-                    thumbData,
-                    game.name,
-                    'carousel-item carousel-item-active',
-                    { width: '100%', height: '100%', borderRadius: '0px' },
-                );
-                if (thumbEl) {
-                    thumbnailContainer.innerHTML = '';
-                    thumbnailContainer.appendChild(thumbEl);
-                } else if (thumbData.state === 'Blocked') {
-                    thumbnailContainer.className =
-                        'thumbnail-2d-container icon-blocked carousel-item carousel-item-active';
-                    thumbnailContainer.style.borderRadius = '0px';
-                }
+    const universeIdForThumbs = game.universeId || game.id;
+
+    if (universeIdForThumbs && thumbnailContainer) {
+        fetchAllGameThumbnails(universeIdForThumbs).then((thumbnails) => {
+            if (!thumbnails || thumbnails.length === 0) {
+                fetchThumbnails(
+                    [{ id: placeId }],
+                    'GameThumbnail',
+                    '768x432',
+                ).then((map) => {
+                    const thumbData = map.get(Number(placeId));
+                    if (thumbData && thumbnailContainer) {
+                        const thumbEl = createThumbnailElement(
+                            thumbData,
+                            game.name,
+                            'carousel-item carousel-item-active',
+                            {
+                                width: '100%',
+                                height: '100%',
+                                borderRadius: '0px',
+                            },
+                        );
+                        thumbnailContainer.innerHTML = '';
+                        thumbnailContainer.appendChild(thumbEl);
+                    }
+                });
+                return;
             }
-        },
-    );
+
+            const carousel = document.createElement('div');
+            carousel.dataset.testid = 'carousel';
+            carousel.style.cssText =
+                'height: 100%; width: 100%; position: relative; overflow: hidden;';
+
+            const items = thumbnails.map((thumb, idx) => {
+                const span = document.createElement('span');
+                span.className = `thumbnail-2d-container carousel-item ${idx === 0 ? 'carousel-item-active' : ''}`;
+                Object.assign(span.style, {
+                    position: 'absolute',
+                    top: '0',
+                    left: '0',
+                    width: '100%',
+                    height: '100%',
+                });
+                const img = document.createElement('img');
+                img.src = thumb.imageUrl;
+                img.alt = `Promotional image #${idx + 1} for ${game.name}`;
+                img.title = `Promotional image #${idx + 1} for ${game.name}`;
+                Object.assign(img.style, {
+                    width: '100%',
+                    height: '100%',
+                    borderRadius: '0px',
+                    objectFit: 'cover',
+                });
+                span.appendChild(img);
+                carousel.appendChild(span);
+                return { el: span };
+            });
+
+            const controls = document.createElement('div');
+            controls.className = 'carousel-controls-container';
+            controls.dataset.testid = 'carousel-controls-container';
+            Object.assign(controls.style, {
+                opacity: '0',
+                transition: 'opacity 0.2s',
+                pointerEvents: 'none',
+                position: 'absolute',
+                top: '0',
+                left: '0',
+                width: '100%',
+                height: '100%',
+                zIndex: '10',
+            });
+
+            carousel.addEventListener('mouseenter', () => {
+                controls.style.opacity = '1';
+                controls.classList.add('carousel-controls-container-visible');
+            });
+            carousel.addEventListener('mouseleave', () => {
+                controls.style.opacity = '0';
+                controls.classList.remove(
+                    'carousel-controls-container-visible',
+                );
+            });
+
+            let currentIdx = 0;
+            const updateUI = () => {
+                items.forEach((item, idx) => {
+                    const isActive = idx === currentIdx;
+                    item.el.classList.toggle('carousel-item-active', isActive);
+                });
+            };
+
+            const { leftButton, rightButton } = createScrollButtons({
+                onLeftClick: (e) => {
+                    e.preventDefault();
+                    currentIdx = (currentIdx - 1 + items.length) % items.length;
+                    updateUI();
+                },
+                onRightClick: (e) => {
+                    e.preventDefault();
+                    currentIdx = (currentIdx + 1) % items.length;
+                    updateUI();
+                },
+            });
+
+            leftButton.classList.add('rovalra-scroll-btn', 'left');
+            rightButton.classList.add('rovalra-scroll-btn', 'right');
+
+            if (thumbnails.length > 1) {
+                controls.appendChild(leftButton);
+                controls.appendChild(rightButton);
+            }
+            carousel.appendChild(controls);
+
+            thumbnailContainer.innerHTML = '';
+            thumbnailContainer.appendChild(carousel);
+            updateUI();
+        });
+    }
 
     const tabsContainer = document.getElementById('horizontal-tabs');
     const tabContentContainer = document.querySelector('.tab-content');
