@@ -25,9 +25,19 @@ const BATCH_DELAY_MS = 10;
 let batchQueue = [];
 let batchTimeout = null;
 let batchInProgress = false;
+const memoryCache = new Map();
 const pendingResolvers = new Map();
 
 const DESCRIPTION_BASED_SETTINGS = ['status', 'environment'];
+
+async function saveToCache(cacheKey, settings) {
+    const cacheData = {
+        data: settings,
+        timestamp: Date.now(),
+    };
+    memoryCache.set(cacheKey, cacheData);
+    await cache.set('user_settings', cacheKey, cacheData, 'local');
+}
 
 async function getStatusFromDescription(description) {
     if (description === null) return null;
@@ -301,17 +311,7 @@ async function processBatchQueue() {
                         authenticatedUserId &&
                         String(userId) === authenticatedUserId;
                     const cacheKey = `${userId}-${batchItem.options.useDescription || false}`;
-                    if (!isOwnProfile) {
-                        await cache.set(
-                            'user_settings',
-                            cacheKey,
-                            {
-                                data: settings,
-                                timestamp: Date.now(),
-                            },
-                            'local',
-                        );
-                    }
+                    await saveToCache(cacheKey, settings);
 
                     if (pendingResolvers.has(userId)) {
                         pendingResolvers.get(userId).resolve(settings);
@@ -336,17 +336,7 @@ async function processBatchQueue() {
                 );
 
                 const cacheKey = `${batchItem.userId}-${batchItem.options.useDescription || false}`;
-                if (!isOwnProfile) {
-                    await cache.set(
-                        'user_settings',
-                        cacheKey,
-                        {
-                            data: settings,
-                            timestamp: Date.now(),
-                        },
-                        'local',
-                    );
-                }
+                await saveToCache(cacheKey, settings);
 
                 if (pendingResolvers.has(batchItem.userId)) {
                     pendingResolvers.get(batchItem.userId).resolve(settings);
@@ -573,31 +563,46 @@ export async function getUserSettings(userId, options = {}) {
     const isOwnProfile =
         authenticatedUserId && strUserId === authenticatedUserId;
 
-    if (isOwnProfile) {
-        options.noCache = true;
-    }
-
     const cacheKey = `${strUserId}-${options.useDescription || false}`;
 
-    if (!isOwnProfile) {
+    if (!options.noCache) {
+        const memCached = memoryCache.get(cacheKey);
+        if (memCached) {
+            const staleThreshold = isOwnProfile ? 30000 : 300000;
+            const isStale =
+                Date.now() - (memCached.timestamp || 0) > staleThreshold;
+            if (isStale && !pendingResolvers.has(strUserId)) {
+                if (options.disableBatch) {
+                    fetchAndProcessSettings(userId, options).then((settings) =>
+                        saveToCache(cacheKey, settings),
+                    );
+                } else {
+                    batchQueue.push({ userId, options });
+                    pendingResolvers.set(strUserId, {
+                        resolve: () => {},
+                        reject: () => {},
+                    });
+                    if (!batchTimeout) {
+                        batchTimeout = setTimeout(
+                            processBatchQueue,
+                            BATCH_DELAY_MS,
+                        );
+                    }
+                }
+            }
+            return memCached.data;
+        }
+
         const cached = await cache.get('user_settings', cacheKey, 'local');
         if (cached) {
-            const isStale = Date.now() - (cached.timestamp || 0) > 300000;
-            if (
-                isStale &&
-                !options.noCache &&
-                !pendingResolvers.has(strUserId)
-            ) {
+            memoryCache.set(cacheKey, cached);
+            const staleThreshold = isOwnProfile ? 30000 : 300000;
+            const isStale =
+                Date.now() - (cached.timestamp || 0) > staleThreshold;
+            if (isStale && !pendingResolvers.has(strUserId)) {
                 if (options.disableBatch) {
-                    fetchAndProcessSettings(userId, options).then(
-                        (settings) => {
-                            cache.set(
-                                'user_settings',
-                                cacheKey,
-                                { data: settings, timestamp: Date.now() },
-                                'local',
-                            );
-                        },
+                    fetchAndProcessSettings(userId, options).then((settings) =>
+                        saveToCache(cacheKey, settings),
                     );
                 } else {
                     batchQueue.push({ userId, options });
@@ -617,20 +622,9 @@ export async function getUserSettings(userId, options = {}) {
         }
     }
 
-    if (options.disableBatch || isOwnProfile) {
+    if (options.disableBatch) {
         const settings = await fetchAndProcessSettings(userId, options);
-
-        if (!isOwnProfile) {
-            await cache.set(
-                'user_settings',
-                cacheKey,
-                {
-                    data: settings,
-                    timestamp: Date.now(),
-                },
-                'local',
-            );
-        }
+        await saveToCache(cacheKey, settings);
 
         return settings;
     }
