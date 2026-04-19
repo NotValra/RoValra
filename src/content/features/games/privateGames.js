@@ -2,6 +2,7 @@ import { callRobloxApiJson, callRobloxApi } from '../../core/api.js';
 import {
     fetchThumbnails,
     createThumbnailElement,
+    fetchPromotionalThumbnails,
 } from '../../core/thumbnail/thumbnails.js';
 import { createTab } from '../../core/ui/games/tab.js';
 import DOMPurify from '../../core/packages/dompurify.js';
@@ -39,19 +40,6 @@ function slugifyGameName(name) {
             .replace(/[^a-zA-Z0-9\u00C0-\u024F-]/g, '')
             .toLowerCase() || '-'
     );
-}
-
-async function fetchAllGameThumbnails(universeId) {
-    try {
-        const response = await callRobloxApiJson({
-            subdomain: 'thumbnails',
-            endpoint: `/v1/games/multiget/thumbnails?universeIds=${universeId}&countPerUniverse=100&defaults=true&size=768x432&format=Png&isCircular=false`,
-        });
-        return response.data?.[0]?.thumbnails || [];
-    } catch (e) {
-        console.warn('RoValra: Failed to fetch all game thumbnails', e);
-        return [];
-    }
 }
 
 let hasLoaded = false;
@@ -688,7 +676,7 @@ async function renderPrivateGamePage(game, placeId, settings) {
     const universeIdForThumbs = game.universeId || game.id;
 
     if (universeIdForThumbs && thumbnailContainer) {
-        fetchAllGameThumbnails(universeIdForThumbs).then((thumbnails) => {
+        fetchPromotionalThumbnails(universeIdForThumbs).then((thumbnails) => {
             if (!thumbnails || thumbnails.length === 0) {
                 fetchThumbnails(
                     [{ id: placeId }],
@@ -729,17 +717,21 @@ async function renderPrivateGamePage(game, placeId, settings) {
                     width: '100%',
                     height: '100%',
                 });
-                const img = document.createElement('img');
-                img.src = thumb.imageUrl;
-                img.alt = `Promotional image #${idx + 1} for ${game.name}`;
-                img.title = `Promotional image #${idx + 1} for ${game.name}`;
-                Object.assign(img.style, {
-                    width: '100%',
-                    height: '100%',
-                    borderRadius: '0px',
-                    objectFit: 'cover',
-                });
-                span.appendChild(img);
+
+                const thumbEl = createThumbnailElement(
+                    thumb,
+                    `Promotional image #${idx + 1} for ${game.name}`,
+                    '',
+                    {
+                        width: '100%',
+                        height: '100%',
+                        borderRadius: '0px',
+                        objectFit: 'cover',
+                    },
+                );
+                thumbEl.title = `Promotional image #${idx + 1} for ${game.name}`;
+
+                span.appendChild(thumbEl);
                 carousel.appendChild(span);
                 return { el: span };
             });
