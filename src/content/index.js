@@ -82,6 +82,7 @@ import { init as initOutfits } from './features/profile/outfits.js';
 import { init as initPrivateServers } from './features/profile/privateserver.js';
 import { init as initRovalraBadges } from './features/profile/header/RoValraBadges.js';
 import { init as initUserGames } from './features/profile/hiddengames.js';
+import { init as initGroupRole } from './features/profile/grouprole.js';
 import { init as initPrivateServerControls } from './features/games/privateserver.js';
 import { init as initPreviousPrice } from './features/sitewide/PreviousPrice.js';
 import { init as initCategorizeWearing } from './features/profile/categorizeWearing.js';
@@ -228,6 +229,7 @@ const featureRoutes = [
             initFriendsSince,
             initUnfriend,
             initLastPlayed,
+            initGroupRole,
         ],
     },
     {

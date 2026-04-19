@@ -580,6 +580,13 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
+            groupRoleEnabled: {
+                label: 'Show Community Roles',
+                description:
+                    'Shows a users role in a community on their profile.',
+                type: 'checkbox',
+                default: true,
+            },
 
             showFriendedFromEnabled: {
                 label: 'Show Friended From',
