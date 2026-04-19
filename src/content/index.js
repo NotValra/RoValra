@@ -75,6 +75,7 @@ import { init as initAntiBots } from './features/groups/Antibots.js';
 import { init as initPendingRobux } from './features/groups/pendingRobux.js';
 import { init as initDraggableGroups } from './features/groups/draggableGroups.js';
 import { init as initPlaceVisits } from './features/groups/placevisits.js';
+import { init as initGroupCreateDate } from './features/groups/createDate.js';
 // Profile
 import { init as initDonationLink } from './features/profile/header/donationlink.js';
 import { init as initRap } from './features/profile/header/rap.js';
@@ -172,6 +173,7 @@ const featureRoutes = [
             initPendingRobux,
             initDraggableGroups,
             initPlaceVisits,
+            initGroupCreateDate,
         ],
     },
     // Game pages

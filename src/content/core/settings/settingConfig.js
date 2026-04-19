@@ -842,6 +842,14 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
+            groupCreateDateEnabled: {
+                label: 'Community Creation Date',
+                description: [
+                    'Shows when a community was created in its header.',
+                ],
+                type: 'checkbox',
+                default: true,
+            },
         },
     },
     Avatar: {
