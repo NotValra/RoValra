@@ -1,4 +1,5 @@
 import { callRobloxApi } from '../api.js';
+import { log, logLevel} from '../logging.js';
 
 const LOCATION_STORAGE_KEY = 'robloxUserLocationCache';
 const CACHE_DURATION_MS = 1000 * 60 * 60 * 24; 
@@ -27,7 +28,7 @@ async function resolveGeoNames(lat, lon) {
             countryCode: locationInfo ? locationInfo.code : "??",
         };
     } catch (e) {
-        console.error("Location Util: Static API lookup failed", e);
+        log(logLevel.ERROR, "Location Util: Static API lookup failed", e);
         return { country: "Unknown", continent: "Unknown", countryCode: "??" };
     }
 }
@@ -49,11 +50,11 @@ export async function getUserLocation(placeId, forceRefresh = false) {
                 return storedData;
             }
         } catch (e) {
-            console.error("Location Util: Error reading storage", e);
+            log(logLevel.ERROR, "Location Util: Error reading storage", e);
         }
     }
 
-    console.log('Location Util: Fetching fresh user location via Roblox API...');
+    log(logLevel.DEBUG, 'Location Util: Fetching fresh user location via Roblox API...');
     
     try {
         const serverListRes = await callRobloxApi({
@@ -88,7 +89,7 @@ export async function getUserLocation(placeId, forceRefresh = false) {
             }
         }
     } catch (error) {
-        console.error('Location Util: Critical Error', error);
+        log(logLevel.ERROR, 'Location Util: Critical Error', error);
     }
     return null;
 }
@@ -140,6 +141,6 @@ export async function updateUserLocationIfChanged(freshCoords) {
             await chrome.storage.local.set({ [LOCATION_STORAGE_KEY]: cacheObject });
         }
     } catch (e) {
-        console.error("Location Util: Error in update", e);
+        log(logLevel.ERROR, "Location Util: Error in update", e);
     }
 }

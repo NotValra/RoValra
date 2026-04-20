@@ -1,4 +1,5 @@
 import { observeElement } from '../../core/observer.js';
+import { log, logLevel } from '../../core/logging.js';
 import { getPlaceIdFromUrl } from '../../core/idExtractor.js';
 import { getAuthenticatedUserId } from '../../core/user.js';
 
@@ -49,7 +50,7 @@ const applyHeaderFix = (profileHeader) => {
         style.textContent = css;
         document.head.appendChild(style);
 
-        console.log('CSS Fixer: Header fix applied successfully.');
+        log(logLevel.INFO, "CSS Fixer: Header fix applied successfully.");
     }
 };
 

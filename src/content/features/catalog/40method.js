@@ -17,6 +17,9 @@ import DOMPurify from 'dompurify';
 import { getPlaceIdFromUrl } from '../../core/idExtractor.js';
 import { cleanPrice } from '../../core/utils/priceCleaner.js';
 
+import { log, logLevel } from '../../core/logging.js';
+
+
 const ROVALRA_PLACE_ID = '107845747621646';
 let assetToSubcategoryMap = null;
 let classicClothingSubcategories = null;
@@ -99,7 +102,7 @@ async function publishTemplateToPlace(targetPlaceId) {
 
         return true;
     } catch (error) {
-        console.error('RoValra: Auto-publish failed', error);
+        log(logLevel.ERROR, 'RoValra: Auto-publish failed', error);
         throw error;
     }
 }
@@ -463,9 +466,7 @@ const detectAndAddSaveButton = () => {
 export const createAndShowPopup = (onSave, initialState = null) => {
     const currentUserId = getCurrentUserId();
     if (!currentUserId) {
-        alert(
-            'Could not identify your user ID. Please make sure you are logged in.',
-        );
+        log(logLevel.CRITICAL, "Could not identify your user ID. Please make sure you are logged in.");
         return;
     }
 
@@ -781,22 +782,16 @@ export const createAndShowPopup = (onSave, initialState = null) => {
                 },
                 () => {
                     if (chrome.runtime.lastError) {
-                        console.error(
-                            'RoValra: Storage save error:',
-                            chrome.runtime.lastError,
-                        );
-                        alert(
-                            'Failed to save settings: ' +
-                                chrome.runtime.lastError.message,
-                        );
+                        log(logLevel.ERROR, 'RoValra: Storage save error:', chrome.runtime.lastError);
+                        log(logLevel.CRITICAL, 'Failed to save settings: ' + chrome.runtime.lastError.message);
                     } else {
                         if (onSuccess) onSuccess();
                     }
                 },
             );
         } else {
-            console.error('RoValra: Storage API unavailable.');
-            alert('Failed to save settings. Storage API unavailable.');
+            log(logLevel.ERROR, 'RoValra: Storage API unavailable.');
+            log(logLevel.CRITICAL, 'Failed to save settings. Storage API unavailable.');
         }
     };
 
@@ -868,7 +863,7 @@ export const createAndShowPopup = (onSave, initialState = null) => {
                     initialUserPlaceVersion = vResp.results[0].versionNumber;
                 }
             } catch (e) {
-                console.error(
+                log(logLevel.ERROR,
                     'RoValra: Failed to fetch initial place version',
                     e,
                 );
@@ -909,9 +904,9 @@ export const createAndShowPopup = (onSave, initialState = null) => {
                 viewNonOwnerAck.classList.remove('sr-hidden');
             }
         } catch (error) {
-            console.error('Failed to fetch group details:', error);
+            log(logLevel.ERROR, "Failed to fetch group details:", error);
             close();
-            alert('Could not check group ownership. Please try again.');
+            log(logLevel.CRITICAL, "Could not check group ownership. Please try again.");
         }
     };
 
@@ -955,7 +950,7 @@ export const createAndShowPopup = (onSave, initialState = null) => {
                 }
             } catch {}
         } catch (error) {
-            console.error('RoValra: Failed to fetch groups:', error);
+            log(logLevel.ERROR, 'RoValra: Failed to fetch groups:', error);
             groupDropdownContainer.innerHTML = DOMPurify.sanitize(
                 '<div class="text font-body" style="color: var(--rovalra-secondary-text-color);">Failed to load groups. Please refresh and try again.</div>',
             );
@@ -998,7 +993,7 @@ export const createAndShowPopup = (onSave, initialState = null) => {
         if (errorEl) errorEl.style.display = 'none';
 
         if (!selectedGroupId) {
-            alert('No group selected. Please try again.');
+            log(logLevel.CRITICAL, 'No group selected. Please try again.');
             return;
         }
 
@@ -1024,10 +1019,10 @@ export const createAndShowPopup = (onSave, initialState = null) => {
             const newUniverseId = createResponse.universeId;
             const newPlaceId = createResponse.rootPlaceId;
 
-            console.log(
-                `RoValra: Created Universe ${newUniverseId}, Place ${newPlaceId}`,
+            log(logLevel.INFO,
+                `RoValra: Created Universe ${newUniverseId}, Place ${newPlaceId}`
             );
-
+            
             createNewGameBtn.textContent = 'Uploading Template...';
             await publishTemplateToPlace(newPlaceId, newUniverseId);
 
@@ -1060,7 +1055,7 @@ export const createAndShowPopup = (onSave, initialState = null) => {
                 if (typeof onSave === 'function') onSave();
             });
         } catch (error) {
-            console.error('RoValra: Create Game Error', error);
+            log(logLevel.ERROR, 'RoValra: Create Game Error', error);
             if (errorEl) {
                 if (
                     error.response &&
@@ -1075,8 +1070,8 @@ export const createAndShowPopup = (onSave, initialState = null) => {
                 }
                 errorEl.style.display = 'block';
             } else {
-                alert(
-                    `Error creating experience: ${error.message}. Please try again.`,
+                log(logLevel.CRITICAL,
+                    `Error creating experience: ${error.message}. Please try again.`
                 );
             }
             createNewGameBtn.textContent = originalText;
@@ -1127,7 +1122,7 @@ export const createAndShowPopup = (onSave, initialState = null) => {
                 viewFindingGame.classList.add('sr-hidden');
             }
         } catch (error) {
-            console.error('Failed to find new experience:', error);
+            log(logLevel.ERROR, "Failed to find new experience:", error);
             viewFindingGame.classList.add('sr-hidden');
         }
     });
@@ -1236,8 +1231,8 @@ export const createAndShowPopup = (onSave, initialState = null) => {
             viewUpdateInstructions.classList.add('sr-hidden');
             manualAckView.classList.remove('sr-hidden');
         } catch (e) {
-            console.error('RoValra: Update failed', e);
-            alert(`Update failed: ${e.message}. Please try again.`);
+            log(logLevel.ERROR, 'RoValra: Update failed', e);
+            log(logLevel.CRITICAL, `Update failed: ${e.message}. Please try again.`);
         } finally {
             updateConfirmBtn.textContent = originalText;
             updateConfirmBtn.disabled = !updateAgreeCheckbox.checked;
@@ -1291,9 +1286,8 @@ export const createAndShowPopup = (onSave, initialState = null) => {
                 return;
             }
         } catch (e) {
-            console.error('Failed to validate place ID:', e);
-            gameIdErrorEl.textContent =
-                'Could not validate the ID. Please try again.';
+            log(logLevel.ERROR, 'Failed to validate place ID:', e);
+            gameIdErrorEl.textContent = 'Could not validate the ID. Please try again.';
             gameIdErrorEl.style.display = 'block';
             return;
         }
@@ -1509,9 +1503,7 @@ const executeCartPurchase = async (
     };
     const currentUserId = getCurrentUserId();
     if (!currentUserId) {
-        alert(
-            'Could not identify your user ID. Please make sure you are logged in.',
-        );
+        log(logLevel.CRITICAL, "Could not identify your user ID. Please make sure you are logged in.");
         return;
     }
 
@@ -1550,9 +1542,7 @@ const executeCartPurchase = async (
     const useRoValraGroup = result.useRoValraGroup === true;
 
     if (!savedPlaceId) {
-        alert(
-            'No saved Place ID. Please set one up first using the "Save Robux" button.',
-        );
+        log(logLevel.CRITICAL, 'No saved Place ID. Please set one up first using the "Save Robux" button.');
         return;
     }
 
@@ -1898,9 +1888,7 @@ const execute40MethodPurchase = async (
     };
     const currentUserId = getCurrentUserId();
     if (!currentUserId) {
-        alert(
-            'Could not identify your user ID. Please make sure you are logged in.',
-        );
+        log(logLevel.CRITICAL, "Could not identify your user ID. Please make sure you are logged in.");
         return;
     }
 
@@ -1920,9 +1908,7 @@ const execute40MethodPurchase = async (
     const useRoValraGroup = result.useRoValraGroup === true;
 
     if (!savedPlaceId) {
-        alert(
-            'No saved Place ID. Please set one up first using the "Save Robux" button.',
-        );
+        log(logLevel.CRITICAL, 'No saved Place ID. Please set one up first using the "Save Robux" button.');
         return;
     }
 
@@ -2871,6 +2857,6 @@ export function init() {
             }
         });
     } else {
-        console.error('RoValra: Chrome storage API not available.');
+        log(logLevel.ERROR, 'RoValra: Chrome storage API not available.');
     }
 }

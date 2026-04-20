@@ -23,6 +23,7 @@ import { createPill } from '../../../core/ui/general/pill.js';
 import { getFullRegionName, getRegionData } from '../../../core/regions.js';
 import { createScrollButtons } from '../../../core/ui/general/scrollButtons.js';
 import { showConfirmationPrompt } from '../../../core/ui/confirmationPrompt.js';
+import { log, logLevel } from '../../../core/logging.js';
 import { t, ts } from '../../../core/locale/i18n.js';
 
 let lastSearchedQuery = '';
@@ -364,7 +365,8 @@ async function performUserSearch(query) {
         injectIntoMenu();
     } catch (e) {
         if (e.name !== 'AbortError')
-            console.error(ts('quickSearch.userSearchError'), e);
+            log(logLevel.ERROR, 
+                ts('quickSearch.userSearchError'), e);
     }
 }
 
@@ -518,7 +520,7 @@ async function performGameSearch(query) {
         injectIntoMenu();
     } catch (e) {
         if (e.name !== 'AbortError')
-            console.error(ts('quickSearch.gameSearchError'), e);
+            log(logLevel.ERROR, ts('quickSearch.gameSearchError'), e);
     }
 }
 

@@ -1,6 +1,7 @@
 import { createButton } from '../../core/ui/buttons.js';
 import { sanitizeSettings } from '../utils/sanitize.js';
 import { SETTINGS_CONFIG } from './settingConfig.js';
+import { log, logLevel } from '../../core/logging.js';
 import { getCurrentUserTier } from './handlesettings.js';
 import { findSettingConfig } from './generateSettings.js';
 
@@ -10,12 +11,12 @@ export async function exportSettings() {
     try {
         chrome.storage.local.get('rovalra_settings', (result) => {
             if (chrome.runtime.lastError) {
-                console.error(
+                log(logLevel.ERROR,
                     'Failed to export settings:',
-                    chrome.runtime.lastError,
+                    chrome.runtime.lastError
                 );
-                alert(
-                    'Error exporting settings. Check the console for details.',
+                log(logLevel.CRITICAL,
+                    'Error exporting settings. Check the console for details.'
                 );
                 return;
             }
@@ -29,9 +30,12 @@ export async function exportSettings() {
                     SETTINGS_CONFIG,
                 );
             } catch (error) {
-                console.error('Failed to sanitize settings for export:', error);
-                alert(
-                    'Error sanitizing settings for export. Check the console for details.',
+                log(logLevel.ERROR,
+                    'Failed to sanitize settings for export:',
+                    error
+                );
+                log(logLevel.CRITICAL,
+                    'Error sanitizing settings for export. Check the console for details.'
                 );
                 return;
             }
@@ -54,8 +58,8 @@ export async function exportSettings() {
             URL.revokeObjectURL(url);
         });
     } catch (error) {
-        console.error('Error in exportSettings:', error);
-        alert('An unexpected error occurred during export.');
+        log(logLevel.ERROR, 'Error in exportSettings:', error);
+        log(logLevel.CRITICAL, 'An unexpected error occurred during export.');
     }
 }
 
@@ -78,8 +82,8 @@ export async function importSettings() {
                     const importedData = JSON.parse(content);
 
                     if (importedData.rovalra_uuid !== ROVALRA_SETTINGS_UUID) {
-                        alert(
-                            'This does not appear to be a valid RoValra settings file.',
+                        log(logLevel.CRITICAL,
+                            'This does not appear to be a valid RoValra settings file.'
                         );
                         return;
                     }
@@ -95,11 +99,11 @@ export async function importSettings() {
                                 SETTINGS_CONFIG,
                             );
                         } catch (error) {
-                            console.error(
+                            log(logLevel.ERROR,
                                 'Failed to sanitize imported settings:',
                                 error,
                             );
-                            alert(
+                            log(logLevel.CRITICAL,
                                 'Error: The imported settings file contains invalid or potentially dangerous data.',
                             );
                             return;
@@ -133,11 +137,11 @@ export async function importSettings() {
 
                         chrome.storage.local.set(sanitizedSettings, () => {
                             if (chrome.runtime.lastError) {
-                                console.error(
+                                log(logLevel.ERROR,
                                     'Failed to import settings:',
                                     chrome.runtime.lastError,
                                 );
-                                alert(
+                                log(logLevel.CRITICAL,
                                     'Error importing settings. Check the console for details.',
                                 );
                             } else {
@@ -150,14 +154,14 @@ export async function importSettings() {
                             }
                         });
                     } else {
-                        alert('The settings file is malformed.');
+                        log(logLevel.CRITICAL, 'The settings file is malformed.');
                     }
                 } catch (error) {
-                    console.error(
+                    log(logLevel.ERROR,
                         'Error parsing or processing settings file:',
                         error,
                     );
-                    alert(
+                    log(logLevel.CRITICAL,
                         'Could not read the settings file. It might be corrupted or in the wrong format.',
                     );
                 }
@@ -167,8 +171,8 @@ export async function importSettings() {
 
         input.click();
     } catch (error) {
-        console.error('Error in importSettings:', error);
-        alert('An unexpected error occurred during import.');
+        log(logLevel.ERROR, 'Error in importSettings:', error);
+        log(logLevel.CRITICAL, 'An unexpected error occurred during import.');
     }
 }
 

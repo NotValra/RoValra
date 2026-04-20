@@ -3,6 +3,7 @@ import { observeElement } from '../../core/observer.js';
 import { callRobloxApiJson } from '../../core/api.js';
 import { createOverlay } from '../../core/ui/overlay.js';
 import { createButton } from '../../core/ui/buttons.js';
+import { log, logLevel } from '../../core/logging.js';
 import DOMPurify from 'dompurify';
 import { ts } from '../../core/locale/i18n.js';
 import {
@@ -716,10 +717,10 @@ function onElementFound(container) {
             }
         } catch (error) {
             if (error instanceof PausedException) {
-                console.log(`RoValra: ${error.message}`);
+                log(logLevel.ERROR, `RoValra: ${error.message}`);
                 await animationController.waitUntilIdle();
             } else {
-                console.error(
+                log(logLevel.ERROR, 
                     'RoValra: An error occurred during calculation:',
                     error,
                 );

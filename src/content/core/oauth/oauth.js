@@ -1,3 +1,4 @@
+import { log, logLevel } from '../logging.js';
 // TODO Remove console logs
 
 const STORAGE_KEY = 'rovalra_oauth_verification';

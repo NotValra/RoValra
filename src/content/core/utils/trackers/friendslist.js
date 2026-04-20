@@ -1,3 +1,5 @@
+import { log, logLevel } from "../../logging";
+
 // This script fetches a users friends list and stores information about it,
 // like last online, mutual friends, estimated age range (idk if that will be used), trusted friends, last location, friends since and some other lesser important stuff.
 import { callRobloxApiJson } from '../../api';
@@ -229,6 +231,7 @@ async function fetchFriendsPage(userId, cursor = null) {
             useBackground: true,
         });
     } catch (error) {
+        log(logLevel.ERROR, 'RoValra: Failed to fetch friends list page', error);
         return null;
     }
 }
@@ -570,9 +573,11 @@ export async function updateFriendsList(userId) {
             ),
         );
 
+        await new Promise(resolve => chrome.storage.local.set({ [FRIENDS_DATA_KEY]: allUsersFriendsData }, resolve));
+        log(logLevel.DEBUG, 'RoValra: Friends list and timestamp updated in local storage for user', userId);
         return fullFriendsList;
     } catch (error) {
-        console.error('RoValra: Failed to update friends list', error);
+        log(logLevel.ERROR, 'RoValra: Failed to update friends list', error);
         return [];
     }
 }
