@@ -17,8 +17,11 @@ export function init() {
         );
 
         observeElement(
-            '.profile-header-details-names-container',
-            async (container) => {
+            '.profile-header-details-owner-name',
+            async (ownerNameSpan) => {
+                const container = ownerNameSpan.parentElement;
+                if (!container) return;
+
                 if (
                     document.querySelector(
                         '.roseal-group-stats .group-created-date',
@@ -68,7 +71,7 @@ export function init() {
                 dateWrapper.appendChild(labelSpan);
                 dateWrapper.appendChild(timestamp);
 
-                container.appendChild(dateWrapper);
+                ownerNameSpan.insertAdjacentElement('afterend', dateWrapper);
             },
         );
     });
