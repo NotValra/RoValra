@@ -1732,6 +1732,15 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: false,
             },
+            localStorageUsage: {
+                label: 'Show Local Storage Usage',
+                description: [
+                    "Displays the total storage used by RoValra in Chrome's local storage.",
+                ],
+                type: 'button',
+                buttonText: 'Calculate Storage',
+                event: 'rovalra:showLocalStorageUsage',
+            },
         },
     },
 };
