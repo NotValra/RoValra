@@ -285,8 +285,12 @@ export async function loadAndRenderEvents(eventsContainer, placeId) {
     ) => {
         gridContainer.innerHTML = '';
         if (events.length === 0) {
-            gridContainer.innerHTML =
-                '<div class="section-content-off" style="padding: 10px; text-align: center; width: 100%;">No ongoing or upcoming events.</div>';
+            const noEventsMessage = isPast
+                ? 'No past events.'
+                : 'No ongoing or upcoming events.';
+            gridContainer.innerHTML = DOMPurify.sanitize(
+                `<div class="section-content-off" style="padding: 10px; text-align: center; width: 100%;">${noEventsMessage}</div>`,
+            );
             return;
         }
 
@@ -375,7 +379,7 @@ export async function loadAndRenderEvents(eventsContainer, placeId) {
 
     if (activeEvents.length === 0 && pastEvents.length === 0) {
         gridContainer.innerHTML =
-            '<div class="section-content-off" style="padding: 10px; text-align: center; width: 100%;">No ongoing or upcoming events.</div>';
+            '<div class="section-content-off" style="padding: 10px; text-align: center; width: 100%;">No events found.</div>';
         return;
     }
 
