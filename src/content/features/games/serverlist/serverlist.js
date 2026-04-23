@@ -98,7 +98,7 @@ const SHARED_STYLES = `
         font-size: 14px !important;
         font-weight: 400 !important;
         color: var(--rovalra-main-text-color) !important;
-        display: flex !important;
+        display: flex;
         align-items: center !important;
         white-space: nowrap !important;
     }
@@ -121,7 +121,7 @@ const SHARED_STYLES = `
     .rovalra-modern-ui .rovalra-server-full-info { 
         order: 11 !important; 
         width: 100% !important; 
-        display: flex !important;
+        display: flex;
         margin-top: 4px !important;
     }
 
@@ -134,7 +134,9 @@ const SHARED_STYLES = `
         margin-top: 4px !important;
         color: var(--rovalra-secondary-text-color) !important;
     }
-
+    .rovalra-modern-ui .flex.flex-col.items-center.gap-xsmall > div {
+        width: 200px !important;
+    }
     .rovalra-modern-ui .rovalra-server-extra-details {
         display: flex !important;
         flex-direction: row !important;
@@ -142,12 +144,22 @@ const SHARED_STYLES = `
         justify-content: space-between !important;
         padding: 0 6px !important;
     }
-
-    .rovalra-modern-ui .flex.flex-col.items-center.gap-xsmall > div {
-        width: 200px !important;
-    }
     .rovalra-modern-ui .rovalra-copy-join-link {
         display: none !important;
+    }
+
+    .rovalra-modern-ui .rovalra-region-stats-bar {
+        background: none !important;
+        border: none !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+    }
+
+    .rovalra-modern-ui .rovalra-stats-container {
+        margin-left: 0 !important;
+        margin-bottom: 12px !important;
+        padding: 0 !important;
+        gap: 15px !important;
     }
 `;
 
@@ -183,6 +195,15 @@ function findServerListContainer() {
     );
     if (legacy) return legacy;
 
+    const labeledPublic = document.querySelector(
+        '[data-rovalra-section-type="public"]',
+    );
+    if (labeledPublic) {
+        return labeledPublic.querySelector(
+            ':scope > .flex.flex-col:not(.gap-xsmall)',
+        );
+    }
+
     const sections = document.querySelectorAll(
         '.flex.flex-col.gap-large.width-full',
     );
@@ -195,7 +216,9 @@ function findServerListContainer() {
             otherServers.closest('.flex.flex-col.padding-x-large.width-full') ||
             otherServers.parentElement;
         if (mainWrapper) mainWrapper.classList.add('rovalra-modern-container');
-        return otherServers.querySelector('.flex.flex-col:not(.gap-xsmall)');
+        return otherServers.querySelector(
+            ':scope > .flex.flex-col:not(.gap-xsmall)',
+        );
     }
     return null;
 }
@@ -380,7 +403,6 @@ function clearAllFilters() {
     if (serverListContainer && _state.originalServerElements.length) {
         serverListContainer.innerHTML = '';
         _state.originalServerElements.forEach((el) => {
-            el.style.display = 'block';
             serverListContainer.appendChild(el);
         });
     }
@@ -449,7 +471,7 @@ function attachGlobalListeners() {
             removeAutoLoadingIndicator();
 
             const activeCount = serverListContainer.querySelectorAll(
-                'li[data-rovalra-serverid]',
+                'li[data-rovalra-serverid], div[data-rovalra-serverid]',
             ).length;
 
             if (activeCount < _state.targetActiveCount && nextCursor) {
@@ -483,6 +505,17 @@ function attachGlobalListeners() {
                 await t('serverList.noServersApi'),
                 false,
             );
+        } else if (nextCursor) {
+            showAutoLoadingIndicator(serverListContainer);
+            document.dispatchEvent(
+                new CustomEvent('rovalraRequestRegionServers', {
+                    detail: {
+                        regionCode,
+                        cursor: nextCursor,
+                        append: true,
+                    },
+                }),
+            );
         } else {
             document.getElementById('rovalra-load-more-btn')?.remove();
         }
@@ -499,7 +532,7 @@ function attachGlobalListeners() {
         const serverId = ev.detail?.serverId;
         if (!serverId) return;
         const serverElement = document.querySelector(
-            `li[data-rovalra-serverid="${serverId}"]`,
+            `li[data-rovalra-serverid="${serverId}"], div[data-rovalra-serverid="${serverId}"]`,
         );
         if (serverElement) serverElement.remove();
     });
@@ -541,7 +574,7 @@ function manageLoadMoreButton(nextCursor, regionCode) {
 
         loadMoreButton.addEventListener('click', () => {
             const currentCount = serverListContainer.querySelectorAll(
-                'li[data-rovalra-serverid]',
+                'li[data-rovalra-serverid], div[data-rovalra-serverid]',
             ).length;
             _state.targetActiveCount = currentCount + 6;
 
@@ -586,6 +619,53 @@ function startController() {
             createFilterUI(optionsBar);
         },
         { multiple: false },
+    );
+
+    observeElement(
+        '.flex.flex-col.width-full',
+        (section) => {
+            const header = section.querySelector('.flex.flex-col.gap-xsmall');
+            const h3 = header?.querySelector('h3');
+            const text = h3?.textContent?.toLowerCase() || '';
+
+            if (
+                section.id === 'rbx-friends-running-games' ||
+                text.includes('friends')
+            ) {
+                section.dataset.rovalraSectionType = 'friends';
+            } else if (
+                section.id === 'rbx-public-running-games' ||
+                text.includes('other')
+            ) {
+                section.dataset.rovalraSectionType = 'public';
+            } else if (
+                section.id === 'rbx-private-running-games' ||
+                text.includes('private') ||
+                section.classList.contains('gap-small')
+            ) {
+                section.dataset.rovalraSectionType = 'private';
+            }
+
+            if (section.dataset.rovalraSectionType === 'public') {
+                if (
+                    header &&
+                    h3 &&
+                    !header.querySelector('#rovalra-main-controls')
+                ) {
+                    section.classList.add('rovalra-modern-ui');
+
+                    const titleRow = document.createElement('div');
+                    titleRow.style.cssText =
+                        'display: flex; align-items: center; justify-content: space-between; width: 100%; gap: 12px;';
+
+                    h3.before(titleRow);
+                    titleRow.appendChild(h3);
+
+                    createFilterUI(titleRow);
+                }
+            }
+        },
+        { multiple: true },
     );
 }
 
@@ -1090,13 +1170,19 @@ export async function createServerCardFromApi(server, placeId = '') {
                 ${!hasPlayerCount ? `<span class="icon-moreinfo rovalra-unknown-count-icon" style="position: absolute; top: -11px; right: -15px; z-index: 5; cursor: help;"></span>` : ''}
             </div>`;
 
-        const serverDetailsHTML = hasPlayerCount
-            ? `
-            <div class="text-info rbx-game-status rbx-public-game-server-status text-overflow">${await t('serverList.peopleMax', { playing: server.playing, maxPlayers: server.maxPlayers })}</div>
-            <div class="server-player-count-gauge border"><div class="gauge-inner-bar border" style="width: ${(server.playing / server.maxPlayers) * 100}%;"></div></div>`
-            : `
-            <div class="text-info rbx-game-status rbx-public-game-server-status text-overflow">${await t('serverList.playerCountUnknownLabel')}</div>
-            <div class="server-player-count-gauge border"><div class="gauge-inner-bar border" style="width: 0%;"></div></div>`;
+        const serverDetailsHTML = `
+            <div class="text-info rbx-game-status rbx-public-game-server-status text-overflow">
+                ${await t('serverList.peopleMax', {
+                    playing:
+                        typeof server.playing === 'number'
+                            ? server.playing
+                            : '?',
+                    maxPlayers: server.maxPlayers || server.max_players || '?',
+                })}
+            </div>
+            <div class="server-player-count-gauge border">
+                <div class="gauge-inner-bar border" style="width: ${hasPlayerCount ? (server.playing / server.maxPlayers) * 100 : 0}%;"></div>
+            </div>`;
 
         serverItem.innerHTML = DOMPurify.sanitize(`
             <div class="card-item card-item-public-server">
@@ -1215,8 +1301,58 @@ async function createModernServerCard(server, placeId) {
     const serverId = server.id || server.server_id || '';
     serverItem.dataset.rovalraServerid = serverId;
 
-    const playerTokens = server.playerTokens || [];
+    const cachedServerData = _state.serverDataCache.get(serverId);
+    if (cachedServerData) {
+        if (
+            typeof cachedServerData.playing === 'number' &&
+            typeof server.playing !== 'number'
+        ) {
+            server.playing = cachedServerData.playing;
+            server.maxPlayers = cachedServerData.maxPlayers;
+        }
+        if (cachedServerData.playerTokens && !server.playerTokens) {
+            server.playerTokens = cachedServerData.playerTokens;
+        }
+    }
+
+    const hasPlayerCount =
+        typeof server.playing === 'number' &&
+        typeof server.maxPlayers === 'number';
+    let playerTokens = server.playerTokens || [];
+
+    if (playerTokens.length === 0 && (!hasPlayerCount || server.playing > 0)) {
+        if (
+            _state.collectedPlayerTokens &&
+            _state.collectedPlayerTokens.length > 0
+        ) {
+            let availableTokens = _state.collectedPlayerTokens.filter(
+                (t) => !_state.recentlyUsedTokens.includes(t),
+            );
+            if (availableTokens.length < 2)
+                availableTokens = [..._state.collectedPlayerTokens];
+
+            for (let i = 0; i < 2; i++) {
+                if (availableTokens.length === 0) break;
+                const randomIndex = Math.floor(
+                    Math.random() * availableTokens.length,
+                );
+                const token = availableTokens[randomIndex];
+                playerTokens.push(token);
+                availableTokens.splice(randomIndex, 1);
+                _state.recentlyUsedTokens.push(token);
+            }
+
+            if (_state.recentlyUsedTokens.length > 60)
+                _state.recentlyUsedTokens.splice(
+                    0,
+                    _state.recentlyUsedTokens.length - 60,
+                );
+        }
+    }
+
     let thumbnailHtml = '';
+    const placeholderSrc =
+        'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNTAgMTUwIj48cmVjdCB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgZmlsbD0iI0UzRTNFMyIvPjwvc3ZnPg==';
 
     if (playerTokens.length > 0) {
         const thumbItems = playerTokens.slice(0, 2).map((t) => ({ id: t }));
@@ -1228,14 +1364,14 @@ async function createModernServerCard(server, placeId) {
 
         if (playerTokens.length === 1) {
             const data = thumbMap.get(playerTokens[0]);
-            thumbnailHtml = `<div class="grow-0 shrink-0 basis-auto relative height-[40px] width-[40px]"><div class="width-[40px] height-[40px]"><span class="thumbnail-2d-container radius-circle clip"><img class="size-full" src="${data?.imageUrl || ''}" alt="Player"></span></div></div>`;
+            thumbnailHtml = `<div class="grow-0 shrink-0 basis-auto relative height-[40px] width-[40px]"><div class="width-[40px] height-[40px]"><span class="thumbnail-2d-container radius-circle clip"><img class="size-full" src="${data?.imageUrl || placeholderSrc}" alt="Player"></span></div></div>`;
         } else {
             const d1 = thumbMap.get(playerTokens[0]);
             const d2 = thumbMap.get(playerTokens[1]);
             thumbnailHtml = `
                 <div class="grow-0 shrink-0 basis-auto relative height-[40px] width-[60px]">
-                    <div class="absolute top-0 left-[20px] width-[40px] height-[40px]"><span class="thumbnail-2d-container radius-circle clip"><img class="size-full" src="${d1?.imageUrl || ''}" alt="Player"></span></div>
-                    <div class="width-[40px] height-[40px] relative"><span class="thumbnail-2d-container radius-circle clip"><img class="size-full" src="${d2?.imageUrl || ''}" alt="Player"></span></div>
+                    <div class="absolute top-0 left-[20px] width-[40px] height-[40px]"><span class="thumbnail-2d-container radius-circle clip"><img class="size-full" src="${d1?.imageUrl || placeholderSrc}" alt="Player"></span></div>
+                    <div class="width-[40px] height-[40px] relative"><span class="thumbnail-2d-container radius-circle clip"><img class="size-full" src="${d2?.imageUrl || placeholderSrc}" alt="Player"></span></div>
                 </div>`;
         }
     } else {
@@ -1243,13 +1379,16 @@ async function createModernServerCard(server, placeId) {
     }
 
     const playingText = await t('serverList.peopleMax', {
-        playing: server.playing,
-        maxPlayers: server.maxPlayers,
+        playing: typeof server.playing === 'number' ? server.playing : '?',
+        maxPlayers: server.maxPlayers || server.max_players || '?',
     });
 
     serverItem.innerHTML = DOMPurify.sanitize(`
         <div class="flex items-center gap-medium min-width-0">
-            ${thumbnailHtml}
+            <div class="relative flex-shrink-0">
+                ${thumbnailHtml}
+                ${!hasPlayerCount ? `<span class="icon-moreinfo rovalra-unknown-count-icon" style="position: absolute; top: -8px; left: -8px; z-index: 5; cursor: help; transform: scale(0.8);"></span>` : ''}
+            </div>
             <div class="flex flex-col min-width-0">
                 <span class="text-body-large content-emphasis text-truncate-end">${ts('recentServers.serverTitle', { defaultValue: 'Server' })}</span>
                 <span class="text-body-medium content-muted">${playingText}</span>
@@ -1293,6 +1432,19 @@ async function createModernServerCard(server, placeId) {
                 }, 1000);
             });
         };
+    }
+
+    if (!hasPlayerCount) {
+        const infoIcon = serverItem.querySelector(
+            '.rovalra-unknown-count-icon',
+        );
+        if (infoIcon) {
+            addTooltip(
+                infoIcon,
+                await t('serverList.playerCountUnknownTooltip'),
+                { position: 'top' },
+            );
+        }
     }
 
     enhanceServer(serverItem, _state);

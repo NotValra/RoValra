@@ -285,6 +285,7 @@ export function initRecentServers() {
                         section.after(separator);
                     } else {
                         container.appendChild(section);
+                        container.appendChild(separator);
                     }
                 } else {
                     section.className = 'server-list-section';
@@ -460,11 +461,6 @@ async function renderRecentServers(section) {
                 'section-content-off empty-game-instances-container';
             noServers.innerHTML = `<p class="no-servers-message">${await t('recentServers.noneFound')}</p>`;
             gridContainer.appendChild(noServers);
-            if (section.classList.contains('gap-large')) {
-                section.nextElementSibling?.classList.contains(
-                    'rovalra-modern-separator',
-                ) && section.nextElementSibling.remove();
-            }
             return;
         }
 
@@ -483,11 +479,6 @@ async function renderRecentServers(section) {
                 'section-content-off empty-game-instances-container';
             noActive.innerHTML = `<p class="no-servers-message">${await t('recentServers.noActiveFound')}</p>`;
             gridContainer.appendChild(noActive);
-            if (section.classList.contains('gap-large')) {
-                section.nextElementSibling?.classList.contains(
-                    'rovalra-modern-separator',
-                ) && section.nextElementSibling.remove();
-            }
             return;
         }
 

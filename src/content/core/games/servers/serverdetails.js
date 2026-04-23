@@ -342,11 +342,6 @@ function updateInfoElement(container, type, iconHTML, text, isVisible = true) {
     const className = CLASSES[type];
     let element = container.querySelector(`.${className}`);
 
-    if (!isVisible) {
-        if (element) element.style.display = 'none';
-        return;
-    }
-
     if (!element) {
         element = createInfoElement(className, iconHTML, text);
         const orderIndex = ORDERS[type] || ORDERS.Status;
@@ -362,7 +357,14 @@ function updateInfoElement(container, type, iconHTML, text, isVisible = true) {
     if (iconWrapper) iconWrapper.innerHTML = iconHTML;
     if (textWrapper) textWrapper.textContent = text;
 
-    element.style.display = 'flex';
+    if (!isVisible) {
+        element.style.display = 'none';
+        element.style.visibility = 'visible';
+    } else {
+        element.style.display = 'flex';
+        element.style.visibility = 'visible';
+    }
+
     return element;
 }
 
