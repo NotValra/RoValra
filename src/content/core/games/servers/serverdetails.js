@@ -188,7 +188,7 @@ export function getFullLocationName(data) {
 }
 
 function formatUptimeString(seconds) {
-    if (seconds < 60) return null;
+    if (seconds < 0) return null;
     const days = Math.floor(seconds / 86400);
     const hours = Math.floor((seconds % 86400) / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
@@ -197,7 +197,7 @@ function formatUptimeString(seconds) {
     if (days > 0) parts.push(`${days}d`);
     if (hours > 0) parts.push(`${hours}h`);
     if (minutes > 0) parts.push(`${minutes}m~`);
-    return parts.join(' ') || '0m~';
+    return parts.join(' ') || '1m~';
 }
 
 function normalizeText(s) {
@@ -288,11 +288,28 @@ export function getOrCreateDetailsContainer(server) {
     if (statusNode && statusNode.parentNode) {
         statusNode.parentNode.insertBefore(container, statusNode.nextSibling);
     } else {
-        const detailsParent = server.querySelector(
-            '.rbx-game-server-details, .rbx-friends-game-server-details',
+        const modernLeftWrapper = server.querySelector(
+            '.flex.items-center.gap-medium.min-width-0',
         );
+        const detailsParent =
+            modernLeftWrapper ||
+            server.querySelector(
+                '.rbx-game-server-details, .rbx-friends-game-server-details',
+            );
+
         if (detailsParent) {
-            detailsParent.prepend(container);
+            if (modernLeftWrapper) {
+                const column = detailsParent.querySelector(
+                    '.flex.flex-col.min-width-0',
+                );
+                if (column) {
+                    column.appendChild(container);
+                } else {
+                    detailsParent.appendChild(container);
+                }
+            } else {
+                detailsParent.prepend(container);
+            }
         } else {
             server.appendChild(container);
         }
@@ -429,18 +446,17 @@ export function displayUptime(server, uptime, serverLocations = {}) {
     if (serverLocations[server.dataset.rovalraServerid] === 'private') return;
 
     const container = getOrCreateDetailsContainer(server);
-    let text = 'Unknown';
-    let visible = false;
+    let text = '1m~';
+    let visible = true;
 
     if (uptime === 'fetching') {
         text = 'Loading...';
-        visible = true;
     } else if (typeof uptime === 'number') {
-        const fmt = formatUptimeString(uptime);
-        if (fmt) {
-            text = fmt;
-            visible = true;
-        }
+        text = formatUptimeString(uptime) || '1m~';
+    } else if (uptime === 'N/A') {
+        text = '1m~';
+    } else {
+        visible = false;
     }
 
     updateInfoElement(container, 'Uptime', ICONS.uptime, text, visible);
@@ -702,24 +718,24 @@ export async function fetchServerUptime(
         validIds
             .filter((id) => !foundIds.has(id))
             .forEach((id) => {
-                serverUptimes[id] = 'N/A';
+                serverUptimes[id] = 60;
 
                 const matchingEls = document.querySelectorAll(
                     `[data-rovalra-serverid="${id}"]`,
                 );
                 matchingEls.forEach((el) => {
-                    displayUptime(el, 'N/A', serverLocations);
+                    displayUptime(el, 60, serverLocations);
                     if (!serverLocations[id]) displayServerFullStatus(el);
                 });
             });
     } catch (e) {
         validIds.forEach((id) => {
-            serverUptimes[id] = 'N/A';
+            serverUptimes[id] = 60;
             const matchingEls = document.querySelectorAll(
                 `[data-rovalra-serverid="${id}"]`,
             );
             matchingEls.forEach((el) => {
-                displayUptime(el, 'N/A', serverLocations);
+                displayUptime(el, 60, serverLocations);
             });
         });
     }
@@ -1101,6 +1117,7 @@ export async function enhanceServer(server, context) {
             idDiv.className = 'server-id-text text-info xsmall';
 
             const appendTarget =
+                server.querySelector('.rovalra-share-btn-container') ||
                 server.querySelector('.rovalra-copy-join-link') ||
                 server.querySelector('.game-server-join-btn');
             appendTarget
@@ -1121,8 +1138,9 @@ export async function enhanceServer(server, context) {
         const uuidSpan = document.createElement('span');
         uuidSpan.textContent = serverId;
 
-        const hasFriendLink =
-            server.querySelector('.avatar-card-link') !== null;
+        const hasFriendLink = server.hasAttribute(
+            'data-rovalra-is-friend-server',
+        );
         if (hasFriendLink) {
             uuidSpan.classList.add('show-on-hover');
         }
