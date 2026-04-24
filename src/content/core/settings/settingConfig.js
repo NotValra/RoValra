@@ -636,16 +636,6 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
                 childSettings: {
-                    statusBubbleUseApi: {
-                        label: 'Use RoValra API for Status',
-                        description:
-                            "Uses RoValra's API to save your status instead of your 'About Me' section.",
-                        type: 'checkbox',
-                        default: true,
-                        donatorTier: 1,
-                        donatorReason:
-                            'Donator 1 is required since RoValra doesnt have the resources to track the 200k+ user settings.',
-                    },
                     statusBubbleHomePage: {
                         label: 'Status bubble for friends on home page, and other parts of the site where friends might show.',
                         type: 'checkbox',

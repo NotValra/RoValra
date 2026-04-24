@@ -3,7 +3,6 @@ import { getAuthenticatedUserId } from '../user.js';
 import {
     getUserDescription,
     updateUserDescription,
-    isTextFiltered,
 } from '../profile/descriptionhandler.js';
 import {
     syncDonatorTier,
@@ -107,14 +106,6 @@ async function fetchAndProcessSettings(userId, options = {}) {
         apiProvidedMeaningfulSettings = false;
     }
 
-    let description = null;
-    let originalDescription = null;
-
-    if (options.useDescription) {
-        originalDescription = await getUserDescription(userId);
-        description = originalDescription;
-    }
-
     let finalStatus = null;
     let finalEnvironment = 1;
     let finalGradient = null;
@@ -123,133 +114,6 @@ async function fetchAndProcessSettings(userId, options = {}) {
         finalStatus = apiSettings.status;
         finalEnvironment = apiSettings.environment;
         finalGradient = apiSettings.gradient;
-    }
-    const statusFromDesc =
-        description !== null
-            ? await getStatusFromDescription(description)
-            : null;
-    const envFromDesc =
-        description !== null
-            ? await getEnvironmentFromDescription(description)
-            : null;
-
-    if (
-        options.useDescription &&
-        DESCRIPTION_BASED_SETTINGS.includes('status')
-    ) {
-        if (isOwnProfile) {
-            if (
-                isDonator &&
-                statusFromDesc &&
-                (!apiProvidedMeaningfulSettings || !finalStatus)
-            ) {
-                try {
-                    const res = await callRobloxApiJson({
-                        isRovalraApi: true,
-                        subdomain: 'apis',
-                        endpoint: '/v1/auth/settings',
-                        method: 'POST',
-                        body: JSON.stringify({
-                            key: 'status',
-                            value: statusFromDesc,
-                        }),
-                    });
-                    if (res && res.status === 'success') {
-                        finalStatus = statusFromDesc;
-                        apiProvidedMeaningfulSettings = true;
-                    }
-                } catch (e) {
-                    console.error('Failed to migrate status to API.', e);
-                }
-            }
-
-            if (
-                isDonator &&
-                statusFromDesc &&
-                apiProvidedMeaningfulSettings &&
-                description !== null
-            ) {
-                description = description
-                    .split('\n')
-                    .filter((line) => !line.trim().startsWith('s:'))
-                    .join('\n')
-                    .trimEnd();
-            }
-
-            if ((!isDonator || !finalStatus) && statusFromDesc) {
-                finalStatus = statusFromDesc;
-            }
-        } else {
-            if (!finalStatus) finalStatus = statusFromDesc;
-        }
-    }
-
-    if (
-        options.useDescription &&
-        DESCRIPTION_BASED_SETTINGS.includes('environment')
-    ) {
-        if (isOwnProfile) {
-            if (
-                isDonator &&
-                envFromDesc &&
-                (!apiProvidedMeaningfulSettings || finalEnvironment === 1)
-            ) {
-                try {
-                    const res = await callRobloxApiJson({
-                        isRovalraApi: true,
-                        subdomain: 'apis',
-                        endpoint: '/v1/auth/settings',
-                        method: 'POST',
-                        body: JSON.stringify({
-                            key: 'environment',
-                            value: String(envFromDesc),
-                        }),
-                    });
-                    if (res && res.status === 'success') {
-                        finalEnvironment = envFromDesc;
-                        apiProvidedMeaningfulSettings = true;
-                    }
-                } catch (e) {
-                    console.error('Failed to migrate environment to API.', e);
-                }
-            }
-
-            if (
-                isDonator &&
-                envFromDesc &&
-                apiProvidedMeaningfulSettings &&
-                description !== null
-            ) {
-                description = description
-                    .split('\n')
-                    .filter((line) => !line.trim().startsWith('e:'))
-                    .join('\n')
-                    .trimEnd();
-            }
-
-            if (
-                (!isDonator || !finalEnvironment || finalEnvironment === 1) &&
-                envFromDesc
-            ) {
-                finalEnvironment = envFromDesc;
-            }
-        } else {
-            if (!finalEnvironment || finalEnvironment === 1)
-                finalEnvironment = envFromDesc;
-        }
-    }
-
-    if (
-        isOwnProfile &&
-        originalDescription !== null &&
-        description !== originalDescription
-    ) {
-        await updateUserDescription(userId, description);
-    }
-
-    const isTrusted = TRUSTED_USER_IDS.has(String(userId));
-    if (finalStatus && !isTrusted && (await isTextFiltered(finalStatus))) {
-        finalStatus = null;
     }
 
     return {
@@ -406,14 +270,6 @@ async function processApiSettings(userId, apiSettings, options) {
         }
     }
 
-    let description = null;
-    let originalDescription = null;
-
-    if (options.useDescription) {
-        originalDescription = await getUserDescription(userId);
-        description = originalDescription;
-    }
-
     let finalStatus = null;
     let finalEnvironment = 1;
     let finalGradient = null;
@@ -422,133 +278,6 @@ async function processApiSettings(userId, apiSettings, options) {
         finalStatus = apiSettings.status;
         finalEnvironment = apiSettings.environment;
         finalGradient = apiSettings.gradient;
-    }
-    const statusFromDesc =
-        description !== null
-            ? await getStatusFromDescription(description)
-            : null;
-    const envFromDesc =
-        description !== null
-            ? await getEnvironmentFromDescription(description)
-            : null;
-
-    if (
-        options.useDescription &&
-        DESCRIPTION_BASED_SETTINGS.includes('status')
-    ) {
-        if (isOwnProfile) {
-            if (
-                isDonator &&
-                statusFromDesc &&
-                (!apiProvidedMeaningfulSettings || !finalStatus)
-            ) {
-                try {
-                    const res = await callRobloxApiJson({
-                        isRovalraApi: true,
-                        subdomain: 'apis',
-                        endpoint: '/v1/auth/settings',
-                        method: 'POST',
-                        body: JSON.stringify({
-                            key: 'status',
-                            value: statusFromDesc,
-                        }),
-                    });
-                    if (res && res.status === 'success') {
-                        finalStatus = statusFromDesc;
-                        apiProvidedMeaningfulSettings = true;
-                    }
-                } catch (e) {
-                    console.error('Failed to migrate status to API.', e);
-                }
-            }
-
-            if (
-                isDonator &&
-                statusFromDesc &&
-                apiProvidedMeaningfulSettings &&
-                description !== null
-            ) {
-                description = description
-                    .split('\n')
-                    .filter((line) => !line.trim().startsWith('s:'))
-                    .join('\n')
-                    .trimEnd();
-            }
-
-            if ((!isDonator || !finalStatus) && statusFromDesc) {
-                finalStatus = statusFromDesc;
-            }
-        } else {
-            if (!finalStatus) finalStatus = statusFromDesc;
-        }
-    }
-
-    if (
-        options.useDescription &&
-        DESCRIPTION_BASED_SETTINGS.includes('environment')
-    ) {
-        if (isOwnProfile) {
-            if (
-                isDonator &&
-                envFromDesc &&
-                (!apiProvidedMeaningfulSettings || finalEnvironment === 1)
-            ) {
-                try {
-                    const res = await callRobloxApiJson({
-                        isRovalraApi: true,
-                        subdomain: 'apis',
-                        endpoint: '/v1/auth/settings',
-                        method: 'POST',
-                        body: JSON.stringify({
-                            key: 'environment',
-                            value: String(envFromDesc),
-                        }),
-                    });
-                    if (res && res.status === 'success') {
-                        finalEnvironment = envFromDesc;
-                        apiProvidedMeaningfulSettings = true;
-                    }
-                } catch (e) {
-                    console.error('Failed to migrate environment to API.', e);
-                }
-            }
-
-            if (
-                isDonator &&
-                envFromDesc &&
-                apiProvidedMeaningfulSettings &&
-                description !== null
-            ) {
-                description = description
-                    .split('\n')
-                    .filter((line) => !line.trim().startsWith('e:'))
-                    .join('\n')
-                    .trimEnd();
-            }
-
-            if (
-                (!isDonator || !finalEnvironment || finalEnvironment === 1) &&
-                envFromDesc
-            ) {
-                finalEnvironment = envFromDesc;
-            }
-        } else {
-            if (!finalEnvironment || finalEnvironment === 1)
-                finalEnvironment = envFromDesc;
-        }
-    }
-
-    if (
-        isOwnProfile &&
-        originalDescription !== null &&
-        description !== originalDescription
-    ) {
-        await updateUserDescription(userId, description);
-    }
-
-    const isTrusted = TRUSTED_USER_IDS.has(String(userId));
-    if (finalStatus && !isTrusted && (await isTextFiltered(finalStatus))) {
-        finalStatus = null;
     }
 
     return {
@@ -571,10 +300,10 @@ export async function getUserSettings(userId, options = {}) {
 
     const cacheKey = `${strUserId}-${options.useDescription || false}`;
 
-    if (!options.noCache) {
+    if (!options.noCache && !isOwnProfile) {
         const memCached = memoryCache.get(cacheKey);
         if (memCached) {
-            const staleThreshold = isOwnProfile ? 30000 : 300000;
+            const staleThreshold = 300000;
             const isStale =
                 Date.now() - (memCached.timestamp || 0) > staleThreshold;
             if (isStale && !pendingResolvers.has(cacheKey)) {
@@ -604,7 +333,7 @@ export async function getUserSettings(userId, options = {}) {
         const cached = await cache.get('user_settings', cacheKey, 'local');
         if (cached) {
             memoryCache.set(cacheKey, cached);
-            const staleThreshold = isOwnProfile ? 30000 : 300000;
+            const staleThreshold = 300000;
             const isStale =
                 Date.now() - (cached.timestamp || 0) > staleThreshold;
             if (isStale && !pendingResolvers.has(cacheKey)) {
