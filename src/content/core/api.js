@@ -413,15 +413,13 @@ export async function callRobloxApi(options) {
                             const bodyJson = await clonedForBodyCheck.json();
                             if (
                                 bodyJson.status === 'error' &&
-                                (bodyJson.message ===
-                                    'Invalid or obsolete token.' ||
-                                    bodyJson.message ===
-                                        'Invalid or obsolete session.')
+                                bodyJson.message ===
+                                    'Invalid or obsolete token.'
                             ) {
                                 isTokenInvalid = true;
                                 bodyIsInvalid = true;
                                 console.log(
-                                    'RoValra API: Invalid token/session from response body detected.',
+                                    'RoValra API: Invalid token from response body detected.',
                                 );
                             }
                         } catch (e) {}
@@ -435,10 +433,10 @@ export async function callRobloxApi(options) {
                         !authRetried
                     ) {
                         console.log(
-                            'RoValra API: Invalid token/session, attempting token refresh...',
+                            'RoValra API: Invalid token, attempting token refresh...',
                         );
                         authRetried = true;
-                        const newToken = await getValidAccessToken(true, false);
+                        const newToken = await getValidAccessToken(true);
                         if (newToken) {
                             fetchOptions.headers.set(
                                 'Authorization',

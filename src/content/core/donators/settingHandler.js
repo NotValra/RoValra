@@ -3,6 +3,7 @@ import { getAuthenticatedUserId } from '../user.js';
 import {
     getUserDescription,
     updateUserDescription,
+    isTextFiltered,
 } from '../profile/descriptionhandler.js';
 import {
     syncDonatorTier,
@@ -24,19 +25,9 @@ const BATCH_DELAY_MS = 10;
 let batchQueue = [];
 let batchTimeout = null;
 let batchInProgress = false;
-const memoryCache = new Map();
 const pendingResolvers = new Map();
 
 const DESCRIPTION_BASED_SETTINGS = ['status', 'environment'];
-
-async function saveToCache(cacheKey, settings) {
-    const cacheData = {
-        data: settings,
-        timestamp: Date.now(),
-    };
-    memoryCache.set(cacheKey, cacheData);
-    await cache.set('user_settings', cacheKey, cacheData, 'local');
-}
 
 async function getStatusFromDescription(description) {
     if (description === null) return null;
@@ -106,6 +97,14 @@ async function fetchAndProcessSettings(userId, options = {}) {
         apiProvidedMeaningfulSettings = false;
     }
 
+    let description = null;
+    let originalDescription = null;
+
+    if (options.useDescription) {
+        originalDescription = await getUserDescription(userId);
+        description = originalDescription;
+    }
+
     let finalStatus = null;
     let finalEnvironment = 1;
     let finalGradient = null;
@@ -114,6 +113,133 @@ async function fetchAndProcessSettings(userId, options = {}) {
         finalStatus = apiSettings.status;
         finalEnvironment = apiSettings.environment;
         finalGradient = apiSettings.gradient;
+    }
+    const statusFromDesc =
+        description !== null
+            ? await getStatusFromDescription(description)
+            : null;
+    const envFromDesc =
+        description !== null
+            ? await getEnvironmentFromDescription(description)
+            : null;
+
+    if (
+        options.useDescription &&
+        DESCRIPTION_BASED_SETTINGS.includes('status')
+    ) {
+        if (isOwnProfile) {
+            if (
+                isDonator &&
+                statusFromDesc &&
+                (!apiProvidedMeaningfulSettings || !finalStatus)
+            ) {
+                try {
+                    const res = await callRobloxApiJson({
+                        isRovalraApi: true,
+                        subdomain: 'apis',
+                        endpoint: '/v1/auth/settings',
+                        method: 'POST',
+                        body: JSON.stringify({
+                            key: 'status',
+                            value: statusFromDesc,
+                        }),
+                    });
+                    if (res && res.status === 'success') {
+                        finalStatus = statusFromDesc;
+                        apiProvidedMeaningfulSettings = true;
+                    }
+                } catch (e) {
+                    console.error('Failed to migrate status to API.', e);
+                }
+            }
+
+            if (
+                isDonator &&
+                statusFromDesc &&
+                apiProvidedMeaningfulSettings &&
+                description !== null
+            ) {
+                description = description
+                    .split('\n')
+                    .filter((line) => !line.trim().startsWith('s:'))
+                    .join('\n')
+                    .trimEnd();
+            }
+
+            if ((!isDonator || !finalStatus) && statusFromDesc) {
+                finalStatus = statusFromDesc;
+            }
+        } else {
+            if (!finalStatus) finalStatus = statusFromDesc;
+        }
+    }
+
+    if (
+        options.useDescription &&
+        DESCRIPTION_BASED_SETTINGS.includes('environment')
+    ) {
+        if (isOwnProfile) {
+            if (
+                isDonator &&
+                envFromDesc &&
+                (!apiProvidedMeaningfulSettings || finalEnvironment === 1)
+            ) {
+                try {
+                    const res = await callRobloxApiJson({
+                        isRovalraApi: true,
+                        subdomain: 'apis',
+                        endpoint: '/v1/auth/settings',
+                        method: 'POST',
+                        body: JSON.stringify({
+                            key: 'environment',
+                            value: String(envFromDesc),
+                        }),
+                    });
+                    if (res && res.status === 'success') {
+                        finalEnvironment = envFromDesc;
+                        apiProvidedMeaningfulSettings = true;
+                    }
+                } catch (e) {
+                    console.error('Failed to migrate environment to API.', e);
+                }
+            }
+
+            if (
+                isDonator &&
+                envFromDesc &&
+                apiProvidedMeaningfulSettings &&
+                description !== null
+            ) {
+                description = description
+                    .split('\n')
+                    .filter((line) => !line.trim().startsWith('e:'))
+                    .join('\n')
+                    .trimEnd();
+            }
+
+            if (
+                (!isDonator || !finalEnvironment || finalEnvironment === 1) &&
+                envFromDesc
+            ) {
+                finalEnvironment = envFromDesc;
+            }
+        } else {
+            if (!finalEnvironment || finalEnvironment === 1)
+                finalEnvironment = envFromDesc;
+        }
+    }
+
+    if (
+        isOwnProfile &&
+        originalDescription !== null &&
+        description !== originalDescription
+    ) {
+        await updateUserDescription(userId, description);
+    }
+
+    const isTrusted = TRUSTED_USER_IDS.includes(String(userId));
+    if (finalStatus && !isTrusted && (await isTextFiltered(finalStatus))) {
+        finalStatus = null;
     }
 
     return {
@@ -136,19 +262,13 @@ async function processBatchQueue() {
     clearTimeout(batchTimeout);
     batchTimeout = null;
 
-    const processedKeys = new Set();
-
     try {
         const authedId = await getAuthenticatedUserId();
         const authenticatedUserId = authedId ? String(authedId) : null;
 
         const userIdsToFetch = currentBatch
             .map((item) => item.userId)
-            .filter(
-                (id, index, self) =>
-                    String(id) !== authenticatedUserId &&
-                    self.indexOf(id) === index,
-            )
+            .filter((id) => String(id) !== authenticatedUserId)
             .slice(0, BATCH_MAX_SIZE);
 
         const userIdsToFetchStrings = userIdsToFetch.map((id) => String(id));
@@ -166,48 +286,71 @@ async function processBatchQueue() {
                 for (const [userId, apiSettings] of Object.entries(
                     data.settings,
                 )) {
-                    const batchItems = currentBatch.filter(
+                    const batchItem = currentBatch.find(
                         (item) => String(item.userId) === String(userId),
                     );
+                    if (!batchItem) continue;
 
-                    for (const item of batchItems) {
-                        const cacheKey = `${userId}-${item.options.useDescription || false}`;
-                        if (processedKeys.has(cacheKey)) continue;
+                    const settings = await processApiSettings(
+                        userId,
+                        apiSettings,
+                        batchItem.options,
+                    );
 
-                        const settings = await processApiSettings(
-                            userId,
-                            apiSettings,
-                            item.options,
+                    const isOwnProfile =
+                        authenticatedUserId &&
+                        String(userId) === authenticatedUserId;
+                    const cacheKey = `${userId}-${batchItem.options.useDescription || false}`;
+                    if (!isOwnProfile) {
+                        await cache.set(
+                            'user_settings',
+                            cacheKey,
+                            {
+                                data: settings,
+                                timestamp: Date.now(),
+                            },
+                            'local',
                         );
+                    }
 
-                        await saveToCache(cacheKey, settings);
-                        processedKeys.add(cacheKey);
-
-                        const resolvers = pendingResolvers.get(cacheKey);
-                        if (resolvers) {
-                            resolvers.forEach((r) => r.resolve(settings));
-                            pendingResolvers.delete(cacheKey);
-                        }
+                    if (pendingResolvers.has(userId)) {
+                        pendingResolvers.get(userId).resolve(settings);
+                        pendingResolvers.delete(userId);
                     }
                 }
             }
         }
 
         for (const batchItem of currentBatch) {
-            const cacheKey = `${batchItem.userId}-${batchItem.options.useDescription || false}`;
-            if (!processedKeys.has(cacheKey)) {
+            const isOwnProfile =
+                authenticatedUserId &&
+                String(batchItem.userId) === authenticatedUserId;
+            const wasNotInBatch =
+                !userIdsToFetchStrings.includes(String(batchItem.userId)) &&
+                !isOwnProfile;
+
+            if (isOwnProfile || wasNotInBatch) {
                 const settings = await fetchAndProcessSettings(
                     batchItem.userId,
                     batchItem.options,
                 );
 
-                await saveToCache(cacheKey, settings);
-                processedKeys.add(cacheKey);
+                const cacheKey = `${batchItem.userId}-${batchItem.options.useDescription || false}`;
+                if (!isOwnProfile) {
+                    await cache.set(
+                        'user_settings',
+                        cacheKey,
+                        {
+                            data: settings,
+                            timestamp: Date.now(),
+                        },
+                        'local',
+                    );
+                }
 
-                const resolvers = pendingResolvers.get(cacheKey);
-                if (resolvers) {
-                    resolvers.forEach((r) => r.resolve(settings));
-                    pendingResolvers.delete(cacheKey);
+                if (pendingResolvers.has(batchItem.userId)) {
+                    pendingResolvers.get(batchItem.userId).resolve(settings);
+                    pendingResolvers.delete(batchItem.userId);
                 }
             }
         }
@@ -218,23 +361,20 @@ async function processBatchQueue() {
         );
 
         for (const batchItem of currentBatch) {
-            const cacheKey = `${batchItem.userId}-${batchItem.options.useDescription || false}`;
             try {
                 const settings = await fetchAndProcessSettings(
                     batchItem.userId,
                     batchItem.options,
                 );
 
-                const resolvers = pendingResolvers.get(cacheKey);
-                if (resolvers) {
-                    resolvers.forEach((r) => r.resolve(settings));
-                    pendingResolvers.delete(cacheKey);
+                if (pendingResolvers.has(batchItem.userId)) {
+                    pendingResolvers.get(batchItem.userId).resolve(settings);
+                    pendingResolvers.delete(batchItem.userId);
                 }
             } catch (e) {
-                const resolvers = pendingResolvers.get(cacheKey);
-                if (resolvers) {
-                    resolvers.forEach((r) => r.reject(e));
-                    pendingResolvers.delete(cacheKey);
+                if (pendingResolvers.has(batchItem.userId)) {
+                    pendingResolvers.get(batchItem.userId).reject(e);
+                    pendingResolvers.delete(batchItem.userId);
                 }
             }
         }
@@ -270,6 +410,14 @@ async function processApiSettings(userId, apiSettings, options) {
         }
     }
 
+    let description = null;
+    let originalDescription = null;
+
+    if (options.useDescription) {
+        originalDescription = await getUserDescription(userId);
+        description = originalDescription;
+    }
+
     let finalStatus = null;
     let finalEnvironment = 1;
     let finalGradient = null;
@@ -278,6 +426,133 @@ async function processApiSettings(userId, apiSettings, options) {
         finalStatus = apiSettings.status;
         finalEnvironment = apiSettings.environment;
         finalGradient = apiSettings.gradient;
+    }
+    const statusFromDesc =
+        description !== null
+            ? await getStatusFromDescription(description)
+            : null;
+    const envFromDesc =
+        description !== null
+            ? await getEnvironmentFromDescription(description)
+            : null;
+
+    if (
+        options.useDescription &&
+        DESCRIPTION_BASED_SETTINGS.includes('status')
+    ) {
+        if (isOwnProfile) {
+            if (
+                isDonator &&
+                statusFromDesc &&
+                (!apiProvidedMeaningfulSettings || !finalStatus)
+            ) {
+                try {
+                    const res = await callRobloxApiJson({
+                        isRovalraApi: true,
+                        subdomain: 'apis',
+                        endpoint: '/v1/auth/settings',
+                        method: 'POST',
+                        body: JSON.stringify({
+                            key: 'status',
+                            value: statusFromDesc,
+                        }),
+                    });
+                    if (res && res.status === 'success') {
+                        finalStatus = statusFromDesc;
+                        apiProvidedMeaningfulSettings = true;
+                    }
+                } catch (e) {
+                    console.error('Failed to migrate status to API.', e);
+                }
+            }
+
+            if (
+                isDonator &&
+                statusFromDesc &&
+                apiProvidedMeaningfulSettings &&
+                description !== null
+            ) {
+                description = description
+                    .split('\n')
+                    .filter((line) => !line.trim().startsWith('s:'))
+                    .join('\n')
+                    .trimEnd();
+            }
+
+            if ((!isDonator || !finalStatus) && statusFromDesc) {
+                finalStatus = statusFromDesc;
+            }
+        } else {
+            if (!finalStatus) finalStatus = statusFromDesc;
+        }
+    }
+
+    if (
+        options.useDescription &&
+        DESCRIPTION_BASED_SETTINGS.includes('environment')
+    ) {
+        if (isOwnProfile) {
+            if (
+                isDonator &&
+                envFromDesc &&
+                (!apiProvidedMeaningfulSettings || finalEnvironment === 1)
+            ) {
+                try {
+                    const res = await callRobloxApiJson({
+                        isRovalraApi: true,
+                        subdomain: 'apis',
+                        endpoint: '/v1/auth/settings',
+                        method: 'POST',
+                        body: JSON.stringify({
+                            key: 'environment',
+                            value: String(envFromDesc),
+                        }),
+                    });
+                    if (res && res.status === 'success') {
+                        finalEnvironment = envFromDesc;
+                        apiProvidedMeaningfulSettings = true;
+                    }
+                } catch (e) {
+                    console.error('Failed to migrate environment to API.', e);
+                }
+            }
+
+            if (
+                isDonator &&
+                envFromDesc &&
+                apiProvidedMeaningfulSettings &&
+                description !== null
+            ) {
+                description = description
+                    .split('\n')
+                    .filter((line) => !line.trim().startsWith('e:'))
+                    .join('\n')
+                    .trimEnd();
+            }
+
+            if (
+                (!isDonator || !finalEnvironment || finalEnvironment === 1) &&
+                envFromDesc
+            ) {
+                finalEnvironment = envFromDesc;
+            }
+        } else {
+            if (!finalEnvironment || finalEnvironment === 1)
+                finalEnvironment = envFromDesc;
+        }
+    }
+
+    if (
+        isOwnProfile &&
+        originalDescription !== null &&
+        description !== originalDescription
+    ) {
+        await updateUserDescription(userId, description);
+    }
+
+    const isTrusted = TRUSTED_USER_IDS.includes(String(userId));
+    if (finalStatus && !isTrusted && (await isTextFiltered(finalStatus))) {
+        finalStatus = null;
     }
 
     return {
@@ -298,57 +573,38 @@ export async function getUserSettings(userId, options = {}) {
     const isOwnProfile =
         authenticatedUserId && strUserId === authenticatedUserId;
 
+    if (isOwnProfile) {
+        options.noCache = true;
+    }
+
     const cacheKey = `${strUserId}-${options.useDescription || false}`;
 
-    if (!options.noCache && !isOwnProfile) {
-        const memCached = memoryCache.get(cacheKey);
-        if (memCached) {
-            const staleThreshold = 300000;
-            const isStale =
-                Date.now() - (memCached.timestamp || 0) > staleThreshold;
-            if (isStale && !pendingResolvers.has(cacheKey)) {
-                if (options.disableBatch) {
-                    fetchAndProcessSettings(userId, options).then((settings) =>
-                        saveToCache(cacheKey, settings),
-                    );
-                } else {
-                    batchQueue.push({ userId, options });
-                    pendingResolvers.set(cacheKey, [
-                        {
-                            resolve: () => {},
-                            reject: () => {},
-                        },
-                    ]);
-                    if (!batchTimeout) {
-                        batchTimeout = setTimeout(
-                            processBatchQueue,
-                            BATCH_DELAY_MS,
-                        );
-                    }
-                }
-            }
-            return memCached.data;
-        }
-
+    if (!isOwnProfile) {
         const cached = await cache.get('user_settings', cacheKey, 'local');
         if (cached) {
-            memoryCache.set(cacheKey, cached);
-            const staleThreshold = 300000;
-            const isStale =
-                Date.now() - (cached.timestamp || 0) > staleThreshold;
-            if (isStale && !pendingResolvers.has(cacheKey)) {
+            const isStale = Date.now() - (cached.timestamp || 0) > 300000;
+            if (
+                isStale &&
+                !options.noCache &&
+                !pendingResolvers.has(strUserId)
+            ) {
                 if (options.disableBatch) {
-                    fetchAndProcessSettings(userId, options).then((settings) =>
-                        saveToCache(cacheKey, settings),
+                    fetchAndProcessSettings(userId, options).then(
+                        (settings) => {
+                            cache.set(
+                                'user_settings',
+                                cacheKey,
+                                { data: settings, timestamp: Date.now() },
+                                'local',
+                            );
+                        },
                     );
                 } else {
                     batchQueue.push({ userId, options });
-                    pendingResolvers.set(cacheKey, [
-                        {
-                            resolve: () => {},
-                            reject: () => {},
-                        },
-                    ]);
+                    pendingResolvers.set(strUserId, {
+                        resolve: () => {},
+                        reject: () => {},
+                    });
                     if (!batchTimeout) {
                         batchTimeout = setTimeout(
                             processBatchQueue,
@@ -361,22 +617,27 @@ export async function getUserSettings(userId, options = {}) {
         }
     }
 
-    if (pendingResolvers.has(cacheKey)) {
-        return new Promise((resolve, reject) => {
-            pendingResolvers.get(cacheKey).push({ resolve, reject });
-        });
-    }
-
-    if (options.disableBatch) {
+    if (options.disableBatch || isOwnProfile) {
         const settings = await fetchAndProcessSettings(userId, options);
-        await saveToCache(cacheKey, settings);
+
+        if (!isOwnProfile) {
+            await cache.set(
+                'user_settings',
+                cacheKey,
+                {
+                    data: settings,
+                    timestamp: Date.now(),
+                },
+                'local',
+            );
+        }
 
         return settings;
     }
 
     return new Promise((resolve, reject) => {
         batchQueue.push({ userId, options });
-        pendingResolvers.set(cacheKey, [{ resolve, reject }]);
+        pendingResolvers.set(strUserId, { resolve, reject });
 
         if (!batchTimeout) {
             batchTimeout = setTimeout(processBatchQueue, BATCH_DELAY_MS);

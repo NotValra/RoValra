@@ -1,5 +1,4 @@
 import { callRobloxApi, callRobloxApiJson } from '../api.js';
-import { getValidAccessToken } from '../oauth/oauth.js';
 // A script for getting and setting user description with pre text filter checks to prevent losing a users description if addition is tagged.
 export async function getUserDescription(userId) {
     try {
@@ -75,9 +74,6 @@ export async function updateUserDescription(userId, newDescription) {
  */
 export async function updateUserSettingViaApi(key, value) {
     try {
-        const token = await getValidAccessToken(false, false);
-        if (!token) return false;
-
         const response = await callRobloxApiJson({
             isRovalraApi: true,
             subdomain: 'apis',
@@ -85,10 +81,7 @@ export async function updateUserSettingViaApi(key, value) {
             method: 'POST',
             body: JSON.stringify({ key, value: String(value) }),
         });
-        if (response && response.status === 'success' && response.setting) {
-            return response.setting.value;
-        }
-        return false;
+        return response && response.status === 'success';
     } catch (error) {
         console.error(
             `RoValra: Failed to update setting '${key}' via API.`,

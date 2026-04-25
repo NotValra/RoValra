@@ -1,63 +1,91 @@
-window.addEventListener('rovalra-extract-serverid-request', function (event) {
+
+window.addEventListener('rovalra-extract-serverid-request', function(event) {
     const { extractionId } = event.detail;
-
+    
     try {
-        const element = document.querySelector(
-            `[data-rovalra-extraction-id="${extractionId}"]`,
-        );
-        if (!element) return;
-
-        const reactKey = Object.keys(element).find((k) =>
-            k.startsWith('__reactFiber$'),
-        );
-        if (!reactKey) throw new Error('No React Fiber');
-
-        const fiber = element[reactKey];
-        const memoizedProps = fiber?.return?.memoizedProps;
-        const accessCode = memoizedProps?.accessCode;
-
-        let serverId = null;
-        if (!accessCode) {
-            let rawKey = fiber?.return?.key;
-            if (!rawKey) rawKey = fiber?.key;
-            if (!rawKey) {
-                rawKey = memoizedProps?.id || memoizedProps?.server?.id;
-            }
-
-            if (rawKey && typeof rawKey === 'string') {
-                const candidate = rawKey.startsWith('.')
-                    ? rawKey.slice(1)
-                    : rawKey;
-                const uuidRegex =
-                    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-                if (uuidRegex.test(candidate)) {
-                    serverId = candidate;
-                }
-            }
+        const element = document.querySelector(`[data-rovalra-extraction-id="${extractionId}"]`);
+        if (!element) {
+            window.dispatchEvent(new CustomEvent('rovalra-serverid-extracted', {
+                detail: { extractionId, serverId: null, error: "Element not found" }
+            }));
+            return;
         }
-
-        let isFriendServer = false;
-        const thumbnailTargetId = memoizedProps?.thumbnailTargetId;
-        if (typeof thumbnailTargetId === 'number' && thumbnailTargetId > 0) {
-            isFriendServer = true;
+        
+        if (typeof angular === 'undefined' || !angular.element) {
+            window.dispatchEvent(new CustomEvent('rovalra-serverid-extracted', {
+                detail: { extractionId, serverId: null, error: "Angular not available" }
+            }));
+            return;
         }
-
-        window.dispatchEvent(
-            new CustomEvent('rovalra-serverid-extracted', {
-                detail: {
-                    extractionId,
-                    serverId,
-                    accessCode,
-                    isFriendServer,
-                },
-            }),
-        );
+        
+        const angularElement = angular.element(element);
+        const context = angularElement.context || angularElement[0];
+        
+        if (!context) {
+            window.dispatchEvent(new CustomEvent('rovalra-serverid-extracted', {
+                detail: { extractionId, serverId: null, error: "No context" }
+            }));
+            return;
+        }
+        
+        const contextKeys = Object.keys(context);
+        if (contextKeys.length === 0) {
+            window.dispatchEvent(new CustomEvent('rovalra-serverid-extracted', {
+                detail: { extractionId, serverId: null, error: "Context has no keys" }
+            }));
+            return;
+        }
+        
+        const reactKey = contextKeys.find(key => key.startsWith('__reactFiber')) || contextKeys[0];
+        const AngularInfo = context[reactKey];
+        
+        if (!AngularInfo) {
+            window.dispatchEvent(new CustomEvent('rovalra-serverid-extracted', {
+                detail: { extractionId, serverId: null, error: "No AngularInfo" }
+            }));
+            return;
+        }
+        
+        if (!AngularInfo.return || !AngularInfo.return.memoizedProps) {
+            window.dispatchEvent(new CustomEvent('rovalra-serverid-extracted', {
+                detail: { extractionId, serverId: null, error: "No memoizedProps" }
+            }));
+            return;
+        }
+        
+        const serverProps = AngularInfo.return.memoizedProps;
+        const serverId = serverProps.id;
+        const accessCode = serverProps.accessCode;
+        const privateServerId = serverProps.vipServerId;
+        
+        if (accessCode) {
+            element.setAttribute('data-access-code', accessCode);
+        }
+        
+        if (privateServerId) {
+            element.setAttribute('data-private-server-id', privateServerId);
+        }
+        
+        if (!serverId) {
+            if (accessCode || privateServerId) {
+                window.dispatchEvent(new CustomEvent('rovalra-serverid-extracted', {
+                    detail: { extractionId, serverId: null, accessCode, privateServerId }
+                }));
+                return;
+            }
+            window.dispatchEvent(new CustomEvent('rovalra-serverid-extracted', {
+                detail: { extractionId, serverId: null, error: "No id in props" }
+            }));
+            return;
+        }
+        
+        window.dispatchEvent(new CustomEvent('rovalra-serverid-extracted', {
+            detail: { extractionId, serverId, accessCode, privateServerId }
+        }));
+        
     } catch (e) {
-        console.error('Extraction failed:', e);
-        window.dispatchEvent(
-            new CustomEvent('rovalra-serverid-extracted', {
-                detail: { extractionId, serverId: null, error: e.message },
-            }),
-        );
+        window.dispatchEvent(new CustomEvent('rovalra-serverid-extracted', {
+            detail: { extractionId, serverId: null, error: e.message }
+        }));
     }
 });

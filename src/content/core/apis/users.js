@@ -3,13 +3,11 @@ import { callRobloxApiJson } from '../api.js';
 export const RANKING_STRATEGIES = {
     TC_INFO_BOOST: 'tc_info_boost',
     PROFILE_INFO_BOOST: 'profile_info_boost',
-    NO_INFO_BOOST: '',
 };
 
 export const INSIGHT_CASES = {
     MUTUAL_FRIENDS: 1,
     FRIEND_REQUEST_ORIGIN: 2,
-    OFFLINE_FREQUENTS: 3,
     FRIENDSHIP_AGE: 4,
     AGE_VERIFIED: 5,
     ACCOUNT_CREATION_DATE: 6,
@@ -66,19 +64,6 @@ export async function getFriendshipAge(userId) {
     );
     const seconds = item?.friendshipAgeInsight?.friendsSinceDateTime?.seconds;
     return seconds ? seconds * 1000 : null;
-}
-export async function getOfflineFrequents(userId) {
-    const insights = await getUserInsights(
-        userId,
-        RANKING_STRATEGIES.NO_INFO_BOOST,
-    );
-    const item = insights.find(
-        (i) => i.insightCase === INSIGHT_CASES.OFFLINE_FREQUENTS,
-    );
-    if (!item?.offlineFrequentsInsight) return null;
-    return {
-        havePlayedTogether: item.playedTogetherInsight.havePlayedTogether,
-    };
 }
 
 export async function getFriendRequestOrigin(userId) {
@@ -294,7 +279,6 @@ export default {
     getPlayedTogetherInsight,
     getUserProfileData,
     getProfilePlatformData,
-    getOfflineFrequents,
     INSIGHT_CASES,
     RANKING_STRATEGIES,
     PROFILE_TYPES,

@@ -3,33 +3,22 @@
 const STORAGE_KEY = 'rovalra_oauth_verification';
 const OAUTH_PROGRESS_KEY = 'rovalra_oauth_progress';
 const TOKEN_EXPIRATION_BUFFER_MS = 5 * 60 * 1000;
-const NON_DONATOR_TOKEN_EXPIRY_MS = 30 * 60 * 1000; // 30 minutes
-
 import { callRobloxApi } from '../api.js';
 import { getAuthenticatedUserId } from '../user.js';
 import { shouldUseFallback, getValidFallbackToken } from './fallback.js';
 import { checkUserExistence } from './existenceCheck.js';
-import { getCurrentUserTier } from '../settings/handlesettings.js';
 
 let activeOAuthPromise = null;
 
 export async function init() {
     try {
         console.log('RoValra: Script loaded. Syncing session...');
+        const token = await getValidAccessToken(true);
 
-        const isDonator = getCurrentUserTier() >= 1;
-        if (isDonator) {
-            const token = await getValidAccessToken(true);
-            if (token) {
-                console.log('RoValra: Session synchronized successfully.');
-            } else {
-                console.log('RoValra: No active session or re-auth required.');
-            }
+        if (token) {
+            console.log('RoValra: Session synchronized successfully.');
         } else {
-            await cleanupExpiredNonDonatorTokens();
-            console.log(
-                'RoValra: Non-donator detected, skipped auto OAuth sync.',
-            );
+            console.log('RoValra: No active session or re-auth required.');
         }
     } catch (error) {
         console.error('RoValra: Error during script initialization', error);
@@ -55,32 +44,7 @@ async function getOAuthProgress() {
     return storage[OAUTH_PROGRESS_KEY] || null;
 }
 
-async function cleanupExpiredNonDonatorTokens() {
-    const isDonator = getCurrentUserTier() >= 1;
-    if (isDonator) return;
-
-    const userId = await getAuthenticatedUserId();
-    if (!userId) return;
-
-    const storage = await chrome.storage.local.get(STORAGE_KEY);
-    let allVerifications = storage[STORAGE_KEY] || {};
-
-    if (allVerifications[userId]) {
-        const tokenAge = Date.now() - allVerifications[userId].timestamp;
-        if (tokenAge > NON_DONATOR_TOKEN_EXPIRY_MS) {
-            delete allVerifications[userId];
-            await chrome.storage.local.set({ [STORAGE_KEY]: allVerifications });
-            console.log(
-                'RoValra: Cleaned up expired non-donator token on startup.',
-            );
-        }
-    }
-}
-
-export async function getValidAccessToken(
-    forceRefresh = false,
-    lazyForNonDonators = true,
-) {
+export async function getValidAccessToken(forceRefresh = false) {
     const userId = await getAuthenticatedUserId();
     if (!userId) return null;
 
@@ -91,30 +55,9 @@ export async function getValidAccessToken(
         return await getValidFallbackToken(forceRefresh);
     }
 
-    const isDonator = getCurrentUserTier() >= 1;
-
     const storage = await chrome.storage.local.get(STORAGE_KEY);
     let allVerifications = storage[STORAGE_KEY] || {};
     let storedVerification = allVerifications[userId];
-
-    if (!isDonator && storedVerification) {
-        const tokenAge = Date.now() - storedVerification.timestamp;
-        if (tokenAge > NON_DONATOR_TOKEN_EXPIRY_MS) {
-            delete allVerifications[userId];
-            await chrome.storage.local.set({ [STORAGE_KEY]: allVerifications });
-            storedVerification = null;
-            console.log(
-                'RoValra: Non-donator OAuth token expired and removed.',
-            );
-        }
-    }
-
-    if (!isDonator && lazyForNonDonators && !storedVerification) {
-        console.log(
-            'RoValra: Non-donator lazy mode - skipping OAuth generation until explicitly needed.',
-        );
-        return null;
-    }
 
     if (!storedVerification || !storedVerification.accessToken) {
         const success = await startOAuthFlow(true);
@@ -128,12 +71,6 @@ export async function getValidAccessToken(
     }
 
     if (storedVerification.robloxId != userId) {
-        if (!isDonator && lazyForNonDonators) {
-            delete allVerifications[userId];
-            await chrome.storage.local.set({ [STORAGE_KEY]: allVerifications });
-            return null;
-        }
-
         const success = await startOAuthFlow(true);
         if (success) {
             const newStorage = await chrome.storage.local.get(STORAGE_KEY);
@@ -164,14 +101,6 @@ export async function getValidAccessToken(
             console.warn(
                 `RoValra: Session invalid (Status ${response.status}). Triggering re-auth...`,
             );
-            if (!isDonator && lazyForNonDonators) {
-                delete allVerifications[userId];
-                await chrome.storage.local.set({
-                    [STORAGE_KEY]: allVerifications,
-                });
-                return null;
-            }
-
             const success = await startOAuthFlow(true);
             if (success) {
                 const updated = await chrome.storage.local.get(STORAGE_KEY);
@@ -250,15 +179,10 @@ async function startOAuthFlow(silent = false) {
 
             await saveOAuthProgress('birthdate_checked', { userId });
 
-            const isDonator = getCurrentUserTier() >= 1;
-
-            let userExists = true;
-            if (isDonator) {
-                userExists = await checkUserExistence(userId, callRobloxApi);
-                if (!userExists) {
-                    await clearOAuthProgress();
-                    return false;
-                }
+            const userExists = await checkUserExistence(userId, callRobloxApi);
+            if (!userExists) {
+                await clearOAuthProgress();
+                return false;
             }
 
             await saveOAuthProgress('existence_verified', { userId });
@@ -402,13 +326,8 @@ async function resumeOAuthFlow(userId, progress) {
 
     try {
         if (step === 'birthdate_checked') {
-            const isDonator = getCurrentUserTier() >= 1;
-
-            let userExists = true;
-            if (isDonator) {
-                userExists = await checkUserExistence(userId, callRobloxApi);
-                if (!userExists) return false;
-            }
+            const userExists = await checkUserExistence(userId, callRobloxApi);
+            if (!userExists) return false;
 
             await saveOAuthProgress('existence_verified', { userId });
             return await resumeOAuthFlow(userId, {

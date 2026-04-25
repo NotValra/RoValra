@@ -29,19 +29,17 @@ export const alice_badge_user_id = '48255812';
 export const GILBERT_USER_ID = '146089324'; // WoozyNate
 export const Robux = '1163412141';
 
-export const TRUSTED_USER_IDS = new Set(
-    [
-        CREATOR_USER_ID,
-        ...CONTRIBUTOR_USER_IDS,
-        ...TESTER_USER_IDS,
-        ...TRANSLATOR_USER_IDS,
-        ARTIST_BADGE_USER_ID,
-        RAT_BADGE_USER_ID,
-        BLAHAJ_BADGE_USER_ID,
-        CAM_BADGE_USER_ID,
-        alice_badge_user_id,
-        GILBERT_USER_ID,
-        '1996279003', // Bloodraven (stinky)
-        '129425241', // sky (jailbreak tester *blushes slightly*)
-    ].map((id) => String(id)),
-);
+export const TRUSTED_USER_IDS = [
+    CREATOR_USER_ID,
+    ...CONTRIBUTOR_USER_IDS,
+    ...TESTER_USER_IDS,
+    ...TRANSLATOR_USER_IDS,
+    ARTIST_BADGE_USER_ID,
+    RAT_BADGE_USER_ID,
+    BLAHAJ_BADGE_USER_ID,
+    CAM_BADGE_USER_ID,
+    alice_badge_user_id,
+    GILBERT_USER_ID,
+    '1996279003', // Bloodraven (stinky)
+    '129425241', // sky (jailbreak tester *blushes slightly*)
+].filter(Boolean);

@@ -5,7 +5,11 @@ import { injectStylesheet } from '../../../core/ui/cssInjector.js';
 import { addTooltip } from '../../../core/ui/tooltip.js';
 import { getAuthenticatedUserId } from '../../../core/user.js';
 import { createOverlay } from '../../../core/ui/overlay.js';
-import { updateUserSettingViaApi } from '../../../core/profile/descriptionhandler.js';
+import {
+    updateUserDescription,
+    isTextFiltered,
+    updateUserSettingViaApi,
+} from '../../../core/profile/descriptionhandler.js';
 import { createStyledInput } from '../../../core/ui/catalog/input.js';
 import { getUserSettings } from '../../../core/donators/settingHandler.js';
 import { parseMarkdown } from '../../../core/utils/markdown.js';
@@ -23,6 +27,7 @@ import {
     syncDonatorTier,
     getCurrentUserTier,
 } from '../../../core/settings/handlesettings.js';
+const STATUS_PREFIX = 's:';
 const MAX_STATUS_LENGTH = 128;
 let activeHomeStatusBubble = null;
 
@@ -84,7 +89,7 @@ DOMPurify.addHook('afterSanitizeAttributes', (currentNode) => {
     }
 });
 
-function openEditStatusOverlay(currentStatus, onSave, isTrusted) {
+function openEditStatusOverlay(currentStatus, onSave, canUseApi, isTrusted) {
     const container = document.createElement('div');
     Object.assign(container.style, {
         display: 'flex',
@@ -105,12 +110,24 @@ function openEditStatusOverlay(currentStatus, onSave, isTrusted) {
 
     container.appendChild(inputContainer);
 
+    const helpText = document.createElement('p');
+    helpText.className = 'text-description';
+    helpText.textContent =
+        'This will add a string starting with "s:" to your Roblox about me.';
+    Object.assign(helpText.style, {
+        marginTop: '-8px',
+        fontSize: '12px',
+    });
+    if (!canUseApi) {
+        container.appendChild(helpText);
+    }
+
     if (isTrusted) {
         const trustedHelpText = document.createElement('p');
         trustedHelpText.className = 'text-description';
         trustedHelpText.innerHTML = DOMPurify.sanitize(`
             You are a trusted RoValra user, you can add any text, embed videos, and images.
-            <br>Only embed images and videos if you have at least donator tier 1.
+            <br>Only embed images and videos if you have at least donator tier 1. Without Donator tier 1 it will add the text to your description.
             <br>
             <strong>Note:</strong> If you are found to add inappropriate content, your donator and custom badges will be revoked.
         `);
@@ -165,6 +182,10 @@ function openEditStatusOverlay(currentStatus, onSave, isTrusted) {
             errorDisplay.textContent =
                 'Failed to save status. It may have been censored. No changes were applied.';
             errorDisplay.style.display = 'block';
+        } else if (result === 'limit_exceeded') {
+            errorDisplay.textContent =
+                'Unable to add a status, your about me has max characters. No changes were applied.';
+            errorDisplay.style.display = 'block';
         } else if (result === false) {
             errorDisplay.textContent =
                 'An unknown error occurred while saving. No changes were applied.';
@@ -173,14 +194,14 @@ function openEditStatusOverlay(currentStatus, onSave, isTrusted) {
     };
 }
 
-async function addStatusBubble(avatarContainer) {
+async function addStatusBubble(avatarContainer, userWantsApi) {
     if (avatarContainer.querySelector('.rovalra-status-bubble-wrapper')) return;
 
     try {
         const userId = getUserIdFromUrl();
         if (!userId) return;
 
-        const isUserTrusted = TRUSTED_USER_IDS.has(String(userId));
+        const isUserTrusted = TRUSTED_USER_IDS.includes(String(userId));
 
         const authenticatedUserId = await getAuthenticatedUserId();
         const isOwnProfile =
@@ -191,9 +212,11 @@ async function addStatusBubble(avatarContainer) {
             disableVideoAudio: false,
         });
 
-        const profileSettings = await getUserSettings(userId);
+        const profileSettings = await getUserSettings(userId, {
+            useDescription: true,
+        });
 
-        const { status } = profileSettings;
+        const { status, canUseApi } = profileSettings;
         let statusText = status;
 
         if (!statusText && !isOwnProfile) return;
@@ -300,30 +323,133 @@ async function addStatusBubble(avatarContainer) {
 
             bubble.addEventListener('click', (e) => {
                 e.stopPropagation();
-                const isTrusted = TRUSTED_USER_IDS.has(
+                const isDonator = getCurrentUserTier() >= 1;
+                const isTrusted = TRUSTED_USER_IDS.includes(
                     String(authenticatedUserId),
                 );
                 openEditStatusOverlay(
                     statusText === '...' ? '' : statusText,
                     async (newStatus) => {
-                        try {
-                            const updatedValue = await updateUserSettingViaApi(
-                                'status',
-                                newStatus,
-                            );
-                            if (typeof updatedValue === 'string') {
-                                updateBubbleUI(updatedValue);
-                                return true;
-                            }
+                        const effectiveCanUseApi = isDonator && userWantsApi;
+                        if (
+                            newStatus &&
+                            !isTrusted &&
+                            (await isTextFiltered(newStatus))
+                        ) {
                             return 'failed';
-                        } catch (error) {
-                            console.error(
-                                'RoValra: Failed to update status via API.',
-                                error,
-                            );
-                            return false;
+                        }
+
+                        if (effectiveCanUseApi) {
+                            try {
+                                const response = await updateUserSettingViaApi(
+                                    'status',
+                                    newStatus,
+                                );
+                                if (response) {
+                                    updateBubbleUI(newStatus);
+                                    return true;
+                                }
+                                return 'failed';
+                            } catch (error) {
+                                console.error(
+                                    'RoValra: Failed to update status via API.',
+                                    error,
+                                );
+                                return false;
+                            }
+                        } else {
+                            try {
+                                const currentDescription = await (async () => {
+                                    const { getUserDescription } =
+                                        await import('../../../core/profile/descriptionhandler.js');
+                                    return await getUserDescription(userId);
+                                })();
+                                if (currentDescription === null) return false;
+
+                                let newDescription;
+                                const lines = currentDescription.split('\n');
+
+                                if (newStatus) {
+                                    const statusLine = `${STATUS_PREFIX}${newStatus}`;
+                                    let statusFound = false;
+
+                                    const newLines = [];
+                                    for (const line of lines) {
+                                        if (
+                                            line
+                                                .trim()
+                                                .startsWith(STATUS_PREFIX)
+                                        ) {
+                                            if (!statusFound) {
+                                                newLines.push(statusLine);
+                                                statusFound = true;
+                                            }
+                                        } else {
+                                            newLines.push(line);
+                                        }
+                                    }
+
+                                    if (!statusFound) {
+                                        const lastLineIndex =
+                                            newLines.length - 1;
+                                        if (
+                                            lastLineIndex >= 0 &&
+                                            newLines[lastLineIndex].trim() ===
+                                                ''
+                                        ) {
+                                            newLines[lastLineIndex] =
+                                                statusLine;
+                                        } else {
+                                            if (currentDescription.trim()) {
+                                                newLines.push(statusLine);
+                                            } else {
+                                                newLines[0] = statusLine;
+                                            }
+                                        }
+                                    }
+
+                                    newDescription = newLines.join('\n');
+
+                                    if (newDescription.length > 1000) {
+                                        return 'limit_exceeded';
+                                    }
+                                } else {
+                                    const newLines = lines.filter(
+                                        (line) =>
+                                            !line
+                                                .trim()
+                                                .startsWith(STATUS_PREFIX),
+                                    );
+                                    newDescription = newLines
+                                        .join('\n')
+                                        .trimEnd();
+                                }
+
+                                const result = await updateUserDescription(
+                                    userId,
+                                    newDescription,
+                                );
+
+                                if (result === 'Filtered') {
+                                    return 'failed';
+                                }
+
+                                if (result !== true) {
+                                    return false;
+                                }
+
+                                updateBubbleUI(newStatus);
+                                return true;
+                            } catch (error) {
+                                console.error(
+                                    'RoValra: Failed to update status.',
+                                    error,
+                                );
+                                return false;
+                            }
                         }
                     },
+                    isDonator && userWantsApi,
                     isTrusted,
                 );
             });
@@ -374,7 +500,9 @@ async function addHomeStatusHover(tile) {
                         authenticatedUserId &&
                         String(authenticatedUserId) === String(userId);
 
-                    const settings = await getUserSettings(userId);
+                    const settings = await getUserSettings(userId, {
+                        useDescription: true,
+                    });
 
                     const { status } = settings;
 
@@ -388,7 +516,7 @@ async function addHomeStatusHover(tile) {
                                 '...';
                         }
 
-                        const isUserTrusted = TRUSTED_USER_IDS.has(
+                        const isUserTrusted = TRUSTED_USER_IDS.includes(
                             String(userId),
                         );
 
@@ -480,6 +608,7 @@ export function init() {
         {
             statusBubbleEnabled: true,
             statusBubbleHomePage: true,
+            statusBubbleUseApi: true,
             disableVideoAudio: false,
         },
         (settings) => {
@@ -492,9 +621,11 @@ export function init() {
                 );
                 const selector =
                     '.user-profile-header-details-avatar-container';
-                observeElement(selector, (el) => addStatusBubble(el), {
-                    multiple: true,
-                });
+                observeElement(
+                    selector,
+                    (el) => addStatusBubble(el, settings.statusBubbleUseApi),
+                    { multiple: true },
+                );
 
                 if (settings.statusBubbleHomePage) {
                     observeElement(

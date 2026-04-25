@@ -564,7 +564,6 @@
         "originProfileShare": "Profile Share",
         "originPhoneContacts": "Phone Contacts",
         "originPeopleYouMayKnow": "People You May Know",
-        "originFriendLink": "Friend Link",
         "originUnknown": "Unknown"
     },
     "lastPlayed": {
@@ -744,12 +743,5 @@
     "friendsListOverlay": {
         "title": "Friends playing {{gameName}}",
         "join": "Join"
-    },
-    "placeVisits": {
-        "label": "{{count}} Place Visits",
-        "tooltip": "Total Community Place Visits"
-    },
-    "groups": {
-        "createdLabel": "Created"
     }
 }

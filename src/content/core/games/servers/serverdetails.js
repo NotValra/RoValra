@@ -188,7 +188,7 @@ export function getFullLocationName(data) {
 }
 
 function formatUptimeString(seconds) {
-    if (seconds < 0) return null;
+    if (seconds < 60) return null;
     const days = Math.floor(seconds / 86400);
     const hours = Math.floor((seconds % 86400) / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
@@ -197,7 +197,7 @@ function formatUptimeString(seconds) {
     if (days > 0) parts.push(`${days}d`);
     if (hours > 0) parts.push(`${hours}h`);
     if (minutes > 0) parts.push(`${minutes}m~`);
-    return parts.join(' ') || '1m~';
+    return parts.join(' ') || '0m~';
 }
 
 function normalizeText(s) {
@@ -288,28 +288,11 @@ export function getOrCreateDetailsContainer(server) {
     if (statusNode && statusNode.parentNode) {
         statusNode.parentNode.insertBefore(container, statusNode.nextSibling);
     } else {
-        const modernLeftWrapper = server.querySelector(
-            '.flex.items-center.gap-medium.min-width-0',
+        const detailsParent = server.querySelector(
+            '.rbx-game-server-details, .rbx-friends-game-server-details',
         );
-        const detailsParent =
-            modernLeftWrapper ||
-            server.querySelector(
-                '.rbx-game-server-details, .rbx-friends-game-server-details',
-            );
-
         if (detailsParent) {
-            if (modernLeftWrapper) {
-                const column = detailsParent.querySelector(
-                    '.flex.flex-col.min-width-0',
-                );
-                if (column) {
-                    column.appendChild(container);
-                } else {
-                    detailsParent.appendChild(container);
-                }
-            } else {
-                detailsParent.prepend(container);
-            }
+            detailsParent.prepend(container);
         } else {
             server.appendChild(container);
         }
@@ -342,6 +325,11 @@ function updateInfoElement(container, type, iconHTML, text, isVisible = true) {
     const className = CLASSES[type];
     let element = container.querySelector(`.${className}`);
 
+    if (!isVisible) {
+        if (element) element.style.display = 'none';
+        return;
+    }
+
     if (!element) {
         element = createInfoElement(className, iconHTML, text);
         const orderIndex = ORDERS[type] || ORDERS.Status;
@@ -357,14 +345,7 @@ function updateInfoElement(container, type, iconHTML, text, isVisible = true) {
     if (iconWrapper) iconWrapper.innerHTML = iconHTML;
     if (textWrapper) textWrapper.textContent = text;
 
-    if (!isVisible) {
-        element.style.display = 'none';
-        element.style.visibility = 'visible';
-    } else {
-        element.style.display = 'flex';
-        element.style.visibility = 'visible';
-    }
-
+    element.style.display = 'flex';
     return element;
 }
 
@@ -448,17 +429,18 @@ export function displayUptime(server, uptime, serverLocations = {}) {
     if (serverLocations[server.dataset.rovalraServerid] === 'private') return;
 
     const container = getOrCreateDetailsContainer(server);
-    let text = '1m~';
-    let visible = true;
+    let text = 'Unknown';
+    let visible = false;
 
     if (uptime === 'fetching') {
         text = 'Loading...';
+        visible = true;
     } else if (typeof uptime === 'number') {
-        text = formatUptimeString(uptime) || '1m~';
-    } else if (uptime === 'N/A') {
-        text = '1m~';
-    } else {
-        visible = false;
+        const fmt = formatUptimeString(uptime);
+        if (fmt) {
+            text = fmt;
+            visible = true;
+        }
     }
 
     updateInfoElement(container, 'Uptime', ICONS.uptime, text, visible);
@@ -720,24 +702,24 @@ export async function fetchServerUptime(
         validIds
             .filter((id) => !foundIds.has(id))
             .forEach((id) => {
-                serverUptimes[id] = 60;
+                serverUptimes[id] = 'N/A';
 
                 const matchingEls = document.querySelectorAll(
                     `[data-rovalra-serverid="${id}"]`,
                 );
                 matchingEls.forEach((el) => {
-                    displayUptime(el, 60, serverLocations);
+                    displayUptime(el, 'N/A', serverLocations);
                     if (!serverLocations[id]) displayServerFullStatus(el);
                 });
             });
     } catch (e) {
         validIds.forEach((id) => {
-            serverUptimes[id] = 60;
+            serverUptimes[id] = 'N/A';
             const matchingEls = document.querySelectorAll(
                 `[data-rovalra-serverid="${id}"]`,
             );
             matchingEls.forEach((el) => {
-                displayUptime(el, 60, serverLocations);
+                displayUptime(el, 'N/A', serverLocations);
             });
         });
     }
@@ -1119,7 +1101,6 @@ export async function enhanceServer(server, context) {
             idDiv.className = 'server-id-text text-info xsmall';
 
             const appendTarget =
-                server.querySelector('.rovalra-share-btn-container') ||
                 server.querySelector('.rovalra-copy-join-link') ||
                 server.querySelector('.game-server-join-btn');
             appendTarget
@@ -1140,9 +1121,8 @@ export async function enhanceServer(server, context) {
         const uuidSpan = document.createElement('span');
         uuidSpan.textContent = serverId;
 
-        const hasFriendLink = server.hasAttribute(
-            'data-rovalra-is-friend-server',
-        );
+        const hasFriendLink =
+            server.querySelector('.avatar-card-link') !== null;
         if (hasFriendLink) {
             uuidSpan.classList.add('show-on-hover');
         }

@@ -538,22 +538,3 @@ export function renderAvatarThumbnail(userId) {
         finalUpdate: fetchRender(),
     };
 }
-
-export async function fetchPromotionalThumbnails(universeId) {
-    try {
-        const response = await callRobloxApi({
-            subdomain: 'thumbnails',
-            endpoint: `/v1/games/multiget/thumbnails?universeIds=${universeId}&countPerUniverse=100&defaults=true&size=768x432&format=Png&isCircular=false`,
-        });
-
-        if (response.ok) {
-            const data = await response.json();
-            const thumbnails = data.data?.[0]?.thumbnails || [];
-            thumbnails.forEach((t) => (t.thumbnailType = 'GameThumbnail'));
-            return thumbnails;
-        }
-    } catch (e) {
-        console.error('RoValra Thumbnails: Promotional fetch failed', e);
-    }
-    return [];
-}
