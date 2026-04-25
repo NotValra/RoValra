@@ -5,12 +5,18 @@ export function createPill(text, tooltipText, options = {}) {
         options = { type: options };
     }
 
-    const { type, isButton = false, iconUrl } = options;
+    const { type, isButton = false, iconUrl, size } = options;
+    const isSmall = size === 'small';
 
     if (!type) {
         const pill = document.createElement('div');
-        const baseClasses =
-            'relative clip flex justify-center items-center radius-circle stroke-none padding-left-medium padding-right-medium height-800 text-label-medium bg-shift-300 content-action-utility';
+
+        const heightClass = isSmall ? 'padding-y-xsmall' : 'height-800';
+        const textClass = isSmall ? 'text-caption-medium' : 'text-label-medium';
+        const bgClass = isSmall ? 'bg-surface-300' : 'bg-shift-300';
+        const utilityClass = isSmall ? '' : 'content-action-utility';
+
+        const baseClasses = `relative clip flex justify-center items-center radius-circle stroke-none padding-left-medium padding-right-medium ${heightClass} ${textClass} ${bgClass} ${utilityClass}`;
         const buttonClasses =
             'group/interactable focus-visible:outline-focus disabled:outline-none cursor-pointer';
         pill.className = isButton
@@ -39,7 +45,7 @@ export function createPill(text, tooltipText, options = {}) {
             pill.appendChild(img);
         }
         const content = document.createElement('span');
-        content.className = 'padding-y-xsmall text-no-wrap text-truncate-end';
+        content.className = `${isSmall ? '' : 'padding-y-xsmall'} text-no-wrap text-truncate-end`;
         if (typeof text === 'string' || typeof text === 'number') {
             content.textContent = text;
         } else if (text instanceof Node) {

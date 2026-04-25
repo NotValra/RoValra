@@ -190,6 +190,13 @@ export const SETTINGS_CONFIG = {
                     },
                 },
             },
+            EnableImprovedEvents: {
+                label: 'Improved Events',
+                description:
+                    'This allows you to view past events on experiences and how many are going.',
+                type: 'checkbox',
+                default: true,
+            },
             EnableGameTrailer: {
                 label: 'Experience Trailer',
                 description: [
@@ -573,6 +580,13 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
+            groupRoleEnabled: {
+                label: 'Show Community Roles',
+                description:
+                    'Shows a users role in a community on their profile.',
+                type: 'checkbox',
+                default: true,
+            },
 
             showFriendedFromEnabled: {
                 label: 'Show Friended From',
@@ -622,16 +636,6 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
                 childSettings: {
-                    statusBubbleUseApi: {
-                        label: 'Use RoValra API for Status',
-                        description:
-                            "Uses RoValra's API to save your status instead of your 'About Me' section.",
-                        type: 'checkbox',
-                        default: true,
-                        donatorTier: 1,
-                        donatorReason:
-                            'Donator 1 is required since RoValra doesnt have the resources to track the 200k+ user settings.',
-                    },
                     statusBubbleHomePage: {
                         label: 'Status bubble for friends on home page, and other parts of the site where friends might show.',
                         type: 'checkbox',
@@ -796,6 +800,8 @@ export const SETTINGS_CONFIG = {
                 experimental: 'Takes ages since Roblox has heavy rate limits.',
                 type: 'checkbox',
                 default: true,
+                locked: "This broke in a UI update, it wasn' that good to begin with cuz of rate limits",
+                isPermanent: false,
             },
             QuickActionsEnabled: {
                 label: 'Quick Actions',
@@ -804,6 +810,8 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
+                locked: "This broke in a UI update, it wasn' that good to begin with cuz of rate limits",
+                isPermanent: false,
             },
             draggableGroupsEnabled: {
                 label: 'Draggable Communities',
@@ -815,6 +823,22 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
                 storageKey: 'rovalra_groups_order',
+            },
+            groupPlaceVisitsEnabled: {
+                label: 'Total Community Place Visits',
+                description: [
+                    "Shows the total number of visits across all of a community's experiences in the insights section.",
+                ],
+                type: 'checkbox',
+                default: true,
+            },
+            groupCreateDateEnabled: {
+                label: 'Community Creation Date',
+                description: [
+                    'Shows when a community was created in its header.',
+                ],
+                type: 'checkbox',
+                default: true,
             },
         },
     },
@@ -1697,6 +1721,15 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: false,
+            },
+            localStorageUsage: {
+                label: 'Show Local Storage Usage',
+                description: [
+                    "Displays the total storage used by RoValra in Chrome's local storage.",
+                ],
+                type: 'button',
+                buttonText: 'Calculate Storage',
+                event: 'rovalra:showLocalStorageUsage',
             },
         },
     },

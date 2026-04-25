@@ -78,7 +78,7 @@ async function loadAndRenderHeatmap(placeId, parentElement) {
     const metaData = document.getElementById('game-detail-meta-data');
     const universeId = metaData?.dataset.universeId;
 
-    const checkBlocking = async () => {
+    const checkBlocking = async (hasHistoryData) => {
         let blockingMessage = null;
 
         if (universeId) {
@@ -203,22 +203,25 @@ async function loadAndRenderHeatmap(placeId, parentElement) {
         return false;
     };
 
-    checkBlocking().then((isBlocked) => {
-        if (isBlocked) return;
-
-        callRobloxApiJson({
+    try {
+        const data = await callRobloxApiJson({
             isRovalraApi: true,
             endpoint: `/v1/games/history?place_id=${placeId}`,
             method: 'GET',
-        })
-            .then((data) => {
-                const historyData = data && data.history ? data.history : [];
-                if (heatmapElement._updateData) {
-                    heatmapElement._updateData(historyData);
-                }
-            })
-            .catch((error) => {
-                console.error('RoValra: Failed to load heatmap data', error);
-            });
-    });
+        });
+        const historyData = data?.history || [];
+
+        if (historyData.length > 0) {
+            if (heatmapElement._updateData) {
+                heatmapElement._updateData(historyData);
+            }
+        } else {
+            const isBlocked = await checkBlocking(false);
+            if (!isBlocked && heatmapElement._updateData) {
+                heatmapElement._updateData(historyData);
+            }
+        }
+    } catch (error) {
+        console.error('RoValra: Failed to load heatmap data', error);
+    }
 }

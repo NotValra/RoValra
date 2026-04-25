@@ -1068,6 +1068,18 @@ export async function handlePermissionToggle(event) {
     await updateAllPermissionToggles();
 }
 
+function formatBytes(bytes, decimals = 2) {
+    if (bytes === 0) return '0 Bytes';
+
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+}
+
 export function initializeSettingsEventListeners() {
     document.addEventListener('rovalra:open40methodSetup', () => {
         createAndShowPopup(() => {
@@ -1325,6 +1337,20 @@ export function initializeSettingsEventListeners() {
         };
 
         input.click();
+    });
+
+    document.addEventListener('rovalra:showLocalStorageUsage', async () => {
+        chrome.storage.local.get(null, (items) => {
+            let totalBytes = 0;
+            for (const key in items) {
+                if (Object.prototype.hasOwnProperty.call(items, key)) {
+                    const item = items[key];
+                    const itemSize = JSON.stringify(item).length;
+                    totalBytes += itemSize;
+                }
+            }
+            alert(`Total Local Storage Used: ${formatBytes(totalBytes)}`);
+        });
     });
 
     chrome.runtime.onMessage.addListener((request) => {

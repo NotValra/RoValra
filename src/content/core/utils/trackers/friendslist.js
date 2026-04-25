@@ -34,6 +34,8 @@ export function getFriendRequestOriginText(originId) {
             return `${fromText} ${ts('friendsSince.originProfileShare')}`;
         case 8: // PHONE_CONTACT_IMPORTER
             return `${fromText} ${ts('friendsSince.originPhoneContacts')}`;
+        case 9: // Friend Token.
+            return `${fromText} ${ts('friendsSince.originFriendLink')}`;
         case 10: // FRIEND_RECOMMENDATIONS
             return `${fromText} ${ts('friendsSince.originPeopleYouMayKnow')}`;
         default:
