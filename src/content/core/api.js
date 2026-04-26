@@ -4,6 +4,7 @@ import { getCsrfToken } from './utils.js';
 import { getAuthenticatedUserId } from './user.js';
 import { getValidAccessToken } from './oauth/oauth.js';
 import { getValidApiKey, invalidateApiKey } from './utils/trackers/apiKey.js';
+import { showSystemAlert } from './ui/roblox/alert.js';
 
 import { updateUserLocationIfChanged } from './utils/location.js';
 const activeRequests = new Map();
@@ -628,6 +629,22 @@ export async function callRobloxApiJson(options) {
         const errorBody = await response
             .json()
             .catch(() => ({ message: 'Could not parse error response' }));
+
+        if (options.isRovalraApi) {
+            const message = errorBody?.message || errorBody?.error;
+            if (
+                message ===
+                    'This feature has been disabled for your account due to moderation.' ||
+                message ===
+                    'Your account has been suspended for violating terms of service.'
+            ) {
+                showSystemAlert(
+                    'This feature has been disabled due to your violation of the RoValra terms of service.',
+                    'warning',
+                );
+            }
+        }
+
         const error = new Error(
             `API request failed with status ${response.status}`,
         );

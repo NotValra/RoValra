@@ -96,9 +96,10 @@ export async function buildSettingsPage({
         buttonData
             .filter(
                 (item) =>
-                    item.text === 'Info' ||
-                    item.text === 'Credits' ||
-                    item.text === 'Donator Perks',
+                    item.id === 'info' ||
+                    item.id === 'credits' ||
+                    item.id === 'donatorPerks' ||
+                    item.id === 'accountStanding',
             )
             .forEach((item) => {
                 dropdownItems.push({
@@ -231,6 +232,11 @@ export async function buildSettingsPage({
 
 function stripInlineStyles(container) {
     if (!container) return;
+
+    if (container.querySelector('#settings-content')) {
+        return;
+    }
+
     const selectors = [
         '.setting',
         '.setting-description',
@@ -316,9 +322,10 @@ function createUnifiedMenu({
 
     const staticItems = buttonData.filter(
         (item) =>
-            item.text === 'Info' ||
-            item.text === 'Credits' ||
-            item.text === 'Donator Perks',
+            item.id === 'info' ||
+            item.id === 'credits' ||
+            item.id === 'donatorPerks' ||
+            item.id === 'accountStanding',
     );
     staticItems.forEach((item) => {
         const listItem = document.createElement('li');

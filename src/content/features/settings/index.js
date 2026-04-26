@@ -33,6 +33,9 @@ import DOMPurify from 'dompurify';
 import { BADGE_CONFIG } from '../../core/configs/badges.js';
 import { ts } from '../../core/locale/i18n.js';
 import { CONTRIBUTOR_USER_IDS } from '../../core/configs/userIds.js';
+import { createOverlay } from '../../core/ui/overlay.js';
+import { createInteractiveTimestamp } from '../../core/ui/time/time.js';
+import { createStyledInput } from '../../core/ui/catalog/input.js';
 import { getAuthenticatedUserId } from '../../core/user.js';
 import { parseMarkdown } from '../../core/utils/markdown.js';
 import { getCurrentTheme, THEME_CONFIG } from '../../core/theme.js';
@@ -47,6 +50,23 @@ import { getUserSettings } from '../../core/donators/settingHandler.js';
 
 const assets = getAssets();
 let REGIONS = {};
+
+const RESTRICTION_LEVELS = [
+    'None / No restrictions',
+    'Limited',
+    'Very Limited',
+    'At Risk',
+    'Suspended',
+];
+const APPEAL_STATUSES = [
+    'Not appealed',
+    'Appeal Pending',
+    'Appeal Denied',
+    'Appeal Accepted',
+];
+
+let standingCache = null;
+let topDonatorsCache = null;
 
 function debounce(func, wait) {
     let timeout;
@@ -445,6 +465,22 @@ async function loadTopDonators() {
     );
     if (!container) return;
 
+    if (topDonatorsCache) {
+        if (toggleContainer && topDonatorsCache.authedDonorInfo) {
+            renderAnonToggleArea(
+                toggleContainer,
+                topDonatorsCache.authedDonorInfo,
+            );
+        }
+        renderTopDonators(
+            container,
+            topDonatorsCache.donators,
+            topDonatorsCache.thumbMap,
+            topDonatorsCache.currentUserId,
+        );
+        return;
+    }
+
     try {
         const response = await callRobloxApi({
             isRovalraApi: true,
@@ -475,13 +511,13 @@ async function loadTopDonators() {
 
         const authenticatedUserId = await getAuthenticatedUserId();
         const userTier = getCurrentUserTier();
+        let authedDonorInfo = null;
 
         if (authenticatedUserId && userTier >= 1 && toggleContainer) {
             try {
                 const settings = await getUserSettings(authenticatedUserId, {
                     noCache: true,
                 });
-                const isAnonymous = settings.anonymous_leaderboard === true;
 
                 const userResponse = await callRobloxApi({
                     subdomain: 'users',
@@ -496,44 +532,13 @@ async function loadTopDonators() {
                         'AvatarHeadshot',
                         '60x60',
                     );
-                    const thumbData = thumbs[0];
-
-                    toggleContainer.innerHTML = '';
-                    toggleContainer.style.cssText =
-                        'display: flex; align-items: center; gap: 8px; background-color: var(--rovalra-container-background-color, rgba(0,0,0,0.1)); padding: 4px 10px; border-radius: 20px; border: 1px solid var(--rovalra-border-color);';
-
-                    const thumb = createThumbnailElement(
-                        thumbData,
-                        userData.name,
-                        '',
-                        {
-                            width: '24px',
-                            height: '24px',
-                            borderRadius: '50%',
-                        },
-                    );
-
-                    const nameSpan = document.createElement('span');
-                    nameSpan.textContent =
-                        userData.displayName || userData.name;
-                    nameSpan.style.cssText =
-                        'color: var(--rovalra-main-text-color); font-size: 12px; font-weight: 600;';
-
-                    const toggle = createAnonymousToggle(
-                        isAnonymous,
-                        async (e) => {
-                            e.preventDefault();
-                            const success = await updateUserSettingViaApi(
-                                'anonymous_leaderboard',
-                                !isAnonymous,
-                            );
-                            if (success) {
-                                loadTopDonators();
-                            }
-                        },
-                    );
-
-                    toggleContainer.append(thumb, nameSpan, toggle);
+                    authedDonorInfo = {
+                        userId: authenticatedUserId,
+                        name: userData.displayName || userData.name,
+                        thumb: thumbs[0],
+                        isAnonymous: settings.anonymous_leaderboard === true,
+                    };
+                    renderAnonToggleArea(toggleContainer, authedDonorInfo);
                 }
             } catch (error) {
                 console.error(
@@ -543,11 +548,48 @@ async function loadTopDonators() {
             }
         }
 
+        topDonatorsCache = {
+            donators,
+            thumbMap,
+            currentUserId: authenticatedUserId,
+            authedDonorInfo,
+        };
         renderTopDonators(container, donators, thumbMap, authenticatedUserId);
     } catch (err) {
         console.error('RoValra: Error loading top donators', err);
         container.innerHTML = '';
     }
+}
+
+function renderAnonToggleArea(container, info) {
+    container.innerHTML = '';
+    container.style.cssText =
+        'display: flex; align-items: center; gap: 8px; background-color: var(--rovalra-container-background-color, rgba(0,0,0,0.1)); padding: 4px 10px; border-radius: 20px; border: 1px solid var(--rovalra-border-color);';
+
+    const thumb = createThumbnailElement(info.thumb, info.name, '', {
+        width: '24px',
+        height: '24px',
+        borderRadius: '50%',
+    });
+
+    const nameSpan = document.createElement('span');
+    nameSpan.textContent = info.name;
+    nameSpan.style.cssText =
+        'color: var(--rovalra-main-text-color); font-size: 12px; font-weight: 600;';
+
+    const toggle = createAnonymousToggle(info.isAnonymous, async (e) => {
+        e.preventDefault();
+        const success = await updateUserSettingViaApi(
+            'anonymous_leaderboard',
+            !info.isAnonymous,
+        );
+        if (success) {
+            topDonatorsCache = null; // Force refetch to update leaderboard
+            loadTopDonators();
+        }
+    });
+
+    container.append(thumb, nameSpan, toggle);
 }
 
 export const buttonData = [
@@ -731,6 +773,21 @@ export const buttonData = [
         },
     },
     {
+        id: 'accountStanding',
+        get text() {
+            return ts('settings.tabs.accountStanding');
+        },
+        get content() {
+            return `
+            <div style="padding: 8px;">
+                <h2 style="margin-bottom: 15px; color: var(--rovalra-main-text-color) !important;">${ts('settings.tabs.accountStanding') || 'Account Standing'}</h2>
+                <div id="rovalra-account-standing-container">
+                    <div style="color: var(--rovalra-secondary-text-color);">${ts('settings.credits.loadingContributors')}</div>
+                </div>
+            </div>`;
+        },
+    },
+    {
         id: 'settings',
         get text() {
             return ts('settings.tabs.settings');
@@ -744,6 +801,310 @@ export const buttonData = [
         },
     },
 ];
+
+function openAppealOverlay(onSave) {
+    const container = document.createElement('div');
+    Object.assign(container.style, {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '12px',
+        paddingTop: '5px',
+        alignItems: 'center',
+    });
+
+    const { container: inputContainer, input } = createStyledInput({
+        id: 'rovalra-appeal-message-input',
+        label: 'Enter your appeal message (20-3000 characters)',
+        value: '',
+        multiline: true,
+    });
+    inputContainer.style.width = '100%';
+    input.minLength = 20;
+    input.maxLength = 3000;
+
+    container.appendChild(inputContainer);
+
+    const errorDisplay = document.createElement('p');
+    errorDisplay.className = 'text-error';
+    Object.assign(errorDisplay.style, {
+        display: 'none',
+        marginTop: '-4px',
+        marginBottom: '0',
+    });
+    container.appendChild(errorDisplay);
+
+    const submitBtn = document.createElement('button');
+    submitBtn.className = 'btn-primary-md';
+    submitBtn.textContent = 'Submit Appeal';
+
+    const cancelBtn = document.createElement('button');
+    cancelBtn.className = 'btn-control-md';
+    cancelBtn.textContent = 'Cancel';
+
+    const { close } = createOverlay({
+        title: 'Submit Appeal',
+        bodyContent: container,
+        actions: [cancelBtn, submitBtn],
+        maxWidth: '450px',
+        preventBackdropClose: true,
+    });
+
+    cancelBtn.onclick = close;
+    submitBtn.onclick = async () => {
+        const appealMessage = input.value.trim();
+        if (appealMessage.length < 20 || appealMessage.length > 3000) {
+            errorDisplay.textContent =
+                'Appeal message must be between 20 and 3000 characters.';
+            errorDisplay.style.display = 'block';
+            return;
+        }
+        submitBtn.disabled = true;
+        const success = await onSave(appealMessage);
+        if (success) {
+            close();
+            const standingContainer = document.getElementById(
+                'rovalra-account-standing-container',
+            );
+            if (standingContainer) renderAccountStanding(standingContainer);
+        } else {
+            submitBtn.disabled = false;
+            errorDisplay.textContent =
+                'Failed to submit appeal. Please try again.';
+            errorDisplay.style.display = 'block';
+        }
+    };
+}
+
+async function renderAccountStanding(container) {
+    container.innerHTML = '';
+
+    const levels = [
+        { label: 'All Good', color: '#23a55a' },
+        { label: 'Limited', color: '#f0b232' },
+        { label: 'Very Limited', color: '#f26522' },
+        { label: 'At Risk', color: '#f23f43' },
+        { label: 'Suspended', color: '#8b0000' },
+    ];
+
+    const discordCard = document.createElement('div');
+    discordCard.style.cssText =
+        'background-color: var(--rovalra-container-background-color); border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 24px;';
+    container.appendChild(discordCard);
+
+    // Initial instant render assuming good standing
+    discordCard.innerHTML = DOMPurify.sanitize(`
+        <div style="display: flex; align-items: flex-start; gap: 20px;">
+            <div class="standing-status-icon-bg" style="width: 48px; height: 48px; border-radius: 50%; background-color: #23a55a; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background-color 0.3s;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+                    <path class="standing-status-icon-path" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                </svg>
+            </div>
+            <div style="flex: 1;">
+                <h3 class="standing-status-title" style="margin: 0 0 8px 0; font-size: 18px; color: var(--rovalra-main-text-color);">Your account is in good standing.</h3>
+                <p class="standing-status-desc" style="margin: 0; font-size: 14px; color: var(--rovalra-secondary-text-color); line-height: 1.5;">You do not have any active violations or restrictions from the RoValra safety team.</p>
+            </div>
+        </div>
+        <div style="padding: 20px 10px 40px 10px; border-radius: 8px; margin-top: 10px;">
+            <div style="height: 12px; background: rgba(128,128,128,0.2); border-radius: 6px; position: relative; margin-bottom: 25px;">
+                <div class="standing-status-fill" style="position: absolute; left: 0; top: 0; height: 100%; width: 0%; background: #23a55a; border-radius: 6px; transition: width 0.5s ease, background-color 0.3s;"></div>
+                ${levels
+                    .map((level, index) => {
+                        const leftPos = (index / (levels.length - 1)) * 100;
+                        return `
+                        <div class="standing-status-dot" data-index="${index}" style="position: absolute; left: ${leftPos}%; top: 50%; transform: translate(-50%, -50%); width: 20px; height: 20px; border-radius: 50%; background: ${index === 0 ? level.color : '#4f545c'}; border: 4px solid var(--rovalra-container-background-color); z-index: 2; transition: background 0.3s;"></div>
+                        <div class="standing-status-label" data-index="${index}" style="font-size: 10px; text-transform: uppercase; font-weight: 800; color: ${index === 0 ? 'var(--rovalra-main-text-color)' : 'var(--rovalra-secondary-text-color)'}; opacity: ${index === 0 ? '1' : '0.5'}; text-align: center; width: 60px; margin-left: -30px; position: absolute; left: ${leftPos}%; margin-top: 15px; transition: color 0.3s, opacity 0.3s;">${level.label}</div>
+                    `;
+                    })
+                    .join('')}
+            </div>
+        </div>
+        <div class="standing-policy-anchor"></div>
+        <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--rovalra-border-color); font-size: 12px; color: var(--rovalra-secondary-text-color); line-height: 1.5;">
+            <div style="font-weight: 800; text-transform: uppercase; font-size: 11px; margin-bottom: 8px; color: var(--rovalra-secondary-text-color);">RoValra Safety Policy</div>
+            Accounts found in violation of the <a href="https://www.rovalra.com/tou/" target="_blank" style="color: inherit; text-decoration: underline;">RoValra Terms of Service</a> or deemed a risk via third-party detections will have specific features disabled. Please note that while specific online capabilities may be restricted, the RoValra safety team will <strong>never</strong> disable the entire extension or fully local features.
+        </div>
+    `);
+
+    if (standingCache) {
+        updateAccountStandingUI(discordCard, standingCache, levels);
+        return;
+    }
+
+    try {
+        const response = await callRobloxApi({
+            subdomain: 'apis',
+            endpoint: '/v1/auth/moderation/status',
+            method: 'GET',
+            isRovalraApi: true,
+        });
+
+        if (!response.ok) throw new Error('Failed to fetch status');
+        const data = await response.json();
+        standingCache = data;
+        updateAccountStandingUI(discordCard, data, levels);
+    } catch (err) {
+        console.error('RoValra: Failed to load standing data', err);
+    }
+}
+
+function updateAccountStandingUI(discordCard, data, levels) {
+    const currentStatus = data.moderation.moderation_status ?? 0;
+    const isGoodStanding = currentStatus === 0;
+
+    const iconBg = discordCard.querySelector('.standing-status-icon-bg');
+    const iconPath = discordCard.querySelector('.standing-status-icon-path');
+    const statusTitle = discordCard.querySelector('.standing-status-title');
+    const statusDesc = discordCard.querySelector('.standing-status-desc');
+    const fill = discordCard.querySelector('.standing-status-fill');
+    const dots = discordCard.querySelectorAll('.standing-status-dot');
+    const labels = discordCard.querySelectorAll('.standing-status-label');
+    const policyAnchor = discordCard.querySelector('.standing-policy-anchor');
+
+    if (!isGoodStanding) {
+        iconBg.style.backgroundColor = '#f23f43';
+        iconPath.setAttribute(
+            'd',
+            'M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z',
+        );
+        statusTitle.textContent = 'We found a violation on your account.';
+        statusDesc.textContent = `Your account status has been set to: ${RESTRICTION_LEVELS[currentStatus] || 'Unknown'}`;
+    }
+
+    fill.style.width = `${(currentStatus / (levels.length - 1)) * 100}%`;
+    fill.style.backgroundColor = levels[currentStatus]?.color || '#808080';
+
+    dots.forEach((dot, index) => {
+        dot.style.background =
+            index <= currentStatus ? levels[index].color : '#4f545c';
+    });
+
+    labels.forEach((label, index) => {
+        const isCurrent = index === currentStatus;
+        label.style.color = isCurrent
+            ? 'var(--rovalra-main-text-color)'
+            : 'var(--rovalra-secondary-text-color)';
+        label.style.opacity = isCurrent ? '1' : '0.5';
+    });
+
+    if (!isGoodStanding) {
+        const reason = data.moderation.moderation_reason;
+        const modContent = data.moderation.moderated_content_history || [];
+
+        const automatedHtml = data.moderation.automated
+            ? `<div style="display: inline-block; margin-top: 8px; padding: 2px 6px; background: #0084ff; color: white; border-radius: 4px; font-size: 10px; font-weight: 800; text-transform: uppercase;">Automated Action</div>`
+            : `<div style="display: inline-block; margin-top: 8px; padding: 2px 6px; background: rgba(128, 128, 128, 0.2); color: var(--rovalra-secondary-text-color); border-radius: 4px; font-size: 10px; font-weight: 800; text-transform: uppercase;">Manual Review</div>`;
+
+        const disabledFeatures =
+            (typeof reason === 'object' && reason?.disabled_features) || [];
+
+        const disabledFeaturesHtml =
+            disabledFeatures.length > 0
+                ? `<div style="margin-top: 15px; padding-top: 10px; border-top: 1px solid var(--rovalra-border-color);">
+                <div style="color: #f23f43; font-weight: 800; text-transform: uppercase; font-size: 11px; margin-bottom: 8px;">Disabled Features</div>
+                <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                    ${disabledFeatures
+                        .map(
+                            (feature) =>
+                                `<div style="background: rgba(242, 63, 67, 0.1); padding: 4px 10px; border-radius: 6px; color: #f23f43; font-size: 11px; font-weight: 700; text-transform: capitalize;">${feature}</div>`,
+                        )
+                        .join('')}
+                </div>
+            </div>`
+                : '';
+
+        const modContentHtml =
+            modContent.length > 0
+                ? `<div style="margin-top: 15px; padding-top: 10px; border-top: 1px solid var(--rovalra-border-color);">
+                <div style="color: #f23f43; font-weight: 800; text-transform: uppercase; font-size: 11px; margin-bottom: 8px;">Moderated Content</div>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    ${modContent
+                        .map(
+                            (item) => `
+                        <div style="background: rgba(0,0,0,0.1); padding: 8px; border-radius: 8px;">
+                            <div style="font-weight: 700; color: var(--rovalra-secondary-text-color); font-size: 10px; text-transform: uppercase; margin-bottom: 4px;">${item.config_key}</div>
+                            <div style="font-size: 13px; color: var(--rovalra-main-text-color); word-break: break-all;">${item.content_value}</div>
+                        </div>
+                    `,
+                        )
+                        .join('')}
+                </div>
+            </div>`
+                : '';
+
+        const reasonHtml = document.createElement('div');
+        const violationColor = levels[currentStatus]?.color || '#f23f43';
+        reasonHtml.style.cssText =
+            'margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--rovalra-border-color);';
+        reasonHtml.innerHTML = DOMPurify.sanitize(`
+            <div style="font-size: 12px; text-transform: uppercase; font-weight: 800; color: var(--rovalra-secondary-text-color); margin-bottom: 8px;">Violation Details</div>
+            <div style="background: rgba(0,0,0,0.05); padding: 15px; border-radius: 8px; border-left: 4px solid ${violationColor};">
+                <div style="font-weight: 700; color: var(--rovalra-main-text-color); margin-bottom: 4px;">${typeof reason === 'string' ? reason : reason?.title || 'Unknown Reason'}</div>
+                ${reason?.description ? `<div style="font-size: 13px; color: var(--rovalra-secondary-text-color);">${reason.description}</div>` : ''}
+                ${automatedHtml}
+                ${disabledFeaturesHtml}
+                ${modContentHtml}
+                <div style="margin-top: 10px; font-size: 11px; opacity: 0.7;" class="standing-mod-date">Moderated: </div>
+            </div>
+        `);
+        const dateContainer = reasonHtml.querySelector('.standing-mod-date');
+        if (data.moderation.moderated_at)
+            dateContainer.appendChild(
+                createInteractiveTimestamp(data.moderation.moderated_at),
+            );
+        discordCard.insertBefore(reasonHtml, policyAnchor);
+
+        if (
+            data.appeal &&
+            data.appeal.appeal_status !== null &&
+            data.appeal.appeal_status !== 0
+        ) {
+            const statusColors = ['#808080', '#f0b232', '#f23f43', '#23a55a'];
+            const statusColor =
+                statusColors[data.appeal.appeal_status] ||
+                'var(--rovalra-secondary-text-color)';
+
+            const appealSection = document.createElement('div');
+            appealSection.style.cssText = `padding: 15px; background: rgba(0,0,0,0.05); border-radius: 8px; border-left: 4px solid ${statusColor};`;
+            appealSection.innerHTML = DOMPurify.sanitize(`
+                <div style="font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--rovalra-secondary-text-color); margin-bottom: 8px;">Appeal Case</div>
+                <div style="font-size: 14px; color: var(--rovalra-main-text-color); margin-bottom: 12px;">Status: <strong style="color: ${statusColor};">${APPEAL_STATUSES[data.appeal.appeal_status]}</strong></div>
+                
+                <div style="margin-bottom: 10px;">
+                    <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--rovalra-secondary-text-color); margin-bottom: 2px;">Your Message</div>
+                    <div style="font-size: 13px; color: var(--rovalra-main-text-color); opacity: 0.9;">${data.appeal.appeal_message || 'N/A'}</div>
+                </div>
+
+                <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--rovalra-secondary-text-color); margin-bottom: 2px;">Response</div>
+                <div style="font-size: 13px; color: var(--rovalra-secondary-text-color);">${data.appeal.appeal_response || 'Our team is currently reviewing your appeal.'}</div>
+            `);
+            discordCard.insertBefore(appealSection, policyAnchor);
+        }
+
+        if (data.appeal?.appeal_status === 0) {
+            const btn = document.createElement('button');
+            btn.className = 'btn-secondary-md';
+            btn.textContent = 'Appeal this decision';
+            btn.style.marginTop = '20px';
+            btn.style.width = '100%';
+            btn.onclick = () =>
+                openAppealOverlay(async (msg) => {
+                    try {
+                        const res = await callRobloxApi({
+                            subdomain: 'apis',
+                            endpoint: '/v1/auth/moderation/appeal',
+                            method: 'POST',
+                            isRovalraApi: true,
+                            body: { message: msg },
+                        });
+                        return res.ok;
+                    } catch (e) {
+                        return false;
+                    }
+                });
+            discordCard.insertBefore(btn, policyAnchor);
+        }
+    }
+}
 
 function handleGlobalDomChange(event) {
     if (document.getElementById('settings-popover-menu')) {
@@ -793,6 +1154,7 @@ export async function updateContent(buttonInfo, contentContainer) {
     if (
         buttonId === 'info' ||
         buttonId === 'credits' ||
+        buttonId === 'accountStanding' ||
         buttonId === 'donatorPerks'
     ) {
         ((contentContainer.innerHTML = `
@@ -802,7 +1164,7 @@ export async function updateContent(buttonInfo, contentContainer) {
                         ${buttonInfo.content}
                     </div> 
                 </div> 
-            </div>`), //verified
+                </div>`), //verified
             sanitizeConfig);
     } else {
         contentContainer.innerHTML = safeHtml(
@@ -822,6 +1184,15 @@ export async function updateContent(buttonInfo, contentContainer) {
 
     if (buttonId === 'credits') {
         loadContributors();
+    }
+
+    if (buttonId === 'accountStanding') {
+        const container = contentContainer.querySelector(
+            '#rovalra-account-standing-container',
+        );
+        if (container) {
+            renderAccountStanding(container);
+        }
     }
 
     if (buttonId === 'donatorPerks') {

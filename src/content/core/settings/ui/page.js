@@ -96,7 +96,8 @@ export async function checkRoValraPage() {
         if (
             lowerHashKey === 'info' ||
             lowerHashKey === 'credits' ||
-            lowerHashKey === 'donator perks'
+            lowerHashKey === 'donator perks' ||
+            lowerHashKey === 'account standing'
         ) {
             const buttonInfo = buttonData.find(
                 (b) => b.text.toLowerCase() === lowerHashKey,

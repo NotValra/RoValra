@@ -241,7 +241,8 @@
             "info": "Info",
             "credits": "Credits",
             "donatorPerks": "Donator Perks",
-            "settings": "Settings"
+            "settings": "Settings",
+            "accountStanding": "Account Standing"
         },
         "info": {
             "title": "RoValra Information!",
