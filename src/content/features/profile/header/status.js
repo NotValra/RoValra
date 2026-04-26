@@ -162,8 +162,7 @@ function openEditStatusOverlay(currentStatus, onSave, isTrusted) {
         if (result === true) {
             close();
         } else if (result === 'failed') {
-            errorDisplay.textContent =
-                'Failed to save status. It may have been censored. No changes were applied.';
+            errorDisplay.textContent = 'Failed to save status.';
             errorDisplay.style.display = 'block';
         } else if (result === false) {
             errorDisplay.textContent =
