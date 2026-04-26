@@ -1,9 +1,5 @@
-import { callRobloxApi, callRobloxApiJson } from '../api.js';
+import { callRobloxApiJson } from '../api.js';
 import { getAuthenticatedUserId } from '../user.js';
-import {
-    getUserDescription,
-    updateUserDescription,
-} from '../profile/descriptionhandler.js';
 import {
     syncDonatorTier,
     getCurrentUserTier,
@@ -27,8 +23,6 @@ let batchInProgress = false;
 const memoryCache = new Map();
 const pendingResolvers = new Map();
 
-const DESCRIPTION_BASED_SETTINGS = ['status', 'environment'];
-
 async function saveToCache(cacheKey, settings) {
     const cacheData = {
         data: settings,
@@ -36,30 +30,6 @@ async function saveToCache(cacheKey, settings) {
     };
     memoryCache.set(cacheKey, cacheData);
     await cache.set('user_settings', cacheKey, cacheData, 'local');
-}
-
-async function getStatusFromDescription(description) {
-    if (description === null) return null;
-
-    const statusLine = description
-        .split('\n')
-        .find((line) => line.trim().startsWith('s:'));
-    let status = statusLine ? statusLine.trim().substring(2).trim() : null;
-    return status;
-}
-
-async function getEnvironmentFromDescription(description) {
-    if (!description) return null;
-    const envLine = description
-        .split('\n')
-        .find((line) => line.trim().startsWith('e:'));
-    if (envLine) {
-        const parsedId = parseInt(envLine.trim().substring(2), 10);
-        if (!isNaN(parsedId)) {
-            return parsedId;
-        }
-    }
-    return null;
 }
 
 async function fetchAndProcessSettings(userId, options = {}) {
@@ -70,7 +40,6 @@ async function fetchAndProcessSettings(userId, options = {}) {
     if (isOwnProfile) {
         await syncDonatorTier();
     }
-    const isDonator = getCurrentUserTier() >= 1;
 
     let apiSettings = {};
     let apiProvidedMeaningfulSettings = false;
@@ -80,7 +49,6 @@ async function fetchAndProcessSettings(userId, options = {}) {
             subdomain: 'apis',
             endpoint: `/v1/users/${userId}/settings`,
             method: 'GET',
-            skipAutoAuth: true,
             noCache: isOwnProfile,
         });
 
@@ -99,10 +67,7 @@ async function fetchAndProcessSettings(userId, options = {}) {
             }
         }
     } catch (error) {
-        console.warn(
-            'RoValra: Failed to fetch settings from API, falling back to description where applicable.',
-            error,
-        );
+        console.warn('RoValra: Failed to fetch settings from API.', error);
         apiProvidedMeaningfulSettings = false;
     }
 
@@ -159,7 +124,6 @@ async function processBatchQueue() {
                 subdomain: 'apis',
                 endpoint: `/v1/users/settings?user_ids=${userIdsToFetchStrings.join(',')}`,
                 method: 'GET',
-                skipAutoAuth: true,
             });
 
             if (data.status === 'success' && data.settings) {
@@ -171,7 +135,7 @@ async function processBatchQueue() {
                     );
 
                     for (const item of batchItems) {
-                        const cacheKey = `${userId}-${item.options.useDescription || false}`;
+                        const cacheKey = String(userId);
                         if (processedKeys.has(cacheKey)) continue;
 
                         const settings = await processApiSettings(
@@ -194,7 +158,7 @@ async function processBatchQueue() {
         }
 
         for (const batchItem of currentBatch) {
-            const cacheKey = `${batchItem.userId}-${batchItem.options.useDescription || false}`;
+            const cacheKey = String(batchItem.userId);
             if (!processedKeys.has(cacheKey)) {
                 const settings = await fetchAndProcessSettings(
                     batchItem.userId,
@@ -218,7 +182,7 @@ async function processBatchQueue() {
         );
 
         for (const batchItem of currentBatch) {
-            const cacheKey = `${batchItem.userId}-${batchItem.options.useDescription || false}`;
+            const cacheKey = String(batchItem.userId);
             try {
                 const settings = await fetchAndProcessSettings(
                     batchItem.userId,
@@ -254,7 +218,6 @@ async function processApiSettings(userId, apiSettings, options) {
     if (isOwnProfile) {
         await syncDonatorTier();
     }
-    const isDonator = getCurrentUserTier() >= 1;
 
     let apiProvidedMeaningfulSettings = false;
 
@@ -298,7 +261,7 @@ export async function getUserSettings(userId, options = {}) {
     const isOwnProfile =
         authenticatedUserId && strUserId === authenticatedUserId;
 
-    const cacheKey = `${strUserId}-${options.useDescription || false}`;
+    const cacheKey = strUserId;
 
     if (!options.noCache && !isOwnProfile) {
         const memCached = memoryCache.get(cacheKey);

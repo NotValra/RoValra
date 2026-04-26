@@ -13,6 +13,7 @@ import { init as initStreamerMode } from './features/sitewide/streamermode.js';
 import { init as initMarkDownTest } from './features/developer/markdowntest.js';
 import { init as initTests } from './features/developer/tests.js';
 import { init as initApiDocs } from './features/developer/apiDocs.js';
+import { init as initModeration } from './features/moderation/moderation.js';
 import { init as initApiKey } from './core/utils/trackers/apiKey.js';
 import { init as initServerTracker } from './core/utils/trackers/servers.js';
 import { initFriendsListTracking } from './core/utils/trackers/friendslist.js';
@@ -263,6 +264,11 @@ const featureRoutes = [
     {
         paths: ['/docs'],
         features: [initApiDocs],
+    },
+    // Moderation Panel
+    {
+        paths: ['/moderation'],
+        features: [initModeration],
     },
     // create
     {

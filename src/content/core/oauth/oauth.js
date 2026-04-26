@@ -97,7 +97,21 @@ export async function getValidAccessToken(
     let allVerifications = storage[STORAGE_KEY] || {};
     let storedVerification = allVerifications[userId];
 
-    if (!isDonator && storedVerification) {
+    const isAccountSwitch =
+        Object.keys(allVerifications).length > 0 && !storedVerification;
+
+    const existingProgress = await getOAuthProgress();
+    if (
+        existingProgress?.data?.userId &&
+        String(existingProgress.data.userId) !== String(userId)
+    ) {
+        console.log(
+            'RoValra: OAuth progress belongs to another user. Clearing.',
+        );
+        await clearOAuthProgress();
+    }
+
+    if (!isDonator && storedVerification && !isAccountSwitch) {
         const tokenAge = Date.now() - storedVerification.timestamp;
         if (tokenAge > NON_DONATOR_TOKEN_EXPIRY_MS) {
             delete allVerifications[userId];
@@ -109,7 +123,12 @@ export async function getValidAccessToken(
         }
     }
 
-    if (!isDonator && lazyForNonDonators && !storedVerification) {
+    if (
+        !isDonator &&
+        lazyForNonDonators &&
+        !storedVerification &&
+        !isAccountSwitch
+    ) {
         console.log(
             'RoValra: Non-donator lazy mode - skipping OAuth generation until explicitly needed.',
         );
@@ -127,13 +146,13 @@ export async function getValidAccessToken(
         return await getValidFallbackToken(forceRefresh);
     }
 
-    if (storedVerification.robloxId != userId) {
-        if (!isDonator && lazyForNonDonators) {
-            delete allVerifications[userId];
-            await chrome.storage.local.set({ [STORAGE_KEY]: allVerifications });
-            return null;
-        }
-
+    if (
+        storedVerification &&
+        String(storedVerification.robloxId) !== String(userId)
+    ) {
+        console.warn(
+            'RoValra: Stored OAuth ID mismatch. Proactively re-authenticating.',
+        );
         const success = await startOAuthFlow(true);
         if (success) {
             const newStorage = await chrome.storage.local.get(STORAGE_KEY);
@@ -206,15 +225,17 @@ async function startOAuthFlow(silent = false) {
 
     if (activeOAuthPromise) return activeOAuthPromise;
 
-    const existingProgress = await getOAuthProgress();
-    if (existingProgress && existingProgress.step) {
-        console.log(
-            'RoValra: Resuming OAuth flow from step:',
-            existingProgress.step,
-        );
-        const success = await resumeOAuthFlow(userId, existingProgress);
-        await clearOAuthProgress();
-        return success;
+    const currentProgress = await getOAuthProgress();
+    if (
+        currentProgress &&
+        currentProgress.step &&
+        String(currentProgress.data?.userId) === String(userId)
+    ) {
+        const success = await resumeOAuthFlow(userId, currentProgress);
+        if (success) {
+            await clearOAuthProgress();
+            return true;
+        }
     }
 
     activeOAuthPromise = (async () => {
@@ -399,6 +420,11 @@ async function startOAuthFlow(silent = false) {
 
 async function resumeOAuthFlow(userId, progress) {
     const { step, data } = progress;
+
+    if (data?.userId && String(data.userId) !== String(userId)) {
+        await clearOAuthProgress();
+        return false;
+    }
 
     try {
         if (step === 'birthdate_checked') {
