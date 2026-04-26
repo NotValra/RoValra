@@ -160,6 +160,8 @@ function checkSimulatedLatency() {
     });
 }
 
+let callRobloxApi_retrying = false;
+
 export async function callRobloxApi(options) {
     captureApiCall(options);
 
@@ -183,13 +185,6 @@ export async function callRobloxApi(options) {
     if (shouldCache && activeRequests.has(requestKey)) {
         const originalResponse = await activeRequests.get(requestKey);
         const clonedResponse = originalResponse.clone();
-
-        if (
-            options.subdomain === 'games' &&
-            options.endpoint.includes('/servers/') &&
-            !options.isRovalraApi
-        ) {
-        }
 
         return clonedResponse;
     }
@@ -346,7 +341,7 @@ export async function callRobloxApi(options) {
         if (isRovalraApi) {
             let lastResponse;
             let authRetried = false;
-            for (let attempt = 0; attempt < 4; attempt++) {
+            for (let attempt = 0; attempt < 6; attempt++) {
                 try {
                     lastResponse = await fetch(fullUrl, fetchOptions);
                     let newAccessToken = null;
@@ -455,7 +450,7 @@ export async function callRobloxApi(options) {
                     if (endpoint && endpoint.includes('/v1/auth')) break;
                 } catch (error) {
                     if (
-                        attempt === 3 ||
+                        attempt === 5 ||
                         (endpoint && endpoint.includes('/v1/auth'))
                     ) {
                         console.error(
@@ -465,8 +460,17 @@ export async function callRobloxApi(options) {
                         throw error;
                     }
                 }
-                if (attempt < 3) {
-                    await new Promise((res) => setTimeout(res, 1000));
+                if (attempt < 5) {
+                    while (callRobloxApi_retrying === true) {
+                        await new Promise(r => setTimeout(r, 50));  // wait for the flag to become false. the polling interval can be changed as needed
+                    }
+                    callRobloxApi_retrying = true;
+                    const retryDelay = (attempt ** 1.3 + 1) * 1000;
+                    console.debug(
+                        `RoValra API: Request to ${fullUrl} failed with status ${String(lastResponse?.status ?? "(undefined.status)")}. Retrying in ${retryDelay / 1000} seconds`
+                    );
+                    await new Promise((res) => setTimeout(res, retryDelay));  // sub-exponential backoff
+                    callRobloxApi_retrying = false;
                 }
             }
             if (!lastResponse.ok) {
