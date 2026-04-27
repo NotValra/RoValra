@@ -233,14 +233,25 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: false,
             },
-            privateGameDetectionEnabled: {
+            privateGameViewerEnabled: {
                 label: 'View Private / Moderated Games',
                 description: [
                     'This recreates the experience page of private / moderated games, allowing you to view them.',
                 ],
                 type: 'checkbox',
-                default: false,
-                requiredPermissions: ['webRequest'],
+                default: true,
+                childSettings: {
+                    privateGameDetectionFallbackEnabled: {
+                        label: 'Use background detection fallback',
+                        description: [
+                            'Uses background web requests to detect private games when the local tracker fails.',
+                            'This method is more reliable but requires additional permissions.',
+                        ],
+                        type: 'checkbox',
+                        default: false,
+                        requiredPermissions: ['webRequest'],
+                    },
+                },
             },
             botdataEnabled: {
                 label: 'Bot Data',
@@ -762,12 +773,23 @@ export const SETTINGS_CONFIG = {
                     },
                 },
             },
-            bannedUserDetectionEnabled: {
+            bannedUserViewerEnabled: {
                 label: 'View Banned Users Profile',
                 description: ['Allows you to view banned users Profile.'],
                 type: 'checkbox',
-                default: false,
-                requiredPermissions: ['webRequest'],
+                default: true,
+                childSettings: {
+                    bannedUserDetectionFallbackEnabled: {
+                        label: 'Use background detection fallback',
+                        description: [
+                            'Uses background web requests to detect banned users when the local tracker fails.',
+                            'This method is more reliable but requires additional permissions.',
+                        ],
+                        type: 'checkbox',
+                        default: false,
+                        requiredPermissions: ['webRequest'],
+                    },
+                },
             },
         },
     },

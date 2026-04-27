@@ -1254,15 +1254,21 @@ async function renderSearchHistory(container) {
     history.forEach((item) => {
         let term;
         let iconUrl = null;
+        let href = null;
 
         if (typeof item === 'string') {
             term = item;
         } else {
             term = item.name;
             iconUrl = item.thumbnail;
+            if (item.type === 'user') {
+                href = `https://www.roblox.com/users/${item.id}/profile`;
+            } else if (item.type === 'game') {
+                href = `https://www.roblox.com/games/${item.id}/`;
+            }
         }
 
-        const pill = createPill(term, null, { isButton: true, iconUrl });
+        const pill = createPill(term, null, { isButton: true, iconUrl, href });
         pill.style.flexShrink = '0';
 
         if (typeof item !== 'string' && item.id && item.type) {
@@ -1274,18 +1280,7 @@ async function renderSearchHistory(container) {
         }
 
         pill.addEventListener('click', () => {
-            if (
-                typeof item === 'object' &&
-                item !== null &&
-                item.type &&
-                item.id
-            ) {
-                if (item.type === 'user') {
-                    window.location.href = `https://www.roblox.com/users/${item.id}/profile`;
-                } else if (item.type === 'game') {
-                    window.location.href = `https://www.roblox.com/games/${item.id}/`;
-                }
-            } else {
+            if (typeof item === 'string') {
                 const input = document.getElementById('navbar-search-input');
                 if (input) {
                     input.value = term;

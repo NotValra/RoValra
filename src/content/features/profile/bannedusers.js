@@ -23,18 +23,30 @@ import {
     enableAllCategories,
 } from './categorizeWearing.js';
 import { injectStylesheet } from '../../core/ui/cssInjector.js';
+import { getLastClickedUrl } from '../../core/utils/trackers/urlTracker.js';
 
 export function init() {
     chrome.storage.local.get(
         {
-            bannedUserDetectionEnabled: false,
+            bannedUserViewerEnabled: false,
+            bannedUserDetectionFallbackEnabled: false,
+            bannedUserDetectionEnabled: 'CHECK_FOR_CLEANUP',
             categorizeWearingEnabled: true,
         },
         async (data) => {
-            if (!data.bannedUserDetectionEnabled) return;
+            if (data.bannedUserDetectionEnabled !== 'CHECK_FOR_CLEANUP') {
+                chrome.storage.local.remove('bannedUserDetectionEnabled');
+            }
+
+            if (!data.bannedUserViewerEnabled) return;
+
+            const localeMatch = window.location.pathname.match(
+                /^\/([a-z]{2}(?:-[a-z]{2})?)(?=\/|$)/i,
+            );
+            const localePrefix = localeMatch ? `/${localeMatch[1]}` : '';
 
             const bannedUrlMatch = window.location.pathname.match(
-                /\/banned-users\/(\d+)\/profile/,
+                /^(?:\/[a-z]{2}(?:-[a-z]{2})?)?\/banned-users\/(\d+)\/profile/,
             );
             if (bannedUrlMatch) {
                 const userId = bannedUrlMatch[1];
@@ -105,6 +117,16 @@ export function init() {
                 return;
             }
 
+            const checkUrlMatch = window.location.pathname.match(
+                /^(?:\/[a-z]{2}(?:-[a-z]{2})?)?\/banned-user\/(\d+)\/profile/,
+            );
+            if (checkUrlMatch) {
+                const userId = checkUrlMatch[1];
+                const newUrl = `${window.location.origin}${localePrefix}/banned-users/${userId}/profile`;
+                window.location.replace(newUrl);
+                return;
+            }
+
             const isErrorPage =
                 window.location.pathname.includes('/request-error') ||
                 document.title.includes('Page not found') ||
@@ -151,7 +173,7 @@ export function init() {
                         if (user && user.isBanned) {
                             user.isVerified = profile?.isVerified || false;
 
-                            const newUrl = `https://www.roblox.com/banned-users/${user.id}/profile`;
+                            const newUrl = `${localePrefix}/banned-users/${user.id}/profile`;
                             window.history.replaceState({}, '', newUrl);
 
                             renderBannedUserProfile(user, data);
@@ -170,32 +192,50 @@ export function init() {
                                 isBanned: true,
                                 isAccountForgotten: true,
                             };
-                            const newUrl = `https://www.roblox.com/banned-users/${syntheticUser.id}/profile`;
+                            const newUrl = `${localePrefix}/banned-users/${syntheticUser.id}/profile`;
                             window.history.replaceState({}, '', newUrl);
                             renderBannedUserProfile(syntheticUser, data);
                         }
                     });
             }
 
-            chrome.runtime.sendMessage(
-                { action: 'getBannedUserRedirect' },
-                (response) => {
-                    if (response && response.userId) {
-                        handleBannedRedirect(response.userId);
-                        return;
+            (async () => {
+                if (isErrorPage) {
+                    const lastUrl = await getLastClickedUrl();
+                    if (lastUrl) {
+                        const path = lastUrl.includes('://')
+                            ? new URL(lastUrl).pathname
+                            : lastUrl;
+                        const userUrlMatch = path.match(
+                            /users\/(\d+)\/profile/,
+                        );
+
+                        if (userUrlMatch) {
+                            handleBannedRedirect(userUrlMatch[1]);
+                            return;
+                        }
                     }
 
-                    if (!isErrorPage) return;
-
-                    chrome.runtime.sendMessage(
-                        { action: 'getBannedUserRedirect' },
-                        (r2) => {
-                            if (r2 && r2.userId)
-                                handleBannedRedirect(r2.userId);
-                        },
-                    );
-                },
-            );
+                    if (data.bannedUserDetectionFallbackEnabled) {
+                        chrome.runtime.sendMessage(
+                            { action: 'getBannedUserRedirect' },
+                            (response) => {
+                                if (response && response.userId) {
+                                    handleBannedRedirect(response.userId);
+                                } else {
+                                    chrome.runtime.sendMessage(
+                                        { action: 'getBannedUserRedirect' },
+                                        (r2) => {
+                                            if (r2 && r2.userId)
+                                                handleBannedRedirect(r2.userId);
+                                        },
+                                    );
+                                }
+                            },
+                        );
+                    }
+                }
+            })();
         },
     );
 }
@@ -404,7 +444,13 @@ async function renderBannedUserProfile(user, settings) {
     const redirectBannedUrl = (e) => {
         if (!currentUser) return;
         e.preventDefault();
-        const bannedUrl = `/banned-users/${currentUser}/profile`;
+
+        const lMatch = window.location.pathname.match(
+            /^\/([a-z]{2}(?:-[a-z]{2})?)(?=\/|$)/i,
+        );
+        const lPrefix = lMatch ? `/${lMatch[1]}` : '';
+
+        const bannedUrl = `${lPrefix}/banned-users/${currentUser}/profile`;
         window.history.pushState({}, '', bannedUrl);
     };
 

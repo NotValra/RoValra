@@ -5,11 +5,18 @@ export function createPill(text, tooltipText, options = {}) {
         options = { type: options };
     }
 
-    const { type, isButton = false, iconUrl, size } = options;
+    const { type, isButton = false, iconUrl, size, href, target } = options;
     const isSmall = size === 'small';
 
     if (!type) {
-        const pill = document.createElement('div');
+        const pill = document.createElement(href ? 'a' : 'div');
+
+        if (href) {
+            pill.href = href;
+            if (target) pill.target = target;
+            pill.style.textDecoration = 'none';
+            pill.style.color = 'inherit';
+        }
 
         const heightClass = isSmall ? 'padding-y-xsmall' : 'height-800';
         const textClass = isSmall ? 'text-caption-medium' : 'text-label-medium';
@@ -19,11 +26,10 @@ export function createPill(text, tooltipText, options = {}) {
         const baseClasses = `relative clip flex justify-center items-center radius-circle stroke-none padding-left-medium padding-right-medium ${heightClass} ${textClass} ${bgClass} ${utilityClass}`;
         const buttonClasses =
             'group/interactable focus-visible:outline-focus disabled:outline-none cursor-pointer';
-        pill.className = isButton
-            ? `${baseClasses} ${buttonClasses}`
-            : baseClasses;
+        pill.className =
+            isButton || href ? `${baseClasses} ${buttonClasses}` : baseClasses;
 
-        if (isButton) {
+        if (isButton || href) {
             const presentation = document.createElement('div');
             presentation.setAttribute('role', 'presentation');
             presentation.className =
@@ -63,7 +69,15 @@ export function createPill(text, tooltipText, options = {}) {
         return pill;
     }
 
-    const pill = document.createElement('div');
+    const pill = document.createElement(href ? 'a' : 'div');
+
+    if (href) {
+        pill.href = href;
+        if (target) pill.target = target;
+        pill.style.textDecoration = 'none';
+        pill.style.color = 'inherit';
+    }
+
     pill.className = `rovalra-pill ${type}`;
     if (typeof text === 'string' || typeof text === 'number') {
         pill.textContent = text;

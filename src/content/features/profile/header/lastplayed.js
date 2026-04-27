@@ -120,6 +120,7 @@ async function initLastPlayed() {
                 const pillOptions = {
                     isButton: true,
                     iconUrl: thumbnail?.imageUrl || null,
+                    href: `https://www.roblox.com/games/${gameData.rootPlaceId}/-`,
                 };
 
                 const pill = createPill(
@@ -128,13 +129,6 @@ async function initLastPlayed() {
                     pillOptions,
                 );
                 pill.classList.add('rovalra-last-played-pill');
-
-                pill.addEventListener('click', () => {
-                    window.location.replace(
-                        `https://www.roblox.com/games/${gameData.rootPlaceId}/-`,
-                    );
-                });
-
                 const lastOnlinePill = targetContainer.querySelector(
                     '.rovalra-last-online-pill',
                 );

@@ -198,9 +198,9 @@ function updateBannedUserListener() {
     chrome.permissions.contains({ permissions: ['webRequest'] }, (granted) => {
         if (granted) {
             chrome.storage.local.get(
-                { bannedUserDetectionEnabled: false },
+                { bannedUserDetectionFallbackEnabled: false },
                 (data) => {
-                    if (data.bannedUserDetectionEnabled) {
+                    if (data.bannedUserDetectionFallbackEnabled) {
                         if (
                             !chrome.webRequest.onBeforeRedirect.hasListener(
                                 onBeforeRedirectHandler,
@@ -242,9 +242,9 @@ function updatePrivateGameListener() {
     chrome.permissions.contains({ permissions: ['webRequest'] }, (granted) => {
         if (granted) {
             chrome.storage.local.get(
-                { privateGameDetectionEnabled: true },
+                { privateGameDetectionFallbackEnabled: false },
                 (data) => {
-                    if (data.privateGameDetectionEnabled) {
+                    if (data.privateGameDetectionFallbackEnabled) {
                         if (
                             !chrome.webRequest.onBeforeRedirect.hasListener(
                                 onPrivateGameRedirectHandler,
@@ -873,10 +873,16 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
         ) {
             updateAvatarRotator();
         }
-        if (changes.privateGameDetectionEnabled) {
+        if (
+            changes.privateGameViewerEnabled ||
+            changes.privateGameDetectionFallbackEnabled
+        ) {
             updatePrivateGameListener();
         }
-        if (changes.bannedUserDetectionEnabled) {
+        if (
+            changes.bannedUserViewerEnabled ||
+            changes.bannedUserDetectionFallbackEnabled
+        ) {
             updateBannedUserListener();
         }
         if (changes.TotalSpentGamesEnabled) {

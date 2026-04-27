@@ -24,6 +24,7 @@ import { init as initCopyId } from './features/sitewide/copyid.js';
 import { init as initQuickSearch } from './features/navigation/search/quicksearch.js';
 import { init as initRenderTest } from './features/developer/rendertest.js';
 import { init as initGroupFunds } from './features/navigation/groupfunds.js';
+import { init as initUrlTracker } from './core/utils/trackers/urlTracker.js';
 import { init as initCustomFont } from './features/sitewide/customFont.js';
 import { init as initTransactionsLink } from './features/navigation/transactionslink.js';
 
@@ -146,6 +147,7 @@ const featureRoutes = [
             initRobuxIcons,
             initProfileBackground,
             initPurchasePromptItemId,
+            initUrlTracker,
         ],
     },
     // pretty much just the 40% method

@@ -621,33 +621,12 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
     }
 
     if (setting.requiredPermissions && setting.requiredPermissions.length > 0) {
-        const permissionManager = document.createElement('div');
-        permissionManager.className = 'permission-manager';
-        permissionManager.dataset.permissionName =
-            setting.requiredPermissions[0];
-        permissionManager.dataset.permissionFor = settingName;
-        permissionManager.style.cssText =
-            'margin-top: 10px; padding: 10px; background-color: var(--rovalra-container-background-color, rgba(0,0,0,0.1)); border-radius: 8px;';
-
-        const container = document.createElement('div');
-        container.style.cssText =
-            'display: flex; align-items: center; justify-content: space-between;';
-
-        const text = document.createElement('span');
-        text.textContent = `Enable ${setting.requiredPermissions[0]} permission`;
-        text.style.cssText =
-            'font-size: 15px; color: var(--rovalra-main-text-color); font-weight: 400;';
-
-        const label = document.createElement('label');
-        label.className = 'toggle-switch';
-        label.innerHTML = DOMPurify.sanitize(`
-            <input type="checkbox" class="permission-toggle" data-permission-name="${setting.requiredPermissions[0]}">
-            <span class="slider"></span>`);
-
-        container.appendChild(text);
-        container.appendChild(label);
-        permissionManager.appendChild(container);
-        settingContainer.appendChild(permissionManager);
+        settingContainer.appendChild(
+            createPermissionManager(
+                settingName,
+                setting.requiredPermissions[0],
+            ),
+        );
     }
 
     if (setting.type === 'file') {
@@ -772,6 +751,18 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
                 });
             }
 
+            if (
+                childSetting.requiredPermissions &&
+                childSetting.requiredPermissions.length > 0
+            ) {
+                childContainer.appendChild(
+                    createPermissionManager(
+                        childName,
+                        childSetting.requiredPermissions[0],
+                    ),
+                );
+            }
+
             if (childSetting.type === 'file') {
                 const uploadElement = childInput;
                 const uploadApi =
@@ -832,4 +823,33 @@ export function generateSettingsUI(section, REGIONS = {}) {
     }
 
     return fragment;
+}
+
+function createPermissionManager(settingName, permissionName) {
+    const permissionManager = document.createElement('div');
+    permissionManager.className = 'permission-manager';
+    permissionManager.dataset.permissionName = permissionName;
+    permissionManager.dataset.permissionFor = settingName;
+    permissionManager.style.cssText =
+        'margin-top: 10px; padding: 10px; background-color: var(--rovalra-container-background-color, rgba(0,0,0,0.1)); border-radius: 8px;';
+
+    const container = document.createElement('div');
+    container.style.cssText =
+        'display: flex; align-items: center; justify-content: space-between;';
+
+    const text = document.createElement('span');
+    text.textContent = `Enable ${permissionName} permission`;
+    text.style.cssText =
+        'font-size: 15px; color: var(--rovalra-main-text-color); font-weight: 400;';
+
+    const label = document.createElement('label');
+    label.className = 'toggle-switch';
+    label.innerHTML = DOMPurify.sanitize(`
+        <input type="checkbox" class="permission-toggle" data-permission-name="${permissionName}">
+        <span class="slider"></span>`);
+
+    container.appendChild(text);
+    container.appendChild(label);
+    permissionManager.appendChild(container);
+    return permissionManager;
 }

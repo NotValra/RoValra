@@ -432,26 +432,34 @@ export const initSettings = async (settingsContent) => {
             for (const [settingName, config] of Object.entries(
                 section.settings,
             )) {
-                if (
-                    settings[settingName] === true &&
-                    config.requiredPermissions
-                ) {
-                    let missingPerms = false;
+                const validatePerms = async (name, conf) => {
+                    if (settings[name] === true && conf.requiredPermissions) {
+                        let missingPerms = false;
 
-                    for (const perm of config.requiredPermissions) {
-                        const hasIt = await hasPermission(perm);
-                        if (!hasIt) {
-                            missingPerms = true;
-                            break;
+                        for (const perm of conf.requiredPermissions) {
+                            const hasIt = await hasPermission(perm);
+                            if (!hasIt) {
+                                missingPerms = true;
+                                break;
+                            }
+                        }
+
+                        if (missingPerms) {
+                            console.log(
+                                `RoValra: Disabling '${name}' because required permissions are missing.`,
+                            );
+                            await handleSaveSettings(name, false);
+                            settings[name] = false;
                         }
                     }
+                };
 
-                    if (missingPerms) {
-                        console.log(
-                            `RoValra: Disabling '${settingName}' because required permissions are missing.`,
-                        );
-                        await handleSaveSettings(settingName, false);
-                        settings[settingName] = false;
+                await validatePerms(settingName, config);
+                if (config.childSettings) {
+                    for (const [childName, childConfig] of Object.entries(
+                        config.childSettings,
+                    )) {
+                        await validatePerms(childName, childConfig);
                     }
                 }
             }
@@ -1021,28 +1029,39 @@ export async function updateAllPermissionToggles() {
     for (const sectionName in SETTINGS_CONFIG) {
         const section = SETTINGS_CONFIG[sectionName];
         for (const [settingName, config] of Object.entries(section.settings)) {
-            if (settings[settingName] === true && config.requiredPermissions) {
-                let missingPerms = false;
+            const checkAndRefresh = async (name, conf) => {
+                if (settings[name] === true && conf.requiredPermissions) {
+                    let missingPerms = false;
 
-                for (const perm of config.requiredPermissions) {
-                    const hasIt = await hasPermission(perm);
-                    if (!hasIt) {
-                        missingPerms = true;
-                        break;
+                    for (const perm of conf.requiredPermissions) {
+                        const hasIt = await hasPermission(perm);
+                        if (!hasIt) {
+                            missingPerms = true;
+                            break;
+                        }
+                    }
+
+                    if (missingPerms) {
+                        console.log(
+                            `RoValra: Disabling '${name}' because required permissions are missing.`,
+                        );
+                        await handleSaveSettings(name, false);
+                        settings[name] = false;
+
+                        const element = document.querySelector(`#${name}`);
+                        if (element) {
+                            element.checked = false;
+                        }
                     }
                 }
+            };
 
-                if (missingPerms) {
-                    console.log(
-                        `RoValra: Disabling '${settingName}' because required permissions are missing.`,
-                    );
-                    await handleSaveSettings(settingName, false);
-                    settings[settingName] = false;
-
-                    const element = document.querySelector(`#${settingName}`);
-                    if (element) {
-                        element.checked = false;
-                    }
+            await checkAndRefresh(settingName, config);
+            if (config.childSettings) {
+                for (const [childName, childConfig] of Object.entries(
+                    config.childSettings,
+                )) {
+                    await checkAndRefresh(childName, childConfig);
                 }
             }
         }

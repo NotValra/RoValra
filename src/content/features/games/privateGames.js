@@ -20,6 +20,7 @@ import {
 import { parseMarkdown } from '../../core/utils/markdown.js';
 import { checkAndInjectEvents } from '../../features/games/about/events.js';
 import { createScrollButtons } from '../../core/ui/general/scrollButtons.js';
+import { getLastClickedUrl } from '../../core/utils/trackers/urlTracker.js';
 
 import { addTooltip } from '../../core/ui/tooltip.js';
 function formatVoteCount(count) {
@@ -73,72 +74,106 @@ export function init() {
     `;
     document.head.appendChild(scrollBtnStyle);
 
-    chrome.storage.local.get({ privateGameDetectionEnabled: true }, (data) => {
-        const privateUrlMatch = window.location.pathname.match(
-            /^(?:\/[a-z]{2})?\/private-games\/(\d+)/,
-        );
+    chrome.storage.local.get(
+        {
+            privateGameViewerEnabled: true,
+            privateGameDetectionFallbackEnabled: false,
+            privateGameDetectionEnabled: 'CHECK_FOR_CLEANUP',
+        },
+        (data) => {
+            if (data.privateGameDetectionEnabled !== 'CHECK_FOR_CLEANUP') {
+                chrome.storage.local.remove('privateGameDetectionEnabled');
+            }
 
-        if (!data.privateGameDetectionEnabled) {
-            if (privateUrlMatch) {
-                const content = document.getElementById('content');
-                if (content) {
-                    content.innerHTML = DOMPurify.sanitize(`
+            const privateUrlMatch = window.location.pathname.match(
+                /^(?:\/[a-z]{2})?\/private-games\/(\d+)/,
+            );
+
+            if (!data.privateGameViewerEnabled) {
+                if (privateUrlMatch) {
+                    const content = document.getElementById('content');
+                    if (content) {
+                        content.innerHTML = DOMPurify.sanitize(`
                         <div class="section-content default-error-page" style="max-width: 600px; margin: 60px auto; text-align: center; padding: 40px;">
                             <svg viewBox="0 0 24 24" style="width: 64px; height: 64px; margin-bottom: 24px; fill: var(--rovalra-secondary-text-color);"><path d="m5.2494 8.0688 2.83-2.8269 14.1343 14.15-2.83 2.8269zm4.2363-4.2415 2.828-2.8289 5.6577 5.656-2.828 2.8289zM.9989 12.3147l2.8284-2.8285 5.6569 5.6569-2.8285 2.8284zM1 21h12v2H1z"></path></svg>
                              <h3 style="margin-bottom: 20px;">${ts('privateGames.disabled')}</h3>
                             ${parseMarkdown(`${ts('privateGames.disabledDescription')}\n\n[${ts('privateGames.disabledLinkText')}](https://www.roblox.com/my/account?rovalra=search&q=privategamedetectionenabled#!/search)`)}
                         </div>
                     `);
+                    }
                 }
+                return;
             }
-            return;
-        }
 
-        if (privateUrlMatch) {
-            const placeId = privateUrlMatch[1];
-            loadPrivateGame(placeId);
-            return;
-        }
+            if (privateUrlMatch) {
+                const placeId = privateUrlMatch[1];
+                loadPrivateGame(placeId);
+                return;
+            }
 
-        const checkUrlMatch = window.location.pathname.match(
-            /^(?:\/[a-z]{2})?\/games\/check\/(\d+)/,
-        );
-        if (checkUrlMatch) {
-            const placeId = checkUrlMatch[1];
-            const newUrl = `https://www.roblox.com/private-games/${placeId}`;
-            window.location.replace(newUrl);
-            return;
-        }
+            const checkUrlMatch = window.location.pathname.match(
+                /^(?:\/[a-z]{2})?\/games\/check\/(\d+)/,
+            );
+            if (checkUrlMatch) {
+                const placeId = checkUrlMatch[1];
+                const newUrl = `https://www.roblox.com/private-games/${placeId}`;
+                window.location.replace(newUrl);
+                return;
+            }
 
-        const isErrorPage =
-            window.location.pathname.includes('/request-error') ||
-            document.title.includes('Page not found') ||
-            !!document.querySelector('.error-page-container');
+            const isErrorPage =
+                window.location.pathname.includes('/request-error') ||
+                document.title.includes('Page not found') ||
+                !!document.querySelector('.error-page-container');
 
-        function handlePrivateRedirect(placeId) {
-            if (!isErrorPage) return;
-            const newUrl = `https://www.roblox.com/private-games/${placeId}`;
-            window.history.replaceState({}, '', newUrl);
-            loadPrivateGame(placeId);
-        }
+            function handlePrivateRedirect(placeId) {
+                if (!isErrorPage) return;
+                const newUrl = `https://www.roblox.com/private-games/${placeId}`;
+                window.history.replaceState({}, '', newUrl);
+                loadPrivateGame(placeId);
+            }
 
-        chrome.runtime.sendMessage(
-            { action: 'getPrivateGameRedirect' },
-            (response) => {
-                if (response && response.placeId) {
-                    handlePrivateRedirect(response.placeId);
-                    return;
+            (async () => {
+                if (isErrorPage) {
+                    const lastUrl = await getLastClickedUrl();
+                    if (lastUrl) {
+                        const path = lastUrl.includes('://')
+                            ? new URL(lastUrl).pathname
+                            : lastUrl;
+                        const gameUrlMatch = path.match(
+                            /^(?:\/[a-z]{2})?\/games\/(\d+)/,
+                        );
+
+                        if (gameUrlMatch) {
+                            handlePrivateRedirect(gameUrlMatch[1]);
+                            return;
+                        }
+                    }
+
+                    if (data.privateGameDetectionFallbackEnabled) {
+                        chrome.runtime.sendMessage(
+                            { action: 'getPrivateGameRedirect' },
+                            (response) => {
+                                if (response && response.placeId) {
+                                    handlePrivateRedirect(response.placeId);
+                                } else {
+                                    chrome.runtime.sendMessage(
+                                        { action: 'getPrivateGameRedirect' },
+                                        (r2) => {
+                                            if (r2 && r2.placeId)
+                                                handlePrivateRedirect(
+                                                    r2.placeId,
+                                                );
+                                        },
+                                    );
+                                }
+                            },
+                        );
+                    }
                 }
-
-                chrome.runtime.sendMessage(
-                    { action: 'getPrivateGameRedirect' },
-                    (r2) => {
-                        if (r2 && r2.placeId) handlePrivateRedirect(r2.placeId);
-                    },
-                );
-            },
-        );
-    });
+            })();
+        },
+    );
 }
 
 function loadPrivateGame(placeId) {
@@ -150,8 +185,8 @@ function loadPrivateGame(placeId) {
             '<div class="rovalra-banned-loading"><div class="spinner spinner-default"></div></div>';
     }
 
-    chrome.storage.local.get({ privateGameDetectionEnabled: true }, (data) => {
-        if (!data.privateGameDetectionEnabled) return;
+    chrome.storage.local.get({ privateGameViewerEnabled: true }, (data) => {
+        if (!data.privateGameViewerEnabled) return;
         loadAndRenderPrivateGame(placeId, data);
     });
 }
@@ -231,7 +266,6 @@ async function loadAndRenderPrivateGame(placeId, settings) {
             .then((gameRes) => {
                 const game = gameRes?.data?.find((g) => g.id === universeId);
                 if (game) {
-                    // Explicitly update only specific non-timestamp fields to ensure consistency
                     if (game.playing !== undefined && gameData.playing !== 0) {
                         gameData.playing = game.playing;
                     }
