@@ -280,6 +280,10 @@ export const PROFILE_ACTIONS = {
     VIEW_FAVORITES: 'ViewFavorites',
     TRADE_ITEMS: 'TradeItems',
     IMPERSONATE_USER: 'ImpersonateUser',
+    CURRENCY_TRANSFER: 'CurrencyTransfer',
+    EDIT_APPEARANCE: 'EditAppearance',
+    SWITCH_AVATAR: 'SwitchAvatar',
+    EDIT_EMOTES: 'EditEmotes',
 };
 
 export default {
