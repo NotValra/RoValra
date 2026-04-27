@@ -10,6 +10,7 @@ import {
 import { createInteractiveTimestamp } from '../../core/ui/time/time.js';
 import { createStyledInput } from '../../core/ui/catalog/input.js';
 import { safeHtml } from '../../core/packages/dompurify.js';
+import { showConfirmationPrompt } from '../../core/ui/confirmationPrompt.js';
 
 function removeHomeElement() {
     const homeElementToRemove = document.querySelector(
@@ -323,21 +324,33 @@ async function showAppealDetailsOverlay(appeal, userName) {
                 alert('Please enter a response for the user.');
                 return;
             }
-            [approveBtn, denyBtn].forEach((b) => (b.disabled = true));
-            const success = await resolveAppeal(
-                appeal.roblox_user_id,
-                status,
-                msg,
-                'Resolved via Moderation Panel Overlay',
-            );
-            if (success) {
-                alert('Appeal resolved successfully.');
-                overlay.remove();
-                window.location.reload();
-            } else {
-                alert('Failed to resolve appeal.');
-                [approveBtn, denyBtn].forEach((b) => (b.disabled = false));
-            }
+
+            const actionText = status === 3 ? 'Approve Appeal' : 'Deny Appeal';
+            showConfirmationPrompt({
+                title: actionText,
+                message: `Are you sure you want to ${actionText.toLowerCase()}?`,
+                confirmText: actionText,
+                confirmType: status === 3 ? 'primary' : 'secondary',
+                onConfirm: async () => {
+                    [approveBtn, denyBtn].forEach((b) => (b.disabled = true));
+                    const success = await resolveAppeal(
+                        appeal.roblox_user_id,
+                        status,
+                        msg,
+                        'Resolved via Moderation Panel Overlay',
+                    );
+                    if (success) {
+                        alert('Appeal resolved successfully.');
+                        overlay.remove();
+                        window.location.reload();
+                    } else {
+                        alert('Failed to resolve appeal.');
+                        [approveBtn, denyBtn].forEach(
+                            (b) => (b.disabled = false),
+                        );
+                    }
+                },
+            });
         };
 
         approveBtn.onclick = () => handleResolve(3);
@@ -437,11 +450,8 @@ function openSubmitAppealOverlay(onSave) {
     };
 }
 
-async function resolveReport(type, reportId, action) {
-    const endpoint =
-        type === 'review'
-            ? '/v1/auth/moderator/reports/resolve'
-            : '/v1/auth/moderator/content-reports/resolve';
+async function resolveReport(reportId, action) {
+    const endpoint = '/v1/auth/moderator/content-reports/resolve';
 
     try {
         const res = await callRobloxApi({
@@ -461,89 +471,213 @@ async function resolveReport(type, reportId, action) {
 }
 
 async function renderReportsTab(container) {
-    container.innerHTML = '<h3>Report Queue</h3>';
+    container.innerHTML = '';
+
+    const header = document.createElement('div');
+    header.style.display = 'flex';
+    header.style.justifyContent = 'space-between';
+    header.style.alignItems = 'center';
+    header.style.marginBottom = '20px';
+
+    const title = document.createElement('h3');
+    title.textContent = 'Report Queue';
+    title.style.margin = '0';
+    header.appendChild(title);
+
+    const controls = document.createElement('div');
+    controls.style.display = 'flex';
+    controls.style.gap = '15px';
+    controls.style.alignItems = 'center';
+
+    const { container: searchWrapper, input: searchInput } = createStyledInput({
+        id: 'report-search',
+        label: 'Search Target ID / Username',
+        placeholder: 'Search...',
+    });
+    searchWrapper.style.width = '250px';
+
+    const statusOptions = [
+        { label: 'Pending', value: '0' },
+        { label: 'Resolved', value: '1' },
+    ];
+
+    const sortOptions = [
+        { label: 'Newest First', value: 'desc' },
+        { label: 'Oldest First', value: 'asc' },
+    ];
+
+    let currentStatus = '0';
+    let currentSort = 'desc';
 
     const listContainer = document.createElement('div');
     listContainer.style.display = 'flex';
     listContainer.style.flexDirection = 'column';
     listContainer.style.gap = '15px';
-    listContainer.style.marginTop = '20px';
-    container.appendChild(listContainer);
 
-    const fetchAndRender = async (type) => {
-        const endpoint =
-            type === 'review'
-                ? '/v1/auth/moderator/reports'
-                : '/v1/auth/moderator/content-reports';
+    const loadReports = async () => {
+        listContainer.innerHTML =
+            '<div style="padding: 40px; text-align: center; opacity: 0.6;">Loading reports...</div>';
+
         try {
+            let endpoint = `/v1/auth/moderator/content-reports?limit=50`;
+            if (currentStatus !== '0' || currentSort !== 'desc') {
+                endpoint += `&status=${currentStatus}&sort_order=${currentSort}`;
+            }
+
             const res = await callRobloxApi({
                 subdomain: 'apis',
                 endpoint,
                 isRovalraApi: true,
             });
-            if (!res.ok) return;
+
+            if (!res.ok) throw new Error('API request failed');
             const data = await res.json();
             const reports = data.reports || [];
 
-            if (reports.length === 0) return;
+            listContainer.innerHTML = '';
 
-            reports.forEach((report) => {
+            const searchTerm = searchInput.value.toLowerCase();
+            const filteredReports = reports.filter(
+                (r) =>
+                    !searchTerm ||
+                    String(r.target_user_id).includes(searchTerm) ||
+                    (r.target_username &&
+                        r.target_username.toLowerCase().includes(searchTerm)),
+            );
+
+            if (filteredReports.length === 0) {
+                listContainer.innerHTML =
+                    '<p style="opacity:0.6; text-align: center; padding: 20px;">No matching reports found.</p>';
+                return;
+            }
+
+            filteredReports.forEach((report) => {
                 const card = document.createElement('div');
+                card.className = 'report-card';
                 card.style.padding = '15px';
                 card.style.borderRadius = '8px';
                 card.style.backgroundColor =
                     'var(--rovalra-container-background-color)';
-                card.style.borderLeft = `4px solid ${type === 'review' ? '#4facfe' : '#ff9f43'}`;
+                card.style.borderLeft = `4px solid ${report.status === 1 ? '#49cc90' : '#ff9f43'}`;
 
-                const title =
-                    type === 'review'
-                        ? 'Universe Review Report'
-                        : `Profile Content: ${report.config_key}`;
+                card.innerHTML = safeHtml`
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                    <strong style="text-transform:uppercase; font-size:11px; opacity:0.7;">Profile Content: ${report.config_key}</strong>
+                    <div style="display: flex; flex-direction: column; align-items: flex-end; font-size: 10px; opacity: 0.7; line-height: 1.2;">
+                        <div>First Report: <span class="first-report-time"></span></div>
+                        <div>Last Report: <span class="last-report-time"></span></div>
+                    </div>
+                </div>
+                <div style="margin-bottom:15px; font-size:13px;">
+                    <div>Content: <strong>${report.content_snapshot}</strong></div>
+                    <div style="margin-top:5px; opacity:0.8;">Target User: <a href="https://www.roblox.com/users/${report.target_user_id}/profile" target="_blank" style="color: inherit; text-decoration: underline;">@${report.target_username}</a> (${report.target_user_id})</div>
+                    <div style="margin-top:5px; opacity:0.6; font-size: 11px;">Reports: ${report.report_count}</div>
+                </div>
+            `;
 
-                card.innerHTML = DOMPurify.sanitize(`
-                    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                        <strong style="text-transform:uppercase; font-size:11px; opacity:0.7;">${title}</strong>
-                        <div class="report-time"></div>
-                    </div>
-                    <div style="margin-bottom:15px; font-size:13px;">
-                        ${type === 'review' ? `Review: <em>"${report.review_text}"</em>` : `Content: <strong>${report.content_value}</strong>`}
-                        <div style="margin-top:5px; opacity:0.8;">Target User: ${report.user_id || report.roblox_user_id}</div>
-                    </div>
-                    <div style="display:flex; gap:10px;">
-                        <button class="btn-primary-xs resolve-btn" data-action="${type === 'review' ? 'delete' : 'accept'}">
-                            ${type === 'review' ? 'Delete Review' : 'Confirm Violation'}
-                        </button>
-                        <button class="btn-secondary-xs resolve-btn" data-action="dismiss">Dismiss</button>
-                    </div>
-                `);
-
-                card.querySelector('.report-time').appendChild(
-                    createInteractiveTimestamp(report.created_at),
+                card.querySelector('.first-report-time').appendChild(
+                    createInteractiveTimestamp(report.first_reported_at),
                 );
 
-                card.querySelectorAll('.resolve-btn').forEach((btn) => {
-                    btn.onclick = async () => {
-                        btn.disabled = true;
-                        const success = await resolveReport(
-                            type,
-                            report.id || report.report_id,
-                            btn.dataset.action,
-                        );
-                        if (success) card.remove();
-                        else btn.disabled = false;
+                card.querySelector('.last-report-time').appendChild(
+                    createInteractiveTimestamp(
+                        report.last_reported_at || report.first_reported_at,
+                    ),
+                );
+
+                const actionsContainer = document.createElement('div');
+                actionsContainer.style.display = 'flex';
+                actionsContainer.style.gap = '10px';
+
+                if (report.status === 0) {
+                    const resolveAction = (action, btn) => {
+                        const actionText =
+                            action === 'accept'
+                                ? 'Confirm Violation'
+                                : 'Dismiss Report';
+                        showConfirmationPrompt({
+                            title: actionText,
+                            message: `Are you sure you want to ${actionText.toLowerCase()} for this report?`,
+                            confirmText: actionText,
+                            confirmType:
+                                action === 'accept' ? 'primary' : 'secondary',
+                            onConfirm: async () => {
+                                btn.disabled = true;
+                                const success = await resolveReport(
+                                    report.report_id,
+                                    action,
+                                );
+                                if (success) card.remove();
+                                else btn.disabled = false;
+                            },
+                        });
                     };
-                });
+
+                    const acceptBtn = document.createElement('button');
+                    acceptBtn.className = 'btn-primary-xs';
+                    acceptBtn.textContent = 'Confirm Violation';
+                    acceptBtn.onclick = () =>
+                        resolveAction('accept', acceptBtn);
+
+                    const dismissBtn = document.createElement('button');
+                    dismissBtn.className = 'btn-secondary-xs';
+                    dismissBtn.textContent = 'Dismiss';
+                    dismissBtn.onclick = () =>
+                        resolveAction('dismiss', dismissBtn);
+
+                    actionsContainer.append(acceptBtn, dismissBtn);
+                } else {
+                    const resolvedLabel = document.createElement('div');
+                    Object.assign(resolvedLabel.style, {
+                        fontSize: '11px',
+                        fontWeight: 'bold',
+                        textTransform: 'uppercase',
+                        color: '#49cc90',
+                    });
+                    resolvedLabel.textContent = 'Resolved';
+                    actionsContainer.appendChild(resolvedLabel);
+                }
+
+                card.appendChild(actionsContainer);
 
                 listContainer.appendChild(card);
             });
-        } catch (e) {}
+        } catch (e) {
+            listContainer.innerHTML =
+                '<p style="color: #f93e3e;">Failed to load report queue.</p>';
+        }
     };
 
-    await Promise.all([fetchAndRender('review'), fetchAndRender('content')]);
-    if (listContainer.children.length === 0) {
-        listContainer.innerHTML =
-            '<p style="opacity:0.6;">No pending reports found.</p>';
-    }
+    const statusDropdown = createDropdown({
+        items: statusOptions,
+        initialValue: '0',
+        onValueChange: (val) => {
+            currentStatus = val;
+            loadReports();
+        },
+    });
+
+    const sortDropdown = createDropdown({
+        items: sortOptions,
+        initialValue: 'desc',
+        onValueChange: (val) => {
+            currentSort = val;
+            loadReports();
+        },
+    });
+
+    searchInput.addEventListener('input', loadReports);
+
+    controls.append(
+        searchWrapper,
+        statusDropdown.element,
+        sortDropdown.element,
+    );
+    header.appendChild(controls);
+    container.appendChild(header);
+    container.appendChild(listContainer);
+
+    loadReports();
 }
 
 function renderModerationPage(contentDiv) {
@@ -1419,29 +1553,37 @@ async function renderBanTab(container) {
 
         if (!userId || !/^\d+$/.test(userId) || !reasonId) return;
 
-        resultArea.innerHTML = 'Processing...';
+        showConfirmationPrompt({
+            title: 'Ban User',
+            message: `Are you sure you want to ban user ${userId}?`,
+            confirmText: 'Ban User',
+            confirmType: 'primary',
+            onConfirm: async () => {
+                resultArea.innerHTML = 'Processing...';
 
-        try {
-            const response = await callRobloxApi({
-                subdomain: 'apis',
-                endpoint: '/v1/auth/moderator/ban',
-                method: 'POST',
-                isRovalraApi: true,
-                body: {
-                    user_id: parseInt(userId),
-                    reason_id: parseInt(reasonId),
-                    internal_note: internalNoteInput.value.trim(),
-                    config_key: selectedConfigKey,
-                },
-            });
+                try {
+                    const response = await callRobloxApi({
+                        subdomain: 'apis',
+                        endpoint: '/v1/auth/moderator/ban',
+                        method: 'POST',
+                        isRovalraApi: true,
+                        body: {
+                            user_id: parseInt(userId),
+                            reason_id: parseInt(reasonId),
+                            internal_note: internalNoteInput.value.trim(),
+                            config_key: selectedConfigKey,
+                        },
+                    });
 
-            const data = await response.json();
-            resultArea.innerHTML = DOMPurify.sanitize(
-                `<div style="color: ${response.ok ? '#49cc90' : '#f93e3e'};">${data.message || 'Operation completed'}</div>`,
-            );
-        } catch (err) {
-            resultArea.innerHTML = safeHtml`<div style="color: #f93e3e;">Error: ${err.message}</div>`;
-        }
+                    const data = await response.json();
+                    resultArea.innerHTML = DOMPurify.sanitize(
+                        `<div style="color: ${response.ok ? '#49cc90' : '#f93e3e'};">${data.message || 'Operation completed'}</div>`,
+                    );
+                } catch (err) {
+                    resultArea.innerHTML = safeHtml`<div style="color: #f93e3e;">Error: ${err.message}</div>`;
+                }
+            },
+        });
     };
 
     unbanBtn.onclick = async () => {
@@ -1449,28 +1591,36 @@ async function renderBanTab(container) {
 
         if (!userId || !/^\d+$/.test(userId)) return;
 
-        resultArea.innerHTML = 'Processing...';
+        showConfirmationPrompt({
+            title: 'Unban User',
+            message: `Are you sure you want to unban user ${userId}?`,
+            confirmText: 'Unban User',
+            confirmType: 'primary',
+            onConfirm: async () => {
+                resultArea.innerHTML = 'Processing...';
 
-        try {
-            const response = await callRobloxApi({
-                subdomain: 'apis',
-                endpoint: '/v1/auth/moderator/unban',
-                method: 'POST',
-                isRovalraApi: true,
-                body: {
-                    user_id: parseInt(userId),
-                },
-            });
+                try {
+                    const response = await callRobloxApi({
+                        subdomain: 'apis',
+                        endpoint: '/v1/auth/moderator/unban',
+                        method: 'POST',
+                        isRovalraApi: true,
+                        body: {
+                            user_id: parseInt(userId),
+                        },
+                    });
 
-            const data = await response.json();
-            resultArea.innerHTML = DOMPurify.sanitize(
-                `<div style="color: ${response.ok ? '#49cc90' : '#f93e3e'};">${data.message || 'Operation completed'}</div>`,
-            );
-        } catch (err) {
-            resultArea.innerHTML = DOMPurify.sanitize(
-                `<div style="color: #f93e3e;">Error: ${err.message}</div>`,
-            );
-        }
+                    const data = await response.json();
+                    resultArea.innerHTML = DOMPurify.sanitize(
+                        `<div style="color: ${response.ok ? '#49cc90' : '#f93e3e'};">${data.message || 'Operation completed'}</div>`,
+                    );
+                } catch (err) {
+                    resultArea.innerHTML = DOMPurify.sanitize(
+                        `<div style="color: #f93e3e;">Error: ${err.message}</div>`,
+                    );
+                }
+            },
+        });
     };
 
     buttonsContainer.appendChild(banBtn);

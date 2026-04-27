@@ -8,6 +8,8 @@ import { createOverlay } from '../../../core/ui/overlay.js';
 import { updateUserSettingViaApi } from '../../../core/profile/descriptionhandler.js';
 import { createStyledInput } from '../../../core/ui/catalog/input.js';
 import { getUserSettings } from '../../../core/donators/settingHandler.js';
+import { reportUserContent } from '../../../core/report.js';
+import { showConfirmationPrompt } from '../../../core/ui/confirmationPrompt.js';
 import { parseMarkdown } from '../../../core/utils/markdown.js';
 import DOMPurify from 'dompurify';
 import {
@@ -326,6 +328,29 @@ async function addStatusBubble(avatarContainer) {
                     isTrusted,
                 );
             });
+        } else {
+            bubble.style.cursor = 'pointer';
+            addTooltip(bubble, 'Report status');
+
+            bubble.addEventListener('click', (e) => {
+                e.stopPropagation();
+                showConfirmationPrompt({
+                    title: 'Report Status',
+                    message:
+                        "Are you sure you want to report this user's status to RoValra moderators?",
+                    confirmText: 'Report',
+                    onConfirm: async () => {
+                        try {
+                            await reportUserContent(userId, 'status');
+                        } catch (error) {
+                            console.error(
+                                'RoValra: Failed to report status.',
+                                error,
+                            );
+                        }
+                    },
+                });
+            });
         }
     } catch (error) {
         console.error('RoValra: Error adding status bubble.', error);
@@ -403,6 +428,33 @@ async function addHomeStatusHover(tile) {
                             bubble.textContent = statusText;
                         }
                         statusLoaded = true;
+
+                        if (!isOwnProfile) {
+                            bubble.style.cursor = 'pointer';
+                            addTooltip(bubble, 'Report status');
+                            bubble.onclick = (e) => {
+                                e.stopPropagation();
+                                showConfirmationPrompt({
+                                    title: 'Report Status',
+                                    message:
+                                        "Are you sure you want to report this user's status to RoValra moderators?",
+                                    confirmText: 'Report',
+                                    onConfirm: async () => {
+                                        try {
+                                            await reportUserContent(
+                                                userId,
+                                                'status',
+                                            );
+                                        } catch (error) {
+                                            console.error(
+                                                'RoValra: Failed to report status.',
+                                                error,
+                                            );
+                                        }
+                                    },
+                                });
+                            };
+                        }
                     } else {
                         bubbleWrapper.remove();
                         return;
