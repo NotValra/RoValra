@@ -7,6 +7,7 @@ import { enhanceServer } from '../../core/games/servers/serverdetails.js';
 import { loadDatacenterMap, serverIpMap } from '../../core/regions.js';
 import { t, ts } from '../../core/locale/i18n.js';
 import DOMPurify from 'dompurify';
+import { addTooltip } from '../../core/ui/tooltip.js';
 
 const privateServerContext = {
     serverLocations: {},
@@ -45,6 +46,8 @@ export async function init() {
         await loadDatacenterMap();
         privateServerContext.serverIpMap = serverIpMap;
     } catch (e) {}
+
+    initRobloxPlusPrivateServerPrice();
 
     chrome.storage.local.get(
         { PrivateQuickLinkCopy: true, ServerlistmodificationsEnabled: true },
@@ -441,4 +444,70 @@ export async function addModernPrivateServerControls(
     buttonsRow.appendChild(generateLinkWrapper);
     buttonsRow.appendChild(shareBtnWrapper);
     btnContainer.appendChild(buttonsRow);
+}
+
+async function initRobloxPlusPrivateServerPrice() {
+    const userId = await getAuthenticatedUserId();
+    if (!userId) return;
+
+    try {
+        const membershipStatus = await callRobloxApiJson({
+            subdomain: 'premiumfeatures',
+            endpoint: `/v1/users/${userId}/validate-membership`,
+        });
+
+        if (String(membershipStatus) !== 'true') return;
+    } catch (e) {
+        return;
+    }
+
+    observeElement('.create-server-banner-text', async (bannerTextEl) => {
+        if (bannerTextEl.dataset.rovalraPlusEnhanced) return;
+        bannerTextEl.dataset.rovalraPlusEnhanced = 'true';
+
+        const placeId = getPlaceIdFromUrl();
+        if (!placeId) return;
+
+        try {
+            const placeDetails = await callRobloxApiJson({
+                subdomain: 'games',
+                endpoint: `/v1/games/multiget-place-details?placeIds=${placeId}`,
+            });
+            const universeId = placeDetails?.[0]?.universeId;
+            if (!universeId) return;
+
+            const cloudData = await callRobloxApiJson({
+                subdomain: 'apis',
+                endpoint: `/cloud/v2/universes/${universeId}`,
+                useApiKey: true,
+                useBackground: true,
+            });
+            const originalPrice = cloudData?.privateServerPriceRobux;
+            if (originalPrice === undefined) return;
+
+            const priceSpan = bannerTextEl.querySelector('.private-server-price');
+            if (priceSpan) {
+                const infoIcon = document.createElement('span');
+                infoIcon.className = 'icon-moreinfo';
+                infoIcon.style.marginLeft = '4px';
+                infoIcon.style.cursor = 'help';
+                infoIcon.style.display = 'inline-block';
+                infoIcon.style.verticalAlign = 'middle';
+                infoIcon.style.width = '16px';
+                infoIcon.style.height = '16px';
+                infoIcon.style.background = 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Ccircle cx=\'12\' cy=\'12\' r=\'10\'/%3E%3Cline x1=\'12\' y1=\'16\' x2=\'12\' y2=\'12\'/%3E%3Cline x1=\'12\' y1=\'8\' x2=\'12.01\' y2=\'8\'/%3E%3C/svg%3E") no-repeat center';
+                infoIcon.style.backgroundSize = 'contain';
+                
+                const theme = document.body.classList.contains('dark-theme') ? 'filter: invert(1);' : '';
+                infoIcon.style.cssText += theme;
+
+                const tooltipText = `Original Price: <b>${originalPrice} Robux</b><br>Currently shows as <b>Free</b> due to Roblox Plus.`;
+                addTooltip(infoIcon, tooltipText, { position: 'top' });
+
+                priceSpan.appendChild(infoIcon);
+            }
+        } catch (e) {
+            console.warn('RoValra: Failed to fetch original price for Roblox Plus tooltip', e);
+        }
+    });
 }
