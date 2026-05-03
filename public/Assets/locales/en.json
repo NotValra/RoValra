@@ -305,6 +305,8 @@
     "qolToggles": {
         "onlineStatus": "Online Status",
         "joinStatus": "Experience Status",
+        "privateServerPrivacy": "Private Server Privacy",
+        "inventoryVisibility": "Inventory Visibility",
         "everyone": "Everyone",
         "friendsFollowingAndFollowers": "Friends, Followers, & Following",
         "friendsAndFollowing": "Friends & Following",

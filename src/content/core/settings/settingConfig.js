@@ -1119,7 +1119,7 @@ export const SETTINGS_CONFIG = {
             qolTogglesEnabled: {
                 label: 'Adds quality of life toggles to the navigation bar',
                 description:
-                    'Allowing you to quickly change your online status or experience status without going into settings.',
+                    'Allowing you to quickly change your online status, experience status, private server privacy, and inventory visibility without going into settings.',
                 type: 'checkbox',
                 default: true,
             },
