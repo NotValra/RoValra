@@ -563,7 +563,6 @@ export const SETTINGS_CONFIG = {
                 label: 'Trusted Friends',
                 description: [
                     'This feature allows you to accept, request and remove trusted friends on the site by pressing the (...) on their profile, this will only work for eligible friends.',
-                    'Eligible friends must be ID or face-scan verified and within your age bracket (13–17 or 18+).',
                     'Trusted Friends might not be available in some regions.',
                     '**Note:** Roblox uses an algorithm that may prevent adding someone even if they meet these requirements. [Learn more here.](https://en.help.roblox.com/hc/en-us/articles/46158344285204)',
                 ],
