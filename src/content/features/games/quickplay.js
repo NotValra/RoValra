@@ -244,9 +244,7 @@ async function flushPaidPlayabilityQueue() {
             }
         });
     } catch (e) {
-        // Do not show the badge when ownership/playability could not be checked yet.
-        // This avoids briefly showing prices for paid games the user already owns.
-        console.warn('RoValra: Delaying paid access badge ownership check', e);
+        console.warn('RoValra: Delaying paid access check', e);
     } finally {
         paidPlayabilityInFlight = false;
         if (paidPlayabilityQueue.size) {
@@ -516,10 +514,6 @@ function flushPaidPriceQueue() {
                     const fallbackTimer = setTimeout(() => {
                         if (playabilityResolved) return;
 
-                        // If Roblox rate-limits the owned/playability check, still show the
-                        // price badge instead of hiding all paid prices forever. If the
-                        // delayed check later proves the user owns/can play it, the badge
-                        // is removed below.
                         showBadge();
                     }, 1400);
 
