@@ -141,6 +141,14 @@ export const SETTINGS_CONFIG = {
                         type: 'checkbox',
                         default: true,
                     },
+                    PaidAccessPriceBadgeEnabled: {
+                        label: 'Show Paid Game Access Price',
+                        description: [
+                            'This adds a small box that shows the price of paid Games.',
+                        ],
+                        type: 'checkbox',
+                        default: true,
+                    },
                     playbuttonpreferredregionenabled: {
                         label: 'Change the normal Play button to join your preferred region in Quick Play',
                         description: [

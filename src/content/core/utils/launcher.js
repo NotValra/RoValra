@@ -11,6 +11,7 @@ function executeLaunchScript(codeToInject) {
     }
 }
 
+
 export function launchGame(placeId, jobId = null) {
     const joinFunction = jobId
         ? `Roblox.GameLauncher.joinGameInstance(parseInt('${placeId}', 10), '${jobId}')`

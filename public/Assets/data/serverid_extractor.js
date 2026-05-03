@@ -1,3 +1,4 @@
+(() => {
 const assignedAccessCodes = new Set();
 
 window.addEventListener('rovalra-extract-serverid-request', function (event) {
@@ -217,3 +218,5 @@ window.addEventListener('rovalra-extract-serverid-request', function (event) {
         );
     }
 });
+
+})();

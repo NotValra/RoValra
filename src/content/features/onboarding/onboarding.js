@@ -19,7 +19,7 @@ export function init() {
                     To change settings and explore all features, you can:
                 </p>
                 <ul style="list-style-type: disc; margin-left: 20px; margin-bottom: 15px; line-height: 1.6;">
-                    <li>Click the <strong>gear icon</strong> in the Roblox header, and then click on "RoValra Setting".</li>
+                    <li>Click the <strong>gear icon</strong> in the Roblox header, and then click on "RoValra Settings".</li>
                    
                 </ul>
 

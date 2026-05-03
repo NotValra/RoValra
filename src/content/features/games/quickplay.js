@@ -122,6 +122,489 @@ function getGameIdsFromLink(href) {
     }
 }
 
+
+const PAID_PRICE_BADGE_CLASS = 'rovalra-paid-access-price-badge';
+const PAID_PRICE_BADGE_ICON_CLASS = 'rovalra-paid-access-price-badge-icon';
+const PAID_PRICE_BADGE_VALUE_CLASS = 'rovalra-paid-access-price-badge-value';
+const PAID_PRICE_PROCESSED_CLASS = 'rovalra-paid-price-processed';
+const PAID_PRICE_BADGE_ICON_SVG = `
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+        <path d="M15.0762 7.29574C15.6479 6.96571 16.3521 6.96571 16.9238 7.29574L23.0762 10.8479C23.6479 11.1779 24 11.7878 24 12.4479V19.5521C24 20.2122 23.6479 20.8221 23.0762 21.1521L16.9238 24.7043C16.3521 25.0343 15.6479 25.0343 15.0762 24.7043L8.92376 21.1521C8.35214 20.8221 8 20.2122 8 19.5521V12.4479C8 11.7878 8.35214 11.1779 8.92376 10.8479L15.0762 7.29574ZM11.9998 13V19C11.9998 19.5523 12.4475 20 12.9998 20H18.9998C19.5521 20 19.9998 19.5523 19.9998 19V13C19.9998 12.4477 19.5521 12 18.9998 12H12.9998C12.4475 12 11.9998 12.4477 11.9998 13Z"/>
+        <path d="M13.8556 2.56068C15.1825 1.81311 16.8175 1.81311 18.1444 2.56068L26.8556 7.46819C28.1825 8.21577 29 9.59734 29 11.0925V20.9075C29 22.4027 28.1825 23.7842 26.8556 24.5318L18.1444 29.4393C16.8175 30.1869 15.1825 30.1869 13.8556 29.4393L5.14444 24.5318C3.81746 23.7842 3 22.4027 3 20.9075V11.0925C3 9.59734 3.81746 8.21577 5.14444 7.46819L13.8556 2.56068ZM17.1628 4.30319C16.4452 3.89894 15.5548 3.89894 14.8372 4.30319L6.12611 9.2107C5.41362 9.61209 5 10.336 5 11.0925V20.9075C5 21.664 5.41362 22.3879 6.12611 22.7893L14.8372 27.6968C15.5548 28.1011 16.4452 28.1011 17.1628 27.6968L25.8739 22.7893C26.5864 22.3879 27 21.664 27 20.9075V11.0925C27 10.336 26.5864 9.61209 25.8739 9.2107L17.1628 4.30319Z"/>
+    </svg>`;
+const paidPriceCache = new Map();
+const paidPriceQueue = new Map();
+let paidPriceTimer = null;
+
+const paidPlayabilityCache = new Map();
+const paidPlayabilityQueue = new Map();
+let paidPlayabilityTimer = null;
+let paidPlayabilityInFlight = false;
+
+function shouldHidePaidPriceForPlayability(statusData) {
+    if (!statusData) return false;
+
+    const status = String(statusData.playabilityStatus || '').toLowerCase();
+    if (status === 'playable' || statusData.isPlayable === true) return true;
+
+    return false;
+}
+
+function getPaidPriceKey(placeId) {
+    return String(placeId || '');
+}
+
+function getPaidPlayabilityKey(universeId) {
+    return String(universeId || '');
+}
+
+function queuePaidPlayabilityCheck(universeId, onResolved) {
+    const key = getPaidPlayabilityKey(universeId);
+    if (!key) {
+        onResolved(false);
+        return;
+    }
+
+    if (paidPlayabilityCache.has(key)) {
+        onResolved(paidPlayabilityCache.get(key));
+        return;
+    }
+
+    if (!paidPlayabilityQueue.has(key)) {
+        paidPlayabilityQueue.set(key, []);
+    }
+    paidPlayabilityQueue.get(key).push(onResolved);
+
+    if (!paidPlayabilityTimer) {
+        paidPlayabilityTimer = setTimeout(flushPaidPlayabilityQueue, 900);
+    }
+}
+
+function resolvePaidPlayabilityCallbacks(universeId, hideBadge) {
+    const key = getPaidPlayabilityKey(universeId);
+    paidPlayabilityCache.set(key, !!hideBadge);
+
+    const callbacks = paidPlayabilityQueue.get(key) || [];
+    paidPlayabilityQueue.delete(key);
+    callbacks.forEach((callback) => {
+        try {
+            callback(!!hideBadge);
+        } catch (e) {
+            console.warn('RoValra: Failed to resolve paid access status', e);
+        }
+    });
+}
+
+async function flushPaidPlayabilityQueue() {
+    if (paidPlayabilityInFlight) {
+        if (!paidPlayabilityTimer) {
+            paidPlayabilityTimer = setTimeout(flushPaidPlayabilityQueue, 1200);
+        }
+        return;
+    }
+
+    const universeIds = Array.from(paidPlayabilityQueue.keys()).filter(
+        (id) => !paidPlayabilityCache.has(id),
+    );
+
+    paidPlayabilityTimer = null;
+    if (!universeIds.length) return;
+
+    const chunk = universeIds.slice(0, 3);
+    paidPlayabilityInFlight = true;
+
+    try {
+        const playabilityEndpoint = `/v1/games/multiget-playability-status?${chunk
+            .map((id) => `universeIds=${encodeURIComponent(id)}`)
+            .join('&')}`;
+        const playabilityRes = await callRobloxApi({
+            subdomain: 'games',
+            endpoint: playabilityEndpoint,
+            method: 'GET',
+        });
+
+        if (!playabilityRes.ok) {
+            throw new Error(`playability status ${playabilityRes.status}`);
+        }
+
+        const playabilityData = await playabilityRes.json();
+        const returned = new Set();
+
+        if (Array.isArray(playabilityData)) {
+            for (const statusData of playabilityData) {
+                const universeId = getPaidPlayabilityKey(
+                    statusData?.universeId ?? statusData?.UniverseId,
+                );
+                if (!universeId) continue;
+
+                returned.add(universeId);
+                resolvePaidPlayabilityCallbacks(
+                    universeId,
+                    shouldHidePaidPriceForPlayability(statusData),
+                );
+            }
+        }
+
+        chunk.forEach((universeId) => {
+            if (!returned.has(universeId)) {
+                resolvePaidPlayabilityCallbacks(universeId, false);
+            }
+        });
+    } catch (e) {
+        console.warn('RoValra: Delaying paid access badge ownership check', e);
+    } finally {
+        paidPlayabilityInFlight = false;
+        if (paidPlayabilityQueue.size) {
+            paidPlayabilityTimer = setTimeout(flushPaidPlayabilityQueue, 1800);
+        }
+    }
+}
+
+function getPaidPriceStore() {
+    if (
+        !window.__rovalraPaidAccessPrices ||
+        !window.__rovalraPaidAccessPrices.set
+    ) {
+        window.__rovalraPaidAccessPrices = new Map();
+    }
+    return window.__rovalraPaidAccessPrices;
+}
+
+function injectPaidPriceBadgeStyles() {
+    if (document.getElementById('rovalra-paid-price-badge-styles')) return;
+
+    const style = document.createElement('style');
+    style.id = 'rovalra-paid-price-badge-styles';
+    style.textContent = `
+        .rovalra-paid-access-price-title-row {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            min-width: 0;
+            width: 100%;
+        }
+        .rovalra-paid-access-price-title-row > .game-card-name,
+        .rovalra-paid-access-price-title-row > .game-name-title {
+            flex: 1 1 auto;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .${PAID_PRICE_BADGE_CLASS} {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            flex: 0 0 auto;
+            height: 19px;
+            max-width: 62px;
+            padding: 0 8px 0 6px;
+            border-radius: 999px;
+            background: #335fff;
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            line-height: 1;
+            white-space: nowrap;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
+            pointer-events: none;
+            transform: translateY(-1px);
+        }
+        .${PAID_PRICE_BADGE_CLASS} .${PAID_PRICE_BADGE_ICON_CLASS} {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 11px;
+            height: 11px;
+            flex: 0 0 auto;
+            color: currentColor;
+        }
+        .${PAID_PRICE_BADGE_CLASS} .${PAID_PRICE_BADGE_ICON_CLASS} svg {
+            width: 100%;
+            height: 100%;
+            fill: currentColor;
+            display: block;
+        }
+        .${PAID_PRICE_BADGE_CLASS} .${PAID_PRICE_BADGE_VALUE_CLASS} {
+            display: inline-block;
+            line-height: 1;
+        }
+    `;
+    document.documentElement.appendChild(style);
+}
+
+function getPaidPriceCardRoot(gameLink) {
+    return (
+        gameLink.closest(
+            '.game-card-container, .game-card, .list-item, .item-card, li, .game-tile',
+        ) ||
+        gameLink.parentElement ||
+        gameLink
+    );
+}
+
+function hasNativePaidPrice(gameLink, price) {
+    const card = getPaidPriceCardRoot(gameLink);
+    if (!card) return false;
+
+    const clone = card.cloneNode(true);
+    clone
+        .querySelectorAll?.(`.${PAID_PRICE_BADGE_CLASS}`)
+        .forEach((node) => node.remove());
+
+    const text = (clone.textContent || '').replace(/\s+/g, ' ').trim();
+    if (/\b\d[\d,.]*\s*Robux\b/i.test(text)) return true;
+
+    const escapedPrice = String(price || '').replace(
+        /[.*+?^${}()|[\]\\]/g,
+        '\\$&',
+    );
+    if (
+        price &&
+        new RegExp(`\\b${escapedPrice}\\b`).test(text) &&
+        card.querySelector(
+            '.icon-robux, [class*="robux" i], [aria-label*="Robux" i], [title*="Robux" i]',
+        )
+    ) {
+        return true;
+    }
+
+    return false;
+}
+
+function isLargeSearchCard(gameLink) {
+    const card = getPaidPriceCardRoot(gameLink);
+    const rect = (card || gameLink).getBoundingClientRect?.();
+    if (rect && rect.width > 430) return true;
+
+    const text = (card?.textContent || '').replace(/\s+/g, ' ');
+    return /\bBy\s+[^\n]+/.test(text) || text.length > 180;
+}
+
+function placePaidPriceBadge(gameLink, badge, nameEl) {
+    let titleRow = nameEl.closest('.rovalra-paid-access-price-title-row');
+
+    if (!titleRow) {
+        titleRow = document.createElement('div');
+        titleRow.className = 'rovalra-paid-access-price-title-row';
+        nameEl.parentNode.insertBefore(titleRow, nameEl);
+        titleRow.appendChild(nameEl);
+    }
+
+    titleRow.appendChild(badge);
+}
+
+function addPaidPriceBadge(gameLink, price) {
+    price = Number(price || 0);
+    if (
+        !price ||
+        !gameLink ||
+        gameLink.querySelector(`.${PAID_PRICE_BADGE_CLASS}`)
+    ) {
+        return;
+    }
+    if (hasNativePaidPrice(gameLink, price) || isLargeSearchCard(gameLink)) {
+        return;
+    }
+
+    const nameEl = gameLink.querySelector('.game-card-name, .game-name-title');
+    if (!nameEl) return;
+
+    injectPaidPriceBadgeStyles();
+
+    const badge = document.createElement('span');
+    badge.className = PAID_PRICE_BADGE_CLASS;
+    badge.title = `Paid access: ${price.toLocaleString()} Robux`;
+
+    const icon = document.createElement('span');
+    icon.className = PAID_PRICE_BADGE_ICON_CLASS;
+    icon.innerHTML = PAID_PRICE_BADGE_ICON_SVG;
+
+    const value = document.createElement('span');
+    value.className = PAID_PRICE_BADGE_VALUE_CLASS;
+    value.textContent = price.toLocaleString();
+
+    badge.append(icon, value);
+
+    placePaidPriceBadge(gameLink, badge, nameEl);
+}
+
+function removePaidPriceBadge(gameLink) {
+    if (!gameLink) return;
+
+    gameLink
+        .querySelectorAll?.(`.${PAID_PRICE_BADGE_CLASS}`)
+        .forEach((badge) => badge.remove());
+}
+
+async function fetchPaidPriceChunk(placeIds) {
+    const endpoint = `/v1/games/multiget-place-details?${placeIds
+        .map((id) => `placeIds=${encodeURIComponent(id)}`)
+        .join('&')}`;
+
+    const placeRes = await callRobloxApi({
+        subdomain: 'games',
+        endpoint,
+        method: 'GET',
+    });
+    const placeData = placeRes.ok ? await placeRes.json() : [];
+
+    const prices = new Map();
+    const placeToUniverse = new Map();
+    const placePlayable = new Map();
+
+    if (Array.isArray(placeData)) {
+        for (const item of placeData) {
+            const itemPlaceId = getPaidPriceKey(
+                item?.placeId ?? item?.PlaceId ?? item?.id,
+            );
+            const universeId = getPaidPlayabilityKey(
+                item?.universeId ?? item?.UniverseId,
+            );
+            const price = Number(
+                item?.price ??
+                    item?.Price ??
+                    item?.accessPrice ??
+                    item?.priceInRobux ??
+                    0,
+            );
+            const hasDirectPlayableState =
+                typeof item?.isPlayable === 'boolean' ||
+                typeof item?.IsPlayable === 'boolean' ||
+                item?.playabilityStatus != null ||
+                item?.PlayabilityStatus != null;
+            const directPlayable =
+                item?.isPlayable === true ||
+                item?.IsPlayable === true ||
+                String(item?.playabilityStatus ?? item?.PlayabilityStatus ?? '')
+                    .toLowerCase() === 'playable';
+
+            if (itemPlaceId) prices.set(itemPlaceId, price);
+            if (itemPlaceId && hasDirectPlayableState) {
+                placePlayable.set(itemPlaceId, directPlayable);
+            }
+            if (itemPlaceId && universeId && price > 0) {
+                placeToUniverse.set(itemPlaceId, universeId);
+            }
+        }
+    }
+
+    return { prices, placeToUniverse, placePlayable };
+}
+
+function flushPaidPriceQueue() {
+    const entries = Array.from(paidPriceQueue.entries());
+    paidPriceQueue.clear();
+    paidPriceTimer = null;
+
+    const unresolved = entries.filter(([placeId]) =>
+        !paidPriceCache.has(placeId),
+    );
+    const unresolvedLinks = new Map(unresolved);
+
+    for (const [placeId, links] of entries) {
+        if (!paidPriceCache.has(placeId)) continue;
+        links.forEach((link) => addPaidPriceBadge(link, paidPriceCache.get(placeId)));
+    }
+
+    const placeIds = unresolved.map(([placeId]) => placeId).filter(Boolean);
+    if (!placeIds.length) return;
+
+    for (let i = 0; i < placeIds.length; i += 50) {
+        const chunk = placeIds.slice(i, i + 50);
+        fetchPaidPriceChunk(chunk)
+            .then(({ prices, placeToUniverse, placePlayable }) => {
+                for (const placeId of chunk) {
+                    const key = getPaidPriceKey(placeId);
+                    const price = prices.get(key) || 0;
+                    const universeId = placeToUniverse.get(key);
+                    const directPlayable = placePlayable.get(key);
+                    const links = unresolvedLinks.get(placeId) || [];
+
+                    if (!price) {
+                        paidPriceCache.set(placeId, 0);
+                        getPaidPriceStore().set(key, 0);
+                        continue;
+                    }
+
+                    const showBadge = () => {
+                        paidPriceCache.set(placeId, price);
+                        getPaidPriceStore().set(key, price);
+                        links.forEach((link) => addPaidPriceBadge(link, price));
+                    };
+
+                    if (directPlayable === true) {
+                        paidPriceCache.set(placeId, 0);
+                        getPaidPriceStore().set(key, 0);
+                        links.forEach((link) => removePaidPriceBadge(link));
+                        continue;
+                    }
+
+                    if (directPlayable === false || !universeId) {
+                        showBadge();
+                        continue;
+                    }
+
+                    let playabilityResolved = false;
+                    const fallbackTimer = setTimeout(() => {
+                        if (playabilityResolved) return;
+
+                        showBadge();
+                    }, 1400);
+
+                    queuePaidPlayabilityCheck(universeId, (hideBadge) => {
+                        playabilityResolved = true;
+                        clearTimeout(fallbackTimer);
+
+                        const finalPrice = hideBadge ? 0 : price;
+                        paidPriceCache.set(placeId, finalPrice);
+                        getPaidPriceStore().set(key, finalPrice);
+
+                        if (hideBadge) {
+                            links.forEach((link) => removePaidPriceBadge(link));
+                            return;
+                        }
+
+                        links.forEach((link) =>
+                            addPaidPriceBadge(link, price),
+                        );
+                    });
+                }
+            })
+            .catch(() => {
+                chunk.forEach((placeId) => {
+                    const key = getPaidPriceKey(placeId);
+                    paidPriceCache.set(placeId, 0);
+                    getPaidPriceStore().set(key, 0);
+                });
+            });
+    }
+}
+
+function setupPaidPriceBadge(gameLink) {
+    if (!gameLink || gameLink.classList.contains(PAID_PRICE_PROCESSED_CLASS)) {
+        return;
+    }
+
+    const { placeId } = getGameIdsFromLink(gameLink.href);
+    if (!placeId) return;
+
+    gameLink.classList.add(PAID_PRICE_PROCESSED_CLASS);
+
+    if (paidPriceCache.has(placeId)) {
+        addPaidPriceBadge(gameLink, paidPriceCache.get(placeId));
+        return;
+    }
+
+    if (!paidPriceQueue.has(placeId)) paidPriceQueue.set(placeId, []);
+    paidPriceQueue.get(placeId).push(gameLink);
+
+    if (!paidPriceTimer) {
+        paidPriceTimer = setTimeout(flushPaidPriceQueue, 450);
+    }
+}
+
 function showTemporaryTooltip(parent, text, duration = 1400) {
     const temp = document.createElement('div');
     temp.className = 'rovalra-ps-tooltip';
@@ -812,6 +1295,7 @@ function initializeQuickPlay() {
         {
             PreferredRegionEnabled: true,
             privateservers: true,
+            PaidAccessPriceBadgeEnabled: true,
             playbuttonpreferredregionenabled: true,
             robloxPreferredRegion: 'AUTO',
         },
@@ -821,6 +1305,10 @@ function initializeQuickPlay() {
                 if (gameLink.closest('[data-testid="event-experience-link"]')) {
                     return;
                 }
+                if (settings.PaidAccessPriceBadgeEnabled) {
+                    setupPaidPriceBadge(gameLink);
+                }
+
                 if (gameLink.classList.contains(PROCESSED_MARKER_CLASS)) return;
                 gameLink.classList.add(PROCESSED_MARKER_CLASS);
 
