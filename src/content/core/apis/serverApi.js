@@ -38,7 +38,8 @@ function startUptimeLiveCounter() {
                         detail: {
                             serverId,
                             uptime: currentUptime,
-                            isEstimate: !!serverUptimeIsEstimate[serverId],
+                            isEstimate:
+                                serverUptimeIsEstimate[serverId] !== false,
                         },
                     });
                     serverEl.dispatchEvent(event);
@@ -142,7 +143,7 @@ export async function fetchServerDetails(placeId, serverIds) {
                     serverId: server_id,
                     placeVersion: place_version,
                     uptime: getServerUptime(server_id),
-                    isEstimate: !!serverUptimeIsEstimate[server_id],
+                    isEstimate: serverUptimeIsEstimate[server_id] !== false,
                     region: regionStr,
                     ipAddress: ip_address,
                     datacenterId: datacenter_id,
@@ -160,7 +161,7 @@ export async function fetchServerDetails(placeId, serverIds) {
             serverId: id,
             placeVersion: null,
             uptime: getServerUptime(id) ?? 60,
-            isEstimate: !!serverUptimeIsEstimate[id],
+            isEstimate: serverUptimeIsEstimate[id] !== false,
             region: null,
             ipAddress: null,
             datacenterId: null,
@@ -174,6 +175,10 @@ export async function fetchServerDetails(placeId, serverIds) {
 
 export async function fetchServerRegion(placeId, serverId, options = {}) {
     try {
+        if (serverId && serverDataCache.has(serverId)) {
+            return serverDataCache.get(serverId);
+        }
+
         const endpoint = options.isPrivate
             ? '/v1/join-private-game'
             : '/v1/join-game-instance';
@@ -207,15 +212,16 @@ export async function fetchServerRegion(placeId, serverId, options = {}) {
         };
 
         if (info.joinScript) {
+            const serverClaimedTime = info.joinScript.ServerClaimedTime;
             if (
-                info.joinScript.ServerClaimedTime &&
-                typeof info.joinScript.ServerClaimedTime === 'number' &&
-                info.joinScript.ServerClaimedTime > 0
+                serverClaimedTime &&
+                typeof serverClaimedTime === 'number' &&
+                serverClaimedTime > 0
             ) {
                 const now = Date.now();
                 const gamejoinUptime = Math.max(
                     0,
-                    (now - info.joinScript.ServerClaimedTime) / 1000,
+                    (now - serverClaimedTime) / 1000,
                 );
 
                 const calculatedBase = now - gamejoinUptime * 1000;
@@ -228,6 +234,8 @@ export async function fetchServerRegion(placeId, serverId, options = {}) {
 
                     startUptimeLiveCounter();
                 }
+            } else {
+                serverUptimeIsEstimate[serverId] = true;
             }
 
             const dcId = info.joinScript?.DataCenterId;
@@ -271,7 +279,11 @@ export async function fetchServerRegion(placeId, serverId, options = {}) {
             }
         }
 
-        result.isEstimate = !!serverUptimeIsEstimate[serverId];
+        result.isEstimate = serverUptimeIsEstimate[serverId] !== false;
+
+        if (serverId && result.joinScript) {
+            serverDataCache.set(serverId, result);
+        }
 
         return result;
     } catch (e) {
@@ -312,6 +324,10 @@ export function getServerUptime(serverId) {
 
 export function getServerVersion(serverId) {
     return serverVersionsCache[serverId] || null;
+}
+
+export function getServerUptimeIsEstimate(serverId) {
+    return serverUptimeIsEstimate[serverId] !== false;
 }
 
 export function clearServerCache() {
