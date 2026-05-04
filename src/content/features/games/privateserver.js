@@ -7,6 +7,7 @@ import { enhanceServer } from '../../core/games/servers/serverdetails.js';
 import { loadDatacenterMap, serverIpMap } from '../../core/regions.js';
 import { t, ts } from '../../core/locale/i18n.js';
 import DOMPurify from 'dompurify';
+import { addTooltip } from '../../core/ui/tooltip.js';
 
 const privateServerContext = {
     serverLocations: {},

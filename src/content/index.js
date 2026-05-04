@@ -89,6 +89,7 @@ import { init as initRovalraBadges } from './features/profile/header/RoValraBadg
 import { init as initUserGames } from './features/profile/hiddengames.js';
 import { init as initGroupRole } from './features/profile/grouprole.js';
 import { init as initPrivateServerControls } from './features/games/privateserver.js';
+import { init as initPlusPrivateServerTooltip } from './features/games/plusPrivateServerTooltip.js';
 import { init as initPreviousPrice } from './features/sitewide/PreviousPrice.js';
 import { init as initCategorizeWearing } from './features/profile/categorizeWearing.js';
 import { init as initBannedUsers } from './features/profile/bannedusers.js';
@@ -196,6 +197,7 @@ const featureRoutes = [
             initRecentServers,
             initPrivateServerControls,
             initHeatmap,
+            initPlusPrivateServerTooltip,
         ],
     },
     // private games and game pages
