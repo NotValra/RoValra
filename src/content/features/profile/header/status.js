@@ -5,9 +5,11 @@ import { injectStylesheet } from '../../../core/ui/cssInjector.js';
 import { addTooltip } from '../../../core/ui/tooltip.js';
 import { getAuthenticatedUserId } from '../../../core/user.js';
 import { createOverlay } from '../../../core/ui/overlay.js';
-import { updateUserSettingViaApi } from '../../../core/profile/descriptionhandler.js';
+import {
+    getUserSettings,
+    updateUserSettingViaApi,
+} from '../../../core/donators/settingHandler.js';
 import { createStyledInput } from '../../../core/ui/catalog/input.js';
-import { getUserSettings } from '../../../core/donators/settingHandler.js';
 import { reportUserContent } from '../../../core/report.js';
 import { showConfirmationPrompt } from '../../../core/ui/confirmationPrompt.js';
 import { parseMarkdown } from '../../../core/utils/markdown.js';

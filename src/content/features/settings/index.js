@@ -45,8 +45,10 @@ import {
 } from '../../core/thumbnail/thumbnails.js';
 import { injectStylesheet } from '../../core/ui/cssInjector.js';
 import { addTooltip } from '../../core/ui/tooltip.js';
-import { updateUserSettingViaApi } from '../../core/profile/descriptionhandler.js';
-import { getUserSettings } from '../../core/donators/settingHandler.js';
+import {
+    getUserSettings,
+    updateUserSettingViaApi,
+} from '../../core/donators/settingHandler.js';
 
 const assets = getAssets();
 let REGIONS = {};

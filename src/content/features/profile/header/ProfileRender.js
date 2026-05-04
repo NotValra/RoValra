@@ -25,11 +25,9 @@ import {
     getCurrentUserTier,
 } from '../../../core/settings/handlesettings.js';
 import {
-    getUserDescription,
-    updateUserDescription,
+    getUserSettings,
     updateUserSettingViaApi,
-} from '../../../core/profile/descriptionhandler.js';
-import { getUserSettings } from '../../../core/donators/settingHandler.js';
+} from '../../../core/donators/settingHandler.js';
 import {
     RegisterWrappers,
     RBXRenderer,
@@ -1318,25 +1316,6 @@ async function injectCustomButtons(toggleButton) {
                                 error,
                             );
                         }
-                    } else {
-                        const currentDescription =
-                            await getUserDescription(userId);
-                        if (currentDescription !== null) {
-                            let newDescription = currentDescription
-                                .split('\n')
-                                .filter((line) => !line.trim().startsWith('e:'))
-                                .join('\n')
-                                .trim();
-                            if (envId !== 1)
-                                newDescription = newDescription
-                                    ? newDescription + `\n\ne:${envId}`
-                                    : `e:${envId}`;
-                            if (newDescription !== currentDescription)
-                                await updateUserDescription(
-                                    userId,
-                                    newDescription,
-                                );
-                        }
                     }
                 },
             });
@@ -1846,31 +1825,6 @@ async function preloadAvatar() {
                                         'RoValra: Failed to sync environment to API.',
                                         error,
                                     );
-                                }
-                            } else {
-                                const currentDescription =
-                                    await getUserDescription(userId);
-                                if (currentDescription !== null) {
-                                    let newDescription = currentDescription
-                                        .split('\n')
-                                        .filter(
-                                            (line) =>
-                                                !line.trim().startsWith('e:'),
-                                        )
-                                        .join('\n')
-                                        .trim();
-                                    if (localEnvId !== 1) {
-                                        newDescription = newDescription
-                                            ? newDescription +
-                                              `\n\ne:${localEnvId}`
-                                            : `e:${localEnvId}`;
-                                    }
-                                    if (newDescription !== currentDescription) {
-                                        await updateUserDescription(
-                                            userId,
-                                            newDescription,
-                                        );
-                                    }
                                 }
                             }
                         }
