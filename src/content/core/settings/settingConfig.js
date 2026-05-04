@@ -12,6 +12,7 @@ export const SETTINGS_CONFIG = {
         settings: {
             itemSalesEnabled: {
                 label: 'Item Sales',
+                contributors: [447170745],
                 description: [
                     'This shows the most up to date sales and revenue data we have.',
                     'The sales data is very likely to be inaccurate on items that are for sale, but very likely to be correct on off-sale items.',
@@ -109,6 +110,8 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
+                contributors: ['8345351117', '447170745'],
+
                 childSettings: {
                     robloxPreferredRegion: {
                         label: 'Preferred Region',
@@ -132,6 +135,7 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
+                contributors: ['48255812', '447170745'],
                 childSettings: {
                     privateservers: {
                         label: 'Show Private Servers in Quick Play',
@@ -148,6 +152,7 @@ export const SETTINGS_CONFIG = {
                         ],
                         type: 'checkbox',
                         default: true,
+                        contributors: ['10646979010'],
                     },
                     playbuttonpreferredregionenabled: {
                         label: 'Change the normal Play button to join your preferred region in Quick Play',
@@ -219,6 +224,7 @@ export const SETTINGS_CONFIG = {
                     'This allows you to view the developer products of an experience directly on the store page.',
                 type: 'checkbox',
                 default: true,
+                contributors: ['447170745', '10646979010'],
             },
             QuickOutfitsEnabled: {
                 label: 'Quick Equip Outfits',
@@ -459,6 +465,7 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
+                contributors: ['8345351117', '447170745'],
             },
             userSniperEnabled: {
                 label: 'Instant Joiner',
@@ -490,6 +497,8 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: false,
+                contributors: ['126448532', '447170745'],
+
                 experimental:
                     'This feature may cause performance issues. And may be buggy',
                 childSettings: {
@@ -805,6 +814,7 @@ export const SETTINGS_CONFIG = {
                 description: ['Shows a communities hidden experiences.'],
                 type: 'checkbox',
                 default: true,
+                contributors: ['8345351117', '447170745'],
             },
             pendingRobuxEnabled: {
                 label: 'Unpending Robux',
@@ -849,6 +859,7 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
                 storageKey: 'rovalra_groups_order',
+                contributors: ['7982684834', '447170745'],
             },
             groupPlaceVisitsEnabled: {
                 label: 'Total Community Place Visits',
@@ -891,6 +902,7 @@ export const SETTINGS_CONFIG = {
                     'This forces the avatar preview to always be in view on the avatar editor.',
                 type: 'checkbox',
                 default: true,
+                contributors: ['587159802'],
             },
             avatarFiltersEnabled: {
                 label: 'Avatar Filters',
@@ -935,6 +947,7 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: false,
+                contributors: ['193520242', '447170745'],
                 experimental:
                     'Sometimes shows the wrong amount. And it might causes some issues on the site.',
                 childSettings: {
@@ -996,6 +1009,7 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
+                contributors: ['546872490', '447170745'],
             },
             pendingrobuxtrans: {
                 label: 'Unpending Robux Transactions',
@@ -1006,6 +1020,7 @@ export const SETTINGS_CONFIG = {
                     'May be inaccurate. And will take ages depending on the amount of sales',
                 type: 'checkbox',
                 default: false,
+                contributors: ['546872490', '447170745'],
             },
         },
     },
@@ -1129,6 +1144,7 @@ export const SETTINGS_CONFIG = {
                     'Allowing you to quickly change your online status, experience status, private server privacy, and inventory visibility without going into settings.',
                 type: 'checkbox',
                 default: true,
+                contributors: ['447170745', '8345351117'],
             },
             betaProgramsEnabled: {
                 label: 'Adds a beta programs toggle to the navigation bar',
@@ -1143,6 +1159,7 @@ export const SETTINGS_CONFIG = {
                     'Adds a My Transactions link below Communities in the Roblox sidebar.',
                 type: 'checkbox',
                 default: false,
+                contributors: ['193520242', '447170745'],
             },
             quickSearchEnabled: {
                 label: 'Quick Search',
@@ -1226,6 +1243,7 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: false,
+                contributors: [48255812],
                 childSettings: {
                     Customfontlink: {
                         label: 'Google Fonts link',
@@ -1266,6 +1284,7 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: false,
+                contributors: ['2615068449'],
             },
 
             copyIdEnabled: {

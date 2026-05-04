@@ -32,6 +32,7 @@ YourFeatureName: {
     type: "checkbox", // Common types: "checkbox", "input", "select"
     default: true,    // Set the default state, only features that are likely to be useful to everyone should be on by default.
     storageKey: ["What Ever Storage Key Your Feature Uses", "In case of multiple keys"] // Add this if your feature stores stuff for its functionality. So a user is able to clear the storage
+    contributors: ["YOUR USER ID HERE"] // This adds your user as a contributor under a setting, which should be added if you contributed to an existing setting or created an entirely new one.
     // Optional properties that adds a pill beside the title with a tooltip explaining why its there
     // experimental: "reason why its experimental",
     // deprecated: "Reason if the feature is no longer supported",

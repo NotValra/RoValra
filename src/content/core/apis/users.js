@@ -1,4 +1,5 @@
 import { callRobloxApiJson } from '../api.js';
+import { get as getCache, set as setCache } from '../storage/cacheHandler.js';
 
 export const RANKING_STRATEGIES = {
     TC_INFO_BOOST: 'tc_info_boost',
@@ -193,6 +194,57 @@ export async function getProfilePlatformData(options) {
     }
 }
 
+export async function getUserFullData(userId) {
+    const cached = await getCache('user_data', userId.toString(), 'session');
+    if (cached) {
+        return cached;
+    }
+
+    try {
+        const data = await callRobloxApiJson({
+            subdomain: 'users',
+            endpoint: `/v1/users/${userId}`,
+            method: 'GET',
+        });
+
+        await setCache('user_data', userId.toString(), data, 'session');
+        return data;
+    } catch (error) {
+        console.warn('RoValra: Failed to fetch user data', error);
+        return null;
+    }
+}
+
+export async function getUserDisplayName(userId) {
+    const userData = await getUserFullData(userId);
+    return userData?.displayName || userData?.name || null;
+}
+
+export async function getUserName(userId) {
+    const userData = await getUserFullData(userId);
+    return userData?.name || null;
+}
+
+export async function getUserDescription(userId) {
+    const userData = await getUserFullData(userId);
+    return userData?.description || null;
+}
+
+export async function getUserCreatedDate(userId) {
+    const userData = await getUserFullData(userId);
+    return userData?.created || null;
+}
+
+export async function getUserBanStatus(userId) {
+    const userData = await getUserFullData(userId);
+    return userData?.isBanned || false;
+}
+
+export async function getUserVerifiedBadgeStatus(userId) {
+    const userData = await getUserFullData(userId);
+    return userData?.hasVerifiedBadge || false;
+}
+
 export const PROFILE_TYPES = {
     USER: 'User',
     COMMUNITY: 'Community',
@@ -300,6 +352,13 @@ export default {
     getUserProfileData,
     getProfilePlatformData,
     getOfflineFrequents,
+    getUserFullData,
+    getUserDisplayName,
+    getUserName,
+    getUserDescription,
+    getUserCreatedDate,
+    getUserBanStatus,
+    getUserVerifiedBadgeStatus,
     INSIGHT_CASES,
     RANKING_STRATEGIES,
     PROFILE_TYPES,
