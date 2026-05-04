@@ -28,6 +28,7 @@
         background-color: var(--rovalra-container-background-color);
         border-radius: 8px;
         overflow: hidden;
+        flex-shrink: 0;
 
         .game-card-thumb,
         img {
@@ -52,14 +53,17 @@
         font-size: 16px;
         font-weight: 600;
         line-height: 1.2;
-        margin-bottom: 0px;
+        margin-top: 8px;
+        margin-bottom: 0;
         overflow: hidden;
         text-overflow: ellipsis;
         display: -webkit-box;
         -webkit-box-orient: vertical;
         -webkit-line-clamp: 2;
         color: var(--rovalra-main-text-color);
-        height: 38px;
+        min-height: 38px;
+        flex-grow: 1;
+        flex-shrink: 0;
     }
 
     .game-card-info {
@@ -68,9 +72,12 @@
         font-size: 12px;
         color: var(--rovalra-secondary-text-color);
         gap: 4px;
-        margin-top: auto !important;
+        margin-top: 0;
+        margin-bottom: 0;
         width: 100%;
         padding: 0;
         transform: none;
+        min-height: 18px;
+        flex-shrink: 0;
     }
 }

@@ -108,6 +108,8 @@ import { init as initCurrencyTransfer } from './features/profile/currencytransfe
 import { init as initSettingsPage } from './features/settings/index.js';
 import { init as initFirstAccount } from './features/settings/roblox/firstAccount.js';
 import { init as initLegacyThemeSwitcher } from './features/settings/roblox/legacyThemeSwitcher.js';
+// Home
+import { init as initAccurateContinue } from './features/home/accurateContinue.js';
 // create
 import { init as initCreateDownload } from './features/create.roblox.com/download.js';
 
@@ -281,6 +283,10 @@ const featureRoutes = [
     {
         paths: ['/store/asset'],
         features: [initCreateDownload],
+    },
+    {
+        paths: ['/home'],
+        features: [initAccurateContinue],
     },
     {
         paths: ['/my/account'],
