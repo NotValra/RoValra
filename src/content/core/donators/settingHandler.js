@@ -45,13 +45,35 @@ async function fetchAndProcessSettings(userId, options = {}) {
     let apiSettings = {};
     let apiProvidedMeaningfulSettings = false;
     try {
-        const data = await callRobloxApiJson({
-            isRovalraApi: true,
-            subdomain: 'apis',
-            endpoint: `/v1/users/${userId}/settings`,
-            method: 'GET',
-            noCache: isOwnProfile,
-        });
+        let data;
+        if (isOwnProfile) {
+            const token = await getValidAccessToken(false, false);
+            if (token) {
+                data = await callRobloxApiJson({
+                    isRovalraApi: true,
+                    subdomain: 'apis',
+                    endpoint: '/v1/auth/settings',
+                    method: 'GET',
+                    noCache: true,
+                });
+
+                if (data.status === 'success' && data.setting) {
+                    data.settings = {
+                        [data.setting.key]: data.setting.value,
+                    };
+                }
+            }
+        }
+
+        if (!data) {
+            data = await callRobloxApiJson({
+                isRovalraApi: true,
+                subdomain: 'apis',
+                endpoint: `/v1/users/${userId}/settings`,
+                method: 'GET',
+                noCache: isOwnProfile,
+            });
+        }
 
         if (data.status === 'success' && data.settings) {
             apiSettings = data.settings;
@@ -366,8 +388,14 @@ export async function updateUserSettingViaApi(key, value) {
             method: 'POST',
             body: JSON.stringify({ key, value: String(value) }),
         });
-        if (response && response.status === 'success' && response.setting) {
-            return response.setting.value;
+        if (
+            response &&
+            response.status === 'success' &&
+            response.setting &&
+            response.setting.key === key &&
+            response.message === 'Updated successfully.'
+        ) {
+            return true;
         }
         return false;
     } catch (error) {
