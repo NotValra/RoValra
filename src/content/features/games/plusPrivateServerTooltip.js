@@ -4,6 +4,7 @@ import { getAuthenticatedUserId } from '../../core/user.js';
 import { callRobloxApiJson } from '../../core/api.js';
 import { addTooltip } from '../../core/ui/tooltip.js';
 import { getAssets } from '../../core/assets.js';
+import { t } from '../../core/locale/i18n.js';
 import {
     getPlaceDetails,
     getCloudUniverseDetails,
@@ -46,7 +47,7 @@ export async function init() {
                 }
             };
 
-            const createInfoIcon = (originalPrice) => {
+            const createInfoIcon = async (originalPrice) => {
                 const assets = getAssets();
                 const infoIcon = document.createElement('span');
                 infoIcon.className = 'icon-info';
@@ -61,7 +62,12 @@ export async function init() {
                     assets.priceFloorIcon.split(',')[1],
                 );
 
-                const tooltipText = `Original Price: <b>${originalPrice} Robux</b><br>Currently shows as <b>Free</b> due to Roblox Plus.`;
+                const tooltipText = await t(
+                    'plusPrivateServerTooltip.tooltipText',
+                    {
+                        originalPrice,
+                    },
+                );
                 addTooltip(infoIcon, tooltipText, { position: 'top' });
 
                 return infoIcon;
@@ -85,7 +91,9 @@ export async function init() {
                         '.private-server-price',
                     );
                     if (priceSpan) {
-                        priceSpan.appendChild(createInfoIcon(originalPrice));
+                        createInfoIcon(originalPrice).then((icon) =>
+                            priceSpan.appendChild(icon),
+                        );
                     }
                 },
                 { multiple: true },
@@ -93,14 +101,24 @@ export async function init() {
 
             // WITH the RoSeal extension server list redesign
             observeElement(
-                'span.text-body-medium.content-muted',
-                async (textEl) => {
-                    if (
-                        !textEl.textContent.includes(
-                            'Unlimited included with Plus',
-                        )
-                    )
-                        return;
+                '.icon-filled-person-play',
+                async (iconEl) => {
+                    const container = iconEl.closest(
+                        'div.flex.items-center.gap-medium',
+                    );
+                    if (!container) return;
+
+                    const textEl = await new Promise((resolve) => {
+                        const check = () => {
+                            const el = container.querySelector(
+                                'span.text-body-medium.content-muted',
+                            );
+                            if (el) resolve(el);
+                            else setTimeout(check, 10);
+                        };
+                        check();
+                    });
+
                     if (textEl.dataset.rovalraPlusEnhanced) return;
                     textEl.dataset.rovalraPlusEnhanced = 'true';
 
@@ -111,9 +129,11 @@ export async function init() {
                     if (originalPrice === undefined || originalPrice === null)
                         return;
 
-                    textEl.appendChild(createInfoIcon(originalPrice));
+                    createInfoIcon(originalPrice).then((icon) =>
+                        textEl.appendChild(icon),
+                    );
                 },
-                { multiple: true },
+                { multiple: true, subtree: true },
             );
         },
     );

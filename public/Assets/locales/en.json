@@ -758,5 +758,8 @@
         "currencyTransfer": "Send Robux",
         "currencyTransferConfirmation": "This will open the Roblox client allowing you to send robux.",
         "openClient": "Open Client"
+    },
+    "plusPrivateServerTooltip": {
+        "tooltipText": "Original Price: <b>{{originalPrice}} Robux</b><br>Currently shows as <b>Free</b> due to Roblox Plus."
     }
 }
