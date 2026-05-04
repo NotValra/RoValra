@@ -439,6 +439,14 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
+            PlusPrivateServerTooltipEnabled: {
+                label: 'Roblox Plus Free Server Tooltip',
+                description: [
+                    'Adds a tooltip showing the original cost of a private server if it is free due to Roblox Plus.',
+                ],
+                type: 'checkbox',
+                default: true,
+            },
         },
     },
     Profile: {
