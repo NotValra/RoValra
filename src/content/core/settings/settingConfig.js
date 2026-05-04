@@ -1448,6 +1448,7 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: false,
                 exclusiveWith: ['spoofAsStudio', 'spoofAsOnline'],
+                contributors: ['447170745', '109176680'],
             },
             spoofAsStudio: {
                 label: 'Spoof status as In Studio',
@@ -1459,6 +1460,7 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: false,
                 exclusiveWith: ['spoofAsOffline', 'spoofAsOnline'],
+                contributors: ['447170745', '109176680'],
             },
         },
     },
