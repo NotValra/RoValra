@@ -460,6 +460,7 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
+                contributors: ['447170745', '546872490'],
             },
         },
     },
