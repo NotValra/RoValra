@@ -816,6 +816,19 @@ export const SETTINGS_CONFIG = {
             },
         },
     },
+    Home: {
+        title: 'Home',
+        settings: {
+            AccurateContinueEnabled: {
+                label: 'Accurate Continue',
+                description: [
+                    'This sorts the continue accurately based off when you last played the game.',
+                ],
+                type: 'checkbox',
+                default: true,
+            },
+        },
+    },
     Communities: {
         title: 'Communities',
         settings: {

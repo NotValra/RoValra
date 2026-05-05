@@ -1,85 +1,90 @@
-import { createGameCard } from '../../core/ui/games/gameCard.js';
-import { fetchThumbnails } from '../../core/thumbnail/thumbnails.js';
 import { observeElement } from '../../core/observer.js';
 import { callRobloxApiJson } from '../../core/api.js';
 
 export async function init() {
     try {
-        const data = await callRobloxApiJson({
-            subdomain: 'apis',
-            endpoint: '/search-landing-page-api/v1?sessionId=RoValra',
-            credentials: 'include',
-            headers: {
-                Accept: 'application/json',
-            },
-        });
-
-        if (!data.sorts || !data.sorts.length) {
-            return;
-        }
-
-        const recentlyVisitedSort = data.sorts.find(
-            (sort) => sort.sortId === 'RecentlyVisited',
+        const settings = await new Promise((resolve) =>
+            chrome.storage.local.get(
+                { AccurateContinueEnabled: true },
+                resolve,
+            ),
         );
 
-        if (
-            !recentlyVisitedSort ||
-            !recentlyVisitedSort.games ||
-            !recentlyVisitedSort.games.length
-        ) {
-            return;
-        }
-
-        const games = recentlyVisitedSort.games;
-
-        const thumbnailIds = games.map((game) => ({ id: game.universeId }));
-        const thumbnails = await fetchThumbnails(
-            thumbnailIds,
-            'GameIcon',
-            '150x150',
-        );
-
-        const stats = {
-            likes: new Map(),
-            players: new Map(),
-            thumbnails: thumbnails,
-        };
-
-        games.forEach((game) => {
-            stats.likes.set(game.universeId, {
-                ratio:
-                    game.totalUpVotes + game.totalDownVotes > 0
-                        ? Math.floor(
-                              (game.totalUpVotes /
-                                  (game.totalUpVotes + game.totalDownVotes)) *
-                                  100,
-                          )
-                        : 0,
-                total: game.totalUpVotes + game.totalDownVotes,
+        if (settings.AccurateContinueEnabled) {
+            const data = await callRobloxApiJson({
+                subdomain: 'apis',
+                endpoint: '/search-landing-page-api/v1?sessionId=RoValra',
+                credentials: 'include',
+                headers: {
+                    Accept: 'application/json',
+                },
             });
-            stats.players.set(game.universeId, game.playerCount);
-        });
 
-        observeElement(
-            '.hlist.games.game-cards.game-tile-list.home-page-carousel',
-            (container) => {
-                renderGames(container, games, stats);
-            },
-            { multiple: false },
-        );
+            if (!data.sorts || !data.sorts.length) {
+                return;
+            }
+
+            const recentlyVisitedSort = data.sorts.find(
+                (sort) => sort.sortId === 'RecentlyVisited',
+            );
+
+            if (
+                !recentlyVisitedSort ||
+                !recentlyVisitedSort.games ||
+                !recentlyVisitedSort.games.length
+            ) {
+                return;
+            }
+
+            const games = recentlyVisitedSort.games;
+
+            observeElement(
+                '.hlist.games.game-cards.game-tile-list.home-page-carousel',
+                (container) => {
+                    renderGames(container, games);
+                },
+                { multiple: false },
+            );
+        }
     } catch (error) {
         console.warn('RoValra: accurateContinue failed to load', error);
     }
 }
 
-function renderGames(container, games, stats) {
-    const existingGameCards = container.querySelectorAll(
+function renderGames(container, games) {
+    const existingGameCardsMap = new Map();
+    const existingListItems = container.querySelectorAll(
         'li.list-item.game-card.game-tile',
     );
 
-    existingGameCards.forEach((card) => {
-        card.remove();
+    existingListItems.forEach((listItem) => {
+        let gameId = listItem.dataset.gameId;
+        const gameCardLink = listItem.querySelector('.game-card-link');
+
+        if (!gameId) {
+            gameId = gameCardLink?.dataset?.gameid || gameCardLink?.id;
+        }
+
+        if (gameId) {
+            existingGameCardsMap.set(gameId, listItem);
+        } else {
+            listItem.remove();
+        }
     });
+
+    const fragment = document.createDocumentFragment();
+
+    games.forEach((game) => {
+        const gameId = String(game.universeId);
+        let listItem = existingGameCardsMap.get(gameId);
+
+        if (listItem) {
+            fragment.appendChild(listItem);
+            existingGameCardsMap.delete(gameId);
+        }
+    });
+
+    existingGameCardsMap.forEach((listItem) => listItem.remove());
 
     Array.from(container.childNodes).forEach((node) => {
         if (
@@ -90,27 +95,18 @@ function renderGames(container, games, stats) {
         }
     });
 
-    games.forEach((game) => {
-        try {
-            const gameCard = createGameCard({
-                game: {
-                    ...game,
-                    id: game.universeId,
-                    playing: game.playerCount,
-                },
-                stats: stats,
-                showVotes: true,
-                showPlayers: true,
-            });
+    container.appendChild(fragment);
 
-            const listItem = document.createElement('li');
-            listItem.className = 'list-item game-card game-tile';
+    forceLayoutRecalculation();
+}
 
-            listItem.appendChild(gameCard);
-
-            container.appendChild(listItem);
-        } catch (e) {
-            console.warn('RoValra: Failed to create game card', game, e);
-        }
-    });
+function forceLayoutRecalculation() {
+    const mainElement = document.body;
+    if (mainElement) {
+        const originalWidth = mainElement.style.width;
+        mainElement.style.width = mainElement.offsetWidth + 1 + 'px';
+        setTimeout(() => {
+            mainElement.style.width = originalWidth;
+        }, 0);
+    }
 }
