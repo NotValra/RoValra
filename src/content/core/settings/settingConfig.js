@@ -24,10 +24,11 @@ export const SETTINGS_CONFIG = {
             SaveLotsRobuxEnabled: {
                 label: 'Save 10%-40% Robux on Purchases',
                 description: [
-                    'This adds a button allowing you to save 40% on items on the marketplace and 10% on gamepasses',
+                    'This adds a button allowing you to save 40% on items on the marketplace',
                     'Keep in mind a group is required for this to work.',
 
                     "**When buying something there will be a 'Save X Robux' Button which when pressed will set up the experience required for it to work for you, if not already set up.**",
+                    '**Roblox is breaking the ability to save 10% Robux on gamepasses on may 29th.**',
                 ],
                 type: 'checkbox',
                 default: true,
