@@ -12,16 +12,19 @@ const PROP_TYPES = {
     RAY: 0x8,
     FACES: 0x9,
     AXES: 0xA,
-    BRICKCOLOR: 0xB, // Not implemented
+    BRICKCOLOR: 0xB,
     COLOR3: 0xC,
-    VECTOR2: 0xD, // Not implemented
+    VECTOR2: 0xD,
     VECTOR3: 0xE,
-    CFRAME: 0x10, // Not implemented
-    ENUM: 0x13, // Implemented as INT
-    REF: 0x14,
+    CFRAME: 0x10,
+    ENUM: 0x12,
+    REF: 0x13,
     INT64: 0x15,
     SHARED_STRING: 0x16,
-    OPTIONAL: 0x1A
+    COLOR3UINT8: 0x1A,
+    INT64_B: 0x1B,
+    INT32_C: 0x1C,
+    INT64_21: 0x21
 };
 
 
@@ -65,6 +68,7 @@ class ByteReader {
 
 
     readInterleavedInt32Array(count) {
+        if (count < 0 || count > 0x1000000) throw new RangeError(`Suspicious Int32Array count: ${count}`);
         const values = new Int32Array(count);
         if (count === 0) return values;
 
@@ -84,6 +88,7 @@ class ByteReader {
     }
 
     readInterleavedFloatArray(count) {
+        if (count < 0 || count > 0x1000000) throw new RangeError(`Suspicious Float32Array count: ${count}`);
         const values = new Float32Array(count);
         if (count === 0) return values;
 
@@ -259,54 +264,27 @@ export function parseRbxm(buffer) {
                         instances.get(instanceIds[i]).Properties[propName] = sharedStrings.get(hashKey) || "";
                     }
                 } else if (propType === PROP_TYPES.CFRAME) {
-                    const rotIds = chunkReader.readBytes(count);
-                    const customCount = Array.from(rotIds).filter(id => id === 0).length;
-
-                    let r00, r01, r02, r10, r11, r12, r20, r21, r22;
-                    if (customCount > 0) {
-                        r00 = chunkReader.readInterleavedFloatArray(customCount);
-                        r01 = chunkReader.readInterleavedFloatArray(customCount);
-                        r02 = chunkReader.readInterleavedFloatArray(customCount);
-                        r10 = chunkReader.readInterleavedFloatArray(customCount);
-                        r11 = chunkReader.readInterleavedFloatArray(customCount);
-                        r12 = chunkReader.readInterleavedFloatArray(customCount);
-                        r20 = chunkReader.readInterleavedFloatArray(customCount);
-                        r21 = chunkReader.readInterleavedFloatArray(customCount);
-                        r22 = chunkReader.readInterleavedFloatArray(customCount);
-                    }
-
                     const rotations = [];
-                    let customIdx = 0;
-                    const getVec = (id) => id === 0 ? [1, 0, 0] : id === 1 ? [0, 1, 0] : id === 2 ? [0, 0, 1] : id === 3 ? [-1, 0, 0] : id === 4 ? [0, -1, 0] : [0, 0, -1];
-                    for (let i = 0; i < count; i++) {
-                        const id = rotIds[i];
-                        if (id === 0) {
-                            rotations.push([
-                                r00[customIdx], r01[customIdx], r02[customIdx],
-                                r10[customIdx], r11[customIdx], r12[customIdx],
-                                r20[customIdx], r21[customIdx], r22[customIdx]
-                            ]);
-                            customIdx++;
-                        } else {
-                            const rId = id - 1;
-                            const rightId = Math.floor(rId / 6);
-                            const upId = rId % 6;
-                            const right = getVec(rightId);
-                            const up = getVec(upId);
-                            if (right[0] * up[0] + right[1] * up[1] + right[2] * up[2] === 0) {
-                                const back = [
-                                    right[1] * up[2] - right[2] * up[1],
-                                    right[2] * up[0] - right[0] * up[2],
-                                    right[0] * up[1] - right[1] * up[0]
-                                ];
-                                rotations.push([
-                                    right[0], up[0], back[0],
-                                    right[1], up[1], back[1],
-                                    right[2], up[2], back[2]
-                                ]);
-                            } else {
-                                rotations.push([1, 0, 0, 0, 1, 0, 0, 0, 1]);
+                    for (let inst = 0; inst < count; inst++) {
+                        const rotId = chunkReader.readUInt8();
+                        if (rotId === 0) {
+                            const floats = [];
+                            for (let f = 0; f < 9; f++) {
+                                floats.push(chunkReader.view.getFloat32(chunkReader.index, true));
+                                chunkReader.index += 4;
                             }
+                            rotations.push(floats);
+                        } else {
+                            const getVec = (id) => id === 0 ? [1,0,0] : id === 1 ? [0,1,0] : id === 2 ? [0,0,1] : id === 3 ? [-1,0,0] : id === 4 ? [0,-1,0] : [0,0,-1];
+                            const rId = rotId - 1;
+                            const right = getVec(Math.floor(rId / 6));
+                            const up = getVec(rId % 6);
+                            const back = [
+                                right[1]*up[2] - right[2]*up[1],
+                                right[2]*up[0] - right[0]*up[2],
+                                right[0]*up[1] - right[1]*up[0]
+                            ];
+                            rotations.push([right[0],up[0],back[0],right[1],up[1],back[1],right[2],up[2],back[2]]);
                         }
                     }
 
@@ -314,15 +292,93 @@ export function parseRbxm(buffer) {
                     const ys = chunkReader.readInterleavedFloatArray(count);
                     const zs = chunkReader.readInterleavedFloatArray(count);
 
-                    for (let i = 0; i < count; i++) {
-                        const rot = rotations[i];
-                        instances.get(instanceIds[i]).Properties[propName] = `${xs[i]}, ${ys[i]}, ${zs[i]}, ${rot.join(', ')}`;
+                    for (let inst = 0; inst < count; inst++) {
+                        const rot = rotations[inst];
+                        instances.get(instanceIds[inst]).Properties[propName] = `${xs[inst]}, ${ys[inst]}, ${zs[inst]}, ${rot.join(', ')}`;
                     }
                 } else if (propType === PROP_TYPES.INT || propType === PROP_TYPES.ENUM) {
                     const values = chunkReader.readInterleavedInt32Array(count);
                     for (let i = 0; i < count; i++) {
                         instances.get(instanceIds[i]).Properties[propName] = values[i];
                     }
+                } else if (propType === PROP_TYPES.REF) {
+                    const deltas = chunkReader.readInterleavedInt32Array(count);
+                    let refId = 0;
+                    for (let i = 0; i < count; i++) {
+                        refId += deltas[i];
+                        instances.get(instanceIds[i]).Properties[propName] = refId;
+                    }
+                } else if (propType === PROP_TYPES.DOUBLE) {
+                    for (let i = 0; i < count; i++) {
+                        const val = chunkReader.view.getFloat64(chunkReader.index, false);
+                        chunkReader.index += 8;
+                        instances.get(instanceIds[i]).Properties[propName] = val;
+                    }
+                } else if (propType === PROP_TYPES.INT64 || propType === PROP_TYPES.INT64_B || propType === PROP_TYPES.INT64_21) {
+                    const byteCount = count * 8;
+                    const rawBytes = new Uint8Array(chunkReader.buffer, chunkReader.index, byteCount);
+                    chunkReader.index += byteCount;
+                    for (let i = 0; i < count; i++) {
+                        const b1 = rawBytes[i], b2 = rawBytes[i + count], b3 = rawBytes[i + count * 2], b4 = rawBytes[i + count * 3];
+                        const b5 = rawBytes[i + count * 4], b6 = rawBytes[i + count * 5], b7 = rawBytes[i + count * 6], b8 = rawBytes[i + count * 7];
+                        const hi = (b1 << 24) | (b2 << 16) | (b3 << 8) | b4;
+                        const lo = (b5 << 24) | (b6 << 16) | (b7 << 8) | b8;
+                        instances.get(instanceIds[i]).Properties[propName] = hi * 0x100000000 + (lo >>> 0);
+                    }
+                } else if (propType === PROP_TYPES.INT32_C) {
+                    const values = chunkReader.readInterleavedInt32Array(count);
+                    for (let i = 0; i < count; i++) {
+                        instances.get(instanceIds[i]).Properties[propName] = values[i];
+                    }
+                } else if (propType === PROP_TYPES.UDIM) {
+                    const scales = chunkReader.readInterleavedFloatArray(count);
+                    const offsets = chunkReader.readInterleavedInt32Array(count);
+                    for (let i = 0; i < count; i++) {
+                        instances.get(instanceIds[i]).Properties[propName] = { Scale: scales[i], Offset: offsets[i] };
+                    }
+                } else if (propType === PROP_TYPES.UDIM2) {
+                    const xScales = chunkReader.readInterleavedFloatArray(count);
+                    const yScales = chunkReader.readInterleavedFloatArray(count);
+                    const xOffsets = chunkReader.readInterleavedInt32Array(count);
+                    const yOffsets = chunkReader.readInterleavedInt32Array(count);
+                    for (let i = 0; i < count; i++) {
+                        instances.get(instanceIds[i]).Properties[propName] = {
+                            X: { Scale: xScales[i], Offset: xOffsets[i] },
+                            Y: { Scale: yScales[i], Offset: yOffsets[i] }
+                        };
+                    }
+                } else if (propType === PROP_TYPES.RAY) {
+                    for (let i = 0; i < count; i++) {
+                        const ox = chunkReader.view.getFloat32(chunkReader.index, true); chunkReader.index += 4;
+                        const oy = chunkReader.view.getFloat32(chunkReader.index, true); chunkReader.index += 4;
+                        const oz = chunkReader.view.getFloat32(chunkReader.index, true); chunkReader.index += 4;
+                        const dx = chunkReader.view.getFloat32(chunkReader.index, true); chunkReader.index += 4;
+                        const dy = chunkReader.view.getFloat32(chunkReader.index, true); chunkReader.index += 4;
+                        const dz = chunkReader.view.getFloat32(chunkReader.index, true); chunkReader.index += 4;
+                        instances.get(instanceIds[i]).Properties[propName] = { Origin: { x: ox, y: oy, z: oz }, Direction: { x: dx, y: dy, z: dz } };
+                    }
+                } else if (propType === PROP_TYPES.FACES || propType === PROP_TYPES.AXES) {
+                    for (let i = 0; i < count; i++) {
+                        instances.get(instanceIds[i]).Properties[propName] = chunkReader.readUInt8();
+                    }
+                } else if (propType === PROP_TYPES.BRICKCOLOR) {
+                    const values = chunkReader.readInterleavedInt32Array(count);
+                    for (let i = 0; i < count; i++) {
+                        instances.get(instanceIds[i]).Properties[propName] = values[i];
+                    }
+                } else if (propType === 0x19) {
+                    for (let i = 0; i < count; i++) {
+                        instances.get(instanceIds[i]).Properties[propName] = chunkReader.readUInt8();
+                    }
+                } else if (propType === PROP_TYPES.COLOR3UINT8) {
+                    for (let i = 0; i < count; i++) {
+                        const r = chunkReader.readUInt8();
+                        const g = chunkReader.readUInt8();
+                        const b = chunkReader.readUInt8();
+                        instances.get(instanceIds[i]).Properties[propName] = { r, g, b };
+                    }
+                } else {
+                    chunkReader.index = chunkReader.buffer.byteLength;
                 }
 
             } else if (chunkType === 'PRNT') {
