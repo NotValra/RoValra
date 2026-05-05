@@ -102,11 +102,28 @@ function renderGames(container, games) {
 
 function forceLayoutRecalculation() {
     const mainElement = document.body;
-    if (mainElement) {
+    if (!mainElement) return;
+
+    const trigger = () => {
         const originalWidth = mainElement.style.width;
         mainElement.style.width = mainElement.offsetWidth + 1 + 'px';
         setTimeout(() => {
             mainElement.style.width = originalWidth;
         }, 0);
+    };
+
+    if (document.visibilityState === 'visible') {
+        trigger();
+    } else {
+        const onVisibilityChange = () => {
+            if (document.visibilityState === 'visible') {
+                trigger();
+                document.removeEventListener(
+                    'visibilitychange',
+                    onVisibilityChange,
+                );
+            }
+        };
+        document.addEventListener('visibilitychange', onVisibilityChange);
     }
 }
