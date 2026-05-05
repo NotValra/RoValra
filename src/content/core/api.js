@@ -2,6 +2,7 @@
 
 import { getCsrfToken } from './utils.js';
 import { getAuthenticatedUserId } from './user.js';
+import { HBAClient } from 'roblox-bat';
 import { getValidAccessToken } from './oauth/oauth.js';
 import { getValidApiKey, invalidateApiKey } from './utils/trackers/apiKey.js';
 import { showSystemAlert } from './ui/roblox/alert.js';
@@ -13,6 +14,10 @@ let lastGameJoinRequestTime = 0;
 const OAUTH_STORAGE_KEY = 'rovalra_oauth_verification';
 const CAPTURED_APIS_KEY = 'rovalra_captured_apis';
 const seenRequests = new Map();
+
+const hbaClient = new HBAClient({
+    onSite: true,
+});
 
 document.addEventListener('rovalra-traffic-capture', (e) => {
     const { url, method, body } = e.detail;
@@ -341,6 +346,26 @@ export async function callRobloxApi(options) {
                 }
                 fetchOptions.body =
                     typeof body === 'string' ? body : JSON.stringify(body);
+            }
+        }
+
+        if (!isRovalraApi && !useBackground) {
+            try {
+                const authenticatedUserId = await getAuthenticatedUserId();
+                const batHeaders = await hbaClient.generateBaseHeaders(
+                    fullUrl,
+                    method,
+                    !!authenticatedUserId,
+                    fetchOptions.body,
+                );
+                if (batHeaders['x-bound-auth-token']) {
+                    normalizedHeaders.set(
+                        'x-bound-auth-token',
+                        batHeaders['x-bound-auth-token'],
+                    );
+                }
+            } catch (err) {
+                console.warn('RoValra API: Failed to generate BAT token', err);
             }
         }
 
