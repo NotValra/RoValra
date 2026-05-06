@@ -1,6 +1,6 @@
 import { observeElement } from '../../../core/observer.js';
 import { createButton } from '../../../core/ui/buttons.js';
-import { getAuthenticatedUserId } from '../../../core/user.js';
+import { User } from '../../../core/user.js';
 import { createOverlay } from '../../../core/ui/overlay.js';
 import { callRobloxApi } from '../../../core/api.js';
 import {
@@ -236,7 +236,7 @@ function createOutfitCard(outfit, thumbnailData, onSuccess) {
 }
 
 async function showQuickOutfitsOverlay() {
-    const userId = await getAuthenticatedUserId();
+    const userId = await User.uid();
     if (!userId) {
         console.error(await t('quickOutfits.noUserId'));
         return;

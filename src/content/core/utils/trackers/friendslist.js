@@ -1,7 +1,7 @@
 // This script fetches a users friends list and stores information about it,
 // like last online, mutual friends, estimated age range (idk if that will be used), trusted friends, last location, friends since and some other lesser important stuff.
 import { callRobloxApiJson } from '../../api';
-import { getAuthenticatedUserId } from '../../user';
+import { User } from '../../user';
 import { ts } from '../../locale/i18n.js';
 import {
     getMultiProfileInsights,
@@ -625,7 +625,7 @@ async function updateOnlineStatusOnly(userId, currentFriendsList) {
 }
 
 export async function getFriendsList() {
-    const userId = await getAuthenticatedUserId();
+    const userId = await User.uid();
     if (!userId) return [];
 
     const result = await new Promise((resolve) =>
@@ -659,7 +659,7 @@ export async function getFriendsList() {
 }
 
 export async function getCachedFriendsList() {
-    const userId = await getAuthenticatedUserId();
+    const userId = await User.uid();
     if (!userId) return [];
 
     const result = await new Promise((resolve) =>
@@ -679,7 +679,7 @@ export function initFriendsListTracking() {
 
     if (!onlineStatusInterval) {
         onlineStatusInterval = setInterval(async () => {
-            const userId = await getAuthenticatedUserId();
+            const userId = await User.uid();
             if (!userId) return;
 
             const result = await new Promise((resolve) =>

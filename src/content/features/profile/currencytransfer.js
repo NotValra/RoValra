@@ -3,15 +3,16 @@ import { getUserIdFromUrl } from '../../core/idExtractor.js';
 import { launchDeeplink } from '../../core/utils/launcher.js';
 import { showConfirmationPrompt } from '../../core/ui/confirmationPrompt.js';
 import { t } from '../../core/locale/i18n.js';
-import { getAuthenticatedUserId } from '../../core/user.js';
+import { User } from '../../core/user.js';
 import * as CacheHandler from '../../core/storage/cacheHandler.js';
 import {
     registerProfileContextMenuAction,
     createContextMenuButton,
 } from '../../core/ui/profile/contextMenu.js';
+import { useTransition } from 'react';
 
 async function getCurrencyTransferStatus() {
-    const authedUserId = await getAuthenticatedUserId();
+    const authedUserId = await User.uid();
     if (!authedUserId) return false;
 
     const cacheKey = `is_roblox_plus_${authedUserId}`;
@@ -63,7 +64,7 @@ async function addCurrencyTransferButton(menu) {
     }
     menu.dataset.rovalraCurrencyTransferBtnAdded = 'true';
 
-    const authedUserId = await getAuthenticatedUserId();
+    const authedUserId = await User.uid();
     const userId = getUserIdFromUrl();
     if (!userId || String(userId) === String(authedUserId)) return;
 

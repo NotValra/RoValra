@@ -36,7 +36,7 @@ import { CONTRIBUTOR_USER_IDS } from '../../core/configs/userIds.js';
 import { createOverlay } from '../../core/ui/overlay.js';
 import { createInteractiveTimestamp } from '../../core/ui/time/time.js';
 import { createStyledInput } from '../../core/ui/catalog/input.js';
-import { getAuthenticatedUserId } from '../../core/user.js';
+import { User } from '../../core/user.js';
 import { parseMarkdown } from '../../core/utils/markdown.js';
 import { getCurrentTheme, THEME_CONFIG } from '../../core/theme.js';
 import {
@@ -511,7 +511,7 @@ async function loadTopDonators() {
             thumbMap.set(String(t.targetId), t);
         });
 
-        const authenticatedUserId = await getAuthenticatedUserId();
+        const authenticatedUserId = await User.uid();
         const userTier = getCurrentUserTier();
         let authedDonorInfo = null;
 

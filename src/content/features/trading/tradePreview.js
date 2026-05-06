@@ -1,7 +1,7 @@
 import { createInteractiveTimestamp } from '../../core/ui/time/time.js';
 import { observeElement, observeIntersection } from '../../core/observer.js';
 import { callRobloxApi } from '../../core/api.js';
-import { getAuthenticatedUserId } from '../../core/user.js';
+import { User } from '../../core/user.js';
 import { getAssets } from '../../core/assets.js';
 import {
     getCachedRolimonsItem,
@@ -23,7 +23,7 @@ const tradeDetailsCache = new Map();
 async function fetchAndRenderTradePreview(tradeId, row) {
     if (row.querySelector('.rovalra-trade-summary')) return;
 
-    const myUserId = await getAuthenticatedUserId();
+    const myUserId = await User.uid();
     if (!myUserId) return;
 
     let storedTrade = await CacheHandler.get('trade_history', tradeId, 'local');

@@ -3,7 +3,7 @@ import { findSettingConfig } from './generateSettings.js';
 import { getFullRegionName, REGIONS } from '../regions.js';
 import { sanitizeString } from '../utils/sanitize.js';
 import { callRobloxApiJson } from '../api.js';
-import { getAuthenticatedUserId } from '../user.js';
+import { User } from '../user.js';
 import { updateUserSettingViaApi } from '../donators/settingHandler.js';
 import { createAndShowPopup } from '../../features/catalog/40method.js';
 import * as CacheHandler from '../storage/cacheHandler.js';
@@ -22,7 +22,7 @@ export const syncDonatorTier = async () => {
     const currentHref = window.location.href;
     const currentPath = window.location.pathname;
     const storePageUrl = 'store-section/9452973012';
-    const currentUserId = await getAuthenticatedUserId();
+    const currentUserId = await User.uid();
 
     if (!currentUserId) {
         return null;

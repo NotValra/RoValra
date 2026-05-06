@@ -1,6 +1,6 @@
 import { callRobloxApiJson } from '../api.js';
 import { getValidAccessToken } from '../oauth/oauth.js';
-import { getAuthenticatedUserId } from '../user.js';
+import { User } from '../user.js';
 import {
     syncDonatorTier,
     getCurrentUserTier,
@@ -127,7 +127,7 @@ async function processBatchQueue() {
     const processedKeys = new Set();
 
     try {
-        const authedId = await getAuthenticatedUserId();
+        const authedId = await User.uid();
         const authenticatedUserId = authedId ? String(authedId) : null;
 
         const userIdsToFetch = currentBatch
@@ -278,7 +278,7 @@ async function processApiSettings(userId, apiSettings, options) {
 }
 
 export async function getUserSettings(userId, options = {}) {
-    const authedId = await getAuthenticatedUserId();
+    const authedId = await User.uid();
     const authenticatedUserId = authedId ? String(authedId) : null;
     const strUserId = String(userId);
     const isOwnProfile =

@@ -1,6 +1,6 @@
 import { observeElement } from '../../core/observer.js';
 import { getPlaceIdFromUrl } from '../../core/idExtractor.js';
-import { getAuthenticatedUserId } from '../../core/user.js';
+import { User } from '../../core/user.js';
 import { callRobloxApiJson } from '../../core/api.js';
 import { addTooltip } from '../../core/ui/tooltip.js';
 import { getAssets } from '../../core/assets.js';
@@ -16,7 +16,7 @@ export async function init() {
         async (settings) => {
             if (!settings.PlusPrivateServerTooltipEnabled) return;
 
-            const userId = await getAuthenticatedUserId();
+            const userId = await User.uid();
             if (!userId) return;
 
             try {

@@ -1,5 +1,5 @@
 import { callRobloxApi } from '../../api.js';
-import { getAuthenticatedUserId } from '../../user.js';
+import { User } from '../../user.js';
 
 const STORAGE_KEY = 'rovalra_api_keys';
 const API_KEY_NAME = 'RoValra API key';
@@ -7,7 +7,7 @@ const API_KEY_DESCRIPTION =
     'RoValra API key, used for local API requests only.\nNever used outside your local device.';
 
 export async function getValidApiKey() {
-    const userId = await getAuthenticatedUserId();
+    const userId = await User.uid();
     if (!userId) return null;
 
     const storage = await chrome.storage.local.get(STORAGE_KEY);
@@ -96,7 +96,7 @@ export async function getValidApiKey() {
 }
 
 export async function invalidateApiKey() {
-    const userId = await getAuthenticatedUserId();
+    const userId = await User.uid();
     if (!userId) return;
 
     const storage = await chrome.storage.local.get(STORAGE_KEY);

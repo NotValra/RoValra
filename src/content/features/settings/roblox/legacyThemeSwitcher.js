@@ -1,7 +1,7 @@
 import { observeElement } from '../../../core/observer.js';
 import { createDropdown } from '../../../core/ui/dropdown.js';
 import { callRobloxApi } from '../../../core/api.js';
-import { getAuthenticatedUserId } from '../../../core/user.js';
+import { User } from '../../../core/user.js';
 import { ts } from '../../../core/locale/i18n.js';
 
 const THEMES = {
@@ -29,7 +29,7 @@ function updateThemeDocument(themeString) {
 }
 
 async function updateThemeStorage(themeString) {
-    const userId = await getAuthenticatedUserId();
+    const userId = await User.uid();
 
     const storedThemes = localStorage.getItem('theme');
     if (!storedThemes) return;

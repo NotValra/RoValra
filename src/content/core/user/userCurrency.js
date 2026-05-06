@@ -1,5 +1,5 @@
 import { callRobloxApiJson } from '../api.js';
-import { getAuthenticatedUserId } from '../user.js';
+import { User } from '../user.js';
 
 const currencyCache = new Map();
 
@@ -11,7 +11,7 @@ const currencyCache = new Map();
  * @returns {Promise<{robux: number}>} - A promise resolving to the user's currency.
  */
 export async function getUserCurrency(userId) {
-    const targetId = userId || (await getAuthenticatedUserId());
+    const targetId = userId || (await User.uid());
 
     if (!targetId) {
         throw new Error('User ID is required to fetch currency.');

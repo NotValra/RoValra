@@ -6,7 +6,7 @@ import { callRobloxApiJson } from '../../../core/api.js';
 import { createSquareButton } from '../../../core/ui/profile/header/squarebutton.js';
 import { getAssets } from '../../../core/assets.js';
 import { getUserIdFromUrl } from '../../../core/idExtractor.js';
-import { getAuthenticatedUserId } from '../../../core/user.js';
+import { User } from '../../../core/user.js';
 import { t } from '../../../core/locale/i18n.js';
 const badgeCache = new Map();
 
@@ -166,7 +166,7 @@ async function addHeaderBadges(container) {
     container.dataset.rovalraBusy = 'true';
 
     try {
-        const authenticatedUserId = await getAuthenticatedUserId();
+        const authenticatedUserId = await User.uid();
         const isOwnProfile =
             authenticatedUserId &&
             String(authenticatedUserId) === String(currentUserId);

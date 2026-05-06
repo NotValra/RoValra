@@ -1,10 +1,10 @@
 import { callRobloxApiJson } from '../../api';
-import { getAuthenticatedUserId } from '../../user';
+import { User } from '../../user';
 
 const TRANSACTIONS_DATA_KEY = 'rovalra_transactions_v2';
 
 export async function getTransactionData() {
-    const userId = await getAuthenticatedUserId();
+    const userId = await User.uid();
     if (!userId) return null;
 
     const result = await new Promise((resolve) =>
@@ -23,7 +23,7 @@ export async function getTransactionData() {
 }
 
 export async function getCachedTransactionData() {
-    const userId = await getAuthenticatedUserId();
+    const userId = await User.uid();
     if (!userId) return null;
 
     const result = await new Promise((resolve) =>
@@ -121,7 +121,7 @@ export async function getTotalSpent() {
 }
 
 export function initTransactionsTracking() {
-    getAuthenticatedUserId().then((userId) => {
+    User.uid().then((userId) => {
         if (!userId) return;
         chrome.runtime.sendMessage({
             action: 'triggerTransactionScan',

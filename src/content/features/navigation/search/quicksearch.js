@@ -9,7 +9,7 @@ import {
     fetchThumbnails,
     createThumbnailElement,
 } from '../../../core/thumbnail/thumbnails.js';
-import { getAuthenticatedUserId } from '../../../core/user.js';
+import { User } from '../../../core/user.js';
 import { formatPlayerCount } from '../../../core/games/playerCount.js';
 import { safeHtml } from '../../../core/packages/dompurify.js';
 import {
@@ -162,7 +162,7 @@ async function performUserSearch(query) {
     const signal = userSearchAbortController.signal;
 
     try {
-        const authedUserId = await getAuthenticatedUserId();
+        const authedUserId = await User.uid();
         if (signal.aborted) return;
 
         const promises = [];
@@ -413,7 +413,7 @@ async function performGameSearch(query) {
     const signal = gameSearchAbortController.signal;
 
     try {
-        const authedUserId = await getAuthenticatedUserId();
+        const authedUserId = await User.uid();
         if (signal.aborted) return;
 
         if (cachedUserId !== authedUserId) {

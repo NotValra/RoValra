@@ -1,7 +1,7 @@
 import { observeElement } from '../../core/observer.js';
 import { getCachedRolimonsItem } from '../../core/trade/itemHandler.js';
 import { callRobloxApiJson } from '../../core/api.js';
-import { getAuthenticatedUsername } from '../../core/user.js';
+import { User } from '../../core/user.js';
 
 export function init() {
     chrome.storage.local.get({ tradeProofEnabled: true }, (settings) => {
@@ -94,7 +94,7 @@ async function copyTradeProof(container, btn) {
     const sideA = scrapeOffer(offers[0]); // Give
     const sideB = scrapeOffer(offers[1]); // Receive
 
-    const authedUsername = await getAuthenticatedUsername();
+    const authedUsername = await User.uname();
 
     const partnerLink =
         container.querySelector('a.paired-name') ||

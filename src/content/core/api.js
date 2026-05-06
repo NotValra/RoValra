@@ -1,7 +1,7 @@
 // All api requests should go through this script
 
 import { getCsrfToken } from './utils.js';
-import { getAuthenticatedUserId } from './user.js';
+import { User } from './user.js';
 import { HBAClient } from 'roblox-bat';
 import { getValidAccessToken } from './oauth/oauth.js';
 import { getValidApiKey, invalidateApiKey } from './utils/trackers/apiKey.js';
@@ -414,7 +414,7 @@ export async function callRobloxApi(options) {
 
         if (!isRovalraApi && !useBackground) {
             try {
-                const authenticatedUserId = await getAuthenticatedUserId();
+                const authenticatedUserId = await User.uid();
                 const batHeaders = await hbaClient.generateBaseHeaders(
                     fullUrl,
                     method,
@@ -448,7 +448,7 @@ export async function callRobloxApi(options) {
 
                     if (newAccessToken) {
                         try {
-                            const authedUserId = await getAuthenticatedUserId();
+                            const authedUserId = await User.uid();
                             if (authedUserId) {
                                 const storage =
                                     await chrome.storage.local.get(

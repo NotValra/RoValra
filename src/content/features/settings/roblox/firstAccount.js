@@ -1,7 +1,7 @@
 import { observeElement } from '../../../core/observer.js';
 import { getAssets } from '../../../core/assets.js';
 import { addTooltip } from '../../../core/ui/tooltip.js';
-import { getAuthenticatedUserId } from '../../../core/user.js';
+import { User } from '../../../core/user.js';
 import { ts } from '../../../core/locale/i18n.js';
 
 function createFirstAccountElement(isFirst, creationTimestamp) {
@@ -79,7 +79,7 @@ export function init() {
                         section &&
                         !section.querySelector('.rovalra-first-account')
                     ) {
-                        const userId = await getAuthenticatedUserId();
+                        const userId = await User.uid();
                         if (!userId) return;
 
                         const STORAGE_KEY = 'rovalra_first_account_cache';

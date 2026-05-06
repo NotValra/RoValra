@@ -1,6 +1,6 @@
 import { getUserIdFromUrl } from '../../../core/idExtractor.js';
 import { getUserIdFromFriendUrl } from '../../../core/idExtractor.js';
-import { getAuthenticatedUserId } from '../../../core/user.js';
+import { User } from '../../../core/user.js';
 import { observeElement, observeAttributes } from '../../../core/observer.js';
 import {
     getCachedFriendsList,
@@ -392,7 +392,7 @@ async function run() {
 
     if (isOnFriendsPage) {
         const urlUserId = await getUserIdFromFriendUrl();
-        const authedUserId = await getAuthenticatedUserId();
+        const authedUserId = await User.uid();
 
         if (urlUserId == null || String(urlUserId) === String(authedUserId)) {
             addFriendsSinceLabel(friendsMap, settings);

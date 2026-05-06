@@ -16,7 +16,7 @@ import { addTooltip } from '../../../core/ui/tooltip.js';
 import { createToggle } from '../../../core/ui/general/toggle.js';
 import { createStyledInput } from '../../../core/ui/catalog/input.js';
 import { showConfirmationPrompt } from '../../../core/ui/confirmationPrompt.js';
-import { getAuthenticatedUserId } from '../../../core/user.js';
+import { User } from '../../../core/user.js';
 import { getAssets } from '../../../core/assets.js';
 import { SETTINGS_CONFIG } from '../../../core/settings/settingConfig.js';
 import {
@@ -1720,7 +1720,7 @@ async function preloadAvatar() {
                     controls.rotateSpeed = 0.5;
                 }
 
-                const authUserId = await getAuthenticatedUserId();
+                const authUserId = await User.uid();
                 const isOwnProfile = String(userId) === String(authUserId);
                 const useDevEnvironment = settings.environmentTester;
 

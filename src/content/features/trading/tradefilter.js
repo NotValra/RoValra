@@ -1,7 +1,7 @@
 import { createStyledInput } from '../../core/ui/catalog/input.js';
 import { observeElement } from '../../core/observer.js';
 import { callRobloxApi } from '../../core/api.js';
-import { getAuthenticatedUserId } from '../../core/user.js';
+import { User } from '../../core/user.js';
 import {
     getCachedRolimonsItem,
     queueRolimonsFetch,
@@ -27,7 +27,7 @@ export async function init() {
     const path = window.location.pathname;
     if (!path.startsWith('/trades')) return;
 
-    myUserId = await getAuthenticatedUserId();
+    myUserId = await User.uid();
 
     observeElement('.trade-row-list', (list) => {
         if (list.querySelector('.rovalra-trade-filter-wrapper')) return;

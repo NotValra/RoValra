@@ -15,7 +15,7 @@ import { createInteractiveTimestamp } from '../../../core/ui/time/time.js';
 import { t, ts } from '../../../core/locale/i18n.js';
 import { showSystemAlert } from '../../../core/ui/roblox/alert.js';
 import { getUserIdFromFriendUrl } from '../../../core/idExtractor.js';
-import { getAuthenticatedUserId } from '../../../core/user.js';
+import { User } from '../../../core/user.js';
 
 const selectedFriends = new Set();
 let unfriendButton = null;
@@ -384,7 +384,7 @@ async function addUnfriendButtonToHeader(headerContainer) {
     isInjectingHeader = true;
 
     const urlUserId = await getUserIdFromFriendUrl();
-    const authedUserId = await getAuthenticatedUserId();
+    const authedUserId = await User.uid();
 
     if (!isOnFriendsPage()) {
         isInjectingHeader = false;

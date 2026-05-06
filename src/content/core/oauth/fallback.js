@@ -1,8 +1,5 @@
 import { callRobloxApi, callRobloxApiJson } from '../api.js';
-import {
-    getAuthenticatedUserId,
-    getAuthenticatedUsername,
-} from '../../core/user.js';
+import { User } from '../../core/user.js';
 import { checkUserExistence } from './existenceCheck.js';
 
 const STORAGE_KEY = 'rovalra_oauth_verification';
@@ -67,7 +64,7 @@ export async function shouldUseFallback() {
 }
 
 export async function getStoredFallback() {
-    const userId = await getAuthenticatedUserId();
+    const userId = await User.uid();
     if (!userId) return null;
     const cachedToken = getCachedFallbackToken(userId);
     if (cachedToken) {
@@ -86,7 +83,7 @@ export async function getStoredFallback() {
 }
 
 async function storeFallback(data) {
-    const userId = await getAuthenticatedUserId();
+    const userId = await User.uid();
     if (!userId) return false;
     const storage = await chrome.storage.local.get(STORAGE_KEY);
     const allVerifications = storage[STORAGE_KEY] || {};
@@ -104,7 +101,7 @@ async function storeFallback(data) {
 }
 
 export async function clearFallbackVerification() {
-    const userId = await getAuthenticatedUserId();
+    const userId = await User.uid();
     if (!userId) return;
     const storage = await chrome.storage.local.get(STORAGE_KEY);
     const allVerifications = storage[STORAGE_KEY] || {};
@@ -193,8 +190,8 @@ async function startFallbackFlow() {
     if (isFlowProcessing) return false;
     isFlowProcessing = true;
 
-    const userId = await getAuthenticatedUserId();
-    const username = await getAuthenticatedUsername();
+    const userId = await User.uid();
+    const username = await User.uname();
 
     if (!userId || !username) {
         isFlowProcessing = false;
@@ -360,7 +357,7 @@ async function resumeFallbackFlow(userId, progress) {
 
             await storeFallback({
                 robloxId: userId,
-                username: await getAuthenticatedUsername(),
+                username: await User.uname(),
                 accessToken: completeResponse.accessToken,
             });
 
@@ -377,7 +374,7 @@ async function resumeFallbackFlow(userId, progress) {
 export async function initFallback() {
     const forceFallback = await shouldForceFallback();
 
-    const userId = await getAuthenticatedUserId();
+    const userId = await User.uid();
     if (!userId) return null;
 
     const stored = await getStoredFallback();

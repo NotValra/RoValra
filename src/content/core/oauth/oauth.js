@@ -4,7 +4,7 @@ const STORAGE_KEY = 'rovalra_oauth_verification';
 const OAUTH_PROGRESS_KEY = 'rovalra_oauth_progress';
 
 import { callRobloxApi } from '../api.js';
-import { getAuthenticatedUserId } from '../user.js';
+import { User } from '../user.js';
 import { shouldUseFallback, getValidFallbackToken } from './fallback.js';
 import { checkUserExistence } from './existenceCheck.js';
 import { getCurrentUserTier } from '../settings/handlesettings.js';
@@ -56,7 +56,7 @@ export async function getValidAccessToken(
     forceRefresh = false,
     lazyForNonDonators = true,
 ) {
-    const userId = await getAuthenticatedUserId();
+    const userId = await User.uid();
     if (!userId) return null;
 
     const useFallback = await shouldUseFallback();
@@ -172,7 +172,7 @@ export async function getValidAccessToken(
 }
 
 async function startOAuthFlow(silent = false) {
-    const userId = await getAuthenticatedUserId();
+    const userId = await User.uid();
     if (!userId) return false;
 
     if (!silent) {

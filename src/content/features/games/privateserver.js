@@ -1,6 +1,6 @@
 import { observeElement, observeAttributes } from '../../core/observer.js';
 import { getPlaceIdFromUrl } from '../../core/idExtractor.js';
-import { getAuthenticatedUserId } from '../../core/user.js';
+import { User } from '../../core/user.js';
 import { createButton } from '../../core/ui/buttons.js';
 import { callRobloxApi, callRobloxApiJson } from '../../core/api.js';
 import { enhanceServer } from '../../core/games/servers/serverdetails.js';
@@ -39,7 +39,7 @@ export async function getVipServerDetails(vipServerId) {
 }
 
 export async function init() {
-    const userId = await getAuthenticatedUserId();
+    const userId = await User.uid();
     if (!userId) return;
 
     try {

@@ -1,6 +1,6 @@
 import { observeElement } from '../../core/observer.js';
 import { getPlaceIdFromUrl } from '../../core/idExtractor.js';
-import { getAuthenticatedUserId } from '../../core/user.js';
+import { User } from '../../core/user.js';
 
 const applyImpersonateAttribute = (headerContainer) => {
     chrome.storage.local.get('impersonateRobloxStaffSetting', function (data) {
@@ -180,7 +180,7 @@ const applyProfileGameCardFix = () => {
 
 // Cuz RoSeal is broken and im the only one having this issue i have to fix it myself 🙄
 const applyFriendsCarouselPaddingFix = async () => {
-    const userId = await getAuthenticatedUserId();
+    const userId = await User.uid();
 
     if (userId !== 447170745) return;
 

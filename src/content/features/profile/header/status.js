@@ -3,7 +3,7 @@ import * as cache from '../../../core/storage/cacheHandler.js';
 import { getUserIdFromUrl } from '../../../core/idExtractor.js';
 import { injectStylesheet } from '../../../core/ui/cssInjector.js';
 import { addTooltip } from '../../../core/ui/tooltip.js';
-import { getAuthenticatedUserId } from '../../../core/user.js';
+import { User } from '../../../core/user.js';
 import { createOverlay } from '../../../core/ui/overlay.js';
 import {
     getUserSettings,
@@ -184,7 +184,7 @@ async function addStatusBubble(avatarContainer) {
 
         const isUserTrusted = TRUSTED_USER_IDS.has(String(userId));
 
-        const authenticatedUserId = await getAuthenticatedUserId();
+        const authenticatedUserId = await User.uid();
         const isOwnProfile =
             authenticatedUserId &&
             String(authenticatedUserId) === String(userId);
@@ -375,7 +375,7 @@ async function addHomeStatusHover(tile) {
 
             const loadPromise = (async () => {
                 try {
-                    const authenticatedUserId = await getAuthenticatedUserId();
+                    const authenticatedUserId = await User.uid();
                     const isOwnProfile =
                         authenticatedUserId &&
                         String(authenticatedUserId) === String(userId);

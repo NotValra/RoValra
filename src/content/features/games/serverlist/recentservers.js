@@ -8,7 +8,7 @@ import {
 import { callRobloxApiJson } from '../../../core/api.js';
 import { _state as serverListState, processUptimeBatch } from './serverlist.js';
 import { launchGame } from '../../../core/utils/launcher.js';
-import { getAuthenticatedUserId } from '../../../core/user.js';
+import { User } from '../../../core/user.js';
 import { fetchThumbnails } from '../../../core/thumbnail/thumbnails.js';
 import { t, ts } from '../../../core/locale/i18n.js';
 import { createSquareButton } from '../../../core/ui/profile/header/squarebutton.js';
@@ -449,7 +449,7 @@ async function renderRecentServers(section) {
                     resolve,
                 ),
             ),
-            getAuthenticatedUserId(),
+            User.uid(),
         ]);
 
         let userThumbnailUrl = null;
