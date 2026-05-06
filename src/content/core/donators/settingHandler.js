@@ -395,7 +395,7 @@ export async function updateUserSettingViaApi(key, value) {
             response.setting.key === key &&
             response.message === 'Updated successfully.'
         ) {
-            return true;
+            return response.setting.value;
         }
         return false;
     } catch (error) {
