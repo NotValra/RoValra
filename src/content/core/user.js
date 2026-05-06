@@ -118,8 +118,10 @@ export function getUser() {
 
         get username() {
             return new Promise((r, f) => {
-                if (this._cached_name !== undefined)
-                    return this._cached_name;
+                if (this._cached_name !== undefined) {
+                    r(this._cached_name);
+                    return;
+                }
 
                 this._username_promise.then((name) => {
                     this._cached_name = name;
@@ -130,8 +132,10 @@ export function getUser() {
 
         get id() {
             return new Promise((r, f) => {
-                if (this._cached_id !== undefined)
-                    return this._cached_id;
+                if (this._cached_id !== undefined) {
+                    r(this._cached_id);
+                    return;
+                }
 
                 this._id_promise.then((name) => {
                     this._cached_id = name;

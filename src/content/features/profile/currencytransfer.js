@@ -9,7 +9,6 @@ import {
     registerProfileContextMenuAction,
     createContextMenuButton,
 } from '../../core/ui/profile/contextMenu.js';
-import { useTransition } from 'react';
 
 async function getCurrencyTransferStatus() {
     const authedUserId = await User.uid();
