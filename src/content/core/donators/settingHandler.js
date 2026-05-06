@@ -1,4 +1,5 @@
 import { callRobloxApiJson } from '../api.js';
+import { getValidAccessToken } from '../oauth/oauth.js';
 import { getAuthenticatedUserId } from '../user.js';
 import {
     syncDonatorTier,
@@ -44,13 +45,35 @@ async function fetchAndProcessSettings(userId, options = {}) {
     let apiSettings = {};
     let apiProvidedMeaningfulSettings = false;
     try {
-        const data = await callRobloxApiJson({
-            isRovalraApi: true,
-            subdomain: 'apis',
-            endpoint: `/v1/users/${userId}/settings`,
-            method: 'GET',
-            noCache: isOwnProfile,
-        });
+        let data;
+        if (isOwnProfile) {
+            const token = await getValidAccessToken(false, false);
+            if (token) {
+                data = await callRobloxApiJson({
+                    isRovalraApi: true,
+                    subdomain: 'apis',
+                    endpoint: '/v1/auth/settings',
+                    method: 'GET',
+                    noCache: true,
+                });
+
+                if (data.status === 'success' && data.setting) {
+                    data.settings = {
+                        [data.setting.key]: data.setting.value,
+                    };
+                }
+            }
+        }
+
+        if (!data) {
+            data = await callRobloxApiJson({
+                isRovalraApi: true,
+                subdomain: 'apis',
+                endpoint: `/v1/users/${userId}/settings`,
+                method: 'GET',
+                noCache: isOwnProfile,
+            });
+        }
 
         if (data.status === 'success' && data.settings) {
             apiSettings = data.settings;
@@ -345,4 +368,41 @@ export async function getUserSettings(userId, options = {}) {
             batchTimeout = setTimeout(processBatchQueue, BATCH_DELAY_MS);
         }
     });
+}
+
+/**
+ * Updates a user setting via the RoValra API.
+ * @param {string} key The setting key to update (e.g., 'environment', 'status').
+ * @param {any} value The new value for the setting. Will be converted to string.
+ * @returns {Promise<boolean>} True if the update was successful, false otherwise.
+ */
+export async function updateUserSettingViaApi(key, value) {
+    try {
+        const token = await getValidAccessToken(false, false);
+        if (!token) return false;
+
+        const response = await callRobloxApiJson({
+            isRovalraApi: true,
+            subdomain: 'apis',
+            endpoint: '/v1/auth/settings',
+            method: 'POST',
+            body: JSON.stringify({ key, value: String(value) }),
+        });
+        if (
+            response &&
+            response.status === 'success' &&
+            response.setting &&
+            response.setting.key === key &&
+            response.message === 'Updated successfully.'
+        ) {
+            return response.setting.value;
+        }
+        return false;
+    } catch (error) {
+        console.error(
+            `RoValra: Failed to update setting '${key}' via API.`,
+            error,
+        );
+        return false;
+    }
 }

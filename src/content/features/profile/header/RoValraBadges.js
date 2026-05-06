@@ -348,7 +348,7 @@ export function init() {
         );
 
         observeElement(
-            '.flex.gap-small.buttons-show-on-desktop',
+            'div.button-container.flex.gap-small',
             addProfileBadgeButtons,
             { multiple: true },
         );

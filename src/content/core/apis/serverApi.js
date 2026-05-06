@@ -4,10 +4,11 @@ import { loadDatacenterMap, datacenterList } from '../regions.js';
 const serverDataCache = new Map();
 const serverLocations = {};
 const serverUptimeBases = {};
+const serverUptimeIsEstimate = {};
 const serverVersionsCache = {};
 let uptimeUpdateInterval = null;
 
-export function formatUptime(seconds) {
+export function formatUptime(seconds, isEstimate = false) {
     if (typeof seconds !== 'number' || seconds < 0) return 'N/A';
     const days = Math.floor(seconds / 86400);
     const hours = Math.floor((seconds % 86400) / 3600);
@@ -18,7 +19,7 @@ export function formatUptime(seconds) {
     if (days > 0) parts.push(`${days}d`);
     if (hours > 0) parts.push(`${hours}h`);
     if (minutes > 0) parts.push(`${minutes}m`);
-    parts.push(`${secs}s`);
+    parts.push(`${secs}s${isEstimate ? '~' : ''}`);
 
     return parts.join(' ');
 }
@@ -34,7 +35,12 @@ function startUptimeLiveCounter() {
                 if (serverId && serverUptimeBases[serverId]) {
                     const currentUptime = getServerUptime(serverId);
                     const event = new CustomEvent('rovalra-uptime-update', {
-                        detail: { serverId, uptime: currentUptime },
+                        detail: {
+                            serverId,
+                            uptime: currentUptime,
+                            isEstimate:
+                                serverUptimeIsEstimate[serverId] !== false,
+                        },
                     });
                     serverEl.dispatchEvent(event);
                 }
@@ -126,6 +132,7 @@ export async function fetchServerDetails(placeId, serverIds) {
                             firstSeenTimestamp < existingBase
                         ) {
                             serverUptimeBases[server_id] = firstSeenTimestamp;
+                            serverUptimeIsEstimate[server_id] = true;
 
                             startUptimeLiveCounter();
                         }
@@ -136,6 +143,7 @@ export async function fetchServerDetails(placeId, serverIds) {
                     serverId: server_id,
                     placeVersion: place_version,
                     uptime: getServerUptime(server_id),
+                    isEstimate: serverUptimeIsEstimate[server_id] !== false,
                     region: regionStr,
                     ipAddress: ip_address,
                     datacenterId: datacenter_id,
@@ -153,6 +161,7 @@ export async function fetchServerDetails(placeId, serverIds) {
             serverId: id,
             placeVersion: null,
             uptime: getServerUptime(id) ?? 60,
+            isEstimate: serverUptimeIsEstimate[id] !== false,
             region: null,
             ipAddress: null,
             datacenterId: null,
@@ -166,6 +175,10 @@ export async function fetchServerDetails(placeId, serverIds) {
 
 export async function fetchServerRegion(placeId, serverId, options = {}) {
     try {
+        if (serverId && serverDataCache.has(serverId)) {
+            return serverDataCache.get(serverId);
+        }
+
         const endpoint = options.isPrivate
             ? '/v1/join-private-game'
             : '/v1/join-game-instance';
@@ -199,25 +212,30 @@ export async function fetchServerRegion(placeId, serverId, options = {}) {
         };
 
         if (info.joinScript) {
+            const serverClaimedTime = info.joinScript.ServerClaimedTime;
             if (
-                info.joinScript.ServerClaimedTime &&
-                typeof info.joinScript.ServerClaimedTime === 'number' &&
-                info.joinScript.ServerClaimedTime > 0
+                serverClaimedTime &&
+                typeof serverClaimedTime === 'number' &&
+                serverClaimedTime > 0
             ) {
                 const now = Date.now();
                 const gamejoinUptime = Math.max(
                     0,
-                    (now - info.joinScript.ServerClaimedTime) / 1000,
+                    (now - serverClaimedTime) / 1000,
                 );
 
                 const calculatedBase = now - gamejoinUptime * 1000;
                 const existingBase = serverUptimeBases[serverId];
+
+                serverUptimeIsEstimate[serverId] = false;
 
                 if (!existingBase || calculatedBase < existingBase) {
                     serverUptimeBases[serverId] = calculatedBase;
 
                     startUptimeLiveCounter();
                 }
+            } else {
+                serverUptimeIsEstimate[serverId] = true;
             }
 
             const dcId = info.joinScript?.DataCenterId;
@@ -261,6 +279,12 @@ export async function fetchServerRegion(placeId, serverId, options = {}) {
             }
         }
 
+        result.isEstimate = serverUptimeIsEstimate[serverId] !== false;
+
+        if (serverId && result.joinScript) {
+            serverDataCache.set(serverId, result);
+        }
+
         return result;
     } catch (e) {
         console.error('Failed to fetch server region:', e);
@@ -302,11 +326,18 @@ export function getServerVersion(serverId) {
     return serverVersionsCache[serverId] || null;
 }
 
+export function getServerUptimeIsEstimate(serverId) {
+    return serverUptimeIsEstimate[serverId] !== false;
+}
+
 export function clearServerCache() {
     serverDataCache.clear();
     Object.keys(serverLocations).forEach((key) => delete serverLocations[key]);
     Object.keys(serverUptimeBases).forEach(
         (key) => delete serverUptimeBases[key],
+    );
+    Object.keys(serverUptimeIsEstimate).forEach(
+        (key) => delete serverUptimeIsEstimate[key],
     );
     Object.keys(serverVersionsCache).forEach(
         (key) => delete serverVersionsCache[key],

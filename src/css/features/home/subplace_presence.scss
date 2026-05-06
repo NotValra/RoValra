@@ -1,0 +1,57 @@
+/* Subplace presence labels on home/friend cards.
+   Keep generic friend carousel layout untouched; only these targeted classes move text. */
+
+.rovalra-subplace-presence-card {
+    overflow: visible !important;
+}
+
+.rovalra-subplace-presence-labels {
+    position: relative !important;
+    overflow: visible !important;
+    text-align: center !important;
+}
+
+.rovalra-subplace-presence-labels .user-card-name,
+.rovalra-subplace-presence-labels .user-card-name span {
+    width: 90px !important;
+    max-width: 90px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    text-align: center !important;
+}
+
+.rovalra-subplace-presence-label {
+    position: absolute !important;
+    left: 50% !important;
+    top: 20px !important;
+    transform: translateX(-50%) !important;
+    width: 150px !important;
+    max-width: 150px !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    box-sizing: border-box !important;
+    text-align: center !important;
+    pointer-events: auto !important;
+}
+
+.rovalra-subplace-presence-native-wrap {
+    position: relative !important;
+    overflow: visible !important;
+    text-align: center !important;
+}
+
+.rovalra-subplace-presence-native-source-label {
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
+
+.rovalra-subplace-presence-native-label {
+    position: absolute !important;
+    left: 50% !important;
+    top: 0 !important;
+    transform: translateX(-50%) !important;
+    width: 150px !important;
+    max-width: 150px !important;
+    text-align: center !important;
+    pointer-events: auto !important;
+}

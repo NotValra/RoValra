@@ -5,9 +5,12 @@ import { injectStylesheet } from '../../../core/ui/cssInjector.js';
 import { addTooltip } from '../../../core/ui/tooltip.js';
 import { getAuthenticatedUserId } from '../../../core/user.js';
 import { createOverlay } from '../../../core/ui/overlay.js';
-import { updateUserSettingViaApi } from '../../../core/profile/descriptionhandler.js';
+import {
+    getUserSettings,
+    updateUserSettingViaApi,
+} from '../../../core/donators/settingHandler.js';
 import { createStyledInput } from '../../../core/ui/catalog/input.js';
-import { getUserSettings } from '../../../core/donators/settingHandler.js';
+import { showSystemAlert } from '../../../core/ui/roblox/alert.js';
 import { reportUserContent } from '../../../core/report.js';
 import { showConfirmationPrompt } from '../../../core/ui/confirmationPrompt.js';
 import { parseMarkdown } from '../../../core/utils/markdown.js';
@@ -112,9 +115,8 @@ function openEditStatusOverlay(currentStatus, onSave, isTrusted) {
         trustedHelpText.className = 'text-description';
         trustedHelpText.innerHTML = DOMPurify.sanitize(`
             You are a trusted RoValra user, you can add any text, embed videos, and images.
-            <br>Only embed images and videos if you have at least donator tier 1.
             <br>
-            <strong>Note:</strong> If you are found to add inappropriate content, your donator and custom badges will be revoked.
+            <strong>Note:</strong> If you are found to add inappropriate content against the Roblox ToS, your donator and custom badges will be revoked with no chance to get it back.
         `);
         Object.assign(trustedHelpText.style, {
             fontSize: '12px',
@@ -163,10 +165,7 @@ function openEditStatusOverlay(currentStatus, onSave, isTrusted) {
 
         if (result === true) {
             close();
-        } else if (result === 'failed') {
-            errorDisplay.textContent = 'Failed to save status.';
-            errorDisplay.style.display = 'block';
-        } else if (result === false) {
+        } else {
             errorDisplay.textContent =
                 'An unknown error occurred while saving. No changes were applied.';
             errorDisplay.style.display = 'block';
@@ -314,9 +313,13 @@ async function addStatusBubble(avatarContainer) {
                             );
                             if (typeof updatedValue === 'string') {
                                 updateBubbleUI(updatedValue);
+                                showSystemAlert(
+                                    'Status updated successfully!',
+                                    'success',
+                                );
                                 return true;
                             }
-                            return 'failed';
+                            return false;
                         } catch (error) {
                             console.error(
                                 'RoValra: Failed to update status via API.',

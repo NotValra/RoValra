@@ -4,11 +4,7 @@ import { getFullRegionName, REGIONS } from '../regions.js';
 import { sanitizeString } from '../utils/sanitize.js';
 import { callRobloxApiJson } from '../api.js';
 import { getAuthenticatedUserId } from '../user.js';
-import {
-    getUserDescription,
-    updateUserDescription,
-    updateUserSettingViaApi,
-} from '../profile/descriptionhandler.js';
+import { updateUserSettingViaApi } from '../donators/settingHandler.js';
 import { createAndShowPopup } from '../../features/catalog/40method.js';
 import * as CacheHandler from '../storage/cacheHandler.js';
 
@@ -1469,36 +1465,24 @@ export function initializeSettingsEventListeners() {
             value = target.value;
             savePromises.push(handleSaveSettings(settingName, value));
             if (settingName === 'profileRenderEnvironment') {
-                const userId = await getAuthenticatedUserId();
-                if (userId) {
-                    const profileEnvs =
-                        SETTINGS_CONFIG.Profile.settings.profile3DRenderEnabled
-                            .childSettings.profileRenderEnvironment.options;
-                    const selectedEnv = profileEnvs.find(
-                        (opt) => opt.value === value,
+                const profileEnvs =
+                    SETTINGS_CONFIG.Profile.settings.profile3DRenderEnabled
+                        .childSettings.profileRenderEnvironment.options;
+                const selectedEnv = profileEnvs.find(
+                    (opt) => opt.value === value,
+                );
+                const envId = selectedEnv ? selectedEnv.id : 1;
+
+                const settings = await loadSettings();
+                const isDonator = currentUserTier >= 1;
+                if (isDonator && settings.profileRenderUseApi) {
+                    updateUserSettingViaApi('environment', envId).catch(
+                        (error) =>
+                            console.error(
+                                'RoValra: Environment sync failed',
+                                error,
+                            ),
                     );
-                    const envId = selectedEnv ? selectedEnv.id : 1;
-
-                    const currentDescription = await getUserDescription(userId);
-                    if (currentDescription !== null) {
-                        let newDescription = currentDescription
-                            .split('\n')
-                            .filter((line) => !line.trim().startsWith('e:'))
-                            .join('\n')
-                            .trim();
-
-                        if (envId !== 1) {
-                            if (newDescription) {
-                                newDescription += `\n\ne:${envId}`;
-                            } else {
-                                newDescription = `e:${envId}`;
-                            }
-                        }
-
-                        if (newDescription !== currentDescription) {
-                            await updateUserDescription(userId, newDescription);
-                        }
-                    }
                 }
             }
         } else if (target.matches('input[type="text"], input:not([type])')) {

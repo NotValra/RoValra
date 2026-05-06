@@ -557,3 +557,50 @@ export async function fetchPromotionalThumbnails(universeId) {
     }
     return [];
 }
+
+const thumbQueue = new Map();
+let thumbTimer = null;
+
+async function flushThumbQueue() {
+    const currentQueues = Array.from(thumbQueue.entries());
+    thumbQueue.clear();
+    thumbTimer = null;
+
+    await Promise.all(
+        currentQueues.map(async ([key, queueMap]) => {
+            const [type, size] = key.split(':');
+            const ids = Array.from(queueMap.keys());
+            if (ids.length === 0) return;
+
+            try {
+                const thumbMap = await fetchThumbnails(
+                    ids.map((id) => ({ id })),
+                    type,
+                    size,
+                );
+                ids.forEach((id) => {
+                    const resolvers = queueMap.get(id);
+                    const result = thumbMap.get(Number(id));
+                    resolvers.forEach((res) => res(result));
+                });
+            } catch (e) {
+                ids.forEach((id) =>
+                    queueMap.get(id).forEach((res) => res(null)),
+                );
+            }
+        }),
+    );
+}
+
+export function getQueuedThumbnail(id, type, size = '150x150') {
+    return new Promise((resolve) => {
+        const key = `${type}:${size}`;
+        if (!thumbQueue.has(key)) thumbQueue.set(key, new Map());
+        const typeQueue = thumbQueue.get(key);
+
+        if (!typeQueue.has(id)) typeQueue.set(id, []);
+        typeQueue.get(id).push(resolve);
+
+        if (!thumbTimer) thumbTimer = setTimeout(flushThumbQueue, 50);
+    });
+}

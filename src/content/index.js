@@ -89,6 +89,7 @@ import { init as initRovalraBadges } from './features/profile/header/RoValraBadg
 import { init as initUserGames } from './features/profile/hiddengames.js';
 import { init as initGroupRole } from './features/profile/grouprole.js';
 import { init as initPrivateServerControls } from './features/games/privateserver.js';
+import { init as initPlusPrivateServerTooltip } from './features/games/plusPrivateServerTooltip.js';
 import { init as initPreviousPrice } from './features/sitewide/PreviousPrice.js';
 import { init as initCategorizeWearing } from './features/profile/categorizeWearing.js';
 import { init as initBannedUsers } from './features/profile/bannedusers.js';
@@ -107,6 +108,9 @@ import { init as initCurrencyTransfer } from './features/profile/currencytransfe
 import { init as initSettingsPage } from './features/settings/index.js';
 import { init as initFirstAccount } from './features/settings/roblox/firstAccount.js';
 import { init as initLegacyThemeSwitcher } from './features/settings/roblox/legacyThemeSwitcher.js';
+// Home
+import { init as initAccurateContinue } from './features/home/accurateContinue.js';
+import { initSubplacePresenceLabels } from './core/ui/profile/userCard.js';
 // create
 import { init as initCreateDownload } from './features/create.roblox.com/download.js';
 
@@ -150,6 +154,7 @@ const featureRoutes = [
             initPurchasePromptItemId,
             initUrlTracker,
             initModernIcons,
+            initSubplacePresenceLabels,
         ],
     },
     // pretty much just the 40% method
@@ -196,6 +201,7 @@ const featureRoutes = [
             initRecentServers,
             initPrivateServerControls,
             initHeatmap,
+            initPlusPrivateServerTooltip,
         ],
     },
     // private games and game pages
@@ -279,6 +285,10 @@ const featureRoutes = [
     {
         paths: ['/store/asset'],
         features: [initCreateDownload],
+    },
+    {
+        paths: ['/home'],
+        features: [initAccurateContinue],
     },
     {
         paths: ['/my/account'],

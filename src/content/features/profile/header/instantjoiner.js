@@ -365,12 +365,10 @@ export function init() {
                 button.classList.add('rovalra-instant-join-button');
                 button.style.flexGrow = '0';
                 button.style.flexShrink = '0';
-                button.style.marginRight = '5px';
                 observedElement.prepend(button);
             }
 
-            const selector =
-                '.profile-header-buttons, .buttons-show-on-desktop, .buttons-show-on-mobile';
+            const selector = 'div.button-container.flex.gap-small';
             observeElement(selector, addInstantJoinButton, { multiple: true });
         },
     );

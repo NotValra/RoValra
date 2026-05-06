@@ -8,6 +8,7 @@ import {
     fetchServerDetails,
     fetchServerRegion,
     getServerRegion,
+    getServerUptimeIsEstimate,
     getServerUptime,
     getServerVersion,
     formatUptime,
@@ -431,7 +432,12 @@ export function displayPerformance(server, fps, serverLocations = {}) {
     updateInfoElement(container, 'Performance', icon, text, visible);
 }
 
-export function displayUptime(server, uptime, serverLocations = {}) {
+export function displayUptime(
+    server,
+    uptime,
+    isEstimate,
+    serverLocations = {},
+) {
     if (!isServerUptimeEnabled || !isServerListModificationsEnabled) {
         const container = getOrCreateDetailsContainer(server);
         updateInfoElement(container, 'Uptime', '', '', false);
@@ -447,7 +453,7 @@ export function displayUptime(server, uptime, serverLocations = {}) {
     if (uptime === 'fetching') {
         text = 'Loading...';
     } else if (typeof uptime === 'number') {
-        text = formatUptime(uptime);
+        text = formatUptime(uptime, isEstimate);
     } else if (uptime === 'N/A') {
         text = '1m~';
     } else {
@@ -645,6 +651,7 @@ export async function fetchServerUptime(
             const {
                 serverId,
                 placeVersion,
+                isEstimate,
                 uptime,
                 region,
                 ipAddress,
@@ -677,7 +684,7 @@ export async function fetchServerUptime(
                     versionToDisplay,
                     serverLocations,
                 );
-                displayUptime(serverEl, uptime, serverLocations);
+                displayUptime(serverEl, uptime, isEstimate, serverLocations);
                 if (region) {
                     displayRegion(serverEl, region, serverLocations);
                 }
@@ -692,7 +699,12 @@ export async function fetchServerUptime(
                     `[data-rovalra-serverid="${id}"]`,
                 );
                 matchingEls.forEach((el) => {
-                    displayUptime(el, getServerUptime(id), serverLocations);
+                    displayUptime(
+                        el,
+                        getServerUptime(id),
+                        getServerUptimeIsEstimate(id),
+                        serverLocations,
+                    );
                     if (!getServerRegion(id)) displayServerFullStatus(el);
                 });
             });
@@ -703,7 +715,12 @@ export async function fetchServerUptime(
                 `[data-rovalra-serverid="${id}"]`,
             );
             matchingEls.forEach((el) => {
-                displayUptime(el, getServerUptime(id), serverLocations);
+                displayUptime(
+                    el,
+                    getServerUptime(id),
+                    getServerUptimeIsEstimate(id),
+                    serverLocations,
+                );
             });
         });
     }
@@ -963,7 +980,12 @@ export async function enhanceServer(server, context) {
     if (!server._rovalraUptimeListener) {
         server._rovalraUptimeListener = (e) => {
             if (e.detail.serverId === serverId) {
-                displayUptime(server, e.detail.uptime, serverLocations);
+                displayUptime(
+                    server,
+                    e.detail.uptime,
+                    e.detail.isEstimate,
+                    serverLocations,
+                );
             }
         };
         server.addEventListener(
@@ -984,10 +1006,11 @@ export async function enhanceServer(server, context) {
 
     if (!isPrivate) {
         const cachedUptime = getServerUptime(serverId);
+        const cachedIsEstimate = getServerUptimeIsEstimate(serverId);
         displayUptime(
             server,
             cachedUptime !== null ? cachedUptime : 'fetching',
-            serverLocations,
+            cachedIsEstimate,
         );
     }
 
@@ -1014,7 +1037,7 @@ export async function enhanceServer(server, context) {
             const uptime = isNaN(date)
                 ? 0
                 : Math.max(0, (new Date() - date) / 1000);
-            displayUptime(server, uptime, serverLocations);
+            displayUptime(server, uptime, true, serverLocations);
         }
         const locParts = [apiData.city, apiData.region, apiData.country].filter(
             Boolean,
@@ -1038,7 +1061,7 @@ export async function enhanceServer(server, context) {
                 () => processUptimeBatch(),
                 100,
             );
-            displayUptime(server, 'fetching', serverLocations);
+            displayUptime(server, 'fetching', true, serverLocations);
         }
     }
 

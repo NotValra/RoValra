@@ -11,6 +11,107 @@ import DOMPurify from 'dompurify';
 import { addTooltip } from '../ui/tooltip.js';
 import { createButton } from '../ui/buttons.js';
 import { showConfirmationPrompt } from '../ui/confirmationPrompt.js';
+import {
+    getBatchThumbnails,
+    createThumbnailElement,
+} from '../thumbnail/thumbnails.js';
+import { getUserDisplayName } from '../apis/users.js';
+
+const DEFAULT_CONTRIBUTOR_ID = 447170745;
+
+async function attachContributors(container, config, isChild = false) {
+    if (
+        isChild &&
+        !Object.prototype.hasOwnProperty.call(config, 'contributors')
+    )
+        return;
+
+    const contributors = config.contributors || [];
+    const ids =
+        contributors.length > 0
+            ? contributors
+            : isChild
+              ? []
+              : [DEFAULT_CONTRIBUTOR_ID];
+
+    if (ids.length === 0) return;
+
+    const contributorsWrapper = document.createElement('div');
+    contributorsWrapper.className = 'setting-contributors';
+    contributorsWrapper.style.cssText =
+        'display: flex; flex-wrap: wrap; gap: 6px; margin-top: -2px; justify-content: flex-start;';
+    container.appendChild(contributorsWrapper);
+
+    const shimmerFragment = document.createDocumentFragment();
+    for (let i = 0; i < ids.length; i++) {
+        const shimmerItem = document.createElement('div');
+        shimmerItem.style.cssText =
+            'display: flex; align-items: center; gap: 6px; background: var(--rovalra-container-background-color); padding: 4px 10px 4px 4px; border-radius: 20px; border: none;';
+
+        const shimmerAvatar = document.createElement('div');
+        shimmerAvatar.className = 'shimmer';
+        shimmerAvatar.style.cssText =
+            'width: 20px; height: 20px; border-radius: 50%;';
+
+        const shimmerName = document.createElement('div');
+        shimmerName.className = 'shimmer';
+        shimmerName.style.cssText =
+            'width: 60px; height: 11px; border-radius: 4px;';
+
+        shimmerItem.append(shimmerAvatar, shimmerName);
+        shimmerFragment.appendChild(shimmerItem);
+    }
+    contributorsWrapper.appendChild(shimmerFragment);
+
+    try {
+        const [thumbnails, ...displayNames] = await Promise.all([
+            getBatchThumbnails(ids, 'AvatarHeadshot', '48x48'),
+            ...ids.map((id) => getUserDisplayName(id)),
+        ]);
+
+        contributorsWrapper.innerHTML = '';
+
+        ids.forEach((id, index) => {
+            const displayName = displayNames[index];
+            const thumbData = thumbnails[index];
+
+            const item = document.createElement('a');
+            item.href = `https://www.roblox.com/users/${id}/profile`;
+            item.target = '_blank';
+            item.rel = 'noopener noreferrer';
+            item.style.cssText =
+                'display: flex; align-items: center; gap: 6px; background: var(--rovalra-container-background-color); padding: 4px 10px 4px 4px; border-radius: 20px; border: none; cursor: pointer; text-decoration: none;';
+
+            addTooltip(
+                item,
+                `${displayName || id} contributed in the making of this feature.`,
+                { position: 'top' },
+            );
+
+            const thumbContainer = document.createElement('div');
+            thumbContainer.style.cssText =
+                'width: 20px; height: 20px; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #393b3d;';
+
+            const thumbEl = createThumbnailElement(
+                thumbData,
+                'Contributor',
+                '',
+                { width: '100%', height: '100%' },
+            );
+            thumbContainer.appendChild(thumbEl);
+
+            const name = document.createElement('span');
+            name.style.cssText =
+                'font-size: 11px; font-weight: 600; color: var(--rovalra-main-text-color); white-space: nowrap;';
+            name.textContent = displayName || 'Unknown';
+
+            item.append(thumbContainer, name);
+            contributorsWrapper.appendChild(item);
+        });
+    } catch (error) {
+        console.warn('RoValra: Failed to load contributors', error);
+    }
+}
 
 function createClearStorageButton(storageKey, inputElement, settingType) {
     const btn = createButton('', 'secondary');
@@ -620,6 +721,8 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
         });
     }
 
+    attachContributors(settingContainer, setting);
+
     if (setting.requiredPermissions && setting.requiredPermissions.length > 0) {
         settingContainer.appendChild(
             createPermissionManager(
@@ -750,6 +853,8 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
                     childContainer.appendChild(childDescElement);
                 });
             }
+
+            attachContributors(childContainer, childSetting, true);
 
             if (
                 childSetting.requiredPermissions &&
