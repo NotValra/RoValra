@@ -107,7 +107,7 @@ function renderGames(container, games) {
 }
 
 function forceLayoutRecalculation() {
-    const mainElement = document.body;
+    const mainElement = document.querySelector('.game-sort-carousel-wrapper');
     if (!mainElement) return;
 
     const trigger = () => {
