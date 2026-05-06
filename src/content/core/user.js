@@ -100,8 +100,8 @@ async function getAuthenticatedUsername() {
 let cachedUser = undefined;
 
 /**
- * 
- * @returns {{username: string, id: number}}
+ * Get a user instance for the current session.
+ * @returns {{username: Promise<string>, id: Promise<number>}}
  */
 export function getUser() {
     if (cachedUser !== undefined)
@@ -150,7 +150,12 @@ export function getUser() {
     return user;
 }
 
+/**
+ * The user instance associated with the current session.
+ * @type {{uname: () => Promise<string>, uid: () => Promise<number>, resetCache: () => void}}
+ */
 export const User = Object.freeze({
     async uid() {return await getUser().id},
-    async uname() {return await getUser().username}
+    async uname() {return await getUser().username},
+    resetCache() {cachedUser = undefined;} 
 });
