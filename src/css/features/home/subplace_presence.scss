@@ -55,3 +55,20 @@
     text-align: center !important;
     pointer-events: auto !important;
 }
+
+
+@keyframes rovalraSubplacePresenceFade {
+    0% {
+        opacity: 0.35;
+        transform: translateX(-50%) translateY(2px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+.rovalra-subplace-presence-animate {
+    animation: rovalraSubplacePresenceFade 0.28s ease;
+}

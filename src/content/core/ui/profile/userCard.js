@@ -284,10 +284,22 @@ function setupPresenceHoverSwap(labelEl, hoverHost, defaultText, hoverText, full
 
     if (labelEl.dataset.rovalraPresenceHoverBound === 'true') return;
 
+    const animateTextChange = (nextText) => {
+        if (labelEl.textContent === nextText) return;
+
+        labelEl.classList.remove('rovalra-subplace-presence-animate');
+        void labelEl.offsetWidth;
+        labelEl.textContent = nextText;
+        labelEl.classList.add('rovalra-subplace-presence-animate');
+    };
+
     const update = (hovered) => {
         const baseText = labelEl.dataset.rovalraPresenceDefaultText || '';
         const hoverTextValue = labelEl.dataset.rovalraPresenceHoverText || '';
-        labelEl.textContent = hovered && hoverTextValue ? hoverTextValue : baseText;
+        const nextText =
+            hovered && hoverTextValue ? hoverTextValue : baseText;
+
+        animateTextChange(nextText);
     };
 
     const enter = () => update(true);
