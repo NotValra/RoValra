@@ -227,13 +227,6 @@ export async function callRobloxApi(options) {
         const originalResponse = await activeRequests.get(requestKey);
         const clonedResponse = originalResponse.clone();
 
-        if (
-            options.subdomain === 'games' &&
-            options.endpoint.includes('/servers/') &&
-            !options.isRovalraApi
-        ) {
-        }
-
         return clonedResponse;
     }
 
