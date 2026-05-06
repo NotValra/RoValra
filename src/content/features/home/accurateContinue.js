@@ -97,7 +97,13 @@ function renderGames(container, games) {
 
     container.appendChild(fragment);
 
-    forceLayoutRecalculation();
+    if (document.readyState === 'complete') {
+        forceLayoutRecalculation();
+    } else {
+        window.addEventListener('load', () => forceLayoutRecalculation(), {
+            once: true,
+        });
+    }
 }
 
 function forceLayoutRecalculation() {
