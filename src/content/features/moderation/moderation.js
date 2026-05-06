@@ -1,4 +1,4 @@
-import { observeElement } from '../../core/observer.js';
+import { observeElement, observeChildren } from '../../core/observer.js';
 import { callRobloxApi } from '../../core/api.js';
 import { createDropdown } from '../../core/ui/dropdown.js';
 import { createOverlay } from '../../core/ui/overlay.js';
@@ -93,6 +93,39 @@ async function resolveUsernames(ids) {
         console.error('Failed to resolve usernames', err);
     }
     return new Map();
+}
+
+async function fetchFilterScanStatus() {
+    try {
+        const response = await callRobloxApi({
+            subdomain: 'apis',
+            endpoint: '/v1/auth/moderator/scan-filters/status',
+            method: 'GET',
+            isRovalraApi: true,
+        });
+
+        if (response.ok) {
+            return await response.json();
+        }
+    } catch (err) {
+        console.error('Failed to fetch filter scan status', err);
+    }
+    return null;
+}
+
+async function startFilterScan() {
+    try {
+        const response = await callRobloxApi({
+            subdomain: 'apis',
+            endpoint: '/v1/auth/moderator/scan-filters',
+            method: 'POST',
+            isRovalraApi: true,
+        });
+        return response;
+    } catch (err) {
+        console.error('Failed to start filter scan', err);
+        return { ok: false };
+    }
 }
 
 async function resolveAppeal(userId, status, response, internalNote) {
@@ -729,6 +762,7 @@ function renderModerationPage(contentDiv) {
         { id: 'ban', label: 'Ban / Unban', permission: 2 },
         { id: 'logs', label: 'Action Logs', permission: 2 },
         { id: 'config', label: 'Config', permission: 3 },
+        { id: 'filter-scan', label: 'Filter Scan', permission: 4 },
     ];
 
     let activeTab = 'status';
@@ -760,6 +794,9 @@ function renderModerationPage(contentDiv) {
                     break;
                 case 'config':
                     await renderConfigTab(contentArea);
+                    break;
+                case 'filter-scan':
+                    await renderFilterScanTab(contentArea);
                     break;
             }
         } catch (err) {
@@ -1947,6 +1984,131 @@ async function renderConfigTab(container) {
     form.appendChild(createBtn);
     form.appendChild(resultArea);
     container.appendChild(form);
+}
+
+async function renderFilterScanTab(container) {
+    container.innerHTML = safeHtml`
+        <h3>Global Filter Rescan</h3>
+        <p style="margin-bottom: 20px; color: var(--rovalra-secondary-text-color);">
+            This tool allows you to globally re-evaluate user-generated content against current moderation rules
+        </p>
+    `;
+
+    const statusCard = document.createElement('div');
+    statusCard.style.padding = '20px';
+    statusCard.style.borderRadius = '8px';
+    statusCard.style.backgroundColor =
+        'var(--rovalra-container-background-color)';
+    statusCard.style.marginBottom = '20px';
+    container.appendChild(statusCard);
+
+    const startBtn = document.createElement('button');
+    startBtn.className = 'btn-primary-md';
+    startBtn.textContent = 'Start Filter Scan';
+    startBtn.style.width = '100%';
+    container.appendChild(startBtn);
+
+    let pollInterval = null;
+
+    const updateUI = async () => {
+        const result = await fetchFilterScanStatus();
+        if (!result || result.status !== 'success') {
+            statusCard.innerHTML =
+                '<p style="color: #f93e3e;">Error fetching status.</p>';
+            return;
+        }
+
+        const data = result.data;
+        const progress =
+            data.total > 0
+                ? Math.round((data.processed / data.total) * 100)
+                : 0;
+
+        statusCard.innerHTML = DOMPurify.sanitize(`
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h4 style="margin: 0;">Scan Status: ${data.is_active ? '<span style="color: #4facfe;">ACTIVE</span>' : 'IDLE'}</h4>
+                ${data.start_time ? `<div style="font-size: 12px; opacity: 0.7;">Started: <span class="scan-start-time"></span></div>` : ''}
+            </div>
+            
+            <div style="background: rgba(0,0,0,0.2); height: 8px; border-radius: 4px; overflow: hidden; margin-bottom: 15px;">
+                <div style="background: #4facfe; width: ${progress}%; height: 100%; transition: width 0.3s ease;"></div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; text-align: center;">
+                <div style="background: rgba(0,0,0,0.1); padding: 10px; border-radius: 6px;">
+                    <div style="font-size: 10px; text-transform: uppercase; opacity: 0.6;">Processed</div>
+                    <div style="font-size: 18px; font-weight: bold;">${data.processed.toLocaleString()} / ${data.total.toLocaleString()}</div>
+                </div>
+                <div style="background: rgba(0,0,0,0.1); padding: 10px; border-radius: 6px;">
+                    <div style="font-size: 10px; text-transform: uppercase; opacity: 0.6;">Violations Found</div>
+                    <div style="font-size: 18px; font-weight: bold; color: #ffb800;">${data.changes.toLocaleString()}</div>
+                </div>
+                <div style="background: rgba(0,0,0,0.1); padding: 10px; border-radius: 6px;">
+                    <div style="font-size: 10px; text-transform: uppercase; opacity: 0.6;">Completion</div>
+                    <div style="font-size: 18px; font-weight: bold;">${progress}%</div>
+                </div>
+            </div>
+            ${data.last_error ? `<div style="margin-top: 15px; color: #f93e3e; font-size: 12px; padding: 10px; background: rgba(249, 62, 62, 0.1); border-radius: 4px;">Error: ${data.last_error}</div>` : ''}
+        `);
+
+        if (data.start_time) {
+            statusCard
+                .querySelector('.scan-start-time')
+                .appendChild(createInteractiveTimestamp(data.start_time));
+        }
+
+        startBtn.disabled = data.is_active;
+        startBtn.textContent = data.is_active
+            ? 'Scan in Progress...'
+            : 'Start Filter Scan';
+
+        if (data.is_active && !pollInterval) {
+            pollInterval = setInterval(updateUI, 3000);
+        } else if (!data.is_active && pollInterval) {
+            clearInterval(pollInterval);
+            pollInterval = null;
+        }
+    };
+
+    startBtn.onclick = () => {
+        showConfirmationPrompt({
+            title: 'Start Global Filter Scan',
+            message: 'This will re-verify all user content',
+            confirmText: 'Start Scan',
+            confirmType: 'primary',
+            onConfirm: async () => {
+                startBtn.disabled = true;
+                startBtn.textContent = 'Starting...';
+
+                const response = await startFilterScan();
+                if (response.ok) {
+                    alert('Background scan initiated.');
+                    updateUI();
+                } else {
+                    if (response.status === 409) {
+                        alert('A scan is already in progress.');
+                    } else {
+                        alert(
+                            'Failed to start scan. Ensure you have Tier 4 permissions.',
+                        );
+                    }
+                    updateUI();
+                }
+            },
+        });
+    };
+
+    const containerObserver = observeChildren(document.body, () => {
+        if (!container.isConnected) {
+            if (pollInterval) {
+                clearInterval(pollInterval);
+                pollInterval = null;
+            }
+            containerObserver.disconnect();
+        }
+    });
+
+    updateUI();
 }
 
 export function init() {
