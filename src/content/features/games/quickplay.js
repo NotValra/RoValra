@@ -277,26 +277,27 @@ function injectPaidPriceBadgeStyles() {
     style.id = 'rovalra-paid-price-badge-styles';
     style.textContent = `
         .rovalra-paid-access-price-title-row {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            min-width: 0;
-            width: 100%;
+            display: contents;
         }
-        .rovalra-paid-access-price-title-row > .game-card-name,
-        .rovalra-paid-access-price-title-row > .game-name-title {
-            flex: 1 1 auto;
-            min-width: 0;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+        .rovalra-paid-access-price-card {
+            position: relative !important;
+            overflow: visible !important;
+        }
+        .rovalra-paid-access-price-thumbnail-target {
+            position: relative !important;
+            overflow: visible !important;
+        }
+        .rovalra-paid-access-price-name-padded {
+            box-sizing: border-box !important;
+            padding-right: 0 !important;
         }
         .${PAID_PRICE_BADGE_CLASS} {
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 4px;
-            flex: 0 0 auto;
+            position: absolute;
+            z-index: 20;
             height: 19px;
             max-width: 62px;
             padding: 0 8px 0 6px;
@@ -309,7 +310,7 @@ function injectPaidPriceBadgeStyles() {
             white-space: nowrap;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
             pointer-events: none;
-            transform: translateY(-1px);
+            transform: none;
         }
         .${PAID_PRICE_BADGE_CLASS} .${PAID_PRICE_BADGE_ICON_CLASS} {
             display: inline-flex;
@@ -382,17 +383,57 @@ function isLargeSearchCard(gameLink) {
     return /\bBy\s+[^\n]+/.test(text) || text.length > 180;
 }
 
-function placePaidPriceBadge(gameLink, badge, nameEl) {
-    let titleRow = nameEl.closest('.rovalra-paid-access-price-title-row');
+function restorePaidPriceTitleRow(gameLink) {
+    gameLink
+        ?.querySelectorAll?.('.rovalra-paid-access-price-title-row')
+        .forEach((row) => {
+            const parent = row.parentNode;
+            if (!parent) return;
 
-    if (!titleRow) {
-        titleRow = document.createElement('div');
-        titleRow.className = 'rovalra-paid-access-price-title-row';
-        nameEl.parentNode.insertBefore(titleRow, nameEl);
-        titleRow.appendChild(nameEl);
+            while (row.firstChild) {
+                parent.insertBefore(row.firstChild, row);
+            }
+
+            row.remove();
+        });
+}
+
+function getPaidPriceThumbnailTarget(gameLink) {
+    return (
+        gameLink.querySelector(
+            '.game-card-thumb-container, .game-card-image-container, .game-card-thumb, .thumbnail-2d-container, .game-card-link',
+        ) ||
+        gameLink.querySelector('img')?.parentElement ||
+        getPaidPriceCardRoot(gameLink) ||
+        gameLink
+    );
+}
+
+function placePaidPriceBadge(gameLink, badge, nameEl) {
+    restorePaidPriceTitleRow(gameLink);
+
+    const card = getPaidPriceCardRoot(gameLink) || gameLink;
+    const thumbnailTarget = getPaidPriceThumbnailTarget(gameLink);
+
+    if (!(card instanceof HTMLElement) || !(thumbnailTarget instanceof HTMLElement)) {
+        return;
     }
 
-    titleRow.appendChild(badge);
+    card.classList.add('rovalra-paid-access-price-card');
+    thumbnailTarget.classList.add('rovalra-paid-access-price-thumbnail-target');
+    nameEl.classList.remove('rovalra-paid-access-price-name-padded');
+
+    const existingBadge = card.querySelector(`.${PAID_PRICE_BADGE_CLASS}`);
+    if (existingBadge && existingBadge !== badge) {
+        existingBadge.remove();
+    }
+
+    thumbnailTarget.appendChild(badge);
+
+    badge.style.top = 'auto';
+    badge.style.left = 'auto';
+    badge.style.right = '6px';
+    badge.style.bottom = '6px';
 }
 
 function addPaidPriceBadge(gameLink, price) {
@@ -436,6 +477,14 @@ function removePaidPriceBadge(gameLink) {
     gameLink
         .querySelectorAll?.(`.${PAID_PRICE_BADGE_CLASS}`)
         .forEach((badge) => badge.remove());
+
+    gameLink
+        .querySelectorAll?.('.rovalra-paid-access-price-name-padded')
+        .forEach((nameEl) =>
+            nameEl.classList.remove('rovalra-paid-access-price-name-padded'),
+        );
+
+    restorePaidPriceTitleRow(gameLink);
 }
 
 async function fetchPaidPriceChunk(placeIds) {
