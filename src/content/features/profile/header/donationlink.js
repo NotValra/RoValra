@@ -5,8 +5,6 @@ import { createDropdown } from '../../../core/ui/dropdown.js';
 
 import { getOrCreateRovalraContainer } from './rap.js';
 import { createProfileHeaderButton } from '../../../core/ui/profile/header/button.js';
-import DOMPurify from 'dompurify';
-import { getAuthenticatedUsername } from '../../../core/user.js';
 import { ts } from '../../../core/locale/i18n.js';
 import { getUserIdFromUrl } from '../../../core/idExtractor.js';
 import { callRobloxApi } from '../../../core/api.js';

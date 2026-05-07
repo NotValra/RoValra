@@ -1,7 +1,7 @@
 import { observeElement } from '../../core/observer.js';
 import { callRobloxApi, callRobloxApiJson } from '../../core/api.js';
 import { addTooltip } from '../../core/ui/tooltip.js';
-import DOMPurify, { safeHtml } from '../../core/packages/dompurify.js';
+import DOMPurify from '../../core/packages/dompurify.js';
 import { ts } from '../../core/locale/i18n.js';
 const API_LIMIT = 100;
 const MAX_PAGES_TO_FETCH_FOR_INFERENCE = 2000;

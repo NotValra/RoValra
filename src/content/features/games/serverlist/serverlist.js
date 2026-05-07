@@ -32,7 +32,6 @@ import {
     createInfoElement,
 } from '../../../core/games/servers/serverdetails.js';
 import { createUUID } from '../../../core/apis/serverApi.js';
-import { addModernPrivateServerControls } from '../privateserver.js';
 
 const SHARED_STYLES = `
     #rovalra-main-controls {
