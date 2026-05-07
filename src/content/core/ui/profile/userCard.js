@@ -254,15 +254,52 @@ async function getPresenceDisplayGameName(presence) {
 }
 
 function getPresenceNameParts(gameName) {
-    const parts = String(gameName || '')
-        .split(' • ')
-        .map((part) => part.trim())
-        .filter(Boolean);
+    const fullName = String(gameName || '').trim();
+    if (!fullName) {
+        return {
+            baseName: '',
+            subplaceName: '',
+            fullName: '',
+        };
+    }
+
+    const splitBy = (separator) =>
+        fullName
+            .split(separator)
+            .map((part) => part.trim())
+            .filter(Boolean);
+
+    const bulletParts = splitBy(' • ');
+    if (bulletParts.length > 1) {
+        return {
+            baseName: bulletParts[0],
+            subplaceName: bulletParts.slice(1).join(' • '),
+            fullName,
+        };
+    }
+
+    const dotParts = splitBy(' . ');
+    if (dotParts.length > 1) {
+        return {
+            baseName: dotParts[0],
+            subplaceName: dotParts.slice(1).join(' . '),
+            fullName,
+        };
+    }
+
+    const middleDotParts = splitBy(' · ');
+    if (middleDotParts.length > 1) {
+        return {
+            baseName: middleDotParts[0],
+            subplaceName: middleDotParts.slice(1).join(' · '),
+            fullName,
+        };
+    }
 
     return {
-        baseName: parts[0] || String(gameName || ''),
-        subplaceName: parts.length > 1 ? parts.slice(1).join(' • ') : '',
-        fullName: String(gameName || ''),
+        baseName: fullName,
+        subplaceName: '',
+        fullName,
     };
 }
 
@@ -433,7 +470,18 @@ function forceNativeSubplaceLabelLayout(target, compactName, gameName) {
         fullLabel.style.setProperty('text-overflow', 'clip', 'important');
         fullLabel.style.setProperty('white-space', 'normal', 'important');
 
-        setupPresenceHoverSwap(fullLabel, parent, compactName, hoverLabel, gameName);
+        const hoverHost =
+            parent.closest(
+                'li, .list-item, .avatar-card-container, .avatar-card, .friends-carousel-tile, .friend-tile, [class*="friend" i], [class*="avatar" i], [class*="popover" i]',
+            ) || parent;
+
+        setupPresenceHoverSwap(
+            fullLabel,
+            hoverHost,
+            compactName,
+            hoverLabel,
+            gameName,
+        );
     }
 
     let ancestor = target.parentElement;
@@ -446,12 +494,42 @@ function forceNativeSubplaceLabelLayout(target, compactName, gameName) {
     }
 }
 
+function normalizeVisiblePresenceText(value) {
+    return normalizePresenceName(value)
+        .replace(/^playing\s+/i, '')
+        .replace(/[\u2026]/g, '')
+        .replace(/\.{2,}$/g, '')
+        .trim();
+}
+
+function presenceTextLooksLikeGame(current, baseName, compactName) {
+    const currentNorm = normalizeVisiblePresenceText(current);
+    const baseNorm = normalizeVisiblePresenceText(baseName);
+    const compactNorm = normalizeVisiblePresenceText(compactName);
+
+    if (!currentNorm) return false;
+    if (currentNorm === baseNorm || currentNorm === compactNorm) return true;
+
+    if (currentNorm.length >= 6) {
+        if (baseNorm.startsWith(currentNorm) || compactNorm.startsWith(currentNorm)) {
+            return true;
+        }
+
+        if (currentNorm.startsWith(baseNorm) || currentNorm.startsWith(compactNorm)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 async function updateNativePresenceContainer(container) {
-    if (
-        !container ||
-        container.dataset.rovalraSubplacePresenceUpdating === 'true' ||
-        container.dataset.rovalraSubplacePresenceDone === 'true'
-    ) {
+    if (!container || container.dataset.rovalraSubplacePresenceUpdating === 'true') {
+        return;
+    }
+
+    if (!(await isHomeSubplaceHoverEnabled())) {
+        clearNativeSubplacePresence(container);
         return;
     }
 
@@ -464,31 +542,79 @@ async function updateNativePresenceContainer(container) {
     const gameName = await getPresenceDisplayGameName(presence);
 
     container.dataset.rovalraSubplacePresenceUpdating = 'false';
-    container.dataset.rovalraSubplacePresenceDone = 'true';
 
-    if (!gameName || !gameName.includes(' • ')) return;
-
-    const baseName = presence?.lastLocation || gameName.split(' • ')[0];
     const compactName = getCompactPresenceLabel(gameName);
+    const hoverName = getHoverPresenceLabel(gameName);
+    const doneKey = gameName || 'none';
+
+    if (container.dataset.rovalraSubplacePresenceDoneKey === doneKey) {
+        return;
+    }
+
+    if (!gameName || !hoverName) {
+        container.dataset.rovalraSubplacePresenceDoneKey = doneKey;
+        return;
+    }
+
+    const baseName = getCompactPresenceLabel(presence?.lastLocation || gameName);
     let updated = false;
+    let fallbackTarget = null;
 
     for (const target of findPresenceTextTargets(container)) {
         if (updated) break;
 
         const current = (target.textContent || '').trim();
-        if (!current || current.includes(' • ')) continue;
+        if (!current) continue;
+
+        const currentHoverName = getHoverPresenceLabel(current);
+        if (currentHoverName) {
+            forceNativeSubplaceLabelLayout(
+                target,
+                getCompactPresenceLabel(current),
+                current,
+            );
+            updated = true;
+            continue;
+        }
 
         if (/^Playing\s+/i.test(current)) {
             const currentGame = current.replace(/^Playing\s+/i, '').trim();
-            if (!currentGame || normalizePresenceName(currentGame) === normalizePresenceName(baseName)) {
+            if (
+                !currentGame ||
+                presenceTextLooksLikeGame(currentGame, baseName, compactName)
+            ) {
                 target.textContent = `Playing ${gameName}`;
                 target.title = `Playing ${gameName}`;
                 updated = true;
             }
-        } else if (normalizePresenceName(current) === normalizePresenceName(baseName)) {
+            continue;
+        }
+
+        if (presenceTextLooksLikeGame(current, baseName, compactName)) {
             forceNativeSubplaceLabelLayout(target, compactName, gameName);
             updated = true;
+            continue;
         }
+
+        if (
+            !fallbackTarget &&
+            current.length > 4 &&
+            !target.closest('button') &&
+            !/^add friends$/i.test(current)
+        ) {
+            fallbackTarget = target;
+        }
+    }
+
+    if (!updated && fallbackTarget) {
+        forceNativeSubplaceLabelLayout(fallbackTarget, compactName, gameName);
+        updated = true;
+    }
+
+    if (updated) {
+        container.dataset.rovalraSubplacePresenceDoneKey = doneKey;
+    } else {
+        delete container.dataset.rovalraSubplacePresenceDoneKey;
     }
 }
 
@@ -510,23 +636,168 @@ function scanNativePresenceLabels(root = document) {
     }
 }
 
+
+
+function getBooleanSetting(settingName, defaultValue = true) {
+    return new Promise((resolve) => {
+        chrome.storage.local.get({ [settingName]: defaultValue }, (result) => {
+            if (chrome.runtime.lastError) {
+                resolve(defaultValue);
+                return;
+            }
+
+            resolve(result[settingName] !== false);
+        });
+    });
+}
+
+async function isSubplacePresenceEnabled() {
+    return getBooleanSetting('subplacePresenceEnabled', true);
+}
+
+async function isHomeSubplaceHoverEnabled() {
+    const [presenceEnabled, homeHoverEnabled] = await Promise.all([
+        getBooleanSetting('subplacePresenceEnabled', true),
+        getBooleanSetting('homeSubplaceHoverEnabled', true),
+    ]);
+
+    return presenceEnabled && homeHoverEnabled;
+}
+
+function clearNativeSubplacePresence(container) {
+    if (!(container instanceof HTMLElement)) return;
+
+    container
+        .querySelectorAll('.rovalra-subplace-presence-native-label')
+        .forEach((node) => node.remove());
+
+    container
+        .querySelectorAll('.rovalra-subplace-presence-native-source-label')
+        .forEach((node) => {
+            if (node instanceof HTMLElement) {
+                node.style.removeProperty('visibility');
+                node.style.removeProperty('pointer-events');
+            }
+        });
+
+    delete container.dataset.rovalraSubplacePresenceDoneKey;
+}
+
+function getProfileUserIdFromPage() {
+    const match = location.pathname.match(/\/users\/(\d+)\/(?:profile)?/i);
+    if (match) return Number(match[1]);
+
+    const meta = document.querySelector('meta[name="user-data"]');
+    const id = Number(meta?.dataset?.userid || 0);
+    return id || null;
+}
+
+function findProfileHandleElement() {
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_ELEMENT);
+
+    for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+        if (!(node instanceof HTMLElement)) continue;
+
+        const text = (node.textContent || '').trim();
+        if (/^@[A-Za-z0-9_]{3,20}$/.test(text)) return node;
+    }
+
+    return null;
+}
+
+let profilePresenceUpdateToken = 0;
+
+async function updateProfileHeaderSubplacePresence() {
+    if (!/\/users\/\d+\/(?:profile)?/i.test(location.pathname)) return;
+
+    if (!(await isSubplacePresenceEnabled())) {
+        document
+            .querySelectorAll(
+                '#rovalra-profile-subplace-presence, [data-rovalra-profile-subplace-presence="true"]',
+            )
+            .forEach((node) => node.remove());
+        window.__rovalraProfileSubplacePresenceRenderedFor = '';
+        return;
+    }
+
+    const userId = getProfileUserIdFromPage();
+    if (!userId) return;
+
+    const renderKey = `${location.pathname}:${userId}`;
+    if (window.__rovalraProfileSubplacePresenceRenderedFor === renderKey) return;
+
+    const initialHandleEl = findProfileHandleElement();
+    if (!initialHandleEl) return;
+
+    const updateToken = ++profilePresenceUpdateToken;
+    const presence = await fetchPresenceBatched(userId);
+    const gameName = await getPresenceDisplayGameName(presence);
+
+    if (updateToken !== profilePresenceUpdateToken) return;
+
+    const handleEl = findProfileHandleElement();
+    if (!handleEl) return;
+
+    document
+        .querySelectorAll(
+            '#rovalra-profile-subplace-presence, [data-rovalra-profile-subplace-presence="true"]',
+        )
+        .forEach((node) => node.remove());
+
+    window.__rovalraProfileSubplacePresenceRenderedFor = renderKey;
+
+    if (!gameName) return;
+
+    const label = `Playing ${gameName}`;
+
+    const line = document.createElement('div');
+    line.id = 'rovalra-profile-subplace-presence';
+    line.dataset.rovalraProfileSubplacePresence = 'true';
+    line.className = 'rovalra-profile-subplace-presence-label';
+    line.textContent = label;
+    line.title = label;
+
+    Object.assign(line.style, {
+        marginTop: '4px',
+        fontSize: '14px',
+        lineHeight: '1.25',
+        fontWeight: '500',
+        color: 'var(--rovalra-secondary-text-color, var(--color-text-secondary, #b8b8b8))',
+        maxWidth: '720px',
+        whiteSpace: 'normal',
+        overflowWrap: 'anywhere',
+    });
+
+    handleEl.insertAdjacentElement('afterend', line);
+}
+
 export function initSubplacePresenceLabels() {
     if (window.__rovalraSubplacePresenceLabelsInit) return;
     window.__rovalraSubplacePresenceLabelsInit = true;
 
     const runInitialScan = () => {
         scanNativePresenceLabels(document);
+        updateProfileHeaderSubplacePresence();
     };
 
     runInitialScan();
     setTimeout(runInitialScan, 1200);
     setTimeout(runInitialScan, 3000);
 
+    let lastProfilePresencePath = location.pathname;
+
     new MutationObserver((mutations) => {
+        if (location.pathname !== lastProfilePresencePath) {
+            lastProfilePresencePath = location.pathname;
+            window.__rovalraProfileSubplacePresenceRenderedFor = '';
+            runInitialScan();
+        }
+
         for (const mutation of mutations) {
             for (const node of mutation.addedNodes) {
                 if (node instanceof HTMLElement) {
                     scanNativePresenceLabels(node);
+                    updateProfileHeaderSubplacePresence();
                 }
             }
         }

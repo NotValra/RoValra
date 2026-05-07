@@ -25,8 +25,8 @@
     left: 50% !important;
     top: 20px !important;
     transform: translateX(-50%) !important;
-    width: 150px !important;
-    max-width: 150px !important;
+    width: 180px !important;
+    max-width: 180px !important;
     margin-left: 0 !important;
     margin-right: 0 !important;
     box-sizing: border-box !important;
@@ -50,8 +50,8 @@
     left: 50% !important;
     top: 0 !important;
     transform: translateX(-50%) !important;
-    width: 150px !important;
-    max-width: 150px !important;
+    width: 180px !important;
+    max-width: 180px !important;
     text-align: center !important;
     pointer-events: auto !important;
 }
@@ -70,5 +70,10 @@
 }
 
 .rovalra-subplace-presence-animate {
+    animation: rovalraSubplacePresenceFade 0.28s ease;
+}
+
+
+.rovalra-profile-subplace-presence-label {
     animation: rovalraSubplacePresenceFade 0.28s ease;
 }

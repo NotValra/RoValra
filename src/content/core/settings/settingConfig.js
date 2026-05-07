@@ -512,22 +512,11 @@ export const SETTINGS_CONFIG = {
                 experimental:
                     'This feature may cause performance issues. And may be buggy',
                 childSettings: {
-                    profileRenderUseApi: {
-                        label: 'Use RoValra API for Environment',
-                        description:
-                            "Uses RoValra's API to save your environment choice instead of your 'About Me' section.",
-                        type: 'checkbox',
-                        default: true,
-                        donatorTier: 1,
-                        donatorReason:
-                            'Donator 1 is required since RoValra doesnt have the resources to track the 200k+ user settings.',
-                    },
                     profileRenderEnvironment: {
                         label: '3D Profile Environment',
                         description: [
                             "Choose a custom environment for your own profile's 3D render.",
                             'This only applies when viewing your own profile.',
-                            'If you arent a RoValra donator it will add a e:x into your about me so other RoValra users can see your environment',
                         ],
                         type: 'select',
                         options: [
@@ -665,7 +654,6 @@ export const SETTINGS_CONFIG = {
                 description: [
                     'This allows you to set a status bubble on your profile that anyone with RoValra can see.',
                     'Also allows you to view other RoValra users status bubbles.',
-                    'This works by adding a little "s:" string to your about me.',
                 ],
                 type: 'checkbox',
                 default: true,
@@ -826,6 +814,25 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
+            },
+            subplacePresenceEnabled: {
+                label: 'View the Subplace that Someone is Playing',
+                description: [
+                    'Shows the full title of what a player is currently playing on their profile, including the subplace.',
+                ],
+                type: 'checkbox',
+                default: true,
+                contributors: ['10646979010'], // rav4
+                childSettings: {
+                    homeSubplaceHoverEnabled: {
+                        label: 'View the Subplace in the Home Page',
+                        description: [
+                            'On the Roblox Home friends row, hovering over the game title will show the subplace someone is playing.',
+                        ],
+                        type: 'checkbox',
+                        default: true,
+                    },
+                },
             },
         },
     },

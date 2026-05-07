@@ -1282,7 +1282,6 @@ async function injectCustomButtons(toggleButton) {
         const settings = await chrome.storage.local.get([
             'profileRenderEnvironment',
             'rendererDeveloperToggles',
-            'profileRenderUseApi',
         ]);
 
         if (isOwnProfile) {
@@ -1293,10 +1292,6 @@ async function injectCustomButtons(toggleButton) {
                 SETTINGS_CONFIG.Profile.settings.profile3DRenderEnabled
                     .childSettings.profileRenderEnvironment.options;
             const currentEnv = settings.profileRenderEnvironment || 'void';
-            const isDonator = getCurrentUserTier() >= 1;
-            const effectiveCanUseApi =
-                isDonator && settings.profileRenderUseApi;
-
             const { element: envDropdown } = createDropdown({
                 items: profileEnvs,
                 initialValue: currentEnv,
@@ -1307,28 +1302,22 @@ async function injectCustomButtons(toggleButton) {
                         (opt) => opt.value === value,
                     );
                     const envId = selectedEnv ? selectedEnv.id : 1;
-                    if (effectiveCanUseApi) {
-                        try {
-                            await updateUserSettingViaApi('environment', envId);
-                        } catch (error) {
-                            console.error(
-                                'RoValra: Failed to save environment via API.',
-                                error,
-                            );
-                        }
+                    try {
+                        await updateUserSettingViaApi('environment', envId);
+                    } catch (error) {
+                        console.error(
+                            'RoValra: Failed to save environment via API.',
+                            error,
+                        );
                     }
                 },
             });
             envDropdown.style.width = '100%';
             envSection.appendChild(envDropdown);
             const helpText = document.createElement('p');
-            helpText.textContent =
-                'Saves environment choice to your about me as "e:X" so other RoValra users can see it.';
             helpText.style.cssText =
                 'font-size: 11px; color: var(--rovalra-secondary-text-color); margin-top: 5px; margin-bottom: 0;'; //Verified
-            if (!effectiveCanUseApi) {
-                envSection.appendChild(helpText);
-            }
+            envSection.appendChild(helpText);
             contentContainer.appendChild(envSection);
         }
 
@@ -1407,7 +1396,7 @@ async function injectCustomButtons(toggleButton) {
 }
 // Rendering loop
 function startAnimationLoop() {
-    const fpsLimit = 45;
+    const fpsLimit = 60;
     const interval = 1000 / fpsLimit;
     let lastRenderTime = performance.now();
 
@@ -1417,7 +1406,7 @@ function startAnimationLoop() {
 
         const delta = currentTime - lastRenderTime;
         if (delta >= interval) {
-            const deltaTime = (delta / 1000) * animationSpeed;
+            const deltaTime = (1 / fpsLimit) * animationSpeed;
             const animatorW = getAnimatorW();
 
             if (currentDirectTrack) {
@@ -1623,7 +1612,6 @@ async function preloadAvatar() {
                     'profileRenderEnvironment',
                     'profile3DRenderBypassCheck',
                     'environmentTester',
-                    'profileRenderUseApi',
                     'modelUrl',
                     'modelPosX',
                     'modelPosY',
@@ -1813,19 +1801,16 @@ async function preloadAvatar() {
                             : 1;
                         envIdToRender = localEnvId;
                         if (localEnvId !== apiEnv) {
-                            const isDonator = getCurrentUserTier() >= 1;
-                            if (isDonator && settings.profileRenderUseApi) {
-                                try {
-                                    await updateUserSettingViaApi(
-                                        'environment',
-                                        localEnvId,
-                                    );
-                                } catch (error) {
-                                    console.error(
-                                        'RoValra: Failed to sync environment to API.',
-                                        error,
-                                    );
-                                }
+                            try {
+                                await updateUserSettingViaApi(
+                                    'environment',
+                                    localEnvId,
+                                );
+                            } catch (error) {
+                                console.error(
+                                    'RoValra: Failed to sync environment to API.',
+                                    error,
+                                );
                             }
                         }
                     } else {
@@ -1992,6 +1977,13 @@ async function attachPreloadedAvatar(container) {
         position: 'relative',
     });
 
+    const twoDContainer = document.querySelector(
+        '.thumbnail-holder-position .thumbnail-2d-container',
+    );
+    if (twoDContainer) {
+        twoDContainer.style.display = 'none';
+    }
+
     const avatarPromise = preloadAvatar();
 
     avatarPromise.catch((err) => {
@@ -1999,8 +1991,11 @@ async function attachPreloadedAvatar(container) {
         const errorContainer = document.createElement('div');
         errorContainer.style.cssText =
             'display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--rovalra-secondary-text-color); padding: 20px; text-align: center; font-size: 12px;';
-        errorContainer.innerHTML = safeHtml`<span style="font-size: 24px; margin-bottom: 8px;">⚠️</span><div style="font-weight:600; margin-bottom:4px;">3D Renderer Error</div><div>${err.message}</div>`;
+        errorContainer.innerHTML = safeHtml`<span style="font-size: 24px; margin-bottom: 8px;">⚠️</span><div style="font-weight:600; margin-bottom:4px;">3D Renderer Error</div><div>${err.message}</div>`; // Verified
         container.appendChild(errorContainer);
+        if (twoDContainer) {
+            twoDContainer.style.display = '';
+        }
     });
 
     const ensureCanvasAttached = () => {
