@@ -7,24 +7,24 @@ import { ts } from '../../../core/locale/i18n.js';
 const THEMES = {
     LIGHT: 'Light',
     DARK: 'Dark'
-}
+};
 
 const THEME_VALUES = {
     Light: 0,
     Dark: 1
-}
+};
 
 const ENDPOINTS = {
     THEME: '/v1/themes/1/0'
-}
+};
 
 function updateThemeDocument(themeString) {
     if (themeString === THEMES.LIGHT) {
-        document.body.classList.remove('dark-theme')
-        document.body.classList.add('light-theme')
+        document.body.classList.remove('dark-theme');
+        document.body.classList.add('light-theme');
     } else if (themeString === THEMES.DARK) {
-        document.body.classList.remove('light-theme')
-        document.body.classList.add('dark-theme')
+        document.body.classList.remove('light-theme');
+        document.body.classList.add('dark-theme');
     }
 }
 
@@ -73,7 +73,7 @@ async function getCurrentTheme() {
     });
 
     if (!currentTheme.ok) return THEMES.LIGHT;
-    const data = await currentTheme.json()
+    const data = await currentTheme.json();
 
     return data.themeType;
 }
