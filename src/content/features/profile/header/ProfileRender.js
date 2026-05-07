@@ -1396,7 +1396,7 @@ async function injectCustomButtons(toggleButton) {
 }
 // Rendering loop
 function startAnimationLoop() {
-    const fpsLimit = 45;
+    const fpsLimit = 60;
     const interval = 1000 / fpsLimit;
     let lastRenderTime = performance.now();
 
@@ -1406,7 +1406,7 @@ function startAnimationLoop() {
 
         const delta = currentTime - lastRenderTime;
         if (delta >= interval) {
-            const deltaTime = (delta / 1000) * animationSpeed;
+            const deltaTime = (1 / fpsLimit) * animationSpeed;
             const animatorW = getAnimatorW();
 
             if (currentDirectTrack) {
