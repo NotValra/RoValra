@@ -1,4 +1,3 @@
-import { callRobloxApi } from '../../api.js';
 
 let latestPresence = null;
 const subscribers = new Set();
@@ -29,6 +28,7 @@ export function init() {
 
         chrome.runtime.sendMessage({ action: 'getLatestPresence' }, (response) => {
             if (chrome.runtime.lastError) {
+                return;
             } else if (response && response.presence) {
                 latestPresence = response.presence;
                 broadcast(latestPresence);

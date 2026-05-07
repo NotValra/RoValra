@@ -1,6 +1,14 @@
 import { observeElement } from '../../core/observer.js';
 import { fetchThumbnails } from '../../core/thumbnail/thumbnails.js';
+<<<<<<< HEAD
 import { loadDatacenterMap, serverIpMap } from '../../core/regions.js';
+=======
+import {
+    loadDatacenterMap,
+    getRegionData,
+    serverIpMap,
+} from '../../core/regions.js';
+>>>>>>> ba4b86e (cleanup: linting autofix)
 import { callRobloxApi } from '../../core/api.js';
 import DOMPurify from 'dompurify';
 import { launchGame } from '../../core/utils/launcher.js';

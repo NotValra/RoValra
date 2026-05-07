@@ -22,7 +22,6 @@ import { SETTINGS_CONFIG } from '../../../core/settings/settingConfig.js';
 import {
     handleSaveSettings,
     syncDonatorTier,
-    getCurrentUserTier,
 } from '../../../core/settings/handlesettings.js';
 import {
     getUserSettings,
