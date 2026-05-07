@@ -278,8 +278,6 @@ async function loadAndRenderProducts(storeTab, placeId) {
     controlsDiv.style.alignItems = 'center';
     controlsDiv.style.marginBottom = '12px';
 
-    const hasPasses = passesList.children.length > 0;
-
     let currentSortField = 'Created';
     let currentSortOrder = 'Desc';
     let currentSearchTerm = '';

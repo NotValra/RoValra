@@ -91,7 +91,6 @@ export function init() {
             displayName,
         ) {
             let selectedOutfitId = null;
-            let selectedListItem = null;
             const outfitDetailsCache = new Map();
 
             const panelsWrapper = document.createElement('div');

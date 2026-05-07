@@ -344,7 +344,6 @@ async function showGamePassSelectionOverlay(userId, username) {
 }
 
 async function addDonationButton(observedElement) {
-    const autheduser = await getAuthenticatedUsername();
     const username = await getUsernameFromPageData();
     const buttonIdentifier = 'rovalra-donation-button';
     const targetContainer = getOrCreateRovalraContainer(observedElement);

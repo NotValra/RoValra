@@ -1,5 +1,4 @@
 import { observeElement, startObserving } from '../../../core/observer.js';
-import * as cache from '../../../core/storage/cacheHandler.js';
 import { getUserIdFromUrl } from '../../../core/idExtractor.js';
 import { injectStylesheet } from '../../../core/ui/cssInjector.js';
 import { addTooltip } from '../../../core/ui/tooltip.js';
@@ -22,16 +21,9 @@ import { migrateLegacyStatus } from '../../../core/profile/descriptionhandler.js
 import DOMPurify from 'dompurify';
 import {
     TRUSTED_USER_IDS,
-    ARTIST_USER_IDS,
-    RAT_BADGE_USER_ID,
-    BLAHAJ_BADGE_USER_ID,
-    CAM_BADGE_USER_ID,
-    alice_badge_user_id,
-    GILBERT_USER_ID,
 } from '../../../core/configs/userIds.js';
 import {
     syncDonatorTier,
-    getCurrentUserTier,
 } from '../../../core/settings/handlesettings.js';
 import {
     onUserCardElement,

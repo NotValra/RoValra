@@ -302,10 +302,6 @@ async function performUserSearch(query) {
                 );
             }
         }
-        const uniqueFriends = localFriends.filter(
-            (f) => !userResult || f.id !== userResult.id,
-        );
-        const uniqueFriendIds = uniqueFriends.map((f) => f.id);
 
         if (userResult) {
             if (signal.aborted) return;

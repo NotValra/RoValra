@@ -1,4 +1,3 @@
-import { observeElement } from '../../core/observer.js';
 import { callRobloxApiJson } from '../../core/api.js';
 import { getUserIdFromUrl } from '../../core/idExtractor.js';
 import { addTooltip } from '../../core/ui/tooltip.js';

@@ -2,7 +2,6 @@ import { getAssets } from '../../core/assets.js';
 import {
     getRegionData,
     loadDatacenterMap,
-    getFullRegionName,
 } from '../../core/regions.js';
 import { observeElement } from '../../core/observer.js';
 import { generateSingleSettingHTML } from '../../core/settings/generateSettings.js';
