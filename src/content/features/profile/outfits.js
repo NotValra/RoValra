@@ -255,14 +255,13 @@ export function init() {
             window.addEventListener('keydown', handleKeydown);
 
             let resizeObserver = null;
-            const selectOutfit = async (outfit, listItem) => {
+            const selectOutfit = async (outfit) => {
                 if (selectedOutfitId === outfit.id) {
                     mainPanel.style.display = 'none';
                     detailsPanel.style.display = 'flex';
                     return;
                 }
 
-                selectedListItem = listItem;
                 selectedOutfitId = outfit.id;
 
                 if (resizeObserver) resizeObserver.unobserve();
@@ -800,7 +799,7 @@ export function init() {
                         list.innerHTML = '';
                         outfitsLoaded = true;
                     }
-                    outfits.forEach((outfit, index) => {
+                    outfits.forEach((outfit) => {
                         const listItem = renderOutfitListItem(
                             outfit,
                             thumbnails,

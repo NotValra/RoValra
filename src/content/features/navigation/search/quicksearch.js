@@ -816,7 +816,6 @@ function createResultHtml(
     voteRatio,
     totalVotes,
     settings,
-    friendsInfo,
 ) {
     const li = document.createElement('li');
     li.className =

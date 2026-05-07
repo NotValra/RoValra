@@ -85,7 +85,7 @@ function createServerItem(serverData, userThumbnailUrl, userId) {
     return serverItem;
 }
 
-function createModernServerItem(serverData, userThumbnailUrl, userId) {
+function createModernServerItem(serverData, userThumbnailUrl) {
     const { presence, timestamp } = serverData;
     const serverItem = document.createElement('div');
     serverItem.className =

@@ -240,7 +240,7 @@ export function init() {
     );
 }
 
-async function renderBannedUserProfile(user, settings) {
+async function renderBannedUserProfile(user) {
     const content = document.getElementById('content');
     if (!content) return;
 

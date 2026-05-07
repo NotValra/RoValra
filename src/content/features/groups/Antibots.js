@@ -442,7 +442,7 @@ function createMemberCard(member, thumbnail, isBot = false) {
     container.append(radio, content);
     li.appendChild(container);
 
-    li.addEventListener('click', (e) => {
+    li.addEventListener('click', () => {
         const currentState = radio.getAttribute('aria-checked') === 'true';
         radio.setChecked(!currentState);
         li.classList.toggle('selected', !currentState);

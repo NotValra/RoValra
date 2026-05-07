@@ -664,7 +664,7 @@ function createAnonymousToggle(isAnonymous, onToggle) {
     return anonBtn;
 }
 
-function renderTopDonators(container, donators, thumbMap, currentUserId) {
+function renderTopDonators(container, donators, thumbMap) {
     container.innerHTML = '';
     const wrapper = document.createElement('div');
     wrapper.style.cssText = 'margin-top: 15px;';
@@ -1045,7 +1045,6 @@ async function loadTopDonators() {
             container,
             topDonatorsCache.donators,
             topDonatorsCache.thumbMap,
-            topDonatorsCache.currentUserId,
         );
         return;
     }
@@ -1124,7 +1123,7 @@ async function loadTopDonators() {
             currentUserId: authenticatedUserId,
             authedDonorInfo,
         };
-        renderTopDonators(container, donators, thumbMap, authenticatedUserId);
+        renderTopDonators(container, donators, thumbMap);
     } catch (err) {
         console.error('RoValra: Error loading top donators', err);
         container.innerHTML = '';

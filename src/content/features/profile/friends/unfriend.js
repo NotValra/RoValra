@@ -479,7 +479,7 @@ function handleCardClick(e) {
     }
 }
 
-function addSelectionCheckboxToCard(card, friendId) {
+function addSelectionCheckboxToCard(card) {
     if (card.querySelector('.rovalra-unfriend-radio')) return;
 
     const contentContainer = card.querySelector('.avatar-card-content');
