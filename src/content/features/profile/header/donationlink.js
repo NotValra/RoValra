@@ -137,13 +137,13 @@ async function fetchUserGames(userId) {
 async function fetchGamePassesForUniverse(universeId) {
     let allGamePasses = [];
     let cursor = null;
-    const pageSize = 50;
+    const pageSize = 100;
 
     try {
         do {
             const response = await callRobloxApi({
                 subdomain: 'apis',
-                endpoint: `/game-passes/v1/universes/${universeId}/game-passes?pageSize=100&passView=Full${cursor ? `&pageToken=${cursor}` : ''}`,
+                endpoint: `/game-passes/v1/universes/${universeId}/game-passes?pageSize=${pageSize}&passView=Full${cursor ? `&pageToken=${cursor}` : ''}`,
                 method: 'GET',
             });
 
