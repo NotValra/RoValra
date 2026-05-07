@@ -1992,6 +1992,13 @@ async function attachPreloadedAvatar(container) {
         position: 'relative',
     });
 
+    const twoDContainer = document.querySelector(
+        '.thumbnail-holder-position .thumbnail-2d-container',
+    );
+    if (twoDContainer) {
+        twoDContainer.style.display = 'none';
+    }
+
     const avatarPromise = preloadAvatar();
 
     avatarPromise.catch((err) => {
@@ -1999,8 +2006,11 @@ async function attachPreloadedAvatar(container) {
         const errorContainer = document.createElement('div');
         errorContainer.style.cssText =
             'display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--rovalra-secondary-text-color); padding: 20px; text-align: center; font-size: 12px;';
-        errorContainer.innerHTML = safeHtml`<span style="font-size: 24px; margin-bottom: 8px;">⚠️</span><div style="font-weight:600; margin-bottom:4px;">3D Renderer Error</div><div>${err.message}</div>`;
+        errorContainer.innerHTML = safeHtml`<span style="font-size: 24px; margin-bottom: 8px;">⚠️</span><div style="font-weight:600; margin-bottom:4px;">3D Renderer Error</div><div>${err.message}</div>`; // Verified
         container.appendChild(errorContainer);
+        if (twoDContainer) {
+            twoDContainer.style.display = '';
+        }
     });
 
     const ensureCanvasAttached = () => {
