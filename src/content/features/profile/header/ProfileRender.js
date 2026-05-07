@@ -1282,7 +1282,6 @@ async function injectCustomButtons(toggleButton) {
         const settings = await chrome.storage.local.get([
             'profileRenderEnvironment',
             'rendererDeveloperToggles',
-            'profileRenderUseApi',
         ]);
 
         if (isOwnProfile) {
@@ -1293,10 +1292,6 @@ async function injectCustomButtons(toggleButton) {
                 SETTINGS_CONFIG.Profile.settings.profile3DRenderEnabled
                     .childSettings.profileRenderEnvironment.options;
             const currentEnv = settings.profileRenderEnvironment || 'void';
-            const isDonator = getCurrentUserTier() >= 1;
-            const effectiveCanUseApi =
-                isDonator && settings.profileRenderUseApi;
-
             const { element: envDropdown } = createDropdown({
                 items: profileEnvs,
                 initialValue: currentEnv,
@@ -1307,28 +1302,22 @@ async function injectCustomButtons(toggleButton) {
                         (opt) => opt.value === value,
                     );
                     const envId = selectedEnv ? selectedEnv.id : 1;
-                    if (effectiveCanUseApi) {
-                        try {
-                            await updateUserSettingViaApi('environment', envId);
-                        } catch (error) {
-                            console.error(
-                                'RoValra: Failed to save environment via API.',
-                                error,
-                            );
-                        }
+                    try {
+                        await updateUserSettingViaApi('environment', envId);
+                    } catch (error) {
+                        console.error(
+                            'RoValra: Failed to save environment via API.',
+                            error,
+                        );
                     }
                 },
             });
             envDropdown.style.width = '100%';
             envSection.appendChild(envDropdown);
             const helpText = document.createElement('p');
-            helpText.textContent =
-                'Saves environment choice to your about me as "e:X" so other RoValra users can see it.';
             helpText.style.cssText =
                 'font-size: 11px; color: var(--rovalra-secondary-text-color); margin-top: 5px; margin-bottom: 0;'; //Verified
-            if (!effectiveCanUseApi) {
-                envSection.appendChild(helpText);
-            }
+            envSection.appendChild(helpText);
             contentContainer.appendChild(envSection);
         }
 
@@ -1623,7 +1612,6 @@ async function preloadAvatar() {
                     'profileRenderEnvironment',
                     'profile3DRenderBypassCheck',
                     'environmentTester',
-                    'profileRenderUseApi',
                     'modelUrl',
                     'modelPosX',
                     'modelPosY',
@@ -1813,19 +1801,16 @@ async function preloadAvatar() {
                             : 1;
                         envIdToRender = localEnvId;
                         if (localEnvId !== apiEnv) {
-                            const isDonator = getCurrentUserTier() >= 1;
-                            if (isDonator && settings.profileRenderUseApi) {
-                                try {
-                                    await updateUserSettingViaApi(
-                                        'environment',
-                                        localEnvId,
-                                    );
-                                } catch (error) {
-                                    console.error(
-                                        'RoValra: Failed to sync environment to API.',
-                                        error,
-                                    );
-                                }
+                            try {
+                                await updateUserSettingViaApi(
+                                    'environment',
+                                    localEnvId,
+                                );
+                            } catch (error) {
+                                console.error(
+                                    'RoValra: Failed to sync environment to API.',
+                                    error,
+                                );
                             }
                         }
                     } else {
