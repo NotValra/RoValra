@@ -3,7 +3,6 @@ import { ts } from '../../core/locale/i18n.js';
 
 const COMMUNITY_PATH = '/communities';
 const TRANSACTIONS_PATH = '/transactions';
-const ACTIVE_BACKGROUND_COLOR = 'rgba(255, 255, 255, 0.1)';
 const STATE_SYNC_DELAYS = [0, 50, 150, 350, 750, 1200];
 const SIDEBAR_COMMUNITY_SELECTOR = [
     '#left-navigation-container a[href*="/communities"]',
