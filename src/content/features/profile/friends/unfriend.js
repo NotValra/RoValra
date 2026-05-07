@@ -55,7 +55,7 @@ async function unfriendUser(userId, attempt = 1) {
         throw new Error(
             `trusted-friends API returned: ${statusResult?.status || statusResponse.status}`,
         );
-    } catch (error) {
+    } catch {
         if (attempt < MAX_RETRIES) {
             await new Promise((resolve) =>
                 setTimeout(resolve, RETRY_DELAY * attempt),

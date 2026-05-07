@@ -112,7 +112,7 @@ export async function init() {
                     }
 
                     return await response.json();
-                } catch (error) {
+                } catch {
                     return null;
                 }
             };
@@ -159,7 +159,7 @@ export async function init() {
                             }
                             nextCursor = data?.nextPageCursor || '';
                             success = true;
-                        } catch (error) {
+                        } catch {
                             retryCount++;
                             if (retryCount >= maxRetries) {
                                 return allSubplaces;
@@ -192,7 +192,7 @@ export async function init() {
                         'PlaceIcon',
                         '150x150',
                     );
-                } catch (e) {
+                } catch {
                     return new Map();
                 }
             };
@@ -458,7 +458,7 @@ export async function init() {
                                   ? 'none'
                                   : 'flex';
                         });
-                    } catch (e) {
+                    } catch {
                         subplacesContainer.innerHTML = `<p style="grid-column: 1 / -1; padding: 20px;">${await t('subplaces.failedToLoad')}</p>`;
                     }
                 };
@@ -506,7 +506,7 @@ export async function init() {
                             contentSection,
                         );
                     }
-                } catch (error) {
+                } catch {
                     tabContainer.dataset.rovalraSubplacesInitialized = 'false';
                 }
             };

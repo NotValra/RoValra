@@ -72,7 +72,7 @@ export function init() {
 
                 const data = await response.json();
                 return !!data.canView;
-            } catch (error) {
+            } catch {
                 return false;
             }
         }
@@ -723,7 +723,7 @@ export function init() {
 
                         if (selectedOutfitId !== outfit.id) return;
                         await renderOutfitDetails(newOutfitData);
-                    } catch (error) {
+                    } catch {
                         itemsContainer.innerHTML = DOMPurify.sanitize(
                             `<p style="color: var(--rovalra-secondary-text-color); font-style: italic; text-align: center; margin-right: auto; margin-left: auto;">${await t('userOutfits.errorLoadingItems')}</p>`,
                         );
@@ -894,7 +894,7 @@ export function init() {
                     } else {
                         alert(await t('userOutfits.errorNoUserId'));
                     }
-                } catch (error) {
+                } catch {
                     if (!loadingControl.cancelled)
                         alert(await t('userOutfits.errorFetch'));
                 }

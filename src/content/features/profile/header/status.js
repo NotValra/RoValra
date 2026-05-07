@@ -55,7 +55,7 @@ function cleanupStatusElements(container) {
                 element.load();
             }
             element.remove();
-        } catch (e) {}
+        } catch {}
     }
 }
 
@@ -81,7 +81,7 @@ DOMPurify.addHook('afterSanitizeAttributes', (currentNode) => {
                 currentNode.style.cursor = 'text';
                 currentNode.style.pointerEvents = 'none';
             }
-        } catch (e) {}
+        } catch {}
     }
 
     if (currentNode.tagName === 'IMG' && currentNode.hasAttribute('src')) {
@@ -95,7 +95,7 @@ DOMPurify.addHook('afterSanitizeAttributes', (currentNode) => {
             ) {
                 currentNode.removeAttribute('src');
             }
-        } catch (e) {}
+        } catch {}
     }
 });
 

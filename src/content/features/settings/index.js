@@ -1678,7 +1678,7 @@ function updateAccountStandingUI(discordCard, data, levels) {
                             body: { message: msg },
                         });
                         return res.ok;
-                    } catch (e) {
+                    } catch {
                         return false;
                     }
                 });

@@ -184,7 +184,7 @@ async function checkServerIsActive(placeId, gameId) {
         }
 
         return false;
-    } catch (error) {
+    } catch {
         return false;
     }
 }

@@ -360,7 +360,7 @@ async function playDirectAnimation(
         let root;
         try {
             root = assetResult.generateTree();
-        } catch (e) {
+        } catch {
             root = assetResult;
         }
 
@@ -935,7 +935,7 @@ function openEnvironmentCreatorOverlay() {
                 }
                 if (data.camera) toSet.cameraFar = String(data.camera.far);
                 chrome.storage.local.set(toSet, () => location.reload());
-            } catch (e) {
+            } catch {
                 alert('Invalid JSON');
             }
         };
@@ -1483,7 +1483,7 @@ async function loadCustomEnvironment(scene, config) {
         let envUrl = config.url;
         try {
             new URL(envUrl);
-        } catch (e) {
+        } catch {
             envUrl = chrome.runtime.getURL(envUrl);
         }
         loader.load(
@@ -2045,7 +2045,7 @@ export function init() {
                             'profile3DRenderForceDisabled',
                         );
                     }
-                } catch (e) {}
+                } catch {}
             }
 
             if (result.profile3DRenderEnabled) {

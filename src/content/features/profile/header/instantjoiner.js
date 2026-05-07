@@ -103,7 +103,7 @@ export function init() {
                     }
                     canMakeRequest = true;
                     return data;
-                } catch (error) {
+                } catch {
                     canMakeRequest = true;
                 }
             }

@@ -71,7 +71,7 @@ async function checkUserPermissions() {
             lastChecked: now,
         };
         return userPermissions;
-    } catch (error) {
+    } catch {
         return { canBan: false, canKick: false };
     }
 }

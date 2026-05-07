@@ -190,7 +190,7 @@ async function addHeaderBadges(container) {
                         noCache: isOwnProfile,
                     });
                     verification = res?.data?.[0];
-                } catch (e) {}
+                } catch {}
             }
 
             let apiBadges = [];
@@ -203,7 +203,7 @@ async function addHeaderBadges(container) {
                     noCache: isOwnProfile,
                 });
                 if (res?.status === 'success') apiBadges = res.badges;
-            } catch (e) {}
+            } catch {}
 
             data = { verification, apiBadges };
             if (!isOwnProfile) badgeCache.set(currentUserId, data);

@@ -112,7 +112,7 @@ async function copyTradeProof(container, btn) {
                 if (userData && userData.name) {
                     partnerUsername = userData.name;
                 }
-            } catch (e) {
+            } catch {
                 const usernameSpan = partnerLink.querySelector(
                     'span.element:last-of-type',
                 );

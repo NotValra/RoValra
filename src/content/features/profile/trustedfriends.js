@@ -306,7 +306,7 @@ async function addTrustedFriendButton(menu) {
                 menu.appendChild(buttonToAdd);
             }
         }
-    } catch (err) {}
+    } catch {}
 }
 
 export function init() {

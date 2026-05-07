@@ -45,7 +45,7 @@ async function fetchWithRetry(options) {
 
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
             return response;
-        } catch (err) {
+        } catch {
             if (i >= CONFIG.RETRY.MAX_ATTEMPTS) return null;
             await new Promise((r) => setTimeout(r, delay));
             delay *= 2;

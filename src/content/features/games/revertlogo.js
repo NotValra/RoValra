@@ -181,7 +181,7 @@ async function fetchUserPresence(userId) {
             data?.userPresences?.[0]?.placeId ||
             null
         );
-    } catch (e) {
+    } catch {
         return null;
     }
 }
@@ -382,7 +382,7 @@ async function pollClientStatus(targetPlaceId) {
                 const data = await response.json();
                 handleClientStatus(data);
             }
-        } catch (e) {}
+        } catch {}
     };
 
     const handleClientStatus = (data) => {
@@ -458,7 +458,7 @@ async function pollClientStatus(targetPlaceId) {
                         }
                     }
                 }
-            } catch (e) {}
+            } catch {}
         }, 3000);
     }
 }
@@ -568,7 +568,7 @@ function initializeJoinDialogEnhancer() {
                         new URL(decodedUrlString).search,
                     );
                     placeId = urlParams.get('placeId');
-                } catch (e) {
+                } catch {
                     showLoadingOverlayResult(
                         await t('revertLogo.errorParsingUrl'),
                         {
@@ -773,7 +773,7 @@ function initializeJoinDialogEnhancer() {
                                             thumbData?.imageUrl || null,
                                     };
                                 }
-                            } catch (e) {}
+                            } catch {}
                         }
 
                         regionCode = joinApiResponse.country;
@@ -870,7 +870,7 @@ function initialize() {
     try {
         initRevertLogo();
         initializeJoinDialogEnhancer();
-    } catch (e) {}
+    } catch {}
 }
 
 export function init() {

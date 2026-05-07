@@ -922,7 +922,7 @@ function createResultHtml(
                     tooltipText = `${await t('quickSearch.joinPreferredRegion')}<br><b>${regionName}</b>`;
                 }
                 addTooltip(regionBtn, tooltipText, { position: 'top' });
-            } catch (e) {
+            } catch {
                 addTooltip(regionBtn, ts('quickSearch.joinPreferredRegion'), {
                     position: 'top',
                 });

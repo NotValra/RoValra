@@ -23,7 +23,7 @@ const parseTimestamp = (timestampStr) => {
         const dt = new Date(timestampStr);
         if (isNaN(dt.getTime())) return null;
         return dt;
-    } catch (e) {
+    } catch {
         return null;
     }
 };
@@ -107,7 +107,7 @@ async function fetchTransactions(groupId) {
             } else {
                 break transactionLoop;
             }
-        } catch (error) {
+        } catch {
             break transactionLoop;
         }
     }
