@@ -65,6 +65,7 @@ async function checkInventoryPublic(userId) {
 
 async function getGamesFromInventory(userId) {
     let games = [];
+    const seenIds = new Set();
     let nextCursor = '';
 
     do {
@@ -75,11 +76,13 @@ async function getGamesFromInventory(userId) {
         const data = res ? await res.json().catch(() => null) : null;
 
         if (data?.data) {
-            const formattedGames = data.data
-                .filter((item) => item.universeId != null)
-                .map((item) => ({
-                    id: item.universeId,
-                }));
+            const formattedGames = [];
+            for (const item of data.data) {
+                if (item.universeId != null && !seenIds.has(item.universeId)) {
+                    seenIds.add(item.universeId);
+                    formattedGames.push({ id: item.universeId });
+                }
+            }
 
             games = games.concat(formattedGames);
             nextCursor = data.nextPageCursor;
