@@ -517,6 +517,7 @@ export const SETTINGS_CONFIG = {
                         description: [
                             "Choose a custom environment for your own profile's 3D render.",
                             'This only applies when viewing your own profile.',
+                            '**This is saved on RoValras database so anyone with RoValra can view it. It being saved on RoValras database used to be a tier 1 Donator perk, we are working on a replacement perk.**',
                         ],
                         type: 'select',
                         options: [
@@ -654,6 +655,7 @@ export const SETTINGS_CONFIG = {
                 description: [
                     'This allows you to set a status bubble on your profile that anyone with RoValra can see.',
                     'Also allows you to view other RoValra users status bubbles.',
+                    '**This is saved on RoValras database so anyone with RoValra can view it. It being saved on RoValras database used to be a tier 1 Donator perk, we are working on a replacement perk.**',
                 ],
                 type: 'checkbox',
                 default: true,
