@@ -678,10 +678,11 @@ export const SETTINGS_CONFIG = {
             donationbuttonEnable: {
                 label: 'Donation Button',
                 description: [
-                    "This will add a donation button to a user's profile, which allows you to donate to someone via PLS Donate",
+                    "This will add a donation button to a user's profile, allowing you to donate directly from their profile without needing to join a game.",
                 ],
                 type: 'checkbox',
                 default: true,
+                contributors: ['447170745', '8345351117'],
             },
 
             categorizeWearingEnabled: {
