@@ -14,6 +14,7 @@ import { showSystemAlert } from '../../../core/ui/roblox/alert.js';
 import { reportUserContent } from '../../../core/report.js';
 import { showConfirmationPrompt } from '../../../core/ui/confirmationPrompt.js';
 import { parseMarkdown } from '../../../core/utils/markdown.js';
+import { migrateLegacyStatus } from '../../../core/profile/descriptionhandler.js';
 import DOMPurify from 'dompurify';
 import {
     TRUSTED_USER_IDS,
@@ -497,6 +498,9 @@ async function addHomeStatusHover(tile) {
 
 export function init() {
     syncDonatorTier();
+
+    migrateLegacyStatus();
+
     chrome.storage.local.get(
         {
             statusBubbleEnabled: true,

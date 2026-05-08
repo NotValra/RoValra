@@ -28,6 +28,7 @@ import {
     getUserSettings,
     updateUserSettingViaApi,
 } from '../../../core/donators/settingHandler.js';
+import { migrateLegacyEnvironment } from '../../../core/profile/descriptionhandler.js';
 import {
     RegisterWrappers,
     RBXRenderer,
@@ -2024,6 +2025,8 @@ async function attachPreloadedAvatar(container) {
 
 export function init() {
     syncDonatorTier();
+    migrateLegacyEnvironment();
+
     chrome.storage.local.get(
         { profile3DRenderEnabled: true, profile3DRenderForceDisabled: false },
         (result) => {
