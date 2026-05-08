@@ -35,6 +35,7 @@ import { safeHtml } from '../../packages/dompurify.js';
 import { formatPlayerCount } from '../../games/playerCount.js';
 import { callRobloxApi } from '../../api.js';
 import { showFriendListOverlay } from './friendListOverlay.js';
+import { getCachedFriendsList } from '../../utils/trackers/friendslist.js';
 
 const BATCH_WAIT = 50;
 const MAX_BATCH = 50;
@@ -248,6 +249,15 @@ export function createGameCard(options) {
 
                         if (gameFriends.length > 0) {
                             const displayFriends = gameFriends.slice(0, 3);
+                            const cachedFriends = await getCachedFriendsList();
+                            const friendNameMap = new Map(
+                                cachedFriends.map((f) => [
+                                    f.id,
+                                    f.displayName ||
+                                        f.username ||
+                                        `User ${f.id}`,
+                                ]),
+                            );
 
                             const friendIds = displayFriends.map((f) => f.id);
                             const friendThumbMap = await fetchThumbnails(
@@ -259,7 +269,9 @@ export function createGameCard(options) {
                             fetchedFriendData = {
                                 friends: displayFriends.map((friend, idx) => ({
                                     id: friend.id,
-                                    name: friend.displayName,
+                                    name:
+                                        friendNameMap.get(friend.id) ||
+                                        `User ${friend.id}`,
                                     thumbnail: friendThumbMap.get(friend.id),
                                 })),
                                 allFriends: gameFriends,
