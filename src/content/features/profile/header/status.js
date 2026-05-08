@@ -29,6 +29,7 @@ import {
     getCurrentUserTier,
 } from '../../../core/settings/handlesettings.js';
 const MAX_STATUS_LENGTH = 128;
+const REPORTING_ENABLED = false;
 let activeHomeStatusBubble = null;
 
 function cleanupStatusElements(container) {
@@ -331,7 +332,7 @@ async function addStatusBubble(avatarContainer) {
                     isTrusted,
                 );
             });
-        } else {
+        } else if (REPORTING_ENABLED) {
             bubble.style.cursor = 'pointer';
             addTooltip(bubble, 'Report status');
 
@@ -432,7 +433,7 @@ async function addHomeStatusHover(tile) {
                         }
                         statusLoaded = true;
 
-                        if (!isOwnProfile) {
+                        if (!isOwnProfile && REPORTING_ENABLED) {
                             bubble.style.cursor = 'pointer';
                             addTooltip(bubble, 'Report status');
                             bubble.onclick = (e) => {
