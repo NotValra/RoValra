@@ -474,6 +474,12 @@ export async function init() {
                 const categorizedSection = createCategorizedWearingSection();
                 categorizedSection.id = 'rovalra-main-categorized-wrapper';
                 originalWearing.before(categorizedSection);
+                const existingItemCards = originalWearing.querySelectorAll(
+                    '[id="collection-carousel-item"], .carousel-item',
+                );
+                existingItemCards.forEach((item) => {
+                    handleItemDetection(item);
+                });
                 originalWearing.style.cssText =
                     'display: none !important; height: 0px !important; margin: 0px !important; padding: 0px !important; opacity: 0 !important; pointer-events: none !important;';
             }

@@ -663,25 +663,16 @@ export const SETTINGS_CONFIG = {
                         type: 'checkbox',
                         default: true,
                     },
-                    disableVideoAudio: {
-                        label: 'Disable Video Audio In status',
-                        description: [
-                            'Mutes audio on videos in statuses.',
-                            'Select people can set videos in their status, and this mutes it.',
-                            '**Only select people can add videos to their status, and the list wont expand**',
-                        ],
-                        type: 'checkbox',
-                        default: false,
-                    },
                 },
             },
             donationbuttonEnable: {
                 label: 'Donation Button',
                 description: [
-                    "This will add a donation button to a user's profile, which allows you to donate to someone via PLS Donate",
+                    "This will add a donation button to a user's profile, allowing you to donate directly from their profile without needing to join a game.",
                 ],
                 type: 'checkbox',
                 default: true,
+                contributors: ['447170745', '8345351117'],
             },
 
             categorizeWearingEnabled: {

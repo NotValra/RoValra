@@ -48,12 +48,47 @@ let cachedFriendsData = null;
 let friendsFetchPromise = null;
 let cachedUserId = null;
 
+function hasExternalSearchItems() {
+    const menu = document.querySelector('ul.new-dropdown-menu');
+    if (!menu) return false;
+    const items = menu.querySelectorAll('li.navbar-search-option');
+    for (const item of items) {
+        if (item.classList.contains('rovalra-quick-search-result')) continue;
+
+        const baselineClasses = [
+            'navbar-search-option',
+            'rbx-clickable-li',
+            'new-selected',
+            'improved-search',
+        ];
+        let hasExternalClass = false;
+        for (const cls of item.classList) {
+            if (!baselineClasses.includes(cls)) {
+                hasExternalClass = true;
+                break;
+            }
+        }
+        if (hasExternalClass) return true;
+    }
+    return false;
+}
+
 function syncSelection() {
     const menu = document.querySelector('ul.new-dropdown-menu');
     if (!menu) return;
 
     const items = Array.from(menu.querySelectorAll('li.navbar-search-option'));
     if (items.length === 0) return;
+
+    if (hasExternalSearchItems()) {
+        selectedIndex = 0;
+        menu.querySelectorAll('.rovalra-quick-search-result').forEach(
+            (item, index) => {
+                item.classList.toggle('new-selected', index === 0);
+            },
+        );
+        return;
+    }
 
     if (selectedIndex < 0) selectedIndex = items.length - 1;
     if (selectedIndex >= items.length) selectedIndex = 0;
@@ -1514,6 +1549,8 @@ export function init() {
                     (menu.offsetParent !== null ||
                         menu.classList.contains('show'));
 
+                if (hasExternalSearchItems()) return;
+
                 if (
                     e.key === 'ArrowDown' ||
                     e.key === 'ArrowUp' ||
@@ -1563,6 +1600,8 @@ export function init() {
                         (menu.offsetParent !== null ||
                             menu.classList.contains('show'));
 
+                    if (isMenuVisible && hasExternalSearchItems()) return;
+
                     let handled = false;
                     if (isMenuVisible) {
                         const selected = menu.querySelector(
@@ -1605,38 +1644,36 @@ export function init() {
                 observeAttributes(
                     menu,
                     (mutation) => {
+                        if (hasExternalSearchItems()) return;
+
+                        const target = mutation.target;
                         if (
-                            mutation.target.classList.contains(
+                            !target.classList.contains(
                                 'navbar-search-option',
+                            ) ||
+                            !target.classList.contains(
+                                'rovalra-quick-search-result',
                             )
                         ) {
-                            const items = Array.from(
-                                menu.querySelectorAll(
-                                    'li.navbar-search-option',
-                                ),
-                            );
-                            const idx = items.indexOf(mutation.target);
-                            if (idx !== -1) {
-                                if (
-                                    idx === selectedIndex &&
-                                    !mutation.target.classList.contains(
-                                        'new-selected',
-                                    )
-                                ) {
-                                    mutation.target.classList.add(
-                                        'new-selected',
-                                    );
-                                } else if (
-                                    idx !== selectedIndex &&
-                                    mutation.target.classList.contains(
-                                        'new-selected',
-                                    )
-                                ) {
-                                    mutation.target.classList.remove(
-                                        'new-selected',
-                                    );
-                                }
-                            }
+                            return;
+                        }
+
+                        const items = Array.from(
+                            menu.querySelectorAll('li.navbar-search-option'),
+                        );
+                        const idx = items.indexOf(target);
+                        if (idx === -1) return;
+
+                        if (
+                            idx === selectedIndex &&
+                            !target.classList.contains('new-selected')
+                        ) {
+                            target.classList.add('new-selected');
+                        } else if (
+                            idx !== selectedIndex &&
+                            target.classList.contains('new-selected')
+                        ) {
+                            target.classList.remove('new-selected');
                         }
                     },
                     ['class'],

@@ -116,7 +116,7 @@ async function renderTestPage(contentDiv) {
     const gameId = 1818;
     const card = createGameCard(gameId);
     container.appendChild(card);
-    const fregameId = 70845479499574;
+    const fregameId = 4924922222;
     const frecard = createGameCard(fregameId);
     container.appendChild(frecard);
     const LonggameId = 14056754882;

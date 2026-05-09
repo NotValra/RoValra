@@ -14,6 +14,7 @@ import { showSystemAlert } from '../../../core/ui/roblox/alert.js';
 import { reportUserContent } from '../../../core/report.js';
 import { showConfirmationPrompt } from '../../../core/ui/confirmationPrompt.js';
 import { parseMarkdown } from '../../../core/utils/markdown.js';
+import { migrateLegacyStatus } from '../../../core/profile/descriptionhandler.js';
 import DOMPurify from 'dompurify';
 import {
     TRUSTED_USER_IDS,
@@ -29,6 +30,7 @@ import {
     getCurrentUserTier,
 } from '../../../core/settings/handlesettings.js';
 const MAX_STATUS_LENGTH = 128;
+const REPORTING_ENABLED = false;
 let activeHomeStatusBubble = null;
 
 function cleanupStatusElements(container) {
@@ -187,10 +189,6 @@ async function addStatusBubble(avatarContainer) {
             authenticatedUserId &&
             String(authenticatedUserId) === String(userId);
 
-        const { disableVideoAudio } = await chrome.storage.local.get({
-            disableVideoAudio: false,
-        });
-
         const profileSettings = await getUserSettings(userId);
 
         const { status } = profileSettings;
@@ -225,16 +223,9 @@ async function addStatusBubble(avatarContainer) {
             const videos = bubble.querySelectorAll('video');
             for (const video of videos) {
                 video.muted = true;
-                video.volume = disableVideoAudio ? 0 : 0.1;
+                video.volume = 0;
 
-                video
-                    .play()
-                    .then(() => {
-                        if (!disableVideoAudio) {
-                            video.muted = false;
-                        }
-                    })
-                    .catch(() => {});
+                video.play().catch(() => {});
             }
         } else {
             bubble.textContent = statusText;
@@ -260,11 +251,6 @@ async function addStatusBubble(avatarContainer) {
                     : '...';
 
                 if (isUserTrusted) {
-                    const { disableVideoAudio: localDisableAudio } =
-                        await chrome.storage.local.get({
-                            disableVideoAudio: false,
-                        });
-
                     bubble.innerHTML = DOMPurify.sanitize(
                         parseMarkdown(textToRender),
                         {
@@ -276,16 +262,9 @@ async function addStatusBubble(avatarContainer) {
                     const videos = bubble.querySelectorAll('video');
                     for (const video of videos) {
                         video.muted = true;
-                        video.volume = localDisableAudio ? 0 : 0.1;
+                        video.volume = 0;
 
-                        video
-                            .play()
-                            .then(() => {
-                                if (!localDisableAudio) {
-                                    video.muted = false;
-                                }
-                            })
-                            .catch(() => {});
+                        video.play().catch(() => {});
                     }
                 } else {
                     bubble.textContent = textToRender;
@@ -331,7 +310,7 @@ async function addStatusBubble(avatarContainer) {
                     isTrusted,
                 );
             });
-        } else {
+        } else if (REPORTING_ENABLED) {
             bubble.style.cursor = 'pointer';
             addTooltip(bubble, 'Report status');
 
@@ -432,7 +411,7 @@ async function addHomeStatusHover(tile) {
                         }
                         statusLoaded = true;
 
-                        if (!isOwnProfile) {
+                        if (!isOwnProfile && REPORTING_ENABLED) {
                             bubble.style.cursor = 'pointer';
                             addTooltip(bubble, 'Report status');
                             bubble.onclick = (e) => {
@@ -495,23 +474,12 @@ async function addHomeStatusHover(tile) {
             bubbleWrapper.style.display = 'flex';
             activeHomeStatusBubble = bubbleWrapper;
 
-            const { disableVideoAudio } = await chrome.storage.local.get({
-                disableVideoAudio: false,
-            });
-
             const videos = bubble.querySelectorAll('video');
             for (const video of videos) {
                 video.muted = true;
-                video.volume = disableVideoAudio ? 0 : 0.1;
+                video.volume = 0;
 
-                video
-                    .play()
-                    .then(() => {
-                        if (!disableVideoAudio && isHovering) {
-                            video.muted = false;
-                        }
-                    })
-                    .catch(() => {});
+                video.play().catch(() => {});
             }
         }
     });
@@ -530,11 +498,13 @@ async function addHomeStatusHover(tile) {
 
 export function init() {
     syncDonatorTier();
+
+    migrateLegacyStatus();
+
     chrome.storage.local.get(
         {
             statusBubbleEnabled: true,
             statusBubbleHomePage: true,
-            disableVideoAudio: false,
         },
         (settings) => {
             if (settings.statusBubbleEnabled) {

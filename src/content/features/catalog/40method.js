@@ -2388,7 +2388,10 @@ const addSaveButton = (modal) => {
             );
 
         const closeButton =
-            modalWindow.querySelector('button[aria-label="Close"]') ||
+            modalWindow.querySelector('.foundation-web-close-affordance') ||
+            modalWindow.querySelector(
+                '.foundation-web-dialog-close-container button',
+            ) ||
             modalWindow.querySelector('.modal-header .close') ||
             modalWindow.querySelector('.modal-header .modal-close-btn') ||
             modalWindow.querySelector('.simplemodal-close');

@@ -2,8 +2,6 @@
 
 const STORAGE_KEY = 'rovalra_oauth_verification';
 const OAUTH_PROGRESS_KEY = 'rovalra_oauth_progress';
-const TOKEN_EXPIRATION_BUFFER_MS = 5 * 60 * 1000;
-const NON_DONATOR_TOKEN_EXPIRY_MS = 30 * 60 * 1000; // 30 minutes
 
 import { callRobloxApi } from '../api.js';
 import { getAuthenticatedUserId } from '../user.js';
@@ -26,7 +24,6 @@ export async function init() {
                 console.log('RoValra: No active session or re-auth required.');
             }
         } else {
-            await cleanupExpiredNonDonatorTokens();
             console.log(
                 'RoValra: Non-donator detected, skipped auto OAuth sync.',
             );
@@ -53,28 +50,6 @@ function saveOAuthProgress(step, data = {}) {
 async function getOAuthProgress() {
     const storage = await chrome.storage.local.get(OAUTH_PROGRESS_KEY);
     return storage[OAUTH_PROGRESS_KEY] || null;
-}
-
-async function cleanupExpiredNonDonatorTokens() {
-    const isDonator = getCurrentUserTier() >= 1;
-    if (isDonator) return;
-
-    const userId = await getAuthenticatedUserId();
-    if (!userId) return;
-
-    const storage = await chrome.storage.local.get(STORAGE_KEY);
-    let allVerifications = storage[STORAGE_KEY] || {};
-
-    if (allVerifications[userId]) {
-        const tokenAge = Date.now() - allVerifications[userId].timestamp;
-        if (tokenAge > NON_DONATOR_TOKEN_EXPIRY_MS) {
-            delete allVerifications[userId];
-            await chrome.storage.local.set({ [STORAGE_KEY]: allVerifications });
-            console.log(
-                'RoValra: Cleaned up expired non-donator token on startup.',
-            );
-        }
-    }
 }
 
 export async function getValidAccessToken(
@@ -109,18 +84,6 @@ export async function getValidAccessToken(
             'RoValra: OAuth progress belongs to another user. Clearing.',
         );
         await clearOAuthProgress();
-    }
-
-    if (!isDonator && storedVerification && !isAccountSwitch) {
-        const tokenAge = Date.now() - storedVerification.timestamp;
-        if (tokenAge > NON_DONATOR_TOKEN_EXPIRY_MS) {
-            delete allVerifications[userId];
-            await chrome.storage.local.set({ [STORAGE_KEY]: allVerifications });
-            storedVerification = null;
-            console.log(
-                'RoValra: Non-donator OAuth token expired and removed.',
-            );
-        }
     }
 
     if (
@@ -179,15 +142,11 @@ export async function getValidAccessToken(
             noCache: true,
         });
 
-        if (!response.ok) {
+        if (response.status === 401 || response.status === 403) {
             console.warn(
-                `RoValra: Session invalid (Status ${response.status}). Triggering re-auth...`,
+                `RoValra: Session unauthorized (Status ${response.status}). Triggering re-auth...`,
             );
             if (!isDonator && lazyForNonDonators) {
-                delete allVerifications[userId];
-                await chrome.storage.local.set({
-                    [STORAGE_KEY]: allVerifications,
-                });
                 return null;
             }
 
