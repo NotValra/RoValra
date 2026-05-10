@@ -9,6 +9,7 @@ import { showSystemAlert } from './ui/roblox/alert.js';
 
 import { updateUserLocationIfChanged } from './utils/location.js';
 const activeRequests = new Map();
+let gameJoinErrorCount = 0;
 let lastGameJoinRequestTime = 0;
 
 const OAUTH_STORAGE_KEY = 'rovalra_oauth_verification';
@@ -166,6 +167,42 @@ function checkSimulatedLatency() {
     });
 }
 
+function checkSimulatedJoinError() {
+    return new Promise((resolve) => {
+        if (
+            typeof chrome === 'undefined' ||
+            !chrome.storage ||
+            !chrome.storage.local
+        ) {
+            resolve(false);
+            return;
+        }
+        chrome.storage.local.get(['simulateRobloxJoinErrors'], (result) => {
+            resolve(!!result.simulateRobloxJoinErrors);
+        });
+    });
+}
+
+function checkSimulatedJoinHttpError() {
+    return new Promise((resolve) => {
+        if (
+            typeof chrome === 'undefined' ||
+            !chrome.storage ||
+            !chrome.storage.local
+        ) {
+            resolve(false);
+            return;
+        }
+        chrome.storage.local.get(['simulateRobloxJoinHttpErrors'], (result) => {
+            resolve(!!result.simulateRobloxJoinHttpErrors);
+        });
+    });
+}
+
+export function resetGameJoinErrorCount() {
+    gameJoinErrorCount = 0;
+}
+
 export async function callRobloxApi(options) {
     captureApiCall(options);
 
@@ -298,6 +335,39 @@ export async function callRobloxApi(options) {
                     `RoValra API: [SIMULATION] Adding 5s latency for ${endpoint}`,
                 );
                 await new Promise((resolve) => setTimeout(resolve, 5000));
+            }
+        }
+
+        if (subdomain === 'gamejoin') {
+            const isJoinHttpErrorSimulated =
+                await checkSimulatedJoinHttpError();
+            if (isJoinHttpErrorSimulated) {
+                console.warn(
+                    `RoValra API: [SIMULATION] Returning 500 error for ${endpoint}`,
+                );
+                return new Response(
+                    JSON.stringify({
+                        errors: [
+                            {
+                                code: 500,
+                                message: 'Simulated Internal Server Error',
+                            },
+                        ],
+                    }),
+                    {
+                        status: 500,
+                        statusText: 'Internal Server Error',
+                        headers: { 'Content-Type': 'application/json' },
+                    },
+                );
+            }
+
+            const isJoinErrorSimulated = await checkSimulatedJoinError();
+            if (isJoinErrorSimulated) {
+                console.warn(
+                    `RoValra API: [SIMULATION] Throwing network error for ${endpoint}`,
+                );
+                throw new Error('ERR_SOCKS_CONNECTION_FAILED');
             }
         }
 
@@ -564,8 +634,58 @@ export async function callRobloxApi(options) {
         requestPromise.finally(() => activeRequests.delete(requestKey));
     }
 
-    const originalResponse = await requestPromise;
+    let originalResponse;
+    try {
+        originalResponse = await requestPromise;
+    } catch (err) {
+        const errorMessage = err.message || 'Unknown network error';
+        if (options.subdomain === 'gamejoin') {
+            gameJoinErrorCount++;
+            if (gameJoinErrorCount > 3) {
+                document.dispatchEvent(
+                    new CustomEvent('rovalra-gamejoin-critical-error', {
+                        detail: {
+                            errorMessage: `Network error: ${errorMessage}`,
+                        },
+                    }),
+                );
+            }
+        }
+        throw err;
+    }
+
     const clonedResponse = originalResponse.clone();
+    let errorMessage = `HTTP error: ${originalResponse.status} ${originalResponse.statusText}`;
+
+    if (
+        options.subdomain === 'gamejoin' &&
+        !originalResponse.ok &&
+        originalResponse.status !== 429
+    ) {
+        gameJoinErrorCount++;
+        if (gameJoinErrorCount > 3) {
+            originalResponse
+                .clone()
+                .json()
+                .then((data) => {
+                    if (data?.errors?.[0]?.message) {
+                        errorMessage += ` - ${data.errors[0].message}`;
+                    }
+                    document.dispatchEvent(
+                        new CustomEvent('rovalra-gamejoin-critical-error', {
+                            detail: { errorMessage: errorMessage },
+                        }),
+                    );
+                })
+                .catch(() => {
+                    document.dispatchEvent(
+                        new CustomEvent('rovalra-gamejoin-critical-error', {
+                            detail: { errorMessage: errorMessage },
+                        }),
+                    );
+                });
+        }
+    }
 
     if (options.subdomain === 'gamejoin' && originalResponse.ok) {
         const gameJoinClone = originalResponse.clone();

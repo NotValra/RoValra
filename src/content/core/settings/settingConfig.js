@@ -1733,6 +1733,24 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: false,
             },
+            simulateRobloxJoinErrors: {
+                label: ['Simulate Roblox Join Errors'],
+                description: [
+                    'Simulates network errors for the Roblox Join API to test handling of critical join failures.',
+                ],
+                type: 'checkbox',
+                default: false,
+                childSettings: {
+                    simulateRobloxJoinHttpErrors: {
+                        label: ['Simulate Roblox Join 500 Errors'],
+                        description: [
+                            'Simulates HTTP 500 errors for the Roblox Join API to test handling of internal server errors.',
+                        ],
+                        type: 'checkbox',
+                        default: false,
+                    },
+                },
+            },
             forceReviewPopup: {
                 label: ['Force Review Popup'],
                 description: [

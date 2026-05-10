@@ -1,5 +1,5 @@
 import { showReviewPopup } from './review/review.js';
-import { callRobloxApi } from './api.js';
+import { callRobloxApi, resetGameJoinErrorCount } from './api.js';
 import { launchGame } from './utils/launcher.js';
 import { getUserLocation } from './utils/location.js';
 import DOMPurify from 'dompurify';
@@ -23,6 +23,28 @@ let isCurrentlyFetchingData = false;
 let serverLocations = {};
 
 const joinedServerIds = new Set();
+
+document.addEventListener('rovalra-gamejoin-critical-error', (e) => {
+    if (isCurrentlyFetchingData) {
+        userRequestedStop = true;
+        const detailMsg = e.detail?.errorMessage || 'Unknown error';
+
+        showLoadingOverlayResult(
+            `The Roblox Join API is failing to respond. You might have to wait a bit.
+
+\`\`\`
+Error: ${detailMsg}
+\`\`\`
+
+This is usually caused by a network issue or a problem with Roblox servers. If this persists, try disabling [Preferred Region.](https://www.roblox.com/my/account?rovalra=search&q=preferredregionenabled#!/search)
+If the issue keeps happening, please report it in the RoValra Discord server.`,
+            {
+                text: 'Close',
+                onClick: () => hideLoadingOverlay(true),
+            },
+        );
+    }
+});
 
 async function isServerActive(placeId, gameId) {
     try {
@@ -66,6 +88,7 @@ export async function performJoinAction(
     userRequestedStop = false;
     isCurrentlyFetchingData = true;
     serverLocations = {};
+    resetGameJoinErrorCount();
 
     showLoadingOverlay(
         () => {
@@ -134,9 +157,7 @@ export async function performJoinAction(
 
         if (preferredRegionCode && REGIONS[preferredRegionCode]?.inactive) {
             showLoadingOverlayResult(
-                DOMPurify.sanitize(
-                    `${shortTargetName} is no longer used as a server location by Roblox.`,
-                ),
+                `${shortTargetName} is no longer used as a server location by Roblox.`,
                 { text: 'Close', onClick: () => hideLoadingOverlay(true) },
             );
             isCurrentlyFetchingData = false;
@@ -147,9 +168,7 @@ export async function performJoinAction(
         let manualScanReason = `Region API unavailable. Scanning for ${shortTargetName}...`;
 
         if (!userRequestedStop) {
-            updateLoadingOverlayText(
-                DOMPurify.sanitize(`Searching in ${shortTargetName}...`),
-            );
+            updateLoadingOverlayText(`Searching in ${shortTargetName}...`);
             const rovalraResult = await ClosestServer.findServerViaRovalraApi(
                 placeId,
                 universeId,
@@ -182,7 +201,7 @@ export async function performJoinAction(
                 manualScanReason = `${shortTargetName} is used for load balancing and is likely only active under heavy load. Scanning...`;
             }
 
-            updateLoadingOverlayText(DOMPurify.sanitize(manualScanReason));
+            updateLoadingOverlayText(manualScanReason);
 
             let nextCursor = null;
             let pageCount = 0;
@@ -265,24 +284,18 @@ export async function performJoinAction(
 
                             if (bestServerTier === 0) {
                                 updateLoadingOverlayText(
-                                    DOMPurify.sanitize(
-                                        `Found ${bestName}! Joining...`,
-                                    ),
+                                    `Found ${bestName}! Joining...`,
                                 );
                             } else {
                                 updateLoadingOverlayText(
-                                    DOMPurify.sanitize(
-                                        `Found: ${bestName}. Continuing search for ${shortTargetName}...`,
-                                    ),
+                                    `Found: ${bestName}. Continuing search for ${shortTargetName}...`,
                                 );
                             }
                         }
 
                         if (bestServerTier === 0) {
                             updateLoadingOverlayText(
-                                DOMPurify.sanitize(
-                                    `Found ${bestName}! Verifying...`,
-                                ),
+                                `Found ${bestName}! Verifying...`,
                             );
                             if (
                                 await isServerActive(
@@ -357,9 +370,7 @@ export async function performJoinAction(
 
             if (preferredRegionCode && !userRequestedStop) {
                 updateLoadingOverlayText(
-                    DOMPurify.sanitize(
-                        `Searching for closest region to ${shortTargetName}...`,
-                    ),
+                    `Searching for closest region to ${shortTargetName}...`,
                 );
                 const apiFallback = await ClosestServer.findClosestServerViaApi(
                     placeId,
@@ -395,9 +406,7 @@ export async function performJoinAction(
             if (totalUniqueServersSeen === 0 && !bestServerFoundSoFar) {
                 if (!runManualScan) {
                     showLoadingOverlayResult(
-                        DOMPurify.sanitize(
-                            `No servers found in ${shortTargetName}.`,
-                        ),
+                        `No servers found in ${shortTargetName}.`,
                         {
                             text: 'Close',
                             onClick: () => hideLoadingOverlay(true),
@@ -453,8 +462,8 @@ export async function performJoinAction(
                     if (
                         await isServerActive(placeId, bestServerFoundSoFar.id)
                     ) {
-                        showLoadingOverlayResult(DOMPurify.sanitize(message), {
-                            text: DOMPurify.sanitize(`Join ${foundRegionName}`),
+                        showLoadingOverlayResult(message, {
+                            text: `Join ${foundRegionName}`,
                             onClick: async () => {
                                 hideLoadingOverlay(true);
                                 joinedServerIds.add(bestServerFoundSoFar.id);
