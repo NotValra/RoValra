@@ -1,4 +1,5 @@
 import { marked } from 'marked'; // Better markdown!!!
+import { safeHtml } from '../packages/dompurify';
 
 export function parseMarkdown(text, themeColors = {}) {
     if (!text) return '';
@@ -19,4 +20,45 @@ export function parseMarkdown(text, themeColors = {}) {
     });
 
     return `<div class="rovalra-markdown">${marked.parse(processedText)}</div>`;
+}
+
+/**
+ * Format markdown from untrusted sources
+ * @param {string} text 
+ * @returns {string} Safe HTML render
+ */
+export function parseUntrustedMarkdown(text) {
+    if (!text) return '';
+
+    text = safeHtml([text]);
+
+    // Headings
+    text = text.replace(/^# (.*)$/m, (match, heading) => {
+        return `<u><b>${heading}</b></u><br>`;
+    });  // allow ONE heading which is just bold text + newline
+
+    // Bold Text
+    text = text.replaceAll(/\*\*(.*?)\*\*/g, (match, bold) => {
+        return `<b>${bold}</b>`;
+    });
+
+    text = text.replaceAll(/__(.*?)__/g, (match, bold) => {
+        return `<b>${bold}</b>`;
+    });
+
+    // Italic Text
+    text = text.replaceAll(/\*(.*?)\*/g, (match, italic) => {
+        return `<i>${italic}</i>`;
+    });
+
+    text = text.replaceAll(/_(.*?)_/g, (match, italic) => {
+        return `<i>${italic}</i>`;
+    });
+
+    // Inline Codeblocks
+    text = text.replaceAll(/`(.*?)`/g, (match, codeblock) => {
+        return `<code>${codeblock}</code>`;
+    })
+
+    return text.trim();
 }

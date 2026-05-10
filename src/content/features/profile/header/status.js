@@ -13,7 +13,7 @@ import { createStyledInput } from '../../../core/ui/catalog/input.js';
 import { showSystemAlert } from '../../../core/ui/roblox/alert.js';
 import { reportUserContent } from '../../../core/report.js';
 import { showConfirmationPrompt } from '../../../core/ui/confirmationPrompt.js';
-import { parseMarkdown } from '../../../core/utils/markdown.js';
+import { parseMarkdown, parseUntrustedMarkdown } from '../../../core/utils/markdown.js';
 import { migrateLegacyStatus } from '../../../core/profile/descriptionhandler.js';
 import DOMPurify from 'dompurify';
 import {
@@ -228,7 +228,7 @@ async function addStatusBubble(avatarContainer) {
                 video.play().catch(() => {});
             }
         } else {
-            bubble.textContent = statusText;
+            bubble.innerHTML = parseUntrustedMarkdown(statusText);  // Verified
         }
 
         bubbleWrapper.appendChild(bubble);
@@ -267,7 +267,7 @@ async function addStatusBubble(avatarContainer) {
                         video.play().catch(() => {});
                     }
                 } else {
-                    bubble.textContent = textToRender;
+                    bubble.innerHTML = parseUntrustedMarkdown(textToRender);  // Verified
                 }
 
                 const newTooltipText =
@@ -407,7 +407,7 @@ async function addHomeStatusHover(tile) {
                                 },
                             );
                         } else {
-                            bubble.textContent = statusText;
+                            bubble.innerHTML = parseUntrustedMarkdown(statusText).replaceAll("<br>", '');  // Verified
                         }
                         statusLoaded = true;
 
