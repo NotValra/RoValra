@@ -1127,8 +1127,15 @@ async function loadExperiences(userId) {
                 li.className = 'list-item game-card game-tile';
                 li.appendChild(
                     createGameCard({
-                        gameId: game.id,
-                        placeId: game.rootPlace?.id,
+                        game: {
+                            id: game.id,
+                            name: game.name,
+                            rootPlaceId: game.rootPlace?.id,
+                            description: game.description,
+                            created: game.created,
+                            updated: game.updated,
+                            placeVisits: game.placeVisits,
+                        },
                     }),
                 );
                 creationsList.appendChild(li);
