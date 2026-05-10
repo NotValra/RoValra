@@ -293,23 +293,25 @@ export function startObserving() {
         return 'failed';
     }
 
-    if (document.body) {
-        globalObserver.observe(document.body, {
-            childList: true,
-            subtree: true,
-        });
-        return 'active';
-    } else {
-        window.addEventListener(
-            'DOMContentLoaded',
-            () => {
-                globalObserver.observe(document.body, {
-                    childList: true,
-                    subtree: true,
-                });
-            },
-            { once: true },
-        );
-        return 'deferred';
-    }
+    const observeBody = () => {
+        if (document.body) {
+            globalObserver.observe(document.body, {
+                childList: true,
+                subtree: true,
+            });
+            return true;
+        }
+        return false;
+    };
+
+    if (observeBody()) return 'active';
+
+    const bodyWatcher = new MutationObserver((_, obs) => {
+        if (observeBody()) {
+            obs.disconnect();
+        }
+    }); // Verified
+    bodyWatcher.observe(document.documentElement, { childList: true });
+
+    return 'waiting-for-body';
 }

@@ -294,6 +294,8 @@ const featureRoutes = [
     },
 ];
 
+const startTime = performance.now();
+
 function runFeaturesForPage() {
     const path = window.location.pathname;
     const normalizedPath = path.replace(/^\/[a-z]{2}(?:-[a-z]{2})?\//, '/');
@@ -327,35 +329,41 @@ async function initializePage() {
     initializeObserver();
     const observerStatus = startObserving();
 
-    try {
-        await getValidAccessToken(false, false);
-    } catch (error) {
-        console.error('RoValra: OAuth token initialization failed', error);
-    }
+    getValidAccessToken(false, false).catch((error) =>
+        console.error('RoValra: OAuth token initialization failed', error),
+    );
+    initApiKey().catch((error) =>
+        console.error('RoValra: API key initialization failed', error),
+    );
 
-    try {
-        await initApiKey();
-    } catch (error) {
-        console.error('RoValra: API key initialization failed', error);
-    }
+    const startFeatures = () => {
+        const featureStartTime = performance.now();
 
-    const onDomReady = async () => {
         detectTheme().then((theme) => dispatchThemeEvent(theme));
-
         runFeaturesForPage();
+
+        const endTime = performance.now();
+
+        console.log(
+            `%cRoValra Initialized`,
+            'font-size: 1.5em; color: #FF4500;',
+            `\n(Observer: ${observerStatus})` +
+                `\nFeature Load Time: ${(endTime - featureStartTime).toFixed(2)}ms` +
+                `\nTotal Load Time: ${(endTime - startTime).toFixed(2)}ms`,
+        );
     };
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', onDomReady);
+    if (document.body) {
+        startFeatures();
     } else {
-        onDomReady();
+        const docObserver = new MutationObserver((_, obs) => {
+            if (document.body) {
+                obs.disconnect();
+                startFeatures();
+            }
+        }); //Verified
+        docObserver.observe(document.documentElement, { childList: true });
     }
-
-    console.log(
-        `%cRoValra Initialized`,
-        'font-size: 1.5em; color: #FF4500;',
-        `(Observer: ${observerStatus})`,
-    );
 }
 
 async function handleUrlChange() {
