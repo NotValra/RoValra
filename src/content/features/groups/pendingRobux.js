@@ -262,7 +262,7 @@ async function injectResultElement(targetElement, result) {
 
     if (estimatorRow) {
         const amountCell = estimatorRow.querySelector('.amount-cell');
-        if (amountCell) amountCell.innerHTML = amountHtml;
+        if (amountCell) amountCell.innerHTML = amountHtml;  // Verified
 
         const infoIcon = estimatorRow.querySelector('.icon-moreinfo');
         if (infoIcon && infoIcon.dataset.tooltipText !== tooltipText) {

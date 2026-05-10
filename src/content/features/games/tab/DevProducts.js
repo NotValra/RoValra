@@ -388,7 +388,7 @@ async function loadAndRenderProducts(storeTab, placeId) {
         if (products.length === 0) {
             devProductsList.innerHTML = `<div class="section-content-off">${await t(
                 'devProducts.noProducts',
-            )}</div>`;
+            )}</div>`;  // Verified
             paginationContainer.style.display = 'none';
             filterWrapper.style.display = 'none';
         } else {

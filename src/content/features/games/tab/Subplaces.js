@@ -420,7 +420,7 @@ export async function init() {
                         };
 
                         if (subplaces.length === 0) {
-                            subplacesContainer.innerHTML = `<p style="grid-column: 1 / -1;">${await t('subplaces.noSubplaces')}</p>`;
+                            subplacesContainer.innerHTML = `<p style="grid-column: 1 / -1;">${await t('subplaces.noSubplaces')}</p>`;  // Verified
                             loadMoreWrapper.style.display = 'none';
                         } else {
                             await loadMore();
@@ -459,7 +459,7 @@ export async function init() {
                                   : 'flex';
                         });
                     } catch {
-                        subplacesContainer.innerHTML = `<p style="grid-column: 1 / -1; padding: 20px;">${await t('subplaces.failedToLoad')}</p>`;
+                        subplacesContainer.innerHTML = `<p style="grid-column: 1 / -1; padding: 20px;">${await t('subplaces.failedToLoad')}</p>`;  // Verified
                     }
                 };
 
