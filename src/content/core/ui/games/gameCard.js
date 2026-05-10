@@ -355,8 +355,7 @@ export function createGameCard(options) {
                         showVotes
                             ? `
                         <span class="info-label icon-votes-gray"></span>
-                        <span class="info-label vote-percentage-label ${voteData.total > 0 ? '' : 'hidden'}">${voteData.ratio}%</span>
-                        <span class="info-label no-vote ${voteData.total === 0 ? '' : 'hidden'}"></span>
+                        <span class="info-label vote-percentage-label">${voteData.total > 0 ? `${voteData.ratio}%` : '--'}</span>
                     `
                             : ''
                     }
