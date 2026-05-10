@@ -1,15 +1,17 @@
 import { observeElement } from '../../core/observer.js';
 import { fetchThumbnails } from '../../core/thumbnail/thumbnails.js';
-import {
-    loadDatacenterMap,
-    getRegionData,
-    REGIONS,
-    serverIpMap,
-} from '../../core/regions.js';
+import { loadDatacenterMap, serverIpMap } from '../../core/regions.js';
 import { callRobloxApi } from '../../core/api.js';
 import DOMPurify from 'dompurify';
 import { launchGame } from '../../core/utils/launcher.js';
 import { t, ts } from '../../core/locale/i18n.js';
+import {
+    fetchServerDetails,
+    fetchServerRegion,
+    getServerUptime,
+    getServerUptimeIsEstimate,
+    formatUptime,
+} from '../../core/apis/serverApi.js';
 
 import {
     showLoadingOverlay,
@@ -147,18 +149,19 @@ async function fetchGameDetails(placeId) {
     }
 }
 
-async function fetchServerUptime(placeId, serverId) {
-    if (!placeId || !serverId) return null;
-    try {
-        const response = await callRobloxApi({
-            isRovalraApi: true,
-            endpoint: `/v1/servers/details?place_id=${placeId}&server_ids=${serverId}`,
+function attachLiveUptimeListener() {
+    const el = document.querySelector('.rovalra-live-uptime');
+    if (el && !el._rovalraUptimeHooked) {
+        el._rovalraUptimeHooked = true;
+        el.addEventListener('rovalra-uptime-update', (e) => {
+            const valEl = el.querySelector('.uptime-value');
+            if (valEl) {
+                valEl.textContent = formatUptime(
+                    e.detail.uptime,
+                    e.detail.isEstimate,
+                );
+            }
         });
-        if (!response.ok) return null;
-        const data = await response.json();
-        return data?.servers?.[0]?.first_seen || null;
-    } catch (error) {
-        return null;
     }
 }
 
@@ -192,7 +195,6 @@ const buildInfoList = (
     placeVersion,
     serverChannel,
     rccVersion,
-    serverUptime,
     ownerInfo,
 ) => {
     const liClass = `class="rovalra-details-li"`;
@@ -239,21 +241,12 @@ const buildInfoList = (
             `<li ${liClass}>${verIcon} <strong>${ts('revertLogo.version')}</strong> ${placeVersion}</li>`,
         );
 
-    if (serverUptime) {
-        const firstSeenDate = new Date(serverUptime);
-        const now = new Date();
-        let remainingSeconds = (now - firstSeenDate) / 1000;
-        const days = Math.floor(remainingSeconds / 86400);
-        remainingSeconds %= 86400;
-        const hours = Math.floor(remainingSeconds / 3600);
-        remainingSeconds %= 3600;
-        const minutes = Math.floor(remainingSeconds / 60);
-        const parts = [];
-        if (days > 0) parts.push(`${days}d`);
-        if (hours > 0) parts.push(`${hours}h`);
-        if (minutes > 0 || parts.length === 0) parts.push(`${minutes}m`);
+    const uptime = getServerUptime(gameId);
+    if (uptime !== null) {
+        const isEstimate = getServerUptimeIsEstimate(gameId);
+        const uptimeStr = formatUptime(uptime, isEstimate);
         listItems.push(
-            `<li ${liClass}>${timeIcon} <strong>${ts('revertLogo.uptime')}</strong> ${parts.join(' ')}</li>`,
+            `<li class="rovalra-details-li rovalra-live-uptime" data-rovalra-serverid="${gameId}">${timeIcon} <strong>${ts('revertLogo.uptime')}</strong> <span class="uptime-value">${uptimeStr}</span></li>`,
         );
     }
 
@@ -645,39 +638,35 @@ function initializeJoinDialogEnhancer() {
                             retries++;
 
                             try {
-                                let response = null;
+                                let data = null;
                                 const apiBody = {
                                     gameJoinAttemptId: crypto.randomUUID(),
                                     placeId: parseInt(placeId, 10),
                                 };
 
                                 if (isGenericJoin) {
-                                    response = await callRobloxApi({
+                                    const response = await callRobloxApi({
                                         subdomain: 'gamejoin',
                                         endpoint: '/v1/join-game',
                                         method: 'POST',
                                         body: apiBody,
                                     });
+                                    if (response.ok)
+                                        data = await response.json();
                                 } else if (isPrivateServer) {
-                                    const accessCode =
-                                        urlParams.get('accessCode');
-                                    const linkCode =
-                                        urlParams.get('linkCode') || '';
-                                    response = await callRobloxApi({
-                                        subdomain: 'gamejoin',
-                                        endpoint: '/v1/join-private-game',
-                                        method: 'POST',
-                                        body: {
-                                            ...apiBody,
-                                            accessCode,
-                                            linkCode,
-                                            isTeleport: false,
+                                    data = await fetchServerRegion(
+                                        placeId,
+                                        null,
+                                        {
+                                            isPrivate: true,
+                                            accessCode:
+                                                urlParams.get('accessCode'),
                                         },
-                                    });
+                                    );
                                 } else if (isFollowingUser) {
                                     const userIdToFollow =
                                         urlParams.get('userId');
-                                    response = await callRobloxApi({
+                                    const response = await callRobloxApi({
                                         subdomain: 'gamejoin',
                                         endpoint: '/v1/play-with-user',
                                         method: 'POST',
@@ -688,21 +677,16 @@ function initializeJoinDialogEnhancer() {
                                             ),
                                         },
                                     });
+                                    if (response.ok)
+                                        data = await response.json();
                                 } else if (currentGameId) {
-                                    response = await callRobloxApi({
-                                        subdomain: 'gamejoin',
-                                        endpoint: '/v1/join-game-instance',
-                                        method: 'POST',
-                                        body: {
-                                            ...apiBody,
-                                            gameId: currentGameId,
-                                        },
-                                    });
+                                    data = await fetchServerRegion(
+                                        placeId,
+                                        currentGameId,
+                                    );
                                 }
 
-                                if (response && response.ok) {
-                                    const data = await response.json();
-
+                                if (data && data.status !== 0) {
                                     if (
                                         data?.status === 12 ||
                                         (data?.message &&
@@ -757,7 +741,7 @@ function initializeJoinDialogEnhancer() {
 
                 try {
                     const joinScript = joinApiResponse?.joinScript;
-                    let regionCode, regionName, ownerInfo, serverUptime;
+                    let regionCode, regionName, ownerInfo;
 
                     if (joinScript) {
                         const resolvedGameId =
@@ -792,20 +776,22 @@ function initializeJoinDialogEnhancer() {
                             } catch (e) {}
                         }
 
-                        const dataCenterId = joinScript.DataCenterId;
-                        if (dataCenterId && serverIpMap[dataCenterId]) {
-                            const loc = serverIpMap[dataCenterId];
-                            regionCode = loc.country;
-                            regionName = loc.region
-                                ? `${loc.city}, ${loc.region}`
-                                : loc.city;
+                        regionCode = joinApiResponse.country;
+                        regionName = joinApiResponse.region;
+
+                        if (!regionCode || !regionName) {
+                            const dataCenterId = joinScript.DataCenterId;
+                            if (dataCenterId && serverIpMap[dataCenterId]) {
+                                const loc = serverIpMap[dataCenterId];
+                                regionCode = loc.country;
+                                regionName = loc.region
+                                    ? `${loc.city}, ${loc.region}`
+                                    : loc.city;
+                            }
                         }
 
                         if (resolvedGameId) {
-                            serverUptime = await fetchServerUptime(
-                                placeId,
-                                resolvedGameId,
-                            );
+                            await fetchServerDetails(placeId, [resolvedGameId]);
                         }
 
                         const htmlDetails = buildInfoList(
@@ -817,7 +803,6 @@ function initializeJoinDialogEnhancer() {
                             joinScript.PlaceVersion,
                             joinScript.ChannelName,
                             joinScript.RccVersion,
-                            serverUptime,
                             ownerInfo,
                         );
 
@@ -827,15 +812,13 @@ function initializeJoinDialogEnhancer() {
                             gameDetails.iconUrl,
                             htmlDetails,
                         );
+                        attachLiveUptimeListener();
                         updateLoadingOverlayText(
                             await t('revertLogo.joiningServer'),
                         );
                     } else {
                         if (currentGameId) {
-                            serverUptime = await fetchServerUptime(
-                                placeId,
-                                currentGameId,
-                            );
+                            await fetchServerDetails(placeId, [currentGameId]);
                         }
                         const htmlDetails = buildInfoList(
                             currentGameId,
@@ -846,7 +829,6 @@ function initializeJoinDialogEnhancer() {
                             null,
                             null,
                             null,
-                            serverUptime,
                             null,
                         );
 
@@ -856,6 +838,7 @@ function initializeJoinDialogEnhancer() {
                             details.iconUrl,
                             htmlDetails,
                         );
+                        attachLiveUptimeListener();
                         updateLoadingOverlayText(
                             await t('revertLogo.waitingForRoblox'),
                         );
