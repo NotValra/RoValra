@@ -806,7 +806,7 @@ export const SETTINGS_CONFIG = {
                     'This sorts the continue accurately based off when you last played the game.',
                 ],
                 type: 'checkbox',
-                default: true,
+                default: false,
             },
         },
     },
