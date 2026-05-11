@@ -41,7 +41,7 @@ jobs:
                   GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
 
             - name: Upload to Chrome Web Store
-              uses: mnao305/chrome-webstore-upload@v1.5.0
+              uses: mnao305/chrome-extension-upload@v6.0.0
               with:
                   file-path: rovalra-${{ github.ref_name }}.zip
                   extension-id: ${{ secrets.EXTENSION_ID }}
