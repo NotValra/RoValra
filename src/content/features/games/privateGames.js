@@ -1011,9 +1011,9 @@ function renderPrivateGamePage(game, placeId, settings) {
                     <pre class="text game-description ${game.isSkeleton ? 'shimmer' : ''}" style="${game.isSkeleton ? 'min-height: 80px; border-radius: 8px;' : ''}">${game.isSkeleton ? '' : descriptionText}</pre>
                     <div id="game-age-recommendation-details-container" class="game-age-recommendation-details-container">
                         <div data-testid="content-maturity-label-container">
-                            <div id="rovalra-maturity-container" class="age-rating-details col-xs-12 section-content shimmer" style="width: 150px; height: 24px; border-radius: 4px; display: flex; align-items: center;">
+                        <div id="rovalra-maturity-container" class="age-rating-details col-xs-12 section-content" style="display: flex; align-items: center;">
 
-                            </div>
+                        </div>
                         </div>
                     </div>
                     <ul class="border-top border-bottom game-stat-container rovalra-horizontal-stats">
@@ -1260,17 +1260,6 @@ function renderPrivateGamePage(game, placeId, settings) {
     }
 
     setupFavoriteButton(game.id, isFavoritedByUser);
-
-    const badgesList = document.getElementById('rovalra-game-badges');
-    if (badgesList) {
-        for (let i = 0; i < 3; i++) {
-            const li = document.createElement('li');
-            li.className = 'stack-row badge-row shimmer';
-            li.style.cssText =
-                'height: 90px; margin-bottom: 8px; border-radius: 8px;';
-            badgesList.appendChild(li);
-        }
-    }
 }
 
 function setupFavoriteButton(universeId, initialFavorited) {
@@ -1346,11 +1335,6 @@ function setupFavoriteButton(universeId, initialFavorited) {
 }
 
 async function loadBadges(universeId) {
-    const container = document.getElementById('rovalra-game-badges');
-    if (!container) return;
-
-    document.getElementById('rovalra-no-badges-msg')?.remove();
-
     try {
         const res = await callRobloxApiJson({
             subdomain: 'badges',
@@ -1369,6 +1353,11 @@ async function loadBadges(universeId) {
             'BadgeIcon',
             '150x150',
         );
+
+        const container = document.getElementById('rovalra-game-badges');
+        if (!container) return;
+
+        document.getElementById('rovalra-no-badges-msg')?.remove();
 
         if (badges.length === 0) {
             container.innerHTML = '';
