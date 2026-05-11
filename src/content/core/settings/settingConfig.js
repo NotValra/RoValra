@@ -673,7 +673,7 @@ export const SETTINGS_CONFIG = {
                     "This will add a donation button to a user's profile, allowing you to donate directly from their profile without needing to join a game.",
                 ],
                 type: 'checkbox',
-                default: true,
+                default: false,
                 contributors: ['447170745', '8345351117'],
                 locked: 'This feature is currently unfinished and will be improved and finished next update.',
                 isPermanent: false,
