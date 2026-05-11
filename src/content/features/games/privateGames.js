@@ -968,8 +968,6 @@ function renderPrivateGamePage(game, placeId, settings) {
         container: tabsContainer,
         contentContainer: tabContentContainer,
     });
-    aboutTab.tab.classList.add('active');
-    aboutTab.contentPane.classList.add('active');
 
     const storeTab = createTab({
         id: 'store',
