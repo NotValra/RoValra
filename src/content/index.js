@@ -1,6 +1,7 @@
 import { initializeObserver, startObserving } from './core/observer.js';
 import { detectTheme, dispatchThemeEvent } from './core/theme.js';
 import { getValidAccessToken } from './core/oauth/oauth.js';
+import { t } from './core/locale/i18n.js';
 // Site wide
 import { init as initOnboarding } from './features/onboarding/onboarding.js';
 import { init as initWhatAmIJoining } from './features/games/revertlogo.js';
@@ -336,9 +337,10 @@ async function initializePage() {
         console.error('RoValra: API key initialization failed', error),
     );
 
-    const startFeatures = () => {
+    const startFeatures = async () => {
         const featureStartTime = performance.now();
 
+        await t('__i18n_ready__').catch(() => {});
         detectTheme().then((theme) => dispatchThemeEvent(theme));
         runFeaturesForPage();
 
@@ -354,12 +356,19 @@ async function initializePage() {
     };
 
     if (document.body) {
-        startFeatures();
+        startFeatures().catch((error) =>
+            console.error('RoValra: Feature initialization failed', error),
+        );
     } else {
         const docObserver = new MutationObserver((_, obs) => {
             if (document.body) {
                 obs.disconnect();
-                startFeatures();
+                startFeatures().catch((error) =>
+                    console.error(
+                        'RoValra: Feature initialization failed',
+                        error,
+                    ),
+                );
             }
         }); //Verified
         docObserver.observe(document.documentElement, { childList: true });
