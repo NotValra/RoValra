@@ -23,6 +23,16 @@ let classicClothingSubcategories = null;
 let metadataPromise = null;
 const ROVALRA_TEMPLATE_ASSET_ID = 107845747621646;
 
+const GAMEPASS_DISABLE_DATE = new Date(2026, 4, 29).getTime();
+
+const isGamePassBeforeDisable = () => {
+    return Date.now() < GAMEPASS_DISABLE_DATE;
+};
+
+const isGamePassDisabled = () => {
+    return Date.now() >= GAMEPASS_DISABLE_DATE;
+};
+
 async function fetchTemplateBlobViaBatch() {
     const batchResponse = await callRobloxApi({
         subdomain: 'assetdelivery',
@@ -2180,6 +2190,7 @@ const execute40MethodPurchase = async (
             <div style="padding: 12px 0 8px; text-align: center; border-bottom: 1px solid rgb(73, 77, 90);">
                 <div class="text font-body" style="font-size: 16px; font-weight: 700;">Purchase Summary</div>
                 ${isDonating ? '<div class="text font-body" style="margin-top: 4px; font-size: 12px;">❤️ Donating to RoValra ❤️</div>' : ''}
+                ${isGamePass && isGamePassBeforeDisable() ? '<div class="text font-body" style="margin-top: 6px; font-size: 11px; color: #ffa500;">⚠️ On May 29, saving 10% on gamepasses will be disabled</div>' : ''}
             </div>
             <div style="padding: 8px 0; border-bottom: 1px solid rgb(73, 77, 90);">
                 <div class="text font-body" style="font-weight: 600; margin-bottom: 6px; font-size: 13px;">PURCHASING ITEM</div>
@@ -2530,6 +2541,11 @@ const addSaveButton = (modal) => {
             modal.getAttribute('data-rovalra-is-bundle') === 'true';
         const itemType = modal.getAttribute('data-rovalra-item-type');
 
+        if (isGamePass && isGamePassDisabled()) {
+            delete modalWindow.dataset.rovalraSaveButtonProcessing;
+            return;
+        }
+
         if (existing && currentId === itemId) {
             delete modalWindow.dataset.rovalraSaveButtonProcessing;
             return;
@@ -2713,12 +2729,16 @@ const addSaveButton = (modal) => {
         const saveButton = document.createElement('button');
         saveButton.type = 'button';
 
+        const isGamePassWarningActive = isGamePass && isGamePassBeforeDisable();
+
         const creatorName = itemData?.creatorName
             ? ` (${itemData.creatorName})`
             : '';
         const warningHtml = isRestricted
             ? `<span style="font-size: 10px; color: #d32f2f; display: block; line-height: 1.2; margin-top: 2px; font-weight: 500;">The creator of this Item${creatorName} may have disabled buying in experiences</span>`
-            : '';
+            : isGamePassWarningActive
+              ? `<span style="font-size: 10px; color: #ffa500; display: block; line-height: 1.2; margin-top: 2px; font-weight: 500;">⚠️ On May 29, saving 10% on gamepasses will be disabled by Roblox.</span>`
+              : '';
 
         const isUnified = modalWindow.classList.contains(
             'unified-purchase-dialog-content',
@@ -2744,7 +2764,7 @@ const addSaveButton = (modal) => {
             saveButton.innerHTML = DOMPurify.sanitize(`
                 <span style="display: flex; flex-direction: column; align-items: center;">
                     <span>Save ${savings} Robux</span>
-                    ${warningHtml ? `<span style="font-size: 9px; opacity: 0.8; line-height: 1;">(Click for details)</span>` : ''}
+                    ${warningHtml ? `<span style="font-size: 9px; opacity: 0.8; line-height: 1;"></span>` : ''}
                 </span>
             `);
         }
