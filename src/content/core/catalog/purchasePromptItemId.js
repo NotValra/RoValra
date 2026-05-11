@@ -94,6 +94,7 @@ export const getPurchasePromptItemInfo = async (modal) => {
     let productId = null;
     let expectedPrice = null;
     let gamePassMap = null;
+    let isLimited = false;
 
     if (
         lastClickedPurchaseData &&
@@ -285,8 +286,36 @@ export const getPurchasePromptItemInfo = async (modal) => {
     if (itemId && !expectedPrice) {
         try {
             const details = await getItemDetails(itemId, itemType);
-            if (details && details.price) {
-                expectedPrice = details.price;
+            if (details) {
+                if (details.price) {
+                    expectedPrice = details.price;
+                }
+
+                if (
+                    details.itemRestrictions &&
+                    Array.isArray(details.itemRestrictions)
+                ) {
+                    const restrictedFlags = [
+                        'Collectible',
+                        'Limited',
+                        'LimitedUnique',
+                    ];
+                    isLimited = details.itemRestrictions.some((r) =>
+                        restrictedFlags.includes(r),
+                    );
+                }
+
+                if (!isLimited && details.hasResellers === true) {
+                    isLimited = true;
+                }
+
+                if (
+                    !isLimited &&
+                    details.saleLocationType === 'ShopAndAllExperiences' &&
+                    details.hasResellers === true
+                ) {
+                    isLimited = true;
+                }
             }
         } catch (error) {
             console.warn('RoValra: Failed to fetch item price details', error);
@@ -302,6 +331,7 @@ export const getPurchasePromptItemInfo = async (modal) => {
         itemName,
         productId,
         expectedPrice,
+        isLimited,
     };
 };
 
@@ -350,6 +380,8 @@ const attachItemDataToPurchasePrompt = (modal, force = false) => {
             const itemIds = itemInfo.items.map((item) => item.id).join(',');
             modal.setAttribute('data-rovalra-cart-item-ids', itemIds);
 
+            let cartHasLimited = false;
+
             for (let index = 0; index < itemInfo.items.length; index++) {
                 const item = itemInfo.items[index];
                 modal.setAttribute(`data-rovalra-item-id-${index}`, item.id);
@@ -372,11 +404,47 @@ const attachItemDataToPurchasePrompt = (modal, force = false) => {
                             item.id,
                             item.type || 'Asset',
                         );
-                        if (details && details.price) {
+                        if (details) {
+                            if (details.price) {
+                                modal.setAttribute(
+                                    `data-rovalra-item-price-${index}`,
+                                    details.price,
+                                );
+                            }
+
+                            let isLimited = false;
+                            if (
+                                details.itemRestrictions &&
+                                Array.isArray(details.itemRestrictions)
+                            ) {
+                                const restrictedFlags = [
+                                    'Collectible',
+                                    'Limited',
+                                    'LimitedUnique',
+                                ];
+                                isLimited = details.itemRestrictions.some((r) =>
+                                    restrictedFlags.includes(r),
+                                );
+                            }
+                            if (!isLimited && details.hasResellers === true) {
+                                isLimited = true;
+                            }
+                            if (
+                                !isLimited &&
+                                details.saleLocationType ===
+                                    'ShopAndAllExperiences' &&
+                                details.hasResellers === true
+                            ) {
+                                isLimited = true;
+                            }
+
                             modal.setAttribute(
-                                `data-rovalra-item-price-${index}`,
-                                details.price,
+                                `data-rovalra-item-limited-${index}`,
+                                isLimited || false,
                             );
+                            if (isLimited) {
+                                cartHasLimited = true;
+                            }
                         }
                     } catch (error) {
                         console.warn(
@@ -386,6 +454,11 @@ const attachItemDataToPurchasePrompt = (modal, force = false) => {
                     }
                 }
             }
+
+            modal.setAttribute(
+                'data-rovalra-cart-has-limited',
+                cartHasLimited || false,
+            );
         } else {
             modal.setAttribute('data-rovalra-purchase-type', 'single');
 
@@ -397,6 +470,10 @@ const attachItemDataToPurchasePrompt = (modal, force = false) => {
                     itemInfo.isGamePass,
                 );
                 modal.setAttribute('data-rovalra-is-bundle', itemInfo.isBundle);
+                modal.setAttribute(
+                    'data-rovalra-is-limited',
+                    itemInfo.isLimited || false,
+                );
             }
 
             if (itemInfo.itemName) {

@@ -2564,6 +2564,47 @@ const addSaveButton = (modal) => {
             return;
         }
 
+        const isLimitedAttr =
+            modal.getAttribute('data-rovalra-is-limited') === 'true';
+        const cartHasLimited =
+            modal.getAttribute('data-rovalra-cart-has-limited') === 'true';
+
+        if (isLimitedAttr && !isMultiItemPurchase) {
+            delete modalWindow.dataset.rovalraSaveButtonProcessing;
+            return;
+        }
+
+        let nonLimitedCartItems = cartItems;
+        if (isMultiItemPurchase && cartHasLimited) {
+            nonLimitedCartItems = [];
+            const itemCount =
+                parseInt(modal.getAttribute('data-rovalra-item-count')) || 0;
+            for (let i = 0; i < itemCount; i++) {
+                const isLimited =
+                    modal.getAttribute(`data-rovalra-item-limited-${i}`) ===
+                    'true';
+                if (!isLimited) {
+                    nonLimitedCartItems.push({
+                        id: modal.getAttribute(`data-rovalra-item-id-${i}`),
+                        name: modal.getAttribute(`data-rovalra-item-name-${i}`),
+                        price:
+                            parseInt(
+                                modal.getAttribute(
+                                    `data-rovalra-item-price-${i}`,
+                                ),
+                            ) || 0,
+                        type:
+                            modal.getAttribute(`data-rovalra-item-type-${i}`) ||
+                            'Asset',
+                    });
+                }
+            }
+            if (nonLimitedCartItems.length === 0) {
+                delete modalWindow.dataset.rovalraSaveButtonProcessing;
+                return;
+            }
+        }
+
         await fetchCatalogMetadata();
 
         let assetType = null;
@@ -2615,8 +2656,8 @@ const addSaveButton = (modal) => {
 
         let savings = 0;
 
-        if (isMultiItemPurchase && cartItems.length > 0) {
-            for (const item of cartItems) {
+        if (isMultiItemPurchase && nonLimitedCartItems.length > 0) {
+            for (const item of nonLimitedCartItems) {
                 if (item.id && item.price) {
                     let itemSavingsPercent = 0.4;
 
@@ -2796,7 +2837,11 @@ const addSaveButton = (modal) => {
                           }
                         : null;
                     if (isMultiItemPurchase) {
-                        executeCartPurchase(cartItems, freshPrefetch, true);
+                        executeCartPurchase(
+                            nonLimitedCartItems,
+                            freshPrefetch,
+                            true,
+                        );
                     } else {
                         execute40MethodPurchase(
                             itemId,
@@ -2811,7 +2856,7 @@ const addSaveButton = (modal) => {
                 });
             } else {
                 if (isMultiItemPurchase) {
-                    executeCartPurchase(cartItems, prefetchData);
+                    executeCartPurchase(nonLimitedCartItems, prefetchData);
                 } else {
                     execute40MethodPurchase(
                         itemId,
