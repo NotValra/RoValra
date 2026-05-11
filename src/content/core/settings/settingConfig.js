@@ -675,6 +675,8 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
                 contributors: ['447170745', '8345351117'],
+                locked: 'This feature is currently unfinished and will be improved and finished next update.',
+                isPermanent: false,
             },
 
             categorizeWearingEnabled: {
