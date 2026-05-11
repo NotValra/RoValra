@@ -2190,7 +2190,7 @@ const execute40MethodPurchase = async (
             <div style="padding: 12px 0 8px; text-align: center; border-bottom: 1px solid rgb(73, 77, 90);">
                 <div class="text font-body" style="font-size: 16px; font-weight: 700;">Purchase Summary</div>
                 ${isDonating ? '<div class="text font-body" style="margin-top: 4px; font-size: 12px;">❤️ Donating to RoValra ❤️</div>' : ''}
-                ${isGamePass && isGamePassBeforeDisable() ? '<div class="text font-body" style="margin-top: 6px; font-size: 11px; color: #ffa500;">⚠️ On May 29, saving 10% on gamepasses will be disabled</div>' : ''}
+                ${isGamePass && isGamePassBeforeDisable() ? '<div class="text font-body" style="margin-top: 6px; font-size: 11px; color: #ffa500;">⚠️ On May 29, saving 10% on gamepasses will be disabled by Roblox</div>' : ''}
             </div>
             <div style="padding: 8px 0; border-bottom: 1px solid rgb(73, 77, 90);">
                 <div class="text font-body" style="font-weight: 600; margin-bottom: 6px; font-size: 13px;">PURCHASING ITEM</div>
