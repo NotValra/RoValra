@@ -1220,9 +1220,8 @@ function renderPrivateGamePage(game, placeId, settings) {
 
     if (!window.location.hash || !window.location.hash.includes('#!')) {
         window.location.hash = '#!/about';
-    } else {
-        handleHashChange();
     }
+    handleHashChange();
 
     window.addEventListener('hashchange', handleHashChange);
 
