@@ -1782,6 +1782,14 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: false,
             },
+            disablePrivateGameRedirection: {
+                label: 'Disable Private Game Redirection',
+                description: [
+                    'Disables the automatic redirection to the standard experience page when a public experience is detected in the private experience viewer.',
+                ],
+                type: 'checkbox',
+                default: false,
+            },
             localStorageUsage: {
                 label: 'Show Local Storage Usage',
                 description: [

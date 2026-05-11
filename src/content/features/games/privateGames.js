@@ -111,6 +111,7 @@ export function init() {
             privateGameViewerEnabled: true,
             privateGameDetectionFallbackEnabled: false,
             privateGameDetectionEnabled: 'CHECK_FOR_CLEANUP',
+            disablePrivateGameRedirection: false,
         },
         (data) => {
             if (data.privateGameDetectionEnabled !== 'CHECK_FOR_CLEANUP') {
@@ -181,6 +182,21 @@ export function init() {
             })();
         },
     );
+}
+
+function checkRedirectToStandardPage(gameData, placeId, settings) {
+    if (settings.disablePrivateGameRedirection) return;
+
+    if (gameData._existsInGamesApi === true && gameData._cloudData) {
+        if (gameData._cloudData.visibility !== 'PRIVATE') {
+            const gameNameSlug = slugifyGameName(
+                gameData.name || gameData._cloudData.displayName,
+            );
+            window.location.replace(
+                `https://www.roblox.com/games/${placeId}/${gameNameSlug}`,
+            );
+        }
+    }
 }
 
 function loadAndRenderPrivateGame(placeId, settings, isSkeletonOnly = false) {
@@ -296,6 +312,7 @@ function loadAndRenderPrivateGame(placeId, settings, isSkeletonOnly = false) {
                     const game = gameRes?.data?.find(
                         (g) => g.id === universeId,
                     );
+                    gameData._existsInGamesApi = !!game;
                     if (game) {
                         if (
                             game.playing !== undefined &&
@@ -320,8 +337,12 @@ function loadAndRenderPrivateGame(placeId, settings, isSkeletonOnly = false) {
                         }
                         updateGameDataUpdated(gameData);
                     }
+                    checkRedirectToStandardPage(gameData, placeId, settings);
                 })
-                .catch(() => null);
+                .catch(() => {
+                    gameData._existsInGamesApi = false;
+                    checkRedirectToStandardPage(gameData, placeId, settings);
+                });
 
             callRobloxApiJson({
                 subdomain: 'apis',
@@ -341,13 +362,15 @@ function loadAndRenderPrivateGame(placeId, settings, isSkeletonOnly = false) {
                         gameData.description = cloudData.description;
                     }
                     updateGameDataUpdated(gameData);
+                    checkRedirectToStandardPage(gameData, placeId, settings);
                 })
-                .catch((e) =>
+                .catch((e) => {
                     console.warn(
                         'RoValra: Cloud API failed, using fallback data',
                         e,
-                    ),
-                );
+                    );
+                    checkRedirectToStandardPage(gameData, placeId, settings);
+                });
 
             callRobloxApiJson({
                 subdomain: 'games',
