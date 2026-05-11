@@ -497,18 +497,30 @@ export function init() {
     chrome.storage.local.get({ EnableImprovedEvents: true }, (settings) => {
         if (!settings.EnableImprovedEvents) return;
 
-        observeElement('#tab-events', () => {
+        if (document.getElementById('tab-events')) return;
+
+        const activeRequests = [];
+
+        const deactivateAll = () => {
+            activeRequests.forEach((req) => {
+                req.active = false;
+            });
+            activeRequests.length = 0;
+        };
+
+        const req1 = observeElement('#tab-events', () => {
+            deactivateAll();
             document
                 .querySelectorAll('.virtual-event-game-details-container')
                 .forEach((el) => el.remove());
         });
+        activeRequests.push(req1);
 
-        if (document.getElementById('tab-events')) return;
-
-        observeElement(
+        const req2 = observeElement(
             '.virtual-event-game-details-container',
             (eventsContainer) => {
                 if (document.getElementById('tab-events')) {
+                    deactivateAll();
                     eventsContainer.remove();
                     return;
                 }
@@ -528,15 +540,19 @@ export function init() {
             },
             { multiple: true },
         );
+        activeRequests.push(req2);
 
-        observeElement(
+        const req3 = observeElement(
             '#game-details-about-tab-container',
             (tabContainer) => {
+                if (document.getElementById('tab-events')) {
+                    deactivateAll();
+                    return;
+                }
+
                 if (tabContainer.dataset.rovalraEventsObserved === 'true')
                     return;
                 tabContainer.dataset.rovalraEventsObserved = 'true';
-
-                if (document.getElementById('tab-events')) return;
 
                 const placeId = getPlaceIdFromUrl();
                 if (!placeId) return;
@@ -548,5 +564,6 @@ export function init() {
             },
             { multiple: true },
         );
+        activeRequests.push(req3);
     });
 }
