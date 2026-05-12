@@ -1,6 +1,6 @@
 import { callRobloxApi, callRobloxApiJson } from '../api.js';
 import { getValidAccessToken } from '../oauth/oauth.js';
-import { getAuthenticatedUserId } from '../user.js';
+import { User } from '../user.js';
 import { updateUserSettingViaApi } from '../donators/settingHandler.js';
 // A script for getting and setting user description with pre text filter checks to prevent losing a users description if addition is tagged.
 
@@ -78,7 +78,7 @@ export async function migrateLegacyStatus() {
         const result = await chrome.storage.local.get(STATUS_MIGRATION_KEY);
         if (result[STATUS_MIGRATION_KEY]) return;
 
-        const userId = await getAuthenticatedUserId();
+        const userId = await User.uid();
         if (!userId) {
             await chrome.storage.local.set({ [STATUS_MIGRATION_KEY]: true });
             return;
@@ -151,7 +151,7 @@ export async function migrateLegacyEnvironment() {
         );
         if (result[ENVIRONMENT_MIGRATION_KEY]) return;
 
-        const userId = await getAuthenticatedUserId();
+        const userId = await User.uid();
         if (!userId) {
             await chrome.storage.local.set({
                 [ENVIRONMENT_MIGRATION_KEY]: true,
