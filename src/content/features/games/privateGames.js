@@ -404,17 +404,20 @@ function loadAndRenderPrivateGame(placeId, settings, isSkeletonOnly = false) {
             callRobloxApiJson({
                 subdomain: 'apis',
                 endpoint:
-                    '/experience-guidelines-service/v1beta1/detailed-guidelines',
+                    '/experience-guidelines-api/experience-guidelines/get-age-recommendation',
                 method: 'POST',
                 body: JSON.stringify({ universeId: universeId }),
                 headers: { 'Content-Type': 'application/json' },
             })
                 .then((guidelinesRes) => {
                     const summary =
-                        guidelinesRes?.ageRecommendationDetails
-                            ?.ageRecommendationSummary?.ageRecommendation;
-                    if (summary?.displayNameWithHeaderShort) {
-                        updateMaturityUI(summary.displayNameWithHeaderShort);
+                        guidelinesRes?.ageRecommendationDetails?.summary
+                            ?.ageRecommendation;
+                    if (summary?.contentMaturity) {
+                        const maturityText =
+                            summary.contentMaturity.charAt(0).toUpperCase() +
+                            summary.contentMaturity.slice(1);
+                        updateMaturityUI(`Maturity: ${maturityText}`);
                     } else if (summary?.displayName) {
                         updateMaturityUI(`Maturity: ${summary.displayName}`);
                     }
