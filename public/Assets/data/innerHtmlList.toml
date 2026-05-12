@@ -1,6 +1,6 @@
 [status.trusted]
-disclaimer = """\
+disclaimer = """
 [[locale status.trusted.helpText]]
 <br>
-[[locale status.trusted.warning]]\
+[[locale status.trusted.warning]]
 """
