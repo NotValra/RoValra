@@ -33,10 +33,14 @@ import {
     syncDonatorTier,
     getCurrentUserTier,
 } from '../../../core/settings/handlesettings.js';
+<<<<<<< HEAD
 import {
     onUserCardElement,
     observeUserCardElements,
 } from '../../../core/profile/userCardElements.js';
+=======
+import { verifiedInnerHtml, verifiedInnerHtmlSync } from '../../../core/html/innerhtml.js';
+>>>>>>> 2922bde (innerhtml: added verifiedInnerHtml)
 const MAX_STATUS_LENGTH = 128;
 const REPORTING_ENABLED = false;
 let activeHomeStatusBubble = null;
@@ -99,7 +103,7 @@ DOMPurify.addHook('afterSanitizeAttributes', (currentNode) => {
     }
 });
 
-function openEditStatusOverlay(currentStatus, onSave, isTrusted) {
+async function openEditStatusOverlay(currentStatus, onSave, isTrusted) {
     const container = document.createElement('div');
     Object.assign(container.style, {
         display: 'flex',
@@ -123,11 +127,7 @@ function openEditStatusOverlay(currentStatus, onSave, isTrusted) {
     if (isTrusted) {
         const trustedHelpText = document.createElement('p');
         trustedHelpText.className = 'text-description';
-        trustedHelpText.innerHTML = DOMPurify.sanitize(`
-            You are a trusted RoValra user, you can add any text, embed videos, and images.
-            <br>
-            <strong>Note:</strong> If you are found to add inappropriate content against the Roblox ToS, your donator and custom badges will be revoked with no chance to get it back.
-        `);
+        trustedHelpText.innerHTML = verifiedInnerHtmlSync().status.trusted.disclaimer();
         Object.assign(trustedHelpText.style, {
             fontSize: '12px',
         });
