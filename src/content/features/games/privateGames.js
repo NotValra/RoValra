@@ -25,11 +25,14 @@ import { createShimmerGrid } from '../../core/ui/shimmer.js';
 import { addTooltip } from '../../core/ui/tooltip.js';
 function formatVoteCount(count) {
     count = Number(count) || 0;
-    if (count >= 1000000) {
-        return Math.floor(count / 1000000) + 'M+';
+    if (count >= 1000000000) {
+        return (count / 1000000000).toFixed(1).replace(/\.0$/, '') + 'B+';
+    } else if (count >= 1000000) {
+        return (count / 1000000).toFixed(1).replace(/\.0$/, '') + 'M+';
     } else if (count >= 1000) {
         return Math.floor(count / 1000) + 'K+';
     }
+
     return count.toLocaleString();
 }
 
