@@ -24,6 +24,10 @@ export const syncDonatorTier = async () => {
     const storePageUrl = 'store-section/9452973012';
     const currentUserId = await getAuthenticatedUserId();
 
+    if (!currentUserId) {
+        return null;
+    }
+
     const state = (await CacheHandler.get(
         'donator_info',
         'sync_state',
@@ -123,7 +127,13 @@ export const syncDonatorTier = async () => {
 
             return response;
         } catch (error) {
-            console.error('RoValra: Failed to sync donator tier', error);
+            console.error('RoValra: Failed to sync donator tier.', {
+                userId: currentUserId,
+                endpoint: '/v1/auth/badges',
+                method: 'GET',
+                error: error.message || error,
+                stack: error.stack,
+            });
             return state.cachedResponse || null;
         } finally {
             donatorTierPromise = null;

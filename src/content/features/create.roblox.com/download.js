@@ -184,6 +184,13 @@ export function init() {
                     addButton(buttonContainer);
                 },
             );
+
+            observeElement(
+                '[data-testid="assetButtonsTestId"]',
+                (buttonContainer) => {
+                    addButton(buttonContainer);
+                },
+            );
         }
     });
 }

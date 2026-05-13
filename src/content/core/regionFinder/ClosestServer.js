@@ -3,7 +3,7 @@ import { getUserLocation } from '../utils/location.js';
 import { launchGame } from '../utils/launcher.js';
 import { showReviewPopup } from '../review/review.js';
 import { hideLoadingOverlay } from '../ui/startModal/gamelaunchmodal.js';
-import { REGIONS, serverIpMap } from '../regions.js';
+import { REGIONS, serverIpMap, getStateCodeFromRegion } from '../regions.js';
 
 export const FINDER_CONFIG = {
     logScores: true,
@@ -158,7 +158,18 @@ export async function fetchServerRegion(server, placeId) {
 
         const dataCenterId = info.joinScript.DataCenterId;
         if (dataCenterId && serverIpMap[dataCenterId]) {
-            return serverIpMap[dataCenterId];
+            const loc = serverIpMap[dataCenterId];
+            let regionCode = loc.country;
+            if (loc.country === 'US' && loc.region && loc.city) {
+                const stateCode = getStateCodeFromRegion(loc.region);
+                const cityCode = loc.city.replace(/\s+/g, '').toUpperCase();
+                regionCode = `US-${stateCode}-${cityCode}`;
+            } else if (loc.country === 'US' && loc.region) {
+                regionCode = `US-${getStateCodeFromRegion(loc.region)}`;
+            } else if (loc.city) {
+                regionCode = `${loc.country}-${loc.city.replace(/\s+/g, '').toUpperCase()}`;
+            }
+            return regionCode;
         }
     } catch (error) {}
     return null;

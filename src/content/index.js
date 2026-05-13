@@ -1,6 +1,7 @@
 import { initializeObserver, startObserving } from './core/observer.js';
 import { detectTheme, dispatchThemeEvent } from './core/theme.js';
 import { getValidAccessToken } from './core/oauth/oauth.js';
+import { t } from './core/locale/i18n.js';
 // Site wide
 import { init as initOnboarding } from './features/onboarding/onboarding.js';
 import { init as initWhatAmIJoining } from './features/games/revertlogo.js';
@@ -110,7 +111,7 @@ import { init as initFirstAccount } from './features/settings/roblox/firstAccoun
 import { init as initLegacyThemeSwitcher } from './features/settings/roblox/legacyThemeSwitcher.js';
 // Home
 import { init as initAccurateContinue } from './features/home/accurateContinue.js';
-import { initSubplacePresenceLabels } from './core/ui/profile/userCard.js';
+import { initSubplacePresenceLabels } from './core/ui/profile/subplacePresenceCard.js';
 // create
 import { init as initCreateDownload } from './features/create.roblox.com/download.js';
 
@@ -296,6 +297,8 @@ const featureRoutes = [
     },
 ];
 
+const startTime = performance.now();
+
 function runFeaturesForPage() {
     const path = window.location.pathname;
     const normalizedPath = path.replace(/^\/[a-z]{2}(?:-[a-z]{2})?\//, '/');
@@ -329,35 +332,49 @@ async function initializePage() {
     initializeObserver();
     const observerStatus = startObserving();
 
-    try {
-        await getValidAccessToken(false, false);
-    } catch (error) {
-        console.error('RoValra: OAuth token initialization failed', error);
-    }
+    getValidAccessToken(false, false).catch((error) =>
+        console.error('RoValra: OAuth token initialization failed', error),
+    );
+    initApiKey().catch((error) =>
+        console.error('RoValra: API key initialization failed', error),
+    );
 
-    try {
-        await initApiKey();
-    } catch (error) {
-        console.error('RoValra: API key initialization failed', error);
-    }
+    const startFeatures = async () => {
+        const featureStartTime = performance.now();
 
-    const onDomReady = async () => {
+        await t('__i18n_ready__').catch(() => {});
         detectTheme().then((theme) => dispatchThemeEvent(theme));
-
         runFeaturesForPage();
+
+        const endTime = performance.now();
+
+        console.log(
+            `%cRoValra Initialized`,
+            'font-size: 1.5em; color: #FF4500;',
+            `\n(Observer: ${observerStatus})` +
+                `\nFeature Load Time: ${(endTime - featureStartTime).toFixed(2)}ms` +
+                `\nTotal Load Time: ${(endTime - startTime).toFixed(2)}ms`,
+        );
     };
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', onDomReady);
+    if (document.body) {
+        startFeatures().catch((error) =>
+            console.error('RoValra: Feature initialization failed', error),
+        );
     } else {
-        onDomReady();
+        const docObserver = new MutationObserver((_, obs) => {
+            if (document.body) {
+                obs.disconnect();
+                startFeatures().catch((error) =>
+                    console.error(
+                        'RoValra: Feature initialization failed',
+                        error,
+                    ),
+                );
+            }
+        }); //Verified
+        docObserver.observe(document.documentElement, { childList: true });
     }
-
-    console.log(
-        `%cRoValra Initialized`,
-        'font-size: 1.5em; color: #FF4500;',
-        `(Observer: ${observerStatus})`,
-    );
 }
 
 async function handleUrlChange() {

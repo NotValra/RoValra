@@ -173,7 +173,10 @@ export function createGameCard(options) {
         customInfoText = null,
     } = options;
 
-    if (!game && (gameId || placeId)) {
+    if (
+        (!game || !stats) &&
+        (gameId || placeId || game?.id || game?.rootPlaceId)
+    ) {
         const card = document.createElement('div');
         card.className = 'rovalra-game-card';
         card.innerHTML = `
@@ -184,10 +187,12 @@ export function createGameCard(options) {
 
         (async () => {
             try {
-                let targetUniverseId = gameId;
+                let targetUniverseId = gameId || game?.id;
+                let targetPlaceId = placeId || game?.rootPlaceId;
 
-                if (!targetUniverseId && placeId) {
-                    targetUniverseId = await getUniverseIdFromPlaceId(placeId);
+                if (!targetUniverseId && targetPlaceId) {
+                    targetUniverseId =
+                        await getUniverseIdFromPlaceId(targetPlaceId);
                 }
 
                 if (!targetUniverseId)
@@ -197,7 +202,10 @@ export function createGameCard(options) {
                     ?.dataset?.userid;
 
                 const promises = [
-                    getGameData(targetUniverseId),
+                    getGameData(targetUniverseId).catch(() => ({
+                        game: null,
+                        vote: { upVotes: 0, downVotes: 0 },
+                    })),
                     fetchThumbnails(
                         [{ id: targetUniverseId }],
                         'GameIcon',
@@ -214,9 +222,10 @@ export function createGameCard(options) {
                 const thumbMap = results[1];
                 const friendsData = userId ? results[2] : null;
 
-                if (!gameInfo) throw new Error('Game not found');
+                const finalGame = game || gameInfo;
+                if (!finalGame) throw new Error('Game not found');
 
-                const universeId = gameInfo.id;
+                const universeId = finalGame.id;
                 const fetchedStats = {
                     likes: new Map([
                         [
@@ -233,7 +242,7 @@ export function createGameCard(options) {
                             },
                         ],
                     ]),
-                    players: new Map([[universeId, gameInfo.playing]]),
+                    players: new Map([[universeId, finalGame.playing || 0]]),
                     thumbnails: thumbMap,
                 };
 
@@ -283,7 +292,8 @@ export function createGameCard(options) {
                 }
 
                 const realCard = createGameCard({
-                    game: gameInfo,
+                    game: finalGame,
+                    placeId: targetPlaceId,
                     stats: fetchedStats,
                     showVotes,
                     showPlayers,
@@ -355,8 +365,7 @@ export function createGameCard(options) {
                         showVotes
                             ? `
                         <span class="info-label icon-votes-gray"></span>
-                        <span class="info-label vote-percentage-label ${voteData.total > 0 ? '' : 'hidden'}">${voteData.ratio}%</span>
-                        <span class="info-label no-vote ${voteData.total === 0 ? '' : 'hidden'}"></span>
+                        <span class="info-label vote-percentage-label">${voteData.total > 0 ? `${voteData.ratio}%` : '--'}</span>
                     `
                             : ''
                     }

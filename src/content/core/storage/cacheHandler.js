@@ -33,6 +33,19 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
 });
 
 /**
+ * Checks whether a given value is a valid cache object (a non-null, non-array object).
+ * Invalid data indicates the stored cache may be corrupted.
+ * @param {any} data - The data to validate.
+ * @returns {boolean} True if the data is a valid cache object.
+ */
+const isValidCacheObject = (data) => {
+    if (data === null || data === undefined) return false;
+    if (typeof data !== 'object') return false;
+    if (Array.isArray(data)) return false;
+    return true;
+};
+
+/**
  * Retrieves the entire cache object from the specified storage area.
  * @param {string} area - The storage area ('session' or 'local').
  * @returns {object} The cache object, or an empty object if not found.
@@ -46,7 +59,19 @@ const getCache = async (area = 'session') => {
             return memoryFallback[area];
         }
         const result = await chrome.storage[area].get(CACHE_KEY);
-        return result[CACHE_KEY] || {};
+        const cacheData = result[CACHE_KEY];
+
+        if (!isValidCacheObject(cacheData)) {
+            if (cacheData !== undefined) {
+                console.log(
+                    `RoValra (CacheHandler): Cache corrupted in ${area} storage, deleting to prevent issues.`,
+                );
+                await chrome.storage[area].remove(CACHE_KEY);
+            }
+            return {};
+        }
+
+        return cacheData;
     } catch (e) {
         if (e.message.includes('Access to storage is not allowed')) {
             storageSupported[area] = false;

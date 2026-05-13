@@ -12,28 +12,68 @@ function waitForDom() {
     });
 }
 
+let inMemoryAuthenticatedUserId = null;
+let isScrapingInProgress = false;
+let scrapingPromise = null;
+
+async function scrapeAndCacheId() {
+    if (isScrapingInProgress && scrapingPromise) {
+        return scrapingPromise;
+    }
+
+    isScrapingInProgress = true;
+    scrapingPromise = (async () => {
+        try {
+            const meta = document.querySelector('meta[name="user-data"]');
+            const actualId = meta
+                ? parseInt(meta.getAttribute('data-userid'), 10)
+                : null;
+
+            if (actualId !== null && actualId !== inMemoryAuthenticatedUserId) {
+                inMemoryAuthenticatedUserId = actualId;
+                await chrome.storage.local.set({
+                    rovalra_authed_user_id: actualId,
+                });
+            }
+
+            return actualId;
+        } finally {
+            isScrapingInProgress = false;
+            scrapingPromise = null;
+        }
+    })();
+
+    return scrapingPromise;
+}
+
 export async function getAuthenticatedUserId() {
+    if (inMemoryAuthenticatedUserId !== null) {
+        if (document.readyState !== 'loading' && !isScrapingInProgress) {
+            scrapeAndCacheId();
+        } else if (document.readyState === 'loading' && !isScrapingInProgress) {
+            document.addEventListener(
+                'DOMContentLoaded',
+                () => scrapeAndCacheId(),
+                { once: true },
+            );
+        }
+        return inMemoryAuthenticatedUserId;
+    }
+
     const storage = await chrome.storage.local.get('rovalra_authed_user_id');
     const cachedId = storage.rovalra_authed_user_id;
 
-    const scrapeId = () => {
-        const meta = document.querySelector('meta[name="user-data"]');
-        const actualId = meta
-            ? parseInt(meta.getAttribute('data-userid'), 10)
-            : null;
-
-        if (actualId !== cachedId) {
-            chrome.storage.local.set({ rovalra_authed_user_id: actualId });
+    if (cachedId !== undefined && cachedId !== null) {
+        inMemoryAuthenticatedUserId = cachedId;
+        if (document.readyState !== 'loading' && !isScrapingInProgress) {
+            scrapeAndCacheId();
+        } else if (document.readyState === 'loading' && !isScrapingInProgress) {
+            document.addEventListener(
+                'DOMContentLoaded',
+                () => scrapeAndCacheId(),
+                { once: true },
+            );
         }
-        return actualId;
-    };
-
-    if (document.readyState !== 'loading') {
-        return scrapeId();
-    }
-
-    if (cachedId) {
-        document.addEventListener('DOMContentLoaded', scrapeId, { once: true });
         return cachedId;
     }
 
@@ -41,7 +81,9 @@ export async function getAuthenticatedUserId() {
         document.addEventListener('DOMContentLoaded', resolve, { once: true });
     });
 
-    return scrapeId();
+    const scrapedId = await scrapeAndCacheId();
+
+    return scrapedId;
 }
 export async function getAuthenticatedUsername() {
     await waitForDom();

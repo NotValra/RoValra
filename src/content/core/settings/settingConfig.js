@@ -517,6 +517,7 @@ export const SETTINGS_CONFIG = {
                         description: [
                             "Choose a custom environment for your own profile's 3D render.",
                             'This only applies when viewing your own profile.',
+                            '**This is saved on RoValras database so anyone with RoValra can view it. It being saved on RoValras database used to be a tier 1 Donator perk, we are working on a replacement perk.**',
                         ],
                         type: 'select',
                         options: [
@@ -654,6 +655,7 @@ export const SETTINGS_CONFIG = {
                 description: [
                     'This allows you to set a status bubble on your profile that anyone with RoValra can see.',
                     'Also allows you to view other RoValra users status bubbles.',
+                    '**This is saved on RoValras database so anyone with RoValra can view it. It being saved on RoValras database used to be a tier 1 Donator perk, we are working on a replacement perk.**',
                 ],
                 type: 'checkbox',
                 default: true,
@@ -671,8 +673,10 @@ export const SETTINGS_CONFIG = {
                     "This will add a donation button to a user's profile, allowing you to donate directly from their profile without needing to join a game.",
                 ],
                 type: 'checkbox',
-                default: true,
+                default: false,
                 contributors: ['447170745', '8345351117'],
+                locked: 'This feature is currently unfinished and will be improved and finished next update.',
+                isPermanent: false,
             },
 
             categorizeWearingEnabled: {
@@ -804,7 +808,7 @@ export const SETTINGS_CONFIG = {
                     'This sorts the continue accurately based off when you last played the game.',
                 ],
                 type: 'checkbox',
-                default: true,
+                default: false,
             },
             subplacePresenceEnabled: {
                 label: 'View the Subplace that Someone is Playing',
@@ -1750,6 +1754,24 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: false,
             },
+            simulateRobloxJoinErrors: {
+                label: ['Simulate Roblox Join Errors'],
+                description: [
+                    'Simulates network errors for the Roblox Join API to test handling of critical join failures.',
+                ],
+                type: 'checkbox',
+                default: false,
+                childSettings: {
+                    simulateRobloxJoinHttpErrors: {
+                        label: ['Simulate Roblox Join 500 Errors'],
+                        description: [
+                            'Simulates HTTP 500 errors for the Roblox Join API to test handling of internal server errors.',
+                        ],
+                        type: 'checkbox',
+                        default: false,
+                    },
+                },
+            },
             forceReviewPopup: {
                 label: ['Force Review Popup'],
                 description: [
@@ -1777,6 +1799,14 @@ export const SETTINGS_CONFIG = {
                 description: [
                     'Bypasses the compatibility check for the 3D Profile Renderer.',
                     'Only enable this if the 3D renderer was disabled due to graphics issues but you want to try anyway.',
+                ],
+                type: 'checkbox',
+                default: false,
+            },
+            disablePrivateGameRedirection: {
+                label: 'Disable Private Game Redirection',
+                description: [
+                    'Disables the automatic redirection to the standard experience page when a public experience is detected in the private experience viewer.',
                 ],
                 type: 'checkbox',
                 default: false,

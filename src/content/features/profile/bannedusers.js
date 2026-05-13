@@ -366,7 +366,7 @@ async function renderBannedUserProfile(user, settings) {
                     <div id="rovalra-banned-creations-content" class="tab-pane">
                         <div class="profile-game section container-list">
                             <div class="container-header"><h3>${ts('bannedUsers.experiences')}</h3></div>
-                            <div class="game-grid"><ul id="rovalra-banned-creations-list" class="hlist game-cards" style="display: flex; flex-wrap: wrap; gap: 12px; list-style: none; padding: 0;"></ul></div>
+                            <div class="game-grid"><div id="rovalra-banned-creations-list" class="css-1i465w8-carousel" style="display: flex; flex-wrap: wrap; gap: 12px; padding: 0;"></div></div>
                         </div>
                     </div>
                 </div>
@@ -1123,15 +1123,19 @@ async function loadExperiences(userId) {
         creationsList.innerHTML = '';
         if (userGames.length > 0) {
             userGames.forEach((game) => {
-                const li = document.createElement('li');
-                li.className = 'list-item game-card game-tile';
-                li.appendChild(
+                const itemWrapper = document.createElement('div');
+                itemWrapper.id = 'collection-carousel-item';
+                itemWrapper.className = 'css-1anzfxy-carouselItem';
+                itemWrapper.style.flexShrink = '0';
+                itemWrapper.style.width = '150px';
+                itemWrapper.appendChild(
                     createGameCard({
                         gameId: game.id,
                         placeId: game.rootPlace?.id,
+                        game: game,
                     }),
                 );
-                creationsList.appendChild(li);
+                creationsList.appendChild(itemWrapper);
             });
         } else {
             creationsList.innerHTML = `<p class="no-results-message">${ts('bannedUsers.noExperiences')}</p>`; //Verified

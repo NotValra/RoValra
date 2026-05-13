@@ -120,6 +120,8 @@ export async function fetchServerDetails(placeId, serverIds) {
                     );
                     if (!isNaN(date)) {
                         const firstSeenTimestamp = date.getTime();
+                        const wasPrecise =
+                            serverUptimeIsEstimate[server_id] === false;
                         const apiUptime = Math.max(
                             0,
                             (now - firstSeenTimestamp) / 1000,
@@ -129,7 +131,7 @@ export async function fetchServerDetails(placeId, serverIds) {
 
                         if (
                             !existingBase ||
-                            firstSeenTimestamp < existingBase
+                            (firstSeenTimestamp < existingBase && !wasPrecise)
                         ) {
                             serverUptimeBases[server_id] = firstSeenTimestamp;
                             serverUptimeIsEstimate[server_id] = true;
@@ -212,6 +214,7 @@ export async function fetchServerRegion(placeId, serverId, options = {}) {
         };
 
         if (info.joinScript) {
+            const effectiveId = serverId || info.joinScript.GameId;
             const serverClaimedTime = info.joinScript.ServerClaimedTime;
             if (
                 serverClaimedTime &&
@@ -225,17 +228,17 @@ export async function fetchServerRegion(placeId, serverId, options = {}) {
                 );
 
                 const calculatedBase = now - gamejoinUptime * 1000;
-                const existingBase = serverUptimeBases[serverId];
+                const existingBase = serverUptimeBases[effectiveId];
 
-                serverUptimeIsEstimate[serverId] = false;
+                serverUptimeIsEstimate[effectiveId] = false;
 
                 if (!existingBase || calculatedBase < existingBase) {
-                    serverUptimeBases[serverId] = calculatedBase;
+                    serverUptimeBases[effectiveId] = calculatedBase;
 
                     startUptimeLiveCounter();
                 }
             } else {
-                serverUptimeIsEstimate[serverId] = true;
+                if (effectiveId) serverUptimeIsEstimate[effectiveId] = true;
             }
 
             const dcId = info.joinScript?.DataCenterId;
@@ -279,10 +282,12 @@ export async function fetchServerRegion(placeId, serverId, options = {}) {
             }
         }
 
-        result.isEstimate = serverUptimeIsEstimate[serverId] !== false;
+        const finalId =
+            serverId || (info.joinScript ? info.joinScript.GameId : null);
+        result.isEstimate = serverUptimeIsEstimate[finalId] !== false;
 
-        if (serverId && result.joinScript) {
-            serverDataCache.set(serverId, result);
+        if (finalId && result.joinScript) {
+            serverDataCache.set(finalId, result);
         }
 
         return result;
