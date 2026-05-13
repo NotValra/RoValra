@@ -175,9 +175,6 @@ async function checkServerIsActive(placeId, gameId) {
             noCache: true,
         });
 
-        if (info.jobId) {
-            return true;
-        }
         if (
             info.joinScript ||
             info.status === 2 ||

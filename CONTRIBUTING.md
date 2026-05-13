@@ -79,5 +79,11 @@ The badge is completely optional.
 - Generally follow how other scripts do things and how they import other scripts to implement functionality.
 - All api requests should go through `api.js`
 - Never use third party apis that isn't RoValra.com, Roblox.com or rbxcdn.com in your PRS. You can however use a third party API as a proof of concept in your PR so we know how to make an official API that works for your PR.
-- Make addtions to the site look as close to Roblox as possible.
+- Make additions to the site look as close to Roblox as possible.
 - Never update host permissions or permissions of the extension.
+- Never look at text to figure out where to add stuff on the site, as this wont work with different language settings.
+- Make sure your changes has locale support via `i18n.js`
+- Make sure you never create a new observer and only use `observer.js`
+- Make sure you use `IdExtractor.js` for getting ids from url.
+- For new features create a new script in side a sub folder of features matching the feature your making and import it via `index.js` Never add you feature into an existing script unless it is a child setting of the main feature of the file.
+- For svgs always add them in `assets.js` with a proper name so it can be reused. RoValra mostly uses Material Icons since they look the most like Robloxs, but feel free to use others if you think they match Robloxs svgs more.
