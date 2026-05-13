@@ -854,163 +854,172 @@ function renderPrivateGamePage(game, placeId, settings) {
 
     if (isSkeleton) return;
 
-    const thumbnailContainer = document.querySelector(
-        '.game-details-carousel-container',
-    );
-    const universeIdForThumbs = game.universeId || game.id;
+    const setupTabsAndContent = () => {
+        const thumbnailContainer = document.querySelector(
+            '.game-details-carousel-container',
+        );
+        const universeIdForThumbs = game.universeId || game.id;
 
-    if (universeIdForThumbs && thumbnailContainer) {
-        fetchPromotionalThumbnails(universeIdForThumbs).then((thumbnails) => {
-            if (!thumbnails || thumbnails.length === 0) {
-                fetchThumbnails(
-                    [{ id: placeId }],
-                    'GameThumbnail',
-                    '768x432',
-                ).then((map) => {
-                    const thumbData = map.get(Number(placeId));
-                    if (thumbnailContainer) {
-                        thumbnailContainer.innerHTML = '';
-                        if (thumbData) {
-                            const thumbEl = createThumbnailElement(
-                                thumbData,
-                                game.name,
-                                'carousel-item carousel-item-active',
-                                {
-                                    width: '100%',
-                                    height: '100%',
-                                    borderRadius: '0px',
-                                },
-                            );
-                            thumbnailContainer.appendChild(thumbEl);
-                        } else {
-                            const empty = document.createElement('div');
-                            empty.className =
-                                'thumbnail-2d-container carousel-item carousel-item-active';
-                            thumbnailContainer.appendChild(empty);
-                        }
+        if (universeIdForThumbs && thumbnailContainer) {
+            fetchPromotionalThumbnails(universeIdForThumbs).then(
+                (thumbnails) => {
+                    if (!thumbnails || thumbnails.length === 0) {
+                        fetchThumbnails(
+                            [{ id: placeId }],
+                            'GameThumbnail',
+                            '768x432',
+                        ).then((map) => {
+                            const thumbData = map.get(Number(placeId));
+                            if (thumbnailContainer) {
+                                thumbnailContainer.innerHTML = '';
+                                if (thumbData) {
+                                    const thumbEl = createThumbnailElement(
+                                        thumbData,
+                                        game.name,
+                                        'carousel-item carousel-item-active',
+                                        {
+                                            width: '100%',
+                                            height: '100%',
+                                            borderRadius: '0px',
+                                        },
+                                    );
+                                    thumbnailContainer.appendChild(thumbEl);
+                                } else {
+                                    const empty = document.createElement('div');
+                                    empty.className =
+                                        'thumbnail-2d-container carousel-item carousel-item-active';
+                                    thumbnailContainer.appendChild(empty);
+                                }
+                            }
+                        });
+                        return;
                     }
-                });
-                return;
-            }
 
-            const carousel = document.createElement('div');
-            carousel.dataset.testid = 'carousel';
-            carousel.style.cssText =
-                'height: 100%; width: 100%; position: relative; overflow: hidden;';
+                    const carousel = document.createElement('div');
+                    carousel.dataset.testid = 'carousel';
+                    carousel.style.cssText =
+                        'height: 100%; width: 100%; position: relative; overflow: hidden;';
 
-            const items = thumbnails.map((thumb, idx) => {
-                const span = document.createElement('span');
-                span.className = `thumbnail-2d-container carousel-item ${idx === 0 ? 'carousel-item-active' : ''}`;
-                Object.assign(span.style, {
-                    position: 'absolute',
-                    top: '0',
-                    left: '0',
-                    width: '100%',
-                    height: '100%',
-                });
+                    const items = thumbnails.map((thumb, idx) => {
+                        const span = document.createElement('span');
+                        span.className = `thumbnail-2d-container carousel-item ${idx === 0 ? 'carousel-item-active' : ''}`;
+                        Object.assign(span.style, {
+                            position: 'absolute',
+                            top: '0',
+                            left: '0',
+                            width: '100%',
+                            height: '100%',
+                        });
 
-                const thumbEl = createThumbnailElement(
-                    thumb,
-                    `Promotional image #${idx + 1} for ${game.name}`,
-                    '',
-                    {
+                        const thumbEl = createThumbnailElement(
+                            thumb,
+                            `Promotional image #${idx + 1} for ${game.name}`,
+                            '',
+                            {
+                                width: '100%',
+                                height: '100%',
+                                borderRadius: '0px',
+                                objectFit: 'cover',
+                            },
+                        );
+                        thumbEl.title = `Promotional image #${idx + 1} for ${game.name}`;
+
+                        span.appendChild(thumbEl);
+                        carousel.appendChild(span);
+                        return { el: span };
+                    });
+
+                    const controls = document.createElement('div');
+                    controls.className = 'carousel-controls-container';
+                    controls.dataset.testid = 'carousel-controls-container';
+                    Object.assign(controls.style, {
+                        opacity: '0',
+                        transition: 'opacity 0.2s',
+                        pointerEvents: 'none',
+                        position: 'absolute',
+                        top: '0',
+                        left: '0',
                         width: '100%',
                         height: '100%',
-                        borderRadius: '0px',
-                        objectFit: 'cover',
-                    },
-                );
-                thumbEl.title = `Promotional image #${idx + 1} for ${game.name}`;
+                        zIndex: '10',
+                    });
 
-                span.appendChild(thumbEl);
-                carousel.appendChild(span);
-                return { el: span };
-            });
+                    carousel.addEventListener('mouseenter', () => {
+                        controls.style.opacity = '1';
+                        controls.classList.add(
+                            'carousel-controls-container-visible',
+                        );
+                    });
+                    carousel.addEventListener('mouseleave', () => {
+                        controls.style.opacity = '0';
+                        controls.classList.remove(
+                            'carousel-controls-container-visible',
+                        );
+                    });
 
-            const controls = document.createElement('div');
-            controls.className = 'carousel-controls-container';
-            controls.dataset.testid = 'carousel-controls-container';
-            Object.assign(controls.style, {
-                opacity: '0',
-                transition: 'opacity 0.2s',
-                pointerEvents: 'none',
-                position: 'absolute',
-                top: '0',
-                left: '0',
-                width: '100%',
-                height: '100%',
-                zIndex: '10',
-            });
+                    let currentIdx = 0;
+                    const updateUI = () => {
+                        items.forEach((item, idx) => {
+                            const isActive = idx === currentIdx;
+                            item.el.classList.toggle(
+                                'carousel-item-active',
+                                isActive,
+                            );
+                        });
+                    };
 
-            carousel.addEventListener('mouseenter', () => {
-                controls.style.opacity = '1';
-                controls.classList.add('carousel-controls-container-visible');
-            });
-            carousel.addEventListener('mouseleave', () => {
-                controls.style.opacity = '0';
-                controls.classList.remove(
-                    'carousel-controls-container-visible',
-                );
-            });
+                    const { leftButton, rightButton } = createScrollButtons({
+                        onLeftClick: (e) => {
+                            e.preventDefault();
+                            currentIdx =
+                                (currentIdx - 1 + items.length) % items.length;
+                            updateUI();
+                        },
+                        onRightClick: (e) => {
+                            e.preventDefault();
+                            currentIdx = (currentIdx + 1) % items.length;
+                            updateUI();
+                        },
+                    });
 
-            let currentIdx = 0;
-            const updateUI = () => {
-                items.forEach((item, idx) => {
-                    const isActive = idx === currentIdx;
-                    item.el.classList.toggle('carousel-item-active', isActive);
-                });
-            };
+                    leftButton.classList.add('rovalra-scroll-btn', 'left');
+                    rightButton.classList.add('rovalra-scroll-btn', 'right');
 
-            const { leftButton, rightButton } = createScrollButtons({
-                onLeftClick: (e) => {
-                    e.preventDefault();
-                    currentIdx = (currentIdx - 1 + items.length) % items.length;
+                    if (thumbnails.length > 1) {
+                        controls.appendChild(leftButton);
+                        controls.appendChild(rightButton);
+                    }
+                    carousel.appendChild(controls);
+
+                    thumbnailContainer.innerHTML = '';
+                    thumbnailContainer.appendChild(carousel);
                     updateUI();
                 },
-                onRightClick: (e) => {
-                    e.preventDefault();
-                    currentIdx = (currentIdx + 1) % items.length;
-                    updateUI();
-                },
-            });
+            );
+        }
 
-            leftButton.classList.add('rovalra-scroll-btn', 'left');
-            rightButton.classList.add('rovalra-scroll-btn', 'right');
+        const tabsContainer = document.getElementById('horizontal-tabs');
+        const tabContentContainer = document.querySelector('.tab-content');
 
-            if (thumbnails.length > 1) {
-                controls.appendChild(leftButton);
-                controls.appendChild(rightButton);
-            }
-            carousel.appendChild(controls);
-
-            thumbnailContainer.innerHTML = '';
-            thumbnailContainer.appendChild(carousel);
-            updateUI();
+        const aboutTab = createTab({
+            id: 'about',
+            label: ts('privateGames.tabs.about') || 'About',
+            container: tabsContainer,
+            contentContainer: tabContentContainer,
         });
-    }
 
-    const tabsContainer = document.getElementById('horizontal-tabs');
-    const tabContentContainer = document.querySelector('.tab-content');
+        const storeTab = createTab({
+            id: 'store',
+            label: ts('privateGames.tabs.store') || 'Store',
+            container: tabsContainer,
+            contentContainer: tabContentContainer,
+            classes: ['store'],
+        });
 
-    const aboutTab = createTab({
-        id: 'about',
-        label: ts('privateGames.tabs.about') || 'About',
-        container: tabsContainer,
-        contentContainer: tabContentContainer,
-    });
+        const descriptionText =
+            game.description || ts('privateGames.description.noDescription');
 
-    const storeTab = createTab({
-        id: 'store',
-        label: ts('privateGames.tabs.store') || 'Store',
-        container: tabsContainer,
-        contentContainer: tabContentContainer,
-        classes: ['store'],
-    });
-
-    const descriptionText =
-        game.description || ts('privateGames.description.noDescription');
-
-    aboutTab.contentPane.innerHTML = DOMPurify.sanitize(`
+        aboutTab.contentPane.innerHTML = DOMPurify.sanitize(`
         <div class="game-details-about-tab-container">
             <div class="game-about-tab-container">
                 <div class="game-description-container">
@@ -1077,200 +1086,213 @@ function renderPrivateGamePage(game, placeId, settings) {
         </div>
     `);
 
-    const aboutTabContainer = aboutTab.contentPane.querySelector(
-        '.game-details-about-tab-container',
-    );
-    if (aboutTabContainer) {
-        checkAndInjectEvents(aboutTabContainer, placeId);
-    }
-    const subscriptionsContainer = document.createElement('div');
-    subscriptionsContainer.id = 'rbx-subscriptions-container';
-    subscriptionsContainer.style.display = 'none';
-
-    const subscriptionsContent = document.createElement('div');
-    subscriptionsContent.id = 'rbx-subscriptions-container-content';
-
-    const subscriptionsHeader = document.createElement('div');
-    subscriptionsHeader.className = 'container-header';
-    const headerTitle = document.createElement('h2');
-    headerTitle.textContent = ts('privateGames.subscriptions.title');
-    subscriptionsHeader.appendChild(headerTitle);
-
-    const subscriptionsList = document.createElement('div');
-    subscriptionsList.id = 'subscriptions-list';
-    subscriptionsList.className = 'subscriptions-scroll-container';
-    subscriptionsList.setAttribute('role', 'list');
-
-    subscriptionsContent.appendChild(subscriptionsHeader);
-    subscriptionsContent.appendChild(subscriptionsList);
-    subscriptionsContainer.appendChild(subscriptionsContent);
-    storeTab.contentPane.appendChild(subscriptionsContainer);
-
-    const passesContainer = document.createElement('div');
-    passesContainer.id = 'rbx-game-passes';
-    passesContainer.className = 'container-list game-dev-store game-passes';
-
-    const passesHeader = document.createElement('div');
-    passesHeader.className = 'container-header';
-
-    const passesTitle = document.createElement('h3');
-    passesTitle.textContent = ts('privateGames.passes.title');
-    passesTitle.style.margin = '0';
-    passesHeader.appendChild(passesTitle);
-
-    const passesList = document.createElement('ul');
-    passesList.id = 'rovalra-passes-list';
-    passesList.className = 'hlist store-cards gear-passes-container';
-
-    const toggleLi = document.createElement('li');
-    toggleLi.className = 'rovalra-offsale-toggle-item';
-
-    const showNotForSaleLabel = document.createElement('label');
-    showNotForSaleLabel.style.fontSize = '14px';
-    showNotForSaleLabel.style.fontWeight = '600';
-    showNotForSaleLabel.style.color = 'var(--rovalra-secondary-text-color)';
-    showNotForSaleLabel.style.cursor = 'pointer';
-    showNotForSaleLabel.style.display = 'inline-flex';
-    showNotForSaleLabel.style.alignItems = 'center';
-    showNotForSaleLabel.style.gap = '6px';
-    showNotForSaleLabel.style.userSelect = 'none';
-    showNotForSaleLabel.style.padding = '8px';
-    showNotForSaleLabel.textContent = ts('privateGames.passes.showOffSale');
-
-    const notForSaleToggle = createRadioButton({
-        id: 'rovalra-show-not-for-sale-toggle',
-        checked: false,
-        onChange: (checked) => {
-            showNotForSale = checked;
-            if (lastLoadedPasses.length > 0 && lastList && lastNoPassesMsg) {
-                renderPasses(
-                    lastList,
-                    lastNoPassesMsg,
-                    lastLoadedPasses,
-                    showNotForSale,
-                );
-            }
-        },
-    });
-
-    showNotForSaleLabel.prepend(notForSaleToggle);
-    toggleLi.appendChild(showNotForSaleLabel);
-    passesList.appendChild(toggleLi);
-
-    const noPassesMsg = document.createElement('div');
-    noPassesMsg.className = 'section-content-off';
-    noPassesMsg.style.display = 'none';
-    noPassesMsg.textContent = ts('privateGames.passes.noPasses');
-
-    passesContainer.appendChild(passesHeader);
-    passesContainer.appendChild(passesList);
-    passesContainer.appendChild(noPassesMsg);
-    storeTab.contentPane.appendChild(passesContainer);
-
-    lastList = passesList;
-    lastNoPassesMsg = noPassesMsg;
-
-    let badgesLoaded = false;
-    let passesLoaded = false;
-
-    const clearActiveStates = () => {
-        tabsContainer
-            .querySelectorAll('.rbx-tab.active')
-            .forEach((el) => el.classList.remove('active'));
-        tabContentContainer
-            .querySelectorAll('.tab-pane.active')
-            .forEach((el) => el.classList.remove('active'));
-    };
-
-    const switchToStoreTab = () => {
-        clearActiveStates();
-        storeTab.tab.classList.add('active');
-        storeTab.contentPane.classList.add('active');
-        if (!passesLoaded) {
-            passesLoaded = true;
-            const universeId = game.universeId || game.id;
-            loadPasses(universeId);
-            if (universeId) {
-                loadSubscriptions(universeId);
-            }
+        const aboutTabContainer = aboutTab.contentPane.querySelector(
+            '.game-details-about-tab-container',
+        );
+        if (aboutTabContainer) {
+            checkAndInjectEvents(aboutTabContainer, placeId);
         }
-    };
+        const subscriptionsContainer = document.createElement('div');
+        subscriptionsContainer.id = 'rbx-subscriptions-container';
+        subscriptionsContainer.style.display = 'none';
 
-    const switchToAboutTab = () => {
-        clearActiveStates();
-        aboutTab.tab.classList.add('active');
-        aboutTab.contentPane.classList.add('active');
-    };
+        const subscriptionsContent = document.createElement('div');
+        subscriptionsContent.id = 'rbx-subscriptions-container-content';
 
-    storeTab.tab.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopImmediatePropagation();
-        switchToStoreTab();
-        if (window.location.hash !== '#!/store') {
-            window.location.hash = '#!/store';
-        }
-    });
+        const subscriptionsHeader = document.createElement('div');
+        subscriptionsHeader.className = 'container-header';
+        const headerTitle = document.createElement('h2');
+        headerTitle.textContent = ts('privateGames.subscriptions.title');
+        subscriptionsHeader.appendChild(headerTitle);
 
-    aboutTab.tab.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopImmediatePropagation();
-        switchToAboutTab();
-        if (window.location.hash !== '#!/about') {
+        const subscriptionsList = document.createElement('div');
+        subscriptionsList.id = 'subscriptions-list';
+        subscriptionsList.className = 'subscriptions-scroll-container';
+        subscriptionsList.setAttribute('role', 'list');
+
+        subscriptionsContent.appendChild(subscriptionsHeader);
+        subscriptionsContent.appendChild(subscriptionsList);
+        subscriptionsContainer.appendChild(subscriptionsContent);
+        storeTab.contentPane.appendChild(subscriptionsContainer);
+
+        const passesContainer = document.createElement('div');
+        passesContainer.id = 'rbx-game-passes';
+        passesContainer.className = 'container-list game-dev-store game-passes';
+
+        const passesHeader = document.createElement('div');
+        passesHeader.className = 'container-header';
+
+        const passesTitle = document.createElement('h3');
+        passesTitle.textContent = ts('privateGames.passes.title');
+        passesTitle.style.margin = '0';
+        passesHeader.appendChild(passesTitle);
+
+        const passesList = document.createElement('ul');
+        passesList.id = 'rovalra-passes-list';
+        passesList.className = 'hlist store-cards gear-passes-container';
+
+        const toggleLi = document.createElement('li');
+        toggleLi.className = 'rovalra-offsale-toggle-item';
+
+        const showNotForSaleLabel = document.createElement('label');
+        showNotForSaleLabel.style.fontSize = '14px';
+        showNotForSaleLabel.style.fontWeight = '600';
+        showNotForSaleLabel.style.color = 'var(--rovalra-secondary-text-color)';
+        showNotForSaleLabel.style.cursor = 'pointer';
+        showNotForSaleLabel.style.display = 'inline-flex';
+        showNotForSaleLabel.style.alignItems = 'center';
+        showNotForSaleLabel.style.gap = '6px';
+        showNotForSaleLabel.style.userSelect = 'none';
+        showNotForSaleLabel.style.padding = '8px';
+        showNotForSaleLabel.textContent = ts('privateGames.passes.showOffSale');
+
+        const notForSaleToggle = createRadioButton({
+            id: 'rovalra-show-not-for-sale-toggle',
+            checked: false,
+            onChange: (checked) => {
+                showNotForSale = checked;
+                if (
+                    lastLoadedPasses.length > 0 &&
+                    lastList &&
+                    lastNoPassesMsg
+                ) {
+                    renderPasses(
+                        lastList,
+                        lastNoPassesMsg,
+                        lastLoadedPasses,
+                        showNotForSale,
+                    );
+                }
+            },
+        });
+
+        showNotForSaleLabel.prepend(notForSaleToggle);
+        toggleLi.appendChild(showNotForSaleLabel);
+        passesList.appendChild(toggleLi);
+
+        const noPassesMsg = document.createElement('div');
+        noPassesMsg.className = 'section-content-off';
+        noPassesMsg.style.display = 'none';
+        noPassesMsg.textContent = ts('privateGames.passes.noPasses');
+
+        passesContainer.appendChild(passesHeader);
+        passesContainer.appendChild(passesList);
+        passesContainer.appendChild(noPassesMsg);
+        storeTab.contentPane.appendChild(passesContainer);
+
+        lastList = passesList;
+        lastNoPassesMsg = noPassesMsg;
+
+        let badgesLoaded = false;
+        let passesLoaded = false;
+
+        const clearActiveStates = () => {
+            tabsContainer
+                .querySelectorAll('.rbx-tab.active')
+                .forEach((el) => el.classList.remove('active'));
+            tabContentContainer
+                .querySelectorAll('.tab-pane.active')
+                .forEach((el) => el.classList.remove('active'));
+        };
+
+        const switchToStoreTab = () => {
+            clearActiveStates();
+            storeTab.tab.classList.add('active');
+            storeTab.contentPane.classList.add('active');
+            if (!passesLoaded) {
+                passesLoaded = true;
+                const universeId = game.universeId || game.id;
+                loadPasses(universeId);
+                if (universeId) {
+                    loadSubscriptions(universeId);
+                }
+            }
+        };
+
+        const switchToAboutTab = () => {
+            clearActiveStates();
+            aboutTab.tab.classList.add('active');
+            aboutTab.contentPane.classList.add('active');
+        };
+
+        storeTab.tab.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            switchToStoreTab();
+            if (window.location.hash !== '#!/store') {
+                window.location.hash = '#!/store';
+            }
+        });
+
+        aboutTab.tab.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            switchToAboutTab();
+            if (window.location.hash !== '#!/about') {
+                window.location.hash = '#!/about';
+            }
+        });
+
+        const handleHashChange = () => {
+            const hash = window.location.hash;
+            if (hash.includes('#!/store')) {
+                switchToStoreTab();
+            } else if (hash.includes('#!/about')) {
+                switchToAboutTab();
+            }
+        };
+
+        if (!window.location.hash || !window.location.hash.includes('#!')) {
             window.location.hash = '#!/about';
         }
-    });
+        handleHashChange();
 
-    const handleHashChange = () => {
-        const hash = window.location.hash;
-        if (hash.includes('#!/store')) {
-            switchToStoreTab();
-        } else if (hash.includes('#!/about')) {
-            switchToAboutTab();
+        window.addEventListener('hashchange', handleHashChange);
+
+        if (game.created) {
+            const createdEl = document.getElementById('rovalra-created-date');
+            if (createdEl)
+                createdEl.appendChild(createInteractiveTimestamp(game.created));
         }
+        if (game.updated) {
+            const updatedEl = document.getElementById('rovalra-updated-date');
+            if (updatedEl)
+                updatedEl.appendChild(createInteractiveTimestamp(game.updated));
+        }
+
+        const addTooltipToStat = (elementId, value) => {
+            const element = document.getElementById(elementId);
+            if (element && value !== null && typeof value !== 'undefined') {
+                addTooltip(element, value.toLocaleString(), {
+                    position: 'bottom',
+                });
+            }
+        };
+
+        if (game.playing !== null) {
+            addTooltipToStat('rovalra-active-playing', game.playing);
+        }
+
+        if (game.favoritedCount !== null) {
+            addTooltipToStat('rovalra-favorited-count', game.favoritedCount);
+        }
+
+        if (game.visits !== null) {
+            addTooltipToStat('rovalra-visits-count', game.visits);
+        }
+
+        if (game.maxPlayers !== null) {
+            addTooltipToStat('rovalra-max-players', game.maxPlayers);
+        }
+
+        setupFavoriteButton(game.id, isFavoritedByUser);
     };
 
-    if (!window.location.hash || !window.location.hash.includes('#!')) {
-        window.location.hash = '#!/about';
+    if (document.readyState === 'complete') {
+        setupTabsAndContent();
+    } else {
+        window.addEventListener('load', setupTabsAndContent, { once: true });
     }
-    handleHashChange();
-
-    window.addEventListener('hashchange', handleHashChange);
-
-    if (game.created) {
-        const createdEl = document.getElementById('rovalra-created-date');
-        if (createdEl)
-            createdEl.appendChild(createInteractiveTimestamp(game.created));
-    }
-    if (game.updated) {
-        const updatedEl = document.getElementById('rovalra-updated-date');
-        if (updatedEl)
-            updatedEl.appendChild(createInteractiveTimestamp(game.updated));
-    }
-
-    const addTooltipToStat = (elementId, value) => {
-        const element = document.getElementById(elementId);
-        if (element && value !== null && typeof value !== 'undefined') {
-            addTooltip(element, value.toLocaleString(), { position: 'bottom' });
-        }
-    };
-
-    if (game.playing !== null) {
-        addTooltipToStat('rovalra-active-playing', game.playing);
-    }
-
-    if (game.favoritedCount !== null) {
-        addTooltipToStat('rovalra-favorited-count', game.favoritedCount);
-    }
-
-    if (game.visits !== null) {
-        addTooltipToStat('rovalra-visits-count', game.visits);
-    }
-
-    if (game.maxPlayers !== null) {
-        addTooltipToStat('rovalra-max-players', game.maxPlayers);
-    }
-
-    setupFavoriteButton(game.id, isFavoritedByUser);
 }
 
 function setupFavoriteButton(universeId, initialFavorited) {
