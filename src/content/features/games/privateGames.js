@@ -517,6 +517,15 @@ function updateGameDataUpdated(gameData) {
         gameData.playing !== null ? formatVoteCount(gameData.playing) : null,
         isComplete,
     );
+    if (gameData.playing !== null) {
+        const el = document.getElementById('rovalra-active-playing');
+        if (el && !el.getAttribute('data-tooltip-attached')) {
+            el.setAttribute('data-tooltip-attached', 'true');
+            addTooltip(el, gameData.playing.toLocaleString(), {
+                position: 'bottom',
+            });
+        }
+    }
 
     updateText(
         'rovalra-favorited-count',
@@ -525,12 +534,30 @@ function updateGameDataUpdated(gameData) {
             : null,
         isComplete,
     );
+    if (gameData.favoritedCount !== null) {
+        const el = document.getElementById('rovalra-favorited-count');
+        if (el && !el.getAttribute('data-tooltip-attached')) {
+            el.setAttribute('data-tooltip-attached', 'true');
+            addTooltip(el, gameData.favoritedCount.toLocaleString(), {
+                position: 'bottom',
+            });
+        }
+    }
 
     updateText(
         'rovalra-visits-count',
         gameData.visits !== null ? formatVoteCount(gameData.visits) : null,
         isComplete,
     );
+    if (gameData.visits !== null) {
+        const el = document.getElementById('rovalra-visits-count');
+        if (el && !el.getAttribute('data-tooltip-attached')) {
+            el.setAttribute('data-tooltip-attached', 'true');
+            addTooltip(el, gameData.visits.toLocaleString(), {
+                position: 'bottom',
+            });
+        }
+    }
 
     updateText(
         'rovalra-max-players',
@@ -539,6 +566,15 @@ function updateGameDataUpdated(gameData) {
             : null,
         isComplete,
     );
+    if (gameData.maxPlayers !== null) {
+        const el = document.getElementById('rovalra-max-players');
+        if (el && !el.getAttribute('data-tooltip-attached')) {
+            el.setAttribute('data-tooltip-attached', 'true');
+            addTooltip(el, gameData.maxPlayers.toLocaleString(), {
+                position: 'bottom',
+            });
+        }
+    }
 
     updateText(
         'rovalra-genre-text',
