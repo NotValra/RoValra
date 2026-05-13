@@ -362,6 +362,7 @@ function loadAndRenderPrivateGame(placeId, settings, isSkeletonOnly = false) {
                         gameData.description = cloudData.description;
                     }
                     updateGameDataUpdated(gameData);
+                    updateSocialLinksUI(cloudData);
                     checkRedirectToStandardPage(gameData, placeId, settings);
                 })
                 .catch((e) => {
@@ -1057,11 +1058,15 @@ function renderPrivateGamePage(game, placeId, settings) {
                             <p class="text-lead font-caption-body ${game.isSkeleton ? 'shimmer' : ''}" id="rovalra-voice-chat-status" style="${game.isSkeleton ? 'min-width: 60px; height: 14px; border-radius: 4px;' : ''}">${voiceChatEnabled === true ? ts('privateGames.stats.supported') : voiceChatEnabled === false ? ts('privateGames.stats.unsupported') : game.isSkeleton ? '' : ts('privateGames.unknown')}</p>
                         </li>
                     </ul>
-                    <div class="game-description-footer">
-                        <a class="text-report" href="/report-abuse/?targetId=${placeId}&abuseVector=place">${ts('privateGames.reportAbuse')}</a>
-                    </div>
+                <div class="game-description-footer">
+                    <a class="text-report" href="/report-abuse/?targetId=${placeId}&abuseVector=place">${ts('privateGames.reportAbuse')}</a>
                 </div>
-                <div class="stack badge-container game-badges-list" id="rovalra-badges-section">
+            </div>
+            <div class="section" id="rovalra-social-links-section">
+                <div class="container-header"><h3>Social Links</h3></div>
+                <ul class="game-social-links" id="rovalra-social-links-list"></ul>
+            </div>
+            <div class="stack badge-container game-badges-list" id="rovalra-badges-section">
                     <div class="container-header"><h3>${ts('privateGames.badges.title')}</h3></div>
                     <ul class="stack-list" id="rovalra-game-badges"></ul>
                 </div>
@@ -1335,6 +1340,61 @@ function setupFavoriteButton(universeId, initialFavorited) {
             );
         }
     };
+}
+
+function updateSocialLinksUI(cloudData) {
+    const container = document.getElementById('rovalra-social-links-list');
+    if (!container) return;
+
+    const socialLinks = [];
+    if (cloudData.twitterSocialLink) {
+        socialLinks.push({
+            icon: 'icon-social-media-twitter',
+            label: cloudData.twitterSocialLink.title || 'Twitter',
+            uri: cloudData.twitterSocialLink.uri,
+        });
+    }
+    if (cloudData.youtubeSocialLink) {
+        socialLinks.push({
+            icon: 'icon-social-media-youtube',
+            label: cloudData.youtubeSocialLink.title || 'YouTube',
+            uri: cloudData.youtubeSocialLink.uri,
+        });
+    }
+    if (cloudData.discordSocialLink) {
+        socialLinks.push({
+            icon: 'icon-social-media-discord',
+            label: cloudData.discordSocialLink.title || 'Discord',
+            uri: cloudData.discordSocialLink.uri,
+        });
+    }
+
+    const section = document.getElementById('rovalra-social-links-section');
+    if (socialLinks.length === 0) {
+        if (section) section.style.display = 'none';
+        return;
+    }
+
+    if (section) section.style.display = '';
+
+    container.style.cssText =
+        'display: flex; flex-wrap: wrap; gap: 8px; list-style: none; padding: 0;';
+    container.innerHTML = '';
+    socialLinks.forEach((link) => {
+        const li = document.createElement('li');
+        li.style.cssText = 'display: flex;';
+        const a = document.createElement('a');
+        a.className = 'btn-secondary-lg border';
+        a.href = link.uri;
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        a.innerHTML = DOMPurify.sanitize(`
+            <span class="social-icon ${link.icon}"></span>
+            <span class="text-body-large text-wrap text-align-x-start padding-left-small" style="color: var(--rovalra-main-text-color);">${link.label}</span>
+        `);
+        li.appendChild(a);
+        container.appendChild(li);
+    });
 }
 
 async function loadBadges(universeId) {
