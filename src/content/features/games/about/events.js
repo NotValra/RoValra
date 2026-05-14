@@ -328,6 +328,7 @@ export async function loadAndRenderEvents(eventsContainer, placeId) {
                     event,
                     isPast,
                     thumbData,
+                    null,
                     rsvpCount,
                 );
 
