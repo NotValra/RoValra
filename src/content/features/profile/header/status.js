@@ -13,7 +13,10 @@ import { createStyledInput } from '../../../core/ui/catalog/input.js';
 import { showSystemAlert } from '../../../core/ui/roblox/alert.js';
 import { reportUserContent } from '../../../core/report.js';
 import { showConfirmationPrompt } from '../../../core/ui/confirmationPrompt.js';
-import { parseMarkdown, parseUntrustedMarkdown } from '../../../core/utils/markdown.js';
+import {
+    parseMarkdown,
+    parseUntrustedMarkdown,
+} from '../../../core/utils/markdown.js';
 import { migrateLegacyStatus } from '../../../core/profile/descriptionhandler.js';
 import DOMPurify from 'dompurify';
 import {
@@ -29,6 +32,10 @@ import {
     syncDonatorTier,
     getCurrentUserTier,
 } from '../../../core/settings/handlesettings.js';
+import {
+    onUserCardElement,
+    observeUserCardElements,
+} from '../../../core/profile/userCardElements.js';
 const MAX_STATUS_LENGTH = 128;
 const REPORTING_ENABLED = false;
 let activeHomeStatusBubble = null;
@@ -228,7 +235,7 @@ async function addStatusBubble(avatarContainer) {
                 video.play().catch(() => {});
             }
         } else {
-            bubble.innerHTML = parseUntrustedMarkdown(statusText);  // Verified
+            bubble.innerHTML = parseUntrustedMarkdown(statusText); // Verified
         }
 
         bubbleWrapper.appendChild(bubble);
@@ -267,7 +274,7 @@ async function addStatusBubble(avatarContainer) {
                         video.play().catch(() => {});
                     }
                 } else {
-                    bubble.innerHTML = parseUntrustedMarkdown(textToRender);  // Verified
+                    bubble.innerHTML = parseUntrustedMarkdown(textToRender); // Verified
                 }
 
                 const newTooltipText =
@@ -407,7 +414,9 @@ async function addHomeStatusHover(tile) {
                                 },
                             );
                         } else {
-                            bubble.innerHTML = parseUntrustedMarkdown(statusText).replaceAll("<br>", '');  // Verified
+                            bubble.innerHTML = parseUntrustedMarkdown(
+                                statusText,
+                            ).replaceAll('<br>', ''); // Verified
                         }
                         statusLoaded = true;
 
@@ -521,13 +530,8 @@ export function init() {
                 });
 
                 if (settings.statusBubbleHomePage) {
-                    observeElement(
-                        '.friends-carousel-tile',
-                        addHomeStatusHover,
-                        {
-                            multiple: true,
-                        },
-                    );
+                    observeUserCardElements();
+                    onUserCardElement(addHomeStatusHover);
                 }
             }
         },
