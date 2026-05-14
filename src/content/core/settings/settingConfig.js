@@ -238,16 +238,16 @@ export const SETTINGS_CONFIG = {
             privateGameViewerEnabled: {
                 label: 'View Private / Moderated Games',
                 description: [
-                    'This recreates the experience page of private / moderated games, allowing you to view them.',
+                    'This recreates the games page of private / moderated games, allowing you to view them.',
                 ],
                 type: 'checkbox',
                 default: true,
                 childSettings: {
                     privateGameDetectionFallbackEnabled: {
-                        label: 'Use background detection fallback',
+                        label: 'Use Robust Private / Moderated Games Detection',
                         description: [
-                            'Uses background web requests to detect private games when the local tracker fails.',
-                            'This method is more reliable but requires additional permissions.',
+                            'This will make it so it never fails to know when you are trying to view a private / moderated game',
+                            'Without this it would fail to show private / moderated game pages if you open their link directly',
                         ],
                         type: 'checkbox',
                         default: false,
@@ -788,10 +788,10 @@ export const SETTINGS_CONFIG = {
                 default: true,
                 childSettings: {
                     bannedUserDetectionFallbackEnabled: {
-                        label: 'Use background detection fallback',
+                        label: 'Use Robust Banned User Detection',
                         description: [
-                            'Uses background web requests to detect banned users when the local tracker fails.',
-                            'This method is more reliable but requires additional permissions.',
+                            'This will make it so it never fails to know when you are trying to view a banned user',
+                            'Without this it would fail to show banned user profiles if you open their link directly',
                         ],
                         type: 'checkbox',
                         default: false,
@@ -800,7 +800,7 @@ export const SETTINGS_CONFIG = {
                 },
             },
             avatarBorderEnabled: {
-                label: 'Avatar Border',
+                label: 'Shows a users Avatar Border',
                 description: [
                     'Shows a decorative border around avatars on friend tiles and profile pages.',
                     '**Your selected border is saved to RoValras database so other RoValra users can see it.**',
@@ -810,7 +810,7 @@ export const SETTINGS_CONFIG = {
                 contributors: [48255812, 1707781757],
                 childSettings: {
                     avatarBorderChoice: {
-                        label: 'Your Border Style',
+                        label: 'Avatar Border',
                         description: [
                             'Choose which border displays around your own avatar.',
                         ],
