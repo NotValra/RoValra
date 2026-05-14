@@ -218,6 +218,40 @@ function renderContributors(container, users, thumbMap) {
     container.appendChild(listContainer);
 }
 
+function renderContributorsShimmer(container) {
+    container.innerHTML = '';
+    const listContainer = document.createElement('div');
+    listContainer.style.cssText =
+        'display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;';
+
+    CONTRIBUTOR_USER_IDS.forEach(() => {
+        const item = document.createElement('div');
+        item.style.cssText = `display: flex; align-items: center; background-color: var(--rovalra-container-background-color, rgba(0,0,0,0.1)); padding: 8px 12px; border-radius: 8px; opacity: 0.7;`;
+
+        const thumbShimmer = createThumbnailElement(
+            { state: 'Pending' },
+            'Loading...',
+            '',
+            {
+                width: '32px',
+                height: '32px',
+                borderRadius: '50%',
+                marginRight: '10px',
+            },
+        );
+
+        const nameShimmer = document.createElement('div');
+        nameShimmer.className = 'thumbnail-2d-container shimmer';
+        nameShimmer.style.cssText =
+            'width: 80px; height: 14px; border-radius: 4px;';
+
+        item.append(thumbShimmer, nameShimmer);
+        listContainer.appendChild(item);
+    });
+
+    container.appendChild(listContainer);
+}
+
 async function loadContributors() {
     const container = document.getElementById('rovalra-contributors-list');
     if (!container) return;
@@ -230,6 +264,8 @@ async function loadContributors() {
         );
         return;
     }
+
+    renderContributorsShimmer(container);
 
     try {
         const response = await callRobloxApi({
@@ -782,9 +818,7 @@ export const buttonData = [
                 </ul>
 
                 <h3 style="margin-top: 25px; margin-bottom: 10px; color: var(--rovalra-main-text-color); font-size: 18px;">${ts('settings.credits.contributorsTitle')}</h3>
-                <div id="rovalra-contributors-list">
-                    <div style="color: var(--rovalra-secondary-text-color);">${ts('settings.credits.loadingContributors')}</div>
-                </div>
+                <div id="rovalra-contributors-list"></div>
             </div>`;
         },
     },
