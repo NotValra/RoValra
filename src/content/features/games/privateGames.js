@@ -62,18 +62,24 @@ function renderDisabledNotice() {
     `);
 }
 
-let hasLoaded = false;
+let currentActivePlaceId = null;
 
 export function init() {
-    if (hasLoaded) return;
-    hasLoaded = true;
-
     const privateUrlMatch = window.location.pathname.match(
         /^(?:\/[a-z]{2}(?:-[a-z]{2})?)?\/private-games\/(\d+)/,
     );
     const checkUrlMatch = window.location.pathname.match(
         /^(?:\/[a-z]{2}(?:-[a-z]{2})?)?\/games\/check\/(\d+)/,
     );
+
+    const placeIdForInit = (privateUrlMatch || checkUrlMatch)?.[1];
+    if (
+        placeIdForInit &&
+        placeIdForInit === currentActivePlaceId &&
+        !document.querySelector('.error-page-container')
+    )
+        return;
+    currentActivePlaceId = placeIdForInit;
 
     if (privateUrlMatch || checkUrlMatch) {
         const placeId = (privateUrlMatch || checkUrlMatch)[1];
@@ -88,8 +94,10 @@ export function init() {
         loadAndRenderPrivateGame(placeId, null, true);
     }
 
-    const scrollBtnStyle = document.createElement('style');
-    scrollBtnStyle.innerHTML = `
+    if (!document.getElementById('rovalra-private-games-carousel-styles')) {
+        const scrollBtnStyle = document.createElement('style');
+        scrollBtnStyle.id = 'rovalra-private-games-carousel-styles';
+        scrollBtnStyle.innerHTML = `
         .rovalra-scroll-btn {
             position: absolute; z-index: 10; top: 50%; transform: translateY(-50%);
             background: rgba(0, 0, 0, 0.6) !important; border-radius: 50%;
@@ -111,7 +119,8 @@ export function init() {
             pointer-events: auto !important;
         }
     `;
-    document.head.appendChild(scrollBtnStyle);
+        document.head.appendChild(scrollBtnStyle);
+    }
 
     chrome.storage.local.get(
         {
@@ -512,7 +521,17 @@ function loadAndRenderPrivateGame(placeId, settings, isSkeletonOnly = false) {
     loadData();
 }
 
-function updateGameDataUpdated(gameData) {
+function updateGameDataUpdated(gameData, retryCount = 0) {
+    const isComplete = !gameData.isSkeleton;
+
+    if (
+        isComplete &&
+        !document.getElementById('rovalra-active-playing') &&
+        retryCount < 15
+    ) {
+        setTimeout(() => updateGameDataUpdated(gameData, retryCount + 1), 60);
+        return;
+    }
     const updateText = (id, text, forceClear = false) => {
         const el = document.getElementById(id);
         if (el) {
@@ -529,8 +548,6 @@ function updateGameDataUpdated(gameData) {
             }
         }
     };
-
-    const isComplete = !gameData.isSkeleton;
 
     updateText(
         'rovalra-active-playing',
@@ -669,7 +686,16 @@ function updateGameDataUpdated(gameData) {
     }
 }
 
-function updateVotesUI(upVotes, downVotes) {
+function updateVotesUI(upVotes, downVotes, retryCount = 0) {
+    const container = document.querySelector('.rovalra-voting-section');
+    if (!container && retryCount < 20) {
+        setTimeout(
+            () => updateVotesUI(upVotes, downVotes, retryCount + 1),
+            100,
+        );
+        return;
+    }
+
     const totalVotes = upVotes + downVotes;
     const likeRatio =
         totalVotes > 0 ? Math.floor((upVotes / totalVotes) * 100) : 0;
@@ -690,8 +716,13 @@ function updateVotesUI(upVotes, downVotes) {
     }
 }
 
-function updateMaturityUI(linkText) {
+function updateMaturityUI(linkText, retryCount = 0) {
     const container = document.getElementById('rovalra-maturity-container');
+    if (!container && retryCount < 50) {
+        setTimeout(() => updateMaturityUI(linkText, retryCount + 1), 100);
+        return;
+    }
+
     if (container) {
         container.innerHTML = '';
         const link = document.createElement('a');
@@ -1344,11 +1375,7 @@ function renderPrivateGamePage(game, placeId, settings) {
         setupFavoriteButton(game.id, isFavoritedByUser);
     };
 
-    if (document.readyState === 'complete') {
-        setupTabsAndContent();
-    } else {
-        window.addEventListener('load', setupTabsAndContent, { once: true });
-    }
+    setupTabsAndContent();
 }
 
 function setupFavoriteButton(universeId, initialFavorited) {
@@ -1423,9 +1450,17 @@ function setupFavoriteButton(universeId, initialFavorited) {
     };
 }
 
-function updateSocialLinksUI(cloudData) {
+function updateSocialLinksUI(cloudData, retryCount = 0) {
     const container = document.getElementById('rovalra-social-links-list');
-    if (!container) return;
+    if (!container) {
+        if (retryCount < 20) {
+            setTimeout(
+                () => updateSocialLinksUI(cloudData, retryCount + 1),
+                100,
+            );
+        }
+        return;
+    }
 
     const socialLinks = [];
     if (cloudData.twitterSocialLink) {
@@ -1492,72 +1527,81 @@ async function loadBadges(universeId) {
             return rateB - rateA;
         });
 
-        const thumbMap = await fetchThumbnails(
-            badges.map((b) => ({ id: b.id })),
-            'BadgeIcon',
-            '150x150',
-        );
+        const renderBadgesUI = async (retryCount = 0) => {
+            const container = document.getElementById('rovalra-game-badges');
+            if (!container) {
+                if (retryCount < 50) {
+                    setTimeout(() => renderBadgesUI(retryCount + 1), 100);
+                }
+                return;
+            }
 
-        const container = document.getElementById('rovalra-game-badges');
-        if (!container) return;
+            const thumbMap = await fetchThumbnails(
+                badges.map((b) => ({ id: b.id })),
+                'BadgeIcon',
+                '150x150',
+            );
 
-        document.getElementById('rovalra-no-badges-msg')?.remove();
+            document.getElementById('rovalra-no-badges-msg')?.remove();
 
-        if (badges.length === 0) {
+            if (badges.length === 0) {
+                container.innerHTML = '';
+                if (document.getElementById('rovalra-no-badges-msg')) return;
+
+                const noBadgesMsg = document.createElement('p');
+                noBadgesMsg.id = 'rovalra-no-badges-msg';
+                noBadgesMsg.style.padding = '10px';
+                noBadgesMsg.style.color = 'var(--rovalra-secondary-text-color)';
+                noBadgesMsg.textContent = ts('privateGames.badges.noBadges');
+                container.parentElement.parentElement?.after?.(noBadgesMsg);
+                return;
+            }
+
             container.innerHTML = '';
-            if (document.getElementById('rovalra-no-badges-msg')) return;
+            badges.forEach((badge) => {
+                const thumb = thumbMap.get(badge.id);
+                const stats = badge.statistics || {};
+                const winRate = (stats.winRatePercentage ?? 0) * 100;
+                const pastDayAwarded = stats.pastDayAwardedCount ?? 0;
+                const awardedCount = stats.awardedCount ?? 0;
+                const rarityText = winRate.toFixed(1) + '%';
 
-            const noBadgesMsg = document.createElement('p');
-            noBadgesMsg.id = 'rovalra-no-badges-msg';
-            noBadgesMsg.style.padding = '10px';
-            noBadgesMsg.style.color = 'var(--rovalra-secondary-text-color)';
-            noBadgesMsg.textContent = ts('privateGames.badges.noBadges');
-            container.parentElement.parentElement?.after?.(noBadgesMsg);
-            return;
-        }
-
-        container.innerHTML = '';
-        badges.forEach((badge) => {
-            const thumb = thumbMap.get(badge.id);
-            const stats = badge.statistics || {};
-            const winRate = (stats.winRatePercentage ?? 0) * 100;
-            const pastDayAwarded = stats.pastDayAwardedCount ?? 0;
-            const awardedCount = stats.awardedCount ?? 0;
-            const rarityText = winRate.toFixed(1) + '%';
-
-            const li = document.createElement('li');
-            li.className = 'stack-row badge-row';
-            li.innerHTML = DOMPurify.sanitize(`
-                <div class="badge-image">
-                    <a href="https://www.roblox.com/badges/${badge.id}/${encodeURIComponent(badge.displayName || badge.name)}">
-                        <span class="thumbnail-2d-container badge-image-container">
-                            <img class="" src="${thumb?.imageUrl || ''}" alt="${badge.name}" title="${badge.name}">
-                        </span>
-                    </a>
-                </div>
-                <div class="badge-content">
-                    <div class="badge-data-container">
-                        <div class="font-header-2 badge-name">${badge.displayName || badge.name}</div>
-                        <p class="para-overflow">${badge.displayDescription || badge.description || ''}</p>
+                const li = document.createElement('li');
+                li.className = 'stack-row badge-row';
+                li.innerHTML = DOMPurify.sanitize(`
+                    <div class="badge-image">
+                        <a href="https://www.roblox.com/badges/${badge.id}/${encodeURIComponent(badge.displayName || badge.name)}">
+                            <span class="thumbnail-2d-container badge-image-container">
+                                <img class="" src="${thumb?.imageUrl || ''}" alt="${badge.name}" title="${badge.name}">
+                            </span>
+                        </a>
                     </div>
-                    <ul class="badge-stats-container">
-                        <li>
-                            <div class="text-label">${ts('privateGames.badges.rarity')}</div>
-                            <div class="font-header-2 badge-stats-info">${rarityText}</div>
-                        </li>
-                        <li>
-                            <div class="text-label">${ts('privateGames.badges.wonYesterday')}</div>
-                            <div class="font-header-2 badge-stats-info">${pastDayAwarded.toLocaleString()}</div>
-                        </li>
-                        <li>
-                            <div class="text-label">${ts('privateGames.badges.wonEver')}</div>
-                            <div class="font-header-2 badge-stats-info">${awardedCount.toLocaleString()}</div>
-                        </li>
-                    </ul>
-                </div>
-            `);
-            container.appendChild(li);
-        });
+                    <div class="badge-content">
+                        <div class="badge-data-container">
+                            <div class="font-header-2 badge-name">${badge.displayName || badge.name}</div>
+                            <p class="para-overflow">${badge.displayDescription || badge.description || ''}</p>
+                        </div>
+                        <ul class="badge-stats-container">
+                            <li>
+                                <div class="text-label">${ts('privateGames.badges.rarity')}</div>
+                                <div class="font-header-2 badge-stats-info">${rarityText}</div>
+                            </li>
+                            <li>
+                                <div class="text-label">${ts('privateGames.badges.wonYesterday')}</div>
+                                <div class="font-header-2 badge-stats-info">${pastDayAwarded.toLocaleString()}</div>
+                            </li>
+                            <li>
+                                <div class="text-label">${ts('privateGames.badges.wonEver')}</div>
+                                <div class="font-header-2 badge-stats-info">${awardedCount.toLocaleString()}</div>
+                            </li>
+                        </ul>
+                    </div>
+                `);
+                container.appendChild(li);
+            });
+        };
+
+        renderBadgesUI();
     } catch (e) {
         console.warn('RoValra: Failed to load badges', e);
     }
@@ -1714,13 +1758,23 @@ function renderPasses(list, noPassesMsg, passes, showNotForSale) {
     }
 }
 
-async function loadSubscriptions(subscriptionProviderId) {
+async function loadSubscriptions(subscriptionProviderId, retryCount = 0) {
     const subscriptionsContainer =
         document.getElementById('subscriptions-list');
+
+    if (!subscriptionsContainer && retryCount < 30) {
+        setTimeout(
+            () => loadSubscriptions(subscriptionProviderId, retryCount + 1),
+            100,
+        );
+        return;
+    }
+
+    if (!subscriptionsContainer) return;
+
     const sectionContainer = document.getElementById(
         'rbx-subscriptions-container',
     );
-    if (!subscriptionsContainer) return;
 
     const assets = getAssets();
 
@@ -1896,11 +1950,18 @@ async function loadSubscriptions(subscriptionProviderId) {
     }
 }
 
-async function loadPasses(universeId) {
+async function loadPasses(universeId, retryCount = 0) {
     const list = document.getElementById('rovalra-passes-list');
+
+    if (!list && retryCount < 30) {
+        setTimeout(() => loadPasses(universeId, retryCount + 1), 100);
+        return;
+    }
+
+    if (!list) return;
+
     const container = document.getElementById('rbx-game-passes');
     const noPassesMsg = container?.querySelector('.section-content-off');
-    if (!list) return;
 
     list.appendChild(createShimmerGrid(6, { width: '150px', height: '220px' }));
 
@@ -1929,7 +1990,15 @@ async function loadPasses(universeId) {
     }
 }
 
-async function loadDeveloperProducts(universeId) {
+async function loadDeveloperProducts(universeId, retryCount = 0) {
+    const passesContainer = document.getElementById('rbx-game-passes');
+    if (!passesContainer && retryCount < 30) {
+        setTimeout(
+            () => loadDeveloperProducts(universeId, retryCount + 1),
+            100,
+        );
+        return;
+    }
     try {
         const res = await callRobloxApiJson({
             subdomain: 'apis',
