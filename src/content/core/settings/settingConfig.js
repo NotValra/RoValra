@@ -1308,7 +1308,7 @@ export const SETTINGS_CONFIG = {
                     'This helps prevent phishing by ensuring you know when you are on the real site.',
                 ],
                 type: 'checkbox',
-                default: true,
+                default: false,
             },
             DownloadCreateEnabled: {
                 label: 'Adds a download button to create.roblox.com',
