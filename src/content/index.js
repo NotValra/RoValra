@@ -113,6 +113,7 @@ import { init as initLegacyThemeSwitcher } from './features/settings/roblox/lega
 import { init as initAccurateContinue } from './features/home/accurateContinue.js';
 // create
 import { init as initCreateDownload } from './features/create.roblox.com/download.js';
+import { enforceSettingOverrides } from './core/settings/handlesettings.js';
 
 let pageLoaded = false;
 let lastPath = window.location.pathname;
@@ -341,6 +342,7 @@ async function initializePage() {
         const featureStartTime = performance.now();
 
         await t('__i18n_ready__').catch(() => {});
+        await enforceSettingOverrides();
         detectTheme().then((theme) => dispatchThemeEvent(theme));
         runFeaturesForPage();
 

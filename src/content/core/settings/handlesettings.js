@@ -180,6 +180,98 @@ export const loadSettings = async () => {
     });
 };
 
+export const enforceSettingOverrides = async () => {
+    try {
+        const settings = await loadSettings();
+        const data = await chrome.storage.local.get([
+            'profile3DRenderForceDisabled',
+        ]);
+        const userTier = currentUserTier;
+        const overrides = {};
+
+        const is3DLocked =
+            data.profile3DRenderForceDisabled === true &&
+            !settings.profile3DRenderBypassCheck;
+        if (is3DLocked && settings.profile3DRenderEnabled === true) {
+            overrides.profile3DRenderEnabled = false;
+        }
+
+        for (const category of Object.values(SETTINGS_CONFIG)) {
+            for (const [settingName, config] of Object.entries(
+                category.settings,
+            )) {
+                const processSetting = (name, conf) => {
+                    if (conf.donatorTier) {
+                        const isLocked = userTier < conf.donatorTier;
+                        if (isLocked && settings[name] === true) {
+                            overrides[name] = false;
+                        }
+                    }
+                    if (conf.locked) {
+                        if (settings[name] === true) {
+                            overrides[name] = false;
+                        }
+                    }
+                };
+
+                processSetting(settingName, config);
+
+                if (config.childSettings) {
+                    for (const [childName, childConfig] of Object.entries(
+                        config.childSettings,
+                    )) {
+                        processSetting(childName, childConfig);
+                    }
+                }
+            }
+        }
+
+        const overrideKeys = Object.keys(overrides);
+        if (overrideKeys.length > 0) {
+            console.log(
+                `RoValra: Enforcing ${overrideKeys.length} setting override(s) at startup:`,
+                overrideKeys,
+            );
+
+            return new Promise((resolve) => {
+                chrome.storage.local.set(overrides, () => {
+                    if (chrome.runtime.lastError) {
+                        console.error(
+                            'RoValra: Failed to enforce setting overrides',
+                            chrome.runtime.lastError,
+                        );
+                        resolve();
+                        return;
+                    }
+
+                    chrome.storage.local.get('rovalra_settings', (result) => {
+                        const settingsData = result.rovalra_settings || {};
+                        let changed = false;
+                        for (const [key, value] of Object.entries(overrides)) {
+                            if (settingsData[key] !== value) {
+                                settingsData[key] = value;
+                                changed = true;
+                            }
+                        }
+                        if (changed) {
+                            chrome.storage.local.set(
+                                { rovalra_settings: settingsData },
+                                () => {
+                                    resolve();
+                                },
+                            );
+                        } else {
+                            resolve();
+                        }
+                    });
+                });
+            });
+        }
+    } catch (error) {
+        console.error('RoValra: Failed to enforce setting overrides:', error);
+    }
+};
+
 export const handleSaveSettings = async (settingName, value) => {
     if (!settingName) {
         console.error('No setting name provided');
@@ -1326,7 +1418,7 @@ export function initializeSettingsEventListeners() {
                         set('skyboxPx', config.skybox[0]);
                         set('skyboxNx', config.skybox[1]);
                         set('skyboxPy', config.skybox[2]);
-                        set('skyboxNy', config.skybox[3]);
+                        set('skyboxNz', config.skybox[3]);
                         set('skyboxPz', config.skybox[4]);
                         set('skyboxNz', config.skybox[5]);
                     } else {
@@ -1337,8 +1429,6 @@ export function initializeSettingsEventListeners() {
                         set('tooltipToggle', true);
                         set('tooltipText', config.tooltip.text || '');
                         set('tooltipLink', config.tooltip.link || '');
-                    } else {
-                        set('tooltipToggle', false);
                     }
 
                     const promises = Object.entries(updates).map(

@@ -579,6 +579,8 @@ export const SETTINGS_CONFIG = {
                 default: true,
                 deprecated:
                     'Roblox is working on an A/B test which does this exact thing. This feature will be disabled when it releases.',
+                locked: 'Roblox released their own version of this.',
+                isPermanent: true,
             },
             currencyTransferEnabled: {
                 label: 'Send Robux',
