@@ -160,7 +160,7 @@ function createEventCard(
     const innerHtml = `
     <div class="featured-game-container game-card-container">
         <a class="game-card-link" href="https://www.roblox.com/events/${event.id}" tabindex="0">
-            <div class="featured-game-icon-container">
+            <div class="featured-game-icon-container" style="height: 175px; min-height: 175px; max-height: 175px; overflow: hidden; border-radius: 8px 8px 0 0;">
                 <div class="thumbnail-placeholder"></div>
                 <div class="game-card-text-pill">
                     <div class="game-card-info">${overridePillText || defaultPillText}</div>
@@ -242,6 +242,7 @@ function createEventCard(
             width: '100%',
             height: '100%',
             borderRadius: '8px 8px 0 0',
+            objectFit: 'cover',
         });
         thumbEl.classList.add('brief-game-icon');
         placeholder.replaceWith(thumbEl);
