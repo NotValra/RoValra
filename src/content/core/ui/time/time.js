@@ -58,35 +58,28 @@ function formatTime(date, format) {
             return formatRelativeTime(date);
         case 'local':
         default:
-            return date.toLocaleString();
+            return date.toLocaleString(undefined, {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric',
+                hour: 'numeric',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true,
+            });
     }
 }
 
 function getTooltipText(date) {
-    const months = [
-        'jan',
-        'feb',
-        'mar',
-        'apr',
-        'may',
-        'jun',
-        'jul',
-        'aug',
-        'sep',
-        'oct',
-        'nov',
-        'dec',
-    ];
-    const month = ts(`time.months.${months[date.getMonth()]}`);
-    const day = date.getDate();
-    const year = date.getFullYear();
-    let hour = date.getHours();
-    const ampm = hour >= 12 ? 'PM' : 'AM';
-    hour = hour % 12;
-    hour = hour ? hour : 12;
-    const minute = date.getMinutes().toString().padStart(2, '0');
-    const second = date.getSeconds().toString().padStart(2, '0');
-    return `${month} ${day}, ${year} ${hour}:${minute}:${second} ${ampm}`;
+    return date.toLocaleString(undefined, {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true,
+    });
 }
 
 observeElement(
