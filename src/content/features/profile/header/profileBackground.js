@@ -6,6 +6,10 @@ import {
 import { getUserIdFromUrl } from '../../../core/idExtractor.js';
 import { loadSettings } from '../../../core/settings/handlesettings.js';
 import { getUserSettings } from '../../../core/donators/settingHandler.js';
+import {
+    onUserCardElement,
+    observeUserCardElements,
+} from '../../../core/profile/userCardElements.js';
 
 function applyGradientToElement(element, gradient, isSmallScale = false) {
     element.style.background = gradient;
@@ -83,6 +87,7 @@ export async function init() {
         if (!settings.profileBackgroundGradientEnabled) return;
 
         startObserving();
+        observeUserCardElements();
 
         const profileUserId = getUserIdFromUrl();
         if (profileUserId) {
@@ -141,13 +146,7 @@ export async function init() {
         }
 
         if (settings.applyGradientToAvatarTile) {
-            observeElement(
-                '.friends-carousel-tile',
-                applyGradientToAvatarTile,
-                {
-                    multiple: true,
-                },
-            );
+            onUserCardElement(applyGradientToAvatarTile);
         }
     } catch (error) {
         console.error(
