@@ -3,6 +3,7 @@ import { observeElement } from '../../../core/observer.js';
 import {
     fetchThumbnails,
     createThumbnailElement,
+    getQueuedThumbnail,
 } from '../../../core/thumbnail/thumbnails.js';
 import { createPillToggle } from '../../../core/ui/general/pillToggle.js';
 import { getPlaceIdFromUrl } from '../../../core/idExtractor.js';
@@ -103,6 +104,14 @@ async function updateEventRsvp(eventId, rsvpStatus) {
     }
 }
 
+function formatCategoryString(category) {
+    if (!category) return '';
+    return category
+        .replace(/([A-Z])/g, ' $1')
+        .trim()
+        .replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
 function createEventCard(
     event,
     isPast = false,
@@ -155,7 +164,7 @@ function createEventCard(
         <span class="info-label icon-playing-counts-gray"></span>
         <span class="info-label playing-counts-label">${rsvpCount.toLocaleString()}</span>
     `
-            : '';
+            : '<span class="rovalra-rsvp-container"></span>';
 
     const innerHtml = `
     <div class="featured-game-container game-card-container">
@@ -163,7 +172,7 @@ function createEventCard(
             <div class="featured-game-icon-container" style="height: 175px; min-height: 175px; max-height: 175px; overflow: hidden; border-radius: 8px 8px 0 0;">
                 <div class="thumbnail-placeholder"></div>
                 <div class="game-card-text-pill">
-                    <div class="game-card-info">${overridePillText || defaultPillText}</div>
+                    <div class="game-card-info">${overridePillText || formatCategoryString(defaultPillText)}</div>
                 </div>
             </div>
             <div class="info-container">
@@ -238,13 +247,17 @@ function createEventCard(
 
     const placeholder = li.querySelector('.thumbnail-placeholder');
     if (placeholder) {
-        const thumbEl = createThumbnailElement(thumbData, event.title, '', {
-            width: '100%',
-            height: '100%',
-            borderRadius: '8px 8px 0 0',
-            objectFit: 'cover',
-        });
-        thumbEl.classList.add('brief-game-icon');
+        const thumbEl = createThumbnailElement(
+            thumbData,
+            event.title,
+            'brief-game-icon',
+            {
+                width: '100%',
+                height: '100%',
+                borderRadius: '8px 8px 0 0',
+                objectFit: 'cover',
+            },
+        );
         placeholder.replaceWith(thumbEl);
     }
 
@@ -260,24 +273,10 @@ export async function loadAndRenderEvents(eventsContainer, placeId) {
     if (!universeId) return;
 
     let activeEvents = [];
-
     const headerContainer = eventsContainer.querySelector('.container-header');
     const gridContainer = eventsContainer.querySelector(
         '.game-details-page-events-grid',
     );
-
-    if (!headerContainer || !gridContainer) return;
-
-    const originalEvents = Array.from(gridContainer.children);
-    const originalPillTexts = new Map();
-
-    originalEvents.forEach((el) => {
-        if (el.id) {
-            const info = el.querySelector('.game-card-info');
-            if (info)
-                originalPillTexts.set(String(el.id), info.textContent.trim());
-        }
-    });
 
     const renderEvents = async (
         events,
@@ -295,102 +294,60 @@ export async function loadAndRenderEvents(eventsContainer, placeId) {
             return;
         }
 
-        const apiEvents = events.filter((e) => !(e instanceof HTMLElement));
-        const thumbIdsToFetch = apiEvents
-            .map((e) => e.thumbnails?.[0]?.mediaId)
-            .filter(
-                (id) =>
-                    id && !isNaN(id) && !eventThumbnailCache.has(Number(id)),
-            );
-
-        const gameThumbIdsToFetch = Array.from(
-            new Set(
-                apiEvents
-                    .filter((e) => !e.thumbnails?.[0]?.mediaId && e.placeId)
-                    .map((e) => e.placeId),
-            ),
-        ).filter((id) => id && !eventThumbnailCache.has(`game_${id}`));
-
-        const rsvpIdsToFetch = apiEvents
-            .map((e) => e.id)
-            .filter((id) => id && !eventRsvpCache.has(id));
-
-        const promises = [];
-        if (rsvpIdsToFetch.length > 0) {
-            rsvpIdsToFetch.forEach((id) => {
-                promises.push(
-                    fetchEventRsvps(id).then((count) => {
-                        if (count !== null) eventRsvpCache.set(id, count);
-                    }),
-                );
-            });
-        }
-
-        if (thumbIdsToFetch.length > 0) {
-            promises.push(
-                (async () => {
-                    try {
-                        const fetchedMap = await fetchThumbnails(
-                            thumbIdsToFetch.map((id) => ({ id })),
-                            'Asset',
-                            '420x420',
-                        );
-                        fetchedMap.forEach((data, id) => {
-                            eventThumbnailCache.set(id, data);
-                        });
-                    } catch (e) {
-                        console.warn(
-                            'RoValra: Failed to fetch event thumbnails',
-                            e,
-                        );
-                    }
-                })(),
-            );
-        }
-
-        if (gameThumbIdsToFetch.length > 0) {
-            promises.push(
-                (async () => {
-                    try {
-                        const fetchedMap = await fetchThumbnails(
-                            gameThumbIdsToFetch.map((id) => ({ id })),
-                            'GameThumbnail',
-                            '768x432',
-                        );
-                        fetchedMap.forEach((data, id) => {
-                            eventThumbnailCache.set(`game_${id}`, data);
-                        });
-                    } catch (e) {
-                        console.warn(
-                            'RoValra: Failed to fetch event fallback game thumbnails',
-                            e,
-                        );
-                    }
-                })(),
-            );
-        }
-
-        if (promises.length > 0) {
-            await Promise.all(promises);
-        }
-
         events.forEach((event) => {
             if (event instanceof HTMLElement) {
                 gridContainer.appendChild(event);
             } else {
                 const mediaId = event.thumbnails?.[0]?.mediaId;
-                const thumbData = mediaId
-                    ? eventThumbnailCache.get(Number(mediaId))
-                    : eventThumbnailCache.get(`game_${event.placeId}`);
-                const overrideText = originalPillTexts.get(String(event.id));
+                const thumbId = mediaId || event.placeId;
+                const thumbType = mediaId ? 'Asset' : 'GameThumbnail';
+                const thumbSize = mediaId ? '420x420' : '768x432';
+                const cacheKey = mediaId
+                    ? Number(mediaId)
+                    : `game_${event.placeId}`;
+
+                let thumbData = eventThumbnailCache.get(cacheKey);
+
+                if (!thumbData) {
+                    thumbData = {
+                        state: 'Pending',
+                        finalUpdate: getQueuedThumbnail(
+                            thumbId,
+                            thumbType,
+                            thumbSize,
+                        ).then((data) => {
+                            if (data) eventThumbnailCache.set(cacheKey, data);
+                            return data;
+                        }),
+                    };
+                }
+
                 const rsvpCount = eventRsvpCache.get(event.id);
+
                 const card = createEventCard(
                     event,
                     isPast,
                     thumbData,
-                    overrideText,
                     rsvpCount,
                 );
+
+                if (rsvpCount === undefined && event.id) {
+                    fetchEventRsvps(event.id).then((count) => {
+                        if (count !== null) {
+                            eventRsvpCache.set(event.id, count);
+                            const container = card.querySelector(
+                                '.rovalra-rsvp-container',
+                            );
+                            if (container) {
+                                container.innerHTML = DOMPurify.sanitize(`
+                                    <span class="info-label icon-playing-counts-gray"></span>
+                                    <span class="info-label playing-counts-label">${count.toLocaleString()}</span>
+                                `);
+                            }
+                        }
+                    });
+                }
+
                 gridContainer.appendChild(card);
             }
         });
