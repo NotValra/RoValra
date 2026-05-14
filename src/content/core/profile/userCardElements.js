@@ -4,9 +4,10 @@ export const USER_CARD_SELECTORS = [
     '.friends-carousel-tile',
     'li.list-item.avatar-card',
     '.avatar-card-container',
+    '.rovalra-donator-card',
 ];
 
-const callbacks = new Set();
+const subscriptions = new Set();
 const observedElements = new Set();
 let active = false;
 
@@ -17,9 +18,16 @@ function handleElement(element) {
 
     observedElements.add(element);
 
-    for (const cb of callbacks) {
+    for (const sub of subscriptions) {
         try {
-            cb(element);
+            if (
+                sub.options?.exclude?.some((selector) =>
+                    element.matches(selector),
+                )
+            ) {
+                continue;
+            }
+            sub.callback(element);
         } catch (e) {
             console.warn('RoValra: User card element callback error', e);
         }
@@ -40,11 +48,17 @@ export function observeUserCardElements() {
     setupObservers();
 }
 
-export function onUserCardElement(callback) {
-    callbacks.add(callback);
+export function onUserCardElement(callback, options = {}) {
+    const sub = { callback, options };
+    subscriptions.add(sub);
 
     for (const element of observedElements) {
         try {
+            if (
+                options.exclude?.some((selector) => element.matches(selector))
+            ) {
+                continue;
+            }
             callback(element);
         } catch (e) {
             console.warn('RoValra: User card element callback error', e);
@@ -52,7 +66,7 @@ export function onUserCardElement(callback) {
     }
 
     return () => {
-        callbacks.delete(callback);
+        subscriptions.delete(sub);
     };
 }
 
@@ -61,7 +75,7 @@ export function getUserCardElements() {
 }
 
 export function reset() {
-    callbacks.clear();
+    subscriptions.clear();
     observedElements.clear();
     active = false;
 }

@@ -188,20 +188,35 @@ function renderContributors(container, users, thumbMap) {
         if (user) {
             const thumbData = thumbMap.get(String(id));
 
+            const item = document.createElement('div');
+            item.className = 'rovalra-donator-card';
+            item.style.cssText = `display: flex; align-items: center; background-color: var(--rovalra-container-background-color, rgba(0,0,0,0.1)); padding: 8px 12px; border-radius: 8px; transition: background-color 0.2s;`;
+
             const link = document.createElement('a');
+            link.className = 'avatar-card-link';
             link.href = `https://www.roblox.com/users/${id}/profile`;
             link.target = '_blank';
-            link.style.cssText = `display: flex; align-items: center; background-color: var(--rovalra-container-background-color, rgba(0,0,0,0.1)); padding: 8px 12px; border-radius: 8px; text-decoration: none; color: var(--rovalra-main-text-color); transition: background-color 0.2s;`;
+            link.style.cssText = `display: flex; align-items: center; text-decoration: none; color: var(--rovalra-main-text-color); width: 100%;`;
+
+            const avatarContainer = document.createElement('div');
+            avatarContainer.className = 'avatar-card-image';
+            Object.assign(avatarContainer.style, {
+                width: '32px',
+                height: '32px',
+                borderRadius: '50%',
+                marginRight: '10px',
+                overflow: 'hidden',
+                flexShrink: '0',
+            });
 
             const thumbElement = createThumbnailElement(
                 thumbData,
                 user.displayName,
                 '',
                 {
-                    width: '32px',
-                    height: '32px',
+                    width: '100%',
+                    height: '100%',
                     borderRadius: '50%',
-                    marginRight: '10px',
                 },
             );
 
@@ -209,9 +224,11 @@ function renderContributors(container, users, thumbMap) {
             span.textContent = user.displayName;
             span.style.fontWeight = '500';
 
-            link.appendChild(thumbElement);
+            avatarContainer.appendChild(thumbElement);
+            link.appendChild(avatarContainer);
             link.appendChild(span);
-            listContainer.appendChild(link);
+            item.appendChild(link);
+            listContainer.appendChild(item);
         }
     });
 
@@ -226,17 +243,27 @@ function renderContributorsShimmer(container) {
 
     CONTRIBUTOR_USER_IDS.forEach(() => {
         const item = document.createElement('div');
+        item.className = 'rovalra-donator-card';
         item.style.cssText = `display: flex; align-items: center; background-color: var(--rovalra-container-background-color, rgba(0,0,0,0.1)); padding: 8px 12px; border-radius: 8px; opacity: 0.7;`;
+
+        const avatarContainer = document.createElement('div');
+        avatarContainer.className = 'avatar-card-image';
+        Object.assign(avatarContainer.style, {
+            width: '32px',
+            height: '32px',
+            borderRadius: '50%',
+            marginRight: '10px',
+            overflow: 'hidden',
+            flexShrink: '0',
+        });
 
         const thumbShimmer = createThumbnailElement(
             { state: 'Pending' },
             'Loading...',
             '',
             {
-                width: '32px',
-                height: '32px',
-                borderRadius: '50%',
-                marginRight: '10px',
+                width: '100%',
+                height: '100%',
             },
         );
 
@@ -245,7 +272,8 @@ function renderContributorsShimmer(container) {
         nameShimmer.style.cssText =
             'width: 80px; height: 14px; border-radius: 4px;';
 
-        item.append(thumbShimmer, nameShimmer);
+        avatarContainer.appendChild(thumbShimmer);
+        item.append(avatarContainer, nameShimmer);
         listContainer.appendChild(item);
     });
 
@@ -364,6 +392,7 @@ function renderTopDonators(container, donators, thumbMap, currentUserId) {
 
         podiumData.forEach((data) => {
             const column = document.createElement('div');
+            column.className = 'rovalra-donator-card';
             column.style.cssText =
                 'display: flex; flex-direction: column; align-items: center; width: 110px;';
 
@@ -373,13 +402,9 @@ function renderTopDonators(container, donators, thumbMap, currentUserId) {
                 data.username,
                 '',
                 {
-                    width: data.size,
-                    height: data.size,
+                    width: '100%',
+                    height: '100%',
                     borderRadius: '50%',
-                    border: `3px solid ${data.color}`,
-                    marginBottom: '10px',
-                    backgroundColor:
-                        'var(--rovalra-container-background-color)',
                 },
             );
 
@@ -388,11 +413,37 @@ function renderTopDonators(container, donators, thumbMap, currentUserId) {
             const thumbLink = document.createElement(isAnonymous ? 'div' : 'a');
             if (!isAnonymous) {
                 thumbLink.href = `https://www.roblox.com/users/${data.user_id}/profile`;
+                thumbLink.className = 'avatar-card-link';
                 thumbLink.target = '_blank';
             }
             thumbLink.style.display = 'block';
             if (isAnonymous) thumbLink.style.cursor = 'default';
-            thumbLink.appendChild(thumbElement);
+
+            const avatarContainer = document.createElement('div');
+            avatarContainer.className = 'avatar-card-image-container';
+            Object.assign(avatarContainer.style, {
+                width: data.size,
+                height: data.size,
+                marginBottom: '10px',
+                position: 'relative',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+            });
+
+            const avatarImage = document.createElement('div');
+            avatarImage.className = 'avatar-card-image';
+            Object.assign(avatarImage.style, {
+                width: '100%',
+                height: '100%',
+                borderRadius: '50%',
+                border: `3px solid ${data.color}`,
+                backgroundColor: 'var(--rovalra-container-background-color)',
+                overflow: 'hidden',
+            });
+            avatarImage.appendChild(thumbElement);
+            avatarContainer.appendChild(avatarImage);
+            thumbLink.appendChild(avatarContainer);
 
             const name = document.createElement(isAnonymous ? 'span' : 'a');
             if (!isAnonymous) {
@@ -432,6 +483,7 @@ function renderTopDonators(container, donators, thumbMap, currentUserId) {
         remaining.forEach((donor, idx) => {
             const rank = idx + 4;
             const item = document.createElement('div');
+            item.className = 'rovalra-donator-card';
             item.style.cssText =
                 'display: flex; align-items: center; padding: 10px 15px; background-color: var(--rovalra-container-background-color, rgba(0,0,0,0.1)); border-radius: 8px; border: 1px solid var(--rovalra-border-color);';
 
@@ -446,10 +498,9 @@ function renderTopDonators(container, donators, thumbMap, currentUserId) {
                 donor.username,
                 '',
                 {
-                    width: '36px',
-                    height: '36px',
+                    width: '100%',
+                    height: '100%',
                     borderRadius: '50%',
-                    marginRight: '15px',
                 },
             );
 
@@ -458,11 +509,36 @@ function renderTopDonators(container, donators, thumbMap, currentUserId) {
             const thumbLink = document.createElement(isAnonymous ? 'div' : 'a');
             if (!isAnonymous) {
                 thumbLink.href = `https://www.roblox.com/users/${donor.user_id}/profile`;
+                thumbLink.className = 'avatar-card-link';
                 thumbLink.target = '_blank';
             }
             thumbLink.style.display = 'flex';
             if (isAnonymous) thumbLink.style.cursor = 'default';
-            thumbLink.appendChild(thumb);
+
+            const avatarContainer = document.createElement('div');
+            avatarContainer.className = 'avatar-card-image-container';
+            Object.assign(avatarContainer.style, {
+                width: '36px',
+                height: '36px',
+                marginRight: '15px',
+                position: 'relative',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+            });
+
+            const avatarImage = document.createElement('div');
+            avatarImage.className = 'avatar-card-image';
+            Object.assign(avatarImage.style, {
+                width: '100%',
+                height: '100%',
+                borderRadius: '50%',
+                backgroundColor: 'var(--rovalra-container-background-color)',
+                overflow: 'hidden',
+            });
+            avatarImage.appendChild(thumb);
+            avatarContainer.appendChild(avatarImage);
+            thumbLink.appendChild(avatarContainer);
 
             const userInfo = document.createElement('div');
             userInfo.style.cssText =
@@ -513,23 +589,42 @@ function renderTopDonatorsShimmer(container) {
 
     podiumOrder.forEach((config) => {
         const column = document.createElement('div');
+        column.className = 'rovalra-donator-card';
         column.style.cssText =
             'display: flex; flex-direction: column; align-items: center; width: 110px;';
+
+        const avatarContainer = document.createElement('div');
+        avatarContainer.className = 'avatar-card-image-container';
+        Object.assign(avatarContainer.style, {
+            width: config.size,
+            height: config.size,
+            marginBottom: '10px',
+            position: 'relative',
+        });
+
+        const avatarImage = document.createElement('div');
+        avatarImage.className = 'avatar-card-image';
+        Object.assign(avatarImage.style, {
+            width: '100%',
+            height: '100%',
+            borderRadius: '50%',
+            border: `3px solid ${config.color}`,
+            backgroundColor: 'var(--rovalra-container-background-color)',
+            overflow: 'hidden',
+        });
 
         const thumbShimmer = createThumbnailElement(
             { state: 'Pending' },
             'Loading...',
             '',
             {
-                width: config.size,
-                height: config.size,
-                borderRadius: '50%',
-                marginBottom: '10px',
-                border: `3px solid ${config.color}`,
-                backgroundColor: 'var(--rovalra-container-background-color)',
+                width: '100%',
+                height: '100%',
             },
         );
 
+        avatarImage.appendChild(thumbShimmer);
+        avatarContainer.appendChild(avatarImage);
         const nameShimmer = document.createElement('div');
         nameShimmer.className = 'thumbnail-2d-container shimmer';
         nameShimmer.style.cssText =
@@ -544,7 +639,7 @@ function renderTopDonatorsShimmer(container) {
         stool.style.cssText = `width: 80px; height: ${config.height}; background-color: var(--rovalra-container-background-color); border-radius: 8px 8px 0 0; border: 1px solid var(--rovalra-border-color); display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 800; color: ${config.color}; opacity: 0.5;`;
         stool.textContent = config.rank;
 
-        column.append(thumbShimmer, nameShimmer, amountShimmer, stool);
+        column.append(avatarContainer, nameShimmer, amountShimmer, stool);
         pedestalContainer.appendChild(column);
     });
     wrapper.appendChild(pedestalContainer);
@@ -554,6 +649,7 @@ function renderTopDonatorsShimmer(container) {
 
     for (let i = 0; i < 5; i++) {
         const item = document.createElement('div');
+        item.className = 'rovalra-donator-card';
         item.style.cssText =
             'display: flex; align-items: center; padding: 10px 15px; background-color: var(--rovalra-container-background-color, rgba(0,0,0,0.1)); border-radius: 8px; border: 1px solid var(--rovalra-border-color);';
 
@@ -562,17 +658,36 @@ function renderTopDonatorsShimmer(container) {
         rankEl.style.cssText =
             'width: 40px; font-weight: bold; color: var(--rovalra-secondary-text-color); font-size: 14px; opacity: 0.5;';
 
+        const avatarContainer = document.createElement('div');
+        avatarContainer.className = 'avatar-card-image-container';
+        Object.assign(avatarContainer.style, {
+            width: '36px',
+            height: '36px',
+            marginRight: '15px',
+            position: 'relative',
+        });
+
+        const avatarImage = document.createElement('div');
+        avatarImage.className = 'avatar-card-image';
+        Object.assign(avatarImage.style, {
+            width: '100%',
+            height: '100%',
+            borderRadius: '50%',
+            overflow: 'hidden',
+        });
+
         const thumbShimmer = createThumbnailElement(
             { state: 'Pending' },
             'Loading...',
             '',
             {
-                width: '36px',
-                height: '36px',
-                borderRadius: '50%',
-                marginRight: '15px',
+                width: '100%',
+                height: '100%',
             },
         );
+
+        avatarImage.appendChild(thumbShimmer);
+        avatarContainer.appendChild(avatarImage);
 
         const userInfo = document.createElement('div');
         userInfo.style.cssText =
@@ -589,7 +704,7 @@ function renderTopDonatorsShimmer(container) {
             'width: 60px; height: 12px; border-radius: 4px;';
 
         userInfo.append(nameShimmer, amountShimmer);
-        item.append(rankEl, thumbShimmer, userInfo);
+        item.append(rankEl, avatarContainer, userInfo);
         list.appendChild(item);
     }
     wrapper.appendChild(list);

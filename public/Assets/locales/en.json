@@ -707,7 +707,7 @@
         "22": "Purchase restricted on this device",
         "23": "This experience is unrated",
         "24": "This experience is age-gated by content descriptor",
-        "25": "This experience is available",
+        "25": "This experience has been moderated for having an inaccurate maturity rating.",
         "unknown": "This experience is unavailable"
     },
     "bannedUsers": {
