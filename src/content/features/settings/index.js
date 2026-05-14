@@ -460,6 +460,107 @@ function renderTopDonators(container, donators, thumbMap, currentUserId) {
     container.appendChild(wrapper);
 }
 
+function renderTopDonatorsShimmer(container) {
+    container.innerHTML = '';
+    const wrapper = document.createElement('div');
+    wrapper.style.cssText = 'margin-top: 15px;';
+
+    const pedestalContainer = document.createElement('div');
+    pedestalContainer.style.cssText =
+        'display: flex; align-items: flex-end; justify-content: center; gap: 20px; margin-bottom: 30px; padding: 20px 0; border-bottom: 1px solid var(--rovalra-border-color);';
+
+    const podiumOrder = [
+        { rank: 3, height: '60px', size: '64px', color: '#cd7f32' },
+        { rank: 1, height: '100px', size: '80px', color: '#ffd700' },
+        { rank: 2, height: '80px', size: '72px', color: '#c0c0c0' },
+    ];
+
+    podiumOrder.forEach((config) => {
+        const column = document.createElement('div');
+        column.style.cssText =
+            'display: flex; flex-direction: column; align-items: center; width: 110px;';
+
+        const thumbShimmer = createThumbnailElement(
+            { state: 'Pending' },
+            'Loading...',
+            '',
+            {
+                width: config.size,
+                height: config.size,
+                borderRadius: '50%',
+                marginBottom: '10px',
+                border: `3px solid ${config.color}`,
+                backgroundColor: 'var(--rovalra-container-background-color)',
+            },
+        );
+
+        const nameShimmer = document.createElement('div');
+        nameShimmer.className = 'thumbnail-2d-container shimmer';
+        nameShimmer.style.cssText =
+            'width: 80px; height: 14px; border-radius: 4px; margin-bottom: 10px;';
+
+        const amountShimmer = document.createElement('div');
+        amountShimmer.className = 'thumbnail-2d-container shimmer';
+        amountShimmer.style.cssText =
+            'width: 50px; height: 12px; border-radius: 4px; margin-bottom: 10px;';
+
+        const stool = document.createElement('div');
+        stool.style.cssText = `width: 80px; height: ${config.height}; background-color: var(--rovalra-container-background-color); border-radius: 8px 8px 0 0; border: 1px solid var(--rovalra-border-color); display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 800; color: ${config.color}; opacity: 0.5;`;
+        stool.textContent = config.rank;
+
+        column.append(thumbShimmer, nameShimmer, amountShimmer, stool);
+        pedestalContainer.appendChild(column);
+    });
+    wrapper.appendChild(pedestalContainer);
+
+    const list = document.createElement('div');
+    list.style.cssText = 'display: flex; flex-direction: column; gap: 10px;';
+
+    for (let i = 0; i < 5; i++) {
+        const item = document.createElement('div');
+        item.style.cssText =
+            'display: flex; align-items: center; padding: 10px 15px; background-color: var(--rovalra-container-background-color, rgba(0,0,0,0.1)); border-radius: 8px; border: 1px solid var(--rovalra-border-color);';
+
+        const rankEl = document.createElement('span');
+        rankEl.textContent = `#${i + 4}`;
+        rankEl.style.cssText =
+            'width: 40px; font-weight: bold; color: var(--rovalra-secondary-text-color); font-size: 14px; opacity: 0.5;';
+
+        const thumbShimmer = createThumbnailElement(
+            { state: 'Pending' },
+            'Loading...',
+            '',
+            {
+                width: '36px',
+                height: '36px',
+                borderRadius: '50%',
+                marginRight: '15px',
+            },
+        );
+
+        const userInfo = document.createElement('div');
+        userInfo.style.cssText =
+            'flex: 1; display: flex; align-items: center; justify-content: space-between;';
+
+        const nameShimmer = document.createElement('div');
+        nameShimmer.className = 'thumbnail-2d-container shimmer';
+        nameShimmer.style.cssText =
+            'width: 100px; height: 14px; border-radius: 4px;';
+
+        const amountShimmer = document.createElement('div');
+        amountShimmer.className = 'thumbnail-2d-container shimmer';
+        amountShimmer.style.cssText =
+            'width: 60px; height: 12px; border-radius: 4px;';
+
+        userInfo.append(nameShimmer, amountShimmer);
+        item.append(rankEl, thumbShimmer, userInfo);
+        list.appendChild(item);
+    }
+    wrapper.appendChild(list);
+
+    container.appendChild(wrapper);
+}
+
 async function loadTopDonators() {
     const container = document.getElementById('rovalra-top-donators');
     const toggleContainer = document.getElementById(
@@ -482,6 +583,7 @@ async function loadTopDonators() {
         );
         return;
     }
+    renderTopDonatorsShimmer(container);
 
     try {
         const response = await callRobloxApi({
@@ -767,9 +869,7 @@ export const buttonData = [
                         <h3 style="color: var(--rovalra-main-text-color); margin: 0; font-size: 18px;">Top Donators</h3>
                         <div id="rovalra-anon-toggle-container"></div>
                     </div>
-                    <div id="rovalra-top-donators">
-                        <div style="color: var(--rovalra-secondary-text-color);">${ts('settings.credits.loadingContributors')}</div>
-                    </div>
+                    <div id="rovalra-top-donators"></div>
                 </div>
             </div>`;
         },
