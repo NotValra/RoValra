@@ -17,6 +17,10 @@ import {
     createThumbnailElement,
 } from '../thumbnail/thumbnails.js';
 import { getUserDisplayName } from '../apis/users.js';
+import { createUserCard } from '../ui/profile/userCard.js';
+import { getAuthenticatedUserId } from '../user.js';
+import { getBorders } from '../configs/borders.js';
+import { applyBorderToContainer } from '../../features/profile/avatarBorder.js';
 
 const DEFAULT_CONTRIBUTOR_ID = 447170745;
 
@@ -160,6 +164,67 @@ function createClearStorageButton(storageKey, inputElement, settingType) {
         });
     };
     return btn;
+}
+
+async function setupAvatarBorderPreview(container, selectElement) {
+    const userId = await getAuthenticatedUserId();
+    if (!userId) return;
+
+    const [displayRes, thumbnails] = await Promise.all([
+        getUserDisplayName(userId),
+        getBatchThumbnails([userId], 'AvatarHeadshot', '150x150'),
+    ]);
+
+    const card = createUserCard({
+        displayName: displayRes || 'User',
+        username: '',
+        thumbData: thumbnails[0] || { state: 'Error' },
+        presenceInfo: 1,
+    });
+
+    card.style.transform = 'scale(1.1)';
+    card.style.margin = '20px 0';
+
+    container.innerHTML = '';
+    container.appendChild(card);
+
+    const updatePreview = async () => {
+        const val = selectElement.value;
+        const avatarEl = card.querySelector('.avatar.avatar-card-fullbody');
+        if (!avatarEl) return;
+
+        const existing = avatarEl.querySelector('.rovalra-avatar-border');
+        if (existing) existing.remove();
+
+        if (!val || val === 'none') return;
+
+        const borders = await getBorders();
+        const border = borders.find((b) => b.value === val);
+        if (border && border.link) {
+            applyBorderToContainer(avatarEl, border.link);
+        }
+    };
+
+    selectElement.addEventListener('change', updatePreview);
+
+    updatePreview();
+}
+
+function injectAvatarBorderPreview(container, inputElement) {
+    const previewWrapper = document.createElement('div');
+    previewWrapper.className = 'rovalra-border-preview-section';
+    previewWrapper.style.cssText =
+        'display: flex; flex-direction: column; align-items: center; padding: 20px; background: var(--rovalra-container-background-color); border-radius: 12px; margin-top: 15px;';
+    previewWrapper.innerHTML = `<div style="font-weight: 700; font-size: 12px; text-transform: uppercase; margin-bottom: 10px; color: var(--rovalra-secondary-text-color);">Live Preview</div><div class="setting-label-divider" style="width: 100%; margin-bottom: 5px;"></div><div class="preview-card-holder"></div>`;
+    container.appendChild(previewWrapper);
+
+    const select = inputElement.querySelector('select');
+    if (select) {
+        setupAvatarBorderPreview(
+            previewWrapper.querySelector('.preview-card-holder'),
+            select,
+        );
+    }
 }
 
 export function findSettingConfig(settingName) {
@@ -706,6 +771,10 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
         settingContainer.appendChild(inputElement.rovalraVisualizer);
     }
 
+    if (settingName === 'avatarBorderChoice') {
+        injectAvatarBorderPreview(settingContainer, inputElement);
+    }
+
     if (setting.description) {
         const divider = document.createElement('div');
         divider.className = 'setting-label-divider';
@@ -835,6 +904,10 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
 
             if (childInput.rovalraVisualizer) {
                 childContainer.appendChild(childInput.rovalraVisualizer);
+            }
+
+            if (childName === 'avatarBorderChoice') {
+                injectAvatarBorderPreview(childContainer, childInput);
             }
 
             if (childSetting.description) {

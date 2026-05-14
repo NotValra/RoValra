@@ -8,7 +8,7 @@ import {
     observeUserCardElements,
 } from '../../core/profile/userCardElements.js';
 
-async function applyBorderToContainer(container, borderUrl) {
+export async function applyBorderToContainer(container, borderUrl) {
     if (!borderUrl) return;
 
     if (container.querySelector('.rovalra-avatar-border')) return;
