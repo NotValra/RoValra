@@ -1,4 +1,5 @@
 import { SETTINGS_CONFIG } from './settingConfig.js';
+import { getCachedBorders } from '../configs/borders.js';
 import { parseMarkdown } from '../utils/markdown.js';
 import { getFullRegionName, getContinent } from '../regions.js';
 import { getCurrentTheme, THEME_CONFIG } from '../theme.js';
@@ -238,6 +239,8 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
                     dropdownOptions.push(...regionsByContinent[continent]);
                 }
             });
+        } else if (setting.options === 'BORDERS') {
+            dropdownOptions = getCachedBorders();
         } else if (Array.isArray(setting.options)) {
             dropdownOptions = setting.options;
         }

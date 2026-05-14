@@ -7,7 +7,7 @@ import {
     CAM_BADGE_USER_ID,
     alice_badge_user_id,
     TESTER_USER_IDS,
-    ARTIST_BADGE_USER_ID,
+    ARTIST_USER_IDS,
     TRANSLATOR_USER_IDS,
     GILBERT_USER_ID,
     Robux,
@@ -61,7 +61,7 @@ export const BADGE_CONFIG = {
     },
     artist: {
         type: 'header',
-        userIds: [ARTIST_BADGE_USER_ID],
+        userIds: ARTIST_USER_IDS,
         icon: assets.artistIcon,
         tooltip: 'RoValra Artist',
         confetti: assets.artistIcon,

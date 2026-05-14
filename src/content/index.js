@@ -101,6 +101,7 @@ import { init as initLastPlayed } from './features/profile/header/lastplayed.js'
 import { init as initFriendsSince } from './features/profile/friends/friendsSince.js';
 import { init as initUnfriend } from './features/profile/friends/unfriend.js';
 import { init as initProfileBackground } from './features/profile/header/profileBackground.js';
+import { init as initAvatarBorder } from './features/profile/avatarBorder.js';
 import { init as initRobuxIcons } from './core/ui/robuxIcon.js';
 import { init as initPurchasePromptItemId } from './core/catalog/purchasePromptItemId.js';
 import { init as initCurrencyTransfer } from './features/profile/currencytransfer.js';
@@ -152,6 +153,7 @@ const featureRoutes = [
             initCustomFont,
             initRobuxIcons,
             initProfileBackground,
+            initAvatarBorder,
             initPurchasePromptItemId,
             initUrlTracker,
             initModernIcons,

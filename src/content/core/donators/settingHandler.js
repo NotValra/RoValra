@@ -7,7 +7,7 @@ import {
 } from '../settings/handlesettings.js';
 import {
     TRUSTED_USER_IDS,
-    ARTIST_BADGE_USER_ID,
+    ARTIST_USER_IDS,
     RAT_BADGE_USER_ID,
     BLAHAJ_BADGE_USER_ID,
     CAM_BADGE_USER_ID,
@@ -97,17 +97,20 @@ async function fetchAndProcessSettings(userId, options = {}) {
     let finalStatus = null;
     let finalEnvironment = 1;
     let finalGradient = null;
+    let finalBorder = null;
 
     if (apiProvidedMeaningfulSettings) {
         finalStatus = apiSettings.status;
         finalEnvironment = apiSettings.environment;
         finalGradient = apiSettings.gradient;
+        finalBorder = apiSettings.border ?? null;
     }
 
     return {
         status: finalStatus,
         environment: finalEnvironment || 1,
         gradient: finalGradient,
+        border: finalBorder,
         canUseApi: apiProvidedMeaningfulSettings,
         anonymous_leaderboard:
             apiSettings.anonymous_leaderboard === 'true' ||
@@ -142,6 +145,9 @@ async function processBatchQueue() {
         const userIdsToFetchStrings = userIdsToFetch.map((id) => String(id));
 
         if (userIdsToFetch.length > 0) {
+            // VALRA EDIT HERE: /v1/users/settings?user_ids=... GET should return
+            // `border` in each user's settings object alongside status, environment
+            // and gradient, so other users' borders can be displayed.
             const data = await callRobloxApiJson({
                 isRovalraApi: true,
                 subdomain: 'apis',
@@ -259,17 +265,20 @@ async function processApiSettings(userId, apiSettings, options) {
     let finalStatus = null;
     let finalEnvironment = 1;
     let finalGradient = null;
+    let finalBorder = null;
 
     if (apiProvidedMeaningfulSettings) {
         finalStatus = apiSettings.status;
         finalEnvironment = apiSettings.environment;
         finalGradient = apiSettings.gradient;
+        finalBorder = apiSettings.border ?? null;
     }
 
     return {
         status: finalStatus,
         environment: finalEnvironment || 1,
         gradient: finalGradient,
+        border: finalBorder,
         canUseApi: apiProvidedMeaningfulSettings,
         anonymous_leaderboard:
             apiSettings.anonymous_leaderboard === 'true' ||

@@ -1,4 +1,5 @@
 import { SETTINGS_CONFIG } from './settingConfig.js';
+import { getBorders } from '../configs/borders.js';
 import { findSettingConfig } from './generateSettings.js';
 import { getFullRegionName, REGIONS } from '../regions.js';
 import { sanitizeString } from '../utils/sanitize.js';
@@ -336,6 +337,7 @@ export const handleSaveSettings = async (settingName, value) => {
                             let validValues = [];
                             if (settingConfig.options === 'REGIONS') {
                                 validValues = ['AUTO', ...Object.keys(REGIONS)];
+                            } else if (settingConfig.options === 'BORDERS') {
                             } else if (Array.isArray(settingConfig.options)) {
                                 validValues = settingConfig.options.map(
                                     (opt) =>
@@ -459,6 +461,29 @@ export const handleSaveSettings = async (settingName, value) => {
                                 );
                             }
                         }, 1000);
+                    }
+                    if (settingName === 'avatarBorderChoice') {
+                        const isDonator = currentUserTier >= 3;
+                        if (isDonator) {
+                            getBorders().then((borders) => {
+                                const borderEntry = borders.find(
+                                    (b) => b.value === sanitizedValue,
+                                );
+                                const borderUrl =
+                                    borderEntry && borderEntry.link
+                                        ? borderEntry.link
+                                        : '';
+                                updateUserSettingViaApi(
+                                    'border',
+                                    borderUrl,
+                                ).catch((error) =>
+                                    console.error(
+                                        'RoValra: Border sync failed',
+                                        error,
+                                    ),
+                                );
+                            });
+                        }
                     }
                     resolve();
                 }
