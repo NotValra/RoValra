@@ -967,6 +967,37 @@ chrome.permissions.onRemoved.addListener((permissions) => {
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     switch (request.action) {
+        case 'fetchJson':
+            fetch(request.url)
+                .then((res) => {
+                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                    return res.json();
+                })
+                .then((data) => sendResponse({ data }))
+                .catch((err) => sendResponse({ error: err.message }));
+            return true;
+
+        case 'fetchBorderImage':
+            fetch(request.url)
+                .then((res) => {
+                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                    return res.blob();
+                })
+                .then(
+                    (blob) =>
+                        new Promise((resolve, reject) => {
+                            const reader = new FileReader();
+                            reader.onloadend = () => resolve(reader.result);
+                            reader.onerror = reject;
+                            reader.readAsDataURL(blob);
+                        }),
+                )
+                .then((dataUrl) => sendResponse({ dataUrl }))
+                .catch((err) =>
+                    sendResponse({ error: err.message }),
+                );
+            return true;
+
         case 'updateOfflineRule':
             chrome.declarativeNetRequest.updateEnabledRulesets(
                 request.enabled

@@ -49,6 +49,10 @@ async function fetchAndProcessSettings(userId, options = {}) {
         if (isOwnProfile) {
             const token = await getValidAccessToken(false, false);
             if (token) {
+                // VALRA EDIT HERE: /v1/auth/settings GET should return `border`
+                // alongside status, environment and gradient.
+                // /v1/auth/settings POST should accept key: "border"
+                // with the border id as a string value (e.g. "1", "2", "3").
                 data = await callRobloxApiJson({
                     isRovalraApi: true,
                     subdomain: 'apis',
@@ -97,17 +101,22 @@ async function fetchAndProcessSettings(userId, options = {}) {
     let finalStatus = null;
     let finalEnvironment = 1;
     let finalGradient = null;
+    let finalBorder = null;
 
     if (apiProvidedMeaningfulSettings) {
         finalStatus = apiSettings.status;
         finalEnvironment = apiSettings.environment;
         finalGradient = apiSettings.gradient;
+        // VALRA: make sure the API returns `border` as a string (the border id number)
+        // in both /v1/auth/settings and /v1/users/{id}/settings responses.
+        finalBorder = apiSettings.border ?? null;
     }
 
     return {
         status: finalStatus,
         environment: finalEnvironment || 1,
         gradient: finalGradient,
+        border: finalBorder,
         canUseApi: apiProvidedMeaningfulSettings,
         anonymous_leaderboard:
             apiSettings.anonymous_leaderboard === 'true' ||
@@ -142,6 +151,9 @@ async function processBatchQueue() {
         const userIdsToFetchStrings = userIdsToFetch.map((id) => String(id));
 
         if (userIdsToFetch.length > 0) {
+            // VALRA EDIT HERE: /v1/users/settings?user_ids=... GET should return
+            // `border` in each user's settings object alongside status, environment
+            // and gradient, so other users' borders can be displayed.
             const data = await callRobloxApiJson({
                 isRovalraApi: true,
                 subdomain: 'apis',
@@ -259,17 +271,22 @@ async function processApiSettings(userId, apiSettings, options) {
     let finalStatus = null;
     let finalEnvironment = 1;
     let finalGradient = null;
+    let finalBorder = null;
 
     if (apiProvidedMeaningfulSettings) {
         finalStatus = apiSettings.status;
         finalEnvironment = apiSettings.environment;
         finalGradient = apiSettings.gradient;
+        // VALRA: make sure the API returns `border` as a string (the border id number)
+        // in both /v1/auth/settings and /v1/users/{id}/settings responses.
+        finalBorder = apiSettings.border ?? null;
     }
 
     return {
         status: finalStatus,
         environment: finalEnvironment || 1,
         gradient: finalGradient,
+        border: finalBorder,
         canUseApi: apiProvidedMeaningfulSettings,
         anonymous_leaderboard:
             apiSettings.anonymous_leaderboard === 'true' ||

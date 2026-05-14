@@ -30,7 +30,8 @@
         "https://games.roblox.com/*",
         "*://*.roblox.com/*",
         "https://gamejoin.roblox.com/v1/join-game-instance",
-        "https://users.roblox.com/*"
+        "https://users.roblox.com/*",
+        "https://aliceenight.space/*"
     ],
     "background": {
         "service_worker": "background.js"

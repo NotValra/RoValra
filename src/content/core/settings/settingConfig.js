@@ -799,6 +799,30 @@ export const SETTINGS_CONFIG = {
                     },
                 },
             },
+            avatarBorderEnabled: {
+                label: 'Avatar Border',
+                description: [
+                    'Shows a decorative border around avatars on friend tiles and profile pages.',
+                    '**Your selected border is saved to RoValras database so other RoValra users can see it.**',
+                ],
+                type: 'checkbox',
+                default: true,
+                contributors: [48255812],
+                childSettings: {
+                    avatarBorderChoice: {
+                        label: 'Your Border Style',
+                        description: [
+                            'Choose which border displays around your own avatar.',
+                        ],
+                        type: 'select',
+                        options: 'BORDERS',
+                        donatorTier: 3,
+                        donatorReason:
+                            'Donator Tier 3 is required to set a custom avatar border. This is a cosmetic perk to reward donators.',
+                        default: 'none',
+                    },
+                },
+            },
         },
     },
     Home: {
