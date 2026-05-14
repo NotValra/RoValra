@@ -768,6 +768,25 @@ export async function callRobloxApiUnsafe(options) {
     return callRobloxApi(options);
 }
 
+export async function checkUrlStatus(url, options = {}) {
+    const { method = 'GET', signal, expectNoRedirect = false } = options;
+    try {
+        const fetchOptions = {
+            method,
+            signal,
+            credentials: 'include',
+            redirect: expectNoRedirect ? 'manual' : 'follow',
+        };
+        const response = await fetch(url, fetchOptions);
+        return response.status;
+    } catch (error) {
+        if (error.name === 'AbortError' || (signal && signal.aborted)) {
+            return 499;
+        }
+        throw error;
+    }
+}
+
 export async function callRobloxApiJson(options) {
     const response = await callRobloxApi(options);
     if (!response.ok) {

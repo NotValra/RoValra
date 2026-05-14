@@ -1,4 +1,8 @@
-import { callRobloxApiJson, callRobloxApi } from '../../core/api.js';
+import {
+    callRobloxApiJson,
+    callRobloxApi,
+    checkUrlStatus,
+} from '../../core/api.js';
 import {
     fetchThumbnails,
     createThumbnailElement,
@@ -187,7 +191,7 @@ export function init() {
     );
 }
 
-function checkRedirectToStandardPage(gameData, placeId, settings) {
+async function checkRedirectToStandardPage(gameData, placeId, settings) {
     if (settings.disablePrivateGameRedirection) return;
 
     if (gameData._existsInGamesApi === true && gameData._cloudData) {
@@ -195,9 +199,25 @@ function checkRedirectToStandardPage(gameData, placeId, settings) {
             const gameNameSlug = slugifyGameName(
                 gameData.name || gameData._cloudData.displayName,
             );
-            window.location.replace(
-                `https://www.roblox.com/games/${placeId}/${gameNameSlug}`,
-            );
+            const targetUrl = `https://www.roblox.com/games/${placeId}/${gameNameSlug}`;
+
+            try {
+                const status = await checkUrlStatus(targetUrl);
+
+                if (status === 404) {
+                    console.log(
+                        'RoValra: Standard games page returned 404 (game is likely not publicly accessible), staying on private-games page.',
+                    );
+                    return;
+                }
+            } catch (e) {
+                console.warn(
+                    'RoValra: Failed to check if games page exists, proceeding with redirect anyway',
+                    e,
+                );
+            }
+
+            window.location.replace(targetUrl);
         }
     }
 }
