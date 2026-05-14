@@ -210,9 +210,9 @@ function createEventCard(
             e.stopPropagation();
 
             const span = playButton.querySelector('span');
-            const isGoing = span.textContent === 'Leave Event';
+            const isGoing = event.userRsvpStatus === 'going';
             const nextStatus = isGoing ? 'notGoing' : 'going';
-            const nextText = isGoing ? 'Join Event' : 'Leave Event';
+            const nextText = isGoing ? 'Notify Me' : 'Unfollow Event';
 
             playButton.disabled = true;
             playButton.style.opacity = '0.5';
@@ -272,17 +272,21 @@ export async function loadAndRenderEvents(eventsContainer, placeId) {
     const universeId = await fetchUniverseId(placeId);
     if (!universeId) return;
 
-    let activeEvents = [];
+    const now = new Date();
+
     const headerContainer = eventsContainer.querySelector('.container-header');
     const gridContainer = eventsContainer.querySelector(
         '.game-details-page-events-grid',
     );
+
+    let renderIteration = 0;
 
     const renderEvents = async (
         events,
         isPast = false,
         initialLoad = false,
     ) => {
+        const thisIteration = ++renderIteration;
         gridContainer.innerHTML = '';
         if (events.length === 0) {
             const noEventsMessage = isPast
@@ -324,9 +328,14 @@ export async function loadAndRenderEvents(eventsContainer, placeId) {
 
                 const rsvpCount = eventRsvpCache.get(event.id);
 
+                const hasEnded =
+                    event.eventTime?.endUtc &&
+                    new Date(event.eventTime.endUtc) <= now;
+                const resolvedIsPast = isPast || hasEnded;
+
                 const card = createEventCard(
                     event,
-                    isPast,
+                    resolvedIsPast,
                     thumbData,
                     null,
                     rsvpCount,
@@ -334,6 +343,7 @@ export async function loadAndRenderEvents(eventsContainer, placeId) {
 
                 if (rsvpCount === undefined && event.id) {
                     fetchEventRsvps(event.id).then((count) => {
+                        if (thisIteration !== renderIteration) return;
                         if (count !== null) {
                             eventRsvpCache.set(event.id, count);
                             const container = card.querySelector(
@@ -359,8 +369,31 @@ export async function loadAndRenderEvents(eventsContainer, placeId) {
         fetchPastEvents(universeId),
     ]);
 
-    activeEvents = fetchedActiveEvents;
-    let pastEvents = fetchedPastEvents;
+    let activeEvents = fetchedActiveEvents.filter((e) => {
+        const end = e.eventTime?.endUtc ? new Date(e.eventTime.endUtc) : null;
+        return !end || end > now;
+    });
+
+    let pastEvents = [...fetchedPastEvents];
+
+    fetchedActiveEvents.forEach((e) => {
+        const end = e.eventTime?.endUtc ? new Date(e.eventTime.endUtc) : null;
+        if (end && end <= now) {
+            if (!pastEvents.some((pe) => pe.id === e.id)) {
+                pastEvents.unshift(e);
+            }
+        }
+    });
+
+    pastEvents.sort((a, b) => {
+        const tA = a.eventTime?.endUtc
+            ? new Date(a.eventTime.endUtc).getTime()
+            : 0;
+        const tB = b.eventTime?.endUtc
+            ? new Date(b.eventTime.endUtc).getTime()
+            : 0;
+        return tB - tA;
+    });
 
     let initialTab = 'active';
     let eventsToRenderInitially = activeEvents;
