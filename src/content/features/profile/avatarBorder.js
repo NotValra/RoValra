@@ -42,10 +42,10 @@ async function applyBorderToContainer(container, borderUrl) {
         container.appendChild(overlay);
     }
 
-    const div = document.createElement('div');
-    div.className = 'rovalra-avatar-border';
-    div.style.backgroundImage = `url('${borderUrl}')`;
-    container.appendChild(div);
+    const img = document.createElement('img');
+    img.className = 'rovalra-avatar-border';
+    img.src = borderUrl;
+    container.appendChild(img);
 
     if (status) status.style.zIndex = '3';
 }
