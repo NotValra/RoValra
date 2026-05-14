@@ -977,27 +977,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 .catch((err) => sendResponse({ error: err.message }));
             return true;
 
-        case 'fetchBorderImage':
-            fetch(request.url)
-                .then((res) => {
-                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                    return res.blob();
-                })
-                .then(
-                    (blob) =>
-                        new Promise((resolve, reject) => {
-                            const reader = new FileReader();
-                            reader.onloadend = () => resolve(reader.result);
-                            reader.onerror = reject;
-                            reader.readAsDataURL(blob);
-                        }),
-                )
-                .then((dataUrl) => sendResponse({ dataUrl }))
-                .catch((err) =>
-                    sendResponse({ error: err.message }),
-                );
-            return true;
-
         case 'updateOfflineRule':
             chrome.declarativeNetRequest.updateEnabledRulesets(
                 request.enabled

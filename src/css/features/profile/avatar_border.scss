@@ -1,0 +1,18 @@
+.rovalra-avatar-border {
+    position: absolute;
+    top: -12%;
+    left: -12%;
+    width: 124%;
+    height: 124%;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.rovalra-avatar-border-clip {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+}

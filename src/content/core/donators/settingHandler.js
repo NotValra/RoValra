@@ -7,7 +7,7 @@ import {
 } from '../settings/handlesettings.js';
 import {
     TRUSTED_USER_IDS,
-    ARTIST_BADGE_USER_ID,
+    ARTIST_USER_IDS,
     RAT_BADGE_USER_ID,
     BLAHAJ_BADGE_USER_ID,
     CAM_BADGE_USER_ID,
@@ -49,10 +49,6 @@ async function fetchAndProcessSettings(userId, options = {}) {
         if (isOwnProfile) {
             const token = await getValidAccessToken(false, false);
             if (token) {
-                // VALRA EDIT HERE: /v1/auth/settings GET should return `border`
-                // alongside status, environment and gradient.
-                // /v1/auth/settings POST should accept key: "border"
-                // with the border id as a string value (e.g. "1", "2", "3").
                 data = await callRobloxApiJson({
                     isRovalraApi: true,
                     subdomain: 'apis',
@@ -107,8 +103,6 @@ async function fetchAndProcessSettings(userId, options = {}) {
         finalStatus = apiSettings.status;
         finalEnvironment = apiSettings.environment;
         finalGradient = apiSettings.gradient;
-        // VALRA: make sure the API returns `border` as a string (the border id number)
-        // in both /v1/auth/settings and /v1/users/{id}/settings responses.
         finalBorder = apiSettings.border ?? null;
     }
 
@@ -277,8 +271,6 @@ async function processApiSettings(userId, apiSettings, options) {
         finalStatus = apiSettings.status;
         finalEnvironment = apiSettings.environment;
         finalGradient = apiSettings.gradient;
-        // VALRA: make sure the API returns `border` as a string (the border id number)
-        // in both /v1/auth/settings and /v1/users/{id}/settings responses.
         finalBorder = apiSettings.border ?? null;
     }
 

@@ -469,12 +469,13 @@ export const handleSaveSettings = async (settingName, value) => {
                                 const borderEntry = borders.find(
                                     (b) => b.value === sanitizedValue,
                                 );
-                                const borderId = borderEntry
-                                    ? borderEntry.id
-                                    : 0;
+                                const borderUrl =
+                                    borderEntry && borderEntry.link
+                                        ? borderEntry.link
+                                        : '';
                                 updateUserSettingViaApi(
                                     'border',
-                                    String(borderId),
+                                    borderUrl,
                                 ).catch((error) =>
                                     console.error(
                                         'RoValra: Border sync failed',

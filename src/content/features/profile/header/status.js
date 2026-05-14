@@ -21,7 +21,7 @@ import { migrateLegacyStatus } from '../../../core/profile/descriptionhandler.js
 import DOMPurify from 'dompurify';
 import {
     TRUSTED_USER_IDS,
-    ARTIST_BADGE_USER_ID,
+    ARTIST_USER_IDS,
     RAT_BADGE_USER_ID,
     BLAHAJ_BADGE_USER_ID,
     CAM_BADGE_USER_ID,
