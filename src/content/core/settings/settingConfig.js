@@ -1301,6 +1301,15 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
+            loginBannerEnabled: {
+                label: 'Login Banner',
+                description: [
+                    'Adds a banner to the login page to verify you are on the official Roblox website.',
+                    'This helps prevent phishing by ensuring you know when you are on the real site.',
+                ],
+                type: 'checkbox',
+                default: true,
+            },
             DownloadCreateEnabled: {
                 label: 'Adds a download button to create.roblox.com',
                 description:

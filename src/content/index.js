@@ -29,6 +29,7 @@ import { init as initUrlTracker } from './core/utils/trackers/urlTracker.js';
 import { init as initCustomFont } from './features/sitewide/customFont.js';
 import { init as initTransactionsLink } from './features/navigation/transactionslink.js';
 import { initializeModernIcons as initModernIcons } from './features/sitewide/modernIcons.js';
+import { init as initLoginBanner } from './features/scamprevention/loginBanner.js';
 
 // Avatar
 import { init as initAvatarFilters } from './features/avatar/filters.js';
@@ -117,7 +118,7 @@ import { init as initCreateDownload } from './features/create.roblox.com/downloa
 import { enforceSettingOverrides } from './core/settings/handlesettings.js';
 
 let pageLoaded = false;
-let lastPath = window.location.pathname;
+let lastPath = window.location.pathname.toLowerCase();
 
 const featureRoutes = [
     // Generic features that run on most pages
@@ -296,22 +297,29 @@ const featureRoutes = [
         paths: ['/my/account'],
         features: [initFirstAccount, initLegacyThemeSwitcher],
     },
+    // Scam prevention
+    {
+        paths: ['/NewLogin', '/Login'],
+        features: [initLoginBanner],
+    },
 ];
 
 const startTime = performance.now();
 
 function runFeaturesForPage() {
-    const path = window.location.pathname;
+    const path = window.location.pathname.toLowerCase();
     const normalizedPath = path.replace(/^\/[a-z]{2}(?:-[a-z]{2})?\//, '/');
 
     featureRoutes.forEach((route) => {
         if (
-            route.paths.some(
-                (p) =>
-                    p === '*' ||
-                    path.startsWith(p) ||
-                    normalizedPath.startsWith(p),
-            )
+            route.paths.some((p) => {
+                const lowerP = p.toLowerCase();
+                return (
+                    lowerP === '*' ||
+                    path.startsWith(lowerP) ||
+                    normalizedPath.startsWith(lowerP)
+                );
+            })
         ) {
             if (route.features && Array.isArray(route.features)) {
                 route.features.forEach((init) => {
@@ -380,7 +388,7 @@ async function initializePage() {
 }
 
 async function handleUrlChange() {
-    const currentPath = window.location.pathname;
+    const currentPath = window.location.pathname.toLowerCase();
 
     if (currentPath !== lastPath) {
         console.log(
@@ -412,7 +420,7 @@ function setupUrlChangeListeners() {
     window.addEventListener('popstate', handleUrlChange);
 
     let urlCheckInterval = setInterval(() => {
-        if (window.location.pathname !== lastPath) {
+        if (window.location.pathname.toLowerCase() !== lastPath) {
             handleUrlChange();
         }
     }, 500);
