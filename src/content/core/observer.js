@@ -122,6 +122,9 @@ export const observeElement = (selector, callback, options = {}) => {
         onRemove: options.onRemove,
         multiple: isMultiple,
         active: true,
+        disconnect() {
+            this.active = false;
+        },
         ...(isMultiple ? { elements: new Set() } : { element: null }),
     };
     observationRequests.push(request);
