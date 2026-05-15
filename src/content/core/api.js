@@ -126,13 +126,15 @@ function getRequestKey({
     subdomain = 'apis',
     method = 'GET',
     isRovalraApi = false,
+    headers = {},
     body = null,
     fullUrl = null,
 }) {
     const bodyStr =
         body && typeof body === 'object' ? JSON.stringify(body) : body || '';
+    const headersStr = JSON.stringify(headers || {});
     const target = fullUrl || `${isRovalraApi}|${subdomain}|${endpoint}`;
-    return `${target}|${method.toUpperCase()}|${bodyStr}`;
+    return `${target}|${method.toUpperCase()}|${bodyStr}|${headersStr}`;
 }
 
 function checkSimulatedDowntime() {
