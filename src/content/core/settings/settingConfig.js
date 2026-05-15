@@ -760,6 +760,7 @@ export const SETTINGS_CONFIG = {
                         description:
                             'Set your own gradient for your own profile',
                         type: 'gradient',
+                        avatarPreview: true,
                         donatorTier: 2,
                         donatorReason:
                             'Donator 2 is required to set a custom profile gradient. This feature is purely cosmetic in order to reward donators',
@@ -815,6 +816,7 @@ export const SETTINGS_CONFIG = {
                             'Choose which border displays around your own avatar.',
                         ],
                         type: 'select',
+                        avatarPreview: true,
                         options: 'BORDERS',
                         donatorTier: 3,
                         donatorReason:

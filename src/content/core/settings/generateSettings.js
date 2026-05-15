@@ -188,7 +188,7 @@ function createClearStorageButton(storageKey, inputElement, settingType) {
     return btn;
 }
 
-async function setupAvatarBorderPreview(container, selectElement) {
+async function setupAvatarPreview(container, inputElement, settingName) {
     const userId = await getAuthenticatedUserId();
     if (!userId) return;
 
@@ -201,6 +201,7 @@ async function setupAvatarBorderPreview(container, selectElement) {
         displayName: displayRes || 'User',
         username: '',
         thumbData: thumbnails[0] || { state: 'Error' },
+        href: `https://www.roblox.com/users/${userId}/profile`,
         presenceInfo: 1,
     });
 
@@ -211,7 +212,8 @@ async function setupAvatarBorderPreview(container, selectElement) {
     container.appendChild(card);
 
     const updatePreview = async () => {
-        const val = selectElement.value;
+        const select = inputElement.querySelector('select');
+        const val = select ? select.value : null;
         const avatarEl = card.querySelector('.avatar.avatar-card-fullbody');
         if (!avatarEl) return;
 
@@ -227,24 +229,25 @@ async function setupAvatarBorderPreview(container, selectElement) {
         }
     };
 
-    selectElement.addEventListener('change', updatePreview);
+    inputElement.addEventListener('change', updatePreview);
+    inputElement.addEventListener('input', updatePreview);
 
     updatePreview();
 }
 
-function injectAvatarBorderPreview(container, inputElement) {
+function injectAvatarPreview(container, inputElement, settingName) {
     const previewWrapper = document.createElement('div');
-    previewWrapper.className = 'rovalra-border-preview-section';
+    previewWrapper.className = 'rovalra-preview-section';
     previewWrapper.style.cssText =
         'display: flex; flex-direction: column; align-items: center; padding: 20px; background: var(--rovalra-container-background-color); border-radius: 12px; margin-top: 15px;';
     previewWrapper.innerHTML = `<div style="font-weight: 700; font-size: 12px; text-transform: uppercase; margin-bottom: 10px; color: var(--rovalra-secondary-text-color);">Live Preview</div><div class="setting-label-divider" style="width: 100%; margin-bottom: 5px;"></div><div class="preview-card-holder"></div>`;
     container.appendChild(previewWrapper);
 
-    const select = inputElement.querySelector('select');
-    if (select) {
-        setupAvatarBorderPreview(
+    if (inputElement) {
+        setupAvatarPreview(
             previewWrapper.querySelector('.preview-card-holder'),
-            select,
+            inputElement,
+            settingName,
         );
     }
 }
@@ -793,8 +796,8 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
         settingContainer.appendChild(inputElement.rovalraVisualizer);
     }
 
-    if (settingName === 'avatarBorderChoice') {
-        injectAvatarBorderPreview(settingContainer, inputElement);
+    if (setting.avatarPreview === true) {
+        injectAvatarPreview(settingContainer, inputElement, settingName);
     }
 
     if (setting.description) {
@@ -928,8 +931,8 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
                 childContainer.appendChild(childInput.rovalraVisualizer);
             }
 
-            if (childName === 'avatarBorderChoice') {
-                injectAvatarBorderPreview(childContainer, childInput);
+            if (childSetting.avatarPreview === true) {
+                injectAvatarPreview(childContainer, childInput, childName);
             }
 
             if (childSetting.description) {
