@@ -13,6 +13,7 @@ import { getAuthenticatedUserId } from "../../core/user";
 import { getPlaceIdFromUrl } from "../../core/idExtractor";
 import { createDropdown } from '../../core/ui/dropdown'
 import { getAssets } from '../../core/assets'
+import { isDarkMode } from '../../core/theme'
 
 const assets = getAssets()
 
@@ -354,6 +355,13 @@ async function startRenderer() {
     document.body.appendChild(rendererElement)
     document.body.addEventListener("mousemove", updateMousePos)
 
+    //update theme
+    if (!isDarkMode()) {
+        mainScene.wellLitDirectionalLightIntensity *= 2.25
+        itemHoverScene.wellLitDirectionalLightIntensity *= 2.25
+        RBXRenderer.setBackgroundColor(0xdbdbdc)
+    }
+
     return true
 }
 
@@ -472,6 +480,9 @@ async function asyncInit() {
             
             const buttonFor3dIcon = document.createElement("img")
             buttonFor3dIcon.src = assets.viewInArIcon
+            if (!isDarkMode()) { //eww! (i dont know how to do this in a better way)
+                buttonFor3dIcon.src = buttonFor3dIcon.src.replace("fill%3D%22%23FFFFFF", "fill%3D%22%23202227")
+            }
             buttonFor3d.appendChild(buttonFor3dIcon)
 
             buttonFor3d.addEventListener("click", (e) => {
@@ -479,6 +490,9 @@ async function asyncInit() {
                 mainRendererEnabled = !mainRendererEnabled
 
                 buttonFor3dIcon.src = mainRendererEnabled ? assets.closeIcon : assets.viewInArIcon
+                if (!isDarkMode()) {
+                    buttonFor3dIcon.src = buttonFor3dIcon.src.replace("fill%3D%22%23FFFFFF", "fill%3D%22%23202227")
+                }
                 if (animationDropdown) {
                     animationDropdown.style.display = mainRendererEnabled ? "" : "none"
                 }
