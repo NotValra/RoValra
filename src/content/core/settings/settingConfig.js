@@ -838,6 +838,25 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: false,
             },
+            subplacePresenceEnabled: {
+                label: 'View the Subplace that Someone is Playing',
+                description: [
+                    'Shows the full title of what a player is currently playing on their profile, including the subplace.',
+                ],
+                type: 'checkbox',
+                default: true,
+                contributors: ['10646979010'], // rav4
+                childSettings: {
+                    homeSubplaceHoverEnabled: {
+                        label: 'View the Subplace in the Home Page',
+                        description: [
+                            'On the Roblox Home friends row, hovering over the game title will show the subplace someone is playing.',
+                        ],
+                        type: 'checkbox',
+                        default: true,
+                    },
+                },
+            },
         },
     },
     Communities: {

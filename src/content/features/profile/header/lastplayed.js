@@ -6,7 +6,7 @@ import { ts } from '../../../core/locale/i18n.js';
 import { getUserIdFromUrl } from '../../../core/idExtractor.js';
 import { observeElement } from '../../../core/observer.js';
 import { createInteractiveTimestamp } from '../../../core/ui/time/time.js';
-import { fetchPresenceBatched } from '../../../core/ui/profile/userCard.js';
+import { fetchPresenceBatched } from '../../../core/ui/profile/subplacePresenceCard.js';
 
 async function fetchGameData(universeId) {
     try {

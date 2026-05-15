@@ -113,6 +113,7 @@ import { init as initFirstAccount } from './features/settings/roblox/firstAccoun
 import { init as initLegacyThemeSwitcher } from './features/settings/roblox/legacyThemeSwitcher.js';
 // Home
 import { init as initAccurateContinue } from './features/home/accurateContinue.js';
+import { initSubplacePresenceLabels } from './core/ui/profile/subplacePresenceCard.js';
 // create
 import { init as initCreateDownload } from './features/create.roblox.com/download.js';
 import { enforceSettingOverrides } from './core/settings/handlesettings.js';
@@ -158,6 +159,7 @@ const featureRoutes = [
             initPurchasePromptItemId,
             initUrlTracker,
             initModernIcons,
+            initSubplacePresenceLabels,
         ],
     },
     // pretty much just the 40% method

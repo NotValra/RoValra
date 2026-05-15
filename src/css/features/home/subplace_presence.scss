@@ -1,0 +1,77 @@
+/* Subplace presence labels on home/friend cards.
+   Keep generic friend carousel layout untouched; only these targeted classes move text. */
+
+.rovalra-subplace-presence-card {
+    overflow: visible !important;
+}
+
+.rovalra-subplace-presence-labels {
+    position: relative !important;
+    overflow: visible !important;
+    text-align: center !important;
+}
+
+.rovalra-subplace-presence-labels .user-card-name,
+.rovalra-subplace-presence-labels .user-card-name span {
+    width: 90px !important;
+    max-width: 90px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    text-align: center !important;
+}
+
+.rovalra-subplace-presence-label {
+    position: static !important;
+    left: auto !important;
+    top: auto !important;
+    transform: none !important;
+    width: 90px !important;
+    max-width: 90px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    box-sizing: border-box !important;
+    text-align: center !important;
+    pointer-events: auto !important;
+    font-family: inherit !important;
+    font-size: 12px !important;
+    font-weight: 400 !important;
+    line-height: 1.2 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    overflow-wrap: normal !important;
+    word-break: normal !important;
+}
+
+.rovalra-subplace-presence-native-wrap {
+}
+
+.rovalra-subplace-presence-native-source-label {
+}
+
+.rovalra-subplace-presence-native-label {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    min-width: 0 !important;
+}
+
+
+@keyframes rovalraSubplacePresenceFade {
+    0% {
+        opacity: 0.35;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+.rovalra-subplace-presence-animate {
+    animation: rovalraSubplacePresenceFade 0.28s ease;
+}
+
+
+.rovalra-profile-subplace-presence-label {
+    animation: rovalraSubplacePresenceFade 0.28s ease;
+}

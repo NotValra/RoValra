@@ -5,67 +5,14 @@ import {
 } from '../../thumbnail/thumbnails';
 import { callRobloxApiJson } from '../../api';
 import { getAssets } from '../../assets';
+import {
+    applySubplacePresenceToUserCard,
+    fetchPresenceBatched,
+    getPresenceDisplayGameName,
+    getUserCardPresenceLabel,
+} from './subplacePresenceCard';
 
-const presenceQueue = {
-    pendingIds: new Set(),
-    promises: new Map(),
-    timer: null,
-    BATCH_DELAY: 50,
-};
-
-function flushPresenceQueue() {
-    const userIds = Array.from(presenceQueue.pendingIds);
-    presenceQueue.pendingIds.clear();
-    presenceQueue.timer = null;
-
-    if (userIds.length === 0) return;
-
-    callRobloxApiJson({
-        subdomain: 'presence',
-        endpoint: '/v1/presence/users',
-        method: 'POST',
-        body: { userIds },
-    })
-        .then((res) => {
-            const presenceMap = new Map(
-                (res?.userPresences || []).map((p) => [p.userId, p]),
-            );
-            for (const userId of userIds) {
-                const presence = presenceMap.get(userId) || null;
-                const resolvers = presenceQueue.promises.get(userId) || [];
-                presenceQueue.promises.delete(userId);
-                for (const resolve of resolvers) {
-                    resolve(presence);
-                }
-            }
-        })
-        .catch(() => {
-            for (const userId of userIds) {
-                const resolvers = presenceQueue.promises.get(userId) || [];
-                presenceQueue.promises.delete(userId);
-                for (const resolve of resolvers) {
-                    resolve(null);
-                }
-            }
-        });
-}
-
-export function fetchPresenceBatched(userId) {
-    return new Promise((resolve) => {
-        presenceQueue.pendingIds.add(userId);
-        if (!presenceQueue.promises.has(userId)) {
-            presenceQueue.promises.set(userId, []);
-        }
-        presenceQueue.promises.get(userId).push(resolve);
-
-        if (!presenceQueue.timer) {
-            presenceQueue.timer = setTimeout(
-                flushPresenceQueue,
-                presenceQueue.BATCH_DELAY,
-            );
-        }
-    });
-}
+export { fetchPresenceBatched, initSubplacePresenceLabels } from './subplacePresenceCard';
 
 const PRESENCE_MAP = {
     0: { class: 'offline icon-offline', title: 'Offline' },
@@ -79,16 +26,14 @@ export function updateUserCardPresence(card, presenceType, gameName) {
     const presenceTitle =
         presenceType === 2 && gameName ? gameName : presence.title;
     const icon = card.querySelector('[data-testid="presence-icon"]');
+
     if (icon) {
         icon.className = presence.class;
         icon.title = presenceTitle;
     }
-    const sublabel = card.querySelector('.user-card-subname');
-    if (sublabel) {
-        if (gameName) {
-            sublabel.textContent = gameName;
-            sublabel.style.fontSize = '9.6px';
-        }
+
+    if (gameName) {
+        applySubplacePresenceToUserCard(card, gameName);
     }
 }
 
@@ -97,9 +42,7 @@ export async function updateFriendTilePresence(card, userId) {
     if (!presence) return;
     const presenceType = presence.userPresenceType ?? 0;
     const gameName =
-        presenceType === 2 && presence.lastLocation
-            ? presence.lastLocation
-            : null;
+        presenceType === 2 ? await getPresenceDisplayGameName(presence) : null;
     updateUserCardPresence(card, presenceType, gameName);
 }
 
@@ -128,9 +71,11 @@ export function createUserCard({
     isVerified = false,
 }) {
     const presence = PRESENCE_MAP[presenceInfo] || PRESENCE_MAP[0];
-    const showSublabel = showUsername && gameName ? true : showUsername;
-    const sublabelText = showUsername && gameName ? gameName : username;
-    const sublabelFontSize = gameName ? '9.6px' : '12px';
+    const sublabel = getUserCardPresenceLabel({
+        showUsername,
+        gameName,
+        username,
+    });
     const presenceTitle =
         presenceInfo === 2 && gameName ? gameName : presence.title;
     const assets = getAssets();
@@ -141,7 +86,7 @@ export function createUserCard({
     const tileContainer = document.createElement('div');
     tileContainer.className = 'friends-carousel-tile';
     const innerHtml = `
-        <div class="user-card user-card-content rovalra-user-card" style="width: 90px;">
+        <div class="user-card user-card-content rovalra-user-card" style="width: 90px; position: relative; overflow: visible;">
             <div class="avatar avatar-card-fullbody avatar-card-image-container user-profile-header-details-avatar-container" style="width: 90px; height: 90px; position: relative;">
                 ${href ? `<a href="${href}" class="avatar-card-link">` : ''}
                     <span class="thumbnail-2d-container avatar-card-image" style="width: 100%; height: 100%; display: block; overflow: hidden; border-radius: 50%; background: var(--rovalra-button-background-color);"></span>
@@ -149,13 +94,13 @@ export function createUserCard({
                 <div class="avatar-status"><span data-testid="presence-icon" title="${presenceTitle}" class="${presence.class}"></span></div>
             </div>
             ${
-                showSublabel
+                sublabel.shouldShow
                     ? `
-            <div class="user-card-labels" style="display: block; margin-top: 8px; max-width: 90px; width: 90px;">
+            <div class="user-card-labels" style="display: block; margin-top: 8px; max-width: 90px; width: 90px; position: relative; box-sizing: border-box; text-align: center; pointer-events: auto;">
                 <div class="user-card-name" style="overflow: hidden; line-height: 1.2;">
                     <span style="font-weight: 400; font-size: 12.8px; color: var(--rovalra-main-text-color); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; max-width: 90px; text-align: center; transition: text-decoration 0.2s ease;">${displayName}${verifiedSvg}</span>
                 </div>
-                <div class="user-card-subname" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: ${sublabelFontSize}; color: var(--rovalra-secondary-text-color); max-width: 90px; display: block; text-align: center; transition: text-decoration 0.2s ease;">${sublabelText}</div>
+                <div class="user-card-subname" title="${sublabel.title}" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: inherit; font-size: 12px; font-weight: 400; color: var(--rovalra-secondary-text-color); max-width: 90px; width: auto; position: static; left: auto; top: auto; transform: none; box-sizing: border-box; display: block; text-align: center; transition: text-decoration 0.2s ease; line-height: 1.2; overflow-wrap: normal; word-break: normal; margin-left: auto; margin-right: auto;">${sublabel.text}</div>
             </div>
             `
                     : `
@@ -176,6 +121,9 @@ export function createUserCard({
         height: '90px',
     });
     tileContainer.querySelector('.avatar-card-image').appendChild(thumbEl);
+    if (gameName) {
+        applySubplacePresenceToUserCard(tileContainer, gameName);
+    }
     tileContainer.style.cursor = href ? 'pointer' : 'default';
     tileContainer.addEventListener('mouseenter', () => {
         const nameSpan = tileContainer.querySelector('.user-card-name span');
@@ -241,11 +189,9 @@ export function createFriendTile(
         fetchPresenceBatched(item.id).then((presence) => {
             if (!presence) return;
             const presenceType = presence.userPresenceType ?? 0;
-            const gameName =
-                presenceType === 2 && presence.lastLocation
-                    ? presence.lastLocation
-                    : null;
-            updateUserCardPresence(card, presenceType, gameName);
+            getPresenceDisplayGameName(presence).then((gameName) => {
+                updateUserCardPresence(card, presenceType, gameName);
+            });
         });
     }
 
@@ -290,9 +236,7 @@ export async function createFriendTiles(
         const presence = isHidden ? null : presenceMap.get(item.id);
         const presenceType = presence?.userPresenceType ?? 0;
         const gameName =
-            presenceType === 2 && presence?.lastLocation
-                ? presence.lastLocation
-                : null;
+            presenceType === 2 ? await getPresenceDisplayGameName(presence) : null;
 
         const card = createUserCard({
             displayName,
@@ -365,9 +309,7 @@ export async function createUserCardsFromIds(containerEl, ids, limit = 7) {
         const presence = presenceMap.get(id);
         const presenceType = presence?.userPresenceType ?? 0;
         const gameName =
-            presenceType === 2 && presence.lastLocation
-                ? presence.lastLocation
-                : null;
+            presenceType === 2 ? await getPresenceDisplayGameName(presence) : null;
 
         const card = createUserCard({
             displayName: displayName,
