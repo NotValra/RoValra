@@ -69,7 +69,9 @@ function handleTile(tile, authedUserId, localBorderValue) {
     if (!match) return;
     const userId = match[1];
 
-    const avatarEl = tile.querySelector('.avatar.avatar-card-fullbody');
+    const avatarEl = tile.querySelector(
+        '.avatar.avatar-card-fullbody, .avatar-card-image',
+    );
     if (!avatarEl) return;
 
     resolveBorderUrl(userId, authedUserId, localBorderValue)
