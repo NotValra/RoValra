@@ -22,7 +22,7 @@ export const TESTER_USER_IDS = [
 
 export const TRANSLATOR_USER_IDS = [];
 
-export const ARTIST_USER_IDS = ['1337447242', '1707781757'];
+export const ARTIST_USER_IDS = ['1337447242', '48255812'];
 export const RAT_BADGE_USER_ID = '477516666'; // rat
 export const BLAHAJ_BADGE_USER_ID = '96786935'; // BLAHAJ
 export const CAM_BADGE_USER_ID = '4866259395';

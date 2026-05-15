@@ -808,7 +808,7 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
-                contributors: [48255812, 1707781757],
+                contributors: [48255812],
                 childSettings: {
                     avatarBorderChoice: {
                         label: 'Avatar Border',
