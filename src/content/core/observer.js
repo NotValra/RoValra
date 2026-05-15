@@ -114,6 +114,8 @@ export function initializeObserver() {
 }
 
 export const observeElement = (selector, callback, options = {}) => {
+    if (!observerInitialized) startObserving();
+
     const isMultiple = options.multiple || false;
 
     const request = {

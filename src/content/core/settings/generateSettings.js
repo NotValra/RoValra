@@ -1,3 +1,4 @@
+import { observeElement } from '../observer.js';
 import { SETTINGS_CONFIG } from './settingConfig.js';
 import { getCachedBorders } from '../configs/borders.js';
 import { parseMarkdown } from '../utils/markdown.js';
@@ -6,7 +7,7 @@ import { getCurrentTheme, THEME_CONFIG } from '../theme.js';
 import { createDropdown } from '../ui/dropdown.js';
 import { createFileUpload } from '../ui/fileupload.js';
 import { createPill } from '../ui/general/pill.js';
-import { handleSaveSettings } from './handlesettings.js';
+import { handleSaveSettings, loadSettings } from './handlesettings.js';
 import { createStyledInput } from '../ui/catalog/input.js';
 import DOMPurify from 'dompurify';
 import { addTooltip } from '../ui/tooltip.js';
@@ -211,26 +212,85 @@ async function setupAvatarPreview(container, inputElement, settingName) {
     container.innerHTML = '';
     container.appendChild(card);
 
-    const updatePreview = async () => {
-        const select = inputElement.querySelector('select');
-        const val = select ? select.value : null;
+    let lastBorder = null;
+    let lastGradient = null;
+
+    const updatePreview = async (liveData = null) => {
         const avatarEl = card.querySelector('.avatar.avatar-card-fullbody');
         if (!avatarEl) return;
 
-        const existing = avatarEl.querySelector('.rovalra-avatar-border');
-        if (existing) existing.remove();
+        const settings = await loadSettings();
+        const borderChoice = settings.avatarBorderChoice || 'none';
+        const grad = liveData || settings.profileGradient;
 
-        if (!val || val === 'none') return;
+        if (borderChoice !== lastBorder) {
+            const existingImg = avatarEl.querySelector(
+                '.rovalra-avatar-border',
+            );
+            if (existingImg) existingImg.remove();
 
-        const borders = await getBorders();
-        const border = borders.find((b) => b.value === val);
-        if (border && border.link) {
-            applyBorderToContainer(avatarEl, border.link);
+            const clip = avatarEl.querySelector('.rovalra-avatar-border-clip');
+            if (clip) {
+                while (clip.firstChild) avatarEl.appendChild(clip.firstChild);
+                clip.remove();
+            }
+
+            delete avatarEl.dataset.rovalraBorderLoading;
+
+            if (borderChoice !== 'none') {
+                const borders = await getBorders();
+                const border = borders.find((b) => b.value === borderChoice);
+                if (border && border.link) {
+                    applyBorderToContainer(avatarEl, border.link);
+                }
+            }
+            lastBorder = borderChoice;
+        }
+
+        const gradString = grad ? JSON.stringify(grad) : '';
+        if (gradString !== lastGradient) {
+            const target =
+                avatarEl.querySelector('.thumbnail-2d-container') || avatarEl;
+
+            if (grad && grad.enabled) {
+                const s1 = (100 - grad.fade) / 2;
+                const s2 = 100 - s1;
+                target.style.background = `linear-gradient(${grad.angle}deg, ${grad.color1} ${s1}%, ${grad.color2} ${s2}%)`;
+            } else {
+                target.style.background = '';
+            }
+            lastGradient = gradString;
         }
     };
 
-    inputElement.addEventListener('change', updatePreview);
-    inputElement.addEventListener('input', updatePreview);
+    const globalSyncHandler = (e) => {
+        const { name } = e.detail;
+        if (name === 'avatarBorderChoice' || name === 'profileGradient') {
+            updatePreview();
+        }
+    };
+
+    document.addEventListener('rovalra:settingSaved', globalSyncHandler);
+
+    const observer = observeElement(
+        `.preview-card-holder[data-rovalra-preview="${settingName}"]`,
+        () => {},
+        {
+            onRemove: () => {
+                document.removeEventListener(
+                    'rovalra:settingSaved',
+                    globalSyncHandler,
+                );
+                observer.disconnect();
+            },
+        },
+    );
+
+    inputElement.addEventListener('change', () => updatePreview());
+    inputElement.addEventListener('input', () => updatePreview());
+    inputElement.addEventListener('rovalra-gradient-update', (e) =>
+        updatePreview(e.detail),
+    );
 
     updatePreview();
 }
@@ -240,7 +300,7 @@ function injectAvatarPreview(container, inputElement, settingName) {
     previewWrapper.className = 'rovalra-preview-section';
     previewWrapper.style.cssText =
         'display: flex; flex-direction: column; align-items: center; padding: 20px; background: var(--rovalra-container-background-color); border-radius: 12px; margin-top: 15px;';
-    previewWrapper.innerHTML = `<div style="font-weight: 700; font-size: 12px; text-transform: uppercase; margin-bottom: 10px; color: var(--rovalra-secondary-text-color);">Live Preview</div><div class="setting-label-divider" style="width: 100%; margin-bottom: 5px;"></div><div class="preview-card-holder"></div>`;
+    previewWrapper.innerHTML = `<div style="font-weight: 700; font-size: 12px; text-transform: uppercase; margin-bottom: 10px; color: var(--rovalra-secondary-text-color);">Preview</div><div class="setting-label-divider" style="width: 100%; margin-bottom: 5px;"></div><div class="preview-card-holder" data-rovalra-preview="${settingName}"></div>`;
     container.appendChild(previewWrapper);
 
     if (inputElement) {
@@ -533,6 +593,9 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
             preview.style.background = `linear-gradient(${currentAngle}deg, ${val.color1} ${s1}%, ${val.color2} ${s2}%)`;
             angleLine.style.transform = `rotate(${currentAngle}deg)`;
             if (save) handleSaveSettings(settingName, val);
+            wrapper.dispatchEvent(
+                new CustomEvent('rovalra-gradient-update', { detail: val }),
+            );
         };
 
         const onMove = (e) => {

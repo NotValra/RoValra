@@ -17,13 +17,18 @@ export async function applyBorderToContainer(container, borderUrl) {
     )
         return;
     container.dataset.rovalraBorderLoading = 'true';
+    container.dataset.rovalraIntendedBorder = borderUrl;
 
     const img = document.createElement('img');
     img.className = 'rovalra-avatar-border';
 
     img.onload = () => {
         delete container.dataset.rovalraBorderLoading;
-        if (container.querySelector('.rovalra-avatar-border')) return;
+        if (
+            container.querySelector('.rovalra-avatar-border') ||
+            container.dataset.rovalraIntendedBorder !== borderUrl
+        )
+            return;
 
         const overlays = [];
         for (const child of container.children) {

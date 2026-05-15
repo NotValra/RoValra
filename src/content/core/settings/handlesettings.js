@@ -485,6 +485,16 @@ export const handleSaveSettings = async (settingName, value) => {
                             });
                         }
                     }
+
+                    document.dispatchEvent(
+                        new CustomEvent('rovalra:settingSaved', {
+                            detail: {
+                                name: settingName,
+                                value: sanitizedValue,
+                            },
+                        }),
+                    );
+
                     resolve();
                 }
             });
