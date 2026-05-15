@@ -328,6 +328,7 @@ async function startRenderer() {
     if (!success) return false
 
     RBXRenderer.loadingIcon.style.zIndex = 2
+    noLoadingIconPos()
 
     //main
     RBXRenderer.setupControls(mainScene)
