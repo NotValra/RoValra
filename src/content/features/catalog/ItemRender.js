@@ -120,6 +120,7 @@ function assetTypeToCamera(renderScene, outfitRenderer, assetType) {
             {
                 cameraMultiplier = 1
                 partName = "Head"
+                if (isR6) cameraMultiplier *= 0.5
                 break
             }
         //face close up
@@ -133,6 +134,7 @@ function assetTypeToCamera(renderScene, outfitRenderer, assetType) {
             {
                 cameraMultiplier = 0.75
                 partName = "Head"
+                if (isR6) cameraMultiplier *= 0.5
                 break
             }
         //neck close up
@@ -141,6 +143,7 @@ function assetTypeToCamera(renderScene, outfitRenderer, assetType) {
                 cameraMultiplier = 0.75
                 partName = "Head"
                 yOffsetMultiplier = -0.5
+                if (isR6) cameraMultiplier *= 0.5
                 break
             }
         //shoulder view
@@ -149,6 +152,7 @@ function assetTypeToCamera(renderScene, outfitRenderer, assetType) {
                 cameraMultiplier = 1
                 partName = "Head"
                 yOffsetMultiplier = -0.5
+                if (isR6) cameraMultiplier *= 0.5
                 break
             }
         //back view
