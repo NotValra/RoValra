@@ -23,6 +23,7 @@ import { getBorders } from '../configs/borders.js';
 import { applyBorderToContainer } from '../../features/profile/avatarBorder.js';
 
 const DEFAULT_CONTRIBUTOR_ID = 447170745;
+const contributorCache = new Map();
 
 async function attachContributors(container, config, isChild = false) {
     if (
@@ -47,14 +48,65 @@ async function attachContributors(container, config, isChild = false) {
         'display: flex; flex-wrap: wrap; gap: 6px; margin-top: -2px; justify-content: flex-start;';
     container.appendChild(contributorsWrapper);
 
+    const renderContributor = (id, displayName, thumbData) => {
+        const item = document.createElement('div');
+        item.className = 'rovalra-donator-card';
+        item.style.cssText =
+            'display: flex; align-items: center; background: var(--rovalra-container-background-color); padding: 4px 10px 4px 4px; border-radius: 20px; border: none;';
+
+        const link = document.createElement('a');
+        link.className = 'avatar-card-link';
+        link.href = `https://www.roblox.com/users/${id}/profile`;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.style.cssText =
+            'display: flex; align-items: center; gap: 6px; text-decoration: none; cursor: pointer; color: inherit; width: 100%;';
+
+        addTooltip(
+            link,
+            `${displayName || id} contributed in the making of this feature.`,
+            { position: 'top' },
+        );
+
+        const thumbContainer = document.createElement('div');
+        thumbContainer.className = 'avatar-card-image';
+        thumbContainer.style.cssText =
+            'width: 20px; height: 20px; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #393b3d; flex-shrink: 0;';
+
+        const thumbEl = createThumbnailElement(thumbData, 'Contributor', '', {
+            width: '100%',
+            height: '100%',
+        });
+        thumbContainer.appendChild(thumbEl);
+
+        const name = document.createElement('span');
+        name.style.cssText =
+            'font-size: 11px; font-weight: 600; color: var(--rovalra-main-text-color); white-space: nowrap;';
+        name.textContent = displayName || 'Unknown';
+
+        link.append(thumbContainer, name);
+        item.appendChild(link);
+        contributorsWrapper.appendChild(item);
+    };
+
+    const allInCache = ids.every((id) => contributorCache.has(String(id)));
+    if (allInCache) {
+        ids.forEach((id) => {
+            const data = contributorCache.get(String(id));
+            renderContributor(id, data.displayName, data.thumbData);
+        });
+        return;
+    }
+
     const shimmerFragment = document.createDocumentFragment();
     for (let i = 0; i < ids.length; i++) {
         const shimmerItem = document.createElement('div');
+        shimmerItem.className = 'rovalra-donator-card';
         shimmerItem.style.cssText =
             'display: flex; align-items: center; gap: 6px; background: var(--rovalra-container-background-color); padding: 4px 10px 4px 4px; border-radius: 20px; border: none;';
 
         const shimmerAvatar = document.createElement('div');
-        shimmerAvatar.className = 'shimmer';
+        shimmerAvatar.className = 'shimmer avatar-card-image';
         shimmerAvatar.style.cssText =
             'width: 20px; height: 20px; border-radius: 50%;';
 
@@ -80,38 +132,8 @@ async function attachContributors(container, config, isChild = false) {
             const displayName = displayNames[index];
             const thumbData = thumbnails[index];
 
-            const item = document.createElement('a');
-            item.href = `https://www.roblox.com/users/${id}/profile`;
-            item.target = '_blank';
-            item.rel = 'noopener noreferrer';
-            item.style.cssText =
-                'display: flex; align-items: center; gap: 6px; background: var(--rovalra-container-background-color); padding: 4px 10px 4px 4px; border-radius: 20px; border: none; cursor: pointer; text-decoration: none;';
-
-            addTooltip(
-                item,
-                `${displayName || id} contributed in the making of this feature.`,
-                { position: 'top' },
-            );
-
-            const thumbContainer = document.createElement('div');
-            thumbContainer.style.cssText =
-                'width: 20px; height: 20px; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #393b3d;';
-
-            const thumbEl = createThumbnailElement(
-                thumbData,
-                'Contributor',
-                '',
-                { width: '100%', height: '100%' },
-            );
-            thumbContainer.appendChild(thumbEl);
-
-            const name = document.createElement('span');
-            name.style.cssText =
-                'font-size: 11px; font-weight: 600; color: var(--rovalra-main-text-color); white-space: nowrap;';
-            name.textContent = displayName || 'Unknown';
-
-            item.append(thumbContainer, name);
-            contributorsWrapper.appendChild(item);
+            contributorCache.set(String(id), { displayName, thumbData });
+            renderContributor(id, displayName, thumbData);
         });
     } catch (error) {
         console.warn('RoValra: Failed to load contributors', error);
