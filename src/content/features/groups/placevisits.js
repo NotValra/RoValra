@@ -64,7 +64,7 @@ export function init() {
                     'rovalra-total-visits-pill',
                 );
 
-                container.appendChild(pill);
+                container.insertBefore(pill, container.children[1]);
             },
         );
     });
