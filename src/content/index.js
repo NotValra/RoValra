@@ -46,6 +46,7 @@ import { init as initCatalogBannerTest } from './features/catalog/bannerTest.js'
 import { init as initParentItem } from './features/catalog/ParentItem.js';
 import { init as initPurchasePrompt } from './features/catalog/purchasePrompt.js';
 import { init as initItemTrading } from './features/catalog/ItemTrading.js';
+import { init as initItemRender } from './features/catalog/ItemRender.js'
 
 // Games
 import { init as initBotDetector } from './features/games/about/botDetector.js';
@@ -175,6 +176,7 @@ const featureRoutes = [
             initCatalogBannerTest,
             initParentItem,
             initItemTrading,
+            initItemRender,
         ],
     },
     // Group pages
@@ -187,6 +189,7 @@ const featureRoutes = [
             initDraggableGroups,
             initPlaceVisits,
             initGroupCreateDate,
+            initItemRender,
         ],
     },
     // Game pages
