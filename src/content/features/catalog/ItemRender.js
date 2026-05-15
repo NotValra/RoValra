@@ -12,9 +12,9 @@ import { callRobloxApiJson } from "../../core/api";
 import { getAuthenticatedUserId } from "../../core/user";
 import { getPlaceIdFromUrl } from "../../core/idExtractor";
 import { createDropdown } from '../../core/ui/dropdown'
+import { getAssets } from '../../core/assets'
 
-const icon_view_in_ar = "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20height%3D%2224px%22%20viewBox%3D%220%20-960%20960%20960%22%20width%3D%2224px%22%20fill%3D%22%23FFFFFF%22%3E%3Cpath%20d%3D%22M440-181%20240-296q-19-11-29.5-29T200-365v-230q0-22%2010.5-40t29.5-29l200-115q19-11%2040-11t40%2011l200%20115q19%2011%2029.5%2029t10.5%2040v230q0%2022-10.5%2040T720-296L520-181q-19%2011-40%2011t-40-11Zm0-92v-184l-160-93v185l160%2092Zm80%200%20160-92v-185l-160%2093v184ZM80-680v-120q0-33%2023.5-56.5T160-880h120v80H160v120H80ZM280-80H160q-33%200-56.5-23.5T80-160v-120h80v120h120v80Zm400%200v-80h120v-120h80v120q0%2033-23.5%2056.5T800-80H680Zm120-600v-120H680v-80h120q33%200%2056.5%2023.5T880-800v120h-80ZM480-526l158-93-158-91-158%2091%20158%2093Zm0%2045Zm0-45Zm40%2069Zm-80%200Z%22%2F%3E%3C%2Fsvg%3E"
-const icon_close = "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20height%3D%2224px%22%20viewBox%3D%220%20-960%20960%20960%22%20width%3D%2224px%22%20fill%3D%22%23FFFFFF%22%3E%3Cpath%20d%3D%22m256-200-56-56%20224-224-224-224%2056-56%20224%20224%20224-224%2056%2056-224%20224%20224%20224-56%2056-224-224-224%20224Z%22%2F%3E%3C%2Fsvg%3E"
+const assets = getAssets()
 
 //RENDERER FLAGS
 FLAGS.ENABLE_API_MESH_CACHE = true;
@@ -73,6 +73,25 @@ function updateMousePos(e) {
     mousePos = [e.clientX, e.clientY]
 }
 
+//roavatar loading icon positioning
+function resetLoadingIconPos() {
+    if (RBXRenderer.loadingIcon) {
+        RBXRenderer.loadingIcon.style.position = "fixed"
+        RBXRenderer.loadingIcon.style.left = ""
+        RBXRenderer.loadingIcon.style.top = ""
+        RBXRenderer.loadingIcon.style.bottom = ""
+        RBXRenderer.loadingIcon.style.right = ""
+    }
+}
+
+function noLoadingIconPos() {
+    if (RBXRenderer.loadingIcon) {
+        RBXRenderer.loadingIcon.style.position = "fixed"
+        RBXRenderer.loadingIcon.style.left = "-100000px"
+    }
+}
+
+//Updates camera for outfitRenderer based on added assetType
 function assetTypeToCamera(renderScene, outfitRenderer, assetType) {
     const rig = outfitRenderer.currentRig
     if (!rig) return
@@ -204,10 +223,12 @@ function assetTypeToCamera(renderScene, outfitRenderer, assetType) {
         case "PoseAnimation":
         case "EmoteAnimation":
             {
+                //default
                 break
             }
     }
 
+    //calculate camera cframe
     const part = rig.FindFirstChild(partName)
 
     if (part) {
@@ -218,12 +239,87 @@ function assetTypeToCamera(renderScene, outfitRenderer, assetType) {
         partCF.Position[1] += partSize.Y * yOffsetMultiplier
         partCF.Position[0] += partSize.X * xOffsetMultiplier
         partCF.Orientation[1] = 180 + yRotAdd
-        //zoomExtents(headCenterCF, headCF, headExtents[1].minus(headExtents[0]), 70, 1)
 
         RBXRenderer.setCameraCFrame(partCF, renderScene)
     }
 }
 
+//loads users original avatar
+async function loadOgAvatar() {
+    const userId = await getAuthenticatedUserId()
+
+    //get avatar data for the user
+    if (!ogAvatarDataLoaded) {
+        const avatarData = await callRobloxApiJson({
+            subdomain: 'avatar',
+            endpoint: `/v2/avatar/users/${userId}/avatar`,
+        })
+        ogAvatarData.fromJson(avatarData)
+    }
+    ogAvatarDataLoaded = true
+}
+
+//adds item to outfit
+async function addItem(outfit, itemId, itemType, typee) {
+    if (itemType === "Bundle") {
+        if (!await outfit.addBundleId(itemId)) return
+    } else if (itemType === "Asset") {
+        if (!typee) {
+            if (!await outfit.addAssetId(itemId, new Authentication())) return
+        } else  {
+            outfit.removeAssetType(typee)
+            outfit.addAsset(itemId, typee, "")
+        }
+    }
+}
+
+//adds item to outfit based on item link
+async function addItemFromLink(outfit, itemLink, typee) {
+    const itemId = getPlaceIdFromUrl(itemLink)
+    const itemType = itemLink.includes("bundles/") ? "Bundle" : "Asset"
+    await addItem(outfit, itemId, itemType, typee)
+}
+
+//adds item you are hovering over to outfitRenderer outfit 
+function loadCurrentHoveredItem() {
+    const originalCurrentHoveredItemElement = currentHoveredItemElement
+    itemHoverOutfit = ogAvatarData.clone()
+    itemHoverOutfitRenderer.setOutfit(itemHoverOutfit)
+    itemHoverOutfitRenderer.setMainAnimation("idle")
+    
+    //add item to main renderer's outfit
+    currentHoveredItemLoading = true
+
+    const newItemHoverOutfit = itemHoverOutfit.clone()
+    addItemFromLink(newItemHoverOutfit, currentHoveredItemLink, currentHoveredItemType).then(() => {
+        if (currentHoveredItemElement !== originalCurrentHoveredItemElement) return
+        currentHoveredItemLoading = false
+        playAppropriateAnim(newItemHoverOutfit, itemHoverOutfitRenderer)
+        if (itemHoverOutfitRenderer) {
+            itemHoverOutfitRenderer.setOutfit(newItemHoverOutfit)
+            itemHoverOutfit = newItemHoverOutfit
+        }
+    })
+}
+
+//plays emote if outfit contains emote, otherwise default
+function playAppropriateAnim(outfit, outfitRenderer) {
+    if (outfit.containsAssetType("EmoteAnimation")) {
+        for (const asset of outfit.assets) {
+            if (asset.assetType.name === "EmoteAnimation") {
+                outfitRenderer.setMainAnimation(`emote.${asset.id}`)
+            }
+        }
+    } else {
+        if (outfitRenderer === mainOutfitRenderer) {
+            outfitRenderer.setMainAnimation(selectedAnimName)
+        } else {
+            outfitRenderer.setMainAnimation("idle")
+        }
+    }
+}
+
+//setup roavater renderer
 async function startRenderer() {
     if (startedRenderer) return true
     startedRenderer = true
@@ -260,93 +356,7 @@ async function startRenderer() {
     return true
 }
 
-async function loadOgAvatar() {
-    const userId = await getAuthenticatedUserId()
-
-    //get avatar data for the user
-    if (!ogAvatarDataLoaded) {
-        const avatarData = await callRobloxApiJson({
-            subdomain: 'avatar',
-            endpoint: `/v2/avatar/users/${userId}/avatar`,
-        })
-        ogAvatarData.fromJson(avatarData)
-    }
-    ogAvatarDataLoaded = true
-}
-
-async function addItem(outfit, itemId, itemType, typee) {
-    if (itemType === "Bundle") {
-        if (!await outfit.addBundleId(itemId)) return
-    } else if (itemType === "Asset") {
-        if (!typee) {
-            if (!await outfit.addAssetId(itemId, new Authentication())) return
-        } else  {
-            outfit.removeAssetType(typee)
-            outfit.addAsset(itemId, typee, "")
-        }
-    }
-}
-
-async function addItemFromLink(outfit, itemLink, typee) {
-    const itemId = getPlaceIdFromUrl(itemLink)
-    const itemType = itemLink.includes("bundles/") ? "Bundle" : "Asset"
-    await addItem(outfit, itemId, itemType, typee)
-}
-
-function loadCurrentHoveredItem() {
-    const originalCurrentHoveredItemElement = currentHoveredItemElement
-    itemHoverOutfit = ogAvatarData.clone()
-    itemHoverOutfitRenderer.setOutfit(itemHoverOutfit)
-    itemHoverOutfitRenderer.setMainAnimation("idle")
-    
-    //add item to main renderer's outfit
-    currentHoveredItemLoading = true
-
-    const newItemHoverOutfit = itemHoverOutfit.clone()
-    addItemFromLink(newItemHoverOutfit, currentHoveredItemLink, currentHoveredItemType).then(() => {
-        if (currentHoveredItemElement !== originalCurrentHoveredItemElement) return
-        currentHoveredItemLoading = false
-        playAppropriateAnim(newItemHoverOutfit, itemHoverOutfitRenderer)
-        if (itemHoverOutfitRenderer) {
-            itemHoverOutfitRenderer.setOutfit(newItemHoverOutfit)
-            itemHoverOutfit = newItemHoverOutfit
-        }
-    })
-}
-
-function playAppropriateAnim(outfit, outfitRenderer) {
-    if (outfit.containsAssetType("EmoteAnimation")) {
-        for (const asset of outfit.assets) {
-            if (asset.assetType.name === "EmoteAnimation") {
-                outfitRenderer.setMainAnimation(`emote.${asset.id}`)
-            }
-        }
-    } else {
-        if (outfitRenderer === mainOutfitRenderer) {
-            outfitRenderer.setMainAnimation(selectedAnimName)
-        } else {
-            outfitRenderer.setMainAnimation("idle")
-        }
-    }
-}
-
-function resetLoadingIconPos() {
-    if (RBXRenderer.loadingIcon) {
-        RBXRenderer.loadingIcon.style.position = "fixed"
-        RBXRenderer.loadingIcon.style.left = ""
-        RBXRenderer.loadingIcon.style.top = ""
-        RBXRenderer.loadingIcon.style.bottom = ""
-        RBXRenderer.loadingIcon.style.right = ""
-    }
-}
-
-function noLoadingIconPos() {
-    if (RBXRenderer.loadingIcon) {
-        RBXRenderer.loadingIcon.style.position = "fixed"
-        RBXRenderer.loadingIcon.style.left = "-100000px"
-    }
-}
-
+//update main renderer outfit for item
 async function updateMainRenderer() {
     //set main renderer's outfit back to original
     await loadOgAvatar()
@@ -366,6 +376,7 @@ async function updateMainRenderer() {
     }
 }
 
+//runs every frame
 function customAnimate() {
     //renderer size
     const newSize = [window.innerWidth, window.innerHeight]
@@ -376,6 +387,8 @@ function customAnimate() {
     noLoadingIconPos()
 
     //main scene and renderer element
+    let mouseWithin = false
+
     const rendererElement = RBXRenderer.getRendererElement()
     if (mainSceneContainer) {
         const mainSceneBounds = mainSceneContainer.getBoundingClientRect()
@@ -387,23 +400,20 @@ function customAnimate() {
 
         mainScene.setRect(mainSceneBounds)
         
-        const mouseWithin = mousePos[0] > mainSceneBounds.left && mousePos[0] < mainSceneBounds.right &&
-                            mousePos[1] > mainSceneBounds.top && mousePos[1] < mainSceneBounds.bottom
-        if (mouseWithin) {
-            rendererElement.style.pointerEvents = "auto"
-        } else {
-            rendererElement.style.pointerEvents = "none"
-        }
-    } else {
-        rendererElement.style.pointerEvents = "none"
+        //only make it interactive if mouse is within frame
+        mouseWithin = mousePos[0] > mainSceneBounds.left && mousePos[0] < mainSceneBounds.right &&
+                        mousePos[1] > mainSceneBounds.top && mousePos[1] < mainSceneBounds.bottom
     }
 
+    rendererElement.style.pointerEvents = mouseWithin ? "auto" : "none"
+
+    //disable main renderer
     if (!mainRendererEnabled) {
         mainScene.noRect()
         rendererElement.style.pointerEvents = "none"
     }
 
-    //current hovered item
+    //current hovered item logic
     if (currentHoveredItemElement && currentHoveredItemThumbElement && !currentlyLoadingAssets && !currentHoveredItemLoading && currentHoveredItemFrames > HOVER_FRAME_TIME) {
         const itemHoverBounds = currentHoveredItemThumbElement.getBoundingClientRect()
         itemHoverScene.setRect(itemHoverBounds)
@@ -449,8 +459,6 @@ async function asyncInit() {
     observeElement(".thumbnail-holder", (element) => {
         mainSceneContainer = element
 
-        //element.innerHTML = ""
-
         updateMainRenderer()
     })
 
@@ -462,14 +470,14 @@ async function asyncInit() {
             buttonFor3d.style.zIndex = 2
             
             const buttonFor3dIcon = document.createElement("img")
-            buttonFor3dIcon.src = icon_view_in_ar
+            buttonFor3dIcon.src = assets.viewInArIcon
             buttonFor3d.appendChild(buttonFor3dIcon)
 
             buttonFor3d.addEventListener("click", (e) => {
                 e.preventDefault()
                 mainRendererEnabled = !mainRendererEnabled
 
-                buttonFor3dIcon.src = mainRendererEnabled ? icon_close : icon_view_in_ar
+                buttonFor3dIcon.src = mainRendererEnabled ? assets.closeIcon : assets.viewInArIcon
                 if (animationDropdown) {
                     animationDropdown.style.display = mainRendererEnabled ? "" : "none"
                 }
@@ -477,15 +485,25 @@ async function asyncInit() {
         }
 
         if (!animationDropdown) {
-            const { element: dropdownElement } = createDropdown({
-                items: [
-                    { label: 'Idle', value: 'idle' },
+            const isR6 = ogAvatarData.playerAvatarType === "R6"
+
+            const items = isR6 ?
+                    //r6
+                    [{ label: 'Idle', value: 'idle' },
+                    { label: 'Walk', value: 'walk'},
+                    { label: 'Fall', value: 'fall'},
+                    { label: 'Climb', value: 'climb'},]
+                    : //r15
+                    [{ label: 'Idle', value: 'idle' },
                     { label: 'Walk', value: 'walk'},
                     { label: 'Run', value: 'run'},
                     { label: 'Jump', value: 'jump'},
                     { label: 'Fall', value: 'fall'},
                     { label: 'Climb', value: 'climb'},
-                    { label: 'Swim', value: 'swim'},],
+                    { label: 'Swim', value: 'swim'},]
+
+            const { element: dropdownElement } = createDropdown({
+                items,
                 initialValue: 'idle',
                 onValueChange: (value) => {
                     selectedAnimName = value
@@ -577,16 +595,20 @@ async function asyncInit() {
 }
 
 export function init() {
+    //disable main renderer on pages that dont use it
     if (!window.location.href.includes("/catalog") && !window.location.href.includes("/bundles")) {
         needsMainOutfitRenderer = false
     }
 
+    //run feature if enabled
     chrome.storage.local.get(
     { marketplace3DRenderEnabled: true }, (result) => {
         if (result.marketplace3DRenderEnabled) {
             asyncInit()
         }
     })
+
+    //update z-index for elements so theyre above renderer canvas
     const styleString = "style"
     const customStyle = document.createElement(styleString)
     customStyle.innerText = `
