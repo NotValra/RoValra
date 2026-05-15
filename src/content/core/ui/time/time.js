@@ -85,8 +85,12 @@ function getTooltipText(date) {
 observeElement(
     '.rovalra-interactive-timestamp',
     (container) => {
-        const date = container._rovalraDate;
+        const date =
+            container._rovalraDate ||
+            (container.dataset.date ? new Date(container.dataset.date) : null);
         if (!date) return;
+
+        container._rovalraDate = date;
 
         const timeSpan = container.querySelector('span');
         if (!timeSpan) return;
@@ -119,8 +123,31 @@ observeElement(
             handleFormatChange,
         );
 
+        const handleClick = (e) => {
+            e.stopPropagation();
+            const nextIndex =
+                (FORMATS.indexOf(preferredFormat) + 1) % FORMATS.length;
+            const newFormat = FORMATS[nextIndex];
+
+            preferredFormat = newFormat;
+            chrome.storage.local.set({ [TIME_FORMAT_KEY]: newFormat });
+
+            document.dispatchEvent(
+                new CustomEvent('rovalra-time-format-change', {
+                    detail: { format: newFormat },
+                }),
+            );
+        };
+
+        if (!container._listenersAttached) {
+            container._listenersAttached = true;
+            container.addEventListener('click', handleClick);
+            addTooltip(container, getTooltipText(date));
+        }
+
         container._cleanup = () => {
             if (updateInterval) clearInterval(updateInterval);
+            container.removeEventListener('click', handleClick);
             document.removeEventListener(
                 'rovalra-time-format-change',
                 handleFormatChange,
@@ -133,33 +160,18 @@ observeElement(
 export function createInteractiveTimestamp(dateString) {
     const date = new Date(dateString);
 
-    const container = document.createElement('div');
+    const container = document.createElement('span');
     container.className = 'rovalra-interactive-timestamp';
     container.style.position = 'relative';
+    container.style.display = 'inline-block';
     container.style.cursor = 'pointer';
     container._rovalraDate = date;
-    addTooltip(container, getTooltipText(date));
+    container.dataset.date = date.toISOString();
 
     const timeSpan = document.createElement('span');
     timeSpan.style.borderBottom =
         '1px dashed color-mix(in srgb, var(--rovalra-secondary-text-color) 50%, transparent)';
     timeSpan.textContent = formatTime(date, preferredFormat);
-
-    container.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const nextIndex =
-            (FORMATS.indexOf(preferredFormat) + 1) % FORMATS.length;
-        const newFormat = FORMATS[nextIndex];
-
-        preferredFormat = newFormat;
-        chrome.storage.local.set({ [TIME_FORMAT_KEY]: newFormat });
-
-        document.dispatchEvent(
-            new CustomEvent('rovalra-time-format-change', {
-                detail: { format: newFormat },
-            }),
-        );
-    });
 
     container.appendChild(timeSpan);
     return container;

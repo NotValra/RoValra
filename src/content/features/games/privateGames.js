@@ -325,6 +325,7 @@ function loadAndRenderPrivateGame(placeId, settings, isSkeletonOnly = false) {
                         };
                         showStatusBannerForPlayabilityStatus(
                             gameData._playabilityStatus,
+                            placeId,
                         );
                         updateGameDataUpdated(gameData);
                     }
@@ -796,7 +797,7 @@ function createFallbackGame(placeDetails) {
     };
 }
 
-function showStatusBannerForPlayabilityStatus(status) {
+function showStatusBannerForPlayabilityStatus(status, placeId) {
     const statusCode = toStatusCode(status.raw);
 
     const isModerated = statusCode === 3 || statusCode === 9;
@@ -804,19 +805,32 @@ function showStatusBannerForPlayabilityStatus(status) {
         ? '<svg viewBox="0 0 24 24"><path d="m5.2494 8.0688 2.83-2.8269 14.1343 14.15-2.83 2.8269zm4.2363-4.2415 2.828-2.8289 5.6577 5.656-2.828 2.8289zM.9989 12.3147l2.8284-2.8285 5.6569 5.6569-2.8285 2.8284zM1 21h12v2H1z"></path></svg>'
         : '<svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2m-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2m3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1s3.1 1.39 3.1 3.1z"></path></svg>';
 
-    const bannerText =
-        status.displayText || getPlayabilityDisplayText(statusCode);
-
-    const showBanner = (retries = 0) => {
+    const showBanner = async (retries = 0) => {
         const banner = document.getElementById('rovalra-game-notice-banner');
         if (banner && window.GameBannerManager) {
             if (window.GameBannerManager.clearNotices) {
                 window.GameBannerManager.clearNotices();
             }
+            const bannerText =
+                status.displayText || getPlayabilityDisplayText(statusCode);
+            let subtext = ts('privateGames.rovalraNotice');
+            const moderationData = await callRobloxApiJson({
+                isRovalraApi: true,
+                endpoint: `/v1/games/${placeId}/moderation`,
+            }).catch(() => null);
+
+            if (moderationData?.is_moderated && moderationData?.moderated_at) {
+                const moderatedText = ts('privateGames.moderated');
+                const timestampElement = createInteractiveTimestamp(
+                    moderationData.moderated_at,
+                );
+                subtext = `${moderatedText} ${timestampElement.outerHTML} ${subtext}`;
+            }
+
             window.GameBannerManager.addNotice(
                 bannerText,
                 icon,
-                ts('privateGames.rovalraNotice'),
+                subtext,
                 '16px',
                 '14px',
             );
@@ -844,7 +858,7 @@ function renderPrivateGamePage(game, placeId, settings) {
         playabilityStatus && typeof playabilityStatus.raw !== 'undefined';
 
     if (hasStatusData) {
-        showStatusBannerForPlayabilityStatus(playabilityStatus);
+        showStatusBannerForPlayabilityStatus(playabilityStatus, placeId);
     }
 
     const isFavoritedByUser = game.isFavoritedByUser || false;

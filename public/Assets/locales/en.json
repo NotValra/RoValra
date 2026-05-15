@@ -679,7 +679,8 @@
         "products": {
             "title": "Products",
             "buy": "Buy"
-        }
+        },
+        "moderated": "Moderated"
     },
     "playabilityStatus": {
         "0": "This experience is unavailable",
