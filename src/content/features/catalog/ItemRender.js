@@ -14,6 +14,7 @@ import { getPlaceIdFromUrl } from "../../core/idExtractor";
 import { createDropdown } from '../../core/ui/dropdown'
 import { getAssets } from '../../core/assets'
 import { isDarkMode } from '../../core/theme'
+import { ts } from '../../core/locale/i18n.js';
 
 const assets = getAssets()
 
@@ -508,21 +509,16 @@ async function asyncInit() {
 
             const items = isR6 ?
                     //r6
-                    [{ label: 'Idle', value: 'idle' },
-                    { label: 'Walk', value: 'walk'},
-                    { label: 'Fall', value: 'fall'},
-                    { label: 'Climb', value: 'climb'},]
+                    ['idle', "walk", "fall", "climb"]
                     : //r15
-                    [{ label: 'Idle', value: 'idle' },
-                    { label: 'Walk', value: 'walk'},
-                    { label: 'Run', value: 'run'},
-                    { label: 'Jump', value: 'jump'},
-                    { label: 'Fall', value: 'fall'},
-                    { label: 'Climb', value: 'climb'},
-                    { label: 'Swim', value: 'swim'},]
+                    ["idle", "walk", "run", "jump", "fall", "climb", "swim"]
+
+            const trueItems = items.map((v) => {
+                return {label: ts(`animations.${v}`), value: v}
+            })
 
             const { element: dropdownElement } = createDropdown({
-                items,
+                items: trueItems,
                 initialValue: 'idle',
                 onValueChange: (value) => {
                     selectedAnimName = value
