@@ -11,43 +11,58 @@ import {
 export async function applyBorderToContainer(container, borderUrl) {
     if (!borderUrl) return;
 
-    if (container.querySelector('.rovalra-avatar-border')) return;
-
-    const overlays = [];
-    for (const child of container.children) {
-        if (
-            child.matches(
-                '.rovalra-status-bubble-wrapper, .avatar-status, .avatar-card-label, .icon-label',
-            )
-        ) {
-            overlays.push(child);
-        }
-    }
-    const status =
-        container.querySelector('.avatar-status') ||
-        container.closest('.avatar')?.querySelector('.avatar-status') ||
-        container.parentElement?.querySelector('.avatar-status');
-
-    container.style.position = 'relative';
-    container.style.overflow = 'visible';
-
-    const innerClip = document.createElement('div');
-    innerClip.className = 'rovalra-avatar-border-clip';
-    while (container.firstChild) {
-        innerClip.appendChild(container.firstChild);
-    }
-    container.appendChild(innerClip);
-
-    for (const overlay of overlays) {
-        container.appendChild(overlay);
-    }
+    if (
+        container.querySelector('.rovalra-avatar-border') ||
+        container.dataset.rovalraBorderLoading
+    )
+        return;
+    container.dataset.rovalraBorderLoading = 'true';
 
     const img = document.createElement('img');
     img.className = 'rovalra-avatar-border';
-    img.src = borderUrl;
-    container.appendChild(img);
 
-    if (status) status.style.zIndex = '3';
+    img.onload = () => {
+        delete container.dataset.rovalraBorderLoading;
+        if (container.querySelector('.rovalra-avatar-border')) return;
+
+        const overlays = [];
+        for (const child of container.children) {
+            if (
+                child.matches(
+                    '.rovalra-status-bubble-wrapper, .avatar-status, .avatar-card-label, .icon-label',
+                )
+            ) {
+                overlays.push(child);
+            }
+        }
+        const status =
+            container.querySelector('.avatar-status') ||
+            container.closest('.avatar')?.querySelector('.avatar-status') ||
+            container.parentElement?.querySelector('.avatar-status');
+
+        container.style.position = 'relative';
+        container.style.overflow = 'visible';
+
+        const innerClip = document.createElement('div');
+        innerClip.className = 'rovalra-avatar-border-clip';
+        while (container.firstChild) {
+            innerClip.appendChild(container.firstChild);
+        }
+        container.appendChild(innerClip);
+
+        for (const overlay of overlays) {
+            container.appendChild(overlay);
+        }
+
+        container.appendChild(img);
+        if (status) status.style.zIndex = '3';
+    };
+
+    img.onerror = () => {
+        delete container.dataset.rovalraBorderLoading;
+    };
+
+    img.src = borderUrl;
 }
 
 async function resolveBorderUrl(userId, authedUserId, localBorderValue) {
