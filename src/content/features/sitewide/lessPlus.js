@@ -7,8 +7,8 @@ const plusTypeEnum = Object.freeze({
 let plusType = plusTypeEnum.Reduced;
 
 async function actualInitBecauseTheUniverseHatesMe(settings) {
-    if (settings.rovalra_less_robloxplus)
-        if (settings.rovalra_no_robloxplus)
+    if (settings.reducePlusAds)
+        if (settings.removeAllPlusAdds)
             plusType = plusTypeEnum.None;
         else
             plusType = plusTypeEnum.Reduced;
