@@ -30,6 +30,7 @@ import { init as initCustomFont } from './features/sitewide/customFont.js';
 import { init as initTransactionsLink } from './features/navigation/transactionslink.js';
 import { initializeModernIcons as initModernIcons } from './features/sitewide/modernIcons.js';
 import { init as initLoginBanner } from './features/scamprevention/loginBanner.js';
+import { init as initLessPlus } from './features/sitewide/lessPlus.js';
 
 // Avatar
 import { init as initAvatarFilters } from './features/avatar/filters.js';
@@ -158,6 +159,7 @@ const featureRoutes = [
             initPurchasePromptItemId,
             initUrlTracker,
             initModernIcons,
+            initLessPlus,
         ],
     },
     // pretty much just the 40% method
