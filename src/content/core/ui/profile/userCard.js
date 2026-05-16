@@ -126,6 +126,8 @@ export function createUserCard({
     presenceInfo = 0,
     gameName,
     isVerified = false,
+    isOpaque = false,
+    hidePresence = false,
 }) {
     const presence = PRESENCE_MAP[presenceInfo] || PRESENCE_MAP[0];
     const showSublabel = showUsername && gameName ? true : showUsername;
@@ -141,12 +143,16 @@ export function createUserCard({
     const tileContainer = document.createElement('div');
     tileContainer.className = 'friends-carousel-tile';
     const innerHtml = `
-        <div class="user-card user-card-content rovalra-user-card" style="width: 90px;">
+        <div class="user-card user-card-content rovalra-user-card" style="width: 90px; ${isOpaque ? 'background: var(--rovalra-container-background-color) !important; opacity: 1 !important; border-radius: 50%;' : ''}">
             <div class="avatar avatar-card-fullbody avatar-card-image-container user-profile-header-details-avatar-container" style="width: 90px; height: 90px; position: relative;">
                 ${href ? `<a href="${href}" class="avatar-card-link">` : ''}
                     <span class="thumbnail-2d-container avatar-card-image" style="width: 100%; height: 100%; display: block; overflow: hidden; border-radius: 50%; background: var(--rovalra-button-background-color);"></span>
                 ${href ? `</a>` : ''}
-                <div class="avatar-status"><span data-testid="presence-icon" title="${presenceTitle}" class="${presence.class}"></span></div>
+                ${
+                    !hidePresence
+                        ? `<div class="avatar-status" style="width: 28px !important; height: 28px !important; max-width: 28px !important; max-height: 28px !important; min-width: 28px !important; min-height: 28px !important; overflow: hidden !important; display: block !important;"><span data-testid="presence-icon" title="${presenceTitle}" class="${presence.class}" style="width: 28px !important; height: 28px !important; display: block !important; transform: scale(1) !important; zoom: 1 !important; font-size: 28px !important;"></span></div>`
+                        : ''
+                }
             </div>
             ${
                 showSublabel

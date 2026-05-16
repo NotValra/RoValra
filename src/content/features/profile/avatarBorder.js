@@ -73,7 +73,8 @@ export async function applyBorderToContainer(container, borderUrl) {
 async function resolveBorderUrl(userId, authedUserId, localBorderValue) {
     const userSettings = await getUserSettings(userId).catch(() => null);
 
-    if (userSettings?.border) return userSettings.border;
+    if (userSettings?.border && userSettings.border !== 'none')
+        return userSettings.border;
 
     return null;
 }

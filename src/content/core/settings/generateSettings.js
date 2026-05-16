@@ -204,6 +204,7 @@ async function setupAvatarPreview(container, inputElement, settingName) {
         thumbData: thumbnails[0] || { state: 'Error' },
         href: `https://www.roblox.com/users/${userId}/profile`,
         presenceInfo: 1,
+        hidePresence: true,
     });
 
     card.style.transform = 'scale(1.1)';
