@@ -1438,19 +1438,18 @@ export const SETTINGS_CONFIG = {
             },
             reducePlusAds: {
                 label: 'Less Roblox Plus',
-                description: "Makes Roblox Plus advertising more subtle.",
+                description: 'Makes Roblox Plus advertising more subtle.',
                 type: 'checkbox',
                 default: true,
-                storageKey: 'rovalra_less_robloxplus',
                 childSettings: {
                     removeAllPlusAdds: {
-                        label: "Remove all Roblox Plus advertising.",
+                        label: 'Remove all Roblox Plus advertising.',
                         type: 'checkbox',
-                        default: false
-                    }
+                        default: false,
+                    },
                 },
-                contributors: ["1564574922"]
-            }
+                contributors: ['1564574922'],
+            },
         },
     },
     AntiAccountTracking: {
