@@ -764,5 +764,14 @@
     },
     "plusPrivateServerTooltip": {
         "tooltipText": "Original Price: <b>{{originalPrice}} Robux</b><br>Currently shows as <b>Free</b> due to Roblox Plus."
+    },
+    "animations": {
+        "idle": "Idle",
+        "walk": "Walk",
+        "fall": "Fall",
+        "climb": "Climb",
+        "run": "Run",
+        "jump": "Jump",
+        "swim": "Swim"
     }
 }

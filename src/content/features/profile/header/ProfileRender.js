@@ -201,27 +201,34 @@ function updateCameraSystem() {
         recenterBtnRef.style.display = hasMovedCamera ? 'flex' : 'none';
     }
 }
+function customAnimate() {
+    const controls = RBXRenderer.getRendererControls();
+    const camera = RBXRenderer.getRendererCamera();
+
+    if (controls && camera) {
+        updateCameraSystem();
+        controls.update();
+    }
+
+    let [width, height] = RBXRenderer.resolution
+    RBXRenderer.camera.aspect = width / height
+    RBXRenderer.camera.updateProjectionMatrix()
+
+    RBXRenderer.renderer.setRenderTarget(null);
+    if (RBXRenderer.effectComposer) {
+        RBXRenderer.effectComposer.render();
+    } else {
+        RBXRenderer.renderer.render(RBXRenderer.scene, RBXRenderer.camera);
+    }
+
+    requestAnimationFrame(() => {
+        customAnimate()
+    });
+}
 function patchAnimateForRotation() {
     if (isAnimatePatched) return;
 
-    RBXRenderer.animate = function () {
-        const controls = RBXRenderer.getRendererControls();
-        const camera = RBXRenderer.getRendererCamera();
-
-        if (controls && camera) {
-            updateCameraSystem();
-            controls.update();
-        }
-
-        RBXRenderer.renderer.setRenderTarget(null);
-        if (RBXRenderer.effectComposer) {
-            RBXRenderer.effectComposer.render();
-        } else {
-            RBXRenderer.renderer.render(RBXRenderer.scene, RBXRenderer.camera);
-        }
-
-        requestAnimationFrame(() => RBXRenderer.animate());
-    };
+    RBXRenderer.animateAll = customAnimate
     isAnimatePatched = true;
 }
 function getAnimatorW(rig = currentRig) {
