@@ -50,6 +50,7 @@ let startedRenderer = false
 let mainRendererEnabled = false
 
 let selectedAnimName = "idle"
+let accessoriesEnabled = true
 
 let currentlyLoadingAssets = false
 
@@ -62,6 +63,7 @@ let mainSceneContainer = undefined
 let mousePos = [0,0]
 let buttonFor3d = undefined
 let animationDropdown = undefined
+let toggleAccessories = undefined
 
 let lastCurrentHoveredItemElement = undefined
 let currentHoveredItemFrames = 0
@@ -91,6 +93,18 @@ function noLoadingIconPos() {
         RBXRenderer.loadingIcon.style.position = "fixed"
         RBXRenderer.loadingIcon.style.left = "-100000px"
     }
+}
+
+function applyIconTheme(icon) {
+    if (!isDarkMode()) { //eww! (i dont know how to do this in a better way)
+        return icon.replace("fill%3D%22%23FFFFFF", "fill%3D%22%23202227")
+    }
+    return icon
+}
+
+function getApparelIcon() {
+    let icon = accessoriesEnabled ? assets.apparelFillIcon : assets.apparelIcon
+    return applyIconTheme(icon)
 }
 
 //Updates camera for outfitRenderer based on added assetType
@@ -290,7 +304,9 @@ async function addItemFromLink(outfit, itemLink, typee) {
 function loadCurrentHoveredItem() {
     const originalCurrentHoveredItemElement = currentHoveredItemElement
     itemHoverOutfit = ogAvatarData.clone()
-    itemHoverOutfitRenderer.setOutfit(itemHoverOutfit)
+    if (!currentHoveredItemType) {
+        itemHoverOutfitRenderer.setOutfit(itemHoverOutfit)
+    }
     itemHoverOutfitRenderer.setMainAnimation("idle")
     
     //add item to main renderer's outfit
@@ -377,6 +393,22 @@ async function updateMainRenderer() {
 
     if (needsMainOutfitRenderer) {
         mainOutfit = ogAvatarData.clone()
+
+        //remove accessories if theyre disabled
+        if (accessoriesEnabled === false) {
+            const assetsToRemove = []
+
+            for (const asset of mainOutfit.assets) {
+                if (asset.assetType.name.includes("Accessory") || asset.assetType.name === "Hat") {
+                    assetsToRemove.push(asset.id)
+                }
+            }
+
+            for (const assetToRemove of assetsToRemove) {
+                mainOutfit.removeAsset(assetToRemove)
+            }
+        }
+
         mainOutfitRenderer.setOutfit(mainOutfit)
         mainOutfitRenderer.setMainAnimation(selectedAnimName)
         
@@ -428,7 +460,7 @@ function customAnimate() {
     }
 
     //current hovered item logic
-    if (currentHoveredItemElement && currentHoveredItemThumbElement && !currentlyLoadingAssets && !currentHoveredItemLoading && currentHoveredItemFrames > HOVER_FRAME_TIME) {
+    if (currentHoveredItemElement && currentHoveredItemThumbElement && !currentlyLoadingAssets && !currentHoveredItemLoading && currentHoveredItemFrames > HOVER_FRAME_TIME + 1) {
         const itemHoverBounds = currentHoveredItemThumbElement.getBoundingClientRect()
         itemHoverScene.setRect(itemHoverBounds)
     } else {
@@ -464,6 +496,26 @@ function customAnimate() {
     window.requestAnimationFrame(customAnimate)
 }
 
+function removeCurrentHoveredItemData() {
+    currentHoveredItemElement = undefined
+    currentHoveredItemThumbElement = undefined
+    currentHoveredItemLink = undefined
+    currentHoveredItemType = undefined
+    currentHoveredItemFrames = 0
+}
+
+function updateHoveredItemTypeFromThumbnail(itemThumbnailImageContainer) {
+    if (itemThumbnailImageContainer) {
+        const itemThumbnailImage = itemThumbnailImageContainer.children[0]
+        if (itemThumbnailImage && itemThumbnailImage.src) {
+            const potentialAssetType = itemThumbnailImage.src.split("/")[6]
+            if (AssetTypes.includes(potentialAssetType)) {
+                currentHoveredItemType = potentialAssetType
+            }
+        }
+    }
+}
+
 async function asyncInit() {
     const success = await startRenderer()
     if (!success) return
@@ -478,32 +530,53 @@ async function asyncInit() {
 
     //buttons for main thumbnail
     observeElement(".thumbnail-button-container", (element) => {
+        const tryOn = element.children[0]
+        const toggle3d = element.children[1]
+
+        //create 3d toggle button
         if (!buttonFor3d) {
             buttonFor3d = document.createElement("button")
             buttonFor3d.className = "enable-three-dee btn-control button-placement btn-control-md btn--width"
             buttonFor3d.style.zIndex = 2
             
             const buttonFor3dIcon = document.createElement("img")
-            buttonFor3dIcon.src = assets.viewInArIcon
-            if (!isDarkMode()) { //eww! (i dont know how to do this in a better way)
-                buttonFor3dIcon.src = buttonFor3dIcon.src.replace("fill%3D%22%23FFFFFF", "fill%3D%22%23202227")
-            }
+            buttonFor3dIcon.src = applyIconTheme(assets.viewInArIcon)
+            
             buttonFor3d.appendChild(buttonFor3dIcon)
 
             buttonFor3d.addEventListener("click", (e) => {
                 e.preventDefault()
                 mainRendererEnabled = !mainRendererEnabled
 
-                buttonFor3dIcon.src = mainRendererEnabled ? assets.closeIcon : assets.viewInArIcon
-                if (!isDarkMode()) {
-                    buttonFor3dIcon.src = buttonFor3dIcon.src.replace("fill%3D%22%23FFFFFF", "fill%3D%22%23202227")
-                }
-                if (animationDropdown) {
-                    animationDropdown.style.display = mainRendererEnabled ? "" : "none"
-                }
+                //switch out default buttons with custom
+                buttonFor3dIcon.src = applyIconTheme(mainRendererEnabled ? assets.closeIcon : assets.viewInArIcon)
+                if (animationDropdown) animationDropdown.style.display = mainRendererEnabled ? "" : "none"
+                if (toggleAccessories) toggleAccessories.style.display = mainRendererEnabled ? "" : "none"
+                if (tryOn) tryOn.style.display = mainRendererEnabled ? "none" : ""
+                if (toggle3d) toggle3d.style.display = mainRendererEnabled ? "none" : ""
             })
         }
 
+        //create accessories toggle button
+        if (!toggleAccessories) {
+            toggleAccessories = document.createElement("button")
+            toggleAccessories.className = "enable-three-dee btn-control button-placement btn-control-md btn--width"
+            toggleAccessories.style.zIndex = 2
+            toggleAccessories.style.display = "none"
+
+            const toggleAccessoriesIcon = document.createElement("img")
+            toggleAccessoriesIcon.src = getApparelIcon()
+            
+            toggleAccessories.appendChild(toggleAccessoriesIcon)
+
+            toggleAccessories.addEventListener("click", () => {
+                accessoriesEnabled = !accessoriesEnabled
+                updateMainRenderer()
+                toggleAccessoriesIcon.src = getApparelIcon()
+            })
+        }
+
+        //create animation dropdown
         if (!animationDropdown) {
             const isR6 = ogAvatarData.playerAvatarType === "R6"
 
@@ -531,8 +604,11 @@ async function asyncInit() {
             animationDropdown.style.display = mainRendererEnabled ? "" : "none"
         }
 
-        element.appendChild(animationDropdown)
+        if (!mainOutfit.containsAssetType("EmoteAnimation")) {
+            element.appendChild(animationDropdown)
+        }
 
+        element.appendChild(toggleAccessories)
         element.appendChild(buttonFor3d)
     })
 
@@ -549,22 +625,11 @@ async function asyncInit() {
                 currentHoveredItemLink = itemLinkElement.href
                 currentHoveredItemType = undefined
 
-                if (itemThumbnailImageContainer) {
-                    const itemThumbnailImage = itemThumbnailImageContainer.children[0]
-                    if (itemThumbnailImage && itemThumbnailImage.src) {
-                        const potentialAssetType = itemThumbnailImage.src.split("/")[6]
-                        if (AssetTypes.includes(potentialAssetType)) {
-                            currentHoveredItemType = potentialAssetType
-                        }
-                    }
-                }
+                updateHoveredItemTypeFromThumbnail(itemThumbnailImageContainer)
             })
             itemThumbContainer.addEventListener("mouseleave", () => {
                 if (currentHoveredItemElement === element) {
-                    currentHoveredItemElement = undefined
-                    currentHoveredItemThumbElement = undefined
-                    currentHoveredItemLink = undefined
-                    currentHoveredItemType = undefined
+                    removeCurrentHoveredItemData()
                 }
             })
         }
@@ -584,22 +649,11 @@ async function asyncInit() {
                 currentHoveredItemLink = itemLinkElement.href
                 currentHoveredItemType = undefined
 
-                if (itemThumbnailImageContainer) {
-                    const itemThumbnailImage = itemThumbnailImageContainer.children[0]
-                    if (itemThumbnailImage && itemThumbnailImage.src) {
-                        const potentialAssetType = itemThumbnailImage.src.split("/")[6]
-                        if (AssetTypes.includes(potentialAssetType)) {
-                            currentHoveredItemType = potentialAssetType
-                        }
-                    }
-                }
+                updateHoveredItemTypeFromThumbnail(itemThumbnailImageContainer)
             })
             itemThumbContainerContainer.addEventListener("mouseleave", () => {
                 if (currentHoveredItemElement === element) {
-                    currentHoveredItemElement = undefined
-                    currentHoveredItemThumbElement = undefined
-                    currentHoveredItemLink = undefined
-                    currentHoveredItemType = undefined
+                    removeCurrentHoveredItemData()
                 }
             })
         }
@@ -624,7 +678,7 @@ export function init() {
     })
 
     //update z-index for elements so theyre above renderer canvas
-    const styleString = "style"
+    const styleString = "style" //supress warning because i think a css file just for setting z-index is unnecessary
     const customStyle = document.createElement(styleString)
     customStyle.innerText = `
     .add-to-cart-btn-container {
