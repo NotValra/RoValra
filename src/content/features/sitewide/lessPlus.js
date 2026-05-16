@@ -15,7 +15,7 @@ async function actualInitBecauseTheUniverseHatesMe(settings) {
     else
         plusType = plusTypeEnum.Full;
 
-    window.addEventListener('load', () => {
+    window.addEventListener('DOMContentLoaded', () => {
         if (plusType >= plusTypeEnum.Reduced) {
             const _RobloxPlusButtonA = document.querySelectorAll("#left-navigation-container .left-nav div a[href='https://www.roblox.com/plus']");
             if (_RobloxPlusButtonA.length != 1)
