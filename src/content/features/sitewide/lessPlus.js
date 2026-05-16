@@ -1,33 +1,29 @@
 const plusTypeEnum = Object.freeze({
     Full: 0,
     Reduced: 1,
-    None: 2
+    None: 2,
 });
 
 let plusType = plusTypeEnum.Reduced;
 
 async function initFromConfig(settings) {
     if (settings.reducePlusAds)
-        if (settings.removeAllPlusAdds)
-            plusType = plusTypeEnum.None;
-        else
-            plusType = plusTypeEnum.Reduced;
-    else
-        plusType = plusTypeEnum.Full;
+        if (settings.removeAllPlusAdds) plusType = plusTypeEnum.None;
+        else plusType = plusTypeEnum.Reduced;
+    else plusType = plusTypeEnum.Full;
 
     window.addEventListener('DOMContentLoaded', () => {
         if (plusType >= plusTypeEnum.Reduced) {
-            const _RobloxPlusButtonA = document.querySelectorAll("#left-navigation-container .left-nav div a[href='https://www.roblox.com/plus']");
-            if (_RobloxPlusButtonA.length != 1)
-                console.error(`Query selector \`#left-navigation-container .left-nav div a[href='https://www.roblox.com/plus']\` returned ${_RobloxPlusButtonA.length} elements.`);
+            const _RobloxPlusButtonA = document.querySelectorAll(
+                "#left-navigation-container .left-nav div a[href='https://www.roblox.com/plus']",
+            );
 
             const robloxPlusButton = _RobloxPlusButtonA[0];
             robloxPlusButton.parentElement.remove();
 
-            const _RobloxPlusNoteA = document.querySelectorAll("#left-navigation-container .left-nav div li.padding-top-xsmall a[href='/plus']");
-            if (_RobloxPlusNoteA.length != 1)
-                console.error(`Query selector \`#left-navigation-container .left-nav div li.padding-top-xsmall a[href='/plus']\` returned ${_RobloxPlusNoteA.length} elements.`);
-
+            const _RobloxPlusNoteA = document.querySelectorAll(
+                "#left-navigation-container .left-nav div li.padding-top-xsmall a[href='/plus']",
+            );
             const robloxPlusNote = _RobloxPlusNoteA[0];
             if (plusType >= plusTypeEnum.None)
                 robloxPlusNote.parentElement.remove();
@@ -38,24 +34,27 @@ async function initFromConfig(settings) {
                       More fun for less Robux. 
                       <a href='/plus' class="content-default [text-decoration:underline] [text-decoration-skip-ink:none] [text-underline-offset:3px]">Subscribe</a>
                     </p>
-                `;  // Verified
+                `; // Verified
             }
 
-            const _RobloxPlusInBuyRobuxSnippetA = document.querySelectorAll("div.buy-robux-content div div div.flex a[href='/plus']");
-            if (_RobloxPlusInBuyRobuxSnippetA.length != 1)
-                console.error(`Query selector \`div.buy-robux-content div div div.flex a[href='/plus']\` returned ${_RobloxPlusInBuyRobuxSnippetA.length} elements.`);
+            const _RobloxPlusInBuyRobuxSnippetA = document.querySelectorAll(
+                "div.buy-robux-content div div div.flex a[href='/plus']",
+            );
 
-            const robloxPlusInBuyRobuxSnippet = _RobloxPlusInBuyRobuxSnippetA[0].parentElement.parentElement.parentElement.children[1];
+            const robloxPlusInBuyRobuxSnippet =
+                _RobloxPlusInBuyRobuxSnippetA[0].parentElement.parentElement
+                    .parentElement.children[1];
 
             if (plusType >= plusTypeEnum.None)
                 robloxPlusInBuyRobuxSnippet.parentElement.remove();
-            else
-                robloxPlusInBuyRobuxSnippet.remove();
+            else robloxPlusInBuyRobuxSnippet.remove();
         }
-
     });
 }
 
 export function init() {
-    chrome.storage.local.get({reducePlusAds: true, removeAllPlusAdds: true}, initFromConfig);
+    chrome.storage.local.get(
+        { reducePlusAds: true, removeAllPlusAdds: true },
+        initFromConfig,
+    );
 }
