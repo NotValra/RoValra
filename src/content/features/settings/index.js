@@ -74,6 +74,7 @@ const APPEAL_STATUSES = [
 
 let standingCache = null;
 let topDonatorsCache = null;
+let ownedBordersCache = null;
 const priceCache = new Map();
 const artistCache = new Map();
 
@@ -106,6 +107,32 @@ function getLevenshteinDistance(a, b) {
         }
     }
     return matrix[b.length][a.length];
+}
+
+async function getOwnedBorders() {
+    if (ownedBordersCache) return ownedBordersCache;
+    try {
+        const response = await callRobloxApi({
+            subdomain: 'apis',
+            endpoint: '/v1/auth/borders',
+            method: 'GET',
+            isRovalraApi: true,
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            ownedBordersCache = {
+                borders: new Set(data.owned_borders || []),
+                gamepasses: new Set(
+                    (data.owned_gamepasses || []).map((id) => String(id)),
+                ),
+            };
+            return ownedBordersCache;
+        }
+    } catch (e) {
+        console.warn('RoValra: Failed to fetch owned borders', e);
+    }
+    return { borders: new Set(), gamepasses: new Set() };
 }
 
 async function getGamePassPrice(id) {
@@ -225,6 +252,11 @@ async function openBorderOverlay(
     gamepassId,
 ) {
     const tier = getCurrentUserTier();
+    const ownedData = await getOwnedBorders();
+    const isOwned =
+        tier >= 3 ||
+        ownedData.borders.has(variant.value) ||
+        (gamepassId && ownedData.gamepasses.has(String(gamepassId)));
     const body = document.createElement('div');
     body.style.cssText =
         'display: flex; flex-direction: column; align-items: center; gap: 20px; padding: 10px;';
@@ -301,19 +333,21 @@ async function openBorderOverlay(
         getGamePassPrice(gamepassId).then((price) => {
             if (price !== null) {
                 const priceValue = price.toLocaleString();
-                if (tier >= 3) {
+                if (isOwned) {
                     priceLabel.innerHTML = `
                         <span style="text-decoration: line-through; opacity: 0.6; display: flex; align-items: center; gap: 2px;">
                             <span class="icon-robux-16x16"></span>${priceValue}
                         </span>
-                        <span class="rovalra-free-label" style="color: var(--rovalra-main-text-color); margin-left: 4px; cursor: help; font-size: 16px;">Free</span>
+                        <span class="rovalra-free-label" style="color: var(--rovalra-main-text-color); margin-left: 4px; cursor: help; font-size: 16px;">${tier >= 3 ? 'Free' : 'Owned'}</span>
                     `; //Verified
                     const freeLabel = priceLabel.querySelector(
                         '.rovalra-free-label',
                     );
                     addTooltip(
                         freeLabel,
-                        'Free because you have Donator Tier 3!',
+                        tier >= 3
+                            ? 'Free because you have Donator Tier 3!'
+                            : 'You own this border!',
                         {
                             position: 'top',
                         },
@@ -335,11 +369,15 @@ async function openBorderOverlay(
     actionBtn.className = 'btn-cta-md btn-min-width';
     actionBtn.style.width = '100%';
 
-    if (tier >= 3) {
+    if (isOwned) {
         actionBtn.textContent = `Equip ${variant.label}`;
-        addTooltip(actionBtn, 'Free because you have Donator Tier 3!', {
-            position: 'top',
-        });
+        addTooltip(
+            actionBtn,
+            tier >= 3
+                ? 'Free because you have Donator Tier 3!'
+                : 'You own this border!',
+            { position: 'top' },
+        );
         actionBtn.onclick = async () => {
             await handleSaveSettings('avatarBorderChoice', variant.value);
             updateUserSettingViaApi('border', variant.link).catch(() => {});
@@ -1765,6 +1803,7 @@ async function renderStoreBorders(container) {
 
     try {
         const borderCategories = await getBorders();
+        const ownedData = await getOwnedBorders();
         if (!borderCategories || borderCategories.length === 0) {
             container.innerHTML =
                 '<p style="color: var(--rovalra-secondary-text-color);">No borders available.</p>';
@@ -2064,15 +2103,20 @@ async function renderStoreBorders(container) {
                     priceLabel.style.cssText =
                         'font-size: 12px; font-weight: 600; color: var(--rovalra-secondary-text-color); display: flex; align-items: center; justify-content: center; gap: 4px; margin-bottom: 4px;';
                     const tier = getCurrentUserTier();
+                    const isOwned =
+                        tier >= 3 ||
+                        ownedData.borders.has(variant.value) ||
+                        ownedData.gamepasses.has(String(variant.gamepassId));
+
                     getGamePassPrice(variant.gamepassId).then((price) => {
                         if (price !== null && price !== undefined) {
                             const priceValue = price.toLocaleString();
-                            if (tier >= 3) {
+                            if (isOwned) {
                                 priceLabel.innerHTML = `
                                     <span style="text-decoration: line-through; opacity: 0.6; display: flex; align-items: center; gap: 2px;">
                                         <span class="icon-robux-16x16"></span>${priceValue}
                                     </span>
-                                    <span class="rovalra-free-label" style="color: var(--rovalra-main-text-color); margin-left: 4px; cursor: help; font-size: 14px;">Free</span>
+                                    <span class="rovalra-free-label" style="color: var(--rovalra-main-text-color); margin-left: 4px; cursor: help; font-size: 14px;">${tier >= 3 ? 'Free' : 'Owned'}</span>
                                 `; //Verified
                                 const freeLabel = priceLabel.querySelector(
                                     '.rovalra-free-label',
@@ -2080,8 +2124,12 @@ async function renderStoreBorders(container) {
                                 if (freeLabel) {
                                     addTooltip(
                                         freeLabel,
-                                        'Free because you have Donator Tier 3!',
-                                        { position: 'top' },
+                                        tier >= 3
+                                            ? 'Free because you have Donator Tier 3!'
+                                            : 'You own this border!',
+                                        {
+                                            position: 'top',
+                                        },
                                     );
                                 }
                             } else {
