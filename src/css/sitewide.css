@@ -63,3 +63,7 @@
     );
     --rovalra-icon-blocked-color: #ffffff;
 }
+
+div.tooltip-inner {
+    border-radius: 8px;
+}
