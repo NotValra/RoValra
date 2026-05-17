@@ -1239,6 +1239,11 @@ export function initializeSettingsEventListeners() {
         });
     });
 
+    document.addEventListener('rovalra:openBorderStore', () => {
+        window.location.href =
+            'https://www.roblox.com/my/account?rovalra=store';
+    });
+
     document.addEventListener('rovalra:generateEnvironmentJson', async () => {
         const settings = await loadSettings();
         const envConfig = {};

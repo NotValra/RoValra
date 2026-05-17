@@ -1340,6 +1340,20 @@ export const buttonData = [
         },
     },
     {
+        id: 'store',
+        get text() {
+            return 'Store';
+        },
+        get content() {
+            return `
+            <div style="padding: 8px;">
+                <h2 style="margin-bottom: 15px; color: var(--rovalra-main-text-color) !important;">Avatar Border Store</h2>
+                <p style="color: var(--rovalra-secondary-text-color); margin-bottom: 20px;">Preview and select your avatar borders. This is a <strong>Donator Tier 3</strong> perk.</p>
+                <div id="rovalra-store-border-container" style="color: var(--rovalra-secondary-text-color);">Loading borders...</div>
+            </div>`;
+        },
+    },
+    {
         id: 'accountStanding',
         get text() {
             return ts('settings.tabs.accountStanding');
@@ -1364,20 +1378,6 @@ export const buttonData = [
             <div id="settings-content" style="padding: 0; background-color: transparent;">
                 <div id="setting-section-buttons" style="display: flex; margin-bottom: 25px;"></div>
                 <div id="setting-section-content" style="padding: 5px;"></div>
-            </div>`;
-        },
-    },
-    {
-        id: 'store',
-        get text() {
-            return 'Store';
-        },
-        get content() {
-            return `
-            <div style="padding: 8px;">
-                <h2 style="margin-bottom: 15px; color: var(--rovalra-main-text-color) !important;">Avatar Border Store</h2>
-                <p style="color: var(--rovalra-secondary-text-color); margin-bottom: 20px;">Preview and select your avatar borders. This is a <strong>Donator Tier 3</strong> perk.</p>
-                <div id="rovalra-store-border-container" style="color: var(--rovalra-secondary-text-color);">Loading borders...</div>
             </div>`;
         },
     },

@@ -828,9 +828,10 @@ export const SETTINGS_CONFIG = {
                         description: [
                             'Choose which border displays around your own avatar.',
                         ],
-                        type: 'select',
+                        type: 'button',
+                        buttonText: 'Open Border Store',
+                        event: 'rovalra:openBorderStore',
                         avatarPreview: true,
-                        options: 'BORDERS',
                         donatorTier: 3,
                         donatorReason:
                             'Donator Tier 3 is required to set a custom avatar border. This is a cosmetic perk to reward donators.',
