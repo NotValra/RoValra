@@ -887,9 +887,6 @@ export const createAndShowPopup = (onSave, initialState = null) => {
             return;
         }
 
-        if (initialState && initialState.view === 'validation-warning') {
-        }
-
         viewValidationWarning.classList.remove('sr-hidden');
     };
 

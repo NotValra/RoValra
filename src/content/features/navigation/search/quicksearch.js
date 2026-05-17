@@ -302,10 +302,6 @@ async function performUserSearch(query) {
                 );
             }
         }
-        const uniqueFriends = localFriends.filter(
-            (f) => !userResult || f.id !== userResult.id,
-        );
-        const uniqueFriendIds = uniqueFriends.map((f) => f.id);
 
         if (userResult) {
             if (signal.aborted) return;
@@ -820,7 +816,6 @@ function createResultHtml(
     voteRatio,
     totalVotes,
     settings,
-    friendsInfo,
 ) {
     const li = document.createElement('li');
     li.className =
@@ -922,7 +917,7 @@ function createResultHtml(
                     tooltipText = `${await t('quickSearch.joinPreferredRegion')}<br><b>${regionName}</b>`;
                 }
                 addTooltip(regionBtn, tooltipText, { position: 'top' });
-            } catch (e) {
+            } catch {
                 addTooltip(regionBtn, ts('quickSearch.joinPreferredRegion'), {
                     position: 'top',
                 });

@@ -1,6 +1,14 @@
 import { observeElement } from '../../core/observer.js';
 import { fetchThumbnails } from '../../core/thumbnail/thumbnails.js';
+<<<<<<< HEAD
 import { loadDatacenterMap, serverIpMap } from '../../core/regions.js';
+=======
+import {
+    loadDatacenterMap,
+    getRegionData,
+    serverIpMap,
+} from '../../core/regions.js';
+>>>>>>> ba4b86e (cleanup: linting autofix)
 import { callRobloxApi } from '../../core/api.js';
 import DOMPurify from 'dompurify';
 import { launchGame } from '../../core/utils/launcher.js';
@@ -181,7 +189,7 @@ async function fetchUserPresence(userId) {
             data?.userPresences?.[0]?.placeId ||
             null
         );
-    } catch (e) {
+    } catch {
         return null;
     }
 }
@@ -382,7 +390,7 @@ async function pollClientStatus(targetPlaceId) {
                 const data = await response.json();
                 handleClientStatus(data);
             }
-        } catch (e) {}
+        } catch {}
     };
 
     const handleClientStatus = (data) => {
@@ -458,7 +466,7 @@ async function pollClientStatus(targetPlaceId) {
                         }
                     }
                 }
-            } catch (e) {}
+            } catch {}
         }, 3000);
     }
 }
@@ -568,7 +576,7 @@ function initializeJoinDialogEnhancer() {
                         new URL(decodedUrlString).search,
                     );
                     placeId = urlParams.get('placeId');
-                } catch (e) {
+                } catch {
                     showLoadingOverlayResult(
                         await t('revertLogo.errorParsingUrl'),
                         {
@@ -773,7 +781,7 @@ function initializeJoinDialogEnhancer() {
                                             thumbData?.imageUrl || null,
                                     };
                                 }
-                            } catch (e) {}
+                            } catch {}
                         }
 
                         regionCode = joinApiResponse.country;
@@ -870,7 +878,7 @@ function initialize() {
     try {
         initRevertLogo();
         initializeJoinDialogEnhancer();
-    } catch (e) {}
+    } catch {}
 }
 
 export function init() {

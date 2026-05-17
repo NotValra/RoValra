@@ -143,7 +143,7 @@ async function resolveAppeal(userId, status, response, internalNote) {
             },
         });
         return res.ok;
-    } catch (err) {
+    } catch {
         return false;
     }
 }
@@ -498,7 +498,7 @@ async function resolveReport(reportId, action) {
             },
         });
         return res.ok;
-    } catch (err) {
+    } catch {
         return false;
     }
 }
@@ -675,7 +675,7 @@ async function renderReportsTab(container) {
 
                 listContainer.appendChild(card);
             });
-        } catch (e) {
+        } catch {
             listContainer.innerHTML =
                 '<p style="color: #f93e3e;">Failed to load report queue.</p>';
         }
@@ -1052,12 +1052,12 @@ async function renderUserStatusTab(container) {
 
                         statusEl.textContent = isSecure ? 'SECURE' : 'BYPASS';
                         statusEl.style.color = isSecure ? '#49cc90' : '#f93e3e';
-                    } catch (probeErr) {
+                    } catch {
                         statusEl.textContent = 'ERROR';
                         statusEl.style.color = '#f93e3e';
                     }
                 }
-            } catch (e) {
+            } catch {
                 resultsDiv.querySelectorAll('.test-status').forEach((s) => {
                     s.textContent = 'ERROR';
                     s.style.color = '#f93e3e';

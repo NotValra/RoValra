@@ -78,7 +78,7 @@ async function loadAndRenderHeatmap(placeId, parentElement) {
     const metaData = document.getElementById('game-detail-meta-data');
     const universeId = metaData?.dataset.universeId;
 
-    const checkBlocking = async (hasHistoryData) => {
+    const checkBlocking = async () => {
         let blockingMessage = null;
 
         if (universeId) {

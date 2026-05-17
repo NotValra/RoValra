@@ -1,6 +1,5 @@
 // Smartest not to use!!!
-import DOMPurify from 'dompurify';
-import { safeHtml } from '../../core/packages/dompurify.js'
+import { safeHtml } from '../../core/packages/dompurify.js';
 
 export function createInventoryOverlay(options) {
     const { title, stat, rolimonsUrl, onSearch, onLoadMore } = options;

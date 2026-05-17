@@ -137,7 +137,7 @@ function setupTrailerVideo(targetItem, videoId, assetType, carouselContainer, sh
 
             await streamRobloxVideo(data, videoElement, () => {});
         } catch (error) {
-            console.error("something went wrong with the gametrailers.", error)
+            console.error("something went wrong with the gametrailers.", error);
         }
     })();
 }

@@ -145,7 +145,6 @@ async function addFriendsSinceLabel(friendsMap, settings) {
                 let ageRange =
                     friendData.verifiedAgeRange || friendData.estimatedAgeRange;
                 let hasAgeContent = false;
-                let hasOriginContent = false;
 
                 if (ageRange && settings.showUserAgeEnabled) {
                     const ageLabel = document.createElement('span');
@@ -171,7 +170,6 @@ async function addFriendsSinceLabel(friendsMap, settings) {
                         friendData.friendRequestOrigin,
                     );
                     detailsLabel.appendChild(originLabel);
-                    hasOriginContent = true;
                 }
 
                 if (detailsLabel.hasChildNodes()) {

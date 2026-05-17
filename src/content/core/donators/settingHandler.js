@@ -3,16 +3,9 @@ import { getValidAccessToken } from '../oauth/oauth.js';
 import { getAuthenticatedUserId } from '../user.js';
 import {
     syncDonatorTier,
-    getCurrentUserTier,
 } from '../settings/handlesettings.js';
 import {
-    TRUSTED_USER_IDS,
-    ARTIST_USER_IDS,
-    RAT_BADGE_USER_ID,
-    BLAHAJ_BADGE_USER_ID,
-    CAM_BADGE_USER_ID,
-    alice_badge_user_id,
-    GILBERT_USER_ID,
+    TRUSTED_USER_IDS
 } from '../configs/userIds.js';
 import * as cache from '../storage/cacheHandler.js';
 

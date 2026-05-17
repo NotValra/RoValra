@@ -72,7 +72,7 @@ export function init() {
 
                 const data = await response.json();
                 return !!data.canView;
-            } catch (error) {
+            } catch {
                 return false;
             }
         }
@@ -91,7 +91,6 @@ export function init() {
             displayName,
         ) {
             let selectedOutfitId = null;
-            let selectedListItem = null;
             const outfitDetailsCache = new Map();
 
             const panelsWrapper = document.createElement('div');
@@ -256,14 +255,13 @@ export function init() {
             window.addEventListener('keydown', handleKeydown);
 
             let resizeObserver = null;
-            const selectOutfit = async (outfit, listItem) => {
+            const selectOutfit = async (outfit) => {
                 if (selectedOutfitId === outfit.id) {
                     mainPanel.style.display = 'none';
                     detailsPanel.style.display = 'flex';
                     return;
                 }
 
-                selectedListItem = listItem;
                 selectedOutfitId = outfit.id;
 
                 if (resizeObserver) resizeObserver.unobserve();
@@ -723,7 +721,7 @@ export function init() {
 
                         if (selectedOutfitId !== outfit.id) return;
                         await renderOutfitDetails(newOutfitData);
-                    } catch (error) {
+                    } catch {
                         itemsContainer.innerHTML = DOMPurify.sanitize(
                             `<p style="color: var(--rovalra-secondary-text-color); font-style: italic; text-align: center; margin-right: auto; margin-left: auto;">${await t('userOutfits.errorLoadingItems')}</p>`,
                         );
@@ -801,7 +799,7 @@ export function init() {
                         list.innerHTML = '';
                         outfitsLoaded = true;
                     }
-                    outfits.forEach((outfit, index) => {
+                    outfits.forEach((outfit) => {
                         const listItem = renderOutfitListItem(
                             outfit,
                             thumbnails,
@@ -894,7 +892,7 @@ export function init() {
                     } else {
                         alert(await t('userOutfits.errorNoUserId'));
                     }
-                } catch (error) {
+                } catch {
                     if (!loadingControl.cancelled)
                         alert(await t('userOutfits.errorFetch'));
                 }

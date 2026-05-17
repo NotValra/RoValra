@@ -1,5 +1,4 @@
 import { observeElement, startObserving } from '../../../core/observer.js';
-import * as cache from '../../../core/storage/cacheHandler.js';
 import { getUserIdFromUrl } from '../../../core/idExtractor.js';
 import { injectStylesheet } from '../../../core/ui/cssInjector.js';
 import { addTooltip } from '../../../core/ui/tooltip.js';
@@ -22,16 +21,9 @@ import { migrateLegacyStatus } from '../../../core/profile/descriptionhandler.js
 import DOMPurify from 'dompurify';
 import {
     TRUSTED_USER_IDS,
-    ARTIST_USER_IDS,
-    RAT_BADGE_USER_ID,
-    BLAHAJ_BADGE_USER_ID,
-    CAM_BADGE_USER_ID,
-    alice_badge_user_id,
-    GILBERT_USER_ID,
 } from '../../../core/configs/userIds.js';
 import {
     syncDonatorTier,
-    getCurrentUserTier,
 } from '../../../core/settings/handlesettings.js';
 import {
     onUserCardElement,
@@ -55,7 +47,7 @@ function cleanupStatusElements(container) {
                 element.load();
             }
             element.remove();
-        } catch (e) {}
+        } catch {}
     }
 }
 
@@ -81,7 +73,7 @@ DOMPurify.addHook('afterSanitizeAttributes', (currentNode) => {
                 currentNode.style.cursor = 'text';
                 currentNode.style.pointerEvents = 'none';
             }
-        } catch (e) {}
+        } catch {}
     }
 
     if (currentNode.tagName === 'IMG' && currentNode.hasAttribute('src')) {
@@ -95,7 +87,7 @@ DOMPurify.addHook('afterSanitizeAttributes', (currentNode) => {
             ) {
                 currentNode.removeAttribute('src');
             }
-        } catch (e) {}
+        } catch {}
     }
 });
 

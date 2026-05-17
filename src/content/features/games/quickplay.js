@@ -4,10 +4,8 @@ import { callRobloxApi } from '../../core/api.js';
 import {
     launchGame,
     launchPrivateGame,
-    launchMultiplayerGame,
 } from '../../core/utils/launcher.js';
 import {
-    getRegionData,
     getFullRegionName,
     REGIONS,
 } from '../../core/regions.js';

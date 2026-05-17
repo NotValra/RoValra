@@ -797,7 +797,6 @@ function renderSummary(giveOffer, receiveOffer, giveStats, receiveStats) {
         target.appendChild(summaryDiv);
     }
 
-    const assets = getAssets();
     summaryDiv.innerHTML = '';
 
     let myRap = giveStats.rap;

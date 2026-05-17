@@ -23,7 +23,7 @@ const parseTimestamp = (timestampStr) => {
         const dt = new Date(timestampStr);
         if (isNaN(dt.getTime())) return null;
         return dt;
-    } catch (e) {
+    } catch {
         return null;
     }
 };
@@ -107,7 +107,7 @@ async function fetchTransactions(groupId) {
             } else {
                 break transactionLoop;
             }
-        } catch (error) {
+        } catch {
             break transactionLoop;
         }
     }
@@ -262,7 +262,7 @@ async function injectResultElement(targetElement, result) {
 
     if (estimatorRow) {
         const amountCell = estimatorRow.querySelector('.amount-cell');
-        if (amountCell) amountCell.innerHTML = amountHtml;
+        if (amountCell) amountCell.innerHTML = amountHtml;  // Verified
 
         const infoIcon = estimatorRow.querySelector('.icon-moreinfo');
         if (infoIcon && infoIcon.dataset.tooltipText !== tooltipText) {

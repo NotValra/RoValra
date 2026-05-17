@@ -163,7 +163,6 @@ export function recalculateTotalPrice() {
         }
 
         const bundleId = card.dataset.rovalraBundleId;
-        const isBundle = link.href.includes('/bundles/');
 
         if (bundleId) {
             if (!processedBundleIds.has(bundleId)) {

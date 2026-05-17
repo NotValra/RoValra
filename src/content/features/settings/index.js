@@ -2,7 +2,6 @@ import { getAssets } from '../../core/assets.js';
 import {
     getRegionData,
     loadDatacenterMap,
-    getFullRegionName,
 } from '../../core/regions.js';
 import { observeElement } from '../../core/observer.js';
 import { generateSingleSettingHTML } from '../../core/settings/generateSettings.js';
@@ -640,7 +639,7 @@ async function loadContributors() {
         renderContributors(container, users, thumbMap);
     } catch (err) {
         console.error('RoValra: Error loading contributors', err);
-        container.innerHTML = `<p style="color: var(--rovalra-secondary-text-color);">${ts('settings.credits.failedToLoadContributors')}</p>`;
+        container.innerHTML = `<p style="color: var(--rovalra-secondary-text-color);">${ts('settings.credits.failedToLoadContributors')}</p>`;  // Verified
     }
 }
 
@@ -665,7 +664,7 @@ function createAnonymousToggle(isAnonymous, onToggle) {
     return anonBtn;
 }
 
-function renderTopDonators(container, donators, thumbMap, currentUserId) {
+function renderTopDonators(container, donators, thumbMap) {
     container.innerHTML = '';
     const wrapper = document.createElement('div');
     wrapper.style.cssText = 'margin-top: 15px;';
@@ -776,7 +775,7 @@ function renderTopDonators(container, donators, thumbMap, currentUserId) {
             }
 
             const amount = document.createElement('div');
-            amount.innerHTML = `<span class="icon-robux-16x16"></span>${data.amount.toLocaleString()}`;
+            amount.innerHTML = `<span class="icon-robux-16x16"></span>${safeHtml(data.amount.toLocaleString())}`;  // Verified
             amount.style.cssText =
                 'color: var(--rovalra-main-text-color); font-size: 13px; font-weight: bold; margin-bottom: 10px; display: flex; align-items: center; gap: 2px;';
 
@@ -874,7 +873,7 @@ function renderTopDonators(container, donators, thumbMap, currentUserId) {
                 addTooltip(name, 'This user has enabled anonymous mode');
             }
             const amount = document.createElement('span');
-            amount.innerHTML = `<span class="icon-robux-16x16" style="margin-right: 2px;"></span>${donor.amount.toLocaleString()}`;
+            amount.innerHTML = `<span class="icon-robux-16x16" style="margin-right: 2px;"></span>${safeHtml(donor.amount.toLocaleString())}`;  // Verified
             amount.style.cssText =
                 'color: var(--rovalra-secondary-text-color); font-size: 12px; font-weight: bold; display: flex; align-items: center;';
 
@@ -1046,7 +1045,6 @@ async function loadTopDonators() {
             container,
             topDonatorsCache.donators,
             topDonatorsCache.thumbMap,
-            topDonatorsCache.currentUserId,
         );
         return;
     }
@@ -1125,7 +1123,7 @@ async function loadTopDonators() {
             currentUserId: authenticatedUserId,
             authedDonorInfo,
         };
-        renderTopDonators(container, donators, thumbMap, authenticatedUserId);
+        renderTopDonators(container, donators, thumbMap);
     } catch (err) {
         console.error('RoValra: Error loading top donators', err);
         container.innerHTML = '';
@@ -1678,7 +1676,7 @@ function updateAccountStandingUI(discordCard, data, levels) {
                             body: { message: msg },
                         });
                         return res.ok;
-                    } catch (e) {
+                    } catch {
                         return false;
                     }
                 });

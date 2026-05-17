@@ -426,7 +426,7 @@ function setupUrlChangeListeners() {
 
     window.addEventListener('popstate', handleUrlChange);
 
-    let urlCheckInterval = setInterval(() => {
+    setInterval(() => {
         if (window.location.pathname.toLowerCase() !== lastPath) {
             handleUrlChange();
         }

@@ -12,8 +12,8 @@ import {
     AnimatorWrapper
 } from 'roavatar-renderer';
 // This script is kinad outdated
-FLAGS.ASSETS_PATH = chrome.runtime.getURL("assets/rbxasset/")
-FLAGS.USE_WORKERS = false 
+FLAGS.ASSETS_PATH = chrome.runtime.getURL("assets/rbxasset/");
+FLAGS.USE_WORKERS = false; 
 
 let currentRig = null;
 let lastFrameTime = Date.now() / 1000;
