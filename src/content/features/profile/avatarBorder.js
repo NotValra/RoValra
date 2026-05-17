@@ -169,12 +169,14 @@ function handleTile(tile, authedUserId, localBorderValue) {
     if (tile.dataset.rovalraBorderApplied) return;
     tile.dataset.rovalraBorderApplied = 'true';
 
-    const link = tile.querySelector('a.avatar-card-link');
+    const link = tile.matches('a')
+        ? tile
+        : tile.querySelector('a.avatar-card-link, a.user-item-clickable');
     if (!link) return;
 
     const userId = getUserIdFromUrl(link.href);
     const avatarEl = tile.querySelector(
-        '.avatar.avatar-card-fullbody, .avatar-card-image',
+        '.avatar-card-fullbody, .avatar-card-image',
     );
     if (!avatarEl) return;
 

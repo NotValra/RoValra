@@ -5,6 +5,7 @@ export const USER_CARD_SELECTORS = [
     'li.list-item.avatar-card',
     '.avatar-card-container',
     '.rovalra-donator-card',
+    '.user-item-clickable',
 ];
 
 const subscriptions = new Set();

@@ -383,7 +383,7 @@ async function openBorderOverlay(
         purchaseWarning.style.cssText =
             'font-size: 11px; color: var(--rovalra-secondary-text-color); text-align: center; margin-top: 4px; opacity: 0.7;';
         purchaseWarning.textContent =
-            'it may take upto a minute for the avatar border to show up after buying';
+            'it may take up to a minute for the avatar border to show up after buying';
         infoWrapper.appendChild(purchaseWarning);
     }
 

@@ -70,7 +70,9 @@ function applyGradientToAvatarTile(tile) {
     if (tile.dataset.rovalraGradientApplied) return;
     tile.dataset.rovalraGradientApplied = 'true';
 
-    const link = tile.querySelector('a.avatar-card-link');
+    const link = tile.matches('a')
+        ? tile
+        : tile.querySelector('a.avatar-card-link, a.user-item-clickable');
     const avatarContainer = tile.querySelector('.avatar-card-image');
     if (!link || !avatarContainer) return;
 

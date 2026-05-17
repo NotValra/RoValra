@@ -536,7 +536,10 @@ export function init() {
                 if (settings.statusBubbleHomePage) {
                     observeUserCardElements();
                     onUserCardElement(addHomeStatusHover, {
-                        exclude: ['.rovalra-donator-card'],
+                        exclude: [
+                            '.rovalra-donator-card',
+                            '.user-item-clickable',
+                        ],
                     });
                 }
             }
