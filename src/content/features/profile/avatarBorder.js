@@ -12,8 +12,39 @@ import {
     observeUserCardElements,
 } from '../../core/profile/userCardElements.js';
 
-export async function applyBorderToContainer(container, borderUrl) {
+export async function applyBorderToContainer(
+    container,
+    borderUrl,
+    alwaysPlay = false,
+) {
     if (!borderUrl) return;
+
+    const borders = await getBorders().catch(() => []);
+    let staticLink = borderUrl;
+    let animatedLink = null;
+    let isConfigured = false;
+
+    for (const cat of borders) {
+        if (!cat.variants) continue;
+        for (const variant of cat.variants) {
+            if (variant.link === borderUrl) {
+                staticLink = variant.link;
+                animatedLink = null;
+                isConfigured = true;
+                break;
+            }
+            if (variant.animated) {
+                const anim = variant.animated.find((a) => a.link === borderUrl);
+                if (anim) {
+                    staticLink = variant.link;
+                    animatedLink = anim.link;
+                    isConfigured = true;
+                    break;
+                }
+            }
+        }
+        if (isConfigured) break;
+    }
 
     if (
         container.querySelector('.rovalra-avatar-border') ||
@@ -26,13 +57,17 @@ export async function applyBorderToContainer(container, borderUrl) {
     const img = document.createElement('img');
     img.className = 'rovalra-avatar-border';
 
-    img.onload = () => {
+    img.onload = async () => {
         delete container.dataset.rovalraBorderLoading;
         if (
             container.querySelector('.rovalra-avatar-border') ||
             container.dataset.rovalraIntendedBorder !== borderUrl
         )
             return;
+
+        if (img.decode) {
+            await img.decode().catch(() => {});
+        }
 
         const overlays = [];
         for (const child of container.children) {
@@ -63,7 +98,28 @@ export async function applyBorderToContainer(container, borderUrl) {
             container.appendChild(overlay);
         }
 
-        container.appendChild(img);
+        if (alwaysPlay || !animatedLink || animatedLink === staticLink) {
+            container.appendChild(img);
+        } else {
+            const animImg = document.createElement('img');
+            animImg.className = 'rovalra-avatar-border';
+            animImg.src = animatedLink;
+            animImg.style.display = 'none';
+            if (animImg.decode) animImg.decode().catch(() => {});
+
+            container.appendChild(img);
+            container.appendChild(animImg);
+
+            container.addEventListener('mouseenter', () => {
+                img.style.display = 'none';
+                animImg.style.display = 'block';
+            });
+            container.addEventListener('mouseleave', () => {
+                img.style.display = 'block';
+                animImg.style.display = 'none';
+            });
+        }
+
         if (status) status.style.zIndex = '3';
     };
 
@@ -71,7 +127,7 @@ export async function applyBorderToContainer(container, borderUrl) {
         delete container.dataset.rovalraBorderLoading;
     };
 
-    img.src = borderUrl;
+    img.src = alwaysPlay && animatedLink ? animatedLink : staticLink;
 }
 
 function findInBorders(borders, key, type = 'value') {
@@ -116,10 +172,7 @@ function handleTile(tile, authedUserId, localBorderValue) {
     const link = tile.querySelector('a.avatar-card-link');
     if (!link) return;
 
-    const match = link.href.match(/\/users\/(\d+)\//);
-    if (!match) return;
-    const userId = match[1];
-
+    const userId = getUserIdFromUrl(link.href);
     const avatarEl = tile.querySelector(
         '.avatar.avatar-card-fullbody, .avatar-card-image',
     );
@@ -180,7 +233,7 @@ export async function init() {
             ].join(', '),
             (element) => {
                 const target = element.parentElement || element;
-                applyBorderToContainer(target, borderUrl);
+                applyBorderToContainer(target, borderUrl, true);
             },
             { multiple: true },
         );

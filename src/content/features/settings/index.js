@@ -287,7 +287,7 @@ async function openBorderOverlay(
         )?.remove();
 
         const avatarEl = card.querySelector('.avatar.avatar-card-fullbody');
-        if (avatarEl) applyBorderToContainer(avatarEl, v.link);
+        if (avatarEl) applyBorderToContainer(avatarEl, v.link, true);
 
         card.style.overflow = 'visible';
         card.style.width = '90px';
@@ -1895,7 +1895,11 @@ async function renderStoreBorders(container) {
                         '.avatar.avatar-card-fullbody',
                     );
                     if (avatarEl) {
-                        applyBorderToContainer(avatarEl, currentBorder.link);
+                        applyBorderToContainer(
+                            avatarEl,
+                            currentBorder.link,
+                            true,
+                        );
                     }
                 }
             }
@@ -1972,7 +1976,7 @@ async function renderStoreBorders(container) {
                     '.avatar.avatar-card-fullbody',
                 );
                 if (staticAvatarEl)
-                    applyBorderToContainer(staticAvatarEl, variant.link);
+                    applyBorderToContainer(staticAvatarEl, variant.link, true);
 
                 const staticLabel = document.createElement('div');
                 staticLabel.style.cssText =
@@ -2028,7 +2032,11 @@ async function renderStoreBorders(container) {
                         '.avatar.avatar-card-fullbody',
                     );
                     if (animAvatarEl)
-                        applyBorderToContainer(animAvatarEl, animVariant.link);
+                        applyBorderToContainer(
+                            animAvatarEl,
+                            animVariant.link,
+                            true,
+                        );
 
                     const animLabel = document.createElement('div');
                     animLabel.style.cssText =
@@ -2194,7 +2202,7 @@ function updatePreviewAndUI(selectedValue, link, container, previewHolder) {
         }
         delete avatarEl.dataset.rovalraBorderLoading;
         if (link) {
-            applyBorderToContainer(avatarEl, link);
+            applyBorderToContainer(avatarEl, link, true);
         }
     }
     container.querySelectorAll('[data-border-card]').forEach((c) => {
