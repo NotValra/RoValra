@@ -51,6 +51,7 @@ import {
 } from '../../core/donators/settingHandler.js';
 import { getBorders, getCachedBorders } from '../../core/configs/borders.js';
 import { createUserCard } from '../../core/ui/profile/userCard.js';
+import { createPill } from '../../core/ui/general/pill.js';
 import { applyBorderToContainer } from '../profile/avatarBorder.js';
 import { getUserDisplayName } from '../../core/apis/users.js';
 import { showSystemAlert } from '../../core/ui/roblox/alert.js';
@@ -251,12 +252,18 @@ async function openBorderOverlay(
     artistId,
     gamepassId,
 ) {
+    const effectiveGamepassId =
+        gamepassId || variant.gamepassId || otherVariant?.gamepassId;
+    const effectiveArtistId =
+        artistId || variant.artistId || otherVariant?.artistId;
+
     const tier = getCurrentUserTier();
     const ownedData = await getOwnedBorders();
     const isOwned =
         tier >= 3 ||
         ownedData.borders.has(variant.value) ||
-        (gamepassId && ownedData.gamepasses.has(String(gamepassId)));
+        (effectiveGamepassId &&
+            ownedData.gamepasses.has(String(effectiveGamepassId)));
     const body = document.createElement('div');
     body.style.cssText =
         'display: flex; flex-direction: column; align-items: center; gap: 20px; padding: 10px;';
@@ -325,12 +332,12 @@ async function openBorderOverlay(
         infoWrapper.appendChild(bundleNotice);
     }
 
-    if (gamepassId) {
+    if (effectiveGamepassId) {
         const priceLabel = document.createElement('div');
         priceLabel.style.cssText =
             'font-size: 14px; font-weight: 600; color: var(--rovalra-secondary-text-color); display: flex; align-items: center; gap: 4px;';
 
-        getGamePassPrice(gamepassId).then((price) => {
+        getGamePassPrice(effectiveGamepassId).then((price) => {
             if (price !== null) {
                 const priceValue = price.toLocaleString();
                 if (isOwned) {
@@ -360,9 +367,26 @@ async function openBorderOverlay(
         infoWrapper.appendChild(priceLabel);
     }
 
-    if (artistId) {
-        infoWrapper.appendChild(createArtistCreditSection(artistId));
+    if (effectiveArtistId) {
+        infoWrapper.appendChild(createArtistCreditSection(effectiveArtistId));
     }
+
+    const supportNotice = document.createElement('div');
+    supportNotice.style.cssText =
+        'font-size: 11px; color: var(--rovalra-secondary-text-color); text-align: center; margin-top: 10px; font-style: italic; opacity: 0.8;';
+    supportNotice.textContent =
+        'Buying the cosmetics directly will support the artist and RoValra';
+    infoWrapper.appendChild(supportNotice);
+
+    if (!isOwned && effectiveGamepassId) {
+        const purchaseWarning = document.createElement('div');
+        purchaseWarning.style.cssText =
+            'font-size: 11px; color: var(--rovalra-secondary-text-color); text-align: center; margin-top: 4px; opacity: 0.7;';
+        purchaseWarning.textContent =
+            'it may take upto a minute for the avatar border to show up after buying';
+        infoWrapper.appendChild(purchaseWarning);
+    }
+
     body.append(previewContainer, infoWrapper);
 
     const actionBtn = document.createElement('button');
@@ -389,10 +413,10 @@ async function openBorderOverlay(
             );
             close();
         };
-    } else if (gamepassId) {
+    } else if (effectiveGamepassId) {
         actionBtn.textContent = 'Loading...';
         (async () => {
-            const price = await getGamePassPrice(gamepassId);
+            const price = await getGamePassPrice(effectiveGamepassId);
             if (price !== null) {
                 actionBtn.innerHTML = `<span class="icon-robux-16x16" style="margin-right: 6px; vertical-align: middle; position: relative; top: -1px; filter: brightness(0) invert(1);"></span>Buy for ${price.toLocaleString()}`;
             } else {
@@ -401,7 +425,7 @@ async function openBorderOverlay(
         })();
         actionBtn.onclick = () =>
             window.open(
-                `https://www.roblox.com/game-pass/${gamepassId}`,
+                `https://www.roblox.com/game-pass/${effectiveGamepassId}`,
                 '_blank',
             );
     } else {
@@ -1348,7 +1372,7 @@ export const buttonData = [
             return `
             <div style="padding: 8px;">
                 <h2 style="margin-bottom: 15px; color: var(--rovalra-main-text-color) !important;">Avatar Border Store</h2>
-                <p style="color: var(--rovalra-secondary-text-color); margin-bottom: 20px;">Preview and select your avatar borders. This is a <strong>Donator Tier 3</strong> perk.</p>
+                <p style="color: var(--rovalra-secondary-text-color); margin-bottom: 20px;">Avatar border store, buy avatar borders to directly support RoValra and the artists, <strong>Donator tier 3 gets all avatar borders for free</strong></p>
                 <div id="rovalra-store-border-container" style="color: var(--rovalra-secondary-text-color);">Loading borders...</div>
             </div>`;
         },
@@ -1858,6 +1882,7 @@ async function renderStoreBorders(container) {
             });
             card.style.transform = 'scale(1.2)';
             card.style.margin = '25px 0';
+            card.style.pointerEvents = 'none';
             previewHolder.appendChild(card);
 
             if (currentBorderValue !== 'none') {
@@ -1879,59 +1904,6 @@ async function renderStoreBorders(container) {
                 '<p style="color: var(--rovalra-secondary-text-color);">Sign in to preview borders on your avatar.</p>';
         }
 
-        const noneCategory = borderCategories.find((b) => b.value === 'none');
-        if (noneCategory) {
-            const noneCard = document.createElement('div');
-            noneCard.setAttribute('data-variant-value', 'none');
-            noneCard.style.cssText =
-                'display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--rovalra-container-background-color); border-radius: 12px; margin-bottom: 16px; cursor: pointer; border: 1.5px solid transparent;';
-            noneCard.setAttribute('data-border-card', '');
-            noneCard.onclick = async () => {
-                await handleSaveSettings('avatarBorderChoice', 'none');
-                updateUserSettingViaApi(
-                    'border',
-                    noneCategory.link || '',
-                ).catch(() => {});
-                updatePreviewAndUI('none', null, container, previewHolder);
-            };
-
-            const noneImg = document.createElement('div');
-            noneImg.style.cssText =
-                'width: 48px; height: 48px; border-radius: 50%; background: var(--rovalra-main-background-color); display: flex; align-items: center; justify-content: center; flex-shrink: 0;';
-            noneImg.innerHTML = `
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="var(--rovalra-secondary-text-color)">
-                    <path d="M19 13H5v-2h14v2z"/>
-                </svg>
-            `;
-
-            const noneLabelCol = document.createElement('div');
-            noneLabelCol.className = 'rovalra-none-label-container';
-            noneLabelCol.style.cssText =
-                'display: flex; flex-direction: column;';
-
-            const noneLabel = document.createElement('div');
-            noneLabel.style.cssText =
-                'color: var(--rovalra-main-text-color); font-weight: 600; font-size: 15px;';
-            noneLabel.textContent = 'None';
-            noneLabelCol.appendChild(noneLabel);
-
-            if (currentBorderValue === 'none') {
-                const eq = document.createElement('div');
-                eq.className = 'rovalra-equipped-label';
-                eq.style.cssText =
-                    'font-size: 11px; color: var(--rovalra-main-text-color); font-weight: 600; margin-top: 2px; opacity: 0.9; display: flex; flex-direction: column; align-items: center; width: max-content;';
-                eq.textContent = 'EQUIPPED';
-                const underline = document.createElement('div');
-                underline.style.cssText =
-                    'width: calc(100% + 6px); height: 3px; background-color: var(--rovalra-playbutton-color); border-radius: 2px; margin-top: 1px;';
-                eq.appendChild(underline);
-                noneLabelCol.appendChild(eq);
-            }
-
-            noneCard.append(noneImg, noneLabelCol);
-            container.appendChild(noneCard);
-        }
-
         for (const category of borderCategories) {
             if (category.value === 'none' || !category.variants) continue;
 
@@ -1946,6 +1918,8 @@ async function renderStoreBorders(container) {
                 'display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-bottom: 10px; align-items: flex-start;';
             container.appendChild(variantsGrid);
 
+            const tier = getCurrentUserTier();
+
             for (const variant of category.variants) {
                 const hasAnimated =
                     variant.animated && variant.animated.length > 0;
@@ -1955,6 +1929,11 @@ async function renderStoreBorders(container) {
                     variant.animated.some(
                         (a) => a.value === currentBorderValue,
                     );
+                const variantIsOwned =
+                    tier >= 3 ||
+                    ownedData.borders.has(variant.value) ||
+                    (variant.gamepassId &&
+                        ownedData.gamepasses.has(String(variant.gamepassId)));
 
                 const variantCard = document.createElement('div');
                 variantCard.setAttribute('data-border-card', '');
@@ -1970,7 +1949,7 @@ async function renderStoreBorders(container) {
                     variant.value,
                 );
                 staticContainer.style.cssText =
-                    'display: flex; flex-direction: column; align-items: center; cursor: pointer; flex: 1; border: 1.5px solid transparent; border-radius: 10px; padding: 6px;';
+                    'display: flex; flex-direction: column; align-items: center; flex: 1; border: 1.5px solid transparent; border-radius: 10px; padding: 6px;';
 
                 const staticCard = createUserCard({
                     displayName: authedUserData?.displayName || 'User',
@@ -1999,30 +1978,19 @@ async function renderStoreBorders(container) {
                 staticLabel.style.cssText =
                     'font-size: 11px; color: var(--rovalra-secondary-text-color); text-align: center; white-space: nowrap; margin-top: 5px; font-weight: 700;';
                 staticLabel.textContent = 'STATIC';
-                staticContainer.onclick = async () => {
-                    openBorderOverlay(
-                        variant,
-                        hasAnimated ? variant.animated[0] : null,
-                        authedUserData,
-                        container,
-                        previewHolder,
-                        variant.artistId,
-                        variant.gamepassId,
-                    );
-                };
                 staticContainer.append(staticCard, staticLabel);
-                if (isStaticSelected) {
-                    const eq = document.createElement('div');
-                    eq.className = 'rovalra-equipped-label';
-                    eq.style.cssText =
-                        'font-size: 11px; color: var(--rovalra-main-text-color); font-weight: 600; margin-top: 2px; opacity: 0.9; display: flex; flex-direction: column; align-items: center; width: max-content;';
-                    eq.textContent = 'EQUIPPED';
-                    const underline = document.createElement('div');
-                    underline.style.cssText =
-                        'width: calc(100% + 6px); height: 3px; background-color: var(--rovalra-playbutton-color); border-radius: 2px; margin-top: 1px;';
-                    eq.appendChild(underline);
-                    staticContainer.appendChild(eq);
-                }
+
+                const staticEquipBtn = createEquipButton(
+                    variant,
+                    hasAnimated ? variant.animated[0] : null,
+                    variantIsOwned,
+                    isStaticSelected,
+                    hasAnimated,
+                    container,
+                    previewHolder,
+                    authedUserData,
+                );
+                staticContainer.appendChild(staticEquipBtn);
 
                 previewRow.appendChild(staticContainer);
 
@@ -2035,7 +2003,7 @@ async function renderStoreBorders(container) {
                     );
 
                     animContainer.style.cssText =
-                        'display: flex; flex-direction: column; align-items: center; cursor: pointer; flex: 1; border: 1.5px solid transparent; border-radius: 10px; padding: 6px;';
+                        'display: flex; flex-direction: column; align-items: center; flex: 1; border: 1.5px solid transparent; border-radius: 10px; padding: 6px;';
 
                     const animCard = createUserCard({
                         displayName: authedUserData?.displayName || 'User',
@@ -2066,30 +2034,28 @@ async function renderStoreBorders(container) {
                     animLabel.style.cssText =
                         'font-size: 11px; color: var(--rovalra-secondary-text-color); text-align: center; white-space: nowrap; margin-top: 5px; font-weight: 700;';
                     animLabel.textContent = 'ANIMATED';
-                    animContainer.onclick = async () => {
-                        openBorderOverlay(
-                            animVariant,
-                            variant,
-                            authedUserData,
-                            container,
-                            previewHolder,
-                            variant.artistId,
-                            variant.gamepassId,
-                        );
-                    };
                     animContainer.append(animCard, animLabel);
-                    if (isAnimatedSelected) {
-                        const eq = document.createElement('div');
-                        eq.className = 'rovalra-equipped-label';
-                        eq.style.cssText =
-                            'font-size: 11px; color: var(--rovalra-main-text-color); font-weight: 600; margin-top: 2px; opacity: 0.9; display: flex; flex-direction: column; align-items: center; width: max-content;';
-                        eq.textContent = 'EQUIPPED';
-                        const underline = document.createElement('div');
-                        underline.style.cssText =
-                            'width: calc(100% + 6px); height: 3px; background-color: var(--rovalra-playbutton-color); border-radius: 2px; margin-top: 1px;';
-                        eq.appendChild(underline);
-                        animContainer.appendChild(eq);
-                    }
+
+                    const animIsOwned =
+                        tier >= 3 ||
+                        ownedData.borders.has(animVariant.value) ||
+                        (variant.gamepassId &&
+                            ownedData.gamepasses.has(
+                                String(variant.gamepassId),
+                            ));
+
+                    const animEquipBtn = createEquipButton(
+                        animVariant,
+                        variant,
+                        animIsOwned,
+                        isAnimatedSelected,
+                        true,
+                        container,
+                        previewHolder,
+                        authedUserData,
+                    );
+                    animContainer.appendChild(animEquipBtn);
+
                     previewRow.appendChild(animContainer);
                 }
 
@@ -2102,16 +2068,11 @@ async function renderStoreBorders(container) {
                 if (variant.gamepassId) {
                     priceLabel.style.cssText =
                         'font-size: 12px; font-weight: 600; color: var(--rovalra-secondary-text-color); display: flex; align-items: center; justify-content: center; gap: 4px; margin-bottom: 4px;';
-                    const tier = getCurrentUserTier();
-                    const isOwned =
-                        tier >= 3 ||
-                        ownedData.borders.has(variant.value) ||
-                        ownedData.gamepasses.has(String(variant.gamepassId));
 
                     getGamePassPrice(variant.gamepassId).then((price) => {
                         if (price !== null && price !== undefined) {
                             const priceValue = price.toLocaleString();
-                            if (isOwned) {
+                            if (variantIsOwned) {
                                 priceLabel.innerHTML = `
                                     <span style="text-decoration: line-through; opacity: 0.6; display: flex; align-items: center; gap: 2px;">
                                         <span class="icon-robux-16x16"></span>${priceValue}
@@ -2156,6 +2117,69 @@ async function renderStoreBorders(container) {
     }
 }
 
+function createEquipButton(
+    variant,
+    animVariant,
+    isOwned,
+    isSelected,
+    hasAnimated,
+    container,
+    previewHolder,
+    authedUserData,
+) {
+    const btnContainer = document.createElement('div');
+    btnContainer.style.cssText =
+        'margin-top: 8px; width: 100%; display: flex; justify-content: center;';
+
+    const text = isSelected ? 'Equipped' : isOwned ? 'Equip' : 'Buy';
+    const tooltip = isSelected
+        ? 'Click to unequip this border'
+        : isOwned
+          ? 'Equip this border'
+          : 'Buy this border';
+
+    const pill = createPill(text, tooltip, { isButton: true });
+    pill.setAttribute('data-equip-btn', variant.value);
+    pill.setAttribute('data-variant-link', variant.link || '');
+    pill.setAttribute('data-variant-artist-id', variant.artistId || '');
+    pill.setAttribute('data-variant-gamepass-id', variant.gamepassId || '');
+    if (hasAnimated && animVariant) {
+        pill.setAttribute('data-anim-value', animVariant.value);
+        pill.setAttribute('data-anim-link', animVariant.link || '');
+    }
+    pill.setAttribute('data-has-animated', hasAnimated ? 'true' : 'false');
+    pill.style.cssText =
+        'width: 100%; justify-content: center; font-size: 12px; font-weight: 700;';
+    pill.onclick = async (e) => {
+        e.stopPropagation();
+        const currentText = pill.textContent.trim();
+        const val = pill.getAttribute('data-equip-btn');
+
+        if (currentText === 'Equipped') {
+            await handleSaveSettings('avatarBorderChoice', 'none');
+            updateUserSettingViaApi('border', '').catch(() => {});
+            updatePreviewAndUI('none', null, container, previewHolder);
+        } else if (currentText === 'Equip') {
+            const link = pill.getAttribute('data-variant-link');
+            await handleSaveSettings('avatarBorderChoice', val);
+            updateUserSettingViaApi('border', link).catch(() => {});
+            updatePreviewAndUI(val, link, container, previewHolder);
+        } else if (currentText === 'Buy') {
+            openBorderOverlay(
+                variant,
+                hasAnimated && animVariant ? animVariant : null,
+                authedUserData,
+                container,
+                previewHolder,
+                variant.artistId,
+                variant.gamepassId,
+            );
+        }
+    };
+    btnContainer.appendChild(pill);
+    return btnContainer;
+}
+
 function updatePreviewAndUI(selectedValue, link, container, previewHolder) {
     const avatarEl = previewHolder.querySelector(
         '.avatar.avatar-card-fullbody',
@@ -2176,35 +2200,37 @@ function updatePreviewAndUI(selectedValue, link, container, previewHolder) {
     container.querySelectorAll('[data-border-card]').forEach((c) => {
         c.style.borderColor = 'transparent';
     });
-    container
-        .querySelectorAll('.rovalra-equipped-label')
-        .forEach((el) => el.remove());
 
-    const selectedSubContainer = container.querySelector(
-        `[data-variant-value="${selectedValue}"]`,
-    );
-
-    if (selectedSubContainer) {
-        const eq = document.createElement('div');
-        eq.className = 'rovalra-equipped-label';
-        eq.style.cssText =
-            'font-size: 11px; color: var(--rovalra-main-text-color); font-weight: 600; margin-top: 2px; opacity: 0.9; display: flex; flex-direction: column; align-items: center; width: max-content;';
-        eq.textContent = 'EQUIPPED';
-        const underline = document.createElement('div');
-        underline.style.cssText =
-            'width: calc(100% + 6px); height: 3px; background-color: var(--rovalra-playbutton-color); border-radius: 2px; margin-top: 1px;';
-        eq.appendChild(underline);
-
-        if (selectedValue === 'none') {
-            const labelCol = selectedSubContainer.querySelector(
-                '.rovalra-none-label-container',
-            );
-            if (labelCol) labelCol.appendChild(eq);
-            else selectedSubContainer.appendChild(eq);
-        } else {
-            selectedSubContainer.appendChild(eq);
-        }
-    }
+    const tier = getCurrentUserTier();
+    getOwnedBorders().then((ownedData) => {
+        container.querySelectorAll('[data-equip-btn]').forEach((btn) => {
+            const val = btn.getAttribute('data-equip-btn');
+            const isSelected = val === selectedValue;
+            let newText, newTooltip;
+            if (isSelected) {
+                newText = 'Equipped';
+                newTooltip = 'Click to unequip this border';
+            } else {
+                const isOwned = tier >= 3 || ownedData.borders.has(val);
+                if (isOwned) {
+                    newText = 'Equip';
+                    newTooltip = 'Equip this border';
+                } else {
+                    newText = 'Buy';
+                    newTooltip = 'Buy this border';
+                }
+            }
+            const contentSpan = btn.querySelector('span');
+            if (contentSpan) {
+                contentSpan.textContent = newText;
+            } else {
+                btn.textContent = newText;
+            }
+            if (btn.getAttribute('title')) {
+                btn.setAttribute('title', newTooltip);
+            }
+        });
+    });
 }
 
 function handleGlobalDomChange(event) {
