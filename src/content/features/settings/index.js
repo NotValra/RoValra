@@ -1493,7 +1493,7 @@ async function renderAccountStanding(container) {
                         const leftPos = (index / (levels.length - 1)) * 100;
                         return `
                         <div class="standing-status-dot" data-index="${index}" style="position: absolute; left: ${leftPos}%; top: 50%; transform: translate(-50%, -50%); width: 20px; height: 20px; border-radius: 50%; background: ${index === 0 ? level.color : '#4f545c'}; border: 4px solid var(--rovalra-container-background-color); z-index: 2; transition: background 0.3s;"></div>
-                        <div class="standing-status-label" data-index="${index}" style="font-size: 10px; text-transform: uppercase; font-weight: 800; color: ${index === 0 ? 'var(--rovalra-main-text-color)' : 'var(--rovalra-secondary-text-color)'}; opacity: ${index === 0 ? '1' : '0.5'}; text-align: center; width: 60px; margin-left: -30px; position: absolute; left: ${leftPos}%; margin-top: 15px; transition: color 0.3s, opacity 0.3s;">${level.label}</div>
+                        <div class="standing-status-label" data-index="${index}" style="font-size: 12px; font-weight: 600; color: ${index === 0 ? 'var(--rovalra-main-text-color)' : 'var(--rovalra-secondary-text-color)'}; opacity: ${index === 0 ? '1' : '0.5'}; text-align: center; width: 60px; margin-left: -30px; position: absolute; left: ${leftPos}%; margin-top: 15px; transition: color 0.3s, opacity 0.3s;">${level.label}</div>
                     `;
                     })
                     .join('')}
@@ -1501,7 +1501,7 @@ async function renderAccountStanding(container) {
         </div>
         <div class="standing-policy-anchor"></div>
         <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--rovalra-border-color); font-size: 12px; color: var(--rovalra-secondary-text-color); line-height: 1.5;">
-            <div style="font-weight: 800; text-transform: uppercase; font-size: 11px; margin-bottom: 8px; color: var(--rovalra-secondary-text-color);">RoValra Safety Policy</div>
+            <div style="font-weight: 600; font-size: 14px; margin-bottom: 8px; color: var(--rovalra-secondary-text-color);">RoValra Safety Policy</div>
             Accounts found in violation of the <a href="https://www.rovalra.com/tou/" target="_blank" style="color: inherit; text-decoration: underline;">RoValra Terms of Service</a> or deemed a risk via third-party detections will have specific features disabled. Please note that while specific online capabilities may be restricted, the RoValra safety team will <strong>never</strong> disable the entire extension or fully local features.
         </div>
     `);
@@ -1572,8 +1572,8 @@ function updateAccountStandingUI(discordCard, data, levels) {
         const modContent = data.moderation.moderated_content_history || [];
 
         const automatedHtml = data.moderation.automated
-            ? `<div style="display: inline-block; margin-top: 8px; padding: 2px 6px; background: #0084ff; color: white; border-radius: 4px; font-size: 10px; font-weight: 800; text-transform: uppercase;">Automated Action</div>`
-            : `<div style="display: inline-block; margin-top: 8px; padding: 2px 6px; background: rgba(128, 128, 128, 0.2); color: var(--rovalra-secondary-text-color); border-radius: 4px; font-size: 10px; font-weight: 800; text-transform: uppercase;">Manual Review</div>`;
+            ? `<div style="display: inline-block; margin-top: 8px; padding: 2px 6px; background: #0084ff; color: white; border-radius: 4px; font-size: 12px; font-weight: 600;">Automated Action</div>`
+            : `<div style="display: inline-block; margin-top: 8px; padding: 2px 6px; background: rgba(128, 128, 128, 0.2); color: var(--rovalra-secondary-text-color); border-radius: 4px; font-size: 12px; font-weight: 600;">Manual Review</div>`;
 
         const disabledFeatures =
             (typeof reason === 'object' && reason?.disabled_features) || [];
@@ -1581,12 +1581,12 @@ function updateAccountStandingUI(discordCard, data, levels) {
         const disabledFeaturesHtml =
             disabledFeatures.length > 0
                 ? `<div style="margin-top: 15px; padding-top: 10px; border-top: 1px solid var(--rovalra-border-color);">
-                <div style="color: #f23f43; font-weight: 800; text-transform: uppercase; font-size: 11px; margin-bottom: 8px;">Disabled Features</div>
+                <div style="color: #f23f43; font-weight: 600; font-size: 13px; margin-bottom: 8px;">Disabled Features</div>
                 <div style="display: flex; flex-wrap: wrap; gap: 8px;">
                     ${disabledFeatures
                         .map(
                             (feature) =>
-                                `<div style="background: rgba(242, 63, 67, 0.1); padding: 4px 10px; border-radius: 6px; color: #f23f43; font-size: 11px; font-weight: 700; text-transform: capitalize;">${feature}</div>`,
+                                `<div style="background: rgba(242, 63, 67, 0.1); padding: 4px 10px; border-radius: 6px; color: #f23f43; font-size: 11px; font-weight: 600; text-transform: capitalize;">${feature}</div>`,
                         )
                         .join('')}
                 </div>
@@ -1596,13 +1596,13 @@ function updateAccountStandingUI(discordCard, data, levels) {
         const modContentHtml =
             modContent.length > 0
                 ? `<div style="margin-top: 15px; padding-top: 10px; border-top: 1px solid var(--rovalra-border-color);">
-                <div style="color: #f23f43; font-weight: 800; text-transform: uppercase; font-size: 11px; margin-bottom: 8px;">Moderated Content</div>
+                <div style="color: #f23f43; font-weight: 600; font-size: 13px; margin-bottom: 8px;">Moderated Content</div>
                 <div style="display: flex; flex-direction: column; gap: 8px;">
                     ${modContent
                         .map(
                             (item) => `
                         <div style="background: rgba(0,0,0,0.1); padding: 8px; border-radius: 8px;">
-                            <div style="font-weight: 700; color: var(--rovalra-secondary-text-color); font-size: 10px; text-transform: uppercase; margin-bottom: 4px;">${item.config_key}</div>
+                            <div style="font-weight: 600; color: var(--rovalra-secondary-text-color); font-size: 12px; margin-bottom: 4px;">${item.config_key}</div>
                             <div style="font-size: 13px; color: var(--rovalra-main-text-color); word-break: break-all;">${item.content_value}</div>
                         </div>
                     `,
@@ -1617,9 +1617,9 @@ function updateAccountStandingUI(discordCard, data, levels) {
         reasonHtml.style.cssText =
             'margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--rovalra-border-color);';
         reasonHtml.innerHTML = DOMPurify.sanitize(`
-            <div style="font-size: 12px; text-transform: uppercase; font-weight: 800; color: var(--rovalra-secondary-text-color); margin-bottom: 8px;">Violation Details</div>
+            <div style="font-size: 14px; font-weight: 600; color: var(--rovalra-secondary-text-color); margin-bottom: 8px;">Violation Details</div>
             <div style="background: rgba(0,0,0,0.05); padding: 15px; border-radius: 8px; border-left: 4px solid ${violationColor};">
-                <div style="font-weight: 700; color: var(--rovalra-main-text-color); margin-bottom: 4px;">${typeof reason === 'string' ? reason : reason?.title || 'Unknown Reason'}</div>
+                <div style="font-weight: 600; color: var(--rovalra-main-text-color); margin-bottom: 4px;">${typeof reason === 'string' ? reason : reason?.title || 'Unknown Reason'}</div>
                 ${reason?.description ? `<div style="font-size: 13px; color: var(--rovalra-secondary-text-color);">${reason.description}</div>` : ''}
                 ${automatedHtml}
                 ${disabledFeaturesHtml}
@@ -1647,15 +1647,15 @@ function updateAccountStandingUI(discordCard, data, levels) {
             const appealSection = document.createElement('div');
             appealSection.style.cssText = `padding: 15px; background: rgba(0,0,0,0.05); border-radius: 8px; border-left: 4px solid ${statusColor};`;
             appealSection.innerHTML = DOMPurify.sanitize(`
-                <div style="font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--rovalra-secondary-text-color); margin-bottom: 8px;">Appeal Case</div>
+                <div style="font-size: 14px; font-weight: 600; color: var(--rovalra-secondary-text-color); margin-bottom: 8px;">Appeal Case</div>
                 <div style="font-size: 14px; color: var(--rovalra-main-text-color); margin-bottom: 12px;">Status: <strong style="color: ${statusColor};">${APPEAL_STATUSES[data.appeal.appeal_status]}</strong></div>
                 
                 <div style="margin-bottom: 10px;">
-                    <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--rovalra-secondary-text-color); margin-bottom: 2px;">Your Message</div>
+                    <div style="font-size: 13px; font-weight: 600; color: var(--rovalra-secondary-text-color); margin-bottom: 2px;">Your Message</div>
                     <div style="font-size: 13px; color: var(--rovalra-main-text-color); opacity: 0.9;">${data.appeal.appeal_message || 'N/A'}</div>
                 </div>
 
-                <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--rovalra-secondary-text-color); margin-bottom: 2px;">Response</div>
+                <div style="font-size: 13px; font-weight: 600; color: var(--rovalra-secondary-text-color); margin-bottom: 2px;">Response</div>
                 <div style="font-size: 13px; color: var(--rovalra-secondary-text-color);">${data.appeal.appeal_response || 'Our team is currently reviewing your appeal.'}</div>
             `);
             discordCard.insertBefore(appealSection, policyAnchor);
