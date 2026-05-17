@@ -637,6 +637,13 @@ export const SETTINGS_CONFIG = {
                 default: true,
             },
 
+            groupJoinedDateEnabled: {
+                label: 'Show Community Joined Date',
+                description:
+                    'Shows when a user joined a community on their profile.',
+                type: 'checkbox',
+                default: true,
+            },
             showFriendedFromEnabled: {
                 label: 'Show Friended From',
                 description:

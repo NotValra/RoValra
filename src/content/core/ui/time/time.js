@@ -124,6 +124,7 @@ observeElement(
         );
 
         const handleClick = (e) => {
+            e.preventDefault();
             e.stopPropagation();
             const nextIndex =
                 (FORMATS.indexOf(preferredFormat) + 1) % FORMATS.length;

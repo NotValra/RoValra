@@ -755,7 +755,9 @@
         "tooltip": "Total Community Place Visits"
     },
     "groups": {
-        "createdLabel": "Created"
+        "createdLabel": "Created",
+        "joinedLabel": "Joined",
+        "unknown": "Unknown"
     },
     "profile": {
         "currencyTransfer": "Send Robux",
