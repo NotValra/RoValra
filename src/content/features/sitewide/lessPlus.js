@@ -1,3 +1,5 @@
+import { settings } from "../../core/settings/getSettings";
+
 const plusTypeEnum = Object.freeze({
     Full: 0,
     Reduced: 1,
@@ -6,9 +8,9 @@ const plusTypeEnum = Object.freeze({
 
 let plusType = plusTypeEnum.Reduced;
 
-async function initFromConfig(settings) {
-    if (settings.reducePlusAds)
-        if (settings.removeAllPlusAdds) plusType = plusTypeEnum.None;
+async function asyncInit() {
+    if (await settings.reducePlusAds)
+        if (await settings.removeAllPlusAdds) plusType = plusTypeEnum.None;
         else plusType = plusTypeEnum.Reduced;
     else plusType = plusTypeEnum.Full;
 
@@ -55,8 +57,5 @@ async function initFromConfig(settings) {
 }
 
 export function init() {
-    chrome.storage.local.get(
-        { reducePlusAds: true, removeAllPlusAdds: true },
-        initFromConfig,
-    );
+    asyncInit();
 }
