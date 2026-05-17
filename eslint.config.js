@@ -15,9 +15,9 @@ const baseRestrictedSyntax = [
     {
         // Block innerHTML assignments that aren't wrapped in sanitize() or safeHtml``
         selector:
-            "AssignmentExpression[left.property.name='innerHTML']:not([right.type='Literal']):not([right.type='TemplateLiteral'][right.expressions.length=0]):not([right.callee.property.name='sanitize']):not([right.callee.name='sanitize']):not([right.tag.name='safeHtml'])",
+            "AssignmentExpression[left.property.name='innerHTML']:not([right.type='Literal']):not([right.type='TemplateLiteral'][right.expressions.length=0]):not([right.callee.property.name='sanitize']):not([right.callee.name='sanitize']):not([right.tag.name='safeHtml']):not(:has(AwaitExpression > Identifier[name='verifiedInnerHtml'])):not(:has(CallExpression[callee.name=='verifiedInnerHtmlSync']))",
         message:
-            '⚠️ Unsafe innerHTML assignment detected. You must wrap the value with DOMPurify.sanitize() or use the safeHtml helper.',
+            '⚠️ Unsafe innerHTML assignment detected. You must wrap the value with DOMPurify.sanitize() or use the safeHtml helper. If you\'re sure of it, add a `// Verified` comment or use verifiedInnerHtml.',
     },
 ];
 

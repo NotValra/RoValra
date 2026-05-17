@@ -785,5 +785,11 @@
             "oldest": "Oldest"
         },
         "tooltip": "Sort by when the user joined the community"
+    },
+    "status": {
+        "trusted": {
+            "helpText": "You are a trusted RoValra user, you can add any text, embed videos, and images.",
+            "warning": "<strong>Note:</strong> If you are found to add inappropriate content against the Roblox ToS, your donator and custom badges will be revoked with no chance to get it back."
+        }
     }
 }
