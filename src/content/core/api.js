@@ -255,10 +255,12 @@ export async function callRobloxApi(options) {
             noCache = false,
         } = options;
 
+        const normalizedHeaders = new Headers(headers);
+
         if (useApiKey) {
             const apiKey = await getValidApiKey();
             if (apiKey) {
-                headers['x-api-key'] = apiKey;
+                normalizedHeaders.set('x-api-key', apiKey);
             }
         }
 
@@ -272,7 +274,9 @@ export async function callRobloxApi(options) {
                             subdomain,
                             method,
                             body,
-                            headers,
+                            headers: Object.fromEntries(
+                                normalizedHeaders.entries(),
+                            ),
                             noCache,
                         },
                     },
@@ -291,22 +295,11 @@ export async function callRobloxApi(options) {
             });
         }
 
-        if (isRovalraApi) {
-            if (endpoint && endpoint.includes('/v1/auth') && !skipAutoAuth) {
+        if (isRovalraApi && subdomain === 'apis') {
+            if (!skipAutoAuth) {
                 const token = await getValidAccessToken();
                 if (token) {
-                    headers['Authorization'] = `Bearer ${token}`;
-                } else {
-                    return new Response(
-                        JSON.stringify({
-                            status: 'error',
-                            message: 'Unauthorized',
-                        }),
-                        {
-                            status: 401,
-                            headers: { 'Content-Type': 'application/json' },
-                        },
-                    );
+                    normalizedHeaders.set('Authorization', `Bearer ${token}`);
                 }
             }
             const isDowntimeSimulated = await checkSimulatedDowntime();
@@ -393,7 +386,6 @@ export async function callRobloxApi(options) {
         const credentials =
             options.credentials ?? (isRovalraApi ? 'omit' : 'include');
 
-        const normalizedHeaders = new Headers(headers);
         if (!normalizedHeaders.has('Accept')) {
             normalizedHeaders.set('Accept', 'application/json');
         }
