@@ -74,11 +74,37 @@ export async function applyBorderToContainer(container, borderUrl) {
     img.src = borderUrl;
 }
 
+function findInBorders(borders, key, type = 'value') {
+    for (const item of borders) {
+        if (item[type] === key) return item;
+        if (item.variants) {
+            const found = findInBorders(item.variants, key, type);
+            if (found) return found;
+        }
+        if (item.animated) {
+            const found = findInBorders(item.animated, key, type);
+            if (found) return found;
+        }
+    }
+    return null;
+}
+
 async function resolveBorderUrl(userId, authedUserId, localBorderValue) {
     const userSettings = await getUserSettings(userId).catch(() => null);
 
     if (userSettings?.border && userSettings.border !== 'none')
         return userSettings.border;
+
+    if (
+        userId &&
+        String(userId) === String(authedUserId) &&
+        localBorderValue &&
+        localBorderValue !== 'none'
+    ) {
+        const borders = await getBorders();
+        const border = findInBorders(borders, localBorderValue, 'value');
+        if (border) return border.link;
+    }
 
     return null;
 }
@@ -115,10 +141,10 @@ export async function init() {
             const currentChoice = settings.avatarBorderChoice || 'none';
 
             const borders = await getBorders();
-            const apiEntry = borders.find((b) => b.link === borderUrl);
+            const apiEntry = findInBorders(borders, borderUrl, 'link');
             const apiValue = apiEntry ? apiEntry.value : 'none';
 
-            if (apiValue !== currentChoice && borderUrl) {
+            if (apiValue !== currentChoice) {
                 handleSaveSettings('avatarBorderChoice', apiValue);
             }
         });
