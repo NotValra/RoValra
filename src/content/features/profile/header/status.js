@@ -33,14 +33,11 @@ import {
     syncDonatorTier,
     getCurrentUserTier,
 } from '../../../core/settings/handlesettings.js';
-<<<<<<< HEAD
 import {
     onUserCardElement,
     observeUserCardElements,
 } from '../../../core/profile/userCardElements.js';
-=======
 import { verifiedInnerHtml, verifiedInnerHtmlSync } from '../../../core/html/innerhtml.js';
->>>>>>> 2922bde (innerhtml: added verifiedInnerHtml)
 const MAX_STATUS_LENGTH = 128;
 const REPORTING_ENABLED = false;
 let activeHomeStatusBubble = null;
