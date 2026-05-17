@@ -1,8 +1,12 @@
 import { observeElement, startObserving } from '../../core/observer.js';
 import { getUserIdFromUrl } from '../../core/idExtractor.js';
-import { loadSettings } from '../../core/settings/handlesettings.js';
+import {
+    loadSettings,
+    handleSaveSettings,
+} from '../../core/settings/handlesettings.js';
 import { getUserSettings } from '../../core/donators/settingHandler.js';
 import { getAuthenticatedUserId } from '../../core/user.js';
+import { getBorders } from '../../core/configs/borders.js';
 import {
     onUserCardElement,
     observeUserCardElements,
@@ -105,6 +109,20 @@ function handleTile(tile, authedUserId, localBorderValue) {
 
 export async function init() {
     try {
+        document.addEventListener('rovalra:syncAvatarBorder', async (event) => {
+            const { borderUrl } = event.detail;
+            const settings = await loadSettings();
+            const currentChoice = settings.avatarBorderChoice || 'none';
+
+            const borders = await getBorders();
+            const apiEntry = borders.find((b) => b.link === borderUrl);
+            const apiValue = apiEntry ? apiEntry.value : 'none';
+
+            if (apiValue !== currentChoice && borderUrl) {
+                handleSaveSettings('avatarBorderChoice', apiValue);
+            }
+        });
+
         const settings = await loadSettings();
         if (!settings.avatarBorderEnabled) return;
 

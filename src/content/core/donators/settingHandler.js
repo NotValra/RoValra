@@ -81,8 +81,10 @@ async function fetchAndProcessSettings(userId, options = {}) {
             if (
                 (apiSettings.environment === 0 ||
                     apiSettings.environment === 1) &&
-                apiSettings.status === '' &&
-                Object.keys(apiSettings).length === 2
+                !apiSettings.status &&
+                !apiSettings.border &&
+                !apiSettings.gradient &&
+                Object.keys(apiSettings).length <= 4
             ) {
                 apiProvidedMeaningfulSettings = false;
             } else {
@@ -104,6 +106,19 @@ async function fetchAndProcessSettings(userId, options = {}) {
         finalEnvironment = apiSettings.environment;
         finalGradient = apiSettings.gradient;
         finalBorder = apiSettings.border ?? null;
+    }
+
+    if (
+        isOwnProfile &&
+        apiSettings &&
+        apiSettings.border &&
+        apiProvidedMeaningfulSettings
+    ) {
+        document.dispatchEvent(
+            new CustomEvent('rovalra:syncAvatarBorder', {
+                detail: { borderUrl: apiSettings.border },
+            }),
+        );
     }
 
     return {
@@ -253,8 +268,10 @@ async function processApiSettings(userId, apiSettings, options) {
     if (apiSettings && typeof apiSettings === 'object') {
         if (
             (apiSettings.environment === 0 || apiSettings.environment === 1) &&
-            apiSettings.status === '' &&
-            Object.keys(apiSettings).length === 2
+            !apiSettings.status &&
+            !apiSettings.border &&
+            !apiSettings.gradient &&
+            Object.keys(apiSettings).length <= 4
         ) {
             apiProvidedMeaningfulSettings = false;
         } else {
@@ -272,6 +289,19 @@ async function processApiSettings(userId, apiSettings, options) {
         finalEnvironment = apiSettings.environment;
         finalGradient = apiSettings.gradient;
         finalBorder = apiSettings.border ?? null;
+    }
+
+    if (
+        isOwnProfile &&
+        apiSettings &&
+        apiSettings.border &&
+        apiProvidedMeaningfulSettings
+    ) {
+        document.dispatchEvent(
+            new CustomEvent('rovalra:syncAvatarBorder', {
+                detail: { borderUrl: apiSettings.border },
+            }),
+        );
     }
 
     return {
