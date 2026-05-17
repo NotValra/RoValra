@@ -3,7 +3,6 @@ import {
     getAuthenticatedUserId,
     getAuthenticatedUsername,
 } from '../../core/user.js';
-import { checkUserExistence } from './existenceCheck.js';
 
 const STORAGE_KEY = 'rovalra_oauth_verification';
 const OAUTH_PROGRESS_KEY = 'rovalra_oauth_progress';
@@ -217,12 +216,6 @@ async function startFallbackFlow() {
             const success = await resumeFallbackFlow(userId, existingProgress);
             isFlowProcessing = false;
             return success;
-        }
-
-        const userExists = await checkUserExistence(userId, callRobloxApi);
-        if (!userExists) {
-            isFlowProcessing = false;
-            return false;
         }
 
         const local_secret = generateUUID();
