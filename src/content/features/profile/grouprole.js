@@ -41,8 +41,13 @@ export function init() {
             const groupRoleEnabled = settings.groupRoleEnabled;
             const groupJoinedDateEnabled = settings.groupJoinedDateEnabled;
 
+            const itemSelector = [
+                '[class*="-carousel"] [id="collection-carousel-item"] .base-tile a[href*="/communities/"]',
+                '[class*="-carousel"] [class*="-carouselItem"] .base-tile a[href*="/communities/"]',
+            ].join(', ');
+
             observeElement(
-                '.css-1i465w8-carousel #collection-carousel-item .base-tile a[href*="/communities/"]',
+                itemSelector,
                 async (groupLink) => {
                     if (groupLink.dataset.rovalraGroupRoleProcessed) return;
                     groupLink.dataset.rovalraGroupRoleProcessed = 'true';
