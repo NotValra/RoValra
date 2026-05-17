@@ -42,7 +42,7 @@ If the issue keeps happening, please report it in the RoValra Discord server.
 ${detailMsg}`;
 
         if (detailMsg.includes('404') || detailMsg.includes('410')) {
-            displayMessage = `Roblox might be moving away from the gamejoin API, This is out of RoValras control and we are working on a fix ASAP
+            displayMessage = `Roblox might be moving away from the gamejoin API, This is out of RoValras control and it will effect region selectors for a bit and we are working on a fix ASAP
 
 ---
 **Error Details:**
