@@ -1469,9 +1469,12 @@ export const SETTINGS_CONFIG = {
             },
             reducePlusAds: {
                 label: 'Less Roblox Plus',
-                description: 'Makes Roblox Plus advertising more subtle.',
+                description: [
+                    'Makes Roblox Plus advertising more subtle.',
+                    'Not recommended if you have an active Roblox Plus subscription.',
+                ],
                 type: 'checkbox',
-                default: true,
+                default: false,
                 childSettings: {
                     removeAllPlusAdds: {
                         label: 'Remove all Roblox Plus advertising.',
