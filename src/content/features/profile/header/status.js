@@ -13,6 +13,7 @@ import { createStyledInput } from '../../../core/ui/catalog/input.js';
 import { showSystemAlert } from '../../../core/ui/roblox/alert.js';
 import { reportUserContent } from '../../../core/report.js';
 import { showConfirmationPrompt } from '../../../core/ui/confirmationPrompt.js';
+import { ensureTouAgreement } from '../../../core/ui/tou/touagreement.js';
 import {
     parseMarkdown,
     parseUntrustedMarkdown,
@@ -289,33 +290,36 @@ async function addStatusBubble(avatarContainer) {
                 const isTrusted = TRUSTED_USER_IDS.has(
                     String(authenticatedUserId),
                 );
-                openEditStatusOverlay(
-                    statusText === '...' ? '' : statusText,
-                    async (newStatus) => {
-                        try {
-                            const updatedValue = await updateUserSettingViaApi(
-                                'status',
-                                newStatus,
-                            );
-                            if (typeof updatedValue === 'string') {
-                                updateBubbleUI(updatedValue);
-                                showSystemAlert(
-                                    'Status updated successfully!',
-                                    'success',
+                ensureTouAgreement(() => {
+                    openEditStatusOverlay(
+                        statusText === '...' ? '' : statusText,
+                        async (newStatus) => {
+                            try {
+                                const updatedValue =
+                                    await updateUserSettingViaApi(
+                                        'status',
+                                        newStatus,
+                                    );
+                                if (typeof updatedValue === 'string') {
+                                    updateBubbleUI(updatedValue);
+                                    showSystemAlert(
+                                        'Status updated successfully!',
+                                        'success',
+                                    );
+                                    return true;
+                                }
+                                return false;
+                            } catch (error) {
+                                console.error(
+                                    'RoValra: Failed to update status via API.',
+                                    error,
                                 );
-                                return true;
+                                return false;
                             }
-                            return false;
-                        } catch (error) {
-                            console.error(
-                                'RoValra: Failed to update status via API.',
-                                error,
-                            );
-                            return false;
-                        }
-                    },
-                    isTrusted,
-                );
+                        },
+                        isTrusted,
+                    );
+                });
             });
         } else if (REPORTING_ENABLED) {
             bubble.style.cursor = 'pointer';
