@@ -33,20 +33,26 @@ document.addEventListener('rovalra-gamejoin-critical-error', (e) => {
         userRequestedStop = true;
         const detailMsg = e.detail?.errorMessage || 'Unknown error';
 
-        showLoadingOverlayResult(
-            `The Roblox Join API is failing to respond. You might have to wait a bit.
+        let displayMessage = `The Roblox Join API is failing to respond. You might have to wait a bit.
+This is usually caused by a network issue or a problem with Roblox servers. If this persists, try disabling [Preferred Region.](https://www.roblox.com/my/account?rovalra=search&q=preferredregionenabled#!/search) or clearing browser cache.
+If the issue keeps happening, please report it in the RoValra Discord server.
 
-\`\`\`
-Error: ${detailMsg}
-\`\`\`
+---
+**Error Details:**
+${detailMsg}`;
 
-This is usually caused by a network issue or a problem with Roblox servers. If this persists, try disabling [Preferred Region.](https://www.roblox.com/my/account?rovalra=search&q=preferredregionenabled#!/search)
-If the issue keeps happening, please report it in the RoValra Discord server.`,
-            {
-                text: 'Close',
-                onClick: () => hideLoadingOverlay(true),
-            },
-        );
+        if (detailMsg.includes('404') || detailMsg.includes('410')) {
+            displayMessage = `Roblox might be moving away from the gamejoin API, This is out of RoValras control and we are working on a fix ASAP
+
+---
+**Error Details:**
+${detailMsg}`;
+        }
+
+        showLoadingOverlayResult(displayMessage, {
+            text: 'Close',
+            onClick: () => hideLoadingOverlay(true),
+        });
     }
 });
 
