@@ -39,30 +39,10 @@ async function shouldForceFallback() {
     });
 }
 
-async function isUnder13() {
-    try {
-        const birthResponse = await callRobloxApi({
-            subdomain: 'users',
-            endpoint: '/v1/birthdate',
-            method: 'GET',
-        });
-        if (birthResponse.ok) {
-            const data = await birthResponse.json();
-            const { birthYear, birthMonth, birthDay } = data;
-            const today = new Date();
-            let age = today.getFullYear() - birthYear;
-            const m = today.getMonth() + 1 - birthMonth;
-            if (m < 0 || (m === 0 && today.getDate() < birthDay)) age--;
-            return age < 13;
-        }
-    } catch (error) {}
-    return false;
-}
-
 export async function shouldUseFallback() {
     const forceFallback = await shouldForceFallback();
     if (forceFallback) return true;
-    return await isUnder13();
+    return false;
 }
 
 export async function getStoredFallback() {
