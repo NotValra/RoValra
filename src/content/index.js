@@ -47,7 +47,7 @@ import { init as initCatalogBannerTest } from './features/catalog/bannerTest.js'
 import { init as initParentItem } from './features/catalog/ParentItem.js';
 import { init as initPurchasePrompt } from './features/catalog/purchasePrompt.js';
 import { init as initItemTrading } from './features/catalog/ItemTrading.js';
-import { init as initItemRender } from './features/catalog/ItemRender.js'
+import { init as initItemRender } from './features/catalog/ItemRender.js';
 
 // Games
 import { init as initBotDetector } from './features/games/about/botDetector.js';
@@ -108,6 +108,7 @@ import { init as initAvatarBorder } from './features/profile/avatarBorder.js';
 import { init as initRobuxIcons } from './core/ui/robuxIcon.js';
 import { init as initPurchasePromptItemId } from './core/catalog/purchasePromptItemId.js';
 import { init as initCurrencyTransfer } from './features/profile/currencytransfer.js';
+import { init as initGroupFilters } from './features/profile/groupFilters.js';
 
 // Settings
 import { init as initSettingsPage } from './features/settings/index.js';
@@ -254,6 +255,7 @@ const featureRoutes = [
             initLastPlayed,
             initGroupRole,
             initCurrencyTransfer,
+            initGroupFilters,
         ],
     },
     {

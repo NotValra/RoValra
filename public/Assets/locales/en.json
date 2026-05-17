@@ -773,5 +773,15 @@
         "run": "Run",
         "jump": "Jump",
         "swim": "Swim"
+    },
+    "groupFilters": {
+        "sort": {
+            "default": "Default",
+            "az": "A-Z",
+            "za": "Z-A",
+            "newest": "Newest",
+            "oldest": "Oldest"
+        },
+        "tooltip": "Sort by when the user joined the community"
     }
 }

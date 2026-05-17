@@ -13,7 +13,7 @@ import { createStyledInput } from '../../../core/ui/catalog/input.js';
 import { showSystemAlert } from '../../../core/ui/roblox/alert.js';
 import { reportUserContent } from '../../../core/report.js';
 import { showConfirmationPrompt } from '../../../core/ui/confirmationPrompt.js';
-import { ensureTouAgreement } from '../../../core/ui/tou/touagreement.js';
+import { ensureTouAgreement } from '../../../core/ui/tou/touAgreement.js';
 import {
     parseMarkdown,
     parseUntrustedMarkdown,

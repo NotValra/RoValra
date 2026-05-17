@@ -1,6 +1,7 @@
 const CACHE_KEY = 'rovalra_cache';
 let storageSupported = { session: true, local: true };
 let memoryFallback = { session: {}, local: {} };
+let writeQueue = Promise.resolve();
 
 const this_tab = (() => {
     const bytes = crypto.getRandomValues(new Uint8Array(12));
@@ -117,42 +118,63 @@ const setCache = async (cache, area = 'session') => {
 const TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000;
 
 export const cleanupExpiredCache = async () => {
-    for (const area of ['session', 'local']) {
-        const cache = await getCache(area);
-        let hasChanges = false;
+    writeQueue = writeQueue
+        .then(async () => {
+            for (const area of ['session', 'local']) {
+                const cache = await getCache(area);
+                let hasChanges = false;
 
-        for (const section in cache) {
-            for (const key in cache[section]) {
-                const entry = cache[section][key];
-
-                if (entry && entry.ResetTimestamp) {
-                    const age = Date.now() - entry.ResetTimestamp;
-                    if (age > TWENTY_FOUR_HOURS_MS) {
-                        delete cache[section][key];
+                for (const section in cache) {
+                    if (
+                        typeof cache[section] !== 'object' ||
+                        cache[section] === null
+                    ) {
+                        delete cache[section];
                         hasChanges = true;
-
-                        const ramcache = getramcache(section, key, area);
-                        _ramcache.delete(ramcache.k);
+                        continue;
                     }
-                } else if (entry && !entry.ResetTimestamp) {
-                    cache[section][key] = {
-                        value: entry,
-                        ResetTimestamp: Date.now(),
-                    };
-                    hasChanges = true;
+
+                    for (const key in cache[section]) {
+                        const entry = cache[section][key];
+
+                        if (entry && entry.ResetTimestamp) {
+                            const age = Date.now() - entry.ResetTimestamp;
+                            if (age > TWENTY_FOUR_HOURS_MS) {
+                                delete cache[section][key];
+                                hasChanges = true;
+
+                                const ramcache = getramcache(
+                                    section,
+                                    key,
+                                    area,
+                                );
+                                _ramcache.delete(ramcache.k);
+                            }
+                        } else if (entry && !entry.ResetTimestamp) {
+                            cache[section][key] = {
+                                value: entry,
+                                ResetTimestamp: Date.now(),
+                            };
+                            hasChanges = true;
+                        }
+                    }
+
+                    if (Object.keys(cache[section]).length === 0) {
+                        delete cache[section];
+                        hasChanges = true;
+                    }
+                }
+
+                if (hasChanges) {
+                    await setCache(cache, area);
                 }
             }
+        })
+        .catch((e) =>
+            console.error('RoValra (CacheHandler): Cleanup error', e),
+        );
 
-            if (Object.keys(cache[section]).length === 0) {
-                delete cache[section];
-                hasChanges = true;
-            }
-        }
-
-        if (hasChanges) {
-            await setCache(cache, area);
-        }
-    }
+    return writeQueue;
 };
 
 setTimeout(cleanupExpiredCache, 0);
@@ -166,14 +188,23 @@ setTimeout(cleanupExpiredCache, 0);
  */
 export const set = async (section, key, value, area = 'session') => {
     const ram = getramcache(section, key, area);
-    const cache = await getCache(area);
     ram.x = value;
-    cache[section] = cache[section] || {};
-    cache[section][key] = {
-        value: value,
-        ResetTimestamp: Date.now(),
-    };
-    await setCache(cache, area);
+
+    writeQueue = writeQueue
+        .then(async () => {
+            const cache = await getCache(area);
+            cache[section] = cache[section] || {};
+            cache[section][key] = {
+                value: value,
+                ResetTimestamp: Date.now(),
+            };
+            await setCache(cache, area);
+        })
+        .catch((e) =>
+            console.error(`RoValra (CacheHandler): Error setting ${key}`, e),
+        );
+
+    return writeQueue;
 };
 
 /**
@@ -222,16 +253,21 @@ export const get = async (section, key, area = 'session') => {
 export const remove = async (section, key, area = 'session') => {
     const ramcache = getramcache(section, key, area);
     _ramcache.delete(ramcache.k);
-    try {
-        const cache = await getCache(area);
-        if (cache[section]) {
-            delete cache[section][key];
-            await setCache(cache, area);
-        }
-    } catch (e) {
-        console.error(
-            `RoValra (CacheHandler): Failed to remove item "${key}" from ${area}`,
-            e,
+
+    writeQueue = writeQueue
+        .then(async () => {
+            const cache = await getCache(area);
+            if (cache[section]) {
+                delete cache[section][key];
+                await setCache(cache, area);
+            }
+        })
+        .catch((e) =>
+            console.error(
+                `RoValra (CacheHandler): Failed to remove item "${key}" from ${area}`,
+                e,
+            ),
         );
-    }
+
+    return writeQueue;
 };

@@ -581,6 +581,14 @@ export const SETTINGS_CONFIG = {
                     },
                 },
             },
+            groupFiltersEnabled: {
+                label: 'Community Filters',
+                description: [
+                    'Adds filters to the community section on profiles allowing you to sort by A-Z, Z-A, Newest and Oldest.',
+                ],
+                type: 'checkbox',
+                default: true,
+            },
             trustedConnectionsEnabled: {
                 label: 'Trusted Friends',
                 description: [
@@ -602,6 +610,8 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
+                locked: 'Roblox released their own version of this feature',
+                isPermanent: true,
             },
             lastOnlineEnabled: {
                 label: 'Show Last Online / Last Seen',
