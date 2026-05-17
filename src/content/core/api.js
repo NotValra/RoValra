@@ -521,21 +521,31 @@ export async function callRobloxApi(options) {
                         isTokenInvalid &&
                         endpoint &&
                         endpoint.includes('/v1/auth') &&
-                        !skipAutoAuth &&
-                        !authRetried
+                        !skipAutoAuth
                     ) {
-                        console.log(
-                            'RoValra API: Invalid token/session, attempting token refresh...',
-                        );
-                        authRetried = true;
-                        const newToken = await getValidAccessToken(true, false);
-                        if (newToken) {
-                            fetchOptions.headers.set(
-                                'Authorization',
-                                `Bearer ${newToken}`,
+                        if (!authRetried) {
+                            console.log(
+                                'RoValra API: Invalid token/session, attempting token refresh...',
                             );
-                            continue;
+                            authRetried = true;
+                            const newToken = await getValidAccessToken(
+                                true,
+                                false,
+                            );
+                            if (newToken) {
+                                fetchOptions.headers.set(
+                                    'Authorization',
+                                    `Bearer ${newToken}`,
+                                );
+                                continue;
+                            }
                         }
+
+                        console.warn(
+                            'RoValra API: Authentication failed repeatedly. Clearing storage as last resort.',
+                        );
+                        await chrome.storage.local.remove(OAUTH_STORAGE_KEY);
+                        break;
                     }
 
                     if (lastResponse.ok && !bodyIsInvalid) {
