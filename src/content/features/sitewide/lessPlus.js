@@ -41,13 +41,15 @@ async function initFromConfig(settings) {
                 "div.buy-robux-content div div div.flex a[href='/plus']",
             );
 
-            const robloxPlusInBuyRobuxSnippet =
-                _RobloxPlusInBuyRobuxSnippetA[0].parentElement.parentElement
-                    .parentElement.children[1];
+            if (_RobloxPlusInBuyRobuxSnippetA.length >= 1) {
+                const robloxPlusInBuyRobuxSnippet =
+                    _RobloxPlusInBuyRobuxSnippetA[0].parentElement.parentElement
+                        .parentElement.children[1];
 
-            if (plusType >= plusTypeEnum.None)
-                robloxPlusInBuyRobuxSnippet.parentElement.remove();
-            else robloxPlusInBuyRobuxSnippet.remove();
+                if (plusType >= plusTypeEnum.None)
+                    robloxPlusInBuyRobuxSnippet.parentElement.remove();
+                else robloxPlusInBuyRobuxSnippet.remove();
+            }
         }
     });
 }
