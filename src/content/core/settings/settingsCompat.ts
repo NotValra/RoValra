@@ -7,43 +7,37 @@ const settingDeprecations: Record<string, ((value: any, gets: (key: string) => P
     "currencyTransferEnabled": undefined,
 };
 
-const FLAT_SETTINGS_CONFIG = Object.entries(SETTINGS_CONFIG).map(([c, s]) => s);
-
-let initialised = false;
-
-if (!initialised) {
-initialised = true;
-chrome.runtime.onInstalled.addListener(async (details) => {
+(async () => {
     let oldVersion;
     try {
         oldVersion = (await chrome.storage.local.get("RoValraSettingsVersion")).RoValraSettingsVersion;
+        if (oldVersion === undefined)
+            throw Error("yes()");
     } catch {
-        await chrome.storage.local.set({"RoValraSettingsVersion": chrome.runtime.getManifest().version});
         oldVersion = "2.5.2";
     }
-
+    await chrome.storage.local.set({"RoValraSettingsVersion": chrome.runtime.getManifest().version});
     const oldv = new Version(oldVersion);
     const newv = getVersion();
+    if (true) {
 
-    if (newv.greater_than(oldv) == 2) {
-        
         let deleted = [];
         let replaced = [];
         for (const [setting, replaceFn] of Object.entries(settingDeprecations)) {
             try {
                 let v: any = undefined;
-                if (v = (await chrome.storage.local.get(setting))[setting]) {
+                if ((v = (await chrome.storage.local.get({[setting]: undefined}))[setting]) !== undefined) {
                     if (replaceFn === undefined) {
                         console.info(`Deleted setting: ${setting}. No suitable replacement.`);
                         deleted.push(setting);
-                        chrome.storage.local.remove(setting);
+                        await chrome.storage.local.remove(setting);
                     } else {
                         console.info(`Updating setting ${setting}.`, `(with function: \`${replaceFn.toString()}\`)`);
                         try {
                             const replacements: Record<string, any> = {};
                             replaceFn(
                                 v,
-                                async (key) => (await chrome.storage.local.get({key: undefined}))[key],
+                                async (key) => (await chrome.storage.local.get({[key]: undefined}))[key],
                                 (key, newValue) => {replacements[key] = newValue;}
                             );
                             await chrome.storage.local.set(replacements);
@@ -57,29 +51,30 @@ chrome.runtime.onInstalled.addListener(async (details) => {
                 console.error(`Failed to retrieve setting ${setting} for compat checks — unexpected error: `, e);
             }
         }
-
         const forEachLockedSetting = (key: string, data: Record<string, any>) => {
             const name = data.label;
-            deleted.push(key, data);
+            deleted.push(key);
         };
-
         for (const [category, settings] of Object.entries(SETTINGS_CONFIG)) {
-            for (const [setting, data] of Object.entries(settings)) {
-                forEachLockedSetting(setting, data);
+            for (const [setting, data] of Object.entries(settings.settings)) {
+                if (data['locked'] !== undefined || data['deprecated'] !== undefined) {
+                    let value = (await chrome.storage.local.get({[setting]: undefined}))[setting]
+                    if (value !== undefined && value !== data.default) {
+                        forEachLockedSetting(setting, data);
+                        await chrome.storage.local.remove(setting);
+                    }
+                }
             }
         }
 
         if (replaced.length >= 1) {
             alert(`(RoValra) The following settings have been recently replaced or changed:
-\t*  ${replaced.join("\n\t*  ")}`);
+    *  ${replaced.join("\n\t*  ")}`);
         }
         if (deleted.length >= 1) {
-            alert(`(RoValra) The following settings have been recently deleted or locked:
-\t*  ${deleted.join("\n\t*  ")}`);
+            alert(`(RoValra) The following settings have been recently deleted, locked or deprecated:
+    *  ${deleted.join("\n\t*  ")}`);
         }
 
-    } else if (newv.greater_than(oldv) == 0) {  // How
-        console.warn(`(RoValra) Downgraded version (?)`);
     }
-});
-}
+})();

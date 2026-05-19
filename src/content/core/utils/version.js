@@ -1,5 +1,3 @@
-import { createWeightsForMeshChunked } from "roavatar-renderer";
-
 const min = (a, b) => a > b ? b : a;
 
 export default class Version {
@@ -43,5 +41,5 @@ export default class Version {
 }
 
 export function getVersion() {
-    return Version(chrome.runtime.getManifest().version);
+    return new Version(chrome.runtime.getManifest().version);
 }
