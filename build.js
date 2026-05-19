@@ -188,7 +188,7 @@ function processDirectory(src, dest) {
         } else {
             const ext = path.extname(entry.name).toLowerCase();
 
-            if (ext === '.js' || ext === '.css') {
+            if (ext === '.js' || ext === '.css' || ext === '.ts') {
                 try {
                     const content = fs.readFileSync(srcPath, 'utf8');
 

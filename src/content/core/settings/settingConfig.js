@@ -4,6 +4,8 @@ import {
     TRANSACTION_FIAT_RATE_OPTIONS,
 } from '../transactions/fiatConfig.js';
 
+import './settingsCompat';
+
 // Settings config (not developer settings)
 
 export const SETTINGS_CONFIG = {
