@@ -17,7 +17,6 @@ const initPromise = (async () => {
     } catch {
         oldVersion = "2.5.2";
     }
-    await chrome.storage.local.set({"RoValraSettingsVersion": chrome.runtime.getManifest().version});
     const oldv = new Version(oldVersion);
     const newv = getVersion();
     if (true) {
@@ -76,6 +75,8 @@ const initPromise = (async () => {
             alert(`(RoValra) The following settings have been recently deleted, locked or deprecated:
     *  ${deleted.join("\n\t*  ")}`);
         }
+
+        await chrome.storage.local.set({"RoValraSettingsVersion": chrome.runtime.getManifest().version});
 
     }
 })();
