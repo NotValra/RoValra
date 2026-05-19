@@ -19,7 +19,7 @@ chrome.runtime.onInstalled.addListener(async (details) => {
         oldVersion = (await chrome.storage.local.get("RoValraSettingsVersion")).RoValraSettingsVersion;
     } catch {
         await chrome.storage.local.set({"RoValraSettingsVersion": chrome.runtime.getManifest().version});
-        oldVersion = "2.5.1";
+        oldVersion = "2.5.2";
     }
 
     const oldv = new Version(oldVersion);
