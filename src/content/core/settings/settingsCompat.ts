@@ -7,7 +7,8 @@ const settingDeprecations: Record<string, ((value: any, gets: (key: string) => P
     "currencyTransferEnabled": undefined,
 };
 
-(async () => {
+const initPromise = (async () => {
+    console.log("RoValra: Verifying settings compat.");
     let oldVersion;
     try {
         oldVersion = (await chrome.storage.local.get("RoValraSettingsVersion")).RoValraSettingsVersion;
@@ -59,7 +60,7 @@ const settingDeprecations: Record<string, ((value: any, gets: (key: string) => P
             for (const [setting, data] of Object.entries(settings.settings)) {
                 if (data['locked'] !== undefined || data['deprecated'] !== undefined) {
                     let value = (await chrome.storage.local.get({[setting]: undefined}))[setting]
-                    if (value !== undefined && value !== data.default) {
+                    if (value !== undefined && value !== false) {
                         forEachLockedSetting(setting, data);
                         await chrome.storage.local.remove(setting);
                     }
@@ -78,3 +79,5 @@ const settingDeprecations: Record<string, ((value: any, gets: (key: string) => P
 
     }
 })();
+
+export default initPromise;

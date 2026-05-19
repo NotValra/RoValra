@@ -1,3 +1,4 @@
+import initPromise from './settingsCompat.js';
 import { SETTINGS_CONFIG } from './settingConfig.js';
 import { getBorders } from '../configs/borders.js';
 import { findSettingConfig } from './generateSettings.js';
@@ -145,6 +146,7 @@ export const syncDonatorTier = async () => {
 };
 
 export const loadSettings = async () => {
+    await initPromise;
     return new Promise((resolve, reject) => {
         const defaultSettings = {};
         for (const category of Object.values(SETTINGS_CONFIG)) {
@@ -182,6 +184,7 @@ export const loadSettings = async () => {
 };
 
 export const enforceSettingOverrides = async () => {
+    await initPromise;
     try {
         const settings = await loadSettings();
         const data = await chrome.storage.local.get([
@@ -205,11 +208,6 @@ export const enforceSettingOverrides = async () => {
                     if (conf.donatorTier) {
                         const isLocked = userTier < conf.donatorTier;
                         if (isLocked && settings[name] === true) {
-                            overrides[name] = false;
-                        }
-                    }
-                    if (conf.locked) {
-                        if (settings[name] === true) {
                             overrides[name] = false;
                         }
                     }
@@ -274,6 +272,7 @@ export const enforceSettingOverrides = async () => {
 };
 
 export const handleSaveSettings = async (settingName, value) => {
+    await initPromise;
     if (!settingName) {
         console.error('No setting name provided');
         return Promise.reject(new Error('No setting name provided'));
@@ -551,6 +550,7 @@ export const buildSettingsKey = async () => {
 };
 
 export const initSettings = async (settingsContent) => {
+    await initPromise;
     if (!settingsContent) {
         console.error(
             'settingsContent is null in initSettings! Check HTML structure.',
