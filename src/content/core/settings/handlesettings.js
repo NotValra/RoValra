@@ -9,15 +9,33 @@ import { getAuthenticatedUserId } from '../user.js';
 import { updateUserSettingViaApi } from '../donators/settingHandler.js';
 import { createAndShowPopup } from '../../features/catalog/40method.js';
 import * as CacheHandler from '../storage/cacheHandler.js';
+import { hasOwn } from '../utils.js';
 
 let currentUserTier = 0;
 let gradientSyncTimeout = null;
 let donatorTierPromise = null;
 const colorLiveSaveTimeouts = new Map();
 
+const isUnavailableSetting = (config) => hasOwn(config, 'locked') || hasOwn(config, 'deprecated');
+
+const forEachSettingConfig = (callback) => {
+    for (const category of Object.values(SETTINGS_CONFIG)) {
+        for (const [settingName, settingDef] of Object.entries(category.settings)) {
+            callback(settingName, settingDef);
+
+            if (settingDef.childSettings) {
+                for (const [childName, childDef] of Object.entries(settingDef.childSettings)) {
+                    callback(childName, childDef);
+                }
+            }
+        }
+    }
+};
+
 export const getCurrentUserTier = () => currentUserTier;
 
 export const syncDonatorTier = async () => {
+    await initPromise;
     if (donatorTierPromise) return donatorTierPromise;
 
     const now = Date.now();
@@ -149,6 +167,7 @@ export const loadSettings = async () => {
     await initPromise;
     return new Promise((resolve, reject) => {
         const defaultSettings = {};
+        const forcedSettings = {};
         for (const category of Object.values(SETTINGS_CONFIG)) {
             for (const [settingName, settingDef] of Object.entries(
                 category.settings,
@@ -156,10 +175,16 @@ export const loadSettings = async () => {
                 if (settingDef.default !== undefined) {
                     defaultSettings[settingName] = settingDef.default;
                 }
+                if (isUnavailableSetting(settingDef)) {
+                    forcedSettings[settingName] = false;
+                }
                 if (settingDef.childSettings) {
                     for (const [childName, childSettingDef] of Object.entries(
                         settingDef.childSettings,
                     )) {
+                        if (isUnavailableSetting(childSettingDef)) {
+                            forcedSettings[childName] = false;
+                        }
                         if (childSettingDef.default !== undefined) {
                             defaultSettings[childName] =
                                 childSettingDef.default;
@@ -177,7 +202,11 @@ export const loadSettings = async () => {
                 );
                 reject(chrome.runtime.lastError);
             } else {
-                resolve(settings);
+                const normalisedSettings = settings;
+                for (const [key, value] of Object.entries(forcedSettings)) {
+                    normalisedSettings[key] = value;
+                }
+                resolve(normalisedSettings);
             }
         });
     });

@@ -1,15 +1,31 @@
-import { SETTINGS_CONFIG } from "./settingConfig.js";
-import { loadSettings } from "./handlesettings.js";
-
 const settingDeprecations: Record<string, ((value: any, gets: (key: string) => Promise<any>, sets: (key: string, value: any) => void) => void) | undefined> = {
     "EnableGameTrailer": undefined,
     "trustedConnectionsEnabled": undefined,
     "currencyTransferEnabled": undefined,
 };
 
+
+
+import { SETTINGS_CONFIG } from "./settingConfig.js";
+
+const getStoredSettingValue: (s: string) => Promise<any | undefined> = async (setting: string) => {
+    const individual = await chrome.storage.local.get({
+        [setting]: undefined,
+    });
+
+    if (individual[setting] !== undefined) {
+        return individual[setting];
+    }
+
+    const bundled = await chrome.storage.local.get({
+        rovalra_settings: {},
+    });
+
+    return bundled.rovalra_settings?.[setting];
+};
+
 const initPromise = (async () => {
     console.log("RoValra: Verifying settings compat.");
-    const settings = await loadSettings();
         
     let deleted = [];
     let replaced = [];
@@ -48,7 +64,7 @@ const initPromise = (async () => {
     for (const [category, settings] of Object.entries(SETTINGS_CONFIG)) {
         for (const [setting, data] of Object.entries(settings.settings)) {
             if (data['locked'] !== undefined || data['deprecated'] !== undefined) {
-                let value = (await chrome.storage.local.get({[setting]: undefined}))[setting]
+                let value = await getStoredSettingValue(setting);
                 if (value !== undefined && value !== false) {
                     forEachLockedSetting(setting, data);
                     await chrome.storage.local.remove(setting);
