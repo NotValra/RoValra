@@ -21,6 +21,19 @@ let batchInProgress = false;
 const memoryCache = new Map();
 const pendingResolvers = new Map();
 
+function assertValidUserId(userId) {
+    if (
+        userId === null ||
+        userId === undefined ||
+        String(userId).trim() === '' ||
+        String(userId).toLowerCase() === 'null'
+    ) {
+        throw new Error(
+            'RoValra: Cannot fetch user settings without a valid user ID.',
+        );
+    }
+}
+
 async function saveToCache(cacheKey, settings) {
     const cacheData = {
         data: settings,
@@ -31,6 +44,8 @@ async function saveToCache(cacheKey, settings) {
 }
 
 async function fetchAndProcessSettings(userId, options = {}) {
+    assertValidUserId(userId);
+
     const authenticatedUserId = await getAuthenticatedUserId();
     const isOwnProfile =
         authenticatedUserId && String(authenticatedUserId) === String(userId);
@@ -248,6 +263,8 @@ async function processBatchQueue() {
 }
 
 async function processApiSettings(userId, apiSettings, options) {
+    assertValidUserId(userId);
+
     const authenticatedUserId = await getAuthenticatedUserId();
     const isOwnProfile =
         authenticatedUserId && String(authenticatedUserId) === String(userId);
@@ -306,6 +323,8 @@ async function processApiSettings(userId, apiSettings, options) {
 }
 
 export async function getUserSettings(userId, options = {}) {
+    assertValidUserId(userId);
+
     const authedId = await getAuthenticatedUserId();
     const authenticatedUserId = authedId ? String(authedId) : null;
     const strUserId = String(userId);
