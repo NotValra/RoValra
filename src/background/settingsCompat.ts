@@ -10,6 +10,8 @@ const settingDeprecations: Record<string, ((value: any, gets: (key: string) => P
 import { SETTINGS_CONFIG } from "../content/core/settings/settingConfig.js";
 import { debugVerbose, flush } from "../content/core/debug.js";
 
+let compatResults: { replaced: string[]; deleted: string[] } | null = null;
+
 const getStoredSettingValue: (s: string) => Promise<any | undefined> = async (setting: string) => {
     const individual = await chrome.storage.local.get({
         [setting]: undefined,
@@ -70,7 +72,7 @@ const init = (async () => {
                 } else {
                     try {
                         const replacements: Record<string, any> = {};
-                        replaceFn(
+                        await replaceFn(
                             v,
                             async (key) => (await chrome.storage.local.get({[key]: undefined}))[key],
                             (key, newValue) => {replacements[key] = newValue;}
@@ -110,24 +112,27 @@ const init = (async () => {
         }
     }
 
-    if (replaced.length >= 1) {
-        alert(`(RoValra) The following settings have been recently replaced or changed:
-    *  ${replaced.join("\n\t*  ")}`);
-        debugVerbose(`Replaced/changed ${replaced.length} settings.`, replaced);
-    }
+    compatResults = { replaced: replaced, deleted: deleted };
 
-    if (deleted.length >= 1) {
-        alert(`(RoValra) The following settings have been recently deleted, locked or deprecated:
-    *  ${deleted.join("\n    *  ")}`);
-        debugVerbose(`Deleted/locked/deprecated ${deleted.length} settings.`, deleted);
-    }
-
-    await chrome.storage.local.set({"RoValraSettingsVersion": chrome.runtime.getManifest().version});
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        if (tabs[0]?.id) {
+            chrome.tabs.sendMessage(tabs[0].id, { type: "settingsCompatResultData", replaced: replaced, deleted: deleted }, () => {});
+        }
+    });
 
     await cleanup();
     flush();
 
     console.debug("Setting compat checks finished.");
+});
+
+chrome.runtime.onMessage.addListener((message: any, sender: unknown, sendResponse: (...args: any[]) => void) => {
+    if (message.type === "settingsCompatGetRes") {
+        debugVerbose("Recieved signal settingsCompatGetRes.", {message: message, data: compatResults});
+        sendResponse(compatResults);
+        compatResults = {replaced: [], deleted: []};
+    }
+    return true;
 });
 
 export default init;

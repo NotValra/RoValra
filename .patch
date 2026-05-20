@@ -1,0 +1,79 @@
+diff --git a/src/background/settingsCompat.ts b/src/background/settingsCompat.ts
+index e790d72..fed4a2d 100644
+--- a/src/background/settingsCompat.ts
++++ b/src/background/settingsCompat.ts
+@@ -110,17 +110,23 @@ const init = (async () => {
+         }
+     }
+ 
+-    if (replaced.length >= 1) {
+-        alert(`(RoValra) The following settings have been recently replaced or changed:
+-    *  ${replaced.join("\n\t*  ")}`);
+-        debugVerbose(`Replaced/changed ${replaced.length} settings.`, replaced);
+-    }
++    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
++        if (tabs[0]?.id) {
++            chrome.tabs.sendMessage(tabs[0].id, { type: "settingsCompatResultData", replaced: replaced, deleted: deleted }, () => {});
++        }
++    });
+ 
+-    if (deleted.length >= 1) {
+-        alert(`(RoValra) The following settings have been recently deleted, locked or deprecated:
+-    *  ${deleted.join("\n    *  ")}`);
+-        debugVerbose(`Deleted/locked/deprecated ${deleted.length} settings.`, deleted);
+-    }
++    //if (replaced.length >= 1) {
++    //    alert(`(RoValra) The following settings have been recently replaced or changed:
++    //*  ${replaced.join("\n\t*  ")}`);
++    //    debugVerbose(`Replaced/changed ${replaced.length} settings.`, replaced);
++    //}
++
++    //if (deleted.length >= 1) {
++    //    alert(`(RoValra) The following settings have been recently deleted, locked or deprecated:
++    //*  ${deleted.join("\n    *  ")}`);
++    //    debugVerbose(`Deleted/locked/deprecated ${deleted.length} settings.`, deleted);
++    //}
+ 
+     await chrome.storage.local.set({"RoValraSettingsVersion": chrome.runtime.getManifest().version});
+ 
+diff --git a/src/content/core/settings/handlesettings.js b/src/content/core/settings/handlesettings.js
+index 61aa231..824dd5c 100644
+--- a/src/content/core/settings/handlesettings.js
++++ b/src/content/core/settings/handlesettings.js
+@@ -9,6 +9,7 @@ import { updateUserSettingViaApi } from '../donators/settingHandler.js';
+ import { createAndShowPopup } from '../../features/catalog/40method.js';
+ import * as CacheHandler from '../storage/cacheHandler.js';
+ import { hasOwn } from '../utils.js';
++import "./settingsCompat";
+ 
+ let currentUserTier = 0;
+ let gradientSyncTimeout = null;
+diff --git a/src/content/core/settings/settingConfig.js b/src/content/core/settings/settingConfig.js
+index d4311cb..83cd08c 100644
+--- a/src/content/core/settings/settingConfig.js
++++ b/src/content/core/settings/settingConfig.js
+@@ -610,7 +610,7 @@ export const SETTINGS_CONFIG = {
+                 ],
+                 type: 'checkbox',
+                 default: true,
+-                locked: 'Roblox released their own version of this feature',
++                //locked: 'Roblox released their own version of this feature',
+                 isPermanent: true,
+             },
+             lastOnlineEnabled: {
+@@ -1512,6 +1512,15 @@ export const SETTINGS_CONFIG = {
+                 },
+                 contributors: ['1564574922'],
+             },
++            settingChangeNote: {
++                label: 'Setting changes alerts',
++                description: [
++                    'Shows you whenever certain changes were replaced or removed.'
++                ],
++                type: 'checkbox',
++                default: false,
++                contributors: ['1564574922'],
++            }
+         },
+     },
+     AntiAccountTracking: {

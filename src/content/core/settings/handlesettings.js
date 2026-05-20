@@ -9,6 +9,7 @@ import { updateUserSettingViaApi } from '../donators/settingHandler.js';
 import { createAndShowPopup } from '../../features/catalog/40method.js';
 import * as CacheHandler from '../storage/cacheHandler.js';
 import { hasOwn } from '../utils.js';
+import "./settingsCompat";
 
 let currentUserTier = 0;
 let gradientSyncTimeout = null;
@@ -219,6 +220,11 @@ export const enforceSettingOverrides = async () => {
                     if (conf.donatorTier) {
                         const isLocked = userTier < conf.donatorTier;
                         if (isLocked && settings[name] === true) {
+                            overrides[name] = false;
+                        }
+                    }
+                    if (conf.locked) {
+                        if (settings[name] === true) {
                             overrides[name] = false;
                         }
                     }
