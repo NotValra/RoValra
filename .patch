@@ -1,0 +1,139 @@
+diff --git a/package-lock.json b/package-lock.json
+index c9b1945..b79d5e8 100644
+--- a/package-lock.json
++++ b/package-lock.json
+@@ -1,12 +1,12 @@
+ {
+   "name": "rovalra",
+-  "version": "2.5.2",
++  "version": "2.5.3",
+   "lockfileVersion": 3,
+   "requires": true,
+   "packages": {
+     "": {
+       "name": "rovalra",
+-      "version": "2.5.2",
++      "version": "2.5.3",
+       "dependencies": {
+         "dompurify": "^3.4.3",
+         "i18next": "26.2.0",
+diff --git a/src/content/core/settings/getSettings.js b/src/content/core/settings/getSettings.js
+index 315f1e6..b53a7fb 100644
+--- a/src/content/core/settings/getSettings.js
++++ b/src/content/core/settings/getSettings.js
+@@ -1,4 +1,4 @@
+-import { loadSettings } from "./handlesettings";
++import { loadSettings } from "./handlesettings.js";
+ 
+ let settingsCache = undefined;
+ 
+@@ -30,4 +30,11 @@ function proxify(path = []) {
+     })
+ }
+ 
++/**
++ * @typedef {Record<string, Settings | string>} Settings
++ */
++
++/**
++ * @type {Settings}
++ */
+ export const settings = proxify();
+diff --git a/src/content/core/settings/settingConfig.js b/src/content/core/settings/settingConfig.js
+index a2ded86..e1a20b3 100644
+--- a/src/content/core/settings/settingConfig.js
++++ b/src/content/core/settings/settingConfig.js
+@@ -610,7 +610,7 @@ export const SETTINGS_CONFIG = {
+                 ],
+                 type: 'checkbox',
+                 default: true,
+-                locked: 'Roblox released their own version of this feature',
++                //locked: 'Roblox released their own version of this feature',
+                 isPermanent: true,
+             },
+             lastOnlineEnabled: {
+@@ -1914,6 +1914,16 @@ export const SETTINGS_CONFIG = {
+                 buttonText: 'Calculate Storage',
+                 event: 'rovalra:showLocalStorageUsage',
+             },
++            verboseDebug: {
++                label: 'Verbose Debugging',
++                description: [
++                    "Displays extended debugging information."
++                ],
++                type: 'checkbox',
++                default: false,
++                contributors: ['1564574922'],
++                experimental: "This feature is not yet widely used within RoValra."
++            }
+         },
+     },
+ };
+diff --git a/src/content/core/settings/settingsCompat.ts b/src/content/core/settings/settingsCompat.ts
+index b41c789..e138179 100644
+--- a/src/content/core/settings/settingsCompat.ts
++++ b/src/content/core/settings/settingsCompat.ts
+@@ -9,6 +9,7 @@ const settingDeprecations: Record<string, ((value: any, gets: (key: string) => P
+ 
+ import { loadSettings } from "./handlesettings.js";
+ import { SETTINGS_CONFIG } from "./settingConfig.js";
++import { debugVerbose, flush } from "../debug.js";
+ 
+ const getStoredSettingValue: (s: string) => Promise<any | undefined> = async (setting: string) => {
+     const individual = await chrome.storage.local.get({
+@@ -40,14 +41,13 @@ const cleanup = (async () => {
+         const data = FLAT_SETTINGS_CONFIG[key];
+         if (data.default === value) {
+             await chrome.storage.local.remove(key);
++            debugVerbose(`Cleaning up setting ${key}.`, `value=${value}`, `default=${data.default}`);
+         }
+     }
+ });
+ 
+ const initPromise = (async () => {
+-    console.log("RoValra: Verifying settings compat.");
+-        
+-    await cleanup();
++    console.debug("RoValra: Verifying settings compat.");
+ 
+     let deleted = [];
+     let replaced = [];
+@@ -55,6 +55,7 @@ const initPromise = (async () => {
+         try {
+             let v: any = undefined;
+             if ((v = await getStoredSettingValue(setting)) === true) {
++                debugVerbose(`Replaced setting ${setting}.`, replaceFn);
+                 if (replaceFn === undefined) {
+                     console.info(`Deleted setting: ${setting}. No suitable replacement.`);
+                     deleted.push(FLAT_SETTINGS_CONFIG[setting].label);
+@@ -91,6 +92,7 @@ const initPromise = (async () => {
+             if (data['locked'] !== undefined || data['deprecated'] !== undefined) {
+                 let value = await getStoredSettingValue(setting);
+                 if (value !== undefined && value !== false) {
++                    debugVerbose(`Locked/deprecated setting: ${setting}`, `${data.label}`, `deprecated = ${data.deprecated}`, `locked = ${data.locked}`, `data = ${String(data)}`);
+                     forEachLockedSetting(setting, data);
+                     if (data.default === false)
+                         await chrome.storage.local.remove(setting);
+@@ -104,16 +106,21 @@ const initPromise = (async () => {
+     if (replaced.length >= 1) {
+         alert(`(RoValra) The following settings have been recently replaced or changed:
+     *  ${replaced.join("\n\t*  ")}`);
++        debugVerbose(`Replaced/changed ${replaced.length} settings.`, replaced);
+     }
+ 
+     if (deleted.length >= 1) {
+         alert(`(RoValra) The following settings have been recently deleted, locked or deprecated:
+     *  ${deleted.join("\n    *  ")}`);
++        debugVerbose(`Deleted/locked/deprecated ${deleted.length} settings.`, deleted);
+     }
+ 
+     await chrome.storage.local.set({"RoValraSettingsVersion": chrome.runtime.getManifest().version});
+ 
+-    console.info("Setting compat checks finished.");
++    await cleanup();
++    flush();
++
++    console.debug("Setting compat checks finished.");
+ })();
+ 
+ export default initPromise;

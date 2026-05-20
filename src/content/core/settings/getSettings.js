@@ -1,4 +1,4 @@
-import { loadSettings } from "./handlesettings";
+import { loadSettings } from "./handlesettings.js";
 
 let settingsCache = undefined;
 
@@ -30,4 +30,11 @@ function proxify(path = []) {
     })
 }
 
+/**
+ * @typedef {Record<string, Settings | string>} Settings
+ */
+
+/**
+ * @type {Settings}
+ */
 export const settings = proxify();

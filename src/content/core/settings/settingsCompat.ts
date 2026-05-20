@@ -9,6 +9,7 @@ const settingDeprecations: Record<string, ((value: any, gets: (key: string) => P
 
 import { loadSettings } from "./handlesettings.js";
 import { SETTINGS_CONFIG } from "./settingConfig.js";
+import { debugVerbose, flush } from "../debug.js";
 
 const getStoredSettingValue: (s: string) => Promise<any | undefined> = async (setting: string) => {
     const individual = await chrome.storage.local.get({
@@ -35,19 +36,20 @@ for (const category of Object.values(SETTINGS_CONFIG)) {
 }
 
 const cleanup = (async () => {
-    const settings = await loadSettings();
+    const settings = await chrome.storage.local.get(null);
     for (const [key, value] of Object.entries(settings)) {
         const data = FLAT_SETTINGS_CONFIG[key];
+        if (!data)
+            continue;  // not a setting
         if (data.default === value) {
             await chrome.storage.local.remove(key);
+            debugVerbose(`Cleaning up setting ${key}.`, {value: value, default: data.default});
         }
     }
 });
 
 const initPromise = (async () => {
-    console.log("RoValra: Verifying settings compat.");
-        
-    await cleanup();
+    console.debug("RoValra: Verifying settings compat.");
 
     let deleted = [];
     let replaced = [];
@@ -55,15 +57,14 @@ const initPromise = (async () => {
         try {
             let v: any = undefined;
             if ((v = await getStoredSettingValue(setting)) === true) {
+                debugVerbose(`Replaced setting ${setting}.`, {replacement: String(replaceFn)});
                 if (replaceFn === undefined) {
-                    console.info(`Deleted setting: ${setting}. No suitable replacement.`);
                     deleted.push(FLAT_SETTINGS_CONFIG[setting].label);
                     if (FLAT_SETTINGS_CONFIG[setting].default === true)
                         await chrome.storage.local.set({[setting]: false});
                     else
                         await chrome.storage.local.remove(setting);
                 } else {
-                    console.info(`Updating setting ${setting}.`, `(with function: \`${replaceFn.toString()}\`)`);
                     try {
                         const replacements: Record<string, any> = {};
                         replaceFn(
@@ -91,6 +92,7 @@ const initPromise = (async () => {
             if (data['locked'] !== undefined || data['deprecated'] !== undefined) {
                 let value = await getStoredSettingValue(setting);
                 if (value !== undefined && value !== false) {
+                    debugVerbose(`Locked/deprecated setting: ${setting}`, data);
                     forEachLockedSetting(setting, data);
                     if (data.default === false)
                         await chrome.storage.local.remove(setting);
@@ -104,16 +106,21 @@ const initPromise = (async () => {
     if (replaced.length >= 1) {
         alert(`(RoValra) The following settings have been recently replaced or changed:
     *  ${replaced.join("\n\t*  ")}`);
+        debugVerbose(`Replaced/changed ${replaced.length} settings.`, replaced);
     }
 
     if (deleted.length >= 1) {
         alert(`(RoValra) The following settings have been recently deleted, locked or deprecated:
     *  ${deleted.join("\n    *  ")}`);
+        debugVerbose(`Deleted/locked/deprecated ${deleted.length} settings.`, deleted);
     }
 
     await chrome.storage.local.set({"RoValraSettingsVersion": chrome.runtime.getManifest().version});
 
-    console.info("Setting compat checks finished.");
+    await cleanup();
+    flush();
+
+    console.debug("Setting compat checks finished.");
 })();
 
 export default initPromise;

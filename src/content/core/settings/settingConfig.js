@@ -610,7 +610,7 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
-                locked: 'Roblox released their own version of this feature',
+                //locked: 'Roblox released their own version of this feature',
                 isPermanent: true,
             },
             lastOnlineEnabled: {
@@ -1914,6 +1914,16 @@ export const SETTINGS_CONFIG = {
                 buttonText: 'Calculate Storage',
                 event: 'rovalra:showLocalStorageUsage',
             },
+            verboseDebug: {
+                label: 'Verbose Debugging',
+                description: [
+                    "Displays extended debugging information."
+                ],
+                type: 'checkbox',
+                default: false,
+                contributors: ['1564574922'],
+                experimental: "This feature is not yet widely used within RoValra."
+            }
         },
     },
 };
