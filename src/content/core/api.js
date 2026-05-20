@@ -15,10 +15,48 @@ let lastGameJoinRequestTime = 0;
 const OAUTH_STORAGE_KEY = 'rovalra_oauth_verification';
 const CAPTURED_APIS_KEY = 'rovalra_captured_apis';
 const seenRequests = new Map();
+let cachedRovalraUserAgent = null;
 
 const hbaClient = new HBAClient({
     onSite: true,
 });
+
+function getRovalraUserAgent() {
+    if (cachedRovalraUserAgent) return cachedRovalraUserAgent;
+
+    const originalUA = navigator.userAgent;
+    let browser = 'Unknown';
+    let engine = 'Unknown';
+
+    if (originalUA.includes('Firefox/')) {
+        browser = 'Firefox';
+        engine = 'Gecko';
+    } else if (originalUA.includes('Edg/')) {
+        browser = 'Edge';
+        engine = 'Chromium';
+    } else if (originalUA.includes('OPR/') || originalUA.includes('Opera/')) {
+        browser = 'Opera';
+        engine = 'Chromium';
+    } else if (originalUA.includes('Chrome/')) {
+        browser = 'Chrome';
+        engine = 'Chromium';
+    } else if (originalUA.includes('Safari/')) {
+        browser = 'Safari';
+        engine = 'WebKit';
+    }
+
+    const manifest = chrome.runtime.getManifest();
+    const version = manifest.version || 'Unknown';
+    const isDevelopment = !('update_url' in manifest);
+    const environment = isDevelopment ? 'Development' : 'Production';
+
+    cachedRovalraUserAgent = `RoValraExtension(RoValra/${browser}/${engine}/${version}/${environment})`;
+    if (engine === 'Gecko' || engine === 'WebKit') {
+        cachedRovalraUserAgent += ' UnofficialRoValraVersion';
+    }
+
+    return cachedRovalraUserAgent;
+}
 
 document.addEventListener('rovalra-traffic-capture', (e) => {
     const { url, method, body } = e.detail;
@@ -256,6 +294,13 @@ export async function callRobloxApi(options) {
         } = options;
 
         const normalizedHeaders = new Headers(headers);
+
+        if (isRovalraApi && subdomain === 'apis') {
+            normalizedHeaders.set(
+                'x-rovalra-user-agent',
+                getRovalraUserAgent(),
+            );
+        }
 
         if (useApiKey) {
             const apiKey = await getValidApiKey();
