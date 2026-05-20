@@ -1,4 +1,3 @@
-import initPromise from './settingsCompat.js';
 import { SETTINGS_CONFIG } from './settingConfig.js';
 import { getBorders } from '../configs/borders.js';
 import { findSettingConfig } from './generateSettings.js';
@@ -21,7 +20,6 @@ const isUnavailableSetting = (config) => hasOwn(config, 'locked') || hasOwn(conf
 export const getCurrentUserTier = () => currentUserTier;
 
 export const syncDonatorTier = async () => {
-    await initPromise;
     if (donatorTierPromise) return donatorTierPromise;
 
     const now = Date.now();
@@ -150,7 +148,6 @@ export const syncDonatorTier = async () => {
 };
 
 export const loadSettings = async () => {
-    await initPromise;
     return new Promise((resolve, reject) => {
         const defaultSettings = {};
         const forcedSettings = {};
@@ -198,8 +195,7 @@ export const loadSettings = async () => {
     });
 };
 
-export const enforceSettingOverrides = async () => {
-    await initPromise;
+export const enforceSettingOverrides = async () => {    
     try {
         const settings = await loadSettings();
         const data = await chrome.storage.local.get([
@@ -287,7 +283,6 @@ export const enforceSettingOverrides = async () => {
 };
 
 export const handleSaveSettings = async (settingName, value) => {
-    await initPromise;
     if (!settingName) {
         console.error('No setting name provided');
         return Promise.reject(new Error('No setting name provided'));
@@ -565,7 +560,6 @@ export const buildSettingsKey = async () => {
 };
 
 export const initSettings = async (settingsContent) => {
-    await initPromise;
     if (!settingsContent) {
         console.error(
             'settingsContent is null in initSettings! Check HTML structure.',

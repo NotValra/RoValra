@@ -22,13 +22,11 @@ import { createUserCard } from '../ui/profile/userCard.js';
 import { getAuthenticatedUserId } from '../user.js';
 import { getBorders } from '../configs/borders.js';
 import { applyBorderToContainer } from '../../features/profile/avatarBorder.js';
-import initPromise from './settingsCompat';
 
 const DEFAULT_CONTRIBUTOR_ID = 447170745;
 const contributorCache = new Map();
 
 async function attachContributors(container, config, isChild = false) {
-    await initPromise;
     if (
         isChild &&
         !Object.prototype.hasOwnProperty.call(config, 'contributors')
@@ -192,7 +190,6 @@ function createClearStorageButton(storageKey, inputElement, settingType) {
 }
 
 async function setupAvatarPreview(container, inputElement, settingName) {
-    await initPromise;
     const userId = await getAuthenticatedUserId();
     if (!userId) return;
 

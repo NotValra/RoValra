@@ -7,8 +7,8 @@ const settingDeprecations: Record<string, ((value: any, gets: (key: string) => P
 };
 
 
-import { SETTINGS_CONFIG } from "./settingConfig.js";
-import { debugVerbose, flush } from "../debug.js";
+import { SETTINGS_CONFIG } from "../content/core/settings/settingConfig.js";
+import { debugVerbose, flush } from "../content/core/debug.js";
 
 const getStoredSettingValue: (s: string) => Promise<any | undefined> = async (setting: string) => {
     const individual = await chrome.storage.local.get({
@@ -49,7 +49,7 @@ const cleanup = (async () => {
     //}
 });
 
-const initPromise = (async () => {
+const init = (async () => {
     console.debug("RoValra: Verifying settings compat.");
 
     let deleted = [];
@@ -128,6 +128,6 @@ const initPromise = (async () => {
     flush();
 
     console.debug("Setting compat checks finished.");
-})();
+});
 
-export default initPromise;
+export default init;
