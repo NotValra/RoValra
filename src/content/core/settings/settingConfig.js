@@ -1515,7 +1515,7 @@ export const SETTINGS_CONFIG = {
             settingChangeNote: {
                 label: 'Setting changes alerts',
                 description: [
-                    'Shows you whenever certain changes were replaced or removed.'
+                    'Shows you whenever certain settings were replaced or removed.'
                 ],
                 type: 'checkbox',
                 default: false,
