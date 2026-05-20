@@ -21,7 +21,7 @@ const getStoredSettingValue: (s: string) => Promise<any | undefined> = async (se
 
     const bundled = await chrome.storage.local.get({
         rovalra_settings: {},
-    });
+    }) as { rovalra_settings?: Record<string, any>};
 
     return bundled.rovalra_settings?.[setting];
 };
