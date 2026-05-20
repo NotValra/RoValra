@@ -197,7 +197,7 @@ export async function init() {
             ].join(', '),
             (element) => {
                 const target = element.parentElement || element;
-                applyBorderToContainer(target, borderUrl, true);
+                applyBorderToContainer(target, borderUrl);
             },
             { multiple: true },
         );
