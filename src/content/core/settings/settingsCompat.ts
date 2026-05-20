@@ -1,3 +1,5 @@
+/// <reference types="chrome" />
+
 const settingDeprecations: Record<string, ((value: any, gets: (key: string) => Promise<any>, sets: (key: string, value: any) => void) => void) | undefined> = {
     "EnableGameTrailer": undefined,
     "trustedConnectionsEnabled": undefined,
@@ -24,6 +26,14 @@ const getStoredSettingValue: (s: string) => Promise<any | undefined> = async (se
     return bundled.rovalra_settings?.[setting];
 };
 
+const FLAT_SETTINGS_CONFIG: Record<string, any> = {};
+
+for (const category of Object.values(SETTINGS_CONFIG)) {
+    for (const [key, value] of Object.entries(category.settings)) {
+        FLAT_SETTINGS_CONFIG[key] = value;
+    }
+}
+
 const initPromise = (async () => {
     console.log("RoValra: Verifying settings compat.");
         
@@ -32,11 +42,14 @@ const initPromise = (async () => {
     for (const [setting, replaceFn] of Object.entries(settingDeprecations)) {
         try {
             let v: any = undefined;
-            if ((v = (await chrome.storage.local.get({[setting]: undefined}))[setting]) !== undefined) {
+            if ((v = await getStoredSettingValue(setting)) === true) {
                 if (replaceFn === undefined) {
                     console.info(`Deleted setting: ${setting}. No suitable replacement.`);
-                    deleted.push(setting);
-                    await chrome.storage.local.remove(setting);
+                    deleted.push(FLAT_SETTINGS_CONFIG[setting].label);
+                    if (FLAT_SETTINGS_CONFIG[setting].default === true)
+                        await chrome.storage.local.set({[setting]: false});
+                    else
+                        await chrome.storage.local.remove(setting);
                 } else {
                     console.info(`Updating setting ${setting}.`, `(with function: \`${replaceFn.toString()}\`)`);
                     try {
@@ -67,7 +80,10 @@ const initPromise = (async () => {
                 let value = await getStoredSettingValue(setting);
                 if (value !== undefined && value !== false) {
                     forEachLockedSetting(setting, data);
-                    await chrome.storage.local.remove(setting);
+                    if (data.default === false)
+                        await chrome.storage.local.remove(setting);
+                    else
+                        await chrome.storage.local.set({[setting]: false});
                 }
             }
         }
