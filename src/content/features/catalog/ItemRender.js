@@ -99,7 +99,7 @@ const updateAnimationDropdown = () => {
         selectedRigType || ogAvatarData.playerAvatarType || 'R15';
     const isR6 = currentType === 'R6';
     const items = isR6
-        ? ['idle', 'walk', 'fall', 'climb']
+        ? ['idle', 'walk', 'jump', 'fall', 'climb']
         : ['idle', 'walk', 'run', 'jump', 'fall', 'climb', 'swim'];
 
     const trueItems = items.map((v) => {
