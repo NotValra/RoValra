@@ -1512,6 +1512,15 @@ export const SETTINGS_CONFIG = {
                 },
                 contributors: ['1564574922'],
             },
+            settingChangeNote: {
+                label: 'Setting changes alerts',
+                description: [
+                    'Shows you whenever certain settings were replaced or removed.'
+                ],
+                type: 'checkbox',
+                default: false,
+                contributors: ['1564574922'],
+            }
         },
     },
     AntiAccountTracking: {
@@ -1914,6 +1923,16 @@ export const SETTINGS_CONFIG = {
                 buttonText: 'Calculate Storage',
                 event: 'rovalra:showLocalStorageUsage',
             },
+            verboseDebug: {
+                label: 'Verbose Debugging',
+                description: [
+                    "Displays extended debugging information."
+                ],
+                type: 'checkbox',
+                default: false,
+                contributors: ['1564574922'],
+                experimental: "This feature is not yet widely used within RoValra."
+            }
         },
     },
 };

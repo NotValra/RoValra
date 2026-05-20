@@ -9,6 +9,8 @@
     "lint": "eslint ."
   },
   "devDependencies": {
+    "@types/chrome": "^0.1.42",
+    "chrome-types": "^0.1.428",
     "esbuild": "^0.28.0",
     "eslint": "10.4.0",
     "eslint-config-prettier": "^10.1.8",

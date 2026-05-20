@@ -1,4 +1,5 @@
 import { SETTINGS_CONFIG } from '../content/core/settings/settingConfig.js';
+import init from './settingsCompat.ts';
 
 // --- Constants & State ---
 
@@ -56,7 +57,8 @@ function getDefaultSettings() {
 function initializeSettings(reason) {
     const defaults = getDefaultSettings();
 
-    chrome.storage.local.get(null, (currentSettings) => {
+    chrome.storage.local.get(null, async (currentSettings) => {
+        await init();
         const settingsToUpdate = {};
         let needsUpdate = false;
 
