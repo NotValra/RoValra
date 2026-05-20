@@ -18,20 +18,6 @@ const colorLiveSaveTimeouts = new Map();
 
 const isUnavailableSetting = (config) => hasOwn(config, 'locked') || hasOwn(config, 'deprecated');
 
-const forEachSettingConfig = (callback) => {
-    for (const category of Object.values(SETTINGS_CONFIG)) {
-        for (const [settingName, settingDef] of Object.entries(category.settings)) {
-            callback(settingName, settingDef);
-
-            if (settingDef.childSettings) {
-                for (const [childName, childDef] of Object.entries(settingDef.childSettings)) {
-                    callback(childName, childDef);
-                }
-            }
-        }
-    }
-};
-
 export const getCurrentUserTier = () => currentUserTier;
 
 export const syncDonatorTier = async () => {
