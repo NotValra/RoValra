@@ -1,11 +1,7 @@
 import { observeElement, startObserving } from '../../core/observer.js';
 import { getUserIdFromUrl } from '../../core/idExtractor.js';
-import {
-    loadSettings,
-    handleSaveSettings,
-} from '../../core/settings/handlesettings.js';
+import { loadSettings } from '../../core/settings/handlesettings.js';
 import { getUserSettings } from '../../core/donators/settingHandler.js';
-import { getAuthenticatedUserId } from '../../core/user.js';
 import { getBorders } from '../../core/configs/borders.js';
 import {
     onUserCardElement,
@@ -130,7 +126,7 @@ export async function applyBorderToContainer(
     img.src = alwaysPlay && animatedLink ? animatedLink : staticLink;
 }
 
-function findInBorders(borders, key, type = 'value') {
+export function findInBorders(borders, key, type = 'value') {
     for (const item of borders) {
         if (item[type] === key) return item;
         if (item.variants) {
@@ -145,27 +141,16 @@ function findInBorders(borders, key, type = 'value') {
     return null;
 }
 
-async function resolveBorderUrl(userId, authedUserId, localBorderValue) {
+async function resolveBorderUrl(userId) {
     const userSettings = await getUserSettings(userId).catch(() => null);
 
     if (userSettings?.border && userSettings.border !== 'none')
         return userSettings.border;
 
-    if (
-        userId &&
-        String(userId) === String(authedUserId) &&
-        localBorderValue &&
-        localBorderValue !== 'none'
-    ) {
-        const borders = await getBorders();
-        const border = findInBorders(borders, localBorderValue, 'value');
-        if (border) return border.link;
-    }
-
     return null;
 }
 
-function handleTile(tile, authedUserId, localBorderValue) {
+function handleTile(tile) {
     if (tile.dataset.rovalraBorderApplied) return;
     tile.dataset.rovalraBorderApplied = 'true';
 
@@ -180,7 +165,7 @@ function handleTile(tile, authedUserId, localBorderValue) {
     );
     if (!avatarEl) return;
 
-    resolveBorderUrl(userId, authedUserId, localBorderValue)
+    resolveBorderUrl(userId)
         .then((borderUrl) => {
             if (!borderUrl) return;
             applyBorderToContainer(avatarEl, borderUrl);
@@ -190,41 +175,18 @@ function handleTile(tile, authedUserId, localBorderValue) {
 
 export async function init() {
     try {
-        document.addEventListener('rovalra:syncAvatarBorder', async (event) => {
-            const { borderUrl } = event.detail;
-            const settings = await loadSettings();
-            const currentChoice = settings.avatarBorderChoice || 'none';
-
-            const borders = await getBorders();
-            const apiEntry = findInBorders(borders, borderUrl, 'link');
-            const apiValue = apiEntry ? apiEntry.value : 'none';
-
-            if (apiValue !== currentChoice) {
-                handleSaveSettings('avatarBorderChoice', apiValue);
-            }
-        });
-
         const settings = await loadSettings();
         if (!settings.avatarBorderEnabled) return;
-
-        const authedUserId = await getAuthenticatedUserId();
-        const localBorderValue = settings.avatarBorderChoice || 'none';
 
         startObserving();
         observeUserCardElements();
 
-        onUserCardElement((tile) =>
-            handleTile(tile, authedUserId, localBorderValue),
-        );
+        onUserCardElement((tile) => handleTile(tile));
 
         const profileUserId = getUserIdFromUrl();
         if (!profileUserId) return;
 
-        const borderUrl = await resolveBorderUrl(
-            profileUserId,
-            authedUserId,
-            localBorderValue,
-        );
+        const borderUrl = await resolveBorderUrl(profileUserId);
         if (!borderUrl) return;
 
         observeElement(

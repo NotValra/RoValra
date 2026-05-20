@@ -52,7 +52,10 @@ import {
 import { getBorders, getCachedBorders } from '../../core/configs/borders.js';
 import { createUserCard } from '../../core/ui/profile/userCard.js';
 import { createPill } from '../../core/ui/general/pill.js';
-import { applyBorderToContainer } from '../profile/avatarBorder.js';
+import {
+    applyBorderToContainer,
+    findInBorders,
+} from '../profile/avatarBorder.js';
 import { getUserDisplayName } from '../../core/apis/users.js';
 import { showSystemAlert } from '../../core/ui/roblox/alert.js';
 
@@ -403,7 +406,6 @@ async function openBorderOverlay(
             { position: 'top' },
         );
         actionBtn.onclick = async () => {
-            await handleSaveSettings('avatarBorderChoice', variant.value);
             updateUserSettingViaApi('border', variant.link).catch(() => {});
             updatePreviewAndUI(
                 variant.value,
@@ -1835,8 +1837,23 @@ async function renderStoreBorders(container) {
         }
 
         const userId = await getAuthenticatedUserId();
-        const settings = await loadSettings();
-        const currentBorderValue = settings.avatarBorderChoice || 'none';
+
+        let currentBorderValue = 'none';
+        if (userId) {
+            const userSettings = await getUserSettings(userId, {
+                noCache: true,
+            }).catch(() => null);
+            if (userSettings?.border && userSettings.border !== 'none') {
+                const apiBorderItem = findInBorders(
+                    borderCategories,
+                    userSettings.border,
+                    'link',
+                );
+                currentBorderValue = apiBorderItem
+                    ? apiBorderItem.value
+                    : 'none';
+            }
+        }
 
         let authedUserData = null;
         if (userId) {
@@ -2164,12 +2181,10 @@ function createEquipButton(
         const val = pill.getAttribute('data-equip-btn');
 
         if (currentText === 'Equipped') {
-            await handleSaveSettings('avatarBorderChoice', 'none');
             updateUserSettingViaApi('border', '').catch(() => {});
             updatePreviewAndUI('none', null, container, previewHolder);
         } else if (currentText === 'Equip') {
             const link = pill.getAttribute('data-variant-link');
-            await handleSaveSettings('avatarBorderChoice', val);
             updateUserSettingViaApi('border', link).catch(() => {});
             updatePreviewAndUI(val, link, container, previewHolder);
         } else if (currentText === 'Buy') {
