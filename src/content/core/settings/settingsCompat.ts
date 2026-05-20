@@ -103,6 +103,8 @@ const initPromise = (async () => {
                     //    await chrome.storage.local.remove(setting);
                     //else
                     //    await chrome.storage.local.set({[setting]: false});
+
+                    await chrome.storage.local.set({[setting]: false});
                 }
             }
         }
