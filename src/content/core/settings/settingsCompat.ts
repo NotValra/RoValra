@@ -7,7 +7,6 @@ const settingDeprecations: Record<string, ((value: any, gets: (key: string) => P
 };
 
 
-import { loadSettings } from "./handlesettings.js";
 import { SETTINGS_CONFIG } from "./settingConfig.js";
 import { debugVerbose, flush } from "../debug.js";
 
@@ -36,16 +35,18 @@ for (const category of Object.values(SETTINGS_CONFIG)) {
 }
 
 const cleanup = (async () => {
-    const settings = await chrome.storage.local.get(null);
-    for (const [key, value] of Object.entries(settings)) {
-        const data = FLAT_SETTINGS_CONFIG[key];
-        if (!data)
-            continue;  // not a setting
-        if (data.default === value) {
-            await chrome.storage.local.remove(key);
-            debugVerbose(`Cleaning up setting ${key}.`, {value: value, default: data.default});
-        }
-    }
+    // Removed for data safety purposes
+    //
+    //const settings = await chrome.storage.local.get(null);
+    //for (const [key, value] of Object.entries(settings)) {
+    //    const data = FLAT_SETTINGS_CONFIG[key];
+    //    if (!data)
+    //        continue;  // not a setting
+    //    if (data.default === value) {
+    //        await chrome.storage.local.remove(key);
+    //        debugVerbose(`Cleaning up setting ${key}.`, {value: value, default: data.default});
+    //    }
+    //}
 });
 
 const initPromise = (async () => {
@@ -60,10 +61,12 @@ const initPromise = (async () => {
                 debugVerbose(`Replaced setting ${setting}.`, {replacement: String(replaceFn)});
                 if (replaceFn === undefined) {
                     deleted.push(FLAT_SETTINGS_CONFIG[setting].label);
-                    if (FLAT_SETTINGS_CONFIG[setting].default === true)
-                        await chrome.storage.local.set({[setting]: false});
-                    else
-                        await chrome.storage.local.remove(setting);
+                    
+                    // // Removed for data safety purposes
+                    //if (FLAT_SETTINGS_CONFIG[setting].default === true)
+                    //    await chrome.storage.local.set({[setting]: false});
+                    //else
+                    //    await chrome.storage.local.remove(setting);
                 } else {
                     try {
                         const replacements: Record<string, any> = {};
@@ -94,10 +97,12 @@ const initPromise = (async () => {
                 if (value !== undefined && value !== false) {
                     debugVerbose(`Locked/deprecated setting: ${setting}`, data);
                     forEachLockedSetting(setting, data);
-                    if (data.default === false)
-                        await chrome.storage.local.remove(setting);
-                    else
-                        await chrome.storage.local.set({[setting]: false});
+
+                    // // Removed for data safety purposes
+                    //if (data.default === false)
+                    //    await chrome.storage.local.remove(setting);
+                    //else
+                    //    await chrome.storage.local.set({[setting]: false});
                 }
             }
         }
