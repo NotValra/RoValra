@@ -1384,7 +1384,7 @@ export const buttonData = [
             return `
             <div style="padding: 8px;">
                 <h2 style="margin-bottom: 15px; color: var(--rovalra-main-text-color) !important;">Avatar Border Store</h2>
-                <p style="color: var(--rovalra-secondary-text-color); margin-bottom: 20px;">Avatar border store, buy avatar borders to directly support RoValra and the artists, <strong>Donator tier 3 gets all avatar borders for free</strong></p>
+                <p style="color: var(--rovalra-secondary-text-color); margin-bottom: 20px;">Avatar border store, buy avatar borders to directly support RoValra and the artists, <strong>Donator tier 3 gets all avatar borders for free.</strong> Buying Avatar Borders counts towards your Donator Tier!</p>
                 <div id="rovalra-store-border-container" style="color: var(--rovalra-secondary-text-color);">Loading borders...</div>
             </div>`;
         },
@@ -2394,10 +2394,7 @@ export async function updateContent(buttonInfo, contentContainer) {
                             const robuxIcon = document.createElement('span');
                             robuxIcon.className = 'icon-robux-16x16';
                             robuxIcon.style.marginRight = '2px';
-                            donationTotal.append(
-                                robuxIcon,
-                                totalDonatedLabel,
-                            );
+                            donationTotal.append(robuxIcon, totalDonatedLabel);
                             donationTotal.style.cssText =
                                 'display: inline-flex; align-items: center; gap: 2px; color: var(--rovalra-main-text-color); font-size: 12px; font-weight: 700;';
                             tierBadge.appendChild(donationTotal);
