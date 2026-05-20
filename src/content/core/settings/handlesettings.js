@@ -78,17 +78,17 @@ export const syncDonatorTier = async () => {
                 method: 'GET',
             });
 
-            if (response.status !== 'success' || !response.badges) {
+            if (!response?.badges) {
                 return state.cachedResponse || null;
             }
 
             const badges = response.badges;
             let tier = 0;
-            if (badges.donator_3 === true || badges.legacy_donator === true) {
+            if (badges.donator_3 || badges.legacy_donator) {
                 tier = 3;
-            } else if (badges.donator_2 === true) {
+            } else if (badges.donator_2) {
                 tier = 2;
-            } else if (badges.donator_1 === true) {
+            } else if (badges.donator_1) {
                 tier = 1;
             }
 

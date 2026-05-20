@@ -695,10 +695,15 @@ function getTotalDonatedFromBadgesResponse(response) {
     const totalDonated =
         response?.badges?.total_donated ??
         response?.total_donated ??
-        response?.badges?.totalDonated;
+        response?.badges?.totalDonated ??
+        response?.totalDonated;
 
     const numericTotal = Number(totalDonated);
-    return Number.isFinite(numericTotal) ? numericTotal : null;
+    return !isNaN(numericTotal) &&
+        totalDonated !== null &&
+        totalDonated !== undefined
+        ? numericTotal
+        : null;
 }
 
 function renderTopDonators(container, donators, thumbMap, currentUserId) {
@@ -2367,8 +2372,10 @@ export async function updateContent(buttonInfo, contentContainer) {
                     'AvatarHeadshot',
                     '60x60',
                 );
-                const userThumb = thumbs[0]?.imageUrl;
-                if (userThumb) {
+                const thumbData = thumbs[0];
+                const userThumbUrl = thumbData?.imageUrl;
+
+                if (userThumbUrl) {
                     const tierContainer = contentContainer.querySelector(
                         `#donator-tier-${userTier}-header`,
                     );
@@ -2379,7 +2386,7 @@ export async function updateContent(buttonInfo, contentContainer) {
                             'margin-left: auto; display: inline-flex; align-items: center; gap: 8px; background-color: var(--rovalra-container-background-color, rgba(0,0,0,0.1)); padding: 4px 10px 4px 4px; border-radius: 20px; border: 1px solid var(--rovalra-border-color); color: var(--rovalra-main-text-color); white-space: nowrap;';
 
                         const img = document.createElement('img');
-                        img.src = userThumb;
+                        img.src = userThumbUrl;
                         img.style.cssText =
                             'width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0;';
                         tierBadge.appendChild(img);
