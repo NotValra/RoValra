@@ -7,7 +7,7 @@ const settingDeprecations: Record<string, ((value: any, gets: (key: string) => P
 };
 
 
-
+import { loadSettings } from "./handlesettings.js";
 import { SETTINGS_CONFIG } from "./settingConfig.js";
 
 const getStoredSettingValue: (s: string) => Promise<any | undefined> = async (setting: string) => {
@@ -33,6 +33,16 @@ for (const category of Object.values(SETTINGS_CONFIG)) {
         FLAT_SETTINGS_CONFIG[key] = value;
     }
 }
+
+const cleanup = (async () => {
+    const settings = await loadSettings();
+    for (const [key, value] of Object.entries(settings)) {
+        const data = FLAT_SETTINGS_CONFIG[key];
+        if (data.default === value) {
+            await chrome.storage.local.remove(key);
+        }
+    }
+});
 
 const initPromise = (async () => {
     console.log("RoValra: Verifying settings compat.");
