@@ -627,6 +627,9 @@ async function asyncInit() {
 
     //update main renderer
     observeElement('.thumbnail-holder', (element) => {
+        const url = window.location.href;
+        if (!url.includes('/catalog') && !url.includes('/bundles')) return;
+
         mainSceneContainer = element;
 
         updateMainRenderer();
@@ -634,6 +637,9 @@ async function asyncInit() {
 
     //buttons for main thumbnail
     observeElement('.thumbnail-button-container', (element) => {
+        const url = window.location.href;
+        if (!url.includes('/catalog') && !url.includes('/bundles')) return;
+
         mainButtonContainer = element;
 
         toggleDefaultButtons(mainRendererEnabled);
@@ -741,11 +747,18 @@ async function asyncInit() {
         element.appendChild(buttonFor3d);
     });
 
-    //item cards in marketplace
+    //item cards linking to catalog or bundles
     observeElement(
         'div.item-card-container',
         (element) => {
             const itemLinkElement = element.querySelector('a.item-card-link');
+            if (!itemLinkElement) return;
+            if (
+                !itemLinkElement.href.includes('/catalog') &&
+                !itemLinkElement.href.includes('/bundles')
+            )
+                return;
+
             const itemThumbContainer = element.querySelector(
                 'div.item-card-thumb-container',
             );
@@ -781,6 +794,13 @@ async function asyncInit() {
             const itemLinkElement = element.querySelector(
                 'a.item-card-container',
             );
+            if (!itemLinkElement) return;
+            if (
+                !itemLinkElement.href.includes('/catalog') &&
+                !itemLinkElement.href.includes('/bundles')
+            )
+                return;
+
             const itemThumbContainerContainer = element.querySelector(
                 '.item-card-thumb-container',
             );
