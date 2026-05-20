@@ -490,6 +490,15 @@ export const SETTINGS_CONFIG = {
                 default: true,
                 contributors: ['8345351117', '447170745'],
             },
+            avatarDownloadEnabled: {
+                label: 'Download Avatar',
+                description: [
+                    'Adds a button to save avatar as a PNG on their profile.',
+                ],
+                type: 'checkbox',
+                default: true,
+                contributors: ['9502859424'],
+            },
             userSniperEnabled: {
                 label: 'Instant Joiner',
                 description: [
