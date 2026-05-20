@@ -321,6 +321,14 @@
     "navigation": {
         "transactions": "Transactions"
     },
+    "ageTheme": {
+        "navbarTooltip": "Age Theme",
+        "options": {
+            "normal": "Normal Roblox",
+            "kids": "Roblox Kids",
+            "select": "Roblox Select"
+        }
+    },
     "betaPrograms": {
         "toggleTooltip": "Toggle Beta Programs",
         "noPrograms": "You are not enrolled into any beta programs.",

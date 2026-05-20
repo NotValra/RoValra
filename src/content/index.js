@@ -31,6 +31,7 @@ import { init as initTransactionsLink } from './features/navigation/transactions
 import { initializeModernIcons as initModernIcons } from './features/sitewide/modernIcons.js';
 import { init as initLoginBanner } from './features/scamprevention/loginBanner.js';
 import { init as initLessPlus } from './features/sitewide/lessPlus.js';
+import { init as initKidsTheme } from './features/sitewide/kidsTheme.js';
 
 // Avatar
 import { init as initAvatarFilters } from './features/avatar/filters.js';
@@ -162,6 +163,7 @@ const featureRoutes = [
             initUrlTracker,
             initModernIcons,
             initLessPlus,
+            initKidsTheme,
         ],
     },
     // pretty much just the 40% method
