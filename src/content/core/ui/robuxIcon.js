@@ -29,7 +29,7 @@ const USD_TARGET_ICON_SELECTOR =
     '.icon-robux-16x16, .icon-robux-28x28, .icon-robux-gray-16x16, .icon-robux-tile, .rovalra-robux-icon';
 const USD_TARGET_VALUE_SELECTOR = `${VALUE_TEXT_SELECTOR}, .item-card-price, .store-card-price, .subscription-card-price, .icon-robux-container, .amount.icon-robux-container, .amount-cell, #navbar-robux .nav-robux-icon, #rbx-game-passes .store-card-price, #roseal-game-passes .store-card-price, .gear-passes-container .store-card-price, .game-dev-store .store-card-price`;
 const IGNORE_USD_SELECTOR =
-    '.rovalra-usd-estimate, .tooltip, .modal-dialog, #rovalra-stat-transactions, #rovalra-premium-breakdown-container, .rovalra-trade-summary, .rovalra-total-value-line, .rovalra-total-demand-line, .rovalra-value-label';
+    '.rovalra-usd-estimate, .tooltip, .modal-dialog, [data-rovalra-skip-usd-estimate], #rovalra-stat-transactions, #rovalra-premium-breakdown-container, .rovalra-trade-summary, .rovalra-total-value-line, .rovalra-total-demand-line, .rovalra-value-label';
 
 const INLINE_FIAT_LOCATIONS = '#navbar-robux, #buy-robux-popover';
 
