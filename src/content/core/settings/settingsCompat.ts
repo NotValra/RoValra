@@ -47,6 +47,8 @@ const cleanup = (async () => {
 const initPromise = (async () => {
     console.log("RoValra: Verifying settings compat.");
         
+    await cleanup();
+
     let deleted = [];
     let replaced = [];
     for (const [setting, replaceFn] of Object.entries(settingDeprecations)) {
