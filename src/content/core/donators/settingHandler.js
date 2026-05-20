@@ -1,10 +1,7 @@
 import { callRobloxApiJson } from '../api.js';
 import { getValidAccessToken } from '../oauth/oauth.js';
 import { getAuthenticatedUserId } from '../user.js';
-import {
-    syncDonatorTier,
-    getCurrentUserTier,
-} from '../settings/handlesettings.js';
+import { getCurrentUserTier } from '../settings/handlesettings.js';
 import {
     TRUSTED_USER_IDS,
     ARTIST_USER_IDS,
@@ -37,10 +34,6 @@ async function fetchAndProcessSettings(userId, options = {}) {
     const authenticatedUserId = await getAuthenticatedUserId();
     const isOwnProfile =
         authenticatedUserId && String(authenticatedUserId) === String(userId);
-
-    if (isOwnProfile) {
-        await syncDonatorTier();
-    }
 
     let apiSettings = {};
     let apiProvidedMeaningfulSettings = false;
@@ -258,10 +251,6 @@ async function processApiSettings(userId, apiSettings, options) {
     const authenticatedUserId = await getAuthenticatedUserId();
     const isOwnProfile =
         authenticatedUserId && String(authenticatedUserId) === String(userId);
-
-    if (isOwnProfile) {
-        await syncDonatorTier();
-    }
 
     let apiProvidedMeaningfulSettings = false;
 

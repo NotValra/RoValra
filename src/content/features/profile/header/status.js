@@ -29,10 +29,7 @@ import {
     alice_badge_user_id,
     GILBERT_USER_ID,
 } from '../../../core/configs/userIds.js';
-import {
-    syncDonatorTier,
-    getCurrentUserTier,
-} from '../../../core/settings/handlesettings.js';
+import { getCurrentUserTier } from '../../../core/settings/handlesettings.js';
 import {
     onUserCardElement,
     observeUserCardElements,
@@ -510,8 +507,6 @@ async function addHomeStatusHover(tile) {
 }
 
 export function init() {
-    syncDonatorTier();
-
     migrateLegacyStatus();
 
     chrome.storage.local.get(

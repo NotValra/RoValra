@@ -21,7 +21,6 @@ import { getAssets } from '../../../core/assets.js';
 import { SETTINGS_CONFIG } from '../../../core/settings/settingConfig.js';
 import {
     handleSaveSettings,
-    syncDonatorTier,
     getCurrentUserTier,
 } from '../../../core/settings/handlesettings.js';
 import {
@@ -2031,7 +2030,6 @@ async function attachPreloadedAvatar(container) {
 }
 
 export function init() {
-    syncDonatorTier();
     migrateLegacyEnvironment();
 
     chrome.storage.local.get(

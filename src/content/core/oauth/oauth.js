@@ -133,7 +133,7 @@ export async function getValidAccessToken(
         const response = await callRobloxApi({
             isRovalraApi: true,
             subdomain: 'apis',
-            endpoint: '/v1/auth/badges',
+            endpoint: '/v1/auth/settings',
             headers: {
                 Authorization: `Bearer ${storedVerification.accessToken}`,
             },
