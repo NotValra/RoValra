@@ -186,7 +186,8 @@ async function showGamePassSelectionOverlay(userId, username) {
 
     const loadingMessage = document.createElement('p');
     loadingMessage.className = 'text-secondary';
-    loadingMessage.style.display = 'none';
+    loadingMessage.style.display = 'block';
+    loadingMessage.textContent = ts('donationLink.loadingGamePasses');
     bodyContent.appendChild(loadingMessage);
 
     const sortContainer = document.createElement('div');
@@ -195,8 +196,8 @@ async function showGamePassSelectionOverlay(userId, username) {
 
     const sortDropdown = createDropdown({
         items: [
-            { label: 'Price (Low to High)', value: 'asc' },
-            { label: 'Price (High to Low)', value: 'desc' },
+            { label: ts('donationLink.priceLowToHigh'), value: 'asc' },
+            { label: ts('donationLink.priceHighToLow'), value: 'desc' },
         ],
         initialValue: 'asc',
         onValueChange: (value) => {
@@ -272,7 +273,7 @@ async function showGamePassSelectionOverlay(userId, username) {
     loadMoreBtn.onclick = () => renderNextBatch();
 
     const { overlay, close } = createOverlay({
-        title: `${username}'s Game Passes`,
+        title: ts('donationLink.userGamePasses', { username }),
         bodyContent: bodyContent,
         maxWidth: '800px',
         maxHeight: '80vh',
@@ -280,7 +281,7 @@ async function showGamePassSelectionOverlay(userId, username) {
 
     const header = overlay.querySelector('.rovalra-overlay-header');
     if (header) {
-        const copyPill = createPill('Copy Donation Link', null, {
+        const copyPill = createPill(ts('donationLink.copyDonationLink'), null, {
             isButton: true,
             size: 'small',
         });
@@ -288,15 +289,14 @@ async function showGamePassSelectionOverlay(userId, username) {
         copyPill.addEventListener('click', (e) => {
             e.preventDefault();
             showConfirmationPrompt({
-                title: 'Copy Donation Link',
-                message:
-                    'This copies a special link to this profile. When a RoValra user opens it, this donation menu will automatically appear.<br><br><strong>Note:</strong> Only RoValra users will see the donation window, others will see the standard profile.',
-                confirmText: 'Copy Link',
+                title: ts('donationLink.copyDonationLink'),
+                message: ts('donationLink.copyLinkDescription'),
+                confirmText: ts('donationLink.copyLinkButton'),
                 onConfirm: () => {
                     const url = `https://www.roblox.com/users/${userId}/profile?RoValra-Donation-Link`;
                     navigator.clipboard.writeText(url).then(() => {
                         showSystemAlert(
-                            'Donation link copied successfully!',
+                            ts('donationLink.copySuccess'),
                             'success',
                         );
                         close();
@@ -319,8 +319,11 @@ async function showGamePassSelectionOverlay(userId, username) {
         gamePassListContainer.innerHTML = '';
         if (allGamePasses.length === 0) {
             loadingMessage.style.display = 'block';
-            loadingMessage.textContent = `No game passes found for ${username}'s games.`;
+            loadingMessage.textContent = ts('donationLink.noGamePassesFound', {
+                username,
+            });
         } else {
+            loadingMessage.style.display = 'none';
             renderNextBatch();
         }
         return;
@@ -372,25 +375,23 @@ async function showGamePassSelectionOverlay(userId, username) {
 
         gamePassCache.set(userId, allGamePasses);
 
-        if (allGamePasses.length === 0) {
-            gamePassListContainer.innerHTML = '';
-            loadingMessage.style.display = 'block';
-            loadingMessage.textContent = `No game passes found for ${username}'s games.`;
-            return;
-        }
-
         gamePassListContainer.innerHTML = '';
         if (allGamePasses.length === 0) {
             loadingMessage.style.display = 'block';
-            loadingMessage.textContent = `No game passes found for ${username}'s games.`;
+            loadingMessage.textContent = ts('donationLink.noGamePassesFound', {
+                username,
+            });
         } else {
+            loadingMessage.style.display = 'none';
             renderNextBatch();
         }
     } catch (error) {
         console.error('RoValra: Error in showGamePassSelectionOverlay:', error);
         gamePassListContainer.innerHTML = '';
         loadingMessage.style.display = 'block';
-        loadingMessage.textContent = `Error loading game passes: ${error.message}`;
+        loadingMessage.textContent = ts('donationLink.errorLoading', {
+            message: error.message,
+        });
     }
 }
 

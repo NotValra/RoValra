@@ -98,7 +98,17 @@
         "overlayTitle": "Pls Donate",
         "description": "This will launch \"PLS DONATE\" where you can give an offline donation.\n\nDue to fees from Roblox (30%) and the game (10%), the user receives 60% of the donated amount.\n\nUpon joining, the \"Offline Donations\" UI will appear with their username pre-filled. Simply click the gift button to open their stand and purchase a gamepass to donate.",
         "joinButton": "Join Pls Donate",
-        "goBackButton": "Go Back"
+        "goBackButton": "Go Back",
+        "loadingGamePasses": "Loading game passes...",
+        "priceLowToHigh": "Price (Low to High)",
+        "priceHighToLow": "Price (High to Low)",
+        "userGamePasses": "{{username}}'s Game Passes",
+        "copyDonationLink": "Copy Donation Link",
+        "copyLinkDescription": "This copies a special link to this profile. When a RoValra user opens it, this donation menu will automatically appear.<br><br><strong>Note:</strong> Only RoValra users will see the donation window, others will see the standard profile.",
+        "copyLinkButton": "Copy Link",
+        "copySuccess": "Donation link copied successfully!",
+        "noGamePassesFound": "No game passes found for {{username}}'s games.",
+        "errorLoading": "Error loading game passes: {{message}}"
     },
     "instantJoiner": {
         "instantJoin": "Instant Join",
