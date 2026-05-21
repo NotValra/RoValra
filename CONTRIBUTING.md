@@ -44,6 +44,10 @@ YourFeatureName: {
 }
 ```
 
+### Using your setting
+
+To retrieve the value of a setting, import the `settings` API from `./src/content/core/settings/getSettings.js`, and use it as: `await settings.YourFeatureName`, which returns the value.
+
 ## Donator perks
 
 If you plan on making donator perks please let me know before hand so I can help update this api `https://apis.rovalra.com/v1/users/447170745/settings` accordingly.
@@ -75,7 +79,8 @@ The badge is completely optional.
 - Keep code clean and readable.
 - Follow the existing coding style of the project.
 - Test your changes before submitting.
-- For safety reasons, all `innerHTML` should be purified with `DOMPurify`, or preferably using `safeHtml` differences between DOMPurify and safeHtml is safeHtml prevents everything including styling, and DOMPurify doesn't by default.
+- For safety reasons, all `innerHTML` should be purified with `DOMPurify`, or preferably using `safeHtml`.
+    - **Note:** sanitising with safeHtml prevents everything including styling, while using DOMPurify doesn't (by default).
 - Generally follow how other scripts do things and how they import other scripts to implement functionality.
 - All api requests should go through `api.js`
 - Never use third party apis that isn't RoValra.com, Roblox.com or rbxcdn.com in your PRS. You can however use a third party API as a proof of concept in your PR so we know how to make an official API that works for your PR.
