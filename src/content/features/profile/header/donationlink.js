@@ -22,7 +22,7 @@ const CONFIG = {
     ACCESS_FILTER: 2,
     RETRY: {
         MAX_ATTEMPTS: 5,
-        DELAY_MS: 3000,
+        DELAY_MS: 500,
     },
 };
 
@@ -36,14 +36,12 @@ async function fetchWithRetry(options) {
             const response = await callRobloxApi(options);
 
             if (response.status === 429) {
-                if (i === CONFIG.RETRY.MAX_ATTEMPTS)
-                    throw new Error('Rate limit exceeded');
+                if (i === CONFIG.RETRY.MAX_ATTEMPTS) return response;
                 await new Promise((r) => setTimeout(r, delay));
                 delay *= 2;
                 continue;
             }
 
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
             return response;
         } catch (err) {
             if (i >= CONFIG.RETRY.MAX_ATTEMPTS) return null;
@@ -137,25 +135,21 @@ async function fetchUserGames(userId) {
 async function fetchGamePassesForUniverse(universeId) {
     let allGamePasses = [];
     let cursor = null;
-    const pageSize = 50;
 
     try {
         do {
-            const response = await callRobloxApi({
+            const response = await fetchWithRetry({
                 subdomain: 'apis',
                 endpoint: `/game-passes/v1/universes/${universeId}/game-passes?pageSize=100&passView=Full${cursor ? `&pageToken=${cursor}` : ''}`,
                 method: 'GET',
             });
 
-            if (!response.ok) {
-                console.warn(
-                    `RoValra: Failed to fetch game passes for universe ${universeId}: ${response.status}`,
-                );
-                break;
-            }
+            if (!response || !response.ok) break;
 
             const data = await response.json();
-            allGamePasses = allGamePasses.concat(data.gamePasses);
+            if (data && data.gamePasses) {
+                allGamePasses = allGamePasses.concat(data.gamePasses);
+            }
             cursor = data.nextPageToken;
         } while (cursor);
     } catch (error) {
@@ -170,7 +164,7 @@ async function fetchGamePassesForUniverse(universeId) {
 
 async function checkGamePassAccessibility(passId) {
     try {
-        const response = await callRobloxApi({
+        const response = await fetchWithRetry({
             subdomain: 'www',
             endpoint: `/game-pass/${passId}/-`,
             method: 'GET',
@@ -335,21 +329,40 @@ async function showGamePassSelectionOverlay(userId, username) {
     try {
         const userGames = await fetchUserGames(userId);
 
-        for (const game of userGames) {
-            const passes = await fetchGamePassesForUniverse(game.id);
-            const forSalePasses = passes.filter(
-                (pass) => pass && pass.isForSale,
-            );
+        const results = [];
+        const BATCH_SIZE = 10;
 
-            if (forSalePasses.length > 0) {
-                const isPublic = await checkGamePassAccessibility(
-                    forSalePasses[0].id,
-                );
-                if (isPublic) {
-                    allGamePasses = allGamePasses.concat(forSalePasses);
+        for (let i = 0; i < userGames.length; i += BATCH_SIZE) {
+            const batch = userGames.slice(i, i + BATCH_SIZE);
+            const batchStartTime = Date.now();
+
+            const batchResults = await Promise.all(
+                batch.map(async (game) => {
+                    const passes = await fetchGamePassesForUniverse(game.id);
+                    const forSalePasses = passes.filter(
+                        (pass) => pass && pass.isForSale,
+                    );
+
+                    if (forSalePasses.length > 0) {
+                        const isPublic = await checkGamePassAccessibility(
+                            forSalePasses[0].id,
+                        );
+                        if (isPublic) return forSalePasses;
+                    }
+                    return [];
+                }),
+            );
+            results.push(...batchResults);
+
+            if (i + BATCH_SIZE < userGames.length) {
+                const elapsedTime = Date.now() - batchStartTime;
+                const waitTime = Math.max(0, 1000 - elapsedTime);
+                if (waitTime > 0) {
+                    await new Promise((r) => setTimeout(r, waitTime));
                 }
             }
         }
+        allGamePasses = results.flat();
 
         if (currentSortValue === 'asc') {
             allGamePasses.sort((a, b) => (a.price || 0) - (b.price || 0));
