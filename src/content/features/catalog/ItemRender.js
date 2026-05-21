@@ -53,6 +53,7 @@ let selectedAnimName = 'idle';
 let accessoriesEnabled = true;
 
 let currentlyLoadingAssets = false;
+let pendingAnimationUpdate = false;
 
 API.Events.OnLoadingAssets.Connect((newValue) => {
     currentlyLoadingAssets = newValue;
@@ -93,7 +94,18 @@ const updateRigButtonText = () => {
 
 const updateAnimationDropdown = () => {
     if (!mainButtonContainer) return;
-    if (animationDropdown) animationDropdown.remove();
+    if (animationDropdown) {
+        animationDropdown.remove();
+        animationDropdown = undefined;
+    }
+
+    if (
+        !mainRendererEnabled ||
+        mainOutfit.containsAssetType('EmoteAnimation')
+    ) {
+        return;
+    }
+
     selectedAnimName = 'idle';
     const currentType =
         selectedRigType || ogAvatarData.playerAvatarType || 'R15';
@@ -117,11 +129,8 @@ const updateAnimationDropdown = () => {
     animationDropdown = dropdownElement;
     animationDropdown.style.zIndex = 2;
     animationDropdown.style.width = '110px';
-    animationDropdown.style.display = mainRendererEnabled ? '' : 'none';
 
-    if (!mainOutfit.containsAssetType('EmoteAnimation')) {
-        mainButtonContainer.prepend(animationDropdown);
-    }
+    mainButtonContainer.prepend(animationDropdown);
 };
 
 function updateMousePos(e) {
@@ -485,6 +494,7 @@ async function updateMainRenderer() {
         if (mainOutfitRenderer) {
             mainOutfitRenderer.setOutfit(mainOutfit);
             playAppropriateAnim(mainOutfit, mainOutfitRenderer);
+            pendingAnimationUpdate = true;
 
             updateRigButtonText();
             updateAnimationDropdown();
@@ -499,6 +509,17 @@ function customAnimate() {
         lastUrl = window.location.href;
         if (mainRendererEnabled) {
             updateMainRenderer();
+        }
+    }
+
+    if (pendingAnimationUpdate && mainOutfitRenderer) {
+        if (
+            !mainOutfitRenderer.currentlyChangingRig &&
+            !mainOutfitRenderer.currentlyUpdating &&
+            !currentlyLoadingAssets
+        ) {
+            playAppropriateAnim(mainOutfit, mainOutfitRenderer);
+            pendingAnimationUpdate = false;
         }
     }
 
@@ -673,10 +694,7 @@ async function asyncInit() {
                         ? assets.closeIcon
                         : assets.viewInArIcon,
                 );
-                if (animationDropdown)
-                    animationDropdown.style.display = mainRendererEnabled
-                        ? ''
-                        : 'none';
+                updateAnimationDropdown();
                 if (toggleAccessories)
                     toggleAccessories.style.display = mainRendererEnabled
                         ? ''
