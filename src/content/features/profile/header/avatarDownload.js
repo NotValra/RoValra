@@ -6,6 +6,7 @@ import { getUserIdFromUrl } from '../../../core/idExtractor.js';
 import { getUsernameFromPageData } from '../../../core/utils.js';
 import { showSystemAlert } from '../../../core/ui/roblox/alert.js';
 import { ts } from '../../../core/locale/i18n.js';
+import { settings } from '../../../core/settings/getSettings.js';
 
 async function getThumbnailUrl(userId, type, size) {
     const map = await fetchThumbnails([{ id: userId }], type, size);
@@ -104,7 +105,9 @@ function showDownloadOverlay(userId, username) {
 
         btn.addEventListener('click', () => {
             selectedSize = size;
-            sizeButtons.forEach((b) => paintSizeButton(b, b.textContent === size));
+            sizeButtons.forEach((b) =>
+                paintSizeButton(b, b.textContent === size),
+            );
             refreshActionAvailability();
         });
 
@@ -181,11 +184,9 @@ async function addDownloadButton(toggleContainer) {
     toggleContainer.prepend(button);
 }
 
-export function init() {
-    chrome.storage.local.get({ avatarDownloadEnabled: true }, function (data) {
-        if (!data.avatarDownloadEnabled) return;
-        observeElement('.avatar-toggle-button', addDownloadButton, {
-            multiple: true,
-        });
+export async function init() {
+    if (!(await settings.avatarDownloadEnabled)) return;
+    observeElement('.avatar-toggle-button', addDownloadButton, {
+        multiple: true,
     });
 }
