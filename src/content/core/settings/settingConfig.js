@@ -490,6 +490,15 @@ export const SETTINGS_CONFIG = {
                 default: true,
                 contributors: ['8345351117', '447170745'],
             },
+            avatarDownloadEnabled: {
+                label: 'Download Avatar',
+                description: [
+                    'Adds a button to save avatar as a PNG on their profile.',
+                ],
+                type: 'checkbox',
+                default: false,
+                contributors: ['9502859424'],
+            },
             userSniperEnabled: {
                 label: 'Instant Joiner',
                 description: [
@@ -1515,12 +1524,12 @@ export const SETTINGS_CONFIG = {
             settingChangeNote: {
                 label: 'Setting changes alerts',
                 description: [
-                    'Shows you whenever certain settings were replaced or removed.'
+                    'Shows you whenever certain settings were replaced or removed.',
                 ],
                 type: 'checkbox',
                 default: false,
                 contributors: ['1564574922'],
-            }
+            },
         },
     },
     AntiAccountTracking: {
@@ -1925,14 +1934,13 @@ export const SETTINGS_CONFIG = {
             },
             verboseDebug: {
                 label: 'Verbose Debugging',
-                description: [
-                    "Displays extended debugging information."
-                ],
+                description: ['Displays extended debugging information.'],
                 type: 'checkbox',
                 default: false,
                 contributors: ['1564574922'],
-                experimental: "This feature is not yet widely used within RoValra."
-            }
+                experimental:
+                    'This feature is not yet widely used within RoValra.',
+            },
         },
     },
 };

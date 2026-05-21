@@ -89,6 +89,14 @@ async function fetchBatchData(
             path: '/v1/users/avatar-headshot',
             idParam: 'userIds',
         },
+        Avatar: {
+            path: '/v1/users/avatar',
+            idParam: 'userIds',
+        },
+        AvatarBust: {
+            path: '/v1/users/avatar-bust',
+            idParam: 'userIds',
+        },
 
         GameThumbnail: { path: '/v1/games', idParam: 'placeIds' },
         GameIcon: { path: '/v1/games/icons', idParam: 'universeIds' },

@@ -582,6 +582,16 @@
     "lastPlayed": {
         "together": "Most Played Together"
     },
+    "avatarDownload": {
+        "button": "Download Avatar",
+        "title": "Download Avatar",
+        "size": "Resolution:",
+        "downloadPortrait": "Portrait PNG",
+        "downloadBust": "Bust PNG",
+        "downloadAvatar": "Avatar PNG",
+        "downloading": "Downloading...",
+        "failed": "Failed to download avatar. Try again later."
+    },
     "unfriend": {
         "confirmUnfriend": "Confirm Unfriend",
         "confirmUnfriends": "Confirm Unfriends",

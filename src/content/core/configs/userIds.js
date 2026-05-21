@@ -14,6 +14,7 @@ export const CONTRIBUTOR_USER_IDS = [
     '193520242', //tigodev1
     '2615068449', //lolct
     '10646979010', //rav4
+    '9502859424', // moowi1337
 ];
 
 export const TESTER_USER_IDS = [
