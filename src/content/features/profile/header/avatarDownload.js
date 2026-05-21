@@ -32,7 +32,7 @@ async function downloadThumbnail(userId, username, type, size, button) {
             return;
         }
 
-        const response = await fetch(imageUrl);
+        const response = await fetch(imageUrl); // Verified
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const blob = await response.blob();
 
@@ -78,7 +78,9 @@ function showDownloadOverlay(userId, username) {
     let bustButton;
 
     function paintSizeButton(btn, isSelected) {
-        btn.style.backgroundColor = isSelected ? '#335fff' : '';
+        btn.style.backgroundColor = isSelected
+            ? 'var(--rovalra-playbutton-color)'
+            : '';
         btn.style.color = isSelected ? '#ffffff' : '';
         btn.style.fontWeight = isSelected ? '600' : '';
     }
