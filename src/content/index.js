@@ -170,7 +170,7 @@ const featureRoutes = [
     // pretty much just the 40% method
     {
         paths: ['/catalog', '/bundles', '/game-pass', '/games'],
-        features: [init40Method, initPurchasePrompt],
+        features: [init40Method, initPurchasePrompt, initDonationLink],
     },
     // Catalog and bundle pages
     {

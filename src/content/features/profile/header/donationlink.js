@@ -168,6 +168,19 @@ async function fetchGamePassesForUniverse(universeId) {
     return allGamePasses;
 }
 
+async function checkGamePassAccessibility(passId) {
+    try {
+        const response = await callRobloxApi({
+            subdomain: 'www',
+            endpoint: `/game-pass/${passId}/-`,
+            method: 'GET',
+        });
+        return response && response.ok;
+    } catch (e) {
+        return false;
+    }
+}
+
 async function showGamePassSelectionOverlay(userId, username) {
     let allGamePasses = [];
     let displayedCount = 0;
@@ -238,6 +251,23 @@ async function showGamePassSelectionOverlay(userId, username) {
         );
         nextBatch.forEach((gamePass) => {
             const card = createGamePassCard(gamePass);
+
+            const buyBtn = card.querySelector('button');
+            if (buyBtn) {
+                buyBtn.addEventListener(
+                    'click',
+                    (e) => {
+                        e.preventDefault();
+                        e.stopImmediatePropagation();
+                        window.open(
+                            `https://www.roblox.com/game-pass/${gamePass.id}/-?RoValra-Auto-Buy`,
+                            '_blank',
+                        );
+                    },
+                    true,
+                );
+            }
+
             gamePassListContainer.appendChild(card);
         });
         displayedCount += nextBatch.length;
@@ -310,7 +340,15 @@ async function showGamePassSelectionOverlay(userId, username) {
             const forSalePasses = passes.filter(
                 (pass) => pass && pass.isForSale,
             );
-            allGamePasses = allGamePasses.concat(forSalePasses);
+
+            if (forSalePasses.length > 0) {
+                const isPublic = await checkGamePassAccessibility(
+                    forSalePasses[0].id,
+                );
+                if (isPublic) {
+                    allGamePasses = allGamePasses.concat(forSalePasses);
+                }
+            }
         }
 
         if (currentSortValue === 'asc') {
@@ -381,6 +419,20 @@ async function addDonationButton(observedElement) {
 }
 
 export function init() {
+    if (
+        window.location.pathname.includes('/game-pass') &&
+        window.location.search.includes('RoValra-Auto-Buy')
+    ) {
+        observeElement('button[data-button-action="buy"]', (btn) => {
+            const triggerAutoClick = () => {
+                if (!btn.disabled) btn.click();
+            };
+            triggerAutoClick();
+            setTimeout(triggerAutoClick, 800);
+        });
+        return;
+    }
+
     const userId = getUserIdFromUrl();
     if (userId && window.location.search.includes('RoValra-Donation-Link')) {
         getUsernameFromPageData().then((username) => {
