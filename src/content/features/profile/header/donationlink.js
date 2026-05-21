@@ -1,4 +1,4 @@
-import { observeElement } from '../../../core/observer.js';
+import { observeElement, observeAttributes } from '../../../core/observer.js';
 import { createOverlay } from '../../../core/ui/overlay.js';
 import { getUsernameFromPageData } from '../../../core/utils.js';
 import { createDropdown } from '../../../core/ui/dropdown.js';
@@ -423,13 +423,29 @@ export function init() {
         window.location.pathname.includes('/game-pass') &&
         window.location.search.includes('RoValra-Auto-Buy')
     ) {
-        observeElement('button[data-button-action="buy"]', (btn) => {
-            const triggerAutoClick = () => {
-                if (!btn.disabled) btn.click();
-            };
-            triggerAutoClick();
-            setTimeout(triggerAutoClick, 800);
-        });
+        const runAutoBuy = () => {
+            observeElement('button[data-button-action="buy"]', (btn) => {
+                const tryClick = () => {
+                    if (!btn.disabled && btn.isConnected) {
+                        btn.click();
+                        return true;
+                    }
+                    return false;
+                };
+
+                if (!tryClick()) {
+                    const attrObserver = observeAttributes(btn, () => {
+                        if (tryClick()) attrObserver.disconnect();
+                    }, ['disabled', 'class']);
+                }
+            });
+        };
+
+        if (document.readyState === 'complete') {
+            runAutoBuy();
+        } else {
+            window.addEventListener('load', runAutoBuy, { once: true });
+        }
         return;
     }
 
