@@ -1,4 +1,4 @@
-import { observeElement } from '../../core/observer';
+import { observeChildren, observeElement } from '../../core/observer';
 import {
     RBXRenderer,
     Outfit,
@@ -80,10 +80,10 @@ let currentHoveredItemType = undefined;
 
 const toggleDefaultButtons = (enabled) => {
     if (!mainButtonContainer) return;
-    const tryOn = mainButtonContainer.children[0];
-    const toggle3d = mainButtonContainer.children[1];
-    if (tryOn) tryOn.style.display = enabled ? 'none' : '';
-    if (toggle3d) toggle3d.style.display = enabled ? 'none' : '';
+    for (const child of mainButtonContainer.children) {
+        if (child.dataset.rovalraItemRendererControl) continue;
+        child.style.display = enabled ? 'none' : '';
+    }
 };
 
 const updateRigButtonText = () => {
@@ -127,10 +127,12 @@ const updateAnimationDropdown = () => {
         },
     });
     animationDropdown = dropdownElement;
+    animationDropdown.dataset.rovalraItemRendererControl = 'true';
     animationDropdown.style.zIndex = 2;
     animationDropdown.style.width = '110px';
 
     mainButtonContainer.prepend(animationDropdown);
+    toggleDefaultButtons(mainRendererEnabled);
 };
 
 function updateMousePos(e) {
@@ -670,6 +672,7 @@ async function asyncInit() {
             buttonFor3d = document.createElement('button');
             buttonFor3d.className =
                 'enable-three-dee btn-control button-placement btn-control-md btn--width';
+            buttonFor3d.dataset.rovalraItemRendererControl = 'true';
             buttonFor3d.style.zIndex = 2;
 
             const buttonFor3dIcon = document.createElement('img');
@@ -718,6 +721,7 @@ async function asyncInit() {
             toggleAccessories = document.createElement('button');
             toggleAccessories.className =
                 'enable-three-dee btn-control button-placement btn-control-md btn--width';
+            toggleAccessories.dataset.rovalraItemRendererControl = 'true';
             toggleAccessories.style.zIndex = 2;
             toggleAccessories.style.display = mainRendererEnabled ? '' : 'none';
 
@@ -740,6 +744,7 @@ async function asyncInit() {
             buttonForRig = document.createElement('button');
             buttonForRig.className =
                 'enable-three-dee btn-control button-placement btn-control-md btn--width';
+            buttonForRig.dataset.rovalraItemRendererControl = 'true';
             buttonForRig.style.zIndex = 2;
             buttonForRig.style.display = mainRendererEnabled ? '' : 'none';
             buttonForRig.style.color = 'var(--rovalra-main-text-color)';
@@ -763,6 +768,8 @@ async function asyncInit() {
         element.appendChild(buttonForRig);
         element.appendChild(toggleAccessories);
         element.appendChild(buttonFor3d);
+        observeChildren(element, () => toggleDefaultButtons(mainRendererEnabled));
+        toggleDefaultButtons(mainRendererEnabled);
     });
 
     //item cards linking to catalog or bundles
