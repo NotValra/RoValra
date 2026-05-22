@@ -143,7 +143,7 @@ async function fetchBatchData(
     return results;
 }
 
-export async function fetchThumbnails(
+async function fetchThumbnailsDirect(
     items,
     type,
     size = '150x150',
@@ -285,6 +285,29 @@ export async function fetchThumbnails(
         })();
     }
 
+    return thumbnailMap;
+}
+
+export async function fetchThumbnails(
+    items,
+    type,
+    size = '150x150',
+    isCircular = false,
+    signal,
+) {
+    if (isCircular || signal) {
+        return fetchThumbnailsDirect(items, type, size, isCircular, signal);
+    }
+
+    const results = await Promise.all(
+        items.map((item) => getQueuedThumbnail(item.id, type, size)),
+    );
+
+    const thumbnailMap = new Map();
+    items.forEach((item, index) => {
+        const id = type === 'PlayerToken' ? item.id : Number(item.id);
+        thumbnailMap.set(id, results[index]);
+    });
     return thumbnailMap;
 }
 
@@ -581,14 +604,14 @@ async function flushThumbQueue() {
             if (ids.length === 0) return;
 
             try {
-                const thumbMap = await fetchThumbnails(
+                const thumbMap = await fetchThumbnailsDirect(
                     ids.map((id) => ({ id })),
                     type,
                     size,
                 );
                 ids.forEach((id) => {
                     const resolvers = queueMap.get(id);
-                    const result = thumbMap.get(Number(id));
+                    const result = thumbMap.get(id);
                     resolvers.forEach((res) => res(result));
                 });
             } catch (e) {
@@ -602,12 +625,13 @@ async function flushThumbQueue() {
 
 export function getQueuedThumbnail(id, type, size = '150x150') {
     return new Promise((resolve) => {
+        const normalizedId = type === 'PlayerToken' ? id : Number(id);
         const key = `${type}:${size}`;
         if (!thumbQueue.has(key)) thumbQueue.set(key, new Map());
         const typeQueue = thumbQueue.get(key);
 
-        if (!typeQueue.has(id)) typeQueue.set(id, []);
-        typeQueue.get(id).push(resolve);
+        if (!typeQueue.has(normalizedId)) typeQueue.set(normalizedId, []);
+        typeQueue.get(normalizedId).push(resolve);
 
         if (!thumbTimer) thumbTimer = setTimeout(flushThumbQueue, 50);
     });
