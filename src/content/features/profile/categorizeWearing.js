@@ -1,4 +1,6 @@
 import { observeElement } from '../../core/observer.js';
+import { callRobloxApiJson } from '../../core/api.js';
+import { getUserIdFromUrl } from '../../core/idExtractor.js';
 import { getAllCategories } from '../../core/utils/itemCategories.js';
 import { createItemCard } from '../../core/ui/items/items.js';
 import { createPillToggle } from '../../core/ui/general/pillToggle.js';
@@ -39,6 +41,8 @@ let emotesGrid = null;
 let animationsGrid = null;
 let bodyPartsGrid = null;
 let currentFilter = 'items';
+let activeWearingUserId = null;
+let activeWearingRequestId = 0;
 export const discoveredCategories = new Set();
 let pillToggleWrapper = null;
 export let isBodyPartsCategoryEnabled = true;
@@ -196,7 +200,6 @@ export function recalculateTotalPrice() {
         }
 
         const bundleId = card.dataset.rovalraBundleId;
-        const isBundle = link.href.includes('/bundles/');
 
         if (bundleId) {
             if (!processedBundleIds.has(bundleId)) {
@@ -319,6 +322,9 @@ function updateTabVisibility(filter) {
 }
 
 export function createCategorizedWearingSection() {
+    totalPrice = 0;
+    processedBundleIds.clear();
+    totalPriceElement = null;
     discoveredCategories.clear();
     const section = document.createElement('div');
     section.className = 'section rovalra-container';
@@ -407,6 +413,116 @@ export function createCategorizedWearingSection() {
     return section;
 }
 
+function getAvatarAssetEntries(avatarData) {
+    const entries = [];
+    const seenIds = new Set();
+
+    (avatarData?.assets || []).forEach((asset) => {
+        const id = Number(asset.id);
+        const typeId = Number(asset.assetType?.id);
+        if (!id || !typeId || seenIds.has(id)) return;
+
+        seenIds.add(id);
+        entries.push({
+            id,
+            typeId,
+        });
+    });
+
+    (avatarData?.emotes || []).forEach((emote) => {
+        const id = Number(emote.assetId);
+        if (!id || seenIds.has(id)) return;
+
+        seenIds.add(id);
+        entries.push({
+            id,
+            typeId: CONSTANT_IDS.EMOTES[0],
+        });
+    });
+
+    return entries;
+}
+
+function hideOriginalWearingSection(wearing) {
+    if (!wearing) return;
+    wearing.style.cssText =
+        'display: none !important; height: 0px !important; margin: 0px !important; padding: 0px !important; opacity: 0 !important; pointer-events: none !important;';
+}
+
+function ensureCategorizedSection(content) {
+    let categorizedSection = document.getElementById(
+        'rovalra-main-categorized-wrapper',
+    );
+    if (categorizedSection) return categorizedSection;
+
+    categorizedSection = createCategorizedWearingSection();
+    categorizedSection.id = 'rovalra-main-categorized-wrapper';
+
+    const originalWearing = content?.querySelector(
+        '.profile-currently-wearing, .roseal-currently-wearing',
+    );
+
+    if (originalWearing) {
+        originalWearing.before(categorizedSection);
+        hideOriginalWearingSection(originalWearing);
+    } else if (content) {
+        content.prepend(categorizedSection);
+    }
+
+    return categorizedSection;
+}
+
+async function loadCurrentlyWearingFromApi(content) {
+    const userId = getUserIdFromUrl();
+    if (!userId) return;
+
+    const wrapper = document.getElementById('rovalra-main-categorized-wrapper');
+    if (activeWearingUserId === String(userId) && wrapper) return;
+
+    activeWearingUserId = String(userId);
+    const requestId = ++activeWearingRequestId;
+    if (wrapper) wrapper.remove();
+
+    ensureCategorizedSection(content);
+
+    try {
+        const avatarData = await callRobloxApiJson({
+            subdomain: 'avatar',
+            endpoint: `/v2/avatar/users/${userId}/avatar`,
+        });
+
+        if (
+            requestId !== activeWearingRequestId ||
+            activeWearingUserId !== String(userId)
+        ) {
+            return;
+        }
+
+        const entries = getAvatarAssetEntries(avatarData);
+        if (entries.length === 0) {
+            document
+                .getElementById('rovalra-main-categorized-wrapper')
+                ?.remove();
+            return;
+        }
+
+        entries.forEach((entry) => {
+            assetInfoCache.set(entry.id, {
+                id: entry.id,
+                assetType: { id: entry.typeId },
+            });
+            addItemToCategoryView(null, entry.id);
+        });
+    } catch (e) {
+        console.error(
+            'RoValra: Failed to load currently wearing avatar data',
+            e,
+        );
+        document.getElementById('rovalra-main-categorized-wrapper')?.remove();
+        activeWearingUserId = null;
+    }
+}
+
 export function addItemToCategoryView(itemEl, assetId) {
     if (itemEl && itemEl.dataset.rovalraCategorized === 'true') return;
     const info = assetInfoCache.get(assetId);
@@ -456,22 +572,6 @@ export function addItemToCategoryView(itemEl, assetId) {
     if (itemEl) itemEl.style.display = 'none';
 }
 
-function handleItemDetection(itemEl) {
-    if (itemEl.closest('.profile-store')) return;
-    const link = itemEl.querySelector('a.item-card-link');
-    if (!link) return;
-    const match = link
-        .getAttribute('href')
-        ?.match(/\/(catalog|bundles)\/(\d+)\//);
-    if (!match) return;
-    const assetId = parseInt(match[2]);
-    if (assetInfoCache.has(assetId)) addItemToCategoryView(itemEl, assetId);
-    else {
-        if (!pendingItems.has(assetId)) pendingItems.set(assetId, []);
-        pendingItems.get(assetId).push(itemEl);
-    }
-}
-
 export async function init() {
     const result = await new Promise((resolve) =>
         chrome.storage.local.get(
@@ -495,26 +595,15 @@ export async function init() {
     observeElement(
         '.profile-tab-content',
         (content) => {
-            if (document.getElementById('rovalra-main-categorized-wrapper'))
-                return;
-
             const originalWearing = content.querySelector(
                 '.profile-currently-wearing, .roseal-currently-wearing',
             );
 
             if (originalWearing) {
-                const categorizedSection = createCategorizedWearingSection();
-                categorizedSection.id = 'rovalra-main-categorized-wrapper';
-                originalWearing.before(categorizedSection);
-                const existingItemCards = originalWearing.querySelectorAll(
-                    '[id="collection-carousel-item"], .carousel-item',
-                );
-                existingItemCards.forEach((item) => {
-                    handleItemDetection(item);
-                });
-                originalWearing.style.cssText =
-                    'display: none !important; height: 0px !important; margin: 0px !important; padding: 0px !important; opacity: 0 !important; pointer-events: none !important;';
+                hideOriginalWearingSection(originalWearing);
             }
+
+            loadCurrentlyWearingFromApi(content);
         },
         { multiple: true },
     );
@@ -522,13 +611,9 @@ export async function init() {
     observeElement(
         '.profile-currently-wearing, .roseal-currently-wearing',
         (wearing) => {
-            wearing.style.cssText =
-                'display: none !important; height: 0px !important; margin: 0px !important; padding: 0px !important; opacity: 0 !important; pointer-events: none !important;';
-            if (!document.getElementById('rovalra-main-categorized-wrapper')) {
-                const categorizedSection = createCategorizedWearingSection();
-                categorizedSection.id = 'rovalra-main-categorized-wrapper';
-                wearing.before(categorizedSection);
-            }
+            hideOriginalWearingSection(wearing);
+            const content = wearing.closest('.profile-tab-content');
+            if (content) loadCurrentlyWearingFromApi(content);
         },
         { multiple: true },
     );
@@ -590,34 +675,19 @@ export async function init() {
     document.body.style.overflowX = 'hidden';
     document.head.appendChild(hideStyle);
 
-    const selectors = [
-        '.profile-currently-wearing [id="collection-carousel-item"]',
-        '.profile-currently-wearing .carousel-item',
-        '.roseal-currently-wearing [id="collection-carousel-item"]',
-    ];
-    selectors.forEach((selector) => {
-        observeElement(
-            selector,
-            (item) => {
-                if (!item.dataset.rovalraProcessed) {
-                    item.dataset.rovalraProcessed = 'true';
-                    handleItemDetection(item);
-                }
-                const debouncedRecalculate = debounce(
-                    recalculateTotalPrice,
-                    250,
-                );
+    const debouncedRecalculate = debounce(recalculateTotalPrice, 250);
+    observeElement(
+        '.rovalra-category-grid .rovalra-item-card',
+        debouncedRecalculate,
+        {
+            multiple: true,
+            onRemove: debouncedRecalculate,
+        },
+    );
 
-                observeElement(
-                    '.rovalra-category-grid .rovalra-item-card',
-                    debouncedRecalculate,
-                    {
-                        multiple: true,
-                        onRemove: debouncedRecalculate,
-                    },
-                );
-            },
-            { multiple: true },
-        );
+    window.addEventListener('popstate', () => {
+        activeWearingUserId = null;
+        const content = document.querySelector('.profile-tab-content');
+        if (content) loadCurrentlyWearingFromApi(content);
     });
 }

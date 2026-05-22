@@ -10,6 +10,84 @@ let batchQueue = [];
 let batchTimeout = null;
 const BATCH_DELAY = 50;
 
+async function fetchEconomyItemDetails(
+    assetId,
+    looksItemData = null,
+    catalogItemData = null,
+) {
+    try {
+        const economyRes = await callRobloxApi({
+            subdomain: 'economy',
+            endpoint: `/v2/assets/${assetId}/details`,
+            method: 'GET',
+        });
+
+        if (!economyRes.ok) return null;
+
+        const data = await economyRes.json();
+        const restrictions = [];
+        if (data.IsLimited) restrictions.push('Limited');
+        if (data.IsLimitedUnique) restrictions.push('LimitedUnique');
+        catalogItemData?.itemRestrictions?.forEach((restriction) => {
+            if (!restrictions.includes(restriction)) {
+                restrictions.push(restriction);
+            }
+        });
+        looksItemData?.itemRestrictions?.forEach((restriction) => {
+            if (!restrictions.includes(restriction)) {
+                restrictions.push(restriction);
+            }
+        });
+
+        const rawPrice =
+            looksItemData?.priceInRobux ??
+            looksItemData?.lowestPrice ??
+            looksItemData?.price ??
+            data.PriceInRobux ??
+            catalogItemData?.priceInRobux ??
+            catalogItemData?.lowestPrice ??
+            catalogItemData?.price;
+
+        const item = {
+            assetId,
+            name: data.Name || catalogItemData?.name || 'Unknown Item',
+            recentAveragePrice: rawPrice || 0,
+            itemRestrictions: restrictions,
+            itemType: catalogItemData?.itemType || 'Asset',
+            isOnHold: false,
+            bundleId: null,
+        };
+
+        if (
+            looksItemData?.itemType === 'Bundle' &&
+            looksItemData.id !== assetId
+        ) {
+            item.bundleId = looksItemData.id;
+        }
+
+        const isForSale = looksItemData
+            ? !looksItemData.isOffSale &&
+              looksItemData.noPriceStatus !== 'OffSale' &&
+              looksItemData.isPurchasable !== false
+            : (data.IsForSale ??
+              (!catalogItemData?.isOffSale &&
+                  catalogItemData?.noPriceStatus !== 'OffSale' &&
+                  catalogItemData?.isPurchasable !== false));
+
+        if (!isForSale) {
+            item.priceText = 'Off Sale';
+        } else {
+            item.price = rawPrice;
+            if (rawPrice === 0) item.priceText = 'Free';
+        }
+
+        return item;
+    } catch (e) {
+        console.warn(`RoValra: Economy fallback failed for item ${assetId}`, e);
+        return null;
+    }
+}
+
 async function processBatch() {
     const currentBatch = [...batchQueue];
     batchQueue = [];
@@ -58,13 +136,16 @@ async function processBatch() {
             thumbMap.set(id, thumbData);
         });
 
-        if (!detailsRes.ok) throw new Error('Failed to fetch batch details');
+        if (!detailsRes.ok)
+            console.warn(
+                'RoValra: Catalog details request failed, using fallback item details.',
+            );
         if (!looksRes.ok)
             console.warn(
                 'RoValra: Looks API request failed, prices may be incomplete.',
             );
 
-        const detailsData = await detailsRes.json();
+        const detailsData = detailsRes.ok ? await detailsRes.json() : null;
         const looksData = looksRes.ok ? await looksRes.json() : null;
 
         if (detailsData?.data) {
@@ -76,7 +157,7 @@ async function processBatch() {
         }
 
         const catalogDetailsMap = new Map(
-            detailsData.data?.map((item) => [item.id, item]),
+            detailsData?.data?.map((item) => [item.id, item]),
         );
         const looksDetailsMap = new Map();
         looksData?.look?.items?.forEach((item) => {
@@ -88,140 +169,83 @@ async function processBatch() {
             });
         });
 
-        currentBatch.forEach(async (request) => {
-            const catalogItemData = catalogDetailsMap.get(request.id);
-            const looksItemData = looksDetailsMap.get(request.id);
-            const itemData = looksItemData || catalogItemData;
+        await Promise.all(
+            currentBatch.map(async (request) => {
+                const catalogItemData = catalogDetailsMap.get(request.id);
+                const looksItemData = looksDetailsMap.get(request.id);
+                const itemData = looksItemData || catalogItemData;
 
-            if (catalogItemData) {
-                // using the catalog api for limiteds CUZ ROBLOX ISNT CONSISTENT AT ALL
-                const restrictions = [
-                    ...new Set([
-                        ...(catalogItemData.itemRestrictions || []),
-                        ...(looksItemData?.itemRestrictions || []),
-                    ]),
-                ];
-
-                const isLimited =
-                    restrictions.includes('Limited') ||
-                    restrictions.includes('LimitedUnique') ||
-                    restrictions.includes('Collectible');
-
-                const rawPrice =
-                    itemData.priceInRobux ??
-                    itemData.lowestPrice ??
-                    itemData.price;
-
-                const item = {
-                    assetId: request.id,
-                    name: catalogItemData.name,
-                    recentAveragePrice: rawPrice || 0,
-                    itemRestrictions: restrictions,
-                    itemType: catalogItemData.itemType,
-                    isOnHold: false,
-                    bundleId: null,
-                };
-
-                if (
-                    looksItemData?.itemType === 'Bundle' &&
-                    looksItemData.id !== request.id
-                ) {
-                    item.bundleId = looksItemData.id;
-                }
-
-                if (
-                    itemData.isOffSale ||
-                    itemData.noPriceStatus === 'OffSale' ||
-                    !itemData.isPurchasable
-                ) {
-                    if (isLimited && rawPrice != null) {
-                        item.price = rawPrice;
-                    } else {
-                        item.priceText = 'Off Sale';
-                    }
-                } else {
-                    item.price = rawPrice;
-                    if (rawPrice === 0) {
-                        item.priceText = 'Free';
-                    }
-                }
-
-                const realCard = createItemCard(item, thumbMap, request.config);
-                request.placeholder.replaceWith(realCard);
-            } else {
-                let item = null;
-                try {
-                    const economyRes = await callRobloxApi({
-                        subdomain: 'economy',
-                        endpoint: `/v2/assets/${request.id}/details`,
-                        method: 'GET',
-                    });
-
-                    if (economyRes.ok) {
-                        const data = await economyRes.json();
-                        const restrictions = [];
-                        if (data.IsLimited) restrictions.push('Limited');
-                        if (data.IsLimitedUnique)
-                            restrictions.push('LimitedUnique');
-
-                        item = {
-                            assetId: request.id,
-                            name: data.Name,
-                            recentAveragePrice: data.PriceInRobux || 0,
-                            itemRestrictions: restrictions,
-                            itemType: 'Asset',
-                            isOnHold: false,
-                            bundleId: null,
-                        };
-
-                        if (!data.IsForSale) {
-                            item.priceText = 'Off Sale';
-                        } else {
-                            item.price = data.PriceInRobux;
-                            if (data.PriceInRobux === 0)
-                                item.priceText = 'Free';
-                        }
-                    }
-                } catch (e) {
-                    console.warn(
-                        `RoValra: Economy fallback failed for item ${request.id}`,
-                        e,
-                    );
-                }
-
-                if (!item) {
-                    try {
-                        const developRes = await callRobloxApi({
-                            subdomain: 'develop',
-                            endpoint: `/v1/assets?assetIds=${request.id}`,
-                            method: 'GET',
-                        });
-
-                        if (developRes.ok) {
-                            const devData = await developRes.json();
-                            const assetInfo = devData.data?.[0];
-                            if (assetInfo) {
-                                item = {
-                                    assetId: request.id,
-                                    name: assetInfo.name,
-                                    recentAveragePrice: 0,
-                                    itemRestrictions: [],
-                                    itemType: 'Asset',
-                                    isOnHold: false,
-                                    bundleId: null,
-                                    priceText: 'Off Sale',
-                                };
-                            }
-                        }
-                    } catch (e) {
-                        console.warn(
-                            `RoValra: Develop fallback failed for item ${request.id}`,
-                            e,
+                if (catalogItemData) {
+                    if (!looksItemData) {
+                        const economyItem = await fetchEconomyItemDetails(
+                            request.id,
+                            null,
+                            catalogItemData,
                         );
-                    }
-                }
 
-                if (item) {
+                        if (economyItem) {
+                            const realCard = createItemCard(
+                                economyItem,
+                                thumbMap,
+                                request.config,
+                            );
+                            request.placeholder.replaceWith(realCard);
+                            return;
+                        }
+                    }
+
+                    // using the catalog api for limiteds CUZ ROBLOX ISNT CONSISTENT AT ALL
+                    const restrictions = [
+                        ...new Set([
+                            ...(catalogItemData.itemRestrictions || []),
+                            ...(looksItemData?.itemRestrictions || []),
+                        ]),
+                    ];
+
+                    const isLimited =
+                        restrictions.includes('Limited') ||
+                        restrictions.includes('LimitedUnique') ||
+                        restrictions.includes('Collectible');
+
+                    const rawPrice =
+                        itemData.priceInRobux ??
+                        itemData.lowestPrice ??
+                        itemData.price;
+
+                    const item = {
+                        assetId: request.id,
+                        name: catalogItemData.name,
+                        recentAveragePrice: rawPrice || 0,
+                        itemRestrictions: restrictions,
+                        itemType: catalogItemData.itemType,
+                        isOnHold: false,
+                        bundleId: null,
+                    };
+
+                    if (
+                        looksItemData?.itemType === 'Bundle' &&
+                        looksItemData.id !== request.id
+                    ) {
+                        item.bundleId = looksItemData.id;
+                    }
+
+                    if (
+                        itemData.isOffSale ||
+                        itemData.noPriceStatus === 'OffSale' ||
+                        !itemData.isPurchasable
+                    ) {
+                        if (isLimited && rawPrice != null) {
+                            item.price = rawPrice;
+                        } else {
+                            item.priceText = 'Off Sale';
+                        }
+                    } else {
+                        item.price = rawPrice;
+                        if (rawPrice === 0) {
+                            item.priceText = 'Free';
+                        }
+                    }
+
                     const realCard = createItemCard(
                         item,
                         thumbMap,
@@ -229,11 +253,58 @@ async function processBatch() {
                     );
                     request.placeholder.replaceWith(realCard);
                 } else {
-                    request.placeholder.innerHTML =
-                        '<div style="padding: 10px;">Not Found</div>';
+                    let item = await fetchEconomyItemDetails(
+                        request.id,
+                        looksItemData,
+                        catalogItemData,
+                    );
+
+                    if (!item) {
+                        try {
+                            const developRes = await callRobloxApi({
+                                subdomain: 'develop',
+                                endpoint: `/v1/assets?assetIds=${request.id}`,
+                                method: 'GET',
+                            });
+
+                            if (developRes.ok) {
+                                const devData = await developRes.json();
+                                const assetInfo = devData.data?.[0];
+                                if (assetInfo) {
+                                    item = {
+                                        assetId: request.id,
+                                        name: assetInfo.name,
+                                        recentAveragePrice: 0,
+                                        itemRestrictions: [],
+                                        itemType: 'Asset',
+                                        isOnHold: false,
+                                        bundleId: null,
+                                        priceText: 'Off Sale',
+                                    };
+                                }
+                            }
+                        } catch (e) {
+                            console.warn(
+                                `RoValra: Develop fallback failed for item ${request.id}`,
+                                e,
+                            );
+                        }
+                    }
+
+                    if (item) {
+                        const realCard = createItemCard(
+                            item,
+                            thumbMap,
+                            request.config,
+                        );
+                        request.placeholder.replaceWith(realCard);
+                    } else {
+                        request.placeholder.innerHTML =
+                            '<div style="padding: 10px;">Not Found</div>';
+                    }
                 }
-            }
-        });
+            }),
+        );
     } catch (e) {
         console.warn('RoValra: Batch request failed', e);
         currentBatch.forEach((request) => {
