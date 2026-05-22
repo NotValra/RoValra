@@ -2,6 +2,28 @@ import { loadSettings } from './handlesettings.js';
 
 let settingsCache = undefined;
 
+function updateCachedSetting(name, value) {
+    if (settingsCache === undefined || !name) return;
+    settingsCache[name] = value;
+}
+
+if (typeof document !== 'undefined') {
+    document.addEventListener('rovalra:settingSaved', (event) => {
+        updateCachedSetting(event.detail?.name, event.detail?.value);
+    });
+}
+
+if (typeof chrome !== 'undefined' && chrome.storage?.onChanged) {
+    chrome.storage.onChanged.addListener((changes, areaName) => {
+        if (areaName !== 'local' || settingsCache === undefined) return;
+
+        for (const [name, change] of Object.entries(changes)) {
+            if (name === 'rovalra_settings') continue;
+            updateCachedSetting(name, change.newValue);
+        }
+    });
+}
+
 // Loads settings once per content-script runtime and reuses the same object for
 // every `await settings.someSetting` call. This avoids asking chrome.storage for
 // the full settings object every time a feature needs one value.

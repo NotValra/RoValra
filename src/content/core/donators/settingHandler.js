@@ -134,6 +134,9 @@ async function fetchAndProcessSettings(userId, options = {}) {
         environment: finalEnvironment || 1,
         gradient: finalGradient,
         border: finalBorder,
+        Views: Number(apiSettings.Views) || 0,
+        hide_views:
+            apiSettings.hide_views === 'true' || apiSettings.hide_views === true,
         canUseApi: apiProvidedMeaningfulSettings,
         anonymous_leaderboard:
             apiSettings.anonymous_leaderboard === 'true' ||
@@ -315,6 +318,9 @@ async function processApiSettings(userId, apiSettings, options) {
         environment: finalEnvironment || 1,
         gradient: finalGradient,
         border: finalBorder,
+        Views: Number(apiSettings.Views) || 0,
+        hide_views:
+            apiSettings.hide_views === 'true' || apiSettings.hide_views === true,
         canUseApi: apiProvidedMeaningfulSettings,
         anonymous_leaderboard:
             apiSettings.anonymous_leaderboard === 'true' ||

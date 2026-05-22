@@ -499,6 +499,25 @@ export const SETTINGS_CONFIG = {
                 default: false,
                 contributors: ['9502859424'],
             },
+            profileViewsEnabled: {
+                label: 'Profile Views',
+                description: [
+                    'Shows profile view counts on profiles.',
+                    'Disabling this hides profile views locally and hides your profile views from other RoValra users.',
+                ],
+                type: 'checkbox',
+                default: true,
+                childSettings: {
+                    profileViewsServerEnabled: {
+                        label: 'Show My Profile Views Server Side',
+                        description: [
+                            'Disabling this only hides your profile views from other RoValra users.',
+                        ],
+                        type: 'checkbox',
+                        default: true,
+                    },
+                },
+            },
             userSniperEnabled: {
                 label: 'Instant Joiner',
                 description: [

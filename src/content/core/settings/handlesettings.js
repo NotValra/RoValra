@@ -9,14 +9,15 @@ import { updateUserSettingViaApi } from '../donators/settingHandler.js';
 import { createAndShowPopup } from '../../features/catalog/40method.js';
 import * as CacheHandler from '../storage/cacheHandler.js';
 import { hasOwn } from '../utils.js';
-import "./settingsCompat";
+import './settingsCompat';
 
 let currentUserTier = 0;
 let gradientSyncTimeout = null;
 let donatorTierPromise = null;
 const colorLiveSaveTimeouts = new Map();
 
-const isUnavailableSetting = (config) => hasOwn(config, 'locked') || hasOwn(config, 'deprecated');
+const isUnavailableSetting = (config) =>
+    hasOwn(config, 'locked') || hasOwn(config, 'deprecated');
 
 export const getCurrentUserTier = () => currentUserTier;
 
@@ -196,7 +197,7 @@ export const loadSettings = async () => {
     });
 };
 
-export const enforceSettingOverrides = async () => {    
+export const enforceSettingOverrides = async () => {
     try {
         const settings = await loadSettings();
         const data = await chrome.storage.local.get([
@@ -499,6 +500,28 @@ export const handleSaveSettings = async (settingName, value) => {
                                 );
                             });
                         }
+                    }
+                    if (
+                        settingName === 'profileViewsEnabled' ||
+                        settingName === 'profileViewsServerEnabled'
+                    ) {
+                        loadSettings()
+                            .then((currentSettings) => {
+                                const hideViews =
+                                    !currentSettings.profileViewsEnabled ||
+                                    !currentSettings.profileViewsServerEnabled;
+
+                                return updateUserSettingViaApi(
+                                    'hide_views',
+                                    hideViews,
+                                );
+                            })
+                            .catch((error) =>
+                                console.error(
+                                    'RoValra: Profile views visibility sync failed',
+                                    error,
+                                ),
+                            );
                     }
 
                     document.dispatchEvent(
