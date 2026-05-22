@@ -470,6 +470,24 @@
         "someBots": "<span style=\"color: var(--rovalra-main-text-color)\">{{gameName}}</span> has some bots but mostly real players",
         "thisGame": "This game"
     },
+    "events": {
+        "title": "Events",
+        "tabs": {
+            "upcoming": "Upcoming",
+            "past": "Past"
+        },
+        "buttons": {
+            "viewEvent": "View Event",
+            "joinEvent": "Join Event",
+            "unfollowEvent": "Unfollow Event",
+            "notifyMe": "Notify Me"
+        },
+        "empty": {
+            "active": "No ongoing or upcoming events.",
+            "past": "No past events.",
+            "all": "No events found."
+        }
+    },
     "antiBots": {
         "reviewMembers": "Review {{count}} selected members:",
         "botWarning": "<strong>Warning:</strong> Ensure these are bots before taking action.",
