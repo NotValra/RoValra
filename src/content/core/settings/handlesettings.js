@@ -9,15 +9,49 @@ import { updateUserSettingViaApi } from '../donators/settingHandler.js';
 import { createAndShowPopup } from '../../features/catalog/40method.js';
 import * as CacheHandler from '../storage/cacheHandler.js';
 import { hasOwn } from '../utils.js';
+import { showConfirmationPrompt } from '../ui/confirmationPrompt.js';
 import './settingsCompat';
 
 let currentUserTier = 0;
 let gradientSyncTimeout = null;
 let donatorTierPromise = null;
 const colorLiveSaveTimeouts = new Map();
+const FEATURE_STATUS_PROMPT_ACK_KEY = 'featureStatusPromptAcknowledged';
 
 const isUnavailableSetting = (config) =>
     hasOwn(config, 'locked') || hasOwn(config, 'deprecated');
+
+const isStatusLabeledOffByDefaultSetting = (config) =>
+    config?.type === 'checkbox' &&
+    config.default === false &&
+    (hasOwn(config, 'experimental') ||
+        hasOwn(config, 'deprecated') ||
+        hasOwn(config, 'beta'));
+
+const getFeatureStatusPromptPills = () =>
+    [
+        '<span class="rovalra-pill experimental">Experimental</span>',
+        '<span class="rovalra-pill beta">Beta</span>',
+        '<span class="rovalra-pill deprecated">Deprecated</span>',
+    ].join('');
+
+const shouldShowFeatureStatusPrompt = async (config) => {
+    if (!isStatusLabeledOffByDefaultSetting(config)) return false;
+
+    const result = await chrome.storage.local.get([
+        FEATURE_STATUS_PROMPT_ACK_KEY,
+        'forceFeatureStatusPrompt',
+    ]);
+
+    return (
+        result.forceFeatureStatusPrompt === true ||
+        result[FEATURE_STATUS_PROMPT_ACK_KEY] !== true
+    );
+};
+
+const markFeatureStatusPromptAcknowledged = async () => {
+    await chrome.storage.local.set({ [FEATURE_STATUS_PROMPT_ACK_KEY]: true });
+};
 
 export const getCurrentUserTier = () => currentUserTier;
 
@@ -1596,6 +1630,38 @@ export function initializeSettingsEventListeners() {
 
             if (value) {
                 const settingConfig = findSettingConfig(settingName);
+
+                if (
+                    target.dataset.featureStatusPromptAccepted !== 'true' &&
+                    (await shouldShowFeatureStatusPrompt(settingConfig))
+                ) {
+                    target.checked = false;
+                    const statusPills = getFeatureStatusPromptPills();
+                    showConfirmationPrompt({
+                        title: 'Before Enabling This Feature',
+                        message:
+                            `<span style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px;">${statusPills}</span>` +
+                            'Features with these labels might be unstable, or may change over time. They can cause longer load times, inconsistent UI, site-related issues, or other unexpected behavior.<br><br>Only enable this if you understand that it may not work perfectly.',
+                        confirmText: 'I Acknowledge',
+                        cancelText: 'Cancel',
+                        confirmType: 'primary',
+                        cancelType: 'secondary',
+                        onConfirm: async () => {
+                            await markFeatureStatusPromptAcknowledged();
+                            target.dataset.featureStatusPromptAccepted = 'true';
+                            target.checked = true;
+                            target.dispatchEvent(
+                                new Event('change', { bubbles: true }),
+                            );
+                        },
+                        onCancel: () => {
+                            target.checked = false;
+                        },
+                    });
+                    return;
+                }
+
+                delete target.dataset.featureStatusPromptAccepted;
 
                 if (settingConfig?.requiredPermissions) {
                     const missingPermissions = [];

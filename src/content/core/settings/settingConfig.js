@@ -1909,6 +1909,14 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: false,
             },
+            forceFeatureStatusPrompt: {
+                label: ['Force Feature Status Prompt'],
+                description: [
+                    'When enabled, shows the feature status acknowledgement every time an off by default experimental, beta, or deprecated feature is enabled. For testing purposes.',
+                ],
+                type: 'checkbox',
+                default: false,
+            },
             rendererDeveloperToggles: {
                 label: '3D renderer Developer toggles',
                 type: 'checkbox',
