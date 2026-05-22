@@ -110,6 +110,39 @@ export async function loadAssetTypeIds() {
 }
 
 export const pendingItems = new Map();
+const originalThumbnailCache = new Map();
+
+function getOriginalThumbnailData(itemEl, assetId) {
+    const cached = originalThumbnailCache.get(assetId);
+    if (cached) return cached;
+
+    const img = itemEl?.querySelector(
+        'img[src], img[data-src], img[data-thumb-url]',
+    );
+    const imageUrl =
+        img?.currentSrc ||
+        img?.src ||
+        img?.dataset?.src ||
+        img?.dataset?.thumbUrl ||
+        '';
+
+    if (
+        !imageUrl ||
+        imageUrl.startsWith('data:') ||
+        imageUrl === window.location.href
+    ) {
+        return null;
+    }
+
+    const thumbnailData = {
+        state: 'Completed',
+        targetId: assetId,
+        imageUrl,
+        thumbnailType: 'Asset',
+    };
+    originalThumbnailCache.set(assetId, thumbnailData);
+    return thumbnailData;
+}
 
 function updateTotalDisplay() {
     if (!totalPriceElement) {
@@ -402,11 +435,10 @@ export function addItemToCategoryView(itemEl, assetId) {
 
     if (!exists) {
         if (itemEl) itemEl.dataset.rovalraCategorized = 'true';
-        const card = createItemCard(
-            assetId,
-            {},
-            { cardStyles: { width: '120px', flexShrink: 0 } },
-        );
+        const thumbnailData = getOriginalThumbnailData(itemEl, assetId);
+        const card = createItemCard(assetId, {
+            thumbnailData,
+        });
         card.dataset.rovalraPendingId = assetId;
         targetGrid.appendChild(card);
         if (!discoveredCategories.has(category)) {

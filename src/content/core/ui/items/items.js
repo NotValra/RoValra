@@ -17,6 +17,21 @@ async function processBatch() {
 
     try {
         const ids = currentBatch.map((item) => item.id);
+        const prefetchedThumbMap = new Map();
+        currentBatch.forEach((request) => {
+            const thumbnailData = request.config?.thumbnailData;
+            if (thumbnailData?.imageUrl) {
+                prefetchedThumbMap.set(request.id, {
+                    state: 'Completed',
+                    targetId: request.id,
+                    thumbnailType: 'Asset',
+                    ...thumbnailData,
+                });
+            }
+        });
+        const thumbnailIdsToFetch = ids.filter(
+            (id) => !prefetchedThumbMap.has(id),
+        );
         const [detailsRes, looksRes, thumbMap] = await Promise.all([
             callRobloxApi({
                 subdomain: 'catalog',
@@ -30,12 +45,18 @@ async function processBatch() {
                 method: 'POST',
                 body: { assets: ids.map((id) => ({ id })) },
             }),
-            fetchThumbnails(
-                ids.map((id) => ({ id })),
-                'Asset',
-                '150x150',
-            ),
+            thumbnailIdsToFetch.length > 0
+                ? fetchThumbnails(
+                      thumbnailIdsToFetch.map((id) => ({ id })),
+                      'Asset',
+                      '150x150',
+                  )
+                : Promise.resolve(new Map()),
         ]);
+
+        prefetchedThumbMap.forEach((thumbData, id) => {
+            thumbMap.set(id, thumbData);
+        });
 
         if (!detailsRes.ok) throw new Error('Failed to fetch batch details');
         if (!looksRes.ok)
