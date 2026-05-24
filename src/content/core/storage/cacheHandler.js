@@ -2,6 +2,21 @@ const CACHE_KEY = 'rovalra_cache';
 let storageSupported = { session: true, local: true };
 let memoryFallback = { session: {}, local: {} };
 let writeQueue = Promise.resolve();
+let cacheMemory = { session: null, local: null };
+let cacheLoadPromise = { session: null, local: null };
+let cacheWriteTimer = { session: null, local: null };
+let cacheWritePromise = { session: null, local: null };
+
+const createDeferred = () => {
+    let resolve;
+    let reject;
+    const promise = new Promise((res, rej) => {
+        resolve = res;
+        reject = rej;
+    });
+
+    return { promise, resolve, reject };
+};
 
 const this_tab = (() => {
     const bytes = crypto.getRandomValues(new Uint8Array(12));
@@ -30,6 +45,15 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
     const author = changes[CACHE_KEY + '-author'];
     if (author?.newValue === this_tab) return;
 
+    if (cacheWriteTimer[areaName]) {
+        clearTimeout(cacheWriteTimer[areaName]);
+        cacheWriteTimer[areaName] = null;
+        cacheWritePromise[areaName]?.resolve();
+        cacheWritePromise[areaName] = null;
+    }
+
+    cacheMemory[areaName] = null;
+    cacheLoadPromise[areaName] = null;
     _ramcache.clear();
 });
 
@@ -46,6 +70,20 @@ const isValidCacheObject = (data) => {
     return true;
 };
 
+const handleGetCacheError = (e, area) => {
+    if (e?.message?.includes('Access to storage is not allowed')) {
+        storageSupported[area] = false;
+        cacheMemory[area] = memoryFallback[area];
+    } else {
+        console.error(
+            `RoValra (CacheHandler): Failed to get cache from ${area}`,
+            e,
+        );
+    }
+
+    return memoryFallback[area];
+};
+
 /**
  * Retrieves the entire cache object from the specified storage area.
  * @param {string} area - The storage area ('session' or 'local').
@@ -53,12 +91,22 @@ const isValidCacheObject = (data) => {
  */
 const getCache = async (area = 'session') => {
     if (!storageSupported[area]) return memoryFallback[area];
+    if (cacheMemory[area]) return cacheMemory[area];
+    if (cacheLoadPromise[area]) {
+        try {
+            return await cacheLoadPromise[area];
+        } catch (e) {
+            return handleGetCacheError(e, area);
+        }
+    }
 
-    try {
+    cacheLoadPromise[area] = (async () => {
         if (!chrome?.storage?.[area]) {
             storageSupported[area] = false;
+            cacheMemory[area] = memoryFallback[area];
             return memoryFallback[area];
         }
+
         const result = await chrome.storage[area].get(CACHE_KEY);
         const cacheData = result[CACHE_KEY];
 
@@ -69,49 +117,85 @@ const getCache = async (area = 'session') => {
                 );
                 await chrome.storage[area].remove(CACHE_KEY);
             }
+            cacheMemory[area] = {};
             return {};
         }
 
+        cacheMemory[area] = cacheData;
         return cacheData;
+    })();
+
+    try {
+        return await cacheLoadPromise[area];
     } catch (e) {
-        if (e.message.includes('Access to storage is not allowed')) {
-            storageSupported[area] = false;
-        } else {
-            console.error(
-                `RoValra (CacheHandler): Failed to get cache from ${area}`,
-                e,
-            );
-        }
-        return memoryFallback[area];
+        return handleGetCacheError(e, area);
+    } finally {
+        cacheLoadPromise[area] = null;
     }
+};
+
+const flushCacheWrite = async (area) => {
+    cacheWriteTimer[area] = null;
+    const writePromise = cacheWritePromise[area];
+    cacheWritePromise[area] = null;
+
+    try {
+        await chrome.storage[area].set({
+            [CACHE_KEY]: cacheMemory[area] || {},
+            [CACHE_KEY + '-author']: this_tab,
+        });
+        writePromise.resolve();
+    } catch (e) {
+        writePromise.reject(e);
+    }
+};
+
+const queueCacheWrite = (area) => {
+    if (!cacheWritePromise[area]) {
+        cacheWritePromise[area] = createDeferred();
+    }
+
+    if (!cacheWriteTimer[area]) {
+        cacheWriteTimer[area] = setTimeout(() => flushCacheWrite(area), 0);
+    }
+
+    return cacheWritePromise[area].promise;
+};
+
+const handleSetCacheError = (e, area) => {
+    if (e?.message?.includes('Access to storage is not allowed')) {
+        storageSupported[area] = false;
+        memoryFallback[area] = cacheMemory[area] || {};
+        return;
+    }
+
+    console.error(
+        `RoValra (CacheHandler): Failed to set cache in ${area}`,
+        e,
+    );
 };
 
 /**
  * Stores the entire cache object into the specified storage area.
  * @param {object} cache - The cache object to store.
  * @param {string} area - The storage area ('session' or 'local').
+ * @param {boolean} waitForFlush - Whether to wait until chrome.storage is updated.
  */
-const setCache = async (cache, area = 'session') => {
+const setCache = async (cache, area = 'session', waitForFlush = true) => {
+    cacheMemory[area] = cache;
+
     if (!storageSupported[area]) {
         memoryFallback[area] = cache;
         return;
     }
 
     try {
-        await chrome.storage[area].set({
-            [CACHE_KEY]: cache,
-            [CACHE_KEY + '-author']: this_tab,
-        });
+        const write = queueCacheWrite(area).catch((e) =>
+            handleSetCacheError(e, area),
+        );
+        if (waitForFlush) await write;
     } catch (e) {
-        if (e.message.includes('Access to storage is not allowed')) {
-            storageSupported[area] = false;
-            memoryFallback[area] = cache;
-        } else {
-            console.error(
-                `RoValra (CacheHandler): Failed to set cache in ${area}`,
-                e,
-            );
-        }
+        handleSetCacheError(e, area);
     }
 };
 
@@ -198,7 +282,7 @@ export const set = async (section, key, value, area = 'session') => {
                 value: value,
                 ResetTimestamp: Date.now(),
             };
-            await setCache(cache, area);
+            await setCache(cache, area, false);
         })
         .catch((e) =>
             console.error(`RoValra (CacheHandler): Error setting ${key}`, e),
@@ -227,7 +311,7 @@ export const get = async (section, key, area = 'session') => {
             value: entry,
             ResetTimestamp: Date.now(),
         };
-        await setCache(cache, area);
+        await setCache(cache, area, false);
         entry = cache[section][key];
     }
 
@@ -259,7 +343,7 @@ export const remove = async (section, key, area = 'session') => {
             const cache = await getCache(area);
             if (cache[section]) {
                 delete cache[section][key];
-                await setCache(cache, area);
+                await setCache(cache, area, false);
             }
         })
         .catch((e) =>
