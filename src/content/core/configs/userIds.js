@@ -15,6 +15,7 @@ export const CONTRIBUTOR_USER_IDS = [
     '2615068449', //lolct
     '10646979010', //rav4
     '9502859424', // moowi1337
+	'491522706', // teeenoob
 ];
 
 export const TESTER_USER_IDS = [

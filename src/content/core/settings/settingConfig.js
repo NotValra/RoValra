@@ -1348,6 +1348,28 @@ export const SETTINGS_CONFIG = {
                     },
                 },
             },
+            Customcss: {
+                label: 'Custom CSS',
+                description: [
+                    'This allows to set custom css for the Roblox website.',
+                ],
+                experimental: 'Really raw version of this feature.',
+                type: 'checkbox',
+                default: false,
+                contributors: [491522706],
+                childSettings: {
+                    Customcsslink: {
+                        label: 'CSS link',
+                        description: [
+                            'You can find more about css at https://www.w3schools.com/css/',
+                            'The link should look like "https://teeenoob.github.io/themes/main/fonts.css"',
+                        ],
+                        type: 'input',
+                        default: null,
+                        placeholder: 'Enter CSS Link here...',
+                    },
+                },
+            },
             ServerdataEnabled: {
                 label: "Send Server IDs and Place IDs to RoValra's API",
                 description: [
