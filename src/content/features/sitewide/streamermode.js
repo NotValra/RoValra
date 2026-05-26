@@ -10,40 +10,37 @@ export function init() {
         }
     }
 
+    function applyStreamerModeToSettingsField(element) {
+        if (!isSettingsPageInfoEnabled) return;
+        if (!window.location.href.includes('/my/account')) return;
+
+        const valueSpan = element.querySelector('.settings-text-span-visible');
+        if (
+            valueSpan &&
+            valueSpan.textContent !== 'RoValra Streamer Mode Enabled'
+        ) {
+            valueSpan.textContent = 'RoValra Streamer Mode Enabled';
+        }
+    }
+
     function updateSettingsPage() {
         if (!isSettingsPageInfoEnabled) return;
         if (!window.location.href.includes('/my/account')) return;
 
-        const phoneField = document.getElementById('account-field-phone');
-        if (phoneField) {
-            const phoneValueSpan = phoneField.querySelector(
-                '.settings-text-span-visible',
-            );
-            if (
-                phoneValueSpan &&
-                phoneValueSpan.textContent !== 'RoValra Streamer Mode Enabled'
-            ) {
-                phoneValueSpan.textContent = 'RoValra Streamer Mode Enabled';
-            }
-
-            const emailField = phoneField.nextElementSibling;
-            if (
-                emailField &&
-                emailField.classList.contains('settings-text-field-container')
-            ) {
-                const emailValueSpan = emailField.querySelector(
-                    '.settings-text-span-visible',
+        document
+            .querySelectorAll('.settings-text-field-container')
+            .forEach((container) => {
+                const label = container.querySelector(
+                    '.account-info-inline-label',
                 );
                 if (
-                    emailValueSpan &&
-                    emailValueSpan.textContent !==
-                        'RoValra Streamer Mode Enabled'
+                    label &&
+                    (label.textContent.trim() === 'Phone' ||
+                        label.textContent.trim() === 'Email')
                 ) {
-                    emailValueSpan.textContent =
-                        'RoValra Streamer Mode Enabled';
+                    applyStreamerModeToSettingsField(container);
                 }
-            }
-        }
+            });
     }
 
     function updateStreamerMode() {
@@ -111,7 +108,19 @@ export function init() {
         },
         { multiple: true },
     );
-    observeElement('#account-field-phone', () => {
-        updateSettingsPage();
-    });
+
+    observeElement(
+        '.settings-text-field-container',
+        (element) => {
+            const label = element.querySelector('.account-info-inline-label');
+            if (
+                label &&
+                (label.textContent.trim() === 'Phone' ||
+                    label.textContent.trim() === 'Email')
+            ) {
+                applyStreamerModeToSettingsField(element);
+            }
+        },
+        { multiple: true },
+    );
 }
