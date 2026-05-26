@@ -268,6 +268,15 @@ export const SETTINGS_CONFIG = {
                     },
                 },
             },
+            gamePassViewerEnabled: {
+                label: 'View Gamepasses in Private / Moderated Games',
+                description: [
+                    'This recreates the gamepass page of private / moderated games, allowing you to view them.',
+                ],
+                type: 'checkbox',
+                default: true,
+                contributors: ['9502859424'],
+            },
             botdataEnabled: {
                 label: 'Bot Data',
                 description: [

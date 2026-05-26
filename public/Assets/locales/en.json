@@ -728,6 +728,17 @@
         },
         "moderated": "Moderated"
     },
+    "gamePassViewer": {
+        "type": "Type",
+        "typeValue": "Pass",
+        "productId": "Product ID",
+        "price": "Price",
+        "owned": "Owned",
+        "ownedNotice": "This item is available in your inventory.",
+        "inventory": "Inventory",
+        "by": "By",
+        "usePassIn": "Use this Pass in:"
+    },
     "playabilityStatus": {
         "0": "This experience is unavailable",
         "1": "This experience is playable",
