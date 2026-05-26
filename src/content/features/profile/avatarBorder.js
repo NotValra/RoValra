@@ -126,6 +126,15 @@ function syncBorderImageMetrics(containerBox, clipBox, border) {
     setPixelStyle(border, 'height', borderHeight);
 }
 
+function startAnimatedBorder(border, animatedLink) {
+    border.removeAttribute('src');
+    border.src = animatedLink;
+}
+
+function stopAnimatedBorder(border) {
+    border.removeAttribute('src');
+}
+
 function getCorrectedVisualCenter(bounds) {
     if (!bounds) return { x: 0.5, y: 0.5 };
 
@@ -320,10 +329,11 @@ export async function applyBorderToContainer(
             const animImg = document.createElement('img');
             animImg.className = 'rovalra-avatar-border';
             animImg.crossOrigin = 'anonymous';
-            animImg.src = animatedLink;
             animImg.style.display = 'none';
-            if (animImg.decode) animImg.decode().catch(() => {});
             animImg.onload = async () => {
+                if (animImg.decode) {
+                    await animImg.decode().catch(() => {});
+                }
                 await getBorderContentBounds(animImg);
                 syncBorderMetrics(container);
             };
@@ -335,10 +345,12 @@ export async function applyBorderToContainer(
             container.addEventListener('mouseenter', () => {
                 img.style.display = 'none';
                 animImg.style.display = 'block';
+                startAnimatedBorder(animImg, animatedLink);
             });
             container.addEventListener('mouseleave', () => {
                 img.style.display = 'block';
                 animImg.style.display = 'none';
+                stopAnimatedBorder(animImg);
             });
         }
 
