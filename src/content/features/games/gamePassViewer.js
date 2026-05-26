@@ -1,15 +1,12 @@
 import { callRobloxApiJson } from '../../core/api.js';
-import {
-    fetchThumbnails,
-    createThumbnailElement,
-} from '../../core/thumbnail/thumbnails.js';
+import { fetchThumbnails } from '../../core/thumbnail/thumbnails.js';
 import DOMPurify from '../../core/packages/dompurify.js';
 import { ts } from '../../core/locale/i18n.js';
-import { showPurchaseModal } from '../../core/ui/games/purchaseModal.js';
 import { createRobuxIcon } from '../../core/ui/robuxIcon.js';
 import { injectStylesheet } from '../../core/ui/cssInjector.js';
 import { observeElement } from '../../core/observer.js';
 import { getGamePassIdFromUrl } from '../../core/idExtractor.js';
+import { settings } from '../../core/settings/getSettings.js';
 
 const ERROR_SEL =
     '.request-error-page-content, .default-error-page, .error-page-container';
@@ -38,8 +35,6 @@ async function fetchPass(passId) {
         isForSale: productInfo?.IsForSale ?? details?.isForSale ?? false,
         productId: productInfo?.ProductId,
         iconId: productInfo?.IconImageAssetId ?? details?.iconAssetId,
-        created: productInfo?.Created ?? details?.createdTimestamp,
-        updated: productInfo?.Updated ?? details?.updatedTimestamp,
         placeId: details?.placeId,
         creator: {
             id: productInfo?.Creator?.CreatorTargetId ?? 0,
@@ -57,7 +52,7 @@ async function fetchPlace(placeId) {
             endpoint: `/v1/games/multiget-place-details?placeIds=${placeId}`,
         });
         return Array.isArray(res) ? res[0] : null;
-    } catch (_) {
+    } catch {
         return null;
     }
 }
@@ -109,12 +104,12 @@ function render(data, place, passId) {
     const buyBg = isLight ? '#272930' : '#ffffff';
     const buyFg = isLight ? '#ffffff' : '#272930';
     const buyStyle =
-        `width:180px;height:52px;padding:15px;font-size:20px;font-weight:500;border-radius:8px;background:${buyBg};color:${buyFg};border:1px solid ${buyBg};box-sizing:border-box;line-height:100%;cursor:pointer;text-align:center;display:inline-block;text-decoration:none;`;
+        `width:180px;height:52px;padding:15px;font-size:20px;font-weight:500;border-radius:8px;background:${buyBg};color:${buyFg};border:1px solid ${buyBg};box-sizing:border-box;line-height:100%;cursor:not-allowed;text-align:center;display:inline-block;text-decoration:none;opacity:0.5;`;
     const actionBtn = isOwned
         ? `<a id="inventory-button" href="https://www.roblox.com/my/inventory" class="btn-fixed-width-lg btn-control-md">${ts('gamePassViewer.inventory')}</a>`
         : isForSale
-          ? `<button id="rovalra-gp-buy" type="button" class="PurchaseButton" style="${buyStyle}">${ts('privateGames.passes.buy')}</button>`
-          : `<button type="button" class="PurchaseButton" style="${buyStyle}opacity:0.5;cursor:not-allowed;" disabled>${ts('privateGames.passes.offSale')}</button>`;
+          ? `<button id="rovalra-gp-buy" type="button" class="PurchaseButton" style="${buyStyle}" disabled>${ts('privateGames.passes.buy')}</button>`
+          : `<button type="button" class="PurchaseButton" style="${buyStyle}" disabled>${ts('privateGames.passes.offSale')}</button>`;
 
     const priceInfo = !isForSale && !isOwned
         ? `<span class="text-label">${ts('privateGames.passes.offSale')}</span>`
@@ -138,12 +133,6 @@ function render(data, place, passId) {
                 </div>
            </div>`
         : '';
-
-    const itemField = (label, valueHtml) =>
-        `<div class="clearfix item-field-container">
-            <div class="text-label text-overflow field-label">${label}</div>
-            <span class="field-content">${valueHtml}</span>
-        </div>`;
 
     content.innerHTML = DOMPurify.sanitize(`
         <div id="item-container" class="section page-content library-item" data-item-id="${passId}" data-item-name="${name}" data-asset-type="Game Pass" data-product-id="${productId || ''}" data-expected-currency="1" data-expected-price="${price}" data-seller-name="${creator.name}">
@@ -209,22 +198,6 @@ function render(data, place, passId) {
             '150x150',
         );
 
-    document.getElementById('rovalra-gp-buy')?.addEventListener('click', (e) => {
-        e.preventDefault();
-        showPurchaseModal(passId, 'GamePass', {
-            id: passId,
-            name,
-            price,
-            isForSale,
-            isOwned,
-            productId,
-            displayIconImageAssetId: iconId,
-            creator: { creatorId: creator.id, name: creator.name, type: creator.type },
-            sellerId: creator.id,
-            sellerName: creator.name,
-        });
-    });
-
     document.addEventListener('rovalraGamePassPurchased', (e) => {
         if (String(e.detail?.gamePassId) === String(passId)) {
             renderedFor = null;
@@ -247,7 +220,7 @@ async function renderFor(passId) {
     render(data, place, passId);
 }
 
-export function init() {
+async function initGamePassViewer() {
     if (activeObservation) {
         activeObservation.disconnect();
         activeObservation = null;
@@ -259,10 +232,13 @@ export function init() {
         return;
     }
 
-    chrome.storage.local.get({ gamePassViewerEnabled: true }, (s) => {
-        if (!s.gamePassViewerEnabled) return;
-        activeObservation = observeElement(ERROR_SEL, () => {
-            if (renderedFor !== passId) renderFor(passId);
-        });
+    if (!(await settings.gamePassViewerEnabled)) return;
+
+    activeObservation = observeElement(ERROR_SEL, () => {
+        if (renderedFor !== passId) renderFor(passId);
     });
+}
+
+export function init() {
+    initGamePassViewer();
 }
