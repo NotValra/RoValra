@@ -10,9 +10,17 @@
 }
 
 .rovalra-avatar-border-clip {
+    display: block;
     position: relative;
     width: 100%;
     height: 100%;
     overflow: hidden;
     border-radius: inherit;
+    line-height: 0;
+
+    > img,
+    > .thumbnail-2d-container,
+    > .avatar-card-image {
+        display: block;
+    }
 }
