@@ -20,6 +20,7 @@ import { init as initServerTracker } from './core/utils/trackers/servers.js';
 import { initFriendsListTracking } from './core/utils/trackers/friendslist.js';
 import { initTransactionsTracking } from './core/utils/trackers/transactions.js';
 import { init as initPrivateGames } from './features/games/privateGames.js';
+import { init as initGamePassViewer } from './features/games/gamePassViewer.js';
 import { init as initQoLToggles } from './features/navigation/QoLToggles.js';
 import { init as initCopyId } from './features/sitewide/copyid.js';
 import { init as initQuickSearch } from './features/navigation/search/quicksearch.js';
@@ -172,6 +173,11 @@ const featureRoutes = [
     {
         paths: ['/catalog', '/bundles', '/game-pass', '/games'],
         features: [init40Method, initPurchasePrompt, initDonationLink],
+    },
+    // Game pass viewer for 404 pages
+    {
+        paths: ['/game-pass/'],
+        features: [initGamePassViewer],
     },
     // Catalog and bundle pages
     {
