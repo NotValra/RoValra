@@ -255,6 +255,22 @@ export async function applyBorderToContainer(
     }
 
     if (container.querySelector('.rovalra-avatar-border')) {
+        if (alwaysPlay && animatedLink && animatedLink !== staticLink) {
+            const borders = [
+                ...container.querySelectorAll(':scope > .rovalra-avatar-border'),
+            ];
+            const [border, ...extraBorders] = borders;
+
+            if (border) {
+                border.src = animatedLink;
+                border.style.display = 'block';
+            }
+
+            for (const extraBorder of extraBorders) {
+                extraBorder.remove();
+            }
+        }
+
         ensureBorderStructure(container);
         return;
     }
@@ -371,7 +387,11 @@ function handleTile(tile, card) {
     resolveBorderUrl(userId)
         .then((borderUrl) => {
             if (!borderUrl) return;
-            applyBorderToContainer(avatarEl, borderUrl);
+            const alwaysPlay = tile.matches(
+                'a.user-avatar-container.avatar.avatar-headshot',
+            );
+
+            applyBorderToContainer(avatarEl, borderUrl, alwaysPlay);
         })
         .catch(() => {});
 }
@@ -400,7 +420,7 @@ export async function init() {
             ].join(', '),
             (element) => {
                 const target = element.parentElement || element;
-                applyBorderToContainer(target, borderUrl);
+                applyBorderToContainer(target, borderUrl, true);
             },
             { multiple: true },
         );
