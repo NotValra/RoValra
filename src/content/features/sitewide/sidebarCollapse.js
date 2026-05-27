@@ -8,6 +8,7 @@ import { settings } from '../../core/settings/getSettings.js';
 const COLLAPSED_KEY = 'rovalraSidebarCollapsed';
 const BUTTON_ID = 'rovalra-sidebar-collapse-button';
 const ICON_ID = 'rovalra-sidebar-collapse-icon';
+let moveContentWithSidebar = true;
 
 function getToggleLabel(collapsed) {
     return collapsed
@@ -95,8 +96,15 @@ function addCollapsedNavTooltip(control) {
 }
 
 function attachCollapseButton(leftNav) {
-    if (leftNav.dataset.rovalraSidebarCollapseReady) return;
+    if (leftNav.dataset.rovalraSidebarCollapseReady) {
+        leftNav.dataset.rovalraSidebarMoveContent = String(
+            moveContentWithSidebar,
+        );
+        return;
+    }
+
     leftNav.dataset.rovalraSidebarCollapseReady = 'true';
+    leftNav.dataset.rovalraSidebarMoveContent = String(moveContentWithSidebar);
 
     const button = createSquareButton({
         content: '',
@@ -133,6 +141,9 @@ function attachCollapseButton(leftNav) {
 
 async function initSidebarCollapse() {
     if (!(await settings.sidebarCollapseEnabled)) return;
+
+    moveContentWithSidebar =
+        (await settings.sidebarCollapseMoveContentEnabled) !== false;
 
     observeElement('.left-nav', attachCollapseButton);
     observeElement(
