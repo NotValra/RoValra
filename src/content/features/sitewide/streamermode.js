@@ -23,6 +23,25 @@ export function init() {
         }
     }
 
+    function isSensitiveAccountSettingsField(container) {
+        if (container.id === 'account-field-phone') return true;
+
+        if (container.id) return false;
+
+        const phoneField = document.getElementById('account-field-phone');
+        let sibling = phoneField?.nextElementSibling;
+
+        while (sibling) {
+            if (sibling.classList.contains('settings-text-field-container')) {
+                return sibling === container;
+            }
+
+            sibling = sibling.nextElementSibling;
+        }
+
+        return false;
+    }
+
     function updateSettingsPage() {
         if (!isSettingsPageInfoEnabled) return;
         if (!window.location.href.includes('/my/account')) return;
@@ -30,14 +49,7 @@ export function init() {
         document
             .querySelectorAll('.settings-text-field-container')
             .forEach((container) => {
-                const label = container.querySelector(
-                    '.account-info-inline-label',
-                );
-                if (
-                    label &&
-                    (label.textContent.trim() === 'Phone' ||
-                        label.textContent.trim() === 'Email')
-                ) {
+                if (isSensitiveAccountSettingsField(container)) {
                     applyStreamerModeToSettingsField(container);
                 }
             });
@@ -112,12 +124,7 @@ export function init() {
     observeElement(
         '.settings-text-field-container',
         (element) => {
-            const label = element.querySelector('.account-info-inline-label');
-            if (
-                label &&
-                (label.textContent.trim() === 'Phone' ||
-                    label.textContent.trim() === 'Email')
-            ) {
+            if (isSensitiveAccountSettingsField(element)) {
                 applyStreamerModeToSettingsField(element);
             }
         },
