@@ -33,6 +33,7 @@ import { initializeModernIcons as initModernIcons } from './features/sitewide/mo
 import { init as initLoginBanner } from './features/scamprevention/loginBanner.js';
 import { init as initLessPlus } from './features/sitewide/lessPlus.js';
 import { init as initKidsTheme } from './features/sitewide/kidsTheme.js';
+import { init as initSidebarCollapse } from './features/sitewide/sidebarCollapse.js';
 
 // Avatar
 import { init as initAvatarFilters } from './features/avatar/filters.js';
@@ -167,6 +168,7 @@ const featureRoutes = [
             initModernIcons,
             initLessPlus,
             initKidsTheme,
+            initSidebarCollapse,
         ],
     },
     // pretty much just the 40% method

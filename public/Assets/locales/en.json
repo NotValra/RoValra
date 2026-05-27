@@ -331,6 +331,10 @@
     "navigation": {
         "transactions": "Transactions"
     },
+    "sidebarCollapse": {
+        "collapseSidebar": "Collapse sidebar",
+        "expandSidebar": "Expand sidebar"
+    },
     "ageTheme": {
         "navbarTooltip": "Age Theme",
         "options": {

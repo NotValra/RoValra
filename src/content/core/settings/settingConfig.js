@@ -1421,6 +1421,13 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
+            sidebarCollapseEnabled: {
+                label: 'Collapsible Sidebar',
+                description: ['Adds a button to collapse the Roblox sidebar.'],
+                type: 'checkbox',
+                default: true,
+                storageKey: 'rovalraSidebarCollapsed',
+            },
             ageKidsThemeEnabled: {
                 label: 'Age Theme',
                 description:
