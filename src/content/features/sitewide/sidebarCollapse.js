@@ -8,7 +8,27 @@ import { settings } from '../../core/settings/getSettings.js';
 const COLLAPSED_KEY = 'rovalraSidebarCollapsed';
 const BUTTON_ID = 'rovalra-sidebar-collapse-button';
 const ICON_ID = 'rovalra-sidebar-collapse-icon';
+const EXPANDED_SIDEBAR_WIDTH = 289;
+const COLLAPSED_SIDEBAR_WIDTH = 72;
+const CONTENT_SIDEBAR_SELECTOR = [
+    '.container-main aside',
+    '.container-main [class*="sidebar" i]',
+    '.container-main [class*="side-nav" i]',
+    '.container-main [class*="sidenav" i]',
+    '.content aside',
+    '.content [class*="sidebar" i]',
+    '.content [class*="side-nav" i]',
+    '.content [class*="sidenav" i]',
+].join(', ');
+const ANCHORED_POSITIONS = new Set(['fixed', 'sticky', 'absolute']);
 let moveContentWithSidebar = true;
+let currentLeftNav = null;
+
+function getCurrentSidebarWidth(leftNav = currentLeftNav) {
+    return isCollapsed(leftNav)
+        ? COLLAPSED_SIDEBAR_WIDTH
+        : EXPANDED_SIDEBAR_WIDTH;
+}
 
 function getToggleLabel(collapsed) {
     return collapsed
@@ -17,11 +37,109 @@ function getToggleLabel(collapsed) {
 }
 
 function isCollapsed(leftNav) {
-    return leftNav.dataset.rovalraSidebarCollapsed === 'true';
+    return leftNav?.dataset.rovalraSidebarCollapsed === 'true';
+}
+
+function updateDocumentSidebarState(leftNav) {
+    if (!document.body) return;
+
+    const collapsed = isCollapsed(leftNav);
+    const sidebarWidth = getCurrentSidebarWidth(leftNav);
+
+    document.body.dataset.rovalraSidebarCollapseReady = 'true';
+    document.body.dataset.rovalraSidebarCollapsed = String(collapsed);
+    document.body.dataset.rovalraSidebarMoveContent = String(
+        moveContentWithSidebar,
+    );
+    document.body.style.setProperty(
+        '--rovalra-sidebar-width',
+        `${sidebarWidth}px`,
+    );
+    document.body.style.setProperty(
+        '--rovalra-sidebar-offset-delta',
+        `${sidebarWidth - EXPANDED_SIDEBAR_WIDTH}px`,
+    );
+}
+
+function isContentSidebarCandidate(element) {
+    if (!moveContentWithSidebar || !currentLeftNav) return false;
+    if (currentLeftNav.contains(element)) return false;
+
+    const style = getComputedStyle(element);
+    if (!ANCHORED_POSITIONS.has(style.position)) return false;
+    if (style.display === 'none' || style.visibility === 'hidden') return false;
+
+    const rect = element.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) return false;
+    if (rect.width > Math.min(420, window.innerWidth * 0.45)) return false;
+
+    const left = Number.parseFloat(style.left);
+    if (!Number.isFinite(left)) return false;
+
+    const expandedOffset = left - EXPANDED_SIDEBAR_WIDTH;
+    const currentOffset = left - getCurrentSidebarWidth();
+
+    return (
+        (expandedOffset >= -8 && expandedOffset <= 160) ||
+        (currentOffset >= -8 && currentOffset <= 160)
+    );
+}
+
+function getContentSidebarOffset(element) {
+    const style = getComputedStyle(element);
+    const left = Number.parseFloat(style.left);
+    const expandedOffset = left - EXPANDED_SIDEBAR_WIDTH;
+    const currentOffset = left - getCurrentSidebarWidth();
+    const offset =
+        expandedOffset >= -8 && expandedOffset <= 160
+            ? expandedOffset
+            : currentOffset;
+
+    return Math.max(-8, Math.min(160, offset));
+}
+
+function syncContentSidebar(element) {
+    if (!isContentSidebarCandidate(element)) return;
+
+    if (!element.dataset.rovalraContentSidebarOriginalLeft) {
+        element.dataset.rovalraContentSidebarOriginalLeft =
+            element.style.left || '';
+    }
+
+    const offset = getContentSidebarOffset(element);
+
+    element.dataset.rovalraContentSidebarAdjusted = 'true';
+    element.style.left = `calc(var(--rovalra-sidebar-width, ${EXPANDED_SIDEBAR_WIDTH}px) + ${offset}px)`;
+}
+
+function syncContentSidebars() {
+    if (!document.body) return;
+
+    document
+        .querySelectorAll('[data-rovalra-content-sidebar-adjusted="true"]')
+        .forEach((element) => {
+            if (moveContentWithSidebar) {
+                syncContentSidebar(element);
+                return;
+            }
+
+            element.style.left =
+                element.dataset.rovalraContentSidebarOriginalLeft || '';
+            delete element.dataset.rovalraContentSidebarAdjusted;
+            delete element.dataset.rovalraContentSidebarOriginalLeft;
+        });
+
+    if (!moveContentWithSidebar) return;
+
+    document.querySelectorAll(CONTENT_SIDEBAR_SELECTOR).forEach((element) => {
+        syncContentSidebar(element);
+    });
 }
 
 function setCollapsed(leftNav, collapsed) {
     leftNav.dataset.rovalraSidebarCollapsed = String(collapsed);
+    updateDocumentSidebarState(leftNav);
+    syncContentSidebars();
     chrome.storage.local.set({ [COLLAPSED_KEY]: collapsed });
 
     const button = leftNav.querySelector(`#${BUTTON_ID}`);
@@ -96,10 +214,14 @@ function addCollapsedNavTooltip(control) {
 }
 
 function attachCollapseButton(leftNav) {
+    currentLeftNav = leftNav;
+
     if (leftNav.dataset.rovalraSidebarCollapseReady) {
         leftNav.dataset.rovalraSidebarMoveContent = String(
             moveContentWithSidebar,
         );
+        updateDocumentSidebarState(leftNav);
+        syncContentSidebars();
         return;
     }
 
@@ -137,6 +259,8 @@ function attachCollapseButton(leftNav) {
     leftNav.appendChild(createIconOverlay());
 
     getStoredCollapsed().then((collapsed) => setCollapsed(leftNav, collapsed));
+    updateDocumentSidebarState(leftNav);
+    syncContentSidebars();
 }
 
 async function initSidebarCollapse() {
@@ -146,6 +270,9 @@ async function initSidebarCollapse() {
         (await settings.sidebarCollapseMoveContentEnabled) !== false;
 
     observeElement('.left-nav', attachCollapseButton);
+    observeElement(CONTENT_SIDEBAR_SELECTOR, syncContentSidebar, {
+        multiple: true,
+    });
     observeElement(
         '.left-nav nav li > a, .left-nav nav li > button, .left-nav .roseal-left-nav-item .nav-item-link',
         addCollapsedNavTooltip,
