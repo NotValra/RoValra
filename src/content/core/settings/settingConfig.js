@@ -535,7 +535,7 @@ export const SETTINGS_CONFIG = {
                     '- This feature requires the user to have their joins enabled for everyone or for you to be friends with them.',
                 ],
                 type: 'checkbox',
-                default: true,
+                default: false,
                 childSettings: {
                     deeplinkEnabled: {
                         label: 'Join through deeplinks',
