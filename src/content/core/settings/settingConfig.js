@@ -744,6 +744,8 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: false,
                 contributors: ['447170745', '8345351117'],
+                locked: 'Disabled for Maintenance',
+                isPermanent: false,
             },
 
             categorizeWearingEnabled: {
