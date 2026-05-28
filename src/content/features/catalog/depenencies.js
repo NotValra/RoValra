@@ -192,12 +192,6 @@ async function mountDependencyScanner(favButton) {
             const mainLink = document.createElement('a');
             mainLink.className = 'item-card-link';
             mainLink.href = assetLinkUrl;
-            mainLink.onclick = (e) => {
-                if (!e.target.closest('.creator-name')) {
-                    return true;
-                }
-                e.preventDefault();
-            };
 
             const linkInnerDiv = document.createElement('div');
             linkInnerDiv.className = 'item-card-link';
@@ -258,6 +252,11 @@ async function mountDependencyScanner(favButton) {
             creatorText.innerHTML = DOMPurify.sanitize(
                 `By <a href="${creatorUrl}" class="creator-name text-link">${details.creatorName} ${badgeHtml}</a>`,
             );
+
+            const creatorLink = creatorText.querySelector('.creator-name');
+            creatorLink?.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
 
             creatorDiv.appendChild(creatorText);
             secondary.appendChild(creatorDiv);
