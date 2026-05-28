@@ -426,7 +426,7 @@ export async function getUserSettings(userId, options = {}) {
 /**
  * Updates a user setting via the RoValra API.
  * @param {string} key The setting key to update (e.g., 'environment', 'status').
- * @param {any} value The new value for the setting. Will be converted to string.
+ * @param {any} value The new value for the setting.
  * @returns {Promise<boolean>} True if the update was successful, false otherwise.
  */
 export async function updateUserSettingViaApi(key, value) {
@@ -434,12 +434,14 @@ export async function updateUserSettingViaApi(key, value) {
         const token = await getValidAccessToken(false, false);
         if (!token) return false;
 
+        const apiValue = key === 'hide_views' ? Boolean(value) : String(value);
+
         const response = await callRobloxApiJson({
             isRovalraApi: true,
             subdomain: 'apis',
             endpoint: '/v1/auth/settings',
             method: 'POST',
-            body: JSON.stringify({ key, value: String(value) }),
+            body: JSON.stringify({ key, value: apiValue }),
         });
         if (
             response &&

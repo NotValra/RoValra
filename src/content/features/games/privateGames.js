@@ -25,6 +25,7 @@ import { parseMarkdown } from '../../core/utils/markdown.js';
 import { checkAndInjectEvents } from '../../features/games/about/events.js';
 import { createScrollButtons } from '../../core/ui/general/scrollButtons.js';
 import { getLastClickedUrl } from '../../core/utils/trackers/urlTracker.js';
+import { isAuthenticatedUser13PlusAndAgeChecked } from '../../core/utils/trackers/birthday.js';
 import { createShimmerGrid } from '../../core/ui/shimmer.js';
 import { addTooltip } from '../../core/ui/tooltip.js';
 function formatVoteCount(count) {
@@ -1175,7 +1176,7 @@ function renderPrivateGamePage(game, placeId, settings) {
                     <a class="text-report" href="/report-abuse/?targetId=${placeId}&abuseVector=place">${ts('privateGames.reportAbuse')}</a>
                 </div>
             </div>
-            <div class="section" id="rovalra-social-links-section">
+            <div class="section" id="rovalra-social-links-section" hidden>
                 <div class="container-header"><h3>Social Links</h3></div>
                 <ul class="game-social-links" id="rovalra-social-links-list"></ul>
             </div>
@@ -1464,7 +1465,7 @@ function setupFavoriteButton(universeId, initialFavorited) {
     };
 }
 
-function updateSocialLinksUI(cloudData, retryCount = 0) {
+async function updateSocialLinksUI(cloudData, retryCount = 0) {
     const container = document.getElementById('rovalra-social-links-list');
     if (!container) {
         if (retryCount < 20) {
@@ -1500,12 +1501,15 @@ function updateSocialLinksUI(cloudData, retryCount = 0) {
     }
 
     const section = document.getElementById('rovalra-social-links-section');
-    if (socialLinks.length === 0) {
-        if (section) section.style.display = 'none';
+    const canViewSocialLinks =
+        await isAuthenticatedUser13PlusAndAgeChecked();
+
+    if (socialLinks.length === 0 || !canViewSocialLinks) {
+        if (section) section.hidden = true;
         return;
     }
 
-    if (section) section.style.display = '';
+    if (section) section.hidden = false;
 
     container.style.cssText =
         'display: flex; flex-wrap: wrap; gap: 8px; list-style: none; padding: 0;';
