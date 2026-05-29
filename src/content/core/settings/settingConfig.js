@@ -516,16 +516,6 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
-                childSettings: {
-                    profileViewsServerEnabled: {
-                        label: 'Show My Profile Views Server Side',
-                        description: [
-                            'Disabling this only hides your profile views from other RoValra users.',
-                        ],
-                        type: 'checkbox',
-                        default: true,
-                    },
-                },
             },
             userSniperEnabled: {
                 label: 'Instant Joiner',
