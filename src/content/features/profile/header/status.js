@@ -365,9 +365,11 @@ async function addHomeStatusHover(tile) {
     bubbleWrapper.className = 'rovalra-status-bubble-wrapper';
     bubbleWrapper.style.left = '130%';
     bubbleWrapper.style.display = 'none';
+    bubbleWrapper.style.pointerEvents = 'none';
 
     const bubble = document.createElement('div');
     bubble.className = 'rovalra-status-bubble text-label-medium';
+    bubble.style.pointerEvents = 'none';
     bubbleWrapper.appendChild(bubble);
     avatarContainer.appendChild(bubbleWrapper);
 
@@ -468,8 +470,6 @@ async function addHomeStatusHover(tile) {
         }
 
         if (statusLoaded && isHovering) {
-            if (!tile.matches(':hover')) return;
-
             if (
                 activeHomeStatusBubble &&
                 activeHomeStatusBubble !== bubbleWrapper

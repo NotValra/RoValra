@@ -535,19 +535,12 @@ export const handleSaveSettings = async (settingName, value) => {
                             });
                         }
                     }
-                    if (
-                        settingName === 'profileViewsEnabled' ||
-                        settingName === 'profileViewsServerEnabled'
-                    ) {
+                    if (settingName === 'profileViewsEnabled') {
                         loadSettings()
                             .then((currentSettings) => {
-                                const hideViews =
-                                    !currentSettings.profileViewsEnabled ||
-                                    !currentSettings.profileViewsServerEnabled;
-
                                 return updateUserSettingViaApi(
                                     'hide_views',
-                                    hideViews,
+                                    !currentSettings.profileViewsEnabled,
                                 );
                             })
                             .catch((error) =>

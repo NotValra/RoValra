@@ -88,18 +88,12 @@ async function applyGradientForUserId(userId, element, isSmallScale = false) {
     }
 }
 
-function applyGradientToAvatarTile(tile) {
+function applyGradientToAvatarTile(tile, card) {
     if (tile.dataset.rovalraGradientQueued) return;
 
-    const link = tile.matches('a')
-        ? tile
-        : tile.querySelector('a.avatar-card-link, a.user-item-clickable');
-    const avatarContainer = tile.querySelector('.avatar-card-image');
-    if (!link || !avatarContainer) return;
-
-    const match = link.href.match(/\/users\/(\d+)\//);
-    if (!match) return;
-    const userId = match[1];
+    const userId = card?.userId;
+    const avatarContainer = card?.gradientAvatar;
+    if (!userId || !avatarContainer) return;
 
     tile.dataset.rovalraGradientQueued = 'true';
 

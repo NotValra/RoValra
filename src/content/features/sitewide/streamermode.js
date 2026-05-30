@@ -10,40 +10,49 @@ export function init() {
         }
     }
 
+    function applyStreamerModeToSettingsField(element) {
+        if (!isSettingsPageInfoEnabled) return;
+        if (!window.location.href.includes('/my/account')) return;
+
+        const valueSpan = element.querySelector('.settings-text-span-visible');
+        if (
+            valueSpan &&
+            valueSpan.textContent !== 'RoValra Streamer Mode Enabled'
+        ) {
+            valueSpan.textContent = 'RoValra Streamer Mode Enabled';
+        }
+    }
+
+    function isSensitiveAccountSettingsField(container) {
+        if (container.id === 'account-field-phone') return true;
+
+        if (container.id) return false;
+
+        const phoneField = document.getElementById('account-field-phone');
+        let sibling = phoneField?.nextElementSibling;
+
+        while (sibling) {
+            if (sibling.classList.contains('settings-text-field-container')) {
+                return sibling === container;
+            }
+
+            sibling = sibling.nextElementSibling;
+        }
+
+        return false;
+    }
+
     function updateSettingsPage() {
         if (!isSettingsPageInfoEnabled) return;
         if (!window.location.href.includes('/my/account')) return;
 
-        const phoneField = document.getElementById('account-field-phone');
-        if (phoneField) {
-            const phoneValueSpan = phoneField.querySelector(
-                '.settings-text-span-visible',
-            );
-            if (
-                phoneValueSpan &&
-                phoneValueSpan.textContent !== 'RoValra Streamer Mode Enabled'
-            ) {
-                phoneValueSpan.textContent = 'RoValra Streamer Mode Enabled';
-            }
-
-            const emailField = phoneField.nextElementSibling;
-            if (
-                emailField &&
-                emailField.classList.contains('settings-text-field-container')
-            ) {
-                const emailValueSpan = emailField.querySelector(
-                    '.settings-text-span-visible',
-                );
-                if (
-                    emailValueSpan &&
-                    emailValueSpan.textContent !==
-                        'RoValra Streamer Mode Enabled'
-                ) {
-                    emailValueSpan.textContent =
-                        'RoValra Streamer Mode Enabled';
+        document
+            .querySelectorAll('.settings-text-field-container')
+            .forEach((container) => {
+                if (isSensitiveAccountSettingsField(container)) {
+                    applyStreamerModeToSettingsField(container);
                 }
-            }
-        }
+            });
     }
 
     function updateStreamerMode() {
@@ -111,7 +120,14 @@ export function init() {
         },
         { multiple: true },
     );
-    observeElement('#account-field-phone', () => {
-        updateSettingsPage();
-    });
+
+    observeElement(
+        '.settings-text-field-container',
+        (element) => {
+            if (isSensitiveAccountSettingsField(element)) {
+                applyStreamerModeToSettingsField(element);
+            }
+        },
+        { multiple: true },
+    );
 }

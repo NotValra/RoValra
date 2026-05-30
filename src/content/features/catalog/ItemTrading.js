@@ -24,6 +24,18 @@ function createRow(label, contentHtml) {
     return row;
 }
 
+function isBundlePage() {
+    return window.location.pathname.includes('/bundles/');
+}
+
+function getRolimonsUrl(assetId) {
+    return `https://www.rolimons.com/${isBundlePage() ? 'bundle' : 'item'}/${assetId}`;
+}
+
+function getRolimonsTooltip() {
+    return `Open ${isBundlePage() ? 'bundle' : 'item'} on Rolimons`;
+}
+
 function updateInfo(parent, referenceElement, assetId) {
     parent
         .querySelectorAll('.rovalra-trading-row')
@@ -40,7 +52,7 @@ function updateInfo(parent, referenceElement, assetId) {
         <span style="display: flex; align-items: center;">
             <img src="${assets.rolimonsIcon}" style="width: 16px; height: 16px; margin-right: 6px;">
             ${value.toLocaleString()}
-            <a href="https://www.rolimons.com/item/${assetId}" target="_blank" style="display: flex; align-items: center; margin-left: 8px;" class="rovalra-rolimons-link">
+            <a href="${getRolimonsUrl(assetId)}" target="_blank" style="display: flex; align-items: center; margin-left: 8px;" class="rovalra-rolimons-link">
                 <div style="width: 16px; height: 16px; background-color: var(--rovalra-main-text-color); -webkit-mask: url('${
                     assets.launchIcon
                 }') center/contain no-repeat; mask: url('${
@@ -52,7 +64,7 @@ function updateInfo(parent, referenceElement, assetId) {
     const valueRow = createRow('Value', valueHtml);
     const rolimonsLink = valueRow.querySelector('.rovalra-rolimons-link');
     if (rolimonsLink) {
-        addTooltip(rolimonsLink, 'Open item on Rolimons', { position: 'top' });
+        addTooltip(rolimonsLink, getRolimonsTooltip(), { position: 'top' });
     }
     rows.push(valueRow);
 
@@ -140,7 +152,7 @@ function updateItemName(header, assetId) {
     });
 
     const rolimonsLink = document.createElement('a');
-    rolimonsLink.href = `https://www.rolimons.com/item/${assetId}`;
+    rolimonsLink.href = getRolimonsUrl(assetId);
     rolimonsLink.target = '_blank';
     rolimonsLink.style.display = 'flex';
     rolimonsLink.style.alignItems = 'center';
@@ -155,7 +167,7 @@ function updateItemName(header, assetId) {
     });
 
     rolimonsLink.appendChild(rolIcon);
-    addTooltip(rolimonsLink, 'Open item on Rolimons', { position: 'top' });
+    addTooltip(rolimonsLink, getRolimonsTooltip(), { position: 'top' });
     container.appendChild(rolimonsLink);
 
     if (data) {

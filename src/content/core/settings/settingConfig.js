@@ -268,6 +268,15 @@ export const SETTINGS_CONFIG = {
                     },
                 },
             },
+            gamePassViewerEnabled: {
+                label: 'View Gamepasses in Private / Moderated Games',
+                description: [
+                    'This recreates the gamepass page of private / moderated games, allowing you to view them.',
+                ],
+                type: 'checkbox',
+                default: true,
+                contributors: ['9502859424'],
+            },
             botdataEnabled: {
                 label: 'Bot Data',
                 description: [
@@ -507,16 +516,6 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
-                childSettings: {
-                    profileViewsServerEnabled: {
-                        label: 'Show My Profile Views Server Side',
-                        description: [
-                            'Disabling this only hides your profile views from other RoValra users.',
-                        ],
-                        type: 'checkbox',
-                        default: true,
-                    },
-                },
             },
             userSniperEnabled: {
                 label: 'Instant Joiner',
@@ -526,7 +525,7 @@ export const SETTINGS_CONFIG = {
                     '- This feature requires the user to have their joins enabled for everyone or for you to be friends with them.',
                 ],
                 type: 'checkbox',
-                default: true,
+                default: false,
                 childSettings: {
                     deeplinkEnabled: {
                         label: 'Join through deeplinks',
@@ -735,6 +734,8 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: false,
                 contributors: ['447170745', '8345351117'],
+                locked: 'Disabled for Maintenance',
+                isPermanent: false,
             },
 
             categorizeWearingEnabled: {
@@ -1433,6 +1434,22 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
+            },
+            sidebarCollapseEnabled: {
+                label: 'Collapsible Sidebar',
+                description: ['Adds a button to collapse the Roblox sidebar.'],
+                type: 'checkbox',
+                default: true,
+                storageKey: 'rovalraSidebarCollapsed',
+                childSettings: {
+                    sidebarCollapseMoveContentEnabled: {
+                        label: 'Move content with collapsed sidebar',
+                        description:
+                            'Moves the page content to match the current sidebar width.',
+                        type: 'checkbox',
+                        default: true,
+                    },
+                },
             },
             ageKidsThemeEnabled: {
                 label: 'Age Theme',

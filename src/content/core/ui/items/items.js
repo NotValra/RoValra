@@ -363,11 +363,16 @@ export function createItemCard(itemOrId, thumbnailCacheOrConfig, config = {}) {
         card.style.maxWidth = '150px';
     }
 
+    if (item.itemType) {
+        card.dataset.rovalraItemType = item.itemType;
+    }
+
+    if (item.bundleId) {
+        card.dataset.rovalraBundleId = item.bundleId;
+    }
+
     if (item.price !== undefined && item.price !== null) {
         card.dataset.rovalraPrice = item.price;
-        if (item.bundleId) {
-            card.dataset.rovalraBundleId = item.bundleId;
-        }
     }
 
     const thumbData = thumbnailCache?.get

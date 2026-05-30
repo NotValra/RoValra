@@ -16,10 +16,12 @@ import { init as initTests } from './features/developer/tests.js';
 import { init as initApiDocs } from './features/developer/apiDocs.js';
 import { init as initModeration } from './features/moderation/moderation.js';
 import { init as initApiKey } from './core/utils/trackers/apiKey.js';
+import { init as initBirthdayTracker } from './core/utils/trackers/birthday.js';
 import { init as initServerTracker } from './core/utils/trackers/servers.js';
 import { initFriendsListTracking } from './core/utils/trackers/friendslist.js';
 import { initTransactionsTracking } from './core/utils/trackers/transactions.js';
 import { init as initPrivateGames } from './features/games/privateGames.js';
+import { init as initGamePassViewer } from './features/games/gamePassViewer.js';
 import { init as initQoLToggles } from './features/navigation/QoLToggles.js';
 import { init as initCopyId } from './features/sitewide/copyid.js';
 import { init as initQuickSearch } from './features/navigation/search/quicksearch.js';
@@ -33,6 +35,7 @@ import { initializeModernIcons as initModernIcons } from './features/sitewide/mo
 import { init as initLoginBanner } from './features/scamprevention/loginBanner.js';
 import { init as initLessPlus } from './features/sitewide/lessPlus.js';
 import { init as initKidsTheme } from './features/sitewide/kidsTheme.js';
+import { init as initSidebarCollapse } from './features/sitewide/sidebarCollapse.js';
 
 // Avatar
 import { init as initAvatarFilters } from './features/avatar/filters.js';
@@ -144,6 +147,7 @@ const featureRoutes = [
             initMarkDownTest,
             initTests,
             initApiKey,
+            initBirthdayTracker,
             initServerTracker,
             initFriendsListTracking,
             initTransactionsTracking,
@@ -167,12 +171,18 @@ const featureRoutes = [
             initModernIcons,
             initLessPlus,
             initKidsTheme,
+            initSidebarCollapse,
         ],
     },
     // pretty much just the 40% method
     {
         paths: ['/catalog', '/bundles', '/game-pass', '/games'],
         features: [init40Method, initPurchasePrompt, initDonationLink],
+    },
+    // Game pass viewer for 404 pages
+    {
+        paths: ['/game-pass/'],
+        features: [initGamePassViewer],
     },
     // Catalog and bundle pages
     {

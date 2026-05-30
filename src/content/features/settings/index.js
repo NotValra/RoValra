@@ -82,6 +82,10 @@ let ownedBordersCache = null;
 const priceCache = new Map();
 const artistCache = new Map();
 
+function getUserProfileHref(userId) {
+    return userId ? `https://www.roblox.com/users/${userId}/profile` : '';
+}
+
 function debounce(func, wait) {
     let timeout;
     return function (...args) {
@@ -280,7 +284,7 @@ async function openBorderOverlay(
             displayName: authedUserData.displayName,
             username: '',
             thumbData: authedUserData.thumbData,
-            href: '',
+            href: authedUserData.profileHref,
             presenceInfo: 1,
             isOpaque: !isOther,
             hidePresence: true,
@@ -1883,6 +1887,7 @@ async function renderStoreBorders(container) {
                         : displayRes || 'User',
                 thumbData: thumbnails[0] || { state: 'Error' },
                 userId,
+                profileHref: getUserProfileHref(userId),
             };
         }
 
@@ -1908,7 +1913,7 @@ async function renderStoreBorders(container) {
                 displayName: authedUserData.displayName,
                 username: '',
                 thumbData: authedUserData.thumbData,
-                href: `https://www.roblox.com/users/${authedUserData.userId}/profile`,
+                href: authedUserData.profileHref,
                 presenceInfo: 1,
                 hidePresence: true,
             });
@@ -1991,7 +1996,7 @@ async function renderStoreBorders(container) {
                     displayName: authedUserData?.displayName || 'User',
                     username: '',
                     thumbData: authedUserData?.thumbData || { state: 'Error' },
-                    href: '',
+                    href: authedUserData?.profileHref || '',
                     presenceInfo: 1,
                     hidePresence: true,
                 });
@@ -2047,7 +2052,7 @@ async function renderStoreBorders(container) {
                         thumbData: authedUserData?.thumbData || {
                             state: 'Error',
                         },
-                        href: '',
+                        href: authedUserData?.profileHref || '',
                         presenceInfo: 1,
                         hidePresence: true,
                     });

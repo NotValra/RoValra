@@ -144,9 +144,9 @@ export function createUserCard({
     tileContainer.className = 'friends-carousel-tile';
     const innerHtml = `
         <div class="user-card user-card-content rovalra-user-card" style="width: 90px; ${isOpaque ? 'background: var(--rovalra-container-background-color) !important; opacity: 1 !important; border-radius: 50%;' : ''}">
-            <div class="avatar avatar-card-fullbody avatar-card-image-container user-profile-header-details-avatar-container" style="width: 90px; height: 90px; position: relative;">
+            <div class="avatar avatar-card-fullbody avatar-card-image-container user-profile-header-details-avatar-container rovalra-user-card-avatar" style="width: 90px; height: 90px; position: relative;">
                 ${href ? `<a href="${href}" class="avatar-card-link">` : ''}
-                    <span class="thumbnail-2d-container avatar-card-image" style="width: 100%; height: 100%; display: block; overflow: hidden; border-radius: 50%; background: var(--rovalra-button-background-color);"></span>
+                    <span class="thumbnail-2d-container avatar-card-image rovalra-user-card-thumbnail" style="width: 100%; height: 100%; display: block; overflow: hidden; border-radius: 50%; background: var(--rovalra-button-background-color);"></span>
                 ${href ? `</a>` : ''}
                 ${
                     !hidePresence
