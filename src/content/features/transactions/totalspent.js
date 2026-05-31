@@ -43,6 +43,7 @@ function onElementFound(container) {
         itemTypeBreakdown: {},
         lastPurchaseCursor: '',
         lastStipendCursor: '',
+        lastTradeCursor: '',
         userId: 0,
         errorMessage: '',
         isRateLimited: false,
@@ -81,10 +82,13 @@ function onElementFound(container) {
                     const amount = Math.abs(transaction.currency.amount);
                     state.totalSpent += amount;
 
-                    const type =
-                        transaction.details && transaction.details.type
-                            ? transaction.details.type
-                            : ts('totalSpent.other');
+                    let type = ts('totalSpent.other');
+
+                    if (transaction.details && transaction.details.type) {
+                        type = transaction.details.type;
+                    } else if (transaction.transactionType) {
+                        type = transaction.transactionType;
+                    }
 
                     if (!state.itemTypeBreakdown[type]) {
                         state.itemTypeBreakdown[type] = { count: 0, robux: 0 };
@@ -176,8 +180,10 @@ function onElementFound(container) {
                 robuxEl.innerHTML = DOMPurify.sanitize(
                     formatRobux(state.totalSpent),
                 );
-            if (moneySpentEl)
+            if (moneySpentEl) {
+                delete moneySpentEl.dataset.rovalraUsdAmount;
                 moneySpentEl.textContent = formatCurrency(state.totalMoneySpent);
+            }
 
             if (itemTypeBreakdownEl) {
                 const sortedTypes = Object.keys(state.itemTypeBreakdown).sort(
@@ -390,10 +396,6 @@ function onElementFound(container) {
                         </div>
                     </div>`;
                 breakdownsHTML = `
-                    <div class="rovalra-breakdown-section">
-                        <span class="rovalra-stat-label">${ts('totalSpent.premiumBreakdown')}</span>
-                        <div id="rovalra-premium-breakdown-container"></div>
-                    </div>
                     <div class="rovalra-breakdown-section">
                         <span class="rovalra-stat-label">${ts('totalSpent.purchaseBreakdown')}</span>
                         <div id="rovalra-purchase-breakdown-container"></div>
@@ -608,6 +610,11 @@ function onElementFound(container) {
                               cursorKey: 'lastPurchaseCursor',
                               category: 'Currency',
                           },
+                          {
+                              type: 'TradeRobux',
+                              cursorKey: 'lastTradeCursor',
+                              category: 'TradeRobux',
+                          },
                       ]
                     : [
                           {
@@ -753,6 +760,7 @@ function onElementFound(container) {
             itemTypeBreakdown: {},
             lastPurchaseCursor: '',
             lastStipendCursor: '',
+            lastTradeCursor: '',
             errorMessage: '',
             retryCount: 0,
         };

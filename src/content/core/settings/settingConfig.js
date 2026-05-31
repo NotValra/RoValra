@@ -679,7 +679,7 @@ export const SETTINGS_CONFIG = {
                 default: true,
             },
             lastPlayedTogetherEnabled: {
-                label: 'Most Played Together',
+                label: 'Most Frequent Played Together',
                 description:
                     'Shows the experience you played the most with a friend on their profile.',
                 type: 'checkbox',
@@ -734,8 +734,8 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: false,
                 contributors: ['447170745', '8345351117'],
-                locked: 'Disabled for Maintenance',
-                isPermanent: false,
+                //locked: 'Disabled for Maintenance',
+                //isPermanent: false,
             },
 
             categorizeWearingEnabled: {

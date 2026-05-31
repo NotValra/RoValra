@@ -29,9 +29,10 @@ const USD_TARGET_ICON_SELECTOR =
     '.icon-robux-16x16, .icon-robux-28x28, .icon-robux-gray-16x16, .icon-robux-tile, .rovalra-robux-icon';
 const USD_TARGET_VALUE_SELECTOR = `${VALUE_TEXT_SELECTOR}, .item-card-price, .store-card-price, .subscription-card-price, .icon-robux-container, .amount.icon-robux-container, .amount-cell, #navbar-robux .nav-robux-icon, #rbx-game-passes .store-card-price, #roseal-game-passes .store-card-price, .gear-passes-container .store-card-price, .game-dev-store .store-card-price`;
 const IGNORE_USD_SELECTOR =
-    '.rovalra-usd-estimate, .tooltip, .modal-dialog, [data-rovalra-skip-usd-estimate], #rovalra-stat-transactions, #rovalra-premium-breakdown-container, .rovalra-trade-summary, .rovalra-total-value-line, .rovalra-total-demand-line, .rovalra-value-label';
+    '.rovalra-usd-estimate, .tooltip, .modal-dialog, [data-rovalra-skip-usd-estimate], #rovalra-stat-transactions, #rovalra-stat-money-spent, #rovalra-premium-breakdown-container, #rovalra-purchase-breakdown-container, .rovalra-trade-summary, .rovalra-total-value-line, .rovalra-total-demand-line, .rovalra-value-label';
 
 const INLINE_FIAT_LOCATIONS = '#navbar-robux, #buy-robux-popover';
+const TOOLTIP_FIAT_LOCATIONS = '#rovalra-stat-robux';
 
 let robuxPricingPromise = null;
 
@@ -377,9 +378,10 @@ function upsertEstimate(anchorElement, estimate, options = {}) {
     const compact = options.compact === true;
 
     const useInline =
-        anchor.closest(INLINE_FIAT_LOCATIONS) !== null ||
-        isTransactionsPage() ||
-        isGroupRevenuePage();
+        anchor.closest(TOOLTIP_FIAT_LOCATIONS) === null &&
+        (anchor.closest(INLINE_FIAT_LOCATIONS) !== null ||
+            isTransactionsPage() ||
+            isGroupRevenuePage());
 
     const appendInside = options.appendInside ?? useInline;
 
@@ -431,6 +433,10 @@ function upsertEstimate(anchorElement, estimate, options = {}) {
 
         return estimateEl;
     } else {
+        anchor
+            .querySelectorAll('.rovalra-usd-estimate')
+            .forEach((estimateEl) => estimateEl.remove());
+
         const existingEstimate = anchor.nextElementSibling;
         if (
             existingEstimate instanceof HTMLElement &&
@@ -439,8 +445,11 @@ function upsertEstimate(anchorElement, estimate, options = {}) {
             existingEstimate.remove();
         }
 
+        anchor.dataset.rovalraTooltipText = text;
         if (!anchor.dataset.rovalraTooltipAttached) {
-            addTooltip(anchor, text, { position: 'top' });
+            addTooltip(anchor, (el) => el.dataset.rovalraTooltipText || text, {
+                position: 'top',
+            });
             anchor.dataset.rovalraTooltipAttached = 'true';
         }
 
