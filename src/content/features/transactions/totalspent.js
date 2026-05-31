@@ -405,9 +405,15 @@ function onElementFound(container) {
 
             switch (state.status) {
                 case CALCULATION_STATE.RUNNING: {
-                    header = ts('totalSpent.calculatingTitle');
+                    header =
+                        state.calculationType === CALCULATION_TYPE.ROBUX_SPENT
+                            ? ts('totalSpent.calculatingRobuxTitle')
+                            : ts('totalSpent.calculatingMoneyTitle');
 
-                    let statusText = ts('totalSpent.calculatingText');
+                    let statusText =
+                        state.calculationType === CALCULATION_TYPE.ROBUX_SPENT
+                            ? ts('totalSpent.calculatingRobuxText')
+                            : ts('totalSpent.calculatingMoneyText');
                     let statusClass = 'rovalra-status-text';
 
                     if (state.isRateLimited) {
@@ -428,7 +434,11 @@ function onElementFound(container) {
 
                 case CALCULATION_STATE.DONE: {
                     header = ts('totalSpent.calculationComplete');
-                    const doneText = `<p class="text-body">${ts('totalSpent.allScanned')}</p><p class="text-caption-body text-secondary" style="margin-bottom: 16px;"></p>`;
+                    const doneMessage =
+                        state.calculationType === CALCULATION_TYPE.ROBUX_SPENT
+                            ? ts('totalSpent.robuxAllScanned')
+                            : ts('totalSpent.moneyAllScanned');
+                    const doneText = `<p class="text-body">${doneMessage}</p><p class="text-caption-body text-secondary" style="margin-bottom: 16px;"></p>`;
                     const newCalcBtn = createButton(
                         ts('totalSpent.newCalculation'),
                         'primary',
