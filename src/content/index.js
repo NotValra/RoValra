@@ -20,6 +20,7 @@ import { init as initBirthdayTracker } from './core/utils/trackers/birthday.js';
 import { init as initServerTracker } from './core/utils/trackers/servers.js';
 import { initFriendsListTracking } from './core/utils/trackers/friendslist.js';
 import { initTransactionsTracking } from './core/utils/trackers/transactions.js';
+import { initBadgesTracking } from './core/utils/trackers/badges.js';
 import { init as initPrivateGames } from './features/games/privateGames.js';
 import { init as initGamePassViewer } from './features/games/gamePassViewer.js';
 import { init as initQoLToggles } from './features/navigation/QoLToggles.js';
@@ -150,6 +151,7 @@ const featureRoutes = [
             initServerTracker,
             initFriendsListTracking,
             initTransactionsTracking,
+            initBadgesTracking,
             initQoLToggles,
             initCopyId,
             initBetaPrograms,

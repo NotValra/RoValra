@@ -15,7 +15,9 @@ const state = {
     bannedUserRedirects: new Map(),
     privateGameRedirects: new Map(),
     scanningUsers: new Set(),
+    badgeScanningUsers: new Set(),
     transactionInterval: null,
+    badgeInterval: null,
 };
 
 // --- Session Storage Configuration ---
@@ -645,6 +647,9 @@ function updateAvatarRotator() {
 const TRANSACTIONS_DATA_KEY = 'rovalra_transactions_v2';
 const TRANSACTION_REFRESH_DURATION = 5 * 60 * 1000;
 const TRANSACTION_REQUEST_DELAY = 5000;
+const BADGES_DATA_KEY = 'rovalra_badges_v1';
+const BADGE_REFRESH_DURATION = 5 * 60 * 1000;
+const BADGE_REQUEST_DELAY = 150;
 
 async function fetchTransactionsPage(userId, cursor = null) {
     let endpoint = `/transaction-records/v1/users/${userId}/transactions?limit=100&transactionType=Purchase&itemPricingType=PaidAndLimited`;
@@ -858,6 +863,205 @@ async function runTransactionLoop(userId, existingData, isIncremental) {
 
     if (isIncremental && !foundMatch && pagesChecked >= 5) {
         await runTransactionLoop(userId, currentAggregated, false);
+    }
+}
+
+// --- Badge Tracking ---
+
+async function fetchBadgesPage(userId, cursor = null) {
+    let endpoint = `/v1/users/${userId}/badges?limit=100&sortOrder=Desc`;
+    if (cursor) endpoint += `&cursor=${encodeURIComponent(cursor)}`;
+
+    while (true) {
+        try {
+            const response = await callRobloxApiBackground({
+                subdomain: 'badges',
+                endpoint,
+            });
+
+            if (response.status === 429) {
+                const resetSeconds = parseInt(
+                    response.headers.get('x-ratelimit-reset'),
+                    10,
+                );
+                const retryDelay = Number.isFinite(resetSeconds)
+                    ? Math.max(resetSeconds, 1) * 1000
+                    : 10000;
+                await new Promise((resolve) =>
+                    setTimeout(resolve, retryDelay),
+                );
+                continue;
+            }
+
+            if (!response.ok) return null;
+            return await response.json();
+        } catch (error) {
+            console.error('RoValra: Failed to fetch badges page', error);
+            return null;
+        }
+    }
+}
+
+function processBadge(badge) {
+    const badgeId = badge?.id;
+    const placeId = badge?.awarder?.id;
+
+    if (!badgeId || !placeId) return null;
+
+    return {
+        badgeId: String(badgeId),
+        placeId: String(placeId),
+    };
+}
+
+function mergeBadgesIntoAggregated(existingAggregated, rawBadges) {
+    const updated = existingAggregated || {
+        totals: { totalBadges: 0 },
+        badges: {},
+        places: {},
+    };
+
+    updated.totals = updated.totals || { totalBadges: 0 };
+    updated.badges = updated.badges || {};
+    updated.places = updated.places || {};
+
+    rawBadges.forEach((badge) => {
+        const processed = processBadge(badge);
+        if (!processed) return;
+
+        const { badgeId, placeId } = processed;
+        const isNewBadge = !updated.badges[badgeId];
+
+        updated.badges[badgeId] = processed;
+
+        if (!updated.places[placeId]) {
+            updated.places[placeId] = { badgeIds: [] };
+        }
+
+        if (!updated.places[placeId].badgeIds.includes(badgeId)) {
+            updated.places[placeId].badgeIds.push(badgeId);
+        }
+
+        if (isNewBadge) {
+            updated.totals.totalBadges += 1;
+        }
+    });
+
+    return updated;
+}
+
+async function handleBackgroundBadgeScan(userId) {
+    userId = String(userId);
+
+    if (state.badgeScanningUsers.has(userId)) return;
+    state.badgeScanningUsers.add(userId);
+
+    try {
+        const storage = await chrome.storage.local.get([BADGES_DATA_KEY]);
+        const allData = storage[BADGES_DATA_KEY] || {};
+        const userData = allData[userId] || {};
+
+        const now = Date.now();
+        if (userData.isFullyScanned) {
+            const lastCheck =
+                userData.lastIncrementalCheck || userData.lastFullScan || 0;
+            if (now - lastCheck < BADGE_REFRESH_DURATION) return;
+
+            await runBadgeLoop(userId, userData, true);
+        } else {
+            await runBadgeLoop(userId, userData, false);
+        }
+    } finally {
+        state.badgeScanningUsers.delete(userId);
+    }
+}
+
+async function runBadgeLoop(userId, existingData, isIncremental) {
+    let cursor = isIncremental ? null : existingData.scanCursor || null;
+    let pagesChecked = 0;
+    let foundMatch = false;
+    let emptyPageCount = 0;
+    const seenBadgeIds = new Set();
+
+    let currentAggregated = {
+        totals: existingData.totals || { totalBadges: 0 },
+        badges: existingData.badges || {},
+        places: existingData.places || {},
+        latestBadgeIds: existingData.latestBadgeIds || [],
+    };
+
+    while (true) {
+        const data = await fetchBadgesPage(userId, cursor);
+        if (!data) break;
+
+        if (!data.data || data.data.length === 0) {
+            emptyPageCount++;
+            if (emptyPageCount >= 5 || !data.nextPageCursor) break;
+            cursor = data.nextPageCursor;
+            continue;
+        }
+        emptyPageCount = 0;
+
+        const newBatch = [];
+        for (const badge of data.data) {
+            const badgeId = badge?.id ? String(badge.id) : null;
+            if (!badgeId || seenBadgeIds.has(badgeId)) continue;
+            seenBadgeIds.add(badgeId);
+
+            if (
+                isIncremental &&
+                currentAggregated.latestBadgeIds.includes(badgeId)
+            ) {
+                foundMatch = true;
+                break;
+            }
+
+            newBatch.push(badge);
+        }
+
+        currentAggregated = mergeBadgesIntoAggregated(
+            currentAggregated,
+            newBatch,
+        );
+
+        if (pagesChecked === 0) {
+            const firstBadgeIds = data.data
+                .map((badge) => (badge?.id ? String(badge.id) : null))
+                .filter(Boolean)
+                .slice(0, 10);
+
+            currentAggregated.latestBadgeIds = [
+                ...new Set([
+                    ...firstBadgeIds,
+                    ...currentAggregated.latestBadgeIds,
+                ]),
+            ].slice(0, 10);
+        }
+
+        cursor = data.nextPageCursor;
+        pagesChecked++;
+
+        const storage = await chrome.storage.local.get([BADGES_DATA_KEY]);
+        const allData = storage[BADGES_DATA_KEY] || {};
+        allData[userId] = {
+            ...existingData,
+            ...currentAggregated,
+            latestBadgeId: currentAggregated.latestBadgeIds[0],
+            scanCursor: isIncremental ? null : cursor,
+            isFullyScanned: isIncremental || !cursor,
+            isScanning: !isIncremental && !!cursor,
+            [isIncremental ? 'lastIncrementalCheck' : 'lastFullScan']:
+                Date.now(),
+        };
+        await chrome.storage.local.set({ [BADGES_DATA_KEY]: allData });
+
+        if (!cursor || foundMatch || (isIncremental && pagesChecked >= 10))
+            break;
+        await new Promise((r) => setTimeout(r, BADGE_REQUEST_DELAY));
+    }
+
+    if (isIncremental && !foundMatch && pagesChecked >= 10) {
+        await runBadgeLoop(userId, currentAggregated, false);
     }
 }
 
@@ -1097,6 +1301,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                     clearInterval(state.transactionInterval);
                     state.transactionInterval = null;
                 }
+                if (state.badgeInterval) {
+                    clearInterval(state.badgeInterval);
+                    state.badgeInterval = null;
+                }
 
                 chrome.storage.local.get(
                     { TotalSpentGamesEnabled: true },
@@ -1113,11 +1321,20 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                         }
                     },
                 );
+
+                handleBackgroundBadgeScan(state.currentUserId);
+                state.badgeInterval = setInterval(() => {
+                    handleBackgroundBadgeScan(state.currentUserId);
+                }, BADGE_REFRESH_DURATION);
             }
             return false;
 
         case 'triggerTransactionScan':
             handleBackgroundTransactionScan(request.userId);
+            return false;
+
+        case 'triggerBadgeScan':
+            handleBackgroundBadgeScan(request.userId);
             return false;
 
         case 'getBannedUserRedirect': {
