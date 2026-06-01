@@ -294,6 +294,16 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
+            hiddenBadgesEnabled: {
+                label: 'Hidden Badges',
+                description: [
+                    'Adds a Hidden Badges tab to experience pages.',
+                    'This only shows hidden badges of a game that you obtained.',
+                ],
+                type: 'checkbox',
+                default: true,
+                storageKey: 'rovalra_badges_v1',
+            },
             updateHistoryEnabled: {
                 label: 'Update History',
                 description: [

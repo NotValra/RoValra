@@ -498,6 +498,18 @@
             "all": "No events found."
         }
     },
+    "hiddenBadges": {
+        "tabs": {
+            "badges": "Badges",
+            "hiddenBadges": "Hidden Badges"
+        },
+        "hiddenOwnedNotice": "Only hidden badges that you have obtained are shown here.",
+        "unableToDetectPlace": "Unable to detect this place.",
+        "unableToDetectUniverse": "Unable to detect this universe.",
+        "stillScanning": "Still scanning your badges. Hidden badges you own may appear soon.",
+        "noneOwnedFound": "No hidden badges that you own were found for this experience.",
+        "failedToLoad": "Failed to load hidden badges you own."
+    },
     "antiBots": {
         "reviewMembers": "Review {{count}} selected members:",
         "botWarning": "<strong>Warning:</strong> Ensure these are bots before taking action.",

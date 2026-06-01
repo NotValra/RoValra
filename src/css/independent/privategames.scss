@@ -187,6 +187,27 @@
     }
 }
 
+.game-badges-list {
+    .container-header {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 12px;
+        padding-right: 0;
+
+        &::before,
+        &::after {
+            content: none;
+            display: none;
+        }
+    }
+
+    .rovalra-pill-toggle {
+        margin-top: 8px;
+        margin-bottom: 6px;
+    }
+}
+
 div.game-stat-container.rovalra-horizontal-stats,
 ul.game-stat-container.rovalra-horizontal-stats {
     display: flex;

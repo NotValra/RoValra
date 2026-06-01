@@ -57,6 +57,7 @@ import { init as initItemRender } from './features/catalog/ItemRender.js';
 // Games
 import { init as initBotDetector } from './features/games/about/botDetector.js';
 import { init as initQuickPlay } from './features/games/quickplay.js';
+import { init as initHiddenBadges } from './features/games/hiddenBadges.js';
 import { init as initServerList } from './features/games/serverlist/serverlist.js';
 import { initRecentServers } from './features/games/serverlist/recentservers.js';
 import { init as initRegionPlayButton } from './features/games/RegionPlayButton.js';
@@ -237,6 +238,7 @@ const featureRoutes = [
             initSubplaces,
             initTotalSpentGames,
             initEvents,
+            initHiddenBadges,
         ],
     },
     // Private games page
