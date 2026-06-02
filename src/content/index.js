@@ -1,6 +1,7 @@
 import { initializeObserver, startObserving } from './core/observer.js';
 import { detectTheme, dispatchThemeEvent } from './core/theme.js';
 import { getValidAccessToken } from './core/oauth/oauth.js';
+import { startAuthFavoriteCleanupMonitor } from './core/oauth/fallback.js';
 import { t } from './core/locale/i18n.js';
 // Site wide
 import { init as initOnboarding } from './features/onboarding/onboarding.js';
@@ -371,6 +372,7 @@ async function initializePage() {
     getValidAccessToken(false, false).catch((error) =>
         console.error('RoValra: OAuth token initialization failed', error),
     );
+    startAuthFavoriteCleanupMonitor();
     initApiKey().catch((error) =>
         console.error('RoValra: API key initialization failed', error),
     );
@@ -446,7 +448,7 @@ function setupUrlChangeListeners() {
 
     window.addEventListener('popstate', handleUrlChange);
 
-    let urlCheckInterval = setInterval(() => {
+    setInterval(() => {
         if (window.location.pathname.toLowerCase() !== lastPath) {
             handleUrlChange();
         }
