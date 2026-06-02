@@ -894,14 +894,14 @@ export const SETTINGS_CONFIG = {
                 },
             },
             usernameColor: {
-                label: "Username Color Preview",
+                label: 'Username Color Preview',
                 description: [
                     "Changes the user's display name color on their profile to what color Roblox would give them when talking in game chats. Inspired by https://github.com/RyloRiz/rblx-name-color",
                 ],
-                type: "checkbox",
-                default: true,
-                contributors: ["3602693727"]
-            }
+                type: 'checkbox',
+                default: false,
+                contributors: ['3602693727'],
+            },
         },
     },
     Home: {
