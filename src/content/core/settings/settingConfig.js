@@ -672,6 +672,8 @@ export const SETTINGS_CONFIG = {
                     'Shows a users role in a community on their profile.',
                 type: 'checkbox',
                 default: true,
+                locked: 'Roblox released their own version of this.',
+                isPermanent: true,
             },
 
             groupJoinedDateEnabled: {
@@ -744,8 +746,8 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: false,
                 contributors: ['447170745', '8345351117'],
-                //locked: 'Disabled for Maintenance',
-                //isPermanent: false,
+                locked: 'Roblox made this not possible.',
+                isPermanent: true,
             },
 
             categorizeWearingEnabled: {
