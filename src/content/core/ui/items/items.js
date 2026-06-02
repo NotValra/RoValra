@@ -10,6 +10,31 @@ let batchQueue = [];
 let batchTimeout = null;
 const BATCH_DELAY = 50;
 
+function getCollectibleLowestResalePrice(data) {
+    const resalePrice =
+        data?.CollectiblesItemDetails?.CollectibleLowestResalePrice ??
+        data?.collectiblesItemDetails?.collectibleLowestResalePrice ??
+        data?.lowestResalePrice;
+
+    return typeof resalePrice === 'number' && resalePrice > 0
+        ? resalePrice
+        : null;
+}
+
+function getItemRawPrice(...sources) {
+    for (const source of sources) {
+        const price =
+            source?.lowestPrice ??
+            source?.priceInRobux ??
+            source?.price ??
+            source?.PriceInRobux;
+
+        if (typeof price === 'number') return price;
+    }
+
+    return null;
+}
+
 async function fetchEconomyItemDetails(
     assetId,
     looksItemData = null,
@@ -28,6 +53,12 @@ async function fetchEconomyItemDetails(
         const restrictions = [];
         if (data.IsLimited) restrictions.push('Limited');
         if (data.IsLimitedUnique) restrictions.push('LimitedUnique');
+        if (
+            data.CollectiblesItemDetails?.IsLimited &&
+            !restrictions.includes('Collectible')
+        ) {
+            restrictions.push('Collectible');
+        }
         catalogItemData?.itemRestrictions?.forEach((restriction) => {
             if (!restrictions.includes(restriction)) {
                 restrictions.push(restriction);
@@ -39,14 +70,10 @@ async function fetchEconomyItemDetails(
             }
         });
 
+        const resalePrice = getCollectibleLowestResalePrice(data);
         const rawPrice =
-            looksItemData?.priceInRobux ??
-            looksItemData?.lowestPrice ??
-            looksItemData?.price ??
-            data.PriceInRobux ??
-            catalogItemData?.priceInRobux ??
-            catalogItemData?.lowestPrice ??
-            catalogItemData?.price;
+            resalePrice ??
+            getItemRawPrice(looksItemData, catalogItemData, data);
 
         const item = {
             assetId,
@@ -74,7 +101,7 @@ async function fetchEconomyItemDetails(
                   catalogItemData?.noPriceStatus !== 'OffSale' &&
                   catalogItemData?.isPurchasable !== false));
 
-        if (!isForSale) {
+        if (!isForSale && resalePrice == null) {
             item.priceText = 'Off Sale';
         } else {
             item.price = rawPrice;
@@ -207,10 +234,24 @@ async function processBatch() {
                         restrictions.includes('LimitedUnique') ||
                         restrictions.includes('Collectible');
 
-                    const rawPrice =
-                        itemData.priceInRobux ??
-                        itemData.lowestPrice ??
-                        itemData.price;
+                    const isOffSale =
+                        itemData.isOffSale ||
+                        itemData.noPriceStatus === 'OffSale' ||
+                        !itemData.isPurchasable;
+                    let rawPrice = getItemRawPrice(itemData);
+                    let economyItem = null;
+
+                    if (isLimited && (isOffSale || rawPrice == null)) {
+                        economyItem = await fetchEconomyItemDetails(
+                            request.id,
+                            looksItemData,
+                            catalogItemData,
+                        );
+
+                        if (economyItem?.price != null) {
+                            rawPrice = economyItem.price;
+                        }
+                    }
 
                     const item = {
                         assetId: request.id,
@@ -229,13 +270,10 @@ async function processBatch() {
                         item.bundleId = looksItemData.id;
                     }
 
-                    if (
-                        itemData.isOffSale ||
-                        itemData.noPriceStatus === 'OffSale' ||
-                        !itemData.isPurchasable
-                    ) {
+                    if (isOffSale) {
                         if (isLimited && rawPrice != null) {
                             item.price = rawPrice;
+                            item.recentAveragePrice = rawPrice;
                         } else {
                             item.priceText = 'Off Sale';
                         }
