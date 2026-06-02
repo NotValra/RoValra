@@ -1154,6 +1154,9 @@ async function loadTopDonators() {
         );
         const enrichedDonators = donators.map((donator) => ({
             ...donator,
+            username:
+                profileMap.get(String(donator.user_id))?.names
+                    ?.combinedName || donator.username,
             isVerified:
                 String(donator.user_id) !== '1' &&
                 profileMap.get(String(donator.user_id))?.isVerified === true,
