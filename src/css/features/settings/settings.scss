@@ -191,6 +191,14 @@ body:has(#settings-search-input) {
         color: var(--rovalra-secondary-text-color) !important;
     }
 
+    .rovalra-donator-verified-badge {
+        width: 14px;
+        height: 14px;
+        flex-shrink: 0;
+        margin-left: 3px;
+        vertical-align: -2px;
+    }
+
     .rovalra-lock-notice {
         margin-bottom: 12px;
         opacity: 1 !important;

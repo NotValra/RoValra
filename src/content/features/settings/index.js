@@ -56,7 +56,10 @@ import {
     applyBorderToContainer,
     findInBorders,
 } from '../profile/avatarBorder.js';
-import { getUserDisplayName } from '../../core/apis/users.js';
+import {
+    getUserDisplayName,
+    getUserProfileData,
+} from '../../core/apis/users.js';
 import { showSystemAlert } from '../../core/ui/roblox/alert.js';
 
 const assets = getAssets();
@@ -710,6 +713,17 @@ function getTotalDonatedFromBadgesResponse(response) {
         : null;
 }
 
+function createVerifiedBadgeIcon(size = '14px') {
+    const badge = document.createElement('img');
+    badge.src = assets.verifiedBadge;
+    badge.alt = 'Verified Badge';
+    badge.title = 'Verified Badge';
+    badge.width = parseInt(size, 10);
+    badge.height = parseInt(size, 10);
+    badge.className = 'rovalra-donator-verified-badge';
+    return badge;
+}
+
 function renderTopDonators(container, donators, thumbMap, currentUserId) {
     container.innerHTML = '';
     const wrapper = document.createElement('div');
@@ -814,6 +828,9 @@ function renderTopDonators(container, donators, thumbMap, currentUserId) {
             name.textContent = data.username;
             name.style.cssText =
                 'color: var(--rovalra-main-text-color); font-weight: bold; font-size: 13px; text-decoration: none; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;';
+            if (data.isVerified && !isAnonymous) {
+                name.appendChild(createVerifiedBadgeIcon());
+            }
             if (isAnonymous) {
                 name.style.cursor = 'default';
                 addTooltip(thumbLink, 'This user has enabled anonymous mode');
@@ -913,6 +930,9 @@ function renderTopDonators(container, donators, thumbMap, currentUserId) {
             name.textContent = donor.username;
             name.style.cssText =
                 'color: var(--rovalra-main-text-color); font-weight: 500; text-decoration: none; font-size: 14px;';
+            if (donor.isVerified && !isAnonymous) {
+                name.appendChild(createVerifiedBadgeIcon());
+            }
             if (isAnonymous) {
                 name.style.cursor = 'default';
                 addTooltip(thumbLink, 'This user has enabled anonymous mode');
@@ -1115,15 +1135,29 @@ async function loadTopDonators() {
         }
 
         const userIds = donators.map((d) => d.user_id);
-        const thumbnails = await getBatchThumbnails(
-            userIds,
-            'AvatarHeadshot',
-            '150x150',
-        );
+        const profileUserIds = userIds.filter((id) => String(id) !== '1');
+        const [thumbnails, profileData] = await Promise.all([
+            getBatchThumbnails(userIds, 'AvatarHeadshot', '150x150'),
+            profileUserIds.length > 0
+                ? getUserProfileData(profileUserIds)
+                : Promise.resolve(null),
+        ]);
         const thumbMap = new Map();
         thumbnails.forEach((t) => {
             thumbMap.set(String(t.targetId), t);
         });
+        const profileMap = new Map(
+            (profileData?.profileDetails || []).map((profile) => [
+                String(profile.userId),
+                profile,
+            ]),
+        );
+        const enrichedDonators = donators.map((donator) => ({
+            ...donator,
+            isVerified:
+                String(donator.user_id) !== '1' &&
+                profileMap.get(String(donator.user_id))?.isVerified === true,
+        }));
 
         const authenticatedUserId = await getAuthenticatedUserId();
         const userTier = getCurrentUserTier();
@@ -1165,12 +1199,17 @@ async function loadTopDonators() {
         }
 
         topDonatorsCache = {
-            donators,
+            donators: enrichedDonators,
             thumbMap,
             currentUserId: authenticatedUserId,
             authedDonorInfo,
         };
-        renderTopDonators(container, donators, thumbMap, authenticatedUserId);
+        renderTopDonators(
+            container,
+            enrichedDonators,
+            thumbMap,
+            authenticatedUserId,
+        );
     } catch (err) {
         console.error('RoValra: Error loading top donators', err);
         container.innerHTML = '';
