@@ -117,6 +117,7 @@ import { init as initRobuxIcons } from './core/ui/robuxIcon.js';
 import { init as initPurchasePromptItemId } from './core/catalog/purchasePromptItemId.js';
 import { init as initCurrencyTransfer } from './features/profile/currencytransfer.js';
 import { init as initGroupFilters } from './features/profile/groupFilters.js';
+import { init as initUsernameColor } from './features/profile/header/usernameColor.js'
 
 // Settings
 import { init as initSettingsPage } from './features/settings/index.js';
@@ -276,6 +277,7 @@ const featureRoutes = [
             initCurrencyTransfer,
             initGroupFilters,
             initAvatarDownload,
+            initUsernameColor
         ],
     },
     {
