@@ -58,6 +58,8 @@ export function parseUntrustedMarkdown(text) {
         return `<code>${codeblock}</code>`;
     });
 
+    text = text.replaceAll(/\r\n|\r|\n/g, '<br>');
+
     return DOMPurify.sanitize(text, {
         ALLOWED_TAGS: ['b', 'i', 'u', 'code', 'br'],
         ALLOWED_ATTR: [],

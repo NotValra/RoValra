@@ -1978,15 +1978,6 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: false,
             },
-            trustedStatusAsNormalUser: {
-                label: 'Render Trusted Statuses As Normal Users',
-                description: [
-                    'Makes trusted users status bubbles use the same restricted markdown renderer as normal users.',
-                    'Useful for testing normal user status behavior with trusted accounts.',
-                ],
-                type: 'checkbox',
-                default: false,
-            },
             disablePrivateGameRedirection: {
                 label: 'Disable Private Game Redirection',
                 description: [
