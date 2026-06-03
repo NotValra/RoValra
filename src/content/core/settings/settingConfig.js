@@ -304,6 +304,14 @@ export const SETTINGS_CONFIG = {
                 default: true,
                 storageKey: 'rovalra_badges_v1',
             },
+            badgeLayoutToggleEnabled: {
+                label: 'Badge Layout Toggle',
+                description: [
+                    'Adds a List / Grid toggle to experience badge sections.',
+                ],
+                type: 'checkbox',
+                default: true,
+            },
             updateHistoryEnabled: {
                 label: 'Update History',
                 description: [

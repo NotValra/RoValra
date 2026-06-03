@@ -1,0 +1,205 @@
+.game-badges-list {
+    .container-header {
+        .rovalra-badge-layout-toggle {
+            margin-left: auto;
+        }
+    }
+
+    &:not(.rovalra-badge-grid-view) {
+        > .rovalra-badge-layout-list,
+        .rovalra-badge-grid-load-more {
+            display: none !important;
+        }
+    }
+
+    &.rovalra-badge-grid-view {
+        > .rovalra-badge-native-list {
+            display: none !important;
+        }
+
+        > :is(.rovalra-badge-layout-list, .rovalra-hidden-badges-list) {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
+            gap: 6px;
+            align-items: start;
+        }
+
+        > :is(.rovalra-badge-layout-list, .rovalra-hidden-badges-list)
+            > .stack-row.badge-row {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            height: 200px;
+            min-height: 225px;
+            padding: 8px;
+            gap: 6px;
+            text-align: center;
+            box-sizing: border-box;
+            margin-bottom: 0px;
+        }
+
+        > :is(.rovalra-badge-layout-list, .rovalra-hidden-badges-list)
+            > .stack-row.badge-row
+            .badge-image,
+        > :is(.rovalra-badge-layout-list, .rovalra-hidden-badges-list)
+            > .stack-row.badge-row
+            .badge-image
+            a,
+        > :is(.rovalra-badge-layout-list, .rovalra-hidden-badges-list)
+            > .stack-row.badge-row
+            .badge-image-container {
+            width: 150px;
+            height: 150px;
+            display: block;
+        }
+
+        > :is(.rovalra-badge-layout-list, .rovalra-hidden-badges-list)
+            > .stack-row.badge-row
+            .badge-image-container
+            img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        > :is(.rovalra-badge-layout-list, .rovalra-hidden-badges-list)
+            > .stack-row.badge-row
+            .badge-content {
+            width: 100%;
+            min-height: 0;
+            padding: 0;
+            display: block;
+        }
+
+        > :is(.rovalra-badge-layout-list, .rovalra-hidden-badges-list)
+            > .stack-row.badge-row
+            .badge-data-container {
+            width: 100%;
+            min-width: 0;
+        }
+
+        > :is(.rovalra-badge-layout-list, .rovalra-hidden-badges-list)
+            > .stack-row.badge-row
+            .badge-name {
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 18px;
+            max-width: 100%;
+            display: block;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        > :is(.rovalra-badge-layout-list, .rovalra-hidden-badges-list)
+            > .stack-row.badge-row
+            .rovalra-badge-grid-stats {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            min-width: 0;
+            margin-top: 3px;
+            gap: 8px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        > :is(.rovalra-badge-layout-list, .rovalra-hidden-badges-list)
+            > .stack-row.badge-row
+            .rovalra-badge-grid-stat {
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-size: 11px;
+            font-weight: 500;
+            line-height: 14px;
+            color: var(--rovalra-secondary-text-color);
+        }
+
+        > :is(.rovalra-badge-layout-list, .rovalra-hidden-badges-list)
+            > .stack-row.badge-row
+            .rovalra-badge-grid-stat:first-child {
+            text-align: left;
+        }
+
+        > :is(.rovalra-badge-layout-list, .rovalra-hidden-badges-list)
+            > .stack-row.badge-row
+            .rovalra-badge-grid-stat:last-child {
+            text-align: right;
+        }
+
+        > :is(.rovalra-badge-layout-list, .rovalra-hidden-badges-list)
+            > .stack-row.badge-row
+            .rovalra-badge-grid-stat-separator {
+            flex: 0 0 auto;
+            font-size: 11px;
+            line-height: 14px;
+            color: var(--rovalra-secondary-text-color);
+        }
+
+        > :is(.rovalra-badge-layout-list, .rovalra-hidden-badges-list)
+            > .stack-row.badge-row
+            .para-overflow,
+        > :is(.rovalra-badge-layout-list, .rovalra-hidden-badges-list)
+            > .stack-row.badge-row
+            .badge-stats-container {
+            display: none;
+        }
+
+        > .rovalra-hidden-badges-list
+            > :is(.rovalra-hidden-badges-notice, .rovalra-hidden-badges-empty) {
+            grid-column: 1 / -1;
+        }
+
+        .rovalra-badge-load-more-control,
+        .rovalra-badge-grid-hidden {
+            display: none !important;
+        }
+    }
+
+    &.rovalra-show-hidden-badges.rovalra-badge-grid-view {
+        > .rovalra-badge-grid-load-more:not(.hidden) {
+            display: block !important;
+        }
+    }
+
+    .rovalra-badge-grid-shimmer {
+        .badge-image-container {
+            display: block;
+            border-radius: 8px;
+        }
+    }
+
+    .rovalra-badge-grid-shimmer-title,
+    .rovalra-badge-grid-shimmer-stat {
+        border-radius: 4px;
+    }
+
+    .rovalra-badge-grid-shimmer-title {
+        width: 100%;
+        height: 18px;
+    }
+
+    .rovalra-badge-grid-shimmer-stat {
+        width: 56px;
+        height: 12px;
+    }
+
+    .rovalra-badge-grid-load-more {
+        margin: 12px auto 0;
+        display: block;
+        width: 100%;
+
+        &.hidden {
+            display: none !important;
+        }
+    }
+
+    &:not(.rovalra-badge-grid-view) .rovalra-badge-grid-stats {
+        display: none !important;
+    }
+}

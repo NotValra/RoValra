@@ -24,7 +24,7 @@
         "dompurify": "^3.4.7",
         "i18next": "26.3.0",
         "marked": "^18.0.4",
-        "roavatar-renderer": "^1.5.1",
+        "roavatar-renderer": "^1.5.2",
         "roblox-bat": "0.6.5"
     },
     "overrides": {
