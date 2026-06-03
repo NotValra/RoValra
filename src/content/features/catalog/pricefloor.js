@@ -14,6 +14,7 @@ export function init() {
             async (element) => {
                 if (element.dataset.rovalraPriceFloor) return;
                 element.dataset.rovalraPriceFloor = 'true';
+                element.classList.add('rovalra-price-floor-container');
 
                 const assetId = getPlaceIdFromUrl();
                 if (!assetId) return;
@@ -83,6 +84,8 @@ export function init() {
                         const floor = priceFloorData.priceFloor;
 
                         const currentPrice = details.lowestPrice;
+                        const hasDiscount =
+                            element.querySelector('.original-price') !== null;
 
                         const icon = document.createElement('div');
                         icon.className = 'rovalra-price-floor-icon';
@@ -90,13 +93,16 @@ export function init() {
                             width: '16px',
                             height: '16px',
                             marginLeft: '5px',
-                            verticalAlign: 'text-bottom',
                             cursor: 'help',
                             display: 'inline-block',
                             backgroundColor: 'var(--rovalra-main-text-color)',
                             webkitMask: `url("${assets.priceFloorIcon}") no-repeat center / contain`,
                             mask: `url("${assets.priceFloorIcon}") no-repeat center / contain`,
                         });
+
+                        if (!hasDiscount) {
+                            icon.style.verticalAlign = 'text-bottom';
+                        }
 
                         let tooltipContent = `${ts('priceFloor.label')} <span class="icon-robux-16x16"></span>${floor.toLocaleString()}`;
 
