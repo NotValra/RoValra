@@ -7,6 +7,7 @@ import {
     OutfitRenderer,
     API,
     AssetTypes,
+    CFrame,
 } from 'roavatar-renderer';
 import { callRobloxApiJson } from '../../core/api';
 import { getAuthenticatedUserId } from '../../core/user';
@@ -25,6 +26,7 @@ FLAGS.USE_WORKERS = false;
 FLAGS.ONLINE_ASSETS = true;
 
 const HOVER_FRAME_TIME = 5;
+const HOVER_CAMERA_ROTATION_SPEED = 0.75;
 
 //outfit data
 let ogAvatarDataLoaded = false;
@@ -77,6 +79,9 @@ let currentHoveredItemLink = undefined;
 let currentHoveredItemThumbElement = undefined;
 let currentHoveredItemLoading = false;
 let currentHoveredItemType = undefined;
+let itemHoverCameraRotation = 0;
+let itemHoverCameraRotating = false;
+let itemHoverRotateButton = undefined;
 
 const toggleDefaultButtons = (enabled) => {
     if (!mainButtonContainer) return;
@@ -139,6 +144,23 @@ function updateMousePos(e) {
     mousePos = [e.clientX, e.clientY];
 }
 
+function stopItemHoverCameraRotation() {
+    itemHoverCameraRotating = false;
+}
+
+function updateHoverRotateButton(bounds) {
+    if (!itemHoverRotateButton) return;
+
+    if (!bounds) {
+        itemHoverRotateButton.style.display = 'none';
+        return;
+    }
+
+    itemHoverRotateButton.style.display = 'flex';
+    itemHoverRotateButton.style.left = bounds.right - 40 + 'px';
+    itemHoverRotateButton.style.top = bounds.bottom - 40 + 'px';
+}
+
 //roavatar loading icon positioning
 function resetLoadingIconPos() {
     if (RBXRenderer.loadingIcon) {
@@ -171,7 +193,12 @@ function getApparelIcon() {
 }
 
 //Updates camera for outfitRenderer based on added assetType
-function assetTypeToCamera(renderScene, outfitRenderer, assetType) {
+function assetTypeToCamera(
+    renderScene,
+    outfitRenderer,
+    assetType,
+    rotation = 0,
+) {
     const rig = outfitRenderer.currentRig;
     if (!rig) return;
 
@@ -184,7 +211,6 @@ function assetTypeToCamera(renderScene, outfitRenderer, assetType) {
     let cameraMultiplier = 1;
     let yOffsetMultiplier = 0;
     let xOffsetMultiplier = 0;
-    let yRotAdd = 0;
     let zOffset = 3;
 
     switch (assetType) {
@@ -233,7 +259,6 @@ function assetTypeToCamera(renderScene, outfitRenderer, assetType) {
         case 'BackAccessory': {
             cameraMultiplier = -cameraMultiplier;
             partName = isR6 ? 'Torso' : 'UpperTorso';
-            yRotAdd = 180;
             break;
         }
         //waist view
@@ -307,15 +332,32 @@ function assetTypeToCamera(renderScene, outfitRenderer, assetType) {
         const partCF = part.Prop('CFrame').clone();
         partCF.Orientation = [0, 0, 0];
         const partSize = part.Prop('Size');
-        partCF.Position[2] -=
+        const distance =
             Math.max(partSize.X, partSize.Y, partSize.Z) *
             zOffset *
             cameraMultiplier;
-        partCF.Position[1] += partSize.Y * yOffsetMultiplier;
-        partCF.Position[0] += partSize.X * xOffsetMultiplier;
-        partCF.Orientation[1] = 180 + yRotAdd;
+        const xOffset = partSize.X * xOffsetMultiplier;
+        const rotationRadians = (rotation * Math.PI) / 180;
+        const rotatedX =
+            xOffset * Math.cos(rotationRadians) -
+            -distance * Math.sin(rotationRadians);
+        const rotatedZ =
+            xOffset * Math.sin(rotationRadians) +
+            -distance * Math.cos(rotationRadians);
 
-        RBXRenderer.setCameraCFrame(partCF, renderScene);
+        const targetPosition = [
+            partCF.Position[0],
+            partCF.Position[1] + partSize.Y * yOffsetMultiplier,
+            partCF.Position[2],
+        ];
+        const cameraPosition = [
+            targetPosition[0] + rotatedX,
+            targetPosition[1],
+            targetPosition[2] + rotatedZ,
+        ];
+        const cameraCF = CFrame.lookAt(cameraPosition, targetPosition);
+
+        RBXRenderer.setCameraCFrame(cameraCF, renderScene);
     }
 }
 
@@ -438,7 +480,9 @@ async function startRenderer() {
     rendererElement.style.top = '0px';
     rendererElement.style.zIndex = 1;
     document.body.appendChild(rendererElement);
+    createHoverRotateButton();
     document.body.addEventListener('mousemove', updateMousePos);
+    document.body.addEventListener('pointerup', stopItemHoverCameraRotation);
 
     //update theme
     if (!isDarkMode()) {
@@ -578,8 +622,10 @@ function customAnimate() {
         const itemHoverBounds =
             currentHoveredItemThumbElement.getBoundingClientRect();
         itemHoverScene.setRect(itemHoverBounds);
+        updateHoverRotateButton(itemHoverBounds);
     } else {
         itemHoverScene.noRect();
+        updateHoverRotateButton();
     }
 
     if (currentHoveredItemElement !== lastCurrentHoveredItemElement) {
@@ -598,10 +644,16 @@ function customAnimate() {
         currentHoveredItemFrames += 1;
     }
 
+    if (itemHoverCameraRotating) {
+        itemHoverCameraRotation =
+            (itemHoverCameraRotation + HOVER_CAMERA_ROTATION_SPEED) % 360;
+    }
+
     assetTypeToCamera(
         itemHoverScene,
         itemHoverOutfitRenderer,
         currentHoveredItemType,
+        itemHoverCameraRotation,
     );
 
     //loading icon
@@ -629,6 +681,51 @@ function removeCurrentHoveredItemData() {
     currentHoveredItemLink = undefined;
     currentHoveredItemType = undefined;
     currentHoveredItemFrames = 0;
+    itemHoverCameraRotating = false;
+    itemHoverCameraRotation = 0;
+    updateHoverRotateButton();
+}
+
+function createHoverRotateButton() {
+    if (itemHoverRotateButton) {
+        return;
+    }
+
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'rovalra-hover-rotate-button';
+    button.setAttribute('aria-label', 'Rotate preview');
+    button.innerHTML = `
+        <svg focusable="false" aria-hidden="true" viewBox="0 0 24 24">
+            <path d="M12 6v3l4-4-4-4v3c-4.42 0-8 3.58-8 8 0 1.57.46 3.03 1.24 4.26L6.7 14.8c-.45-.83-.7-1.79-.7-2.8 0-3.31 2.69-6 6-6m6.76 1.74L17.3 9.2c.44.84.7 1.79.7 2.8 0 3.31-2.69 6-6 6v-3l-4 4 4 4v-3c4.42 0 8-3.58 8-8 0-1.57-.46-3.03-1.24-4.26"></path>
+        </svg>
+    `;
+
+    button.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+    });
+    button.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        itemHoverCameraRotating = true;
+        button.setPointerCapture?.(e.pointerId);
+    });
+    button.addEventListener('pointerup', stopItemHoverCameraRotation);
+    button.addEventListener('pointercancel', stopItemHoverCameraRotation);
+    button.addEventListener('lostpointercapture', stopItemHoverCameraRotation);
+    button.addEventListener('mouseleave', () => {
+        stopItemHoverCameraRotation();
+        if (
+            currentHoveredItemThumbElement &&
+            !currentHoveredItemThumbElement.matches(':hover')
+        ) {
+            removeCurrentHoveredItemData();
+        }
+    });
+
+    itemHoverRotateButton = button;
+    document.body.appendChild(button);
 }
 
 function updateHoveredItemTypeFromThumbnail(itemThumbnailImageContainer) {
@@ -768,7 +865,9 @@ async function asyncInit() {
         element.appendChild(buttonForRig);
         element.appendChild(toggleAccessories);
         element.appendChild(buttonFor3d);
-        observeChildren(element, () => toggleDefaultButtons(mainRendererEnabled));
+        observeChildren(element, () =>
+            toggleDefaultButtons(mainRendererEnabled),
+        );
         toggleDefaultButtons(mainRendererEnabled);
     });
 
@@ -802,7 +901,11 @@ async function asyncInit() {
                         itemThumbnailImageContainer,
                     );
                 });
-                itemThumbContainer.addEventListener('mouseleave', () => {
+                itemThumbContainer.addEventListener('mouseleave', (e) => {
+                    if (itemHoverRotateButton?.contains(e.relatedTarget)) {
+                        return;
+                    }
+
                     if (currentHoveredItemElement === element) {
                         removeCurrentHoveredItemData();
                     }
@@ -856,7 +959,11 @@ async function asyncInit() {
                 );
                 itemThumbContainerContainer.addEventListener(
                     'mouseleave',
-                    () => {
+                    (e) => {
+                        if (itemHoverRotateButton?.contains(e.relatedTarget)) {
+                            return;
+                        }
+
                         if (currentHoveredItemElement === element) {
                             removeCurrentHoveredItemData();
                         }
@@ -903,6 +1010,34 @@ export function init() {
     }
     .restriction-icon {
         z-index: 2;
+    }
+    .rovalra-hover-rotate-button {
+        align-items: center;
+        background: rgba(25, 27, 31, 0.78);
+        border: 0;
+        border-radius: 50%;
+        color: #fff;
+        cursor: pointer;
+        display: none;
+        height: 32px;
+        justify-content: center;
+        padding: 0;
+        position: fixed;
+        transition:
+            background-color 120ms ease,
+            transform 120ms ease;
+        width: 32px;
+        z-index: 3;
+    }
+    .rovalra-hover-rotate-button svg {
+        fill: currentColor;
+        height: 20px;
+        width: 20px;
+    }
+    .rovalra-hover-rotate-button:hover,
+    .rovalra-hover-rotate-button:active {
+        background: rgba(0, 0, 0, 0.88);
+        transform: scale(1.04);
     }
     `;
     document.body.appendChild(customStyle);
