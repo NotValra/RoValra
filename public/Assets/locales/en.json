@@ -669,6 +669,13 @@
         "weeksAgo": "{{count}}w ago",
         "monthsAgo": "{{count}}mo ago",
         "yearsAgo": "{{count}}y ago",
+        "secondsFromNow": "in {{count}}s",
+        "minutesFromNow": "in {{count}}m",
+        "hoursFromNow": "in {{count}}h",
+        "daysFromNow": "in {{count}}d",
+        "weeksFromNow": "in {{count}}w",
+        "monthsFromNow": "in {{count}}mo",
+        "yearsFromNow": "in {{count}}y",
         "months": {
             "jan": "Jan",
             "feb": "Feb",

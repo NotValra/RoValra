@@ -27,27 +27,29 @@ chrome.storage.onChanged.addListener((changes, area) => {
 
 function formatRelativeTime(date) {
     const now = new Date();
-    const seconds = Math.floor((now - date) / 1000);
+    const seconds = Math.floor(Math.abs(now - date) / 1000);
+    const isFuture = date > now;
+    const suffix = isFuture ? 'FromNow' : 'Ago';
 
     if (seconds < 5) return ts('time.justNow');
-    if (seconds < 60) return ts('time.secondsAgo', { count: seconds });
+    if (seconds < 60) return ts(`time.seconds${suffix}`, { count: seconds });
 
     const minutes = Math.floor(seconds / 60);
-    if (minutes < 60) return ts('time.minutesAgo', { count: minutes });
+    if (minutes < 60) return ts(`time.minutes${suffix}`, { count: minutes });
 
     const hours = Math.floor(minutes / 60);
-    if (hours < 24) return ts('time.hoursAgo', { count: hours });
+    if (hours < 24) return ts(`time.hours${suffix}`, { count: hours });
     const days = Math.floor(hours / 24);
-    if (days < 7) return ts('time.daysAgo', { count: days });
+    if (days < 7) return ts(`time.days${suffix}`, { count: days });
 
     const weeks = Math.floor(days / 7);
-    if (weeks < 5) return ts('time.weeksAgo', { count: weeks });
+    if (weeks < 5) return ts(`time.weeks${suffix}`, { count: weeks });
 
     const months = Math.floor(days / 30.44);
-    if (months < 12) return ts('time.monthsAgo', { count: months });
+    if (months < 12) return ts(`time.months${suffix}`, { count: months });
 
     const years = Math.floor(days / 365.25);
-    return ts('time.yearsAgo', { count: years });
+    return ts(`time.years${suffix}`, { count: years });
 }
 
 function formatTime(date, format) {
