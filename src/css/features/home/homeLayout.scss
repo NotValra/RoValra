@@ -8,9 +8,18 @@
     margin-right: auto;
 }
 
+.rovalra-home-layout-button-row {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+    margin-bottom: 12px;
+}
+
 .rovalra-home-layout-button {
     flex: 0 0 auto;
+    margin-left: auto;
     min-width: 72px;
+    width: fit-content;
 }
 
 .rovalra-home-layout-editor {
@@ -34,12 +43,16 @@
     padding: 10px 12px;
     border-radius: 8px;
     background-color: var(--rovalra-container-background-color);
-    cursor: default;
+    cursor: grab;
     transition:
         transform 0.15s ease,
         opacity 0.15s ease,
         background-color 0.15s ease;
     user-select: none;
+}
+
+.rovalra-home-layout-item:active {
+    cursor: grabbing;
 }
 
 .rovalra-home-layout-item:hover {
@@ -65,11 +78,7 @@
     align-items: center;
     justify-content: center;
     color: var(--text-secondary, #606162);
-    cursor: grab;
-}
-
-.rovalra-home-layout-drag-handle:active {
-    cursor: grabbing;
+    cursor: inherit;
 }
 
 .rovalra-home-layout-drag-handle svg {

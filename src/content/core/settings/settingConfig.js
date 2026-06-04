@@ -925,6 +925,32 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: false,
             },
+            underratedGamesEnabled: {
+                label: 'Underrated Games',
+                description: [
+                    'Adds RoValra community-picked underrated games to the Home page.',
+                ],
+                type: 'checkbox',
+                default: true,
+            },
+            homeLayoutEnabled: {
+                label: 'Home Layout',
+                description: [
+                    'Lets you save a custom order for the rows on the Home page.',
+                ],
+                type: 'checkbox',
+                default: true,
+                childSettings: {
+                    homeLayoutButtonEnabled: {
+                        label: 'Show Home Layout Button',
+                        description: [
+                            'Adds the RoValra Layout button to the Home page.',
+                        ],
+                        type: 'checkbox',
+                        default: true,
+                    },
+                },
+            },
         },
     },
     Communities: {

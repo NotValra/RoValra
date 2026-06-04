@@ -1,27 +1,43 @@
 import { callRobloxApiJson } from '../../core/api.js';
+import { t } from '../../core/locale/i18n.js';
 import { observeElement } from '../../core/observer.js';
+import { settings } from '../../core/settings/getSettings.js';
 import { createInteractiveTimestamp } from '../../core/ui/time/time.js';
 
-const UNDERRATED_GAMES_TOPIC = 'Underrated Games';
 const UNDERRATED_GAMES_TOPIC_ID = 10000013058;
 const UNDERRATED_GAMES_SUB_ID = 'rovalra-underrated-games';
-const UNDERRATED_GAMES_SUBTITLE =
-    'Underrated games hand picked by the RoValra community.';
+const DEFAULT_LOCALE = {
+    topic: 'Underrated Games',
+    subtitle: 'Underrated games hand picked by the RoValra community.',
+    rotates: 'Rotates',
+};
 const ROTATION_MARKER = '__ROVALRA_UNDERRATED_GAMES_ROTATION__';
 
 let initialized = false;
 let rotationExpiresAt = null;
 
-function createUnderratedGamesSubtitle() {
-    if (!rotationExpiresAt) return UNDERRATED_GAMES_SUBTITLE;
-
-    return `${UNDERRATED_GAMES_SUBTITLE} Rotates ${ROTATION_MARKER}`;
+async function getUnderratedGamesLocale() {
+    try {
+        return {
+            topic: await t('underratedGames.topic'),
+            subtitle: await t('underratedGames.subtitle'),
+            rotates: await t('underratedGames.rotates'),
+        };
+    } catch {
+        return DEFAULT_LOCALE;
+    }
 }
 
-function createUnderratedGamesSort(games) {
+function createUnderratedGamesSubtitle(locale) {
+    if (!rotationExpiresAt) return locale.subtitle;
+
+    return `${locale.subtitle} ${locale.rotates} ${ROTATION_MARKER}`;
+}
+
+function createUnderratedGamesSort(games, locale) {
     return {
-        topic: UNDERRATED_GAMES_TOPIC,
-        subtitle: createUnderratedGamesSubtitle(),
+        topic: locale.topic,
+        subtitle: createUnderratedGamesSubtitle(locale),
         topicId: UNDERRATED_GAMES_TOPIC_ID,
         treatmentType: 'Carousel',
         recommendationList: games.map((game) => ({
@@ -128,12 +144,14 @@ async function loadUnderratedGames() {
         ? null
         : rotationDate.toISOString();
 
-    return createUnderratedGamesSort(games);
+    return createUnderratedGamesSort(games, await getUnderratedGamesLocale());
 }
 
-export function init() {
+export async function init() {
     if (initialized) return;
     initialized = true;
+
+    if ((await settings.underratedGamesEnabled) === false) return;
 
     loadUnderratedGames()
         .then((sort) => {

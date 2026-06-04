@@ -115,6 +115,12 @@
         );
     }
 
+    function findHomeEventTileIndex(sorts) {
+        return sorts.findIndex(
+            (sort) => sort?.topicLayoutData?.componentType === 'EventTile',
+        );
+    }
+
     function addHomeExtraSorts(data) {
         if (
             data?.pageType !== 'Home' ||
@@ -126,18 +132,48 @@
         }
 
         const existingKeys = new Set(data.sorts.map(getHomeSortKey));
+        let insertionIndex = findHomeEventTileIndex(data.sorts);
         let changed = false;
 
         homeExtraSorts.forEach((sort) => {
             const key = getHomeSortKey(sort);
             if (!key || existingKeys.has(key)) return;
 
-            data.sorts.push(sort);
+            if (insertionIndex === -1) {
+                data.sorts.push(sort);
+            } else {
+                data.sorts.splice(insertionIndex, 0, sort);
+                insertionIndex += 1;
+            }
             existingKeys.add(key);
             changed = true;
         });
 
         return changed;
+    }
+
+    function getEffectiveHomeLayoutOrder(sorts) {
+        const order = homeLayoutOrder.map(String);
+        const orderedKeys = new Set(order);
+        const sortKeys = new Set(sorts.map(getHomeSortKey));
+        const missingExtraKeys = homeExtraSorts
+            .map(getHomeSortKey)
+            .filter((key) => key && sortKeys.has(key) && !orderedKeys.has(key));
+
+        if (!missingExtraKeys.length) return order;
+
+        const eventTileIndex = findHomeEventTileIndex(sorts);
+        const eventTileKey =
+            eventTileIndex === -1 ? '' : getHomeSortKey(sorts[eventTileIndex]);
+        const insertionIndex = eventTileKey ? order.indexOf(eventTileKey) : -1;
+
+        if (insertionIndex === -1) return [...order, ...missingExtraKeys];
+
+        return [
+            ...order.slice(0, insertionIndex),
+            ...missingExtraKeys,
+            ...order.slice(insertionIndex),
+        ];
     }
 
     function reorderHomeSorts(data) {
@@ -150,8 +186,9 @@
             return false;
         }
 
+        const effectiveOrder = getEffectiveHomeLayoutOrder(data.sorts);
         const orderMap = new Map(
-            homeLayoutOrder.map((key, index) => [String(key), index]),
+            effectiveOrder.map((key, index) => [String(key), index]),
         );
         const originalIndexMap = new Map(
             data.sorts.map((sort, index) => [sort, index]),

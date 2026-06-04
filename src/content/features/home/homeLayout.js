@@ -1,5 +1,7 @@
 import { observeElement } from '../../core/observer.js';
 import { getAssets } from '../../core/assets.js';
+import { t } from '../../core/locale/i18n.js';
+import { settings } from '../../core/settings/getSettings.js';
 import { createButton } from '../../core/ui/buttons.js';
 import { createOverlay } from '../../core/ui/overlay.js';
 
@@ -8,10 +10,20 @@ const CATEGORIES_STORAGE_KEY = 'rovalra_home_layout_categories';
 const ORDER_SESSION_KEY = 'rovalra_homeLayoutOrder';
 const HOLD_THRESHOLD = 200;
 const MOVE_THRESHOLD = 5;
+const DEFAULT_LOCALE = {
+    untitled: 'Untitled',
+    empty: 'Open or refresh Home once so RoValra can learn the current categories.',
+    reset: 'Reset',
+    save: 'Save',
+    overlayTitle: 'Home Layout',
+    button: 'Layout',
+};
 
 let categories = [];
 let savedOrder = [];
 let initialized = false;
+let homeLayoutButtonEnabled = true;
+let locale = { ...DEFAULT_LOCALE };
 let dropIndicator = null;
 let dragState = {
     active: false,
@@ -34,7 +46,7 @@ function publishHomeLayoutOrder(order) {
             ORDER_SESSION_KEY,
             JSON.stringify(normalizedOrder),
         );
-    } catch (error) {}
+    } catch {}
 
     document.dispatchEvent(
         new CustomEvent('rovalra-home-layout', {
@@ -43,9 +55,99 @@ function publishHomeLayoutOrder(order) {
     );
 }
 
-function categoryExists(category) {
+async function loadLocale() {
+    try {
+        locale = {
+            untitled: await t('homeLayout.untitled'),
+            empty: await t('homeLayout.empty'),
+            reset: await t('homeLayout.reset'),
+            save: await t('homeLayout.save'),
+            overlayTitle: await t('homeLayout.overlayTitle'),
+            button: await t('homeLayout.button'),
+        };
+    } catch {
+        locale = { ...DEFAULT_LOCALE };
+    }
+}
+
+function mergeMissingKeysIntoSavedOrder(newCategories) {
+    if (!savedOrder.length || !Array.isArray(newCategories)) return false;
+
+    const incomingKeys = [];
+    const seenKeys = new Set();
+
+    for (const category of newCategories) {
+        if (!category?.key) continue;
+
+        const key = String(category.key);
+        if (seenKeys.has(key)) continue;
+
+        incomingKeys.push(key);
+        seenKeys.add(key);
+    }
+
+    const nextOrder = [...savedOrder];
+    let changed = false;
+
+    incomingKeys.forEach((key, index) => {
+        if (nextOrder.includes(key)) return;
+
+        const nextKnownKey = incomingKeys
+            .slice(index + 1)
+            .find((incomingKey) => nextOrder.includes(incomingKey));
+        const insertionIndex = nextKnownKey
+            ? nextOrder.indexOf(nextKnownKey)
+            : -1;
+
+        if (insertionIndex === -1) {
+            nextOrder.push(key);
+        } else {
+            nextOrder.splice(insertionIndex, 0, key);
+        }
+
+        changed = true;
+    });
+
+    if (!changed) return false;
+
+    publishHomeLayoutOrder(nextOrder);
+    return true;
+}
+
+function syncCategoryOrder(newCategories) {
+    const incomingOrder = new Map();
+
+    newCategories.forEach((category) => {
+        if (!category?.key) return;
+
+        const key = String(category.key);
+        if (!incomingOrder.has(key)) {
+            incomingOrder.set(key, incomingOrder.size);
+        }
+    });
+
+    if (!incomingOrder.size) return false;
+
+    const previousOrder = categories.map((category) => category.key).join('\n');
+    const originalOrder = new Map(
+        categories.map((category, index) => [category.key, index]),
+    );
+
+    categories.sort((a, b) => {
+        const aIndex = incomingOrder.get(a.key);
+        const bIndex = incomingOrder.get(b.key);
+        const aHasIncomingOrder = aIndex !== undefined;
+        const bHasIncomingOrder = bIndex !== undefined;
+
+        if (aHasIncomingOrder && bHasIncomingOrder) return aIndex - bIndex;
+        if (aHasIncomingOrder) return -1;
+        if (bHasIncomingOrder) return 1;
+
+        return originalOrder.get(a.key) - originalOrder.get(b.key);
+    });
+
     return (
-        category?.key && categories.some((item) => item.key === category.key)
+        previousOrder !== categories.map((category) => category.key).join('\n')
     );
 }
 
@@ -54,16 +156,36 @@ function mergeCategories(newCategories) {
 
     let changed = false;
     for (const category of newCategories) {
-        if (!category?.key || categoryExists(category)) continue;
+        if (!category?.key) continue;
 
-        categories.push({
-            key: String(category.key),
-            topic: category.topic || 'Untitled',
+        const key = String(category.key);
+        const nextCategory = {
+            key,
+            topic: category.topic || locale.untitled,
             topicId: category.topicId ?? null,
             treatmentType: category.treatmentType || '',
-        });
+        };
+
+        const existingCategory = categories.find((item) => item.key === key);
+        if (existingCategory) {
+            if (
+                existingCategory.topic !== nextCategory.topic ||
+                existingCategory.topicId !== nextCategory.topicId ||
+                existingCategory.treatmentType !== nextCategory.treatmentType
+            ) {
+                Object.assign(existingCategory, nextCategory);
+                changed = true;
+            }
+
+            continue;
+        }
+
+        categories.push(nextCategory);
         changed = true;
     }
+
+    mergeMissingKeysIntoSavedOrder(newCategories);
+    changed = syncCategoryOrder(newCategories) || changed;
 
     if (changed) {
         chrome.storage.local.set({ [CATEGORIES_STORAGE_KEY]: categories });
@@ -94,13 +216,14 @@ function getOrderedCategories() {
     return ordered;
 }
 
-function saveOrderFromList(listElement) {
+function saveOrderFromList(listElement, onSaved) {
     const order = Array.from(
         listElement.querySelectorAll('.rovalra-home-layout-item'),
     ).map((item) => item.dataset.categoryKey);
 
     chrome.storage.local.set({ [ORDER_STORAGE_KEY]: order }, () => {
         publishHomeLayoutOrder(order);
+        if (typeof onSaved === 'function') onSaved();
     });
 }
 
@@ -144,12 +267,9 @@ function setupDragList(listElement) {
 function onMouseDown(event) {
     if (event.button !== 0) return;
 
-    const handle = event.target.closest('.rovalra-home-layout-drag-handle');
-    if (!handle) return;
-
-    const item = handle.closest('.rovalra-home-layout-item');
+    const item = event.target.closest('.rovalra-home-layout-item');
     const list = item?.closest('.rovalra-home-layout-list');
-    if (!item || !list) return;
+    if (!item || list !== event.currentTarget) return;
 
     const rect = item.getBoundingClientRect();
 
@@ -419,8 +539,7 @@ function createHomeLayoutBody() {
     if (!orderedCategories.length) {
         const empty = document.createElement('p');
         empty.className = 'rovalra-home-layout-empty';
-        empty.textContent =
-            'Open or refresh Home once so RoValra can learn the current categories.';
+        empty.textContent = locale.empty;
         container.appendChild(empty);
         return { container, list: null };
     }
@@ -438,28 +557,31 @@ function openHomeLayoutOverlay() {
     const { container, list } = createHomeLayoutBody();
     let overlayHandle = null;
 
-    const resetButton = createButton('Reset', 'secondary', {
+    const resetButton = createButton(locale.reset, 'secondary', {
         disabled: !savedOrder.length,
         onClick: () => {
             chrome.storage.local.remove(ORDER_STORAGE_KEY, () => {
                 publishHomeLayoutOrder([]);
                 overlayHandle?.close();
+                window.location.reload();
             });
         },
     });
 
-    const saveButton = createButton('Save', 'primary', {
+    const saveButton = createButton(locale.save, 'primary', {
         disabled: !list,
         onClick: () => {
             if (!list) return;
 
-            saveOrderFromList(list);
-            overlayHandle?.close();
+            saveOrderFromList(list, () => {
+                overlayHandle?.close();
+                window.location.reload();
+            });
         },
     });
 
     overlayHandle = createOverlay({
-        title: 'Home Layout',
+        title: locale.overlayTitle,
         bodyContent: container,
         actions: [resetButton, saveButton],
         maxWidth: '620px',
@@ -467,27 +589,90 @@ function openHomeLayoutOverlay() {
     });
 }
 
-function attachHomeLayoutButton(header) {
+function isHomeHeader(header) {
+    return Boolean(header.querySelector(':scope > h1'));
+}
+
+function getHomeHeader(homeContainer) {
+    return Array.from(
+        homeContainer.querySelectorAll('.col-xs-12.container-header'),
+    ).find(isHomeHeader);
+}
+
+function getOrCreateHomeLayoutButton() {
+    const existingButton = document.getElementById(
+        'rovalra-home-layout-button',
+    );
+    if (existingButton) return existingButton;
+
+    const button = createButton(locale.button, 'secondary', {
+        id: 'rovalra-home-layout-button',
+        onClick: openHomeLayoutOverlay,
+    });
+    button.classList.add('rovalra-home-layout-button');
+    return button;
+}
+
+function hasNativeCustomizeHomeLayoutButton() {
+    return Boolean(
+        document.querySelector(
+            '.customize-home-layout-btn, #customize-home-layout-btn',
+        ),
+    );
+}
+
+function removeHomeLayoutButton() {
+    const button = document.getElementById('rovalra-home-layout-button');
+    const buttonRow = button?.closest('.rovalra-home-layout-button-row');
+
+    if (buttonRow) {
+        buttonRow.remove();
+    } else {
+        button?.remove();
+    }
+}
+
+function attachHomeLayoutButton(homeContainer) {
     const normalizedPath = window.location.pathname
         .toLowerCase()
         .replace(/^\/[a-z]{2}(?:-[a-z]{2})?\//, '/');
     if (!normalizedPath.startsWith('/home')) return;
 
-    if (header.dataset.rovalraHomeLayoutButton === 'true') return;
+    if (!homeLayoutButtonEnabled || hasNativeCustomizeHomeLayoutButton()) {
+        removeHomeLayoutButton();
+        return;
+    }
 
-    const title = header.querySelector('h1');
-    if (!title || title.textContent.trim() !== 'Home') return;
+    const button = getOrCreateHomeLayoutButton();
+    const homeHeader = getHomeHeader(homeContainer);
 
-    header.dataset.rovalraHomeLayoutButton = 'true';
-    header.classList.add('rovalra-home-layout-header');
+    if (homeHeader) {
+        homeHeader.classList.add('rovalra-home-layout-header');
+        homeHeader.appendChild(button);
+        homeContainer
+            .querySelector('.rovalra-home-layout-button-row:empty')
+            ?.remove();
+        homeContainer.dataset.rovalraHomeLayoutButton = 'true';
+        return;
+    }
 
-    const button = createButton('Layout', 'secondary', {
-        id: 'rovalra-home-layout-button',
-        onClick: openHomeLayoutOverlay,
-    });
-    button.classList.add('rovalra-home-layout-button');
+    if (homeContainer.dataset.rovalraHomeLayoutButton === 'true') return;
 
-    header.appendChild(button);
+    const buttonRow = document.createElement('div');
+    buttonRow.className = 'rovalra-home-layout-button-row';
+    buttonRow.appendChild(button);
+
+    const placeListContainer = homeContainer.querySelector(
+        '.place-list-container',
+    );
+    homeContainer.dataset.rovalraHomeLayoutButton = 'true';
+    homeContainer.classList.add('rovalra-home-layout-container');
+
+    if (placeListContainer) {
+        placeListContainer.before(buttonRow);
+    } else {
+        homeContainer.appendChild(buttonRow);
+    }
 }
 
 function hydrateFromStorage() {
@@ -505,9 +690,18 @@ function hydrateFromStorage() {
     );
 }
 
-export function init() {
+export async function init() {
     if (!initialized) {
+        if ((await settings.homeLayoutEnabled) === false) {
+            initialized = true;
+            publishHomeLayoutOrder([]);
+            return;
+        }
+
         initialized = true;
+        await loadLocale();
+        homeLayoutButtonEnabled =
+            (await settings.homeLayoutButtonEnabled) !== false;
         hydrateFromStorage();
 
         document.addEventListener('rovalra-home-layout-categories', (event) => {
@@ -531,9 +725,20 @@ export function init() {
         });
     }
 
+    observeElement('#HomeContainer', attachHomeLayoutButton, {
+        multiple: true,
+    });
     observeElement(
-        '.section .container-header',
-        (header) => attachHomeLayoutButton(header),
+        '#HomeContainer .col-xs-12.container-header',
+        (header) => {
+            const homeContainer = header.closest('#HomeContainer');
+            if (homeContainer) attachHomeLayoutButton(homeContainer);
+        },
+        { multiple: true },
+    );
+    observeElement(
+        '.customize-home-layout-btn, #customize-home-layout-btn',
+        removeHomeLayoutButton,
         { multiple: true },
     );
 }
