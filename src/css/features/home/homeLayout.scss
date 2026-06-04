@@ -1,0 +1,112 @@
+.rovalra-home-layout-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.rovalra-home-layout-header h1 {
+    margin-right: auto;
+}
+
+.rovalra-home-layout-button {
+    flex: 0 0 auto;
+    min-width: 72px;
+}
+
+.rovalra-home-layout-editor {
+    padding-bottom: 4px;
+}
+
+.rovalra-home-layout-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.rovalra-home-layout-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 52px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    background-color: var(--rovalra-container-background-color);
+    cursor: default;
+    transition:
+        transform 0.15s ease,
+        opacity 0.15s ease,
+        background-color 0.15s ease;
+    user-select: none;
+}
+
+.rovalra-home-layout-item:hover {
+    background-color: var(--rovalra-button-background-color);
+}
+
+.rovalra-home-layout-drag-source {
+    opacity: 0.3;
+    transform: scale(0.95);
+}
+
+.rovalra-home-layout-drag-clone {
+    z-index: 99999;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    opacity: 0.8;
+    pointer-events: none;
+    transition: none;
+}
+
+.rovalra-home-layout-drag-handle {
+    display: inline-flex;
+    flex: 0 0 24px;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary, #606162);
+    cursor: grab;
+}
+
+.rovalra-home-layout-drag-handle:active {
+    cursor: grabbing;
+}
+
+.rovalra-home-layout-drag-handle svg {
+    width: 22px;
+    height: 22px;
+    fill: currentColor;
+    opacity: 0.75;
+}
+
+.rovalra-home-layout-drop-indicator {
+    position: fixed;
+    z-index: 99998;
+    display: none;
+    height: 2px;
+    border-radius: 1px;
+    background-color: var(--rovalra-playbutton-color, #335fff);
+    pointer-events: none;
+    transition: all 0.15s ease;
+}
+
+.rovalra-home-layout-text {
+    display: flex;
+    flex: 1 1 auto;
+    min-width: 0;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.rovalra-home-layout-label {
+    overflow: hidden;
+    color: var(--rovalra-main-text-color);
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.rovalra-home-layout-empty {
+    margin: 0;
+    color: var(--text-secondary, #606162);
+}

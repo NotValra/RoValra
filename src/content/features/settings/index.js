@@ -166,6 +166,26 @@ async function getGamePassPrice(id) {
     return null;
 }
 
+function hasBorderGamepassId(gamepassId) {
+    const normalizedId =
+        gamepassId === null || gamepassId === undefined
+            ? ''
+            : String(gamepassId).trim().toLowerCase();
+
+    return (
+        normalizedId !== '' &&
+        normalizedId !== 'null' &&
+        normalizedId !== 'undefined'
+    );
+}
+
+function isBorderOwned({ value, gamepassId, ownedData, tier }) {
+    if (tier >= 3) return true;
+    if (!hasBorderGamepassId(gamepassId)) return true;
+    if (ownedData.borders.has(value)) return true;
+    return ownedData.gamepasses.has(String(gamepassId));
+}
+
 function createArtistCreditSection(artistId) {
     const artistWrapper = document.createElement('div');
     artistWrapper.style.cssText =
@@ -269,11 +289,12 @@ async function openBorderOverlay(
 
     const tier = getCurrentUserTier();
     const ownedData = await getOwnedBorders();
-    const isOwned =
-        tier >= 3 ||
-        ownedData.borders.has(variant.value) ||
-        (effectiveGamepassId &&
-            ownedData.gamepasses.has(String(effectiveGamepassId)));
+    const isOwned = isBorderOwned({
+        value: variant.value,
+        gamepassId: effectiveGamepassId,
+        ownedData,
+        tier,
+    });
     const body = document.createElement('div');
     body.style.cssText =
         'display: flex; flex-direction: column; align-items: center; gap: 20px; padding: 10px;';
@@ -342,7 +363,7 @@ async function openBorderOverlay(
         infoWrapper.appendChild(bundleNotice);
     }
 
-    if (effectiveGamepassId) {
+    if (hasBorderGamepassId(effectiveGamepassId)) {
         const priceLabel = document.createElement('div');
         priceLabel.style.cssText =
             'font-size: 14px; font-weight: 600; color: var(--rovalra-secondary-text-color); display: flex; align-items: center; gap: 4px;';
@@ -375,6 +396,14 @@ async function openBorderOverlay(
             }
         });
         infoWrapper.appendChild(priceLabel);
+    } else {
+        const freeLabel = document.createElement('div');
+        freeLabel.className = 'rovalra-free-label';
+        freeLabel.textContent = 'Free';
+        addTooltip(freeLabel, 'This border is free to equip.', {
+            position: 'top',
+        });
+        infoWrapper.appendChild(freeLabel);
     }
 
     if (effectiveArtistId) {
@@ -388,7 +417,7 @@ async function openBorderOverlay(
         'Buying the cosmetics directly will support the artist and RoValra';
     infoWrapper.appendChild(supportNotice);
 
-    if (!isOwned && effectiveGamepassId) {
+    if (!isOwned && hasBorderGamepassId(effectiveGamepassId)) {
         const purchaseWarning = document.createElement('div');
         purchaseWarning.style.cssText =
             'font-size: 11px; color: var(--rovalra-secondary-text-color); text-align: center; margin-top: 4px; opacity: 0.7;';
@@ -422,7 +451,7 @@ async function openBorderOverlay(
             );
             close();
         };
-    } else if (effectiveGamepassId) {
+    } else if (hasBorderGamepassId(effectiveGamepassId)) {
         actionBtn.textContent = 'Loading...';
         (async () => {
             const price = await getGamePassPrice(effectiveGamepassId);
@@ -2012,11 +2041,12 @@ async function renderStoreBorders(container) {
                     variant.animated.some(
                         (a) => a.value === currentBorderValue,
                     );
-                const variantIsOwned =
-                    tier >= 3 ||
-                    ownedData.borders.has(variant.value) ||
-                    (variant.gamepassId &&
-                        ownedData.gamepasses.has(String(variant.gamepassId)));
+                const variantIsOwned = isBorderOwned({
+                    value: variant.value,
+                    gamepassId: variant.gamepassId,
+                    ownedData,
+                    tier,
+                });
 
                 const variantCard = document.createElement('div');
                 variantCard.setAttribute('data-border-card', '');
@@ -2123,13 +2153,12 @@ async function renderStoreBorders(container) {
                     animLabel.textContent = 'ANIMATED';
                     animContainer.append(animCard, animLabel);
 
-                    const animIsOwned =
-                        tier >= 3 ||
-                        ownedData.borders.has(animVariant.value) ||
-                        (variant.gamepassId &&
-                            ownedData.gamepasses.has(
-                                String(variant.gamepassId),
-                            ));
+                    const animIsOwned = isBorderOwned({
+                        value: animVariant.value,
+                        gamepassId: variant.gamepassId,
+                        ownedData,
+                        tier,
+                    });
 
                     const animEquipBtn = createEquipButton(
                         animVariant,
@@ -2152,7 +2181,7 @@ async function renderStoreBorders(container) {
                 variantLabel.textContent = variant.label;
 
                 const priceLabel = document.createElement('div');
-                if (variant.gamepassId) {
+                if (hasBorderGamepassId(variant.gamepassId)) {
                     priceLabel.style.cssText =
                         'font-size: 12px; font-weight: 600; color: var(--rovalra-secondary-text-color); display: flex; align-items: center; justify-content: center; gap: 4px; margin-bottom: 4px;';
 
@@ -2184,6 +2213,12 @@ async function renderStoreBorders(container) {
                                 priceLabel.innerHTML = `<span class="icon-robux-16x16"></span>${priceValue}`; // Verified
                             }
                         }
+                    });
+                } else {
+                    priceLabel.className = 'rovalra-free-label';
+                    priceLabel.textContent = 'Free';
+                    addTooltip(priceLabel, 'This border is free to equip.', {
+                        position: 'top',
                     });
                 }
 
@@ -2229,7 +2264,10 @@ function createEquipButton(
     pill.setAttribute('data-equip-btn', variant.value);
     pill.setAttribute('data-variant-link', variant.link || '');
     pill.setAttribute('data-variant-artist-id', variant.artistId || '');
-    pill.setAttribute('data-variant-gamepass-id', variant.gamepassId || '');
+    const effectiveGamepassId = hasBorderGamepassId(variant.gamepassId)
+        ? variant.gamepassId
+        : animVariant?.gamepassId;
+    pill.setAttribute('data-variant-gamepass-id', effectiveGamepassId || '');
     if (hasAnimated && animVariant) {
         pill.setAttribute('data-anim-value', animVariant.value);
         pill.setAttribute('data-anim-link', animVariant.link || '');
@@ -2290,13 +2328,19 @@ function updatePreviewAndUI(selectedValue, link, container, previewHolder) {
     getOwnedBorders().then((ownedData) => {
         container.querySelectorAll('[data-equip-btn]').forEach((btn) => {
             const val = btn.getAttribute('data-equip-btn');
+            const gamepassId = btn.getAttribute('data-variant-gamepass-id');
             const isSelected = val === selectedValue;
             let newText, newTooltip;
             if (isSelected) {
                 newText = 'Equipped';
                 newTooltip = 'Click to unequip this border';
             } else {
-                const isOwned = tier >= 3 || ownedData.borders.has(val);
+                const isOwned = isBorderOwned({
+                    value: val,
+                    gamepassId,
+                    ownedData,
+                    tier,
+                });
                 if (isOwned) {
                     newText = 'Equip';
                     newTooltip = 'Equip this border';

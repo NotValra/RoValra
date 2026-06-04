@@ -16,6 +16,8 @@
     const GAMES_ROBLOX_API = 'https://games.roblox.com/';
     const TRADES_API_URL = 'https://trades.roblox.com/v2/users/';
     const TRADES_LIST_API_URL = 'https://trades.roblox.com/v1/trades/';
+    const OMNI_RECOMMENDATION_API_URL =
+        'https://apis.roblox.com/discovery-api/omni-recommendation';
 
     let ASSET_TYPE_ACCESSORIES = [8, 41, 42, 43, 44, 45, 46, 47, 57, 58];
     let ASSET_TYPE_LAYERED = [64, 65, 66, 67, 68, 69, 70, 71, 72];
@@ -41,12 +43,16 @@
 
     let streamerModeEnabled = false;
     let settingsPageInfoEnabled = true;
+    let homeLayoutOrder = [];
 
     try {
         streamerModeEnabled =
             sessionStorage.getItem('rovalra_streamermode') === 'true';
         settingsPageInfoEnabled =
             sessionStorage.getItem('rovalra_settingsPageInfo') !== 'false';
+        homeLayoutOrder = JSON.parse(
+            sessionStorage.getItem('rovalra_homeLayoutOrder') || '[]',
+        );
     } catch (e) {}
 
     document.addEventListener('rovalra-streamer-mode', (e) => {
@@ -58,13 +64,116 @@
         }
     });
 
+    document.addEventListener('rovalra-home-layout', (e) => {
+        homeLayoutOrder = Array.isArray(e.detail?.order) ? e.detail.order : [];
+        try {
+            sessionStorage.setItem(
+                'rovalra_homeLayoutOrder',
+                JSON.stringify(homeLayoutOrder),
+            );
+        } catch (error) {}
+    });
+
+    function getRequestUrl(url) {
+        if (typeof url === 'string') return url;
+        if (url instanceof Request) return url.url;
+        return '';
+    }
+
+    function getHomeSortKey(sort) {
+        if (!sort || typeof sort !== 'object') return '';
+        if (sort.topicId !== undefined && sort.topicId !== null) {
+            return `topicId:${sort.topicId}`;
+        }
+        if (sort.topic) return `topic:${sort.topic}`;
+        return '';
+    }
+
+    function dispatchHomeLayoutCategories(data) {
+        if (data?.pageType !== 'Home' || !Array.isArray(data.sorts)) return;
+
+        const categories = data.sorts
+            .map((sort) => ({
+                key: getHomeSortKey(sort),
+                topic: sort?.topic || 'Untitled',
+                topicId: sort?.topicId ?? null,
+                treatmentType: sort?.treatmentType || '',
+            }))
+            .filter((category) => category.key);
+
+        if (!categories.length) return;
+
+        document.dispatchEvent(
+            new CustomEvent('rovalra-home-layout-categories', {
+                detail: { categories },
+            }),
+        );
+    }
+
+    function reorderHomeSorts(data) {
+        if (
+            !Array.isArray(homeLayoutOrder) ||
+            !homeLayoutOrder.length ||
+            data?.pageType !== 'Home' ||
+            !Array.isArray(data.sorts)
+        ) {
+            return false;
+        }
+
+        const orderMap = new Map(
+            homeLayoutOrder.map((key, index) => [String(key), index]),
+        );
+        const originalIndexMap = new Map(
+            data.sorts.map((sort, index) => [sort, index]),
+        );
+
+        data.sorts.sort((a, b) => {
+            const aIndex = orderMap.get(getHomeSortKey(a));
+            const bIndex = orderMap.get(getHomeSortKey(b));
+            const aHasOrder = aIndex !== undefined;
+            const bHasOrder = bIndex !== undefined;
+
+            if (aHasOrder && bHasOrder) return aIndex - bIndex;
+            if (aHasOrder) return -1;
+            if (bHasOrder) return 1;
+
+            return originalIndexMap.get(a) - originalIndexMap.get(b);
+        });
+
+        return true;
+    }
+
+    async function applyHomeLayoutToFetchResponse(url, response) {
+        if (!url.includes(OMNI_RECOMMENDATION_API_URL)) {
+            return response;
+        }
+
+        try {
+            const data = await response.clone().json();
+            dispatchHomeLayoutCategories(data);
+            if (!reorderHomeSorts(data)) return response;
+
+            const newHeaders = new Headers(response.headers);
+            newHeaders.delete('content-length');
+
+            return new Response(JSON.stringify(data), {
+                status: response.status,
+                statusText: response.statusText,
+                headers: newHeaders,
+            });
+        } catch (error) {
+            return response;
+        }
+    }
+
     const originalFetch = window.fetch;
     window.fetch = async function (...args) {
         const [url, config] = args;
         const method = config?.method || 'GET';
+        const requestUrl = getRequestUrl(url);
 
         try {
-            dispatchCaptureEvent(url, method, config?.body);
+            dispatchCaptureEvent(requestUrl, method, config?.body);
         } catch (e) {}
 
         let response = await originalFetch(...args);
@@ -72,7 +181,7 @@
         if (
             streamerModeEnabled &&
             settingsPageInfoEnabled &&
-            typeof url === 'string'
+            typeof requestUrl === 'string'
         ) {
             const isSensitive = [
                 '/my/settings/json',
@@ -82,40 +191,40 @@
                 'accountsettings.roblox.com/v1/account/settings/account-country',
                 'apis.roblox.com/user-settings-api/v1/account-insights/age-group',
                 'apis.roblox.com/token-metadata-service/v1/sessions',
-            ].some((path) => url.includes(path));
+            ].some((path) => requestUrl.includes(path));
 
             if (isSensitive) {
                 try {
                     const clone = response.clone();
                     const data = await clone.json();
 
-                    if (url.includes('/my/settings/json')) {
+                    if (requestUrl.includes('/my/settings/json')) {
                         data.UserEmail = 'RoValra Streamer Mode Enabled';
                         data.UserEmailVerified = true;
                     }
-                    if (url.includes('v1/phone')) {
+                    if (requestUrl.includes('v1/phone')) {
                         data.phone =
                             data.prefix =
                             data.countryCode =
                                 'RoValra Streamer Mode Enabled';
                     }
-                    if (url.includes('v1/birthdate')) {
+                    if (requestUrl.includes('v1/birthdate')) {
                         data.birthMonth = data.birthDay = data.birthYear = 0;
                     }
-                    if (url.includes('verified-age')) {
+                    if (requestUrl.includes('verified-age')) {
                         data.verifiedAge = 0;
                         data.isSeventeenPlus = false;
                     }
-                    if (url.includes('account-country') && data.value) {
+                    if (requestUrl.includes('account-country') && data.value) {
                         data.value.countryName = data.value.localizedName =
                             'RoValra Streamer Mode Enabled';
                         data.value.countryId = 1;
                     }
-                    if (url.includes('age-group')) {
+                    if (requestUrl.includes('age-group')) {
                         data.ageGroupTranslationKey =
                             'RoValra Streamer Mode Enabled';
                     }
-                    if (url.includes('sessions') && data.sessions) {
+                    if (requestUrl.includes('sessions') && data.sessions) {
                         data.sessions.forEach((s) => {
                             if (s.location) {
                                 s.location.city = s.location.subdivision = '';
@@ -143,8 +252,10 @@
             }
         }
 
-        if (typeof url === 'string') {
-            if (url.includes(CATALOG_API_URL)) {
+        response = await applyHomeLayoutToFetchResponse(requestUrl, response);
+
+        if (typeof requestUrl === 'string') {
+            if (requestUrl.includes(CATALOG_API_URL)) {
                 response
                     .clone()
                     .json()
@@ -157,7 +268,7 @@
                     )
                     .catch(() => {});
             }
-            if (url.includes(CATALOG_API_URL)) {
+            if (requestUrl.includes(CATALOG_API_URL)) {
                 response
                     .clone()
                     .json()
@@ -171,7 +282,7 @@
                     )
                     .catch(() => {});
             }
-            if (url.includes(CLIENT_STATUS_API_URL)) {
+            if (requestUrl.includes(CLIENT_STATUS_API_URL)) {
                 response
                     .clone()
                     .json()
@@ -185,18 +296,18 @@
                     .catch(() => {});
             }
             if (
-                url.includes(GAME_LAUNCH_SUCCESS_URL) &&
-                url.includes('GameLaunchSuccessWeb_Win32')
+                requestUrl.includes(GAME_LAUNCH_SUCCESS_URL) &&
+                requestUrl.includes('GameLaunchSuccessWeb_Win32')
             ) {
                 document.dispatchEvent(
                     new CustomEvent('rovalra-game-launch-success', {
-                        detail: { url },
+                        detail: { url: requestUrl },
                     }),
                 );
             }
             if (
-                url.includes(GAME_SERVERS_API_URL) &&
-                url.includes('/servers/')
+                requestUrl.includes(GAME_SERVERS_API_URL) &&
+                requestUrl.includes('/servers/')
             ) {
                 response
                     .clone()
@@ -204,13 +315,16 @@
                     .then((d) =>
                         document.dispatchEvent(
                             new CustomEvent('rovalra-game-servers-response', {
-                                detail: { url, data: d },
+                                detail: { url: requestUrl, data: d },
                             }),
                         ),
                     )
                     .catch(() => {});
             }
-            if (url.includes(GAMES_ROBLOX_API) && url.includes('/media')) {
+            if (
+                requestUrl.includes(GAMES_ROBLOX_API) &&
+                requestUrl.includes('/media')
+            ) {
                 response
                     .clone()
                     .json()
@@ -224,8 +338,8 @@
                     .catch(() => {});
             }
             if (
-                url.includes(TRADES_API_URL) &&
-                url.includes('/tradableitems')
+                requestUrl.includes(TRADES_API_URL) &&
+                requestUrl.includes('/tradableitems')
             ) {
                 response
                     .clone()
@@ -239,7 +353,7 @@
                     )
                     .catch(() => {});
             }
-            if (url.includes(TRADES_LIST_API_URL)) {
+            if (requestUrl.includes(TRADES_LIST_API_URL)) {
                 response
                     .clone()
                     .json()
@@ -282,6 +396,13 @@
             if (url.includes('sessions')) this._rovalra_spoof_sessions = true;
         }
 
+        if (
+            typeof url === 'string' &&
+            url.includes(OMNI_RECOMMENDATION_API_URL)
+        ) {
+            this._rovalra_home_layout = true;
+        }
+
         return originalXhrOpen.apply(this, [method, url, ...rest]);
     };
 
@@ -302,7 +423,8 @@
             xhr._rovalra_spoof_age ||
             xhr._rovalra_spoof_country ||
             xhr._rovalra_spoof_age_group ||
-            xhr._rovalra_spoof_sessions
+            xhr._rovalra_spoof_sessions ||
+            xhr._rovalra_home_layout
         ) {
             Object.defineProperty(xhr, 'responseText', {
                 configurable: true,
@@ -320,6 +442,10 @@
 
                     try {
                         const data = JSON.parse(original);
+                        if (xhr._rovalra_home_layout) {
+                            dispatchHomeLayoutCategories(data);
+                            reorderHomeSorts(data);
+                        }
                         if (xhr._rovalra_spoof_settings) {
                             data.UserEmail = 'RoValra Streamer Mode Enabled';
                             data.UserEmailVerified = true;

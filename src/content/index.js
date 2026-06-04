@@ -128,6 +128,7 @@ import { init as initFirstAccount } from './features/settings/roblox/firstAccoun
 import { init as initLegacyThemeSwitcher } from './features/settings/roblox/legacyThemeSwitcher.js';
 // Home
 import { init as initAccurateContinue } from './features/home/accurateContinue.js';
+import { init as initHomeLayout } from './features/home/homeLayout.js';
 // create
 import { init as initCreateDownload } from './features/create.roblox.com/download.js';
 import { enforceSettingOverrides } from './core/settings/handlesettings.js';
@@ -371,6 +372,7 @@ async function initializePage() {
     if (window.top !== window.self || pageLoaded) return;
     pageLoaded = true;
 
+    initHomeLayout();
     initializeObserver();
     const observerStatus = startObserving();
 
