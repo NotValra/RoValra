@@ -111,7 +111,7 @@ function createStatusHelpText(isTrusted) {
         "You must follow Roblox's ToS and RoValra's ToS when using status bubbles. If you break these rules, your status may be reset and your status privileges may be revoked.",
         document.createElement('br'),
         document.createElement('br'),
-        'If restricted from status, ',
+        "If you're restricted from status, ",
     );
 
     const appealLink = document.createElement('a');
