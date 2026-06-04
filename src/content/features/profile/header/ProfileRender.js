@@ -217,9 +217,9 @@ function customAnimate() {
         controls.update();
     }
 
-    let [width, height] = RBXRenderer.resolution
-    RBXRenderer.camera.aspect = width / height
-    RBXRenderer.camera.updateProjectionMatrix()
+    let [width, height] = RBXRenderer.resolution;
+    RBXRenderer.camera.aspect = width / height;
+    RBXRenderer.camera.updateProjectionMatrix();
 
     RBXRenderer.renderer.setRenderTarget(null);
     if (RBXRenderer.effectComposer) {
@@ -229,13 +229,13 @@ function customAnimate() {
     }
 
     requestAnimationFrame(() => {
-        customAnimate()
+        customAnimate();
     });
 }
 function patchAnimateForRotation() {
     if (isAnimatePatched) return;
 
-    RBXRenderer.animateAll = customAnimate
+    RBXRenderer.animateAll = customAnimate;
     isAnimatePatched = true;
 }
 function getAnimatorW(rig = currentRig) {
@@ -1543,6 +1543,8 @@ function setupAtmosphere(scene, config, isCustomEnv = false) {
 
     if (config.background) {
         scene.background = new THREE.Color(config.background);
+    } else if (!RBXRenderer.backgroundTransparent) {
+        scene.background = new THREE.Color(RBXRenderer.backgroundColorHex);
     } else {
         scene.background = null;
     }
