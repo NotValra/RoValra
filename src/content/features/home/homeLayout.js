@@ -589,16 +589,6 @@ function openHomeLayoutOverlay() {
     });
 }
 
-function isHomeHeader(header) {
-    return Boolean(header.querySelector(':scope > h1'));
-}
-
-function getHomeHeader(homeContainer) {
-    return Array.from(
-        homeContainer.querySelectorAll('.col-xs-12.container-header'),
-    ).find(isHomeHeader);
-}
-
 function getOrCreateHomeLayoutButton() {
     const existingButton = document.getElementById(
         'rovalra-home-layout-button',
@@ -644,24 +634,13 @@ function attachHomeLayoutButton(homeContainer) {
     }
 
     const button = getOrCreateHomeLayoutButton();
-    const homeHeader = getHomeHeader(homeContainer);
-
-    if (homeHeader) {
-        homeHeader.classList.add('rovalra-home-layout-header');
-        homeHeader.appendChild(button);
-        homeContainer
-            .querySelector('.rovalra-home-layout-button-row:empty')
-            ?.remove();
-        homeContainer.dataset.rovalraHomeLayoutButton = 'true';
-        return;
-    }
-
-    if (homeContainer.dataset.rovalraHomeLayoutButton === 'true') return;
-
-    const buttonRow = document.createElement('div');
+    const buttonRow =
+        button.closest('.rovalra-home-layout-button-row') ??
+        document.createElement('div');
     buttonRow.className = 'rovalra-home-layout-button-row';
     buttonRow.appendChild(button);
 
+    const section = homeContainer.querySelector(':scope > .section, .section');
     const placeListContainer = homeContainer.querySelector(
         '.place-list-container',
     );
@@ -670,6 +649,8 @@ function attachHomeLayoutButton(homeContainer) {
 
     if (placeListContainer) {
         placeListContainer.before(buttonRow);
+    } else if (section) {
+        section.after(buttonRow);
     } else {
         homeContainer.appendChild(buttonRow);
     }
@@ -729,9 +710,17 @@ export async function init() {
         multiple: true,
     });
     observeElement(
-        '#HomeContainer .col-xs-12.container-header',
-        (header) => {
-            const homeContainer = header.closest('#HomeContainer');
+        '#HomeContainer .section',
+        (section) => {
+            const homeContainer = section.closest('#HomeContainer');
+            if (homeContainer) attachHomeLayoutButton(homeContainer);
+        },
+        { multiple: true },
+    );
+    observeElement(
+        '#HomeContainer .place-list-container',
+        (placeListContainer) => {
+            const homeContainer = placeListContainer.closest('#HomeContainer');
             if (homeContainer) attachHomeLayoutButton(homeContainer);
         },
         { multiple: true },
