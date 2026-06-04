@@ -44,6 +44,7 @@
     let streamerModeEnabled = false;
     let settingsPageInfoEnabled = true;
     let homeLayoutOrder = [];
+    let homeExtraSorts = [];
 
     try {
         streamerModeEnabled =
@@ -72,6 +73,10 @@
                 JSON.stringify(homeLayoutOrder),
             );
         } catch (error) {}
+    });
+
+    document.addEventListener('rovalra-home-extra-sorts', (e) => {
+        homeExtraSorts = Array.isArray(e.detail?.sorts) ? e.detail.sorts : [];
     });
 
     function getRequestUrl(url) {
@@ -108,6 +113,31 @@
                 detail: { categories },
             }),
         );
+    }
+
+    function addHomeExtraSorts(data) {
+        if (
+            data?.pageType !== 'Home' ||
+            !Array.isArray(data.sorts) ||
+            !Array.isArray(homeExtraSorts) ||
+            !homeExtraSorts.length
+        ) {
+            return false;
+        }
+
+        const existingKeys = new Set(data.sorts.map(getHomeSortKey));
+        let changed = false;
+
+        homeExtraSorts.forEach((sort) => {
+            const key = getHomeSortKey(sort);
+            if (!key || existingKeys.has(key)) return;
+
+            data.sorts.push(sort);
+            existingKeys.add(key);
+            changed = true;
+        });
+
+        return changed;
     }
 
     function reorderHomeSorts(data) {
@@ -150,8 +180,10 @@
 
         try {
             const data = await response.clone().json();
+            const addedExtraSorts = addHomeExtraSorts(data);
             dispatchHomeLayoutCategories(data);
-            if (!reorderHomeSorts(data)) return response;
+            const reorderedSorts = reorderHomeSorts(data);
+            if (!addedExtraSorts && !reorderedSorts) return response;
 
             const newHeaders = new Headers(response.headers);
             newHeaders.delete('content-length');
@@ -443,6 +475,7 @@
                     try {
                         const data = JSON.parse(original);
                         if (xhr._rovalra_home_layout) {
+                            addHomeExtraSorts(data);
                             dispatchHomeLayoutCategories(data);
                             reorderHomeSorts(data);
                         }

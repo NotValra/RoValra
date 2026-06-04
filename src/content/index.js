@@ -129,6 +129,7 @@ import { init as initLegacyThemeSwitcher } from './features/settings/roblox/lega
 // Home
 import { init as initAccurateContinue } from './features/home/accurateContinue.js';
 import { init as initHomeLayout } from './features/home/homeLayout.js';
+import { init as initUnderratedGamesHome } from './features/home/underratedGames.js';
 // create
 import { init as initCreateDownload } from './features/create.roblox.com/download.js';
 import { enforceSettingOverrides } from './core/settings/handlesettings.js';
@@ -325,7 +326,7 @@ const featureRoutes = [
     },
     {
         paths: ['/home'],
-        features: [initAccurateContinue],
+        features: [initUnderratedGamesHome, initAccurateContinue],
     },
     {
         paths: ['/my/account'],
@@ -373,6 +374,14 @@ async function initializePage() {
     pageLoaded = true;
 
     initHomeLayout();
+    if (
+        window.location.pathname
+            .toLowerCase()
+            .replace(/^\/[a-z]{2}(?:-[a-z]{2})?\//, '/')
+            .startsWith('/home')
+    ) {
+        initUnderratedGamesHome();
+    }
     initializeObserver();
     const observerStatus = startObserving();
 
