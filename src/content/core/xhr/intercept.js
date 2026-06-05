@@ -44,6 +44,7 @@
     let streamerModeEnabled = false;
     let settingsPageInfoEnabled = true;
     let homeLayoutOrder = [];
+    let homeLayoutHidden = [];
     let homeExtraSorts = [];
 
     try {
@@ -53,6 +54,9 @@
             sessionStorage.getItem('rovalra_settingsPageInfo') !== 'false';
         homeLayoutOrder = JSON.parse(
             sessionStorage.getItem('rovalra_homeLayoutOrder') || '[]',
+        );
+        homeLayoutHidden = JSON.parse(
+            sessionStorage.getItem('rovalra_homeLayoutHidden') || '[]',
         );
     } catch (e) {}
 
@@ -67,10 +71,17 @@
 
     document.addEventListener('rovalra-home-layout', (e) => {
         homeLayoutOrder = Array.isArray(e.detail?.order) ? e.detail.order : [];
+        homeLayoutHidden = Array.isArray(e.detail?.hidden)
+            ? e.detail.hidden
+            : [];
         try {
             sessionStorage.setItem(
                 'rovalra_homeLayoutOrder',
                 JSON.stringify(homeLayoutOrder),
+            );
+            sessionStorage.setItem(
+                'rovalra_homeLayoutHidden',
+                JSON.stringify(homeLayoutHidden),
             );
         } catch (error) {}
     });
@@ -210,6 +221,25 @@
         return true;
     }
 
+    function hideHomeSorts(data) {
+        if (
+            !Array.isArray(homeLayoutHidden) ||
+            !homeLayoutHidden.length ||
+            data?.pageType !== 'Home' ||
+            !Array.isArray(data.sorts)
+        ) {
+            return false;
+        }
+
+        const hiddenKeys = new Set(homeLayoutHidden.map(String));
+        const previousLength = data.sorts.length;
+        data.sorts = data.sorts.filter(
+            (sort) => !hiddenKeys.has(getHomeSortKey(sort)),
+        );
+
+        return data.sorts.length !== previousLength;
+    }
+
     async function applyHomeLayoutToFetchResponse(url, response) {
         if (!url.includes(OMNI_RECOMMENDATION_API_URL)) {
             return response;
@@ -219,8 +249,11 @@
             const data = await response.clone().json();
             const addedExtraSorts = addHomeExtraSorts(data);
             dispatchHomeLayoutCategories(data);
+            const hiddenSorts = hideHomeSorts(data);
             const reorderedSorts = reorderHomeSorts(data);
-            if (!addedExtraSorts && !reorderedSorts) return response;
+            if (!addedExtraSorts && !hiddenSorts && !reorderedSorts) {
+                return response;
+            }
 
             const newHeaders = new Headers(response.headers);
             newHeaders.delete('content-length');
@@ -514,6 +547,7 @@
                         if (xhr._rovalra_home_layout) {
                             addHomeExtraSorts(data);
                             dispatchHomeLayoutCategories(data);
+                            hideHomeSorts(data);
                             reorderHomeSorts(data);
                         }
                         if (xhr._rovalra_spoof_settings) {

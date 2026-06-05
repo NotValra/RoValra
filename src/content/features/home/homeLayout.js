@@ -7,7 +7,9 @@ import { createOverlay } from '../../core/ui/overlay.js';
 
 const ORDER_STORAGE_KEY = 'rovalra_home_layout_order';
 const CATEGORIES_STORAGE_KEY = 'rovalra_home_layout_categories';
+const HIDDEN_STORAGE_KEY = 'rovalra_home_layout_hidden';
 const ORDER_SESSION_KEY = 'rovalra_homeLayoutOrder';
+const HIDDEN_SESSION_KEY = 'rovalra_homeLayoutHidden';
 const HOLD_THRESHOLD = 200;
 const MOVE_THRESHOLD = 5;
 const DEFAULT_LOCALE = {
@@ -17,10 +19,17 @@ const DEFAULT_LOCALE = {
     save: 'Save',
     overlayTitle: 'Home Layout',
     button: 'Layout',
+    edit: 'Edit',
+    settingsTitle: 'Category Settings',
+    visibility: 'Visibility',
+    visibilityDescription: 'Choose whether this category appears on Home.',
+    show: 'Show',
+    hide: 'Hide',
 };
 
 let categories = [];
 let savedOrder = [];
+let hiddenCategoryKeys = [];
 let initialized = false;
 let homeLayoutButtonEnabled = true;
 let locale = { ...DEFAULT_LOCALE };
@@ -37,20 +46,34 @@ let dragState = {
     holdTimer: null,
 };
 
-function publishHomeLayoutOrder(order) {
+function publishHomeLayoutState(
+    order = savedOrder,
+    hiddenKeys = hiddenCategoryKeys,
+) {
     const normalizedOrder = Array.isArray(order) ? order.map(String) : [];
+    const normalizedHiddenKeys = Array.isArray(hiddenKeys)
+        ? hiddenKeys.map(String)
+        : [];
     savedOrder = normalizedOrder;
+    hiddenCategoryKeys = normalizedHiddenKeys;
 
     try {
         sessionStorage.setItem(
             ORDER_SESSION_KEY,
             JSON.stringify(normalizedOrder),
         );
+        sessionStorage.setItem(
+            HIDDEN_SESSION_KEY,
+            JSON.stringify(normalizedHiddenKeys),
+        );
     } catch {}
 
     document.dispatchEvent(
         new CustomEvent('rovalra-home-layout', {
-            detail: { order: normalizedOrder },
+            detail: {
+                order: normalizedOrder,
+                hidden: normalizedHiddenKeys,
+            },
         }),
     );
 }
@@ -64,6 +87,14 @@ async function loadLocale() {
             save: await t('homeLayout.save'),
             overlayTitle: await t('homeLayout.overlayTitle'),
             button: await t('homeLayout.button'),
+            edit: await t('homeLayout.edit'),
+            settingsTitle: await t('homeLayout.settingsTitle'),
+            visibility: await t('homeLayout.visibility'),
+            visibilityDescription: await t(
+                'homeLayout.visibilityDescription',
+            ),
+            show: await t('homeLayout.show'),
+            hide: await t('homeLayout.hide'),
         };
     } catch {
         locale = { ...DEFAULT_LOCALE };
@@ -110,7 +141,7 @@ function mergeMissingKeysIntoSavedOrder(newCategories) {
 
     if (!changed) return false;
 
-    publishHomeLayoutOrder(nextOrder);
+    publishHomeLayoutState(nextOrder);
     return true;
 }
 
@@ -222,8 +253,142 @@ function saveOrderFromList(listElement, onSaved) {
     ).map((item) => item.dataset.categoryKey);
 
     chrome.storage.local.set({ [ORDER_STORAGE_KEY]: order }, () => {
-        publishHomeLayoutOrder(order);
+        publishHomeLayoutState(order);
         if (typeof onSaved === 'function') onSaved();
+    });
+}
+
+function saveHiddenCategoryKeys(nextHiddenKeys, onSaved) {
+    const normalizedHiddenKeys = Array.isArray(nextHiddenKeys)
+        ? nextHiddenKeys.map(String)
+        : [];
+
+    chrome.storage.local.set(
+        { [HIDDEN_STORAGE_KEY]: normalizedHiddenKeys },
+        () => {
+            publishHomeLayoutState(savedOrder, normalizedHiddenKeys);
+            if (typeof onSaved === 'function') onSaved();
+        },
+    );
+}
+
+function decodeSvgAsset(assetName) {
+    const svgData = getAssets()[assetName];
+    if (!svgData?.startsWith('data:image/svg+xml,')) return '';
+
+    return decodeURIComponent(svgData.split(',')[1]);
+}
+
+function createIconButton({ assetName, label, onClick }) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'rovalra-home-layout-icon-button';
+    button.setAttribute('aria-label', label);
+    button.title = label;
+
+    const icon = document.createElement('span');
+    icon.className = 'rovalra-home-layout-icon';
+    icon.setAttribute('aria-hidden', 'true');
+    icon.innerHTML = decodeSvgAsset(assetName); // verified
+
+    button.appendChild(icon);
+    button.addEventListener('mousedown', (event) => event.stopPropagation());
+    button.addEventListener('click', onClick);
+
+    return button;
+}
+
+function isCategoryHidden(categoryKey) {
+    return hiddenCategoryKeys.includes(String(categoryKey));
+}
+
+function createCategorySettingRow({ title, description, control }) {
+    const row = document.createElement('div');
+    row.className = 'rovalra-home-layout-setting-row';
+
+    const text = document.createElement('div');
+    text.className = 'rovalra-home-layout-setting-text';
+
+    const titleElement = document.createElement('div');
+    titleElement.className = 'rovalra-home-layout-setting-title';
+    titleElement.textContent = title;
+
+    const descriptionElement = document.createElement('div');
+    descriptionElement.className = 'rovalra-home-layout-setting-description';
+    descriptionElement.textContent = description;
+
+    text.append(titleElement, descriptionElement);
+    row.append(text, control);
+
+    return row;
+}
+
+function openCategorySettingsOverlay(category, itemElement) {
+    const categoryKey = String(category.key);
+    let isHidden = isCategoryHidden(categoryKey);
+    let overlayHandle = null;
+
+    const container = document.createElement('div');
+    container.className = 'rovalra-home-layout-settings-editor';
+
+    const title = document.createElement('div');
+    title.className = 'rovalra-home-layout-settings-category';
+    title.textContent = category.topic;
+
+    const toggleButton = createButton('', 'secondary', {
+        onClick: () => {
+            isHidden = !isHidden;
+            updateState();
+        },
+    });
+    toggleButton.classList.add('rovalra-home-layout-setting-control');
+
+    const updateState = () => {
+        toggleButton.textContent = isHidden ? locale.show : locale.hide;
+        toggleButton.setAttribute(
+            'aria-pressed',
+            String(!isHidden),
+        );
+        container.classList.toggle('is-hidden-category', isHidden);
+    };
+
+    const settingsList = document.createElement('div');
+    settingsList.className = 'rovalra-home-layout-settings-list';
+    settingsList.appendChild(
+        createCategorySettingRow({
+            title: locale.visibility,
+            description: locale.visibilityDescription,
+            control: toggleButton,
+        }),
+    );
+
+    updateState();
+    container.append(title, settingsList);
+
+    const saveButton = createButton(locale.save, 'primary', {
+        onClick: () => {
+            const nextHiddenKeys = new Set(hiddenCategoryKeys.map(String));
+            if (isHidden) {
+                nextHiddenKeys.add(categoryKey);
+            } else {
+                nextHiddenKeys.delete(categoryKey);
+            }
+
+            saveHiddenCategoryKeys([...nextHiddenKeys], () => {
+                itemElement?.classList.toggle(
+                    'rovalra-home-layout-item-hidden',
+                    isHidden,
+                );
+                overlayHandle?.close();
+            });
+        },
+    });
+
+    overlayHandle = createOverlay({
+        title: locale.settingsTitle,
+        bodyContent: container,
+        actions: [saveButton],
+        maxWidth: '500px',
     });
 }
 
@@ -231,14 +396,15 @@ function createHomeLayoutItem(category) {
     const item = document.createElement('li');
     item.className = 'rovalra-home-layout-item';
     item.dataset.categoryKey = category.key;
+    item.classList.toggle(
+        'rovalra-home-layout-item-hidden',
+        isCategoryHidden(category.key),
+    );
 
     const handle = document.createElement('span');
     handle.className = 'rovalra-home-layout-drag-handle';
     handle.setAttribute('aria-hidden', 'true');
-    const svgData = getAssets().dragHandle;
-    if (svgData.startsWith('data:image/svg+xml,')) {
-        handle.innerHTML = decodeURIComponent(svgData.split(',')[1]); // verified
-    }
+    handle.innerHTML = decodeSvgAsset('dragHandle'); // verified
 
     const label = document.createElement('span');
     label.className = 'rovalra-home-layout-label';
@@ -248,7 +414,17 @@ function createHomeLayoutItem(category) {
     text.className = 'rovalra-home-layout-text';
     text.append(label);
 
-    item.append(handle, text);
+    const actions = document.createElement('span');
+    actions.className = 'rovalra-home-layout-actions';
+    actions.appendChild(
+        createIconButton({
+            assetName: 'edit',
+            label: locale.edit,
+            onClick: () => openCategorySettingsOverlay(category, item),
+        }),
+    );
+
+    item.append(handle, text, actions);
     return item;
 }
 
@@ -268,6 +444,7 @@ function onMouseDown(event) {
     if (event.button !== 0) return;
 
     const item = event.target.closest('.rovalra-home-layout-item');
+    if (event.target.closest('.rovalra-home-layout-icon-button')) return;
     const list = item?.closest('.rovalra-home-layout-list');
     if (!item || list !== event.currentTarget) return;
 
@@ -558,13 +735,16 @@ function openHomeLayoutOverlay() {
     let overlayHandle = null;
 
     const resetButton = createButton(locale.reset, 'secondary', {
-        disabled: !savedOrder.length,
+        disabled: !savedOrder.length && !hiddenCategoryKeys.length,
         onClick: () => {
-            chrome.storage.local.remove(ORDER_STORAGE_KEY, () => {
-                publishHomeLayoutOrder([]);
-                overlayHandle?.close();
-                window.location.reload();
-            });
+            chrome.storage.local.remove(
+                [ORDER_STORAGE_KEY, HIDDEN_STORAGE_KEY],
+                () => {
+                    publishHomeLayoutState([], []);
+                    overlayHandle?.close();
+                    window.location.reload();
+                },
+            );
         },
     });
 
@@ -661,12 +841,16 @@ function hydrateFromStorage() {
         {
             [ORDER_STORAGE_KEY]: [],
             [CATEGORIES_STORAGE_KEY]: [],
+            [HIDDEN_STORAGE_KEY]: [],
         },
         (data) => {
             categories = Array.isArray(data[CATEGORIES_STORAGE_KEY])
                 ? data[CATEGORIES_STORAGE_KEY]
                 : [];
-            publishHomeLayoutOrder(data[ORDER_STORAGE_KEY]);
+            publishHomeLayoutState(
+                data[ORDER_STORAGE_KEY],
+                data[HIDDEN_STORAGE_KEY],
+            );
         },
     );
 }
@@ -675,7 +859,7 @@ export async function init() {
     if (!initialized) {
         if ((await settings.homeLayoutEnabled) === false) {
             initialized = true;
-            publishHomeLayoutOrder([]);
+            publishHomeLayoutState([], []);
             return;
         }
 
@@ -693,7 +877,14 @@ export async function init() {
             if (namespace !== 'local') return;
 
             if (changes[ORDER_STORAGE_KEY]) {
-                publishHomeLayoutOrder(changes[ORDER_STORAGE_KEY].newValue);
+                publishHomeLayoutState(changes[ORDER_STORAGE_KEY].newValue);
+            }
+
+            if (changes[HIDDEN_STORAGE_KEY]) {
+                publishHomeLayoutState(
+                    savedOrder,
+                    changes[HIDDEN_STORAGE_KEY].newValue,
+                );
             }
 
             if (changes[CATEGORIES_STORAGE_KEY]) {

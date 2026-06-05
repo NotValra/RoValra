@@ -5,7 +5,13 @@
         "reset": "Reset",
         "save": "Save",
         "overlayTitle": "Home Layout",
-        "button": "customize Layout"
+        "button": "customize Layout",
+        "edit": "Edit",
+        "settingsTitle": "Category Settings",
+        "visibility": "Visibility",
+        "visibilityDescription": "Choose whether this category appears on Home.",
+        "show": "Show",
+        "hide": "Hide"
     },
     "underratedGames": {
         "topic": "Underrated Games",

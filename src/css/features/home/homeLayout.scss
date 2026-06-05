@@ -49,6 +49,18 @@
     background-color: var(--rovalra-button-background-color);
 }
 
+.rovalra-home-layout-item-hidden {
+    opacity: 0.72;
+}
+
+.rovalra-home-layout-item-hidden .rovalra-home-layout-drag-handle {
+    color: #1f1f1f;
+}
+
+.rovalra-home-layout-item-hidden .rovalra-home-layout-label {
+    color: var(--rovalra-secondary-text-color, #606162);
+}
+
 .rovalra-home-layout-drag-source {
     opacity: 0.3;
     transform: scale(0.95);
@@ -105,9 +117,97 @@
     white-space: nowrap;
 }
 
+.rovalra-home-layout-actions {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 6px;
+}
+
+.rovalra-home-layout-icon-button {
+    display: inline-flex;
+    width: 32px;
+    height: 32px;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--rovalra-main-text-color);
+    cursor: pointer;
+}
+
+.rovalra-home-layout-icon-button:hover {
+    background-color: var(--rovalra-button-background-color);
+}
+
+.rovalra-home-layout-icon,
+.rovalra-home-layout-icon svg {
+    display: block;
+    width: 20px;
+    height: 20px;
+}
+
+.rovalra-home-layout-icon svg {
+    fill: currentColor;
+}
+
 .rovalra-home-layout-empty {
     margin: 0;
     color: var(--text-secondary, #606162);
+}
+
+.rovalra-home-layout-settings-editor {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.rovalra-home-layout-settings-category {
+    color: var(--rovalra-main-text-color);
+    font-weight: 700;
+}
+
+.rovalra-home-layout-settings-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.rovalra-home-layout-setting-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    min-height: 56px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    background-color: var(--rovalra-container-background-color);
+}
+
+.rovalra-home-layout-setting-text {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.rovalra-home-layout-setting-title {
+    color: var(--rovalra-main-text-color);
+    font-weight: 700;
+}
+
+.rovalra-home-layout-setting-description {
+    color: var(--rovalra-secondary-text-color, #606162);
+    font-size: 13px;
+    line-height: 1.25;
+}
+
+.rovalra-home-layout-setting-control {
+    flex: 0 0 auto;
+    width: fit-content;
+    color: var(--rovalra-main-text-color);
 }
 
 .rovalra-underrated-games-rotation {
