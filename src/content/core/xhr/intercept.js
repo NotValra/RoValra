@@ -147,13 +147,50 @@
         let changed = false;
 
         homeExtraSorts.forEach((sort) => {
-            const key = getHomeSortKey(sort);
-            if (!key || existingKeys.has(key)) return;
+            const sortCopy = { ...sort };
+            const key = getHomeSortKey(sortCopy);
+
+            if (!key || existingKeys.has(key)) {
+                return;
+            }
+
+            if (Array.isArray(sortCopy.games)) {
+                if (!data.contentMetadata) {
+                    data.contentMetadata = {};
+                }
+                if (!data.contentMetadata.Game) {
+                    data.contentMetadata.Game = {};
+                }
+
+                if (!Array.isArray(data.games)) data.games = [];
+                const existingGameIds = new Set(
+                    data.games.map((g) => g.universeId),
+                );
+
+                sortCopy.games.forEach((game) => {
+                    const uId = game.universeId;
+                    if (!uId) return;
+                    const uIdStr = String(uId);
+
+                    data.contentMetadata.Game[uIdStr] = {
+                        ...(data.contentMetadata.Game[uIdStr] || {}),
+                        ...game,
+                    };
+
+                    if (!existingGameIds.has(uId)) {
+                        data.games.push(game);
+                        existingGameIds.add(uId);
+                    } else {
+                    }
+                });
+
+                delete sortCopy.games;
+            }
 
             if (insertionIndex === -1) {
-                data.sorts.push(sort);
+                data.sorts.push(sortCopy);
             } else {
-                data.sorts.splice(insertionIndex, 0, sort);
+                data.sorts.splice(insertionIndex, 0, sortCopy);
                 insertionIndex += 1;
             }
             existingKeys.add(key);

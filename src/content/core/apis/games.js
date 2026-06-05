@@ -230,6 +230,43 @@ export async function getPlaceDetails(placeId) {
     }
 }
 
+export async function getUniversesDetails(universeIds) {
+    if (!Array.isArray(universeIds) || universeIds.length === 0) return [];
+
+    try {
+        const data = await callRobloxApiJson({
+            subdomain: 'games',
+            endpoint: `/v1/games?universeIds=${universeIds.join(',')}`,
+            method: 'GET',
+        });
+
+        return data?.data || [];
+    } catch (error) {
+        console.error('RoValra: Failed to fetch universe details', error);
+        return [];
+    }
+}
+
+export async function getUniversesVotes(universeIds) {
+    if (!Array.isArray(universeIds) || universeIds.length === 0) return [];
+
+    try {
+        const data = await callRobloxApiJson({
+            subdomain: 'games',
+            endpoint: `/v1/games/votes?universeIds=${universeIds.join(',')}`,
+            method: 'GET',
+        });
+
+        return (data?.data || []).map((vote) => ({
+            ...vote,
+            universeId: vote.id,
+        }));
+    } catch (error) {
+        console.error('RoValra: Failed to fetch universe votes', error);
+        return [];
+    }
+}
+
 export default {
     getExperienceSduiProps,
     getVisibilityVariables,
@@ -251,5 +288,7 @@ export default {
     getCloudPlatformSupport,
     getCloudRootPlaceId,
     getPlaceDetails,
+    getUniversesDetails,
+    getUniversesVotes,
     REASON_PROHIBITED_TYPES,
 };

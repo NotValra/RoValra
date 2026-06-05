@@ -1,5 +1,9 @@
 import { callRobloxApiJson } from '../../core/api.js';
-import { getExperienceGuidelinesAgeRecommendationSummary } from '../../core/apis/games.js';
+import {
+    getExperienceGuidelinesAgeRecommendationSummary,
+    getUniversesDetails,
+    getUniversesVotes,
+} from '../../core/apis/games.js';
 import { t } from '../../core/locale/i18n.js';
 import { observeElement } from '../../core/observer.js';
 import { settings } from '../../core/settings/getSettings.js';
@@ -43,13 +47,13 @@ function createUnderratedGamesSort(games, locale) {
         subtitle: createUnderratedGamesSubtitle(locale),
         topicId: UNDERRATED_GAMES_TOPIC_ID,
         treatmentType: 'Carousel',
+        games: games,
         recommendationList: games.map((game) => ({
             contentType: 'Game',
-            contentId: game.universe_id,
+            contentId: game.universeId,
             contentStringId: '',
             contentMetadata: {
                 Score: '1',
-                ...(game.category ? { Category: game.category } : {}),
             },
             analyticsData: {},
         })),
@@ -81,16 +85,61 @@ function normalizeUnderratedGames(games) {
 
     const seenUniverseIds = new Set();
     return games
-        .map((game) => ({
-            category:
-                typeof game?.category === 'string' ? game.category.trim() : '',
-            universe_id: Number(game?.universe_id),
-        }))
-        .filter((game) => {
-            if (!Number.isSafeInteger(game.universe_id)) return false;
-            if (seenUniverseIds.has(game.universe_id)) return false;
+        .map((game) => {
+            const universeId = Number(
+                game?.universe_id || game?.universeId || game?.id,
+            );
+            const category =
+                typeof game?.category === 'string' ? game.category.trim() : '';
 
-            seenUniverseIds.add(game.universe_id);
+            return {
+                ...game,
+                universeId,
+                universe_id: universeId,
+                name: game.name || '',
+                rootPlaceId: Number(
+                    game.root_place_id || game.rootPlaceId || 0,
+                ),
+                playerCount: Number(
+                    game.player_count || game.playerCount || game.playing || 0,
+                ),
+                totalUpVotes: Number(
+                    game.total_up_votes ||
+                        game.totalUpVotes ||
+                        game.upVotes ||
+                        0,
+                ),
+                totalDownVotes: Number(
+                    game.total_down_votes ||
+                        game.totalDownVotes ||
+                        game.downVotes ||
+                        0,
+                ),
+                contentMaturity: game.contentMaturity || 'minimal',
+                ageRecommendationDisplayName:
+                    game.ageRecommendationDisplayName || 'Maturity: Minimal',
+                primaryMediaAsset: game.primaryMediaAsset || {},
+                category,
+
+                layoutDataBySort: {
+                    [UNDERRATED_GAMES_TOPIC_ID]: {
+                        title: game.name || '',
+                        primaryMediaAsset: {
+                            wideImageAssetId:
+                                game.wide_image_asset_id ||
+                                game.wideImageAssetId ||
+                                '0',
+                            wideImageListId: '0',
+                        },
+                    },
+                },
+            };
+        })
+        .filter((game) => {
+            if (!Number.isSafeInteger(game.universeId)) return false;
+            if (seenUniverseIds.has(game.universeId)) return false;
+
+            seenUniverseIds.add(game.universeId);
             return true;
         });
 }
@@ -276,8 +325,47 @@ async function loadUnderratedGames() {
 
     if (data?.status !== 'success') return null;
 
-    const games = normalizeUnderratedGames(data.games);
+    let games = normalizeUnderratedGames(data.games);
     if (!games.length) return null;
+
+    const sample = games[0];
+    if (!sample.name || !sample.rootPlaceId) {
+        try {
+            const universeIds = games.map((g) => g.universeId);
+            const [details, votes] = await Promise.all([
+                getUniversesDetails(universeIds),
+                getUniversesVotes(universeIds),
+            ]);
+
+            if (Array.isArray(details)) {
+                const detailsMap = new Map(details.map((d) => [d.id, d]));
+                const votesMap = new Map(
+                    Array.isArray(votes)
+                        ? votes.map((v) => [v.universeId, v])
+                        : [],
+                );
+
+                games = games.map((game) => {
+                    const detail = detailsMap.get(game.universeId);
+                    const vote = votesMap.get(game.universeId);
+
+                    return {
+                        ...game,
+                        ...(detail || {}),
+                        ...(vote || {}),
+                    };
+                });
+
+                games = normalizeUnderratedGames(games);
+            }
+        } catch (error) {
+            console.warn(
+                'RoValra: failed to fetch underrated game details',
+                error,
+            );
+        }
+    }
+
     underratedGamesByUniverseId = new Map(
         games.map((game) => [game.universe_id, game]),
     );
