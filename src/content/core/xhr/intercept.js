@@ -43,6 +43,8 @@
 
     let streamerModeEnabled = false;
     let settingsPageInfoEnabled = true;
+    let accurateContinueEnabled = true;
+    let accurateContinueGames = [];
     let homeLayoutOrder = [];
     let homeLayoutHidden = [];
     let homeExtraSorts = [];
@@ -52,6 +54,8 @@
             sessionStorage.getItem('rovalra_streamermode') === 'true';
         settingsPageInfoEnabled =
             sessionStorage.getItem('rovalra_settingsPageInfo') !== 'false';
+        accurateContinueEnabled =
+            sessionStorage.getItem('rovalra_accurateContinue') !== 'false';
         homeLayoutOrder = JSON.parse(
             sessionStorage.getItem('rovalra_homeLayoutOrder') || '[]',
         );
@@ -66,6 +70,15 @@
             settingsPageInfoEnabled = e.detail.settingsPageInfo !== false;
         } else {
             streamerModeEnabled = e.detail === true;
+        }
+    });
+
+    document.addEventListener('rovalra-accurate-continue', (e) => {
+        if (e.detail) {
+            accurateContinueEnabled = e.detail.enabled !== false;
+            accurateContinueGames = Array.isArray(e.detail.games)
+                ? e.detail.games
+                : [];
         }
     });
 
@@ -258,6 +271,59 @@
         return true;
     }
 
+    function applyAccurateContinue(data) {
+        if (
+            !accurateContinueEnabled ||
+            !accurateContinueGames.length ||
+            data?.pageType !== 'Home' ||
+            !Array.isArray(data.sorts)
+        ) {
+            return false;
+        }
+
+        const continueSort = data.sorts.find((s) => s.topicId === 100000003);
+        if (!continueSort) return false;
+
+        continueSort.recommendationList = accurateContinueGames.map((game) => ({
+            contentType: 'Game',
+            contentId: game.universeId,
+            contentStringId: '',
+            contentMetadata: {},
+            analyticsData: {},
+        }));
+
+        if (!data.contentMetadata) data.contentMetadata = {};
+        if (!data.contentMetadata.Game) data.contentMetadata.Game = {};
+        if (!Array.isArray(data.games)) data.games = [];
+
+        const existingGameIds = new Set(data.games.map((g) => g.universeId));
+
+        accurateContinueGames.forEach((game) => {
+            const uId = game.universeId;
+            if (!uId) return;
+            const uIdStr = String(uId);
+
+            data.contentMetadata.Game[uIdStr] = {
+                ...(data.contentMetadata.Game[uIdStr] || {}),
+                ...game,
+                universeId: uId,
+            };
+
+            if (!existingGameIds.has(uId)) {
+                data.games.push(game);
+                existingGameIds.add(uId);
+            }
+        });
+
+        if (!continueSort.treatmentType) {
+            continueSort.treatmentType = 'Carousel';
+        }
+
+        continueSort.numberOfRows = 1;
+
+        return true;
+    }
+
     function hideHomeSorts(data) {
         if (
             !Array.isArray(homeLayoutHidden) ||
@@ -285,10 +351,16 @@
         try {
             const data = await response.clone().json();
             const addedExtraSorts = addHomeExtraSorts(data);
+            const accurateContinue = applyAccurateContinue(data);
             dispatchHomeLayoutCategories(data);
             const hiddenSorts = hideHomeSorts(data);
             const reorderedSorts = reorderHomeSorts(data);
-            if (!addedExtraSorts && !hiddenSorts && !reorderedSorts) {
+            if (
+                !addedExtraSorts &&
+                !hiddenSorts &&
+                !reorderedSorts &&
+                !accurateContinue
+            ) {
                 return response;
             }
 
@@ -585,6 +657,7 @@
                             addHomeExtraSorts(data);
                             dispatchHomeLayoutCategories(data);
                             hideHomeSorts(data);
+                            applyAccurateContinue(data);
                             reorderHomeSorts(data);
                         }
                         if (xhr._rovalra_spoof_settings) {
