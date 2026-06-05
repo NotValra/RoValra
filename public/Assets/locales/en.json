@@ -16,7 +16,8 @@
     "underratedGames": {
         "topic": "Underrated Games",
         "subtitle": "Underrated games hand picked by the RoValra community.",
-        "rotates": "Rotates"
+        "rotates": "Rotates",
+        "suggestOnDiscord": "Suggest underrated games on {{discord}}"
     },
     "trustedFriends": {
         "pendingConnection": "Pending Trusted Friend",

@@ -8,13 +8,17 @@ import { t } from '../../core/locale/i18n.js';
 import { observeElement } from '../../core/observer.js';
 import { settings } from '../../core/settings/getSettings.js';
 import { createInteractiveTimestamp } from '../../core/ui/time/time.js';
+import { isAuthenticatedUser13PlusAndAgeChecked } from '../../core/utils/trackers/birthday.js';
 
 const UNDERRATED_GAMES_TOPIC_ID = 10000013058;
 const UNDERRATED_GAMES_SUB_ID = 'rovalra-underrated-games';
+const DISCORD_MARKER = '__ROVALRA_UNDERRATED_GAMES_DISCORD__';
+const DISCORD_LINK = 'https://discord.gg/YwpJFKr6Ww';
 const DEFAULT_LOCALE = {
     topic: 'Underrated Games',
     subtitle: 'Underrated games hand picked by the RoValra community.',
     rotates: 'Rotates',
+    suggestOnDiscord: `Suggest underrated games on ${DISCORD_MARKER}`,
 };
 const ROTATION_MARKER = '__ROVALRA_UNDERRATED_GAMES_ROTATION__';
 
@@ -24,21 +28,33 @@ let underratedGamesByUniverseId = new Map();
 const maturitySummaryPromises = new Map();
 
 async function getUnderratedGamesLocale() {
+    const is13Plus = await isAuthenticatedUser13PlusAndAgeChecked();
     try {
         return {
             topic: await t('underratedGames.topic'),
             subtitle: await t('underratedGames.subtitle'),
             rotates: await t('underratedGames.rotates'),
+            suggestOnDiscord: await t('underratedGames.suggestOnDiscord', {
+                discord: DISCORD_MARKER,
+            }),
+            is13Plus,
         };
     } catch {
-        return DEFAULT_LOCALE;
+        return { ...DEFAULT_LOCALE, is13Plus };
     }
 }
 
 function createUnderratedGamesSubtitle(locale) {
-    if (!rotationExpiresAt) return locale.subtitle;
+    let subtitle = locale.subtitle;
+    if (rotationExpiresAt) {
+        subtitle += ` ${locale.rotates} ${ROTATION_MARKER}`;
+    }
 
-    return `${locale.subtitle} ${locale.rotates} ${ROTATION_MARKER}`;
+    if (locale.is13Plus) {
+        subtitle += `\n${locale.suggestOnDiscord}`;
+    }
+
+    return subtitle;
 }
 
 function createUnderratedGamesSort(games, locale) {
@@ -280,13 +296,17 @@ function publishUnderratedGamesSort(sort) {
 }
 
 function replaceRotationMarker(root) {
-    if (!rotationExpiresAt || !root.textContent?.includes(ROTATION_MARKER)) {
+    if (
+        !root.textContent?.includes(ROTATION_MARKER) &&
+        !root.textContent?.includes(DISCORD_MARKER)
+    ) {
         return;
     }
 
     const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
         acceptNode(node) {
-            return node.nodeValue.includes(ROTATION_MARKER)
+            const val = node.nodeValue;
+            return val.includes(ROTATION_MARKER) || val.includes(DISCORD_MARKER)
                 ? NodeFilter.FILTER_ACCEPT
                 : NodeFilter.FILTER_REJECT;
         },
@@ -300,16 +320,45 @@ function replaceRotationMarker(root) {
     }
 
     markerNodes.forEach((node) => {
+        const parent = node.parentNode;
+        if (parent && node.nodeValue.includes('\n')) {
+            parent.style.whiteSpace = 'pre-wrap';
+            parent.style.display = 'block';
+        }
+
         const fragment = document.createDocumentFragment();
-        const parts = node.nodeValue.split(ROTATION_MARKER);
+        const regex = new RegExp(
+            `(${ROTATION_MARKER}|${DISCORD_MARKER}|\\n)`,
+            'g',
+        );
+        const parts = node.nodeValue.split(regex);
 
-        parts.forEach((part, index) => {
-            if (part) fragment.append(part);
-            if (index === parts.length - 1) return;
-
-            const timestamp = createInteractiveTimestamp(rotationExpiresAt);
-            timestamp.classList.add('rovalra-underrated-games-rotation');
-            fragment.appendChild(timestamp);
+        parts.forEach((part) => {
+            if (part === ROTATION_MARKER) {
+                if (rotationExpiresAt) {
+                    const timestamp =
+                        createInteractiveTimestamp(rotationExpiresAt);
+                    timestamp.classList.add(
+                        'rovalra-underrated-games-rotation',
+                    );
+                    fragment.appendChild(timestamp);
+                }
+            } else if (part === DISCORD_MARKER) {
+                const link = document.createElement('a');
+                link.href = DISCORD_LINK;
+                link.target = '_blank';
+                link.rel = 'noopener noreferrer';
+                link.textContent = 'Discord';
+                link.style.color = 'var(--rovalra-playbutton-color)';
+                link.style.textDecoration = 'underline';
+                link.style.fontWeight = '600';
+                link.addEventListener('click', (e) => e.stopPropagation());
+                fragment.appendChild(link);
+            } else if (part === '\n') {
+                fragment.appendChild(document.createElement('br'));
+            } else if (part) {
+                fragment.append(part);
+            }
         });
 
         node.parentNode?.replaceChild(fragment, node);
