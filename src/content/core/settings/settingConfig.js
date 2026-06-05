@@ -1300,6 +1300,15 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: false,
             },
+            removeDownloadButton: {
+                label: 'Remove Download Button',
+                description: [
+                    'Removes the out of place download button from navigation bar.',
+                ],
+                type: 'checkbox',
+                default: false,
+                contributors: ['3602693727'],
+            },
             transactionsSidebarLinkEnabled: {
                 label: 'My Transactions sidebar link',
                 description:
@@ -1618,15 +1627,6 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: false,
                 contributors: ['1564574922'],
-            },
-            removeDownloadButton: {
-                label: 'Remove Download Button',
-                description: [
-                    'Removes the out of place download button from the topbar.',
-                ],
-                type: 'checkbox',
-                default: false,
-                contributors: ['3602693727'],
             },
         },
     },
