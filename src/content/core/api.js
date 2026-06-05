@@ -288,17 +288,12 @@ export async function callRobloxApi(options) {
             fullUrl: customFullUrl,
             skipAutoAuth = false,
             signal,
-            useBackground: initialUseBackground = false,
+            useBackground = false,
             useApiKey = false,
             noCache = false,
         } = options;
 
-        const useBackground = initialUseBackground || subdomain === 'gamejoin';
         const normalizedHeaders = new Headers(headers);
-
-        const isMutatingMethod = ['POST', 'PATCH', 'DELETE'].includes(
-            method.toUpperCase(),
-        );
 
         if (isRovalraApi && subdomain === 'apis') {
             normalizedHeaders.set(
@@ -314,11 +309,35 @@ export async function callRobloxApi(options) {
             }
         }
 
-        if (isMutatingMethod && !isRovalraApi) {
-            const csrfToken = await getCsrfToken();
-            if (csrfToken) {
-                normalizedHeaders.set('X-CSRF-TOKEN', csrfToken);
-            }
+        if (useBackground) {
+            return new Promise((resolve) => {
+                chrome.runtime.sendMessage(
+                    {
+                        action: 'fetchRobloxApi',
+                        options: {
+                            endpoint,
+                            subdomain,
+                            method,
+                            body,
+                            headers: Object.fromEntries(
+                                normalizedHeaders.entries(),
+                            ),
+                            noCache,
+                        },
+                    },
+                    (response) => {
+                        if (chrome.runtime.lastError || !response) {
+                            resolve(Response.error());
+                            return;
+                        }
+                        if (useApiKey && response.status === 401) {
+                            invalidateApiKey();
+                        }
+                        const { body, ...init } = response;
+                        resolve(new Response(body, init));
+                    },
+                );
+            });
         }
 
         if (isRovalraApi && subdomain === 'apis') {
@@ -392,37 +411,6 @@ export async function callRobloxApi(options) {
             }
         }
 
-        if (useBackground) {
-            return new Promise((resolve) => {
-                chrome.runtime.sendMessage(
-                    {
-                        action: 'fetchRobloxApi',
-                        options: {
-                            endpoint,
-                            subdomain,
-                            method,
-                            body,
-                            headers: Object.fromEntries(
-                                normalizedHeaders.entries(),
-                            ),
-                            noCache,
-                        },
-                    },
-                    (response) => {
-                        if (chrome.runtime.lastError || !response) {
-                            resolve(Response.error());
-                            return;
-                        }
-                        if (useApiKey && response.status === 401) {
-                            invalidateApiKey();
-                        }
-                        const { body, ...init } = response;
-                        resolve(new Response(body, init));
-                    },
-                );
-            });
-        }
-
         const baseUrl = isRovalraApi
             ? subdomain === 'www'
                 ? 'https://www.rovalra.com'
@@ -435,6 +423,10 @@ export async function callRobloxApi(options) {
         } else {
             fullUrl += `?_RoValraRequest=${noCache ? Date.now() : ''}`;
         }
+
+        const isMutatingMethod = ['POST', 'PATCH', 'DELETE'].includes(
+            method.toUpperCase(),
+        );
 
         const credentials =
             options.credentials ?? (isRovalraApi ? 'omit' : 'include');
@@ -628,6 +620,13 @@ export async function callRobloxApi(options) {
                 );
             }
             return lastResponse;
+        }
+
+        if (isMutatingMethod) {
+            const csrfToken = await getCsrfToken();
+            if (csrfToken) {
+                normalizedHeaders.set('X-CSRF-TOKEN', csrfToken);
+            }
         }
 
         let response;
