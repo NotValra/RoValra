@@ -244,6 +244,27 @@ export function resetGameJoinErrorCount() {
 }
 
 export async function callRobloxApi(options) {
+    if (
+        options.subdomain === 'gamejoin' &&
+        (options.method || 'GET').toUpperCase() === 'POST'
+    ) {
+        if (
+            options.body &&
+            typeof options.body === 'object' &&
+            !(options.body instanceof FormData)
+        ) {
+            const bodyUpdate = { joinOrigin: 'RoValraFetchInfo' };
+            if (!options.body.gameJoinAttemptId) {
+                bodyUpdate.gameJoinAttemptId = self.crypto.randomUUID();
+            }
+
+            options = {
+                ...options,
+                body: { ...options.body, ...bodyUpdate },
+            };
+        }
+    }
+
     captureApiCall(options);
 
     if (options.subdomain === 'gamejoin') {
