@@ -66,7 +66,6 @@ async function isServerActive(placeId, gameId) {
             body: {
                 placeId: parseInt(placeId, 10),
                 gameId: gameId,
-                isTeleport: false,
             },
         });
         if (!response.ok) return false;
