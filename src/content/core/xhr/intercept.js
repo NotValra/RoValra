@@ -121,6 +121,7 @@
     function dispatchHomeLayoutCategories(data) {
         if (data?.pageType !== 'Home' || !Array.isArray(data.sorts)) return;
 
+        const seenKeys = new Set();
         const categories = data.sorts
             .map((sort) => ({
                 key: getHomeSortKey(sort),
@@ -128,7 +129,12 @@
                 topicId: sort?.topicId ?? null,
                 treatmentType: sort?.treatmentType || '',
             }))
-            .filter((category) => category.key);
+            .filter((category) => {
+                if (!category.key || seenKeys.has(category.key)) return false;
+
+                seenKeys.add(category.key);
+                return true;
+            });
 
         if (!categories.length) return;
 
@@ -193,7 +199,6 @@
                     if (!existingGameIds.has(uId)) {
                         data.games.push(game);
                         existingGameIds.add(uId);
-                    } else {
                     }
                 });
 

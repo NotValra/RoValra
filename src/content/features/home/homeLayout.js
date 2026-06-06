@@ -182,22 +182,56 @@ function syncCategoryOrder(newCategories) {
     );
 }
 
+function createNormalizedCategory(category) {
+    if (!category?.key) return null;
+
+    return {
+        key: String(category.key),
+        topic: category.topic || locale.untitled,
+        topicId: category.topicId ?? null,
+        treatmentType: category.treatmentType || '',
+    };
+}
+
+function compactCategoriesByKey(categoryList) {
+    if (!Array.isArray(categoryList)) {
+        return { categories: [], changed: false };
+    }
+
+    const categoryMap = new Map();
+    let changed = false;
+
+    categoryList.forEach((category) => {
+        const normalizedCategory = createNormalizedCategory(category);
+        if (!normalizedCategory) {
+            changed = true;
+            return;
+        }
+
+        if (categoryMap.has(normalizedCategory.key)) {
+            changed = true;
+        }
+
+        categoryMap.set(normalizedCategory.key, normalizedCategory);
+    });
+
+    const compactedCategories = [...categoryMap.values()];
+    changed = changed || compactedCategories.length !== categoryList.length;
+
+    return { categories: compactedCategories, changed };
+}
+
 function mergeCategories(newCategories) {
     if (!Array.isArray(newCategories)) return false;
 
     let changed = false;
     for (const category of newCategories) {
-        if (!category?.key) continue;
+        const nextCategory = createNormalizedCategory(category);
+        if (!nextCategory) continue;
 
-        const key = String(category.key);
-        const nextCategory = {
-            key,
-            topic: category.topic || locale.untitled,
-            topicId: category.topicId ?? null,
-            treatmentType: category.treatmentType || '',
-        };
-
-        const existingCategory = categories.find((item) => item.key === key);
+        const existingCategory = categories.find(
+            (item) => item.key === nextCategory.key,
+        );
         if (existingCategory) {
             if (
                 existingCategory.topic !== nextCategory.topic ||
@@ -212,6 +246,12 @@ function mergeCategories(newCategories) {
         }
 
         categories.push(nextCategory);
+        changed = true;
+    }
+
+    const compacted = compactCategoriesByKey(categories);
+    if (compacted.changed) {
+        categories = compacted.categories;
         changed = true;
     }
 
@@ -844,9 +884,15 @@ function hydrateFromStorage() {
             [HIDDEN_STORAGE_KEY]: [],
         },
         (data) => {
-            categories = Array.isArray(data[CATEGORIES_STORAGE_KEY])
-                ? data[CATEGORIES_STORAGE_KEY]
-                : [];
+            const compacted = compactCategoriesByKey(
+                data[CATEGORIES_STORAGE_KEY],
+            );
+            categories = compacted.categories;
+            if (compacted.changed) {
+                chrome.storage.local.set({
+                    [CATEGORIES_STORAGE_KEY]: categories,
+                });
+            }
             publishHomeLayoutState(
                 data[ORDER_STORAGE_KEY],
                 data[HIDDEN_STORAGE_KEY],
@@ -888,11 +934,10 @@ export async function init() {
             }
 
             if (changes[CATEGORIES_STORAGE_KEY]) {
-                categories = Array.isArray(
+                const compacted = compactCategoriesByKey(
                     changes[CATEGORIES_STORAGE_KEY].newValue,
-                )
-                    ? changes[CATEGORIES_STORAGE_KEY].newValue
-                    : [];
+                );
+                categories = compacted.categories;
             }
         });
     }
