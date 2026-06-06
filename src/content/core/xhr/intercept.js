@@ -18,6 +18,8 @@
     const TRADES_LIST_API_URL = 'https://trades.roblox.com/v1/trades/';
     const OMNI_RECOMMENDATION_API_URL =
         'https://apis.roblox.com/discovery-api/omni-recommendation';
+    const FRIEND_CAROUSEL_TOPIC_ID = 600000000;
+    const FRIEND_CAROUSEL_TREATMENT_TYPE = 'FriendCarousel';
 
     let ASSET_TYPE_ACCESSORIES = [8, 41, 42, 43, 44, 45, 46, 47, 57, 58];
     let ASSET_TYPE_LAYERED = [64, 65, 66, 67, 68, 69, 70, 71, 72];
@@ -116,6 +118,13 @@
         }
         if (sort.topic) return `topic:${sort.topic}`;
         return '';
+    }
+
+    function isFriendCarouselSort(sort) {
+        return (
+            sort?.topicId === FRIEND_CAROUSEL_TOPIC_ID &&
+            sort?.treatmentType === FRIEND_CAROUSEL_TREATMENT_TYPE
+        );
     }
 
     function dispatchHomeLayoutCategories(data) {
@@ -342,7 +351,9 @@
         const hiddenKeys = new Set(homeLayoutHidden.map(String));
         const previousLength = data.sorts.length;
         data.sorts = data.sorts.filter(
-            (sort) => !hiddenKeys.has(getHomeSortKey(sort)),
+            (sort) =>
+                isFriendCarouselSort(sort) ||
+                !hiddenKeys.has(getHomeSortKey(sort)),
         );
 
         return data.sorts.length !== previousLength;

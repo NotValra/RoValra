@@ -12,6 +12,8 @@ const ORDER_SESSION_KEY = 'rovalra_homeLayoutOrder';
 const HIDDEN_SESSION_KEY = 'rovalra_homeLayoutHidden';
 const HOLD_THRESHOLD = 200;
 const MOVE_THRESHOLD = 5;
+const FRIEND_CAROUSEL_TOPIC_ID = 600000000;
+const FRIEND_CAROUSEL_TREATMENT_TYPE = 'FriendCarousel';
 const DEFAULT_LOCALE = {
     untitled: 'Untitled',
     empty: 'Open or refresh Home once so RoValra can learn the current categories.',
@@ -193,6 +195,13 @@ function createNormalizedCategory(category) {
     };
 }
 
+function isFriendCarouselCategory(category) {
+    return (
+        category?.topicId === FRIEND_CAROUSEL_TOPIC_ID &&
+        category?.treatmentType === FRIEND_CAROUSEL_TREATMENT_TYPE
+    );
+}
+
 function compactCategoriesByKey(categoryList) {
     if (!Array.isArray(categoryList)) {
         return { categories: [], changed: false };
@@ -300,7 +309,16 @@ function saveOrderFromList(listElement, onSaved) {
 
 function saveHiddenCategoryKeys(nextHiddenKeys, onSaved) {
     const normalizedHiddenKeys = Array.isArray(nextHiddenKeys)
-        ? nextHiddenKeys.map(String)
+        ? nextHiddenKeys
+              .map(String)
+              .filter(
+                  (key) =>
+                      !categories.some(
+                          (category) =>
+                              category.key === key &&
+                              isFriendCarouselCategory(category),
+                      ),
+              )
         : [];
 
     chrome.storage.local.set(
@@ -438,7 +456,7 @@ function createHomeLayoutItem(category) {
     item.dataset.categoryKey = category.key;
     item.classList.toggle(
         'rovalra-home-layout-item-hidden',
-        isCategoryHidden(category.key),
+        !isFriendCarouselCategory(category) && isCategoryHidden(category.key),
     );
 
     const handle = document.createElement('span');
@@ -456,13 +474,15 @@ function createHomeLayoutItem(category) {
 
     const actions = document.createElement('span');
     actions.className = 'rovalra-home-layout-actions';
-    actions.appendChild(
-        createIconButton({
-            assetName: 'edit',
-            label: locale.edit,
-            onClick: () => openCategorySettingsOverlay(category, item),
-        }),
-    );
+    if (!isFriendCarouselCategory(category)) {
+        actions.appendChild(
+            createIconButton({
+                assetName: 'edit',
+                label: locale.edit,
+                onClick: () => openCategorySettingsOverlay(category, item),
+            }),
+        );
+    }
 
     item.append(handle, text, actions);
     return item;
