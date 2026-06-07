@@ -4,19 +4,23 @@ import { getAssets } from '../../core/assets.js';
 import { callRobloxApi } from '../../core/api.js';
 import { getPlaceIdFromUrl } from '../../core/idExtractor.js';
 import { ts } from '../../core/locale/i18n.js';
+import { getItemDetails } from '../../core/catalog/itemPrice.js';
+import { createInteractiveTimestamp } from '../../core/ui/time/time.js';
 
 const itemPrices = new Map();
 const itemIsOffSale = new Map();
+const itemOffSaleDeadlines = new Map();
 const pendingCards = new Map();
 let listenersAttached = false;
 
 function addPriceIconToCard(card, assetId) {
     const price = itemPrices.get(assetId);
     const isOffSale = itemIsOffSale.get(assetId);
+    const deadline = itemOffSaleDeadlines.get(assetId);
 
     if (isOffSale && price !== undefined && price > 1) {
         if (card.matches('.price-container-text')) {
-            addTextPrice(card, price);
+            addTextPrice(card, price, deadline);
             return;
         }
 
@@ -46,7 +50,7 @@ function addPriceIconToCard(card, assetId) {
             container &&
             !container.querySelector('.rovalra-offsale-price-icon')
         ) {
-            addIcon(container, price);
+            addIcon(container, price, deadline);
         }
     }
 }
@@ -59,6 +63,14 @@ export function init() {
 
         if (listenersAttached) return;
         listenersAttached = true;
+
+        observeElement(
+            '#offsale-since-date',
+            (el) => {
+                el.style.display = 'none';
+            },
+            { multiple: true },
+        );
 
         window.addEventListener('rovalra-catalog-details', async (e) => {
             const data = e.detail;
@@ -75,6 +87,9 @@ export function init() {
                         item.id,
                         item.isOffSale || item.priceStatus === 'Off Sale',
                     );
+                    if (item.offSaleDeadline) {
+                        itemOffSaleDeadlines.set(item.id, item.offSaleDeadline);
+                    }
                     updatedAssetIds.add(item.id);
                 }
             });
@@ -294,7 +309,7 @@ function handleItemCard(card) {
     }
 }
 
-function handleOffsalePriceContainer(container) {
+async function handleOffsalePriceContainer(container) {
     if (container.dataset.rovalraPreviousPrice) return;
     container.dataset.rovalraPreviousPrice = 'true';
 
@@ -302,6 +317,40 @@ function handleOffsalePriceContainer(container) {
     if (!assetId) return;
 
     const numericAssetId = parseInt(assetId);
+    const isBundle = window.location.pathname.includes('/bundles/');
+    const itemType = isBundle ? 'Bundle' : 'Asset';
+
+    const currentPrice = itemPrices.get(numericAssetId);
+    const hasValidPreviousPrice =
+        currentPrice !== undefined && currentPrice > 1;
+    const hasDeadline = itemOffSaleDeadlines.has(numericAssetId);
+
+    if (!hasValidPreviousPrice || !hasDeadline) {
+        try {
+            const details = await getItemDetails(numericAssetId, itemType);
+            if (details) {
+                const previousPrice = details.price || details.lowestPrice;
+                if (previousPrice !== undefined && previousPrice !== null)
+                    itemPrices.set(numericAssetId, previousPrice);
+
+                if (details.offSaleDeadline)
+                    itemOffSaleDeadlines.set(
+                        numericAssetId,
+                        details.offSaleDeadline,
+                    );
+
+                itemIsOffSale.set(
+                    numericAssetId,
+                    details.isOffSale || details.priceStatus === 'Off Sale',
+                );
+            }
+        } catch (e) {
+            console.warn(
+                'RoValra: Failed to fetch item details for previous price',
+                e,
+            );
+        }
+    }
 
     if (itemPrices.has(numericAssetId)) {
         addPriceIconToCard(container, numericAssetId);
@@ -316,10 +365,14 @@ function handleOffsalePriceContainer(container) {
     }
 }
 
-function addIcon(container, price) {
+function addIcon(container, price, deadline) {
     if (container.querySelector('.rovalra-offsale-price-icon')) return;
 
     const assets = getAssets();
+    const date = new Date(deadline);
+    const hasDeadline =
+        deadline && !isNaN(date.getTime()) && date.getFullYear() >= 2000;
+
     const icon = document.createElement('div');
     icon.className = 'rovalra-offsale-price-icon';
     Object.assign(icon.style, {
@@ -334,23 +387,65 @@ function addIcon(container, price) {
         mask: `url("${assets.priceFloorIcon}") no-repeat center / contain`,
     });
 
-    addTooltip(
-        icon,
-        `${ts('previousPrice.text')} <span class="icon-robux-16x16" style="vertical-align: middle; margin: 0 2px;"></span>${price.toLocaleString()}`,
-    );
+    const robuxHtml = `<span class="icon-robux-16x16" style="vertical-align: middle; margin: 0 2px;"></span>${price.toLocaleString()}`;
+    let tooltipText;
+
+    if (hasDeadline) {
+        const formattedDate = date.toLocaleDateString(undefined, {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+        });
+        tooltipText = `${ts('previousPrice.lastOnSale')} ${formattedDate} ${ts(
+            'previousPrice.for',
+        )} ${robuxHtml}`;
+    } else {
+        tooltipText = `${ts('previousPrice.text')} ${robuxHtml}`;
+    }
+
+    addTooltip(icon, tooltipText);
 
     container.appendChild(icon);
 }
 
-function addTextPrice(container, price) {
+function addTextPrice(container, price, deadline) {
     if (container.querySelector('.rovalra-previous-price-text')) return;
+
+    const date = new Date(deadline);
+    const hasDeadline =
+        deadline && !isNaN(date.getTime()) && date.getFullYear() >= 2000;
 
     const div = document.createElement('div');
     div.className = 'rovalra-previous-price-text';
     div.style.marginTop = '5px';
     div.style.fontSize = '12px';
     div.style.color = 'var(--rovalra-secondary-text-color)';
-    div.innerHTML = `${ts('previousPrice.text')} <span class="icon-robux-16x16" style="vertical-align: middle; margin: 0 2px;"></span>${price.toLocaleString()}`;
+    div.style.display = 'flex';
+    div.style.alignItems = 'center';
+    div.style.gap = '4px';
+    div.style.flexWrap = 'wrap';
+
+    if (hasDeadline) {
+        div.appendChild(
+            document.createTextNode(`${ts('previousPrice.lastOnSale')} `),
+        );
+        div.appendChild(createInteractiveTimestamp(deadline));
+        div.appendChild(
+            document.createTextNode(` ${ts('previousPrice.for')} `),
+        );
+    } else {
+        div.appendChild(
+            document.createTextNode(`${ts('previousPrice.text')} `),
+        );
+    }
+
+    const robuxIcon = document.createElement('span');
+    robuxIcon.className = 'icon-robux-16x16';
+    div.appendChild(robuxIcon);
+
+    const priceText = document.createElement('span');
+    priceText.textContent = price.toLocaleString();
+    div.appendChild(priceText);
 
     container.appendChild(div);
 }

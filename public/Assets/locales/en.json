@@ -195,7 +195,9 @@
     },
     "previousPrice": {
         "offSale": "Off Sale",
-        "text": "Previous Price:"
+        "text": "Previous Price:",
+        "lastOnSale": "Last on sale",
+        "for": "for"
     },
     "pendingRobux": {
         "tooltip": "This is an estimate of how many Robux from your pending balance will become available tomorrow, based on your transaction data. The actual amount may vary. And this may be inaccurate.",

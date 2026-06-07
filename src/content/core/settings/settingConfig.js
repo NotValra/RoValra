@@ -98,7 +98,7 @@ export const SETTINGS_CONFIG = {
             PreviousPriceEnabled: {
                 label: 'Previous Price to item cards and on item pages.',
                 description:
-                    'This shows the price of an offsale item before it went offsale.',
+                    'This shows the price of an offsale item before it went offsale. And shows when an item was last on sale.',
                 type: 'checkbox',
                 default: true,
             },
