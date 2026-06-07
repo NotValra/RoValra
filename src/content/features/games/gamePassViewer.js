@@ -4,12 +4,15 @@ import DOMPurify from '../../core/packages/dompurify.js';
 import { ts } from '../../core/locale/i18n.js';
 import { createRobuxIcon } from '../../core/ui/robuxIcon.js';
 import { injectStylesheet } from '../../core/ui/cssInjector.js';
+import { init as initGameBanner } from '../../core/ui/games/banner.js';
 import { observeElement } from '../../core/observer.js';
 import { getGamePassIdFromUrl } from '../../core/idExtractor.js';
 import { settings } from '../../core/settings/getSettings.js';
 
 const ERROR_SEL =
     '.request-error-page-content, .default-error-page, .error-page-container';
+const ROVALRA_ONLY_ICON =
+    '<svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2m-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2m3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1s3.1 1.39 3.1 3.1z"></path></svg>';
 
 let renderedFor = null;
 let activeObservation = null;
@@ -176,6 +179,18 @@ function render(data, place, passId) {
             </div>
         </div>
     `);
+
+    initGameBanner('#item-container');
+    if (window.GameBannerManager) {
+        window.GameBannerManager.clearNotices?.();
+        window.GameBannerManager.addNotice(
+            ts('privateGames.rovalraNotice'),
+            ROVALRA_ONLY_ICON,
+            ts('gamePassViewer.rovalraNoticeDescription'),
+            '16px',
+            '14px',
+        );
+    }
 
     const robuxSlot = document.getElementById('rovalra-gp-robux-icon');
     if (robuxSlot) {

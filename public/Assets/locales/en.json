@@ -788,7 +788,8 @@
         "ownedNotice": "This item is available in your inventory.",
         "inventory": "Inventory",
         "by": "By",
-        "usePassIn": "Use this Pass in:"
+        "usePassIn": "Use this Pass in:",
+        "rovalraNoticeDescription": "This game pass page is not viewable without RoValra."
     },
     "playabilityStatus": {
         "0": "This experience is unavailable",

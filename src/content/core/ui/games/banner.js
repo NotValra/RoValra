@@ -2,19 +2,33 @@
 import { parseMarkdown } from '../../utils/markdown.js';
 import { observeElement, startObserving } from '../../observer.js';
 import DOMPurify from 'dompurify';
-let isInitialized = false;
 
-export function init() {
-    if (isInitialized) return;
-    isInitialized = true;
+const BANNER_ID = 'rovalra-game-notice-banner';
+const DEFAULT_TARGET_PARENT_SELECTOR = '#game-detail-page';
+const observedTargetSelectors = new Set();
 
-    startObserving();
+function initializeBannerContainer(targetParentSelector) {
+    if (document.getElementById(BANNER_ID)) return;
 
-    const BANNER_ID = 'rovalra-game-notice-banner';
-    const TARGET_PARENT_SELECTOR = '#game-detail-page';
+    const parent = document.querySelector(targetParentSelector);
+    if (parent) {
+        const banner = document.createElement('div');
+        banner.id = BANNER_ID;
 
+        parent.prepend(banner);
+    }
+}
+
+function ensureBannerManager() {
     if (!window.GameBannerManager) {
         window.GameBannerManager = {
+            clearNotices: function () {
+                const banner = document.getElementById(BANNER_ID);
+                if (!banner) return;
+
+                banner.innerHTML = '';
+                banner.style.display = 'none';
+            },
             addNotice: function (
                 title,
                 iconHtml = '',
@@ -127,18 +141,22 @@ export function init() {
             },
         };
     }
+}
 
-    function initializeBannerContainer() {
-        if (document.getElementById(BANNER_ID)) return;
+function observeBannerTarget(targetParentSelector) {
+    initializeBannerContainer(targetParentSelector);
 
-        const parent = document.querySelector(TARGET_PARENT_SELECTOR);
-        if (parent) {
-            const banner = document.createElement('div');
-            banner.id = BANNER_ID;
+    if (observedTargetSelectors.has(targetParentSelector)) return;
+    observedTargetSelectors.add(targetParentSelector);
 
-            parent.prepend(banner);
-        }
-    }
+    observeElement(targetParentSelector, () =>
+        initializeBannerContainer(targetParentSelector),
+    );
+}
 
-    observeElement(TARGET_PARENT_SELECTOR, initializeBannerContainer);
+export function init(targetParentSelector = DEFAULT_TARGET_PARENT_SELECTOR) {
+    startObserving();
+    ensureBannerManager();
+
+    observeBannerTarget(targetParentSelector);
 }
