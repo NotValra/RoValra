@@ -35,6 +35,19 @@ function getItemRawPrice(...sources) {
     return null;
 }
 
+function isBundleAssetProxy(looksItemData, assetId) {
+    return looksItemData?.itemType === 'Bundle' && looksItemData.id !== assetId;
+}
+
+function isItemOffSale(data) {
+    return (
+        data?.isOffSale === true ||
+        data?.noPriceStatus === 'OffSale' ||
+        data?.priceStatus === 'Off Sale' ||
+        data?.isPurchasable === false
+    );
+}
+
 async function fetchEconomyItemDetails(
     assetId,
     looksItemData = null,
@@ -64,16 +77,19 @@ async function fetchEconomyItemDetails(
                 restrictions.push(restriction);
             }
         });
-        looksItemData?.itemRestrictions?.forEach((restriction) => {
-            if (!restrictions.includes(restriction)) {
-                restrictions.push(restriction);
-            }
-        });
+        if (!isBundleAssetProxy(looksItemData, assetId)) {
+            looksItemData?.itemRestrictions?.forEach((restriction) => {
+                if (!restrictions.includes(restriction)) {
+                    restrictions.push(restriction);
+                }
+            });
+        }
 
         const resalePrice = getCollectibleLowestResalePrice(data);
-        const rawPrice =
-            resalePrice ??
-            getItemRawPrice(looksItemData, catalogItemData, data);
+        const priceSources = isBundleAssetProxy(looksItemData, assetId)
+            ? [catalogItemData, data]
+            : [looksItemData, catalogItemData, data];
+        const rawPrice = resalePrice ?? getItemRawPrice(...priceSources);
 
         const item = {
             assetId,
@@ -92,14 +108,12 @@ async function fetchEconomyItemDetails(
             item.bundleId = looksItemData.id;
         }
 
-        const isForSale = looksItemData
-            ? !looksItemData.isOffSale &&
-              looksItemData.noPriceStatus !== 'OffSale' &&
-              looksItemData.isPurchasable !== false
-            : (data.IsForSale ??
-              (!catalogItemData?.isOffSale &&
-                  catalogItemData?.noPriceStatus !== 'OffSale' &&
-                  catalogItemData?.isPurchasable !== false));
+        const saleSource = isBundleAssetProxy(looksItemData, assetId)
+            ? catalogItemData
+            : looksItemData;
+        const isForSale = saleSource
+            ? !isItemOffSale(saleSource)
+            : (data.IsForSale ?? !isItemOffSale(catalogItemData));
 
         if (!isForSale && resalePrice == null) {
             item.priceText = 'Off Sale';
@@ -222,10 +236,16 @@ async function processBatch() {
                     }
 
                     // using the catalog api for limiteds CUZ ROBLOX ISNT CONSISTENT AT ALL
+                    const isLooksBundleProxy = isBundleAssetProxy(
+                        looksItemData,
+                        request.id,
+                    );
                     const restrictions = [
                         ...new Set([
                             ...(catalogItemData.itemRestrictions || []),
-                            ...(looksItemData?.itemRestrictions || []),
+                            ...(isLooksBundleProxy
+                                ? []
+                                : looksItemData?.itemRestrictions || []),
                         ]),
                     ];
 
@@ -234,11 +254,14 @@ async function processBatch() {
                         restrictions.includes('LimitedUnique') ||
                         restrictions.includes('Collectible');
 
-                    const isOffSale =
-                        itemData.isOffSale ||
-                        itemData.noPriceStatus === 'OffSale' ||
-                        !itemData.isPurchasable;
-                    let rawPrice = getItemRawPrice(itemData);
+                    const saleItemData = isLooksBundleProxy
+                        ? catalogItemData
+                        : itemData;
+                    const isOffSale = isItemOffSale(saleItemData);
+                    const priceSources = isLooksBundleProxy
+                        ? [catalogItemData]
+                        : [saleItemData, looksItemData];
+                    let rawPrice = getItemRawPrice(...priceSources);
                     let economyItem = null;
 
                     if (isLimited && (isOffSale || rawPrice == null)) {

@@ -132,6 +132,8 @@ async function renderTestPage(contentDiv) {
     container.appendChild(ugclimited);
     const deletedItem = createItemCard(17845088792);
     container.appendChild(deletedItem);
+    const baseballcap = createItemCard(607702162);
+    container.appendChild(baseballcap);
 
     const limiteduid = 16477149823;
     const limiteduitemCard = createItemCard(limiteduid);
