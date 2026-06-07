@@ -1008,6 +1008,15 @@ export const SETTINGS_CONFIG = {
                 storageKey: 'rovalra_groups_order',
                 contributors: ['7982684834', '447170745'],
             },
+            bulkLeaveGroupsEnabled: {
+                label: 'Bulk Leave Communities',
+                description: [
+                    'This allows you to leave communities in bulk.'
+                ],
+                type: 'checkbox',
+                default: true,
+                contributors: ['447170745', '9502859424', '2615068449', '422540285'],
+            },
             groupPlaceVisitsEnabled: {
                 label: 'Total Community Place Visits',
                 description: [

@@ -91,6 +91,7 @@ import { init as initHiddenGroupGames } from './features/groups/hiddenGroupGames
 import { init as initAntiBots } from './features/groups/Antibots.js';
 import { init as initPendingRobux } from './features/groups/pendingRobux.js';
 import { init as initDraggableGroups } from './features/groups/draggableGroups.js';
+import { init as initBulkLeaveGroups } from './features/groups/bulkLeave.js';
 import { init as initPlaceVisits } from './features/groups/placevisits.js';
 import { init as initGroupCreateDate } from './features/groups/createDate.js';
 // Profile
@@ -220,6 +221,11 @@ const featureRoutes = [
             initGroupCreateDate,
             initItemRender,
         ],
+    },
+    // Communities list page (My Communities) — matches /communities and /communities/...
+    {
+        paths: ['/communities'],
+        features: [initBulkLeaveGroups],
     },
     // Game pages
     {
