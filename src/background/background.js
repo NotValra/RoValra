@@ -19,6 +19,7 @@ const state = {
     avatarInventoryScanningUsers: new Set(),
     transactionInterval: null,
     badgeInterval: null,
+    badgeFullScanInterval: null,
     avatarInventoryInterval: null,
 };
 
@@ -656,6 +657,7 @@ const TRANSACTION_MAX_INTERNAL_ERRORS = 3;
 const BADGES_DATA_KEY = 'rovalra_badges_v1';
 const BADGES_STORAGE_VERSION = 2;
 const BADGE_REFRESH_DURATION = 5 * 60 * 1000;
+const BADGE_FULL_REFRESH_DURATION = 30 * 60 * 1000;
 const BADGE_REQUEST_DELAY = 150;
 const AVATAR_INVENTORY_DATA_KEY = 'rovalra_avatar_inventory_v1';
 const AVATAR_INVENTORY_REFRESH_DURATION = 60 * 1000;
@@ -1383,8 +1385,9 @@ function mergeBadgesIntoAggregated(existingAggregated, rawBadges) {
     return updated;
 }
 
-async function handleBackgroundBadgeScan(userId) {
+async function handleBackgroundBadgeScan(userId, options = {}) {
     userId = String(userId);
+    const forceFullScan = !!options.forceFullScan;
 
     if (state.badgeScanningUsers.has(userId)) return;
     state.badgeScanningUsers.add(userId);
@@ -1398,6 +1401,21 @@ async function handleBackgroundBadgeScan(userId) {
 
         const now = Date.now();
         if (userData.isFullyScanned && !needsStorageMigration) {
+            const lastFullBadgeCheck =
+                userData.lastFullBadgeCheck || userData.lastFullScan || 0;
+            const isFullBadgeCheckDue =
+                now - lastFullBadgeCheck >= BADGE_FULL_REFRESH_DURATION;
+
+            if (forceFullScan && !isFullBadgeCheckDue) return;
+
+            if (forceFullScan || isFullBadgeCheckDue) {
+                await runBadgeLoop(userId, userData, false, {
+                    resetCursor: true,
+                    timestampKey: 'lastFullBadgeCheck',
+                });
+                return;
+            }
+
             const lastCheck =
                 userData.lastIncrementalCheck || userData.lastFullScan || 0;
             if (now - lastCheck < BADGE_REFRESH_DURATION) return;
@@ -1423,8 +1441,11 @@ async function handleBackgroundBadgeScan(userId) {
     }
 }
 
-async function runBadgeLoop(userId, existingData, isIncremental) {
-    let cursor = isIncremental ? null : existingData.scanCursor || null;
+async function runBadgeLoop(userId, existingData, isIncremental, options = {}) {
+    let cursor =
+        isIncremental || options.resetCursor
+            ? null
+            : existingData.scanCursor || null;
     let pagesChecked = 0;
     let foundMatch = false;
     let emptyPageCount = 0;
@@ -1490,6 +1511,10 @@ async function runBadgeLoop(userId, existingData, isIncremental) {
 
         const storage = await chrome.storage.local.get([BADGES_DATA_KEY]);
         const allData = storage[BADGES_DATA_KEY] || {};
+        const timestampKey =
+            options.timestampKey ||
+            (isIncremental ? 'lastIncrementalCheck' : 'lastFullScan');
+
         allData[userId] = {
             ...existingData,
             ...currentAggregated,
@@ -1498,8 +1523,7 @@ async function runBadgeLoop(userId, existingData, isIncremental) {
             isFullyScanned: isIncremental || !cursor,
             isScanning: !isIncremental && !!cursor,
             storageVersion: BADGES_STORAGE_VERSION,
-            [isIncremental ? 'lastIncrementalCheck' : 'lastFullScan']:
-                Date.now(),
+            [timestampKey]: Date.now(),
         };
         await chrome.storage.local.set({ [BADGES_DATA_KEY]: allData });
 
@@ -2028,6 +2052,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                     clearInterval(state.badgeInterval);
                     state.badgeInterval = null;
                 }
+                if (state.badgeFullScanInterval) {
+                    clearInterval(state.badgeFullScanInterval);
+                    state.badgeFullScanInterval = null;
+                }
                 if (state.avatarInventoryInterval) {
                     clearInterval(state.avatarInventoryInterval);
                     state.avatarInventoryInterval = null;
@@ -2053,6 +2081,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 state.badgeInterval = setInterval(() => {
                     handleBackgroundBadgeScan(state.currentUserId);
                 }, BADGE_REFRESH_DURATION);
+                state.badgeFullScanInterval = setInterval(() => {
+                    handleBackgroundBadgeScan(state.currentUserId, {
+                        forceFullScan: true,
+                    });
+                }, BADGE_FULL_REFRESH_DURATION);
 
                 handleBackgroundAvatarInventoryScan(state.currentUserId);
                 state.avatarInventoryInterval = setInterval(() => {
@@ -2066,7 +2099,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             return false;
 
         case 'triggerBadgeScan':
-            handleBackgroundBadgeScan(request.userId);
+            handleBackgroundBadgeScan(request.userId, {
+                forceFullScan: !!request.forceFullScan,
+            });
             return false;
 
         case 'triggerAvatarInventoryScan':

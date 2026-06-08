@@ -1,6 +1,10 @@
 import { getAuthenticatedUserId } from '../../user';
 
 const BADGES_DATA_KEY = 'rovalra_badges_v1';
+const BADGE_FULL_REFRESH_DURATION = 30 * 60 * 1000;
+
+let badgeFullScanInterval = null;
+let badgeFullScanUserId = null;
 
 export async function getBadgeData() {
     const userId = await getAuthenticatedUserId();
@@ -52,9 +56,22 @@ export async function hasBadge(badgeId) {
 export function initBadgesTracking() {
     getAuthenticatedUserId().then((userId) => {
         if (!userId) return;
+
         chrome.runtime.sendMessage({
             action: 'triggerBadgeScan',
             userId,
         });
+
+        if (badgeFullScanInterval && badgeFullScanUserId === userId) return;
+        if (badgeFullScanInterval) clearInterval(badgeFullScanInterval);
+
+        badgeFullScanUserId = userId;
+        badgeFullScanInterval = setInterval(() => {
+            chrome.runtime.sendMessage({
+                action: 'triggerBadgeScan',
+                userId,
+                forceFullScan: true,
+            });
+        }, BADGE_FULL_REFRESH_DURATION);
     });
 }
