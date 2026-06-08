@@ -650,6 +650,7 @@ const TRANSACTIONS_DATA_KEY = 'rovalra_transactions_v2';
 const TRANSACTION_REFRESH_DURATION = 5 * 60 * 1000;
 const TRANSACTION_REQUEST_DELAY = 5000;
 const BADGES_DATA_KEY = 'rovalra_badges_v1';
+const BADGES_STORAGE_VERSION = 2;
 const BADGE_REFRESH_DURATION = 5 * 60 * 1000;
 const BADGE_REQUEST_DELAY = 150;
 const AVATAR_INVENTORY_DATA_KEY = 'rovalra_avatar_inventory_v1';
@@ -923,12 +924,27 @@ function processBadge(badge) {
     const badgeId = badge?.id;
     const placeId = badge?.awarder?.id;
 
-    if (!badgeId || !placeId) return null;
+    if (!badgeId || !placeId || badge?.enabled !== false) return null;
 
     return {
         badgeId: String(badgeId),
         placeId: String(placeId),
     };
+}
+
+function removeBadgeFromAggregated(aggregated, badgeId, placeId) {
+    delete aggregated.badges[badgeId];
+
+    const badgeIds = aggregated.places?.[placeId]?.badgeIds;
+    if (!badgeIds) return;
+
+    aggregated.places[placeId].badgeIds = badgeIds.filter(
+        (id) => id !== badgeId,
+    );
+
+    if (aggregated.places[placeId].badgeIds.length === 0) {
+        delete aggregated.places[placeId];
+    }
 }
 
 function mergeBadgesIntoAggregated(existingAggregated, rawBadges) {
@@ -943,6 +959,14 @@ function mergeBadgesIntoAggregated(existingAggregated, rawBadges) {
     updated.places = updated.places || {};
 
     rawBadges.forEach((badge) => {
+        const rawBadgeId = badge?.id ? String(badge.id) : null;
+        const rawPlaceId = badge?.awarder?.id ? String(badge.awarder.id) : null;
+
+        if (rawBadgeId && rawPlaceId && badge?.enabled !== false) {
+            removeBadgeFromAggregated(updated, rawBadgeId, rawPlaceId);
+            return;
+        }
+
         const processed = processBadge(badge);
         if (!processed) return;
 
@@ -964,6 +988,8 @@ function mergeBadgesIntoAggregated(existingAggregated, rawBadges) {
         }
     });
 
+    updated.totals.totalBadges = Object.keys(updated.badges).length;
+
     return updated;
 }
 
@@ -977,16 +1003,30 @@ async function handleBackgroundBadgeScan(userId) {
         const storage = await chrome.storage.local.get([BADGES_DATA_KEY]);
         const allData = storage[BADGES_DATA_KEY] || {};
         const userData = allData[userId] || {};
+        const needsStorageMigration =
+            userData.storageVersion !== BADGES_STORAGE_VERSION;
 
         const now = Date.now();
-        if (userData.isFullyScanned) {
+        if (userData.isFullyScanned && !needsStorageMigration) {
             const lastCheck =
                 userData.lastIncrementalCheck || userData.lastFullScan || 0;
             if (now - lastCheck < BADGE_REFRESH_DURATION) return;
 
             await runBadgeLoop(userId, userData, true);
         } else {
-            await runBadgeLoop(userId, userData, false);
+            await runBadgeLoop(
+                userId,
+                needsStorageMigration
+                    ? {
+                          ...userData,
+                          totals: { totalBadges: 0 },
+                          badges: {},
+                          places: {},
+                          scanCursor: null,
+                      }
+                    : userData,
+                false,
+            );
         }
     } finally {
         state.badgeScanningUsers.delete(userId);
@@ -1067,6 +1107,7 @@ async function runBadgeLoop(userId, existingData, isIncremental) {
             scanCursor: isIncremental ? null : cursor,
             isFullyScanned: isIncremental || !cursor,
             isScanning: !isIncremental && !!cursor,
+            storageVersion: BADGES_STORAGE_VERSION,
             [isIncremental ? 'lastIncrementalCheck' : 'lastFullScan']:
                 Date.now(),
         };
