@@ -62,6 +62,8 @@ let isCustomEnvLoaded = false;
 let environmentConfig = null;
 let activeEmoteId = null;
 const animationSpeed = 1;
+const EFFECT_BLACK_KEY_THRESHOLD = 0.08;
+const EFFECT_BLACK_KEY_SOFTNESS = 0.02;
 
 let isAnimatePatched = false;
 const raycaster = new THREE.Raycaster();
@@ -83,6 +85,54 @@ let autoSwitchObserver = null;
 let animationLoopStarted = false;
 let autoSwitchedProfileUserId = null;
 const resizeObserversByContainer = new WeakMap();
+const blackKeyedEffectMaterials = new WeakSet();
+
+function isRoavatarEffectMaterial(material) {
+    return (
+        material?.isShaderMaterial &&
+        typeof material.fragmentShader === 'string' &&
+        material.fragmentShader.includes('uniform sampler2D uAlphaMap') &&
+        material.fragmentShader.includes('varying vec3 vInstanceColor')
+    );
+}
+
+function keyBlackFromEffectMaterial(material) {
+    if (
+        blackKeyedEffectMaterials.has(material) ||
+        !isRoavatarEffectMaterial(material)
+    ) {
+        return;
+    }
+
+    material.fragmentShader = material.fragmentShader.replace(
+        'gl_FragColor = finalColor;',
+        `
+    float blackKeyValue = max(max(finalColor.r, finalColor.g), finalColor.b);
+    finalColor.a *= smoothstep(
+        ${EFFECT_BLACK_KEY_SOFTNESS.toFixed(3)},
+        ${EFFECT_BLACK_KEY_THRESHOLD.toFixed(3)},
+        blackKeyValue
+    );
+    if (finalColor.a <= 0.001) discard;
+
+    gl_FragColor = finalColor;`,
+    );
+    material.needsUpdate = true;
+    blackKeyedEffectMaterials.add(material);
+}
+
+function keyBlackFromEffectMaterials() {
+    const scene = RBXRenderer.getScene?.();
+    if (!scene) return;
+
+    scene.traverse((object) => {
+        const materials = Array.isArray(object.material)
+            ? object.material
+            : [object.material];
+
+        materials.forEach(keyBlackFromEffectMaterial);
+    });
+}
 
 function constrainCamera() {
     const controls = RBXRenderer.getRendererControls();
@@ -222,6 +272,7 @@ function customAnimate() {
     RBXRenderer.camera.updateProjectionMatrix();
 
     RBXRenderer.renderer.setRenderTarget(null);
+    keyBlackFromEffectMaterials();
     if (RBXRenderer.effectComposer) {
         RBXRenderer.effectComposer.render();
     } else {
