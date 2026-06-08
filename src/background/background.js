@@ -647,8 +647,11 @@ function updateAvatarRotator() {
 // --- Transaction Tracking ---
 
 const TRANSACTIONS_DATA_KEY = 'rovalra_transactions_v2';
+const TRANSACTION_SCAN_LOCKS_KEY = 'rovalra_transaction_scan_locks';
+const TRANSACTIONS_STORAGE_VERSION = 4;
 const TRANSACTION_REFRESH_DURATION = 5 * 60 * 1000;
 const TRANSACTION_REQUEST_DELAY = 5000;
+const TRANSACTION_SCAN_LOCK_DURATION = 2 * 60 * 1000;
 const BADGES_DATA_KEY = 'rovalra_badges_v1';
 const BADGES_STORAGE_VERSION = 2;
 const BADGE_REFRESH_DURATION = 5 * 60 * 1000;
@@ -669,6 +672,35 @@ const AVATAR_INVENTORY_SCAN_TYPES = {
     },
 };
 
+function sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function getRateLimitDelay(response) {
+    const retryAfterSeconds = Number(response.headers.get('retry-after'));
+    if (Number.isFinite(retryAfterSeconds) && retryAfterSeconds > 0) {
+        return retryAfterSeconds * 1000 + 1000;
+    }
+
+    const remaining = Number(response.headers.get('x-ratelimit-remaining'));
+    const resetValue = Number(response.headers.get('x-ratelimit-reset'));
+
+    if (
+        Number.isFinite(remaining) &&
+        remaining <= 1 &&
+        Number.isFinite(resetValue) &&
+        resetValue > 0
+    ) {
+        return (
+            (resetValue > 1e9
+                ? Math.max(0, resetValue * 1000 - Date.now())
+                : resetValue * 1000) + 1000
+        );
+    }
+
+    return 0;
+}
+
 async function fetchTransactionsPage(userId, cursor = null) {
     let endpoint = `/transaction-records/v1/users/${userId}/transactions?limit=100&transactionType=Purchase&itemPricingType=PaidAndLimited`;
     if (cursor) endpoint += `&cursor=${encodeURIComponent(cursor)}`;
@@ -681,12 +713,15 @@ async function fetchTransactionsPage(userId, cursor = null) {
             });
 
             if (response.status === 429) {
-                await new Promise((resolve) => setTimeout(resolve, 10000));
+                await sleep(getRateLimitDelay(response) || 2000);
                 continue;
             }
 
             if (!response.ok) return null;
-            return await response.json();
+            return {
+                body: await response.json(),
+                rateLimitDelay: getRateLimitDelay(response),
+            };
         } catch (error) {
             console.error('RoValra: Failed to fetch transactions page', error);
             return null;
@@ -694,13 +729,67 @@ async function fetchTransactionsPage(userId, cursor = null) {
     }
 }
 
+async function acquireTransactionScanLock(userId) {
+    userId = String(userId);
+    const scanId = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    const storage = await chrome.storage.local.get([TRANSACTION_SCAN_LOCKS_KEY]);
+    const locks = storage[TRANSACTION_SCAN_LOCKS_KEY] || {};
+    const existingLock = locks[userId];
+    const now = Date.now();
+
+    if (existingLock?.expiresAt && existingLock.expiresAt > now) {
+        return null;
+    }
+
+    locks[userId] = {
+        scanId,
+        expiresAt: now + TRANSACTION_SCAN_LOCK_DURATION,
+    };
+    await chrome.storage.local.set({ [TRANSACTION_SCAN_LOCKS_KEY]: locks });
+
+    const verifyStorage = await chrome.storage.local.get([
+        TRANSACTION_SCAN_LOCKS_KEY,
+    ]);
+    const verifiedLock = verifyStorage[TRANSACTION_SCAN_LOCKS_KEY]?.[userId];
+    return verifiedLock?.scanId === scanId ? scanId : null;
+}
+
+async function refreshTransactionScanLock(userId, scanId) {
+    const storage = await chrome.storage.local.get([TRANSACTION_SCAN_LOCKS_KEY]);
+    const locks = storage[TRANSACTION_SCAN_LOCKS_KEY] || {};
+    const existingLock = locks[userId];
+
+    if (existingLock?.scanId !== scanId) return false;
+
+    locks[userId] = {
+        scanId,
+        expiresAt: Date.now() + TRANSACTION_SCAN_LOCK_DURATION,
+    };
+    await chrome.storage.local.set({ [TRANSACTION_SCAN_LOCKS_KEY]: locks });
+    return true;
+}
+
+async function releaseTransactionScanLock(userId, scanId) {
+    const storage = await chrome.storage.local.get([TRANSACTION_SCAN_LOCKS_KEY]);
+    const locks = storage[TRANSACTION_SCAN_LOCKS_KEY] || {};
+
+    if (locks[userId]?.scanId === scanId) {
+        delete locks[userId];
+        await chrome.storage.local.set({ [TRANSACTION_SCAN_LOCKS_KEY]: locks });
+    }
+}
+
 function processTransaction(transaction) {
     if (!transaction || !transaction.currency || !transaction.agent)
         return null;
 
+    const transactionIdHash = transaction.idHash
+        ? String(transaction.idHash)
+        : null;
+
     const base = {
         amount: Math.abs(transaction.currency.amount || 0),
-        purchaseToken: transaction.purchaseToken || null,
+        transactionIdHash,
         creatorId: transaction.agent.id || 0,
         creatorType: transaction.agent.type || 'User',
         creatorName: transaction.agent.name || 'Unknown',
@@ -714,6 +803,212 @@ function processTransaction(transaction) {
         };
     }
     return base;
+}
+
+function createEmptyTransactionScan() {
+    return {
+        totals: { transactions: {} },
+        creators: {},
+    };
+}
+
+function normalizeTransactionScan(scan) {
+    return {
+        totals: {
+            transactions: {
+                ...(scan?.totals?.transactions || {}),
+            },
+        },
+        creators: {
+            ...(scan?.creators || {}),
+        },
+    };
+}
+
+function addProcessedTransactionToScan(scan, processed) {
+    if (!processed?.transactionIdHash) return false;
+
+    const idHash = String(processed.transactionIdHash);
+    if (scan.totals.transactions[idHash] !== undefined) return false;
+
+    scan.totals.transactions[idHash] = processed.amount;
+
+    const creatorKey = String(processed.creatorId);
+    if (!scan.creators[creatorKey]) {
+        scan.creators[creatorKey] = {
+            name: processed.creatorName,
+            type: processed.creatorType,
+            transactions: {},
+            games: {},
+        };
+    }
+
+    const creator = scan.creators[creatorKey];
+    creator.name = processed.creatorName || creator.name;
+    creator.type = processed.creatorType || creator.type;
+    creator.transactions[idHash] = processed.amount;
+
+    if (processed.universeId) {
+        const gameKey = String(processed.universeId);
+        if (!creator.games[gameKey]) {
+            creator.games[gameKey] = {
+                name: processed.gameName,
+                transactions: {},
+            };
+        }
+
+        const game = creator.games[gameKey];
+        game.name = processed.gameName || game.name;
+        game.transactions[idHash] = processed.amount;
+    }
+
+    return true;
+}
+
+function aggregateTemporaryTransactionScan(scan) {
+    const aggregated = {
+        totals: { totalSpent: 0, totalTransactions: 0 },
+        creators: {},
+    };
+
+    if (!scan) return aggregated;
+
+    for (const amount of Object.values(scan.totals?.transactions || {})) {
+        aggregated.totals.totalSpent += amount;
+        aggregated.totals.totalTransactions += 1;
+    }
+
+    for (const [creatorKey, creatorScan] of Object.entries(
+        scan.creators || {},
+    )) {
+        const creator = {
+            name: creatorScan.name,
+            type: creatorScan.type,
+            totalSpent: 0,
+            totalTransactions: 0,
+            games: {},
+        };
+
+        for (const amount of Object.values(creatorScan.transactions || {})) {
+            creator.totalSpent += amount;
+            creator.totalTransactions += 1;
+        }
+
+        for (const [gameKey, gameScan] of Object.entries(
+            creatorScan.games || {},
+        )) {
+            const game = {
+                name: gameScan.name,
+                totalSpent: 0,
+                totalTransactions: 0,
+            };
+
+            for (const amount of Object.values(gameScan.transactions || {})) {
+                game.totalSpent += amount;
+                game.totalTransactions += 1;
+            }
+
+            creator.games[gameKey] = game;
+        }
+
+        aggregated.creators[creatorKey] = creator;
+    }
+
+    return aggregated;
+}
+
+function getStoredLatestTransactionHashes(userData) {
+    if (Array.isArray(userData.latestTransactionHashes)) {
+        return userData.latestTransactionHashes.filter(Boolean);
+    }
+
+    return userData.latestTransactionHash
+        ? [userData.latestTransactionHash]
+        : [];
+}
+
+function migrateTransactionUserData(userData = {}) {
+    const migrated = {
+        ...userData,
+        latestTransactionHashes: getStoredLatestTransactionHashes(userData),
+        storageVersion: TRANSACTIONS_STORAGE_VERSION,
+    };
+    let changed =
+        userData.storageVersion !== TRANSACTIONS_STORAGE_VERSION ||
+        !Array.isArray(userData.latestTransactionHashes);
+
+    if (userData.storageVersion !== TRANSACTIONS_STORAGE_VERSION) {
+        const rescanData = {
+            ...migrated,
+            totals: { totalSpent: 0, totalTransactions: 0 },
+            creators: {},
+            temporaryTransactions: createEmptyTransactionScan(),
+            scanCursor: null,
+            isFullyScanned: false,
+            isScanning: true,
+            latestTransactionHashes: [],
+        };
+        delete rescanData.latestTransactionHash;
+        delete rescanData.latestPurchaseToken;
+        delete rescanData.latestPurchaseTokens;
+
+        return {
+            data: rescanData,
+            needsFullRescan: true,
+            changed: true,
+        };
+    }
+
+    delete migrated.latestPurchaseToken;
+    delete migrated.latestPurchaseTokens;
+
+    if (migrated.temporaryTransactions) {
+        migrated.temporaryTransactions = normalizeTransactionScan(
+            migrated.temporaryTransactions,
+        );
+        changed = true;
+    }
+
+    if (migrated.temporaryTransactions && migrated.isFullyScanned) {
+        const aggregated = aggregateTemporaryTransactionScan(
+            migrated.temporaryTransactions,
+        );
+        migrated.totals = aggregated.totals;
+        migrated.creators = aggregated.creators;
+        delete migrated.temporaryTransactions;
+        migrated.scanCursor = null;
+        migrated.isScanning = false;
+        changed = true;
+    }
+
+    if (migrated.temporaryTransactions && !migrated.isFullyScanned) {
+        migrated.isScanning = true;
+        return { data: migrated, needsFullRescan: false, changed: true };
+    }
+
+    if (migrated.isFullyScanned) {
+        return { data: migrated, needsFullRescan: false, changed };
+    }
+
+    const rescanData = {
+        ...migrated,
+        totals: { totalSpent: 0, totalTransactions: 0 },
+        creators: {},
+        temporaryTransactions: createEmptyTransactionScan(),
+        scanCursor: null,
+        isFullyScanned: false,
+        isScanning: true,
+        latestTransactionHashes: [],
+    };
+    delete rescanData.latestTransactionHash;
+    delete rescanData.latestPurchaseToken;
+    delete rescanData.latestPurchaseTokens;
+
+    return {
+        data: rescanData,
+        needsFullRescan: true,
+        changed: true,
+    };
 }
 
 function mergeTransactionsIntoAggregated(existingAggregated, rawTransactions) {
@@ -763,54 +1058,118 @@ function mergeTransactionsIntoAggregated(existingAggregated, rawTransactions) {
 }
 
 async function handleBackgroundTransactionScan(userId) {
+    userId = String(userId);
+
     const settings = await chrome.storage.local.get({
         TotalSpentGamesEnabled: true,
     });
     if (!settings.TotalSpentGamesEnabled) return;
 
     if (state.scanningUsers.has(userId)) return;
+    const scanId = await acquireTransactionScanLock(userId);
+    if (!scanId) return;
+
     state.scanningUsers.add(userId);
 
     try {
         const storage = await chrome.storage.local.get([TRANSACTIONS_DATA_KEY]);
         const allData = storage[TRANSACTIONS_DATA_KEY] || {};
         const userData = allData[userId] || {};
+        const migration = migrateTransactionUserData(userData);
+
+        if (migration.changed) {
+            allData[userId] = migration.data;
+            await chrome.storage.local.set({
+                [TRANSACTIONS_DATA_KEY]: allData,
+            });
+        }
 
         const now = Date.now();
-        if (userData.isFullyScanned) {
+        if (migration.needsFullRescan) {
+            await runTransactionLoop(userId, migration.data, false, scanId);
+        } else if (migration.data.isFullyScanned) {
             const lastCheck =
-                userData.lastIncrementalCheck || userData.lastFullScan || 0;
+                migration.data.lastIncrementalCheck ||
+                migration.data.lastFullScan ||
+                0;
             if (now - lastCheck < TRANSACTION_REFRESH_DURATION) return;
 
-            await runTransactionLoop(userId, userData, true);
+            await runTransactionLoop(userId, migration.data, true, scanId);
         } else {
-            await runTransactionLoop(userId, userData, false);
+            await runTransactionLoop(userId, migration.data, false, scanId);
         }
     } finally {
         state.scanningUsers.delete(userId);
+        await releaseTransactionScanLock(userId, scanId);
     }
 }
 
-async function runTransactionLoop(userId, existingData, isIncremental) {
+async function runTransactionLoop(userId, existingData, isIncremental, scanId) {
     let cursor = isIncremental ? null : existingData.scanCursor || null;
     let pagesChecked = 0;
     let foundMatch = false;
     let emptyPageCount = 0;
-    const seenTokens = new Set();
-
+    const temporaryScan = isIncremental
+        ? createEmptyTransactionScan()
+        : normalizeTransactionScan(existingData.temporaryTransactions);
+    let latestTransactionHashes =
+        getStoredLatestTransactionHashes(existingData);
     let currentAggregated = {
         totals: existingData.totals || { totalSpent: 0, totalTransactions: 0 },
         creators: existingData.creators || {},
-        latestPurchaseTokens: existingData.latestPurchaseTokens || [],
+    };
+
+    const persistTransactionData = async (scanFinished) => {
+        const ownsLock = await refreshTransactionScanLock(userId, scanId);
+        if (!ownsLock) return false;
+
+        if (!isIncremental && scanFinished) {
+            currentAggregated = aggregateTemporaryTransactionScan(temporaryScan);
+        }
+
+        const storage = await chrome.storage.local.get([TRANSACTIONS_DATA_KEY]);
+        const allData = storage[TRANSACTIONS_DATA_KEY] || {};
+        const nextUserData = {
+            ...existingData,
+            ...currentAggregated,
+            latestTransactionHashes,
+            latestTransactionHash: latestTransactionHashes[0],
+            scanCursor: isIncremental ? null : cursor,
+            isFullyScanned: scanFinished,
+            isScanning: !scanFinished,
+            storageVersion: TRANSACTIONS_STORAGE_VERSION,
+            [isIncremental ? 'lastIncrementalCheck' : 'lastFullScan']:
+                Date.now(),
+        };
+
+        if (isIncremental || scanFinished) {
+            delete nextUserData.temporaryTransactions;
+        } else {
+            nextUserData.temporaryTransactions = temporaryScan;
+        }
+        delete nextUserData.latestPurchaseToken;
+        delete nextUserData.latestPurchaseTokens;
+
+        allData[userId] = nextUserData;
+        await chrome.storage.local.set({ [TRANSACTIONS_DATA_KEY]: allData });
+        return true;
     };
 
     while (true) {
-        const data = await fetchTransactionsPage(userId, cursor);
-        if (!data) break;
+        if (!(await refreshTransactionScanLock(userId, scanId))) break;
+
+        const page = await fetchTransactionsPage(userId, cursor);
+        if (!page) break;
+
+        const data = page.body;
 
         if (!data.data || data.data.length === 0) {
             emptyPageCount++;
-            if (emptyPageCount >= 5 || !data.nextPageCursor) break;
+            if (emptyPageCount >= 5 || !data.nextPageCursor) {
+                cursor = data.nextPageCursor;
+                await persistTransactionData(true);
+                break;
+            }
             cursor = data.nextPageCursor;
             continue;
         }
@@ -818,69 +1177,63 @@ async function runTransactionLoop(userId, existingData, isIncremental) {
 
         const newBatch = [];
         for (const tx of data.data) {
-            const uniqueKey =
-                tx.purchaseToken ||
-                tx.idHash ||
-                `${tx.created || ''}-${tx.amount || ''}-${tx.agent?.id || ''}-${tx.details?.id || tx.details?.place?.placeId || ''}`;
-            if (!uniqueKey || seenTokens.has(uniqueKey)) continue;
-            seenTokens.add(uniqueKey);
+            const processed = processTransaction(tx);
+            const uniqueKey = processed?.transactionIdHash;
+            if (!uniqueKey) continue;
+
+            if (
+                temporaryScan.totals.transactions[String(uniqueKey)] !==
+                undefined
+            ) {
+                continue;
+            }
 
             if (
                 isIncremental &&
-                tx.purchaseToken &&
-                currentAggregated.latestPurchaseTokens.includes(
-                    tx.purchaseToken,
-                )
+                latestTransactionHashes.includes(String(uniqueKey))
             ) {
                 foundMatch = true;
                 break;
             }
+
+            addProcessedTransactionToScan(temporaryScan, processed);
             newBatch.push(tx);
         }
 
-        currentAggregated = mergeTransactionsIntoAggregated(
-            currentAggregated,
-            newBatch,
-        );
+        if (isIncremental) {
+            currentAggregated = mergeTransactionsIntoAggregated(
+                currentAggregated,
+                newBatch,
+            );
+        }
 
         if (pagesChecked === 0) {
-            const firstTokens = data.data
-                .map((tx) => tx.purchaseToken)
+            const firstTransactionHashes = data.data
+                .map((tx) => processTransaction(tx)?.transactionIdHash)
                 .filter(Boolean)
+                .map(String)
                 .slice(0, 2);
 
-            currentAggregated.latestPurchaseTokens = [
+            latestTransactionHashes = [
                 ...new Set([
-                    ...firstTokens,
-                    ...currentAggregated.latestPurchaseTokens,
+                    ...firstTransactionHashes,
+                    ...latestTransactionHashes,
                 ]),
             ].slice(0, 2);
         }
 
         cursor = data.nextPageCursor;
         pagesChecked++;
-
-        const storage = await chrome.storage.local.get([TRANSACTIONS_DATA_KEY]);
-        const allData = storage[TRANSACTIONS_DATA_KEY] || {};
-        allData[userId] = {
-            ...existingData,
-            ...currentAggregated,
-            latestPurchaseToken: currentAggregated.latestPurchaseTokens[0],
-            scanCursor: isIncremental ? null : cursor,
-            isFullyScanned: isIncremental || !cursor,
-            isScanning: !isIncremental && !!cursor,
-            [isIncremental ? 'lastIncrementalCheck' : 'lastFullScan']:
-                Date.now(),
-        };
-        await chrome.storage.local.set({ [TRANSACTIONS_DATA_KEY]: allData });
+        const scanFinished = isIncremental || !cursor;
+        if (!(await persistTransactionData(scanFinished))) break;
 
         if (!cursor || foundMatch || (isIncremental && pagesChecked >= 5))
             break;
-        await new Promise((r) => setTimeout(r, TRANSACTION_REQUEST_DELAY));
+        await sleep(Math.max(TRANSACTION_REQUEST_DELAY, page.rateLimitDelay));
     }
 
     if (isIncremental && !foundMatch && pagesChecked >= 5) {
-        await runTransactionLoop(userId, currentAggregated, false);
+        await runTransactionLoop(userId, currentAggregated, false, scanId);
     }
 }
 
