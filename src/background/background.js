@@ -652,6 +652,7 @@ const TRANSACTIONS_STORAGE_VERSION = 4;
 const TRANSACTION_REFRESH_DURATION = 5 * 60 * 1000;
 const TRANSACTION_REQUEST_DELAY = 5000;
 const TRANSACTION_SCAN_LOCK_DURATION = 2 * 60 * 1000;
+const TRANSACTION_MAX_INTERNAL_ERRORS = 3;
 const BADGES_DATA_KEY = 'rovalra_badges_v1';
 const BADGES_STORAGE_VERSION = 2;
 const BADGE_REFRESH_DURATION = 5 * 60 * 1000;
@@ -715,6 +716,14 @@ async function fetchTransactionsPage(userId, cursor = null) {
             if (response.status === 429) {
                 await sleep(getRateLimitDelay(response) || 2000);
                 continue;
+            }
+
+            if (response.status >= 500 && response.status < 600) {
+                return {
+                    internalError: true,
+                    status: response.status,
+                    rateLimitDelay: getRateLimitDelay(response),
+                };
             }
 
             if (!response.ok) return null;
@@ -1109,6 +1118,7 @@ async function runTransactionLoop(userId, existingData, isIncremental, scanId) {
     let pagesChecked = 0;
     let foundMatch = false;
     let emptyPageCount = 0;
+    let internalErrorCount = 0;
     const temporaryScan = isIncremental
         ? createEmptyTransactionScan()
         : normalizeTransactionScan(existingData.temporaryTransactions);
@@ -1161,6 +1171,33 @@ async function runTransactionLoop(userId, existingData, isIncremental, scanId) {
         const page = await fetchTransactionsPage(userId, cursor);
         if (!page) break;
 
+        if (page.internalError) {
+            internalErrorCount++;
+
+            if (internalErrorCount >= TRANSACTION_MAX_INTERNAL_ERRORS) {
+                console.warn(
+                    'RoValra: Treating repeated Roblox transaction internal errors as end of scan',
+                    {
+                        userId,
+                        cursor,
+                        status: page.status,
+                        internalErrorCount,
+                    },
+                );
+                await persistTransactionData(true);
+                break;
+            }
+
+            await sleep(
+                Math.max(
+                    TRANSACTION_REQUEST_DELAY,
+                    page.rateLimitDelay || 0,
+                ),
+            );
+            continue;
+        }
+
+        internalErrorCount = 0;
         const data = page.body;
 
         if (!data.data || data.data.length === 0) {
