@@ -102,6 +102,14 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
+            lastEquippedEnabled: {
+                label: 'Last Equipped on Item Pages',
+                description:
+                    'Shows when you last equipped an item on item pages.',
+                type: 'checkbox',
+                default: true,
+                contributors: ['4866259395', '447170745'],
+            },
             itemTradingEnabled: {
                 label: 'Item Trading Info',
                 description: [
@@ -1385,7 +1393,7 @@ export const SETTINGS_CONFIG = {
                     'This attempts to fix the memory leak caused by the Roblox website when reloading a page or navigating the site.',
                     "This fix will redirect most url changes to 'about:blank' and then to the intended url, which fixes the memory leak, but may cause a slight flicker when navigating and issues with the back and forward arrows.",
                     "If you don't know what a memory leak is or you don't feel like Roblox is using too much memory, you can leave this off.",
-                    "**This will prompt you to enable the 'webNavigation' permission for the feature to work.**",
+                    '**This feature is not recommended to be used anymore, it seems like Roblox has fixed the memory leak.**',
                 ],
                 experimental: 'May cause some issues.',
                 type: 'checkbox',
@@ -1550,6 +1558,7 @@ export const SETTINGS_CONFIG = {
                             'Fixes the size of the remove item from cart button being super small in the shopping cart.',
                         type: 'checkbox',
                         default: true,
+                        contributors: ['4866259395', '447170745'],
                     },
                 },
             },
@@ -1569,6 +1578,7 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
                 storageKey: 'rovalra_first_account_cache',
+                contributors: ['4866259395', '447170745'],
             },
             revertLogo: {
                 label: 'Change the app launch icon',
