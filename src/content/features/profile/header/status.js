@@ -103,7 +103,7 @@ function createStatusHelpText(isTrusted) {
 
     if (isTrusted) {
         helpText.textContent =
-            "As a trusted RoValra user, your status bypasses the normal status filters. Do not add swears or anything against Roblox's ToS or RoValra's ToS. Links to your own stuff are allowed but don't link anything discord related.";
+            "As a trusted RoValra user, your status bypasses the normal status filters. Do not add swears or anything against Roblox's ToS or RoValra's ToS. Links to your own stuff are allowed but don't link anything discord, youtube, x, etc pretty much don't link any social platforms..";
         return helpText;
     }
 
