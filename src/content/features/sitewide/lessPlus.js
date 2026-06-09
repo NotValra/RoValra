@@ -18,15 +18,8 @@ async function asyncInit() {
     const hook = (warnOnNotFound) => {
         if (plusType >= plusTypeEnum.Reduced) {
             const navbar = document.querySelector("#left-navigation-container .left-nav div");
-            const items = [...navbar.querySelectorAll(".left-nav")];
-            //const robloxPlus = items.filter((p) => getNavItemText(p).trim() === "Roblox Plus");
             const robloxPlus = navbar.querySelectorAll("a[data-rovalra-sidebar-tooltip-text='Roblox Plus']");
-            const _RobloxPlusButtonA = document.querySelectorAll(
-                "#left-navigation-container .left-nav div a[href='https://www.roblox.com/plus']",
-            );
 
-            const robloxPlusButton = _RobloxPlusButtonA[0];
-            //robloxPlusButton.parentElement.remove();
             if (robloxPlus[0])
                 robloxPlus[0].parentElement.remove();
             else if (warnOnNotFound)
