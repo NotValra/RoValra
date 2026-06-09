@@ -17,6 +17,7 @@ export const CONTRIBUTOR_USER_IDS = [
     '9502859424', // moowi1337
     '3602693727', //nxvixz
     '422540285', //RRedshift
+    '4866259395', //cam
 ];
 
 export const TESTER_USER_IDS = [
