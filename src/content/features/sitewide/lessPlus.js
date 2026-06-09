@@ -1,5 +1,4 @@
 import { settings } from "../../core/settings/getSettings";
-import { getNavItemText } from "./sidebarCollapse";
 
 const plusTypeEnum = Object.freeze({
     Full: 0,
