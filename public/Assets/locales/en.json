@@ -903,6 +903,11 @@
         "jump": "Jump",
         "swim": "Swim"
     },
+    "itemRender": {
+        "renderOptions": "Render Options",
+        "darkLighting": "Dark Lighting",
+        "baseplate": "Baseplate"
+    },
     "groupFilters": {
         "sort": {
             "default": "Default",
