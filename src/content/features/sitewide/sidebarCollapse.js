@@ -183,7 +183,7 @@ function createIconOverlay() {
     return icon;
 }
 
-function getNavItemText(control) {
+export function getNavItemText(control) {
     const textElement = [
         ...control.querySelectorAll(
             '.nav-item-text, span.text-truncate-end, span:not([role="presentation"])',
