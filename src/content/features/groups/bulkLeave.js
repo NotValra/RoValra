@@ -12,9 +12,39 @@ let leaveButton = null;
 let bulkToggleButton = null;
 let enableBulkLeave = false;
 let toolbar = null;
+let toolbarContainer = null;
 
 let groupInfoMap = new Map();
 const ownedGroupIds = new Set();
+const GROUP_CARD_SELECTOR = 'a.groups-list-item';
+
+function isPendingGroupsElement(element) {
+    return !!(
+        element?.closest('.pending-join-requests') ||
+        element?.closest('.pending-groups-list')
+    );
+}
+
+function getGroupCards() {
+    return Array.from(document.querySelectorAll(GROUP_CARD_SELECTOR)).filter(
+        (card) => !isPendingGroupsElement(card) && getGroupIdFromCard(card),
+    );
+}
+
+function isJoinedGroupsContainer(container) {
+    if (isPendingGroupsElement(container)) return false;
+    if (container.querySelector('.pending-groups-list')) return false;
+
+    const heading = container
+        .closest('.groups-list-new')
+        ?.querySelector('.groups-list-heading')
+        ?.textContent?.trim()
+        ?.toLowerCase();
+
+    if (heading?.includes('pending')) return false;
+
+    return container.classList.contains('groups-list-items-container');
+}
 
 function getGroupIdFromCard(card) {
     const href = card.getAttribute('href');
@@ -23,7 +53,7 @@ function getGroupIdFromCard(card) {
 }
 
 function findCardByGroupId(groupId) {
-    return Array.from(document.querySelectorAll('a.groups-list-item')).find(
+    return getGroupCards().find(
         (card) => getGroupIdFromCard(card) === groupId,
     );
 }
@@ -38,6 +68,14 @@ function getGroupName(groupId, card = null) {
 
     const img = card?.querySelector('img');
     if (img?.alt?.trim()) return img.alt.trim();
+
+    const title = card?.getAttribute('title')?.trim();
+    if (title) return title;
+
+    const visibleName = card
+        ?.querySelector('.text-title-medium')
+        ?.textContent?.trim();
+    if (visibleName) return visibleName;
 
     return `Community ${groupId}`;
 }
@@ -125,8 +163,7 @@ async function fetchUserGroups() {
                 }
             }
             updateLeaveButton();
-            document.querySelectorAll('a.groups-list-item').forEach((card) => {
-                if (card.closest('.pending-join-requests')) return;
+            getGroupCards().forEach((card) => {
                 setCardInteractivity(card, true);
             });
         }
@@ -414,7 +451,7 @@ function onDocumentClickCapture(e) {
     if (!enableBulkLeave) return;
 
     const card = e.target.closest('a.groups-list-item');
-    if (!card || card.closest('.pending-join-requests')) return;
+    if (!card || isPendingGroupsElement(card)) return;
 
     e.preventDefault();
     e.stopPropagation();
@@ -456,8 +493,7 @@ function setBulkMode(active) {
         selectedGroups.clear();
     }
 
-    document.querySelectorAll('a.groups-list-item').forEach((card) => {
-        if (card.closest('.pending-join-requests')) return;
+    getGroupCards().forEach((card) => {
         setCardInteractivity(card, active);
     });
 
@@ -471,6 +507,8 @@ function setBulkMode(active) {
 }
 
 function injectToolbar(container) {
+    if (!isJoinedGroupsContainer(container)) return;
+
     if (toolbar && document.body.contains(toolbar)) return;
 
     toolbar = document.createElement('div');
@@ -494,6 +532,7 @@ function injectToolbar(container) {
     toolbar.appendChild(leaveButton);
 
     container.insertAdjacentElement('beforebegin', toolbar);
+    toolbarContainer = container;
     updateLeaveButton();
 }
 
@@ -501,7 +540,7 @@ function cleanup() {
     enableBulkLeave = false;
     selectedGroups.clear();
 
-    document.querySelectorAll('a.groups-list-item').forEach((card) => {
+    getGroupCards().forEach((card) => {
         setCardInteractivity(card, false);
         card.style.opacity = '';
     });
@@ -512,6 +551,7 @@ function cleanup() {
     }
     leaveButton = null;
     bulkToggleButton = null;
+    toolbarContainer = null;
 }
 
 function showSuccessAlertIfNeeded() {
@@ -556,8 +596,10 @@ export async function init() {
         },
         {
             multiple: true,
-            onRemove: () => {
-                cleanup();
+            onRemove: (container) => {
+                if (container === toolbarContainer) {
+                    cleanup();
+                }
             },
         },
     );
@@ -565,7 +607,11 @@ export async function init() {
     observeElement(
         'a.groups-list-item',
         (card) => {
-            if (card.closest('.pending-join-requests')) return;
+            if (isPendingGroupsElement(card)) return;
+            const container = card.closest('.groups-list-items-container');
+            if (container) {
+                injectToolbar(container);
+            }
             if (enableBulkLeave) {
                 setCardInteractivity(card, true);
             }
