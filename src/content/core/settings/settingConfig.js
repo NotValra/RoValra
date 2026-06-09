@@ -543,6 +543,14 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
+            currentlyPlayingLinkEnabled: {
+                label: 'Clickable Currently Playing Card',
+                description: [
+                    'Makes the currently playing experience card on profiles link directly to the experience the user is playing.',
+                ],
+                type: 'checkbox',
+                default: true,
+            },
             userSniperEnabled: {
                 label: 'Instant Joiner',
                 description: [
@@ -1018,12 +1026,15 @@ export const SETTINGS_CONFIG = {
             },
             bulkLeaveGroupsEnabled: {
                 label: 'Bulk Leave Communities',
-                description: [
-                    'This allows you to leave communities in bulk.'
-                ],
+                description: ['This allows you to leave communities in bulk.'],
                 type: 'checkbox',
                 default: true,
-                contributors: ['447170745', '9502859424', '2615068449', '422540285'],
+                contributors: [
+                    '447170745',
+                    '9502859424',
+                    '2615068449',
+                    '422540285',
+                ],
             },
             groupPlaceVisitsEnabled: {
                 label: 'Total Community Place Visits',
