@@ -10,6 +10,11 @@ import { createAndShowPopup } from '../../features/catalog/40method.js';
 import * as CacheHandler from '../storage/cacheHandler.js';
 import { hasOwn } from '../utils.js';
 import { showConfirmationPrompt } from '../ui/confirmationPrompt.js';
+import {
+    REMOTE_SETTING_LOCKS_KEY,
+    REMOTE_SETTING_LOCK_REASON,
+    getRemoteSettingLocks,
+} from './remoteSettingLocks.js';
 import './settingsCompat';
 
 let currentUserTier = 0;
@@ -213,21 +218,31 @@ export const loadSettings = async () => {
             }
         }
 
-        chrome.storage.local.get(defaultSettings, (settings) => {
-            if (chrome.runtime.lastError) {
-                console.error(
-                    'Failed to load settings:',
-                    chrome.runtime.lastError,
-                );
-                reject(chrome.runtime.lastError);
-            } else {
-                const normalisedSettings = settings;
-                for (const [key, value] of Object.entries(forcedSettings)) {
-                    normalisedSettings[key] = value;
+        chrome.storage.local.get(
+            { ...defaultSettings, [REMOTE_SETTING_LOCKS_KEY]: {} },
+            (settings) => {
+                if (chrome.runtime.lastError) {
+                    console.error(
+                        'Failed to load settings:',
+                        chrome.runtime.lastError,
+                    );
+                    reject(chrome.runtime.lastError);
+                } else {
+                    const remoteLocks = settings[REMOTE_SETTING_LOCKS_KEY] || {};
+                    delete settings[REMOTE_SETTING_LOCKS_KEY];
+
+                    for (const key of Object.keys(remoteLocks)) {
+                        forcedSettings[key] = false;
+                    }
+
+                    const normalisedSettings = settings;
+                    for (const [key, value] of Object.entries(forcedSettings)) {
+                        normalisedSettings[key] = value;
+                    }
+                    resolve(normalisedSettings);
                 }
-                resolve(normalisedSettings);
-            }
-        });
+            },
+        );
     });
 };
 
@@ -330,6 +345,11 @@ export const handleSaveSettings = async (settingName, value) => {
     }
 
     try {
+        const remoteLocks = await getRemoteSettingLocks();
+        if (remoteLocks[settingName] && value !== false) {
+            value = false;
+        }
+
         const settingConfig = findSettingConfig(settingName);
 
         let sanitizedValue = value;
@@ -979,6 +999,7 @@ export const checkSettingLocks = async (settingsContent, currentSettings) => {
     const data = await chrome.storage.local.get([
         'profile3DRenderForceDisabled',
     ]);
+    const remoteLocks = await getRemoteSettingLocks();
 
     const userTier = currentUserTier;
 
@@ -1000,6 +1021,19 @@ export const checkSettingLocks = async (settingsContent, currentSettings) => {
     for (const category of Object.values(SETTINGS_CONFIG)) {
         for (const [settingName, config] of Object.entries(category.settings)) {
             const processSetting = async (name, conf) => {
+                if (remoteLocks[name]) {
+                    if (currentSettings[name] !== false) {
+                        await handleSaveSettings(name, false);
+                    }
+                    applyLockedState(
+                        name,
+                        settingsContent,
+                        true,
+                        remoteLocks[name].reason || REMOTE_SETTING_LOCK_REASON,
+                    );
+                    return true;
+                }
+                let handledLockState = false;
                 if (conf.donatorTier) {
                     const isLocked = userTier < conf.donatorTier;
                     applyLockedState(
@@ -1011,6 +1045,7 @@ export const checkSettingLocks = async (settingsContent, currentSettings) => {
                         true,
                     );
                     if (isLocked) return true;
+                    handledLockState = true;
                 }
                 if (conf.locked) {
                     if (currentSettings[name] === true) {
@@ -1018,6 +1053,9 @@ export const checkSettingLocks = async (settingsContent, currentSettings) => {
                     }
                     applyLockedState(name, settingsContent, true, conf.locked);
                     return true;
+                }
+                if (!handledLockState) {
+                    applyLockedState(name, settingsContent, false);
                 }
                 return false;
             };
@@ -1034,6 +1072,21 @@ export const checkSettingLocks = async (settingsContent, currentSettings) => {
         }
     }
 };
+
+if (typeof chrome !== 'undefined' && chrome.storage?.onChanged) {
+    chrome.storage.onChanged.addListener(async (changes, areaName) => {
+        if (areaName !== 'local' || !changes[REMOTE_SETTING_LOCKS_KEY]) return;
+
+        const settingsContent = document.querySelector(
+            '#setting-section-content',
+        );
+        if (!settingsContent) return;
+
+        const currentSettings = await loadSettings();
+        updateConditionalSettingsVisibility(settingsContent, currentSettings);
+        await checkSettingLocks(settingsContent, currentSettings);
+    });
+}
 
 function applyDisabledState(
     settingName,

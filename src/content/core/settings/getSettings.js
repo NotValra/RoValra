@@ -1,4 +1,5 @@
 import { loadSettings } from './handlesettings.js';
+import { REMOTE_SETTING_LOCKS_KEY } from './remoteSettingLocks.js';
 
 let settingsCache = undefined;
 
@@ -16,6 +17,11 @@ if (typeof document !== 'undefined') {
 if (typeof chrome !== 'undefined' && chrome.storage?.onChanged) {
     chrome.storage.onChanged.addListener((changes, areaName) => {
         if (areaName !== 'local' || settingsCache === undefined) return;
+
+        if (changes[REMOTE_SETTING_LOCKS_KEY]) {
+            settingsCache = undefined;
+            return;
+        }
 
         for (const [name, change] of Object.entries(changes)) {
             if (name === 'rovalra_settings') continue;

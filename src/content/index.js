@@ -138,6 +138,7 @@ import { init as initUnderratedGamesHome } from './features/home/underratedGames
 // create
 import { init as initCreateDownload } from './features/create.roblox.com/download.js';
 import { enforceSettingOverrides } from './core/settings/handlesettings.js';
+import { refreshRemoteSettingLocks } from './core/settings/remoteSettingLocks.js';
 
 let pageLoaded = false;
 let lastPath = window.location.pathname.toLowerCase();
@@ -411,6 +412,12 @@ async function initializePage() {
         const featureStartTime = performance.now();
 
         await t('__i18n_ready__').catch(() => {});
+        await refreshRemoteSettingLocks().catch((error) =>
+            console.error(
+                'RoValra: Failed to refresh remote settings config.',
+                error,
+            ),
+        );
         await enforceSettingOverrides();
         detectTheme().then((theme) => dispatchThemeEvent(theme));
         runFeaturesForPage();
