@@ -1321,6 +1321,50 @@ export const SETTINGS_CONFIG = {
                 default: true,
                 contributors: ['447170745', '8345351117'],
             },
+            sidebarCollapseEnabled: {
+                label: 'Collapsible Sidebar',
+                description: ['Adds a button to collapse the Roblox sidebar.'],
+                type: 'checkbox',
+                default: true,
+                storageKey: 'rovalraSidebarCollapsed',
+                childSettings: {
+                    sidebarCollapseMoveContentEnabled: {
+                        label: 'Move content with collapsed sidebar',
+                        description:
+                            'Moves the page content to match the current sidebar width.',
+                        type: 'checkbox',
+                        default: true,
+                    },
+                },
+            },
+            ageKidsThemeEnabled: {
+                label: 'Age Theme',
+                description:
+                    'Lets you choose which Roblox age theme is used across the site.',
+                type: 'checkbox',
+                default: false,
+                childSettings: {
+                    ageThemeSelection: {
+                        label: 'Theme',
+                        description:
+                            'Choose which Roblox age theme class should be applied.',
+                        type: 'select',
+                        options: [
+                            { label: 'Normal Roblox', value: 'normal' },
+                            { label: 'Roblox Kids', value: 'kids' },
+                            { label: 'Roblox Select', value: 'select' },
+                        ],
+                        default: 'normal',
+                    },
+                    ageThemeNavbarEnabled: {
+                        label: 'Show Age Theme in the navigation bar',
+                        description:
+                            'Adds a navigation bar button for switching the age theme live.',
+                        type: 'checkbox',
+                        default: false,
+                    },
+                },
+            },
             betaProgramsEnabled: {
                 label: 'Adds a beta programs toggle to the navigation bar',
                 description:
@@ -1505,50 +1549,7 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
-            sidebarCollapseEnabled: {
-                label: 'Collapsible Sidebar',
-                description: ['Adds a button to collapse the Roblox sidebar.'],
-                type: 'checkbox',
-                default: true,
-                storageKey: 'rovalraSidebarCollapsed',
-                childSettings: {
-                    sidebarCollapseMoveContentEnabled: {
-                        label: 'Move content with collapsed sidebar',
-                        description:
-                            'Moves the page content to match the current sidebar width.',
-                        type: 'checkbox',
-                        default: true,
-                    },
-                },
-            },
-            ageKidsThemeEnabled: {
-                label: 'Age Theme',
-                description:
-                    'Lets you choose which Roblox age theme is used across the site.',
-                type: 'checkbox',
-                default: false,
-                childSettings: {
-                    ageThemeSelection: {
-                        label: 'Theme',
-                        description:
-                            'Choose which Roblox age theme class should be applied.',
-                        type: 'select',
-                        options: [
-                            { label: 'Normal Roblox', value: 'normal' },
-                            { label: 'Roblox Kids', value: 'kids' },
-                            { label: 'Roblox Select', value: 'select' },
-                        ],
-                        default: 'normal',
-                    },
-                    ageThemeNavbarEnabled: {
-                        label: 'Show Age Theme in the navigation bar',
-                        description:
-                            'Adds a navigation bar button for switching the age theme live.',
-                        type: 'checkbox',
-                        default: false,
-                    },
-                },
-            },
+
             cssfixesEnabled: {
                 label: 'Site Fixes',
                 description: [
