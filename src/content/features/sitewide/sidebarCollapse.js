@@ -1,4 +1,4 @@
-import { observeElement } from '../../core/observer.js';
+import { observeAttributes, observeElement } from '../../core/observer.js';
 import { getAssets } from '../../core/assets.js';
 import { ts } from '../../core/locale/i18n.js';
 import { addTooltip } from '../../core/ui/tooltip.js';
@@ -10,6 +10,9 @@ const BUTTON_ID = 'rovalra-sidebar-collapse-button';
 const ICON_ID = 'rovalra-sidebar-collapse-icon';
 const EXPANDED_SIDEBAR_WIDTH = 289;
 const COLLAPSED_SIDEBAR_WIDTH = 72;
+const ROBLOX_LEFT_NAV_BREAKPOINT = 768;
+const ROBLOX_NAV_MENU_SELECTOR =
+    'button.menu-button.btn-navigation-nav-menu-md, button[title="nav menu"] .icon-nav-menu';
 const CONTENT_SIDEBAR_SELECTOR = [
     '.container-main aside',
     '.container-main [class*="sidebar" i]',
@@ -23,6 +26,8 @@ const CONTENT_SIDEBAR_SELECTOR = [
 const ANCHORED_POSITIONS = new Set(['fixed', 'sticky', 'absolute']);
 let moveContentWithSidebar = true;
 let currentLeftNav = null;
+let resizeListenerReady = false;
+let responsiveSyncQueued = false;
 
 function getCurrentSidebarWidth(leftNav = currentLeftNav) {
     return isCollapsed(leftNav)
@@ -40,17 +45,61 @@ function isCollapsed(leftNav) {
     return leftNav?.dataset.rovalraSidebarCollapsed === 'true';
 }
 
+function isVisible(element) {
+    if (!element) return false;
+
+    const style = getComputedStyle(element);
+    if (style.display === 'none' || style.visibility === 'hidden') {
+        return false;
+    }
+
+    const rect = element.getBoundingClientRect();
+    return rect.width > 0 && rect.height > 0;
+}
+
+function getRobloxNavMenuButton() {
+    const menuElement = document.querySelector(ROBLOX_NAV_MENU_SELECTOR);
+
+    return menuElement?.closest('button') || menuElement;
+}
+
+function isRobloxResponsiveNavActive(leftNav = currentLeftNav) {
+    const menuButton = getRobloxNavMenuButton();
+    if (isVisible(menuButton)) return true;
+
+    if (!leftNav) return false;
+
+    const rect = leftNav.getBoundingClientRect();
+    return rect.width > 0 && rect.right <= 8;
+}
+
+function isCustomSidebarLayoutActive() {
+    return (
+        window.innerWidth >= ROBLOX_LEFT_NAV_BREAKPOINT &&
+        !isRobloxResponsiveNavActive()
+    );
+}
+
+function shouldMoveContentWithSidebar() {
+    return moveContentWithSidebar && isCustomSidebarLayoutActive();
+}
+
 function updateDocumentSidebarState(leftNav) {
     if (!document.body) return;
 
     const collapsed = isCollapsed(leftNav);
     const sidebarWidth = getCurrentSidebarWidth(leftNav);
+    const layoutActive = isCustomSidebarLayoutActive();
 
     document.body.dataset.rovalraSidebarCollapseReady = 'true';
     document.body.dataset.rovalraSidebarCollapsed = String(collapsed);
+    document.body.dataset.rovalraSidebarLayoutActive = String(layoutActive);
     document.body.dataset.rovalraSidebarMoveContent = String(
         moveContentWithSidebar,
     );
+    if (leftNav) {
+        leftNav.dataset.rovalraSidebarLayoutActive = String(layoutActive);
+    }
     document.body.style.setProperty(
         '--rovalra-sidebar-width',
         `${sidebarWidth}px`,
@@ -62,7 +111,7 @@ function updateDocumentSidebarState(leftNav) {
 }
 
 function isContentSidebarCandidate(element) {
-    if (!moveContentWithSidebar || !currentLeftNav) return false;
+    if (!shouldMoveContentWithSidebar() || !currentLeftNav) return false;
     if (currentLeftNav.contains(element)) return false;
 
     const style = getComputedStyle(element);
@@ -115,10 +164,12 @@ function syncContentSidebar(element) {
 function syncContentSidebars() {
     if (!document.body) return;
 
+    const shouldMoveContent = shouldMoveContentWithSidebar();
+
     document
         .querySelectorAll('[data-rovalra-content-sidebar-adjusted="true"]')
         .forEach((element) => {
-            if (moveContentWithSidebar) {
+            if (shouldMoveContent) {
                 syncContentSidebar(element);
                 return;
             }
@@ -129,11 +180,58 @@ function syncContentSidebars() {
             delete element.dataset.rovalraContentSidebarOriginalLeft;
         });
 
-    if (!moveContentWithSidebar) return;
+    if (!shouldMoveContent) return;
 
     document.querySelectorAll(CONTENT_SIDEBAR_SELECTOR).forEach((element) => {
         syncContentSidebar(element);
     });
+}
+
+function syncResponsiveSidebarState() {
+    if (!currentLeftNav) return;
+
+    updateDocumentSidebarState(currentLeftNav);
+    syncContentSidebars();
+}
+
+function scheduleResponsiveSidebarStateSync() {
+    if (responsiveSyncQueued) return;
+
+    responsiveSyncQueued = true;
+    requestAnimationFrame(() => {
+        responsiveSyncQueued = false;
+        syncResponsiveSidebarState();
+    });
+}
+
+function ensureResizeListener() {
+    if (resizeListenerReady) return;
+
+    resizeListenerReady = true;
+    window.addEventListener('resize', scheduleResponsiveSidebarStateSync, {
+        passive: true,
+    });
+}
+
+function observeRobloxResponsiveNavButton(menuElement) {
+    const menuButton = menuElement.closest('button') || menuElement;
+    if (menuButton.dataset.rovalraSidebarResponsiveObserverReady) return;
+
+    menuButton.dataset.rovalraSidebarResponsiveObserverReady = 'true';
+    observeAttributes(
+        menuButton,
+        scheduleResponsiveSidebarStateSync,
+        ['aria-expanded', 'aria-hidden', 'class', 'style'],
+    );
+    menuButton.addEventListener(
+        'click',
+        () => {
+            scheduleResponsiveSidebarStateSync();
+            setTimeout(scheduleResponsiveSidebarStateSync, 0);
+        },
+        { passive: true },
+    );
+    scheduleResponsiveSidebarStateSync();
 }
 
 function setCollapsed(leftNav, collapsed) {
@@ -227,6 +325,12 @@ function attachCollapseButton(leftNav) {
 
     leftNav.dataset.rovalraSidebarCollapseReady = 'true';
     leftNav.dataset.rovalraSidebarMoveContent = String(moveContentWithSidebar);
+    ensureResizeListener();
+    observeAttributes(leftNav, scheduleResponsiveSidebarStateSync, [
+        'aria-hidden',
+        'class',
+        'style',
+    ]);
 
     const button = createSquareButton({
         content: '',
@@ -270,6 +374,7 @@ async function initSidebarCollapse() {
         (await settings.sidebarCollapseMoveContentEnabled) !== false;
 
     observeElement('.left-nav', attachCollapseButton);
+    observeElement(ROBLOX_NAV_MENU_SELECTOR, observeRobloxResponsiveNavButton);
     observeElement(CONTENT_SIDEBAR_SELECTOR, syncContentSidebar, {
         multiple: true,
     });
