@@ -8,7 +8,7 @@ const settingDeprecations: Record<string, ((value: any, gets: (key: string) => P
 
 
 import { SETTINGS_CONFIG } from "../content/core/settings/settingConfig.js";
-import { debugVerbose, flush } from "../content/core/debug.js";
+import { debugVerbose } from "../content/core/debug.js";
 
 let compatResults: { replaced: string[]; deleted: string[] } | null = null;
 
@@ -121,7 +121,6 @@ const init = (async () => {
     });
 
     await cleanup();
-    flush();
 
     console.debug("Setting compat checks finished.");
 });
