@@ -65,6 +65,15 @@ export const SETTINGS_CONFIG = {
 
                 experimental:
                     'This feature may cause performance issues. And may be buggy',
+                childSettings: {
+                    marketplace3DRenderHoverPreviewDisabled: {
+                        label: 'Disable Hover Preview',
+                        description:
+                            'Disables the 3D try-on preview when hovering over marketplace items.',
+                        type: 'checkbox',
+                        default: false,
+                    },
+                },
             },
             EnableRobuxAfterPurchase: {
                 label: 'Robux After Purchase',
