@@ -20,6 +20,7 @@ import { init as initApiKey } from './core/utils/trackers/apiKey.js';
 import { init as initBirthdayTracker } from './core/utils/trackers/birthday.js';
 import { init as initServerTracker } from './core/utils/trackers/servers.js';
 import { initFriendsListTracking } from './core/utils/trackers/friendslist.js';
+import { init as initFavoriteFriends } from './features/sitewide/favoriteFriends.js';
 import { initTransactionsTracking } from './core/utils/trackers/transactions.js';
 import { initBadgesTracking } from './core/utils/trackers/badges.js';
 import { initUserCurrencyTracking } from './core/utils/trackers/currency.js';
@@ -158,6 +159,7 @@ const featureRoutes = [
             initBirthdayTracker,
             initServerTracker,
             initFriendsListTracking,
+			initFavoriteFriends,
             initTransactionsTracking,
             initBadgesTracking,
             initUserCurrencyTracking,
