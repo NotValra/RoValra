@@ -44,6 +44,11 @@
         "removeFailed": "Failed to remove trusted Friend.",
         "errorRemoving": "Error Removing"
     },
+    "chatEligibility": {
+        "canChat": "You can chat with this user.",
+        "cannotChat": "This user is outside your chat age range.",
+        "ageCheckRequired": "This user has not completed an age check."
+    },
     "categorizeWearing": {
         "currentlyWearing": "Currently Wearing",
         "items": "Items",

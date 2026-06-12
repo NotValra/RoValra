@@ -560,6 +560,14 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
+            chatEligibilityTooltipEnabled: {
+                label: 'Chat Eligibility Tooltip',
+                description: [
+                    'Shows if you can or cannot chat with a friend or if they havent done an age check when hovering over the chat button on their profile.',
+                ],
+                type: 'checkbox',
+                default: true,
+            },
             userSniperEnabled: {
                 label: 'Instant Joiner',
                 description: [

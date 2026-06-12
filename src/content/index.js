@@ -126,6 +126,7 @@ import { init as initPurchasePromptItemId } from './core/catalog/purchasePromptI
 import { init as initCurrencyTransfer } from './features/profile/currencytransfer.js';
 import { init as initGroupFilters } from './features/profile/groupFilters.js';
 import { init as initUsernameColor } from './features/profile/header/usernameColor.js';
+import { init as initChatEligibilityTooltip } from './features/profile/header/chatEligibilityTooltip.js';
 
 // Settings
 import { init as initSettingsPage } from './features/settings/index.js';
@@ -299,6 +300,7 @@ const featureRoutes = [
             initCurrencyTransfer,
             initGroupFilters,
             initAvatarDownload,
+            initChatEligibilityTooltip,
         ],
     },
     {
