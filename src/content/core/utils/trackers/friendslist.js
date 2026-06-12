@@ -11,7 +11,7 @@ import {
 } from '../../apis/users.js';
 
 const FRIENDS_DATA_KEY = 'rovalra_friends_data';
-const FRIENDS_DATA_VERSION = 4;
+const FRIENDS_DATA_VERSION = 5;
 const FRIENDS_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes for heavy data
 const ONLINE_STATUS_CACHE_DURATION = 1 * 60 * 1000; // 1 minute for online status
 
@@ -189,27 +189,9 @@ export async function updateFriendsList(userId) {
                         content?.includes('has not completed an age check')
                     );
                 });
-                const hasChatEvidence = conv.messages?.some(
-                    (message) =>
-                        message.moderation_type === 'trusted_comms' ||
-                        (message.type === 'user' &&
-                            message.content &&
-                            !message.content
-                                .toLowerCase()
-                                .includes("other users can't see")),
-                );
-
                 const existingStatus = chatAnalysisMap.get(friendId);
-                const canChat = hasRestrictedMsg
-                    ? false
-                    : hasChatEvidence
-                      ? true
-                      : null;
-                const hasAgeChecked = needsAgeCheck
-                    ? false
-                    : hasChatEvidence
-                      ? true
-                      : null;
+                const canChat = !hasRestrictedMsg;
+                const hasAgeChecked = !needsAgeCheck;
 
                 chatAnalysisMap.set(friendId, {
                     canChat:

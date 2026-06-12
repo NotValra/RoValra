@@ -3,7 +3,10 @@ import { t } from '../../../core/locale/i18n.js';
 import { observeElement } from '../../../core/observer.js';
 import { settings } from '../../../core/settings/getSettings.js';
 import { addTooltip } from '../../../core/ui/tooltip.js';
-import { getFriendsList } from '../../../core/utils/trackers/friendslist.js';
+import {
+    getCachedFriendsList,
+    getFriendsList,
+} from '../../../core/utils/trackers/friendslist.js';
 
 const PRESENTATION_SELECTOR =
     '.profile-header-overlay div[role="presentation"]';
@@ -17,9 +20,10 @@ const REQUIRED_CLASSES = [
     'group-disabled/interactable:bg-none',
 ];
 /* eslint-enable rovalra/check-css-vars */
+const CHAT_OVERLAY_RETRY_DELAYS = [0, 50, 150, 400, 1000, 2000];
 
 let observerRegistered = false;
-let friendDataPromise = null;
+const friendDataPromises = new Map();
 
 function isChatOverlay(overlay) {
     if (
@@ -49,18 +53,39 @@ function isChatOverlay(overlay) {
     return /\bchat\b/i.test(controlIdentity);
 }
 
+function findFriend(friendsList, userId) {
+    return friendsList.find((friend) => friend.id === userId) || null;
+}
+
+function hasChatEligibility(friend) {
+    return (
+        friend?.hasAgeChecked === false ||
+        friend?.canChat === true ||
+        friend?.canChat === false
+    );
+}
+
 async function getProfileFriendData() {
-    if (friendDataPromise) return friendDataPromise;
+    const userId = Number(getUserIdFromUrl());
+    if (!userId) return null;
 
-    friendDataPromise = (async () => {
-        const userId = Number(getUserIdFromUrl());
-        if (!userId) return null;
+    const cachedFriend = findFriend(await getCachedFriendsList(), userId);
+    if (hasChatEligibility(cachedFriend)) return cachedFriend;
 
-        const friendsList = await getFriendsList();
-        return friendsList.find((friend) => friend.id === userId) || null;
-    })();
+    if (!friendDataPromises.has(userId)) {
+        friendDataPromises.set(
+            userId,
+            getFriendsList().then((friendsList) =>
+                findFriend(friendsList, userId),
+            ),
+        );
+    }
 
-    return friendDataPromise;
+    try {
+        return await friendDataPromises.get(userId);
+    } finally {
+        friendDataPromises.delete(userId);
+    }
 }
 
 async function attachChatTooltip(overlay) {
@@ -89,6 +114,23 @@ async function attachChatTooltip(overlay) {
     overlay.dataset.rovalraChatEligibilityTooltip = 'true';
 }
 
+function processPotentialChatOverlay(overlay, attempt = 0) {
+    if (!overlay.isConnected) return;
+
+    if (isChatOverlay(overlay)) {
+        attachChatTooltip(overlay);
+        return;
+    }
+
+    const nextAttempt = attempt + 1;
+    if (nextAttempt >= CHAT_OVERLAY_RETRY_DELAYS.length) return;
+
+    setTimeout(
+        () => processPotentialChatOverlay(overlay, nextAttempt),
+        CHAT_OVERLAY_RETRY_DELAYS[nextAttempt],
+    );
+}
+
 export async function init() {
     if (
         observerRegistered ||
@@ -99,7 +141,7 @@ export async function init() {
     }
 
     observerRegistered = true;
-    observeElement(PRESENTATION_SELECTOR, attachChatTooltip, {
+    observeElement(PRESENTATION_SELECTOR, processPotentialChatOverlay, {
         multiple: true,
     });
 }
