@@ -40,6 +40,7 @@ import { init as initLessPlus } from './features/sitewide/lessPlus.js';
 import { init as initKidsTheme } from './features/sitewide/kidsTheme.js';
 import { init as initSidebarCollapse } from './features/sitewide/sidebarCollapse.js';
 import { init as initRemoveDownloadButton } from './features/sitewide/removeDownloadButton.js';
+import { init as initPaymentMethodBonusItems } from './features/paymentmethods/bonusItems.js';
 
 // Avatar
 import { init as initAvatarFilters } from './features/avatar/filters.js';
@@ -312,6 +313,10 @@ const featureRoutes = [
     {
         paths: ['/transactions'],
         features: [initTotalSpent, initPendingRobuxTrans, initTotalEarned],
+    },
+    {
+        paths: ['/upgrades/paymentmethods'],
+        features: [initPaymentMethodBonusItems],
     },
     // Trading
     {

@@ -82,6 +82,13 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
+            bonusItemEnabled: {
+                label: 'Robux Purchase Bonus Item Selector',
+                description:
+                    'Adds a bonus item selector to eligible Robux purchases of 2,000 Robux or more.',
+                type: 'checkbox',
+                default: true,
+            },
             EnableItemDependencies: {
                 label: 'Item Dependencies',
                 description: [
