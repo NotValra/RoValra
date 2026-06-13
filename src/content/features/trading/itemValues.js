@@ -149,6 +149,13 @@ export function init() {
 
                     card.dataset.rovalraProcessed = 'true';
                     card.dataset.rovalraAssetId = assetId;
+                    const itemLink = card.querySelector(
+                        'a[href*="/catalog/"], a[href*="/bundles/"]',
+                    );
+                    if (itemLink?.href.includes('/bundles/')) {
+                        card.dataset.rovalraItemType = 'Bundle';
+                        card.dataset.rovalraBundleId = assetId;
+                    }
 
                     const cached = getCachedRolimonsItem(assetId);
                     if (cached) {
@@ -211,6 +218,23 @@ function onRiskUpdate(e) {
         cards.forEach((card) => updateItemCard(card, id));
     });
 }
+
+function isRolimonsBundle(card, options = {}) {
+    if (options.rolimonsItemType === 'Bundle') return true;
+    if (card.dataset.rovalraItemType === 'Bundle') return true;
+    return Boolean(card.dataset.rovalraBundleId);
+}
+
+function getRolimonsUrl(card, assetId, options = {}) {
+    if (isRolimonsBundle(card, options)) {
+        const bundleId =
+            options.bundleId || card.dataset.rovalraBundleId || assetId;
+        return `https://www.rolimons.com/bundle/${bundleId}`;
+    }
+
+    return `https://www.rolimons.com/item/${assetId}`;
+}
+
 // turns english into numbers so we can add locale support
 function getTrendValue(trendStr) {
     const map = {
@@ -304,29 +328,34 @@ export function updateItemCard(card, assetId, options = {}) {
 
             if (!priceDiv.closest('a') || options.forceLink) {
                 let rolimonsLink;
+                const rolimonsUrl = getRolimonsUrl(card, assetId, options);
+                const rolimonsTargetType = isRolimonsBundle(card, options)
+                    ? 'bundle'
+                    : 'item';
                 if (options.forceLink) {
                     rolimonsLink = document.createElement('span');
                     rolimonsLink.style.cursor = 'pointer';
                     rolimonsLink.addEventListener('click', (e) => {
                         e.stopPropagation();
                         e.preventDefault();
-                        window.open(
-                            `https://www.rolimons.com/item/${assetId}`,
-                            '_blank',
-                        );
+                        window.open(rolimonsUrl, '_blank');
                     });
                 } else {
                     rolimonsLink = document.createElement('a');
-                    rolimonsLink.href = `https://www.rolimons.com/item/${assetId}`;
+                    rolimonsLink.href = rolimonsUrl;
                     rolimonsLink.target = '_blank';
                 }
                 rolimonsLink.style.display = 'flex';
                 rolimonsLink.style.alignItems = 'center';
                 rolimonsLink.style.marginLeft = '4px';
                 rolimonsLink.innerHTML = `<div style="width: 18px; height: 18px; background-color: var(--rovalra-main-text-color); -webkit-mask: url('${assets.launchIcon}')"></div>`; // verified
-                addTooltip(rolimonsLink, 'Open item on Rolimons', {
-                    position: 'top',
-                });
+                addTooltip(
+                    rolimonsLink,
+                    `Open ${rolimonsTargetType} on Rolimons`,
+                    {
+                        position: 'top',
+                    },
+                );
 
                 valDiv.appendChild(rolimonsLink);
             }

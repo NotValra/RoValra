@@ -37,7 +37,7 @@ async function renderTestPage(contentDiv) {
     const friendSection = document.createElement('div');
     friendSection.style.marginBottom = '24px';
     const friendHeading = document.createElement('h2');
-    friendHeading.textContent = 'Friend Tiles (user 847685835)';
+    friendHeading.textContent = 'Friend Tiles (user 8033407694)';
     friendHeading.style.marginBottom = '12px';
     friendSection.appendChild(friendHeading);
     const friendList = document.createElement('div');
@@ -47,7 +47,7 @@ async function renderTestPage(contentDiv) {
     friendSection.appendChild(friendList);
     contentDiv.appendChild(friendSection);
 
-    const testUserId = 847685835;
+    const testUserId = 8033407694;
     try {
         const friendsRes = await callRobloxApiJson({
             subdomain: 'friends',
@@ -132,6 +132,8 @@ async function renderTestPage(contentDiv) {
     container.appendChild(ugclimited);
     const deletedItem = createItemCard(17845088792);
     container.appendChild(deletedItem);
+    const baseballcap = createItemCard(607702162);
+    container.appendChild(baseballcap);
 
     const limiteduid = 16477149823;
     const limiteduitemCard = createItemCard(limiteduid);

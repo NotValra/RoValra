@@ -99,7 +99,8 @@ export async function buildSettingsPage({
                     item.id === 'info' ||
                     item.id === 'credits' ||
                     item.id === 'donatorPerks' ||
-                    item.id === 'accountStanding',
+                    item.id === 'accountStanding' ||
+                    item.id === 'store',
             )
             .forEach((item) => {
                 dropdownItems.push({
@@ -325,7 +326,8 @@ function createUnifiedMenu({
             item.id === 'info' ||
             item.id === 'credits' ||
             item.id === 'donatorPerks' ||
-            item.id === 'accountStanding',
+            item.id === 'accountStanding' ||
+            item.id === 'store',
     );
     staticItems.forEach((item) => {
         const listItem = document.createElement('li');

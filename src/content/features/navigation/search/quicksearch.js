@@ -236,25 +236,6 @@ async function performUserSearch(query) {
                     );
                     if (signal.aborted) return;
 
-                    const presencePromise = fetchWithRetry(
-                        {
-                            subdomain: 'presence',
-                            endpoint: '/v1/presence/users',
-                            method: 'POST',
-                            body: { userIds: validUsers.map((u) => u.id) },
-                        },
-                        3,
-                        signal,
-                    ).catch(() => null);
-
-                    const [presenceData] = await Promise.all([presencePromise]);
-                    if (signal.aborted) return;
-
-                    const presences = presenceData?.userPresences || [];
-                    const presenceMap = new Map(
-                        presences.map((p) => [p.userId, p]),
-                    );
-
                     window._lastRoValraFriendResults = validUsers
                         .map((friendUser) => {
                             if (
@@ -265,16 +246,63 @@ async function performUserSearch(query) {
                                 return null;
                             }
                             const thumbData = thumbnailMap.get(friendUser.id);
-                            const presence = presenceMap.get(friendUser.id);
                             return createUserResultHtml(
                                 friendUser,
                                 thumbData,
-                                presence,
+                                null,
                                 true,
                                 friendUser.isTrusted,
                             );
                         })
                         .filter((el) => el !== null);
+
+                    fetchWithRetry(
+                        {
+                            subdomain: 'presence',
+                            endpoint: '/v1/presence/users',
+                            method: 'POST',
+                            body: { userIds: validUsers.map((u) => u.id) },
+                        },
+                        3,
+                        signal,
+                    )
+                        .then((presenceData) => {
+                            if (signal.aborted) return;
+
+                            const presences =
+                                presenceData?.userPresences || [];
+                            const presenceMap = new Map(
+                                presences.map((p) => [p.userId, p]),
+                            );
+
+                            window._lastRoValraFriendResults = validUsers
+                                .map((friendUser) => {
+                                    if (
+                                        window._lastRoValraUserResult &&
+                                        window._lastRoValraUserResult.dataset
+                                            .userId == friendUser.id
+                                    ) {
+                                        return null;
+                                    }
+
+                                    const thumbData = thumbnailMap.get(
+                                        friendUser.id,
+                                    );
+                                    const presence = presenceMap.get(
+                                        friendUser.id,
+                                    );
+                                    return createUserResultHtml(
+                                        friendUser,
+                                        thumbData,
+                                        presence,
+                                        true,
+                                        friendUser.isTrusted,
+                                    );
+                                })
+                                .filter((el) => el !== null);
+                            injectIntoMenu();
+                        })
+                        .catch(() => {});
                 } else {
                     window._lastRoValraFriendResults = [];
                 }
@@ -302,11 +330,6 @@ async function performUserSearch(query) {
                 );
             }
         }
-        const uniqueFriends = localFriends.filter(
-            (f) => !userResult || f.id !== userResult.id,
-        );
-        const uniqueFriendIds = uniqueFriends.map((f) => f.id);
-
         if (userResult) {
             if (signal.aborted) return;
 
@@ -315,16 +338,6 @@ async function performUserSearch(query) {
                     [{ id: userResult.id }],
                     'AvatarHeadshot',
                     '48x48',
-                ),
-                fetchWithRetry(
-                    {
-                        subdomain: 'presence',
-                        endpoint: '/v1/presence/users',
-                        method: 'POST',
-                        body: { userIds: [userResult.id] },
-                    },
-                    3,
-                    signal,
                 ),
             ];
 
@@ -350,7 +363,7 @@ async function performUserSearch(query) {
                 promises2.push(Promise.resolve(null));
             }
 
-            const [userThumbnailMap, presenceData, fetchedUserDetails] =
+            const [userThumbnailMap, fetchedUserDetails] =
                 await Promise.all(promises2);
             if (signal.aborted) return;
 
@@ -377,14 +390,45 @@ async function performUserSearch(query) {
             }
 
             const userThumbData = userThumbnailMap.get(userResult.id);
-            const userPresence = presenceData?.userPresences?.[0];
             window._lastRoValraUserResult = createUserResultHtml(
                 userDetails,
                 userThumbData,
-                userPresence,
+                null,
                 userResultIsFriend,
                 isTrusted,
             );
+
+            fetchWithRetry(
+                {
+                    subdomain: 'presence',
+                    endpoint: '/v1/presence/users',
+                    method: 'POST',
+                    body: { userIds: [userResult.id] },
+                },
+                3,
+                signal,
+            )
+                .then((presenceData) => {
+                    if (signal.aborted) return;
+
+                    const userPresence = presenceData?.userPresences?.[0];
+                    window._lastRoValraUserResult = createUserResultHtml(
+                        userDetails,
+                        userThumbData,
+                        userPresence,
+                        userResultIsFriend,
+                        isTrusted,
+                    );
+
+                    if (window._lastRoValraFriendResults) {
+                        window._lastRoValraFriendResults =
+                            window._lastRoValraFriendResults.filter(
+                                (el) => el.dataset.userId != userResult.id,
+                            );
+                    }
+                    injectIntoMenu();
+                })
+                .catch(() => {});
 
             if (window._lastRoValraFriendResults) {
                 window._lastRoValraFriendResults =

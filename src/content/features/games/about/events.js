@@ -3,9 +3,12 @@ import { observeElement } from '../../../core/observer.js';
 import {
     fetchThumbnails,
     createThumbnailElement,
+    getQueuedThumbnail,
 } from '../../../core/thumbnail/thumbnails.js';
 import { createPillToggle } from '../../../core/ui/general/pillToggle.js';
 import { getPlaceIdFromUrl } from '../../../core/idExtractor.js';
+import { launchGame } from '../../../core/utils/launcher.js';
+import { ts } from '../../../core/locale/i18n.js';
 import DOMPurify from '../../../core/packages/dompurify.js';
 
 const eventThumbnailCache = new Map();
@@ -103,12 +106,47 @@ async function updateEventRsvp(eventId, rsvpStatus) {
     }
 }
 
+function formatCategoryString(category) {
+    if (!category) return '';
+    return category
+        .replace(/([A-Z])/g, ' $1')
+        .trim()
+        .replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+function isEventOngoing(event, now = new Date()) {
+    const start = event.eventTime?.startUtc
+        ? new Date(event.eventTime.startUtc)
+        : null;
+    const end = event.eventTime?.endUtc ? new Date(event.eventTime.endUtc) : null;
+
+    return Boolean(start && start <= now && (!end || end > now));
+}
+
+function updateRsvpCountLabel(counterEl, count) {
+    const formattedCount = count.toLocaleString();
+    const textNode = Array.from(counterEl.childNodes).find(
+        (node) =>
+            node.nodeType === Node.TEXT_NODE &&
+            node.textContent.trim().length > 0,
+    );
+
+    if (textNode) {
+        textNode.textContent = formattedCount;
+    } else if (counterEl.querySelector('.rovalra-modern-icon')) {
+        counterEl.appendChild(document.createTextNode(formattedCount));
+    } else {
+        counterEl.textContent = formattedCount;
+    }
+}
+
 function createEventCard(
     event,
     isPast = false,
     thumbnailData = null,
     overridePillText = null,
     rsvpCount = null,
+    fallbackPlaceId = null,
 ) {
     const li = document.createElement('li');
     li.className =
@@ -134,7 +172,7 @@ function createEventCard(
             : { state: 'Blocked', imageUrl: '' });
 
     const defaultPillText = isPast
-        ? new Date(event.eventTime.endUtc).toLocaleDateString('en-US', {
+        ? new Date(event.eventTime.endUtc).toLocaleDateString(undefined, {
               weekday: 'short',
               month: 'short',
               day: 'numeric',
@@ -143,11 +181,17 @@ function createEventCard(
           })
         : category;
 
+    const isOngoing = !isPast && isEventOngoing(event);
+    const eventUrl = `https://www.roblox.com/events/${event.id}`;
+    const launchPlaceId = event.placeId || event.rootPlaceId || fallbackPlaceId;
+
     const buttonText = isPast
-        ? 'View Event'
+        ? ts('events.buttons.viewEvent')
+        : isOngoing
+          ? ts('events.buttons.joinEvent')
         : event.userRsvpStatus === 'going'
-          ? 'Unfollow Event'
-          : 'Notify Me';
+          ? ts('events.buttons.unfollowEvent')
+          : ts('events.buttons.notifyMe');
 
     const rsvpCountHtml =
         typeof rsvpCount === 'number'
@@ -155,15 +199,15 @@ function createEventCard(
         <span class="info-label icon-playing-counts-gray"></span>
         <span class="info-label playing-counts-label">${rsvpCount.toLocaleString()}</span>
     `
-            : '';
+            : '<span class="rovalra-rsvp-container"></span>';
 
     const innerHtml = `
     <div class="featured-game-container game-card-container">
-        <a class="game-card-link" href="https://www.roblox.com/events/${event.id}" tabindex="0">
-            <div class="featured-game-icon-container">
+        <a class="game-card-link" href="${eventUrl}" tabindex="0">
+            <div class="featured-game-icon-container" style="height: 175px; min-height: 175px; max-height: 175px; overflow: hidden; border-radius: 8px 8px 0 0;">
                 <div class="thumbnail-placeholder"></div>
                 <div class="game-card-text-pill">
-                    <div class="game-card-info">${overridePillText || defaultPillText}</div>
+                    <div class="game-card-info">${overridePillText || formatCategoryString(defaultPillText)}</div>
                 </div>
             </div>
             <div class="info-container">
@@ -195,15 +239,27 @@ function createEventCard(
     li.innerHTML = DOMPurify.sanitize(innerHtml);
 
     const playButton = li.querySelector('.wide-event-play-button');
-    if (playButton && !isPast) {
+    if (playButton && isOngoing) {
+        playButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (launchPlaceId) {
+                launchGame(launchPlaceId);
+            } else {
+                window.location.href = eventUrl;
+            }
+        });
+    } else if (playButton && !isPast) {
         playButton.addEventListener('click', async (e) => {
             e.preventDefault();
             e.stopPropagation();
 
             const span = playButton.querySelector('span');
-            const isGoing = span.textContent === 'Leave Event';
+            const isGoing = event.userRsvpStatus === 'going';
             const nextStatus = isGoing ? 'notGoing' : 'going';
-            const nextText = isGoing ? 'Join Event' : 'Leave Event';
+            const nextText = isGoing
+                ? ts('events.buttons.notifyMe')
+                : ts('events.buttons.unfollowEvent');
 
             playButton.disabled = true;
             playButton.style.opacity = '0.5';
@@ -217,7 +273,7 @@ function createEventCard(
                 const counterEl = li.querySelector('.playing-counts-label');
                 if (counterEl) {
                     let currentCount = parseInt(
-                        counterEl.textContent.replace(/,/g, ''),
+                        counterEl.textContent.replace(/[^\d]/g, ''),
                         10,
                     );
                     if (!isNaN(currentCount)) {
@@ -225,7 +281,7 @@ function createEventCard(
                             ? currentCount - 1
                             : currentCount + 1;
                         const finalCount = Math.max(0, newCount);
-                        counterEl.textContent = finalCount.toLocaleString();
+                        updateRsvpCountLabel(counterEl, finalCount);
                         eventRsvpCache.set(event.id, finalCount);
                     }
                 }
@@ -238,12 +294,17 @@ function createEventCard(
 
     const placeholder = li.querySelector('.thumbnail-placeholder');
     if (placeholder) {
-        const thumbEl = createThumbnailElement(thumbData, event.title, '', {
-            width: '100%',
-            height: '100%',
-            borderRadius: '8px 8px 0 0',
-        });
-        thumbEl.classList.add('brief-game-icon');
+        const thumbEl = createThumbnailElement(
+            thumbData,
+            event.title,
+            'brief-game-icon',
+            {
+                width: '100%',
+                height: '100%',
+                borderRadius: '8px 8px 0 0',
+                objectFit: 'cover',
+            },
+        );
         placeholder.replaceWith(thumbEl);
     }
 
@@ -258,119 +319,30 @@ export async function loadAndRenderEvents(eventsContainer, placeId) {
     const universeId = await fetchUniverseId(placeId);
     if (!universeId) return;
 
-    let activeEvents = [];
+    const now = new Date();
 
     const headerContainer = eventsContainer.querySelector('.container-header');
     const gridContainer = eventsContainer.querySelector(
         '.game-details-page-events-grid',
     );
 
-    if (!headerContainer || !gridContainer) return;
-
-    const originalEvents = Array.from(gridContainer.children);
-    const originalPillTexts = new Map();
-
-    originalEvents.forEach((el) => {
-        if (el.id) {
-            const info = el.querySelector('.game-card-info');
-            if (info)
-                originalPillTexts.set(String(el.id), info.textContent.trim());
-        }
-    });
+    let renderIteration = 0;
 
     const renderEvents = async (
         events,
         isPast = false,
         initialLoad = false,
     ) => {
+        const thisIteration = ++renderIteration;
         gridContainer.innerHTML = '';
         if (events.length === 0) {
             const noEventsMessage = isPast
-                ? 'No past events.'
-                : 'No ongoing or upcoming events.';
+                ? ts('events.empty.past')
+                : ts('events.empty.active');
             gridContainer.innerHTML = DOMPurify.sanitize(
                 `<div class="section-content-off" style="padding: 10px; text-align: center; width: 100%;">${noEventsMessage}</div>`,
             );
             return;
-        }
-
-        const apiEvents = events.filter((e) => !(e instanceof HTMLElement));
-        const thumbIdsToFetch = apiEvents
-            .map((e) => e.thumbnails?.[0]?.mediaId)
-            .filter(
-                (id) =>
-                    id && !isNaN(id) && !eventThumbnailCache.has(Number(id)),
-            );
-
-        const gameThumbIdsToFetch = Array.from(
-            new Set(
-                apiEvents
-                    .filter((e) => !e.thumbnails?.[0]?.mediaId && e.placeId)
-                    .map((e) => e.placeId),
-            ),
-        ).filter((id) => id && !eventThumbnailCache.has(`game_${id}`));
-
-        const rsvpIdsToFetch = apiEvents
-            .map((e) => e.id)
-            .filter((id) => id && !eventRsvpCache.has(id));
-
-        const promises = [];
-        if (rsvpIdsToFetch.length > 0) {
-            rsvpIdsToFetch.forEach((id) => {
-                promises.push(
-                    fetchEventRsvps(id).then((count) => {
-                        if (count !== null) eventRsvpCache.set(id, count);
-                    }),
-                );
-            });
-        }
-
-        if (thumbIdsToFetch.length > 0) {
-            promises.push(
-                (async () => {
-                    try {
-                        const fetchedMap = await fetchThumbnails(
-                            thumbIdsToFetch.map((id) => ({ id })),
-                            'Asset',
-                            '420x420',
-                        );
-                        fetchedMap.forEach((data, id) => {
-                            eventThumbnailCache.set(id, data);
-                        });
-                    } catch (e) {
-                        console.warn(
-                            'RoValra: Failed to fetch event thumbnails',
-                            e,
-                        );
-                    }
-                })(),
-            );
-        }
-
-        if (gameThumbIdsToFetch.length > 0) {
-            promises.push(
-                (async () => {
-                    try {
-                        const fetchedMap = await fetchThumbnails(
-                            gameThumbIdsToFetch.map((id) => ({ id })),
-                            'GameThumbnail',
-                            '768x432',
-                        );
-                        fetchedMap.forEach((data, id) => {
-                            eventThumbnailCache.set(`game_${id}`, data);
-                        });
-                    } catch (e) {
-                        console.warn(
-                            'RoValra: Failed to fetch event fallback game thumbnails',
-                            e,
-                        );
-                    }
-                })(),
-            );
-        }
-
-        if (promises.length > 0) {
-            await Promise.all(promises);
         }
 
         events.forEach((event) => {
@@ -378,18 +350,63 @@ export async function loadAndRenderEvents(eventsContainer, placeId) {
                 gridContainer.appendChild(event);
             } else {
                 const mediaId = event.thumbnails?.[0]?.mediaId;
-                const thumbData = mediaId
-                    ? eventThumbnailCache.get(Number(mediaId))
-                    : eventThumbnailCache.get(`game_${event.placeId}`);
-                const overrideText = originalPillTexts.get(String(event.id));
+                const thumbId = mediaId || event.placeId;
+                const thumbType = mediaId ? 'Asset' : 'GameThumbnail';
+                const thumbSize = mediaId ? '420x420' : '768x432';
+                const cacheKey = mediaId
+                    ? Number(mediaId)
+                    : `game_${event.placeId}`;
+
+                let thumbData = eventThumbnailCache.get(cacheKey);
+
+                if (!thumbData) {
+                    thumbData = {
+                        state: 'Pending',
+                        finalUpdate: getQueuedThumbnail(
+                            thumbId,
+                            thumbType,
+                            thumbSize,
+                        ).then((data) => {
+                            if (data) eventThumbnailCache.set(cacheKey, data);
+                            return data;
+                        }),
+                    };
+                }
+
                 const rsvpCount = eventRsvpCache.get(event.id);
+
+                const hasEnded =
+                    event.eventTime?.endUtc &&
+                    new Date(event.eventTime.endUtc) <= now;
+                const resolvedIsPast = isPast || hasEnded;
+
                 const card = createEventCard(
                     event,
-                    isPast,
+                    resolvedIsPast,
                     thumbData,
-                    overrideText,
+                    null,
                     rsvpCount,
+                    placeId,
                 );
+
+                if (rsvpCount === undefined && event.id) {
+                    fetchEventRsvps(event.id).then((count) => {
+                        if (thisIteration !== renderIteration) return;
+                        if (count !== null) {
+                            eventRsvpCache.set(event.id, count);
+                            const container = card.querySelector(
+                                '.rovalra-rsvp-container',
+                            );
+                            if (container) {
+                                container.innerHTML = DOMPurify.sanitize(`
+                                    <span class="info-label icon-playing-counts-gray"></span>
+                                    <span class="info-label playing-counts-label">${count.toLocaleString()}</span>
+                                `);
+                            }
+                        }
+                    });
+                }
+
                 gridContainer.appendChild(card);
             }
         });
@@ -400,8 +417,31 @@ export async function loadAndRenderEvents(eventsContainer, placeId) {
         fetchPastEvents(universeId),
     ]);
 
-    activeEvents = fetchedActiveEvents;
-    let pastEvents = fetchedPastEvents;
+    let activeEvents = fetchedActiveEvents.filter((e) => {
+        const end = e.eventTime?.endUtc ? new Date(e.eventTime.endUtc) : null;
+        return !end || end > now;
+    });
+
+    let pastEvents = [...fetchedPastEvents];
+
+    fetchedActiveEvents.forEach((e) => {
+        const end = e.eventTime?.endUtc ? new Date(e.eventTime.endUtc) : null;
+        if (end && end <= now) {
+            if (!pastEvents.some((pe) => pe.id === e.id)) {
+                pastEvents.unshift(e);
+            }
+        }
+    });
+
+    pastEvents.sort((a, b) => {
+        const tA = a.eventTime?.endUtc
+            ? new Date(a.eventTime.endUtc).getTime()
+            : 0;
+        const tB = b.eventTime?.endUtc
+            ? new Date(b.eventTime.endUtc).getTime()
+            : 0;
+        return tB - tA;
+    });
 
     let initialTab = 'active';
     let eventsToRenderInitially = activeEvents;
@@ -409,14 +449,16 @@ export async function loadAndRenderEvents(eventsContainer, placeId) {
 
     if (activeEvents.length === 0 && pastEvents.length === 0) {
         gridContainer.innerHTML =
-            '<div class="section-content-off" style="padding: 10px; text-align: center; width: 100%;">No events found.</div>';
+            DOMPurify.sanitize(
+                `<div class="section-content-off" style="padding: 10px; text-align: center; width: 100%;">${ts('events.empty.all')}</div>`,
+            );
         return;
     }
 
     const toggle = createPillToggle({
         options: [
-            { text: 'Upcoming', value: 'active' },
-            { text: 'Past', value: 'past' },
+            { text: ts('events.tabs.upcoming'), value: 'active' },
+            { text: ts('events.tabs.past'), value: 'past' },
         ],
         initialValue: initialTab,
         onChange: async (value) => {
@@ -435,7 +477,7 @@ export async function loadAndRenderEvents(eventsContainer, placeId) {
     headerWrapper.style.alignItems = 'center';
 
     const title = document.createElement('h3');
-    title.textContent = 'Events';
+    title.textContent = ts('events.title');
 
     headerWrapper.appendChild(title);
     headerWrapper.appendChild(toggle);

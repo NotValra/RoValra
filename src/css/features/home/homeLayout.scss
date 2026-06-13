@@ -1,0 +1,258 @@
+.rovalra-home-layout-button-row {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+    margin-bottom: 12px;
+}
+
+.rovalra-home-layout-button {
+    flex: 0 0 auto;
+    margin-left: auto;
+    min-width: 72px;
+    width: fit-content;
+}
+
+.rovalra-home-layout-editor {
+    padding-bottom: 4px;
+}
+
+.rovalra-home-layout-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.rovalra-home-layout-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 52px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    background-color: var(--rovalra-container-background-color);
+    cursor: grab;
+    transition:
+        transform 0.15s ease,
+        opacity 0.15s ease,
+        background-color 0.15s ease;
+    user-select: none;
+}
+
+.rovalra-home-layout-item:active {
+    cursor: grabbing;
+}
+
+.rovalra-home-layout-item:hover {
+    background-color: var(--rovalra-button-background-color);
+}
+
+.rovalra-home-layout-item-hidden {
+    opacity: 0.72;
+}
+
+.rovalra-home-layout-item-hidden .rovalra-home-layout-drag-handle {
+    color: #1f1f1f;
+}
+
+.rovalra-home-layout-item-hidden .rovalra-home-layout-label {
+    color: var(--rovalra-secondary-text-color, #606162);
+}
+
+.rovalra-home-layout-drag-source {
+    opacity: 0.3;
+    transform: scale(0.95);
+}
+
+.rovalra-home-layout-drag-clone {
+    z-index: 99999;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    opacity: 0.8;
+    pointer-events: none;
+    transition: none;
+}
+
+.rovalra-home-layout-drag-handle {
+    display: inline-flex;
+    flex: 0 0 24px;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary, #606162);
+    cursor: inherit;
+}
+
+.rovalra-home-layout-drag-handle svg {
+    width: 22px;
+    height: 22px;
+    fill: currentColor;
+    opacity: 0.75;
+}
+
+.rovalra-home-layout-drop-indicator {
+    position: fixed;
+    z-index: 99998;
+    display: none;
+    height: 2px;
+    border-radius: 1px;
+    background-color: var(--rovalra-playbutton-color, #335fff);
+    pointer-events: none;
+    transition: all 0.15s ease;
+}
+
+.rovalra-home-layout-text {
+    display: flex;
+    flex: 1 1 auto;
+    min-width: 0;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.rovalra-home-layout-label {
+    overflow: hidden;
+    color: var(--rovalra-main-text-color);
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.rovalra-home-layout-actions {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 6px;
+}
+
+.rovalra-home-layout-icon-button {
+    display: inline-flex;
+    width: 32px;
+    height: 32px;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--rovalra-main-text-color);
+    cursor: pointer;
+}
+
+.rovalra-home-layout-icon-button:hover {
+    background-color: var(--rovalra-button-background-color);
+}
+
+.rovalra-home-layout-icon,
+.rovalra-home-layout-icon svg {
+    display: block;
+    width: 20px;
+    height: 20px;
+}
+
+.rovalra-home-layout-icon svg {
+    fill: currentColor;
+}
+
+.rovalra-home-layout-empty {
+    margin: 0;
+    color: var(--text-secondary, #606162);
+}
+
+.rovalra-home-layout-settings-editor {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.rovalra-home-layout-settings-category {
+    color: var(--rovalra-main-text-color);
+    font-weight: 700;
+}
+
+.rovalra-home-layout-settings-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.rovalra-home-layout-setting-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    min-height: 56px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    background-color: var(--rovalra-container-background-color);
+}
+
+.rovalra-home-layout-setting-text {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.rovalra-home-layout-setting-title {
+    color: var(--rovalra-main-text-color);
+    font-weight: 700;
+}
+
+.rovalra-home-layout-setting-description {
+    color: var(--rovalra-secondary-text-color, #606162);
+    font-size: 13px;
+    line-height: 1.25;
+}
+
+.rovalra-home-layout-setting-control {
+    flex: 0 0 auto;
+    width: fit-content;
+    color: var(--rovalra-main-text-color);
+}
+
+.rovalra-underrated-games-rotation {
+    margin-left: 0px;
+    color: var(--rovalra-secondary-text-color);
+    font-size: 14px;
+    font-weight: 400;
+    white-space: nowrap;
+}
+
+.featured-game-icon-container:has(.rovalra-underrated-games-tags-pill) {
+    position: relative;
+}
+
+.rovalra-underrated-games-tags-pill {
+    position: absolute !important;
+    top: 6px !important;
+    right: auto !important;
+    bottom: auto !important;
+    left: 6px !important;
+    z-index: 2 !important;
+    width: auto !important;
+    max-width: calc(100% - 12px);
+    overflow: hidden;
+    padding: 3px 7px;
+    border-radius: 999px;
+    background-color: rgba(255, 255, 255, 0.82) !important;
+    color: #111111 !important;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 14px;
+    pointer-events: none;
+    text-overflow: ellipsis;
+    transform: none !important;
+    white-space: nowrap;
+}
+
+.rovalra-underrated-games-maturity-rating {
+    display: inline-flex;
+    align-items: center;
+    gap: 0px;
+    margin-left: 0px;
+    white-space: nowrap;
+}
+
+.rovalra-underrated-games-maturity-separator {
+    color: inherit;
+}

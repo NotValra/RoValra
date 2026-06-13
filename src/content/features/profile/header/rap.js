@@ -161,6 +161,26 @@ async function fetchItemThumbnails(items, thumbnailCache, signal) {
     });
 }
 
+function getCollectibleBundleId(item) {
+    const itemType = item.itemType || item.type;
+    if (item.bundleId) return item.bundleId;
+    if (itemType === 'Bundle' || item.assetType === 'Bundle') {
+        return item.id || item.assetId;
+    }
+    return null;
+}
+
+function normalizeCollectibleItem(item) {
+    const bundleId = getCollectibleBundleId(item);
+    if (!bundleId) return item;
+
+    return {
+        ...item,
+        itemType: 'Bundle',
+        bundleId,
+    };
+}
+
 async function showInventoryOverlay(
     userId,
     items,
@@ -201,15 +221,23 @@ async function showInventoryOverlay(
             );
             if (currentLoadController.signal.aborted) return;
             itemsToLoad.forEach((item) => {
-                const card = createItemCard(item, itemThumbnailCache, {
-                    showSerial: true,
-                    hideSerial,
-                });
+                const normalizedItem = normalizeCollectibleItem(item);
+                const bundleId = getCollectibleBundleId(normalizedItem);
+                const card = createItemCard(
+                    normalizedItem,
+                    itemThumbnailCache,
+                    {
+                        showSerial: true,
+                        hideSerial,
+                    },
+                );
 
-                updateItemCard(card, item.assetId, {
+                updateItemCard(card, normalizedItem.assetId, {
                     fontSize: '12px',
                     fontColor: 'var(--rovalra-secondary-text-color)',
                     forceLink: true,
+                    rolimonsItemType: bundleId ? 'Bundle' : 'Asset',
+                    bundleId,
                 });
                 itemListContainer.appendChild(card);
             });

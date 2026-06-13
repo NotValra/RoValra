@@ -21,7 +21,6 @@ import { getAssets } from '../../../core/assets.js';
 import { SETTINGS_CONFIG } from '../../../core/settings/settingConfig.js';
 import {
     handleSaveSettings,
-    syncDonatorTier,
     getCurrentUserTier,
 } from '../../../core/settings/handlesettings.js';
 import {
@@ -63,6 +62,8 @@ let isCustomEnvLoaded = false;
 let environmentConfig = null;
 let activeEmoteId = null;
 const animationSpeed = 1;
+const EFFECT_BLACK_KEY_THRESHOLD = 0.08;
+const EFFECT_BLACK_KEY_SOFTNESS = 0.02;
 
 let isAnimatePatched = false;
 const raycaster = new THREE.Raycaster();
@@ -76,6 +77,62 @@ let isRenderingPaused = false;
 let currentDirectTrack = null;
 let directEmoteTimer = null;
 let hasMovedCamera = false;
+let activeProfileRenderUserId = null;
+let profileRenderObserversSetup = false;
+let removeRoblox3dObserver = null;
+let renderContainerObserver = null;
+let autoSwitchObserver = null;
+let animationLoopStarted = false;
+let autoSwitchedProfileUserId = null;
+const resizeObserversByContainer = new WeakMap();
+const blackKeyedEffectMaterials = new WeakSet();
+
+function isRoavatarEffectMaterial(material) {
+    return (
+        material?.isShaderMaterial &&
+        typeof material.fragmentShader === 'string' &&
+        material.fragmentShader.includes('uniform sampler2D uAlphaMap') &&
+        material.fragmentShader.includes('varying vec3 vInstanceColor')
+    );
+}
+
+function keyBlackFromEffectMaterial(material) {
+    if (
+        blackKeyedEffectMaterials.has(material) ||
+        !isRoavatarEffectMaterial(material)
+    ) {
+        return;
+    }
+
+    material.fragmentShader = material.fragmentShader.replace(
+        'gl_FragColor = finalColor;',
+        `
+    float blackKeyValue = max(max(finalColor.r, finalColor.g), finalColor.b);
+    finalColor.a *= smoothstep(
+        ${EFFECT_BLACK_KEY_SOFTNESS.toFixed(3)},
+        ${EFFECT_BLACK_KEY_THRESHOLD.toFixed(3)},
+        blackKeyValue
+    );
+    if (finalColor.a <= 0.001) discard;
+
+    gl_FragColor = finalColor;`,
+    );
+    material.needsUpdate = true;
+    blackKeyedEffectMaterials.add(material);
+}
+
+function keyBlackFromEffectMaterials() {
+    const scene = RBXRenderer.getScene?.();
+    if (!scene) return;
+
+    scene.traverse((object) => {
+        const materials = Array.isArray(object.material)
+            ? object.material
+            : [object.material];
+
+        materials.forEach(keyBlackFromEffectMaterial);
+    });
+}
 
 function constrainCamera() {
     const controls = RBXRenderer.getRendererControls();
@@ -201,27 +258,35 @@ function updateCameraSystem() {
         recenterBtnRef.style.display = hasMovedCamera ? 'flex' : 'none';
     }
 }
+function customAnimate() {
+    const controls = RBXRenderer.getRendererControls();
+    const camera = RBXRenderer.getRendererCamera();
+
+    if (controls && camera) {
+        updateCameraSystem();
+        controls.update();
+    }
+
+    let [width, height] = RBXRenderer.resolution;
+    RBXRenderer.camera.aspect = width / height;
+    RBXRenderer.camera.updateProjectionMatrix();
+
+    RBXRenderer.renderer.setRenderTarget(null);
+    keyBlackFromEffectMaterials();
+    if (RBXRenderer.effectComposer) {
+        RBXRenderer.effectComposer.render();
+    } else {
+        RBXRenderer.renderer.render(RBXRenderer.scene, RBXRenderer.camera);
+    }
+
+    requestAnimationFrame(() => {
+        customAnimate();
+    });
+}
 function patchAnimateForRotation() {
     if (isAnimatePatched) return;
 
-    RBXRenderer.animate = function () {
-        const controls = RBXRenderer.getRendererControls();
-        const camera = RBXRenderer.getRendererCamera();
-
-        if (controls && camera) {
-            updateCameraSystem();
-            controls.update();
-        }
-
-        RBXRenderer.renderer.setRenderTarget(null);
-        if (RBXRenderer.effectComposer) {
-            RBXRenderer.effectComposer.render();
-        } else {
-            RBXRenderer.renderer.render(RBXRenderer.scene, RBXRenderer.camera);
-        }
-
-        requestAnimationFrame(() => RBXRenderer.animate());
-    };
+    RBXRenderer.animateAll = customAnimate;
     isAnimatePatched = true;
 }
 function getAnimatorW(rig = currentRig) {
@@ -1397,6 +1462,9 @@ async function injectCustomButtons(toggleButton) {
 }
 // Rendering loop
 function startAnimationLoop() {
+    if (animationLoopStarted) return;
+    animationLoopStarted = true;
+
     const fpsLimit = 60;
     const interval = 1000 / fpsLimit;
     let lastRenderTime = performance.now();
@@ -1526,6 +1594,8 @@ function setupAtmosphere(scene, config, isCustomEnv = false) {
 
     if (config.background) {
         scene.background = new THREE.Color(config.background);
+    } else if (!RBXRenderer.backgroundTransparent) {
+        scene.background = new THREE.Color(RBXRenderer.backgroundColorHex);
     } else {
         scene.background = null;
     }
@@ -1593,15 +1663,75 @@ const DEFAULT_VOID_CONFIG = {
     },
 };
 
-async function preloadAvatar() {
+function resetProfileRenderState() {
+    if (emoteStopTimer) {
+        clearTimeout(emoteStopTimer);
+        emoteStopTimer = null;
+    }
+    if (directEmoteTimer) {
+        clearTimeout(directEmoteTimer);
+        directEmoteTimer = null;
+    }
+    if (currentDirectTrack) {
+        currentDirectTrack.Stop(0);
+        currentDirectTrack = null;
+    }
+    if (currentRig) {
+        currentRig.Destroy();
+        currentRig = null;
+    }
+    if (customModelInstance) {
+        RBXRenderer.getScene()?.remove(customModelInstance);
+        customModelInstance = null;
+    }
+    if (preloadedCanvas) {
+        preloadedCanvas.style.visibility = 'hidden';
+    }
+
+    currentRigType = null;
+    globalAvatarData = null;
+    customModelInstance = null;
+    avatarDataPromise = null;
+    isPreloading = false;
+    isCustomEnvLoaded = false;
+    environmentConfig = null;
+    activeEmoteId = null;
+    recenterBtnRef = null;
+    intendedDistance = 15;
+    lastAppliedDistance = 15;
+    lastCameraPos = new THREE.Vector3();
+    lastTargetPos = new THREE.Vector3();
+    raycastFrameSkip = 0;
+    raycastTargets = [];
+    isRenderingPaused = false;
+    hasMovedCamera = false;
+    autoSwitchedProfileUserId = null;
+    lastLoadedUrl = null;
+}
+
+function getActiveAvatarPromise() {
+    const userId = activeProfileRenderUserId || getUserIdFromUrl();
+    if (!userId) return Promise.resolve(null);
+
+    return preloadAvatar(userId);
+}
+
+async function preloadAvatar(userId = getUserIdFromUrl()) {
+    if (!userId) return null;
+    const requestedUserId = String(userId);
+
+    if (activeProfileRenderUserId !== requestedUserId) {
+        activeProfileRenderUserId = requestedUserId;
+        resetProfileRenderState();
+    }
+
     if (avatarDataPromise) return avatarDataPromise;
 
     avatarDataPromise = (async () => {
         if (isPreloading) return;
         isPreloading = true;
 
-        const userId = getUserIdFromUrl();
-        if (!userId) {
+        if (!requestedUserId) {
             isPreloading = false;
             return null;
         }
@@ -1652,13 +1782,16 @@ async function preloadAvatar() {
                 ]),
                 callRobloxApiJson({
                     subdomain: 'avatar',
-                    endpoint: `/v2/avatar/users/${userId}/avatar`,
+                    endpoint: `/v2/avatar/users/${requestedUserId}/avatar`,
                 }),
             ]);
+
+            if (activeProfileRenderUserId !== requestedUserId) return null;
 
             globalAvatarData = avatarData;
 
             await new Promise((r) => setTimeout(r, 0));
+            if (activeProfileRenderUserId !== requestedUserId) return null;
 
             if (!preloadedCanvas) {
                 RegisterWrappers();
@@ -1701,6 +1834,8 @@ async function preloadAvatar() {
 
             await new Promise((r) => setTimeout(r, 10));
 
+            if (activeProfileRenderUserId !== requestedUserId) return null;
+
             await loadRig(globalAvatarData.playerAvatarType);
 
             if (preloadedCanvas) {
@@ -1721,7 +1856,8 @@ async function preloadAvatar() {
                 }
 
                 const authUserId = await getAuthenticatedUserId();
-                const isOwnProfile = String(userId) === String(authUserId);
+                const isOwnProfile =
+                    String(requestedUserId) === String(authUserId);
                 const useDevEnvironment = settings.environmentTester;
 
                 if (useDevEnvironment) {
@@ -1785,11 +1921,14 @@ async function preloadAvatar() {
                         SETTINGS_CONFIG.Profile.settings.profile3DRenderEnabled
                             .childSettings.profileRenderEnvironment.options;
                     const { environment: apiEnv } = await getUserSettings(
-                        userId,
+                        requestedUserId,
                         {
                             useDescription: true,
                         },
                     );
+
+                    if (activeProfileRenderUserId !== requestedUserId) return;
+
                     let envIdToRender;
                     if (isOwnProfile) {
                         const profileEnvValue =
@@ -1847,6 +1986,7 @@ async function preloadAvatar() {
 
                 if (isCustomEnvLoaded && environmentConfig.model) {
                     await new Promise((r) => setTimeout(r, 0));
+                    if (activeProfileRenderUserId !== requestedUserId) return;
                     await loadCustomEnvironment(scene, environmentConfig.model);
                 }
 
@@ -1985,7 +2125,7 @@ async function attachPreloadedAvatar(container) {
         twoDContainer.style.display = 'none';
     }
 
-    const avatarPromise = preloadAvatar();
+    const avatarPromise = getActiveAvatarPromise();
 
     avatarPromise.catch((err) => {
         container.innerHTML = '';
@@ -2000,15 +2140,19 @@ async function attachPreloadedAvatar(container) {
     });
 
     const ensureCanvasAttached = () => {
-        if (preloadedCanvas && !container.contains(preloadedCanvas)) {
-            container.appendChild(preloadedCanvas);
+        if (preloadedCanvas) {
+            if (!container.contains(preloadedCanvas)) {
+                container.appendChild(preloadedCanvas);
+            }
 
-            observeResize(container, () => {
+            resizeObserversByContainer.get(container)?.unobserve();
+            const resizeObserver = observeResize(container, () => {
                 RBXRenderer.setRendererSize(
                     container.clientWidth || 420,
                     container.clientHeight || 420,
                 );
             });
+            resizeObserversByContainer.set(container, resizeObserver);
             return true;
         }
         return false;
@@ -2023,13 +2167,112 @@ async function attachPreloadedAvatar(container) {
     }
 }
 
+function setupProfileRenderObservers() {
+    if (profileRenderObserversSetup) return;
+    profileRenderObserversSetup = true;
+
+    injectStylesheet('css/thumbnailholder.css', 'rovalra-thumbnail-holder-css');
+
+    removeRoblox3dObserver = observeElement(
+        '.thumbnail-holder-position .thumbnail-3d-container > canvas:not(.rovalra-canvas), .thumbnail-holder-position .thumbnail-3d-container > .placeholder-generated-image',
+        (elementToRemove) => {
+            elementToRemove.remove();
+        },
+        { multiple: true },
+    );
+
+    renderContainerObserver = observeElement(
+        '.thumbnail-holder-position .thumbnail-3d-container, .avatar-toggle-button',
+        (element) => {
+            if (element.classList.contains('thumbnail-3d-container')) {
+                attachPreloadedAvatar(element);
+            } else if (element.classList.contains('avatar-toggle-button')) {
+                const updateButtons = () => {
+                    element.querySelectorAll('button').forEach((btn) => {
+                        btn.style.backgroundColor =
+                            'var(--rovalra-container-background-color)';
+                    });
+                };
+                updateButtons();
+                observeChildren(element, updateButtons);
+                getActiveAvatarPromise().then((data) => {
+                    if (data) injectCustomButtons(element);
+                });
+            }
+        },
+        { multiple: true },
+    );
+
+    autoSwitchObserver = observeElement(
+        'button.foundation-web-button',
+        (button) => {
+            if (autoSwitchedProfileUserId === activeProfileRenderUserId) return;
+
+            if (button.textContent.trim() === '3D') {
+                if (
+                    document.querySelector(
+                        '.thumbnail-holder-position .thumbnail-2d-container',
+                    )
+                ) {
+                    button.click();
+                }
+                autoSwitchedProfileUserId = activeProfileRenderUserId;
+            }
+        },
+        { multiple: true },
+    );
+}
+
+function refreshProfileRenderDomForCurrentUser() {
+    document
+        .querySelectorAll('.thumbnail-holder-position .thumbnail-3d-container')
+        .forEach((container) => {
+            delete container.dataset.rovalraRendered;
+            attachPreloadedAvatar(container);
+        });
+
+    document.querySelectorAll('.avatar-toggle-button').forEach((element) => {
+        element.querySelector('.rovalra-custom-controls')?.remove();
+        getActiveAvatarPromise().then((data) => {
+            if (data) injectCustomButtons(element);
+        });
+    });
+}
+
+function teardownProfileRenderObservers() {
+    if (!profileRenderObserversSetup) return;
+
+    removeRoblox3dObserver?.disconnect();
+    renderContainerObserver?.disconnect();
+    autoSwitchObserver?.disconnect();
+    removeRoblox3dObserver = null;
+    renderContainerObserver = null;
+    autoSwitchObserver = null;
+    profileRenderObserversSetup = false;
+    removeStylesheet('rovalra-thumbnail-holder-css');
+}
+
 export function init() {
-    syncDonatorTier();
     migrateLegacyEnvironment();
+
+    const userId = getUserIdFromUrl();
+    if (!userId) {
+        teardownProfileRenderObservers();
+        activeProfileRenderUserId = null;
+        resetProfileRenderState();
+        return;
+    }
+
+    if (activeProfileRenderUserId !== String(userId)) {
+        activeProfileRenderUserId = String(userId);
+        resetProfileRenderState();
+    }
 
     chrome.storage.local.get(
         { profile3DRenderEnabled: true, profile3DRenderForceDisabled: false },
         (result) => {
+            if (activeProfileRenderUserId !== String(userId)) return;
+
             if (result.profile3DRenderForceDisabled) {
                 try {
                     const canvas = document.createElement('canvas');
@@ -2042,67 +2285,11 @@ export function init() {
             }
 
             if (result.profile3DRenderEnabled) {
-                const avatarPromise = preloadAvatar();
-                injectStylesheet(
-                    'css/thumbnailholder.css',
-                    'rovalra-thumbnail-holder-css',
-                );
-
-                observeElement(
-                    '.thumbnail-holder-position .thumbnail-3d-container > canvas:not(.rovalra-canvas), .thumbnail-holder-position .thumbnail-3d-container > .placeholder-generated-image',
-                    (elementToRemove) => {
-                        elementToRemove.remove();
-                    },
-                    { multiple: true },
-                );
-
-                observeElement(
-                    '.thumbnail-holder-position .thumbnail-3d-container, .avatar-toggle-button',
-                    (element) => {
-                        if (
-                            element.classList.contains('thumbnail-3d-container')
-                        ) {
-                            attachPreloadedAvatar(element);
-                        } else if (
-                            element.classList.contains('avatar-toggle-button')
-                        ) {
-                            const updateButtons = () => {
-                                element
-                                    .querySelectorAll('button')
-                                    .forEach((btn) => {
-                                        btn.style.backgroundColor =
-                                            'var(--rovalra-container-background-color)';
-                                    });
-                            };
-                            updateButtons();
-                            observeChildren(element, updateButtons);
-                            avatarPromise.then((data) => {
-                                if (data) injectCustomButtons(element);
-                            });
-                        }
-                    },
-                    { multiple: true },
-                );
-
-                let hasAutoSwitchedTo3D = false;
-                observeElement(
-                    'button.foundation-web-button',
-                    (button) => {
-                        if (hasAutoSwitchedTo3D) return;
-
-                        if (button.textContent.trim() === '3D') {
-                            if (
-                                document.querySelector(
-                                    '.thumbnail-holder-position .thumbnail-2d-container',
-                                )
-                            ) {
-                                button.click();
-                            }
-                            hasAutoSwitchedTo3D = true;
-                        }
-                    },
-                    { multiple: true },
-                );
+                setupProfileRenderObservers();
+                refreshProfileRenderDomForCurrentUser();
+            } else {
+                teardownProfileRenderObservers();
+                resetProfileRenderState();
             }
         },
     );

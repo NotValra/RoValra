@@ -33,20 +33,26 @@ document.addEventListener('rovalra-gamejoin-critical-error', (e) => {
         userRequestedStop = true;
         const detailMsg = e.detail?.errorMessage || 'Unknown error';
 
-        showLoadingOverlayResult(
-            `The Roblox Join API is failing to respond. You might have to wait a bit.
+        let displayMessage = `The Roblox Join API is failing to respond. You might have to wait a bit.
+This is usually caused by a network issue or a problem with Roblox servers. If this persists, try disabling [Preferred Region.](https://www.roblox.com/my/account?rovalra=search&q=preferredregionenabled#!/search) or clearing browser cache.
+If the issue keeps happening, please report it in the RoValra Discord server.
 
-\`\`\`
-Error: ${detailMsg}
-\`\`\`
+---
+**Error Details:**
+${detailMsg}`;
 
-This is usually caused by a network issue or a problem with Roblox servers. If this persists, try disabling [Preferred Region.](https://www.roblox.com/my/account?rovalra=search&q=preferredregionenabled#!/search)
-If the issue keeps happening, please report it in the RoValra Discord server.`,
-            {
-                text: 'Close',
-                onClick: () => hideLoadingOverlay(true),
-            },
-        );
+        if (detailMsg.includes('404') || detailMsg.includes('410')) {
+            displayMessage = `Roblox might be moving away from the gamejoin API, This is out of RoValras control and it will effect region selectors for a bit and we are working on a fix ASAP
+
+---
+**Error Details:**
+${detailMsg}`;
+        }
+
+        showLoadingOverlayResult(displayMessage, {
+            text: 'Close',
+            onClick: () => hideLoadingOverlay(true),
+        });
     }
 });
 
@@ -302,6 +308,9 @@ export async function performJoinAction(
                         }
 
                         if (bestServerTier === 0) {
+                            const bestName =
+                                getFullRegionName(bestServerRegionCode);
+
                             updateLoadingOverlayText(
                                 `Found ${bestName}! Verifying...`,
                             );
@@ -447,6 +456,8 @@ export async function performJoinAction(
                 } else {
                     const foundRegionName =
                         getFullRegionName(bestServerRegionCode);
+                    const isPreferredRegionMatch =
+                        bestServerRegionCode === preferredRegionCode;
 
                     let message = `No ${shortTargetName} servers running.`;
                     if (REGIONS[preferredRegionCode]?.loadbalancing) {
@@ -455,19 +466,30 @@ export async function performJoinAction(
 
                     updateLoadingOverlayText('Verifying server status...');
                     if (serverId && (await isServerActive(placeId, serverId))) {
-                        showLoadingOverlayResult(message, {
-                            text: `Join ${foundRegionName}`,
-                            onClick: async () => {
-                                hideLoadingOverlay(true);
-                                joinedServerIds.add(serverId);
-                                launchGame(placeId, serverId);
-                                callRobloxApi({
-                                    subdomain: 'games',
-                                    endpoint: `/v1/games/${placeId}/servers/Public?limit=100`,
-                                }).catch(() => {});
-                                showReviewPopup('region_filters');
-                            },
-                        });
+                        if (isPreferredRegionMatch) {
+                            hideLoadingOverlay(true);
+                            joinedServerIds.add(serverId);
+                            launchGame(placeId, serverId);
+                            callRobloxApi({
+                                subdomain: 'games',
+                                endpoint: `/v1/games/${placeId}/servers/Public?limit=100`,
+                            }).catch(() => {});
+                            showReviewPopup('region_filters');
+                        } else {
+                            showLoadingOverlayResult(message, {
+                                text: `Join ${foundRegionName}`,
+                                onClick: async () => {
+                                    hideLoadingOverlay(true);
+                                    joinedServerIds.add(serverId);
+                                    launchGame(placeId, serverId);
+                                    callRobloxApi({
+                                        subdomain: 'games',
+                                        endpoint: `/v1/games/${placeId}/servers/Public?limit=100`,
+                                    }).catch(() => {});
+                                    showReviewPopup('region_filters');
+                                },
+                            });
+                        }
                     } else {
                         hideLoadingOverlay(true);
                         launchGame(placeId);

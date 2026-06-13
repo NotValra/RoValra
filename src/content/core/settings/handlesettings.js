@@ -1,4 +1,5 @@
 import { SETTINGS_CONFIG } from './settingConfig.js';
+import { getBorders } from '../configs/borders.js';
 import { findSettingConfig } from './generateSettings.js';
 import { getFullRegionName, REGIONS } from '../regions.js';
 import { sanitizeString } from '../utils/sanitize.js';
@@ -7,11 +8,55 @@ import { getAuthenticatedUserId } from '../user.js';
 import { updateUserSettingViaApi } from '../donators/settingHandler.js';
 import { createAndShowPopup } from '../../features/catalog/40method.js';
 import * as CacheHandler from '../storage/cacheHandler.js';
+import { hasOwn } from '../utils.js';
+import { showConfirmationPrompt } from '../ui/confirmationPrompt.js';
+import {
+    REMOTE_SETTING_LOCKS_KEY,
+    REMOTE_SETTING_LOCK_REASON,
+    getRemoteSettingLocks,
+} from './remoteSettingLocks.js';
+import './settingsCompat';
 
 let currentUserTier = 0;
 let gradientSyncTimeout = null;
 let donatorTierPromise = null;
 const colorLiveSaveTimeouts = new Map();
+const FEATURE_STATUS_PROMPT_ACK_KEY = 'featureStatusPromptAcknowledged';
+
+const isUnavailableSetting = (config) =>
+    hasOwn(config, 'locked') || hasOwn(config, 'deprecated');
+
+const isStatusLabeledOffByDefaultSetting = (config) =>
+    config?.type === 'checkbox' &&
+    config.default === false &&
+    (hasOwn(config, 'experimental') ||
+        hasOwn(config, 'deprecated') ||
+        hasOwn(config, 'beta'));
+
+const getFeatureStatusPromptPills = () =>
+    [
+        '<span class="rovalra-pill experimental">Experimental</span>',
+        '<span class="rovalra-pill beta">Beta</span>',
+        '<span class="rovalra-pill deprecated">Deprecated</span>',
+    ].join('');
+
+const shouldShowFeatureStatusPrompt = async (config) => {
+    if (!isStatusLabeledOffByDefaultSetting(config)) return false;
+
+    const result = await chrome.storage.local.get([
+        FEATURE_STATUS_PROMPT_ACK_KEY,
+        'forceFeatureStatusPrompt',
+    ]);
+
+    return (
+        result.forceFeatureStatusPrompt === true ||
+        result[FEATURE_STATUS_PROMPT_ACK_KEY] !== true
+    );
+};
+
+const markFeatureStatusPromptAcknowledged = async () => {
+    await chrome.storage.local.set({ [FEATURE_STATUS_PROMPT_ACK_KEY]: true });
+};
 
 export const getCurrentUserTier = () => currentUserTier;
 
@@ -77,17 +122,17 @@ export const syncDonatorTier = async () => {
                 method: 'GET',
             });
 
-            if (response.status !== 'success' || !response.badges) {
+            if (!response?.badges) {
                 return state.cachedResponse || null;
             }
 
             const badges = response.badges;
             let tier = 0;
-            if (badges.donator_3 === true || badges.legacy_donator === true) {
+            if (badges.donator_3 || badges.legacy_donator) {
                 tier = 3;
-            } else if (badges.donator_2 === true) {
+            } else if (badges.donator_2) {
                 tier = 2;
-            } else if (badges.donator_1 === true) {
+            } else if (badges.donator_1) {
                 tier = 1;
             }
 
@@ -146,6 +191,7 @@ export const syncDonatorTier = async () => {
 export const loadSettings = async () => {
     return new Promise((resolve, reject) => {
         const defaultSettings = {};
+        const forcedSettings = {};
         for (const category of Object.values(SETTINGS_CONFIG)) {
             for (const [settingName, settingDef] of Object.entries(
                 category.settings,
@@ -153,10 +199,16 @@ export const loadSettings = async () => {
                 if (settingDef.default !== undefined) {
                     defaultSettings[settingName] = settingDef.default;
                 }
+                if (isUnavailableSetting(settingDef)) {
+                    forcedSettings[settingName] = false;
+                }
                 if (settingDef.childSettings) {
                     for (const [childName, childSettingDef] of Object.entries(
                         settingDef.childSettings,
                     )) {
+                        if (isUnavailableSetting(childSettingDef)) {
+                            forcedSettings[childName] = false;
+                        }
                         if (childSettingDef.default !== undefined) {
                             defaultSettings[childName] =
                                 childSettingDef.default;
@@ -166,18 +218,124 @@ export const loadSettings = async () => {
             }
         }
 
-        chrome.storage.local.get(defaultSettings, (settings) => {
-            if (chrome.runtime.lastError) {
-                console.error(
-                    'Failed to load settings:',
-                    chrome.runtime.lastError,
-                );
-                reject(chrome.runtime.lastError);
-            } else {
-                resolve(settings);
-            }
-        });
+        chrome.storage.local.get(
+            { ...defaultSettings, [REMOTE_SETTING_LOCKS_KEY]: {} },
+            (settings) => {
+                if (chrome.runtime.lastError) {
+                    console.error(
+                        'Failed to load settings:',
+                        chrome.runtime.lastError,
+                    );
+                    reject(chrome.runtime.lastError);
+                } else {
+                    const remoteLocks = settings[REMOTE_SETTING_LOCKS_KEY] || {};
+                    delete settings[REMOTE_SETTING_LOCKS_KEY];
+
+                    for (const key of Object.keys(remoteLocks)) {
+                        forcedSettings[key] = false;
+                    }
+
+                    const normalisedSettings = settings;
+                    for (const [key, value] of Object.entries(forcedSettings)) {
+                        normalisedSettings[key] = value;
+                    }
+                    resolve(normalisedSettings);
+                }
+            },
+        );
     });
+};
+
+export const enforceSettingOverrides = async () => {
+    try {
+        const settings = await loadSettings();
+        const data = await chrome.storage.local.get([
+            'profile3DRenderForceDisabled',
+        ]);
+        const userTier = currentUserTier;
+        const overrides = {};
+
+        const is3DLocked =
+            data.profile3DRenderForceDisabled === true &&
+            !settings.profile3DRenderBypassCheck;
+        if (is3DLocked && settings.profile3DRenderEnabled === true) {
+            overrides.profile3DRenderEnabled = false;
+        }
+
+        for (const category of Object.values(SETTINGS_CONFIG)) {
+            for (const [settingName, config] of Object.entries(
+                category.settings,
+            )) {
+                const processSetting = (name, conf) => {
+                    if (conf.donatorTier) {
+                        const isLocked = userTier < conf.donatorTier;
+                        if (isLocked && settings[name] === true) {
+                            overrides[name] = false;
+                        }
+                    }
+                    if (conf.locked) {
+                        if (settings[name] === true) {
+                            overrides[name] = false;
+                        }
+                    }
+                };
+
+                processSetting(settingName, config);
+
+                if (config.childSettings) {
+                    for (const [childName, childConfig] of Object.entries(
+                        config.childSettings,
+                    )) {
+                        processSetting(childName, childConfig);
+                    }
+                }
+            }
+        }
+
+        const overrideKeys = Object.keys(overrides);
+        if (overrideKeys.length > 0) {
+            console.log(
+                `RoValra: Enforcing ${overrideKeys.length} setting override(s) at startup:`,
+                overrideKeys,
+            );
+
+            return new Promise((resolve) => {
+                chrome.storage.local.set(overrides, () => {
+                    if (chrome.runtime.lastError) {
+                        console.error(
+                            'RoValra: Failed to enforce setting overrides',
+                            chrome.runtime.lastError,
+                        );
+                        resolve();
+                        return;
+                    }
+
+                    chrome.storage.local.get('rovalra_settings', (result) => {
+                        const settingsData = result.rovalra_settings || {};
+                        let changed = false;
+                        for (const [key, value] of Object.entries(overrides)) {
+                            if (settingsData[key] !== value) {
+                                settingsData[key] = value;
+                                changed = true;
+                            }
+                        }
+                        if (changed) {
+                            chrome.storage.local.set(
+                                { rovalra_settings: settingsData },
+                                () => {
+                                    resolve();
+                                },
+                            );
+                        } else {
+                            resolve();
+                        }
+                    });
+                });
+            });
+        }
+    } catch (error) {
+        console.error('RoValra: Failed to enforce setting overrides:', error);
+    }
 };
 
 export const handleSaveSettings = async (settingName, value) => {
@@ -187,6 +345,11 @@ export const handleSaveSettings = async (settingName, value) => {
     }
 
     try {
+        const remoteLocks = await getRemoteSettingLocks();
+        if (remoteLocks[settingName] && value !== false) {
+            value = false;
+        }
+
         const settingConfig = findSettingConfig(settingName);
 
         let sanitizedValue = value;
@@ -244,6 +407,7 @@ export const handleSaveSettings = async (settingName, value) => {
                             let validValues = [];
                             if (settingConfig.options === 'REGIONS') {
                                 validValues = ['AUTO', ...Object.keys(REGIONS)];
+                            } else if (settingConfig.options === 'BORDERS') {
                             } else if (Array.isArray(settingConfig.options)) {
                                 validValues = settingConfig.options.map(
                                     (opt) =>
@@ -368,6 +532,54 @@ export const handleSaveSettings = async (settingName, value) => {
                             }
                         }, 1000);
                     }
+                    if (settingName === 'avatarBorderChoice') {
+                        const isDonator = currentUserTier >= 3;
+                        if (isDonator) {
+                            getBorders().then((borders) => {
+                                const borderEntry = borders.find(
+                                    (b) => b.value === sanitizedValue,
+                                );
+                                const borderUrl =
+                                    borderEntry && borderEntry.link
+                                        ? borderEntry.link
+                                        : '';
+                                updateUserSettingViaApi(
+                                    'border',
+                                    borderUrl,
+                                ).catch((error) =>
+                                    console.error(
+                                        'RoValra: Border sync failed',
+                                        error,
+                                    ),
+                                );
+                            });
+                        }
+                    }
+                    if (settingName === 'profileViewsEnabled') {
+                        loadSettings()
+                            .then((currentSettings) => {
+                                return updateUserSettingViaApi(
+                                    'hide_views',
+                                    !currentSettings.profileViewsEnabled,
+                                );
+                            })
+                            .catch((error) =>
+                                console.error(
+                                    'RoValra: Profile views visibility sync failed',
+                                    error,
+                                ),
+                            );
+                    }
+
+                    document.dispatchEvent(
+                        new CustomEvent('rovalra:settingSaved', {
+                            detail: {
+                                name: settingName,
+                                value: sanitizedValue,
+                            },
+                        }),
+                    );
+
                     resolve();
                 }
             });
@@ -787,6 +999,7 @@ export const checkSettingLocks = async (settingsContent, currentSettings) => {
     const data = await chrome.storage.local.get([
         'profile3DRenderForceDisabled',
     ]);
+    const remoteLocks = await getRemoteSettingLocks();
 
     const userTier = currentUserTier;
 
@@ -808,6 +1021,19 @@ export const checkSettingLocks = async (settingsContent, currentSettings) => {
     for (const category of Object.values(SETTINGS_CONFIG)) {
         for (const [settingName, config] of Object.entries(category.settings)) {
             const processSetting = async (name, conf) => {
+                if (remoteLocks[name]) {
+                    if (currentSettings[name] !== false) {
+                        await handleSaveSettings(name, false);
+                    }
+                    applyLockedState(
+                        name,
+                        settingsContent,
+                        true,
+                        remoteLocks[name].reason || REMOTE_SETTING_LOCK_REASON,
+                    );
+                    return true;
+                }
+                let handledLockState = false;
                 if (conf.donatorTier) {
                     const isLocked = userTier < conf.donatorTier;
                     applyLockedState(
@@ -819,6 +1045,7 @@ export const checkSettingLocks = async (settingsContent, currentSettings) => {
                         true,
                     );
                     if (isLocked) return true;
+                    handledLockState = true;
                 }
                 if (conf.locked) {
                     if (currentSettings[name] === true) {
@@ -826,6 +1053,9 @@ export const checkSettingLocks = async (settingsContent, currentSettings) => {
                     }
                     applyLockedState(name, settingsContent, true, conf.locked);
                     return true;
+                }
+                if (!handledLockState) {
+                    applyLockedState(name, settingsContent, false);
                 }
                 return false;
             };
@@ -842,6 +1072,21 @@ export const checkSettingLocks = async (settingsContent, currentSettings) => {
         }
     }
 };
+
+if (typeof chrome !== 'undefined' && chrome.storage?.onChanged) {
+    chrome.storage.onChanged.addListener(async (changes, areaName) => {
+        if (areaName !== 'local' || !changes[REMOTE_SETTING_LOCKS_KEY]) return;
+
+        const settingsContent = document.querySelector(
+            '#setting-section-content',
+        );
+        if (!settingsContent) return;
+
+        const currentSettings = await loadSettings();
+        updateConditionalSettingsVisibility(settingsContent, currentSettings);
+        await checkSettingLocks(settingsContent, currentSettings);
+    });
+}
 
 function applyDisabledState(
     settingName,
@@ -1112,6 +1357,11 @@ export function initializeSettingsEventListeners() {
         });
     });
 
+    document.addEventListener('rovalra:openBorderStore', () => {
+        window.location.href =
+            'https://www.roblox.com/my/account?rovalra=store';
+    });
+
     document.addEventListener('rovalra:generateEnvironmentJson', async () => {
         const settings = await loadSettings();
         const envConfig = {};
@@ -1326,7 +1576,7 @@ export function initializeSettingsEventListeners() {
                         set('skyboxPx', config.skybox[0]);
                         set('skyboxNx', config.skybox[1]);
                         set('skyboxPy', config.skybox[2]);
-                        set('skyboxNy', config.skybox[3]);
+                        set('skyboxNz', config.skybox[3]);
                         set('skyboxPz', config.skybox[4]);
                         set('skyboxNz', config.skybox[5]);
                     } else {
@@ -1337,8 +1587,6 @@ export function initializeSettingsEventListeners() {
                         set('tooltipToggle', true);
                         set('tooltipText', config.tooltip.text || '');
                         set('tooltipLink', config.tooltip.link || '');
-                    } else {
-                        set('tooltipToggle', false);
                     }
 
                     const promises = Object.entries(updates).map(
@@ -1428,6 +1676,38 @@ export function initializeSettingsEventListeners() {
 
             if (value) {
                 const settingConfig = findSettingConfig(settingName);
+
+                if (
+                    target.dataset.featureStatusPromptAccepted !== 'true' &&
+                    (await shouldShowFeatureStatusPrompt(settingConfig))
+                ) {
+                    target.checked = false;
+                    const statusPills = getFeatureStatusPromptPills();
+                    showConfirmationPrompt({
+                        title: 'Before Enabling This Feature',
+                        message:
+                            `<span style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px;">${statusPills}</span>` +
+                            'Features with these labels might be unstable, or may change over time. They can cause longer load times, inconsistent UI, site-related issues, or other unexpected behavior.<br><br>Only enable this if you understand that it may not work perfectly.',
+                        confirmText: 'I Acknowledge',
+                        cancelText: 'Cancel',
+                        confirmType: 'primary',
+                        cancelType: 'secondary',
+                        onConfirm: async () => {
+                            await markFeatureStatusPromptAcknowledged();
+                            target.dataset.featureStatusPromptAccepted = 'true';
+                            target.checked = true;
+                            target.dispatchEvent(
+                                new Event('change', { bubbles: true }),
+                            );
+                        },
+                        onCancel: () => {
+                            target.checked = false;
+                        },
+                    });
+                    return;
+                }
+
+                delete target.dataset.featureStatusPromptAccepted;
 
                 if (settingConfig?.requiredPermissions) {
                     const missingPermissions = [];

@@ -1,5 +1,5 @@
 import { marked } from 'marked'; // Better markdown!!!
-import { safeHtml } from '../packages/dompurify';
+import DOMPurify from 'dompurify';
 
 export function parseMarkdown(text, themeColors = {}) {
     if (!text) return '';
@@ -24,18 +24,16 @@ export function parseMarkdown(text, themeColors = {}) {
 
 /**
  * Format markdown from untrusted sources
- * @param {string} text 
+ * @param {string} text
  * @returns {string} Safe HTML render
  */
 export function parseUntrustedMarkdown(text) {
     if (!text) return '';
 
-    text = safeHtml([text]);
-
     // Headings
     text = text.replace(/^# (.*)$/m, (match, heading) => {
         return `<u><b>${heading}</b></u><br>`;
-    });  // allow ONE heading which is just bold text + newline
+    }); // allow ONE heading which is just bold text + newline
 
     // Bold Text
     text = text.replaceAll(/\*\*(.*?)\*\*/g, (match, bold) => {
@@ -58,7 +56,12 @@ export function parseUntrustedMarkdown(text) {
     // Inline Codeblocks
     text = text.replaceAll(/`(.*?)`/g, (match, codeblock) => {
         return `<code>${codeblock}</code>`;
-    })
+    });
 
-    return text.trim();
+    text = text.replaceAll(/\r\n|\r|\n/g, '<br>');
+
+    return DOMPurify.sanitize(text, {
+        ALLOWED_TAGS: ['b', 'i', 'u', 'code', 'br'],
+        ALLOWED_ATTR: [],
+    }).trim();
 }

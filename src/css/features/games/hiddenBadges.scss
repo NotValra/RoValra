@@ -1,0 +1,81 @@
+.game-badges-list {
+    .container-header {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 12px;
+        padding-right: 0;
+
+        &::before,
+        &::after {
+            content: none;
+            display: none;
+        }
+    }
+
+    .rovalra-pill-toggle {
+        margin-top: 8px;
+        margin-bottom: 6px;
+    }
+
+    &:not(.rovalra-show-hidden-badges) {
+        > .rovalra-hidden-badges-list {
+            display: none !important;
+        }
+    }
+
+    &.rovalra-show-hidden-badges {
+        > :not(.container-header):not(.rovalra-hidden-badges-list) {
+            display: none !important;
+        }
+    }
+}
+
+.rovalra-hidden-badges-empty {
+    padding: 10px;
+    color: var(--rovalra-secondary-text-color, var(--color-content-muted));
+}
+
+.rovalra-hidden-badges-notice {
+    padding: 10px 0;
+    color: var(--rovalra-secondary-text-color, var(--color-content-muted));
+    font-size: 14px;
+}
+
+.rovalra-hidden-badge-shimmer {
+    .badge-image-container {
+        display: block;
+        width: 150px;
+        height: 150px;
+        border-radius: 8px;
+    }
+}
+
+.rovalra-hidden-badge-shimmer-title,
+.rovalra-hidden-badge-shimmer-description,
+.rovalra-hidden-badge-shimmer-label,
+.rovalra-hidden-badge-shimmer-value {
+    border-radius: 4px;
+}
+
+.rovalra-hidden-badge-shimmer-title {
+    width: min(240px, 70%);
+    height: 20px;
+    margin-bottom: 8px;
+}
+
+.rovalra-hidden-badge-shimmer-description {
+    width: min(420px, 90%);
+    height: 14px;
+}
+
+.rovalra-hidden-badge-shimmer-label {
+    width: 80px;
+    height: 12px;
+    margin-bottom: 6px;
+}
+
+.rovalra-hidden-badge-shimmer-value {
+    width: 110px;
+    height: 18px;
+}

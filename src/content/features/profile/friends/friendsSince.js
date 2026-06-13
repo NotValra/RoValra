@@ -1,5 +1,7 @@
-import { getUserIdFromUrl } from '../../../core/idExtractor.js';
-import { getUserIdFromFriendUrl } from '../../../core/idExtractor.js';
+import {
+    getUserIdFromUrl,
+    getUserIdFromFriendUrl,
+} from '../../../core/idExtractor.js';
 import { getAuthenticatedUserId } from '../../../core/user.js';
 import { observeElement, observeAttributes } from '../../../core/observer.js';
 import {

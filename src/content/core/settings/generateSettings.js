@@ -1,11 +1,13 @@
+import { observeElement } from '../observer.js';
 import { SETTINGS_CONFIG } from './settingConfig.js';
+import { getCachedBorders } from '../configs/borders.js';
 import { parseMarkdown } from '../utils/markdown.js';
 import { getFullRegionName, getContinent } from '../regions.js';
 import { getCurrentTheme, THEME_CONFIG } from '../theme.js';
 import { createDropdown } from '../ui/dropdown.js';
 import { createFileUpload } from '../ui/fileupload.js';
 import { createPill } from '../ui/general/pill.js';
-import { handleSaveSettings } from './handlesettings.js';
+import { handleSaveSettings, loadSettings } from './handlesettings.js';
 import { createStyledInput } from '../ui/catalog/input.js';
 import DOMPurify from 'dompurify';
 import { addTooltip } from '../ui/tooltip.js';
@@ -16,8 +18,13 @@ import {
     createThumbnailElement,
 } from '../thumbnail/thumbnails.js';
 import { getUserDisplayName } from '../apis/users.js';
+import { createUserCard } from '../ui/profile/userCard.js';
+import { getAuthenticatedUserId } from '../user.js';
+import { getBorders } from '../configs/borders.js';
+import { applyBorderToContainer } from '../../features/profile/avatarBorder.js';
 
 const DEFAULT_CONTRIBUTOR_ID = 447170745;
+const contributorCache = new Map();
 
 async function attachContributors(container, config, isChild = false) {
     if (
@@ -42,14 +49,65 @@ async function attachContributors(container, config, isChild = false) {
         'display: flex; flex-wrap: wrap; gap: 6px; margin-top: -2px; justify-content: flex-start;';
     container.appendChild(contributorsWrapper);
 
+    const renderContributor = (id, displayName, thumbData) => {
+        const item = document.createElement('div');
+        item.className = 'rovalra-donator-card';
+        item.style.cssText =
+            'display: flex; align-items: center; background: var(--rovalra-container-background-color); padding: 4px 10px 4px 4px; border-radius: 20px; border: none;';
+
+        const link = document.createElement('a');
+        link.className = 'avatar-card-link';
+        link.href = `https://www.roblox.com/users/${id}/profile`;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.style.cssText =
+            'display: flex; align-items: center; gap: 6px; text-decoration: none; cursor: pointer; color: inherit; width: 100%;';
+
+        addTooltip(
+            link,
+            `${displayName || id} contributed in the making of this feature.`,
+            { position: 'top' },
+        );
+
+        const thumbContainer = document.createElement('div');
+        thumbContainer.className = 'avatar-card-image';
+        thumbContainer.style.cssText =
+            'width: 20px; height: 20px; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #393b3d; flex-shrink: 0;';
+
+        const thumbEl = createThumbnailElement(thumbData, 'Contributor', '', {
+            width: '100%',
+            height: '100%',
+        });
+        thumbContainer.appendChild(thumbEl);
+
+        const name = document.createElement('span');
+        name.style.cssText =
+            'font-size: 11px; font-weight: 600; color: var(--rovalra-main-text-color); white-space: nowrap;';
+        name.textContent = displayName || 'Unknown';
+
+        link.append(thumbContainer, name);
+        item.appendChild(link);
+        contributorsWrapper.appendChild(item);
+    };
+
+    const allInCache = ids.every((id) => contributorCache.has(String(id)));
+    if (allInCache) {
+        ids.forEach((id) => {
+            const data = contributorCache.get(String(id));
+            renderContributor(id, data.displayName, data.thumbData);
+        });
+        return;
+    }
+
     const shimmerFragment = document.createDocumentFragment();
     for (let i = 0; i < ids.length; i++) {
         const shimmerItem = document.createElement('div');
+        shimmerItem.className = 'rovalra-donator-card';
         shimmerItem.style.cssText =
             'display: flex; align-items: center; gap: 6px; background: var(--rovalra-container-background-color); padding: 4px 10px 4px 4px; border-radius: 20px; border: none;';
 
         const shimmerAvatar = document.createElement('div');
-        shimmerAvatar.className = 'shimmer';
+        shimmerAvatar.className = 'shimmer avatar-card-image';
         shimmerAvatar.style.cssText =
             'width: 20px; height: 20px; border-radius: 50%;';
 
@@ -75,38 +133,8 @@ async function attachContributors(container, config, isChild = false) {
             const displayName = displayNames[index];
             const thumbData = thumbnails[index];
 
-            const item = document.createElement('a');
-            item.href = `https://www.roblox.com/users/${id}/profile`;
-            item.target = '_blank';
-            item.rel = 'noopener noreferrer';
-            item.style.cssText =
-                'display: flex; align-items: center; gap: 6px; background: var(--rovalra-container-background-color); padding: 4px 10px 4px 4px; border-radius: 20px; border: none; cursor: pointer; text-decoration: none;';
-
-            addTooltip(
-                item,
-                `${displayName || id} contributed in the making of this feature.`,
-                { position: 'top' },
-            );
-
-            const thumbContainer = document.createElement('div');
-            thumbContainer.style.cssText =
-                'width: 20px; height: 20px; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #393b3d;';
-
-            const thumbEl = createThumbnailElement(
-                thumbData,
-                'Contributor',
-                '',
-                { width: '100%', height: '100%' },
-            );
-            thumbContainer.appendChild(thumbEl);
-
-            const name = document.createElement('span');
-            name.style.cssText =
-                'font-size: 11px; font-weight: 600; color: var(--rovalra-main-text-color); white-space: nowrap;';
-            name.textContent = displayName || 'Unknown';
-
-            item.append(thumbContainer, name);
-            contributorsWrapper.appendChild(item);
+            contributorCache.set(String(id), { displayName, thumbData });
+            renderContributor(id, displayName, thumbData);
         });
     } catch (error) {
         console.warn('RoValra: Failed to load contributors', error);
@@ -159,6 +187,130 @@ function createClearStorageButton(storageKey, inputElement, settingType) {
         });
     };
     return btn;
+}
+
+async function setupAvatarPreview(container, inputElement, settingName) {
+    const userId = await getAuthenticatedUserId();
+    if (!userId) return;
+
+    const [displayRes, thumbnails] = await Promise.all([
+        getUserDisplayName(userId),
+        getBatchThumbnails([userId], 'AvatarHeadshot', '150x150'),
+    ]);
+
+    const card = createUserCard({
+        displayName: displayRes || 'User',
+        username: '',
+        thumbData: thumbnails[0] || { state: 'Error' },
+        href: `https://www.roblox.com/users/${userId}/profile`,
+        presenceInfo: 1,
+        hidePresence: true,
+    });
+
+    card.style.transform = 'scale(1.1)';
+    card.style.margin = '20px 0';
+
+    container.innerHTML = '';
+    container.appendChild(card);
+
+    let lastBorder = null;
+    let lastGradient = null;
+
+    const updatePreview = async (liveData = null) => {
+        const avatarEl = card.querySelector('.avatar.avatar-card-fullbody');
+        if (!avatarEl) return;
+
+        const settings = await loadSettings();
+        const borderChoice = settings.avatarBorderChoice || 'none';
+        const grad = liveData || settings.profileGradient;
+
+        if (borderChoice !== lastBorder) {
+            const existingImg = avatarEl.querySelector(
+                '.rovalra-avatar-border',
+            );
+            if (existingImg) existingImg.remove();
+
+            const clip = avatarEl.querySelector('.rovalra-avatar-border-clip');
+            if (clip) {
+                while (clip.firstChild) avatarEl.appendChild(clip.firstChild);
+                clip.remove();
+            }
+
+            delete avatarEl.dataset.rovalraBorderLoading;
+
+            if (borderChoice !== 'none') {
+                const borders = await getBorders();
+                const border = borders.find((b) => b.value === borderChoice);
+                if (border && border.link) {
+                    applyBorderToContainer(avatarEl, border.link, true);
+                }
+            }
+            lastBorder = borderChoice;
+        }
+
+        const gradString = grad ? JSON.stringify(grad) : '';
+        if (gradString !== lastGradient) {
+            const target =
+                avatarEl.querySelector('.thumbnail-2d-container') || avatarEl;
+
+            if (grad && grad.enabled) {
+                const s1 = (100 - grad.fade) / 2;
+                const s2 = 100 - s1;
+                target.style.background = `linear-gradient(${grad.angle}deg, ${grad.color1} ${s1}%, ${grad.color2} ${s2}%)`;
+            } else {
+                target.style.background = '';
+            }
+            lastGradient = gradString;
+        }
+    };
+
+    const globalSyncHandler = (e) => {
+        const { name } = e.detail;
+        if (name === 'avatarBorderChoice' || name === 'profileGradient') {
+            updatePreview();
+        }
+    };
+
+    document.addEventListener('rovalra:settingSaved', globalSyncHandler);
+
+    const observer = observeElement(
+        `.preview-card-holder[data-rovalra-preview="${settingName}"]`,
+        () => {},
+        {
+            onRemove: () => {
+                document.removeEventListener(
+                    'rovalra:settingSaved',
+                    globalSyncHandler,
+                );
+                observer.disconnect();
+            },
+        },
+    );
+
+    inputElement.addEventListener('change', () => updatePreview());
+    inputElement.addEventListener('input', () => updatePreview());
+    inputElement.addEventListener('rovalra-gradient-update', (e) =>
+        updatePreview(e.detail),
+    );
+
+    updatePreview();
+}
+
+function injectAvatarPreview(container, inputElement, settingName) {
+    const previewWrapper = document.createElement('div');
+    previewWrapper.className = 'rovalra-preview-section';
+    previewWrapper.style.cssText =
+        'display: flex; flex-direction: column; align-items: center; padding: 20px; background: var(--rovalra-container-background-color); border-radius: 12px; margin-top: 15px;';
+    previewWrapper.innerHTML = `<div style="font-weight: 700; font-size: 12px; text-transform: uppercase; margin-bottom: 10px; color: var(--rovalra-secondary-text-color);">Preview</div><div class="setting-label-divider" style="width: 100%; margin-bottom: 5px;"></div><div class="preview-card-holder" data-rovalra-preview="${settingName}"></div>`;
+    container.appendChild(previewWrapper);
+
+    if (inputElement) {
+        setupAvatarPreview(
+            previewWrapper.querySelector('.preview-card-holder'),
+            inputElement,
+            settingName,
+        );
+    }
 }
 
 export function findSettingConfig(settingName) {
@@ -238,6 +390,8 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
                     dropdownOptions.push(...regionsByContinent[continent]);
                 }
             });
+        } else if (setting.options === 'BORDERS') {
+            dropdownOptions = getCachedBorders();
         } else if (Array.isArray(setting.options)) {
             dropdownOptions = setting.options;
         }
@@ -440,6 +594,9 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
             preview.style.background = `linear-gradient(${currentAngle}deg, ${val.color1} ${s1}%, ${val.color2} ${s2}%)`;
             angleLine.style.transform = `rotate(${currentAngle}deg)`;
             if (save) handleSaveSettings(settingName, val);
+            wrapper.dispatchEvent(
+                new CustomEvent('rovalra-gradient-update', { detail: val }),
+            );
         };
 
         const onMove = (e) => {
@@ -703,6 +860,10 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
         settingContainer.appendChild(inputElement.rovalraVisualizer);
     }
 
+    if (setting.avatarPreview === true) {
+        injectAvatarPreview(settingContainer, inputElement, settingName);
+    }
+
     if (setting.description) {
         const divider = document.createElement('div');
         divider.className = 'setting-label-divider';
@@ -832,6 +993,10 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
 
             if (childInput.rovalraVisualizer) {
                 childContainer.appendChild(childInput.rovalraVisualizer);
+            }
+
+            if (childSetting.avatarPreview === true) {
+                injectAvatarPreview(childContainer, childInput, childName);
             }
 
             if (childSetting.description) {

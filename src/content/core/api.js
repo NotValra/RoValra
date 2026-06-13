@@ -15,10 +15,48 @@ let lastGameJoinRequestTime = 0;
 const OAUTH_STORAGE_KEY = 'rovalra_oauth_verification';
 const CAPTURED_APIS_KEY = 'rovalra_captured_apis';
 const seenRequests = new Map();
+let cachedRovalraUserAgent = null;
 
 const hbaClient = new HBAClient({
     onSite: true,
 });
+
+function getRovalraUserAgent() {
+    if (cachedRovalraUserAgent) return cachedRovalraUserAgent;
+
+    const originalUA = navigator.userAgent;
+    let browser = 'Unknown';
+    let engine = 'Unknown';
+
+    if (originalUA.includes('Firefox/')) {
+        browser = 'Firefox';
+        engine = 'Gecko';
+    } else if (originalUA.includes('Edg/')) {
+        browser = 'Edge';
+        engine = 'Chromium';
+    } else if (originalUA.includes('OPR/') || originalUA.includes('Opera/')) {
+        browser = 'Opera';
+        engine = 'Chromium';
+    } else if (originalUA.includes('Chrome/')) {
+        browser = 'Chrome';
+        engine = 'Chromium';
+    } else if (originalUA.includes('Safari/')) {
+        browser = 'Safari';
+        engine = 'WebKit';
+    }
+
+    const manifest = chrome.runtime.getManifest();
+    const version = manifest.version || 'Unknown';
+    const isDevelopment = !('update_url' in manifest);
+    const environment = isDevelopment ? 'Development' : 'Production';
+
+    cachedRovalraUserAgent = `RoValraExtension(RoValra/${browser}/${engine}/${version}/${environment})`;
+    if (engine === 'Gecko' || engine === 'WebKit') {
+        cachedRovalraUserAgent += ' UnofficialRoValraVersion';
+    }
+
+    return cachedRovalraUserAgent;
+}
 
 document.addEventListener('rovalra-traffic-capture', (e) => {
     const { url, method, body } = e.detail;
@@ -126,13 +164,15 @@ function getRequestKey({
     subdomain = 'apis',
     method = 'GET',
     isRovalraApi = false,
+    headers = {},
     body = null,
     fullUrl = null,
 }) {
     const bodyStr =
         body && typeof body === 'object' ? JSON.stringify(body) : body || '';
+    const headersStr = JSON.stringify(headers || {});
     const target = fullUrl || `${isRovalraApi}|${subdomain}|${endpoint}`;
-    return `${target}|${method.toUpperCase()}|${bodyStr}`;
+    return `${target}|${method.toUpperCase()}|${bodyStr}|${headersStr}`;
 }
 
 function checkSimulatedDowntime() {
@@ -204,6 +244,27 @@ export function resetGameJoinErrorCount() {
 }
 
 export async function callRobloxApi(options) {
+    if (
+        options.subdomain === 'gamejoin' &&
+        (options.method || 'GET').toUpperCase() === 'POST'
+    ) {
+        if (
+            options.body &&
+            typeof options.body === 'object' &&
+            !(options.body instanceof FormData)
+        ) {
+            const bodyUpdate = { joinOrigin: 'RoValraFetchInfo' };
+            if (!options.body.gameJoinAttemptId) {
+                bodyUpdate.gameJoinAttemptId = self.crypto.randomUUID();
+            }
+
+            options = {
+                ...options,
+                body: { ...options.body, ...bodyUpdate },
+            };
+        }
+    }
+
     captureApiCall(options);
 
     if (options.subdomain === 'gamejoin') {
@@ -253,10 +314,19 @@ export async function callRobloxApi(options) {
             noCache = false,
         } = options;
 
+        const normalizedHeaders = new Headers(headers);
+
+        if (isRovalraApi && subdomain === 'apis') {
+            normalizedHeaders.set(
+                'x-rovalra-user-agent',
+                getRovalraUserAgent(),
+            );
+        }
+
         if (useApiKey) {
             const apiKey = await getValidApiKey();
             if (apiKey) {
-                headers['x-api-key'] = apiKey;
+                normalizedHeaders.set('x-api-key', apiKey);
             }
         }
 
@@ -270,7 +340,9 @@ export async function callRobloxApi(options) {
                             subdomain,
                             method,
                             body,
-                            headers,
+                            headers: Object.fromEntries(
+                                normalizedHeaders.entries(),
+                            ),
                             noCache,
                         },
                     },
@@ -289,22 +361,11 @@ export async function callRobloxApi(options) {
             });
         }
 
-        if (isRovalraApi) {
-            if (endpoint && endpoint.includes('/v1/auth') && !skipAutoAuth) {
+        if (isRovalraApi && subdomain === 'apis') {
+            if (!skipAutoAuth) {
                 const token = await getValidAccessToken();
                 if (token) {
-                    headers['Authorization'] = `Bearer ${token}`;
-                } else {
-                    return new Response(
-                        JSON.stringify({
-                            status: 'error',
-                            message: 'Unauthorized',
-                        }),
-                        {
-                            status: 401,
-                            headers: { 'Content-Type': 'application/json' },
-                        },
-                    );
+                    normalizedHeaders.set('Authorization', `Bearer ${token}`);
                 }
             }
             const isDowntimeSimulated = await checkSimulatedDowntime();
@@ -391,7 +452,6 @@ export async function callRobloxApi(options) {
         const credentials =
             options.credentials ?? (isRovalraApi ? 'omit' : 'include');
 
-        const normalizedHeaders = new Headers(headers);
         if (!normalizedHeaders.has('Accept')) {
             normalizedHeaders.set('Accept', 'application/json');
         }
@@ -527,21 +587,31 @@ export async function callRobloxApi(options) {
                         isTokenInvalid &&
                         endpoint &&
                         endpoint.includes('/v1/auth') &&
-                        !skipAutoAuth &&
-                        !authRetried
+                        !skipAutoAuth
                     ) {
-                        console.log(
-                            'RoValra API: Invalid token/session, attempting token refresh...',
-                        );
-                        authRetried = true;
-                        const newToken = await getValidAccessToken(true, false);
-                        if (newToken) {
-                            fetchOptions.headers.set(
-                                'Authorization',
-                                `Bearer ${newToken}`,
+                        if (!authRetried) {
+                            console.log(
+                                'RoValra API: Invalid token/session, attempting token refresh...',
                             );
-                            continue;
+                            authRetried = true;
+                            const newToken = await getValidAccessToken(
+                                true,
+                                false,
+                            );
+                            if (newToken) {
+                                fetchOptions.headers.set(
+                                    'Authorization',
+                                    `Bearer ${newToken}`,
+                                );
+                                continue;
+                            }
                         }
+
+                        console.warn(
+                            'RoValra API: Authentication failed repeatedly. Clearing storage as last resort.',
+                        );
+                        await chrome.storage.local.remove(OAUTH_STORAGE_KEY);
+                        break;
                     }
 
                     if (lastResponse.ok && !bodyIsInvalid) {
@@ -766,6 +836,25 @@ export async function callRobloxApi(options) {
 
 export async function callRobloxApiUnsafe(options) {
     return callRobloxApi(options);
+}
+
+export async function checkUrlStatus(url, options = {}) {
+    const { method = 'GET', signal, expectNoRedirect = false } = options;
+    try {
+        const fetchOptions = {
+            method,
+            signal,
+            credentials: 'include',
+            redirect: expectNoRedirect ? 'manual' : 'follow',
+        };
+        const response = await fetch(url, fetchOptions);
+        return response.status;
+    } catch (error) {
+        if (error.name === 'AbortError' || (signal && signal.aborted)) {
+            return 499;
+        }
+        throw error;
+    }
 }
 
 export async function callRobloxApiJson(options) {

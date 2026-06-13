@@ -14,6 +14,10 @@ export const CONTRIBUTOR_USER_IDS = [
     '193520242', //tigodev1
     '2615068449', //lolct
     '10646979010', //rav4
+    '9502859424', // moowi1337
+    '3602693727', //nxvixz
+    '422540285', //RRedshift
+    '4866259395', //cam
 ];
 
 export const TESTER_USER_IDS = [
@@ -22,7 +26,7 @@ export const TESTER_USER_IDS = [
 
 export const TRANSLATOR_USER_IDS = [];
 
-export const ARTIST_BADGE_USER_ID = '1337447242';
+export const ARTIST_USER_IDS = ['1337447242', '48255812', '1040942162'];
 export const RAT_BADGE_USER_ID = '477516666'; // rat
 export const BLAHAJ_BADGE_USER_ID = '96786935'; // BLAHAJ
 export const CAM_BADGE_USER_ID = '4866259395';
@@ -36,7 +40,6 @@ export const TRUSTED_USER_IDS = new Set(
         ...CONTRIBUTOR_USER_IDS,
         ...TESTER_USER_IDS,
         ...TRANSLATOR_USER_IDS,
-        ARTIST_BADGE_USER_ID,
         RAT_BADGE_USER_ID,
         BLAHAJ_BADGE_USER_ID,
         CAM_BADGE_USER_ID,

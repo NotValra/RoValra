@@ -1,0 +1,26 @@
+.rovalra-avatar-border {
+    position: absolute;
+    top: -12%;
+    left: -12%;
+    width: 124%;
+    height: 124%;
+    object-fit: contain;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.rovalra-avatar-border-clip {
+    display: block;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: inherit;
+    line-height: 0;
+
+    > img,
+    > .thumbnail-2d-container,
+    > .avatar-card-image {
+        display: block;
+    }
+}

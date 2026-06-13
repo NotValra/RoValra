@@ -4,6 +4,7 @@ import { PLAYABILITY_STATUS_STRING_TO_CODE } from '../games/playabilityStatus.js
 
 const CACHE_SECTION = 'experience_sdui_props';
 const CLOUD_CACHE_SECTION = 'cloud_universe_details';
+const GUIDELINES_CACHE_SECTION = 'experience_guidelines_age_recommendation';
 
 export const REASON_PROHIBITED_TYPES = Object.keys(
     PLAYABILITY_STATUS_STRING_TO_CODE,
@@ -63,6 +64,45 @@ export async function getVotingDetails(universeId) {
 export async function getAgeRecommendations(universeId) {
     const details = await getExperienceDetails(universeId);
     return details?.ageRecommendations;
+}
+
+export async function getExperienceGuidelinesAgeRecommendation(universeId) {
+    const cacheKey = String(universeId);
+
+    const cached = await CacheHandler.get(
+        GUIDELINES_CACHE_SECTION,
+        cacheKey,
+        'session',
+    );
+    if (cached) {
+        return cached;
+    }
+
+    const data = await callRobloxApiJson({
+        subdomain: 'apis',
+        endpoint:
+            '/experience-guidelines-api/experience-guidelines/get-age-recommendation',
+        method: 'POST',
+        body: JSON.stringify({ universeId }),
+    });
+
+    const recommendation =
+        data?.ageRecommendationDetails?.summary?.ageRecommendation || null;
+    if (!recommendation) return null;
+
+    await CacheHandler.set(
+        GUIDELINES_CACHE_SECTION,
+        cacheKey,
+        recommendation,
+        'session',
+    );
+    return recommendation;
+}
+
+export async function getExperienceGuidelinesAgeRecommendationSummary(
+    universeId,
+) {
+    return getExperienceGuidelinesAgeRecommendation(universeId);
 }
 
 export async function getSocialDetails(universeId) {
@@ -190,6 +230,43 @@ export async function getPlaceDetails(placeId) {
     }
 }
 
+export async function getUniversesDetails(universeIds) {
+    if (!Array.isArray(universeIds) || universeIds.length === 0) return [];
+
+    try {
+        const data = await callRobloxApiJson({
+            subdomain: 'games',
+            endpoint: `/v1/games?universeIds=${universeIds.join(',')}`,
+            method: 'GET',
+        });
+
+        return data?.data || [];
+    } catch (error) {
+        console.error('RoValra: Failed to fetch universe details', error);
+        return [];
+    }
+}
+
+export async function getUniversesVotes(universeIds) {
+    if (!Array.isArray(universeIds) || universeIds.length === 0) return [];
+
+    try {
+        const data = await callRobloxApiJson({
+            subdomain: 'games',
+            endpoint: `/v1/games/votes?universeIds=${universeIds.join(',')}`,
+            method: 'GET',
+        });
+
+        return (data?.data || []).map((vote) => ({
+            ...vote,
+            universeId: vote.id,
+        }));
+    } catch (error) {
+        console.error('RoValra: Failed to fetch universe votes', error);
+        return [];
+    }
+}
+
 export default {
     getExperienceSduiProps,
     getVisibilityVariables,
@@ -202,6 +279,8 @@ export default {
     getMediaGallery,
     getGamePasses,
     getAgeRecommendations,
+    getExperienceGuidelinesAgeRecommendation,
+    getExperienceGuidelinesAgeRecommendationSummary,
     getRelatedGames,
     getExperienceStatus,
     getCloudUniverseDetails,
@@ -209,5 +288,7 @@ export default {
     getCloudPlatformSupport,
     getCloudRootPlaceId,
     getPlaceDetails,
+    getUniversesDetails,
+    getUniversesVotes,
     REASON_PROHIBITED_TYPES,
 };

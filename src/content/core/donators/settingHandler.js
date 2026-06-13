@@ -1,13 +1,10 @@
 import { callRobloxApiJson } from '../api.js';
 import { getValidAccessToken } from '../oauth/oauth.js';
 import { getAuthenticatedUserId } from '../user.js';
-import {
-    syncDonatorTier,
-    getCurrentUserTier,
-} from '../settings/handlesettings.js';
+import { getCurrentUserTier } from '../settings/handlesettings.js';
 import {
     TRUSTED_USER_IDS,
-    ARTIST_BADGE_USER_ID,
+    ARTIST_USER_IDS,
     RAT_BADGE_USER_ID,
     BLAHAJ_BADGE_USER_ID,
     CAM_BADGE_USER_ID,
@@ -24,6 +21,19 @@ let batchInProgress = false;
 const memoryCache = new Map();
 const pendingResolvers = new Map();
 
+function assertValidUserId(userId) {
+    if (
+        userId === null ||
+        userId === undefined ||
+        String(userId).trim() === '' ||
+        String(userId).toLowerCase() === 'null'
+    ) {
+        throw new Error(
+            'RoValra: Cannot fetch user settings without a valid user ID.',
+        );
+    }
+}
+
 async function saveToCache(cacheKey, settings) {
     const cacheData = {
         data: settings,
@@ -34,13 +44,11 @@ async function saveToCache(cacheKey, settings) {
 }
 
 async function fetchAndProcessSettings(userId, options = {}) {
+    assertValidUserId(userId);
+
     const authenticatedUserId = await getAuthenticatedUserId();
     const isOwnProfile =
         authenticatedUserId && String(authenticatedUserId) === String(userId);
-
-    if (isOwnProfile) {
-        await syncDonatorTier();
-    }
 
     let apiSettings = {};
     let apiProvidedMeaningfulSettings = false;
@@ -81,8 +89,10 @@ async function fetchAndProcessSettings(userId, options = {}) {
             if (
                 (apiSettings.environment === 0 ||
                     apiSettings.environment === 1) &&
-                apiSettings.status === '' &&
-                Object.keys(apiSettings).length === 2
+                !apiSettings.status &&
+                !apiSettings.border &&
+                !apiSettings.gradient &&
+                Object.keys(apiSettings).length <= 4
             ) {
                 apiProvidedMeaningfulSettings = false;
             } else {
@@ -97,17 +107,36 @@ async function fetchAndProcessSettings(userId, options = {}) {
     let finalStatus = null;
     let finalEnvironment = 1;
     let finalGradient = null;
+    let finalBorder = null;
 
     if (apiProvidedMeaningfulSettings) {
         finalStatus = apiSettings.status;
         finalEnvironment = apiSettings.environment;
         finalGradient = apiSettings.gradient;
+        finalBorder = apiSettings.border ?? null;
+    }
+
+    if (
+        isOwnProfile &&
+        apiSettings &&
+        apiSettings.border &&
+        apiProvidedMeaningfulSettings
+    ) {
+        document.dispatchEvent(
+            new CustomEvent('rovalra:syncAvatarBorder', {
+                detail: { borderUrl: apiSettings.border },
+            }),
+        );
     }
 
     return {
         status: finalStatus,
         environment: finalEnvironment || 1,
         gradient: finalGradient,
+        border: finalBorder,
+        Views: Number(apiSettings.Views) || 0,
+        hide_views:
+            apiSettings.hide_views === 'true' || apiSettings.hide_views === true,
         canUseApi: apiProvidedMeaningfulSettings,
         anonymous_leaderboard:
             apiSettings.anonymous_leaderboard === 'true' ||
@@ -142,6 +171,9 @@ async function processBatchQueue() {
         const userIdsToFetchStrings = userIdsToFetch.map((id) => String(id));
 
         if (userIdsToFetch.length > 0) {
+            // VALRA EDIT HERE: /v1/users/settings?user_ids=... GET should return
+            // `border` in each user's settings object alongside status, environment
+            // and gradient, so other users' borders can be displayed.
             const data = await callRobloxApiJson({
                 isRovalraApi: true,
                 subdomain: 'apis',
@@ -234,21 +266,21 @@ async function processBatchQueue() {
 }
 
 async function processApiSettings(userId, apiSettings, options) {
+    assertValidUserId(userId);
+
     const authenticatedUserId = await getAuthenticatedUserId();
     const isOwnProfile =
         authenticatedUserId && String(authenticatedUserId) === String(userId);
-
-    if (isOwnProfile) {
-        await syncDonatorTier();
-    }
 
     let apiProvidedMeaningfulSettings = false;
 
     if (apiSettings && typeof apiSettings === 'object') {
         if (
             (apiSettings.environment === 0 || apiSettings.environment === 1) &&
-            apiSettings.status === '' &&
-            Object.keys(apiSettings).length === 2
+            !apiSettings.status &&
+            !apiSettings.border &&
+            !apiSettings.gradient &&
+            Object.keys(apiSettings).length <= 4
         ) {
             apiProvidedMeaningfulSettings = false;
         } else {
@@ -259,17 +291,36 @@ async function processApiSettings(userId, apiSettings, options) {
     let finalStatus = null;
     let finalEnvironment = 1;
     let finalGradient = null;
+    let finalBorder = null;
 
     if (apiProvidedMeaningfulSettings) {
         finalStatus = apiSettings.status;
         finalEnvironment = apiSettings.environment;
         finalGradient = apiSettings.gradient;
+        finalBorder = apiSettings.border ?? null;
+    }
+
+    if (
+        isOwnProfile &&
+        apiSettings &&
+        apiSettings.border &&
+        apiProvidedMeaningfulSettings
+    ) {
+        document.dispatchEvent(
+            new CustomEvent('rovalra:syncAvatarBorder', {
+                detail: { borderUrl: apiSettings.border },
+            }),
+        );
     }
 
     return {
         status: finalStatus,
         environment: finalEnvironment || 1,
         gradient: finalGradient,
+        border: finalBorder,
+        Views: Number(apiSettings.Views) || 0,
+        hide_views:
+            apiSettings.hide_views === 'true' || apiSettings.hide_views === true,
         canUseApi: apiProvidedMeaningfulSettings,
         anonymous_leaderboard:
             apiSettings.anonymous_leaderboard === 'true' ||
@@ -278,6 +329,8 @@ async function processApiSettings(userId, apiSettings, options) {
 }
 
 export async function getUserSettings(userId, options = {}) {
+    assertValidUserId(userId);
+
     const authedId = await getAuthenticatedUserId();
     const authenticatedUserId = authedId ? String(authedId) : null;
     const strUserId = String(userId);
@@ -373,7 +426,7 @@ export async function getUserSettings(userId, options = {}) {
 /**
  * Updates a user setting via the RoValra API.
  * @param {string} key The setting key to update (e.g., 'environment', 'status').
- * @param {any} value The new value for the setting. Will be converted to string.
+ * @param {any} value The new value for the setting.
  * @returns {Promise<boolean>} True if the update was successful, false otherwise.
  */
 export async function updateUserSettingViaApi(key, value) {
@@ -381,12 +434,14 @@ export async function updateUserSettingViaApi(key, value) {
         const token = await getValidAccessToken(false, false);
         if (!token) return false;
 
+        const apiValue = key === 'hide_views' ? Boolean(value) : String(value);
+
         const response = await callRobloxApiJson({
             isRovalraApi: true,
             subdomain: 'apis',
             endpoint: '/v1/auth/settings',
             method: 'POST',
-            body: JSON.stringify({ key, value: String(value) }),
+            body: JSON.stringify({ key, value: apiValue }),
         });
         if (
             response &&

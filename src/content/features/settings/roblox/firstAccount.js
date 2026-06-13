@@ -4,6 +4,58 @@ import { addTooltip } from '../../../core/ui/tooltip.js';
 import { getAuthenticatedUserId } from '../../../core/user.js';
 import { ts } from '../../../core/locale/i18n.js';
 
+const STORAGE_KEY = 'rovalra_first_account_cache';
+const ONE_HOUR_MS = 3600000;
+const pendingSections = new WeakSet();
+
+function isAccountSettingsPage() {
+    return /^\/(?:[a-z]{2}(?:-[a-z]{2})?\/)?my\/account(?:\/|$)/i.test(
+        window.location.pathname,
+    );
+}
+
+function getLoginMethodsSection(element) {
+    const section = element.closest('.setting-section');
+    if (!section) return null;
+
+    if (
+        section.querySelector('#account-change-password') ||
+        section.querySelector('#fido-registration-container') ||
+        section.querySelector('.passkey-upsell-banner')
+    ) {
+        return section;
+    }
+
+    return null;
+}
+
+function getLoginMethodsContent(section) {
+    const passwordButton = section.querySelector('#account-change-password');
+    const passwordField = passwordButton?.closest(
+        '.settings-text-field-container',
+    );
+
+    return (
+        passwordField?.parentElement ||
+        section.querySelector('#fido-registration-container')?.parentElement ||
+        section.querySelector('.passkey-upsell-banner')?.parentElement ||
+        section.querySelector('.section-content') ||
+        section
+    );
+}
+
+function getLocalStorage(keys) {
+    return new Promise((resolve) => {
+        chrome.storage.local.get(keys, resolve);
+    });
+}
+
+function setLocalStorage(items) {
+    return new Promise((resolve) => {
+        chrome.storage.local.set(items, resolve);
+    });
+}
+
 function createFirstAccountElement(isFirst, creationTimestamp) {
     const container = document.createElement('div');
     container.className =
@@ -62,8 +114,92 @@ function createFirstAccountElement(isFirst, creationTimestamp) {
     return container;
 }
 
+function insertFirstAccountElement(section, isFirst, creationTimestamp) {
+    if (section.querySelector('.rovalra-first-account')) return;
+
+    const element = createFirstAccountElement(isFirst, creationTimestamp);
+    const contentContainer = getLoginMethodsContent(section);
+    const passwordButton = section.querySelector('#account-change-password');
+    const passwordField = passwordButton?.closest(
+        '.settings-text-field-container',
+    );
+
+    if (passwordField?.parentElement === contentContainer) {
+        passwordField.insertAdjacentElement('afterend', element);
+        return;
+    }
+
+    contentContainer.appendChild(element);
+}
+
+async function loadFirstAccountInfo(section) {
+    if (
+        pendingSections.has(section) ||
+        section.querySelector('.rovalra-first-account')
+    ) {
+        return;
+    }
+
+    pendingSections.add(section);
+
+    try {
+        const userId = await getAuthenticatedUserId();
+        if (!userId) return;
+
+        const result = await getLocalStorage([STORAGE_KEY]);
+        const allCache = result[STORAGE_KEY] || {};
+        const userCache = allCache[userId];
+        const now = Date.now();
+
+        if (userCache && now - userCache.timestamp < ONE_HOUR_MS) {
+            insertFirstAccountElement(
+                section,
+                userCache.isOriginalUser,
+                userCache.originalAccountCreationTimestampMs,
+            );
+            return;
+        }
+
+        const response = await fetch(
+            'https://apis.roblox.com/player-hydration-service/v1/players/signed',
+            {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+            },
+        ); //Verified
+
+        if (!response.ok) throw new Error('API failed');
+
+        const data = await response.json();
+        if (!data?.playerInfo) return;
+
+        const isOriginalUser = data.playerInfo.isOriginalUser;
+        const creationTimestamp =
+            data.playerInfo.originalAccountCreationTimestampMs;
+        const latestResult = await getLocalStorage([STORAGE_KEY]);
+        const currentCache = latestResult[STORAGE_KEY] || {};
+
+        currentCache[userId] = {
+            isOriginalUser,
+            originalAccountCreationTimestampMs: creationTimestamp,
+            timestamp: Date.now(),
+        };
+
+        await setLocalStorage({ [STORAGE_KEY]: currentCache });
+
+        insertFirstAccountElement(section, isOriginalUser, creationTimestamp);
+    } catch (err) {
+        console.error('RoValra: Failed to get first account info', err);
+    } finally {
+        pendingSections.delete(section);
+    }
+}
+
 export function init() {
-    if (!window.location.pathname.startsWith('/my/account')) {
+    if (!isAccountSettingsPage()) {
         return;
     }
 
@@ -71,109 +207,10 @@ export function init() {
         if (!result.firstAccountEnabled) return;
 
         observeElement(
-            'h2.setting-section-header',
-            async (header) => {
-                if (header.textContent.trim() === 'Login Methods') {
-                    const section = header.closest('.setting-section');
-                    if (
-                        section &&
-                        !section.querySelector('.rovalra-first-account')
-                    ) {
-                        const userId = await getAuthenticatedUserId();
-                        if (!userId) return;
-
-                        const STORAGE_KEY = 'rovalra_first_account_cache';
-
-                        chrome.storage.local.get([STORAGE_KEY], (result) => {
-                            const allCache = result[STORAGE_KEY] || {};
-                            const userCache = allCache[userId];
-                            const now = Date.now();
-
-                            const render = (isFirst, creationTimestamp) => {
-                                if (
-                                    !section.querySelector(
-                                        '.rovalra-first-account',
-                                    )
-                                ) {
-                                    const element = createFirstAccountElement(
-                                        isFirst,
-                                        creationTimestamp,
-                                    );
-
-                                    const contentContainer =
-                                        section.querySelector(
-                                            '.section-content',
-                                        ) || section;
-                                    contentContainer.appendChild(element);
-                                }
-                            };
-
-                            if (
-                                userCache &&
-                                now - userCache.timestamp < 3600000
-                            ) {
-                                render(
-                                    userCache.isOriginalUser,
-                                    userCache.originalAccountCreationTimestampMs,
-                                );
-                                return;
-                            }
-
-                            fetch(
-                                'https://apis.roblox.com/player-hydration-service/v1/players/signed',
-                                {
-                                    method: 'GET',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                    },
-                                    credentials: 'include',
-                                },
-                            ) //Verified
-                                // Stupid api yall dont even wanna know.
-                                .then((res) => {
-                                    if (!res.ok) throw new Error('API failed');
-                                    return res.json();
-                                })
-                                .then((data) => {
-                                    if (data && data.playerInfo) {
-                                        const isOriginalUser =
-                                            data.playerInfo.isOriginalUser;
-                                        const creationTimestamp =
-                                            data.playerInfo
-                                                .originalAccountCreationTimestampMs;
-
-                                        chrome.storage.local.get(
-                                            [STORAGE_KEY],
-                                            (latestResult) => {
-                                                const currentCache =
-                                                    latestResult[STORAGE_KEY] ||
-                                                    {};
-                                                currentCache[userId] = {
-                                                    isOriginalUser,
-                                                    originalAccountCreationTimestampMs:
-                                                        creationTimestamp,
-                                                    timestamp: Date.now(),
-                                                };
-                                                chrome.storage.local.set({
-                                                    [STORAGE_KEY]: currentCache,
-                                                });
-                                            },
-                                        );
-                                        render(
-                                            isOriginalUser,
-                                            creationTimestamp,
-                                        );
-                                    }
-                                })
-                                .catch((err) => {
-                                    console.error(
-                                        'RoValra: Failed to get first account info',
-                                        err,
-                                    );
-                                });
-                        });
-                    }
-                }
+            '#account-change-password, #fido-registration-container, .passkey-upsell-banner',
+            (element) => {
+                const section = getLoginMethodsSection(element);
+                if (section) loadFirstAccountInfo(section);
             },
             { multiple: true },
         );

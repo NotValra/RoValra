@@ -61,8 +61,10 @@ export function initializeObserver() {
             }
 
             if (mutation.type === 'childList') {
-                const listener = childListListeners.get(mutation.target);
-                if (listener) listener(mutation);
+                const listeners = childListListeners.get(mutation.target);
+                if (listeners) {
+                    for (const listener of listeners) listener(mutation);
+                }
             }
 
             if (mutation.addedNodes.length === 0) continue;
@@ -114,6 +116,8 @@ export function initializeObserver() {
 }
 
 export const observeElement = (selector, callback, options = {}) => {
+    if (!observerInitialized) startObserving();
+
     const isMultiple = options.multiple || false;
 
     const request = {
@@ -122,6 +126,9 @@ export const observeElement = (selector, callback, options = {}) => {
         onRemove: options.onRemove,
         multiple: isMultiple,
         active: true,
+        disconnect() {
+            this.active = false;
+        },
         ...(isMultiple ? { elements: new Set() } : { element: null }),
     };
     observationRequests.push(request);
@@ -169,11 +176,22 @@ export const observeAttributes = (
 export function observeChildren(element, callback) {
     if (!observerInitialized) initializeObserver();
 
-    childListListeners.set(element, callback);
+    let listeners = childListListeners.get(element);
+    if (!listeners) {
+        listeners = new Set();
+        childListListeners.set(element, listeners);
+    }
+    listeners.add(callback);
 
     return {
         disconnect: () => {
-            childListListeners.delete(element);
+            const activeListeners = childListListeners.get(element);
+            if (!activeListeners) return;
+
+            activeListeners.delete(callback);
+            if (activeListeners.size === 0) {
+                childListListeners.delete(element);
+            }
         },
     };
 }

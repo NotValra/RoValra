@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
     "name": "RoValra - Roblox Improved",
-    "version": "2.5.1",
+    "version": "2.5.5",
     "description": "An extension aiming to provide features that other Roblox extensions paywall!",
     "content_scripts": [
         {
@@ -30,7 +30,8 @@
         "https://games.roblox.com/*",
         "*://*.roblox.com/*",
         "https://gamejoin.roblox.com/v1/join-game-instance",
-        "https://users.roblox.com/*"
+        "https://users.roblox.com/*",
+        "https://*.rovalra.com/*"
     ],
     "background": {
         "service_worker": "background.js"
@@ -66,7 +67,6 @@
     ],
     "action": {
         "default_popup": "public/Assets/popup/popup.html",
-
         "default_icon": {
             "16": "public/Assets/icon-16.png",
             "48": "public/Assets/icon-48.png",

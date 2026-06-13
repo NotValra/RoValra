@@ -67,6 +67,7 @@ function refineAgeWithAccountAge(estimatedRange, accountCreatedTimestamp) {
         !accountCreatedTimestamp ||
         !estimatedRange ||
         estimatedRange === 'No Chat Data' ||
+        estimatedRange === '(age check)' ||
         estimatedRange === 'Unknown (No Chat History)'
     ) {
         return estimatedRange;
@@ -133,7 +134,7 @@ async function fetchUserAgeGroup() {
 async function fetchChatConversationsPage(cursor = null) {
     try {
         let endpoint =
-            '/platform-chat-api/v1/get-user-conversations?include_messages=true';
+            '/platform-chat-api/v1/get-user-conversations?include_cards=true&include_user_data=true&include_messages=true&check_for_group_up=true';
         if (cursor) endpoint += `&cursor=${encodeURIComponent(cursor)}`;
         return await callRobloxApiJson({
             subdomain: 'apis',
@@ -157,11 +158,31 @@ async function fetchAllConversations() {
     return allConversations;
 }
 
+function getCompatibleAgeRange(ownAgeKey) {
+    switch (ownAgeKey) {
+        case 'Label.AgeGroupUnder9':
+            return '<13';
+        case 'Label.AgeGroup9To12':
+            return '<16';
+        case 'Label.AgeGroup13To15':
+            return '9-17';
+        case 'Label.AgeGroup16To17':
+            return '13-20';
+        case 'Label.AgeGroup18To20':
+            return '16+';
+        case 'Label.AgeGroupOver21':
+            return '18+';
+        default:
+            return null;
+    }
+}
+
 function estimateAgeRange(
     ownAgeKey,
     hasRestrictedMsg,
     hasTrustedComms,
     hasVisibleMessages,
+    needsAgeCheck,
 ) {
     if (hasRestrictedMsg) {
         switch (ownAgeKey) {
@@ -178,45 +199,21 @@ function estimateAgeRange(
         }
     }
 
+    const compatibleRange = getCompatibleAgeRange(ownAgeKey);
+
     if (hasVisibleMessages) {
-        switch (ownAgeKey) {
-            case 'Label.AgeGroupUnder9':
-                return '<13';
-            case 'Label.AgeGroup9To12':
-                return '<16';
-            case 'Label.AgeGroup13To15':
-                return '9-17';
-            case 'Label.AgeGroup16To17':
-                return '13-20';
-            case 'Label.AgeGroup18To20':
-                return '16+';
-            case 'Label.AgeGroupOver21':
-                return '18+';
-            default:
-                return 'Compatible';
-        }
+        return compatibleRange || 'Compatible';
     }
 
     if (hasTrustedComms) {
-        switch (ownAgeKey) {
-            case 'Label.AgeGroupUnder9':
-                return '<13';
-            case 'Label.AgeGroup9To12':
-                return '<16';
-            case 'Label.AgeGroup13To15':
-                return '9-17';
-            case 'Label.AgeGroup16To17':
-                return '13-20';
-            case 'Label.AgeGroup18To20':
-                return '16+';
-            case 'Label.AgeGroupOver21':
-                return '18+';
-            default:
-                return 'Trusted';
-        }
+        return compatibleRange || 'Trusted';
     }
 
-    return 'Unknown (No Chat History)';
+    if (needsAgeCheck) {
+        return '(age check)';
+    }
+
+    return compatibleRange || 'Unknown (No Chat History)';
 }
 
 async function fetchFriendsPage(userId, cursor = null) {
@@ -325,7 +322,7 @@ export async function updateFriendsList(userId) {
                     (m) =>
                         m.content &&
                         m.content.includes(
-                            "Other users can't see messages in this chat",
+                            "Other users can't see messages in this chat due to new chat rules",
                         ),
                 );
                 const hasTrustedComms = conv.messages?.some(
@@ -338,13 +335,23 @@ export async function updateFriendsList(userId) {
                         !m.content.includes("Other users can't see"),
                 );
 
+                const needsAgeCheck = conv.messages?.some(
+                    (m) =>
+                        m.content &&
+                        m.content.includes(
+                            'Your friend needs to complete an age check to see your messages',
+                        ),
+                );
+
                 chatAnalysisMap.set(friendId, {
                     estimatedAge: estimateAgeRange(
                         ownAgeKey,
                         hasRestrictedMsg,
                         hasTrustedComms,
                         hasVisibleMessages,
+                        needsAgeCheck,
                     ),
+                    needsAgeCheck: needsAgeCheck,
                 });
             });
         }
@@ -502,15 +509,16 @@ export async function updateFriendsList(userId) {
                             }
                         });
 
-                        let finalAgeRange = 'No Chat Data';
-                        if (isTrusted) {
-                            finalAgeRange = 'Trusted Friend';
-                        } else if (chatStatus) {
-                            finalAgeRange = refineAgeWithAccountAge(
-                                chatStatus.estimatedAge,
-                                accountCreated,
-                            );
-                        }
+                        const baseAgeRange = isTrusted
+                            ? 'Trusted Friend'
+                            : chatStatus?.estimatedAge ||
+                              getCompatibleAgeRange(ownAgeKey) ||
+                              'No Chat Data';
+
+                        const finalAgeRange = refineAgeWithAccountAge(
+                            baseAgeRange,
+                            accountCreated,
+                        );
 
                         let username = profile.names.username;
                         let displayName = profile.names.displayName;
@@ -536,6 +544,7 @@ export async function updateFriendsList(userId) {
                             isDeleted: profile.isDeleted,
                             isTrusted: isTrusted,
                             estimatedAgeRange: finalAgeRange,
+                            needsAgeCheck: chatStatus?.needsAgeCheck || false,
                             verifiedAgeRange: verifiedAgeRange,
                             mutualFriends: mutualFriends,
                             accountCreated: accountCreated,

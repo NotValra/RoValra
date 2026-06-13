@@ -1,4 +1,5 @@
 import { SETTINGS_CONFIG } from '../content/core/settings/settingConfig.js';
+import init from './settingsCompat.ts';
 
 // --- Constants & State ---
 
@@ -14,7 +15,12 @@ const state = {
     bannedUserRedirects: new Map(),
     privateGameRedirects: new Map(),
     scanningUsers: new Set(),
+    badgeScanningUsers: new Set(),
+    avatarInventoryScanningUsers: new Set(),
     transactionInterval: null,
+    badgeInterval: null,
+    badgeFullScanInterval: null,
+    avatarInventoryInterval: null,
 };
 
 // --- Session Storage Configuration ---
@@ -56,7 +62,8 @@ function getDefaultSettings() {
 function initializeSettings(reason) {
     const defaults = getDefaultSettings();
 
-    chrome.storage.local.get(null, (currentSettings) => {
+    chrome.storage.local.get(null, async (currentSettings) => {
+        await init();
         const settingsToUpdate = {};
         let needsUpdate = false;
 
@@ -641,8 +648,61 @@ function updateAvatarRotator() {
 // --- Transaction Tracking ---
 
 const TRANSACTIONS_DATA_KEY = 'rovalra_transactions_v2';
+const TRANSACTION_SCAN_LOCKS_KEY = 'rovalra_transaction_scan_locks';
+const TRANSACTIONS_STORAGE_VERSION = 4;
 const TRANSACTION_REFRESH_DURATION = 5 * 60 * 1000;
 const TRANSACTION_REQUEST_DELAY = 5000;
+const TRANSACTION_SCAN_LOCK_DURATION = 2 * 60 * 1000;
+const TRANSACTION_MAX_INTERNAL_ERRORS = 3;
+const BADGES_DATA_KEY = 'rovalra_badges_v1';
+const BADGES_STORAGE_VERSION = 2;
+const BADGE_REFRESH_DURATION = 5 * 60 * 1000;
+const BADGE_FULL_REFRESH_DURATION = 30 * 60 * 1000;
+const BADGE_REQUEST_DELAY = 150;
+const AVATAR_INVENTORY_DATA_KEY = 'rovalra_avatar_inventory_v1';
+const AVATAR_INVENTORY_REFRESH_DURATION = 60 * 1000;
+const AVATAR_INVENTORY_REQUEST_DELAY = 150;
+const AVATAR_INVENTORY_SCAN_TYPES = {
+    recentEquipped: {
+        sortOption: 'recentEquipped',
+        timeField: 'lastEquipTime',
+        latestKey: 'latestRecentlyEquippedItems',
+    },
+    recentAdded: {
+        sortOption: 'recentAdded',
+        timeField: 'acquisitionTime',
+        latestKey: 'latestRecentlyAddedItems',
+    },
+};
+
+function sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function getRateLimitDelay(response) {
+    const retryAfterSeconds = Number(response.headers.get('retry-after'));
+    if (Number.isFinite(retryAfterSeconds) && retryAfterSeconds > 0) {
+        return retryAfterSeconds * 1000 + 1000;
+    }
+
+    const remaining = Number(response.headers.get('x-ratelimit-remaining'));
+    const resetValue = Number(response.headers.get('x-ratelimit-reset'));
+
+    if (
+        Number.isFinite(remaining) &&
+        remaining <= 1 &&
+        Number.isFinite(resetValue) &&
+        resetValue > 0
+    ) {
+        return (
+            (resetValue > 1e9
+                ? Math.max(0, resetValue * 1000 - Date.now())
+                : resetValue * 1000) + 1000
+        );
+    }
+
+    return 0;
+}
 
 async function fetchTransactionsPage(userId, cursor = null) {
     let endpoint = `/transaction-records/v1/users/${userId}/transactions?limit=100&transactionType=Purchase&itemPricingType=PaidAndLimited`;
@@ -656,12 +716,23 @@ async function fetchTransactionsPage(userId, cursor = null) {
             });
 
             if (response.status === 429) {
-                await new Promise((resolve) => setTimeout(resolve, 10000));
+                await sleep(getRateLimitDelay(response) || 2000);
                 continue;
             }
 
+            if (response.status >= 500 && response.status < 600) {
+                return {
+                    internalError: true,
+                    status: response.status,
+                    rateLimitDelay: getRateLimitDelay(response),
+                };
+            }
+
             if (!response.ok) return null;
-            return await response.json();
+            return {
+                body: await response.json(),
+                rateLimitDelay: getRateLimitDelay(response),
+            };
         } catch (error) {
             console.error('RoValra: Failed to fetch transactions page', error);
             return null;
@@ -669,13 +740,67 @@ async function fetchTransactionsPage(userId, cursor = null) {
     }
 }
 
+async function acquireTransactionScanLock(userId) {
+    userId = String(userId);
+    const scanId = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    const storage = await chrome.storage.local.get([TRANSACTION_SCAN_LOCKS_KEY]);
+    const locks = storage[TRANSACTION_SCAN_LOCKS_KEY] || {};
+    const existingLock = locks[userId];
+    const now = Date.now();
+
+    if (existingLock?.expiresAt && existingLock.expiresAt > now) {
+        return null;
+    }
+
+    locks[userId] = {
+        scanId,
+        expiresAt: now + TRANSACTION_SCAN_LOCK_DURATION,
+    };
+    await chrome.storage.local.set({ [TRANSACTION_SCAN_LOCKS_KEY]: locks });
+
+    const verifyStorage = await chrome.storage.local.get([
+        TRANSACTION_SCAN_LOCKS_KEY,
+    ]);
+    const verifiedLock = verifyStorage[TRANSACTION_SCAN_LOCKS_KEY]?.[userId];
+    return verifiedLock?.scanId === scanId ? scanId : null;
+}
+
+async function refreshTransactionScanLock(userId, scanId) {
+    const storage = await chrome.storage.local.get([TRANSACTION_SCAN_LOCKS_KEY]);
+    const locks = storage[TRANSACTION_SCAN_LOCKS_KEY] || {};
+    const existingLock = locks[userId];
+
+    if (existingLock?.scanId !== scanId) return false;
+
+    locks[userId] = {
+        scanId,
+        expiresAt: Date.now() + TRANSACTION_SCAN_LOCK_DURATION,
+    };
+    await chrome.storage.local.set({ [TRANSACTION_SCAN_LOCKS_KEY]: locks });
+    return true;
+}
+
+async function releaseTransactionScanLock(userId, scanId) {
+    const storage = await chrome.storage.local.get([TRANSACTION_SCAN_LOCKS_KEY]);
+    const locks = storage[TRANSACTION_SCAN_LOCKS_KEY] || {};
+
+    if (locks[userId]?.scanId === scanId) {
+        delete locks[userId];
+        await chrome.storage.local.set({ [TRANSACTION_SCAN_LOCKS_KEY]: locks });
+    }
+}
+
 function processTransaction(transaction) {
     if (!transaction || !transaction.currency || !transaction.agent)
         return null;
 
+    const transactionIdHash = transaction.idHash
+        ? String(transaction.idHash)
+        : null;
+
     const base = {
         amount: Math.abs(transaction.currency.amount || 0),
-        purchaseToken: transaction.purchaseToken || null,
+        transactionIdHash,
         creatorId: transaction.agent.id || 0,
         creatorType: transaction.agent.type || 'User',
         creatorName: transaction.agent.name || 'Unknown',
@@ -689,6 +814,212 @@ function processTransaction(transaction) {
         };
     }
     return base;
+}
+
+function createEmptyTransactionScan() {
+    return {
+        totals: { transactions: {} },
+        creators: {},
+    };
+}
+
+function normalizeTransactionScan(scan) {
+    return {
+        totals: {
+            transactions: {
+                ...(scan?.totals?.transactions || {}),
+            },
+        },
+        creators: {
+            ...(scan?.creators || {}),
+        },
+    };
+}
+
+function addProcessedTransactionToScan(scan, processed) {
+    if (!processed?.transactionIdHash) return false;
+
+    const idHash = String(processed.transactionIdHash);
+    if (scan.totals.transactions[idHash] !== undefined) return false;
+
+    scan.totals.transactions[idHash] = processed.amount;
+
+    const creatorKey = String(processed.creatorId);
+    if (!scan.creators[creatorKey]) {
+        scan.creators[creatorKey] = {
+            name: processed.creatorName,
+            type: processed.creatorType,
+            transactions: {},
+            games: {},
+        };
+    }
+
+    const creator = scan.creators[creatorKey];
+    creator.name = processed.creatorName || creator.name;
+    creator.type = processed.creatorType || creator.type;
+    creator.transactions[idHash] = processed.amount;
+
+    if (processed.universeId) {
+        const gameKey = String(processed.universeId);
+        if (!creator.games[gameKey]) {
+            creator.games[gameKey] = {
+                name: processed.gameName,
+                transactions: {},
+            };
+        }
+
+        const game = creator.games[gameKey];
+        game.name = processed.gameName || game.name;
+        game.transactions[idHash] = processed.amount;
+    }
+
+    return true;
+}
+
+function aggregateTemporaryTransactionScan(scan) {
+    const aggregated = {
+        totals: { totalSpent: 0, totalTransactions: 0 },
+        creators: {},
+    };
+
+    if (!scan) return aggregated;
+
+    for (const amount of Object.values(scan.totals?.transactions || {})) {
+        aggregated.totals.totalSpent += amount;
+        aggregated.totals.totalTransactions += 1;
+    }
+
+    for (const [creatorKey, creatorScan] of Object.entries(
+        scan.creators || {},
+    )) {
+        const creator = {
+            name: creatorScan.name,
+            type: creatorScan.type,
+            totalSpent: 0,
+            totalTransactions: 0,
+            games: {},
+        };
+
+        for (const amount of Object.values(creatorScan.transactions || {})) {
+            creator.totalSpent += amount;
+            creator.totalTransactions += 1;
+        }
+
+        for (const [gameKey, gameScan] of Object.entries(
+            creatorScan.games || {},
+        )) {
+            const game = {
+                name: gameScan.name,
+                totalSpent: 0,
+                totalTransactions: 0,
+            };
+
+            for (const amount of Object.values(gameScan.transactions || {})) {
+                game.totalSpent += amount;
+                game.totalTransactions += 1;
+            }
+
+            creator.games[gameKey] = game;
+        }
+
+        aggregated.creators[creatorKey] = creator;
+    }
+
+    return aggregated;
+}
+
+function getStoredLatestTransactionHashes(userData) {
+    if (Array.isArray(userData.latestTransactionHashes)) {
+        return userData.latestTransactionHashes.filter(Boolean);
+    }
+
+    return userData.latestTransactionHash
+        ? [userData.latestTransactionHash]
+        : [];
+}
+
+function migrateTransactionUserData(userData = {}) {
+    const migrated = {
+        ...userData,
+        latestTransactionHashes: getStoredLatestTransactionHashes(userData),
+        storageVersion: TRANSACTIONS_STORAGE_VERSION,
+    };
+    let changed =
+        userData.storageVersion !== TRANSACTIONS_STORAGE_VERSION ||
+        !Array.isArray(userData.latestTransactionHashes);
+
+    if (userData.storageVersion !== TRANSACTIONS_STORAGE_VERSION) {
+        const rescanData = {
+            ...migrated,
+            totals: { totalSpent: 0, totalTransactions: 0 },
+            creators: {},
+            temporaryTransactions: createEmptyTransactionScan(),
+            scanCursor: null,
+            isFullyScanned: false,
+            isScanning: true,
+            latestTransactionHashes: [],
+        };
+        delete rescanData.latestTransactionHash;
+        delete rescanData.latestPurchaseToken;
+        delete rescanData.latestPurchaseTokens;
+
+        return {
+            data: rescanData,
+            needsFullRescan: true,
+            changed: true,
+        };
+    }
+
+    delete migrated.latestPurchaseToken;
+    delete migrated.latestPurchaseTokens;
+
+    if (migrated.temporaryTransactions) {
+        migrated.temporaryTransactions = normalizeTransactionScan(
+            migrated.temporaryTransactions,
+        );
+        changed = true;
+    }
+
+    if (migrated.temporaryTransactions && migrated.isFullyScanned) {
+        const aggregated = aggregateTemporaryTransactionScan(
+            migrated.temporaryTransactions,
+        );
+        migrated.totals = aggregated.totals;
+        migrated.creators = aggregated.creators;
+        delete migrated.temporaryTransactions;
+        migrated.scanCursor = null;
+        migrated.isScanning = false;
+        changed = true;
+    }
+
+    if (migrated.temporaryTransactions && !migrated.isFullyScanned) {
+        migrated.isScanning = true;
+        return { data: migrated, needsFullRescan: false, changed: true };
+    }
+
+    if (migrated.isFullyScanned) {
+        return { data: migrated, needsFullRescan: false, changed };
+    }
+
+    const rescanData = {
+        ...migrated,
+        totals: { totalSpent: 0, totalTransactions: 0 },
+        creators: {},
+        temporaryTransactions: createEmptyTransactionScan(),
+        scanCursor: null,
+        isFullyScanned: false,
+        isScanning: true,
+        latestTransactionHashes: [],
+    };
+    delete rescanData.latestTransactionHash;
+    delete rescanData.latestPurchaseToken;
+    delete rescanData.latestPurchaseTokens;
+
+    return {
+        data: rescanData,
+        needsFullRescan: true,
+        changed: true,
+    };
 }
 
 function mergeTransactionsIntoAggregated(existingAggregated, rawTransactions) {
@@ -738,49 +1069,397 @@ function mergeTransactionsIntoAggregated(existingAggregated, rawTransactions) {
 }
 
 async function handleBackgroundTransactionScan(userId) {
+    userId = String(userId);
+
     const settings = await chrome.storage.local.get({
         TotalSpentGamesEnabled: true,
     });
     if (!settings.TotalSpentGamesEnabled) return;
 
     if (state.scanningUsers.has(userId)) return;
+    const scanId = await acquireTransactionScanLock(userId);
+    if (!scanId) return;
+
     state.scanningUsers.add(userId);
 
     try {
         const storage = await chrome.storage.local.get([TRANSACTIONS_DATA_KEY]);
         const allData = storage[TRANSACTIONS_DATA_KEY] || {};
         const userData = allData[userId] || {};
+        const migration = migrateTransactionUserData(userData);
+
+        if (migration.changed) {
+            allData[userId] = migration.data;
+            await chrome.storage.local.set({
+                [TRANSACTIONS_DATA_KEY]: allData,
+            });
+        }
 
         const now = Date.now();
-        if (userData.isFullyScanned) {
+        if (migration.needsFullRescan) {
+            await runTransactionLoop(userId, migration.data, false, scanId);
+        } else if (migration.data.isFullyScanned) {
             const lastCheck =
-                userData.lastIncrementalCheck || userData.lastFullScan || 0;
+                migration.data.lastIncrementalCheck ||
+                migration.data.lastFullScan ||
+                0;
             if (now - lastCheck < TRANSACTION_REFRESH_DURATION) return;
 
-            await runTransactionLoop(userId, userData, true);
+            await runTransactionLoop(userId, migration.data, true, scanId);
         } else {
-            await runTransactionLoop(userId, userData, false);
+            await runTransactionLoop(userId, migration.data, false, scanId);
         }
     } finally {
         state.scanningUsers.delete(userId);
+        await releaseTransactionScanLock(userId, scanId);
     }
 }
 
-async function runTransactionLoop(userId, existingData, isIncremental) {
+async function runTransactionLoop(userId, existingData, isIncremental, scanId) {
     let cursor = isIncremental ? null : existingData.scanCursor || null;
     let pagesChecked = 0;
     let foundMatch = false;
     let emptyPageCount = 0;
-    const seenTokens = new Set();
-
+    let internalErrorCount = 0;
+    const temporaryScan = isIncremental
+        ? createEmptyTransactionScan()
+        : normalizeTransactionScan(existingData.temporaryTransactions);
+    let latestTransactionHashes =
+        getStoredLatestTransactionHashes(existingData);
     let currentAggregated = {
         totals: existingData.totals || { totalSpent: 0, totalTransactions: 0 },
         creators: existingData.creators || {},
-        latestPurchaseTokens: existingData.latestPurchaseTokens || [],
+    };
+
+    const persistTransactionData = async (scanFinished) => {
+        const ownsLock = await refreshTransactionScanLock(userId, scanId);
+        if (!ownsLock) return false;
+
+        if (!isIncremental && scanFinished) {
+            currentAggregated = aggregateTemporaryTransactionScan(temporaryScan);
+        }
+
+        const storage = await chrome.storage.local.get([TRANSACTIONS_DATA_KEY]);
+        const allData = storage[TRANSACTIONS_DATA_KEY] || {};
+        const nextUserData = {
+            ...existingData,
+            ...currentAggregated,
+            latestTransactionHashes,
+            latestTransactionHash: latestTransactionHashes[0],
+            scanCursor: isIncremental ? null : cursor,
+            isFullyScanned: scanFinished,
+            isScanning: !scanFinished,
+            storageVersion: TRANSACTIONS_STORAGE_VERSION,
+            [isIncremental ? 'lastIncrementalCheck' : 'lastFullScan']:
+                Date.now(),
+        };
+
+        if (isIncremental || scanFinished) {
+            delete nextUserData.temporaryTransactions;
+        } else {
+            nextUserData.temporaryTransactions = temporaryScan;
+        }
+        delete nextUserData.latestPurchaseToken;
+        delete nextUserData.latestPurchaseTokens;
+
+        allData[userId] = nextUserData;
+        await chrome.storage.local.set({ [TRANSACTIONS_DATA_KEY]: allData });
+        return true;
     };
 
     while (true) {
-        const data = await fetchTransactionsPage(userId, cursor);
+        if (!(await refreshTransactionScanLock(userId, scanId))) break;
+
+        const page = await fetchTransactionsPage(userId, cursor);
+        if (!page) break;
+
+        if (page.internalError) {
+            internalErrorCount++;
+
+            if (internalErrorCount >= TRANSACTION_MAX_INTERNAL_ERRORS) {
+                console.warn(
+                    'RoValra: Treating repeated Roblox transaction internal errors as end of scan',
+                    {
+                        userId,
+                        cursor,
+                        status: page.status,
+                        internalErrorCount,
+                    },
+                );
+                await persistTransactionData(true);
+                break;
+            }
+
+            await sleep(
+                Math.max(
+                    TRANSACTION_REQUEST_DELAY,
+                    page.rateLimitDelay || 0,
+                ),
+            );
+            continue;
+        }
+
+        internalErrorCount = 0;
+        const data = page.body;
+
+        if (!data.data || data.data.length === 0) {
+            emptyPageCount++;
+            if (emptyPageCount >= 5 || !data.nextPageCursor) {
+                cursor = data.nextPageCursor;
+                await persistTransactionData(true);
+                break;
+            }
+            cursor = data.nextPageCursor;
+            continue;
+        }
+        emptyPageCount = 0;
+
+        const newBatch = [];
+        for (const tx of data.data) {
+            const processed = processTransaction(tx);
+            const uniqueKey = processed?.transactionIdHash;
+            if (!uniqueKey) continue;
+
+            if (
+                temporaryScan.totals.transactions[String(uniqueKey)] !==
+                undefined
+            ) {
+                continue;
+            }
+
+            if (
+                isIncremental &&
+                latestTransactionHashes.includes(String(uniqueKey))
+            ) {
+                foundMatch = true;
+                break;
+            }
+
+            addProcessedTransactionToScan(temporaryScan, processed);
+            newBatch.push(tx);
+        }
+
+        if (isIncremental) {
+            currentAggregated = mergeTransactionsIntoAggregated(
+                currentAggregated,
+                newBatch,
+            );
+        }
+
+        if (pagesChecked === 0) {
+            const firstTransactionHashes = data.data
+                .map((tx) => processTransaction(tx)?.transactionIdHash)
+                .filter(Boolean)
+                .map(String)
+                .slice(0, 2);
+
+            latestTransactionHashes = [
+                ...new Set([
+                    ...firstTransactionHashes,
+                    ...latestTransactionHashes,
+                ]),
+            ].slice(0, 2);
+        }
+
+        cursor = data.nextPageCursor;
+        pagesChecked++;
+        const scanFinished = isIncremental || !cursor;
+        if (!(await persistTransactionData(scanFinished))) break;
+
+        if (!cursor || foundMatch || (isIncremental && pagesChecked >= 5))
+            break;
+        await sleep(Math.max(TRANSACTION_REQUEST_DELAY, page.rateLimitDelay));
+    }
+
+    if (isIncremental && !foundMatch && pagesChecked >= 5) {
+        await runTransactionLoop(userId, currentAggregated, false, scanId);
+    }
+}
+
+// --- Badge Tracking ---
+
+async function fetchBadgesPage(userId, cursor = null) {
+    let endpoint = `/v1/users/${userId}/badges?limit=100&sortOrder=Desc`;
+    if (cursor) endpoint += `&cursor=${encodeURIComponent(cursor)}`;
+
+    while (true) {
+        try {
+            const response = await callRobloxApiBackground({
+                subdomain: 'badges',
+                endpoint,
+            });
+
+            if (response.status === 429) {
+                const resetSeconds = parseInt(
+                    response.headers.get('x-ratelimit-reset'),
+                    10,
+                );
+                const retryDelay = Number.isFinite(resetSeconds)
+                    ? Math.max(resetSeconds, 1) * 1000
+                    : 10000;
+                await new Promise((resolve) =>
+                    setTimeout(resolve, retryDelay),
+                );
+                continue;
+            }
+
+            if (!response.ok) return null;
+            return await response.json();
+        } catch (error) {
+            console.error('RoValra: Failed to fetch badges page', error);
+            return null;
+        }
+    }
+}
+
+function processBadge(badge) {
+    const badgeId = badge?.id;
+    const placeId = badge?.awarder?.id;
+
+    if (!badgeId || !placeId || badge?.enabled !== false) return null;
+
+    return {
+        badgeId: String(badgeId),
+        placeId: String(placeId),
+    };
+}
+
+function removeBadgeFromAggregated(aggregated, badgeId, placeId) {
+    delete aggregated.badges[badgeId];
+
+    const badgeIds = aggregated.places?.[placeId]?.badgeIds;
+    if (!badgeIds) return;
+
+    aggregated.places[placeId].badgeIds = badgeIds.filter(
+        (id) => id !== badgeId,
+    );
+
+    if (aggregated.places[placeId].badgeIds.length === 0) {
+        delete aggregated.places[placeId];
+    }
+}
+
+function mergeBadgesIntoAggregated(existingAggregated, rawBadges) {
+    const updated = existingAggregated || {
+        totals: { totalBadges: 0 },
+        badges: {},
+        places: {},
+    };
+
+    updated.totals = updated.totals || { totalBadges: 0 };
+    updated.badges = updated.badges || {};
+    updated.places = updated.places || {};
+
+    rawBadges.forEach((badge) => {
+        const rawBadgeId = badge?.id ? String(badge.id) : null;
+        const rawPlaceId = badge?.awarder?.id ? String(badge.awarder.id) : null;
+
+        if (rawBadgeId && rawPlaceId && badge?.enabled !== false) {
+            removeBadgeFromAggregated(updated, rawBadgeId, rawPlaceId);
+            return;
+        }
+
+        const processed = processBadge(badge);
+        if (!processed) return;
+
+        const { badgeId, placeId } = processed;
+        const isNewBadge = !updated.badges[badgeId];
+
+        updated.badges[badgeId] = processed;
+
+        if (!updated.places[placeId]) {
+            updated.places[placeId] = { badgeIds: [] };
+        }
+
+        if (!updated.places[placeId].badgeIds.includes(badgeId)) {
+            updated.places[placeId].badgeIds.push(badgeId);
+        }
+
+        if (isNewBadge) {
+            updated.totals.totalBadges += 1;
+        }
+    });
+
+    updated.totals.totalBadges = Object.keys(updated.badges).length;
+
+    return updated;
+}
+
+async function handleBackgroundBadgeScan(userId, options = {}) {
+    userId = String(userId);
+    const forceFullScan = !!options.forceFullScan;
+
+    if (state.badgeScanningUsers.has(userId)) return;
+    state.badgeScanningUsers.add(userId);
+
+    try {
+        const storage = await chrome.storage.local.get([BADGES_DATA_KEY]);
+        const allData = storage[BADGES_DATA_KEY] || {};
+        const userData = allData[userId] || {};
+        const needsStorageMigration =
+            userData.storageVersion !== BADGES_STORAGE_VERSION;
+
+        const now = Date.now();
+        if (userData.isFullyScanned && !needsStorageMigration) {
+            const lastFullBadgeCheck =
+                userData.lastFullBadgeCheck || userData.lastFullScan || 0;
+            const isFullBadgeCheckDue =
+                now - lastFullBadgeCheck >= BADGE_FULL_REFRESH_DURATION;
+
+            if (forceFullScan && !isFullBadgeCheckDue) return;
+
+            if (forceFullScan || isFullBadgeCheckDue) {
+                await runBadgeLoop(userId, userData, false, {
+                    resetCursor: true,
+                    timestampKey: 'lastFullBadgeCheck',
+                });
+                return;
+            }
+
+            const lastCheck =
+                userData.lastIncrementalCheck || userData.lastFullScan || 0;
+            if (now - lastCheck < BADGE_REFRESH_DURATION) return;
+
+            await runBadgeLoop(userId, userData, true);
+        } else {
+            await runBadgeLoop(
+                userId,
+                needsStorageMigration
+                    ? {
+                          ...userData,
+                          totals: { totalBadges: 0 },
+                          badges: {},
+                          places: {},
+                          scanCursor: null,
+                      }
+                    : userData,
+                false,
+            );
+        }
+    } finally {
+        state.badgeScanningUsers.delete(userId);
+    }
+}
+
+async function runBadgeLoop(userId, existingData, isIncremental, options = {}) {
+    let cursor =
+        isIncremental || options.resetCursor
+            ? null
+            : existingData.scanCursor || null;
+    let pagesChecked = 0;
+    let foundMatch = false;
+    let emptyPageCount = 0;
+    const seenBadgeIds = new Set();
+
+    let currentAggregated = {
+        totals: existingData.totals || { totalBadges: 0 },
+        badges: existingData.badges || {},
+        places: existingData.places || {},
+        latestBadgeIds: existingData.latestBadgeIds || [],
+    };
+
+    while (true) {
+        const data = await fetchBadgesPage(userId, cursor);
         if (!data) break;
 
         if (!data.data || data.data.length === 0) {
@@ -792,71 +1471,345 @@ async function runTransactionLoop(userId, existingData, isIncremental) {
         emptyPageCount = 0;
 
         const newBatch = [];
-        for (const tx of data.data) {
-            const uniqueKey =
-                tx.purchaseToken ||
-                tx.idHash ||
-                `${tx.created || ''}-${tx.amount || ''}-${tx.agent?.id || ''}-${tx.details?.id || tx.details?.place?.placeId || ''}`;
-            if (!uniqueKey || seenTokens.has(uniqueKey)) continue;
-            seenTokens.add(uniqueKey);
+        for (const badge of data.data) {
+            const badgeId = badge?.id ? String(badge.id) : null;
+            if (!badgeId || seenBadgeIds.has(badgeId)) continue;
+            seenBadgeIds.add(badgeId);
 
             if (
                 isIncremental &&
-                tx.purchaseToken &&
-                currentAggregated.latestPurchaseTokens.includes(
-                    tx.purchaseToken,
-                )
+                currentAggregated.latestBadgeIds.includes(badgeId)
             ) {
                 foundMatch = true;
                 break;
             }
-            newBatch.push(tx);
+
+            newBatch.push(badge);
         }
 
-        currentAggregated = mergeTransactionsIntoAggregated(
+        currentAggregated = mergeBadgesIntoAggregated(
             currentAggregated,
             newBatch,
         );
 
         if (pagesChecked === 0) {
-            const firstTokens = data.data
-                .map((tx) => tx.purchaseToken)
+            const firstBadgeIds = data.data
+                .map((badge) => (badge?.id ? String(badge.id) : null))
                 .filter(Boolean)
-                .slice(0, 2);
+                .slice(0, 10);
 
-            currentAggregated.latestPurchaseTokens = [
+            currentAggregated.latestBadgeIds = [
                 ...new Set([
-                    ...firstTokens,
-                    ...currentAggregated.latestPurchaseTokens,
+                    ...firstBadgeIds,
+                    ...currentAggregated.latestBadgeIds,
                 ]),
-            ].slice(0, 2);
+            ].slice(0, 10);
         }
 
         cursor = data.nextPageCursor;
         pagesChecked++;
 
-        const storage = await chrome.storage.local.get([TRANSACTIONS_DATA_KEY]);
-        const allData = storage[TRANSACTIONS_DATA_KEY] || {};
+        const storage = await chrome.storage.local.get([BADGES_DATA_KEY]);
+        const allData = storage[BADGES_DATA_KEY] || {};
+        const timestampKey =
+            options.timestampKey ||
+            (isIncremental ? 'lastIncrementalCheck' : 'lastFullScan');
+
         allData[userId] = {
             ...existingData,
             ...currentAggregated,
-            latestPurchaseToken: currentAggregated.latestPurchaseTokens[0],
+            latestBadgeId: currentAggregated.latestBadgeIds[0],
             scanCursor: isIncremental ? null : cursor,
             isFullyScanned: isIncremental || !cursor,
             isScanning: !isIncremental && !!cursor,
+            storageVersion: BADGES_STORAGE_VERSION,
+            [timestampKey]: Date.now(),
+        };
+        await chrome.storage.local.set({ [BADGES_DATA_KEY]: allData });
+
+        if (!cursor || foundMatch || (isIncremental && pagesChecked >= 10))
+            break;
+        await new Promise((r) => setTimeout(r, BADGE_REQUEST_DELAY));
+    }
+
+    if (isIncremental && !foundMatch && pagesChecked >= 10) {
+        await runBadgeLoop(userId, currentAggregated, false);
+    }
+}
+
+// --- Avatar Inventory Tracking ---
+
+async function fetchAvatarInventoryPage(sortOption, pageToken = null) {
+    let endpoint = `/v1/avatar-inventory?sortOption=${encodeURIComponent(sortOption)}&pageLimit=120`;
+    if (pageToken) endpoint += `&pageToken=${encodeURIComponent(pageToken)}`;
+
+    while (true) {
+        try {
+            const response = await callRobloxApiBackground({
+                subdomain: 'avatar',
+                endpoint,
+            });
+
+            if (response.status === 429) {
+                const resetSeconds = parseInt(
+                    response.headers.get('x-ratelimit-reset'),
+                    10,
+                );
+                const retryDelay = Number.isFinite(resetSeconds)
+                    ? Math.max(resetSeconds, 1) * 1000
+                    : 10000;
+                await new Promise((resolve) =>
+                    setTimeout(resolve, retryDelay),
+                );
+                continue;
+            }
+
+            if (!response.ok) return null;
+            return await response.json();
+        } catch (error) {
+            console.error(
+                'RoValra: Failed to fetch avatar inventory page',
+                error,
+            );
+            return null;
+        }
+    }
+}
+
+function getAvatarInventorySignature(item, timeField) {
+    const itemId = item?.itemId ? String(item.itemId) : null;
+    if (!itemId) return null;
+
+    return `${itemId}:${item?.[timeField] || ''}`;
+}
+
+function mergeAvatarInventoryIntoAggregated(
+    existingAggregated,
+    rawItems,
+    timeField,
+) {
+    const updated = existingAggregated || {
+        totals: { totalItems: 0 },
+        items: {},
+    };
+
+    updated.totals = updated.totals || { totalItems: 0 };
+    updated.items = updated.items || {};
+
+    rawItems.forEach((item) => {
+        const itemId = item?.itemId ? String(item.itemId) : null;
+        if (!itemId) return;
+
+        const existingItem = updated.items[itemId] || { itemId };
+        const isNewItem = !updated.items[itemId];
+
+        updated.items[itemId] = {
+            ...existingItem,
+            itemId,
+            itemName: item.itemName || existingItem.itemName || '',
+            availabilityStatus:
+                item.availabilityStatus ||
+                existingItem.availabilityStatus ||
+                '',
+            itemCategory: item.itemCategory || existingItem.itemCategory || {},
+            [timeField]: item[timeField] || existingItem[timeField] || null,
+        };
+
+        if (isNewItem) {
+            updated.totals.totalItems += 1;
+        }
+    });
+
+    return updated;
+}
+
+async function handleBackgroundAvatarInventoryScan(userId) {
+    userId = String(userId);
+
+    if (state.avatarInventoryScanningUsers.has(userId)) return;
+    state.avatarInventoryScanningUsers.add(userId);
+
+    try {
+        const storage = await chrome.storage.local.get([
+            AVATAR_INVENTORY_DATA_KEY,
+        ]);
+        const allData = storage[AVATAR_INVENTORY_DATA_KEY] || {};
+        const userData = allData[userId] || {};
+
+        const now = Date.now();
+        if (userData.isFullyScanned) {
+            const lastCheck =
+                userData.lastIncrementalCheck || userData.lastFullScan || 0;
+            if (now - lastCheck < AVATAR_INVENTORY_REFRESH_DURATION) return;
+
+            await runAvatarInventoryScan(userId, userData, true);
+        } else {
+            await runAvatarInventoryScan(userId, userData, false);
+        }
+    } finally {
+        state.avatarInventoryScanningUsers.delete(userId);
+    }
+}
+
+async function runAvatarInventoryScan(userId, existingData, isIncremental) {
+    let currentAggregated = {
+        totals: existingData.totals || { totalItems: 0 },
+        items: existingData.items || {},
+        scanCursors: existingData.scanCursors || {},
+        scanComplete: existingData.scanComplete || {},
+        latestRecentlyEquippedItems:
+            existingData.latestRecentlyEquippedItems || [],
+        latestRecentlyAddedItems: existingData.latestRecentlyAddedItems || [],
+    };
+
+    for (const [scanType, config] of Object.entries(
+        AVATAR_INVENTORY_SCAN_TYPES,
+    )) {
+        currentAggregated = await runAvatarInventoryLoopForType(
+            userId,
+            existingData,
+            currentAggregated,
+            scanType,
+            config,
+            isIncremental,
+        );
+    }
+}
+
+async function runAvatarInventoryLoopForType(
+    userId,
+    existingData,
+    currentAggregated,
+    scanType,
+    config,
+    isIncremental,
+) {
+    let cursor = isIncremental
+        ? null
+        : currentAggregated.scanCursors?.[scanType] || null;
+    let pagesChecked = 0;
+    let foundMatch = false;
+    let emptyPageCount = 0;
+    const seenSignatures = new Set();
+
+    while (true) {
+        const data = await fetchAvatarInventoryPage(
+            config.sortOption,
+            cursor,
+        );
+        if (!data) break;
+
+        const items = data.avatarInventoryItems || [];
+        if (items.length === 0) {
+            emptyPageCount++;
+            if (emptyPageCount >= 5 || !data.nextPageToken) break;
+            cursor = data.nextPageToken;
+            continue;
+        }
+        emptyPageCount = 0;
+
+        const newBatch = [];
+        for (const item of items) {
+            const signature = getAvatarInventorySignature(
+                item,
+                config.timeField,
+            );
+            if (!signature || seenSignatures.has(signature)) continue;
+            seenSignatures.add(signature);
+
+            if (
+                isIncremental &&
+                currentAggregated[config.latestKey].includes(signature)
+            ) {
+                foundMatch = true;
+                break;
+            }
+
+            newBatch.push(item);
+        }
+
+        currentAggregated = mergeAvatarInventoryIntoAggregated(
+            currentAggregated,
+            newBatch,
+            config.timeField,
+        );
+
+        if (pagesChecked === 0) {
+            const firstSignatures = items
+                .map((item) =>
+                    getAvatarInventorySignature(item, config.timeField),
+                )
+                .filter(Boolean)
+                .slice(0, 20);
+
+            currentAggregated[config.latestKey] = [
+                ...new Set([
+                    ...firstSignatures,
+                    ...currentAggregated[config.latestKey],
+                ]),
+            ].slice(0, 20);
+        }
+
+        cursor = data.nextPageToken;
+        pagesChecked++;
+
+        currentAggregated.scanCursors = {
+            ...(currentAggregated.scanCursors || {}),
+            [scanType]: isIncremental ? null : cursor,
+        };
+        currentAggregated.scanComplete = {
+            ...(currentAggregated.scanComplete || {}),
+            [scanType]: isIncremental || !cursor,
+        };
+
+        const scanComplete = currentAggregated.scanComplete || {};
+        const isFullyScanned = Object.keys(AVATAR_INVENTORY_SCAN_TYPES).every(
+            (key) => !!scanComplete[key],
+        );
+
+        const storage = await chrome.storage.local.get([
+            AVATAR_INVENTORY_DATA_KEY,
+        ]);
+        const allData = storage[AVATAR_INVENTORY_DATA_KEY] || {};
+        allData[userId] = {
+            ...existingData,
+            ...currentAggregated,
+            isFullyScanned,
+            isScanning: !isIncremental && !isFullyScanned,
             [isIncremental ? 'lastIncrementalCheck' : 'lastFullScan']:
                 Date.now(),
         };
-        await chrome.storage.local.set({ [TRANSACTIONS_DATA_KEY]: allData });
+        await chrome.storage.local.set({
+            [AVATAR_INVENTORY_DATA_KEY]: allData,
+        });
 
         if (!cursor || foundMatch || (isIncremental && pagesChecked >= 5))
             break;
-        await new Promise((r) => setTimeout(r, TRANSACTION_REQUEST_DELAY));
+        await new Promise((r) =>
+            setTimeout(r, AVATAR_INVENTORY_REQUEST_DELAY),
+        );
     }
 
     if (isIncremental && !foundMatch && pagesChecked >= 5) {
-        await runTransactionLoop(userId, currentAggregated, false);
+        currentAggregated.scanCursors = {
+            ...(currentAggregated.scanCursors || {}),
+            [scanType]: null,
+        };
+        currentAggregated.scanComplete = {
+            ...(currentAggregated.scanComplete || {}),
+            [scanType]: false,
+        };
+        return runAvatarInventoryLoopForType(
+            userId,
+            existingData,
+            currentAggregated,
+            scanType,
+            config,
+            false,
+        );
     }
+
+    return currentAggregated;
 }
 
 // --- Event Listeners ---
@@ -967,6 +1920,16 @@ chrome.permissions.onRemoved.addListener((permissions) => {
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     switch (request.action) {
+        case 'fetchJson':
+            fetch(request.url)
+                .then((res) => {
+                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                    return res.json();
+                })
+                .then((data) => sendResponse({ data }))
+                .catch((err) => sendResponse({ error: err.message }));
+            return true;
+
         case 'updateOfflineRule':
             chrome.declarativeNetRequest.updateEnabledRulesets(
                 request.enabled
@@ -1085,6 +2048,18 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                     clearInterval(state.transactionInterval);
                     state.transactionInterval = null;
                 }
+                if (state.badgeInterval) {
+                    clearInterval(state.badgeInterval);
+                    state.badgeInterval = null;
+                }
+                if (state.badgeFullScanInterval) {
+                    clearInterval(state.badgeFullScanInterval);
+                    state.badgeFullScanInterval = null;
+                }
+                if (state.avatarInventoryInterval) {
+                    clearInterval(state.avatarInventoryInterval);
+                    state.avatarInventoryInterval = null;
+                }
 
                 chrome.storage.local.get(
                     { TotalSpentGamesEnabled: true },
@@ -1101,11 +2076,36 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                         }
                     },
                 );
+
+                handleBackgroundBadgeScan(state.currentUserId);
+                state.badgeInterval = setInterval(() => {
+                    handleBackgroundBadgeScan(state.currentUserId);
+                }, BADGE_REFRESH_DURATION);
+                state.badgeFullScanInterval = setInterval(() => {
+                    handleBackgroundBadgeScan(state.currentUserId, {
+                        forceFullScan: true,
+                    });
+                }, BADGE_FULL_REFRESH_DURATION);
+
+                handleBackgroundAvatarInventoryScan(state.currentUserId);
+                state.avatarInventoryInterval = setInterval(() => {
+                    handleBackgroundAvatarInventoryScan(state.currentUserId);
+                }, AVATAR_INVENTORY_REFRESH_DURATION);
             }
             return false;
 
         case 'triggerTransactionScan':
             handleBackgroundTransactionScan(request.userId);
+            return false;
+
+        case 'triggerBadgeScan':
+            handleBackgroundBadgeScan(request.userId, {
+                forceFullScan: !!request.forceFullScan,
+            });
+            return false;
+
+        case 'triggerAvatarInventoryScan':
+            handleBackgroundAvatarInventoryScan(request.userId);
             return false;
 
         case 'getBannedUserRedirect': {
