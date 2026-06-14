@@ -3,6 +3,7 @@ import { detectTheme, dispatchThemeEvent } from './core/theme.js';
 import { getValidAccessToken } from './core/oauth/oauth.js';
 import { startAuthFavoriteCleanupMonitor } from './core/oauth/fallback.js';
 import { t } from './core/locale/i18n.js';
+import { init as runClassFeatures } from './core/defineFeature/loadFeat.js';
 // Site wide
 import { init as initOnboarding } from './features/onboarding/onboarding.js';
 import { init as initWhatAmIJoining } from './features/games/revertlogo.js';
@@ -36,7 +37,6 @@ import { init as initCustomFont } from './features/sitewide/customFont.js';
 import { init as initTransactionsLink } from './features/navigation/transactionslink.js';
 import { initializeModernIcons as initModernIcons } from './features/sitewide/modernIcons.js';
 import { init as initLoginBanner } from './features/scamprevention/loginBanner.js';
-import { init as initLessPlus } from './features/sitewide/lessPlus.js';
 import { init as initKidsTheme } from './features/sitewide/kidsTheme.js';
 import { init as initSidebarCollapse } from './features/sitewide/sidebarCollapse.js';
 import { init as initRemoveDownloadButton } from './features/sitewide/removeDownloadButton.js';
@@ -187,7 +187,6 @@ const featureRoutes = [
             initPurchasePromptItemId,
             initUrlTracker,
             initModernIcons,
-            initLessPlus,
             initKidsTheme,
             initSidebarCollapse,
             initRemoveDownloadButton,
@@ -428,6 +427,7 @@ async function initializePage() {
         await enforceSettingOverrides();
         detectTheme().then((theme) => dispatchThemeEvent(theme));
         runFeaturesForPage();
+        await runClassFeatures();
 
         const endTime = performance.now();
 

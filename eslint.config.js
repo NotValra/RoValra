@@ -4,6 +4,7 @@ import prettierConfig from 'eslint-config-prettier';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import tsParser from '@typescript-eslint/parser';
 
 const baseRestrictedSyntax = [
     {
@@ -188,6 +189,10 @@ export default [
                 ...globals.webextensions,
                 angular: 'readonly',
             },
+            parser: tsParser,
+            parserOptions: {
+                experimentalDecorators: true,
+            }
         },
         plugins: {
             rovalra: customPlugin,
