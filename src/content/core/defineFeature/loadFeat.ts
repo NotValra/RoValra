@@ -9,7 +9,6 @@ let features: Array<Feature> = [];
 function prepare() {
     for (const feat of getAllFeatures()) {
         const instance = new feat.cl();
-        console.error(`preparing ${feat.name}`);
         features.push({
             paths: feat.paths,
             name: feat.name,
@@ -53,7 +52,6 @@ async function initFeatures() {
 }
 
 export async function init() {
-    console.error(`init`);
     prepare();
     await initFeatures();
 }

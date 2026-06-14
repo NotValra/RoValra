@@ -23,7 +23,6 @@ export class LessPlus {
     }
 
     async onDOMLoaded() {
-        console.log(`lessplus dom loaded`);
         if (this.plusType >= plusTypeEnum.Reduced) {
             const _RobloxPlusButtonA = document.querySelectorAll(
                 "#left-navigation-container .left-nav div a[href='https://www.roblox.com/plus']",
