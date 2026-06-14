@@ -5,8 +5,6 @@ import { createDropdown } from '../../../core/ui/dropdown.js';
 
 import { getOrCreateRovalraContainer } from './rap.js';
 import { createProfileHeaderButton } from '../../../core/ui/profile/header/button.js';
-import DOMPurify from 'dompurify';
-import { getAuthenticatedUsername } from '../../../core/user.js';
 import { ts } from '../../../core/locale/i18n.js';
 import { getUserIdFromUrl } from '../../../core/idExtractor.js';
 import { callRobloxApi } from '../../../core/api.js';
@@ -43,7 +41,7 @@ async function fetchWithRetry(options) {
             }
 
             return response;
-        } catch (err) {
+        } catch {
             if (i >= CONFIG.RETRY.MAX_ATTEMPTS) return null;
             await new Promise((r) => setTimeout(r, delay));
             delay *= 2;
@@ -135,12 +133,13 @@ async function fetchUserGames(userId) {
 async function fetchGamePassesForUniverse(universeId) {
     let allGamePasses = [];
     let cursor = null;
+    const pageSize = 100;
 
     try {
         do {
             const response = await fetchWithRetry({
                 subdomain: 'apis',
-                endpoint: `/game-passes/v1/universes/${universeId}/game-passes?pageSize=100&passView=Full${cursor ? `&pageToken=${cursor}` : ''}`,
+                endpoint: `/game-passes/v1/universes/${universeId}/game-passes?pageSize=${pageSize}&passView=Full${cursor ? `&pageToken=${cursor}` : ''}`,
                 method: 'GET',
             });
 
@@ -396,7 +395,6 @@ async function showGamePassSelectionOverlay(userId, username) {
 }
 
 async function addDonationButton(observedElement) {
-    const autheduser = await getAuthenticatedUsername();
     const username = await getUsernameFromPageData();
     const buttonIdentifier = 'rovalra-donation-button';
     const targetContainer = getOrCreateRovalraContainer(observedElement);

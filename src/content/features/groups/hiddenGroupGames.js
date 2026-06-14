@@ -507,7 +507,6 @@ export function init() {
                 [btn],
             );
 
-            currentBtn = container;
             ensureSingleButton();
 
             const description = header.querySelector('.description-container');

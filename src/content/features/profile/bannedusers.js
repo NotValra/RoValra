@@ -240,7 +240,7 @@ export function init() {
     );
 }
 
-async function renderBannedUserProfile(user, settings) {
+async function renderBannedUserProfile(user) {
     const content = document.getElementById('content');
     if (!content) return;
 
@@ -582,7 +582,7 @@ async function loadStats(userId) {
             'rovalra-banned-following-count',
             followingsRes?.count || 0,
         );
-    } catch (e) {}
+    } catch {}
 }
 
 async function loadCurrentlyWearing(userId) {
@@ -659,7 +659,7 @@ async function loadCurrentlyWearing(userId) {
         } else {
             assetIds.forEach((id) => addItemToCategoryView(null, id));
         }
-    } catch (e) {}
+    } catch {}
 }
 
 async function loadStore(userId, creatorName) {
@@ -737,7 +737,7 @@ async function loadStore(userId, creatorName) {
             wrapper.appendChild(card);
             storeList.appendChild(wrapper);
         });
-    } catch (e) {}
+    } catch {}
 }
 
 async function loadFavorites(userId) {
@@ -793,7 +793,7 @@ async function loadFavorites(userId) {
             itemWrapper.appendChild(card);
             favoritesList.appendChild(itemWrapper);
         });
-    } catch (e) {}
+    } catch {}
 }
 
 async function loadFriends(userId) {
@@ -887,7 +887,7 @@ async function loadFriends(userId) {
             });
             friendsList.appendChild(tile);
         });
-    } catch (e) {}
+    } catch {}
 }
 
 async function loadGroups(userId) {
@@ -1027,7 +1027,7 @@ async function loadGroups(userId) {
         });
 
         setTimeout(() => updateButtonStates(leftButton, rightButton), 100);
-    } catch (e) {}
+    } catch {}
 }
 
 async function loadBadges(userId) {
@@ -1098,7 +1098,7 @@ async function loadBadges(userId) {
             li.querySelector('.thumbnail-2d-container').appendChild(thumbEl);
             badgesList.appendChild(li);
         });
-    } catch (e) {}
+    } catch {}
 }
 
 async function loadExperiences(userId) {
@@ -1140,5 +1140,5 @@ async function loadExperiences(userId) {
         } else {
             creationsList.innerHTML = `<p class="no-results-message">${ts('bannedUsers.noExperiences')}</p>`; //Verified
         }
-    } catch (e) {}
+    } catch {}
 }

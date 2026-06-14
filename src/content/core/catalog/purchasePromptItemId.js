@@ -1,6 +1,5 @@
 import { observeElement, observeChildren } from '../observer.js';
 import { getPlaceIdFromUrl } from '../idExtractor.js';
-import { callRobloxApiJson } from '../api.js';
 import { getItemDetails } from './itemPrice.js';
 
 export const getUniverseId = () => {

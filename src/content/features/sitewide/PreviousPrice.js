@@ -206,7 +206,7 @@ export function init() {
                             }
                         }
                     }
-                } catch (err) {
+                } catch {
                     // Fail silently
                 }
             }

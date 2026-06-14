@@ -1,6 +1,5 @@
 // adds information about servers
 
-import { callRobloxApi } from '../../api.js';
 import { observeElement } from '../../observer.js';
 import { loadDatacenterMap, datacenterList } from '../../regions.js';
 import { getPlaceIdFromUrl } from '../../idExtractor.js';

@@ -85,7 +85,7 @@ function createServerItem(serverData, userThumbnailUrl, userId) {
     return serverItem;
 }
 
-function createModernServerItem(serverData, userThumbnailUrl, userId) {
+function createModernServerItem(serverData, userThumbnailUrl) {
     const { presence, timestamp } = serverData;
     const serverItem = document.createElement('div');
     serverItem.className =
@@ -184,7 +184,7 @@ async function checkServerIsActive(placeId, gameId) {
         }
 
         return false;
-    } catch (error) {
+    } catch {
         return false;
     }
 }
@@ -484,7 +484,7 @@ async function renderRecentServers(section) {
             const noServers = document.createElement('div');
             noServers.className =
                 'section-content-off empty-game-instances-container';
-            noServers.innerHTML = `<p class="no-servers-message">${await t('recentServers.noneFound')}</p>`;
+            noServers.innerHTML = `<p class="no-servers-message">${await t('recentServers.noneFound')}</p>`;  // Verified
             gridContainer.appendChild(noServers);
             return;
         }
@@ -504,7 +504,7 @@ async function renderRecentServers(section) {
             const noActive = document.createElement('div');
             noActive.className =
                 'section-content-off empty-game-instances-container';
-            noActive.innerHTML = `<p class="no-servers-message">${await t('recentServers.noActiveFound')}</p>`;
+            noActive.innerHTML = `<p class="no-servers-message">${await t('recentServers.noActiveFound')}</p>`;  // Verified
             gridContainer.appendChild(noActive);
             return;
         }
@@ -569,7 +569,7 @@ async function renderRecentServers(section) {
                                 const noActive = document.createElement('div');
                                 noActive.className =
                                     'section-content-off empty-game-instances-container';
-                                noActive.innerHTML = `<p class="no-servers-message">${ts('recentServers.noActiveFound')}</p>`;
+                                noActive.innerHTML = `<p class="no-servers-message">${ts('recentServers.noActiveFound')}</p>`;  // Verified
                                 gridContainer.appendChild(noActive);
                             }
                             if (obsReq) obsReq.active = false;

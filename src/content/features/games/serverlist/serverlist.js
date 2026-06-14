@@ -32,7 +32,6 @@ import {
     createInfoElement,
 } from '../../../core/games/servers/serverdetails.js';
 import { createUUID } from '../../../core/apis/serverApi.js';
-import { addModernPrivateServerControls } from '../privateserver.js';
 
 const SHARED_STYLES = `
     #rovalra-main-controls {
@@ -263,7 +262,7 @@ async function isServerActive(placeId, gameId) {
         if (!response.ok) return false;
         const data = await response.json();
         return data.status === 2 || data.status === 22;
-    } catch (e) {
+    } catch {
         return false;
     }
 }
@@ -321,14 +320,14 @@ function safeInitAll() {
     try {
         if (typeof loadDatacenterMap === 'function')
             loadDatacenterMap().catch(() => {});
-    } catch (e) {}
+    } catch {}
     try {
         if (typeof initServerIdExtraction === 'function')
             initServerIdExtraction();
-    } catch (e) {}
+    } catch {}
     try {
         if (typeof initGlobalStatsBar === 'function') initGlobalStatsBar();
-    } catch (e) {}
+    } catch {}
 
     startController();
 }
@@ -358,17 +357,17 @@ function createFilterUI(parentContainer) {
             try {
                 if (typeof initVersionFilters === 'function')
                     initVersionFilters();
-            } catch (e) {}
+            } catch {}
         if (filters.uptime)
             try {
                 if (typeof initUptimeFilters === 'function')
                     initUptimeFilters();
-            } catch (e) {}
+            } catch {}
         if (filters.region)
             try {
                 if (typeof initRegionFilters === 'function')
                     initRegionFilters();
-            } catch (e) {}
+            } catch {}
     }
 
     createClearButton(container);
@@ -625,7 +624,7 @@ function startController() {
 
     try {
         if (typeof startObserving === 'function') startObserving();
-    } catch (e) {}
+    } catch {}
 
     loadServerIpMap()
         .then(() => {
@@ -712,7 +711,7 @@ async function loadServerIpMap() {
     try {
         if (typeof loadDatacenterMap === 'function') await loadDatacenterMap();
         _state.serverIpMap = serverIpMap;
-    } catch (e) {}
+    } catch {}
 
     _state.serverIpMap = null;
 }
@@ -731,7 +730,7 @@ export function processUptimeBatch() {
             _state.serverLocations,
             _state.serverUptimes,
         ).catch(() => {});
-    } catch (e) {}
+    } catch {}
 }
 async function getReactServerId(element) {
     return new Promise((resolve) => {
@@ -894,7 +893,7 @@ function initializeEnhancementObserver() {
                     serverIpMap: _state.serverIpMap,
                     processUptimeBatch,
                 }).catch(() => {});
-            } catch (e) {}
+            } catch {}
             scheduleUptime();
         },
         { multiple: true },
@@ -970,15 +969,15 @@ try {
                                         fps,
                                         _state.serverLocations,
                                     );
-                                } catch (e) {}
+                                } catch {}
                             }
                         }
                     }
                 }
             })();
-        } catch (e) {}
+        } catch {}
     });
-} catch (e) {}
+} catch {}
 
 export async function createServerCardFromRobloxApi(server, placeId) {
     try {
@@ -1047,7 +1046,7 @@ export async function createServerCardFromRobloxApi(server, placeId) {
         try {
             serverItem._rovalraApiData = server;
             serverItem.setAttribute('data-rovalra-api', '1');
-        } catch (e) {}
+        } catch {}
 
         if (typeof server.fps === 'number') {
             _state.serverPerformanceCache[serverId] = server.fps;
@@ -1055,7 +1054,7 @@ export async function createServerCardFromRobloxApi(server, placeId) {
 
         enhanceServer(serverItem, _state);
         return serverItem;
-    } catch (e) {
+    } catch {
         return null;
     }
 }
@@ -1130,7 +1129,7 @@ export async function createServerCardFromApi(server, placeId = '') {
                 if (remainingCount > 0) {
                     thumbnailsHTML += `<span class="avatar avatar-headshot-md player-avatar hidden-players-placeholder">+${remainingCount}</span>`;
                 }
-            } catch (e) {}
+            } catch {}
         } else if (!hasPlayerCount || server.playing > 0) {
             let tokensToFetch = [];
             let fetchCount = displayLimit;
@@ -1190,7 +1189,7 @@ export async function createServerCardFromApi(server, placeId = '') {
                             return `<span class="avatar avatar-headshot-md player-avatar"><span class="thumbnail-2d-container avatar-card-image"><img src="${src}" alt="Player"></span></span>`;
                         })
                         .join('');
-                } catch (e) {}
+                } catch {}
             }
             if (addPlaceholder) {
                 thumbnailsHTML += `<span class="avatar avatar-headshot-md player-avatar hidden-players-placeholder">+${remainingCount}</span>`;
@@ -1271,10 +1270,10 @@ export async function createServerCardFromApi(server, placeId = '') {
         try {
             serverItem._rovalraApiData = server;
             serverItem.setAttribute('data-rovalra-api', '1');
-        } catch (e) {}
+        } catch {}
         enhanceServer(serverItem, _state);
         return serverItem;
-    } catch (e) {
+    } catch {
         return null;
     }
 }

@@ -47,7 +47,7 @@ async function fetchAndRenderTradePreview(tradeId, row) {
                     data = await response.json();
                     tradeDetailsCache.set(tradeId, data);
                 }
-            } catch (e) {
+            } catch {
                 return;
             }
         }

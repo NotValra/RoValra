@@ -73,7 +73,7 @@ export function init() {
                     } else {
                         sessionStorage.removeItem('rovalra_streamermode');
                     }
-                } catch (e) {}
+                } catch {}
 
                 isHideRobuxEnabled =
                     data.streamermode && data.hideRobux === true;

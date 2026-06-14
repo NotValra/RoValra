@@ -4,6 +4,7 @@ import prettierConfig from 'eslint-config-prettier';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import unusedImports from 'eslint-plugin-unused-imports';
 
 const baseRestrictedSyntax = [
     {
@@ -191,9 +192,20 @@ export default [
         },
         plugins: {
             rovalra: customPlugin,
+            'unused-imports': unusedImports,
         },
         rules: {
-            'no-unused-vars': 'warn',
+            'no-unused-vars': 'off',
+            'unused-imports/no-unused-imports': 'error',
+            'unused-imports/no-unused-vars': [
+                'warn',
+                {
+                    vars: 'all',
+                    varsIgnorePattern: '^_',
+                    args: 'after-used',
+                    argsIgnorePattern: '^_',
+                },
+            ],
             'no-empty': ['error', { allowEmptyCatch: true }],
             'rovalra/restricted-syntax-verified': [
                 'error',

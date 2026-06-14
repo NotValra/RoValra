@@ -71,7 +71,7 @@ async function checkUserPermissions() {
             lastChecked: now,
         };
         return userPermissions;
-    } catch (error) {
+    } catch {
         return { canBan: false, canKick: false };
     }
 }
@@ -442,7 +442,7 @@ function createMemberCard(member, thumbnail, isBot = false) {
     container.append(radio, content);
     li.appendChild(container);
 
-    li.addEventListener('click', (e) => {
+    li.addEventListener('click', () => {
         const currentState = radio.getAttribute('aria-checked') === 'true';
         radio.setChecked(!currentState);
         li.classList.toggle('selected', !currentState);
@@ -989,7 +989,7 @@ async function addFeatureButtons(searchContainer) {
                     }
                 }
                 if (membersTitleElement)
-                    membersTitleElement.innerHTML = `<span class="spinner spinner-dots" style="width:24px;height:24px;"></span> ${await t('antiBots.finalizingAnalysis')}`;
+                    membersTitleElement.innerHTML = `<span class="spinner spinner-dots" style="width:24px;height:24px;"></span> ${await t('antiBots.finalizingAnalysis')}`;  // Verified
                 await Promise.all(imageProcessingTasks);
 
                 if (signal.aborted) throw new Error('Aborted');

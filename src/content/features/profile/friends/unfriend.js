@@ -55,7 +55,7 @@ async function unfriendUser(userId, attempt = 1) {
         throw new Error(
             `trusted-friends API returned: ${statusResult?.status || statusResponse.status}`,
         );
-    } catch (error) {
+    } catch {
         if (attempt < MAX_RETRIES) {
             await new Promise((resolve) =>
                 setTimeout(resolve, RETRY_DELAY * attempt),
@@ -479,7 +479,7 @@ function handleCardClick(e) {
     }
 }
 
-function addSelectionCheckboxToCard(card, friendId) {
+function addSelectionCheckboxToCard(card) {
     if (card.querySelector('.rovalra-unfriend-radio')) return;
 
     const contentContainer = card.querySelector('.avatar-card-content');

@@ -16,7 +16,12 @@ import { ensureTouAgreement } from '../../../core/ui/tou/touAgreement.js';
 import { parseUntrustedMarkdown } from '../../../core/utils/markdown.js';
 import { migrateLegacyStatus } from '../../../core/profile/descriptionhandler.js';
 import DOMPurify from 'dompurify';
-import { TRUSTED_USER_IDS } from '../../../core/configs/userIds.js';
+import {
+    TRUSTED_USER_IDS,
+} from '../../../core/configs/userIds.js';
+import {
+    syncDonatorTier,
+} from '../../../core/settings/handlesettings.js';
 import {
     onUserCardElement,
     observeUserCardElements,
@@ -49,7 +54,7 @@ function cleanupStatusElements(container) {
                 element.load();
             }
             element.remove();
-        } catch (e) {}
+        } catch {}
     }
 }
 
@@ -75,7 +80,7 @@ DOMPurify.addHook('afterSanitizeAttributes', (currentNode) => {
                 currentNode.style.cursor = 'text';
                 currentNode.style.pointerEvents = 'none';
             }
-        } catch (e) {}
+        } catch {}
     }
 
     if (currentNode.tagName === 'IMG' && currentNode.hasAttribute('src')) {
@@ -89,7 +94,7 @@ DOMPurify.addHook('afterSanitizeAttributes', (currentNode) => {
             ) {
                 currentNode.removeAttribute('src');
             }
-        } catch (e) {}
+        } catch {}
     }
 });
 
