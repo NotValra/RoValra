@@ -2,7 +2,9 @@ import { getAllFeatures } from "./defFeat";
 import { debugVerbose } from "../debug";
 import * as _featList from "./featList";
 
-let features: Array<{paths: Array<string>, name: string, feat: any | unknown}> = [];
+type Feature = {paths: Array<string>, name: string, feat: any | unknown};
+
+let features: Array<Feature> = [];
 
 function prepare() {
     for (const feat of getAllFeatures()) {
@@ -43,7 +45,7 @@ async function initFeatures() {
                 window.addEventListener('DOMContentLoaded', (...args: unknown[]) => featureData.feat.onDOMLoaded(...args));
 
             if (typeof featureData.feat.onPageLoaded === 'function')
-                window.addEventListener('DOMContentLoaded', (...args: unknown[]) => featureData.feat.onPageLoaded(...args));
+                window.addEventListener('load', (...args: unknown[]) => featureData.feat.onPageLoaded(...args));
         })());
     }
 
