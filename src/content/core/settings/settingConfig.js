@@ -209,6 +209,7 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
+                contributors: ['447170745', '8345351117'],
                 childSettings: {
                     AlwaysGetInfo: {
                         label: 'Always Get Server Info',
