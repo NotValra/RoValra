@@ -8,6 +8,34 @@ import { getAssets } from '../../core/assets.js';
 
 let currentItemId = null;
 
+const BANNER_ID = 'rovalra-catalog-notice-banner';
+const ITEM_BUNDLES_SELECTOR = '.content #item-bundles';
+
+function clearCatalogBanner() {
+    const banner = document.getElementById(BANNER_ID);
+    if (!banner) return;
+
+    banner.innerHTML = '';
+    banner.removeAttribute('style');
+    banner.classList.remove('rovalra-banner-compact');
+}
+
+function hasNativeItemBundles() {
+    return !!document.querySelector(ITEM_BUNDLES_SELECTOR);
+}
+
+function observeNativeItemBundles(itemId) {
+    observeElement(ITEM_BUNDLES_SELECTOR, () => {
+        if (currentItemId !== itemId) return;
+        clearCatalogBanner();
+    });
+
+    observeElement(`#${BANNER_ID}`, () => {
+        if (currentItemId !== itemId) return;
+        if (hasNativeItemBundles()) clearCatalogBanner();
+    });
+}
+
 export function init() {
     chrome.storage.local.get(
         { ParentItemsEnabled: false },
@@ -16,14 +44,7 @@ export function init() {
 
             const itemId = getPlaceIdFromUrl();
 
-            const banner = document.getElementById(
-                'rovalra-catalog-notice-banner',
-            );
-            if (banner) {
-                banner.innerHTML = '';
-                banner.removeAttribute('style');
-                banner.classList.remove('rovalra-banner-compact');
-            }
+            clearCatalogBanner();
 
             if (!itemId) {
                 currentItemId = null;
@@ -38,6 +59,7 @@ export function init() {
             currentItemId = itemId;
 
             initBanner();
+            observeNativeItemBundles(itemId);
 
             try {
                 const response = await callRobloxApi({
@@ -50,19 +72,10 @@ export function init() {
 
                 const data = await response.json();
 
-                observeElement('.content #item-bundles', () => {
-                    if (currentItemId !== itemId) return;
-                    const banner = document.getElementById(
-                        'rovalra-catalog-notice-banner',
-                    );
-                    if (banner) {
-                        banner.innerHTML = '';
-                        banner.removeAttribute('style');
-                        banner.classList.remove('rovalra-banner-compact');
-                    }
-                });
-
-                if (document.querySelector('.content #item-bundles')) return;
+                if (hasNativeItemBundles()) {
+                    clearCatalogBanner();
+                    return;
+                }
 
                 if (data && data.data && data.data.length > 0) {
                     if (data.data.length > 1) {
@@ -72,9 +85,13 @@ export function init() {
                         );
 
                         observeElement(
-                            '#rovalra-catalog-notice-banner',
+                            `#${BANNER_ID}`,
                             (banner) => {
                                 if (currentItemId !== itemId) return;
+                                if (hasNativeItemBundles()) {
+                                    clearCatalogBanner();
+                                    return;
+                                }
 
                                 if (window.CatalogBannerManager) {
                                     if (
@@ -123,9 +140,13 @@ export function init() {
                     if (currentItemId !== itemId) return;
 
                     observeElement(
-                        '#rovalra-catalog-notice-banner',
+                        `#${BANNER_ID}`,
                         (banner) => {
                             if (currentItemId !== itemId) return;
+                            if (hasNativeItemBundles()) {
+                                clearCatalogBanner();
+                                return;
+                            }
 
                             if (window.CatalogBannerManager) {
                                 const bundleUrl = `https://www.roblox.com/bundles/${bundle.id}/${encodeURIComponent(bundle.name)}`;

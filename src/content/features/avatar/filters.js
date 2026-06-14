@@ -33,8 +33,81 @@ export function init() {
             let scanQueue = new Set();
             let scanQueueTimer = null;
             let activeObservers = [];
+            let observerBootstrapped = false;
+            let ensureUITimer = null;
+            let observedLists = new WeakSet();
 
        
+            function isElementVisible(element) {
+                if (!element) return false;
+                const style = window.getComputedStyle(element);
+                if (style.display === 'none' || style.visibility === 'hidden') return false;
+
+                const rect = element.getBoundingClientRect();
+                return rect.width > 0 && rect.height > 0;
+            }
+
+            function getAvatarRoot() {
+                return document.getElementById('avatar-react-container') || document.body;
+            }
+
+            function getActiveAvatarPane() {
+                const activePane = document.querySelector('.tab-pane.active');
+                if (activePane && activePane.querySelector('ul.item-cards-stackable, li.list-item')) {
+                    return activePane;
+                }
+
+                const avatarRoot = getAvatarRoot();
+                const visibleList = Array.from(avatarRoot.querySelectorAll('ul.item-cards-stackable'))
+                    .find((list) => isElementVisible(list) && !list.closest('#rovalra-fx-container'));
+
+                if (!visibleList) return activePane || null;
+
+                return visibleList.closest('.tab-pane, [role="tabpanel"], [data-testid*="tab"]') || visibleList.parentElement;
+            }
+
+            function getActiveAvatarList(pane = getActiveAvatarPane()) {
+                if (!pane) return null;
+
+                const visibleList = Array.from(pane.querySelectorAll('ul.item-cards-stackable'))
+                    .find((list) => isElementVisible(list) && !list.closest('#rovalra-fx-container'));
+
+                return visibleList || pane.querySelector('ul.item-cards-stackable');
+            }
+
+            function getActiveCategoryKey(pane = getActiveAvatarPane()) {
+                return window.location.hash || pane?.id || pane?.getAttribute('aria-labelledby') || pane?.dataset?.category || '';
+            }
+
+            function scheduleEnsureUI(delay = 100) {
+                if (ensureUITimer) clearTimeout(ensureUITimer);
+                ensureUITimer = setTimeout(() => {
+                    ensureUITimer = null;
+                    ensureUIInActiveTab();
+                    triggerDomUpdate();
+                }, delay);
+            }
+
+            function getAssetIdFromCard(card) {
+                const thumb = card.querySelector('[data-thumbnail-target-id]');
+                const directId = thumb?.getAttribute('data-thumbnail-target-id') ||
+                    card.getAttribute('data-item-id') ||
+                    card.dataset?.itemId ||
+                    card.dataset?.assetId;
+
+                const parsedDirectId = parseInt(directId, 10);
+                if (parsedDirectId) return parsedDirectId;
+
+                const itemLink = card.querySelector('a[href*="/catalog/"], a[href*="/library/"]');
+                const linkMatch = itemLink?.href?.match(/\/(?:catalog|library)\/(\d+)/);
+                return linkMatch ? parseInt(linkMatch[1], 10) : null;
+            }
+
+            function getCardName(card) {
+                const nameContainer = card.querySelector('[data-item-name], .item-card-name, .item-card-thumb-container, a[href*="/catalog/"]');
+                return nameContainer ? (nameContainer.dataset.itemName || nameContainer.getAttribute('data-item-name') || nameContainer.textContent || '') : '';
+            }
+
             function analyzeAssetTree(roots) {
                 const detectedEffects = new Set();
                 if (!roots || !Array.isArray(roots)) return detectedEffects;
@@ -99,15 +172,21 @@ export function init() {
                     domUpdateAnimationFrame = null;
                 }
 
+                if (ensureUITimer) {
+                    clearTimeout(ensureUITimer);
+                    ensureUITimer = null;
+                }
+
                 itemDataCache = new Map();
                 domMetadata = new WeakMap(); 
+                observedLists = new WeakSet();
                 
                 selectedFilters.clear();
                 priceFilter = { min: { active: false, value: null }, max: { active: false, value: null } };
                 availabilityFilter = 'all';
                 creatorFilter = { active: false, name: '' };
                 
-                activeCategoryHash = window.location.hash;
+                activeCategoryHash = getActiveCategoryKey();
 
                 document.querySelectorAll('.rovalra-filtering-enabled').forEach(el => {
                     el.classList.remove('rovalra-filtering-enabled');
@@ -255,14 +334,14 @@ export function init() {
                 const spinner = document.getElementById('rovalra-filter-loading');
                 if (spinner) spinner.style.display = 'none';
 
-                const activeTabPane = document.querySelector('.tab-pane.active');
+                const activeTabPane = getActiveAvatarPane();
                 if (!activeTabPane) return;
 
                 const searchInput = document.getElementById('rovalra-fx-search-bar');
                 const searchTerm = searchInput ? searchInput.value.trim().toLowerCase() : '';
                 const active = isFilteringActive();
 
-                const listContainer = activeTabPane.querySelector('ul.item-cards-stackable');
+                const listContainer = getActiveAvatarList(activeTabPane);
                 if (listContainer) {
                     if (active) listContainer.classList.add('rovalra-filtering-enabled');
                     else listContainer.classList.remove('rovalra-filtering-enabled');
@@ -341,7 +420,7 @@ export function init() {
 
                 triggerDomUpdate();
 
-                const activeTabPane = document.querySelector('.tab-pane.active');
+                const activeTabPane = getActiveAvatarPane();
                 const itemIdsToRecheck = new Set();
                 
                 if (activeTabPane) {
@@ -379,16 +458,16 @@ export function init() {
             }
 
             function ensureUIInActiveTab() {
-                const activeTab = document.querySelector('.tab-pane.active');
+                const activeTab = getActiveAvatarPane();
                 if (!activeTab) return;
 
-                const currentHash = window.location.hash;
-                if (currentHash !== activeCategoryHash) {
+                const currentCategoryKey = getActiveCategoryKey(activeTab);
+                if (currentCategoryKey !== activeCategoryHash) {
                     fullStateReset();
                 }
 
                 let container = document.getElementById('rovalra-fx-container');
-                if (container && (container.dataset.category !== currentHash || container.parentElement !== activeTab)) {
+                if (container && (container.dataset.category !== currentCategoryKey || container.parentElement !== activeTab)) {
                     container.remove();
                     container = null;
                 }
@@ -410,7 +489,7 @@ export function init() {
                 if (!container) {
                     container = document.createElement('div');
                     container.id = 'rovalra-fx-container';
-                    container.dataset.category = currentHash;
+                    container.dataset.category = currentCategoryKey;
 
                     const filterConfig = [
                         { id: 'rovalra-creator-name', type: 'text', label: 'Creator Name' },
@@ -445,33 +524,39 @@ export function init() {
 
                 if (showFilters || showSearch) {
                     updateToggleButtonText();
-                    const listSelector = 'ul.item-cards-stackable';
-                    const existingList = activeTab.querySelector(listSelector);
+                    const existingList = getActiveAvatarList(activeTab);
                     if (existingList) {
                         attachObserverToList(existingList);
                     } else {
-                        const listObs = observeElement(listSelector, (list) => attachObserverToList(list), { scope: activeTab, once: true });
+                        let listObs = null;
+                        listObs = observeElement('ul.item-cards-stackable', (list) => {
+                            if (!activeTab.contains(list)) return;
+
+                            attachObserverToList(list);
+                            if (listObs) listObs.disconnect();
+                        }, { multiple: true });
+
                         if (listObs) activeObservers.push(listObs);
                     }
                 }
             }
 
             function attachObserverToList(listElement) {
-                if (listElement.dataset.rovalraObserved === 'true') return;
-                listElement.dataset.rovalraObserved = 'true';
+                if (observedLists.has(listElement)) return;
+                observedLists.add(listElement);
 
                 const active = isFilteringActive();
                 if (active) listElement.classList.add('rovalra-filtering-enabled');
 
                 const itemObs = observeElement('li.list-item', (card) => {
-                    const thumb = card.querySelector('.item-card-thumb');
-                    const img = card.querySelector('.item-card-thumb img'); 
-                    const id = thumb ? parseInt(thumb.getAttribute('data-thumbnail-target-id'), 10) : null;
+                    if (!listElement.contains(card)) return;
+
+                    const img = card.querySelector('.item-card-thumb img, [data-thumbnail-target-id] img, img'); 
+                    const id = getAssetIdFromCard(card);
                     
                     if (!id) return;
 
-                    const nameContainer = card.querySelector('.item-card-thumb-container') || card.querySelector('.item-card-name');
-                    const nameText = nameContainer ? (nameContainer.dataset.itemName || nameContainer.getAttribute('data-item-name') || nameContainer.textContent || '') : '';
+                    const nameText = getCardName(card);
                     
                     domMetadata.set(card, {
                         id: id,
@@ -530,7 +615,7 @@ export function init() {
                     spinner.id = 'rovalra-filter-loading';
                     spinner.textContent = 'Filtering...';
                     spinner.style.cssText = 'position:absolute; top: 60px; right: 20px; background: rgba(0,0,0,0.8); color: white; padding: 5px 10px; border-radius: 4px; z-index: 2000; font-size: 12px; pointer-events: none;';
-                    document.querySelector('.tab-pane.active')?.prepend(spinner);
+                    getActiveAvatarPane()?.prepend(spinner);
                 } else {
                     spinner.style.display = 'block';
                 }
@@ -555,14 +640,16 @@ export function init() {
                 document.head.appendChild(style);
             }
 
-            function cleanupFeature() { document.getElementById('rovalra-fx-container')?.remove(); }
+            function cleanupFeature() {
+                document.getElementById('rovalra-fx-container')?.remove();
+            }
 
             function initBreadcrumbMonitor() {
                 let hasObservedBreadcrumb = false;
                 const bcObs = observeElement('.breadcrumb-container', () => {
                     if (hasObservedBreadcrumb) {
                         fullStateReset();
-                        setTimeout(ensureUIInActiveTab, 100);
+                        scheduleEnsureUI();
                     }
                     hasObservedBreadcrumb = true;
                 });
@@ -570,10 +657,16 @@ export function init() {
             }
 
             function initObserver() {
+                if (observerBootstrapped) {
+                    ensureUIInActiveTab();
+                    return;
+                }
+                observerBootstrapped = true;
+
                 injectStyles();
                 window.addEventListener('hashchange', () => {
                     fullStateReset(); 
-                    setTimeout(ensureUIInActiveTab, 100);
+                    scheduleEnsureUI();
                 });
 
                 initBreadcrumbMonitor();
@@ -595,11 +688,22 @@ export function init() {
             
                     ensureUIInActiveTab();
                 } else {
-                    setTimeout(initObserver, 500);
+                    scheduleEnsureUI(250);
                 }
+
+                const refreshObs = observeElement('ul.item-cards-stackable, li.list-item, .tab-pane, [role="tabpanel"]', (element) => {
+                    if (getAvatarRoot().contains(element)) scheduleEnsureUI(50);
+                }, { multiple: true });
+                if (refreshObs) activeObservers.push(refreshObs);
+
+                const paneObs = observeElement('.tab-pane, [role="tabpanel"]', (pane) => {
+                    const attrObserver = observeAttributes(pane, () => scheduleEnsureUI(50), ['class', 'style']);
+                    activeObservers.push(attrObserver);
+                }, { multiple: true });
+                if (paneObs) activeObservers.push(paneObs);
             }
 
-            observeElement('#horizontal-tabs', initObserver, { onRemove: cleanupFeature });
+            observeElement('#horizontal-tabs, #avatar-react-container, .tab-content.rbx-tab-content, ul.item-cards-stackable', initObserver, { onRemove: cleanupFeature });
 
         })();
     }

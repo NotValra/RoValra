@@ -308,6 +308,9 @@ export async function performJoinAction(
                         }
 
                         if (bestServerTier === 0) {
+                            const bestName =
+                                getFullRegionName(bestServerRegionCode);
+
                             updateLoadingOverlayText(
                                 `Found ${bestName}! Verifying...`,
                             );
@@ -453,6 +456,8 @@ export async function performJoinAction(
                 } else {
                     const foundRegionName =
                         getFullRegionName(bestServerRegionCode);
+                    const isPreferredRegionMatch =
+                        bestServerRegionCode === preferredRegionCode;
 
                     let message = `No ${shortTargetName} servers running.`;
                     if (REGIONS[preferredRegionCode]?.loadbalancing) {
@@ -461,19 +466,30 @@ export async function performJoinAction(
 
                     updateLoadingOverlayText('Verifying server status...');
                     if (serverId && (await isServerActive(placeId, serverId))) {
-                        showLoadingOverlayResult(message, {
-                            text: `Join ${foundRegionName}`,
-                            onClick: async () => {
-                                hideLoadingOverlay(true);
-                                joinedServerIds.add(serverId);
-                                launchGame(placeId, serverId);
-                                callRobloxApi({
-                                    subdomain: 'games',
-                                    endpoint: `/v1/games/${placeId}/servers/Public?limit=100`,
-                                }).catch(() => {});
-                                showReviewPopup('region_filters');
-                            },
-                        });
+                        if (isPreferredRegionMatch) {
+                            hideLoadingOverlay(true);
+                            joinedServerIds.add(serverId);
+                            launchGame(placeId, serverId);
+                            callRobloxApi({
+                                subdomain: 'games',
+                                endpoint: `/v1/games/${placeId}/servers/Public?limit=100`,
+                            }).catch(() => {});
+                            showReviewPopup('region_filters');
+                        } else {
+                            showLoadingOverlayResult(message, {
+                                text: `Join ${foundRegionName}`,
+                                onClick: async () => {
+                                    hideLoadingOverlay(true);
+                                    joinedServerIds.add(serverId);
+                                    launchGame(placeId, serverId);
+                                    callRobloxApi({
+                                        subdomain: 'games',
+                                        endpoint: `/v1/games/${placeId}/servers/Public?limit=100`,
+                                    }).catch(() => {});
+                                    showReviewPopup('region_filters');
+                                },
+                            });
+                        }
                     } else {
                         hideLoadingOverlay(true);
                         launchGame(placeId);

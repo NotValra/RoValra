@@ -4,31 +4,47 @@ import DOMPurify from 'dompurify';
 let activeTooltipCleanup = null;
 
 export function addTooltip(parent, text, options = {}) {
-    const { position = 'bottom', container = document.body } = options;
+    const {
+        position = 'bottom',
+        container = document.body,
+        showArrow = true,
+        shouldShow = () => true,
+    } = options;
     let tooltipElement = null;
     let isUpdateScheduled = false;
     let scrollListenerRef = null;
 
+    const getPosition = () =>
+        typeof position === 'function' ? position(parent) : position;
+    const getText = () => (typeof text === 'function' ? text(parent) : text);
+
     const showTooltip = () => {
+        if (!shouldShow(parent)) return;
+
         if (activeTooltipCleanup) {
             activeTooltipCleanup();
         }
 
+        const initialPosition = getPosition();
         tooltipElement = document.createElement('div');
         tooltipElement.style.position = 'absolute';
         tooltipElement.style.pointerEvents = 'none';
-        tooltipElement.className = `tooltip fade bottom in`;
+        tooltipElement.className = `tooltip fade ${initialPosition} in`;
         tooltipElement.setAttribute('role', 'tooltip');
 
-        const arrow = document.createElement('div');
-        arrow.className = 'tooltip-arrow';
+        let arrow = null;
+        if (showArrow) {
+            arrow = document.createElement('div');
+            arrow.className = 'tooltip-arrow';
+        }
 
         const inner = document.createElement('div');
         inner.className = 'tooltip-inner';
 
-        inner.innerHTML = DOMPurify.sanitize(text);
+        inner.innerHTML = DOMPurify.sanitize(getText());
 
-        tooltipElement.append(arrow, inner);
+        if (arrow) tooltipElement.appendChild(arrow);
+        tooltipElement.appendChild(inner);
         container.appendChild(tooltipElement);
 
         const updatePosition = () => {
@@ -37,6 +53,9 @@ export function addTooltip(parent, text, options = {}) {
                 return;
             }
 
+            const currentPosition = getPosition();
+            tooltipElement.className = `tooltip fade ${currentPosition} in`;
+
             const parentRect = parent.getBoundingClientRect();
             const tooltipWidth = tooltipElement.offsetWidth;
             const tooltipHeight = tooltipElement.offsetHeight;
@@ -44,7 +63,7 @@ export function addTooltip(parent, text, options = {}) {
 
             let targetTop, targetLeft;
 
-            switch (position) {
+            switch (currentPosition) {
                 case 'top':
                     targetTop = parentRect.top - tooltipHeight;
                     targetLeft =
@@ -90,25 +109,33 @@ export function addTooltip(parent, text, options = {}) {
             tooltipElement.style.top = `${finalTopAbs}px`;
             tooltipElement.style.left = `${finalLeftAbs}px`;
 
-            if (position === 'top' || position === 'bottom') {
+            if (!arrow) {
+                isUpdateScheduled = false;
+                return;
+            }
+
+            if (currentPosition === 'top' || currentPosition === 'bottom') {
                 const parentCenterX =
                     parentRect.left + window.scrollX + parentRect.width / 2;
                 const arrowLeft = parentCenterX - finalLeftAbs;
                 arrow.style.top = 'auto';
                 arrow.style.left = `${arrowLeft}px`;
-                if (position === 'top') {
+                if (currentPosition === 'top') {
                     arrow.style.transform = 'translateY(-100%) rotate(180deg)';
                     arrow.style.top = '100%';
                 } else {
                     arrow.style.transform = 'none';
                 }
-            } else if (position === 'left' || position === 'right') {
+            } else if (
+                currentPosition === 'left' ||
+                currentPosition === 'right'
+            ) {
                 const parentCenterY =
                     parentRect.top + window.scrollY + parentRect.height / 2;
                 const arrowTop = parentCenterY - finalTopAbs;
                 arrow.style.left = 'auto';
                 arrow.style.top = `${arrowTop}px`;
-                arrow.style.transform = `translateY(-50%) rotate(${position === 'left' ? 90 : -90}deg)`;
+                arrow.style.transform = `translateY(-50%) rotate(${currentPosition === 'left' ? 90 : -90}deg)`;
             }
 
             isUpdateScheduled = false;

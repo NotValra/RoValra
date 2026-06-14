@@ -6,20 +6,34 @@
     font-weight: 600;
     line-height: 1.5;
     cursor: default;
-    align-self: flex-start; 
+    align-self: flex-start;
 }
 
 .rovalra-pill.experimental {
     background-color: rgb(2, 170, 81);
-    color: #FFFFFF;
+    color: #ffffff;
 }
 
 .rovalra-pill.beta {
     background-color: rgb(51, 95, 255);
-    color: #FFFFFF;
+    color: #ffffff;
 }
 
 .rovalra-pill.deprecated {
     background-color: rgb(220, 53, 69);
-    color: #FFFFFF;
+    color: #ffffff;
+}
+
+.rovalra-profile-views-pill {
+    display: flex;
+    width: fit-content;
+    margin: 6px 0 0;
+    padding-inline: 8px;
+    font-size: 11px;
+    line-height: 18px;
+}
+
+.rovalra-profile-views-content {
+    display: inline-flex;
+    align-items: center;
 }

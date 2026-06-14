@@ -56,25 +56,6 @@ async function fetchModerationReasons() {
     return [];
 }
 
-async function fetchConfigDefinitions() {
-    try {
-        const response = await callRobloxApi({
-            subdomain: 'apis',
-            endpoint: '/v1/auth/moderator/config/definitions',
-            method: 'GET',
-            isRovalraApi: true,
-        });
-
-        if (response.ok) {
-            const data = await response.json();
-            return data.definitions || [];
-        }
-    } catch (err) {
-        console.error('Failed to fetch definitions', err);
-    }
-    return [];
-}
-
 async function resolveUsernames(ids) {
     if (!ids || ids.length === 0) return new Map();
     try {
@@ -157,7 +138,7 @@ async function showAppealDetailsOverlay(appeal, userName) {
     const overlay = createOverlay({
         title: `Appeal Details: @${userName}`,
         bodyContent: body,
-        maxWidth: '700px',
+        maxWidth: '900px',
         showLogo: true,
     });
 
@@ -178,12 +159,14 @@ async function showAppealDetailsOverlay(appeal, userName) {
         body.innerHTML = '';
         body.style.display = 'flex';
         body.style.flexDirection = 'column';
-        body.style.gap = '20px';
+        body.style.gap = '16px';
+        body.style.width = 'min(82vw, 860px)';
 
         const infoGrid = document.createElement('div');
         infoGrid.style.display = 'grid';
-        infoGrid.style.gridTemplateColumns = '1fr 1fr';
-        infoGrid.style.gap = '15px';
+        infoGrid.style.gridTemplateColumns =
+            'repeat(auto-fit, minmax(260px, 1fr))';
+        infoGrid.style.gap = '12px';
 
         const tiers = [];
         if (donator.donator_1) tiers.push('Tier 1');
@@ -220,18 +203,24 @@ async function showAppealDetailsOverlay(appeal, userName) {
         body.appendChild(infoGrid);
 
         const detailBox = document.createElement('div');
-        detailBox.style.padding = '15px';
+        detailBox.style.padding = '18px';
         detailBox.style.borderRadius = '8px';
         detailBox.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+        detailBox.style.display = 'flex';
+        detailBox.style.flexDirection = 'column';
+        detailBox.style.gap = '16px';
 
         const detailHeader = document.createElement('div');
         detailHeader.style.display = 'flex';
         detailHeader.style.justifyContent = 'space-between';
         detailHeader.style.alignItems = 'start';
-        detailHeader.style.marginBottom = '15px';
+        detailHeader.style.gap = '18px';
+        detailHeader.style.flexWrap = 'wrap';
+        detailHeader.style.paddingBottom = '14px';
+        detailHeader.style.borderBottom = '1px solid rgba(128,128,128,0.2)';
 
         detailHeader.innerHTML = DOMPurify.sanitize(`
-            <div style="flex: 1;">
+            <div style="flex: 1; min-width: 260px;">
             <h4 style="margin: 0 0 10px 0; font-size: 14px;">Reason: ${modReason.title || 'N/A'}</h4>
                 <p style="opacity: 0.8; margin: 0;">${modReason.description || ''}</p>
             </div>
@@ -241,6 +230,7 @@ async function showAppealDetailsOverlay(appeal, userName) {
         submissionTime.style.textAlign = 'right';
         submissionTime.style.fontSize = '11px';
         submissionTime.style.opacity = '0.7';
+        submissionTime.style.minWidth = '140px';
         submissionTime.innerHTML =
             '<div style="font-weight: bold; text-transform: uppercase; margin-bottom: 2px;">Created</div>';
 
@@ -271,13 +261,13 @@ async function showAppealDetailsOverlay(appeal, userName) {
         const modContentHtml =
             modContent.length > 0
                 ? `
-            <div style="margin-top: 15px; padding-top: 10px; border-top: 1px solid rgba(128,128,128,0.2);">
+            <div style="background: rgba(0,0,0,0.12); padding: 14px; border-radius: 6px;">
                 <div style="color: #f93e3e; font-weight: bold; text-transform: uppercase; font-size: 11px; margin-bottom: 8px;">Moderated Content</div>
                 <div style="display: flex; flex-direction: column; gap: 8px;">
                     ${modContent
                         .map(
                             (item) => `
-                        <div style="background: rgba(0,0,0,0.1); padding: 8px; border-radius: 4px; font-size: 12px;">
+                        <div style="background: rgba(255,255,255,0.04); padding: 10px; border-radius: 4px; font-size: 12px;">
                             <div style="font-weight: bold; color: var(--rovalra-secondary-text-color); font-size: 10px; text-transform: uppercase; margin-bottom: 4px;">${item.config_key}</div>
                             <div style="word-break: break-word;">${item.content_value}</div>
                         </div>
@@ -288,21 +278,58 @@ async function showAppealDetailsOverlay(appeal, userName) {
             </div>
             `
                 : '';
+        const taggedStatuses = data.tagged_statuses || [];
+        const taggedStatusesHtml =
+            taggedStatuses.length > 0
+                ? `
+            <div style="background: rgba(73,204,144,0.08); padding: 14px; border-radius: 6px;">
+                <div style="color: #49cc90; font-weight: bold; text-transform: uppercase; font-size: 11px; margin-bottom: 8px;">Passed Statuses</div>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    ${taggedStatuses
+                        .map(
+                            (item) => `
+                        <div style="background: rgba(0,0,0,0.14); padding: 12px; border-radius: 5px; font-size: 12px;">
+                            <div style="display: flex; justify-content: space-between; gap: 10px; margin-bottom: 8px; flex-wrap: wrap;">
+                                <div style="font-weight: bold; color: var(--rovalra-secondary-text-color); font-size: 10px; text-transform: uppercase;">${item.config_key || 'status'}</div>
+                                <div style="opacity: 0.65; font-size: 10px;">${item.created_at || 'Unknown time'}</div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px;">
+                                <div style="word-break: break-word;"><div style="opacity: 0.65; font-size: 10px; text-transform: uppercase; margin-bottom: 2px;">Attempted</div>${item.attempted_status || ''}</div>
+                                <div style="word-break: break-word;"><div style="opacity: 0.65; font-size: 10px; text-transform: uppercase; margin-bottom: 2px;">Tagged</div>${item.tagged_value || ''}</div>
+                            </div>
+                            <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; opacity: 0.7; font-size: 10px;">
+                                <span>Source: ${item.source || 'Unknown'}</span>
+                                ${item.tagged_status_id ? `<span>Status ID: ${item.tagged_status_id}</span>` : ''}
+                            </div>
+                        </div>
+                    `,
+                        )
+                        .join('')}
+                </div>
+            </div>
+            `
+                : '';
 
         const messageArea = document.createElement('div');
+        messageArea.style.display = 'flex';
+        messageArea.style.flexDirection = 'column';
+        messageArea.style.gap = '12px';
         messageArea.innerHTML = DOMPurify.sanitize(`
-            <div style="color: var(--rovalra-secondary-text-color); font-weight: bold; text-transform: uppercase; font-size: 11px; margin-bottom: 8px;">Appeal Message</div>
-            <div style="font-style: ${profile.appeal_message ? 'normal' : 'italic'}; opacity: ${profile.appeal_message ? '1' : '0.6'}; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 4px;">
-                ${profile.appeal_message || 'User has not submitted an appeal message yet.'}
+            <div style="background: rgba(0,0,0,0.18); padding: 14px; border-radius: 6px;">
+                <div style="color: var(--rovalra-secondary-text-color); font-weight: bold; text-transform: uppercase; font-size: 11px; margin-bottom: 8px;">Appeal Message</div>
+                <div style="font-style: ${profile.appeal_message ? 'normal' : 'italic'}; opacity: ${profile.appeal_message ? '1' : '0.6'}; line-height: 1.45;">
+                    ${profile.appeal_message || 'User has not submitted an appeal message yet.'}
+                </div>
             </div>
             ${modContentHtml}
+            ${taggedStatusesHtml}
 
             ${
                 profile.internal_notes
                     ? `
-                <div style="margin-top: 15px; padding-top: 10px; border-top: 1px solid rgba(128,128,128,0.2);">
+                <div style="background: rgba(255,159,67,0.08); padding: 14px; border-radius: 6px;">
                     <div style="color: #ff9f43; font-weight: bold; text-transform: uppercase; font-size: 11px; margin-bottom: 4px;">System Internal Notes</div>
-                    <div style="font-size: 12px;">${typeof profile.internal_notes === 'object' ? profile.internal_notes.note : profile.internal_notes}</div>
+                    <div style="font-size: 12px; line-height: 1.45;">${typeof profile.internal_notes === 'object' ? profile.internal_notes.note : profile.internal_notes}</div>
                 </div>
             `
                     : ''
@@ -310,9 +337,9 @@ async function showAppealDetailsOverlay(appeal, userName) {
             ${
                 profile.appeal_internal_notes
                     ? `
-                <div style="margin-top: 15px; padding-top: 10px; border-top: 1px solid rgba(128,128,128,0.2);">
+                <div style="background: rgba(79,172,254,0.08); padding: 14px; border-radius: 6px;">
                     <div style="color: #4facfe; font-weight: bold; text-transform: uppercase; font-size: 11px; margin-bottom: 4px;">Appeal Internal Notes</div>
-                    <div style="font-size: 12px;">${profile.appeal_internal_notes}</div>
+                    <div style="font-size: 12px; line-height: 1.45;">${profile.appeal_internal_notes}</div>
                 </div>
             `
                     : ''
@@ -323,7 +350,7 @@ async function showAppealDetailsOverlay(appeal, userName) {
         body.appendChild(detailBox);
 
         const responseArea = document.createElement('div');
-        responseArea.style.marginTop = '15px';
+        responseArea.style.marginTop = '4px';
         const responseLabel = document.createElement('div');
         responseLabel.style.fontSize = '11px';
         responseLabel.style.fontWeight = 'bold';
@@ -765,8 +792,24 @@ function renderModerationPage(contentDiv) {
         { id: 'filter-scan', label: 'Filter Scan', permission: 4 },
     ];
 
-    let activeTab = 'status';
+    const defaultTab = 'status';
+    const getHashTab = () => window.location.hash.replace(/^#/, '');
+    let activeTab = getHashTab() || defaultTab;
     let moderatorData = null;
+    const tabButtons = new Map();
+
+    const canAccessTab = (tab) =>
+        (moderatorData && moderatorData.moderator_tier >= tab.permission) ||
+        tab.permission === 0;
+
+    const updateModerationHash = (tabId, replace = false) => {
+        const nextUrl = `${window.location.pathname}${window.location.search}#${tabId}`;
+        if (replace) {
+            window.history.replaceState(null, '', nextUrl);
+        } else {
+            window.history.pushState(null, '', nextUrl);
+        }
+    };
 
     const renderTabContent = async (tabId) => {
         contentArea.innerHTML =
@@ -804,15 +847,26 @@ function renderModerationPage(contentDiv) {
         }
     };
 
+    const selectTab = (tabId, { replaceHash = false, updateHash = true } = {}) => {
+        const tab = tabs.find((item) => item.id === tabId);
+        if (!tab || !canAccessTab(tab)) return false;
+
+        activeTab = tabId;
+        tabButtons.forEach((button, id) => {
+            button.className =
+                id === activeTab ? 'btn-primary-md' : 'btn-secondary-md';
+        });
+
+        if (updateHash) updateModerationHash(tabId, replaceHash);
+        renderTabContent(activeTab);
+        return true;
+    };
+
     checkModeratorStatus().then((data) => {
         moderatorData = data;
 
         tabs.forEach((tab) => {
-            if (
-                (moderatorData &&
-                    moderatorData.moderator_tier >= tab.permission) ||
-                tab.permission === 0
-            ) {
+            if (canAccessTab(tab)) {
                 const tabBtn = document.createElement('button');
                 tabBtn.textContent = tab.label;
                 tabBtn.className =
@@ -823,20 +877,33 @@ function renderModerationPage(contentDiv) {
                 tabBtn.style.cursor = 'pointer';
 
                 tabBtn.onclick = () => {
-                    activeTab = tab.id;
-                    tabsContainer.querySelectorAll('button').forEach((btn) => {
-                        btn.className = 'btn-secondary-md';
-                    });
-                    tabBtn.className = 'btn-primary-md';
-                    renderTabContent(activeTab);
+                    selectTab(tab.id);
                 };
 
+                tabButtons.set(tab.id, tabBtn);
                 tabsContainer.appendChild(tabBtn);
             }
         });
 
-        renderTabContent(activeTab);
+        if (!selectTab(activeTab, { replaceHash: true })) {
+            selectTab(defaultTab, { replaceHash: true });
+        }
     });
+
+    if (window.__rovalraModerationHashHandler) {
+        window.removeEventListener(
+            'hashchange',
+            window.__rovalraModerationHashHandler,
+        );
+    }
+
+    window.__rovalraModerationHashHandler = () => {
+        const hashTab = getHashTab();
+        if (hashTab && hashTab !== activeTab) {
+            selectTab(hashTab, { updateHash: false });
+        }
+    };
+    window.addEventListener('hashchange', window.__rovalraModerationHashHandler);
 
     container.appendChild(tabsContainer);
     container.appendChild(contentArea);
@@ -1525,6 +1592,7 @@ async function renderBanTab(container) {
     internalNoteInput.className = 'form-control input-field';
     internalNoteInput.style.minHeight = '60px';
 
+    const reasonPlaceholderValue = '__select_ban_reason__';
     let selectedReasonId = null;
     const reasonDropdownContainer = document.createElement('div');
     reasonDropdownContainer.innerHTML =
@@ -1532,43 +1600,40 @@ async function renderBanTab(container) {
 
     fetchModerationReasons().then((reasons) => {
         reasonDropdownContainer.innerHTML = '';
-        const items = reasons.map((r) => ({
-            label: `${r.title} (ID: ${r.reason_id})`,
-            value: String(r.reason_id),
-        }));
+        const items = [
+            {
+                label: 'Select a ban reason (required)',
+                value: reasonPlaceholderValue,
+            },
+            ...reasons.map((r) => ({
+                label: `${r.title} (ID: ${r.reason_id})`,
+                value: String(r.reason_id),
+            })),
+        ];
 
         const dropdown = createDropdown({
             items,
-            placeholder: 'Select a reason...',
+            initialValue: reasonPlaceholderValue,
+            placeholder: 'Select a ban reason...',
             onValueChange: (val) => {
-                selectedReasonId = val;
+                selectedReasonId =
+                    val === reasonPlaceholderValue ? null : val;
             },
         });
         reasonDropdownContainer.appendChild(dropdown.element);
     });
 
-    let selectedConfigKey = null;
+    let selectedConfigKey = 'status';
     const configDropdownContainer = document.createElement('div');
-    configDropdownContainer.innerHTML =
-        '<div style="padding: 10px; opacity: 0.6;">Loading configurations...</div>';
-
-    fetchConfigDefinitions().then((definitions) => {
-        configDropdownContainer.innerHTML = '';
-        const items = definitions.map((d) => ({
-            label: `Config: ${d.config_key}`,
-            value: d.config_key,
-        }));
-        items.unshift({ label: 'No Config Override', value: '' });
-
-        const dropdown = createDropdown({
-            items,
-            placeholder: 'Optional Config Override...',
-            onValueChange: (val) => {
-                selectedConfigKey = val || null;
-            },
-        });
-        configDropdownContainer.appendChild(dropdown.element);
+    const configDropdown = createDropdown({
+        items: [{ label: 'Config: status', value: 'status' }],
+        initialValue: 'status',
+        placeholder: 'Config: status',
+        onValueChange: (val) => {
+            selectedConfigKey = val;
+        },
     });
+    configDropdownContainer.appendChild(configDropdown.element);
 
     const buttonsContainer = document.createElement('div');
     buttonsContainer.style.display = 'flex';
@@ -1588,7 +1653,17 @@ async function renderBanTab(container) {
         const userId = userIdInput.value.trim();
         const reasonId = selectedReasonId;
 
-        if (!userId || !/^\d+$/.test(userId) || !reasonId) return;
+        if (!userId || !/^\d+$/.test(userId)) {
+            resultArea.innerHTML =
+                '<div style="color: #f93e3e;">Enter a valid Roblox User ID.</div>';
+            return;
+        }
+
+        if (!reasonId) {
+            resultArea.innerHTML =
+                '<div style="color: #f93e3e;">Select a ban reason before banning this user.</div>';
+            return;
+        }
 
         showConfirmationPrompt({
             title: 'Ban User',
@@ -1744,17 +1819,19 @@ async function renderLogsTab(container) {
                     const headerRow = document.createElement('div');
                     headerRow.style.display = 'flex';
                     headerRow.style.justifyContent = 'space-between';
-                    headerRow.style.alignItems = 'center';
+                    headerRow.style.alignItems = 'flex-start';
+                    headerRow.style.gap = '12px';
+                    headerRow.style.flexWrap = 'wrap';
 
                     const leftSide = document.createElement('div');
                     leftSide.style.display = 'flex';
                     leftSide.style.alignItems = 'center';
                     leftSide.style.gap = '15px';
+                    leftSide.style.flexWrap = 'wrap';
 
+                    const actionType = action.action_type || action.action || 'N/A';
                     const typeBadge = document.createElement('span');
-                    typeBadge.textContent = (
-                        action.action_type || action.action
-                    ).replace(/_/g, ' ');
+                    typeBadge.textContent = actionType.replace(/_/g, ' ');
                     typeBadge.style.fontWeight = 'bold';
                     typeBadge.style.textTransform = 'uppercase';
                     typeBadge.style.fontSize = '11px';
@@ -1795,12 +1872,30 @@ async function renderLogsTab(container) {
                     leftSide.appendChild(targetLink);
                     leftSide.appendChild(modInfo);
 
-                    const rightSide = createInteractiveTimestamp(
-                        action.created_at || action.timestamp,
-                    );
+                    const rightSide = document.createElement('div');
+                    rightSide.style.display = 'flex';
+                    rightSide.style.flexDirection = 'column';
+                    rightSide.style.alignItems = 'flex-end';
+                    rightSide.style.gap = '4px';
                     rightSide.style.fontSize = '12px';
                     rightSide.style.color =
                         'var(--rovalra-secondary-text-color)';
+
+                    const actionIdLabel = document.createElement('div');
+                    actionIdLabel.style.fontWeight = 'bold';
+                    actionIdLabel.style.color = 'var(--rovalra-main-text-color)';
+                    actionIdLabel.textContent = action.action_id !== undefined
+                        ? `Action #${action.action_id}`
+                        : 'Action ID: N/A';
+
+                    rightSide.appendChild(actionIdLabel);
+                    if (action.created_at || action.timestamp) {
+                        const createdAt = createInteractiveTimestamp(
+                            action.created_at || action.timestamp,
+                        );
+                        createdAt.style.fontSize = '12px';
+                        rightSide.appendChild(createdAt);
+                    }
 
                     headerRow.appendChild(leftSide);
                     headerRow.appendChild(rightSide);
@@ -1810,28 +1905,75 @@ async function renderLogsTab(container) {
                     const modReason =
                         reasonsMap.get(actionData.reason_id) || {};
                     const disabledFeatures = modReason.disabled_features || [];
+                    const moderationStatus =
+                        actionData.moderation_status ?? action.moderation_status;
+                    const moderationStatusLabel =
+                        moderationStatus === undefined ||
+                        moderationStatus === null
+                            ? 'N/A'
+                            : `${RESTRICTION_LEVELS[moderationStatus] || 'Unknown'} (${moderationStatus})`;
 
                     const detailsGrid = document.createElement('div');
                     detailsGrid.style.display = 'grid';
-                    detailsGrid.style.gridTemplateColumns = '1fr 1fr';
+                    detailsGrid.style.gridTemplateColumns =
+                        'repeat(auto-fit, minmax(240px, 1fr))';
                     detailsGrid.style.gap = '15px';
                     detailsGrid.style.fontSize = '12px';
 
                     detailsGrid.innerHTML = DOMPurify.sanitize(`
                         <div style="background: rgba(0,0,0,0.03); padding: 10px; border-radius: 6px;">
                             <div style="margin-bottom: 5px; color: var(--rovalra-secondary-text-color); font-weight: bold; text-transform: uppercase; font-size: 10px;">Action Details</div>
+                            <div><strong>Action ID:</strong> ${action.action_id ?? 'N/A'}</div>
+                            <div><strong>Type:</strong> ${actionType.replace(/_/g, ' ')}</div>
                             <div><strong>Reason:</strong> ${modReason.title || 'N/A'} ${actionData.reason_id ? `(ID: ${actionData.reason_id})` : ''}</div>
                             <div style="opacity: 0.8; margin-top: 4px;">${modReason.description || ''}</div>
+                            ${
+                                actionData.internal_note
+                                    ? `<div style="margin-top: 8px; word-break: break-word;"><strong>Internal Note:</strong> ${actionData.internal_note}</div>`
+                                    : ''
+                            }
                         </div>
                         <div style="background: rgba(0,0,0,0.03); padding: 10px; border-radius: 6px;">
                             <div style="margin-bottom: 5px; color: var(--rovalra-secondary-text-color); font-weight: bold; text-transform: uppercase; font-size: 10px;">Resulting Restrictions</div>
-                            <div><strong>Level:</strong> ${RESTRICTION_LEVELS[actionData.moderation_status] || actionData.moderation_status || 'N/A'}</div>
+                            <div><strong>Moderation Status:</strong> ${moderationStatusLabel}</div>
                             <div style="margin-top: 8px;"><strong>Disabled Features:</strong></div>
                             <div style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px;">
                                 ${disabledFeatures.length > 0 ? disabledFeatures.map((f) => `<span style="background: rgba(0,0,0,0.1); padding: 2px 6px; border-radius: 10px; font-size: 10px;">${f}</span>`).join('') : 'None'}
                             </div>
                         </div>
+                        <div style="background: rgba(0,0,0,0.03); padding: 10px; border-radius: 6px;">
+                            <div style="margin-bottom: 5px; color: var(--rovalra-secondary-text-color); font-weight: bold; text-transform: uppercase; font-size: 10px;">Audit Metadata</div>
+                            <div><strong>Target ID:</strong> ${action.action_target || action.target_id || 'N/A'}</div>
+                            <div><strong>Moderator ID:</strong> ${action.moderator_id || 'N/A'}</div>
+                            <div style="display: flex; gap: 5px; align-items: center; margin-top: 6px;"><strong>Created:</strong> <span class="log-created-at-time"></span></div>
+                            <div style="display: flex; gap: 5px; align-items: center; margin-top: 4px;"><strong>Moderated:</strong> <span class="log-moderated-at-time"></span></div>
+                        </div>
                     `);
+                    const createdTimeContainer = detailsGrid.querySelector(
+                        '.log-created-at-time',
+                    );
+                    const moderatedTimeContainer = detailsGrid.querySelector(
+                        '.log-moderated-at-time',
+                    );
+
+                    if (action.created_at || action.timestamp) {
+                        createdTimeContainer.appendChild(
+                            createInteractiveTimestamp(
+                                action.created_at || action.timestamp,
+                            ),
+                        );
+                    } else {
+                        createdTimeContainer.textContent = 'N/A';
+                    }
+
+                    if (actionData.moderated_at) {
+                        moderatedTimeContainer.appendChild(
+                            createInteractiveTimestamp(actionData.moderated_at),
+                        );
+                    } else {
+                        moderatedTimeContainer.textContent = 'N/A';
+                    }
+
                     logEntry.appendChild(detailsGrid);
 
                     if (action.ip_hash || action.user_agent) {
@@ -1914,24 +2056,21 @@ async function renderConfigTab(container) {
     featuresContainer.style.borderRadius = '4px';
     featuresContainer.style.backgroundColor = 'rgba(0,0,0,0.05)';
 
-    fetchConfigDefinitions().then((definitions) => {
-        definitions.forEach((def) => {
-            const label = document.createElement('label');
-            label.style.display = 'flex';
-            label.style.alignItems = 'center';
-            label.style.gap = '8px';
-            label.style.cursor = 'pointer';
-            if (def.description) label.title = def.description;
+    const statusFeatureLabel = document.createElement('label');
+    statusFeatureLabel.style.display = 'flex';
+    statusFeatureLabel.style.alignItems = 'center';
+    statusFeatureLabel.style.gap = '8px';
+    statusFeatureLabel.style.cursor = 'pointer';
 
-            const checkbox = document.createElement('input');
-            checkbox.type = 'checkbox';
-            checkbox.value = def.config_key;
-            checkbox.className = 'feature-checkbox';
-            label.appendChild(checkbox);
-            label.appendChild(document.createTextNode(def.config_key));
-            featuresContainer.appendChild(label);
-        });
-    });
+    const statusFeatureCheckbox = document.createElement('input');
+    statusFeatureCheckbox.type = 'checkbox';
+    statusFeatureCheckbox.value = 'status';
+    statusFeatureCheckbox.className = 'feature-checkbox';
+    statusFeatureCheckbox.checked = true;
+
+    statusFeatureLabel.appendChild(statusFeatureCheckbox);
+    statusFeatureLabel.appendChild(document.createTextNode('status'));
+    featuresContainer.appendChild(statusFeatureLabel);
 
     const createBtn = document.createElement('button');
     createBtn.textContent = 'Create Ban Reason';

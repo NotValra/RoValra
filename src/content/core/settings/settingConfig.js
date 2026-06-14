@@ -65,11 +65,27 @@ export const SETTINGS_CONFIG = {
 
                 experimental:
                     'This feature may cause performance issues. And may be buggy',
+                childSettings: {
+                    marketplace3DRenderHoverPreviewDisabled: {
+                        label: 'Disable Hover Preview',
+                        description:
+                            'Disables the 3D try-on preview when hovering over marketplace items.',
+                        type: 'checkbox',
+                        default: false,
+                    },
+                },
             },
             EnableRobuxAfterPurchase: {
                 label: 'Robux After Purchase',
                 description:
                     "This feature restores the 'Your balance after this transaction will be X' text to the new Roblox purchase UI after it was removed.",
+                type: 'checkbox',
+                default: true,
+            },
+            bonusItemEnabled: {
+                label: 'Robux Purchase Bonus Item Selector',
+                description:
+                    'Adds a bonus item selector to eligible Robux purchases of 2,000 Robux or more.',
                 type: 'checkbox',
                 default: true,
             },
@@ -98,9 +114,17 @@ export const SETTINGS_CONFIG = {
             PreviousPriceEnabled: {
                 label: 'Previous Price to item cards and on item pages.',
                 description:
-                    'This shows the price of an offsale item before it went offsale.',
+                    'This shows the price of an offsale item before it went offsale. And shows when an item was last on sale.',
                 type: 'checkbox',
                 default: true,
+            },
+            lastEquippedEnabled: {
+                label: 'Last Equipped on Item Pages',
+                description:
+                    'Shows when you last equipped an item on item pages.',
+                type: 'checkbox',
+                default: true,
+                contributors: ['4866259395', '447170745'],
             },
             itemTradingEnabled: {
                 label: 'Item Trading Info',
@@ -185,6 +209,7 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
+                contributors: ['447170745', '8345351117'],
                 childSettings: {
                     AlwaysGetInfo: {
                         label: 'Always Get Server Info',
@@ -268,6 +293,15 @@ export const SETTINGS_CONFIG = {
                     },
                 },
             },
+            gamePassViewerEnabled: {
+                label: 'View Gamepasses in Private / Moderated Games',
+                description: [
+                    'This recreates the gamepass page of private / moderated games, allowing you to view them.',
+                ],
+                type: 'checkbox',
+                default: true,
+                contributors: ['9502859424'],
+            },
             botdataEnabled: {
                 label: 'Bot Data',
                 description: [
@@ -281,6 +315,24 @@ export const SETTINGS_CONFIG = {
                 label: 'Subplaces',
                 description: [
                     'This adds a tab to an experience page that shows the subplaces of the experience.',
+                ],
+                type: 'checkbox',
+                default: true,
+            },
+            hiddenBadgesEnabled: {
+                label: 'Hidden Badges',
+                description: [
+                    'Adds a Hidden Badges tab to experience pages.',
+                    'This only shows hidden badges of a game that you obtained.',
+                ],
+                type: 'checkbox',
+                default: true,
+                storageKey: 'rovalra_badges_v1',
+            },
+            badgeLayoutToggleEnabled: {
+                label: 'Badge Layout Toggle',
+                description: [
+                    'Adds a List / Grid toggle to experience badge sections.',
                 ],
                 type: 'checkbox',
                 default: true,
@@ -490,6 +542,40 @@ export const SETTINGS_CONFIG = {
                 default: true,
                 contributors: ['8345351117', '447170745'],
             },
+            avatarDownloadEnabled: {
+                label: 'Download Avatar',
+                description: [
+                    'Adds a button to save avatar as a PNG on their profile.',
+                ],
+                type: 'checkbox',
+                default: false,
+                contributors: ['9502859424'],
+            },
+            profileViewsEnabled: {
+                label: 'Profile Views',
+                description: [
+                    'Shows profile view counts on profiles.',
+                    'Disabling this hides profile views locally and hides your profile views from other RoValra users.',
+                ],
+                type: 'checkbox',
+                default: true,
+            },
+            currentlyPlayingLinkEnabled: {
+                label: 'Clickable Currently Playing Card',
+                description: [
+                    'Makes the currently playing experience card on profiles link directly to the experience the user is playing.',
+                ],
+                type: 'checkbox',
+                default: true,
+            },
+            chatEligibilityTooltipEnabled: {
+                label: 'Chat Eligibility Tooltip',
+                description: [
+                    'Shows if you can or cannot chat with a friend or if they havent done an age check when hovering over the chat button on their profile.',
+                ],
+                type: 'checkbox',
+                default: true,
+            },
             userSniperEnabled: {
                 label: 'Instant Joiner',
                 description: [
@@ -498,7 +584,7 @@ export const SETTINGS_CONFIG = {
                     '- This feature requires the user to have their joins enabled for everyone or for you to be friends with them.',
                 ],
                 type: 'checkbox',
-                default: true,
+                default: false,
                 childSettings: {
                     deeplinkEnabled: {
                         label: 'Join through deeplinks',
@@ -635,8 +721,17 @@ export const SETTINGS_CONFIG = {
                     'Shows a users role in a community on their profile.',
                 type: 'checkbox',
                 default: true,
+                locked: 'Roblox released their own version of this.',
+                isPermanent: true,
             },
 
+            groupJoinedDateEnabled: {
+                label: 'Show Community Joined Date',
+                description:
+                    'Shows when a user joined a community on their profile.',
+                type: 'checkbox',
+                default: true,
+            },
             showFriendedFromEnabled: {
                 label: 'Show Friended From',
                 description:
@@ -645,7 +740,7 @@ export const SETTINGS_CONFIG = {
                 default: true,
             },
             lastPlayedTogetherEnabled: {
-                label: 'Most Played Together',
+                label: 'Most Frequent Played Together',
                 description:
                     'Shows the experience you played the most with a friend on their profile.',
                 type: 'checkbox',
@@ -700,8 +795,8 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: false,
                 contributors: ['447170745', '8345351117'],
-                locked: 'This feature is currently unfinished and will be improved and finished next update.',
-                isPermanent: false,
+                locked: 'Roblox made this not possible.',
+                isPermanent: true,
             },
 
             categorizeWearingEnabled: {
@@ -849,6 +944,15 @@ export const SETTINGS_CONFIG = {
                     },
                 },
             },
+            usernameColor: {
+                label: 'Username Color Preview',
+                description: [
+                    "Changes the user's display name color on their profile to what color Roblox would give them when talking in game chats. Inspired by https://github.com/RyloRiz/rblx-name-color",
+                ],
+                type: 'checkbox',
+                default: false,
+                contributors: ['3602693727'],
+            },
         },
     },
     Home: {
@@ -861,6 +965,32 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: false,
+            },
+            underratedGamesEnabled: {
+                label: 'Underrated Games',
+                description: [
+                    'Adds RoValra community-picked underrated games to the Home page.',
+                ],
+                type: 'checkbox',
+                default: true,
+            },
+            homeLayoutEnabled: {
+                label: 'Home Layout',
+                description: [
+                    'Lets you save a custom order for the rows on the Home page.',
+                ],
+                type: 'checkbox',
+                default: true,
+                childSettings: {
+                    homeLayoutButtonEnabled: {
+                        label: 'Show Home Layout Button',
+                        description: [
+                            'Adds the RoValra Layout button to the Home page.',
+                        ],
+                        type: 'checkbox',
+                        default: true,
+                    },
+                },
             },
         },
     },
@@ -918,6 +1048,18 @@ export const SETTINGS_CONFIG = {
                 default: true,
                 storageKey: 'rovalra_groups_order',
                 contributors: ['7982684834', '447170745'],
+            },
+            bulkLeaveGroupsEnabled: {
+                label: 'Bulk Leave Communities',
+                description: ['This allows you to leave communities in bulk.'],
+                type: 'checkbox',
+                default: true,
+                contributors: [
+                    '447170745',
+                    '9502859424',
+                    '2615068449',
+                    '422540285',
+                ],
             },
             groupPlaceVisitsEnabled: {
                 label: 'Total Community Place Visits',
@@ -1204,12 +1346,65 @@ export const SETTINGS_CONFIG = {
                 default: true,
                 contributors: ['447170745', '8345351117'],
             },
+            sidebarCollapseEnabled: {
+                label: 'Collapsible Sidebar',
+                description: ['Adds a button to collapse the Roblox sidebar.'],
+                type: 'checkbox',
+                default: true,
+                storageKey: 'rovalraSidebarCollapsed',
+                childSettings: {
+                    sidebarCollapseMoveContentEnabled: {
+                        label: 'Move content with collapsed sidebar',
+                        description:
+                            'Moves the page content to match the current sidebar width.',
+                        type: 'checkbox',
+                        default: true,
+                    },
+                },
+            },
+            ageKidsThemeEnabled: {
+                label: 'Age Theme',
+                description:
+                    'Lets you choose which Roblox age theme is used across the site.',
+                type: 'checkbox',
+                default: false,
+                childSettings: {
+                    ageThemeSelection: {
+                        label: 'Theme',
+                        description:
+                            'Choose which Roblox age theme class should be applied.',
+                        type: 'select',
+                        options: [
+                            { label: 'Normal Roblox', value: 'normal' },
+                            { label: 'Roblox Kids', value: 'kids' },
+                            { label: 'Roblox Select', value: 'select' },
+                        ],
+                        default: 'normal',
+                    },
+                    ageThemeNavbarEnabled: {
+                        label: 'Show Age Theme in the navigation bar',
+                        description:
+                            'Adds a navigation bar button for switching the age theme live.',
+                        type: 'checkbox',
+                        default: false,
+                    },
+                },
+            },
             betaProgramsEnabled: {
                 label: 'Adds a beta programs toggle to the navigation bar',
                 description:
                     'This allows you to toggle beta programs you are enrolled into easily.',
                 type: 'checkbox',
                 default: false,
+            },
+            removeDownloadButton: {
+                label: 'Remove Download Button',
+                description: [
+                    'Removes the out of place download button from navigation bar.',
+                ],
+                type: 'checkbox',
+                default: false,
+                contributors: ['3602693727'],
             },
             transactionsSidebarLinkEnabled: {
                 label: 'My Transactions sidebar link',
@@ -1287,7 +1482,7 @@ export const SETTINGS_CONFIG = {
                     'This attempts to fix the memory leak caused by the Roblox website when reloading a page or navigating the site.',
                     "This fix will redirect most url changes to 'about:blank' and then to the intended url, which fixes the memory leak, but may cause a slight flicker when navigating and issues with the back and forward arrows.",
                     "If you don't know what a memory leak is or you don't feel like Roblox is using too much memory, you can leave this off.",
-                    "**This will prompt you to enable the 'webNavigation' permission for the feature to work.**",
+                    '**This feature is not recommended to be used anymore, it seems like Roblox has fixed the memory leak.**',
                 ],
                 experimental: 'May cause some issues.',
                 type: 'checkbox',
@@ -1379,6 +1574,7 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
+
             cssfixesEnabled: {
                 label: 'Site Fixes',
                 description: [
@@ -1408,6 +1604,7 @@ export const SETTINGS_CONFIG = {
                             'Fixes the size of the remove item from cart button being super small in the shopping cart.',
                         type: 'checkbox',
                         default: true,
+                        contributors: ['4866259395', '447170745'],
                     },
                 },
             },
@@ -1427,6 +1624,7 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
                 storageKey: 'rovalra_first_account_cache',
+                contributors: ['4866259395', '447170745'],
             },
             revertLogo: {
                 label: 'Change the app launch icon',
@@ -1462,9 +1660,12 @@ export const SETTINGS_CONFIG = {
             },
             reducePlusAds: {
                 label: 'Less Roblox Plus',
-                description: 'Makes Roblox Plus advertising more subtle.',
+                description: [
+                    'Makes Roblox Plus advertising more subtle.',
+                    'Not recommended if you have an active Roblox Plus subscription.',
+                ],
                 type: 'checkbox',
-                default: true,
+                default: false,
                 childSettings: {
                     removeAllPlusAdds: {
                         label: 'Remove all Roblox Plus advertising.',
@@ -1472,6 +1673,15 @@ export const SETTINGS_CONFIG = {
                         default: false,
                     },
                 },
+                contributors: ['1564574922'],
+            },
+            settingChangeNote: {
+                label: 'Setting changes alerts',
+                description: [
+                    'Shows you whenever certain settings were replaced or removed.',
+                ],
+                type: 'checkbox',
+                default: false,
                 contributors: ['1564574922'],
             },
         },
@@ -1836,6 +2046,14 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: false,
             },
+            forceFeatureStatusPrompt: {
+                label: ['Force Feature Status Prompt'],
+                description: [
+                    'When enabled, shows the feature status acknowledgement every time an off by default experimental, beta, or deprecated feature is enabled. For testing purposes.',
+                ],
+                type: 'checkbox',
+                default: false,
+            },
             rendererDeveloperToggles: {
                 label: '3D renderer Developer toggles',
                 type: 'checkbox',
@@ -1875,6 +2093,15 @@ export const SETTINGS_CONFIG = {
                 type: 'button',
                 buttonText: 'Calculate Storage',
                 event: 'rovalra:showLocalStorageUsage',
+            },
+            verboseDebug: {
+                label: 'Verbose Debugging',
+                description: ['Displays extended debugging information.'],
+                type: 'checkbox',
+                default: false,
+                contributors: ['1564574922'],
+                experimental:
+                    'This feature is not yet widely used within RoValra.',
             },
         },
     },

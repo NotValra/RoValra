@@ -13,10 +13,7 @@ import { showSystemAlert } from '../../../core/ui/roblox/alert.js';
 import { reportUserContent } from '../../../core/report.js';
 import { showConfirmationPrompt } from '../../../core/ui/confirmationPrompt.js';
 import { ensureTouAgreement } from '../../../core/ui/tou/touAgreement.js';
-import {
-    parseMarkdown,
-    parseUntrustedMarkdown,
-} from '../../../core/utils/markdown.js';
+import { parseUntrustedMarkdown } from '../../../core/utils/markdown.js';
 import { migrateLegacyStatus } from '../../../core/profile/descriptionhandler.js';
 import DOMPurify from 'dompurify';
 import {
@@ -29,9 +26,19 @@ import {
     onUserCardElement,
     observeUserCardElements,
 } from '../../../core/profile/userCardElements.js';
+import { settings } from '../../../core/settings/getSettings.js';
 const MAX_STATUS_LENGTH = 128;
 const REPORTING_ENABLED = false;
 let activeHomeStatusBubble = null;
+
+function renderStatusBubbleContent(
+    bubble,
+    statusText,
+    { stripLineBreaks = false } = {},
+) {
+    const html = parseUntrustedMarkdown(statusText);
+    bubble.innerHTML = stripLineBreaks ? html.replaceAll('<br>', '') : html; // Verified
+}
 
 function cleanupStatusElements(container) {
     if (!container) return;
@@ -91,6 +98,37 @@ DOMPurify.addHook('afterSanitizeAttributes', (currentNode) => {
     }
 });
 
+function createStatusHelpText(isTrusted) {
+    const helpText = document.createElement('p');
+    helpText.className = 'text-description';
+    Object.assign(helpText.style, {
+        fontSize: '12px',
+        lineHeight: '1.4',
+    });
+
+    if (isTrusted) {
+        helpText.textContent =
+            "As a trusted RoValra user, your status bypasses the normal status filters. Do not add swears or anything against Roblox's ToS or RoValra's ToS. Links to your own stuff are allowed but don't link anything discord, youtube, x, etc pretty much don't link any social platforms..";
+        return helpText;
+    }
+
+    helpText.append(
+        "You must follow Roblox's ToS and RoValra's ToS when using status bubbles. If you break these rules, your status may be reset and your status privileges may be revoked.",
+        document.createElement('br'),
+        document.createElement('br'),
+        "If you're restricted from status, ",
+    );
+
+    const appealLink = document.createElement('a');
+    appealLink.href =
+        'https://www.roblox.com/my/account?rovalra=account+standing';
+    appealLink.textContent = 'appeal here';
+    appealLink.style.textDecoration = 'underline';
+    helpText.append(appealLink, '.');
+
+    return helpText;
+}
+
 function openEditStatusOverlay(currentStatus, onSave, isTrusted) {
     const container = document.createElement('div');
     Object.assign(container.style, {
@@ -112,19 +150,7 @@ function openEditStatusOverlay(currentStatus, onSave, isTrusted) {
 
     container.appendChild(inputContainer);
 
-    if (isTrusted) {
-        const trustedHelpText = document.createElement('p');
-        trustedHelpText.className = 'text-description';
-        trustedHelpText.innerHTML = DOMPurify.sanitize(`
-            You are a trusted RoValra user, you can add any text, embed videos, and images.
-            <br>
-            <strong>Note:</strong> If you are found to add inappropriate content against the Roblox ToS, your donator and custom badges will be revoked with no chance to get it back.
-        `);
-        Object.assign(trustedHelpText.style, {
-            fontSize: '12px',
-        });
-        container.appendChild(trustedHelpText);
-    }
+    container.appendChild(createStatusHelpText(isTrusted));
 
     const errorDisplay = document.createElement('p');
     errorDisplay.className = 'text-error';
@@ -181,8 +207,7 @@ async function addStatusBubble(avatarContainer) {
     try {
         const userId = getUserIdFromUrl();
         if (!userId) return;
-
-        const isUserTrusted = TRUSTED_USER_IDS.has(String(userId));
+        const isTrusted = TRUSTED_USER_IDS.has(String(userId));
 
         const authenticatedUserId = await getAuthenticatedUserId();
         const isOwnProfile =
@@ -214,22 +239,7 @@ async function addStatusBubble(avatarContainer) {
         const bubble = document.createElement('div');
         bubble.className = 'rovalra-status-bubble text-label-medium';
 
-        if (isUserTrusted) {
-            bubble.innerHTML = DOMPurify.sanitize(parseMarkdown(statusText), {
-                FORBID_ATTR: ['style'],
-                FORBID_TAGS: ['audio'],
-            });
-
-            const videos = bubble.querySelectorAll('video');
-            for (const video of videos) {
-                video.muted = true;
-                video.volume = 0;
-
-                video.play().catch(() => {});
-            }
-        } else {
-            bubble.innerHTML = parseUntrustedMarkdown(statusText); // Verified
-        }
+        renderStatusBubbleContent(bubble, statusText);
 
         bubbleWrapper.appendChild(bubble);
         avatarContainer.appendChild(bubbleWrapper);
@@ -242,7 +252,7 @@ async function addStatusBubble(avatarContainer) {
                     : 'Click to edit';
             addTooltip(bubble, tooltipText);
 
-            const updateBubbleUI = async (newStatus) => {
+            const updateBubbleUI = (newStatus) => {
                 statusText = newStatus || '...';
                 const textToRender = newStatus
                     ? newStatus.length > MAX_STATUS_LENGTH
@@ -250,25 +260,7 @@ async function addStatusBubble(avatarContainer) {
                         : newStatus
                     : '...';
 
-                if (isUserTrusted) {
-                    bubble.innerHTML = DOMPurify.sanitize(
-                        parseMarkdown(textToRender),
-                        {
-                            FORBID_ATTR: ['style'],
-                            FORBID_TAGS: ['audio'],
-                        },
-                    );
-
-                    const videos = bubble.querySelectorAll('video');
-                    for (const video of videos) {
-                        video.muted = true;
-                        video.volume = 0;
-
-                        video.play().catch(() => {});
-                    }
-                } else {
-                    bubble.innerHTML = parseUntrustedMarkdown(textToRender); // Verified
-                }
+                renderStatusBubbleContent(bubble, textToRender);
 
                 const newTooltipText =
                     statusText === '...'
@@ -279,9 +271,6 @@ async function addStatusBubble(avatarContainer) {
 
             bubble.addEventListener('click', (e) => {
                 e.stopPropagation();
-                const isTrusted = TRUSTED_USER_IDS.has(
-                    String(authenticatedUserId),
-                );
                 ensureTouAgreement(() => {
                     openEditStatusOverlay(
                         statusText === '...' ? '' : statusText,
@@ -360,9 +349,11 @@ async function addHomeStatusHover(tile) {
     bubbleWrapper.className = 'rovalra-status-bubble-wrapper';
     bubbleWrapper.style.left = '130%';
     bubbleWrapper.style.display = 'none';
+    bubbleWrapper.style.pointerEvents = 'none';
 
     const bubble = document.createElement('div');
     bubble.className = 'rovalra-status-bubble text-label-medium';
+    bubble.style.pointerEvents = 'none';
     bubbleWrapper.appendChild(bubble);
     avatarContainer.appendChild(bubbleWrapper);
 
@@ -397,23 +388,9 @@ async function addHomeStatusHover(tile) {
                                 '...';
                         }
 
-                        const isUserTrusted = TRUSTED_USER_IDS.has(
-                            String(userId),
-                        );
-
-                        if (isUserTrusted) {
-                            bubble.innerHTML = DOMPurify.sanitize(
-                                parseMarkdown(statusText),
-                                {
-                                    FORBID_ATTR: ['style'],
-                                    FORBID_TAGS: ['audio'],
-                                },
-                            );
-                        } else {
-                            bubble.innerHTML = parseUntrustedMarkdown(
-                                statusText,
-                            ).replaceAll('<br>', ''); // Verified
-                        }
+                        renderStatusBubbleContent(bubble, statusText, {
+                            stripLineBreaks: true,
+                        });
                         statusLoaded = true;
 
                         if (!isOwnProfile && REPORTING_ENABLED) {
@@ -463,8 +440,6 @@ async function addHomeStatusHover(tile) {
         }
 
         if (statusLoaded && isHovering) {
-            if (!tile.matches(':hover')) return;
-
             if (
                 activeHomeStatusBubble &&
                 activeHomeStatusBubble !== bubbleWrapper
@@ -501,37 +476,22 @@ async function addHomeStatusHover(tile) {
     });
 }
 
-export function init() {
-    syncDonatorTier();
+export async function init() {
+    if (!(await settings.statusBubbleEnabled)) return;
 
     migrateLegacyStatus();
+    startObserving();
 
-    chrome.storage.local.get(
-        {
-            statusBubbleEnabled: true,
-            statusBubbleHomePage: true,
-        },
-        (settings) => {
-            if (settings.statusBubbleEnabled) {
-                startObserving();
+    injectStylesheet('css/thinkingbubble.css', 'rovalra-profile-status-css');
+    const selector = '.user-profile-header-details-avatar-container';
+    observeElement(selector, (el) => addStatusBubble(el), {
+        multiple: true,
+    });
 
-                injectStylesheet(
-                    'css/thinkingbubble.css',
-                    'rovalra-profile-status-css',
-                );
-                const selector =
-                    '.user-profile-header-details-avatar-container';
-                observeElement(selector, (el) => addStatusBubble(el), {
-                    multiple: true,
-                });
-
-                if (settings.statusBubbleHomePage) {
-                    observeUserCardElements();
-                    onUserCardElement(addHomeStatusHover, {
-                        exclude: ['.rovalra-donator-card'],
-                    });
-                }
-            }
-        },
-    );
+    if (await settings.statusBubbleHomePage) {
+        observeUserCardElements();
+        onUserCardElement(addHomeStatusHover, {
+            exclude: ['.rovalra-donator-card', '.user-item-clickable'],
+        });
+    }
 }

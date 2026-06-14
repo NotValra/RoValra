@@ -8,11 +8,55 @@ import { getAuthenticatedUserId } from '../user.js';
 import { updateUserSettingViaApi } from '../donators/settingHandler.js';
 import { createAndShowPopup } from '../../features/catalog/40method.js';
 import * as CacheHandler from '../storage/cacheHandler.js';
+import { hasOwn } from '../utils.js';
+import { showConfirmationPrompt } from '../ui/confirmationPrompt.js';
+import {
+    REMOTE_SETTING_LOCKS_KEY,
+    REMOTE_SETTING_LOCK_REASON,
+    getRemoteSettingLocks,
+} from './remoteSettingLocks.js';
+import './settingsCompat';
 
 let currentUserTier = 0;
 let gradientSyncTimeout = null;
 let donatorTierPromise = null;
 const colorLiveSaveTimeouts = new Map();
+const FEATURE_STATUS_PROMPT_ACK_KEY = 'featureStatusPromptAcknowledged';
+
+const isUnavailableSetting = (config) =>
+    hasOwn(config, 'locked') || hasOwn(config, 'deprecated');
+
+const isStatusLabeledOffByDefaultSetting = (config) =>
+    config?.type === 'checkbox' &&
+    config.default === false &&
+    (hasOwn(config, 'experimental') ||
+        hasOwn(config, 'deprecated') ||
+        hasOwn(config, 'beta'));
+
+const getFeatureStatusPromptPills = () =>
+    [
+        '<span class="rovalra-pill experimental">Experimental</span>',
+        '<span class="rovalra-pill beta">Beta</span>',
+        '<span class="rovalra-pill deprecated">Deprecated</span>',
+    ].join('');
+
+const shouldShowFeatureStatusPrompt = async (config) => {
+    if (!isStatusLabeledOffByDefaultSetting(config)) return false;
+
+    const result = await chrome.storage.local.get([
+        FEATURE_STATUS_PROMPT_ACK_KEY,
+        'forceFeatureStatusPrompt',
+    ]);
+
+    return (
+        result.forceFeatureStatusPrompt === true ||
+        result[FEATURE_STATUS_PROMPT_ACK_KEY] !== true
+    );
+};
+
+const markFeatureStatusPromptAcknowledged = async () => {
+    await chrome.storage.local.set({ [FEATURE_STATUS_PROMPT_ACK_KEY]: true });
+};
 
 export const getCurrentUserTier = () => currentUserTier;
 
@@ -78,17 +122,17 @@ export const syncDonatorTier = async () => {
                 method: 'GET',
             });
 
-            if (response.status !== 'success' || !response.badges) {
+            if (!response?.badges) {
                 return state.cachedResponse || null;
             }
 
             const badges = response.badges;
             let tier = 0;
-            if (badges.donator_3 === true || badges.legacy_donator === true) {
+            if (badges.donator_3 || badges.legacy_donator) {
                 tier = 3;
-            } else if (badges.donator_2 === true) {
+            } else if (badges.donator_2) {
                 tier = 2;
-            } else if (badges.donator_1 === true) {
+            } else if (badges.donator_1) {
                 tier = 1;
             }
 
@@ -147,6 +191,7 @@ export const syncDonatorTier = async () => {
 export const loadSettings = async () => {
     return new Promise((resolve, reject) => {
         const defaultSettings = {};
+        const forcedSettings = {};
         for (const category of Object.values(SETTINGS_CONFIG)) {
             for (const [settingName, settingDef] of Object.entries(
                 category.settings,
@@ -154,10 +199,16 @@ export const loadSettings = async () => {
                 if (settingDef.default !== undefined) {
                     defaultSettings[settingName] = settingDef.default;
                 }
+                if (isUnavailableSetting(settingDef)) {
+                    forcedSettings[settingName] = false;
+                }
                 if (settingDef.childSettings) {
                     for (const [childName, childSettingDef] of Object.entries(
                         settingDef.childSettings,
                     )) {
+                        if (isUnavailableSetting(childSettingDef)) {
+                            forcedSettings[childName] = false;
+                        }
                         if (childSettingDef.default !== undefined) {
                             defaultSettings[childName] =
                                 childSettingDef.default;
@@ -167,17 +218,31 @@ export const loadSettings = async () => {
             }
         }
 
-        chrome.storage.local.get(defaultSettings, (settings) => {
-            if (chrome.runtime.lastError) {
-                console.error(
-                    'Failed to load settings:',
-                    chrome.runtime.lastError,
-                );
-                reject(chrome.runtime.lastError);
-            } else {
-                resolve(settings);
-            }
-        });
+        chrome.storage.local.get(
+            { ...defaultSettings, [REMOTE_SETTING_LOCKS_KEY]: {} },
+            (settings) => {
+                if (chrome.runtime.lastError) {
+                    console.error(
+                        'Failed to load settings:',
+                        chrome.runtime.lastError,
+                    );
+                    reject(chrome.runtime.lastError);
+                } else {
+                    const remoteLocks = settings[REMOTE_SETTING_LOCKS_KEY] || {};
+                    delete settings[REMOTE_SETTING_LOCKS_KEY];
+
+                    for (const key of Object.keys(remoteLocks)) {
+                        forcedSettings[key] = false;
+                    }
+
+                    const normalisedSettings = settings;
+                    for (const [key, value] of Object.entries(forcedSettings)) {
+                        normalisedSettings[key] = value;
+                    }
+                    resolve(normalisedSettings);
+                }
+            },
+        );
     });
 };
 
@@ -280,6 +345,11 @@ export const handleSaveSettings = async (settingName, value) => {
     }
 
     try {
+        const remoteLocks = await getRemoteSettingLocks();
+        if (remoteLocks[settingName] && value !== false) {
+            value = false;
+        }
+
         const settingConfig = findSettingConfig(settingName);
 
         let sanitizedValue = value;
@@ -484,6 +554,21 @@ export const handleSaveSettings = async (settingName, value) => {
                                 );
                             });
                         }
+                    }
+                    if (settingName === 'profileViewsEnabled') {
+                        loadSettings()
+                            .then((currentSettings) => {
+                                return updateUserSettingViaApi(
+                                    'hide_views',
+                                    !currentSettings.profileViewsEnabled,
+                                );
+                            })
+                            .catch((error) =>
+                                console.error(
+                                    'RoValra: Profile views visibility sync failed',
+                                    error,
+                                ),
+                            );
                     }
 
                     document.dispatchEvent(
@@ -914,6 +999,7 @@ export const checkSettingLocks = async (settingsContent, currentSettings) => {
     const data = await chrome.storage.local.get([
         'profile3DRenderForceDisabled',
     ]);
+    const remoteLocks = await getRemoteSettingLocks();
 
     const userTier = currentUserTier;
 
@@ -935,6 +1021,19 @@ export const checkSettingLocks = async (settingsContent, currentSettings) => {
     for (const category of Object.values(SETTINGS_CONFIG)) {
         for (const [settingName, config] of Object.entries(category.settings)) {
             const processSetting = async (name, conf) => {
+                if (remoteLocks[name]) {
+                    if (currentSettings[name] !== false) {
+                        await handleSaveSettings(name, false);
+                    }
+                    applyLockedState(
+                        name,
+                        settingsContent,
+                        true,
+                        remoteLocks[name].reason || REMOTE_SETTING_LOCK_REASON,
+                    );
+                    return true;
+                }
+                let handledLockState = false;
                 if (conf.donatorTier) {
                     const isLocked = userTier < conf.donatorTier;
                     applyLockedState(
@@ -946,6 +1045,7 @@ export const checkSettingLocks = async (settingsContent, currentSettings) => {
                         true,
                     );
                     if (isLocked) return true;
+                    handledLockState = true;
                 }
                 if (conf.locked) {
                     if (currentSettings[name] === true) {
@@ -953,6 +1053,9 @@ export const checkSettingLocks = async (settingsContent, currentSettings) => {
                     }
                     applyLockedState(name, settingsContent, true, conf.locked);
                     return true;
+                }
+                if (!handledLockState) {
+                    applyLockedState(name, settingsContent, false);
                 }
                 return false;
             };
@@ -969,6 +1072,21 @@ export const checkSettingLocks = async (settingsContent, currentSettings) => {
         }
     }
 };
+
+if (typeof chrome !== 'undefined' && chrome.storage?.onChanged) {
+    chrome.storage.onChanged.addListener(async (changes, areaName) => {
+        if (areaName !== 'local' || !changes[REMOTE_SETTING_LOCKS_KEY]) return;
+
+        const settingsContent = document.querySelector(
+            '#setting-section-content',
+        );
+        if (!settingsContent) return;
+
+        const currentSettings = await loadSettings();
+        updateConditionalSettingsVisibility(settingsContent, currentSettings);
+        await checkSettingLocks(settingsContent, currentSettings);
+    });
+}
 
 function applyDisabledState(
     settingName,
@@ -1558,6 +1676,38 @@ export function initializeSettingsEventListeners() {
 
             if (value) {
                 const settingConfig = findSettingConfig(settingName);
+
+                if (
+                    target.dataset.featureStatusPromptAccepted !== 'true' &&
+                    (await shouldShowFeatureStatusPrompt(settingConfig))
+                ) {
+                    target.checked = false;
+                    const statusPills = getFeatureStatusPromptPills();
+                    showConfirmationPrompt({
+                        title: 'Before Enabling This Feature',
+                        message:
+                            `<span style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px;">${statusPills}</span>` +
+                            'Features with these labels might be unstable, or may change over time. They can cause longer load times, inconsistent UI, site-related issues, or other unexpected behavior.<br><br>Only enable this if you understand that it may not work perfectly.',
+                        confirmText: 'I Acknowledge',
+                        cancelText: 'Cancel',
+                        confirmType: 'primary',
+                        cancelType: 'secondary',
+                        onConfirm: async () => {
+                            await markFeatureStatusPromptAcknowledged();
+                            target.dataset.featureStatusPromptAccepted = 'true';
+                            target.checked = true;
+                            target.dispatchEvent(
+                                new Event('change', { bubbles: true }),
+                            );
+                        },
+                        onCancel: () => {
+                            target.checked = false;
+                        },
+                    });
+                    return;
+                }
+
+                delete target.dataset.featureStatusPromptAccepted;
 
                 if (settingConfig?.requiredPermissions) {
                     const missingPermissions = [];

@@ -1,4 +1,4 @@
-import { observeElement } from '../../../core/observer.js';
+import { observeElement, observeAttributes } from '../../../core/observer.js';
 import { createOverlay } from '../../../core/ui/overlay.js';
 import { getUsernameFromPageData } from '../../../core/utils.js';
 import { createDropdown } from '../../../core/ui/dropdown.js';
@@ -20,7 +20,7 @@ const CONFIG = {
     ACCESS_FILTER: 2,
     RETRY: {
         MAX_ATTEMPTS: 5,
-        DELAY_MS: 3000,
+        DELAY_MS: 500,
     },
 };
 
@@ -34,14 +34,12 @@ async function fetchWithRetry(options) {
             const response = await callRobloxApi(options);
 
             if (response.status === 429) {
-                if (i === CONFIG.RETRY.MAX_ATTEMPTS)
-                    throw new Error('Rate limit exceeded');
+                if (i === CONFIG.RETRY.MAX_ATTEMPTS) return response;
                 await new Promise((r) => setTimeout(r, delay));
                 delay *= 2;
                 continue;
             }
 
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
             return response;
         } catch {
             if (i >= CONFIG.RETRY.MAX_ATTEMPTS) return null;
@@ -139,21 +137,18 @@ async function fetchGamePassesForUniverse(universeId) {
 
     try {
         do {
-            const response = await callRobloxApi({
+            const response = await fetchWithRetry({
                 subdomain: 'apis',
                 endpoint: `/game-passes/v1/universes/${universeId}/game-passes?pageSize=${pageSize}&passView=Full${cursor ? `&pageToken=${cursor}` : ''}`,
                 method: 'GET',
             });
 
-            if (!response.ok) {
-                console.warn(
-                    `RoValra: Failed to fetch game passes for universe ${universeId}: ${response.status}`,
-                );
-                break;
-            }
+            if (!response || !response.ok) break;
 
             const data = await response.json();
-            allGamePasses = allGamePasses.concat(data.gamePasses);
+            if (data && data.gamePasses) {
+                allGamePasses = allGamePasses.concat(data.gamePasses);
+            }
             cursor = data.nextPageToken;
         } while (cursor);
     } catch (error) {
@@ -164,6 +159,19 @@ async function fetchGamePassesForUniverse(universeId) {
         return [];
     }
     return allGamePasses;
+}
+
+async function checkGamePassAccessibility(passId) {
+    try {
+        const response = await fetchWithRetry({
+            subdomain: 'www',
+            endpoint: `/game-pass/${passId}/-`,
+            method: 'GET',
+        });
+        return response && response.ok;
+    } catch (e) {
+        return false;
+    }
 }
 
 async function showGamePassSelectionOverlay(userId, username) {
@@ -177,7 +185,8 @@ async function showGamePassSelectionOverlay(userId, username) {
 
     const loadingMessage = document.createElement('p');
     loadingMessage.className = 'text-secondary';
-    loadingMessage.style.display = 'none';
+    loadingMessage.style.display = 'block';
+    loadingMessage.textContent = ts('donationLink.loadingGamePasses');
     bodyContent.appendChild(loadingMessage);
 
     const sortContainer = document.createElement('div');
@@ -186,8 +195,8 @@ async function showGamePassSelectionOverlay(userId, username) {
 
     const sortDropdown = createDropdown({
         items: [
-            { label: 'Price (Low to High)', value: 'asc' },
-            { label: 'Price (High to Low)', value: 'desc' },
+            { label: ts('donationLink.priceLowToHigh'), value: 'asc' },
+            { label: ts('donationLink.priceHighToLow'), value: 'desc' },
         ],
         initialValue: 'asc',
         onValueChange: (value) => {
@@ -236,6 +245,23 @@ async function showGamePassSelectionOverlay(userId, username) {
         );
         nextBatch.forEach((gamePass) => {
             const card = createGamePassCard(gamePass);
+
+            const buyBtn = card.querySelector('button');
+            if (buyBtn) {
+                buyBtn.addEventListener(
+                    'click',
+                    (e) => {
+                        e.preventDefault();
+                        e.stopImmediatePropagation();
+                        window.open(
+                            `https://www.roblox.com/game-pass/${gamePass.id}/-?RoValra-Auto-Buy`,
+                            '_blank',
+                        );
+                    },
+                    true,
+                );
+            }
+
             gamePassListContainer.appendChild(card);
         });
         displayedCount += nextBatch.length;
@@ -246,7 +272,7 @@ async function showGamePassSelectionOverlay(userId, username) {
     loadMoreBtn.onclick = () => renderNextBatch();
 
     const { overlay, close } = createOverlay({
-        title: `${username}'s Game Passes`,
+        title: ts('donationLink.userGamePasses', { username }),
         bodyContent: bodyContent,
         maxWidth: '800px',
         maxHeight: '80vh',
@@ -254,7 +280,7 @@ async function showGamePassSelectionOverlay(userId, username) {
 
     const header = overlay.querySelector('.rovalra-overlay-header');
     if (header) {
-        const copyPill = createPill('Copy Donation Link', null, {
+        const copyPill = createPill(ts('donationLink.copyDonationLink'), null, {
             isButton: true,
             size: 'small',
         });
@@ -262,15 +288,14 @@ async function showGamePassSelectionOverlay(userId, username) {
         copyPill.addEventListener('click', (e) => {
             e.preventDefault();
             showConfirmationPrompt({
-                title: 'Copy Donation Link',
-                message:
-                    'This copies a special link to this profile. When a RoValra user opens it, this donation menu will automatically appear.<br><br><strong>Note:</strong> Only RoValra users will see the donation window, others will see the standard profile.',
-                confirmText: 'Copy Link',
+                title: ts('donationLink.copyDonationLink'),
+                message: ts('donationLink.copyLinkDescription'),
+                confirmText: ts('donationLink.copyLinkButton'),
                 onConfirm: () => {
                     const url = `https://www.roblox.com/users/${userId}/profile?RoValra-Donation-Link`;
                     navigator.clipboard.writeText(url).then(() => {
                         showSystemAlert(
-                            'Donation link copied successfully!',
+                            ts('donationLink.copySuccess'),
                             'success',
                         );
                         close();
@@ -293,8 +318,11 @@ async function showGamePassSelectionOverlay(userId, username) {
         gamePassListContainer.innerHTML = '';
         if (allGamePasses.length === 0) {
             loadingMessage.style.display = 'block';
-            loadingMessage.textContent = `No game passes found for ${username}'s games.`;
+            loadingMessage.textContent = ts('donationLink.noGamePassesFound', {
+                username,
+            });
         } else {
+            loadingMessage.style.display = 'none';
             renderNextBatch();
         }
         return;
@@ -303,13 +331,40 @@ async function showGamePassSelectionOverlay(userId, username) {
     try {
         const userGames = await fetchUserGames(userId);
 
-        for (const game of userGames) {
-            const passes = await fetchGamePassesForUniverse(game.id);
-            const forSalePasses = passes.filter(
-                (pass) => pass && pass.isForSale,
+        const results = [];
+        const BATCH_SIZE = 10;
+
+        for (let i = 0; i < userGames.length; i += BATCH_SIZE) {
+            const batch = userGames.slice(i, i + BATCH_SIZE);
+            const batchStartTime = Date.now();
+
+            const batchResults = await Promise.all(
+                batch.map(async (game) => {
+                    const passes = await fetchGamePassesForUniverse(game.id);
+                    const forSalePasses = passes.filter(
+                        (pass) => pass && pass.isForSale,
+                    );
+
+                    if (forSalePasses.length > 0) {
+                        const isPublic = await checkGamePassAccessibility(
+                            forSalePasses[0].id,
+                        );
+                        if (isPublic) return forSalePasses;
+                    }
+                    return [];
+                }),
             );
-            allGamePasses = allGamePasses.concat(forSalePasses);
+            results.push(...batchResults);
+
+            if (i + BATCH_SIZE < userGames.length) {
+                const elapsedTime = Date.now() - batchStartTime;
+                const waitTime = Math.max(0, 1000 - elapsedTime);
+                if (waitTime > 0) {
+                    await new Promise((r) => setTimeout(r, waitTime));
+                }
+            }
         }
+        allGamePasses = results.flat();
 
         if (currentSortValue === 'asc') {
             allGamePasses.sort((a, b) => (a.price || 0) - (b.price || 0));
@@ -319,25 +374,23 @@ async function showGamePassSelectionOverlay(userId, username) {
 
         gamePassCache.set(userId, allGamePasses);
 
-        if (allGamePasses.length === 0) {
-            gamePassListContainer.innerHTML = '';
-            loadingMessage.style.display = 'block';
-            loadingMessage.textContent = `No game passes found for ${username}'s games.`;
-            return;
-        }
-
         gamePassListContainer.innerHTML = '';
         if (allGamePasses.length === 0) {
             loadingMessage.style.display = 'block';
-            loadingMessage.textContent = `No game passes found for ${username}'s games.`;
+            loadingMessage.textContent = ts('donationLink.noGamePassesFound', {
+                username,
+            });
         } else {
+            loadingMessage.style.display = 'none';
             renderNextBatch();
         }
     } catch (error) {
         console.error('RoValra: Error in showGamePassSelectionOverlay:', error);
         gamePassListContainer.innerHTML = '';
         loadingMessage.style.display = 'block';
-        loadingMessage.textContent = `Error loading game passes: ${error.message}`;
+        loadingMessage.textContent = ts('donationLink.errorLoading', {
+            message: error.message,
+        });
     }
 }
 
@@ -378,6 +431,36 @@ async function addDonationButton(observedElement) {
 }
 
 export function init() {
+    if (
+        window.location.pathname.includes('/game-pass') &&
+        window.location.search.includes('RoValra-Auto-Buy')
+    ) {
+        const runAutoBuy = () => {
+            observeElement('button[data-button-action="buy"]', (btn) => {
+                const tryClick = () => {
+                    if (!btn.disabled && btn.isConnected) {
+                        btn.click();
+                        return true;
+                    }
+                    return false;
+                };
+
+                if (!tryClick()) {
+                    const attrObserver = observeAttributes(btn, () => {
+                        if (tryClick()) attrObserver.disconnect();
+                    }, ['disabled', 'class']);
+                }
+            });
+        };
+
+        if (document.readyState === 'complete') {
+            runAutoBuy();
+        } else {
+            window.addEventListener('load', runAutoBuy, { once: true });
+        }
+        return;
+    }
+
     const userId = getUserIdFromUrl();
     if (userId && window.location.search.includes('RoValra-Donation-Link')) {
         getUsernameFromPageData().then((username) => {

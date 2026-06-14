@@ -1,4 +1,25 @@
 {
+    "homeLayout": {
+        "untitled": "Untitled",
+        "empty": "RoValra was unable to find the layout, refresh and try again.",
+        "reset": "Reset",
+        "save": "Save",
+        "overlayTitle": "Home Layout",
+        "button": "Customize Layout",
+        "edit": "Edit",
+        "settingsTitle": "Category Settings",
+        "visibility": "Visibility",
+        "visibilityDescription": "Choose whether this category appears on Home.",
+        "show": "Show",
+        "hide": "Hide"
+    },
+    "underratedGames": {
+        "topic": "Underrated Games",
+        "subtitle": "Underrated games hand picked by the RoValra community.",
+        "rotates": "Rotates",
+        "suggestOnDiscord": "Suggest underrated games on {{discord}}",
+        "ageRestrictionWarning": "Some of these games may be locked to 16+ because of Roblox's 500 HEP requirement."
+    },
     "trustedFriends": {
         "pendingConnection": "Pending Trusted Friend",
         "pendingRequest": "Trusted Friend Request Pending",
@@ -23,6 +44,11 @@
         "connectionRemoved": "Trusted Friend removed!",
         "removeFailed": "Failed to remove trusted Friend.",
         "errorRemoving": "Error Removing"
+    },
+    "chatEligibility": {
+        "canChat": "You can chat with this user.",
+        "cannotChat": "This user is outside your chat age range.",
+        "ageCheckRequired": "This user has not completed an age check."
     },
     "categorizeWearing": {
         "currentlyWearing": "Currently Wearing",
@@ -98,7 +124,17 @@
         "overlayTitle": "Pls Donate",
         "description": "This will launch \"PLS DONATE\" where you can give an offline donation.\n\nDue to fees from Roblox (30%) and the game (10%), the user receives 60% of the donated amount.\n\nUpon joining, the \"Offline Donations\" UI will appear with their username pre-filled. Simply click the gift button to open their stand and purchase a gamepass to donate.",
         "joinButton": "Join Pls Donate",
-        "goBackButton": "Go Back"
+        "goBackButton": "Go Back",
+        "loadingGamePasses": "Loading game passes...",
+        "priceLowToHigh": "Price (Low to High)",
+        "priceHighToLow": "Price (High to Low)",
+        "userGamePasses": "{{username}}'s Game Passes",
+        "copyDonationLink": "Copy Donation Link",
+        "copyLinkDescription": "This copies a special link to this profile. When a RoValra user opens it, this donation menu will automatically appear.<br><br><strong>Note:</strong> Only RoValra users will see the donation window, others will see the standard profile.",
+        "copyLinkButton": "Copy Link",
+        "copySuccess": "Donation link copied successfully!",
+        "noGamePassesFound": "No game passes found for {{username}}'s games.",
+        "errorLoading": "Error loading game passes: {{message}}"
     },
     "instantJoiner": {
         "instantJoin": "Instant Join",
@@ -165,7 +201,12 @@
     },
     "previousPrice": {
         "offSale": "Off Sale",
-        "text": "Previous Price:"
+        "text": "Previous Price:",
+        "lastOnSale": "Last on sale",
+        "for": "for"
+    },
+    "lastEquipped": {
+        "label": "Last Equipped"
     },
     "pendingRobux": {
         "tooltip": "This is an estimate of how many Robux from your pending balance will become available tomorrow, based on your transaction data. The actual amount may vary. And this may be inaccurate.",
@@ -186,11 +227,11 @@
         "transactionsScanned": "Transactions Scanned",
         "totalRobuxEarned": "Total Robux Earned",
         "breakdownLabel": "Earnings Source Breakdown",
-        "calculatingTitle": "Calculating Earnings",
-        "scanningHistory": "Scanning transaction history...",
+        "calculatingTitle": "Calculating Total Robux Earned",
+        "scanningHistory": "Calculating total Robux earned...",
         "rateLimited": "API rate limited. Still counting...",
         "calculationComplete": "Calculation Complete",
-        "allScanned": "All earning records have been scanned.",
+        "allScanned": "Finished scanning total Robux earned.",
         "newCalculation": "New Calculation",
         "errorTitle": "An Error Occurred",
         "retry": "Retry",
@@ -202,10 +243,16 @@
         "other": "Other",
         "na": "N/A",
         "calculatingTitle": "Calculating",
+        "calculatingRobuxTitle": "Calculating Total Robux Spent",
+        "calculatingMoneyTitle": "Calculating Total Money Spent",
         "calculatingText": "Calculating...",
+        "calculatingRobuxText": "Calculating total Robux spent...",
+        "calculatingMoneyText": "Calculating total money spent...",
         "rateLimited": "API rate limited. Still counting...",
         "calculationComplete": "Calculation Complete",
         "allScanned": "All relevant transactions have been scanned.",
+        "robuxAllScanned": "Finished scanning total Robux spent.",
+        "moneyAllScanned": "Finished scanning total money spent.",
         "newCalculation": "New Calculation",
         "errorTitle": "An Error Occurred",
         "retry": "Retry",
@@ -246,11 +293,11 @@
         },
         "info": {
             "title": "RoValra Information!",
-            "desc1": "RoValra is an extension that's trying to make basic quality of life features free and accessible to everyone, by making everything completely open-source.",
-            "desc2": "This is possible by running almost everything locally.",
-            "desc3": "And the server side features doesn't cost me anything to run which is why I can afford to make this free.",
-            "desc4": "This extension is also a project to learn, so a lot of stuff might change or get reworked overtime as I learn more.",
-            "gilbert": "WE ALL LOVE GILBERT",
+            "desc1": "RoValra is an extension that's trying to make basic quality-of-life features free and accessible to everyone by making everything completely open-source.",
+            "desc2": "Some free features still rely on RoValra servers and cost money to run.",
+            "desc3": "Supporter donations help cover those costs, letting RoValra keep more features free for everyone while continuing to improve over time. ❤️",
+            "desc4": "RoValra is a passion project and has always been one.",
+            "gilbert": "We try to make RoValra less professional, as being too professional is boring, which is why we have Gilbert, aka the logo, a silly fish from Fisch.",
             "suggestions": "If you have any feature suggestions please let me know in my Discord server or via GitHub",
             "bugs": "If you find any bugs let me know in my Discord server or via GitHub",
             "review": "If you like this extension please consider <a href=\"https://chromewebstore.google.com/detail/rovalra-roblox-improved/njcickgebhnpgmoodjdgohkclfplejli/reviews\" target=\"_blank\" class=\"rovalra-review-link\">leaving a review</a>, it helps a lot ❤️",
@@ -320,6 +367,18 @@
     },
     "navigation": {
         "transactions": "Transactions"
+    },
+    "sidebarCollapse": {
+        "collapseSidebar": "Collapse sidebar",
+        "expandSidebar": "Expand sidebar"
+    },
+    "ageTheme": {
+        "navbarTooltip": "Age Theme",
+        "options": {
+            "normal": "Normal Roblox",
+            "kids": "Roblox Kids",
+            "select": "Roblox Select"
+        }
     },
     "betaPrograms": {
         "toggleTooltip": "Toggle Beta Programs",
@@ -452,6 +511,36 @@
         "someBots": "<span style=\"color: var(--rovalra-main-text-color)\">{{gameName}}</span> has some bots but mostly real players",
         "thisGame": "This game"
     },
+    "events": {
+        "title": "Events",
+        "tabs": {
+            "upcoming": "Upcoming",
+            "past": "Past"
+        },
+        "buttons": {
+            "viewEvent": "View Event",
+            "joinEvent": "Join Event",
+            "unfollowEvent": "Unfollow Event",
+            "notifyMe": "Notify Me"
+        },
+        "empty": {
+            "active": "No ongoing or upcoming events.",
+            "past": "No past events.",
+            "all": "No events found."
+        }
+    },
+    "hiddenBadges": {
+        "tabs": {
+            "badges": "Badges",
+            "hiddenBadges": "Hidden Badges"
+        },
+        "hiddenOwnedNotice": "Only hidden badges that you have obtained are shown here.",
+        "unableToDetectPlace": "Unable to detect this place.",
+        "unableToDetectUniverse": "Unable to detect this universe.",
+        "stillScanning": "Still scanning your badges. Hidden badges you own may appear soon.",
+        "noneOwnedFound": "No hidden badges that you own were found for this experience.",
+        "failedToLoad": "Failed to load hidden badges you own."
+    },
     "antiBots": {
         "reviewMembers": "Review {{count}} selected members:",
         "botWarning": "<strong>Warning:</strong> Ensure these are bots before taking action.",
@@ -572,7 +661,17 @@
         "originUnknown": "Unknown"
     },
     "lastPlayed": {
-        "together": "Most Played Together"
+        "together": "Most Frequent Played Together"
+    },
+    "avatarDownload": {
+        "button": "Download Avatar",
+        "title": "Download Avatar",
+        "size": "Resolution:",
+        "downloadPortrait": "Portrait PNG",
+        "downloadBust": "Bust PNG",
+        "downloadAvatar": "Avatar PNG",
+        "downloading": "Downloading...",
+        "failed": "Failed to download avatar. Try again later."
     },
     "unfriend": {
         "confirmUnfriend": "Confirm Unfriend",
@@ -589,6 +688,21 @@
         "exitBulkMode": "Exit Bulk Mode",
         "successMessage": "Successfully unfriended {{successCount}}/{{totalCount}} friends!"
     },
+    "leaveGroups": {
+        "confirmLeave": "Confirm Leave",
+        "confirmLeaves": "Confirm Leaves",
+        "descriptionSingle": "You are about to leave 1 community. This action cannot be undone.",
+        "descriptionPlural": "You are about to leave {{count}} communities. This action cannot be undone.",
+        "cancel": "Cancel",
+        "leave": "Leave",
+        "leaveCount": "Leave ({{count}})",
+        "leaveCountAction": "Leave {{count}} community",
+        "leaveCountActionPlural": "Leave {{count}} communities",
+        "leaving": "Leaving...",
+        "bulkLeave": "Bulk Leave",
+        "exitBulkMode": "Exit Bulk Mode",
+        "successMessage": "Successfully left {{successCount}}/{{totalCount}} communities!"
+    },
     "purchasePrompt": {
         "balanceAfter": "Your balance after this transaction will be"
     },
@@ -601,6 +715,13 @@
         "weeksAgo": "{{count}}w ago",
         "monthsAgo": "{{count}}mo ago",
         "yearsAgo": "{{count}}y ago",
+        "secondsFromNow": "in {{count}}s",
+        "minutesFromNow": "in {{count}}m",
+        "hoursFromNow": "in {{count}}h",
+        "daysFromNow": "in {{count}}d",
+        "weeksFromNow": "in {{count}}w",
+        "monthsFromNow": "in {{count}}mo",
+        "yearsFromNow": "in {{count}}y",
         "months": {
             "jan": "Jan",
             "feb": "Feb",
@@ -682,6 +803,18 @@
         },
         "moderated": "Moderated"
     },
+    "gamePassViewer": {
+        "type": "Type",
+        "typeValue": "Pass",
+        "productId": "Product ID",
+        "price": "Price",
+        "owned": "Owned",
+        "ownedNotice": "This item is available in your inventory.",
+        "inventory": "Inventory",
+        "by": "By",
+        "usePassIn": "Use this Pass in:",
+        "rovalraNoticeDescription": "This game pass page is not viewable without RoValra."
+    },
     "playabilityStatus": {
         "0": "This experience is unavailable",
         "1": "This experience is playable",
@@ -755,7 +888,9 @@
         "tooltip": "Total Community Place Visits"
     },
     "groups": {
-        "createdLabel": "Created"
+        "createdLabel": "Created",
+        "joinedLabel": "Joined",
+        "unknown": "Unknown"
     },
     "profile": {
         "currencyTransfer": "Send Robux",
@@ -773,6 +908,11 @@
         "run": "Run",
         "jump": "Jump",
         "swim": "Swim"
+    },
+    "itemRender": {
+        "renderOptions": "Render Options",
+        "darkLighting": "Dark Lighting",
+        "baseplate": "Baseplate"
     },
     "groupFilters": {
         "sort": {

@@ -16,6 +16,10 @@ import {
     ROBUX_FIAT_ESTIMATE_STYLE_MODE_GRADIENT,
     ROBUX_FIAT_RATE_MODE_DEVEX,
 } from '../transactions/fiat.js';
+import {
+    getCachedUserCurrency,
+    USER_CURRENCY_DATA_KEY,
+} from '../utils/trackers/currency.js';
 
 const ROBUX_ICON_SVG = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><path d='M15.0762 7.29574C15.6479 6.96571 16.3521 6.96571 16.9238 7.29574L23.0762 10.8479C23.6479 11.1779 24 11.7878 24 12.4479V19.5521C24 20.2122 23.6479 20.8221 23.0762 21.1521L16.9238 24.7043C16.3521 25.0343 15.6479 25.0343 15.0762 24.7043L8.92376 21.1521C8.35214 20.8221 8 20.2122 8 19.5521V12.4479C8 11.7878 8.35214 11.1779 8.92376 10.8479L15.0762 7.29574ZM11.9998 13V19C11.9998 19.5523 12.4475 20 12.9998 20H18.9998C19.5521 20 19.9998 19.5523 19.9998 19V13C19.9998 12.4477 19.5521 12 18.9998 12H12.9998C12.4475 12 11.9998 12.4477 11.9998 13Z'/><path d='M13.8556 2.56068C15.1825 1.81311 16.8175 1.81311 18.1444 2.56068L26.8556 7.46819C28.1825 8.21577 29 9.59734 29 11.0925V20.9075C29 22.4027 28.1825 23.7842 26.8556 24.5318L18.1444 29.4393C16.8175 30.1869 15.1825 30.1869 13.8556 29.4393L5.14444 24.5318C3.81746 23.7842 3 22.4027 3 20.9075V11.0925C3 9.59734 3.81746 8.21577 5.14444 7.46819L13.8556 2.56068ZM17.1628 4.30319C16.4452 3.89894 15.5548 3.89894 14.8372 4.30319L6.12611 9.2107C5.41362 9.61209 5 10.336 5 11.0925V20.9075C5 21.664 5.41362 22.3879 6.12611 22.7893L14.8372 27.6968C15.5548 28.1011 16.4452 28.1011 17.1628 27.6968L25.8739 22.7893C26.5864 22.3879 27 21.664 27 20.9075V11.0925C27 10.336 26.5864 9.61209 25.8739 9.2107L17.1628 4.30319Z'/></svg>`;
 
@@ -29,9 +33,10 @@ const USD_TARGET_ICON_SELECTOR =
     '.icon-robux-16x16, .icon-robux-28x28, .icon-robux-gray-16x16, .icon-robux-tile, .rovalra-robux-icon';
 const USD_TARGET_VALUE_SELECTOR = `${VALUE_TEXT_SELECTOR}, .item-card-price, .store-card-price, .subscription-card-price, .icon-robux-container, .amount.icon-robux-container, .amount-cell, #navbar-robux .nav-robux-icon, #rbx-game-passes .store-card-price, #roseal-game-passes .store-card-price, .gear-passes-container .store-card-price, .game-dev-store .store-card-price`;
 const IGNORE_USD_SELECTOR =
-    '.rovalra-usd-estimate, .tooltip, .modal-dialog, #rovalra-stat-transactions, #rovalra-premium-breakdown-container, .rovalra-trade-summary, .rovalra-total-value-line, .rovalra-total-demand-line, .rovalra-value-label';
+    '.rovalra-usd-estimate, .tooltip, .modal-dialog, [data-rovalra-skip-usd-estimate], #rovalra-stat-transactions, #rovalra-stat-money-spent, #rovalra-premium-breakdown-container, #rovalra-purchase-breakdown-container, .rovalra-trade-summary, .rovalra-total-value-line, .rovalra-total-demand-line, .rovalra-value-label';
 
 const INLINE_FIAT_LOCATIONS = '#navbar-robux, #buy-robux-popover';
+const TOOLTIP_FIAT_LOCATIONS = '#rovalra-stat-robux';
 
 let robuxPricingPromise = null;
 
@@ -206,6 +211,27 @@ function getRobuxAmountFromElement(element) {
     return cleanPrice(getEstimateFreeText(element));
 }
 
+function shouldUseTrackedNavbarCurrency(element) {
+    if (!(element instanceof HTMLElement)) return false;
+    if (element.closest('#buy-robux-popover')) return false;
+    return (
+        element.id === 'nav-robux-amount' ||
+        element.closest('#navbar-robux') !== null
+    );
+}
+
+async function resolveEstimateRobuxAmount(element, amount) {
+    if (shouldUseTrackedNavbarCurrency(element)) {
+        const currencyData = await getCachedUserCurrency();
+        const trackedRobux = Number(currencyData?.robux);
+        if (Number.isFinite(trackedRobux) && trackedRobux > 0) {
+            return trackedRobux;
+        }
+    }
+
+    return amount;
+}
+
 function getEstimateAnchor(element) {
     if (!(element instanceof HTMLElement)) return null;
 
@@ -377,9 +403,10 @@ function upsertEstimate(anchorElement, estimate, options = {}) {
     const compact = options.compact === true;
 
     const useInline =
-        anchor.closest(INLINE_FIAT_LOCATIONS) !== null ||
-        isTransactionsPage() ||
-        isGroupRevenuePage();
+        anchor.closest(TOOLTIP_FIAT_LOCATIONS) === null &&
+        (anchor.closest(INLINE_FIAT_LOCATIONS) !== null ||
+            isTransactionsPage() ||
+            isGroupRevenuePage());
 
     const appendInside = options.appendInside ?? useInline;
 
@@ -431,6 +458,10 @@ function upsertEstimate(anchorElement, estimate, options = {}) {
 
         return estimateEl;
     } else {
+        anchor
+            .querySelectorAll('.rovalra-usd-estimate')
+            .forEach((estimateEl) => estimateEl.remove());
+
         const existingEstimate = anchor.nextElementSibling;
         if (
             existingEstimate instanceof HTMLElement &&
@@ -439,8 +470,11 @@ function upsertEstimate(anchorElement, estimate, options = {}) {
             existingEstimate.remove();
         }
 
+        anchor.dataset.rovalraTooltipText = text;
         if (!anchor.dataset.rovalraTooltipAttached) {
-            addTooltip(anchor, text, { position: 'top' });
+            addTooltip(anchor, (el) => el.dataset.rovalraTooltipText || text, {
+                position: 'top',
+            });
             anchor.dataset.rovalraTooltipAttached = 'true';
         }
 
@@ -497,9 +531,13 @@ async function attachTransactionsCellEstimate(labelCell) {
     if (!amount) return;
 
     try {
+        const resolvedAmount = await resolveEstimateRobuxAmount(
+            targetCell,
+            amount,
+        );
         const pricingData = await getRobuxPricingData();
         const formattedEstimate = await getFormattedRobuxEstimate(
-            amount,
+            resolvedAmount,
             pricingData,
         );
         if (!formattedEstimate) return;
@@ -508,7 +546,7 @@ async function attachTransactionsCellEstimate(labelCell) {
             compact: true,
             appendInside: true,
         });
-        labelCell.dataset.rovalraUsdAmount = String(amount);
+        labelCell.dataset.rovalraUsdAmount = String(resolvedAmount);
     } catch (error) {
         /* ignore */
     }
@@ -570,15 +608,19 @@ async function attachGroupRevenueEstimate(amountCell) {
     if (!amount) return;
 
     try {
+        const resolvedAmount = await resolveEstimateRobuxAmount(
+            amountCell,
+            amount,
+        );
         const pricingData = await getRobuxPricingData();
         const formattedEstimate = await getFormattedRobuxEstimate(
-            amount,
+            resolvedAmount,
             pricingData,
         );
         if (!formattedEstimate) return;
 
         upsertEstimate(amountCell, formattedEstimate, { compact: true });
-        amountCell.dataset.rovalraUsdAmount = String(amount);
+        amountCell.dataset.rovalraUsdAmount = String(resolvedAmount);
     } catch (error) {
         /* ignore */
     }
@@ -661,15 +703,19 @@ async function attachUsdEstimate(icon) {
     const { element, amount } = amountInfo;
 
     try {
+        const resolvedAmount = await resolveEstimateRobuxAmount(
+            element,
+            amount,
+        );
         const pricingData = await getRobuxPricingData();
         const formattedEstimate = await getFormattedRobuxEstimate(
-            amount,
+            resolvedAmount,
             pricingData,
         );
         if (!formattedEstimate) return;
 
         upsertEstimate(element, formattedEstimate);
-        icon.dataset.rovalraUsdAmount = String(amount);
+        icon.dataset.rovalraUsdAmount = String(resolvedAmount);
     } catch (error) {
         /* ignore */
     }
@@ -690,15 +736,19 @@ async function attachUsdEstimateToValueElement(element) {
     const { element: amountElement, amount } = amountInfo;
 
     try {
+        const resolvedAmount = await resolveEstimateRobuxAmount(
+            amountElement,
+            amount,
+        );
         const pricingData = await getRobuxPricingData();
         const formattedEstimate = await getFormattedRobuxEstimate(
-            amount,
+            resolvedAmount,
             pricingData,
         );
         if (!formattedEstimate) return;
 
         upsertEstimate(amountElement, formattedEstimate);
-        amountElement.dataset.rovalraUsdAmount = String(amount);
+        amountElement.dataset.rovalraUsdAmount = String(resolvedAmount);
     } catch (error) {
         /* ignore */
     }
@@ -824,6 +874,10 @@ export function init() {
 
         const hasStyleChange = styleKeys.some((key) => key in changes);
         const hasRerenderChange = rerenderKeys.some((key) => key in changes);
+
+        if (USER_CURRENCY_DATA_KEY in changes) {
+            scheduleUsdRefresh(0);
+        }
 
         if (hasStyleChange && !hasRerenderChange) {
             getRobuxFiatSettings().then((fiatSettings) => {

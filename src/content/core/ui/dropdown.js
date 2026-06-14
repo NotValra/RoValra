@@ -1,6 +1,7 @@
 // Creates a dropdown in the new Roblox dropdown style
 
-import { createDropdownContent } from './selects.js'; 
+import { createDropdownContent } from './selects.js';
+import { createShimmerBlock } from './shimmer.js';
 
 let isCssInjected = false;
 let openDropdowns = [];
@@ -32,7 +33,7 @@ function injectDropdownCss() {
 }
 
 
-export function createDropdown({ items = [], initialValue, placeholder = 'Select...', onValueChange, showFlags = false }) {
+export function createDropdown({ items = [], initialValue, placeholder = 'Select...', onValueChange, onOpen, showFlags = false }) {
     injectDropdownCss();
 
     const container = document.createElement('div');
@@ -44,27 +45,27 @@ export function createDropdown({ items = [], initialValue, placeholder = 'Select
     trigger.type = 'button';
     trigger.setAttribute('role', 'combobox');
     trigger.setAttribute('aria-haspopup', 'listbox');
-    
-    trigger.style.minHeight = '38px'; 
+
+    trigger.style.minHeight = '38px';
 
     const triggerPresentationDiv = document.createElement('div');
     triggerPresentationDiv.setAttribute('role', 'presentation');
     triggerPresentationDiv.className = 'absolute inset-[0] transition-colors group-hover/interactable:bg-[var(--color-state-hover)] group-active/interactable:bg-[var(--color-state-press)] group-disabled/interactable:bg-none';
-    
+
     const textWrapper = document.createElement('div');
     textWrapper.className = 'grow-1 text-truncate-split text-align-x-left';
-    
-    const triggerValueSpan = document.createElement('span'); 
+
+    const triggerValueSpan = document.createElement('span');
     triggerValueSpan.className = 'text-no-wrap text-truncate-split content-emphasis';
     triggerValueSpan.style.pointerEvents = 'none';
 
     textWrapper.innerHTML = `<span style="pointer-events: none;"></span>`;
     textWrapper.firstElementChild.appendChild(triggerValueSpan);
-    
+
     const chevron = document.createElement('span');
     chevron.setAttribute('aria-hidden', 'true');
     chevron.className = 'rovalra-dropdown-chevron size-500 icon icon-regular-chevron-large-down content-default';
-    
+
     if (items && items.length > 0) {
         const widestItem = items.reduce((prev, current) => (current.label.length > prev.label.length) ? current : prev, { label: '' });
         triggerValueSpan.textContent = widestItem.label || placeholder;
@@ -72,7 +73,7 @@ export function createDropdown({ items = [], initialValue, placeholder = 'Select
         Object.assign(trigger.style, { visibility: 'hidden', position: 'absolute' });
         container.appendChild(trigger);
         document.body.appendChild(container);
-        
+
         const widestWidth = trigger.scrollWidth + 16;
         trigger.style.minWidth = `${widestWidth}px`;
 
@@ -86,12 +87,40 @@ export function createDropdown({ items = [], initialValue, placeholder = 'Select
 
     const updateTriggerText = (value) => {
         const selectedItem = items ? items.find(item => item.value === value) : null;
-        
+
         while (triggerValueSpan.firstChild) {
             triggerValueSpan.removeChild(triggerValueSpan.firstChild);
         }
-        
+
         if (selectedItem) {
+            if (selectedItem.loading) {
+                triggerValueSpan.appendChild(
+                    createShimmerBlock({
+                        width: '45%',
+                        height: '14px',
+                    }),
+                );
+                trigger.removeAttribute('data-placeholder');
+                return;
+            }
+
+            if (selectedItem.imageUrl) {
+                const thumbnail = document.createElement('img');
+                thumbnail.src = selectedItem.imageUrl;
+                thumbnail.alt = '';
+                thumbnail.className = 'clip radius-small';
+                Object.assign(thumbnail.style, {
+                    width: '32px',
+                    height: '32px',
+                    maxWidth: '48px',
+                    maxHeight: '48px',
+                    objectFit: 'cover',
+                    marginRight: '8px',
+                    verticalAlign: 'middle',
+                });
+                triggerValueSpan.appendChild(thumbnail);
+            }
+
             if (showFlags) {
                 const getCountryCode = (regionCode) => {
                     if (regionCode === 'AUTO') return null;
@@ -132,11 +161,11 @@ export function createDropdown({ items = [], initialValue, placeholder = 'Select
         trigger.setAttribute('aria-expanded', 'false');
     };
 
-    const { element: contentPanel, toggleVisibility: toggleContentVisibility, updateSelectedState: updateContentSelectedState } = createDropdownContent(
+    const { element: contentPanel, toggleVisibility: toggleContentVisibility, updateSelectedState: updateContentSelectedState, refresh: refreshContent } = createDropdownContent(
         trigger, items || [], initialValue, handleValueChange, updateTriggerText, showFlags
     );
 
-    const toggleDropdown = (forceOpen) => { 
+    const toggleDropdown = (forceOpen) => {
         const isOpen = forceOpen ?? contentPanel.getAttribute('data-state') !== 'open';
 
         if (isOpen) {
@@ -152,7 +181,7 @@ export function createDropdown({ items = [], initialValue, placeholder = 'Select
                 const toClose = openDropdowns.pop();
                 toClose.close(false);
             }
-            
+
             openDropdowns.push({ panel: contentPanel, close: toggleDropdown });
         } else {
             const index = openDropdowns.findIndex(d => d.close === toggleDropdown);
@@ -171,6 +200,7 @@ export function createDropdown({ items = [], initialValue, placeholder = 'Select
         trigger.setAttribute('aria-expanded', String(isOpen));
 
         if (isOpen) {
+            onOpen?.();
             requestAnimationFrame(() => {
                 const rect = contentPanel.getBoundingClientRect();
                 const viewportWidth = document.documentElement.clientWidth || window.innerWidth;
@@ -194,22 +224,23 @@ export function createDropdown({ items = [], initialValue, placeholder = 'Select
         e.stopPropagation();
     });
 
-    document.addEventListener('click', (e) => { 
-
+    const handleDocumentClick = (e) => {
         if (contentPanel.contains(e.target)) return;
 
         if (!container.contains(e.target) && contentPanel.getAttribute('data-state') === 'open') {
             toggleDropdown(false);
         }
-    });
+    };
 
-    if (initialValue) updateTriggerText(initialValue);
+    document.addEventListener('click', handleDocumentClick);
+
+    updateTriggerText(initialValue);
     container.append(trigger);
 
     return {
         element: container,
         panel: contentPanel,
-        trigger: trigger,    
+        trigger: trigger,
         setValue: (value) => {
             updateTriggerText(value);
             updateContentSelectedState(value);
@@ -221,6 +252,19 @@ export function createDropdown({ items = [], initialValue, placeholder = 'Select
                     hiddenSelect.dispatchEvent(new Event('change', { bubbles: true }));
                 }
             }
+        },
+        refresh: () => {
+            refreshContent();
+            const selectedValue =
+                contentPanel.querySelector('[aria-selected="true"]')?.dataset
+                    .value;
+            updateTriggerText(selectedValue || initialValue);
+        },
+        destroy: () => {
+            toggleDropdown(false);
+            document.removeEventListener('click', handleDocumentClick);
+            contentPanel.remove();
+            container.remove();
         }
     };
 }
@@ -242,7 +286,7 @@ export function createDropdownMenu({ trigger, items, onValueChange, position }) 
 
     const toggle = (forceOpen) => {
         const isOpen = forceOpen ?? contentPanel.getAttribute('data-state') !== 'open';
-        
+
         if (isOpen) {
             let parentIndex = -1;
             for (let i = openDropdowns.length - 1; i >= 0; i--) {
@@ -256,7 +300,7 @@ export function createDropdownMenu({ trigger, items, onValueChange, position }) 
                 const toClose = openDropdowns.pop();
                 toClose.close(false);
             }
-            
+
             openDropdowns.push({ panel: contentPanel, close: toggle });
         } else {
             const index = openDropdowns.findIndex(d => d.close === toggle);
@@ -273,7 +317,7 @@ export function createDropdownMenu({ trigger, items, onValueChange, position }) 
         toggleVisibility(isOpen);
         trigger.setAttribute('data-state', isOpen ? 'open' : 'closed');
         trigger.setAttribute('aria-expanded', String(isOpen));
-        
+
         if (isOpen) {
             contentPanel.style.minWidth = '200px';
             if (position !== 'center') {

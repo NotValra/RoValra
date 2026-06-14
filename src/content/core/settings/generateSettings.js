@@ -242,7 +242,7 @@ async function setupAvatarPreview(container, inputElement, settingName) {
                 const borders = await getBorders();
                 const border = borders.find((b) => b.value === borderChoice);
                 if (border && border.link) {
-                    applyBorderToContainer(avatarEl, border.link);
+                    applyBorderToContainer(avatarEl, border.link, true);
                 }
             }
             lastBorder = borderChoice;

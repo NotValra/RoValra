@@ -15,10 +15,48 @@ let lastGameJoinRequestTime = 0;
 const OAUTH_STORAGE_KEY = 'rovalra_oauth_verification';
 const CAPTURED_APIS_KEY = 'rovalra_captured_apis';
 const seenRequests = new Map();
+let cachedRovalraUserAgent = null;
 
 const hbaClient = new HBAClient({
     onSite: true,
 });
+
+function getRovalraUserAgent() {
+    if (cachedRovalraUserAgent) return cachedRovalraUserAgent;
+
+    const originalUA = navigator.userAgent;
+    let browser = 'Unknown';
+    let engine = 'Unknown';
+
+    if (originalUA.includes('Firefox/')) {
+        browser = 'Firefox';
+        engine = 'Gecko';
+    } else if (originalUA.includes('Edg/')) {
+        browser = 'Edge';
+        engine = 'Chromium';
+    } else if (originalUA.includes('OPR/') || originalUA.includes('Opera/')) {
+        browser = 'Opera';
+        engine = 'Chromium';
+    } else if (originalUA.includes('Chrome/')) {
+        browser = 'Chrome';
+        engine = 'Chromium';
+    } else if (originalUA.includes('Safari/')) {
+        browser = 'Safari';
+        engine = 'WebKit';
+    }
+
+    const manifest = chrome.runtime.getManifest();
+    const version = manifest.version || 'Unknown';
+    const isDevelopment = !('update_url' in manifest);
+    const environment = isDevelopment ? 'Development' : 'Production';
+
+    cachedRovalraUserAgent = `RoValraExtension(RoValra/${browser}/${engine}/${version}/${environment})`;
+    if (engine === 'Gecko' || engine === 'WebKit') {
+        cachedRovalraUserAgent += ' UnofficialRoValraVersion';
+    }
+
+    return cachedRovalraUserAgent;
+}
 
 document.addEventListener('rovalra-traffic-capture', (e) => {
     const { url, method, body } = e.detail;
@@ -206,6 +244,27 @@ export function resetGameJoinErrorCount() {
 }
 
 export async function callRobloxApi(options) {
+    if (
+        options.subdomain === 'gamejoin' &&
+        (options.method || 'GET').toUpperCase() === 'POST'
+    ) {
+        if (
+            options.body &&
+            typeof options.body === 'object' &&
+            !(options.body instanceof FormData)
+        ) {
+            const bodyUpdate = { joinOrigin: 'RoValraFetchInfo' };
+            if (!options.body.gameJoinAttemptId) {
+                bodyUpdate.gameJoinAttemptId = self.crypto.randomUUID();
+            }
+
+            options = {
+                ...options,
+                body: { ...options.body, ...bodyUpdate },
+            };
+        }
+    }
+
     captureApiCall(options);
 
     if (options.subdomain === 'gamejoin') {
@@ -256,6 +315,13 @@ export async function callRobloxApi(options) {
         } = options;
 
         const normalizedHeaders = new Headers(headers);
+
+        if (isRovalraApi && subdomain === 'apis') {
+            normalizedHeaders.set(
+                'x-rovalra-user-agent',
+                getRovalraUserAgent(),
+            );
+        }
 
         if (useApiKey) {
             const apiKey = await getValidApiKey();
@@ -521,21 +587,31 @@ export async function callRobloxApi(options) {
                         isTokenInvalid &&
                         endpoint &&
                         endpoint.includes('/v1/auth') &&
-                        !skipAutoAuth &&
-                        !authRetried
+                        !skipAutoAuth
                     ) {
-                        console.log(
-                            'RoValra API: Invalid token/session, attempting token refresh...',
-                        );
-                        authRetried = true;
-                        const newToken = await getValidAccessToken(true, false);
-                        if (newToken) {
-                            fetchOptions.headers.set(
-                                'Authorization',
-                                `Bearer ${newToken}`,
+                        if (!authRetried) {
+                            console.log(
+                                'RoValra API: Invalid token/session, attempting token refresh...',
                             );
-                            continue;
+                            authRetried = true;
+                            const newToken = await getValidAccessToken(
+                                true,
+                                false,
+                            );
+                            if (newToken) {
+                                fetchOptions.headers.set(
+                                    'Authorization',
+                                    `Bearer ${newToken}`,
+                                );
+                                continue;
+                            }
                         }
+
+                        console.warn(
+                            'RoValra API: Authentication failed repeatedly. Clearing storage as last resort.',
+                        );
+                        await chrome.storage.local.remove(OAUTH_STORAGE_KEY);
+                        break;
                     }
 
                     if (lastResponse.ok && !bodyIsInvalid) {

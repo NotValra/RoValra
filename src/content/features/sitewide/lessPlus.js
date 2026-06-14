@@ -1,3 +1,5 @@
+import { settings } from "../../core/settings/getSettings";
+
 const plusTypeEnum = Object.freeze({
     Full: 0,
     Reduced: 1,
@@ -6,9 +8,9 @@ const plusTypeEnum = Object.freeze({
 
 let plusType = plusTypeEnum.Reduced;
 
-async function initFromConfig(settings) {
-    if (settings.reducePlusAds)
-        if (settings.removeAllPlusAdds) plusType = plusTypeEnum.None;
+async function asyncInit() {
+    if (await settings.reducePlusAds)
+        if (await settings.removeAllPlusAdds) plusType = plusTypeEnum.None;
         else plusType = plusTypeEnum.Reduced;
     else plusType = plusTypeEnum.Full;
 
@@ -41,20 +43,19 @@ async function initFromConfig(settings) {
                 "div.buy-robux-content div div div.flex a[href='/plus']",
             );
 
-            const robloxPlusInBuyRobuxSnippet =
-                _RobloxPlusInBuyRobuxSnippetA[0].parentElement.parentElement
-                    .parentElement.children[1];
+            if (_RobloxPlusInBuyRobuxSnippetA.length >= 1) {
+                const robloxPlusInBuyRobuxSnippet =
+                    _RobloxPlusInBuyRobuxSnippetA[0].parentElement.parentElement
+                        .parentElement.children[1];
 
-            if (plusType >= plusTypeEnum.None)
-                robloxPlusInBuyRobuxSnippet.parentElement.remove();
-            else robloxPlusInBuyRobuxSnippet.remove();
+                if (plusType >= plusTypeEnum.None)
+                    robloxPlusInBuyRobuxSnippet.parentElement.remove();
+                else robloxPlusInBuyRobuxSnippet.remove();
+            }
         }
     });
 }
 
 export function init() {
-    chrome.storage.local.get(
-        { reducePlusAds: true, removeAllPlusAdds: true },
-        initFromConfig,
-    );
+    asyncInit();
 }

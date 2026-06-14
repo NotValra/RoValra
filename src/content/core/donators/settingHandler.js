@@ -4,6 +4,7 @@ import { getAuthenticatedUserId } from '../user.js';
 import {
     syncDonatorTier,
 } from '../settings/handlesettings.js';
+import { getCurrentUserTier } from '../settings/handlesettings.js';
 import {
     TRUSTED_USER_IDS
 } from '../configs/userIds.js';
@@ -17,6 +18,19 @@ let batchInProgress = false;
 const memoryCache = new Map();
 const pendingResolvers = new Map();
 
+function assertValidUserId(userId) {
+    if (
+        userId === null ||
+        userId === undefined ||
+        String(userId).trim() === '' ||
+        String(userId).toLowerCase() === 'null'
+    ) {
+        throw new Error(
+            'RoValra: Cannot fetch user settings without a valid user ID.',
+        );
+    }
+}
+
 async function saveToCache(cacheKey, settings) {
     const cacheData = {
         data: settings,
@@ -27,13 +41,11 @@ async function saveToCache(cacheKey, settings) {
 }
 
 async function fetchAndProcessSettings(userId, options = {}) {
+    assertValidUserId(userId);
+
     const authenticatedUserId = await getAuthenticatedUserId();
     const isOwnProfile =
         authenticatedUserId && String(authenticatedUserId) === String(userId);
-
-    if (isOwnProfile) {
-        await syncDonatorTier();
-    }
 
     let apiSettings = {};
     let apiProvidedMeaningfulSettings = false;
@@ -74,8 +86,10 @@ async function fetchAndProcessSettings(userId, options = {}) {
             if (
                 (apiSettings.environment === 0 ||
                     apiSettings.environment === 1) &&
-                apiSettings.status === '' &&
-                Object.keys(apiSettings).length === 2
+                !apiSettings.status &&
+                !apiSettings.border &&
+                !apiSettings.gradient &&
+                Object.keys(apiSettings).length <= 4
             ) {
                 apiProvidedMeaningfulSettings = false;
             } else {
@@ -99,11 +113,27 @@ async function fetchAndProcessSettings(userId, options = {}) {
         finalBorder = apiSettings.border ?? null;
     }
 
+    if (
+        isOwnProfile &&
+        apiSettings &&
+        apiSettings.border &&
+        apiProvidedMeaningfulSettings
+    ) {
+        document.dispatchEvent(
+            new CustomEvent('rovalra:syncAvatarBorder', {
+                detail: { borderUrl: apiSettings.border },
+            }),
+        );
+    }
+
     return {
         status: finalStatus,
         environment: finalEnvironment || 1,
         gradient: finalGradient,
         border: finalBorder,
+        Views: Number(apiSettings.Views) || 0,
+        hide_views:
+            apiSettings.hide_views === 'true' || apiSettings.hide_views === true,
         canUseApi: apiProvidedMeaningfulSettings,
         anonymous_leaderboard:
             apiSettings.anonymous_leaderboard === 'true' ||
@@ -233,21 +263,21 @@ async function processBatchQueue() {
 }
 
 async function processApiSettings(userId, apiSettings, options) {
+    assertValidUserId(userId);
+
     const authenticatedUserId = await getAuthenticatedUserId();
     const isOwnProfile =
         authenticatedUserId && String(authenticatedUserId) === String(userId);
-
-    if (isOwnProfile) {
-        await syncDonatorTier();
-    }
 
     let apiProvidedMeaningfulSettings = false;
 
     if (apiSettings && typeof apiSettings === 'object') {
         if (
             (apiSettings.environment === 0 || apiSettings.environment === 1) &&
-            apiSettings.status === '' &&
-            Object.keys(apiSettings).length === 2
+            !apiSettings.status &&
+            !apiSettings.border &&
+            !apiSettings.gradient &&
+            Object.keys(apiSettings).length <= 4
         ) {
             apiProvidedMeaningfulSettings = false;
         } else {
@@ -267,11 +297,27 @@ async function processApiSettings(userId, apiSettings, options) {
         finalBorder = apiSettings.border ?? null;
     }
 
+    if (
+        isOwnProfile &&
+        apiSettings &&
+        apiSettings.border &&
+        apiProvidedMeaningfulSettings
+    ) {
+        document.dispatchEvent(
+            new CustomEvent('rovalra:syncAvatarBorder', {
+                detail: { borderUrl: apiSettings.border },
+            }),
+        );
+    }
+
     return {
         status: finalStatus,
         environment: finalEnvironment || 1,
         gradient: finalGradient,
         border: finalBorder,
+        Views: Number(apiSettings.Views) || 0,
+        hide_views:
+            apiSettings.hide_views === 'true' || apiSettings.hide_views === true,
         canUseApi: apiProvidedMeaningfulSettings,
         anonymous_leaderboard:
             apiSettings.anonymous_leaderboard === 'true' ||
@@ -280,6 +326,8 @@ async function processApiSettings(userId, apiSettings, options) {
 }
 
 export async function getUserSettings(userId, options = {}) {
+    assertValidUserId(userId);
+
     const authedId = await getAuthenticatedUserId();
     const authenticatedUserId = authedId ? String(authedId) : null;
     const strUserId = String(userId);
@@ -375,7 +423,7 @@ export async function getUserSettings(userId, options = {}) {
 /**
  * Updates a user setting via the RoValra API.
  * @param {string} key The setting key to update (e.g., 'environment', 'status').
- * @param {any} value The new value for the setting. Will be converted to string.
+ * @param {any} value The new value for the setting.
  * @returns {Promise<boolean>} True if the update was successful, false otherwise.
  */
 export async function updateUserSettingViaApi(key, value) {
@@ -383,12 +431,14 @@ export async function updateUserSettingViaApi(key, value) {
         const token = await getValidAccessToken(false, false);
         if (!token) return false;
 
+        const apiValue = key === 'hide_views' ? Boolean(value) : String(value);
+
         const response = await callRobloxApiJson({
             isRovalraApi: true,
             subdomain: 'apis',
             endpoint: '/v1/auth/settings',
             method: 'POST',
-            body: JSON.stringify({ key, value: String(value) }),
+            body: JSON.stringify({ key, value: apiValue }),
         });
         if (
             response &&

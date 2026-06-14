@@ -669,6 +669,8 @@ function initializeJoinDialogEnhancer() {
                                             isPrivate: true,
                                             accessCode:
                                                 urlParams.get('accessCode'),
+                                            linkCode:
+                                                urlParams.get('linkCode'),
                                         },
                                     );
                                 } else if (isFollowingUser) {

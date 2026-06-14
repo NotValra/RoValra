@@ -1,4 +1,4 @@
-import { observeElement } from '../../core/observer.js';
+import { observeElement, observeChildren } from '../../core/observer.js';
 import { createPillToggle } from '../../core/ui/general/pillToggle.js';
 import { getUserIdFromUrl, getGroupIdFromUrl } from '../../core/idExtractor.js';
 import { callRobloxApiJson } from '../../core/api.js';
@@ -90,151 +90,186 @@ export function init() {
     if (!userId) return;
 
     chrome.storage.local.get({ groupFiltersEnabled: true }, (settings) => {
+        if (!settings.groupFiltersEnabled) return;
+
         observeElement(
             '.profile-communities',
             (container) => {
-                const carousel = container.querySelector(
-                    '.css-1i465w8-carousel',
-                );
-                if (!carousel) return;
+                const getCarousel = () => {
+                    const item = container.querySelector(
+                        '#collection-carousel-item, [id="collection-carousel-item"], [class*="-carouselItem"]',
+                    );
+                    return (
+                        item?.parentElement ||
+                        container.querySelector(
+                            '.css-1i465w8-carousel, [class*="-carousel"]',
+                        )
+                    );
+                };
 
-                const getItems = () =>
-                    Array.from(
-                        carousel.querySelectorAll('#collection-carousel-item'),
+                const setup = () => {
+                    const carousel = getCarousel();
+                    if (!carousel || container.dataset.rovalraFiltersAdded)
+                        return;
+
+                    const items = Array.from(
+                        carousel.querySelectorAll(
+                            '#collection-carousel-item, [id="collection-carousel-item"], [class*="-carouselItem"]',
+                        ),
                     );
 
-                getItems().forEach((item) => {
-                    const link = item.querySelector('a');
-                    const groupId = getGroupIdFromUrl(
-                        link?.getAttribute('href'),
-                    );
-                    if (groupId) {
-                        getJoinDate(groupId, userId);
-                    }
-                });
+                    if (items.length === 0) return;
 
-                if (
-                    !settings.groupFiltersEnabled ||
-                    container.dataset.rovalraFiltersAdded
-                )
-                    return;
-                container.dataset.rovalraFiltersAdded = 'true';
+                    container.dataset.rovalraFiltersAdded = 'true';
 
-                const header = container.querySelector('h2');
-                if (!header) return;
-
-                const headerWrapper = document.createElement('div');
-                headerWrapper.style.display = 'flex';
-                headerWrapper.style.alignItems = 'center';
-                headerWrapper.style.justifyContent = 'space-between';
-                headerWrapper.style.width = '100%';
-                headerWrapper.style.marginBottom = '12px';
-
-                header.parentNode.insertBefore(headerWrapper, header);
-                headerWrapper.appendChild(header);
-
-                const originalOrder = getItems();
-
-                const sortOptions = [
-                    { text: ts('groupFilters.sort.default'), value: 'default' },
-                    { text: ts('groupFilters.sort.az'), value: 'az' },
-                    { text: ts('groupFilters.sort.za'), value: 'za' },
-                    {
-                        text: ts('groupFilters.sort.newest'),
-                        value: 'newest',
-                        tooltip: ts('groupFilters.tooltip'),
-                    },
-                    {
-                        text: ts('groupFilters.sort.oldest'),
-                        value: 'oldest',
-                        tooltip: ts('groupFilters.tooltip'),
-                    },
-                ];
-
-                const toggle = createPillToggle({
-                    options: sortOptions,
-                    initialValue: 'default',
-                    onChange: async (value) => {
-                        const items = getItems();
-
-                        if (value === 'newest' || value === 'oldest') {
-                            await Promise.all(
-                                items.map((item) => {
-                                    const link = item.querySelector('a');
-                                    const groupId = getGroupIdFromUrl(
-                                        link?.getAttribute('href'),
-                                    );
-                                    return getJoinDate(groupId, userId);
-                                }),
-                            );
+                    items.forEach((item) => {
+                        const link = item.querySelector('a');
+                        const groupId = getGroupIdFromUrl(
+                            link?.getAttribute('href'),
+                        );
+                        if (groupId) {
+                            getJoinDate(groupId, userId);
                         }
+                    });
 
-                        items.sort((a, b) => {
-                            if (value === 'default') {
-                                return (
-                                    originalOrder.indexOf(a) -
-                                    originalOrder.indexOf(b)
+                    const header = container.querySelector('h2');
+                    if (!header) return;
+
+                    const headerWrapper = document.createElement('div');
+                    headerWrapper.style.display = 'flex';
+                    headerWrapper.style.alignItems = 'center';
+                    headerWrapper.style.justifyContent = 'space-between';
+                    headerWrapper.style.width = '100%';
+                    headerWrapper.style.marginBottom = '12px';
+
+                    header.parentNode.insertBefore(headerWrapper, header);
+                    headerWrapper.appendChild(header);
+
+                    const originalOrder = [...items];
+
+                    const sortOptions = [
+                        {
+                            text: ts('groupFilters.sort.default'),
+                            value: 'default',
+                        },
+                        { text: ts('groupFilters.sort.az'), value: 'az' },
+                        { text: ts('groupFilters.sort.za'), value: 'za' },
+                        {
+                            text: ts('groupFilters.sort.newest'),
+                            value: 'newest',
+                            tooltip: ts('groupFilters.tooltip'),
+                        },
+                        {
+                            text: ts('groupFilters.sort.oldest'),
+                            value: 'oldest',
+                            tooltip: ts('groupFilters.tooltip'),
+                        },
+                    ];
+
+                    const toggle = createPillToggle({
+                        options: sortOptions,
+                        initialValue: 'default',
+                        onChange: async (value) => {
+                            const activeCarousel = getCarousel();
+                            if (!activeCarousel) return;
+
+                            const currentItems = Array.from(
+                                activeCarousel.querySelectorAll(
+                                    '#collection-carousel-item, [id="collection-carousel-item"], [class*="-carouselItem"]',
+                                ),
+                            );
+
+                            if (value === 'newest' || value === 'oldest') {
+                                await Promise.all(
+                                    currentItems.map((item) => {
+                                        const link = item.querySelector('a');
+                                        const groupId = getGroupIdFromUrl(
+                                            link?.getAttribute('href'),
+                                        );
+                                        return getJoinDate(groupId, userId);
+                                    }),
                                 );
                             }
 
-                            const nameA =
-                                a
-                                    .querySelector('.base-tile-title')
-                                    ?.textContent?.trim() || '';
-                            const nameB =
-                                b
-                                    .querySelector('.base-tile-title')
-                                    ?.textContent?.trim() || '';
-
-                            switch (value) {
-                                case 'az':
-                                    return nameA.localeCompare(nameB);
-                                case 'za':
-                                    return nameB.localeCompare(nameA);
-                                case 'newest': {
-                                    const idA = getGroupIdFromUrl(
-                                        a
-                                            .querySelector('a')
-                                            ?.getAttribute('href'),
+                            currentItems.sort((a, b) => {
+                                if (value === 'default') {
+                                    return (
+                                        originalOrder.indexOf(a) -
+                                        originalOrder.indexOf(b)
                                     );
-                                    const idB = getGroupIdFromUrl(
-                                        b
-                                            .querySelector('a')
-                                            ?.getAttribute('href'),
-                                    );
-                                    const dateA =
-                                        joinDateCache.get(idA) || new Date(0);
-                                    const dateB =
-                                        joinDateCache.get(idB) || new Date(0);
-                                    return dateB - dateA;
                                 }
-                                case 'oldest': {
-                                    const idA = getGroupIdFromUrl(
-                                        a
-                                            .querySelector('a')
-                                            ?.getAttribute('href'),
-                                    );
-                                    const idB = getGroupIdFromUrl(
-                                        b
-                                            .querySelector('a')
-                                            ?.getAttribute('href'),
-                                    );
-                                    const dateA =
-                                        joinDateCache.get(idA) || new Date(0);
-                                    const dateB =
-                                        joinDateCache.get(idB) || new Date(0);
-                                    return dateA - dateB;
+
+                                const nameA =
+                                    a
+                                        .querySelector('.base-tile-title')
+                                        ?.textContent?.trim() || '';
+                                const nameB =
+                                    b
+                                        .querySelector('.base-tile-title')
+                                        ?.textContent?.trim() || '';
+
+                                switch (value) {
+                                    case 'az':
+                                        return nameA.localeCompare(nameB);
+                                    case 'za':
+                                        return nameB.localeCompare(nameA);
+                                    case 'newest': {
+                                        const idA = getGroupIdFromUrl(
+                                            a
+                                                .querySelector('a')
+                                                ?.getAttribute('href'),
+                                        );
+                                        const idB = getGroupIdFromUrl(
+                                            b
+                                                .querySelector('a')
+                                                ?.getAttribute('href'),
+                                        );
+                                        const dateA =
+                                            joinDateCache.get(idA) ||
+                                            new Date(0);
+                                        const dateB =
+                                            joinDateCache.get(idB) ||
+                                            new Date(0);
+                                        return dateB - dateA;
+                                    }
+                                    case 'oldest': {
+                                        const idA = getGroupIdFromUrl(
+                                            a
+                                                .querySelector('a')
+                                                ?.getAttribute('href'),
+                                        );
+                                        const idB = getGroupIdFromUrl(
+                                            b
+                                                .querySelector('a')
+                                                ?.getAttribute('href'),
+                                        );
+                                        const dateA =
+                                            joinDateCache.get(idA) ||
+                                            new Date(0);
+                                        const dateB =
+                                            joinDateCache.get(idB) ||
+                                            new Date(0);
+                                        return dateA - dateB;
+                                    }
+                                    default:
+                                        return 0;
                                 }
-                                default:
-                                    return 0;
-                            }
-                        });
+                            });
 
-                        items.forEach((item) => carousel.appendChild(item));
-                    },
-                });
+                            activeCarousel.style.display = 'flex';
+                            activeCarousel.style.flexWrap = 'nowrap';
 
-                headerWrapper.appendChild(toggle);
+                            currentItems.forEach((item) =>
+                                activeCarousel.appendChild(item),
+                            );
+                        },
+                    });
+
+                    headerWrapper.appendChild(toggle);
+                };
+
+                setup();
+                observeChildren(container, setup);
             },
             { multiple: true },
         );

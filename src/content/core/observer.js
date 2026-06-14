@@ -61,8 +61,10 @@ export function initializeObserver() {
             }
 
             if (mutation.type === 'childList') {
-                const listener = childListListeners.get(mutation.target);
-                if (listener) listener(mutation);
+                const listeners = childListListeners.get(mutation.target);
+                if (listeners) {
+                    for (const listener of listeners) listener(mutation);
+                }
             }
 
             if (mutation.addedNodes.length === 0) continue;
@@ -174,11 +176,22 @@ export const observeAttributes = (
 export function observeChildren(element, callback) {
     if (!observerInitialized) initializeObserver();
 
-    childListListeners.set(element, callback);
+    let listeners = childListListeners.get(element);
+    if (!listeners) {
+        listeners = new Set();
+        childListListeners.set(element, listeners);
+    }
+    listeners.add(callback);
 
     return {
         disconnect: () => {
-            childListListeners.delete(element);
+            const activeListeners = childListListeners.get(element);
+            if (!activeListeners) return;
+
+            activeListeners.delete(callback);
+            if (activeListeners.size === 0) {
+                childListListeners.delete(element);
+            }
         },
     };
 }
