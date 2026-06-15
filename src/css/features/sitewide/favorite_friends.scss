@@ -1,12 +1,18 @@
-.friends-carousel-tile:has(
-	.friend-tile-dropdown
-) .rovalra-favorite-friend-userCard-toggle {
-	display: flex;
-	display: -ms-flexbox;
+.friends-carousel-tile:has(.friend-tile-dropdown)
+    .rovalra-favorite-friend-userCard-toggle {
+    display: flex;
+    display: -ms-flexbox;
 
-	flex-direction: row;
-	align-items: center;
-	gap: 5px;
+    flex-direction: row;
+    align-items: center;
+    gap: 5px;
 
-	border-radius: 0px 0px 5px 5px;
+    border-radius: 0px 0px 5px 5px;
+}
+
+.rovalra-friend-favorited {
+    .avatar-card-fullbody {
+        outline: green 2px solid;
+        outline-offset: 2px;
+    }
 }

@@ -159,7 +159,7 @@ const featureRoutes = [
             initBirthdayTracker,
             initServerTracker,
             initFriendsListTracking,
-			initFavoriteFriends,
+            initFavoriteFriends,
             initTransactionsTracking,
             initBadgesTracking,
             initUserCurrencyTracking,

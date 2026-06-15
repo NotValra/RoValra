@@ -648,17 +648,17 @@ export const SETTINGS_CONFIG = {
                 locked: 'Roblox released their own version of this.',
                 isPermanent: true,
             },
-			favoriteFriendsEnabled: {
-				label: "Favorite Friends",
-				description: [
-					"Allows friends that are selected to be shown first, regardless of their status.",
-					"Friends that are favorited show up in: Home, Profile, and the Friends tab."
-				],
-				type: "checkbox",
-				default: false,
-				storageKey: ["Stores userIds of favorited friends"], 
-				contributors: ["341871092"]
-			},
+            favoriteFriendsEnabled: {
+                label: 'Favorite Friends',
+                description: [
+                    'Allows friends that are selected to be shown first, regardless of their status.',
+                    'Friends that are favorited show up in: Home, Profile, and the Friends tab.',
+                ],
+                type: 'checkbox',
+                default: false,
+                storageKey: 'rovalra_favorited_friends',
+                contributors: ['341871092'],
+            },
             currencyTransferEnabled: {
                 label: 'Send Robux',
                 description: [
