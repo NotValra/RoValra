@@ -62,11 +62,14 @@ async function initFeatures() {
             // Handle DOMContentLoaded or load having already fired
             switch (document.readyState) {
                 case "interactive":
-                    featureData.feat.onDOMLoaded();
+                    if (typeof featureData.feat.onDOMLoaded === 'function')
+                        featureData.feat.onDOMLoaded();
                     break;
                 case "complete":
-                    featureData.feat.onDOMLoaded();
-                    featureData.feat.onPageLoaded();
+                    if (typeof featureData.feat.onDOMLoaded === 'function')
+                        featureData.feat.onDOMLoaded();
+                    if (typeof featureData.feat.onPageLoaded === 'function')
+                        featureData.feat.onPageLoaded();
                     break;
             }
         })());
