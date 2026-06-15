@@ -97,6 +97,16 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
+            ExplorerEnabled: {
+                label: 'Item Explorer',
+                description: [
+                    'Adds an **Explorer** button on catalog item pages.',
+                    'It downloads and parses the item, then shows its instance tree and properties, similar to the Explorer in Roblox Studio.',
+                ],
+                type: 'checkbox',
+                default: true,
+                contributors: ['9502859424'],
+            },
             priceFloorEnabled: {
                 label: 'Show Price Floor',
                 description:
