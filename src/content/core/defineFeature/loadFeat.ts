@@ -7,7 +7,10 @@ type Feature = {paths: Array<string>, name: string, feat: any | unknown};
 
 let features: Array<Feature> = [];
 
+let prepared = false;
 function prepare() {
+    if (prepared) return;
+    prepared = true;
     for (const feat of getAllFeatures()) {
         const instance = new feat.cl();
         features.push({
@@ -35,9 +38,9 @@ async function initFeatures() {
         }
 
         promises.push((async () => {
-            try {
-                const startTime = performance.now();
+            const startTime = performance.now();
 
+            try {
                 const p = featureData.feat.init(normalizedPath);  // initialise it
                 if (p && typeof p.then === 'function')
                     await p;  // if the initialiser is async, await it
@@ -46,7 +49,7 @@ async function initFeatures() {
 
                 debugVerbose(`[loadFeat] initFeatures: ${featureData.name}: Initialised in ${(endTime - startTime).toFixed(1)}ms`);
             } catch (e) {
-                console.error(`[loadFeat] initFeatures: ${featureData.name}: Failed to initialise`, e);
+                console.error(`[loadFeat] initFeatures: ${featureData.name}: Failed to initialise after ${((performance.now() - startTime) * 1000).toFixed(3)}s`, e);
             }
 
             // Install hooks
@@ -60,9 +63,11 @@ async function initFeatures() {
             switch (document.readyState) {
                 case "interactive":
                     featureData.feat.onDOMLoaded();
+                    break;
                 case "complete":
                     featureData.feat.onDOMLoaded();
                     featureData.feat.onPageLoaded();
+                    break;
             }
         })());
     }
