@@ -1,6 +1,7 @@
 import { debugVerbose } from "../debug";
 
-export type RawFeatureData = { cl: new (...args: unknown[]) => any, name: string, paths: string[]};
+type ClassConstructor = new (...args: unknown[]) => any;
+export type RawFeatureData = { cl: ClassConstructor, name: string, paths: string[]};
 
 declare global {
     var defFeat_features: Array<RawFeatureData>;
@@ -24,18 +25,19 @@ export function getAllFeatures(): Array<RawFeatureData> {
 
 export function feature(options: Record<string, any>) {
     if (!options) {
-        options = { paths: ['*'], name: undefined };
+        options = { paths: ['*'], name: undefined };  // Default options
+        // name === undefined means it will be deduced from the class name
     }
 
     let name = options?.name;
-    const paths = options?.paths;
+    const paths = options?.paths ?? ['*'];
 
-    function wrapper(cl: new (...args: unknown[]) => any) {
-        name = name ?? cl.name;
+    function wrapper(cl: ClassConstructor) {  // the actual decorator (cl = class constructor)    !!! This function will be automatically called on file load with wrapper(TargetClass)
+        name = name ?? cl.name;  // If undefined, deduce from class name
 
-        debugVerbose("[defFeat] declaring feature", { class: cl, name: name, paths: paths, options: options });
+        debugVerbose("[defFeat] Declaring feature", { class: cl, name: name, paths: paths, options: options });
 
-        getAllFeatures().push({ paths: paths, name: name, cl: cl });
+        getAllFeatures().push({ paths: paths, name: name, cl: cl });  // add it to a global list that loadFeat.ts can loop through
     };
 
     return wrapper;

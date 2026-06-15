@@ -1,6 +1,7 @@
 import { getAllFeatures } from "./defFeat";
 import { debugVerbose } from "../debug";
 import * as _featList from "./featList";
+import { t } from "../locale/i18n";
 
 type Feature = {paths: Array<string>, name: string, feat: any | unknown};
 
@@ -24,7 +25,7 @@ async function initFeatures() {
     for (const featureData of features) {
         // Check if the feature should be run on this page
         const path = window.location.pathname.toLowerCase();
-        const normalizedPath = path.replace(/^\/[a-z]{2}(?:-[a-z]{2})?\//, '/');
+        const normalizedPath = path.replace(/^\/[a-z]{2}(?:-[a-z]{2})?\//, '/');  // "www.roblox.com/home" -> "/home"
 
         if (!featureData.paths.some((p) => {  // the opposite of the condition below (are we NOT on this page, or a subpage?)
             const lowerP = p.toLowerCase();
@@ -34,17 +35,35 @@ async function initFeatures() {
         }
 
         promises.push((async () => {
-            debugVerbose(`[loadFeat] initFeatures: ${featureData.name}: Initialising`);
-            const p = featureData.feat.init(normalizedPath);  // initialise it
-            if (p && typeof p.then === 'function')
-                await p;  // if the initialiser is async, await it
+            try {
+                const startTime = performance.now();
+
+                const p = featureData.feat.init(normalizedPath);  // initialise it
+                if (p && typeof p.then === 'function')
+                    await p;  // if the initialiser is async, await it
+
+                const endTime = performance.now();
+
+                debugVerbose(`[loadFeat] initFeatures: ${featureData.name}: Initialised in ${(endTime - startTime).toFixed(1)}ms`);
+            } catch (e) {
+                console.error(`[loadFeat] initFeatures: ${featureData.name}: Failed to initialise`, e);
+            }
 
             // Install hooks
-            if (typeof featureData.feat.onDOMLoaded === 'function')
+            if (typeof featureData.feat.onDOMLoaded === 'function' && document.readyState === 'loading')
                 window.addEventListener('DOMContentLoaded', (...args: unknown[]) => featureData.feat.onDOMLoaded(...args));
 
-            if (typeof featureData.feat.onPageLoaded === 'function')
+            if (typeof featureData.feat.onPageLoaded === 'function' && ['loading', 'interactive'].includes(document.readyState))
                 window.addEventListener('load', (...args: unknown[]) => featureData.feat.onPageLoaded(...args));
+
+            // Handle DOMContentLoaded or load having already fired
+            switch (document.readyState) {
+                case "interactive":
+                    featureData.feat.onDOMLoaded();
+                case "complete":
+                    featureData.feat.onDOMLoaded();
+                    featureData.feat.onPageLoaded();
+            }
         })());
     }
 

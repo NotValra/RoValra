@@ -471,6 +471,7 @@ async function handleUrlChange() {
         lastPath = currentPath;
 
         runFeaturesForPage();
+        await runClassFeatures();
 
         detectTheme().then((theme) => dispatchThemeEvent(theme));
     }

@@ -18,8 +18,6 @@ export class LessPlus {
             if (await settings.removeAllPlusAdds) this.plusType = plusTypeEnum.None;
             else this.plusType = plusTypeEnum.Reduced;
         else this.plusType = plusTypeEnum.Full;
-    
-        this.plusType = plusTypeEnum.Reduced;
     }
 
     async onDOMLoaded() {
