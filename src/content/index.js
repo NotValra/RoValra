@@ -139,6 +139,7 @@ import { init as initHomeLayout } from './features/home/homeLayout.js';
 import { init as initUnderratedGamesHome } from './features/home/underratedGames.js';
 // create
 import { init as initCreateDownload } from './features/create.roblox.com/download.js';
+import { init as initCatalogExplorer } from './features/catalog/explorer.js';
 import { enforceSettingOverrides } from './core/settings/handlesettings.js';
 import { refreshRemoteSettingLocks } from './core/settings/remoteSettingLocks.js';
 
@@ -215,6 +216,7 @@ const featureRoutes = [
             initItemTrading,
             initLastEquipped,
             initItemRender,
+            initCatalogExplorer,
         ],
     },
     // Group pages
@@ -251,6 +253,7 @@ const featureRoutes = [
             initPrivateServerControls,
             initHeatmap,
             initPlusPrivateServerTooltip,
+            initCatalogExplorer,
         ],
     },
     // private games and game pages

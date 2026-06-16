@@ -1489,6 +1489,15 @@ export const SETTINGS_CONFIG = {
                 default: false,
                 requiredPermissions: ['webNavigation'],
             },
+            ExplorerEnabled: {
+                label: 'Explorer',
+                description: [
+                    'Adds an Explorer button on item pages and your experiences.',
+                ],
+                type: 'checkbox',
+                default: true,
+                contributors: ['9502859424'],
+            },
             Customfont: {
                 label: 'Custom font',
                 description: [

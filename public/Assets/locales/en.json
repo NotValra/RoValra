@@ -619,7 +619,16 @@
         "launching": "Launching..."
     },
     "createRoblox": {
-        "download": "Download"
+        "download": "Download",
+        "explorer": {
+            "button": "Explorer",
+            "title": "Explorer",
+            "loading": "Loading...",
+            "selectInstance": "Select an instance to view its properties",
+            "noProperties": "No properties",
+            "viewSource": "View Source",
+            "loadError": "Failed to load."
+        }
     },
     "priceFloor": {
         "label": "Price Floor:",
