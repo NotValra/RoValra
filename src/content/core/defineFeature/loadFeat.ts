@@ -1,11 +1,11 @@
 import { getAllFeatures } from "./defFeat";
 import { debugVerbose } from "../debug";
 import * as _featList from "./featList";
-import { t } from "../locale/i18n";
+import type { Any } from "./defFeat";
 
-type Feature = {paths: Array<string>, name: string, feat: any | unknown};
+type Feature = {paths: string[], name: string, feat: Any};
 
-let features: Array<Feature> = [];
+let features: Feature[] = [];
 
 let prepared = false;
 function prepare() {
