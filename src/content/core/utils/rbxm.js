@@ -1,7 +1,7 @@
 // Binary RBXM/RBXL parser. Layout follows the official spec:
 // https://dom.rojo.space/binary
 
-import { decompress as zstdDecompress } from './vendor/fzstd.js';
+import { decompress as zstdDecompress } from 'fzstd';
 
 const RBXM_SIGNATURE = '<roblox!';
 

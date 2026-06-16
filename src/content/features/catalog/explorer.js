@@ -3,6 +3,11 @@ import { loadAssetTree, canAccessAsset } from '../../core/utils/assetStreamer.js
 import { observeElement } from '../../core/observer.js';
 import { createOverlay } from '../../core/ui/overlay.js';
 import { getAssets } from '../../core/assets.js';
+import { callRobloxApiJson } from '../../core/api.js';
+import {
+    CATALOG_ITEM_TYPES,
+    getCatalogItemDetails,
+} from '../../core/apis/catalog.js';
 import { ts } from '../../core/locale/i18n.js';
 import { settings } from '../../core/settings/getSettings.js';
 import { isDarkMode } from '../../core/theme.js';
@@ -22,12 +27,83 @@ function sortInstances(instances) {
     });
 }
 
-// Roblox Studio class icons, vendored as individual PNGs named by class. The
-// dark variant is light-coloured (for dark UI) and vice versa, so pick the set
-// that matches the current theme / overlay background.
+// Roblox Studio class icons are served from the CDN as individual PNGs named by
+// class. Keep the parsed class capitalization intact so filenames match exactly.
 function classIconUrl(className) {
     const folder = isDarkMode() ? 'class_icons_dark' : 'class_icons_light';
-    return chrome.runtime.getURL(`public/Assets/${folder}/${className}.png`);
+    return `https://www.rovalra.com/static/${folder}/${encodeURIComponent(className)}.png`;
+}
+
+const CLASSIC_CLOTHING_ASSET_TYPES = new Set([
+    'TShirt',
+    'Shirt',
+    'Pants',
+    'ClassicTShirt',
+    'ClassicShirt',
+    'ClassicPants',
+]);
+const CLASSIC_CLOTHING_ASSET_TYPE_IDS = new Set([2, 11, 12]);
+
+function catalogAssetTypeName(details) {
+    const assetType = details?.assetType;
+    if (typeof assetType === 'string') return assetType;
+    if (assetType && typeof assetType === 'object') {
+        return assetType.name || assetType.displayName || assetType.Name || '';
+    }
+    return '';
+}
+
+function catalogAssetTypeId(details) {
+    const candidates = [
+        details?.assetType,
+        details?.assetTypeId,
+        details?.AssetTypeId,
+        details?.productType,
+        details?.assetType?.id,
+        details?.assetType?.assetTypeId,
+        details?.assetType?.Id,
+    ];
+
+    for (const candidate of candidates) {
+        const id = Number(candidate);
+        if (Number.isFinite(id)) return id;
+    }
+
+    return null;
+}
+
+function isClassicClothingDetails(details) {
+    const assetTypeName = catalogAssetTypeName(details).replace(
+        /[^A-Za-z0-9]/g,
+        '',
+    );
+    const assetTypeId = catalogAssetTypeId(details);
+
+    return (
+        CLASSIC_CLOTHING_ASSET_TYPES.has(assetTypeName) ||
+        CLASSIC_CLOTHING_ASSET_TYPE_IDS.has(assetTypeId)
+    );
+}
+
+async function isClassicClothingItem(assetId) {
+    try {
+        const details = await getCatalogItemDetails(
+            assetId,
+            CATALOG_ITEM_TYPES.ASSET,
+        );
+        if (isClassicClothingDetails(details)) return true;
+
+        const economyDetails = await callRobloxApiJson({
+            subdomain: 'economy',
+            endpoint: `/v2/assets/${assetId}/details`,
+            method: 'GET',
+        });
+
+        return isClassicClothingDetails(economyDetails);
+    } catch (error) {
+        console.warn('[RoValra Explorer] Failed to check catalog item type:', error);
+        return false;
+    }
 }
 
 function applyMaskIcon(el, url) {
@@ -664,11 +740,18 @@ async function openExplorer(assetId, name, expandAll) {
     }
 }
 
-// Catalog item pages: mirror BTRoblox — an icon button in the item header, to
-// the left of the shopping-cart toolbar (the ".right" column).
-function addCatalogButton(rightToolbar) {
+// Catalog item pages: add an icon button next to Roblox's existing right toolbar.
+async function addCatalogButton(rightToolbar) {
     const assetId = getPlaceIdFromUrl();
-    if (!assetId || document.getElementById('rovalra-explorer-btn')) return;
+    if (
+        !assetId ||
+        rightToolbar.dataset.rovalraExplorerChecked ||
+        document.getElementById('rovalra-explorer-btn')
+    )
+        return;
+    rightToolbar.dataset.rovalraExplorerChecked = '1';
+
+    if (await isClassicClothingItem(assetId)) return;
 
     const assets = getAssets();
 
@@ -678,7 +761,7 @@ function addCatalogButton(rightToolbar) {
     const button = document.createElement('button');
     button.id = 'rovalra-explorer-btn';
     button.type = 'button';
-    button.className = 'rovalra-explorer-header-btn';
+    button.className = 'rbx-menu-item btn-generic-more-sm rovalra-explorer-header-btn';
     button.title = ts('createRoblox.explorer.button');
     button.setAttribute('aria-label', ts('createRoblox.explorer.button'));
 
