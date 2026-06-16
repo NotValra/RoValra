@@ -1,6 +1,8 @@
 import { getAllFeatures } from "./defFeat";
 import { debugVerbose } from "../debug";
 import * as _featList from "./featList";
+import getPath from "../utils/getPath";
+
 import type { Any } from "./defFeat";
 
 type Feature = {paths: string[], name: string, feat: Any};
@@ -12,7 +14,7 @@ function prepare() {
     if (prepared) return;
     prepared = true;
     for (const feat of getAllFeatures()) {
-        const instance = new feat.cl();
+        const instance = new feat.cl(getPath()[1]);
         features.push({
             paths: feat.paths,
             name: feat.name,
@@ -27,8 +29,7 @@ async function initFeatures() {
 
     for (const featureData of features) {
         // Check if the feature should be run on this page
-        const path = window.location.pathname.toLowerCase();
-        const normalizedPath = path.replace(/^\/[a-z]{2}(?:-[a-z]{2})?\//, '/');  // "www.roblox.com/home" -> "/home"
+        const [ path, normalizedPath ] = getPath();
 
         if (!featureData.paths.some((p) => {  // the opposite of the condition below (are we NOT on this page, or a subpage?)
             const lowerP = p.toLowerCase();

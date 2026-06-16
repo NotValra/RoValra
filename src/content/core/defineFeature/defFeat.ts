@@ -39,7 +39,7 @@ export function feature(options: FeatureOptions) {
     let name = options?.name;
     const paths = options?.paths ?? ['*'];
 
-    function wrapper(cl: ClassConstructor) {  // the actual decorator (cl = class constructor)    !!! This function will be automatically called on file load with wrapper(TargetClass)
+    function wrapper(cl: ClassConstructor<[path?: string]>) {  // the actual decorator (cl = class constructor)    !!! This function will be automatically called on file load with wrapper(TargetClass)
         name = name ?? cl.name;  // If undefined, deduce from class name
 
         debugVerbose("[defFeat] Declaring feature", { class: cl, name: name, paths: paths, options: options });
