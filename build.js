@@ -151,6 +151,14 @@ esbuild
         entryPoints: ['src/content/index.js'],
         outfile: 'dist/content.js',
         bundle: true,
+        loader: {
+            '.js': 'ts',
+        },
+        tsconfigRaw: {
+            compilerOptions: {
+                experimentalDecorators: true,
+            },
+        },
         // This injects Draco directly into the content script context for roavatar-renderer
         banner: {
             js: bannerText + '\n' + dracoSource,

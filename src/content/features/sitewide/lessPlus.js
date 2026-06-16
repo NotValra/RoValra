@@ -1,4 +1,5 @@
 import { settings } from "../../core/settings/getSettings";
+import { feature } from "../../core/defineFeature/defFeat";
 
 const plusTypeEnum = Object.freeze({
     Full: 0,
@@ -6,16 +7,21 @@ const plusTypeEnum = Object.freeze({
     None: 2,
 });
 
-let plusType = plusTypeEnum.Reduced;
+@feature({paths: ["*"]})
+export class LessPlus {
+    constructor() {
+        this.plusType = plusTypeEnum.Reduced;
+    }
 
-async function asyncInit() {
-    if (await settings.reducePlusAds)
-        if (await settings.removeAllPlusAdds) plusType = plusTypeEnum.None;
-        else plusType = plusTypeEnum.Reduced;
-    else plusType = plusTypeEnum.Full;
+    async init() {
+        if (await settings.reducePlusAds)
+            if (await settings.removeAllPlusAdds) this.plusType = plusTypeEnum.None;
+            else this.plusType = plusTypeEnum.Reduced;
+        else this.plusType = plusTypeEnum.Full;
+    }
 
-    window.addEventListener('DOMContentLoaded', () => {
-        if (plusType >= plusTypeEnum.Reduced) {
+    async onDOMLoaded() {
+        if (this.plusType >= plusTypeEnum.Reduced) {
             const _RobloxPlusButtonA = document.querySelectorAll(
                 "#left-navigation-container .left-nav div a[href='https://www.roblox.com/plus']",
             );
@@ -27,7 +33,7 @@ async function asyncInit() {
                 "#left-navigation-container .left-nav div li.padding-top-xsmall a[href='/plus']",
             );
             const robloxPlusNote = _RobloxPlusNoteA[0];
-            if (plusType >= plusTypeEnum.None)
+            if (this.plusType >= plusTypeEnum.None)
                 robloxPlusNote.parentElement.remove();
             else {
                 robloxPlusNote.parentElement.innerHTML = String.raw`
@@ -48,14 +54,10 @@ async function asyncInit() {
                     _RobloxPlusInBuyRobuxSnippetA[0].parentElement.parentElement
                         .parentElement.children[1];
 
-                if (plusType >= plusTypeEnum.None)
+                if (this.plusType >= plusTypeEnum.None)
                     robloxPlusInBuyRobuxSnippet.parentElement.remove();
                 else robloxPlusInBuyRobuxSnippet.remove();
             }
         }
-    });
-}
-
-export function init() {
-    asyncInit();
+    }
 }
