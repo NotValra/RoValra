@@ -307,24 +307,31 @@
     background-color: currentColor;
 }
 
-// Experience pages: icon + label entry in the Favorite/Follow/Share row.
+// Experience pages: icon-only context menu button.
 .rovalra-explorer-game-btn {
-    display: flex;
-    flex-direction: column;
+    display: inline-flex !important;
     align-items: center;
-    justify-content: flex-start;
-    gap: 2px;
-    padding: 0;
+    justify-content: center;
+    width: 30px !important;
+    height: 30px !important;
+    min-width: 30px !important;
+    max-width: 30px !important;
+    min-height: 30px !important;
+    max-height: 30px !important;
+    box-sizing: border-box;
+    padding: 5px !important;
     border: none;
     background: transparent;
     color: inherit;
     cursor: pointer;
+    line-height: 0 !important;
 }
 
 .rovalra-explorer-game-icon {
-    display: inline-block;
-    width: 28px;
-    height: 28px;
+    display: block;
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
     background-color: currentColor;
 }
 

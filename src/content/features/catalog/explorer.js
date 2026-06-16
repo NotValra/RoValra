@@ -4,6 +4,7 @@ import { observeElement } from '../../core/observer.js';
 import { createOverlay } from '../../core/ui/overlay.js';
 import { getAssets } from '../../core/assets.js';
 import { callRobloxApiJson } from '../../core/api.js';
+import { addTooltip } from '../../core/ui/tooltip.js';
 import {
     CATALOG_ITEM_TYPES,
     getCatalogItemDetails,
@@ -783,38 +784,30 @@ async function addCatalogButton(rightToolbar) {
     console.log('%cRoValra Explorer: button added (catalog)', 'color:#FF4500');
 }
 
-// Experience pages: an icon + label entry in the Favorite/Follow/Share row,
-// shown only when the place is accessible (i.e. it's yours / downloadable).
-function addGameButton(actionList) {
+// Experience pages: add an icon button to Roblox's context menu, shown only
+// when the place is accessible (i.e. it's yours / downloadable).
+function addGameButton(contextMenu) {
     const placeId = getPlaceIdFromUrl();
-    if (!placeId || actionList.dataset.rovalraExplorerChecked) return;
-    actionList.dataset.rovalraExplorerChecked = '1';
+    if (!placeId || contextMenu.dataset.rovalraExplorerChecked) return;
+    contextMenu.dataset.rovalraExplorerChecked = '1';
 
     canAccessAsset(parseInt(placeId, 10)).then((ok) => {
         if (!ok || document.getElementById('rovalra-explorer-btn')) return;
 
         const assets = getAssets();
 
-        const li = document.createElement('li');
-        li.className = 'rovalra-explorer-li';
-
         const button = document.createElement('button');
         button.id = 'rovalra-explorer-btn';
         button.type = 'button';
-        button.className = 'rovalra-explorer-game-btn';
-        button.title = ts('createRoblox.explorer.button');
+        button.className = 'rbx-menu-item btn-generic-more-sm rovalra-explorer-game-btn';
+        button.setAttribute('aria-label', ts('createRoblox.explorer.button'));
+        addTooltip(button, ts('createRoblox.explorer.button'));
 
         const icon = document.createElement('span');
         icon.className = 'rovalra-explorer-game-icon';
         applyMaskIcon(icon, assets.explorerTreeIcon);
 
-        const label = document.createElement('div');
-        label.className = 'icon-label';
-        label.textContent = ts('createRoblox.explorer.button');
-
         button.appendChild(icon);
-        button.appendChild(label);
-        li.appendChild(button);
 
         button.addEventListener('click', (e) => {
             e.preventDefault();
@@ -824,7 +817,7 @@ function addGameButton(actionList) {
             openExplorer(placeId, name);
         });
 
-        actionList.appendChild(li);
+        contextMenu.insertBefore(button, contextMenu.firstElementChild);
         console.log('%cRoValra Explorer: button added (game)', 'color:#FF4500');
     });
 }
@@ -843,8 +836,6 @@ export async function init() {
         );
     }
     if (onGame) {
-        observeElement('ul.favorite-follow-vote-share', (el) =>
-            addGameButton(el),
-        );
+        observeElement('#game-context-menu', (el) => addGameButton(el));
     }
 }
