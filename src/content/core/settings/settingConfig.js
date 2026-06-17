@@ -302,6 +302,14 @@ export const SETTINGS_CONFIG = {
                 default: true,
                 contributors: ['9502859424'],
             },
+            underReviewPillEnabled: {
+                label: 'Show All-Ages Review Status',
+                description: [
+                    'Shows a small notice on experience pages when Roblox is reviewing the experience for all-ages eligibility.',
+                ],
+                type: 'checkbox',
+                default: true,
+            },
             botdataEnabled: {
                 label: 'Bot Data',
                 description: [
@@ -1695,9 +1703,7 @@ export const SETTINGS_CONFIG = {
             },
             FunStuffEnabled: {
                 label: 'Fun Stuff tab',
-                description: [
-                    'Shows the Fun Stuff tab in RoValra settings.',
-                ],
+                description: ['Shows the Fun Stuff tab in RoValra settings.'],
                 type: 'checkbox',
                 default: false,
             },
