@@ -1693,6 +1693,14 @@ export const SETTINGS_CONFIG = {
                 default: false,
                 contributors: ['1564574922'],
             },
+            FunStuffEnabled: {
+                label: 'Fun Stuff tab',
+                description: [
+                    'Shows the Fun Stuff tab in RoValra settings.',
+                ],
+                type: 'checkbox',
+                default: false,
+            },
         },
     },
     AntiAccountTracking: {
