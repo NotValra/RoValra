@@ -1368,6 +1368,7 @@ export const SETTINGS_CONFIG = {
                     'Lets you choose which Roblox age theme is used across the site.',
                 type: 'checkbox',
                 default: false,
+                contributors: ['447170745', '650766686'],
                 childSettings: {
                     ageThemeSelection: {
                         label: 'Theme',
