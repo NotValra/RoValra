@@ -235,6 +235,7 @@
         "newCalculation": "New Calculation",
         "errorTitle": "An Error Occurred",
         "retry": "Retry",
+        "robloxLimitError": "Roblox returned an internal server error. It likely won't be able to scan more transactions because of Roblox limitations.",
         "noEarnings": "No earnings found yet.",
         "other": "Other",
         "groupPayout": "Group Payout"
@@ -273,6 +274,7 @@
         "pack": "Pack",
         "stipend": "Stipend",
         "errorUserId": "Could not retrieve user ID.",
+        "robloxLimitError": "Roblox returned an internal server error. It likely won't be able to scan more transactions because of Roblox limitations.",
         "errorRetries": "Failed after multiple retries. Last error: {{error}}"
     },
     "totalSpentGames": {
