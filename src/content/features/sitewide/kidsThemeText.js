@@ -108,7 +108,6 @@ export function makeBadgeChanges() {
             } else if (settings.ageKidsThemeEnabled && settings.ageThemeTextMatch) {
                 matchBadgeToTheme(settings.ageThemeSelection);
             }
-            console.log("meow :3")
             if (currentBadgeContainerObserver) currentBadgeContainerObserver.disconnect();
         },
     );

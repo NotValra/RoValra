@@ -1398,7 +1398,6 @@ export const SETTINGS_CONFIG = {
                         ],
                         type: 'checkbox',
                         default: true,
-                        experimental: 'In development',
                         contributors: ['650766686'],
                     },
                 },
@@ -1430,7 +1429,6 @@ export const SETTINGS_CONFIG = {
                         default: false,
                     },
                 },
-                experimental: 'In development',
             },
             betaProgramsEnabled: {
                 label: 'Adds a beta programs toggle to the navigation bar',
