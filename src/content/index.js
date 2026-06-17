@@ -38,6 +38,7 @@ import { initializeModernIcons as initModernIcons } from './features/sitewide/mo
 import { init as initLoginBanner } from './features/scamprevention/loginBanner.js';
 import { init as initLessPlus } from './features/sitewide/lessPlus.js';
 import { init as initKidsTheme } from './features/sitewide/kidsTheme.js';
+import { init as initKidsThemeText } from './features/sitewide/kidsThemeText.js'
 import { init as initSidebarCollapse } from './features/sitewide/sidebarCollapse.js';
 import { init as initRemoveDownloadButton } from './features/sitewide/removeDownloadButton.js';
 import { init as initPaymentMethodBonusItems } from './features/paymentmethods/bonusItems.js';
@@ -190,6 +191,7 @@ const featureRoutes = [
             initModernIcons,
             initLessPlus,
             initKidsTheme,
+            initKidsThemeText,
             initSidebarCollapse,
             initRemoveDownloadButton,
         ],
@@ -421,7 +423,7 @@ async function initializePage() {
     const startFeatures = async () => {
         const featureStartTime = performance.now();
 
-        await t('__i18n_ready__').catch(() => {});
+        await t('__i18n_ready__').catch(() => { });
         await refreshRemoteSettingLocks().catch((error) =>
             console.error(
                 'RoValra: Failed to refresh remote settings config.',
@@ -438,8 +440,8 @@ async function initializePage() {
             `%cRoValra Initialized`,
             'font-size: 1.5em; color: #FF4500;',
             `\n(Observer: ${observerStatus})` +
-                `\nFeature Load Time: ${(endTime - featureStartTime).toFixed(2)}ms` +
-                `\nTotal Load Time: ${(endTime - startTime).toFixed(2)}ms`,
+            `\nFeature Load Time: ${(endTime - featureStartTime).toFixed(2)}ms` +
+            `\nTotal Load Time: ${(endTime - startTime).toFixed(2)}ms`,
         );
     };
 
@@ -483,12 +485,12 @@ function setupUrlChangeListeners() {
     const originalPushState = history.pushState;
     const originalReplaceState = history.replaceState;
 
-    history.pushState = function (...args) {
+    history.pushState = function(...args) {
         originalPushState.apply(this, args);
         handleUrlChange();
     };
 
-    history.replaceState = function (...args) {
+    history.replaceState = function(...args) {
         originalReplaceState.apply(this, args);
         handleUrlChange();
     };

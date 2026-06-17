@@ -2,6 +2,7 @@ import { createDropdownMenu } from '../../core/ui/dropdown.js';
 import { createNavbarButton } from '../../core/ui/navbarButton.js';
 import { getAssets } from '../../core/assets.js';
 import { t } from '../../core/locale/i18n.js';
+import { makeBadgeChanges } from './kidsThemeText.js';
 
 const AGE_THEME_OPTIONS = [
     {
@@ -80,6 +81,7 @@ async function addAgeThemeNavbarButton(currentTheme) {
             chrome.storage.local.set({ ageThemeSelection: themeSelection });
             applyAgeTheme(themeSelection);
             updateSelectedMenuItem(menu, themeSelection);
+            makeBadgeChanges(); // Makes badge changes because observing body doesn't work
         },
         position: 'center',
     });

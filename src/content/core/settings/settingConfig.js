@@ -1388,7 +1388,49 @@ export const SETTINGS_CONFIG = {
                         type: 'checkbox',
                         default: false,
                     },
+                    ageThemeTextMatch: {
+                        label: 'Match Age Badge',
+                        description: [
+                            'Matches the age badge text to the theme you listed.',
+                            '(Note: this is overridden by Custom Age Theme Badge Text.',
+                            'This also means that this will be **automatically turned off** if',
+                            'the Custom Age Theme Badge Text setting is active.)',
+                        ],
+                        type: 'checkbox',
+                        default: true,
+                        experimental: 'In development',
+                        contributors: ['650766686'],
+                    },
                 },
+            },
+            ageKidsTextEnabled: {
+                label: 'Custom Age Theme Badge Text',
+                description: [
+                    'Change the "SELECT" or "KIDS" text in the badge by the Roblox logo.',
+                    'You can even use this if your not in those age groups!',
+                    'If you want you can also choose to hide the badge.',
+                ],
+                type: 'checkbox',
+                default: false,
+                contributors: ['650766686'],
+                childSettings: {
+                    ageKidsTextInput: {
+                        label: 'Custom Badge Text',
+                        description: [
+                            'The text you would like to display in the badge.',
+                            'This will be overridden by the Hide The Badge setting'
+                        ],
+                        type: 'input',
+                        default: null,
+                    },
+                    ageKidsTextHiddenEnabled: {
+                        label: 'Hide The Badge',
+                        description: 'Hide the badge text describing your age group.',
+                        type: 'checkbox',
+                        default: false,
+                    },
+                },
+                experimental: 'In development',
             },
             betaProgramsEnabled: {
                 label: 'Adds a beta programs toggle to the navigation bar',

@@ -378,6 +378,10 @@
             "normal": "Normal Roblox",
             "kids": "Roblox Kids",
             "select": "Roblox Select"
+        },
+        "badge": {
+            "kids": "KIDS",
+            "select": "SELECT"
         }
     },
     "betaPrograms": {
