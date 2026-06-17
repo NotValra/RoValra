@@ -16,3 +16,9 @@
         outline-offset: 2px;
     }
 }
+
+.friends-carousel-tile:has(.friend-tile-dropdown)
+    .rovalra-favorite-friend-userCard-toggled
+    > .icon-favorite {
+    background-position: -28px -84px;
+}

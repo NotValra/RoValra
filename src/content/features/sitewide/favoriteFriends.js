@@ -4,12 +4,18 @@ import { createButton } from '../../core/ui/buttons';
 import { t } from '../../core/locale/i18n';
 import { getUserCardContext } from '../../core/profile/userCardElements';
 import { getUserDisplayName } from '../../core/apis/users';
+import { fetchThumbnails } from '../../core/thumbnail/thumbnails';
 
 const DEVELOPMENT_MODE = true;
+const CAROUSEL_OFFSET = 2;
 
 const STORAGE_KEY = 'rovalra_favorited_friends';
+
 const TOGGLE_IDENTIFIER = 'rovalra-favorite-friend-userCard-toggle';
+const TOGGLE_FAVORITED_IDENTIFIER = 'rovalra-favorite-friend-userCard-toggled';
+
 const FAVORITED_IDENTIFER = 'rovalra-friend-favorited';
+const AVATAR_IDENTIFIER = 'rovalra-forcefully-loaded-avatar';
 
 // ─── Chrome Storage ──────────────────────────────────────────────────────────
 
@@ -57,48 +63,106 @@ async function determineLabel(userFavorited, userDisplayName) {
           });
 }
 
+async function updateToggle(favoriteToggle, userDisplayName, userFavorited) {
+    const textNode = favoriteToggle.childNodes[1];
+    textNode.textContent = await determineLabel(userFavorited, userDisplayName);
+}
+
+async function updateTileDecoration(userTile, userFavorited) {
+    userFavorited
+        ? userTile.classList.add(FAVORITED_IDENTIFER)
+        : userTile.classList.remove(FAVORITED_IDENTIFER);
+}
+
+async function attachAvatar(userTile, userId) {
+    const container = userTile.querySelector('.thumbnail-2d-container.shimmer');
+    if (container.querySelector(`.${AVATAR_IDENTIFIER}`)) return;
+
+    const avatarImage = document.createElement('img');
+    avatarImage.classList.add(AVATAR_IDENTIFIER);
+    container.append(avatarImage);
+
+    const thumbMap = await fetchThumbnails(
+        [{ id: userId }],
+        'AvatarHeadshot',
+        '150x150',
+        true,
+    );
+
+    avatarImage.src = thumbMap.entries().next().value[1].imageUrl;
+    container.classList.remove('shimmer');
+}
+
 // ─── Favoriting Logic ────────────────────────────────────────────────────────
 
 async function toggleFavorite(userId) {
     let favorited_friends = await fetchFavoritedFriends();
-    const userFavorited = await isFavorited(userId);
 
-    userFavorited
-        ? favorited_friends.pop(userId)
-        : favorited_friends.push(userId);
+    favorited_friends = favorited_friends.includes(userId)
+        ? favorited_friends.filter((id) => id !== userId)
+        : [...favorited_friends, userId];
 
     if (DEVELOPMENT_MODE) console.table('Favorited Friends', favorited_friends);
     await writeFavoritedFriends(favorited_friends);
+
+    return favorited_friends.includes(userId);
+}
+
+async function reorderCarousel(userTile, userId) {
+    const userFavorited = await isFavorited(userId);
+    const userFavoritedFriends = await fetchFavoritedFriends(userId);
+
+    const tileContainer = document.querySelector(
+        '.friends-carousel-list-container',
+    );
+
+    const alreadyFavoritedLocation = () => {
+        if (tileContainer.querySelector('.add-friends-icon-container')) {
+            return tileContainer.children[1];
+        } else {
+            return tileContainer.children[0];
+        }
+    };
+
+    userFavorited
+        ? tileContainer.insertBefore(
+              userTile.parentElement,
+              alreadyFavoritedLocation(),
+          )
+        : tileContainer.insertBefore(
+              userTile.parentElement,
+              tileContainer.children[
+                  userFavoritedFriends.length + CAROUSEL_OFFSET
+              ],
+          );
 }
 
 // ─── Component Injection ─────────────────────────────────────────────────────
 
 async function createUserCardToggle(userTile, userId, userDisplayName) {
+    let userFavorited = await isFavorited(userId);
+
     const favoriteToggle = createButton(
-        await determineLabel(await isFavorited(userId), userDisplayName),
+        await determineLabel(userFavorited, userDisplayName),
         'secondary',
         {
             onClick: async () => {
-                await toggleFavorite(userId);
-                updateToggle();
-                await updateTileDecoration();
+                const userFavorited = await toggleFavorite(userId);
+                await updateToggle(
+                    favoriteToggle,
+                    userDisplayName,
+                    userFavorited,
+                );
+                await updateTileDecoration(userTile, userFavorited);
+                await reorderCarousel(userTile, userId);
             },
         },
     );
 
-    const updateToggle = async () => {
-        const textNode = favoriteToggle.childNodes[1];
-        textNode.textContent = await determineLabel(
-            await isFavorited(userId),
-            userDisplayName,
-        );
-    };
-
-    const updateTileDecoration = async () => {
-        (await isFavorited(userId))
-            ? userTile.classList.add(FAVORITED_IDENTIFER)
-            : userTile.classList.remove(FAVORITED_IDENTIFER);
-    };
+    userFavorited = await isFavorited(userId);
+    userFavorited
+        ? favoriteToggle.classList.add(TOGGLE_FAVORITED_IDENTIFIER)
+        : favoriteToggle.classList.remove(TOGGLE_FAVORITED_IDENTIFIER);
 
     if (DEVELOPMENT_MODE)
         console.log(
@@ -138,21 +202,25 @@ async function addUserCardToggle() {
     });
 }
 
-async function addUserTileDecoration(userTile) {
+async function userTileModification(userTile) {
     if (userTile.querySelector(`.${FAVORITED_IDENTIFER}`)) return;
+
     const userId = getUserCardContext(userTile).userId;
     const userFavorited = await isFavorited(userId);
 
-    if (userFavorited) userTile.classList.add(FAVORITED_IDENTIFER);
-}
+    if (userFavorited) {
+        userTile.classList.add(FAVORITED_IDENTIFER);
+        await reorderCarousel(userTile, userId);
 
-// .friends-carousel-tile
-// .friend-tile-dropdown
+        if (userTile.querySelector('.thumbnail-2d-container.shimmer'))
+            attachAvatar(userTile, userId);
+    }
+}
 
 export async function init() {
     if (!(await settings.favoriteFriendsEnabled)) return;
     observeElement('.friends-carousel-tile', addUserCardToggle);
-    observeElement('.friends-carousel-tile', addUserTileDecoration, {
+    observeElement('.friends-carousel-tile', userTileModification, {
         multiple: true,
     });
 
