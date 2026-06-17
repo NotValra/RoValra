@@ -20,11 +20,17 @@ const AGE_THEME_OPTIONS = [
         fallbackLabel: 'Roblox Select',
         value: 'select',
     },
+    {
+        labelKey: 'ageTheme.options.startmode',
+        fallbackLabel: 'Roblox Leaked Select (Start Mode)',
+        value: 'startmode',
+    },
 ];
 
 const AGE_THEME_CLASSES = [
     'age-roblox-theme',
     'age-kids-theme',
+    'age-select-theme',
     'age-startmode-theme',
 ];
 
@@ -32,7 +38,8 @@ let navbarInitialized = false;
 
 function getThemeClass(themeSelection) {
     if (themeSelection === 'kids') return 'age-kids-theme';
-    if (themeSelection === 'select') return 'age-startmode-theme';
+    if (themeSelection === 'startmode') return 'age-startmode-theme';
+    if (themeSelection === 'select') return 'age-select-theme'
     return 'age-roblox-theme';
 }
 

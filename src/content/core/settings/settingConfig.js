@@ -1378,6 +1378,7 @@ export const SETTINGS_CONFIG = {
                             { label: 'Normal Roblox', value: 'normal' },
                             { label: 'Roblox Kids', value: 'kids' },
                             { label: 'Roblox Select', value: 'select' },
+                            { label: 'Roblox Leaked Select (Start Mode)', value: 'startmode' },
                         ],
                         default: 'normal',
                     },

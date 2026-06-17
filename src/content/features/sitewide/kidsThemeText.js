@@ -15,6 +15,11 @@ const AGE_BADGE_TEXT_OPTIONS = [
         value: 'select',
     },
     {
+        labelKey: 'ageTheme.badge.select',
+        fallbackLabel: 'SELECT',
+        value: 'startmode',
+    },
+    {
         labelKey: 'ageTheme.badge.kids',
         fallbackLabel: 'KIDS',
         value: 'kids',
