@@ -1,7 +1,6 @@
 import { callRobloxApi } from '../../../core/api.js';
 import { observeElement } from '../../../core/observer.js';
 import {
-    fetchThumbnails,
     createThumbnailElement,
     getQueuedThumbnail,
 } from '../../../core/thumbnail/thumbnails.js';
@@ -10,10 +9,26 @@ import { getPlaceIdFromUrl } from '../../../core/idExtractor.js';
 import { launchGame } from '../../../core/utils/launcher.js';
 import { ts } from '../../../core/locale/i18n.js';
 import DOMPurify from '../../../core/packages/dompurify.js';
+import { createInteractiveTimestamp } from '../../../core/ui/time/time.js';
 
 const eventThumbnailCache = new Map();
 const eventRsvpCache = new Map();
 const injectionLocks = new Set();
+const INITIAL_VISIBLE_ACTIVE_EVENTS = 3;
+
+function getLoadMoreText() {
+    const text = ts('subplaces.loadMore');
+    return text && text !== 'subplaces.loadMore' ? text : 'Load More';
+}
+
+function removeNativeLoadMoreButton(eventsContainer) {
+    eventsContainer
+        .querySelectorAll(':scope > button.notify-button')
+        .forEach((button) => {
+            if (button.dataset.rovalraEventsLoadMore === 'true') return;
+            button.remove();
+        });
+}
 
 async function fetchUniverseId(placeId) {
     const metaData = document.getElementById('game-detail-meta-data');
@@ -118,9 +133,29 @@ function isEventOngoing(event, now = new Date()) {
     const start = event.eventTime?.startUtc
         ? new Date(event.eventTime.startUtc)
         : null;
-    const end = event.eventTime?.endUtc ? new Date(event.eventTime.endUtc) : null;
+    const end = event.eventTime?.endUtc
+        ? new Date(event.eventTime.endUtc)
+        : null;
 
     return Boolean(start && start <= now && (!end || end > now));
+}
+
+function getEventStartTime(event) {
+    return event.eventTime?.startUtc
+        ? new Date(event.eventTime.startUtc).getTime()
+        : Number.POSITIVE_INFINITY;
+}
+
+function sortActiveEventsByRelease(a, b, now) {
+    const aOngoing = isEventOngoing(a, now);
+    const bOngoing = isEventOngoing(b, now);
+
+    if (aOngoing !== bOngoing) return aOngoing ? -1 : 1;
+
+    const aStart = getEventStartTime(a);
+    const bStart = getEventStartTime(b);
+
+    return aOngoing ? bStart - aStart : aStart - bStart;
 }
 
 function updateRsvpCountLabel(counterEl, count) {
@@ -138,6 +173,11 @@ function updateRsvpCountLabel(counterEl, count) {
     } else {
         counterEl.textContent = formattedCount;
     }
+}
+
+function blockEventCardNavigation(event) {
+    event.preventDefault();
+    event.stopPropagation();
 }
 
 function createEventCard(
@@ -161,6 +201,9 @@ function createEventCard(
 
     const category = event.eventCategories?.[0]?.category || 'newContent';
     const thumbnailId = event.thumbnails?.[0]?.mediaId;
+    const releaseDate = isPast
+        ? event.eventTime?.endUtc
+        : event.eventTime?.startUtc;
 
     const thumbData =
         thumbnailData ||
@@ -171,15 +214,7 @@ function createEventCard(
               }
             : { state: 'Blocked', imageUrl: '' });
 
-    const defaultPillText = isPast
-        ? new Date(event.eventTime.endUtc).toLocaleDateString(undefined, {
-              weekday: 'short',
-              month: 'short',
-              day: 'numeric',
-              hour: 'numeric',
-              minute: '2-digit',
-          })
-        : category;
+    const overlayPillText = overridePillText || formatCategoryString(category);
 
     const isOngoing = !isPast && isEventOngoing(event);
     const eventUrl = `https://www.roblox.com/events/${event.id}`;
@@ -189,9 +224,9 @@ function createEventCard(
         ? ts('events.buttons.viewEvent')
         : isOngoing
           ? ts('events.buttons.joinEvent')
-        : event.userRsvpStatus === 'going'
-          ? ts('events.buttons.unfollowEvent')
-          : ts('events.buttons.notifyMe');
+          : event.userRsvpStatus === 'going'
+            ? ts('events.buttons.unfollowEvent')
+            : ts('events.buttons.notifyMe');
 
     const rsvpCountHtml =
         typeof rsvpCount === 'number'
@@ -204,11 +239,12 @@ function createEventCard(
     const innerHtml = `
     <div class="featured-game-container game-card-container">
         <a class="game-card-link" href="${eventUrl}" tabindex="0">
-            <div class="featured-game-icon-container" style="height: 175px; min-height: 175px; max-height: 175px; overflow: hidden; border-radius: 8px 8px 0 0;">
+            <div class="featured-game-icon-container" style="height: 175px; min-height: 175px; max-height: 175px; overflow: hidden; border-radius: 8px 8px 0 0; position: relative;">
                 <div class="thumbnail-placeholder"></div>
-                <div class="game-card-text-pill">
-                    <div class="game-card-info">${overridePillText || formatCategoryString(defaultPillText)}</div>
+                <div class="game-card-text-pill rovalra-event-category-pill">
+                    <div class="game-card-info">${overlayPillText}</div>
                 </div>
+                <div class="game-card-text-pill rovalra-event-release-pill" aria-label="Event release date"></div>
             </div>
             <div class="info-container">
                 <div class="info-metadata-container">
@@ -237,6 +273,25 @@ function createEventCard(
     </div>
     `;
     li.innerHTML = DOMPurify.sanitize(innerHtml);
+
+    const categoryPill = li.querySelector('.rovalra-event-category-pill');
+    if (isPast && !overridePillText) {
+        categoryPill?.remove();
+    }
+
+    const releasePill = li.querySelector('.rovalra-event-release-pill');
+    if (releasePill && releaseDate) {
+        releasePill.addEventListener('click', blockEventCardNavigation);
+
+        const releaseTimestamp = createInteractiveTimestamp(releaseDate, {
+            initialFormat: isPast ? 'relative' : undefined,
+            pastRelativeText: isPast ? undefined : 'Now',
+            relativeDaysOnly: isPast,
+        });
+        releasePill.appendChild(releaseTimestamp);
+    } else {
+        releasePill?.remove();
+    }
 
     const playButton = li.querySelector('.wide-event-play-button');
     if (playButton && isOngoing) {
@@ -315,6 +370,7 @@ export async function loadAndRenderEvents(eventsContainer, placeId) {
     if (eventsContainer.dataset.rovalraEventsLoaded === 'true') return;
     if (document.getElementById('tab-events')) return;
     eventsContainer.dataset.rovalraEventsLoaded = 'true';
+    removeNativeLoadMoreButton(eventsContainer);
 
     const universeId = await fetchUniverseId(placeId);
     if (!universeId) return;
@@ -327,15 +383,49 @@ export async function loadAndRenderEvents(eventsContainer, placeId) {
     );
 
     let renderIteration = 0;
+    let activeVisibleCount = INITIAL_VISIBLE_ACTIVE_EVENTS;
+    let loadMoreButton = null;
 
-    const renderEvents = async (
-        events,
-        isPast = false,
-        initialLoad = false,
-    ) => {
+    const removeRoValraLoadMoreButton = () => {
+        if (loadMoreButton) {
+            loadMoreButton.remove();
+            loadMoreButton = null;
+        }
+    };
+
+    const updateLoadMoreButton = (events, isPast) => {
+        removeNativeLoadMoreButton(eventsContainer);
+        removeRoValraLoadMoreButton();
+
+        if (isPast || events.length <= activeVisibleCount) return;
+
+        loadMoreButton = document.createElement('button');
+        loadMoreButton.type = 'button';
+        loadMoreButton.className =
+            'notify-button btn-full-width btn-control-md';
+        loadMoreButton.dataset.rovalraEventsLoadMore = 'true';
+        const loadMoreText = getLoadMoreText();
+        loadMoreButton.textContent = loadMoreText;
+        loadMoreButton.setAttribute('aria-label', loadMoreText);
+        loadMoreButton.addEventListener('click', async (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            activeVisibleCount = events.length;
+            await renderEvents(events, false);
+        });
+
+        eventsContainer.appendChild(loadMoreButton);
+    };
+
+    const renderEvents = async (events, isPast = false) => {
         const thisIteration = ++renderIteration;
+        const eventsToRender = isPast
+            ? events
+            : events.slice(0, activeVisibleCount);
+
         gridContainer.innerHTML = '';
         if (events.length === 0) {
+            removeRoValraLoadMoreButton();
             const noEventsMessage = isPast
                 ? ts('events.empty.past')
                 : ts('events.empty.active');
@@ -345,7 +435,7 @@ export async function loadAndRenderEvents(eventsContainer, placeId) {
             return;
         }
 
-        events.forEach((event) => {
+        eventsToRender.forEach((event) => {
             if (event instanceof HTMLElement) {
                 gridContainer.appendChild(event);
             } else {
@@ -410,6 +500,8 @@ export async function loadAndRenderEvents(eventsContainer, placeId) {
                 gridContainer.appendChild(card);
             }
         });
+
+        updateLoadMoreButton(events, isPast);
     };
 
     const [fetchedActiveEvents, fetchedPastEvents] = await Promise.all([
@@ -421,6 +513,7 @@ export async function loadAndRenderEvents(eventsContainer, placeId) {
         const end = e.eventTime?.endUtc ? new Date(e.eventTime.endUtc) : null;
         return !end || end > now;
     });
+    activeEvents.sort((a, b) => sortActiveEventsByRelease(a, b, now));
 
     let pastEvents = [...fetchedPastEvents];
 
@@ -448,10 +541,9 @@ export async function loadAndRenderEvents(eventsContainer, placeId) {
     let isPastInitially = false;
 
     if (activeEvents.length === 0 && pastEvents.length === 0) {
-        gridContainer.innerHTML =
-            DOMPurify.sanitize(
-                `<div class="section-content-off" style="padding: 10px; text-align: center; width: 100%;">${ts('events.empty.all')}</div>`,
-            );
+        gridContainer.innerHTML = DOMPurify.sanitize(
+            `<div class="section-content-off" style="padding: 10px; text-align: center; width: 100%;">${ts('events.empty.all')}</div>`,
+        );
         return;
     }
 
@@ -463,6 +555,7 @@ export async function loadAndRenderEvents(eventsContainer, placeId) {
         initialValue: initialTab,
         onChange: async (value) => {
             if (value === 'active') {
+                activeVisibleCount = INITIAL_VISIBLE_ACTIVE_EVENTS;
                 await renderEvents(activeEvents, false);
             } else {
                 await renderEvents(pastEvents, true);
@@ -483,7 +576,7 @@ export async function loadAndRenderEvents(eventsContainer, placeId) {
     headerWrapper.appendChild(toggle);
     headerContainer.appendChild(headerWrapper);
 
-    await renderEvents(eventsToRenderInitially, isPastInitially, true);
+    await renderEvents(eventsToRenderInitially, isPastInitially);
 }
 
 export async function checkAndInjectEvents(tabContainer, placeId) {
@@ -585,6 +678,16 @@ export function init() {
         activeRequests.push(req2);
 
         const req3 = observeElement(
+            '.virtual-event-game-details-container > button.notify-button',
+            (button) => {
+                if (button.dataset.rovalraEventsLoadMore === 'true') return;
+                button.remove();
+            },
+            { multiple: true },
+        );
+        activeRequests.push(req3);
+
+        const req4 = observeElement(
             '#game-details-about-tab-container',
             (tabContainer) => {
                 if (document.getElementById('tab-events')) {
@@ -606,6 +709,6 @@ export function init() {
             },
             { multiple: true },
         );
-        activeRequests.push(req3);
+        activeRequests.push(req4);
     });
 }
