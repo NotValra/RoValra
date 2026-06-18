@@ -1413,7 +1413,7 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: false,
-                contributors: ['650766686'],
+                contributors: ['650766686', '1564574922'],
                 childSettings: {
                     ageKidsTextInput: {
                         label: 'Custom Badge Text',
