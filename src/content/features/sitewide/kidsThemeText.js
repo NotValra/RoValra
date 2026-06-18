@@ -65,7 +65,7 @@ async function editBadge(text) {
         document.getElementsByClassName(badgeClassToSelect);
     const badgeElement = elementsWithBadgeClass.length >= 1
         ? elementsWithBadgeClass[0]
-        : addBadge();
+        : await addBadge();
 
     if (!badgeElement) return;
 
@@ -123,4 +123,5 @@ export function init() {
     if (currentBadgeContainerObserver) currentBadgeContainerObserver.disconnect();
     currentBadgeContainerObserver = observeChildren(document.getElementById(ageBadgeContainerId), makeBadgeChanges);
     startObserving();
+    makeBadgeChanges();
 }
