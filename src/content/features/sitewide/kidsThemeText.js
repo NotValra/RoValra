@@ -7,6 +7,8 @@ const badgeClassToSelect = 'rbx-age-badge';
 const badgeClasses = badgeClassToSelect + ' items-center justify-center select-none height-400 padding-x-xsmall radius-small text-label-small margin-left-[6px] bg-[var(--color-content-emphasis)] content-[var(--color-surface-0)]';
 
 let currentBadgeContainerObserver = null
+let observerCalled = 0
+
 
 const AGE_BADGE_TEXT_OPTIONS = [
     {
@@ -113,7 +115,8 @@ export function makeBadgeChanges() {
             } else if (settings.ageKidsThemeEnabled && settings.ageThemeTextMatch) {
                 matchBadgeToTheme(settings.ageThemeSelection);
             }
-            if (currentBadgeContainerObserver) currentBadgeContainerObserver.disconnect();
+            if (currentBadgeContainerObserver && observerCalled >= 2) currentBadgeContainerObserver.disconnect();
+            else if (currentBadgeContainerObserver) observerCalled++;
         },
     );
 }
@@ -121,7 +124,7 @@ export function makeBadgeChanges() {
 export function init() {
     if (!document.body && !document.getElementById(ageBadgeContainerId)) return;
     if (currentBadgeContainerObserver) currentBadgeContainerObserver.disconnect();
+    makeBadgeChanges();
     currentBadgeContainerObserver = observeChildren(document.getElementById(ageBadgeContainerId), makeBadgeChanges);
     startObserving();
-    makeBadgeChanges();
 }
