@@ -5,7 +5,7 @@ import { PLAYABILITY_STATUS_STRING_TO_CODE } from '../games/playabilityStatus.js
 const CACHE_SECTION = 'experience_sdui_props';
 const CLOUD_CACHE_SECTION = 'cloud_universe_details';
 const GUIDELINES_CACHE_SECTION = 'experience_guidelines_age_recommendation';
-const UNIVERSE_ELIGIBILITY_CACHE_SECTION = 'universe_eligibility';
+const universeEligibilityMemoryCache = new Map();
 
 export const REASON_PROHIBITED_TYPES = Object.keys(
     PLAYABILITY_STATUS_STRING_TO_CODE,
@@ -285,11 +285,7 @@ export async function getUniverseEligibilities(universeIds) {
 
     for (const universeId of normalizedIds) {
         const cacheKey = String(universeId);
-        const cached = await CacheHandler.get(
-            UNIVERSE_ELIGIBILITY_CACHE_SECTION,
-            cacheKey,
-            'session',
-        );
+        const cached = universeEligibilityMemoryCache.get(cacheKey);
 
         if (cached) {
             result[cacheKey] = cached;
@@ -309,17 +305,10 @@ export async function getUniverseEligibilities(universeIds) {
         });
 
         const eligibilities = data?.universeEligibilities || {};
-        await Promise.all(
-            Object.entries(eligibilities).map(([universeId, eligibility]) => {
-                result[universeId] = eligibility;
-                return CacheHandler.set(
-                    UNIVERSE_ELIGIBILITY_CACHE_SECTION,
-                    universeId,
-                    eligibility,
-                    'session',
-                );
-            }),
-        );
+        Object.entries(eligibilities).forEach(([universeId, eligibility]) => {
+            result[universeId] = eligibility;
+            universeEligibilityMemoryCache.set(universeId, eligibility);
+        });
     } catch (error) {
         console.error('RoValra: Failed to fetch universe eligibilities', error);
     }
