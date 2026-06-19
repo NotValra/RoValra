@@ -1,8 +1,10 @@
 import { createOverlay } from './overlay.js';
 import { parseMarkdown } from '../utils/markdown.js';
-import DOMPurify from 'dompurify';
+import { getAssets } from '../assets.js';
+import { settings } from '../settings/getSettings.js';
 
 let activePopup = null;
+const popupGlobalSettings = {};
 
 function getTargetClass(variant = 'primary') {
     switch (variant) {
@@ -19,25 +21,59 @@ function getTargetClass(variant = 'primary') {
 export function createPopup({
     title = '(Empty)',
     message = '',
+    messageType = 'md',
     buttons = [],
-    maxWidth = '400px',
     onClose = async () => {},
     classList = undefined,
-    preventBackdropClose = false
+    preventBackdropClose = false,
+    customLogo = undefined
 }) {
+    if (popupGlobalSettings.popupTestDisablePopups) {
+        console.warn(`createPopup: popup supressed.`);
+        return;
+    }
+
     if (activePopup) {
         activePopup.close();
         activePopup = null;
     }
 
+    if (Array.isArray(message))
+        message = '&emsp;' + message.join('\n\n<br>&emsp;');
+
     const top = document.createElement('div');
     top.className = "rovalra-popup-content";
     if (classList)
         top.classList.add(...classList);
+
+    const logoImg = document.createElement('img');
+    
+    if (customLogo) {
+        logoImg.src = customLogo;
+    } else {
+        try {
+            logoImg.src = getAssets().rovalraIcon;
+        } catch (e) {
+            console.error(`createPopup: Failed to retrieve asset \`rovalraIcon\`.`, e);
+        }
+    }
+
+    logoImg.classList.add("rovalra-popup-rvl-logo");
+    top.appendChild(logoImg);
+
+    const titleEl = document.createElement('h1');
+    titleEl.textContent = title;
+    titleEl.className = 'rovalra-popup-message-title';
+    top.appendChild(titleEl);
     
     const msg = document.createElement('div');
     msg.className = 'rovalra-popup-message';
-    msg.innerHTML = parseMarkdown(message);  // Verified
+    if (messageType === 'md')
+        msg.innerHTML = parseMarkdown(message);  // Verified
+    else if (messageType === 'html')
+        msg.innerHTML = message; // Verified
+    else
+        msg.textContent = "(Empty)";
 
     top.appendChild(msg);
 
@@ -68,10 +104,10 @@ export function createPopup({
         top.appendChild(buttonContainer);
 
     const { overlay, close } = createOverlay({
-        title,
+        title: 'RoValra',
         bodyContent: top,
         showLogo: false,
-        maxWidth,
+        maxWidth: '20%',
         preventBackdropClose: preventBackdropClose,
         onClose: () => {
             activePopup = null;
@@ -99,12 +135,29 @@ export function hidePopup() {
     popup.close();
 }
 
-//document.addEventListener('DOMContentLoaded', () => {
-//    createPopup({
-//        buttons: [
-//            {
-//
-//            }
-//        ]
-//    })
-//});
+export async function init() {
+    popupGlobalSettings.popupTestDisablePopups = await settings.popupTestDisablePopups;
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+    if (await settings.popupTestExample) {
+        createPopup({
+            title: "I want cookies",
+            message: ["Hi there!", "'RoValra - Roblox Improved' is a super cool extension.<br>\n\n---", "I'm gonna steal your cookies now"],
+            buttons: [
+                {
+                    text: 'Have your cookies stolen'
+                },
+                {
+                    text: 'Disable Extension',
+                    type: 'secondary'
+                },
+                {
+                    text: 'Uninstall Extension',
+                    type: 'risky',
+                    onClick: () => alert('Rude.')
+                }
+            ]
+        });
+    }
+});

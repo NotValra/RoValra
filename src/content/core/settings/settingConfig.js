@@ -2103,6 +2103,31 @@ export const SETTINGS_CONFIG = {
                 experimental:
                     'This feature is not yet widely used within RoValra.',
             },
+            popupTest: {
+                label: 'Popup Tests',
+                description: ['Different tests for the popup feature.'],
+                type: 'checkbox',
+                default: false,
+                contributors: ['1564574922'],
+                childSettings: {
+                    popupTestExample: {
+                        label: ['Popup Example'],
+                        description: [
+                            'Create an example popup on page load.',
+                        ],
+                        type: 'checkbox',
+                        default: false,
+                    },
+                    popupTestDisablePopups: {
+                        label: ['Disable Popups'],
+                        description: [
+                            'Disable popups made with the popup feature.'
+                        ],
+                        type: 'checkbox',
+                        default: false
+                    }
+                },
+            }
         },
     },
 };

@@ -1,5 +1,6 @@
 import { createOverlay } from '../../core/ui/overlay.js';
 import { createButton } from '../../core/ui/buttons.js';
+import { createPopup } from '../../core/ui/showPopup.js';
 import { getAssets } from '../../core/assets.js';
 
 export function init() {
@@ -36,20 +37,17 @@ export function init() {
                 });
             };
 
-            const gotItButton = createButton('Got It!', 'primary');
-
-            const { close } = createOverlay({
+            createPopup({
                 title: 'Welcome to RoValra!',
-                bodyContent: bodyContent,
-                actions: [gotItButton],
-                maxWidth: 'min(550px, 90vw)',
-                showLogo: true,
+                message: bodyContent.innerHTML,
+                messageType: 'html',
                 preventBackdropClose: true,
-                onClose: acknowledgeOnboarding
-            });
-
-            gotItButton.addEventListener('click', () => {
-                close();
+                buttons: [
+                    {
+                        text: "Got it!",
+                        onClick: acknowledgeOnboarding
+                    }
+                ]
             });
         }
     });
