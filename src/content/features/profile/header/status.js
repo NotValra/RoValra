@@ -26,13 +26,9 @@ const MAX_STATUS_LENGTH = 128;
 const REPORTING_ENABLED = false;
 let activeHomeStatusBubble = null;
 
-function renderStatusBubbleContent(
-    bubble,
-    statusText,
-    { stripLineBreaks = false } = {},
-) {
+function renderStatusBubbleContent(bubble, statusText) {
     const html = parseUntrustedMarkdown(statusText);
-    bubble.innerHTML = stripLineBreaks ? html.replaceAll('<br>', '') : html; // Verified
+    bubble.innerHTML = html; // Verified
 }
 
 function cleanupStatusElements(container) {
@@ -383,9 +379,7 @@ async function addHomeStatusHover(tile) {
                                 '...';
                         }
 
-                        renderStatusBubbleContent(bubble, statusText, {
-                            stripLineBreaks: true,
-                        });
+                        renderStatusBubbleContent(bubble, statusText);
                         statusLoaded = true;
 
                         if (!isOwnProfile && REPORTING_ENABLED) {
