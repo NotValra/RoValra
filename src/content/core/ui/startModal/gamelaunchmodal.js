@@ -5,7 +5,6 @@ import { getAssets } from '../../assets.js';
 import { parseMarkdown } from '../../utils/markdown.js';
 
 import DOMPurify from 'dompurify';
-import { createPopup } from '../showPopup.js';
 
 let activeInstance = null;
 let keepOverlayOpen = false;
