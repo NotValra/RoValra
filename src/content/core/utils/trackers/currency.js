@@ -2,7 +2,7 @@ import { callRobloxApiJson } from '../../api';
 import { getAuthenticatedUserId } from '../../user';
 
 export const USER_CURRENCY_DATA_KEY = 'rovalra_user_currency_v1';
-const USER_CURRENCY_CACHE_DURATION = 30 * 1000;
+const USER_CURRENCY_CACHE_DURATION = 1 * 1000; // one second cuz yas
 
 let currencyTrackingInterval = null;
 const activeCurrencyRequests = new Map();
