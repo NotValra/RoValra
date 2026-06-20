@@ -28,20 +28,13 @@ function sortInstances(instances) {
     });
 }
 
-// Roblox Studio class icons are served from the CDN as individual PNGs named by
-// class. Keep the parsed class capitalization intact so filenames match exactly.
 function classIconUrl(className) {
     const folder = isDarkMode() ? 'class_icons_dark' : 'class_icons_light';
     return `https://www.rovalra.com/static/${folder}/${encodeURIComponent(className)}.png`;
 }
 
 const CLASSIC_CLOTHING_ASSET_TYPES = new Set([
-    'TShirt',
-    'Shirt',
-    'Pants',
-    'ClassicTShirt',
-    'ClassicShirt',
-    'ClassicPants',
+    'TShirt', 'Shirt', 'Pants', 'ClassicTShirt', 'ClassicShirt', 'ClassicPants',
 ]);
 const CLASSIC_CLOTHING_ASSET_TYPE_IDS = new Set([2, 11, 12]);
 
@@ -56,30 +49,20 @@ function catalogAssetTypeName(details) {
 
 function catalogAssetTypeId(details) {
     const candidates = [
-        details?.assetType,
-        details?.assetTypeId,
-        details?.AssetTypeId,
-        details?.productType,
-        details?.assetType?.id,
-        details?.assetType?.assetTypeId,
-        details?.assetType?.Id,
+        details?.assetType, details?.assetTypeId, details?.AssetTypeId,
+        details?.productType, details?.assetType?.id,
+        details?.assetType?.assetTypeId, details?.assetType?.Id,
     ];
-
     for (const candidate of candidates) {
         const id = Number(candidate);
         if (Number.isFinite(id)) return id;
     }
-
     return null;
 }
 
 function isClassicClothingDetails(details) {
-    const assetTypeName = catalogAssetTypeName(details).replace(
-        /[^A-Za-z0-9]/g,
-        '',
-    );
+    const assetTypeName = catalogAssetTypeName(details).replace(/[^A-Za-z0-9]/g, '');
     const assetTypeId = catalogAssetTypeId(details);
-
     return (
         CLASSIC_CLOTHING_ASSET_TYPES.has(assetTypeName) ||
         CLASSIC_CLOTHING_ASSET_TYPE_IDS.has(assetTypeId)
@@ -88,10 +71,7 @@ function isClassicClothingDetails(details) {
 
 async function isClassicClothingItem(assetId) {
     try {
-        const details = await getCatalogItemDetails(
-            assetId,
-            CATALOG_ITEM_TYPES.ASSET,
-        );
+        const details = await getCatalogItemDetails(assetId, CATALOG_ITEM_TYPES.ASSET);
         if (isClassicClothingDetails(details)) return true;
 
         const economyDetails = await callRobloxApiJson({
@@ -99,7 +79,6 @@ async function isClassicClothingItem(assetId) {
             endpoint: `/v2/assets/${assetId}/details`,
             method: 'GET',
         });
-
         return isClassicClothingDetails(economyDetails);
     } catch (error) {
         console.warn('[RoValra Explorer] Failed to check catalog item type:', error);
@@ -158,13 +137,8 @@ function formatValue(value) {
         }
         if ('Family' in value) return value.Family;
         if ('Density' in value) return 'Custom';
-        try {
-            return JSON.stringify(value);
-        } catch {
-            return String(value);
-        }
+        try { return JSON.stringify(value); } catch { return String(value); }
     }
-
     return String(value);
 }
 
@@ -178,25 +152,21 @@ function propGroup(name) {
     return PROP_CATEGORY[name] || 'Data';
 }
 
-// Properties Studio doesn't surface (internal, always zero, etc.).
 const HIDDEN_PROPS = new Set(['HistoryId', 'SourceAssetId']);
 
 function groupSortKey(group) {
-    // Attributes and Tags are their own sections at the very bottom, like Studio.
     if (group === 'Attributes') return 1e6;
     if (group === 'Tags') return 1e6 + 1;
     const index = GROUP_PRIORITY.indexOf(group);
     return index === -1 ? GROUP_PRIORITY.length : index;
 }
 
-// CollectionService tags are stored as a NUL-separated string.
 function parseTags(value) {
     if (value instanceof Uint8Array) value = new TextDecoder().decode(value);
     if (typeof value !== 'string') return [];
     return value.split('\0').filter((t) => t.length > 0);
 }
 
-// Decodes the AttributesSerialize binary blob (see dom.rojo.space/attributes).
 function parseAttributes(bytes) {
     const result = {};
     if (!(bytes instanceof Uint8Array) || bytes.length < 4) return result;
@@ -284,19 +254,16 @@ function parseAttributes(bytes) {
                     const weight = u16();
                     const style = u8();
                     const family = str();
-                    str(); // cached face id
+                    str();
                     value = { Family: family, Weight: weight, Style: style };
                     break;
                 }
                 default:
-                    // Unknown type — stop rather than emit garbage.
                     return result;
             }
             result[name] = value;
         }
-    } catch {
-        /* return whatever parsed cleanly */
-    }
+    } catch { /* return whatever parsed cleanly */ }
     return result;
 }
 
@@ -306,8 +273,6 @@ const LUAU_KEYWORDS = new Set([
     'until', 'while', 'continue', 'export', 'type', 'self',
 ]);
 
-// Lightweight Luau highlighter — builds coloured token spans via the DOM (no
-// innerHTML), so it's safe to feed untrusted source.
 function highlightLuau(source) {
     const code = document.createElement('code');
     code.className = 'rovalra-explorer-code';
@@ -337,28 +302,1738 @@ function highlightLuau(source) {
 }
 
 function asColorSwatch(value) {
-    if (
-        value &&
-        typeof value === 'object' &&
-        'r' in value &&
-        'g' in value &&
-        'b' in value
-    ) {
+    if (value && typeof value === 'object' && 'r' in value && 'g' in value && 'b' in value) {
         const to255 = (c) => (c <= 1 ? Math.round(c * 255) : Math.round(c));
         return `rgb(${to255(value.r)}, ${to255(value.g)}, ${to255(value.b)})`;
     }
     return null;
 }
 
+// --- BEGIN SCREENGUI VIEWER LOGIC ---
+
+function robloxColorToCss(color, alpha = 1) {
+    if (!color || typeof color.r !== 'number') return null;
+    const to255 = (c) => Math.round(c <= 1 ? c * 255 : c);
+    return `rgba(${to255(color.r)}, ${to255(color.g)}, ${to255(color.b)}, ${alpha})`;
+}
+
+function getTintFilter(color) {
+    if (!color) return null;
+    const r = color.r <= 1 ? color.r : color.r / 255;
+    const g = color.g <= 1 ? color.g : color.g / 255;
+    const b = color.b <= 1 ? color.b : color.b / 255;
+
+    if (Math.abs(r - 1) < 0.001 && Math.abs(g - 1) < 0.001 && Math.abs(b - 1) < 0.001) return null;
+
+    const id = `rovalra-tint-${Math.round(r*255)}-${Math.round(g*255)}-${Math.round(b*255)}`;
+    if (document.getElementById(id)) return `url(#${id})`;
+
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('width', '0');
+    svg.setAttribute('height', '0');
+    svg.style.position = 'absolute';
+    
+    const filter = document.createElementNS('http://www.w3.org/2000/svg', 'filter');
+    filter.setAttribute('id', id);
+    filter.setAttribute('color-interpolation-filters', 'sRGB');
+    
+    const matrix = document.createElementNS('http://www.w3.org/2000/svg', 'feColorMatrix');
+    matrix.setAttribute('type', 'matrix');
+    matrix.setAttribute('values', `${r} 0 0 0 0  0 ${g} 0 0 0  0 0 ${b} 0 0  0 0 0 1 0`);
+    
+    filter.appendChild(matrix);
+    svg.appendChild(filter);
+    document.body.appendChild(svg);
+    
+    return `url(#${id})`;
+}
+
+function buildUIGradient(g) {
+    const rot = (g.Rotation || 0) + 90;
+    const stops = [];
+    if (Array.isArray(g.Color) && g.Color.length > 0) {
+        for (const kp of g.Color) {
+            const pct = (kp.Time || 0) * 100;
+            let transp = 0;
+            if (Array.isArray(g.Transparency) && g.Transparency.length > 0) {
+                let prev = g.Transparency[0];
+                let next = g.Transparency[g.Transparency.length - 1];
+                for (const t of g.Transparency) {
+                    if (t.Time <= kp.Time) prev = t;
+                    if (t.Time >= kp.Time) { next = t; break; }
+                }
+                const range = next.Time - prev.Time;
+                if (range > 0) {
+                    transp = prev.Value + (next.Value - prev.Value) * ((kp.Time - prev.Time) / range);
+                } else {
+                    transp = prev.Value;
+                }
+            }
+            stops.push(`${robloxColorToCss(kp.Value, 1 - transp)} ${pct}%`);
+        }
+    }
+    if (stops.length === 1) stops.push(stops[0]);
+    return `linear-gradient(${rot}deg, ${stops.join(', ')})`;
+}
+
+function sanitizeRichText(text) {
+    let escaped = text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+
+    escaped = escaped.replace(/&lt;br\s*\/?&gt;/gi, '<br/>');
+    escaped = escaped.replace(/&lt;(\/?)(b|i|u|s)&gt;/gi, '<$1$2>');
+    escaped = escaped.replace(/&lt;font\s+([^&]+?)&gt;/gi, (match, attrs) => {
+        const style = {};
+        const colorMatch = attrs.match(/color\s*=\s*&quot;([^&]+)&quot;/i);
+        if (colorMatch) style.color = colorMatch[1];
+        
+        const sizeMatch = attrs.match(/size\s*=\s*&quot;([^&]+)&quot;/i);
+        if (sizeMatch) style['font-size'] = `${sizeMatch[1]}px`;
+        
+        const faceMatch = attrs.match(/face\s*=\s*&quot;([^&]+)&quot;/i);
+        if (faceMatch) style['font-family'] = `'${faceMatch[1]}', sans-serif`;
+        
+        const styleStr = Object.entries(style).map(([k, v]) => `${k}: ${v}`).join('; ');
+        return `<span style="${styleStr}">`;
+    });
+    escaped = escaped.replace(/&lt;\/font&gt;/gi, '</span>');
+    
+    return escaped;
+}
+
+// --- Font Loading Logic ---
+
+const fontFamilyMap = new Map();
+const ROBLOX_TEXT_PADDING = 4;
+
+const ROBLOX_FONT_ENUM_MAP = {
+    0: 'Legacy', 1: 'Arial', 2: 'Arial Bold', 3: 'Source Sans Pro',
+    4: 'Source Sans Pro Bold', 5: 'Source Sans Pro Light', 6: 'Source Sans Pro Italic',
+    7: 'Bodoni', 8: 'Garamond', 9: 'Cartoon', 10: 'Code',
+    11: 'Highway', 12: 'SciFi', 13: 'Arcade', 14: 'Fantasy',
+    15: 'Antique', 16: 'Source Sans Pro Semibold', 17: 'Gotham',
+    18: 'Gotham Medium', 19: 'Gotham Bold', 20: 'Gotham Black',
+    21: 'Amatic SC', 22: 'Bangers', 23: 'Creepster', 24: 'Denk One',
+    25: 'Fondamento', 26: 'Fredoka One', 27: 'Grenze Gotisch',
+    28: 'Indie Flower', 29: 'Josefin Sans', 30: 'Jura', 31: 'Kalam',
+    32: 'Luckiest Guy', 33: 'Merriweather', 34: 'Michroma', 35: 'Nunito',
+    36: 'Oswald', 37: 'Patrick Hand', 38: 'Permanent Marker', 39: 'Roboto',
+    40: 'Roboto Condensed', 41: 'Roboto Mono', 42: 'Sarpanch',
+    43: 'Special Elite', 44: 'Titillium Web', 45: 'Ubuntu',
+    46: 'Builder Sans', 47: 'Builder Sans Medium', 48: 'Builder Sans Bold',
+    49: 'Builder Sans ExtraBold', 50: 'Arimo', 51: 'Arimo Bold', 100: 'Unknown'
+};
+
+function getRobloxAssetId(value) {
+    if (typeof value !== 'string') return null;
+    const match = value.match(/(?:rbxassetid:\/\/|\/asset\/?\?id=|assetid=|[?&]id=)(\d+)/i);
+    return match ? match[1] : null;
+}
+
+function cssFontStyle(style) {
+    if (typeof style === 'string') return style.toLowerCase();
+    if (typeof style === 'number') {
+        const styles = ['normal', 'italic', 'oblique'];
+        return styles[style] || 'normal';
+    }
+    return 'normal';
+}
+
+async function loadFontFamily(fontFamilyUrl) {
+    if (fontFamilyMap.has(fontFamilyUrl)) return fontFamilyMap.get(fontFamilyUrl);
+
+    const customAssetId = getRobloxAssetId(fontFamilyUrl);
+    const isCustomFont = !!customAssetId;
+    const familyName = isCustomFont ? null : fontFamilyUrl.split('/').pop().replace('.json', '');
+    
+    return new Promise((resolve) => {
+        const request = isCustomFont
+            ? { action: 'getCustomFontFamily', assetId: customAssetId }
+            : { action: 'getFontFamily', familyName };
+
+        chrome.runtime.sendMessage(request, (response) => {
+            if (chrome.runtime.lastError || !response || !response.success) {
+                console.warn('Failed to load font from background', fontFamilyUrl, response?.error);
+                fontFamilyMap.set(fontFamilyUrl, 'sans-serif');
+                return resolve('sans-serif');
+            }
+            
+            const { name, faces } = response;
+            const fontPromises = [];
+            
+            for (const face of faces) {
+                const mimeType = face.mimeType || 'font/ttf';
+                const fontUrl = `data:${mimeType};base64,${face.base64}`;
+                const fontFace = new FontFace(name, `url(${fontUrl})`, {
+                    weight: face.weight.toString(),
+                    style: cssFontStyle(face.style)
+                });
+                fontPromises.push(
+                    fontFace.load().then(loadedFace => {
+                        document.fonts.add(loadedFace);
+                    }).catch(e => {
+                        console.warn('Failed to load font face', name, face.weight, e);
+                    })
+                );
+            }
+            
+            Promise.all(fontPromises).then(() => {
+                const cssName = `'${name}', sans-serif`;
+                fontFamilyMap.set(fontFamilyUrl, cssName);
+                resolve(cssName);
+            });
+        });
+    });
+}
+
+async function preloadFonts(instance) {
+    if (!instance) return;
+    const fontPromises = [];
+    
+    function collectFonts(inst) {
+        if (!inst) return;
+        if (['TextLabel', 'TextButton', 'TextBox'].includes(inst.ClassName)) {
+            const fontFace = inst.Properties?.FontFace;
+            if (fontFace && fontFace.Family && !fontFamilyMap.has(fontFace.Family)) {
+                fontPromises.push(
+                    loadFontFamily(fontFace.Family)
+                        .catch(e => {
+                            console.warn('Failed to preload font', fontFace.Family, e);
+                            fontFamilyMap.set(fontFace.Family, 'sans-serif');
+                        })
+                );
+            }
+        }
+        if (inst.Children) {
+            for (const child of inst.Children) {
+                collectFonts(child);
+            }
+        }
+    }
+    
+    collectFonts(instance);
+    await Promise.all(fontPromises);
+}
+
+function parseOpenTypeFeatures(features) {
+    if (!features || typeof features !== 'string') return null;
+    const cssFeatures = [];
+    const parts = features.split(',');
+    for (let part of parts) {
+        part = part.trim();
+        if (!part) continue;
+        const match = part.match(/^([a-zA-Z0-9]{4})(?:=(\d+))?$/);
+        if (match) {
+            const tag = match[1];
+            const val = match[2] || '1';
+            cssFeatures.push(`"${tag}" ${val}`);
+        }
+    }
+    return cssFeatures.length > 0 ? cssFeatures.join(', ') : null;
+}
+
+function calculateOptimalFontSize(
+    width,
+    height,
+    text,
+    fontFamily,
+    fontWeight,
+    fontStyle,
+    maxFontSize,
+    minFontSize
+) {
+    if (width <= 0 || height <= 0 || !text || text.length === 0) return minFontSize;
+
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    
+    let low = Math.floor(minFontSize);
+    let high = Math.ceil(maxFontSize);
+    let bestFit = low;
+
+    while (low <= high) {
+        const mid = Math.floor((low + high) / 2);
+        ctx.font = `${fontStyle} ${fontWeight} ${mid}px ${fontFamily}`;
+        
+        const paragraphs = text.split('\n');
+        let lines = 0;
+        let maxLineWidth = 0;
+        
+        for (const p of paragraphs) {
+            const words = p.split(' ');
+            let currentLine = '';
+            
+            if (words.length === 1 && words[0] === '') {
+                lines++;
+                continue;
+            }
+            
+            for (const word of words) {
+                const testLine = currentLine ? currentLine + ' ' + word : word;
+                const metrics = ctx.measureText(testLine);
+                if (metrics.width > width && currentLine) {
+                    lines++;
+                    const w = ctx.measureText(currentLine).width;
+                    if (w > maxLineWidth) maxLineWidth = w;
+                    currentLine = word;
+                } else {
+                    currentLine = testLine;
+                }
+            }
+            
+            if (currentLine) {
+                lines++;
+                const w = ctx.measureText(currentLine).width;
+                if (w > maxLineWidth) maxLineWidth = w;
+            }
+        }
+        
+        const estimatedHeight = lines * mid * 1.2;
+        
+        if (estimatedHeight <= height && maxLineWidth <= width) {
+            bestFit = mid;
+            low = mid + 1;
+        } else {
+            high = mid - 1;
+        }
+    }
+
+    return bestFit;
+}
+
+const DEFAULT_DEVICES = [
+    { Name: "iPad 8th Generation", Width: 1080, Height: 810, PixelDensity: 264, Category: "Tablet" },
+    { Name: "iPad 9th Generation", Width: 1080, Height: 810, PixelDensity: 264, Category: "Tablet" },
+    { Name: "Xiaomi Redmi Pad SE", Width: 960, Height: 600, PixelDensity: 206, Category: "Tablet" },
+    { Name: "Amazon Fire HD 10 (2023)", Width: 960, Height: 600, PixelDensity: 224, Category: "Tablet" },
+    { Name: "iPad 10th Generation", Width: 1180, Height: 820, PixelDensity: 264, Category: "Tablet" },
+    { Name: "iPad A16", Width: 1180, Height: 820, PixelDensity: 264, Category: "Tablet" },
+    { Name: "Samsung Galaxy Tab A8", Width: 960, Height: 600, PixelDensity: 216, Category: "Tablet" },
+    { Name: "Samsung Galaxy Tab A9", Width: 1340, Height: 800, PixelDensity: 179, Category: "Tablet" },
+    { Name: "iPad Air 5th Generation", Width: 1180, Height: 820, PixelDensity: 264, Category: "Tablet" },
+    { Name: "iPad Pro M4 (11in)", Width: 1210, Height: 834, PixelDensity: 264, Category: "Tablet" },
+    { Name: "iPad Pro M5 (13in)", Width: 1376, Height: 1032, PixelDensity: 264, Category: "Tablet" },
+    { Name: "Samsung Galaxy Tab A9+", Width: 960, Height: 600, PixelDensity: 206, Category: "Tablet" },
+    { Name: "Samsung Galaxy Tab S11", Width: 1280, Height: 800, PixelDensity: 274, Category: "Tablet" },
+    { Name: "iPhone XR", Width: 896, Height: 414, PixelDensity: 326, Category: "Phone" },
+    { Name: "iPhone 11", Width: 896, Height: 414, PixelDensity: 326, Category: "Phone" },
+    { Name: "Samsung Galaxy A06", Width: 800, Height: 360, PixelDensity: 262, Category: "Phone" },
+    { Name: "iPhone 13", Width: 844, Height: 390, PixelDensity: 460, Category: "Phone" },
+    { Name: "iPhone 13 Pro", Width: 844, Height: 390, PixelDensity: 460, Category: "Phone" },
+    { Name: "iPhone 13 Pro Max", Width: 926, Height: 428, PixelDensity: 458, Category: "Phone" },
+    { Name: "iPhone 14", Width: 844, Height: 390, PixelDensity: 460, Category: "Phone" },
+    { Name: "Samsung Galaxy A16", Width: 780, Height: 360, PixelDensity: 385, Category: "Phone" },
+    { Name: "iPhone 16", Width: 852, Height: 393, PixelDensity: 460, Category: "Phone" },
+    { Name: "iPhone 16 Pro", Width: 874, Height: 402, PixelDensity: 460, Category: "Phone" },
+    { Name: "iPhone 16 Pro Max", Width: 956, Height: 440, PixelDensity: 460, Category: "Phone" },
+    { Name: "iPhone 17 Pro", Width: 874, Height: 402, PixelDensity: 460, Category: "Phone" },
+    { Name: "Samsung Galaxy S22 Ultra", Width: 772, Height: 360, PixelDensity: 501, Category: "Phone" },
+    { Name: "Samsung Galaxy S25 Ultra", Width: 780, Height: 360, PixelDensity: 498, Category: "Phone" },
+    { Name: "Desktop", Width: 1366, Height: 768, PixelDensity: 96, Category: "Desktop" },
+    { Name: "HD 720", Width: 1280, Height: 720, PixelDensity: 96, Category: "Desktop" },
+    { Name: "HD 1080", Width: 1920, Height: 1080, PixelDensity: 96, Category: "Desktop" },
+    { Name: "VGA", Width: 640, Height: 480, PixelDensity: 96, Category: "Desktop" },
+    { Name: "Xbox One", Width: 1920, Height: 1080, PixelDensity: 96, Category: "Console" },
+    { Name: "PS4", Width: 1920, Height: 1080, PixelDensity: 96, Category: "Console" },
+    { Name: "PS5", Width: 1920, Height: 1080, PixelDensity: 96, Category: "Console" },
+    { Name: "Generic Handheld HD 720", Width: 1280, Height: 720, PixelDensity: 274, Category: "Console" },
+    { Name: "Generic Handheld HD 1080", Width: 1920, Height: 1080, PixelDensity: 411, Category: "Console" },
+    { Name: "Meta Quest 2", Width: 611, Height: 640, PixelDensity: 773, Category: "VR" },
+    { Name: "Meta Quest 3", Width: 688, Height: 736, PixelDensity: 1218, Category: "VR" },
+];
+
+function resolveTextXAlignment(value) {
+    if (value === 0 || value === 'Left') return 'left';
+    if (value === 1 || value === 'Right') return 'right';
+    return 'center'; // 2 or Center
+}
+
+function resolveTextYAlignment(value) {
+    if (value === 0 || value === 'Top') return 'top';
+    if (value === 2 || value === 'Bottom') return 'bottom';
+    return 'center'; // 1 or Center
+}
+
+const DECORATOR_CLASSES = new Set([
+    'UIStroke', 'UICorner', 'UIGradient', 'UIPadding', 'UIScale', 'UIShadow', 
+    'UIAspectRatioConstraint', 'UISizeConstraint', 'UITextSizeConstraint', 
+    'UIFlexItem', 'UIListLayout', 'UIGridLayout'
+]);
+
+const VALID_GUI_CLASSES = new Set([
+    'ScreenGui', 'BillboardGui', 'SurfaceGui', 'PluginGui', 'DockWidgetPluginGui', 'Frame', 'ScrollingFrame',
+    'TextLabel', 'TextButton', 'TextBox', 'ImageLabel', 'ImageButton',
+    'ViewportFrame', 'VideoFrame', 'CanvasGroup', 'Folder'
+]);
+
+// ==========================================
+// PASS 1: Build Layout Tree
+// ==========================================
+function buildLayoutTree(instance, isRoot = false, parentPath = '') {
+    const props = instance.Properties || {};
+    
+    if (props.Visible === false || props.Visible === 'false' || props.Visible === 0) return null;
+    if (isRoot && (props.Enabled === false || props.Enabled === 'false' || props.Enabled === 0)) return null;
+    if (DECORATOR_CLASSES.has(instance.ClassName)) return null;
+
+    // Ignore non-UI objects so their descendants don't render
+    if (!isRoot && !VALID_GUI_CLASSES.has(instance.ClassName)) return null;
+
+    const decorators = {};
+    let childrenToProcess = [];
+    
+    if (instance.Children) {
+        for (const child of instance.Children) {
+            if (DECORATOR_CLASSES.has(child.ClassName)) {
+                if (!decorators[child.ClassName]) {
+                    decorators[child.ClassName] = child.Properties || {};
+                }
+            } else {
+                childrenToProcess.push(child);
+            }
+        }
+    }
+    
+    if (decorators.UIListLayout || decorators.UIGridLayout) {
+        const layout = decorators.UIListLayout || decorators.UIGridLayout;
+        const sortOrder = layout.SortOrder ?? 0;
+        childrenToProcess.sort((a, b) => {
+            if (sortOrder === 2) { // LayoutOrder
+                const ao = a.Properties?.LayoutOrder ?? 0;
+                const bo = b.Properties?.LayoutOrder ?? 0;
+                if (ao !== bo) return ao - bo;
+            }
+            const an = getInstanceName(a);
+            const bn = getInstanceName(b);
+            return an < bn ? -1 : an > bn ? 1 : 0;
+        });
+    }
+    
+    const name = getInstanceName(instance);
+    const currentPath = parentPath ? `${parentPath}.${name}` : name;
+
+    const node = {
+        instance,
+        decorators,
+        isRoot,
+        children: [],
+        resolvedWidth: 0,
+        resolvedHeight: 0,
+        resolvedX: 0,
+        resolvedY: 0,
+        path: currentPath
+    };
+    
+    for (const child of childrenToProcess) {
+        const childNode = buildLayoutTree(child, false, currentPath);
+        if (childNode) node.children.push(childNode);
+    }
+    
+    return node;
+}
+
+// ==========================================
+// PASS 2: Resolve Layouts
+// ==========================================
+function resolveNodeSize(node, parentW, parentH) {
+    if (node.isRoot) {
+        node.resolvedWidth = parentW;
+        node.resolvedHeight = parentH;
+        node.resolvedX = 0;
+        node.resolvedY = 0;
+        return;
+    }
+
+    const props = node.instance.Properties || {};
+    const size = props.Size || { X: { Scale: 1, Offset: 0 }, Y: { Scale: 1, Offset: 0 } };
+    let width = (parentW * (size.X?.Scale || 0)) + (size.X?.Offset || 0);
+    let height = (parentH * (size.Y?.Scale || 0)) + (size.Y?.Offset || 0);
+
+    const pos = props.Position || { X: { Scale: 0, Offset: 0 }, Y: { Scale: 0, Offset: 0 } };
+    let x = (parentW * (pos.X?.Scale || 0)) + (pos.X?.Offset || 0);
+    let y = (parentH * (pos.Y?.Scale || 0)) + (pos.Y?.Offset || 0);
+
+    if (node.decorators.UISizeConstraint) {
+        const max = node.decorators.UISizeConstraint.MaxSize;
+        const min = node.decorators.UISizeConstraint.MinSize;
+        if (max) {
+            if (max.x > 0) width = Math.min(width, max.x);
+            if (max.y > 0) height = Math.min(height, max.y);
+        }
+        if (min) {
+            if (min.x > 0) width = Math.max(width, min.x);
+            if (min.y > 0) height = Math.max(height, min.y);
+        }
+    }
+
+    if (node.decorators.UIAspectRatioConstraint) {
+        const ar = node.decorators.UIAspectRatioConstraint.AspectRatio || 1;
+        const axis = node.decorators.UIAspectRatioConstraint.DominantAxis ?? 0;
+        const aspectType = node.decorators.UIAspectRatioConstraint.AspectType ?? 0;
+
+        let boundW = width, boundH = height;
+        if (aspectType === 1) { 
+            boundW = parentW; 
+            boundH = parentH;
+        }
+
+        if (axis === 0) {
+            width = boundW;
+            height = width / ar;
+            if (height > boundH) { height = boundH; width = height * ar; }
+        } else {
+            height = boundH;
+            width = height * ar;
+            if (width > boundW) { width = boundW; height = width / ar; }
+        }
+    }
+
+    if (props.AnchorPoint) {
+        x -= (props.AnchorPoint.x || 0) * width;
+        y -= (props.AnchorPoint.y || 0) * height;
+    }
+
+    node.resolvedWidth = Math.max(0, width);
+    node.resolvedHeight = Math.max(0, height);
+    node.resolvedX = x;
+    node.resolvedY = y;
+}
+
+function applyChildLayout(node) {
+    let contentW = node.resolvedWidth;
+    let contentH = node.resolvedHeight;
+
+    if (node.decorators.UIPadding) {
+        const pad = node.decorators.UIPadding;
+        const padL = ((pad.PaddingLeft?.Scale || 0) * node.resolvedWidth) + (pad.PaddingLeft?.Offset || 0);
+        const padR = ((pad.PaddingRight?.Scale || 0) * node.resolvedWidth) + (pad.PaddingRight?.Offset || 0);
+        const padT = ((pad.PaddingTop?.Scale || 0) * node.resolvedHeight) + (pad.PaddingTop?.Offset || 0);
+        const padB = ((pad.PaddingBottom?.Scale || 0) * node.resolvedHeight) + (pad.PaddingBottom?.Offset || 0);
+        contentW = Math.max(0, contentW - padL - padR);
+        contentH = Math.max(0, contentH - padT - padB);
+        
+        node.padX = padL;
+        node.padY = padT;
+    } else {
+        node.padX = 0;
+        node.padY = 0;
+    }
+
+    if (node.decorators.UIListLayout) {
+        resolveListLayout(node, contentW, contentH);
+    } else if (node.decorators.UIGridLayout) {
+        resolveGridLayout(node, contentW, contentH);
+    } else {
+        for (const child of node.children) {
+            resolveNodeSize(child, contentW, contentH);
+            child.resolvedX += node.padX;
+            child.resolvedY += node.padY;
+            applyChildLayout(child);
+        }
+    }
+}
+
+function resolveListLayout(node, cw, ch) {
+    const layout = node.decorators.UIListLayout;
+    const isHorizontal = layout.FillDirection === 0;
+    
+    const mainFlex = isHorizontal ? layout.HorizontalFlex : layout.VerticalFlex;
+    
+    const pad = layout.Padding || { Scale: 0, Offset: 0 };
+    let padSize = ((isHorizontal ? cw : ch) * (pad.Scale || 0)) + (pad.Offset || 0);
+    if (mainFlex === 2 || mainFlex === 3 || mainFlex === 4) {
+        padSize = 0;
+    }
+
+    let children = node.children;
+    for (const child of children) {
+        resolveNodeSize(child, cw, ch);
+    }
+
+    let lines = [[]];
+    let currentLineSize = 0;
+    
+    for (const child of children) {
+        const childSize = isHorizontal ? child.resolvedWidth : child.resolvedHeight;
+        if (layout.Wraps && currentLineSize + childSize > (isHorizontal ? cw : ch) && lines[lines.length - 1].length > 0) {
+            lines.push([]);
+            currentLineSize = 0;
+        }
+        lines[lines.length - 1].push(child);
+        currentLineSize += childSize + padSize;
+    }
+
+    let lineOffset = 0;
+
+    for (const line of lines) {
+        let lineCrossSize = 0;
+        for (const child of line) {
+            const childCross = isHorizontal ? child.resolvedHeight : child.resolvedWidth;
+            if (childCross > lineCrossSize) lineCrossSize = childCross;
+        }
+        const lineSize = layout.Wraps ? lineCrossSize : (isHorizontal ? ch : cw);
+
+        let lineMainSize = 0;
+        for (const child of line) {
+            lineMainSize += isHorizontal ? child.resolvedWidth : child.resolvedHeight;
+        }
+        lineMainSize += padSize * Math.max(0, line.length - 1);
+
+        let freeSpace = (isHorizontal ? cw : ch) - lineMainSize;
+
+        let totalGrow = 0;
+        let totalShrink = 0;
+        
+        for (const child of line) {
+            const flexItem = child.decorators.UIFlexItem;
+            let grow = 0, shrink = 0;
+            
+            const childSizeProp = child.instance.Properties?.Size;
+            const mainScale = isHorizontal ? (childSizeProp?.X?.Scale || 0) : (childSizeProp?.Y?.Scale || 0);
+            
+            if (flexItem) {
+                const mode = flexItem.FlexMode ?? 0;
+                if (mode === 1) { // Grow
+                    grow = flexItem.GrowRatio || 1;
+                    shrink = 0;
+                } else if (mode === 2) { // Shrink
+                    grow = 0;
+                    shrink = flexItem.ShrinkRatio || 1;
+                } else if (mode === 3) { // Fill
+                    grow = 1;
+                    shrink = 1;
+                } else if (mode === 4) { // Custom
+                    grow = flexItem.GrowRatio || 0;
+                    shrink = flexItem.ShrinkRatio || 0;
+                }
+            } else {
+                if (mainScale > 0) {
+                    grow = mainScale;
+                    shrink = mainScale;
+                }
+                if (mainFlex === 1) { // Parent is Fill
+                    grow = Math.max(grow, 1);
+                    shrink = Math.max(shrink, 1);
+                }
+            }
+            child._grow = grow;
+            child._shrink = shrink;
+            totalGrow += grow;
+            totalShrink += shrink;
+        }
+
+        if (freeSpace > 0 && totalGrow > 0) {
+            for (const child of line) {
+                if (child._grow > 0) {
+                    const add = (freeSpace * child._grow / totalGrow);
+                    if (isHorizontal) child.resolvedWidth += add;
+                    else child.resolvedHeight += add;
+                }
+            }
+        } else if (freeSpace < 0 && totalShrink > 0) {
+            for (const child of line) {
+                if (child._shrink > 0) {
+                    const sub = (-freeSpace * child._shrink / totalShrink);
+                    if (isHorizontal) child.resolvedWidth = Math.max(0, child.resolvedWidth - sub);
+                    else child.resolvedHeight = Math.max(0, child.resolvedHeight - sub);
+                }
+            }
+        }
+
+        lineMainSize = 0;
+        for (const child of line) {
+            lineMainSize += isHorizontal ? child.resolvedWidth : child.resolvedHeight;
+        }
+        lineMainSize += padSize * Math.max(0, line.length - 1);
+        freeSpace = (isHorizontal ? cw : ch) - lineMainSize;
+
+        const mainAlign = isHorizontal ? layout.HorizontalAlignment : layout.VerticalAlignment;
+        let mainStartOffset = 0;
+        if (mainAlign === 2) mainStartOffset = freeSpace; 
+        else if (mainAlign === 0) mainStartOffset = freeSpace / 2; 
+        
+        if (mainFlex === 3 && line.length > 1) mainStartOffset = 0; // SpaceBetween
+        else if (mainFlex === 2 && line.length > 0) mainStartOffset = freeSpace / (line.length * 2); // SpaceAround
+        else if (mainFlex === 4 && line.length > 0) mainStartOffset = freeSpace / (line.length + 1); // SpaceEvenly
+
+        let cursor = mainStartOffset;
+        for (let i = 0; i < line.length; i++) {
+            const child = line[i];
+            
+            if (i > 0) {
+                if (mainFlex === 3) cursor += freeSpace / Math.max(1, line.length - 1);
+                else if (mainFlex === 2) cursor += freeSpace / line.length;
+                else if (mainFlex === 4) cursor += (freeSpace * 2) / (line.length + 1);
+            }
+
+            let crossStartOffset = 0;
+            let isStretch = false;
+
+            const flexItem = child.decorators.UIFlexItem;
+            let itemAlign = flexItem?.ItemLineAlignment ?? layout.ItemLineAlignment ?? 0;
+
+            const childCrossSize = isHorizontal ? child.resolvedHeight : child.resolvedWidth;
+
+            if (itemAlign === 1) { 
+                crossStartOffset = 0;
+            } else if (itemAlign === 2) { 
+                crossStartOffset = (lineSize - childCrossSize) / 2;
+            } else if (itemAlign === 3) { 
+                crossStartOffset = lineSize - childCrossSize;
+            } else if (itemAlign === 4) { 
+                isStretch = true;
+            } else { 
+                const crossAlignProp = isHorizontal ? layout.VerticalAlignment : layout.HorizontalAlignment;
+                if (crossAlignProp === 2) crossStartOffset = lineSize - childCrossSize; 
+                else if (crossAlignProp === 0) crossStartOffset = (lineSize - childCrossSize) / 2; 
+            }
+            
+            const crossFlex = isHorizontal ? layout.VerticalFlex : layout.HorizontalFlex;
+            if (crossFlex === 1) isStretch = true; // Fill
+
+            if (isStretch) {
+                if (isHorizontal) child.resolvedHeight = lineSize;
+                else child.resolvedWidth = lineSize;
+            }
+
+            child.resolvedX = (isHorizontal ? cursor : lineOffset + crossStartOffset) + node.padX;
+            child.resolvedY = (isHorizontal ? lineOffset + crossStartOffset : cursor) + node.padY;
+
+            applyChildLayout(child);
+
+            cursor += (isHorizontal ? child.resolvedWidth : child.resolvedHeight) + padSize;
+        }
+        lineOffset += lineSize + padSize;
+    }
+}
+
+function resolveGridLayout(node, cw, ch) {
+    const layout = node.decorators.UIGridLayout;
+    const isHorizontal = layout.FillDirection === 0;
+    
+    const cellSize = layout.CellSize || { X: { Scale: 0, Offset: 100 }, Y: { Scale: 0, Offset: 100 } };
+    const cellW = (cw * (cellSize.X?.Scale || 0)) + (cellSize.X?.Offset || 0);
+    const cellH = (ch * (cellSize.Y?.Scale || 0)) + (cellSize.Y?.Offset || 0);
+    
+    const pad = layout.CellPadding || { X: { Scale: 0, Offset: 5 }, Y: { Scale: 0, Offset: 5 } };
+    const padW = (cw * (pad.X?.Scale || 0)) + (pad.X?.Offset || 0);
+    const padH = (ch * (pad.Y?.Scale || 0)) + (pad.Y?.Offset || 0);
+
+    const cols = Math.max(1, Math.floor((cw + padW) / (cellW + padW)));
+    const rows = Math.max(1, Math.floor((ch + padH) / (cellH + padH)));
+
+    const hAlign = layout.HorizontalAlignment;
+    const vAlign = layout.VerticalAlignment;
+    
+    const gridW = (cols * cellW) + ((cols - 1) * padW);
+    const gridH = (rows * cellH) + ((rows - 1) * padH);
+    
+    let startX = 0;
+    let startY = 0;
+    if (hAlign === 0) startX = (cw - gridW) / 2; 
+    else if (hAlign === 2) startX = cw - gridW; 
+    
+    if (vAlign === 0) startY = (ch - gridH) / 2; 
+    else if (vAlign === 2) startY = ch - gridH; 
+
+    let col = 0, row = 0;
+    for (const child of node.children) {
+        if (isHorizontal) {
+            if (col >= cols) { col = 0; row++; }
+        } else {
+            if (row >= rows) { row = 0; col++; }
+        }
+        
+        child.resolvedWidth = cellW;
+        child.resolvedHeight = cellH;
+        child.resolvedX = startX + col * (cellW + padW) + node.padX;
+        child.resolvedY = startY + row * (cellH + padH) + node.padY;
+        
+        applyChildLayout(child);
+
+        if (isHorizontal) col++; else row++;
+    }
+}
+
+function resolveLayoutTree(node, parentW, parentH) {
+    resolveNodeSize(node, parentW, parentH);
+    applyChildLayout(node);
+}
+
+// ==========================================
+// PASS 3: Render DOM
+// ==========================================
+function renderDom(node, imageMap) {
+    const instance = node.instance;
+    const props = instance.Properties || {};
+    const decorators = node.decorators;
+
+    const el = document.createElement('div');
+    el.dataset.rovalraPath = node.path || '';
+    
+    el.style.boxSizing = 'border-box';
+    el.style.position = node.isRoot ? 'relative' : 'absolute';
+    el.style.display = 'block';
+    
+    el.style.width = `${Math.max(0, node.resolvedWidth)}px`;
+    el.style.height = `${Math.max(0, node.resolvedHeight)}px`;
+    
+    if (!node.isRoot) {
+        el.style.left = `${node.resolvedX}px`;
+        el.style.top = `${node.resolvedY}px`;
+        
+        if (props.AnchorPoint) {
+            el.style.transformOrigin = `${(props.AnchorPoint.x || 0) * 100}% ${(props.AnchorPoint.y || 0) * 100}%`;
+        } else {
+            el.style.transformOrigin = '0px 0px';
+        }
+        
+        let transform = '';
+        if (typeof props.Rotation === 'number' && props.Rotation !== 0) {
+            transform += ` rotate(${props.Rotation}deg)`;
+        }
+        if (decorators.UIScale) {
+            const scale = decorators.UIScale.Scale ?? 1;
+            if (scale !== 1) {
+                transform += ` scale(${scale})`;
+            }
+        }
+        if (transform) el.style.transform = transform.trim();
+    }
+
+    if (typeof props.ZIndex === 'number') {
+        el.style.zIndex = props.ZIndex;
+    }
+
+    const supportsUIGradient = instance.ClassName !== 'TextBox' && instance.ClassName !== 'ScrollingFrame';
+    const hasUIGradient = supportsUIGradient && decorators.UIGradient && decorators.UIGradient.Enabled !== false;
+
+    const transparency = typeof props.BackgroundTransparency === 'number' ? props.BackgroundTransparency : 0;
+    if (transparency < 1) {
+        el.style.backgroundColor = robloxColorToCss(props.BackgroundColor3, 1 - transparency);
+        if (hasUIGradient) {
+            const g = decorators.UIGradient;
+            el.style.backgroundImage = buildUIGradient(g);
+            el.style.backgroundBlendMode = 'multiply';
+            const posX = 50 + (g.Offset?.x || 0) * 100;
+            const posY = 50 + (g.Offset?.y || 0) * 100;
+            el.style.backgroundPosition = `${posX}% ${posY}%`;
+        }
+    }
+
+    const shadows = [];
+
+    const borderSize = props.BorderSizePixel ?? 1;
+    if (borderSize > 0 && instance.ClassName === 'Frame') {
+        const borderColor = props.BorderColor3 || { r: 0.105882, g: 0.164706, b: 0.203922 };
+        shadows.push(`inset 0 0 0 ${borderSize}px ${robloxColorToCss(borderColor, 1 - transparency)}`);
+    }
+
+    if (decorators.UIShadow && decorators.UIShadow.Enabled !== false) {
+        const s = decorators.UIShadow;
+        const minDim = Math.min(node.resolvedWidth, node.resolvedHeight);
+        const blur = ((s.BlurRadius?.Scale || 0) * minDim) + (s.BlurRadius?.Offset || 0);
+        const offX = ((s.Offset?.X?.Scale || 0) * node.resolvedWidth) + (s.Offset?.X?.Offset || 0);
+        const offY = ((s.Offset?.Y?.Scale || 0) * node.resolvedHeight) + (s.Offset?.Y?.Offset || 0);
+        const spread = ((s.Spread?.X?.Scale || 0) * node.resolvedWidth) + (s.Spread?.X?.Offset || 0);
+        const color = robloxColorToCss(s.Color, 1 - (s.Transparency || 0));
+        if (color) shadows.push(`${offX}px ${offY}px ${blur}px ${spread}px ${color}`);
+    }
+
+    let textStrokeWidth = null;
+    let textStrokeColor = null;
+    if (decorators.UIStroke && decorators.UIStroke.Enabled !== false) {
+        const s = decorators.UIStroke;
+        const thickness = s.Thickness || 1;
+        const color = robloxColorToCss(s.Color, 1 - (s.Transparency || 0)) || '#000';
+        const pos = s.BorderStrokePosition;
+        const isText = ['TextLabel', 'TextButton', 'TextBox'].includes(instance.ClassName);
+        
+        if (isText && s.ApplyStrokeMode === 0) { 
+            textStrokeWidth = `${thickness * 2}px`;
+            textStrokeColor = color;
+        } else {
+            if (pos === 2) shadows.push(`inset 0 0 0 ${thickness}px ${color}`); // Inner
+            else if (pos === 0) shadows.push(`0 0 0 ${thickness}px ${color}`); // Outer
+            else shadows.push(`0 0 0 ${thickness/2}px ${color}, inset 0 0 0 ${thickness/2}px ${color}`); // Center
+        }
+    }
+
+    if (shadows.length > 0) {
+        el.style.boxShadow = shadows.join(', ');
+    }
+
+    if (decorators.UICorner) {
+        const c = decorators.UICorner;
+        const getRad = (udim) => {
+            if (!udim) return 0;
+            return ((udim.Scale || 0) * Math.min(node.resolvedWidth, node.resolvedHeight)) + (udim.Offset || 0);
+        };
+        const tl = getRad(c.TopLeftRadius || c.CornerRadius);
+        const tr = getRad(c.TopRightRadius || c.CornerRadius);
+        const br = getRad(c.BottomRightRadius || c.CornerRadius);
+        const bl = getRad(c.BottomLeftRadius || c.CornerRadius);
+        el.style.borderRadius = `${tl}px ${tr}px ${br}px ${bl}px`;
+    }
+
+    if (props.ClipsDescendants === true) {
+        el.style.overflow = 'hidden';
+    }
+
+    if (['TextLabel', 'TextButton', 'TextBox'].includes(instance.ClassName)) {
+        el.style.display = 'flex';
+        const textXAlignment = resolveTextXAlignment(props.TextXAlignment);
+        const textYAlignment = resolveTextYAlignment(props.TextYAlignment);
+        el.style.alignItems =
+            textYAlignment === 'top'
+                ? 'flex-start'
+                : textYAlignment === 'bottom'
+                  ? 'flex-end'
+                  : 'center';
+        el.style.justifyContent =
+            textXAlignment === 'left'
+                ? 'flex-start'
+                : textXAlignment === 'right'
+                  ? 'flex-end'
+                  : 'center';
+        el.style.padding = `${ROBLOX_TEXT_PADDING}px`;
+        el.style.overflow = 'hidden';
+        
+        const textSpan = document.createElement('span');
+        textSpan.style.display = 'inline-block';
+        textSpan.style.boxSizing = 'border-box';
+        textSpan.style.maxWidth = '100%';
+        textSpan.style.maxHeight = '100%';
+        textSpan.style.textAlign = textXAlignment;
+        
+        let textContent = typeof props.Text === 'string' ? props.Text : '';
+        
+        if (props.RichText !== true && typeof props.MaxVisibleGraphemes === 'number' && props.MaxVisibleGraphemes >= 0) {
+            textContent = Array.from(textContent).slice(0, props.MaxVisibleGraphemes).join('');
+        }
+        
+        const isRich = props.RichText === true;
+        if (isRich) {
+            textSpan.innerHTML = sanitizeRichText(textContent);
+        } else {
+            textSpan.textContent = textContent;
+        }
+        
+        const textTransparency = typeof props.TextTransparency === 'number' ? props.TextTransparency : 0;
+        const textColor = props.TextColor3 || { r: 1, g: 1, b: 1 };
+        textSpan.style.color = robloxColorToCss(textColor, 1 - textTransparency);
+        
+        const fontFace = props.FontFace;
+        let fontFamily = 'sans-serif';
+        let fontWeight = 'normal';
+        let fontStyle = 'normal';
+        
+        if (fontFace && fontFace.Family) {
+            fontFamily = fontFamilyMap.get(fontFace.Family) || 'sans-serif';
+            if (typeof fontFace.Weight === 'number') fontWeight = fontFace.Weight;
+            if (typeof fontFace.Style === 'number') {
+                const styles = ['normal', 'italic', 'oblique'];
+                if (styles[fontFace.Style]) fontStyle = styles[fontFace.Style];
+            }
+        } else if (typeof props.Font === 'number') {
+            fontFamily = ROBLOX_FONT_ENUM_MAP[props.Font] || 'sans-serif';
+        }
+        textSpan.style.fontFamily = fontFamily;
+        textSpan.style.fontWeight = fontWeight;
+        textSpan.style.fontStyle = fontStyle;
+
+        const otf = parseOpenTypeFeatures(props.OpenTypeFeatures);
+        if (otf) textSpan.style.fontFeatureSettings = otf;
+        
+        let fontSize = props.TextSize || 14;
+        const lineHeight = typeof props.LineHeight === 'number' ? props.LineHeight : 1;
+        if (decorators.UITextSizeConstraint && props.TextScaled !== true) {
+            const minT = decorators.UITextSizeConstraint.MinTextSize || 1;
+            const maxT = decorators.UITextSizeConstraint.MaxTextSize || 1000;
+            fontSize = Math.max(minT, Math.min(maxT, fontSize));
+        }
+        
+        if (props.TextScaled === true) {
+            textSpan.style.whiteSpace = 'pre-wrap';
+            textSpan.style.wordBreak = 'break-word';
+            textSpan.style.width = '100%';
+            textSpan.style.flex = '0 0 100%';
+            textSpan.style.display = 'block';
+            
+            let maxT = 100;
+            let minT = 1;
+            if (decorators.UITextSizeConstraint) {
+                maxT = Math.min(100, decorators.UITextSizeConstraint.MaxTextSize || 100);
+                minT = decorators.UITextSizeConstraint.MinTextSize || 1;
+            }
+            
+            const textPadding = ROBLOX_TEXT_PADDING * 2;
+            const innerWidth = node.resolvedWidth - textPadding > 0 ? node.resolvedWidth - textPadding : 0;
+            const innerHeight = node.resolvedHeight - textPadding > 0 ? node.resolvedHeight - textPadding : 0;
+            
+            const measureText = isRich ? (textSpan.textContent || textContent) : textContent;
+            
+            fontSize = calculateOptimalFontSize(
+                innerWidth,
+                innerHeight,
+                measureText,
+                fontFamily,
+                fontWeight,
+                fontStyle,
+                maxT,
+                minT
+            );
+        } else {
+            if (props.TextWrapped === true) {
+                textSpan.style.whiteSpace = 'pre-wrap';
+                textSpan.style.wordBreak = 'break-word';
+                textSpan.style.width = '100%';
+            } else {
+                textSpan.style.whiteSpace = 'pre';
+                if (props.TextTruncate === 1) { 
+                    textSpan.style.width = '100%';
+                    textSpan.style.overflow = 'hidden';
+                    textSpan.style.textOverflow = 'ellipsis';
+                } else if (props.TextTruncate === 2) { 
+                    textSpan.style.width = '100%';
+                    textSpan.style.overflow = 'hidden';
+                }
+            }
+        }
+        textSpan.style.fontSize = `${fontSize}px`;
+        textSpan.style.lineHeight = String(lineHeight);
+        
+        if (typeof props.TextDirection === 'number') {
+            if (props.TextDirection === 2) textSpan.style.direction = 'rtl'; 
+            else textSpan.style.direction = 'ltr'; 
+        }
+
+        if (typeof props.TextStrokeTransparency === 'number' && props.TextStrokeTransparency < 1 && !textStrokeWidth) {
+            const strokeColor = props.TextStrokeColor3 || { r: 0, g: 0, b: 0 };
+            const strokeAlpha = 1 - props.TextStrokeTransparency;
+            const cssColor = robloxColorToCss(strokeColor, strokeAlpha);
+            const w = 1;
+            textSpan.style.textShadow = `${w}px ${w}px 0 ${cssColor}, ${-w}px ${-w}px 0 ${cssColor}, ${w}px ${-w}px 0 ${cssColor}, ${-w}px ${w}px 0 ${cssColor}`;
+        }
+        
+        if (hasUIGradient) {
+            const g = decorators.UIGradient;
+            textSpan.style.backgroundColor = robloxColorToCss(textColor, 1 - textTransparency);
+            textSpan.style.color = 'transparent';
+            textSpan.style.webkitTextFillColor = 'transparent';
+            textSpan.style.backgroundImage = buildUIGradient(g);
+            textSpan.style.webkitBackgroundClip = 'text';
+            textSpan.style.backgroundClip = 'text';
+            textSpan.style.backgroundBlendMode = 'multiply';
+            const posX = 50 + (g.Offset?.x || 0) * 100;
+            const posY = 50 + (g.Offset?.y || 0) * 100;
+            textSpan.style.backgroundPosition = `${posX}% ${posY}%`;
+        }
+
+        if (textStrokeWidth) {
+            const textWrapper = document.createElement('span');
+            textWrapper.style.display = 'inline-block';
+            textWrapper.style.position = 'relative';
+            textWrapper.style.maxWidth = '100%';
+            textWrapper.style.maxHeight = '100%';
+            textWrapper.style.boxSizing = 'border-box';
+            textWrapper.style.textAlign = textXAlignment;
+            
+            textSpan.style.display = 'block';
+            textSpan.style.position = 'relative';
+            textSpan.style.zIndex = '1';
+            
+            const strokeSpan = document.createElement('span');
+            strokeSpan.style.display = 'block';
+            strokeSpan.style.position = 'absolute';
+            strokeSpan.style.top = '0';
+            strokeSpan.style.left = '0';
+            strokeSpan.style.width = '100%';
+            strokeSpan.style.height = '100%';
+            strokeSpan.style.pointerEvents = 'none';
+            strokeSpan.style.boxSizing = 'border-box';
+            strokeSpan.style.textAlign = textXAlignment;
+            
+            strokeSpan.style.fontFamily = textSpan.style.fontFamily;
+            strokeSpan.style.fontWeight = textSpan.style.fontWeight;
+            strokeSpan.style.fontStyle = textSpan.style.fontStyle;
+            strokeSpan.style.fontSize = textSpan.style.fontSize;
+            strokeSpan.style.lineHeight = textSpan.style.lineHeight;
+            strokeSpan.style.whiteSpace = textSpan.style.whiteSpace;
+            strokeSpan.style.wordBreak = textSpan.style.wordBreak;
+            strokeSpan.style.width = textSpan.style.width;
+            strokeSpan.style.flex = textSpan.style.flex;
+            strokeSpan.style.direction = textSpan.style.direction;
+            strokeSpan.style.fontFeatureSettings = textSpan.style.fontFeatureSettings;
+
+            strokeSpan.style.color = 'transparent';
+            strokeSpan.style.webkitTextFillColor = 'transparent';
+            strokeSpan.style.webkitTextStroke = `${textStrokeWidth} ${textStrokeColor}`;
+            
+            if (isRich) {
+                strokeSpan.innerHTML = textSpan.innerHTML;
+            } else {
+                strokeSpan.textContent = textContent;
+            }
+            
+            textWrapper.appendChild(textSpan);
+            textWrapper.appendChild(strokeSpan);
+            el.appendChild(textWrapper);
+        } else {
+            el.appendChild(textSpan);
+        }
+    }
+
+    if (['ImageLabel', 'ImageButton'].includes(instance.ClassName)) {
+        let imgUri = props.Image;
+        if (!imgUri && props.ImageContent) {
+            if (typeof props.ImageContent === 'string') imgUri = props.ImageContent;
+            else if (typeof props.ImageContent === 'object' && props.ImageContent.id) imgUri = String(props.ImageContent.id);
+        }
+
+        if (typeof imgUri === 'string') {
+            const m = imgUri.match(/(\d+)/);
+            if (m) {
+                const assetId = m[0];
+                const imageUrl = imageMap.get(assetId);
+                if (imageUrl) {
+                    const imgTransparency = typeof props.ImageTransparency === 'number' ? props.ImageTransparency : 0;
+                    const imgColor = props.ImageColor3 || { r: 1, g: 1, b: 1 };
+                    const scaleType = props.ScaleType ?? 0;
+                    const resampleMode = props.ResampleMode ?? 0;
+                    const rectOffset = props.ImageRectOffset;
+                    const rectSize = props.ImageRectSize;
+                    
+                    const isSpriteSheet = rectOffset && rectSize && (rectSize.x !== 0 || rectSize.y !== 0);
+                    const isSliced = scaleType === 1 && props.SliceCenter;
+                    const isTiled = scaleType === 2;
+
+                    const filter = getTintFilter(imgColor);
+                    const imageRendering = resampleMode === 1 ? 'pixelated' : 'auto';
+
+                    // Simple images can use native <img> with object-fit for massive performance gains and accuracy
+                    const useSimpleImg = !isSliced && !isSpriteSheet && !isTiled;
+
+                    if (useSimpleImg) {
+                        const img = document.createElement('img');
+                        img.src = imageUrl;
+                        img.style.width = '100%';
+                        img.style.height = '100%';
+                        if (scaleType === 3) img.style.objectFit = 'contain'; // Fit
+                        else if (scaleType === 4) img.style.objectFit = 'cover'; // Crop
+                        else img.style.objectFit = 'fill'; // 0 = Stretch
+                        img.style.pointerEvents = 'none';
+                        img.style.position = 'absolute';
+                        img.style.top = '0';
+                        img.style.left = '0';
+                        img.style.opacity = 1 - imgTransparency;
+                        img.style.imageRendering = imageRendering;
+                        img.style.borderRadius = el.style.borderRadius;
+                        if (filter) img.style.filter = filter;
+                        el.appendChild(img);
+
+                        if (hasUIGradient) {
+                            const g = decorators.UIGradient;
+                            const gradDiv = document.createElement('div');
+                            gradDiv.style.position = 'absolute';
+                            gradDiv.style.top = '0';
+                            gradDiv.style.left = '0';
+                            gradDiv.style.width = '100%';
+                            gradDiv.style.height = '100%';
+                            gradDiv.style.backgroundImage = buildUIGradient(g);
+                            gradDiv.style.mixBlendMode = 'multiply';
+                            gradDiv.style.webkitMaskImage = `url("${imageUrl}")`;
+                            gradDiv.style.maskImage = `url("${imageUrl}")`;
+                            gradDiv.style.maskSize = img.style.objectFit; // Automatically matches the image fit!
+                            gradDiv.style.webkitMaskSize = img.style.objectFit;
+                            gradDiv.style.maskRepeat = 'no-repeat';
+                            gradDiv.style.webkitMaskRepeat = 'no-repeat';
+                            gradDiv.style.pointerEvents = 'none';
+                            gradDiv.style.borderRadius = el.style.borderRadius;
+                            const posX = 50 + (g.Offset?.x || 0) * 100;
+                            const posY = 50 + (g.Offset?.y || 0) * 100;
+                            gradDiv.style.backgroundPosition = `${posX}% ${posY}%`;
+                            el.appendChild(gradDiv);
+                        }
+                    } else {
+                        // Complex rendering via background-image for 9-slice, tiling, and sprite sheets
+                        const bgDiv = document.createElement('div');
+                        bgDiv.style.position = 'absolute';
+                        bgDiv.style.top = '0';
+                        bgDiv.style.left = '0';
+                        bgDiv.style.width = '100%';
+                        bgDiv.style.height = '100%';
+                        bgDiv.style.pointerEvents = 'none';
+                        bgDiv.style.opacity = 1 - imgTransparency;
+                        bgDiv.style.imageRendering = imageRendering;
+                        bgDiv.style.borderRadius = el.style.borderRadius;
+                        bgDiv.style.transformOrigin = 'center center';
+                        if (filter) bgDiv.style.filter = filter;
+                        
+                        el.appendChild(bgDiv);
+
+                        let gradDiv = null;
+                        if (hasUIGradient) {
+                            const g = decorators.UIGradient;
+                            gradDiv = document.createElement('div');
+                            gradDiv.style.position = 'absolute';
+                            gradDiv.style.top = '0';
+                            gradDiv.style.left = '0';
+                            gradDiv.style.width = '100%';
+                            gradDiv.style.height = '100%';
+                            gradDiv.style.backgroundImage = buildUIGradient(g);
+                            gradDiv.style.mixBlendMode = 'multiply';
+                            gradDiv.style.pointerEvents = 'none';
+                            gradDiv.style.borderRadius = el.style.borderRadius;
+                            gradDiv.style.transformOrigin = 'center center';
+                            const posX = 50 + (g.Offset?.x || 0) * 100;
+                            const posY = 50 + (g.Offset?.y || 0) * 100;
+                            gradDiv.style.backgroundPosition = `${posX}% ${posY}%`;
+                            el.appendChild(gradDiv);
+                        }
+
+                        const applyBgStyles = (natW, natH) => {
+                            if (isSliced) {
+                                const slice = props.SliceCenter;
+                                const sliceScale = props.SliceScale || 1;
+                                const top = slice.Min.y;
+                                const right = natW - slice.Max.x;
+                                const bottom = natH - slice.Max.y;
+                                const left = slice.Min.x;
+                                
+                                bgDiv.style.borderStyle = 'solid';
+                                bgDiv.style.borderImageSource = `url("${imageUrl}")`;
+                                bgDiv.style.borderImageSlice = `${top} ${right} ${bottom} ${left} fill`;
+                                bgDiv.style.borderImageWidth = `${top * sliceScale}px ${right * sliceScale}px ${bottom * sliceScale}px ${left * sliceScale}px`;
+                                bgDiv.style.borderImageRepeat = 'stretch';
+                                bgDiv.style.backgroundImage = 'none';
+                                bgDiv.style.transform = 'none';
+                                
+                                if (gradDiv) {
+                                    gradDiv.style.webkitMaskImage = `url("${imageUrl}")`;
+                                    gradDiv.style.maskImage = `url("${imageUrl}")`;
+                                    gradDiv.style.webkitMaskSize = '100% 100%';
+                                    gradDiv.style.maskSize = '100% 100%';
+                                    gradDiv.style.webkitMaskPosition = '0 0';
+                                    gradDiv.style.maskPosition = '0 0';
+                                    gradDiv.style.webkitMaskRepeat = 'no-repeat';
+                                    gradDiv.style.maskRepeat = 'no-repeat';
+                                    gradDiv.style.transform = 'none';
+                                }
+                                return;
+                            }
+                            
+                            let x1 = 0, y1 = 0;
+                            let absW = natW, absH = natH;
+                            let flipX = 1, flipY = 1;
+                            
+                            if (isSpriteSheet) {
+                                x1 = rectOffset.x;
+                                y1 = rectOffset.y;
+
+                                absW = rectSize.x;
+                                absH = rectSize.y;
+ 
+                                if (absW < 0) {
+                                    flipX = -1;
+                                    absW = Math.abs(absW);
+
+                                    x1 = rectOffset.x + rectSize.x;
+                                }
+
+                                if (absH < 0) {
+                                    flipY = -1;
+                                    absH = Math.abs(absH);
+
+                                    y1 = rectOffset.y + rectSize.y;
+                                }
+
+                                flipX = rectSize.x < 0 ? -1 : 1;
+                                flipY = rectSize.y < 0 ? -1 : 1;
+
+                                // Roblox virtual texture space
+                                const texW = 1024;
+                                const texH = 1024;
+
+                                // Negative ImageRectSize means flip, not "walk backwards"
+                                flipX = rectSize.x < 0 ? -1 : 1;
+                                flipY = rectSize.y < 0 ? -1 : 1;
+
+                                // Roblox appears to use a virtual 1024x1024 texture space
+                                // for ImageRect coordinates.
+                                const virtualW = Math.max(1024, natW);
+                                const virtualH = Math.max(1024, natH);
+
+                                if (absW === 0) {
+                                    absW = virtualW;
+                                    x1 = 0;
+                                }
+
+                                if (absH === 0) {
+                                    absH = virtualH;
+                                    y1 = 0;
+                                }
+
+                                natW = virtualW;
+                                natH = virtualH;
+                            }
+                            
+                            let scaleX, scaleY;
+                            let bgX, bgY;
+                            let repeat = 'no-repeat';
+                            
+                            if (scaleType === 3) { // Fit
+                                const scale = Math.min(node.resolvedWidth / absW, node.resolvedHeight / absH);
+                                scaleX = scale;
+                                scaleY = scale;
+                                const visW = absW * scale;
+                                const visH = absH * scale;
+                                bgX = (node.resolvedWidth - visW) / 2 - (x1 * scale);
+                                bgY = (node.resolvedHeight - visH) / 2 - (y1 * scale);
+                            } else if (scaleType === 4) { // Crop
+                                const scale = Math.max(node.resolvedWidth / absW, node.resolvedHeight / absH);
+                                scaleX = scale;
+                                scaleY = scale;
+                                const visW = absW * scale;
+                                const visH = absH * scale;
+                                bgX = (node.resolvedWidth - visW) / 2 - (x1 * scale);
+                                bgY = (node.resolvedHeight - visH) / 2 - (y1 * scale);
+                            } else if (isTiled) { // Tile
+                                const tile = props.TileSize || { X: {Scale: 1, Offset: 0}, Y: {Scale: 1, Offset: 0} };
+                                const tileW = (node.resolvedWidth * (tile.X?.Scale || 0)) + (tile.X?.Offset || 0);
+                                const tileH = (node.resolvedHeight * (tile.Y?.Scale || 0)) + (tile.Y?.Offset || 0);
+                                scaleX = tileW / absW;
+                                scaleY = tileH / absH;
+                                bgX = -(x1 * scaleX);
+                                bgY = -(y1 * scaleY);
+                                repeat = 'repeat';
+                            } else { // Stretch
+                                scaleX = node.resolvedWidth / absW;
+                                scaleY = node.resolvedHeight / absH;
+                                bgX = -(x1 * scaleX);
+                                bgY = -(y1 * scaleY);
+                            }
+                            
+                            const renderNatW =
+                                isSpriteSheet && natW < 1024 ? 1024 : natW;
+
+                            const renderNatH =
+                                isSpriteSheet && natH < 1024 ? 1024 : natH;
+
+                            const bgW = renderNatW * scaleX;
+                            const bgH = renderNatH * scaleY;
+                            
+                            bgDiv.style.borderImageSource = '';
+                            bgDiv.style.borderStyle = 'none';
+                            bgDiv.style.backgroundImage = `url("${imageUrl}")`;
+                            bgDiv.style.backgroundSize = `${bgW}px ${bgH}px`;
+                            bgDiv.style.backgroundPosition = `${bgX}px ${bgY}px`;
+                            bgDiv.style.backgroundRepeat = repeat;
+                            
+                            if (flipX === -1 || flipY === -1) {
+                                bgDiv.style.transform = `scale(${flipX}, ${flipY})`;
+                            } else {
+                                bgDiv.style.transform = 'none';
+                            }
+                            
+                            if (gradDiv) {
+                                gradDiv.style.webkitMaskImage = `url("${imageUrl}")`;
+                                gradDiv.style.maskImage = `url("${imageUrl}")`;
+                                gradDiv.style.webkitMaskSize = `${bgW}px ${bgH}px`;
+                                gradDiv.style.maskSize = `${bgW}px ${bgH}px`;
+                                gradDiv.style.webkitMaskPosition = `${bgX}px ${bgY}px`;
+                                gradDiv.style.maskPosition = `${bgX}px ${bgY}px`;
+                                gradDiv.style.webkitMaskRepeat = repeat;
+                                gradDiv.style.maskRepeat = repeat;
+                                
+                                if (flipX === -1 || flipY === -1) {
+                                    gradDiv.style.transform = `scale(${flipX}, ${flipY})`;
+                                } else {
+                                    gradDiv.style.transform = 'none';
+                                }
+                            }
+                        };
+
+                        // We must load the image to get its natural dimensions for accurate slicing and sprite sheets
+                        const tempImg = new Image();
+                        tempImg.onload = () => {
+                            applyBgStyles(tempImg.naturalWidth, tempImg.naturalHeight);
+                        };
+                        tempImg.onerror = () => applyBgStyles(100, 100);
+                        tempImg.src = imageUrl;
+                    }
+                }
+            }
+        }
+    }
+
+    if (node.children && node.children.length > 0) {
+        for (const childNode of node.children) {
+            const childEl = renderDom(childNode, imageMap);
+            if (childEl) el.appendChild(childEl);
+        }
+    }
+
+    return el;
+}
+
+// ==========================================
+// GUI Viewer Setup
+// ==========================================
+
+function collectImageIds(instance, ids = [], originalIds = []) {
+    if (!instance) return { ids, originalIds };
+    if (['ImageLabel', 'ImageButton'].includes(instance.ClassName)) {
+        let imgUri = instance.Properties?.Image;
+        if (!imgUri && instance.Properties?.ImageContent) {
+            if (typeof instance.Properties.ImageContent === 'string') imgUri = instance.Properties.ImageContent;
+            else if (typeof instance.Properties.ImageContent === 'object' && instance.Properties.ImageContent.id) imgUri = String(instance.Properties.ImageContent.id);
+        }
+
+        if (typeof imgUri === 'string') {
+            const m = imgUri.match(/(\d+)/);
+            if (m) {
+                const id = m[0];
+                const rectOffset = instance.Properties?.ImageRectOffset;
+                const rectSize = instance.Properties?.ImageRectSize;
+                const sliceCenter = instance.Properties?.SliceCenter;
+                const scaleType = instance.Properties?.ScaleType ?? 0;
+                
+                // Images that rely on original coordinates must be fetched at full resolution
+                const needsOriginal = (rectOffset && rectSize && (rectSize.x !== 0 || rectSize.y !== 0)) || (scaleType === 1 && sliceCenter);
+                
+                if (needsOriginal) {
+                    if (!originalIds.includes(id)) originalIds.push(id);
+                } else {
+                    if (!ids.includes(id)) ids.push(id);
+                }
+            }
+        }
+    }
+    if (instance.Children) {
+        for (const child of instance.Children) {
+            collectImageIds(child, ids, originalIds);
+        }
+    }
+    return { ids, originalIds };
+}
+
+async function fetchImageUrls(assetIds, originalAssetIds) {
+    const imageMap = new Map();
+    
+    // Fetch standard thumbnails (fast, cached)
+    if (assetIds.length > 0) {
+        for (let i = 0; i < assetIds.length; i += 100) {
+            const chunk = assetIds.slice(i, i + 100);
+            const endpoint = `/v1/assets?assetIds=${chunk.join(',')}&size=420x420&format=Png`;
+            try {
+                const res = await callRobloxApiJson({
+                    subdomain: 'thumbnails',
+                    endpoint: endpoint,
+                    method: 'GET',
+                });
+                if (res?.data) {
+                    for (const item of res.data) {
+                        if (item.state === 'Completed' && item.imageUrl) {
+                            imageMap.set(String(item.targetId), item.imageUrl);
+                        }
+                    }
+                }
+            } catch (e) {
+                console.warn('[RoValra Explorer] Failed to fetch image thumbnails batch:', e);
+            }
+        }
+    }
+    
+    // Fetch original resolution images directly from asset delivery (accurate coordinates)
+    for (const id of originalAssetIds) {
+        imageMap.set(id, `https://assetdelivery.roblox.com/v1/asset/?id=${id}`);
+    }
+    
+    return imageMap;
+}
+
+// ... [Keep all imports and helper functions the same until GUI Viewer Setup] ...
+
+// ==========================================
+// GUI Viewer Setup
+// ==========================================
+
+// ... [Keep collectImageIds and fetchImageUrls the same] ...
+
+async function openGuiViewer(instance, wrapper, previewPane) {
+    // Clear any previous content and make the preview pane visible
+    previewPane.replaceChildren();
+    previewPane.style.display = 'flex';
+    previewPane.style.flexDirection = 'column';
+
+    // Attempt to widen the existing overlay modal to accommodate the 3-pane layout
+    let parent = wrapper.parentElement;
+    let originalModalWidth = '';
+    let originalModalMaxWidth = '';
+    while (parent && parent !== document.body) {
+        const computedMaxWidth = getComputedStyle(parent).maxWidth;
+        if (computedMaxWidth && computedMaxWidth !== 'none') {
+            originalModalWidth = parent.style.width;
+            originalModalMaxWidth = parent.style.maxWidth;
+            parent.style.maxWidth = '95vw';
+            parent.style.width = '1400px';
+            break;
+        }
+        parent = parent.parentElement;
+    }
+
+    const toolbar = document.createElement('div');
+    toolbar.className = 'rovalra-explorer-gui-toolbar';
+    toolbar.style.display = 'flex';
+    toolbar.style.gap = '8px';
+    toolbar.style.padding = '8px';
+    toolbar.style.borderBottom = '1px solid #2d2d2d';
+    toolbar.style.flexShrink = '0';
+    toolbar.style.alignItems = 'center';
+    toolbar.style.background = '#1e1e1e';
+    toolbar.style.color = '#fff';
+
+    const closeBtn = document.createElement('button');
+    closeBtn.type = 'button';
+    closeBtn.className = 'rovalra-explorer-source-btn';
+    closeBtn.textContent = '✖ Close Preview';
+    closeBtn.style.marginRight = 'auto';
+    closeBtn.addEventListener('click', () => {
+        previewPane.replaceChildren();
+        previewPane.style.display = 'none';
+        
+        // Revert modal width when closing the preview so explorer/properties aren't stretched
+        let p = wrapper.parentElement;
+        while (p && p !== document.body) {
+            if (p.style.width === '1400px') {
+                p.style.width = originalModalWidth;
+                p.style.maxWidth = originalModalMaxWidth;
+                break;
+            }
+            p = p.parentElement;
+        }
+    });
+    toolbar.appendChild(closeBtn);
+
+    const select = document.createElement('select');
+    select.className = 'rovalra-explorer-device-select';
+    
+    const defaultOpt = document.createElement('option');
+    defaultOpt.value = 'default';
+    defaultOpt.textContent = 'Default (1280x720)';
+    select.appendChild(defaultOpt);
+
+    const grouped = {};
+    DEFAULT_DEVICES.forEach((d, i) => {
+        if (!grouped[d.Category]) grouped[d.Category] = [];
+        grouped[d.Category].push({ d, i });
+    });
+
+    for (const category in grouped) {
+        const optgroup = document.createElement('optgroup');
+        optgroup.label = category;
+        grouped[category].forEach(({ d, i }) => {
+            const opt = document.createElement('option');
+            opt.value = i;
+            opt.textContent = `${d.Name} (${d.Width}x${d.Height})`;
+            optgroup.appendChild(opt);
+        });
+        select.appendChild(optgroup);
+    }
+    toolbar.appendChild(select);
+
+    const scaleSelect = document.createElement('select');
+    scaleSelect.className = 'rovalra-explorer-scale-select';
+    
+    const fitOpt = document.createElement('option');
+    fitOpt.value = 'fit';
+    fitOpt.textContent = 'Fit to Window';
+    scaleSelect.appendChild(fitOpt);
+    
+    const actualOpt = document.createElement('option');
+    actualOpt.value = 'actual';
+    actualOpt.textContent = 'Actual Resolution';
+    scaleSelect.appendChild(actualOpt);
+    
+    const physicalOpt = document.createElement('option');
+    physicalOpt.value = 'physical';
+    physicalOpt.textContent = 'Physical Size';
+    scaleSelect.appendChild(physicalOpt);
+    
+    toolbar.appendChild(scaleSelect);
+
+    const rotateBtn = document.createElement('button');
+    rotateBtn.type = 'button';
+    rotateBtn.className = 'rovalra-explorer-source-btn';
+    rotateBtn.textContent = 'Rotate';
+    toolbar.appendChild(rotateBtn);
+
+    const previewArea = document.createElement('div');
+    previewArea.className = 'rovalra-explorer-gui-preview-area';
+    previewArea.style.flex = '1';
+    previewArea.style.position = 'relative';
+    previewArea.style.overflow = 'hidden';
+    previewArea.style.display = 'flex';
+    previewArea.style.alignItems = 'center';
+    previewArea.style.justifyContent = 'center';
+    previewArea.style.backgroundColor = '#000';
+    
+    const viewportWrapper = document.createElement('div');
+    viewportWrapper.className = 'rovalra-explorer-gui-viewport-wrapper';
+    viewportWrapper.style.transformOrigin = 'center center';
+    previewArea.appendChild(viewportWrapper);
+
+    const viewport = document.createElement('div');
+    viewport.className = 'rovalra-explorer-gui-viewport';
+    viewport.style.position = 'relative';
+    viewportWrapper.appendChild(viewport);
+
+    const loadingText = document.createElement('div');
+    loadingText.textContent = 'Loading Fonts and GUI Preview...';
+    loadingText.style.color = '#fff';
+    loadingText.style.display = 'flex';
+    loadingText.style.height = '100%';
+    loadingText.style.alignItems = 'center';
+    loadingText.style.justifyContent = 'center';
+    viewport.appendChild(loadingText);
+
+    previewPane.appendChild(toolbar);
+    previewPane.appendChild(previewArea);
+
+    const { ids, originalIds } = collectImageIds(instance);
+    const imagePromise = fetchImageUrls(ids, originalIds);
+    const fontPromise = preloadFonts(instance).catch(e => console.warn('Font preloading failed:', e));
+    
+    const imageMap = await imagePromise;
+    await fontPromise;
+
+    let currentW = 1280;
+    let currentH = 720;
+    let currentPixelDensity = 96;
+    let isRotated = false;
+    let scaleMode = 'fit';
+
+    function renderGui() {
+        const w = isRotated ? currentH : currentW;
+        const h = isRotated ? currentW : currentH;
+        
+        viewport.style.width = `${w}px`;
+        viewport.style.height = `${h}px`;
+        
+        viewport.replaceChildren();
+        
+        const layoutTree = buildLayoutTree(instance, true);
+        if (layoutTree) {
+            resolveLayoutTree(layoutTree, w, h);
+            const guiEl = renderDom(layoutTree, imageMap);
+            viewport.appendChild(guiEl);
+        }
+        
+        updateScale();
+    }
+
+    function updateScale() {
+        const w = isRotated ? currentH : currentW;
+        const h = isRotated ? currentW : currentH;
+        
+        let scale = 1;
+        if (scaleMode === 'fit') {
+            const areaW = previewArea.clientWidth - 20;
+            const areaH = previewArea.clientHeight - 20;
+            if (areaW <= 0 || areaH <= 0) return;
+            scale = Math.min(areaW / w, areaH / h);
+            
+            previewArea.style.display = 'flex';
+            previewArea.style.alignItems = 'center';
+            previewArea.style.justifyContent = 'center';
+            previewArea.style.overflow = 'hidden';
+        } else if (scaleMode === 'physical') {
+            scale = 96 / currentPixelDensity;
+            
+            previewArea.style.display = 'block';
+            previewArea.style.overflow = 'auto';
+        } else if (scaleMode === 'actual') {
+            scale = 1;
+            
+            previewArea.style.display = 'block';
+            previewArea.style.overflow = 'auto';
+        }
+        
+        const safeScale = Math.max(0.05, scale);
+        
+        viewportWrapper.style.width = `${w * safeScale}px`;
+        viewportWrapper.style.height = `${h * safeScale}px`;
+        viewport.style.transform = `scale(${safeScale})`;
+    }
+
+    select.addEventListener('change', () => {
+        if (select.value === 'default') {
+            currentW = 1280;
+            currentH = 720;
+            currentPixelDensity = 96;
+        } else {
+            const d = DEFAULT_DEVICES[parseInt(select.value, 10)];
+            currentW = d.Width;
+            currentH = d.Height;
+            currentPixelDensity = d.PixelDensity;
+        }
+        renderGui();
+    });
+
+    scaleSelect.addEventListener('change', () => {
+        scaleMode = scaleSelect.value;
+        updateScale();
+    });
+
+    rotateBtn.addEventListener('click', () => {
+        isRotated = !isRotated;
+        renderGui();
+    });
+
+    await new Promise(r => requestAnimationFrame(r));
+    renderGui();
+
+    const resizeObserver = new ResizeObserver(() => updateScale());
+    resizeObserver.observe(previewArea);
+}
+
+// --- END SCREENGUI VIEWER LOGIC ---
+
 function buildExplorer(roots, expandAll) {
     const wrapper = document.createElement('div');
     wrapper.className = 'rovalra-explorer';
+    wrapper.style.display = 'flex';
+    wrapper.style.flexDirection = 'row';
+    wrapper.style.minHeight = '600px';
+    wrapper.style.height = '100%';
+    wrapper.style.paddingBottom = '20px';
 
     const treePane = document.createElement('div');
     treePane.className = 'rovalra-explorer-tree';
+    treePane.style.flex = '1 1 250px'; // Grows to fill space when preview is hidden
+    treePane.style.overflowY = 'auto';
+    treePane.style.borderRight = '1px solid #2d2d2d';
+
+    const previewPane = document.createElement('div');
+    previewPane.className = 'rovalra-explorer-preview';
+    previewPane.style.display = 'none'; // Hidden by default
+    previewPane.style.flexDirection = 'column';
+    previewPane.style.flex = '2 1 50%'; // Takes up more space when visible
+    previewPane.style.minWidth = '300px';
+    previewPane.style.height = '100%';
+    previewPane.style.borderLeft = '1px solid #2d2d2d';
+    previewPane.style.borderRight = '1px solid #2d2d2d';
+    previewPane.style.overflow = 'hidden';
 
     const propsPane = document.createElement('div');
     propsPane.className = 'rovalra-explorer-props';
+    propsPane.style.flex = '1 1 300px'; // Grows to fill space when preview is hidden
+    propsPane.style.overflowY = 'auto';
 
     const emptyMsg = document.createElement('div');
     emptyMsg.className = 'rovalra-explorer-props-empty';
@@ -366,6 +2041,7 @@ function buildExplorer(roots, expandAll) {
     propsPane.appendChild(emptyMsg);
 
     wrapper.appendChild(treePane);
+    wrapper.appendChild(previewPane);
     wrapper.appendChild(propsPane);
 
     let selectedRow = null;
@@ -404,6 +2080,18 @@ function buildExplorer(roots, expandAll) {
             headerActions.appendChild(sourceBtn);
         }
 
+        if (instance.ClassName === 'ScreenGui') {
+            const guiBtn = document.createElement('button');
+            guiBtn.type = 'button';
+            guiBtn.className = 'rovalra-explorer-source-btn';
+            guiBtn.textContent = 'Preview GUI';
+            // Pass wrapper and previewPane to openGuiViewer
+            guiBtn.addEventListener('click', () => {
+                openGuiViewer(instance, wrapper, previewPane);
+            });
+            headerActions.appendChild(guiBtn);
+        }
+
         propsPane.appendChild(header);
 
         if (keys.length === 0) {
@@ -414,8 +2102,6 @@ function buildExplorer(roots, expandAll) {
             return;
         }
 
-        // group -> [{ label, value }]. Tags and AttributesSerialize are pulled
-        // out into their own sections (decoded), like Studio.
         const grouped = {};
         for (const key of keys) {
             if (key === 'Tags' || key === 'AttributesSerialize') continue;
@@ -451,8 +2137,6 @@ function buildExplorer(roots, expandAll) {
             let swatch = asColorSwatch(rawValue);
             let displayText = formatValue(rawValue);
 
-            // Colour stored as a packed number (e.g. Color3uint8 from XML) →
-            // show it as a swatch + r, g, b instead of a raw integer.
             if (
                 !swatch &&
                 typeof rawValue === 'number' &&
@@ -478,7 +2162,6 @@ function buildExplorer(roots, expandAll) {
             valueText.title = valueText.textContent;
             valueCell.appendChild(valueText);
 
-            // link to that asset's page.
             let assetLinkId = null;
             if (typeof rawValue === 'string') {
                 const m = rawValue.match(
@@ -562,7 +2245,7 @@ function buildExplorer(roots, expandAll) {
         propsPane.appendChild(table);
     }
 
-    // places don't build their entire DOM up front.
+    // ... [Keep createNode and the rest of buildExplorer the same] ...
     function createNode(instance, depth) {
         const node = document.createElement('div');
         node.className = 'rovalra-explorer-node';
@@ -581,8 +2264,6 @@ function buildExplorer(roots, expandAll) {
         icon.className = 'rovalra-explorer-icon';
         icon.src = classIconUrl(instance.ClassName);
         icon.onerror = () => {
-            // Value subclasses (StringValue, IntValue, …) share the "Value" icon
-            // in Studio; otherwise just hide the missing icon.
             if (/Value$/.test(instance.ClassName)) {
                 icon.onerror = () => {
                     icon.onerror = null;
@@ -657,7 +2338,6 @@ function buildExplorer(roots, expandAll) {
             }
         });
 
-        // Marketplace assets are small — open the whole tree up front.
         if (expandAll && hasChildren) {
             expand();
         }
@@ -665,9 +2345,6 @@ function buildExplorer(roots, expandAll) {
         return node;
     }
 
-    // Hide non-browsable services at the root (AssetService and the like) — the
-    // same internal classes Studio's Explorer doesn't show. They have no
-    // ExplorerOrder; every real top-level class does. Children are never filtered.
     const sortedRoots = sortInstances(roots);
     let visibleRoots = sortedRoots.filter(
         (r) => CLASS_ORDER[r.ClassName] !== undefined,
@@ -683,7 +2360,6 @@ function buildExplorer(roots, expandAll) {
     return wrapper;
 }
 
-// Opens a script's source in a read-only code view with line numbers and
 function openSource(title, source) {
     const wrap = document.createElement('div');
     wrap.className = 'rovalra-explorer-source';
@@ -741,7 +2417,6 @@ async function openExplorer(assetId, name, expandAll) {
     }
 }
 
-// Catalog item pages: add an icon button next to Roblox's existing right toolbar.
 async function addCatalogButton(rightToolbar) {
     const assetId = getPlaceIdFromUrl();
     if (
@@ -784,8 +2459,6 @@ async function addCatalogButton(rightToolbar) {
     console.log('%cRoValra Explorer: button added (catalog)', 'color:#FF4500');
 }
 
-// Experience pages: add an icon button to Roblox's context menu, shown only
-// when the place is accessible (i.e. it's yours / downloadable).
 function addGameButton(contextMenu) {
     const placeId = getPlaceIdFromUrl();
     if (!placeId || contextMenu.dataset.rovalraExplorerChecked) return;

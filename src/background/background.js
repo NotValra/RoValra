@@ -1,5 +1,6 @@
 import { SETTINGS_CONFIG } from '../content/core/settings/settingConfig.js';
 import init from './settingsCompat.ts';
+import { unzipSync } from 'fflate';
 
 // --- Constants & State ---
 
@@ -1812,6 +1813,150 @@ async function runAvatarInventoryLoopForType(
     return currentAggregated;
 }
 
+// --- Fetch Roblox Studio Fonts ---
+
+let cachedFonts = null;
+let fontsFetchPromise = null;
+
+async function getFontsCache() {
+    if (cachedFonts) return cachedFonts;
+    if (fontsFetchPromise) return fontsFetchPromise;
+
+    fontsFetchPromise = (async () => {
+        try {
+            const versionRes = await fetch('https://setup.rbxcdn.com/versionQTStudio');
+            if (!versionRes.ok) throw new Error('Failed to fetch Studio version');
+            const version = (await versionRes.text()).trim();
+            
+            const zipRes = await fetch(`https://setup.rbxcdn.com/${version}-content-fonts.zip`);
+            if (!zipRes.ok) throw new Error('Failed to fetch fonts zip');
+            
+            const zipArrayBuffer = await zipRes.arrayBuffer();
+            const zipData = new Uint8Array(zipArrayBuffer);
+            
+            // unzipSync is synchronous and doesn't spawn workers (avoiding CSP issues)
+            cachedFonts = unzipSync(zipData);
+            return cachedFonts;
+        } catch (e) {
+            console.error('RoValra: Failed to load fonts cache', e);
+            fontsFetchPromise = null; // Allow retry on failure
+            throw e;
+        }
+    })();
+
+    return fontsFetchPromise;
+}
+
+function uint8ToBase64(u8) {
+    let binary = '';
+    const chunk = 8192;
+    for (let i = 0; i < u8.length; i += chunk) {
+        binary += String.fromCharCode.apply(null, u8.subarray(i, i + chunk));
+    }
+    return btoa(binary);
+}
+
+const customFontCache = new Map();
+
+function getAssetIdFromValue(value) {
+    if (typeof value === 'number' && Number.isFinite(value)) {
+        return String(Math.trunc(value));
+    }
+    if (typeof value !== 'string') return null;
+    const match = value.match(/\d+/);
+    return match ? match[0] : null;
+}
+
+function detectFontMimeType(bytes) {
+    if (!(bytes instanceof Uint8Array) || bytes.length < 4) return 'application/octet-stream';
+
+    const signature = String.fromCharCode(bytes[0], bytes[1], bytes[2], bytes[3]);
+    if (signature === 'OTTO') return 'font/otf';
+    if (signature === 'ttcf') return 'font/collection';
+    if (signature === 'wOFF') return 'font/woff';
+    if (signature === 'wOF2') return 'font/woff2';
+    if (bytes[0] === 0x00 && bytes[1] === 0x01 && bytes[2] === 0x00 && bytes[3] === 0x00) {
+        return 'font/ttf';
+    }
+    if (signature === 'true' || signature === 'typ1') return 'font/ttf';
+
+    return 'application/octet-stream';
+}
+
+function findFontFaces(fontInfo) {
+    if (!fontInfo || typeof fontInfo !== 'object') return [];
+
+    if (Array.isArray(fontInfo.faces)) return fontInfo.faces;
+    if (Array.isArray(fontInfo.Faces)) return fontInfo.Faces;
+    if (Array.isArray(fontInfo.fonts)) return fontInfo.fonts;
+
+    return [fontInfo];
+}
+
+async function fetchAssetDelivery(assetId) {
+    return callRobloxApiBackground({
+        subdomain: 'assetdelivery',
+        endpoint: `/v1/asset/?id=${encodeURIComponent(assetId)}`,
+    });
+}
+
+async function getCustomFontFamily(assetId) {
+    const normalizedAssetId = getAssetIdFromValue(assetId);
+    if (!normalizedAssetId) throw new Error('Invalid custom font asset id');
+
+    if (customFontCache.has(normalizedAssetId)) {
+        return customFontCache.get(normalizedAssetId);
+    }
+
+    const promise = (async () => {
+        const infoResponse = await fetchAssetDelivery(normalizedAssetId);
+        if (!infoResponse.ok) {
+            throw new Error(`Font info request failed: HTTP ${infoResponse.status}`);
+        }
+
+        const fontInfo = await infoResponse.json();
+        const familyName = `RoValraCustomFont${normalizedAssetId}`;
+        const faces = [];
+
+        for (const face of findFontFaces(fontInfo)) {
+            const faceAssetId = getAssetIdFromValue(
+                face.assetId ?? face.AssetId ?? face.assetID ?? face.id ?? face.Id,
+            );
+            if (!faceAssetId) continue;
+
+            const fileResponse = await fetchAssetDelivery(faceAssetId);
+            if (!fileResponse.ok) {
+                console.warn(
+                    `RoValra: Custom font file ${faceAssetId} failed with HTTP ${fileResponse.status}`,
+                );
+                continue;
+            }
+
+            const fontBytes = new Uint8Array(await fileResponse.arrayBuffer());
+            faces.push({
+                weight: Number(face.weight ?? face.Weight ?? 400) || 400,
+                style: face.style ?? face.Style ?? 'normal',
+                mimeType: detectFontMimeType(fontBytes),
+                base64: uint8ToBase64(fontBytes),
+            });
+        }
+
+        if (faces.length === 0) {
+            throw new Error('Custom font did not contain any downloadable faces');
+        }
+
+        return { success: true, name: familyName, faces };
+    })();
+
+    customFontCache.set(normalizedAssetId, promise);
+    try {
+        return await promise;
+    } catch (error) {
+        customFontCache.delete(normalizedAssetId);
+        throw error;
+    }
+}
+
 // --- Event Listeners ---
 
 chrome.runtime.onInstalled.addListener((details) => {
@@ -2131,6 +2276,55 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
         case 'wearOutfit':
             wearOutfit(request.outfitId).then(sendResponse);
+            return true;
+
+        case 'getFontFamily': {
+            const familyName = request.familyName;
+            getFontsCache().then(cache => {
+                // Normalize backslashes to forward slashes to handle Windows-created ZIPs
+                const jsonKey = Object.keys(cache).find(k => 
+                    k.replace(/\\/g, '/').toLowerCase().endsWith(`families/${familyName.toLowerCase()}.json`)
+                );
+                
+                if (!jsonKey) {
+                    const availableJsons = Object.keys(cache)
+                        .filter(k => k.endsWith('.json'))
+                        .map(k => k.replace(/\\/g, '/').split('/').pop());
+                    console.warn(`Font family JSON not found: ${familyName}. Available:`, availableJsons.slice(0, 20));
+                    sendResponse({ success: false, error: 'Font family JSON not found' });
+                    return;
+                }
+                
+                const jsonData = JSON.parse(new TextDecoder().decode(cache[jsonKey]));
+                const faces = [];
+                
+                for (const face of jsonData.faces) {
+                    const fontFileName = face.assetId.split('/').pop().toLowerCase();
+                    const fontKey = Object.keys(cache).find(k => 
+                        k.replace(/\\/g, '/').toLowerCase().endsWith(fontFileName)
+                    );
+                    if (fontKey) {
+                        faces.push({
+                            weight: face.weight,
+                            style: face.style,
+                            base64: uint8ToBase64(cache[fontKey])
+                        });
+                    }
+                }
+                
+                sendResponse({ success: true, name: jsonData.name, faces });
+            }).catch(err => {
+                sendResponse({ success: false, error: err.message });
+            });
+            return true; // Keep message channel open for async fetch
+        }
+
+        case 'getCustomFontFamily':
+            getCustomFontFamily(request.assetId)
+                .then(sendResponse)
+                .catch((err) => {
+                    sendResponse({ success: false, error: err.message });
+                });
             return true;
 
         case 'fetchRobloxApi':
