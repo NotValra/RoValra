@@ -1067,13 +1067,26 @@ function resolveLayoutTree(node, parentW, parentH) {
 // ==========================================
 // PASS 3: Render DOM
 // ==========================================
-function renderDom(node, imageMap) {
+// ==========================================
+// PASS 3: Render DOM
+// ==========================================
+function renderDom(node, imageMap, onSelectInstance, instanceToElMap) {
     const instance = node.instance;
     const props = instance.Properties || {};
     const decorators = node.decorators;
 
     const el = document.createElement('div');
     el.dataset.rovalraPath = node.path || '';
+    
+    // Store the element in our map so we can highlight it later
+    if (instanceToElMap) instanceToElMap.set(instance, el);
+    
+    // Make it clickable and select the instance when clicked
+    el.style.cursor = 'pointer';
+    el.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (onSelectInstance) onSelectInstance(instance, el);
+    });
     
     el.style.boxSizing = 'border-box';
     el.style.position = node.isRoot ? 'relative' : 'absolute';
@@ -1673,7 +1686,8 @@ function renderDom(node, imageMap) {
 
     if (node.children && node.children.length > 0) {
         for (const childNode of node.children) {
-            const childEl = renderDom(childNode, imageMap);
+            // Pass instanceToElMap down to children
+            const childEl = renderDom(childNode, imageMap, onSelectInstance, instanceToElMap);
             if (childEl) el.appendChild(childEl);
         }
     }
@@ -1757,15 +1771,11 @@ async function fetchImageUrls(assetIds, originalAssetIds) {
     return imageMap;
 }
 
-// ... [Keep all imports and helper functions the same until GUI Viewer Setup] ...
-
 // ==========================================
 // GUI Viewer Setup
 // ==========================================
 
-// ... [Keep collectImageIds and fetchImageUrls the same] ...
-
-async function openGuiViewer(instance, wrapper, previewPane) {
+async function openGuiViewer(instance, wrapper, previewPane, onSelectInstance, registerHighlightCallback) {
     // Clear any previous content and make the preview pane visible
     previewPane.replaceChildren();
     previewPane.style.display = 'flex';
@@ -1807,7 +1817,10 @@ async function openGuiViewer(instance, wrapper, previewPane) {
         previewPane.replaceChildren();
         previewPane.style.display = 'none';
         
-        // Revert modal width when closing the preview so explorer/properties aren't stretched
+        // Unregister the highlight callback so the explorer doesn't try to update a hidden preview
+        if (registerHighlightCallback) registerHighlightCallback(null);
+        
+        // Revert modal width when closing the preview
         let p = wrapper.parentElement;
         while (p && p !== document.body) {
             if (p.style.width === '1400px') {
@@ -1917,6 +1930,37 @@ async function openGuiViewer(instance, wrapper, previewPane) {
     let currentPixelDensity = 96;
     let isRotated = false;
     let scaleMode = 'fit';
+    
+    let selectedPreviewInstance = null;
+    const instanceToElMap = new Map();
+
+    function highlightSelection(el) {
+        // Remove outline from previously selected element
+        instanceToElMap.forEach(e => {
+            e.style.outline = '';
+            e.style.outlineOffset = '';
+        });
+        
+        if (el) {
+            el.style.outline = '2px solid #00a2ff';
+            el.style.outlineOffset = '1px';
+            el.style.zIndex = '1000'; // Bring forward
+        }
+    }
+
+    const onSelectWithHighlight = (inst, el) => {
+        selectedPreviewInstance = inst;
+        highlightSelection(el);
+        if (onSelectInstance) onSelectInstance(inst);
+    };
+
+    // Expose a function so the Explorer tree can tell the preview to highlight an element
+    if (registerHighlightCallback) {
+        registerHighlightCallback((inst) => {
+            selectedPreviewInstance = inst;
+            highlightSelection(instanceToElMap.get(inst));
+        });
+    }
 
     function renderGui() {
         const w = isRotated ? currentH : currentW;
@@ -1926,12 +1970,18 @@ async function openGuiViewer(instance, wrapper, previewPane) {
         viewport.style.height = `${h}px`;
         
         viewport.replaceChildren();
+        instanceToElMap.clear();
         
         const layoutTree = buildLayoutTree(instance, true);
         if (layoutTree) {
             resolveLayoutTree(layoutTree, w, h);
-            const guiEl = renderDom(layoutTree, imageMap);
+            const guiEl = renderDom(layoutTree, imageMap, onSelectWithHighlight, instanceToElMap);
             viewport.appendChild(guiEl);
+        }
+        
+        // If an element was selected before re-render, reapply the highlight
+        if (selectedPreviewInstance) {
+            highlightSelection(instanceToElMap.get(selectedPreviewInstance));
         }
         
         updateScale();
@@ -2009,21 +2059,23 @@ function buildExplorer(roots, expandAll) {
     wrapper.className = 'rovalra-explorer';
     wrapper.style.display = 'flex';
     wrapper.style.flexDirection = 'row';
-    wrapper.style.minHeight = '600px';
-    wrapper.style.height = '100%';
-    wrapper.style.paddingBottom = '20px';
+    
+    wrapper.style.height = '75vh'; 
+    wrapper.style.maxHeight = '75vh';
+    wrapper.style.minHeight = '400px';
 
     const treePane = document.createElement('div');
     treePane.className = 'rovalra-explorer-tree';
-    treePane.style.flex = '1 1 250px'; // Grows to fill space when preview is hidden
+    treePane.style.flex = '1 1 250px';
+    treePane.style.height = '100%';
     treePane.style.overflowY = 'auto';
     treePane.style.borderRight = '1px solid #2d2d2d';
 
     const previewPane = document.createElement('div');
     previewPane.className = 'rovalra-explorer-preview';
-    previewPane.style.display = 'none'; // Hidden by default
+    previewPane.style.display = 'none';
     previewPane.style.flexDirection = 'column';
-    previewPane.style.flex = '2 1 50%'; // Takes up more space when visible
+    previewPane.style.flex = '2 1 50%';
     previewPane.style.minWidth = '300px';
     previewPane.style.height = '100%';
     previewPane.style.borderLeft = '1px solid #2d2d2d';
@@ -2032,7 +2084,8 @@ function buildExplorer(roots, expandAll) {
 
     const propsPane = document.createElement('div');
     propsPane.className = 'rovalra-explorer-props';
-    propsPane.style.flex = '1 1 300px'; // Grows to fill space when preview is hidden
+    propsPane.style.flex = '1 1 300px';
+    propsPane.style.height = '100%';
     propsPane.style.overflowY = 'auto';
 
     const emptyMsg = document.createElement('div');
@@ -2045,12 +2098,53 @@ function buildExplorer(roots, expandAll) {
     wrapper.appendChild(propsPane);
 
     let selectedRow = null;
+    let previewHighlightFn = null; // Holds the function to highlight elements in the preview
+    
+    const instanceToRowMap = new WeakMap();
+    const instanceToExpandMap = new WeakMap();
+    const parentMap = new WeakMap();
+
+    function populateParents(instances, parent = null) {
+        for (const inst of instances) {
+            parentMap.set(inst, parent);
+            if (inst.Children) {
+                populateParents(inst.Children, inst);
+            }
+        }
+    }
+    populateParents(roots);
 
     function selectInstance(instance, rowEl) {
         if (selectedRow) selectedRow.classList.remove('selected');
         selectedRow = rowEl;
         if (rowEl) rowEl.classList.add('selected');
         renderProps(instance);
+        
+        // Notify the GUI preview to highlight this instance
+        if (previewHighlightFn) previewHighlightFn(instance);
+    }
+
+    function handlePreviewSelect(instance) {
+        const path = [];
+        let curr = instance;
+        while (curr) {
+            path.unshift(curr);
+            curr = parentMap.get(curr);
+        }
+
+        for (let i = 0; i < path.length - 1; i++) {
+            const parentInstance = path[i];
+            const ensureExpanded = instanceToExpandMap.get(parentInstance);
+            if (ensureExpanded) ensureExpanded();
+        }
+
+        const rowEl = instanceToRowMap.get(instance);
+        if (rowEl) {
+            selectInstance(instance, rowEl);
+            rowEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        } else {
+            selectInstance(instance, null);
+        }
     }
 
     function renderProps(instance) {
@@ -2085,9 +2179,9 @@ function buildExplorer(roots, expandAll) {
             guiBtn.type = 'button';
             guiBtn.className = 'rovalra-explorer-source-btn';
             guiBtn.textContent = 'Preview GUI';
-            // Pass wrapper and previewPane to openGuiViewer
             guiBtn.addEventListener('click', () => {
-                openGuiViewer(instance, wrapper, previewPane);
+                // Pass a callback that updates `previewHighlightFn`
+                openGuiViewer(instance, wrapper, previewPane, handlePreviewSelect, (fn) => { previewHighlightFn = fn; });
             });
             headerActions.appendChild(guiBtn);
         }
@@ -2245,7 +2339,6 @@ function buildExplorer(roots, expandAll) {
         propsPane.appendChild(table);
     }
 
-    // ... [Keep createNode and the rest of buildExplorer the same] ...
     function createNode(instance, depth) {
         const node = document.createElement('div');
         node.className = 'rovalra-explorer-node';
@@ -2253,6 +2346,8 @@ function buildExplorer(roots, expandAll) {
         const row = document.createElement('div');
         row.className = 'rovalra-explorer-row';
         row.style.paddingLeft = `${depth * 16 + 4}px`;
+
+        instanceToRowMap.set(instance, row);
 
         const hasChildren = instance.Children && instance.Children.length > 0;
 
@@ -2302,9 +2397,12 @@ function buildExplorer(roots, expandAll) {
         let expanded = false;
         let built = false;
 
-        const expand = () => {
+        const expand = (force) => {
             if (!hasChildren) return;
-            expanded = !expanded;
+            const shouldExpand = force !== undefined ? force : !expanded;
+            if (shouldExpand === expanded) return;
+            
+            expanded = shouldExpand;
             toggle.textContent = expanded ? '▾' : '▸';
             childContainer.style.display = expanded ? 'block' : 'none';
 
@@ -2317,6 +2415,8 @@ function buildExplorer(roots, expandAll) {
                 childContainer.appendChild(frag);
             }
         };
+
+        instanceToExpandMap.set(instance, () => expand(true));
 
         toggle.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -2339,7 +2439,7 @@ function buildExplorer(roots, expandAll) {
         });
 
         if (expandAll && hasChildren) {
-            expand();
+            expand(true);
         }
 
         return node;
