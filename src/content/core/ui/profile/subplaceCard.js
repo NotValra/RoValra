@@ -420,9 +420,6 @@ export function attachSubplaceCardToPresenceTarget(
         if (options.className) card.classList.add(options.className);
         document.body.appendChild(card);
         positionCard(target, card);
-        // Force the browser to apply the initial hidden transform before
-        // adding the visible class. Without this, Chrome can batch both style
-        // states together and the popup appears instantly with no transition.
         void nextCard.offsetWidth;
         requestAnimationFrame(() => {
             if (card === nextCard) {
