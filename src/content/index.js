@@ -78,6 +78,7 @@ import { init as initDevProductLoader } from './features/games/tab/DevProducts.j
 import { init as initHeatmap } from './features/games/tab/updateHistory.js';
 import { init as initTotalSpentGames } from './features/games/tab/totalSpentGames.js';
 import { init as initEvents } from './features/games/about/events.js';
+import { init as initUnderReviewPill } from './features/games/underReviewPill.js';
 // transactions
 import { init as initTotalSpent } from './features/transactions/totalspent.js';
 import { init as initPendingRobuxTrans } from './features/transactions/pendingRobuxTrans.js';
@@ -256,6 +257,7 @@ const featureRoutes = [
             initHeatmap,
             initPlusPrivateServerTooltip,
             initCatalogExplorer,
+            initUnderReviewPill,
         ],
     },
     // private games and game pages

@@ -302,6 +302,14 @@ export const SETTINGS_CONFIG = {
                 default: true,
                 contributors: ['9502859424'],
             },
+            underReviewPillEnabled: {
+                label: 'Show All-Ages Review Status',
+                description: [
+                    'Shows a small notice on experience pages when Roblox is reviewing the experience for all-ages eligibility.',
+                ],
+                type: 'checkbox',
+                default: true,
+            },
             botdataEnabled: {
                 label: 'Bot Data',
                 description: [
@@ -1418,6 +1426,13 @@ export const SETTINGS_CONFIG = {
                     },
                 },
             },
+            hideRoValraSettingsNavbarDropdown: {
+                label: 'Hide RoValra Settings from the navigation bar dropdown',
+                description:
+                    'Removes the RoValra Settings shortcut from the Roblox settings dropdown in the top navigation bar.',
+                type: 'checkbox',
+                default: false,
+            },
             betaProgramsEnabled: {
                 label: 'Adds a beta programs toggle to the navigation bar',
                 description:
@@ -1720,6 +1735,12 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: false,
                 contributors: ['1564574922'],
+            },
+            FunStuffEnabled: {
+                label: 'Fun Stuff tab',
+                description: ['Shows the Fun Stuff tab in RoValra settings.'],
+                type: 'checkbox',
+                default: false,
             },
         },
     },

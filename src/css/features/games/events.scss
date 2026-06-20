@@ -1,0 +1,38 @@
+.game-card-text-pill.rovalra-event-release-pill {
+    position: absolute !important;
+    top: 8px !important;
+    right: 8px !important;
+    bottom: auto !important;
+    left: auto !important;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    width: max-content !important;
+    min-width: 0 !important;
+    max-width: calc(100% - 16px) !important;
+    margin-top: 5px !important;
+    margin-right: 0 !important;
+    padding: 3px 7px;
+    transform: none !important;
+    z-index: 2;
+    pointer-events: auto;
+    cursor: default;
+    white-space: nowrap;
+}
+
+.rovalra-event-release-pill .rovalra-interactive-timestamp {
+    max-width: 100%;
+    margin-right: 0 !important;
+    cursor: pointer;
+}
+
+.rovalra-event-release-pill .rovalra-interactive-timestamp > span {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 16px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

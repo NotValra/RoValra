@@ -437,6 +437,8 @@ function onElementFound(container) {
                                 );
                             }
                             continue;
+                        } else if (error.status === 500) {
+                            throw new Error(ts('totalEarned.robloxLimitError'));
                         } else {
                             state.retryCount++;
                             if (state.retryCount > 5)
