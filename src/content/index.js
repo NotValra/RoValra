@@ -40,6 +40,7 @@ import { init as initLessPlus } from './features/sitewide/lessPlus.js';
 import { init as initKidsTheme } from './features/sitewide/kidsTheme.js';
 import { init as initSidebarCollapse } from './features/sitewide/sidebarCollapse.js';
 import { init as initRemoveDownloadButton } from './features/sitewide/removeDownloadButton.js';
+import { init as initPaymentMethodBonusItems } from './features/paymentmethods/bonusItems.js';
 
 // Avatar
 import { init as initAvatarFilters } from './features/avatar/filters.js';
@@ -127,6 +128,7 @@ import { init as initPurchasePromptItemId } from './core/catalog/purchasePromptI
 import { init as initCurrencyTransfer } from './features/profile/currencytransfer.js';
 import { init as initGroupFilters } from './features/profile/groupFilters.js';
 import { init as initUsernameColor } from './features/profile/header/usernameColor.js';
+import { init as initChatEligibilityTooltip } from './features/profile/header/chatEligibilityTooltip.js';
 
 // Settings
 import { init as initSettingsPage } from './features/settings/index.js';
@@ -138,6 +140,7 @@ import { init as initHomeLayout } from './features/home/homeLayout.js';
 import { init as initUnderratedGamesHome } from './features/home/underratedGames.js';
 // create
 import { init as initCreateDownload } from './features/create.roblox.com/download.js';
+import { init as initCatalogExplorer } from './features/catalog/explorer.js';
 import { enforceSettingOverrides } from './core/settings/handlesettings.js';
 import { refreshRemoteSettingLocks } from './core/settings/remoteSettingLocks.js';
 
@@ -215,6 +218,7 @@ const featureRoutes = [
             initItemTrading,
             initLastEquipped,
             initItemRender,
+            initCatalogExplorer,
         ],
     },
     // Group pages
@@ -251,6 +255,7 @@ const featureRoutes = [
             initPrivateServerControls,
             initHeatmap,
             initPlusPrivateServerTooltip,
+            initCatalogExplorer,
         ],
     },
     // private games and game pages
@@ -302,6 +307,7 @@ const featureRoutes = [
             initCurrencyTransfer,
             initGroupFilters,
             initAvatarDownload,
+            initChatEligibilityTooltip,
         ],
     },
     {
@@ -313,6 +319,10 @@ const featureRoutes = [
     {
         paths: ['/transactions'],
         features: [initTotalSpent, initPendingRobuxTrans, initTotalEarned],
+    },
+    {
+        paths: ['/upgrades/paymentmethods'],
+        features: [initPaymentMethodBonusItems],
     },
     // Trading
     {

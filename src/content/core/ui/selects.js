@@ -1,3 +1,5 @@
+import { createShimmerBlock } from './shimmer.js';
+
 const injectScrollbarStyles = () => {
     if (document.getElementById('rovalra-dropdown-styles')) return;
     const style = document.createElement('style');
@@ -69,35 +71,40 @@ export function createDropdownContent(
         });
     };
 
-    const hasGroups = items.some(item => item.group);
+    const renderItems = () => {
+        dropdownContentInner.replaceChildren();
+        const hasGroups = items.some(item => item.group);
 
-    if (hasGroups) {
-        const grouped = {};
-        items.forEach(item => {
-            const group = item.group || 'Other';
-            if (!grouped[group]) grouped[group] = [];
-            grouped[group].push(item);
-        });
+        if (hasGroups) {
+            const grouped = {};
+            items.forEach(item => {
+                const group = item.group || 'Other';
+                if (!grouped[group]) grouped[group] = [];
+                grouped[group].push(item);
+            });
 
-        const continentOrder = ['North America', 'South America', 'Europe', 'Asia', 'Africa', 'Oceania', 'Other'];
-        
-        continentOrder.forEach(groupName => {
-            if (grouped[groupName]) {
-                const headerEl = document.createElement('div');
-                headerEl.className = 'rovalra-dropdown-section-header';
-                headerEl.textContent = groupName;
-                dropdownContentInner.appendChild(headerEl);
+            const continentOrder = ['North America', 'South America', 'Europe', 'Asia', 'Africa', 'Oceania', 'Other'];
 
-                grouped[groupName].forEach(item => {
-                    dropdownContentInner.appendChild(createDropdownItem(item));
-                });
-            }
-        });
-    } else {
-        items.forEach(item => {
-            dropdownContentInner.appendChild(createDropdownItem(item));
-        });
-    }
+            continentOrder.forEach(groupName => {
+                if (grouped[groupName]) {
+                    const headerEl = document.createElement('div');
+                    headerEl.className = 'rovalra-dropdown-section-header';
+                    headerEl.textContent = groupName;
+                    dropdownContentInner.appendChild(headerEl);
+
+                    grouped[groupName].forEach(item => {
+                        dropdownContentInner.appendChild(createDropdownItem(item));
+                    });
+                }
+            });
+        } else {
+            items.forEach(item => {
+                dropdownContentInner.appendChild(createDropdownItem(item));
+            });
+        }
+
+        updateSelectedState(currentSelectedValue);
+    };
 
     function createDropdownItem(item) {
         const itemEl = document.createElement('button');
@@ -120,10 +127,37 @@ export function createDropdownContent(
 
         const itemTextWrapper = document.createElement('div');
         itemTextWrapper.className = 'grow-1 text-truncate-split flex flex-col gap-y-xsmall';
-        itemTextWrapper.style.display = 'flex';
-        itemTextWrapper.style.flexDirection = 'row';
-        itemTextWrapper.style.alignItems = 'center';
-        itemTextWrapper.style.gap = '8px';
+
+        if (item.loading) {
+            itemEl.appendChild(
+                createShimmerBlock({
+                    width: '48px',
+                    height: '48px',
+                    borderRadius: '8px',
+                    className: 'shrink-0',
+                }),
+            );
+
+            itemTextWrapper.append(
+                createShimmerBlock({
+                    width: '65%',
+                    height: '14px',
+                }),
+                createShimmerBlock({
+                    width: '42%',
+                    height: '12px',
+                }),
+            );
+            itemEl.append(itemPresentationDiv, itemTextWrapper);
+
+            itemEl.addEventListener('click', () => {
+                updateSelectedState(item.value);
+                updateTriggerTextCallback(item.value);
+                onValueChange(item.value);
+                toggleContentVisibility(false);
+            });
+            return itemEl;
+        }
 
         if (showFlags && countryCode) {
             const flagImg = document.createElement('img');
@@ -135,7 +169,23 @@ export function createDropdownContent(
             flagImg.style.objectFit = 'cover';
             flagImg.style.borderRadius = '3px';
             flagImg.style.flexShrink = '0';
-            itemTextWrapper.appendChild(flagImg);
+            itemEl.appendChild(flagImg);
+        }
+
+        if (item.imageUrl) {
+            const thumbnail = document.createElement('img');
+            thumbnail.src = item.imageUrl;
+            thumbnail.alt = '';
+            thumbnail.className = 'shrink-0 clip radius-medium';
+            Object.assign(thumbnail.style, {
+                width: '48px',
+                height: '48px',
+                maxWidth: '48px',
+                maxHeight: '48px',
+                objectFit: 'cover',
+                flex: '0 0 48px',
+            });
+            itemEl.appendChild(thumbnail);
         }
 
         const itemText = document.createElement('span');
@@ -143,6 +193,15 @@ export function createDropdownContent(
         itemText.textContent = item.label;
         itemText.style.flex = '1';
         itemTextWrapper.appendChild(itemText);
+
+        if (item.description) {
+            const itemDescription = document.createElement('span');
+            itemDescription.className =
+                'text-body-small content-secondary text-truncate-split';
+            itemDescription.textContent = item.description;
+            itemTextWrapper.appendChild(itemDescription);
+        }
+
         itemEl.append(itemPresentationDiv, itemTextWrapper);
 
         itemEl.addEventListener('click', () => {
@@ -153,6 +212,8 @@ export function createDropdownContent(
         });
         return itemEl;
     }
+
+    renderItems();
 
     const positionContent = () => {
         const triggerRect = triggerElement.getBoundingClientRect();
@@ -185,6 +246,7 @@ export function createDropdownContent(
     return {
         element: contentPanel,
         toggleVisibility: toggleContentVisibility,
-        updateSelectedState: updateSelectedState 
+        updateSelectedState: updateSelectedState,
+        refresh: renderItems,
     };
 }

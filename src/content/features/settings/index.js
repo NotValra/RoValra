@@ -4,7 +4,7 @@ import {
     loadDatacenterMap,
     getFullRegionName,
 } from '../../core/regions.js';
-import { observeElement } from '../../core/observer.js';
+import { observeElement, observeIntersection } from '../../core/observer.js';
 import { generateSingleSettingHTML } from '../../core/settings/generateSettings.js';
 import { SETTINGS_CONFIG } from '../../core/settings/settingConfig.js';
 import {
@@ -313,6 +313,7 @@ async function openBorderOverlay(
             isOpaque: !isOther,
             hidePresence: true,
         });
+        card.dataset.rovalraBorderApplied = 'true';
         card.querySelector(
             '.user-card-labels, .user-card-labels-no-username',
         )?.remove();
@@ -1988,6 +1989,7 @@ async function renderStoreBorders(container) {
                 presenceInfo: 1,
                 hidePresence: true,
             });
+            card.dataset.rovalraBorderApplied = 'true';
             card.style.transform = 'scale(1.2)';
             card.style.margin = '25px 0';
             card.style.pointerEvents = 'none';
@@ -2033,6 +2035,7 @@ async function renderStoreBorders(container) {
             const tier = getCurrentUserTier();
 
             for (const variant of category.variants) {
+                const visibleLoaders = [];
                 const hasAnimated =
                     variant.animated && variant.animated.length > 0;
                 const isStaticSelected = currentBorderValue === variant.value;
@@ -2072,6 +2075,7 @@ async function renderStoreBorders(container) {
                     presenceInfo: 1,
                     hidePresence: true,
                 });
+                staticCard.dataset.rovalraBorderApplied = 'true';
                 staticCard.style.pointerEvents = 'none';
                 staticCard.style.transform = 'scale(1.1)';
                 staticCard.style.margin = '5px 0';
@@ -2084,8 +2088,15 @@ async function renderStoreBorders(container) {
                 const staticAvatarEl = staticCard.querySelector(
                     '.avatar.avatar-card-fullbody',
                 );
-                if (staticAvatarEl)
-                    applyBorderToContainer(staticAvatarEl, variant.link, true);
+                if (staticAvatarEl) {
+                    visibleLoaders.push(() =>
+                        applyBorderToContainer(
+                            staticAvatarEl,
+                            variant.link,
+                            true,
+                        ),
+                    );
+                }
 
                 const staticLabel = document.createElement('div');
                 staticLabel.style.cssText =
@@ -2128,6 +2139,7 @@ async function renderStoreBorders(container) {
                         presenceInfo: 1,
                         hidePresence: true,
                     });
+                    animCard.dataset.rovalraBorderApplied = 'true';
                     animCard.style.pointerEvents = 'none';
                     animCard.style.transform = 'scale(1.1)';
                     animCard.style.margin = '5px 0';
@@ -2140,12 +2152,15 @@ async function renderStoreBorders(container) {
                     const animAvatarEl = animCard.querySelector(
                         '.avatar.avatar-card-fullbody',
                     );
-                    if (animAvatarEl)
-                        applyBorderToContainer(
-                            animAvatarEl,
-                            animVariant.link,
-                            true,
+                    if (animAvatarEl) {
+                        visibleLoaders.push(() =>
+                            applyBorderToContainer(
+                                animAvatarEl,
+                                animVariant.link,
+                                true,
+                            ),
                         );
+                    }
 
                     const animLabel = document.createElement('div');
                     animLabel.style.cssText =
@@ -2185,38 +2200,42 @@ async function renderStoreBorders(container) {
                     priceLabel.style.cssText =
                         'font-size: 12px; font-weight: 600; color: var(--rovalra-secondary-text-color); display: flex; align-items: center; justify-content: center; gap: 4px; margin-bottom: 4px;';
 
-                    getGamePassPrice(variant.gamepassId).then((price) => {
-                        if (price !== null && price !== undefined) {
-                            const priceValue = price.toLocaleString();
-                            if (variantIsOwned) {
-                                priceLabel.innerHTML = `
-                                    <span style="text-decoration: line-through; opacity: 0.6; display: flex; align-items: center; gap: 2px;">
-                                        <span class="icon-robux-16x16"></span>${priceValue}
-                                    </span>
-                                    <span class="rovalra-free-label" style="color: var(--rovalra-main-text-color); margin-left: 4px; cursor: help; font-size: 14px;">${tier >= 3 ? 'Free' : 'Owned'}</span>
-                                `; //Verified
-                                const freeLabel = priceLabel.querySelector(
-                                    '.rovalra-free-label',
-                                );
-                                if (freeLabel) {
-                                    addTooltip(
-                                        freeLabel,
-                                        tier >= 3
-                                            ? 'Free because you have Donator Tier 3!'
-                                            : 'You own this border!',
-                                        {
-                                            position: 'top',
-                                        },
+                    visibleLoaders.push(() => {
+                        getGamePassPrice(variant.gamepassId).then((price) => {
+                            if (price !== null && price !== undefined) {
+                                const priceValue = price.toLocaleString();
+                                if (variantIsOwned) {
+                                    priceLabel.innerHTML = `
+                                        <span style="text-decoration: line-through; opacity: 0.6; display: flex; align-items: center; gap: 2px;">
+                                            <span class="icon-robux-16x16"></span>${priceValue}
+                                        </span>
+                                        <span class="rovalra-free-label" style="color: var(--rovalra-main-text-color); margin-left: 4px; cursor: help; font-size: 14px;">${tier >= 3 ? 'Free' : 'Owned'}</span>
+                                    `; //Verified
+                                    const freeLabel = priceLabel.querySelector(
+                                        '.rovalra-free-label',
                                     );
+                                    if (freeLabel) {
+                                        addTooltip(
+                                            freeLabel,
+                                            tier >= 3
+                                                ? 'Free because you have Donator Tier 3!'
+                                                : 'You own this border!',
+                                            {
+                                                position: 'top',
+                                            },
+                                        );
+                                    }
+                                } else {
+                                    priceLabel.innerHTML = `<span class="icon-robux-16x16"></span>${priceValue}`; // Verified
                                 }
-                            } else {
-                                priceLabel.innerHTML = `<span class="icon-robux-16x16"></span>${priceValue}`; // Verified
                             }
-                        }
+                        });
                     });
                 } else {
                     priceLabel.className = 'rovalra-free-label';
                     priceLabel.textContent = 'Free';
+                    priceLabel.style.width = '100%';
+                    priceLabel.style.textAlign = 'center';
                     addTooltip(priceLabel, 'This border is free to equip.', {
                         position: 'top',
                     });
@@ -2230,6 +2249,17 @@ async function renderStoreBorders(container) {
 
                 variantCard.append(previewRow, variantLabel, priceLabel);
                 variantsGrid.appendChild(variantCard);
+
+                const intersection = observeIntersection(
+                    variantCard,
+                    (entry) => {
+                        if (!entry.isIntersecting) return;
+
+                        intersection.unobserve();
+                        for (const load of visibleLoaders) load();
+                    },
+                    { threshold: 0.01 },
+                );
             }
         }
     } catch (error) {

@@ -16,19 +16,24 @@ const LEGACY_ROW_CLASS = 'rovalra-profile-subplace-legacy-row';
 const LEGACY_HOST_CLASS = 'rovalra-profile-subplace-legacy-host';
 const LEGACY_PENDING_CLASS = 'rovalra-profile-subplace-pending-placement';
 const LEGACY_READY_CLASS = 'rovalra-profile-subplace-ready';
+const LEGACY_ROW_PENDING_CLASS = 'rovalra-profile-subplace-row-pending';
+const LEGACY_ROW_READY_CLASS = 'rovalra-profile-subplace-row-ready';
 
 let observerRegistered = false;
 let profileFallbackObserverRegistered = false;
 let profilePresencePromise = null;
 let profilePresenceUserId = 0;
 
-const NATIVE_POPOVER_SELECTORS = [
+const PROFILE_SCAN_DELAYS = [100, 400, 1000, 1800, 3000, 5000];
+const HOME_CONTEXT_TTL = 7000;
+const HOME_PRESENCE_CACHE_TTL = 1200;
+const HOME_SCAN_DELAYS = [0, 100, 250, 500];
+const HOME_POPOVER_SELECTORS = [
     '.profile-card',
     '.profile-card-container',
     '.profile-hover-card',
     '.popover',
     '.popover-content',
-    '.tooltip',
     '[role="dialog"]',
     '[role="tooltip"]',
     '[data-testid*="popover" i]',
@@ -39,18 +44,20 @@ const NATIVE_POPOVER_SELECTORS = [
     '[class*="hovercard" i]',
 ].join(',');
 
-const HOVER_CONTEXT_TTL = 8000;
-const PRESENCE_CACHE_TTL = 1500;
-const NATIVE_SCAN_DELAYS = [80, 260, 650];
-const PROFILE_SCAN_DELAYS = [100, 400, 1000, 1800, 3000, 5000];
+let homePopoverObserverRegistered = false;
+let homeMutationObserver = null;
+let homeScanTimers = [];
+let homeScanFrame = 0;
+let homeHoverContext = null;
+let lastHomeContextUpdate = 0;
+let profileScanTimers = [];
+const homeMutationPopoverCandidates = new Set();
 
-let nativeObserverRegistered = false;
-let recentHoverContext = null;
-let nativeScanTimers = [];
 const usernameToIdCache = new Map();
 const presenceByUserIdCache = new Map();
-let profileScanTimers = [];
-let lastHoverContextScan = 0;
+const homeBuildPromises = new WeakMap();
+const homeBuildRetryState = new WeakMap();
+const HOME_BUILD_RETRY_DELAYS = [140, 320, 700, 1200];
 
 function normalizeText(text) {
     return String(text || '')
@@ -61,6 +68,33 @@ function normalizeText(text) {
 function normalizeId(value) {
     const id = Number(value);
     return Number.isFinite(id) && id > 0 ? String(id) : '';
+}
+
+async function isHomeSubplaceEnabled() {
+    return (await settings.currentlyPlayingSubplaceHomeEnabled) !== false;
+}
+
+async function isProfileSubplaceEnabled() {
+    return (await settings.currentlyPlayingSubplaceProfileEnabled) !== false;
+}
+
+function getProfileUserIdFromUrl() {
+    const direct = Number(getUserIdFromUrl());
+    if (Number.isFinite(direct) && direct > 0) return direct;
+
+    try {
+        const url = new URL(window.location.href, window.location.origin);
+        const match = url.pathname.match(
+            /^(?:\/[a-z]{2}(?:-[a-z]{2})?)?\/users\/(\d+)(?:\/profile)?\/?$/i,
+        );
+        const id = Number(match?.[1]);
+        if (Number.isFinite(id) && id > 0) return id;
+    } catch {
+        // Keep profile detection best-effort; failing here should only disable
+        // the profile-only scanners, not the home hover-card feature.
+    }
+
+    return 0;
 }
 
 function extractUserId(value) {
@@ -77,8 +111,6 @@ function extractUserIdFromAttributes(element) {
     const attributeNames = [
         'data-user-id',
         'data-userid',
-        'data-user-id-to',
-        'data-userid-to',
         'data-rbx-user-id',
         'data-profile-user-id',
         'data-profileid',
@@ -94,16 +126,9 @@ function extractUserIdFromAttributes(element) {
         'target-id',
     ];
 
-    const candidates = [
-        element,
-        ...element.querySelectorAll(attributeNames.map((name) => `[${name}]`).join(',')),
-    ];
-
-    for (const candidate of candidates) {
-        for (const name of attributeNames) {
-            const id = extractUserId(candidate.getAttribute(name));
-            if (id) return id;
-        }
+    for (const name of attributeNames) {
+        const id = extractUserId(element.getAttribute(name));
+        if (id) return id;
     }
 
     return 0;
@@ -112,186 +137,36 @@ function extractUserIdFromAttributes(element) {
 function extractUserIdFromLinks(element) {
     if (!element || element.nodeType !== Node.ELEMENT_NODE) return 0;
 
-    const links = [];
-    if (element.matches('a[href*="/users/"]')) links.push(element);
-    links.push(...element.querySelectorAll('a[href*="/users/"]'));
-
-    for (const link of links) {
-        const id = extractUserId(link.getAttribute('href'));
+    if (element.matches?.('a[href*="/users/"]')) {
+        const id = extractUserId(element.getAttribute('href'));
         if (id) return id;
     }
 
-    return 0;
-}
-
-function extractUserIdFromText(value) {
-    const text = String(value || '');
-    const match = text.match(/(?:users\/|userId[\s:=\"']+|userid[\s:=\"']+)(\d{3,})/i);
-    return extractUserId(match?.[1]);
-}
-
-function extractUserIdFromScripts(element) {
-    if (!element || element.nodeType !== Node.ELEMENT_NODE) return 0;
-
-    const html = element.outerHTML || '';
-    if (html.length > 20000) return 0;
-
-    return extractUserIdFromText(html);
+    const link = element.querySelector?.('a[href*="/users/"]');
+    return extractUserId(link?.getAttribute('href'));
 }
 
 function findUserIdInElement(element) {
-    return (
-        extractUserIdFromAttributes(element) ||
-        extractUserIdFromLinks(element) ||
-        extractUserIdFromScripts(element)
-    );
-}
-
-function extractPresenceFromAttributes(element) {
-    if (!element || element.nodeType !== Node.ELEMENT_NODE) return null;
-
-    const candidates = [
-        element,
-        ...element.querySelectorAll(
-            [
-                '[data-rovalra-presence-place-id]',
-                '[data-rovalra-presence-root-place-id]',
-                '[data-rovalra-presence-universe-id]',
-                '[data-rovalra-presence-user-id]',
-                '[data-rovalra-presence-game-id]',
-            ].join(','),
-        ),
-    ];
-
-    for (const candidate of candidates) {
-        const placeId = normalizeId(candidate.dataset?.rovalraPresencePlaceId);
-        if (!placeId) continue;
-
-        return {
-            userPresenceType: 2,
-            placeId: Number(placeId),
-            rootPlaceId:
-                Number(normalizeId(candidate.dataset?.rovalraPresenceRootPlaceId)) ||
-                null,
-            universeId:
-                Number(normalizeId(candidate.dataset?.rovalraPresenceUniverseId)) ||
-                null,
-            userId:
-                Number(normalizeId(candidate.dataset?.rovalraPresenceUserId)) ||
-                null,
-            gameId: candidate.dataset?.rovalraPresenceGameId || null,
-            lastLocation: normalizeText(
-                candidate.getAttribute('title') || candidate.textContent || '',
-            ),
-        };
-    }
-
-    return null;
-}
-
-function findPresenceNearElement(element) {
-    if (!element || element.nodeType !== Node.ELEMENT_NODE) return null;
-
-    const directPresence = extractPresenceFromAttributes(element);
-    if (directPresence) return directPresence;
-
-    let current = element;
-    let depth = 0;
-
-    while (current && current !== document.body && depth < 14) {
-        const presence = extractPresenceFromAttributes(current);
-        if (presence) return presence;
-
-        for (const sibling of [
-            current.previousElementSibling,
-            current.nextElementSibling,
-        ]) {
-            const siblingPresence = extractPresenceFromAttributes(sibling);
-            if (siblingPresence) return siblingPresence;
-        }
-
-        current = current.parentElement;
-        depth += 1;
-    }
-
-    return null;
-}
-
-function findPresenceFromPoint(event) {
-    if (!event || typeof document.elementsFromPoint !== 'function') return null;
-
-    const elements = document.elementsFromPoint(event.clientX, event.clientY);
-    for (const element of elements) {
-        const presence = findPresenceNearElement(element);
-        if (presence) return presence;
-    }
-
-    return null;
-}
-
-function findHoveredPresence() {
-    try {
-        const hovered = Array.from(document.querySelectorAll(':hover')).reverse();
-        for (const element of hovered) {
-            const presence = findPresenceNearElement(element);
-            if (presence) return presence;
-        }
-    } catch {
-        return null;
-    }
-
-    return null;
+    if (!element || element.nodeType !== Node.ELEMENT_NODE) return 0;
+    return extractUserIdFromAttributes(element) || extractUserIdFromLinks(element);
 }
 
 function findUserIdNearElement(element) {
     if (!element || element.nodeType !== Node.ELEMENT_NODE) return 0;
 
-    const directId = findUserIdInElement(element);
-    if (directId) return directId;
-
     let current = element;
     let depth = 0;
-
-    while (current && current !== document.body && depth < 14) {
+    while (current && current !== document.body && depth < 7) {
         const id = findUserIdInElement(current);
         if (id) return id;
 
-        for (const sibling of [
-            current.previousElementSibling,
-            current.nextElementSibling,
-        ]) {
+        for (const sibling of [current.previousElementSibling, current.nextElementSibling]) {
             const siblingId = findUserIdInElement(sibling);
             if (siblingId) return siblingId;
         }
 
         current = current.parentElement;
         depth += 1;
-    }
-
-    return 0;
-}
-
-function findUserIdFromPoint(event) {
-    if (!event || typeof document.elementsFromPoint !== 'function') return 0;
-
-    const elements = document.elementsFromPoint(event.clientX, event.clientY);
-    for (const element of elements) {
-        const id = findUserIdNearElement(element);
-        if (id) return id;
-    }
-
-    return 0;
-}
-
-function findHoveredUserId() {
-    try {
-        const hovered = Array.from(document.querySelectorAll(':hover')).reverse();
-        for (const element of hovered) {
-            const id = findUserIdNearElement(element);
-            if (id) return id;
-        }
-    } catch {
-        return 0;
     }
 
     return 0;
@@ -319,50 +194,37 @@ function extractUsernameFromText(value) {
 function extractUsernameFromElement(element) {
     if (!element || element.nodeType !== Node.ELEMENT_NODE) return '';
 
-    const linkCandidates = [];
-    if (element.matches('a[href*="/users/"]')) linkCandidates.push(element);
-    linkCandidates.push(...element.querySelectorAll('a[href*="/users/"]'));
+    const aria = getCleanUsernameCandidate(
+        element.getAttribute?.('aria-label') || element.getAttribute?.('title'),
+    );
+    if (aria) return aria;
 
-    for (const link of linkCandidates) {
-        const username = extractUsernameFromText(link.textContent);
+    if (element.matches?.('a[href*="/users/"]')) {
+        const username = extractUsernameFromText(element.textContent);
         if (username) return username;
     }
 
-    const textSelectors = [
-        '.user-card-name',
-        '.friend-name',
-        '.text-name',
-        '[class*="username" i]',
-        '[class*="display-name" i]',
-        '[data-testid*="username" i]',
-        '[data-testid*="display" i]',
-    ].join(',');
+    const userLink = Array.from(element.querySelectorAll?.('a[href*="/users/"]') || [])
+        .map((link) => extractUsernameFromText(link.textContent))
+        .find(Boolean);
+    if (userLink) return userLink;
 
-    for (const candidate of element.querySelectorAll(textSelectors)) {
-        const username = extractUsernameFromText(candidate.textContent);
-        if (username) return username;
-    }
+    const shortText = normalizeText(element.textContent || '');
+    if (shortText.length <= 80) return extractUsernameFromText(shortText);
 
-    return extractUsernameFromText(element.textContent);
+    return '';
 }
 
 function findUsernameNearElement(element) {
     if (!element || element.nodeType !== Node.ELEMENT_NODE) return '';
 
-    const directUsername = extractUsernameFromElement(element);
-    if (directUsername) return directUsername;
-
     let current = element;
     let depth = 0;
-
-    while (current && current !== document.body && depth < 14) {
+    while (current && current !== document.body && depth < 7) {
         const username = extractUsernameFromElement(current);
         if (username) return username;
 
-        for (const sibling of [
-            current.previousElementSibling,
-            current.nextElementSibling,
-        ]) {
+        for (const sibling of [current.previousElementSibling, current.nextElementSibling]) {
             const siblingUsername = extractUsernameFromElement(sibling);
             if (siblingUsername) return siblingUsername;
         }
@@ -374,49 +236,52 @@ function findUsernameNearElement(element) {
     return '';
 }
 
-function findUsernameFromPoint(event) {
-    if (!event || typeof document.elementsFromPoint !== 'function') return '';
+function extractPresenceFromAttributes(element) {
+    if (!element || element.nodeType !== Node.ELEMENT_NODE) return null;
 
-    const elements = document.elementsFromPoint(event.clientX, event.clientY);
-    for (const element of elements) {
-        const username = findUsernameNearElement(element);
-        if (username) return username;
-    }
+    const placeId = normalizeId(element.dataset?.rovalraPresencePlaceId);
+    if (!placeId) return null;
 
-    return '';
+    return {
+        userPresenceType: 2,
+        placeId: Number(placeId),
+        rootPlaceId: Number(normalizeId(element.dataset?.rovalraPresenceRootPlaceId)) || null,
+        universeId: Number(normalizeId(element.dataset?.rovalraPresenceUniverseId)) || null,
+        userId: Number(normalizeId(element.dataset?.rovalraPresenceUserId)) || null,
+        gameId: element.dataset?.rovalraPresenceGameId || null,
+        lastLocation: normalizeText(element.getAttribute('title') || element.textContent || ''),
+    };
 }
 
-function findHoveredUsername() {
-    try {
-        const hovered = Array.from(document.querySelectorAll(':hover')).reverse();
-        for (const element of hovered) {
-            const username = findUsernameNearElement(element);
-            if (username) return username;
-        }
-    } catch {
-        return '';
+function findPresenceNearElement(element) {
+    if (!element || element.nodeType !== Node.ELEMENT_NODE) return null;
+
+    let current = element;
+    let depth = 0;
+    while (current && current !== document.body && depth < 7) {
+        const direct = extractPresenceFromAttributes(current);
+        if (direct) return direct;
+
+        const child = current.querySelector?.('[data-rovalra-presence-place-id]');
+        const childPresence = extractPresenceFromAttributes(child);
+        if (childPresence) return childPresence;
+
+        current = current.parentElement;
+        depth += 1;
     }
 
-    return '';
-}
-
-function getRecentHoverUsername() {
-    if (
-        !recentHoverContext ||
-        Date.now() - recentHoverContext.timestamp > HOVER_CONTEXT_TTL
-    ) {
-        return '';
-    }
-
-    return recentHoverContext.username || '';
+    return null;
 }
 
 function rememberPresence(userId, presence) {
-    if (!userId || !presence) return presence;
-    presenceByUserIdCache.set(Number(userId), {
+    const id = Number(userId || presence?.userId);
+    if (!id || !presence) return presence;
+
+    presenceByUserIdCache.set(id, {
         presence,
         timestamp: Date.now(),
     });
+
     return presence;
 }
 
@@ -428,7 +293,7 @@ async function fetchPresenceForUserId(userId, options = {}) {
     if (
         !options.forceFresh &&
         cached &&
-        Date.now() - cached.timestamp < PRESENCE_CACHE_TTL
+        Date.now() - cached.timestamp < HOME_PRESENCE_CACHE_TTL
     ) {
         return cached.presence;
     }
@@ -442,9 +307,7 @@ async function resolveUserIdFromUsername(username) {
     if (!cleanUsername) return 0;
 
     const key = cleanUsername.toLowerCase();
-    if (usernameToIdCache.has(key)) {
-        return usernameToIdCache.get(key);
-    }
+    if (usernameToIdCache.has(key)) return usernameToIdCache.get(key);
 
     const promise = callRobloxApiJson({
         subdomain: 'users',
@@ -462,31 +325,338 @@ async function resolveUserIdFromUsername(username) {
     return promise;
 }
 
-function getNativePopoverGameName(root) {
-    const text = normalizeText(root?.textContent || '');
-    if (!text) return '';
+function getHomeContextKey(context) {
+    if (!context) return '';
 
-    const playingMatch = text.match(/\bis playing\s+(.+?)(?:\s+Join\b|\s+Chat\b|\s+View Profile\b|\s+SUBPLACE\b|$)/i);
-    if (playingMatch) return normalizeText(playingMatch[1]);
+    const userId = normalizeId(context.userId || context.presence?.userId);
+    if (userId) return `user:${userId}`;
+
+    if (context.username) return `username:${String(context.username).toLowerCase()}`;
+
+    const placeId = normalizeId(context.presence?.placeId);
+    if (placeId) return `place:${placeId}`;
 
     return '';
 }
 
-function presenceMatchesNativePopover(root, presence) {
-    if (!presence?.placeId) return false;
+function mergeHomeHoverContext(nextContext, now) {
+    if (!homeHoverContext || now - homeHoverContext.timestamp > HOME_CONTEXT_TTL) {
+        return nextContext;
+    }
 
-    const popupGameName = getNativePopoverGameName(root).toLowerCase();
-    const lastLocation = normalizeText(presence.lastLocation).toLowerCase();
+    const previous = homeHoverContext;
+    const previousKey = getHomeContextKey(previous);
+    const nextKey = getHomeContextKey(nextContext);
 
-    if (!popupGameName || !lastLocation) return true;
+    if (previousKey && nextKey && previousKey !== nextKey) return nextContext;
 
-    return (
-        popupGameName.includes(lastLocation) ||
-        lastLocation.includes(popupGameName)
+    return {
+        userId: nextContext.userId || previous.userId || 0,
+        username: nextContext.username || previous.username || '',
+        presence: nextContext.presence || previous.presence || null,
+        target: nextContext.target || previous.target || null,
+        timestamp: now,
+    };
+}
+
+function getFreshHomeContext() {
+    if (!homeHoverContext || Date.now() - homeHoverContext.timestamp > HOME_CONTEXT_TTL) {
+        return null;
+    }
+
+    return homeHoverContext;
+}
+
+function isIgnoredHomeHoverArea(element) {
+    // Only ignore our own injected UI here. The old perf fix also ignored broad
+    // Roblox containers such as .game-carousel/.game-grid, but friends/home
+    // avatar tiles can live inside those same wrappers. That prevented the
+    // hover context from starting until the mouse entered the already-open
+    // Roblox popup, so the SUBPLACE section appeared late.
+    return Boolean(
+        element?.closest?.(
+            [
+                '.rovalra-home-subplace-card',
+                '.rovalra-current-subplace-card',
+                '.rovalra-subplace-hover-card',
+                '.rovalra-profile-subplace-list',
+                '.rovalra-subplace-details-card',
+            ].join(','),
+        ),
     );
 }
 
-function getPresenceCardKey(presence) {
+function elementCanStartHomeHover(element) {
+    if (!element || element.nodeType !== Node.ELEMENT_NODE) return false;
+    if (isIgnoredHomeHoverArea(element)) return false;
+
+    if (findPresenceNearElement(element)) return true;
+    if (findUserIdNearElement(element)) return true;
+    if (findUsernameNearElement(element)) return true;
+
+    const href = element.getAttribute?.('href') || '';
+    return /\/users\/\d+/i.test(href);
+}
+
+function elementMayOpenHomePopover(element) {
+    if (!element || element.nodeType !== Node.ELEMENT_NODE) return false;
+    if (isIgnoredHomeHoverArea(element)) return false;
+
+    if (elementCanStartHomeHover(element)) return true;
+
+    return Boolean(
+        element.closest?.(
+            [
+                'a[href*="/users/"]',
+                '[data-testid*="friend" i]',
+                '[data-testid*="avatar" i]',
+                '[class*="friend" i]',
+                '[class*="avatar" i]',
+                '[class*="profile" i]',
+                '[class*="user" i]',
+            ].join(','),
+        ),
+    );
+}
+
+
+function warmHomePresenceDetails(presence) {
+    if (!presence || presence.userPresenceType !== 2 || !presence.placeId) return;
+
+    createSubplaceDetailsCard(presence).catch(() => {});
+}
+
+function prefetchHomeContextSubplace(context) {
+    if (!context) return;
+
+    if (context.presence) {
+        warmHomePresenceDetails(context.presence);
+        return;
+    }
+
+    if (context.userId) {
+        fetchPresenceForUserId(context.userId, { forceFresh: false })
+            .then(warmHomePresenceDetails)
+            .catch(() => {});
+        return;
+    }
+
+    if (context.username) {
+        resolveUserIdFromUsername(context.username)
+            .then((userId) => fetchPresenceForUserId(userId, { forceFresh: false }))
+            .then(warmHomePresenceDetails)
+            .catch(() => {});
+    }
+}
+
+function updateHomeHoverContext(event) {
+    const target = event?.target;
+    if (!elementMayOpenHomePopover(target)) return;
+
+    const now = Date.now();
+    if (now - lastHomeContextUpdate < 45) {
+        scheduleHomePopoverScan();
+        return;
+    }
+    lastHomeContextUpdate = now;
+
+    const userId = findUserIdNearElement(target);
+    const username = findUsernameNearElement(target);
+    const presence = findPresenceNearElement(target);
+
+    if (!userId && !username && !presence) {
+        homeHoverContext = mergeHomeHoverContext(
+            {
+                userId: 0,
+                username: '',
+                presence: null,
+                target,
+                timestamp: now,
+            },
+            now,
+        );
+        prefetchHomeContextSubplace(homeHoverContext);
+        scheduleHomePopoverScan();
+        return;
+    }
+
+    const nextContext = mergeHomeHoverContext(
+        {
+            userId,
+            username,
+            presence,
+            target,
+            timestamp: now,
+        },
+        now,
+    );
+
+    homeHoverContext = nextContext;
+
+    if (presence && (userId || presence.userId)) {
+        rememberPresence(userId || presence.userId, presence);
+    }
+
+    prefetchHomeContextSubplace(nextContext);
+    scheduleHomePopoverScan();
+}
+
+function getActionLabels(element) {
+    const labels = new Set();
+    if (!element || element.nodeType !== Node.ELEMENT_NODE) return labels;
+
+    const candidates = element.querySelectorAll('button, a, [role="button"]');
+    candidates.forEach((candidate) => {
+        const text = normalizeText(candidate.textContent).toLowerCase();
+        if (!text || text.length > 80) return;
+
+        if (text === 'join' || text.startsWith('join ')) labels.add('join');
+        if (text === 'chat' || text.startsWith('chat ')) labels.add('chat');
+        if (text === 'view profile' || text.startsWith('view profile ')) {
+            labels.add('view profile');
+        }
+    });
+
+    const ownText = normalizeText(element.textContent).toLowerCase();
+    if (/\bjoin\b/i.test(ownText)) labels.add('join');
+    if (/\bchat\b/i.test(ownText)) labels.add('chat');
+    if (/\bview profile\b/i.test(ownText)) labels.add('view profile');
+
+    return labels;
+}
+
+function isVisibleHomePopover(element) {
+    if (!element || element.nodeType !== Node.ELEMENT_NODE) return false;
+
+    const rect = element.getBoundingClientRect?.();
+    if (!rect || rect.width < 190 || rect.height < 145) return false;
+    if (rect.width > 560 || rect.height > 760) return false;
+
+    const style = getComputedStyle(element);
+    return !(
+        style.display === 'none' ||
+        style.visibility === 'hidden' ||
+        Number(style.opacity || 1) === 0
+    );
+}
+
+function isDefinitelyNotHomeUserPopover(element) {
+    if (!element || element.nodeType !== Node.ELEMENT_NODE) return true;
+
+    if (
+        element.closest?.(
+            [
+                '[data-rovalra-serverid]',
+                '.rbx-game-server-item',
+                '.rbx-game-server-item-container',
+                '.server-list-section',
+                '.server-list-container',
+                '.game-server-item',
+                '.rovalra-server-full-info',
+                '.rovalra-server-extra-details',
+                '.user-profile-header',
+                '[class*="profile-header" i]',
+            ].join(','),
+        )
+    ) {
+        return true;
+    }
+
+    const text = normalizeText(element.textContent);
+    if (!text || text.length > 1100) return true;
+
+    return /\bMaturity:\b|\bserver performance\b|\bpeople max\b|\bversion\s+\d+|\bid:\s*[a-f0-9-]{8,}|\bshare\b/i.test(text);
+}
+
+function isHomeUserPopover(element) {
+    if (!isVisibleHomePopover(element)) return false;
+    if (isDefinitelyNotHomeUserPopover(element)) return false;
+    if (element.closest?.('.rovalra-home-subplace-card')) return false;
+
+    const text = normalizeText(element.textContent);
+    const labels = getActionLabels(element);
+    const context = getFreshHomeContext();
+    const popupUsername = extractUsernameFromText(text);
+    const hasIdentity = Boolean(
+        context ||
+            popupUsername ||
+            findUserIdInElement(element) ||
+            findUsernameNearElement(element) ||
+            findPresenceNearElement(element),
+    );
+
+    if (!hasIdentity) return false;
+    if (labels.has('join') && labels.has('view profile')) return true;
+    if (/\bis playing\b/i.test(text) && labels.has('join')) return true;
+
+    return false;
+}
+
+function findHomePopoverRoot(element) {
+    if (!element || element.nodeType !== Node.ELEMENT_NODE) return null;
+
+    let best = null;
+    let current = element;
+    let depth = 0;
+
+    while (current && current !== document.body && depth < 9) {
+        if (isHomeUserPopover(current)) best = current;
+        current = current.parentElement;
+        depth += 1;
+    }
+
+    return best;
+}
+
+function findActionElement(root, label) {
+    const wanted = label.toLowerCase();
+    const candidates = root.querySelectorAll('button, a, [role="button"]');
+
+    return Array.from(candidates).find((candidate) => {
+        const text = normalizeText(candidate.textContent).toLowerCase();
+        return text === wanted || text.startsWith(`${wanted} `);
+    });
+}
+
+function getActionBlock(action) {
+    if (!action) return null;
+
+    let block = action;
+    let depth = 0;
+
+    while (block.parentElement && block.parentElement !== document.body && depth < 3) {
+        const parent = block.parentElement;
+        const parentText = normalizeText(parent.textContent);
+        const buttons = parent.querySelectorAll('button, a, [role="button"]');
+
+        if (buttons.length > 1) break;
+        if (parentText.length > 90 && !/^\s*(join|chat|view profile)/i.test(parentText)) break;
+        if (parent.children.length > 4) break;
+
+        block = parent;
+        depth += 1;
+    }
+
+    return block;
+}
+
+function getPopoverGameName(root) {
+    const text = normalizeText(root?.textContent || '');
+    const match = text.match(/\bis playing\s+(.+?)(?:\s+Join\b|\s+Chat\b|\s+View Profile\b|\s+SUBPLACE\b|$)/i);
+    return normalizeText(match?.[1] || '');
+}
+
+function presenceMatchesPopover(root, presence) {
+    if (!presence?.placeId) return false;
+
+    const popupGameName = getPopoverGameName(root).toLowerCase();
+    const lastLocation = normalizeText(presence.lastLocation).toLowerCase();
+    if (!popupGameName || !lastLocation) return true;
+
+    return popupGameName.includes(lastLocation) || lastLocation.includes(popupGameName);
+}
+
+function getHomePresenceKey(presence) {
     if (!presence) return '';
 
     return [
@@ -498,57 +668,54 @@ function getPresenceCardKey(presence) {
     ].join(':');
 }
 
-function getPopoverUsernameCandidates(root) {
-    const usernames = new Set();
-
-    for (const value of [
-        extractUsernameFromText(root?.textContent || ''),
-        findUsernameNearElement(root),
-        getRecentHoverUsername(),
-        findHoveredUsername(),
-    ]) {
-        const username = getCleanUsernameCandidate(value);
-        if (username) usernames.add(username);
-    }
-
-    return Array.from(usernames);
-}
-
-async function resolveNativePopoverPresence(root) {
-    const directPresence =
-        findPresenceNearElement(root) || getRecentHoverPresence() || findHoveredPresence();
-
+async function resolveHomePopoverPresence(root) {
+    const context = getFreshHomeContext();
+    const directPresence = findPresenceNearElement(root) || context?.presence || null;
     const userIds = Array.from(
         new Set(
-            [
-                findUserIdInElement(root),
-                directPresence?.userId,
-                getRecentHoverUserId(),
-                findHoveredUserId(),
-            ]
+            [findUserIdInElement(root), directPresence?.userId, context?.userId]
                 .map((id) => Number(id))
                 .filter((id) => Number.isFinite(id) && id > 0),
         ),
     );
 
     for (const userId of userIds) {
+        const cachedPresence = await fetchPresenceForUserId(userId, { forceFresh: false });
+        if (
+            cachedPresence?.userPresenceType === 2 &&
+            cachedPresence.placeId &&
+            presenceMatchesPopover(root, cachedPresence)
+        ) {
+            return cachedPresence;
+        }
+
         const presence = await fetchPresenceForUserId(userId, { forceFresh: true });
         if (
             presence?.userPresenceType === 2 &&
             presence.placeId &&
-            presenceMatchesNativePopover(root, presence)
+            presenceMatchesPopover(root, presence)
         ) {
             return presence;
         }
     }
 
-    for (const username of getPopoverUsernameCandidates(root)) {
-        const userId = await resolveUserIdFromUsername(username);
+    const username = extractUsernameFromText(root.textContent) || context?.username || '';
+    const userId = await resolveUserIdFromUsername(username);
+    if (userId) {
+        const cachedPresence = await fetchPresenceForUserId(userId, { forceFresh: false });
+        if (
+            cachedPresence?.userPresenceType === 2 &&
+            cachedPresence.placeId &&
+            presenceMatchesPopover(root, cachedPresence)
+        ) {
+            return cachedPresence;
+        }
+
         const presence = await fetchPresenceForUserId(userId, { forceFresh: true });
         if (
             presence?.userPresenceType === 2 &&
             presence.placeId &&
-            presenceMatchesNativePopover(root, presence)
+            presenceMatchesPopover(root, presence)
         ) {
             return presence;
         }
@@ -557,7 +724,7 @@ async function resolveNativePopoverPresence(root) {
     if (
         directPresence?.userPresenceType === 2 &&
         directPresence.placeId &&
-        presenceMatchesNativePopover(root, directPresence)
+        presenceMatchesPopover(root, directPresence)
     ) {
         return directPresence;
     }
@@ -565,402 +732,259 @@ async function resolveNativePopoverPresence(root) {
     return null;
 }
 
-function updateRecentHoverContext(event) {
-    const target = event.target;
-    if (!target || target.nodeType !== Node.ELEMENT_NODE) return;
-
-    const now = Date.now();
-    if (event.type === 'pointermove' && now - lastHoverContextScan < 120) {
-        return;
-    }
-    lastHoverContextScan = now;
-
-    const userId =
-        findUserIdNearElement(target) ||
-        findUserIdFromPoint(event) ||
-        findHoveredUserId();
-    const presence =
-        findPresenceNearElement(target) ||
-        findPresenceFromPoint(event) ||
-        findHoveredPresence();
-    const username =
-        findUsernameNearElement(target) ||
-        findUsernameFromPoint(event) ||
-        findHoveredUsername();
-
-    if (!userId && !presence && !username) return;
-
-    const shouldRescan =
-        !recentHoverContext ||
-        recentHoverContext.userId !== userId ||
-        recentHoverContext.username !== username ||
-        recentHoverContext.presence?.placeId !== presence?.placeId ||
-        now - recentHoverContext.timestamp > 250;
-
-    recentHoverContext = {
-        userId,
-        username,
-        presence,
-        timestamp: now,
-    };
-
-    if (presence && userId) rememberPresence(userId, presence);
-    if (shouldRescan) scheduleNativePopoverScan();
-}
-
-function getRecentHoverUserId() {
-    if (
-        !recentHoverContext ||
-        Date.now() - recentHoverContext.timestamp > HOVER_CONTEXT_TTL
-    ) {
-        return 0;
-    }
-
-    return recentHoverContext.userId || 0;
-}
-
-function getRecentHoverPresence() {
-    if (
-        !recentHoverContext ||
-        Date.now() - recentHoverContext.timestamp > HOVER_CONTEXT_TTL
-    ) {
-        return null;
-    }
-
-    return recentHoverContext.presence || null;
-}
-
-function getNativeActionLabels(element) {
-    if (!element || element.nodeType !== Node.ELEMENT_NODE) return new Set();
-
-    const labels = new Set();
-    const candidates = element.querySelectorAll(
-        'button, a, [role="button"], [tabindex], div, span',
-    );
-
-    candidates.forEach((action) => {
-        if (action === element) return;
-
-        const text = normalizeText(action.textContent).toLowerCase();
-        if (!text || text.length > 80) return;
-
-        if (text === 'join' || text.startsWith('join ')) labels.add('join');
-        if (text === 'chat' || text.startsWith('chat ')) labels.add('chat');
-        if (text === 'view profile' || text.startsWith('view profile ')) {
-            labels.add('view profile');
-        }
-    });
-
-    const text = normalizeText(element.textContent).toLowerCase();
-    if (/\bjoin\b/i.test(text)) labels.add('join');
-    if (/\bchat\b/i.test(text)) labels.add('chat');
-    if (/\bview profile\b/i.test(text)) labels.add('view profile');
-
-    return labels;
-}
-
-function isDefinitelyServerCard(element) {
-    if (!element || element.nodeType !== Node.ELEMENT_NODE) return false;
-
-    if (
-        element.closest(
-            [
-                '[data-rovalra-serverid]',
-                '.rbx-game-server-item',
-                '.rbx-game-server-item-container',
-                '.rbx-recent-servers-grid',
-                '.server-list-section',
-                '.server-list-container',
-                '.game-server-item',
-                '.rovalra-server-full-info',
-                '.rovalra-server-extra-details',
-                '.server-id-text',
-            ].join(','),
-        )
-    ) {
-        return true;
-    }
-
-    const text = normalizeText(element.textContent).toLowerCase();
-    if (!text) return false;
-
-    if (/\bserver performance\b/i.test(text)) return true;
-    if (/\bpeople max\b/i.test(text)) return true;
-    if (/\bversion\s+\d+/i.test(text)) return true;
-    if (/\bid:\s*[a-f0-9-]{8,}/i.test(text)) return true;
-
-    const labels = getNativeActionLabels(element);
-    return Boolean(
-        labels.has('join') &&
-            /\bshare\b/i.test(text) &&
-            !labels.has('view profile') &&
-            !labels.has('chat') &&
-            !/\bis playing\b/i.test(text)
-    );
-}
-
-function hasNativeProfileHoverActions(labels, text) {
-    return Boolean(
-        labels.has('join') &&
-            (labels.has('view profile') ||
-                labels.has('chat') ||
-                /\bis playing\b/i.test(text))
-    );
-}
-
-function isVisiblePopoverCandidate(element) {
-    const rect = element?.getBoundingClientRect?.();
-    if (!rect || rect.width < 120 || rect.height < 90) return false;
-    if (rect.width > 720 || rect.height > 760) return false;
-
-    const style = getComputedStyle(element);
-    if (style.display === 'none' || style.visibility === 'hidden') return false;
-    if (Number(style.opacity || 1) === 0) return false;
-
-    return true;
-}
-
-function isNativePlayingPopover(element) {
-    if (!element || element.nodeType !== Node.ELEMENT_NODE) return false;
-    if (element.closest('.rovalra-subplace-hover-card')) return false;
-    if (element.closest('.rovalra-native-subplace-card')) return false;
-    if (isDefinitelyServerCard(element)) return false;
-    if (!isVisiblePopoverCandidate(element)) return false;
-
-    const text = normalizeText(element.textContent);
-    const labels = getNativeActionLabels(element);
-    const hasActions =
-        labels.has('join') || labels.has('chat') || labels.has('view profile');
-
-    if (/\bis playing\b/i.test(text) && hasActions) return true;
-
-    const hasRecentUser = Boolean(
-        getRecentHoverUserId() ||
-            getRecentHoverUsername() ||
-            getRecentHoverPresence() ||
-            findUserIdInElement(element) ||
-            findPresenceNearElement(element) ||
-            findUsernameNearElement(element) ||
-            findHoveredUserId() ||
-            findHoveredUsername() ||
-            findHoveredPresence(),
-    );
-    const textIsSmallEnough = text.length > 0 && text.length < 900;
-
-    return Boolean(
-        hasRecentUser &&
-            textIsSmallEnough &&
-            hasNativeProfileHoverActions(labels, text),
-    );
-}
-
-function findNativePlayingPopoverRoot(element) {
-    if (!element || element.nodeType !== Node.ELEMENT_NODE) return null;
-
-    let current = element;
-    let depth = 0;
-
-    while (current && current !== document.body && depth < 10) {
-        if (isNativePlayingPopover(current)) return current;
-
-        current = current.parentElement;
-        depth += 1;
-    }
-
-    return null;
-}
-
-function findSmallestNativePlayingRootFromAction(action) {
-    let current = action;
-    let depth = 0;
-
-    while (current && current !== document.body && depth < 10) {
-        if (isNativePlayingPopover(current)) return current;
-        current = current.parentElement;
-        depth += 1;
-    }
-
-    return null;
-}
-
-function findActionElement(root, label) {
-    const wanted = label.toLowerCase();
-    const candidates = root.querySelectorAll(
-        'button, a, [role="button"], [tabindex], div, span',
-    );
-
-    return Array.from(candidates).find((candidate) => {
-        if (candidate === root) return false;
-
-        const text = normalizeText(candidate.textContent).toLowerCase();
-        if (!text || text.length > 80) return false;
-
-        return text === wanted || text.startsWith(`${wanted} `);
-    });
-}
-
-function getActionBlock(action) {
-    if (!action) return null;
-
-    let block = action;
-    let depth = 0;
-
-    while (
-        block.parentElement &&
-        block.parentElement !== document.body &&
-        depth < 3
-    ) {
-        const parent = block.parentElement;
-        const childButtons = parent.querySelectorAll('button, a, [role="button"]');
-
-        if (childButtons.length > 1) break;
-        if (parent.children.length > 3) break;
-
-        block = parent;
-        depth += 1;
-    }
-
-    return block;
-}
-
-function patchNativeRootJoinAction() {
-    return;
-}
-
-function insertNativeSubplaceCard(root, card) {
-    root.classList.add('rovalra-native-subplace-host');
-    card.classList.add('rovalra-native-subplace-card');
+function insertHomeSubplaceCard(root, card) {
+    root.classList.add('rovalra-home-subplace-host');
+    card.classList.add('rovalra-home-subplace-card');
     card.removeAttribute('style');
 
-    if (/\bis playing\b/i.test(normalizeText(root.textContent))) {
-        card.classList.add('rovalra-native-subplace-card-modern');
-    }
-
-    const viewProfileAction = findActionElement(root, 'View Profile');
-    const viewProfileBlock = getActionBlock(viewProfileAction);
-
-    if (
-        viewProfileBlock?.parentElement &&
-        root.contains(viewProfileBlock.parentElement)
-    ) {
+    const viewProfile = findActionElement(root, 'View Profile');
+    const viewProfileBlock = getActionBlock(viewProfile);
+    if (viewProfileBlock?.parentElement && root.contains(viewProfileBlock.parentElement)) {
         viewProfileBlock.after(card);
         return;
     }
 
-    const chatAction = findActionElement(root, 'Chat');
-    const chatBlock = getActionBlock(chatAction);
-
+    const chat = findActionElement(root, 'Chat');
+    const chatBlock = getActionBlock(chat);
     if (chatBlock?.parentElement && root.contains(chatBlock.parentElement)) {
         chatBlock.after(card);
         return;
     }
 
-    const joinAction = findActionElement(root, 'Join');
-    const actionBlock = getActionBlock(joinAction);
-
-    if (actionBlock?.parentElement && root.contains(actionBlock.parentElement)) {
-        actionBlock.after(card);
+    const join = findActionElement(root, 'Join');
+    const joinBlock = getActionBlock(join);
+    if (joinBlock?.parentElement && root.contains(joinBlock.parentElement)) {
+        joinBlock.after(card);
         return;
     }
 
     root.appendChild(card);
 }
 
-async function addNativePopoverSubplaceCard(root) {
-    if (!root || !document.body.contains(root)) return;
-    if (root.dataset.rovalraNativeSubplaceLoading === 'true') return;
 
-    const existingCard = root.querySelector('.rovalra-native-subplace-card');
-    if (!isNativePlayingPopover(root)) {
-        existingCard?.remove();
+function clearHomeBuildRetry(root) {
+    const state = homeBuildRetryState.get(root);
+    if (state?.timer) clearTimeout(state.timer);
+    homeBuildRetryState.delete(root);
+}
+
+function scheduleHomeBuildRetry(root) {
+    if (!root || !document.body.contains(root)) return;
+    if (!getFreshHomeContext()) return;
+
+    const state = homeBuildRetryState.get(root) || { count: 0, timer: null };
+    if (state.count >= HOME_BUILD_RETRY_DELAYS.length) return;
+
+    if (state.timer) clearTimeout(state.timer);
+    const delay = HOME_BUILD_RETRY_DELAYS[state.count];
+    state.count += 1;
+    state.timer = setTimeout(() => {
+        state.timer = null;
+        if (!document.body.contains(root) || !getFreshHomeContext()) {
+            clearHomeBuildRetry(root);
+            return;
+        }
+
+        processHomePopoverCandidate(root);
+    }, delay);
+
+    homeBuildRetryState.set(root, state);
+}
+
+async function addHomeSubplaceCard(root) {
+    if (!(await isHomeSubplaceEnabled())) return;
+    if (!root || !document.body.contains(root)) return;
+    if (!isHomeUserPopover(root)) return;
+
+    let promise = homeBuildPromises.get(root);
+    if (!promise) {
+        promise = resolveHomePopoverPresence(root);
+        homeBuildPromises.set(root, promise);
+    }
+
+    const presence = await promise;
+    homeBuildPromises.delete(root);
+
+    if (!document.body.contains(root) || !isHomeUserPopover(root)) return;
+
+    const existing = root.querySelector(':scope > .rovalra-home-subplace-card');
+    if (presence?.userPresenceType !== 2 || !presence.placeId) {
+        existing?.remove();
+        scheduleHomeBuildRetry(root);
         return;
     }
 
-    root.dataset.rovalraNativeSubplaceLoading = 'true';
+    const key = getHomePresenceKey(presence);
+    if (existing?.dataset.rovalraPresenceKey === key) return;
 
-    try {
-        const presence = await resolveNativePopoverPresence(root);
-        const existing = root.querySelector('.rovalra-native-subplace-card');
-
-        if (presence?.userPresenceType !== 2 || !presence.placeId) {
-            existing?.remove();
-            return;
-        }
-
-        if (!document.body.contains(root)) return;
-
-        const key = getPresenceCardKey(presence);
-        if (existing?.dataset.rovalraPresenceKey === key) return;
-
-        const card = await createSubplaceDetailsCard(presence);
-
-        if (!card || !document.body.contains(root)) {
-            existing?.remove();
-            return;
-        }
-
+    const card = await createSubplaceDetailsCard(presence);
+    if (!card || !document.body.contains(root) || !isHomeUserPopover(root)) {
         existing?.remove();
-        card.dataset.rovalraPresenceKey = key;
-        insertNativeSubplaceCard(root, card);
-    } finally {
-        delete root.dataset.rovalraNativeSubplaceLoading;
+        scheduleHomeBuildRetry(root);
+        return;
     }
+
+    clearHomeBuildRetry(root);
+    existing?.remove();
+    card.dataset.rovalraPresenceKey = key;
+    insertHomeSubplaceCard(root, card);
 }
 
-function processNativePopoverCandidate(candidate) {
-    const root = findNativePlayingPopoverRoot(candidate);
+function processHomePopoverCandidate(candidate) {
+    const root = findHomePopoverRoot(candidate);
     if (!root) return;
-
-    addNativePopoverSubplaceCard(root).catch(() => {});
+    addHomeSubplaceCard(root).catch(() => {});
 }
 
-function scanNativePlayingPopovers() {
-    const candidates = new Set();
+function cleanupHomeSubplaceCards() {
+    document.querySelectorAll('.rovalra-home-subplace-card').forEach((card) => {
+        const host = card.closest('.rovalra-home-subplace-host');
 
-    document.querySelectorAll(NATIVE_POPOVER_SELECTORS).forEach((element) => {
-        candidates.add(element);
+        // Roblox briefly changes hover-card size/visibility while it refreshes the
+        // popup. Removing our section during that short refresh caused the
+        // SUBPLACE block to close and rebuild when hovering the same user again.
+        // If the host is still connected, keep the card attached and let
+        // addHomeSubplaceCard replace it only when the actual presence key changes.
+        if (!host || !document.body.contains(host)) {
+            card.remove();
+            if (host) {
+                clearHomeBuildRetry(host);
+                host.classList.remove('rovalra-home-subplace-host');
+            }
+        }
+    });
+}
+
+function addHomeActionButtonCandidates(candidates) {
+    document.querySelectorAll('button, a, [role="button"]').forEach((action) => {
+        if (action.closest?.('.rovalra-home-subplace-card')) return;
+
+        const text = normalizeText(action.textContent).toLowerCase();
+        if (text !== 'join' && text !== 'chat' && text !== 'view profile') return;
+
+        const root = findHomePopoverRoot(action);
+        if (root) candidates.add(root);
+    });
+}
+
+function addHomeMutationCandidates(candidates) {
+    homeMutationPopoverCandidates.forEach((node) => {
+        if (!node || !document.body.contains(node)) {
+            homeMutationPopoverCandidates.delete(node);
+            return;
+        }
+
+        candidates.add(node);
+
+        node.querySelectorAll?.(
+            [
+                HOME_POPOVER_SELECTORS,
+                'button',
+                'a',
+                '[role="button"]',
+            ].join(','),
+        ).forEach((element) => candidates.add(element));
     });
 
-    document
-        .querySelectorAll('button, a, [role="button"], [tabindex], div, span')
-        .forEach((element) => {
-            const text = normalizeText(element.textContent).toLowerCase();
-            if (text === 'join' || text === 'view profile' || text === 'chat') {
-                const root = findSmallestNativePlayingRootFromAction(element);
-                if (root) candidates.add(root);
-            }
-        });
+    homeMutationPopoverCandidates.clear();
+}
 
-    for (const child of document.body?.children || []) {
-        if (isNativePlayingPopover(child)) {
-            candidates.add(child);
-        }
+async function scanHomePopovers() {
+    if (!(await isHomeSubplaceEnabled())) {
+        homeMutationPopoverCandidates.clear();
+        cleanupHomeSubplaceCards();
+        return;
     }
 
-    candidates.forEach(processNativePopoverCandidate);
-}
+    cleanupHomeSubplaceCards();
 
-function scheduleNativePopoverScan() {
-    nativeScanTimers.forEach((timer) => clearTimeout(timer));
-    nativeScanTimers = NATIVE_SCAN_DELAYS.map((delay) =>
-        setTimeout(scanNativePlayingPopovers, delay),
-    );
-}
+    const context = getFreshHomeContext();
+    if (!context) return;
 
-function registerNativePopoverSubplaces() {
-    if (nativeObserverRegistered) return;
+    const candidates = new Set();
+    const targetRoot = findHomePopoverRoot(context.target);
+    if (targetRoot) candidates.add(targetRoot);
 
-    nativeObserverRegistered = true;
+    addHomeMutationCandidates(candidates);
 
-    document.addEventListener('pointerover', updateRecentHoverContext, true);
-    document.addEventListener('pointermove', updateRecentHoverContext, true);
-    document.addEventListener('focusin', updateRecentHoverContext, true);
-
-    observeElement(NATIVE_POPOVER_SELECTORS, processNativePopoverCandidate, {
-        multiple: true,
+    document.querySelectorAll(HOME_POPOVER_SELECTORS).forEach((element) => {
+        if (!element.closest?.('.rovalra-home-subplace-card')) {
+            candidates.add(element);
+        }
     });
 
-    scanNativePlayingPopovers();
+    addHomeActionButtonCandidates(candidates);
+
+    candidates.forEach(processHomePopoverCandidate);
+}
+
+function scanHomePopoversSoon() {
+    if (homeScanFrame) cancelAnimationFrame(homeScanFrame);
+
+    homeScanFrame = requestAnimationFrame(() => {
+        homeScanFrame = 0;
+        scanHomePopovers().catch(() => {});
+    });
+}
+
+function scheduleHomePopoverScan() {
+    homeScanTimers.forEach((timer) => clearTimeout(timer));
+    scanHomePopoversSoon();
+    homeScanTimers = HOME_SCAN_DELAYS
+        .filter((delay) => delay > 0)
+        .map((delay) =>
+            setTimeout(() => {
+                scanHomePopovers().catch(() => {});
+            }, delay),
+        );
+}
+
+function nodeCouldContainHomePopover(node) {
+    if (!getFreshHomeContext()) return false;
+    if (!node || node.nodeType !== Node.ELEMENT_NODE) return false;
+    if (node.closest?.('.rovalra-home-subplace-card')) return false;
+
+    if (node.matches?.(HOME_POPOVER_SELECTORS)) return true;
+    if (node.querySelector?.(HOME_POPOVER_SELECTORS)) return true;
+
+    const text = normalizeText(node.textContent || '');
+    if (!text || text.length > 1200) return false;
+
+    return /\bis playing\b|\bView Profile\b|\bJoin\b/i.test(text);
+}
+
+function registerHomePopoverObserver() {
+    if (homeMutationObserver || !document.body) return;
+
+    homeMutationObserver = new MutationObserver((mutations) => {
+        for (const mutation of mutations) {
+            for (const node of mutation.addedNodes || []) {
+                if (!nodeCouldContainHomePopover(node)) continue;
+                homeMutationPopoverCandidates.add(node);
+                scheduleHomePopoverScan();
+                return;
+            }
+        }
+    });
+
+    homeMutationObserver.observe(document.body, {
+        childList: true,
+        subtree: true,
+    });
+}
+
+async function registerHomeSubplacePopovers() {
+    if (!(await isHomeSubplaceEnabled())) {
+        cleanupHomeSubplaceCards();
+        return;
+    }
+    if (homePopoverObserverRegistered) return;
+    homePopoverObserverRegistered = true;
+
+    document.addEventListener('pointerover', updateHomeHoverContext, true);
+    document.addEventListener('mouseover', updateHomeHoverContext, true);
+    document.addEventListener('focusin', updateHomeHoverContext, true);
+    registerHomePopoverObserver();
 }
 
 function getExperienceUrl(presence) {
@@ -969,7 +993,7 @@ function getExperienceUrl(presence) {
 }
 
 function getProfilePresence() {
-    const userId = Number(getUserIdFromUrl());
+    const userId = getProfileUserIdFromUrl();
     if (!userId) {
         profilePresencePromise = null;
         profilePresenceUserId = 0;
@@ -1098,7 +1122,6 @@ function isInsideIgnoredProfileArea(element) {
             [
                 '.rovalra-current-subplace-card',
                 '.rovalra-subplace-hover-card',
-                '.rovalra-native-subplace-card',
                 '.rovalra-profile-subplace-list',
                 '.game-carousel',
                 '.game-grid',
@@ -1197,19 +1220,8 @@ function hasExistingModernProfileButtonNear(target) {
 }
 
 
-async function resolveProfileStyle(target) {
-    if (isLikelyModernProfileCard(target)) {
-        return 'modern';
-    }
-
-    const selectedStyle =
-        (await settings.currentlyPlayingSubplaceProfileStyle) || 'auto';
-
-    if (selectedStyle === 'compact' || selectedStyle === 'modern') {
-        return selectedStyle;
-    }
-
-    return 'compact';
+function resolveProfileStyle(target) {
+    return isLikelyModernProfileCard(target) ? 'modern' : 'compact';
 }
 
 
@@ -1316,6 +1328,7 @@ function findLegacyChipInsertContainer() {
             return {
                 container: profileViews.parentElement,
                 anchor: profileViews,
+                headerInfo,
             };
         }
     }
@@ -1329,7 +1342,56 @@ function findLegacyChipInsertContainer() {
     return {
         container: directProfileViews.parentElement,
         anchor: directProfileViews,
+        headerInfo: null,
     };
+}
+
+
+function findProfileHeaderIdentityRoot(info) {
+    if (!info?.container) return null;
+
+    const candidates = [
+        info.headerInfo,
+        info.container.closest?.('[class*="profile-header" i]'),
+        info.container.closest?.('.user-profile-header-info'),
+        info.container.parentElement,
+    ];
+
+    return candidates.find(
+        (candidate) => candidate && candidate.nodeType === Node.ELEMENT_NODE,
+    ) || null;
+}
+
+function profileHeaderIdentityIsLoaded(info) {
+    const root = findProfileHeaderIdentityRoot(info);
+    if (!root) return false;
+
+    const text = normalizeText(root.textContent || '');
+    if (!text) return false;
+
+    // Roblox profiles always expose the @username after the header has finished
+    // hydrating. During the first loading layout only the stats/avatar are often
+    // present, which made the subplace chip reveal in the wrong spot for a few
+    // frames.
+    if (/@[A-Za-z0-9_]{3,20}\b/.test(text)) return true;
+
+    // Some localized/experimental layouts place the handle in attributes first.
+    const labelled = Array.from(root.querySelectorAll?.('[aria-label], [title]') || [])
+        .map((element) => `${element.getAttribute('aria-label') || ''} ${element.getAttribute('title') || ''}`)
+        .join(' ');
+
+    return /@[A-Za-z0-9_]{3,20}\b/.test(labelled);
+}
+
+function getProfileHeaderReadyKey(info) {
+    const root = findProfileHeaderIdentityRoot(info);
+    if (!root) return '';
+
+    const rect = getPlacementRect(root);
+    const text = normalizeText(root.textContent || '');
+    const handle = text.match(/@[A-Za-z0-9_]{3,20}\b/)?.[0] || '';
+
+    return rect ? `${rect.top}:${rect.left}:${rect.width}:${rect.height}:${handle}` : handle;
 }
 
 function getElementIndex(element) {
@@ -1348,6 +1410,14 @@ function syncLegacyChipWithAnchor(chip, anchor) {
         chip.style.minHeight = `${Math.round(rect.height)}px`;
     }
 
+    chip.style.display = 'inline-flex';
+    chip.style.alignItems = 'center';
+    chip.style.gap = '6px';
+    chip.style.width = 'fit-content';
+    chip.style.maxWidth = 'min(220px, 42vw)';
+    chip.style.margin = '0';
+    chip.style.boxSizing = 'border-box';
+    chip.style.verticalAlign = 'middle';
     chip.style.borderRadius = style.borderRadius;
     chip.style.paddingTop = style.paddingTop;
     chip.style.paddingRight = style.paddingRight;
@@ -1356,6 +1426,12 @@ function syncLegacyChipWithAnchor(chip, anchor) {
     chip.style.fontSize = style.fontSize;
     chip.style.fontWeight = style.fontWeight;
     chip.style.lineHeight = style.lineHeight;
+
+    if (style.backgroundColor) chip.style.backgroundColor = style.backgroundColor;
+    if (style.color) chip.style.color = style.color;
+    if (style.borderTopWidth && style.borderTopStyle && style.borderTopColor) {
+        chip.style.border = `${style.borderTopWidth} ${style.borderTopStyle} ${style.borderTopColor}`;
+    }
 }
 
 function getLegacyRows() {
@@ -1480,22 +1556,74 @@ function shouldKeepLegacyChipVisible(chip, anchor) {
     );
 }
 
-function scheduleLegacyChipReveal(chip, anchor) {
+function setLegacyChipPendingInlineState(chip, pending) {
+    if (!chip) return;
+
+    if (pending) {
+        chip.style.visibility = 'hidden';
+        chip.style.opacity = '0';
+        chip.style.pointerEvents = 'none';
+        return;
+    }
+
+    chip.style.removeProperty('visibility');
+    chip.style.removeProperty('opacity');
+    chip.style.removeProperty('pointer-events');
+}
+
+function setLegacyRowPendingState(chip, pending) {
+    const row = chip?.closest?.(`.${LEGACY_ROW_CLASS}`);
+    if (!row) return;
+
+    row.classList.toggle(LEGACY_ROW_PENDING_CLASS, pending);
+    row.classList.toggle(LEGACY_ROW_READY_CLASS, !pending);
+    setLegacyChipPendingInlineState(chip, pending);
+
+    if (pending) {
+        row.style.height = '0px';
+        row.style.minHeight = '0px';
+        row.style.maxHeight = '0px';
+        row.style.margin = '0px';
+        row.style.padding = '0px';
+        row.style.overflow = 'hidden';
+        row.style.visibility = 'hidden';
+        row.style.opacity = '0';
+        row.style.pointerEvents = 'none';
+        return;
+    }
+
+    row.style.removeProperty('height');
+    row.style.removeProperty('min-height');
+    row.style.removeProperty('max-height');
+    row.style.removeProperty('margin');
+    row.style.removeProperty('padding');
+    row.style.removeProperty('overflow');
+    row.style.removeProperty('visibility');
+    row.style.removeProperty('opacity');
+    row.style.removeProperty('pointer-events');
+}
+
+function scheduleLegacyChipReveal(chip, anchor, info = null) {
     if (!chip || !anchor) return;
+
+    const placementInfo = info || findLegacyChipInsertContainer();
 
     const previousFrame = Number(chip.dataset.rovalraPlacementFrame || 0);
     if (previousFrame) cancelAnimationFrame(previousFrame);
 
-    if (shouldKeepLegacyChipVisible(chip, anchor)) {
+    if (profileHeaderIdentityIsLoaded(placementInfo) && shouldKeepLegacyChipVisible(chip, anchor)) {
         delete chip.dataset.rovalraPlacementFrame;
         syncLegacyChipWithAnchor(chip, anchor);
+        setLegacyRowPendingState(chip, false);
         return;
     }
 
     chip.classList.remove(LEGACY_READY_CLASS);
     chip.classList.add(LEGACY_PENDING_CLASS);
+    setLegacyRowPendingState(chip, true);
 
     let lastAnchorRect = null;
+    let lastHeaderKey = null;
     let stableFrames = 0;
 
     const reveal = () => {
@@ -1503,12 +1631,14 @@ function scheduleLegacyChipReveal(chip, anchor) {
         syncLegacyChipWithAnchor(chip, anchor);
         chip.classList.remove(LEGACY_PENDING_CLASS);
         chip.classList.add(LEGACY_READY_CLASS);
+        setLegacyRowPendingState(chip, false);
     };
 
     const tick = () => {
         if (!chip.isConnected || !document.body.contains(anchor)) {
             delete chip.dataset.rovalraPlacementFrame;
             chip.classList.remove(LEGACY_READY_CLASS);
+            setLegacyRowPendingState(chip, true);
             return;
         }
 
@@ -1518,15 +1648,18 @@ function scheduleLegacyChipReveal(chip, anchor) {
         const currentRect = anchorRect
             ? `${anchorRect.top}:${anchorRect.left}:${anchorRect.width}:${anchorRect.height}`
             : '';
+        const headerKey = getProfileHeaderReadyKey(placementInfo);
+        const identityReady = profileHeaderIdentityIsLoaded(placementInfo);
 
-        if (currentRect && currentRect === lastAnchorRect) {
+        if (identityReady && currentRect && currentRect === lastAnchorRect && headerKey === lastHeaderKey) {
             stableFrames += 1;
         } else {
             stableFrames = 0;
             lastAnchorRect = currentRect;
+            lastHeaderKey = headerKey;
         }
 
-        if (stableFrames >= 8 && isLegacyChipPlacedUnderAnchor(chip, anchor)) {
+        if (stableFrames >= 8 && isLegacyChipAfterAnchor(chip, anchor)) {
             reveal();
             return;
         }
@@ -1537,17 +1670,23 @@ function scheduleLegacyChipReveal(chip, anchor) {
     chip.dataset.rovalraPlacementFrame = String(requestAnimationFrame(tick));
 }
 
-function insertChipAfterAnchor(container, anchor, chip) {
+function insertChipAfterAnchor(container, anchor, chip, info = null) {
     if (!container || !chip) return false;
 
     container.classList.add(LEGACY_HOST_CLASS);
 
-    const row = getLegacyRowForInfo({ container, anchor });
+    const placementInfo = info || { container, anchor, headerInfo: findProfileHeaderIdentityRoot({ container, anchor }) };
+    const row = getLegacyRowForInfo(placementInfo);
     const alreadyStable = shouldKeepLegacyChipVisible(chip, anchor);
 
     if (!alreadyStable) {
         chip.classList.remove(LEGACY_READY_CLASS);
         chip.classList.add(LEGACY_PENDING_CLASS);
+        row.classList.add(LEGACY_ROW_PENDING_CLASS);
+        row.classList.remove(LEGACY_ROW_READY_CLASS);
+    } else {
+        row.classList.remove(LEGACY_ROW_PENDING_CLASS);
+        row.classList.add(LEGACY_ROW_READY_CLASS);
     }
 
     if (anchor?.parentElement === container) {
@@ -1561,7 +1700,7 @@ function insertChipAfterAnchor(container, anchor, chip) {
     if (chip.parentElement !== row) row.appendChild(chip);
 
     syncLegacyChipWithAnchor(chip, anchor);
-    scheduleLegacyChipReveal(chip, anchor);
+    scheduleLegacyChipReveal(chip, anchor, placementInfo);
     return true;
 }
 
@@ -1570,14 +1709,24 @@ async function insertLegacyProfileSubplaceButton(target, presence) {
     const info = findLegacyChipInsertContainer(target);
     if (!info?.container || !info.anchor) return false;
 
+    if (!profileHeaderIdentityIsLoaded(info)) {
+        const existing = cleanupDuplicateLegacyChips(info);
+        if (existing) {
+            existing.classList.remove(LEGACY_READY_CLASS);
+            existing.classList.add(LEGACY_PENDING_CLASS);
+            setLegacyRowPendingState(existing, true);
+        }
+        return false;
+    }
+
     let existingInContainer = cleanupDuplicateLegacyChips(info);
 
     if (existingInContainer) {
         if (!isLegacyChipAfterAnchor(existingInContainer, info.anchor)) {
-            insertChipAfterAnchor(info.container, info.anchor, existingInContainer);
+            insertChipAfterAnchor(info.container, info.anchor, existingInContainer, info);
         } else {
             syncLegacyChipWithAnchor(existingInContainer, info.anchor);
-            scheduleLegacyChipReveal(existingInContainer, info.anchor);
+            scheduleLegacyChipReveal(existingInContainer, info.anchor, info);
         }
         cleanupDuplicateLegacyChips(info);
         return true;
@@ -1591,7 +1740,8 @@ async function insertLegacyProfileSubplaceButton(target, presence) {
 
     chip.classList.add(LEGACY_CHIP_CLASS, LEGACY_PENDING_CLASS);
     chip.removeAttribute('style');
-    insertChipAfterAnchor(info.container, info.anchor, chip);
+    setLegacyChipPendingInlineState(chip, true);
+    insertChipAfterAnchor(info.container, info.anchor, chip, info);
     cleanupDuplicateLegacyChips(info);
     return true;
 }
@@ -1620,7 +1770,7 @@ async function addLegacyProfileSubplaceChipFallback(presence) {
             insertChipAfterAnchor(info.container, info.anchor, existing);
         } else {
             syncLegacyChipWithAnchor(existing, info.anchor);
-            scheduleLegacyChipReveal(existing, info.anchor);
+            scheduleLegacyChipReveal(existing, info.anchor, info);
         }
         return;
     }
@@ -1638,6 +1788,7 @@ async function addLegacyProfileSubplaceChipFallback(presence) {
 
 
 async function addProfileSubplaceCardForTarget(target, presence) {
+    if (!(await isProfileSubplaceEnabled())) return;
     if (!presence || presence.userPresenceType !== 2 || !presence.placeId) return;
     await insertLegacyProfileSubplaceButton(target || document.body, presence);
 }
@@ -1660,6 +1811,11 @@ async function processProfileGameLinkCandidate(candidate) {
 }
 
 async function scanProfilePlayingTargets() {
+    if (!(await isProfileSubplaceEnabled())) {
+        cleanupProfileSubplaceCards();
+        return;
+    }
+
     const presence = await getProfilePresence();
     if (presence?.userPresenceType !== 2 || !presence.placeId) {
         cleanupProfileSubplaceCards();
@@ -1682,8 +1838,12 @@ async function scanProfilePlayingTargets() {
     cleanupProfileSubplaceCards();
 }
 
-function scheduleProfileScans() {
+async function scheduleProfileScans() {
     profileScanTimers.forEach((timer) => clearTimeout(timer));
+    if (!(await isProfileSubplaceEnabled())) {
+        cleanupProfileSubplaceCards();
+        return;
+    }
     profileScanTimers = PROFILE_SCAN_DELAYS.map((delay) =>
         setTimeout(() => {
             scanProfilePlayingTargets().catch(() => {});
@@ -1691,7 +1851,11 @@ function scheduleProfileScans() {
     );
 }
 
-function registerProfileFallbackSubplaces() {
+async function registerProfileFallbackSubplaces() {
+    if (!(await isProfileSubplaceEnabled())) {
+        cleanupProfileSubplaceCards();
+        return;
+    }
     if (profileFallbackObserverRegistered) return;
     profileFallbackObserverRegistered = true;
 
@@ -1714,14 +1878,29 @@ function registerProfileFallbackSubplaces() {
 
 export async function init() {
     if (!(await settings.currentlyPlayingSubplaceEnabled)) {
+        cleanupHomeSubplaceCards();
+        cleanupProfileSubplaceCards();
         return;
     }
 
-    registerNativePopoverSubplaces();
-    registerProfileFallbackSubplaces();
+    const homeEnabled = await isHomeSubplaceEnabled();
+    const profileEnabled = await isProfileSubplaceEnabled();
+
+    if (homeEnabled) {
+        await registerHomeSubplacePopovers();
+    } else {
+        cleanupHomeSubplaceCards();
+    }
+
+    if (!profileEnabled || !getProfileUserIdFromUrl()) {
+        cleanupProfileSubplaceCards();
+        return;
+    }
+
+    await registerProfileFallbackSubplaces();
 
     if (observerRegistered) {
-        scheduleProfileScans();
+        await scheduleProfileScans();
         return;
     }
 
@@ -1730,5 +1909,5 @@ export async function init() {
         multiple: true,
     });
 
-    scheduleProfileScans();
+    await scheduleProfileScans();
 }

@@ -17,7 +17,8 @@
         "topic": "Underrated Games",
         "subtitle": "Underrated games hand picked by the RoValra community.",
         "rotates": "Rotates",
-        "suggestOnDiscord": "Suggest underrated games on {{discord}}"
+        "suggestOnDiscord": "Suggest underrated games on {{discord}}",
+        "ageRestrictionWarning": "Some of these games may be locked to 16+ because of Roblox's 500 HEP requirement."
     },
     "trustedFriends": {
         "pendingConnection": "Pending Trusted Friend",
@@ -43,6 +44,11 @@
         "connectionRemoved": "Trusted Friend removed!",
         "removeFailed": "Failed to remove trusted Friend.",
         "errorRemoving": "Error Removing"
+    },
+    "chatEligibility": {
+        "canChat": "You can chat with this user.",
+        "cannotChat": "This user is outside your chat age range.",
+        "ageCheckRequired": "This user has not completed an age check."
     },
     "categorizeWearing": {
         "currentlyWearing": "Currently Wearing",
@@ -613,7 +619,16 @@
         "launching": "Launching..."
     },
     "createRoblox": {
-        "download": "Download"
+        "download": "Download",
+        "explorer": {
+            "button": "Explorer",
+            "title": "Explorer",
+            "loading": "Loading...",
+            "selectInstance": "Select an instance to view its properties",
+            "noProperties": "No properties",
+            "viewSource": "View Source",
+            "loadError": "Failed to load."
+        }
     },
     "priceFloor": {
         "label": "Price Floor:",

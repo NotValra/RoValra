@@ -1,5 +1,25 @@
 // Should not be used anymore as thumbnails.js does it well enough.
-export function createShimmerGrid(count, itemStyle = { width: '150px', height: '240px' }) {
+export function createShimmerBlock({
+    width = '100%',
+    height = '14px',
+    borderRadius = '4px',
+    className = '',
+} = {}) {
+    const shimmer = document.createElement('div');
+    shimmer.className = `thumbnail-2d-container shimmer ${className}`.trim();
+    Object.assign(shimmer.style, {
+        width,
+        height,
+        minWidth: width,
+        borderRadius,
+    });
+    return shimmer;
+}
+
+export function createShimmerGrid(
+    count,
+    itemStyle = { width: '150px', height: '240px' },
+) {
     const fragment = document.createDocumentFragment();
 
     for (let i = 0; i < count; i++) {
@@ -11,8 +31,9 @@ export function createShimmerGrid(count, itemStyle = { width: '150px', height: '
         thumb.style.cssText = `width: 100%; height: ${itemStyle.width}; margin-bottom: 8px; border-radius: 8px;`;
 
         const nameBar = document.createElement('div');
-        nameBar.className = 'thumbnail-2d-container shimmer'; 
-        nameBar.style.cssText = 'width: 90%; height: 14px; margin-top: 8px; border-radius: 4px;';
+        nameBar.className = 'thumbnail-2d-container shimmer';
+        nameBar.style.cssText =
+            'width: 90%; height: 14px; margin-top: 8px; border-radius: 4px;';
 
         card.append(thumb, nameBar);
         fragment.appendChild(card);

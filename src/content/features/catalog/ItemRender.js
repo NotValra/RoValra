@@ -60,6 +60,7 @@ let itemHoverOutfitRenderer = null;
 let startedRenderer = false;
 
 let mainRendererEnabled = false;
+let hoverPreviewEnabled = true;
 
 let selectedAnimName = 'idle';
 let accessoriesEnabled = true;
@@ -1175,6 +1176,7 @@ function customAnimate() {
 
     //current hovered item logic
     if (
+        hoverPreviewEnabled &&
         currentHoveredItemElement &&
         currentHoveredItemThumbElement &&
         !currentlyLoadingAssets &&
@@ -1196,13 +1198,14 @@ function customAnimate() {
     }
 
     if (
+        hoverPreviewEnabled &&
         currentHoveredItemElement &&
         currentHoveredItemFrames === HOVER_FRAME_TIME
     ) {
         loadCurrentHoveredItem();
     }
 
-    if (currentHoveredItemElement) {
+    if (hoverPreviewEnabled && currentHoveredItemElement) {
         currentHoveredItemFrames += 1;
     }
 
@@ -1220,6 +1223,7 @@ function customAnimate() {
 
     //loading icon
     if (
+        hoverPreviewEnabled &&
         currentHoveredItemElement &&
         currentHoveredItemFrames >= HOVER_FRAME_TIME &&
         (currentlyLoadingAssets || currentHoveredItemLoading)
@@ -1307,6 +1311,7 @@ async function asyncInit() {
         chrome.storage.local.get(
             {
                 marketplace3DRenderEnvironment: selectedRenderEnvironmentMode,
+                marketplace3DRenderHoverPreviewDisabled: false,
             },
             (data) => {
                 const modeExists = renderEnvironmentModeValues.has(
@@ -1315,6 +1320,8 @@ async function asyncInit() {
                 selectedRenderEnvironmentMode = modeExists
                     ? data.marketplace3DRenderEnvironment
                     : 'default';
+                hoverPreviewEnabled =
+                    !data.marketplace3DRenderHoverPreviewDisabled;
                 resolve();
             },
         );
@@ -1474,6 +1481,8 @@ async function asyncInit() {
 
             if (itemLinkElement && itemThumbContainer) {
                 itemThumbContainer.addEventListener('mouseenter', () => {
+                    if (!hoverPreviewEnabled) return;
+
                     currentHoveredItemElement = element;
                     currentHoveredItemThumbElement = itemThumbContainer;
                     currentHoveredItemLink = itemLinkElement.href;
@@ -1528,6 +1537,8 @@ async function asyncInit() {
                 itemThumbContainerContainer.addEventListener(
                     'mouseenter',
                     () => {
+                        if (!hoverPreviewEnabled) return;
+
                         currentHoveredItemElement = element;
                         currentHoveredItemThumbElement =
                             itemThumbContainerContainer;
@@ -1561,6 +1572,22 @@ async function asyncInit() {
 }
 
 export function init() {
+    chrome.storage.onChanged.addListener((changes, areaName) => {
+        if (
+            areaName !== 'local' ||
+            !changes.marketplace3DRenderHoverPreviewDisabled
+        ) {
+            return;
+        }
+
+        hoverPreviewEnabled =
+            !changes.marketplace3DRenderHoverPreviewDisabled.newValue;
+        if (!hoverPreviewEnabled) {
+            removeCurrentHoveredItemData();
+            itemHoverScene.noRect();
+        }
+    });
+
     //disable main renderer on pages that dont use it
     if (
         !window.location.href.includes('/catalog') &&

@@ -5,10 +5,18 @@ import {
 } from '../../thumbnail/thumbnails';
 import { callRobloxApiJson } from '../../api';
 import { getAssets } from '../../assets';
+import { settings } from '../../settings/getSettings.js';
 import {
     attachSubplaceCardToPresenceTarget,
     clearSubplaceCardFromPresenceTarget,
 } from './subplaceCard.js';
+
+async function isSubplaceHoverCardEnabled() {
+    return (
+        (await settings.currentlyPlayingSubplaceEnabled) !== false &&
+        (await settings.currentlyPlayingSubplaceHomeEnabled) !== false
+    );
+}
 
 const presenceQueue = {
     pendingIds: new Set(),
@@ -100,7 +108,13 @@ export function updateUserCardPresence(
             sublabel.style.fontSize = '9.6px';
         }
         if (presenceType === 2 && gameName && presenceData) {
-            attachSubplaceCardToPresenceTarget(sublabel, presenceData);
+            isSubplaceHoverCardEnabled()
+                .then((enabled) => {
+                    if (enabled && sublabel.isConnected) {
+                        attachSubplaceCardToPresenceTarget(sublabel, presenceData);
+                    }
+                })
+                .catch(() => {});
         }
     }
 }
@@ -212,10 +226,16 @@ export function createUserCard({
 
     if (presenceInfo === 2 && gameName && presenceData) {
         const sublabel = tileContainer.querySelector('.user-card-subname');
-        if (sublabel)
-            attachSubplaceCardToPresenceTarget(sublabel, presenceData);
+        if (sublabel) {
+            isSubplaceHoverCardEnabled()
+                .then((enabled) => {
+                    if (enabled && sublabel.isConnected) {
+                        attachSubplaceCardToPresenceTarget(sublabel, presenceData);
+                    }
+                })
+                .catch(() => {});
+        }
     }
-
     return tileContainer;
 }
 

@@ -188,6 +188,7 @@ export async function fetchServerRegion(placeId, serverId, options = {}) {
             ? {
                   placeId: parseInt(placeId),
                   accessCode: options.accessCode,
+                  linkCode: options.linkCode,
                   gameJoinAttemptId: createUUID(),
               }
             : {

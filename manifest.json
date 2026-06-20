@@ -1,31 +1,50 @@
 {
     "manifest_version": 3,
     "name": "RoValra - Roblox Improved",
-    "version": "2.5.5",
+    "version": "2.5.6",
     "description": "An extension aiming to provide features that other Roblox extensions paywall!",
     "content_scripts": [
         {
-            "matches": ["*://*.roblox.com/*"],
-            "js": ["intercept.js"],
+            "matches": [
+                "*://*.roblox.com/*"
+            ],
+            "js": [
+                "intercept.js"
+            ],
             "run_at": "document_start",
             "world": "MAIN",
             "all_frames": false
         },
         {
-            "matches": ["*://*.roblox.com/*"],
-            "js": ["public/Assets/data/serverid_extractor.js"],
+            "matches": [
+                "*://*.roblox.com/*"
+            ],
+            "js": [
+                "public/Assets/data/serverid_extractor.js"
+            ],
             "run_at": "document_start",
             "world": "MAIN"
         },
         {
-            "matches": ["*://*.roblox.com/*"],
-            "js": ["content.js"],
-            "css": ["css/sitewide.css", "css/rovalra.css"],
+            "matches": [
+                "*://*.roblox.com/*"
+            ],
+            "js": [
+                "content.js"
+            ],
+            "css": [
+                "css/sitewide.css",
+                "css/rovalra.css"
+            ],
             "run_at": "document_start",
             "all_frames": true
         }
     ],
-    "permissions": ["declarativeNetRequest", "storage", "scripting"],
+    "permissions": [
+        "declarativeNetRequest",
+        "storage",
+        "scripting"
+    ],
     "host_permissions": [
         "https://games.roblox.com/*",
         "*://*.roblox.com/*",
@@ -36,7 +55,11 @@
     "background": {
         "service_worker": "background.js"
     },
-    "optional_permissions": ["webNavigation", "contextMenus", "webRequest"],
+    "optional_permissions": [
+        "webNavigation",
+        "contextMenus",
+        "webRequest"
+    ],
     "declarative_net_request": {
         "rule_resources": [
             {
@@ -62,7 +85,10 @@
                 "assets/*",
                 "css/*"
             ],
-            "matches": ["https://www.roblox.com/*", "*://*.roblox.com/*"]
+            "matches": [
+                "https://www.roblox.com/*",
+                "*://*.roblox.com/*"
+            ]
         }
     ],
     "action": {

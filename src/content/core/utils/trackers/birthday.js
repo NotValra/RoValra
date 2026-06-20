@@ -166,6 +166,18 @@ export async function isAuthenticatedUserBelow13(forceRefresh = false) {
     return trackedData?.isBelow13 !== false;
 }
 
+export async function isAuthenticatedUserUnder16OrNotAgeChecked(
+    forceRefresh = false,
+) {
+    const trackedData = await updateBirthdayTracker(forceRefresh);
+    return (
+        trackedData?.isAgeChecked !== true ||
+        trackedData?.age === null ||
+        trackedData?.age === undefined ||
+        trackedData.age < 16
+    );
+}
+
 export async function init() {
     await updateBirthdayTracker();
 }

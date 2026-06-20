@@ -1,5 +1,5 @@
 import { getPlaceDetails } from '../../apis/games.js';
-import { performJoinAction } from '../../preferredregion.js';
+import { getSavedPreferredRegion, performJoinAction } from '../../preferredregion.js';
 import { followUser, launchGame } from '../../utils/launcher.js';
 import { getBatchThumbnails } from '../../thumbnail/thumbnails.js';
 
@@ -163,7 +163,26 @@ export async function joinRootPlaceClosestWithRovalraJoinApi(place, presence) {
 
     if (!rootPlaceId) return;
 
-    await performJoinAction(rootPlaceId, ids.universeId || null, null);
+    const savedRegion = await getSavedPreferredRegion().catch(() => 'AUTO');
+    const preferredRegionCode =
+        savedRegion && savedRegion !== 'AUTO' ? savedRegion : null;
+
+    await performJoinAction(
+        rootPlaceId,
+        ids.universeId || null,
+        preferredRegionCode,
+    );
+}
+
+export function joinRootPlaceNormally(place, presence) {
+    const ids = getJoinIds(place, presence);
+    const rootPlaceId = normalizeId(
+        place?.rootPlaceId || presence?.rootPlaceId || ids.placeId,
+    );
+
+    if (!rootPlaceId) return;
+
+    launchGame(rootPlaceId);
 }
 
 export async function joinSubplacePersonInstance(place, presence) {
@@ -339,19 +358,22 @@ export function attachSubplaceCardToPresenceTarget(
         if (immediate) {
             cardToRemove.remove();
             cardToRemove.classList.remove(
+                'rovalra-subplace-hover-card-visible',
                 'rovalra-subplace-hover-card-leaving',
             );
             return;
         }
 
+        cardToRemove.classList.remove('rovalra-subplace-hover-card-visible');
         cardToRemove.classList.add('rovalra-subplace-hover-card-leaving');
         removeTimer = setTimeout(() => {
             cardToRemove.remove();
             cardToRemove.classList.remove(
+                'rovalra-subplace-hover-card-visible',
                 'rovalra-subplace-hover-card-leaving',
             );
             if (!card) removeTimer = null;
-        }, 140);
+        }, 190);
     };
 
     const scheduleHide = () => {
@@ -372,6 +394,7 @@ export function attachSubplaceCardToPresenceTarget(
             clearTimeout(hideTimer);
             clearRemoveTimer();
             card?.classList.remove('rovalra-subplace-hover-card-leaving');
+            card?.classList.add('rovalra-subplace-hover-card-visible');
         });
         card.addEventListener('mouseleave', () => {
             isPointerOnCard = false;
@@ -384,6 +407,7 @@ export function attachSubplaceCardToPresenceTarget(
 
         clearRemoveTimer();
         nextCard.classList.remove('rovalra-subplace-hover-card-leaving');
+        nextCard.classList.remove('rovalra-subplace-hover-card-visible');
 
         if (card && card !== nextCard) {
             removeCard({ immediate: true });
@@ -396,6 +420,12 @@ export function attachSubplaceCardToPresenceTarget(
         if (options.className) card.classList.add(options.className);
         document.body.appendChild(card);
         positionCard(target, card);
+        void nextCard.offsetWidth;
+        requestAnimationFrame(() => {
+            if (card === nextCard) {
+                nextCard.classList.add('rovalra-subplace-hover-card-visible');
+            }
+        });
         bindCardHover();
     };
 
@@ -577,7 +607,11 @@ export async function createProfileSubplaceListCard(presence) {
         thumbnail: icons.get(rootPlaceId),
         placeId: rootPlaceId,
         universeId: subplace.universeId || presence.universeId || null,
-        onClick: () => joinSubplacePersonInstance(subplace, presence),
+        onClick: () =>
+            joinRootPlaceClosestWithRovalraJoinApi(
+                { ...subplace, placeId: rootPlaceId, rootPlaceId },
+                presence,
+            ),
     });
 
     const subplaceRow = createProfileRow({

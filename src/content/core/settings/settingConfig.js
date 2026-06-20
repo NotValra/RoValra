@@ -65,11 +65,27 @@ export const SETTINGS_CONFIG = {
 
                 experimental:
                     'This feature may cause performance issues. And may be buggy',
+                childSettings: {
+                    marketplace3DRenderHoverPreviewDisabled: {
+                        label: 'Disable Hover Preview',
+                        description:
+                            'Disables the 3D try-on preview when hovering over marketplace items.',
+                        type: 'checkbox',
+                        default: false,
+                    },
+                },
             },
             EnableRobuxAfterPurchase: {
                 label: 'Robux After Purchase',
                 description:
                     "This feature restores the 'Your balance after this transaction will be X' text to the new Roblox purchase UI after it was removed.",
+                type: 'checkbox',
+                default: true,
+            },
+            bonusItemEnabled: {
+                label: 'Robux Purchase Bonus Item Selector',
+                description:
+                    'Adds a bonus item selector to eligible Robux purchases of 2,000 Robux or more.',
                 type: 'checkbox',
                 default: true,
             },
@@ -193,6 +209,7 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
+                contributors: ['447170745', '8345351117'],
                 childSettings: {
                     AlwaysGetInfo: {
                         label: 'Always Get Server Info',
@@ -551,39 +568,13 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
-            currentlyPlayingSubplaceEnabled: {
-                label: 'Currently Playing Subplace',
+            chatEligibilityTooltipEnabled: {
+                label: 'Chat Eligibility Tooltip',
                 description: [
-                    'Shows the exact subplace a user is playing on their profile, RoValra user cards, and Roblox profile hover cards.',
-                    'Uses Roblox place details instead of scanning game servers.',
+                    'Shows if you can or cannot chat with a friend or if they havent done an age check when hovering over the chat button on their profile.',
                 ],
                 type: 'checkbox',
                 default: true,
-                childSettings: {
-                    currentlyPlayingSubplaceProfileStyle: {
-                        label: 'Profile Subplace Display',
-                        description: [
-                            'Choose where the subplace appears on profile pages.',
-                            '**Automatic** uses a hover button under the modern profile game card, and falls back to a compact chip beside Profile Views on older profiles.',
-                        ],
-                        type: 'select',
-                        default: 'auto',
-                        options: [
-                            {
-                                label: 'Automatic',
-                                value: 'auto',
-                            },
-                            {
-                                label: 'Modern hover button',
-                                value: 'modern',
-                            },
-                            {
-                                label: 'Legacy Profile Views chip',
-                                value: 'compact',
-                            },
-                        ],
-                    },
-                },
             },
             userSniperEnabled: {
                 label: 'Instant Joiner',
@@ -995,6 +986,34 @@ export const SETTINGS_CONFIG = {
                         label: 'Show Home Layout Button',
                         description: [
                             'Adds the RoValra Layout button to the Home page.',
+                        ],
+                        type: 'checkbox',
+                        default: true,
+                    },
+                },
+            },
+            currentlyPlayingSubplaceEnabled: {
+                label: 'Currently Playing Subplace',
+                description: [
+                    'Master toggle for showing the exact subplace and rootplace a user is playing.',
+                    'Turn this off to disable both the home subplace UI and the profile subplace UI.',
+                ],
+                type: 'checkbox',
+                default: true,
+                contributors: ['10646979010'],
+                childSettings: {
+                    currentlyPlayingSubplaceHomeEnabled: {
+                        label: 'Home Subplace',
+                        description: [
+                            'Shows the subplace section inside Roblox home/friends cards.',
+                        ],
+                        type: 'checkbox',
+                        default: true,
+                    },
+                    currentlyPlayingSubplaceProfileEnabled: {
+                        label: 'Profile Page Subplace',
+                        description: [
+                            'Shows the subplace UI and details on profile pages.',
                         ],
                         type: 'checkbox',
                         default: true,
@@ -1497,6 +1516,15 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: false,
                 requiredPermissions: ['webNavigation'],
+            },
+            ExplorerEnabled: {
+                label: 'Explorer',
+                description: [
+                    'Adds an Explorer button on item pages and your experiences.',
+                ],
+                type: 'checkbox',
+                default: true,
+                contributors: ['9502859424'],
             },
             Customfont: {
                 label: 'Custom font',

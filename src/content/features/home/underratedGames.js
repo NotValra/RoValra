@@ -8,7 +8,10 @@ import { t } from '../../core/locale/i18n.js';
 import { observeElement } from '../../core/observer.js';
 import { settings } from '../../core/settings/getSettings.js';
 import { createInteractiveTimestamp } from '../../core/ui/time/time.js';
-import { isAuthenticatedUser13PlusAndAgeChecked } from '../../core/utils/trackers/birthday.js';
+import {
+    isAuthenticatedUser13PlusAndAgeChecked,
+    isAuthenticatedUserUnder16OrNotAgeChecked,
+} from '../../core/utils/trackers/birthday.js';
 
 const UNDERRATED_GAMES_TOPIC_ID = 10000013058;
 const UNDERRATED_GAMES_SUB_ID = 'rovalra-underrated-games';
@@ -19,6 +22,8 @@ const DEFAULT_LOCALE = {
     subtitle: 'Underrated games hand picked by the RoValra community.',
     rotates: 'Rotates',
     suggestOnDiscord: `Suggest underrated games on ${DISCORD_MARKER}`,
+    ageRestrictionWarning:
+        "Some of these games may be locked to 16+ because of Roblox's 500 HEP requirement.",
 };
 const ROTATION_MARKER = '__ROVALRA_UNDERRATED_GAMES_ROTATION__';
 
@@ -28,7 +33,10 @@ let underratedGamesByUniverseId = new Map();
 const maturitySummaryPromises = new Map();
 
 async function getUnderratedGamesLocale() {
-    const is13Plus = await isAuthenticatedUser13PlusAndAgeChecked();
+    const [is13Plus, showAgeRestrictionWarning] = await Promise.all([
+        isAuthenticatedUser13PlusAndAgeChecked(),
+        isAuthenticatedUserUnder16OrNotAgeChecked(),
+    ]);
     try {
         return {
             topic: await t('underratedGames.topic'),
@@ -37,10 +45,14 @@ async function getUnderratedGamesLocale() {
             suggestOnDiscord: await t('underratedGames.suggestOnDiscord', {
                 discord: DISCORD_MARKER,
             }),
+            ageRestrictionWarning: await t(
+                'underratedGames.ageRestrictionWarning',
+            ),
             is13Plus,
+            showAgeRestrictionWarning,
         };
     } catch {
-        return { ...DEFAULT_LOCALE, is13Plus };
+        return { ...DEFAULT_LOCALE, is13Plus, showAgeRestrictionWarning };
     }
 }
 
@@ -48,6 +60,10 @@ function createUnderratedGamesSubtitle(locale) {
     let subtitle = locale.subtitle;
     if (rotationExpiresAt) {
         subtitle += ` ${locale.rotates} ${ROTATION_MARKER}`;
+    }
+
+    if (locale.showAgeRestrictionWarning) {
+        subtitle += `\n${locale.ageRestrictionWarning}`;
     }
 
     if (locale.is13Plus) {

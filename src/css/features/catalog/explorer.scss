@@ -1,0 +1,349 @@
+// Studio-style explorer, themed to match the RoValra overlay it sits in.
+.rovalra-explorer {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+    height: 60vh;
+    min-height: 340px;
+    font-size: 13px;
+    font-family: 'Source Sans Pro', Arial, sans-serif;
+
+    --rovalra-exp-bg: var(--rovalra-overlay-bg, #fff);
+    --rovalra-exp-border: var(--rovalra-overlay-border, #d9dadb);
+    --rovalra-exp-text: var(--rovalra-overlay-text, #191b1d);
+    --rovalra-exp-muted: rgba(127, 127, 127, 0.9);
+    --rovalra-exp-hover: rgba(127, 127, 127, 0.14);
+    --rovalra-exp-selected: rgba(0, 132, 255, 0.22);
+    --rovalra-exp-header: rgba(127, 127, 127, 0.12);
+}
+
+.rovalra-explorer-tree,
+.rovalra-explorer-props {
+    min-width: 0;
+    overflow: auto;
+    background: var(--rovalra-exp-bg);
+    color: var(--rovalra-exp-text);
+    border: 1px solid var(--rovalra-exp-border);
+    border-radius: 4px;
+    user-select: none;
+}
+
+.rovalra-explorer-tree {
+    flex: 1 1 55%;
+    padding: 4px 0;
+}
+
+.rovalra-explorer-props {
+    flex: 1 1 45%;
+}
+
+.rovalra-explorer-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 1px 8px 1px 0;
+    cursor: pointer;
+    white-space: nowrap;
+
+    &:hover {
+        background: var(--rovalra-exp-hover);
+    }
+
+    &.selected {
+        background: var(--rovalra-exp-selected);
+    }
+}
+
+.rovalra-explorer-toggle {
+    display: inline-block;
+    width: 18px;
+    text-align: center;
+    flex-shrink: 0;
+    font-size: 14px;
+    line-height: 1;
+    color: var(--rovalra-exp-text);
+}
+
+.rovalra-explorer-icon {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+}
+
+.rovalra-explorer-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.rovalra-explorer-count {
+    margin-left: 6px;
+    font-size: 11px;
+    color: var(--rovalra-exp-muted);
+}
+
+.rovalra-explorer-props-header {
+    position: sticky;
+    top: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    font-weight: 700;
+    padding: 6px 8px;
+    background: var(--rovalra-exp-header);
+    border-bottom: 1px solid var(--rovalra-exp-border);
+    word-break: break-word;
+}
+
+.rovalra-explorer-props-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.rovalra-explorer-source-btn {
+    flex-shrink: 0;
+    padding: 2px 10px;
+    border: 1px solid var(--rovalra-exp-border);
+    border-radius: 4px;
+    background: rgba(0, 132, 255, 0.15);
+    color: inherit;
+    font-size: 12px;
+    cursor: pointer;
+
+    &:hover {
+        background: rgba(0, 132, 255, 0.3);
+    }
+}
+
+.rovalra-explorer-copyable {
+    cursor: text;
+    border-radius: 3px;
+    user-select: text; // overrides the panel's user-select:none so values select
+
+    &:hover {
+        background: rgba(127, 127, 127, 0.12);
+    }
+}
+
+// Code view: dark editor look with a line-number gutter and syntax colours.
+.rovalra-explorer-source {
+    display: flex;
+    align-items: flex-start;
+    max-height: 72vh;
+    overflow: auto;
+    background: #1e1f22;
+    color: #cdd0d6;
+    border-radius: 4px;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 12.5px;
+    line-height: 1.55;
+    tab-size: 4;
+    user-select: text;
+}
+
+.rovalra-explorer-source-gutter {
+    flex-shrink: 0;
+    position: sticky;
+    left: 0;
+    padding: 12px 10px;
+    text-align: right;
+    white-space: pre;
+    color: #6a6f78;
+    background: #1a1b1e;
+    border-right: 1px solid #2c2e33;
+    user-select: none;
+}
+
+.rovalra-explorer-code {
+    display: block;
+    padding: 12px;
+    white-space: pre;
+
+    .tok-comment {
+        color: #7f848e;
+        font-style: italic;
+    }
+    .tok-string {
+        color: #98c379;
+    }
+    .tok-number {
+        color: #d19a66;
+    }
+    .tok-keyword {
+        color: #c678dd;
+    }
+    .tok-op {
+        color: #56b6c2;
+    }
+}
+
+.rovalra-explorer-props-empty {
+    color: var(--rovalra-exp-muted);
+    padding: 12px;
+}
+
+.rovalra-explorer-prop-group {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    font-weight: 600;
+    background: var(--rovalra-exp-header);
+    border-bottom: 1px solid var(--rovalra-exp-border);
+    cursor: pointer;
+}
+
+.rovalra-explorer-prop-group-arrow {
+    display: inline-block;
+    width: 14px;
+    font-size: 13px;
+    line-height: 1;
+    color: var(--rovalra-exp-text);
+}
+
+.rovalra-explorer-prop-row {
+    display: flex;
+    gap: 8px;
+    padding: 2px 8px 2px 24px;
+    border-bottom: 1px solid rgba(127, 127, 127, 0.12);
+}
+
+.rovalra-explorer-prop-name {
+    flex: 0 0 42%;
+    color: var(--rovalra-exp-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.rovalra-explorer-prop-value {
+    flex: 1 1 58%;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+
+    span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+}
+
+.rovalra-explorer-color-swatch {
+    flex-shrink: 0;
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+}
+
+// Link to the asset page for id-like values (textures, sounds, meshes…).
+.rovalra-explorer-asset-link {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    color: inherit;
+    opacity: 0.7;
+
+    &:hover {
+        opacity: 1;
+    }
+}
+
+.rovalra-explorer-asset-link-icon {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    background-color: currentColor;
+}
+
+// Catalog: mirror BTRoblox — buttons row in the item header, left of the cart.
+.rovalra-explorer-buttons {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    padding-top: 12px;
+}
+
+.rovalra-explorer-header-btn {
+    position: relative;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 30px !important;
+    height: 30px !important;
+    min-width: 30px !important;
+    max-width: 30px !important;
+    min-height: 30px !important;
+    max-height: 30px !important;
+    box-sizing: border-box;
+    padding: 0 !important;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    line-height: 0 !important;
+    overflow: hidden;
+
+    &:hover {
+        background: rgba(127, 127, 127, 0.18);
+    }
+}
+
+.rovalra-explorer-header-icon {
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 25px;
+    height: 25px;
+    flex-shrink: 0;
+    transform: translate(-50%, -50%);
+    background-color: currentColor;
+}
+
+// Experience pages: icon-only context menu button.
+.rovalra-explorer-game-btn {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 30px !important;
+    height: 30px !important;
+    min-width: 30px !important;
+    max-width: 30px !important;
+    min-height: 30px !important;
+    max-height: 30px !important;
+    box-sizing: border-box;
+    padding: 5px !important;
+    border: none;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    line-height: 0 !important;
+}
+
+.rovalra-explorer-game-icon {
+    display: block;
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    background-color: currentColor;
+}
+
+.rovalra-explorer-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 60vh;
+    min-height: 340px;
+    box-sizing: border-box;
+    padding: 32px;
+    text-align: center;
+    color: var(--rovalra-exp-muted);
+}
