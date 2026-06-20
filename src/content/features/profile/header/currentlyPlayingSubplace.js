@@ -90,8 +90,7 @@ function getProfileUserIdFromUrl() {
         const id = Number(match?.[1]);
         if (Number.isFinite(id) && id > 0) return id;
     } catch {
-        // Keep profile detection best-effort; failing here should only disable
-        // the profile-only scanners, not the home hover-card feature.
+
     }
 
     return 0;
@@ -368,11 +367,6 @@ function getFreshHomeContext() {
 }
 
 function isIgnoredHomeHoverArea(element) {
-    // Only ignore our own injected UI here. The old perf fix also ignored broad
-    // Roblox containers such as .game-carousel/.game-grid, but friends/home
-    // avatar tiles can live inside those same wrappers. That prevented the
-    // hover context from starting until the mouse entered the already-open
-    // Roblox popup, so the SUBPLACE section appeared late.
     return Boolean(
         element?.closest?.(
             [
@@ -840,11 +834,6 @@ function cleanupHomeSubplaceCards() {
     document.querySelectorAll('.rovalra-home-subplace-card').forEach((card) => {
         const host = card.closest('.rovalra-home-subplace-host');
 
-        // Roblox briefly changes hover-card size/visibility while it refreshes the
-        // popup. Removing our section during that short refresh caused the
-        // SUBPLACE block to close and rebuild when hovering the same user again.
-        // If the host is still connected, keep the card attached and let
-        // addHomeSubplaceCard replace it only when the actual presence key changes.
         if (!host || !document.body.contains(host)) {
             card.remove();
             if (host) {
@@ -1369,13 +1358,8 @@ function profileHeaderIdentityIsLoaded(info) {
     const text = normalizeText(root.textContent || '');
     if (!text) return false;
 
-    // Roblox profiles always expose the @username after the header has finished
-    // hydrating. During the first loading layout only the stats/avatar are often
-    // present, which made the subplace chip reveal in the wrong spot for a few
-    // frames.
     if (/@[A-Za-z0-9_]{3,20}\b/.test(text)) return true;
 
-    // Some localized/experimental layouts place the handle in attributes first.
     const labelled = Array.from(root.querySelectorAll?.('[aria-label], [title]') || [])
         .map((element) => `${element.getAttribute('aria-label') || ''} ${element.getAttribute('title') || ''}`)
         .join(' ');
