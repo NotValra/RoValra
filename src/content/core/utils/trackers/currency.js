@@ -1,8 +1,39 @@
 import { callRobloxApiJson } from '../../api';
 import { getAuthenticatedUserId } from '../../user';
 
+export const USER_CURRENCY_CHANGED_EVENT = 'rovalra:user-currency-changed';
+
 const currencyCache = new Map();
 const activeCurrencyRequests = new Map();
+let currencyTrackingInitialized = false;
+
+function emitCurrencyChange(userId, currencyData) {
+    document.dispatchEvent(
+        new CustomEvent(USER_CURRENCY_CHANGED_EVENT, {
+            detail: {
+                userId: String(userId),
+                currencyData,
+            },
+        }),
+    );
+}
+
+export async function setCachedUserCurrency(userId, currencyData) {
+    const targetId = userId || (await getAuthenticatedUserId());
+    if (!targetId || !currencyData) return null;
+
+    const robux = Number(currencyData.robux);
+    if (!Number.isFinite(robux)) return null;
+
+    const data = {
+        robux,
+        lastChecked: Number(currencyData.lastChecked) || Date.now(),
+    };
+
+    currencyCache.set(String(targetId), data);
+    emitCurrencyChange(targetId, data);
+    return data;
+}
 
 export async function updateUserCurrency(userId) {
     const targetId = userId || (await getAuthenticatedUserId());
@@ -36,7 +67,7 @@ export async function updateUserCurrency(userId) {
                 lastChecked: Date.now(),
             };
 
-            currencyCache.set(key, currencyData);
+            await setCachedUserCurrency(targetId, currencyData);
             return currencyData;
         } catch (error) {
             console.error('RoValra: Failed to update user currency', error);
@@ -72,5 +103,7 @@ export async function getCachedUserCurrency(userId) {
 }
 
 export function initUserCurrencyTracking() {
+    if (currencyTrackingInitialized) return;
+    currencyTrackingInitialized = true;
     getUserCurrency();
 }
