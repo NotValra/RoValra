@@ -126,6 +126,14 @@ export const SETTINGS_CONFIG = {
                 default: true,
                 contributors: ['4866259395', '447170745'],
             },
+            lastEquippedEnabled: {
+                label: 'Last Equipped on Item Pages',
+                description:
+                    'Shows when you last equipped an item on item pages.',
+                type: 'checkbox',
+                default: true,
+                contributors: ['4866259395', '447170745'],
+            },
             itemTradingEnabled: {
                 label: 'Item Trading Info',
                 description: [
