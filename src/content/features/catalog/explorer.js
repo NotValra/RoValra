@@ -309,6 +309,73 @@ function asColorSwatch(value) {
     return null;
 }
 
+function isColorSequence(value) {
+    if (!Array.isArray(value) || value.length === 0) return false;
+    return value.every(kp =>
+        kp && typeof kp === 'object' &&
+        typeof kp.Time === 'number' &&
+        kp.Value && typeof kp.Value === 'object' &&
+        'r' in kp.Value && 'g' in kp.Value && 'b' in kp.Value
+    );
+}
+
+function isNumberSequence(value) {
+    if (!Array.isArray(value) || value.length === 0) return false;
+    return value.every(kp =>
+        kp && typeof kp === 'object' &&
+        typeof kp.Time === 'number' &&
+        typeof kp.Value === 'number'
+    );
+}
+
+function buildColorSequenceGradient(value) {
+    const stops = value.map(kp => {
+        const pct = (kp.Time || 0) * 100;
+        const to255 = (c) => Math.round(c <= 1 ? c * 255 : c);
+        const color = `rgb(${to255(kp.Value.r)}, ${to255(kp.Value.g)}, ${to255(kp.Value.b)})`;
+        return `${color} ${pct}%`;
+    });
+    return `linear-gradient(90deg, ${stops.join(', ')})`;
+}
+
+function buildNumberSequenceSvg(value, width = 150, height = 18) {
+    let min = Infinity, max = -Infinity;
+    for (const kp of value) {
+        if (kp.Value < min) min = kp.Value;
+        if (kp.Value > max) max = kp.Value;
+    }
+    if (min === max) { min -= 1; max += 1; }
+
+    const pts = value.map(kp => {
+        const x = (kp.Time || 0) * width;
+        const y = height - ((kp.Value - min) / (max - min)) * (height - 4) - 2;
+        return `${x.toFixed(2)},${y.toFixed(2)}`;
+    });
+
+    const ns = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(ns, 'svg');
+    svg.setAttribute('width', '100%');
+    svg.setAttribute('height', '100%');
+    svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+    svg.setAttribute('preserveAspectRatio', 'none');
+    svg.style.display = 'block';
+
+    const polygon = document.createElementNS(ns, 'polygon');
+    polygon.setAttribute('points', `0,${height} ${pts.join(' ')} ${width},${height}`);
+    polygon.setAttribute('fill', 'rgba(100, 170, 255, 0.25)');
+    svg.appendChild(polygon);
+
+    const polyline = document.createElementNS(ns, 'polyline');
+    polyline.setAttribute('points', pts.join(' '));
+    polyline.setAttribute('fill', 'none');
+    polyline.setAttribute('stroke', 'rgb(120, 190, 255)');
+    polyline.setAttribute('stroke-width', '1.5');
+    polyline.setAttribute('vector-effect', 'non-scaling-stroke');
+    svg.appendChild(polyline);
+
+    return svg;
+}
+
 // --- BEGIN SCREENGUI VIEWER LOGIC ---
 
 function robloxColorToCss(color, alpha = 1) {
@@ -348,9 +415,15 @@ function getTintFilter(color) {
     return `url(#${id})`;
 }
 
-function buildUIGradient(g) {
-    const rot = (g.Rotation || 0) + 90;
+function buildUIGradient(g, baseColor = null, elementTransparency = 0) {
+    const rot = 90 - (g.Rotation || 0);
     const stops = [];
+    const base = baseColor || { r: 1, g: 1, b: 1 };
+    const baseR = base.r <= 1 ? base.r : base.r / 255;
+    const baseG = base.g <= 1 ? base.g : base.g / 255;
+    const baseB = base.b <= 1 ? base.b : base.b / 255;
+    const elementOpacity = 1 - (elementTransparency || 0);
+
     if (Array.isArray(g.Color) && g.Color.length > 0) {
         for (const kp of g.Color) {
             const pct = (kp.Time || 0) * 100;
@@ -369,7 +442,15 @@ function buildUIGradient(g) {
                     transp = prev.Value;
                 }
             }
-            stops.push(`${robloxColorToCss(kp.Value, 1 - transp)} ${pct}%`);
+            const gradientOpacity = 1 - transp;
+            const finalOpacity = elementOpacity * gradientOpacity;
+
+            const r = (kp.Value.r <= 1 ? kp.Value.r : kp.Value.r / 255) * baseR;
+            const grn = (kp.Value.g <= 1 ? kp.Value.g : kp.Value.g / 255) * baseG;
+            const bl = (kp.Value.b <= 1 ? kp.Value.b : kp.Value.b / 255) * baseB;
+
+            const to255 = (c) => Math.round(c * 255);
+            stops.push(`rgba(${to255(r)}, ${to255(grn)}, ${to255(bl)}, ${finalOpacity}) ${pct}%`);
         }
     }
     if (stops.length === 1) stops.push(stops[0]);
@@ -667,8 +748,15 @@ const DECORATOR_CLASSES = new Set([
 const VALID_GUI_CLASSES = new Set([
     'ScreenGui', 'BillboardGui', 'SurfaceGui', 'PluginGui', 'DockWidgetPluginGui', 'Frame', 'ScrollingFrame',
     'TextLabel', 'TextButton', 'TextBox', 'ImageLabel', 'ImageButton',
-    'ViewportFrame', 'VideoFrame', 'CanvasGroup', 'Folder'
+    'ViewportFrame', 'VideoFrame', 'CanvasGroup', 'Folder', 'StarterGui'
 ]);
+
+function getVisibilityProp(className) {
+    if (className === 'ScreenGui' || className === 'BillboardGui' || className === 'SurfaceGui') {
+        return 'Enabled';
+    }
+    return 'Visible';
+}
 
 // ==========================================
 // PASS 1: Build Layout Tree
@@ -676,8 +764,10 @@ const VALID_GUI_CLASSES = new Set([
 function buildLayoutTree(instance, isRoot = false, parentPath = '') {
     const props = instance.Properties || {};
     
-    if (props.Visible === false || props.Visible === 'false' || props.Visible === 0) return null;
-    if (isRoot && (props.Enabled === false || props.Enabled === 'false' || props.Enabled === 0)) return null;
+    if (!isRoot) {
+        const visProp = getVisibilityProp(instance.ClassName);
+        if (props[visProp] === false || props[visProp] === 'false' || props[visProp] === 0) return null;
+    }
     if (DECORATOR_CLASSES.has(instance.ClassName)) return null;
 
     // Ignore non-UI objects so their descendants don't render
@@ -739,6 +829,67 @@ function buildLayoutTree(instance, isRoot = false, parentPath = '') {
 // ==========================================
 // PASS 2: Resolve Layouts
 // ==========================================
+function applyModifiers(child) {
+    let width = child.resolvedWidth;
+    let height = child.resolvedHeight;
+
+    // UIScale
+    if (child.decorators.UIScale) {
+        const scale = child.decorators.UIScale.Scale ?? 1;
+        width *= scale;
+        height *= scale;
+    }
+
+    const props = child.instance.Properties || {};
+    if (props.SizeConstraint === 1) {
+        // RelativeXX → width follows height
+        height = width;
+    } else if (props.SizeConstraint === 2) {
+        // RelativeYY → height follows width
+        width = height;
+    }
+
+    // UISizeConstraint
+    if (child.decorators.UISizeConstraint) {
+        const max = child.decorators.UISizeConstraint.MaxSize;
+        const min = child.decorators.UISizeConstraint.MinSize;
+        if (max) {
+            if (max.x > 0) width  = Math.min(width,  max.x);
+            if (max.y > 0) height = Math.min(height, max.y);
+        }
+        if (min) {
+            if (min.x > 0) width  = Math.max(width,  min.x);
+            if (min.y > 0) height = Math.max(height, min.y);
+        }
+    }
+
+    // UIAspectRatioConstraint
+    if (child.decorators.UIAspectRatioConstraint) {
+        const c = child.decorators.UIAspectRatioConstraint;
+        const ar = c.AspectRatio || 1;
+        const dominantAxis = c.DominantAxis ?? 0;
+        const aspectType = c.AspectType ?? 0;
+
+        if (aspectType === 0) { // FitWithinMaxSize
+            if (dominantAxis === 0) {
+                const newHeight = width / ar;
+                if (newHeight <= height) height = newHeight;
+                else width = height * ar;
+            } else {
+                const newWidth = height * ar;
+                if (newWidth <= width) width = newWidth;
+                else height = width / ar;
+            }
+        } else { // ScaleWithParentSize
+            if (width / height > ar) width = height * ar;
+            else height = width / ar;
+        }
+    }
+
+    child.resolvedWidth  = Math.max(0, width);
+    child.resolvedHeight = Math.max(0, height);
+}
+
 function resolveNodeSize(node, parentW, parentH) {
     if (node.isRoot) {
         node.resolvedWidth = parentW;
@@ -750,57 +901,35 @@ function resolveNodeSize(node, parentW, parentH) {
 
     const props = node.instance.Properties || {};
     const size = props.Size || { X: { Scale: 1, Offset: 0 }, Y: { Scale: 1, Offset: 0 } };
-    let width = (parentW * (size.X?.Scale || 0)) + (size.X?.Offset || 0);
-    let height = (parentH * (size.Y?.Scale || 0)) + (size.Y?.Offset || 0);
+    
+    let scaleX = size.X?.Scale || 0;
+    let offsetX = size.X?.Offset || 0;
+    let scaleY = size.Y?.Scale || 0;
+    let offsetY = size.Y?.Offset || 0;
 
     const pos = props.Position || { X: { Scale: 0, Offset: 0 }, Y: { Scale: 0, Offset: 0 } };
     let x = (parentW * (pos.X?.Scale || 0)) + (pos.X?.Offset || 0);
     let y = (parentH * (pos.Y?.Scale || 0)) + (pos.Y?.Offset || 0);
 
-    if (node.decorators.UISizeConstraint) {
-        const max = node.decorators.UISizeConstraint.MaxSize;
-        const min = node.decorators.UISizeConstraint.MinSize;
-        if (max) {
-            if (max.x > 0) width = Math.min(width, max.x);
-            if (max.y > 0) height = Math.min(height, max.y);
-        }
-        if (min) {
-            if (min.x > 0) width = Math.max(width, min.x);
-            if (min.y > 0) height = Math.max(height, min.y);
-        }
-    }
-
-    if (node.decorators.UIAspectRatioConstraint) {
-        const ar = node.decorators.UIAspectRatioConstraint.AspectRatio || 1;
-        const axis = node.decorators.UIAspectRatioConstraint.DominantAxis ?? 0;
-        const aspectType = node.decorators.UIAspectRatioConstraint.AspectType ?? 0;
-
-        let boundW = width, boundH = height;
-        if (aspectType === 1) { 
-            boundW = parentW; 
-            boundH = parentH;
-        }
-
-        if (axis === 0) {
-            width = boundW;
-            height = width / ar;
-            if (height > boundH) { height = boundH; width = height * ar; }
-        } else {
-            height = boundH;
-            width = height * ar;
-            if (width > boundW) { width = boundW; height = width / ar; }
-        }
-    }
-
-    if (props.AnchorPoint) {
-        x -= (props.AnchorPoint.x || 0) * width;
-        y -= (props.AnchorPoint.y || 0) * height;
-    }
-
-    node.resolvedWidth = Math.max(0, width);
-    node.resolvedHeight = Math.max(0, height);
+    node.resolvedWidth  = Math.max(0, (parentW * scaleX) + offsetX);
+    node.resolvedHeight = Math.max(0, (parentH * scaleY) + offsetY);
     node.resolvedX = x;
     node.resolvedY = y;
+
+    // Apply modifiers first so AnchorPoint uses the final size
+    applyModifiers(node);
+
+    if (props.AnchorPoint) {
+        node.resolvedX -= (props.AnchorPoint.x || 0) * node.resolvedWidth;
+        node.resolvedY -= (props.AnchorPoint.y || 0) * node.resolvedHeight;
+    }
+
+    // Pre-calculate CanvasSize relative to the parent's content size
+    if (node.instance.ClassName === 'ScrollingFrame') {
+        const canvasSize = props.CanvasSize || { X: { Scale: 0, Offset: 0 }, Y: { Scale: 0, Offset: 0 } };
+        node.baseCanvasW = Math.max((parentW * (canvasSize.X?.Scale || 0)) + (canvasSize.X?.Offset || 0), node.resolvedWidth);
+        node.baseCanvasH = Math.max((parentH * (canvasSize.Y?.Scale || 0)) + (canvasSize.Y?.Offset || 0), node.resolvedHeight);
+    }
 }
 
 function applyChildLayout(node) {
@@ -823,6 +952,67 @@ function applyChildLayout(node) {
         node.padY = 0;
     }
 
+    // --- ScrollingFrame CanvasSize Logic ---
+    if (node.instance.ClassName === 'ScrollingFrame') {
+        const props = node.instance.Properties || {};
+        let canvasW = node.baseCanvasW;
+        let canvasH = node.baseCanvasH;
+
+        const autoCanvas = props.AutomaticCanvasSize ?? 0; // 0: None, 1: X, 2: Y, 3: XY
+
+        const resolveChildren = (cW, cH) => {
+            if (node.decorators.UIListLayout) {
+                resolveListLayout(node, cW, cH);
+            } else if (node.decorators.UIGridLayout) {
+                resolveGridLayout(node, cW, cH);
+            } else {
+                for (const child of node.children) {
+                    resolveNodeSize(child, cW, cH);
+                    child.resolvedX += node.padX;
+                    child.resolvedY += node.padY;
+                    applyChildLayout(child);
+                }
+            }
+        };
+
+        // First pass to determine bounds
+        resolveChildren(canvasW, canvasH);
+
+        if (autoCanvas > 0) {
+            let maxChildX = 0, maxChildY = 0;
+            for (const child of node.children) {
+                maxChildX = Math.max(maxChildX, child.resolvedX + child.resolvedWidth - node.padX);
+                maxChildY = Math.max(maxChildY, child.resolvedY + child.resolvedHeight - node.padY);
+            }
+            
+            let padR = 0, padB = 0;
+            if (node.decorators.UIPadding) {
+                const pad = node.decorators.UIPadding;
+                padR = ((pad.PaddingRight?.Scale || 0) * node.resolvedWidth) + (pad.PaddingRight?.Offset || 0);
+                padB = ((pad.PaddingBottom?.Scale || 0) * node.resolvedHeight) + (pad.PaddingBottom?.Offset || 0);
+            }
+            
+            let needsRerun = false;
+            if (autoCanvas === 1 || autoCanvas === 3) {
+                const newW = Math.max(canvasW, maxChildX + padR);
+                if (newW > canvasW) { canvasW = newW; needsRerun = true; }
+            }
+            if (autoCanvas === 2 || autoCanvas === 3) {
+                const newH = Math.max(canvasH, maxChildY + padB);
+                if (newH > canvasH) { canvasH = newH; needsRerun = true; }
+            }
+            
+            // Second pass with updated canvas size
+            if (needsRerun) {
+                resolveChildren(canvasW, canvasH);
+            }
+        }
+
+        node.canvasWidth = canvasW;
+        node.canvasHeight = canvasH;
+        return; // Skip default AutomaticSize logic for ScrollingFrame
+    }
+
     if (node.decorators.UIListLayout) {
         resolveListLayout(node, contentW, contentH);
     } else if (node.decorators.UIGridLayout) {
@@ -835,178 +1025,280 @@ function applyChildLayout(node) {
             applyChildLayout(child);
         }
     }
+
+    // Implement AutomaticSize
+    const automaticSize = node.instance.Properties?.AutomaticSize ?? 0; // 0: None, 1: X, 2: Y, 3: XY
+    if (automaticSize > 0) {
+        let maxChildX = 0;
+        let maxChildY = 0;
+        for (const child of node.children) {
+            const childVisProp = getVisibilityProp(child.instance.ClassName);
+            if (child.instance.Properties?.[childVisProp] === false) continue;
+            maxChildX = Math.max(maxChildX, child.resolvedX + child.resolvedWidth);
+            maxChildY = Math.max(maxChildY, child.resolvedY + child.resolvedHeight);
+        }
+
+        let padR = 0, padB = 0;
+        if (node.decorators.UIPadding) {
+            const pad = node.decorators.UIPadding;
+            padR = ((pad.PaddingRight?.Scale || 0) * node.resolvedWidth) + (pad.PaddingRight?.Offset || 0);
+            padB = ((pad.PaddingBottom?.Scale || 0) * node.resolvedHeight) + (pad.PaddingBottom?.Offset || 0);
+        }
+
+        if (automaticSize === 1 || automaticSize === 3) {
+            node.resolvedWidth = Math.max(node.resolvedWidth, maxChildX + padR);
+        }
+        if (automaticSize === 2 || automaticSize === 3) {
+            node.resolvedHeight = Math.max(node.resolvedHeight, maxChildY + padB);
+        }
+    }
 }
 
 function resolveListLayout(node, cw, ch) {
     const layout = node.decorators.UIListLayout;
     const isHorizontal = layout.FillDirection === 0;
-    
-    const mainFlex = isHorizontal ? layout.HorizontalFlex : layout.VerticalFlex;
-    
+
+    const flexMode = isHorizontal
+        ? layout.HorizontalFlex
+        : layout.VerticalFlex;
+
     const pad = layout.Padding || { Scale: 0, Offset: 0 };
+
     let padSize = ((isHorizontal ? cw : ch) * (pad.Scale || 0)) + (pad.Offset || 0);
-    if (mainFlex === 2 || mainFlex === 3 || mainFlex === 4) {
+
+    if (flexMode === 2 || flexMode === 3 || flexMode === 4) {
         padSize = 0;
     }
 
-    let children = node.children;
+    const children = node.children;
+
     for (const child of children) {
         resolveNodeSize(child, cw, ch);
     }
 
     let lines = [[]];
     let currentLineSize = 0;
-    
+
     for (const child of children) {
         const childSize = isHorizontal ? child.resolvedWidth : child.resolvedHeight;
-        if (layout.Wraps && currentLineSize + childSize > (isHorizontal ? cw : ch) && lines[lines.length - 1].length > 0) {
+
+        if (layout.Wraps &&
+            currentLineSize + childSize > (isHorizontal ? cw : ch) &&
+            lines[lines.length - 1].length > 0
+        ) {
             lines.push([]);
             currentLineSize = 0;
         }
+
         lines[lines.length - 1].push(child);
         currentLineSize += childSize + padSize;
     }
 
-    let lineOffset = 0;
+    // -----------------------------
+    // FIX 1: COMPUTE TOTAL CROSS SIZE
+    // -----------------------------
+    const crossAlign = isHorizontal
+        ? layout.VerticalAlignment
+        : layout.HorizontalAlignment;
+
+    const containerCross = isHorizontal ? ch : cw;
+
+    let totalCrossSize = 0;
+    const lineCrossSizes = [];
 
     for (const line of lines) {
-        let lineCrossSize = 0;
+        let maxCross = 0;
         for (const child of line) {
-            const childCross = isHorizontal ? child.resolvedHeight : child.resolvedWidth;
-            if (childCross > lineCrossSize) lineCrossSize = childCross;
+            const cross = isHorizontal ? child.resolvedHeight : child.resolvedWidth;
+            if (cross > maxCross) maxCross = cross;
         }
-        const lineSize = layout.Wraps ? lineCrossSize : (isHorizontal ? ch : cw);
+        lineCrossSizes.push(maxCross);
+        totalCrossSize += maxCross + padSize;
+    }
+    totalCrossSize -= padSize;
+
+    let containerOffset = 0;
+
+    if (crossAlign === 2) {
+        containerOffset = containerCross - totalCrossSize;
+    } else if (crossAlign === 0) {
+        containerOffset = (containerCross - totalCrossSize) / 2;
+    }
+
+    let lineOffset = containerOffset;
+
+    // -----------------------------
+    // MAIN LOOP
+    // -----------------------------
+    for (let li = 0; li < lines.length; li++) {
+        const line = lines[li];
+
+        const lineSize = layout.Wraps ? lineCrossSizes[li] : (isHorizontal ? ch : cw);
 
         let lineMainSize = 0;
         for (const child of line) {
             lineMainSize += isHorizontal ? child.resolvedWidth : child.resolvedHeight;
         }
+
         lineMainSize += padSize * Math.max(0, line.length - 1);
 
         let freeSpace = (isHorizontal ? cw : ch) - lineMainSize;
 
+        const isFill = flexMode === 1;
+
         let totalGrow = 0;
         let totalShrink = 0;
-        
+
         for (const child of line) {
             const flexItem = child.decorators.UIFlexItem;
-            let grow = 0, shrink = 0;
-            
-            const childSizeProp = child.instance.Properties?.Size;
-            const mainScale = isHorizontal ? (childSizeProp?.X?.Scale || 0) : (childSizeProp?.Y?.Scale || 0);
-            
+
+            let grow = 0;
+            let shrink = 0;
+
             if (flexItem) {
                 const mode = flexItem.FlexMode ?? 0;
-                if (mode === 1) { // Grow
+
+                if (mode === 1) {
                     grow = flexItem.GrowRatio || 1;
-                    shrink = 0;
-                } else if (mode === 2) { // Shrink
+                    shrink = flexItem.ShrinkRatio || 1;
+                } else if (mode === 2) {
                     grow = 0;
                     shrink = flexItem.ShrinkRatio || 1;
-                } else if (mode === 3) { // Fill
+                } else if (mode === 3) {
                     grow = 1;
                     shrink = 1;
-                } else if (mode === 4) { // Custom
+                } else if (mode === 4) {
                     grow = flexItem.GrowRatio || 0;
                     shrink = flexItem.ShrinkRatio || 0;
                 }
-            } else {
-                if (mainScale > 0) {
-                    grow = mainScale;
-                    shrink = mainScale;
-                }
-                if (mainFlex === 1) { // Parent is Fill
-                    grow = Math.max(grow, 1);
-                    shrink = Math.max(shrink, 1);
-                }
+            } else if (isFill) {
+                grow = 1;
+                shrink = 1;
             }
+
             child._grow = grow;
             child._shrink = shrink;
+
             totalGrow += grow;
             totalShrink += shrink;
         }
 
-        if (freeSpace > 0 && totalGrow > 0) {
+        if (isFill) {
+            const available =
+                (isHorizontal ? cw : ch) -
+                padSize * Math.max(0, line.length - 1);
+
+            const sizePerChild = line.length > 0
+                ? available / line.length
+                : 0;
+
             for (const child of line) {
-                if (child._grow > 0) {
-                    const add = (freeSpace * child._grow / totalGrow);
-                    if (isHorizontal) child.resolvedWidth += add;
-                    else child.resolvedHeight += add;
-                }
+                if (isHorizontal) child.resolvedWidth = sizePerChild;
+                else child.resolvedHeight = sizePerChild;
             }
-        } else if (freeSpace < 0 && totalShrink > 0) {
-            for (const child of line) {
-                if (child._shrink > 0) {
-                    const sub = (-freeSpace * child._shrink / totalShrink);
-                    if (isHorizontal) child.resolvedWidth = Math.max(0, child.resolvedWidth - sub);
-                    else child.resolvedHeight = Math.max(0, child.resolvedHeight - sub);
+        } else {
+            if (freeSpace > 0 && totalGrow > 0) {
+                for (const child of line) {
+                    if (child._grow > 0) {
+                        const add = freeSpace * (child._grow / totalGrow);
+                        if (isHorizontal) child.resolvedWidth += add;
+                        else child.resolvedHeight += add;
+                    }
+                }
+            } else if (freeSpace < 0) {
+                let effectiveShrink = totalShrink;
+
+                if (effectiveShrink === 0) {
+                    effectiveShrink = line.length;
+                    for (const child of line) child._shrink = 1;
+                }
+
+                for (const child of line) {
+                    const sub = (-freeSpace * child._shrink / effectiveShrink);
+
+                    if (isHorizontal) {
+                        child.resolvedWidth = Math.max(0, child.resolvedWidth - sub);
+                    } else {
+                        child.resolvedHeight = Math.max(0, child.resolvedHeight - sub);
+                    }
                 }
             }
         }
 
+        for (const child of line) {
+            applyModifiers(child);
+        }
+
+        // recompute main size
         lineMainSize = 0;
         for (const child of line) {
             lineMainSize += isHorizontal ? child.resolvedWidth : child.resolvedHeight;
         }
+
         lineMainSize += padSize * Math.max(0, line.length - 1);
         freeSpace = (isHorizontal ? cw : ch) - lineMainSize;
 
-        const mainAlign = isHorizontal ? layout.HorizontalAlignment : layout.VerticalAlignment;
+        const mainAlign = isHorizontal
+            ? layout.HorizontalAlignment
+            : layout.VerticalAlignment;
+
         let mainStartOffset = 0;
-        if (mainAlign === 2) mainStartOffset = freeSpace; 
-        else if (mainAlign === 0) mainStartOffset = freeSpace / 2; 
-        
-        if (mainFlex === 3 && line.length > 1) mainStartOffset = 0; // SpaceBetween
-        else if (mainFlex === 2 && line.length > 0) mainStartOffset = freeSpace / (line.length * 2); // SpaceAround
-        else if (mainFlex === 4 && line.length > 0) mainStartOffset = freeSpace / (line.length + 1); // SpaceEvenly
+
+        if (mainAlign === 2) mainStartOffset = freeSpace;
+        else if (mainAlign === 0) mainStartOffset = freeSpace / 2;
+
+        if (flexMode === 3 && line.length > 1) mainStartOffset = 0;
 
         let cursor = mainStartOffset;
+
+        const crossBaseOffset = lineOffset;
+
         for (let i = 0; i < line.length; i++) {
             const child = line[i];
-            
+
             if (i > 0) {
-                if (mainFlex === 3) cursor += freeSpace / Math.max(1, line.length - 1);
-                else if (mainFlex === 2) cursor += freeSpace / line.length;
-                else if (mainFlex === 4) cursor += (freeSpace * 2) / (line.length + 1);
+                if (flexMode === 3) cursor += freeSpace / Math.max(1, line.length - 1);
+                else if (flexMode === 2) cursor += freeSpace / line.length;
+                else if (flexMode === 4) cursor += (freeSpace * 2) / (line.length + 1);
             }
 
             let crossStartOffset = 0;
-            let isStretch = false;
 
             const flexItem = child.decorators.UIFlexItem;
-            let itemAlign = flexItem?.ItemLineAlignment ?? layout.ItemLineAlignment ?? 0;
+            const itemAlign =
+                flexItem?.ItemLineAlignment ??
+                layout.ItemLineAlignment ??
+                0;
 
-            const childCrossSize = isHorizontal ? child.resolvedHeight : child.resolvedWidth;
+            const childCross = isHorizontal
+                ? child.resolvedHeight
+                : child.resolvedWidth;
 
-            if (itemAlign === 1) { 
-                crossStartOffset = 0;
-            } else if (itemAlign === 2) { 
-                crossStartOffset = (lineSize - childCrossSize) / 2;
-            } else if (itemAlign === 3) { 
-                crossStartOffset = lineSize - childCrossSize;
-            } else if (itemAlign === 4) { 
-                isStretch = true;
-            } else { 
-                const crossAlignProp = isHorizontal ? layout.VerticalAlignment : layout.HorizontalAlignment;
-                if (crossAlignProp === 2) crossStartOffset = lineSize - childCrossSize; 
-                else if (crossAlignProp === 0) crossStartOffset = (lineSize - childCrossSize) / 2; 
-            }
-            
-            const crossFlex = isHorizontal ? layout.VerticalFlex : layout.HorizontalFlex;
-            if (crossFlex === 1) isStretch = true; // Fill
+            if (itemAlign === 2) crossStartOffset = (lineSize - childCross) / 2;
+            else if (itemAlign === 3) crossStartOffset = lineSize - childCross;
 
-            if (isStretch) {
+            const crossFlex = isHorizontal
+                ? layout.VerticalFlex
+                : layout.HorizontalFlex;
+
+            if (crossFlex === 1) {
                 if (isHorizontal) child.resolvedHeight = lineSize;
                 else child.resolvedWidth = lineSize;
             }
 
-            child.resolvedX = (isHorizontal ? cursor : lineOffset + crossStartOffset) + node.padX;
-            child.resolvedY = (isHorizontal ? lineOffset + crossStartOffset : cursor) + node.padY;
+            applyModifiers(child);
+
+            child.resolvedX =
+                (isHorizontal ? cursor : crossBaseOffset + crossStartOffset) + node.padX;
+
+            child.resolvedY =
+                (isHorizontal ? crossBaseOffset + crossStartOffset : cursor) + node.padY;
 
             applyChildLayout(child);
 
             cursor += (isHorizontal ? child.resolvedWidth : child.resolvedHeight) + padSize;
         }
+
         lineOffset += lineSize + padSize;
     }
 }
@@ -1067,9 +1359,6 @@ function resolveLayoutTree(node, parentW, parentH) {
 // ==========================================
 // PASS 3: Render DOM
 // ==========================================
-// ==========================================
-// PASS 3: Render DOM
-// ==========================================
 function renderDom(node, imageMap, onSelectInstance, instanceToElMap) {
     const instance = node.instance;
     const props = instance.Properties || {};
@@ -1092,9 +1381,55 @@ function renderDom(node, imageMap, onSelectInstance, instanceToElMap) {
     el.style.position = node.isRoot ? 'relative' : 'absolute';
     el.style.display = 'block';
     
-    el.style.width = `${Math.max(0, node.resolvedWidth)}px`;
-    el.style.height = `${Math.max(0, node.resolvedHeight)}px`;
+    const automaticSize = props.AutomaticSize ?? 0;
+    const isText = ['TextLabel', 'TextButton', 'TextBox'].includes(instance.ClassName);
     
+    // Implement AutomaticSize visually
+    if (isText && automaticSize > 0 && props.TextTruncate === 0) {
+        if (automaticSize === 1 || automaticSize === 3) {
+            el.style.minWidth = `${Math.max(0, node.resolvedWidth)}px`;
+            el.style.width = 'fit-content';
+        } else {
+            el.style.width = `${Math.max(0, node.resolvedWidth)}px`;
+        }
+        if (automaticSize === 2 || automaticSize === 3) {
+            el.style.minHeight = `${Math.max(0, node.resolvedHeight)}px`;
+            el.style.height = 'fit-content';
+        } else {
+            el.style.height = `${Math.max(0, node.resolvedHeight)}px`;
+        }
+    } else {
+        el.style.width = `${Math.max(0, node.resolvedWidth)}px`;
+        el.style.height = `${Math.max(0, node.resolvedHeight)}px`;
+    }
+    
+    const transparency = typeof props.BackgroundTransparency === 'number' ? props.BackgroundTransparency : 1;
+
+    // Visual transparency for click-through
+    let isVisuallyTransparent = transparency >= 1;
+
+    if (['ImageLabel', 'ImageButton'].includes(instance.ClassName)) {
+        const imgTransparency = typeof props.ImageTransparency === 'number' ? props.ImageTransparency : 1;
+        if (imgTransparency < 1) isVisuallyTransparent = false;
+    }
+    if (['TextLabel', 'TextButton', 'TextBox'].includes(instance.ClassName)) {
+        const textTransparency = typeof props.TextTransparency === 'number' ? props.TextTransparency : 1;
+        if (textTransparency < 1 && typeof props.Text === 'string' && props.Text.length > 0) {
+            isVisuallyTransparent = false;
+        }
+    }
+    if (decorators.UIStroke && decorators.UIStroke.Enabled !== false) {
+        const strokeTransparency = typeof decorators.UIStroke.Transparency === 'number' ? decorators.UIStroke.Transparency : 1;
+        if (strokeTransparency < 1) isVisuallyTransparent = false;
+    }
+
+    // Explicitly set pointerEvents to auto or none to prevent inheritance issues
+    if (isVisuallyTransparent && instance.ClassName !== 'ScrollingFrame') {
+        el.style.pointerEvents = 'none';
+    } else {
+        el.style.pointerEvents = 'auto';
+    }
+
     if (!node.isRoot) {
         el.style.left = `${node.resolvedX}px`;
         el.style.top = `${node.resolvedY}px`;
@@ -1125,25 +1460,35 @@ function renderDom(node, imageMap, onSelectInstance, instanceToElMap) {
     const supportsUIGradient = instance.ClassName !== 'TextBox' && instance.ClassName !== 'ScrollingFrame';
     const hasUIGradient = supportsUIGradient && decorators.UIGradient && decorators.UIGradient.Enabled !== false;
 
-    const transparency = typeof props.BackgroundTransparency === 'number' ? props.BackgroundTransparency : 0;
     if (transparency < 1) {
-        el.style.backgroundColor = robloxColorToCss(props.BackgroundColor3, 1 - transparency);
         if (hasUIGradient) {
             const g = decorators.UIGradient;
-            el.style.backgroundImage = buildUIGradient(g);
-            el.style.backgroundBlendMode = 'multiply';
+            el.style.backgroundImage = buildUIGradient(g, props.BackgroundColor3, transparency);
             const posX = 50 + (g.Offset?.x || 0) * 100;
             const posY = 50 + (g.Offset?.y || 0) * 100;
             el.style.backgroundPosition = `${posX}% ${posY}%`;
+        } else {
+            el.style.backgroundColor = robloxColorToCss(props.BackgroundColor3, 1 - transparency);
         }
     }
 
     const shadows = [];
 
+    // Implement BorderMode and BorderSizePixel properly
     const borderSize = props.BorderSizePixel ?? 1;
-    if (borderSize > 0 && instance.ClassName === 'Frame') {
+    if (borderSize > 0) {
         const borderColor = props.BorderColor3 || { r: 0.105882, g: 0.164706, b: 0.203922 };
-        shadows.push(`inset 0 0 0 ${borderSize}px ${robloxColorToCss(borderColor, 1 - transparency)}`);
+        const borderMode = props.BorderMode ?? 0; // 0: Outline, 1: Middle, 2: Inset
+        const shadowColor = robloxColorToCss(borderColor, 1 - transparency);
+        if (shadowColor) {
+            if (borderMode === 0) { 
+                shadows.push(`0 0 0 ${borderSize}px ${shadowColor}`);
+            } else if (borderMode === 1) { 
+                shadows.push(`0 0 0 ${borderSize / 2}px ${shadowColor}, inset 0 0 0 ${borderSize / 2}px ${shadowColor}`);
+            } else { 
+                shadows.push(`inset 0 0 0 ${borderSize}px ${shadowColor}`);
+            }
+        }
     }
 
     if (decorators.UIShadow && decorators.UIShadow.Enabled !== false) {
@@ -1164,15 +1509,15 @@ function renderDom(node, imageMap, onSelectInstance, instanceToElMap) {
         const thickness = s.Thickness || 1;
         const color = robloxColorToCss(s.Color, 1 - (s.Transparency || 0)) || '#000';
         const pos = s.BorderStrokePosition;
-        const isText = ['TextLabel', 'TextButton', 'TextBox'].includes(instance.ClassName);
+        const isTextEl = ['TextLabel', 'TextButton', 'TextBox'].includes(instance.ClassName);
         
-        if (isText && s.ApplyStrokeMode === 0) { 
+        if (isTextEl && s.ApplyStrokeMode === 0) { 
             textStrokeWidth = `${thickness * 2}px`;
             textStrokeColor = color;
         } else {
-            if (pos === 2) shadows.push(`inset 0 0 0 ${thickness}px ${color}`); // Inner
-            else if (pos === 0) shadows.push(`0 0 0 ${thickness}px ${color}`); // Outer
-            else shadows.push(`0 0 0 ${thickness/2}px ${color}, inset 0 0 0 ${thickness/2}px ${color}`); // Center
+            if (pos === 2) shadows.push(`inset 0 0 0 ${thickness}px ${color}`); 
+            else if (pos === 0) shadows.push(`0 0 0 ${thickness}px ${color}`); 
+            else shadows.push(`0 0 0 ${thickness/2}px ${color}, inset 0 0 0 ${thickness/2}px ${color}`); 
         }
     }
 
@@ -1197,7 +1542,92 @@ function renderDom(node, imageMap, onSelectInstance, instanceToElMap) {
         el.style.overflow = 'hidden';
     }
 
-    if (['TextLabel', 'TextButton', 'TextBox'].includes(instance.ClassName)) {
+    // --- ScrollingFrame DOM Render Logic ---
+    const isScrollingFrame = instance.ClassName === 'ScrollingFrame';
+    let childContainer = el;
+
+    if (isScrollingFrame) {
+        const scrollDir = props.ScrollingDirection ?? 1; // 0: X, 1: Y, 2: XY
+        if (scrollDir === 1) {
+            el.style.overflowX = 'auto';
+            el.style.overflowY = 'hidden';
+
+            // Custom smooth scrolling to prevent stutter on rapid wheel events
+            let targetScroll = el.scrollLeft;
+            let isAnimating = false;
+
+            const animateScroll = () => {
+                const current = el.scrollLeft;
+                const diff = targetScroll - current;
+
+                // If we are close enough to the target, snap to it and stop animating
+                if (Math.abs(diff) < 0.5) {
+                    el.scrollLeft = targetScroll;
+                    isAnimating = false;
+                    return;
+                }
+
+                // Lerp (move 20% of the remaining distance per frame for a smooth glide)
+                el.scrollLeft += diff * 0.2;
+                requestAnimationFrame(animateScroll);
+            };
+
+            el.addEventListener('wheel', (e) => {
+                // Translate vertical wheel movement to horizontal scrolling
+                if (e.deltaY !== 0 && e.deltaX === 0) {
+                    e.preventDefault();
+                    targetScroll += e.deltaY;
+                    
+                    // Clamp the target so it doesn't scroll past the bounds
+                    const maxScroll = el.scrollWidth - el.clientWidth;
+                    targetScroll = Math.max(0, Math.min(targetScroll, maxScroll));
+
+                    // Start the animation loop if it isn't already running
+                    if (!isAnimating) {
+                        isAnimating = true;
+                        requestAnimationFrame(animateScroll);
+                    }
+                } else {
+                    // Sync target if the user scrolls natively (e.g. trackpad horizontal swipe)
+                    targetScroll = el.scrollLeft;
+                }
+            }, { passive: false });
+
+            // Sync target if the user drags the scrollbar manually
+            el.addEventListener('scroll', () => {
+                if (!isAnimating) {
+                    targetScroll = el.scrollLeft;
+                }
+            });
+        } else if (scrollDir === 2) {
+            el.style.overflowX = 'hidden';
+            el.style.overflowY = 'auto';
+        } else {
+            el.style.overflow = 'auto';
+        }
+        
+        // Apply scrollbar thickness logic 
+        if (props.ScrollBarThickness === 0) {
+            el.style.scrollbarWidth = 'none'; // Firefox
+            el.classList.add('rovalra-no-scrollbar');
+        } else {
+            el.style.scrollbarWidth = 'thin';
+            el.classList.add('rovalra-explorer-scrolling-frame');
+        }
+
+        // Create an inner canvas wrapper to handle scrolling properly
+        const canvasEl = document.createElement('div');
+        canvasEl.style.position = 'absolute';
+        canvasEl.style.top = '0';
+        canvasEl.style.left = '0';
+        canvasEl.style.width = `${node.canvasWidth || node.resolvedWidth}px`;
+        canvasEl.style.height = `${node.canvasHeight || node.resolvedHeight}px`;
+        canvasEl.style.pointerEvents = 'none'; // Let children handle clicks, but allow wheel events to pass to el
+        el.appendChild(canvasEl);
+        childContainer = canvasEl;
+    }
+
+    if (isText) {
         el.style.display = 'flex';
         const textXAlignment = resolveTextXAlignment(props.TextXAlignment);
         const textYAlignment = resolveTextYAlignment(props.TextYAlignment);
@@ -1302,12 +1732,19 @@ function renderDom(node, imageMap, onSelectInstance, instanceToElMap) {
             );
         } else {
             if (props.TextWrapped === true) {
-                textSpan.style.whiteSpace = 'pre-wrap';
-                textSpan.style.wordBreak = 'break-word';
-                textSpan.style.width = '100%';
+                if (automaticSize === 2 || automaticSize === 3) {
+                    textSpan.style.whiteSpace = 'pre-wrap';
+                    textSpan.style.wordBreak = 'break-word';
+                    textSpan.style.width = '100%';
+                } else {
+                    textSpan.style.whiteSpace = 'pre';
+                    textSpan.style.overflow = 'visible';
+                }
             } else {
                 textSpan.style.whiteSpace = 'pre';
-                if (props.TextTruncate === 1) { 
+                if (automaticSize > 0 && props.TextTruncate === 0) {
+                    textSpan.style.overflow = 'visible';
+                } else if (props.TextTruncate === 1) { 
                     textSpan.style.width = '100%';
                     textSpan.style.overflow = 'hidden';
                     textSpan.style.textOverflow = 'ellipsis';
@@ -1428,7 +1865,6 @@ function renderDom(node, imageMap, onSelectInstance, instanceToElMap) {
                     const filter = getTintFilter(imgColor);
                     const imageRendering = resampleMode === 1 ? 'pixelated' : 'auto';
 
-                    // Simple images can use native <img> with object-fit for massive performance gains and accuracy
                     const useSimpleImg = !isSliced && !isSpriteSheet && !isTiled;
 
                     if (useSimpleImg) {
@@ -1461,7 +1897,7 @@ function renderDom(node, imageMap, onSelectInstance, instanceToElMap) {
                             gradDiv.style.mixBlendMode = 'multiply';
                             gradDiv.style.webkitMaskImage = `url("${imageUrl}")`;
                             gradDiv.style.maskImage = `url("${imageUrl}")`;
-                            gradDiv.style.maskSize = img.style.objectFit; // Automatically matches the image fit!
+                            gradDiv.style.maskSize = img.style.objectFit; 
                             gradDiv.style.webkitMaskSize = img.style.objectFit;
                             gradDiv.style.maskRepeat = 'no-repeat';
                             gradDiv.style.webkitMaskRepeat = 'no-repeat';
@@ -1473,7 +1909,6 @@ function renderDom(node, imageMap, onSelectInstance, instanceToElMap) {
                             el.appendChild(gradDiv);
                         }
                     } else {
-                        // Complex rendering via background-image for 9-slice, tiling, and sprite sheets
                         const bgDiv = document.createElement('div');
                         bgDiv.style.position = 'absolute';
                         bgDiv.style.top = '0';
@@ -1513,11 +1948,24 @@ function renderDom(node, imageMap, onSelectInstance, instanceToElMap) {
                             if (isSliced) {
                                 const slice = props.SliceCenter;
                                 const sliceScale = props.SliceScale || 1;
-                                const top = slice.Min.y;
-                                const right = natW - slice.Max.x;
-                                const bottom = natH - slice.Max.y;
-                                const left = slice.Min.x;
-                                
+
+                                let top    = slice.Min.y;
+                                let left   = slice.Min.x;
+                                let right  = natW - slice.Max.x;
+                                let bottom = natH - slice.Max.y;
+
+                                const midW = natW - left - right;
+                                const midH = natH - top - bottom;
+
+                                if (midW <= 0) {
+                                    if (left >= right) left = Math.max(0, left - 1);
+                                    else right = Math.max(0, right - 1);
+                                }
+                                if (midH <= 0) {
+                                    if (top >= bottom) top = Math.max(0, top - 1);
+                                    else bottom = Math.max(0, bottom - 1);
+                                }
+
                                 bgDiv.style.borderStyle = 'solid';
                                 bgDiv.style.borderImageSource = `url("${imageUrl}")`;
                                 bgDiv.style.borderImageSlice = `${top} ${right} ${bottom} ${left} fill`;
@@ -1525,7 +1973,7 @@ function renderDom(node, imageMap, onSelectInstance, instanceToElMap) {
                                 bgDiv.style.borderImageRepeat = 'stretch';
                                 bgDiv.style.backgroundImage = 'none';
                                 bgDiv.style.transform = 'none';
-                                
+
                                 if (gradDiv) {
                                     gradDiv.style.webkitMaskImage = `url("${imageUrl}")`;
                                     gradDiv.style.maskImage = `url("${imageUrl}")`;
@@ -1554,30 +2002,18 @@ function renderDom(node, imageMap, onSelectInstance, instanceToElMap) {
                                 if (absW < 0) {
                                     flipX = -1;
                                     absW = Math.abs(absW);
-
                                     x1 = rectOffset.x + rectSize.x;
                                 }
 
                                 if (absH < 0) {
                                     flipY = -1;
                                     absH = Math.abs(absH);
-
                                     y1 = rectOffset.y + rectSize.y;
                                 }
 
                                 flipX = rectSize.x < 0 ? -1 : 1;
                                 flipY = rectSize.y < 0 ? -1 : 1;
 
-                                // Roblox virtual texture space
-                                const texW = 1024;
-                                const texH = 1024;
-
-                                // Negative ImageRectSize means flip, not "walk backwards"
-                                flipX = rectSize.x < 0 ? -1 : 1;
-                                flipY = rectSize.y < 0 ? -1 : 1;
-
-                                // Roblox appears to use a virtual 1024x1024 texture space
-                                // for ImageRect coordinates.
                                 const virtualW = Math.max(1024, natW);
                                 const virtualH = Math.max(1024, natH);
 
@@ -1599,7 +2035,7 @@ function renderDom(node, imageMap, onSelectInstance, instanceToElMap) {
                             let bgX, bgY;
                             let repeat = 'no-repeat';
                             
-                            if (scaleType === 3) { // Fit
+                            if (scaleType === 3) { 
                                 const scale = Math.min(node.resolvedWidth / absW, node.resolvedHeight / absH);
                                 scaleX = scale;
                                 scaleY = scale;
@@ -1607,7 +2043,7 @@ function renderDom(node, imageMap, onSelectInstance, instanceToElMap) {
                                 const visH = absH * scale;
                                 bgX = (node.resolvedWidth - visW) / 2 - (x1 * scale);
                                 bgY = (node.resolvedHeight - visH) / 2 - (y1 * scale);
-                            } else if (scaleType === 4) { // Crop
+                            } else if (scaleType === 4) { 
                                 const scale = Math.max(node.resolvedWidth / absW, node.resolvedHeight / absH);
                                 scaleX = scale;
                                 scaleY = scale;
@@ -1615,7 +2051,7 @@ function renderDom(node, imageMap, onSelectInstance, instanceToElMap) {
                                 const visH = absH * scale;
                                 bgX = (node.resolvedWidth - visW) / 2 - (x1 * scale);
                                 bgY = (node.resolvedHeight - visH) / 2 - (y1 * scale);
-                            } else if (isTiled) { // Tile
+                            } else if (isTiled) { 
                                 const tile = props.TileSize || { X: {Scale: 1, Offset: 0}, Y: {Scale: 1, Offset: 0} };
                                 const tileW = (node.resolvedWidth * (tile.X?.Scale || 0)) + (tile.X?.Offset || 0);
                                 const tileH = (node.resolvedHeight * (tile.Y?.Scale || 0)) + (tile.Y?.Offset || 0);
@@ -1624,18 +2060,15 @@ function renderDom(node, imageMap, onSelectInstance, instanceToElMap) {
                                 bgX = -(x1 * scaleX);
                                 bgY = -(y1 * scaleY);
                                 repeat = 'repeat';
-                            } else { // Stretch
+                            } else { 
                                 scaleX = node.resolvedWidth / absW;
                                 scaleY = node.resolvedHeight / absH;
                                 bgX = -(x1 * scaleX);
                                 bgY = -(y1 * scaleY);
                             }
                             
-                            const renderNatW =
-                                isSpriteSheet && natW < 1024 ? 1024 : natW;
-
-                            const renderNatH =
-                                isSpriteSheet && natH < 1024 ? 1024 : natH;
+                            const renderNatW = isSpriteSheet && natW < 1024 ? 1024 : natW;
+                            const renderNatH = isSpriteSheet && natH < 1024 ? 1024 : natH;
 
                             const bgW = renderNatW * scaleX;
                             const bgH = renderNatH * scaleY;
@@ -1662,16 +2095,9 @@ function renderDom(node, imageMap, onSelectInstance, instanceToElMap) {
                                 gradDiv.style.maskPosition = `${bgX}px ${bgY}px`;
                                 gradDiv.style.webkitMaskRepeat = repeat;
                                 gradDiv.style.maskRepeat = repeat;
-                                
-                                if (flipX === -1 || flipY === -1) {
-                                    gradDiv.style.transform = `scale(${flipX}, ${flipY})`;
-                                } else {
-                                    gradDiv.style.transform = 'none';
-                                }
                             }
                         };
 
-                        // We must load the image to get its natural dimensions for accurate slicing and sprite sheets
                         const tempImg = new Image();
                         tempImg.onload = () => {
                             applyBgStyles(tempImg.naturalWidth, tempImg.naturalHeight);
@@ -1684,11 +2110,10 @@ function renderDom(node, imageMap, onSelectInstance, instanceToElMap) {
         }
     }
 
-    if (node.children && node.children.length > 0) {
+        if (node.children && node.children.length > 0) {
         for (const childNode of node.children) {
-            // Pass instanceToElMap down to children
             const childEl = renderDom(childNode, imageMap, onSelectInstance, instanceToElMap);
-            if (childEl) el.appendChild(childEl);
+            if (childEl) childContainer.appendChild(childEl); // Changed from el.appendChild
         }
     }
 
@@ -1717,7 +2142,6 @@ function collectImageIds(instance, ids = [], originalIds = []) {
                 const sliceCenter = instance.Properties?.SliceCenter;
                 const scaleType = instance.Properties?.ScaleType ?? 0;
                 
-                // Images that rely on original coordinates must be fetched at full resolution
                 const needsOriginal = (rectOffset && rectSize && (rectSize.x !== 0 || rectSize.y !== 0)) || (scaleType === 1 && sliceCenter);
                 
                 if (needsOriginal) {
@@ -1739,7 +2163,6 @@ function collectImageIds(instance, ids = [], originalIds = []) {
 async function fetchImageUrls(assetIds, originalAssetIds) {
     const imageMap = new Map();
     
-    // Fetch standard thumbnails (fast, cached)
     if (assetIds.length > 0) {
         for (let i = 0; i < assetIds.length; i += 100) {
             const chunk = assetIds.slice(i, i + 100);
@@ -1763,7 +2186,6 @@ async function fetchImageUrls(assetIds, originalAssetIds) {
         }
     }
     
-    // Fetch original resolution images directly from asset delivery (accurate coordinates)
     for (const id of originalAssetIds) {
         imageMap.set(id, `https://assetdelivery.roblox.com/v1/asset/?id=${id}`);
     }
@@ -1771,17 +2193,11 @@ async function fetchImageUrls(assetIds, originalAssetIds) {
     return imageMap;
 }
 
-// ==========================================
-// GUI Viewer Setup
-// ==========================================
-
-async function openGuiViewer(instance, wrapper, previewPane, onSelectInstance, registerHighlightCallback) {
-    // Clear any previous content and make the preview pane visible
+async function openGuiViewer(instance, wrapper, previewPane, onSelectInstance, registerHighlightCallback, registerRerenderCallback) {
     previewPane.replaceChildren();
     previewPane.style.display = 'flex';
     previewPane.style.flexDirection = 'column';
 
-    // Attempt to widen the existing overlay modal to accommodate the 3-pane layout
     let parent = wrapper.parentElement;
     let originalModalWidth = '';
     let originalModalMaxWidth = '';
@@ -1817,10 +2233,9 @@ async function openGuiViewer(instance, wrapper, previewPane, onSelectInstance, r
         previewPane.replaceChildren();
         previewPane.style.display = 'none';
         
-        // Unregister the highlight callback so the explorer doesn't try to update a hidden preview
         if (registerHighlightCallback) registerHighlightCallback(null);
+        if (registerRerenderCallback) registerRerenderCallback(null);
         
-        // Revert modal width when closing the preview
         let p = wrapper.parentElement;
         while (p && p !== document.body) {
             if (p.style.width === '1400px') {
@@ -1888,6 +2303,19 @@ async function openGuiViewer(instance, wrapper, previewPane, onSelectInstance, r
 
     const previewArea = document.createElement('div');
     previewArea.className = 'rovalra-explorer-gui-preview-area';
+    
+    // Add scrollbar styling for the preview
+    const styleTag = document.createElement('style');
+    styleTag.textContent = `
+        .rovalra-explorer-gui-preview-area::-webkit-scrollbar { width: 8px; height: 8px; }
+        .rovalra-explorer-gui-preview-area::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+        .rovalra-explorer-gui-preview-area::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 4px; }
+        .rovalra-explorer-scrolling-frame::-webkit-scrollbar { width: 8px; height: 8px; }
+        .rovalra-explorer-scrolling-frame::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+        .rovalra-explorer-scrolling-frame::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.4); border-radius: 4px; }
+        .rovalra-no-scrollbar::-webkit-scrollbar { display: none; }
+    `;
+    previewArea.appendChild(styleTag);
     previewArea.style.flex = '1';
     previewArea.style.position = 'relative';
     previewArea.style.overflow = 'hidden';
@@ -1935,7 +2363,6 @@ async function openGuiViewer(instance, wrapper, previewPane, onSelectInstance, r
     const instanceToElMap = new Map();
 
     function highlightSelection(el) {
-        // Remove outline from previously selected element
         instanceToElMap.forEach(e => {
             e.style.outline = '';
             e.style.outlineOffset = '';
@@ -1944,7 +2371,6 @@ async function openGuiViewer(instance, wrapper, previewPane, onSelectInstance, r
         if (el) {
             el.style.outline = '2px solid #00a2ff';
             el.style.outlineOffset = '1px';
-            el.style.zIndex = '1000'; // Bring forward
         }
     }
 
@@ -1954,7 +2380,6 @@ async function openGuiViewer(instance, wrapper, previewPane, onSelectInstance, r
         if (onSelectInstance) onSelectInstance(inst);
     };
 
-    // Expose a function so the Explorer tree can tell the preview to highlight an element
     if (registerHighlightCallback) {
         registerHighlightCallback((inst) => {
             selectedPreviewInstance = inst;
@@ -1979,12 +2404,15 @@ async function openGuiViewer(instance, wrapper, previewPane, onSelectInstance, r
             viewport.appendChild(guiEl);
         }
         
-        // If an element was selected before re-render, reapply the highlight
         if (selectedPreviewInstance) {
             highlightSelection(instanceToElMap.get(selectedPreviewInstance));
         }
         
         updateScale();
+    }
+
+    if (registerRerenderCallback) {
+        registerRerenderCallback(renderGui);
     }
 
     function updateScale() {
@@ -2064,12 +2492,31 @@ function buildExplorer(roots, expandAll) {
     wrapper.style.maxHeight = '75vh';
     wrapper.style.minHeight = '400px';
 
+    // --- TREE PANE (with search bar) ---
     const treePane = document.createElement('div');
     treePane.className = 'rovalra-explorer-tree';
     treePane.style.flex = '1 1 250px';
     treePane.style.height = '100%';
-    treePane.style.overflowY = 'auto';
+    treePane.style.display = 'flex';
+    treePane.style.flexDirection = 'column';
+    treePane.style.overflow = 'hidden';
     treePane.style.borderRight = '1px solid #2d2d2d';
+
+    // Search bar container for the explorer tree
+    const treeSearchContainer = document.createElement('div');
+    treeSearchContainer.style.cssText = 'padding: 8px; border-bottom: 1px solid #2d2d2d; background: #1e1e1e; flex-shrink: 0;';
+
+    const treeSearchInput = document.createElement('input');
+    treeSearchInput.type = 'search';
+    treeSearchInput.placeholder = 'Search instances… (2+ chars)';
+    treeSearchInput.style.cssText = 'width: 100%; box-sizing: border-box; padding: 6px 10px; background: #2a2a2a; color: #fff; border: 1px solid #3a3a3a; border-radius: 4px; font-size: 13px; outline: none;';
+    treeSearchContainer.appendChild(treeSearchInput);
+    treePane.appendChild(treeSearchContainer);
+
+    // Scrollable tree content area
+    const treeContent = document.createElement('div');
+    treeContent.style.cssText = 'flex: 1; overflow-y: auto;';
+    treePane.appendChild(treeContent);
 
     const previewPane = document.createElement('div');
     previewPane.className = 'rovalra-explorer-preview';
@@ -2097,8 +2544,20 @@ function buildExplorer(roots, expandAll) {
     wrapper.appendChild(previewPane);
     wrapper.appendChild(propsPane);
 
+    // --- STATE ---
     let selectedRow = null;
-    let previewHighlightFn = null; // Holds the function to highlight elements in the preview
+    let selectedInstance = null; 
+    let previewHighlightFn = null;
+    let guiViewerRerender = null;
+    
+    let explorerSearchQuery = '';
+    let propsSearchQuery = '';
+    let isInitialRender = true;
+    let isSearchActive = false;
+    
+    // Memory for expansion states
+    const expandedInstancesSet = new Set(); // Long-term memory
+    const searchCollapsedSet = new Set();   // Nodes manually collapsed during search
     
     const instanceToRowMap = new WeakMap();
     const instanceToExpandMap = new WeakMap();
@@ -2114,13 +2573,30 @@ function buildExplorer(roots, expandAll) {
     }
     populateParents(roots);
 
+    // --- SEARCH HELPERS ---
+    function instanceMatchesQuery(instance, query) {
+        if (!query) return true;
+        const name = getInstanceName(instance).toLowerCase();
+        const className = (instance.ClassName || '').toLowerCase();
+        return name.includes(query) || className.includes(query);
+    }
+
+    function hasMatchingDescendant(instance, query) {
+        if (!instance.Children) return false;
+        for (const child of instance.Children) {
+            if (instanceMatchesQuery(child, query)) return true;
+            if (hasMatchingDescendant(child, query)) return true;
+        }
+        return false;
+    }
+
     function selectInstance(instance, rowEl) {
+        selectedInstance = instance;
         if (selectedRow) selectedRow.classList.remove('selected');
         selectedRow = rowEl;
         if (rowEl) rowEl.classList.add('selected');
         renderProps(instance);
         
-        // Notify the GUI preview to highlight this instance
         if (previewHighlightFn) previewHighlightFn(instance);
     }
 
@@ -2147,6 +2623,18 @@ function buildExplorer(roots, expandAll) {
         }
     }
 
+    function triggerGuiPreview(instance) {
+        openGuiViewer(
+            instance, 
+            wrapper, 
+            previewPane, 
+            handlePreviewSelect, 
+            (fn) => { previewHighlightFn = fn; }, 
+            (fn) => { guiViewerRerender = fn; }
+        );
+    }
+
+    // --- PROPERTIES PANEL (with search bar) ---
     function renderProps(instance) {
         propsPane.replaceChildren();
 
@@ -2174,19 +2662,31 @@ function buildExplorer(roots, expandAll) {
             headerActions.appendChild(sourceBtn);
         }
 
-        if (instance.ClassName === 'ScreenGui') {
+        if (VALID_GUI_CLASSES.has(instance.ClassName)) {
             const guiBtn = document.createElement('button');
             guiBtn.type = 'button';
             guiBtn.className = 'rovalra-explorer-source-btn';
             guiBtn.textContent = 'Preview GUI';
             guiBtn.addEventListener('click', () => {
-                // Pass a callback that updates `previewHighlightFn`
-                openGuiViewer(instance, wrapper, previewPane, handlePreviewSelect, (fn) => { previewHighlightFn = fn; });
+                triggerGuiPreview(instance);
             });
             headerActions.appendChild(guiBtn);
         }
 
         propsPane.appendChild(header);
+
+        // --- PROPERTIES SEARCH BAR ---
+        const propsSearchContainer = document.createElement('div');
+        propsSearchContainer.style.cssText = 'padding: 8px; border-bottom: 1px solid #2d2d2d; background: #1e1e1e; position: sticky; top: 0; z-index: 2;';
+
+        const propsSearchInput = document.createElement('input');
+        propsSearchInput.type = 'search';
+        propsSearchInput.placeholder = 'Search properties…';
+        propsSearchInput.value = propsSearchQuery;
+        propsSearchInput.style.cssText = 'width: 100%; box-sizing: border-box; padding: 6px 10px; background: #2a2a2a; color: #fff; border: 1px solid #3a3a3a; border-radius: 4px; font-size: 13px; outline: none;';
+
+        propsSearchContainer.appendChild(propsSearchInput);
+        propsPane.appendChild(propsSearchContainer);
 
         if (keys.length === 0) {
             const empty = document.createElement('div');
@@ -2219,6 +2719,7 @@ function buildExplorer(roots, expandAll) {
         const makeRow = (label, rawValue) => {
             const row = document.createElement('div');
             row.className = 'rovalra-explorer-prop-row';
+            row.dataset.propName = label.toLowerCase();
 
             const nameCell = document.createElement('div');
             nameCell.className = 'rovalra-explorer-prop-name';
@@ -2227,6 +2728,44 @@ function buildExplorer(roots, expandAll) {
 
             const valueCell = document.createElement('div');
             valueCell.className = 'rovalra-explorer-prop-value';
+
+            // --- ColorSequence / NumberSequence visual rendering ---
+            if (isColorSequence(rawValue) || isNumberSequence(rawValue)) {
+                const seqWrapper = document.createElement('div');
+                seqWrapper.style.cssText = 'display: flex; align-items: center; gap: 6px; width: 100%;';
+
+                const seqBar = document.createElement('div');
+                seqBar.style.cssText = 'flex: 1; min-width: 80px; max-width: 150px; height: 18px; border-radius: 3px; border: 1px solid rgba(255,255,255,0.15); overflow: hidden;';
+
+                if (isColorSequence(rawValue)) {
+                    seqBar.style.background = buildColorSequenceGradient(rawValue);
+                } else {
+                    seqBar.style.background = '#1a1a1a';
+                    seqBar.appendChild(buildNumberSequenceSvg(rawValue));
+                }
+
+                const countLabel = document.createElement('span');
+                countLabel.textContent = `${rawValue.length} pts`;
+                countLabel.style.cssText = 'color: #888; font-size: 11px; white-space: nowrap; flex-shrink: 0;';
+
+                seqWrapper.appendChild(seqBar);
+                seqWrapper.appendChild(countLabel);
+                valueCell.appendChild(seqWrapper);
+
+                const tipLines = rawValue.map(kp => {
+                    const env = kp.Envelope !== undefined ? ` (±${fixNum(kp.Envelope)})` : '';
+                    if (isColorSequence(rawValue)) {
+                        const to255 = (c) => Math.round(c <= 1 ? c * 255 : c);
+                        return `t=${fixNum(kp.Time)}: ${to255(kp.Value.r)}, ${to255(kp.Value.g)}, ${to255(kp.Value.b)}${env}`;
+                    }
+                    return `t=${fixNum(kp.Time)}: ${fixNum(kp.Value)}${env}`;
+                });
+                valueCell.title = tipLines.join('\n');
+
+                row.appendChild(nameCell);
+                row.appendChild(valueCell);
+                return row;
+            }
 
             let swatch = asColorSwatch(rawValue);
             let displayText = formatValue(rawValue);
@@ -2337,9 +2876,58 @@ function buildExplorer(roots, expandAll) {
         }
 
         propsPane.appendChild(table);
+
+        // --- PROPERTIES FILTER LOGIC ---
+        function filterProps() {
+            const query = propsSearchQuery.toLowerCase().trim();
+            const groupHeaders = table.querySelectorAll('.rovalra-explorer-prop-group');
+
+            groupHeaders.forEach(groupHeader => {
+                const body = groupHeader.nextElementSibling;
+                if (!body) return;
+
+                let anyVisible = false;
+                body.querySelectorAll('.rovalra-explorer-prop-row').forEach(row => {
+                    const propName = row.dataset.propName || '';
+                    const visible = !query || propName.includes(query);
+                    row.style.display = visible ? '' : 'none';
+                    if (visible) anyVisible = true;
+                });
+
+                if (query) {
+                    if (anyVisible) {
+                        groupHeader.style.display = '';
+                        body.style.display = '';
+                        if (!groupHeader.classList.contains('open')) {
+                            groupHeader.classList.add('open');
+                            arrow.textContent = '▾';
+                        }
+                    } else {
+                        groupHeader.style.display = 'none';
+                        body.style.display = 'none';
+                    }
+                } else {
+                    groupHeader.style.display = '';
+                    const isOpen = groupHeader.classList.contains('open');
+                    body.style.display = isOpen ? '' : 'none';
+                }
+            });
+        }
+
+        let propsSearchDebounce = null;
+        propsSearchInput.addEventListener('input', () => {
+            clearTimeout(propsSearchDebounce);
+            propsSearchDebounce = setTimeout(() => {
+                propsSearchQuery = propsSearchInput.value;
+                filterProps();
+            }, 100);
+        });
+
+        filterProps();
     }
 
-    function createNode(instance, depth) {
+    // --- TREE NODE CREATION ---
+    function createNode(instance, depth, query = '') {
         const node = document.createElement('div');
         node.className = 'rovalra-explorer-node';
 
@@ -2349,7 +2937,17 @@ function buildExplorer(roots, expandAll) {
 
         instanceToRowMap.set(instance, row);
 
-        const hasChildren = instance.Children && instance.Children.length > 0;
+        const allChildren = instance.Children || [];
+        let childrenToRender = allChildren;
+
+        if (query) {
+            childrenToRender = allChildren.filter(child =>
+                instanceMatchesQuery(child, query) || hasMatchingDescendant(child, query)
+            );
+        }
+
+        const hasChildren = childrenToRender.length > 0;
+        const hasAllChildren = allChildren.length > 0;
 
         const toggle = document.createElement('span');
         toggle.className = 'rovalra-explorer-toggle';
@@ -2376,15 +2974,64 @@ function buildExplorer(roots, expandAll) {
         label.textContent = getInstanceName(instance);
         label.title = `${getInstanceName(instance)} — ${instance.ClassName}`;
 
+        if (query && instanceMatchesQuery(instance, query)) {
+            label.style.color = '#5dbfff';
+            label.style.fontWeight = '600';
+        }
+
         row.appendChild(toggle);
         row.appendChild(icon);
         row.appendChild(label);
 
-        if (hasChildren) {
+        if (hasAllChildren) {
             const count = document.createElement('span');
             count.className = 'rovalra-explorer-count';
-            count.textContent = instance.Children.length;
+            if (query && childrenToRender.length !== allChildren.length) {
+                count.textContent = `${childrenToRender.length}/${allChildren.length}`;
+            } else {
+                count.textContent = allChildren.length;
+            }
             row.appendChild(count);
+        }
+
+        if (VALID_GUI_CLASSES.has(instance.ClassName) && instance.ClassName !== 'StarterGui') {
+            const visToggle = document.createElement('span');
+            visToggle.className = 'rovalra-explorer-vis-toggle';
+            visToggle.textContent = '👁';
+            visToggle.style.cursor = 'pointer';
+            visToggle.style.marginLeft = 'auto'; 
+            visToggle.style.fontSize = '14px';
+            visToggle.style.padding = '0 4px';
+            visToggle.style.userSelect = 'none';
+            visToggle.title = 'Toggle Visibility in Preview';
+
+            const propToToggle = getVisibilityProp(instance.ClassName);
+            const getVisibility = () => {
+                const val = instance.Properties?.[propToToggle];
+                return val !== false && val !== 'false' && val !== 0;
+            };
+            
+            const updateToggleVisual = () => {
+                const isVisible = getVisibility();
+                visToggle.style.opacity = isVisible ? '1' : '0.3';
+                visToggle.style.textDecoration = isVisible ? 'none' : 'line-through';
+            };
+            updateToggleVisual();
+
+            visToggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (!instance.Properties) instance.Properties = {};
+                instance.Properties[propToToggle] = !getVisibility();
+                updateToggleVisual();
+                
+                if (guiViewerRerender) guiViewerRerender();
+            });
+
+            visToggle.addEventListener('dblclick', (e) => {
+                e.stopPropagation();
+            });
+            
+            row.appendChild(visToggle);
         }
 
         node.appendChild(row);
@@ -2406,11 +3053,26 @@ function buildExplorer(roots, expandAll) {
             toggle.textContent = expanded ? '▾' : '▸';
             childContainer.style.display = expanded ? 'block' : 'none';
 
+            // Track expansion state based on context
+            if (isSearchActive) {
+                if (expanded) {
+                    searchCollapsedSet.delete(instance);
+                } else {
+                    searchCollapsedSet.add(instance);
+                }
+            } else {
+                if (expanded) {
+                    expandedInstancesSet.add(instance);
+                } else {
+                    expandedInstancesSet.delete(instance);
+                }
+            }
+
             if (expanded && !built) {
                 built = true;
                 const frag = document.createDocumentFragment();
-                for (const child of sortInstances(instance.Children)) {
-                    frag.appendChild(createNode(child, depth + 1));
+                for (const child of sortInstances(childrenToRender)) {
+                    frag.appendChild(createNode(child, depth + 1, query));
                 }
                 childContainer.appendChild(frag);
             }
@@ -2433,29 +3095,153 @@ function buildExplorer(roots, expandAll) {
         row.addEventListener('dblclick', () => {
             if (isScript) {
                 openSource(`${getInstanceName(instance)}.Source`, source);
+            } else if (VALID_GUI_CLASSES.has(instance.ClassName)) {
+                triggerGuiPreview(instance);
             } else {
                 expand();
             }
         });
 
-        if (expandAll && hasChildren) {
+        // --- DETERMINE EXPANSION STATE ---
+        let shouldNodeBeExpanded = false;
+        if (isSearchActive) {
+            // Auto-expand all nodes with children during search, UNLESS explicitly collapsed
+            shouldNodeBeExpanded = hasChildren && !searchCollapsedSet.has(instance);
+        } else {
+            // 1. Check long-term memory
+            shouldNodeBeExpanded = expandedInstancesSet.has(instance);
+            
+            // 2. Ensure ancestors of the selected instance are expanded
+            if (!shouldNodeBeExpanded && selectedInstance) {
+                let curr = parentMap.get(selectedInstance);
+                while (curr) {
+                    if (curr === instance) {
+                        shouldNodeBeExpanded = true;
+                        expandedInstancesSet.add(instance); // persist so it stays open
+                        break;
+                    }
+                    curr = parentMap.get(curr);
+                }
+            }
+            
+            // 3. Initial render expandAll flag
+            if (isInitialRender && expandAll && hasChildren) {
+                shouldNodeBeExpanded = true;
+            }
+        }
+
+        if (shouldNodeBeExpanded) {
             expand(true);
+        }
+
+        // Restore selection visual state if this is the selected instance
+        if (instance === selectedInstance) {
+            row.classList.add('selected');
+            selectedRow = row; 
         }
 
         return node;
     }
 
+    // --- BUILD VISIBLE ROOTS ---
     const sortedRoots = sortInstances(roots);
     let visibleRoots = sortedRoots.filter(
         (r) => CLASS_ORDER[r.ClassName] !== undefined,
     );
     if (visibleRoots.length === 0) visibleRoots = sortedRoots;
 
-    const frag = document.createDocumentFragment();
-    for (const root of visibleRoots) {
-        frag.appendChild(createNode(root, 0));
+    // --- TREE RENDERING ---
+    function renderTree() {
+        treeContent.replaceChildren();
+        const query = explorerSearchQuery.toLowerCase().trim();
+
+        const frag = document.createDocumentFragment();
+        let matchCount = 0;
+
+        for (const root of visibleRoots) {
+            if (query) {
+                if (!instanceMatchesQuery(root, query) && !hasMatchingDescendant(root, query)) {
+                    continue;
+                }
+            }
+            matchCount++;
+            frag.appendChild(createNode(root, 0, query));
+        }
+
+        if (query && matchCount === 0) {
+            const empty = document.createElement('div');
+            empty.style.cssText = 'padding: 16px; color: #888; text-align: center; font-size: 13px;';
+            empty.textContent = 'No matching instances found';
+            treeContent.appendChild(empty);
+        } else {
+            treeContent.appendChild(frag);
+        }
+        
+        isInitialRender = false;
     }
-    treePane.appendChild(frag);
+
+    // --- SEARCH INPUT HANDLING ---
+    let searchDebounce = null;
+    treeSearchInput.addEventListener('input', () => {
+        const val = treeSearchInput.value;
+        clearTimeout(searchDebounce);
+        
+        if (val.length === 0) {
+            // Instantly reset if cleared
+            if (isSearchActive) {
+                isSearchActive = false;
+                searchCollapsedSet.clear();
+            }
+            explorerSearchQuery = '';
+            renderTree();
+        } else if (val.length >= 2) {
+            // Debounce slightly just to prevent locking if typing incredibly fast
+            searchDebounce = setTimeout(() => {
+                if (!isSearchActive) {
+                    isSearchActive = true;
+                    searchCollapsedSet.clear();
+                }
+                explorerSearchQuery = val;
+                renderTree();
+            }, 150);
+        } else {
+            // val.length === 1
+            if (isSearchActive) {
+                // Reset because they went below 2 characters
+                isSearchActive = false;
+                searchCollapsedSet.clear();
+                explorerSearchQuery = '';
+                renderTree();
+            }
+        }
+    });
+
+    treeSearchInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            clearTimeout(searchDebounce);
+            const val = treeSearchInput.value;
+            // Force search on Enter regardless of length
+            if (val.length > 0) {
+                if (!isSearchActive) {
+                    isSearchActive = true;
+                    searchCollapsedSet.clear();
+                }
+                explorerSearchQuery = val;
+                renderTree();
+            } else {
+                if (isSearchActive) {
+                    isSearchActive = false;
+                    searchCollapsedSet.clear();
+                }
+                explorerSearchQuery = '';
+                renderTree();
+            }
+        }
+    });
+
+    // Initial tree render
+    renderTree();
 
     return wrapper;
 }
