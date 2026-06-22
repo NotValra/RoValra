@@ -32,8 +32,14 @@ function injectDropdownCss() {
     document.head.appendChild(style);
 }
 
-
-export function createDropdown({ items = [], initialValue, placeholder = 'Select...', onValueChange, onOpen, showFlags = false }) {
+export function createDropdown({
+    items = [],
+    initialValue,
+    placeholder = 'Select...',
+    onValueChange,
+    onOpen,
+    showFlags = false,
+}) {
     injectDropdownCss();
 
     const container = document.createElement('div');
@@ -41,7 +47,8 @@ export function createDropdown({ items = [], initialValue, placeholder = 'Select
 
     const trigger = document.createElement('button');
 
-    trigger.className = 'rovalra-dropdown-trigger relative clip group/interactable focus-visible:outline-focus disabled:outline-none flex items-center justify-between width-full bg-none stroke-standard radius-medium height-1000 padding-x-medium text-body-medium stroke-default content-default';
+    trigger.className =
+        'rovalra-dropdown-trigger relative clip group/interactable focus-visible:outline-focus disabled:outline-none flex items-center justify-between width-full bg-none stroke-standard radius-medium height-1000 padding-x-medium text-body-medium stroke-default content-default';
     trigger.type = 'button';
     trigger.setAttribute('role', 'combobox');
     trigger.setAttribute('aria-haspopup', 'listbox');
@@ -50,13 +57,15 @@ export function createDropdown({ items = [], initialValue, placeholder = 'Select
 
     const triggerPresentationDiv = document.createElement('div');
     triggerPresentationDiv.setAttribute('role', 'presentation');
-    triggerPresentationDiv.className = 'absolute inset-[0] transition-colors group-hover/interactable:bg-[var(--color-state-hover)] group-active/interactable:bg-[var(--color-state-press)] group-disabled/interactable:bg-none';
+    triggerPresentationDiv.className =
+        'absolute inset-[0] transition-colors group-hover/interactable:bg-[var(--color-state-hover)] group-active/interactable:bg-[var(--color-state-press)] group-disabled/interactable:bg-none';
 
     const textWrapper = document.createElement('div');
     textWrapper.className = 'grow-1 text-truncate-split text-align-x-left';
 
     const triggerValueSpan = document.createElement('span');
-    triggerValueSpan.className = 'text-no-wrap text-truncate-split content-emphasis';
+    triggerValueSpan.className =
+        'text-no-wrap text-truncate-split content-emphasis';
     triggerValueSpan.style.pointerEvents = 'none';
 
     textWrapper.innerHTML = `<span style="pointer-events: none;"></span>`;
@@ -64,13 +73,21 @@ export function createDropdown({ items = [], initialValue, placeholder = 'Select
 
     const chevron = document.createElement('span');
     chevron.setAttribute('aria-hidden', 'true');
-    chevron.className = 'rovalra-dropdown-chevron size-500 icon icon-regular-chevron-large-down content-default';
+    chevron.className =
+        'rovalra-dropdown-chevron size-500 icon icon-regular-chevron-large-down content-default';
 
     if (items && items.length > 0) {
-        const widestItem = items.reduce((prev, current) => (current.label.length > prev.label.length) ? current : prev, { label: '' });
+        const widestItem = items.reduce(
+            (prev, current) =>
+                current.label.length > prev.label.length ? current : prev,
+            { label: '' },
+        );
         triggerValueSpan.textContent = widestItem.label || placeholder;
 
-        Object.assign(trigger.style, { visibility: 'hidden', position: 'absolute' });
+        Object.assign(trigger.style, {
+            visibility: 'hidden',
+            position: 'absolute',
+        });
         container.appendChild(trigger);
         document.body.appendChild(container);
 
@@ -86,7 +103,9 @@ export function createDropdown({ items = [], initialValue, placeholder = 'Select
     trigger.append(triggerPresentationDiv, textWrapper, chevron);
 
     const updateTriggerText = (value) => {
-        const selectedItem = items ? items.find(item => item.value === value) : null;
+        const selectedItem = items
+            ? items.find((item) => item.value === value)
+            : null;
 
         while (triggerValueSpan.firstChild) {
             triggerValueSpan.removeChild(triggerValueSpan.firstChild);
@@ -161,12 +180,23 @@ export function createDropdown({ items = [], initialValue, placeholder = 'Select
         trigger.setAttribute('aria-expanded', 'false');
     };
 
-    const { element: contentPanel, toggleVisibility: toggleContentVisibility, updateSelectedState: updateContentSelectedState, refresh: refreshContent } = createDropdownContent(
-        trigger, items || [], initialValue, handleValueChange, updateTriggerText, showFlags
+    const {
+        element: contentPanel,
+        toggleVisibility: toggleContentVisibility,
+        updateSelectedState: updateContentSelectedState,
+        refresh: refreshContent,
+    } = createDropdownContent(
+        trigger,
+        items || [],
+        initialValue,
+        handleValueChange,
+        updateTriggerText,
+        showFlags,
     );
 
     const toggleDropdown = (forceOpen) => {
-        const isOpen = forceOpen ?? contentPanel.getAttribute('data-state') !== 'open';
+        const isOpen =
+            forceOpen ?? contentPanel.getAttribute('data-state') !== 'open';
 
         if (isOpen) {
             let parentIndex = -1;
@@ -184,7 +214,9 @@ export function createDropdown({ items = [], initialValue, placeholder = 'Select
 
             openDropdowns.push({ panel: contentPanel, close: toggleDropdown });
         } else {
-            const index = openDropdowns.findIndex(d => d.close === toggleDropdown);
+            const index = openDropdowns.findIndex(
+                (d) => d.close === toggleDropdown,
+            );
             if (index !== -1) {
                 while (openDropdowns.length > index) {
                     const toClose = openDropdowns.pop();
@@ -203,7 +235,8 @@ export function createDropdown({ items = [], initialValue, placeholder = 'Select
             onOpen?.();
             requestAnimationFrame(() => {
                 const rect = contentPanel.getBoundingClientRect();
-                const viewportWidth = document.documentElement.clientWidth || window.innerWidth;
+                const viewportWidth =
+                    document.documentElement.clientWidth || window.innerWidth;
                 if (rect.right > viewportWidth) {
                     const currentLeft = parseFloat(contentPanel.style.left);
                     if (!isNaN(currentLeft)) {
@@ -219,7 +252,6 @@ export function createDropdown({ items = [], initialValue, placeholder = 'Select
         toggleDropdown();
     });
 
-
     contentPanel.addEventListener('click', (e) => {
         e.stopPropagation();
     });
@@ -227,7 +259,10 @@ export function createDropdown({ items = [], initialValue, placeholder = 'Select
     const handleDocumentClick = (e) => {
         if (contentPanel.contains(e.target)) return;
 
-        if (!container.contains(e.target) && contentPanel.getAttribute('data-state') === 'open') {
+        if (
+            !container.contains(e.target) &&
+            contentPanel.getAttribute('data-state') === 'open'
+        ) {
             toggleDropdown(false);
         }
     };
@@ -246,18 +281,22 @@ export function createDropdown({ items = [], initialValue, placeholder = 'Select
             updateContentSelectedState(value);
             const parentWrapper = container.parentElement;
             if (parentWrapper) {
-                const hiddenSelect = parentWrapper.querySelector('select[style*="display: none"]');
+                const hiddenSelect = parentWrapper.querySelector(
+                    'select[style*="display: none"]',
+                );
                 if (hiddenSelect) {
                     hiddenSelect.value = value;
-                    hiddenSelect.dispatchEvent(new Event('change', { bubbles: true }));
+                    hiddenSelect.dispatchEvent(
+                        new Event('change', { bubbles: true }),
+                    );
                 }
             }
         },
         refresh: () => {
             refreshContent();
-            const selectedValue =
-                contentPanel.querySelector('[aria-selected="true"]')?.dataset
-                    .value;
+            const selectedValue = contentPanel.querySelector(
+                '[aria-selected="true"]',
+            )?.dataset.value;
             updateTriggerText(selectedValue || initialValue);
         },
         destroy: () => {
@@ -265,11 +304,16 @@ export function createDropdown({ items = [], initialValue, placeholder = 'Select
             document.removeEventListener('click', handleDocumentClick);
             contentPanel.remove();
             container.remove();
-        }
+        },
     };
 }
 
-export function createDropdownMenu({ trigger, items, onValueChange, position }) {
+export function createDropdownMenu({
+    trigger,
+    items,
+    onValueChange,
+    position,
+}) {
     injectDropdownCss();
 
     const updateTriggerText = () => {};
@@ -281,11 +325,17 @@ export function createDropdownMenu({ trigger, items, onValueChange, position }) 
     };
 
     const { element: contentPanel, toggleVisibility } = createDropdownContent(
-        trigger, items, null, handleValueChange, updateTriggerText, false
+        trigger,
+        items,
+        null,
+        handleValueChange,
+        updateTriggerText,
+        false,
     );
 
     const toggle = (forceOpen) => {
-        const isOpen = forceOpen ?? contentPanel.getAttribute('data-state') !== 'open';
+        const isOpen =
+            forceOpen ?? contentPanel.getAttribute('data-state') !== 'open';
 
         if (isOpen) {
             let parentIndex = -1;
@@ -303,7 +353,7 @@ export function createDropdownMenu({ trigger, items, onValueChange, position }) 
 
             openDropdowns.push({ panel: contentPanel, close: toggle });
         } else {
-            const index = openDropdowns.findIndex(d => d.close === toggle);
+            const index = openDropdowns.findIndex((d) => d.close === toggle);
             if (index !== -1) {
                 while (openDropdowns.length > index) {
                     const toClose = openDropdowns.pop();
@@ -340,7 +390,10 @@ export function createDropdownMenu({ trigger, items, onValueChange, position }) 
 
     document.addEventListener('click', (e) => {
         if (contentPanel.contains(e.target)) return;
-        if (!trigger.contains(e.target) && contentPanel.getAttribute('data-state') === 'open') {
+        if (
+            !trigger.contains(e.target) &&
+            contentPanel.getAttribute('data-state') === 'open'
+        ) {
             toggle(false);
         }
     });
