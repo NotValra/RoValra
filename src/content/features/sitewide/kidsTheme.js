@@ -2,6 +2,7 @@ import { createDropdownMenu } from '../../core/ui/dropdown.js';
 import { createNavbarButton } from '../../core/ui/navbarButton.js';
 import { getAssets } from '../../core/assets.js';
 import { t } from '../../core/locale/i18n.js';
+import { makeBadgeChanges } from './kidsThemeText.js';
 
 const AGE_THEME_OPTIONS = [
     {
@@ -19,11 +20,17 @@ const AGE_THEME_OPTIONS = [
         fallbackLabel: 'Roblox Select',
         value: 'select',
     },
+    {
+        labelKey: 'ageTheme.options.startmode',
+        fallbackLabel: 'Roblox Leaked Select (Start Mode)',
+        value: 'startmode',
+    },
 ];
 
 const AGE_THEME_CLASSES = [
     'age-roblox-theme',
     'age-kids-theme',
+    'age-select-theme',
     'age-startmode-theme',
 ];
 
@@ -31,7 +38,8 @@ let navbarInitialized = false;
 
 function getThemeClass(themeSelection) {
     if (themeSelection === 'kids') return 'age-kids-theme';
-    if (themeSelection === 'select') return 'age-startmode-theme';
+    if (themeSelection === 'startmode') return 'age-startmode-theme';
+    if (themeSelection === 'select') return 'age-select-theme'
     return 'age-roblox-theme';
 }
 
@@ -80,6 +88,7 @@ async function addAgeThemeNavbarButton(currentTheme) {
             chrome.storage.local.set({ ageThemeSelection: themeSelection });
             applyAgeTheme(themeSelection);
             updateSelectedMenuItem(menu, themeSelection);
+            makeBadgeChanges(); // Makes badge changes because observing body doesn't work
         },
         position: 'center',
     });

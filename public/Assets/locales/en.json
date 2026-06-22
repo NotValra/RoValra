@@ -379,7 +379,12 @@
         "options": {
             "normal": "Normal Roblox",
             "kids": "Roblox Kids",
-            "select": "Roblox Select"
+            "select": "Roblox Select",
+            "startmode": "Roblox Leaked Select (Start Mode)"
+        },
+        "badge": {
+            "kids": "KIDS",
+            "select": "SELECT"
         }
     },
     "betaPrograms": {
