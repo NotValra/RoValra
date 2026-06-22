@@ -1,0 +1,20 @@
+Default:
+  StorageKey: 'default'
+  PrimaryClass: null
+  ClassList: []
+
+Light:
+  StorageKey: 'builtin-light'
+  PrimaryClass: 'light-theme'
+  ClassList: []
+
+Dark:
+  StorageKey: 'builtin-dark'
+  PrimaryClass: 'dark-theme'
+  ClassList: []
+
+Nighty:
+  StorageKey: 'custom-nighty'
+  PrimaryClass: 'rovalra-custom-nighty-theme'
+  ClassList:
+    - 'dark-theme'

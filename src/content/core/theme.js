@@ -1,44 +1,59 @@
 // TODO get rid of this and replace it with better things
 
 import { observeAttributes } from './observer.js';
-import getVariable from './utils/css/getVariable.js';
 let cachedTheme = null;
 
 export const getCurrentTheme = () => cachedTheme || 'light';
 
 export const THEME_CONFIG = {
     light: {
-        content:        "var(--rovalra-theme-content)",  //getVariable('style-test-element.light-theme', '--rovalra-theme-content'),              
-        text:           "var(--rovalra-theme-text)",  //getVariable('style-test-element.light-theme', '--rovalra-theme-text'),         
-        header:         "var(--rovalra-theme-header)",  //getVariable('style-test-element.light-theme', '--rovalra-theme-header'),           
-        sliderOn:       "var(--rovalra-theme-sliderOn)",  //getVariable('style-test-element.light-theme', '--rovalra-theme-sliderOn'),
-        sliderOff:      "var(--rovalra-theme-sliderOff)",  //getVariable('style-test-element.light-theme', '--rovalra-theme-sliderOff'),         
-        sliderButton:   "var(--rovalra-theme-sliderButton)",  //getVariable('style-test-element.light-theme', '--rovalra-theme-sliderButton'),   
-        buttonText:     "var(--rovalra-theme-buttonText)",  //getVariable('style-test-element.light-theme', '--rovalra-theme-buttonText'),         
-        buttonBg:       "var(--rovalra-theme-buttonBg)",  //getVariable('style-test-element.light-theme', '--rovalra-theme-buttonBg'),       
-        buttonHover:    "var(--rovalra-theme-buttonHover)",  //getVariable('style-test-element.light-theme', '--rovalra-theme-buttonHover'),      
-        buttonActive:   "var(--rovalra-theme-buttonActive)",  //getVariable('style-test-element.light-theme', '--rovalra-theme-buttonActive'),   
-        buttonBorder:   "var(--rovalra-theme-buttonBorder)",  //getVariable('style-test-element.light-theme', '--rovalra-theme-buttonBorder'),      
-        discordLink:    "var(--rovalra-theme-discordLink)",  //getVariable('style-test-element.light-theme', '--rovalra-theme-discordLink'),  
-        githubLink:     "var(--rovalra-theme-githubLink)",  //getVariable('style-test-element.light-theme', '--rovalra-theme-githubLink'), 
-        robloxLink:     "var(--rovalra-theme-robloxLink)",  //getVariable('style-test-element.light-theme', '--rovalra-theme-robloxLink'),
+        content:        "var(--rovalra-theme-content)",   
+        text:           "var(--rovalra-theme-text)",  
+        header:         "var(--rovalra-theme-header)",  
+        sliderOn:       "var(--rovalra-theme-sliderOn)",
+        sliderOff:      "var(--rovalra-theme-sliderOff)",  
+        sliderButton:   "var(--rovalra-theme-sliderButton)",  
+        buttonText:     "var(--rovalra-theme-buttonText)",    
+        buttonBg:       "var(--rovalra-theme-buttonBg)",  
+        buttonHover:    "var(--rovalra-theme-buttonHover)",   
+        buttonActive:   "var(--rovalra-theme-buttonActive)",  
+        buttonBorder:   "var(--rovalra-theme-buttonBorder)",     
+        discordLink:    "var(--rovalra-theme-discordLink)",  
+        githubLink:     "var(--rovalra-theme-githubLink)",
+        robloxLink:     "var(--rovalra-theme-robloxLink)",
     },
     dark: {
-        content:        "var(--rovalra-theme-content)",  //getVariable('style-test-element.dark-theme', '--rovalra-theme-content'),                                  // 'rgb(39, 41, 48)',
-        text:           "var(--rovalra-theme-text)",  //getVariable('style-test-element.dark-theme', '--rovalra-theme-text'),                               // 'rgb(213, 215, 221)',
-        header:         "var(--rovalra-theme-header)",  //getVariable('style-test-element.dark-theme', '--rovalra-theme-header'),                                 // 'white',
-        sliderOn:       "var(--rovalra-theme-sliderOn)",  //getVariable('style-test-element.dark-theme', '--rovalra-theme-sliderOn'),                                   // '#ddd',
-        sliderOff:      "var(--rovalra-theme-sliderOff)",  //getVariable('style-test-element.dark-theme', '--rovalra-theme-sliderOff'),                                    // 'rgba(0, 0, 0, 0.1)',
-        sliderButton:   "var(--rovalra-theme-sliderButton)",  //getVariable('style-test-element.dark-theme', '--rovalra-theme-sliderButton'),                                       // 'white',
-        buttonText:     "var(--rovalra-theme-buttonText)",  //getVariable('style-test-element.dark-theme', '--rovalra-theme-buttonText'),                                     // 'rgba(255, 255, 255, 0.9)',
-        buttonBg:       "var(--rovalra-theme-buttonBg)",  //getVariable('style-test-element.dark-theme', '--rovalra-theme-buttonBg'),                                   // 'rgb(45, 48, 51)',
-        buttonHover:    "var(--rovalra-theme-buttonHover)",  //getVariable('style-test-element.dark-theme', '--rovalra-theme-buttonHover'),                                      // 'rgb(57, 60, 64)',
-        buttonActive:   "var(--rovalra-theme-buttonActive)",  //getVariable('style-test-element.dark-theme', '--rovalra-theme-buttonActive'),                                       // 'rgb(69, 73, 77)',
-        buttonBorder:   "var(--rovalra-theme-buttonBorder)",  //getVariable('style-test-element.dark-theme', '--rovalra-theme-buttonBorder'),                                       // '0px solid rgba(255, 255, 255, 0.1)',
-        discordLink:    "var(--rovalra-theme-discordLink)",  //getVariable('style-test-element.dark-theme', '--rovalra-theme-discordLink'),                                      // '#7289da',
-        githubLink:     "var(--rovalra-theme-githubLink)",  //getVariable('style-test-element.dark-theme', '--rovalra-theme-githubLink'),                                     // '#2dba4e',
-        robloxLink:     "var(--rovalra-theme-robloxLink)",  //getVariable('style-test-element.dark-theme', '--rovalra-theme-robloxLink'),                                     // '#c13ad9'
-    }
+        content:        "var(--rovalra-theme-content)",  
+        text:           "var(--rovalra-theme-text)",  
+        header:         "var(--rovalra-theme-header)",
+        sliderOn:       "var(--rovalra-theme-sliderOn)",
+        sliderOff:      "var(--rovalra-theme-sliderOff)",  
+        sliderButton:   "var(--rovalra-theme-sliderButton)", 
+        buttonText:     "var(--rovalra-theme-buttonText)",  
+        buttonBg:       "var(--rovalra-theme-buttonBg)",  
+        buttonHover:    "var(--rovalra-theme-buttonHover)",  
+        buttonActive:   "var(--rovalra-theme-buttonActive)",  
+        buttonBorder:   "var(--rovalra-theme-buttonBorder)",
+        discordLink:    "var(--rovalra-theme-discordLink)", 
+        githubLink:     "var(--rovalra-theme-githubLink)",
+        robloxLink:     "var(--rovalra-theme-robloxLink)",
+    },
+    nighty: {
+        content:        "var(--rovalra-theme-content)",  
+        text:           "var(--rovalra-theme-text)",  
+        header:         "var(--rovalra-theme-header)",
+        sliderOn:       "var(--rovalra-theme-sliderOn)",
+        sliderOff:      "var(--rovalra-theme-sliderOff)",  
+        sliderButton:   "var(--rovalra-theme-sliderButton)", 
+        buttonText:     "var(--rovalra-theme-buttonText)",  
+        buttonBg:       "var(--rovalra-theme-buttonBg)",  
+        buttonHover:    "var(--rovalra-theme-buttonHover)",  
+        buttonActive:   "var(--rovalra-theme-buttonActive)",  
+        buttonBorder:   "var(--rovalra-theme-buttonBorder)",
+        discordLink:    "var(--rovalra-theme-discordLink)", 
+        githubLink:     "var(--rovalra-theme-githubLink)",
+        robloxLink:     "var(--rovalra-theme-robloxLink)",
+    },
 };
 
 export function withErrorHandling(fn, context = '') {
@@ -63,6 +78,7 @@ export function detectTheme() {
         const body = document.body;
 
         const checkThemeClass = (targetNode) => {
+            if (targetNode.classList.contains('rovalra-custom-nighty-theme')) return 'nighty';
             if (targetNode.classList.contains('dark-theme')) return 'dark';
             if (targetNode.classList.contains('light-theme')) return 'light';
             return null;

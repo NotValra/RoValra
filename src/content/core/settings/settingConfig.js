@@ -610,7 +610,7 @@ export const SETTINGS_CONFIG = {
                 description: [
                     'Replaces the default profile avatar with a more customizable and feature-rich 3D renderer.',
                     'This feature is required for custom environments and other render-related settings.',
-                    'This feature was made possible cause of [RoAvatar](https://github.com/steinann/RoAvatar) ❤️',
+                    'This feature was made possible cause of {{[RoAvatar](https://github.com/steinann/RoAvatar) githubLink}} ❤️',
                 ],
                 type: 'checkbox',
                 default: false,
@@ -1761,7 +1761,8 @@ export const SETTINGS_CONFIG = {
             ThemeSwitcher: {
                 label: 'Theme Switcher',
                 description: [
-                    'Allows you to manually switch themes from within RoValra'
+                    'Allows you to manually switch themes from within RoValra.',
+                    'This also supports custom themes provided by RoValra.'
                 ],
                 type: 'select',
                 options: [

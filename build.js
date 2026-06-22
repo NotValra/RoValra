@@ -1,6 +1,7 @@
 const esbuild = require('esbuild');
 const fs = require('fs');
 const path = require('path');
+const yaml = require('yaml');
 let sass = null;
 try {
     sass = require('sass');
@@ -228,6 +229,17 @@ function processDirectory(src, dest) {
                         err,
                     );
                     fs.copyFileSync(srcPath, destPath);
+                }
+            } else if (ext === '.yaml') {
+                try {
+                    const data = yaml.parse(fs.readFileSync(srcPath, 'utf8'));
+                    fs.writeFileSync(destPath.slice(0, destPath.length - 4) + 'json', JSON.stringify(data, undefined, ' '));
+                } catch (err) {
+                    console.error(
+                        `Error processing ${entry.name}.`,
+                        err,
+                    );
+                    fs.copyFileSync(srcPath, destPath.slice(0, destPath.length - 4) + 'json');
                 }
             } else {
                 fs.copyFileSync(srcPath, destPath);
