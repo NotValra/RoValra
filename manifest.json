@@ -30,8 +30,7 @@
         "https://games.roblox.com/*",
         "*://*.roblox.com/*",
         "https://gamejoin.roblox.com/v1/join-game-instance",
-        "https://users.roblox.com/*",
-        "https://*.rbxcdn.com/*"
+        "https://users.roblox.com/*"
     ],
     "background": {
         "service_worker": "background.js"

@@ -82,6 +82,43 @@
     color: var(--rovalra-exp-muted);
 }
 
+.rovalra-explorer-search-container {
+    flex-shrink: 0;
+    padding: 8px;
+    background: #1e1e1e;
+    border-bottom: 1px solid #2d2d2d;
+}
+
+.rovalra-explorer-props-search {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+
+.rovalra-explorer-search-input {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 6px 10px;
+    background: #2a2a2a;
+    color: #fff;
+    border: 1px solid #3a3a3a;
+    border-radius: 4px;
+    font-size: 13px;
+    outline: none;
+}
+
+.rovalra-explorer-tree-content {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.rovalra-explorer-search-empty {
+    padding: 16px;
+    color: #888;
+    text-align: center;
+    font-size: 13px;
+}
+
 .rovalra-explorer-props-header {
     position: sticky;
     top: 0;
@@ -241,6 +278,30 @@
     border: 1px solid rgba(0, 0, 0, 0.5);
 }
 
+.rovalra-explorer-sequence {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+}
+
+.rovalra-explorer-sequence-bar {
+    flex: 1;
+    min-width: 80px;
+    max-width: 150px;
+    height: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.rovalra-explorer-sequence-count {
+    flex-shrink: 0;
+    color: #888;
+    font-size: 11px;
+    white-space: nowrap;
+}
+
 /* Link to the asset page for id-like values (textures, sounds, meshes…). */
 .rovalra-explorer-asset-link {
     flex-shrink: 0;
@@ -381,7 +442,7 @@
     border-radius: 4px;
     font-size: 13px;
     cursor: pointer;
-    
+
     optgroup {
         background: #1e1f22;
         color: #cdd0d6;
@@ -389,7 +450,7 @@
         font-style: normal;
         padding-top: 4px;
     }
-    
+
     option {
         background: #1e1f22;
         color: #cdd0d6;
@@ -408,6 +469,20 @@
     box-sizing: border-box;
     padding: 10px;
     /* display, align, justify, overflow are controlled by JS based on scale mode */
+
+    &::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.2);
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 4px;
+    }
 }
 
 .rovalra-explorer-gui-viewport-wrapper {
@@ -422,6 +497,26 @@
     background: #3b3d42;
     border: 2px solid #2c2e33;
     overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
     transform-origin: top left;
+}
+
+.rovalra-explorer-scrolling-frame {
+    &::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.2);
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.4);
+        border-radius: 4px;
+    }
+}
+
+.rovalra-no-scrollbar::-webkit-scrollbar {
+    display: none;
 }

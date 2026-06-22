@@ -1,5 +1,8 @@
 import { getPlaceIdFromUrl } from '../../core/idExtractor.js';
-import { loadAssetTree, canAccessAsset } from '../../core/utils/assetStreamer.js';
+import {
+    loadAssetTree,
+    canAccessAsset,
+} from '../../core/utils/assetStreamer.js';
 import { observeElement } from '../../core/observer.js';
 import { createOverlay } from '../../core/ui/overlay.js';
 import { getAssets } from '../../core/assets.js';
@@ -34,7 +37,12 @@ function classIconUrl(className) {
 }
 
 const CLASSIC_CLOTHING_ASSET_TYPES = new Set([
-    'TShirt', 'Shirt', 'Pants', 'ClassicTShirt', 'ClassicShirt', 'ClassicPants',
+    'TShirt',
+    'Shirt',
+    'Pants',
+    'ClassicTShirt',
+    'ClassicShirt',
+    'ClassicPants',
 ]);
 const CLASSIC_CLOTHING_ASSET_TYPE_IDS = new Set([2, 11, 12]);
 
@@ -49,9 +57,13 @@ function catalogAssetTypeName(details) {
 
 function catalogAssetTypeId(details) {
     const candidates = [
-        details?.assetType, details?.assetTypeId, details?.AssetTypeId,
-        details?.productType, details?.assetType?.id,
-        details?.assetType?.assetTypeId, details?.assetType?.Id,
+        details?.assetType,
+        details?.assetTypeId,
+        details?.AssetTypeId,
+        details?.productType,
+        details?.assetType?.id,
+        details?.assetType?.assetTypeId,
+        details?.assetType?.Id,
     ];
     for (const candidate of candidates) {
         const id = Number(candidate);
@@ -61,7 +73,10 @@ function catalogAssetTypeId(details) {
 }
 
 function isClassicClothingDetails(details) {
-    const assetTypeName = catalogAssetTypeName(details).replace(/[^A-Za-z0-9]/g, '');
+    const assetTypeName = catalogAssetTypeName(details).replace(
+        /[^A-Za-z0-9]/g,
+        '',
+    );
     const assetTypeId = catalogAssetTypeId(details);
     return (
         CLASSIC_CLOTHING_ASSET_TYPES.has(assetTypeName) ||
@@ -71,7 +86,10 @@ function isClassicClothingDetails(details) {
 
 async function isClassicClothingItem(assetId) {
     try {
-        const details = await getCatalogItemDetails(assetId, CATALOG_ITEM_TYPES.ASSET);
+        const details = await getCatalogItemDetails(
+            assetId,
+            CATALOG_ITEM_TYPES.ASSET,
+        );
         if (isClassicClothingDetails(details)) return true;
 
         const economyDetails = await callRobloxApiJson({
@@ -81,7 +99,10 @@ async function isClassicClothingItem(assetId) {
         });
         return isClassicClothingDetails(economyDetails);
     } catch (error) {
-        console.warn('[RoValra Explorer] Failed to check catalog item type:', error);
+        console.warn(
+            '[RoValra Explorer] Failed to check catalog item type:',
+            error,
+        );
         return false;
     }
 }
@@ -137,15 +158,32 @@ function formatValue(value) {
         }
         if ('Family' in value) return value.Family;
         if ('Density' in value) return 'Custom';
-        try { return JSON.stringify(value); } catch { return String(value); }
+        try {
+            return JSON.stringify(value);
+        } catch {
+            return String(value);
+        }
     }
     return String(value);
 }
 
 const GROUP_PRIORITY = [
-    'Appearance', 'Data', 'Behavior', 'Transform', 'Pivot', 'Part', 'Collision',
-    'Physics', 'Surface Inputs', 'Surface', 'Camera', 'Goals', 'Image', 'Text',
-    'Assembly', 'Scale',
+    'Appearance',
+    'Data',
+    'Behavior',
+    'Transform',
+    'Pivot',
+    'Part',
+    'Collision',
+    'Physics',
+    'Surface Inputs',
+    'Surface',
+    'Camera',
+    'Goals',
+    'Image',
+    'Text',
+    'Assembly',
+    'Scale',
 ];
 
 function propGroup(name) {
@@ -193,24 +231,46 @@ function parseAttributes(bytes) {
             const type = u8();
             let value;
             switch (type) {
-                case 0x02: value = str(); break;
-                case 0x03: value = u8() !== 0; break;
-                case 0x04: value = i32(); break;
-                case 0x05: value = f32(); break;
-                case 0x06: value = f64(); break;
-                case 0x09: value = { Scale: f32(), Offset: i32() }; break;
+                case 0x02:
+                    value = str();
+                    break;
+                case 0x03:
+                    value = u8() !== 0;
+                    break;
+                case 0x04:
+                    value = i32();
+                    break;
+                case 0x05:
+                    value = f32();
+                    break;
+                case 0x06:
+                    value = f64();
+                    break;
+                case 0x09:
+                    value = { Scale: f32(), Offset: i32() };
+                    break;
                 case 0x0a:
                     value = {
                         X: { Scale: f32(), Offset: i32() },
                         Y: { Scale: f32(), Offset: i32() },
                     };
                     break;
-                case 0x0e: value = u32(); break;
-                case 0x0f: value = { r: f32(), g: f32(), b: f32() }; break;
-                case 0x10: value = { x: f32(), y: f32() }; break;
-                case 0x11: value = { x: f32(), y: f32(), z: f32() }; break;
+                case 0x0e:
+                    value = u32();
+                    break;
+                case 0x0f:
+                    value = { r: f32(), g: f32(), b: f32() };
+                    break;
+                case 0x10:
+                    value = { x: f32(), y: f32() };
+                    break;
+                case 0x11:
+                    value = { x: f32(), y: f32(), z: f32() };
+                    break;
                 case 0x14: {
-                    const x = f32(), y = f32(), z = f32();
+                    const x = f32(),
+                        y = f32(),
+                        z = f32();
                     if (u8() === 0) for (let k = 0; k < 9; k++) f32();
                     value = `${x}, ${y}, ${z}`;
                     break;
@@ -224,7 +284,11 @@ function parseAttributes(bytes) {
                     const kc = u32();
                     const arr = [];
                     for (let k = 0; k < kc; k++)
-                        arr.push({ Time: f32(), Value: f32(), Envelope: f32() });
+                        arr.push({
+                            Time: f32(),
+                            Value: f32(),
+                            Envelope: f32(),
+                        });
                     value = arr;
                     break;
                 }
@@ -243,7 +307,9 @@ function parseAttributes(bytes) {
                     value = arr;
                     break;
                 }
-                case 0x1b: value = { Min: f32(), Max: f32() }; break;
+                case 0x1b:
+                    value = { Min: f32(), Max: f32() };
+                    break;
                 case 0x1c:
                     value = {
                         Min: { x: f32(), y: f32() },
@@ -263,21 +329,46 @@ function parseAttributes(bytes) {
             }
             result[name] = value;
         }
-    } catch { /* return whatever parsed cleanly */ }
+    } catch {
+        /* return whatever parsed cleanly */
+    }
     return result;
 }
 
 const LUAU_KEYWORDS = new Set([
-    'and', 'break', 'do', 'else', 'elseif', 'end', 'false', 'for', 'function',
-    'if', 'in', 'local', 'nil', 'not', 'or', 'repeat', 'return', 'then', 'true',
-    'until', 'while', 'continue', 'export', 'type', 'self',
+    'and',
+    'break',
+    'do',
+    'else',
+    'elseif',
+    'end',
+    'false',
+    'for',
+    'function',
+    'if',
+    'in',
+    'local',
+    'nil',
+    'not',
+    'or',
+    'repeat',
+    'return',
+    'then',
+    'true',
+    'until',
+    'while',
+    'continue',
+    'export',
+    'type',
+    'self',
 ]);
 
 function highlightLuau(source) {
     const code = document.createElement('code');
     code.className = 'rovalra-explorer-code';
 
-    const re = /(--\[\[[\s\S]*?\]\]|--[^\n]*)|(\[\[[\s\S]*?\]\]|"(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*'|`(?:\\.|[^`\\])*`)|(0[xX][0-9a-fA-F]+|\d+\.?\d*(?:[eE][+-]?\d+)?)|([A-Za-z_]\w*)|(\s+)|(.)/g;
+    const re =
+        /(--\[\[[\s\S]*?\]\]|--[^\n]*)|(\[\[[\s\S]*?\]\]|"(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*'|`(?:\\.|[^`\\])*`)|(0[xX][0-9a-fA-F]+|\d+\.?\d*(?:[eE][+-]?\d+)?)|([A-Za-z_]\w*)|(\s+)|(.)/g;
 
     let m;
     while ((m = re.exec(source))) {
@@ -302,7 +393,13 @@ function highlightLuau(source) {
 }
 
 function asColorSwatch(value) {
-    if (value && typeof value === 'object' && 'r' in value && 'g' in value && 'b' in value) {
+    if (
+        value &&
+        typeof value === 'object' &&
+        'r' in value &&
+        'g' in value &&
+        'b' in value
+    ) {
         const to255 = (c) => (c <= 1 ? Math.round(c * 255) : Math.round(c));
         return `rgb(${to255(value.r)}, ${to255(value.g)}, ${to255(value.b)})`;
     }
@@ -311,25 +408,32 @@ function asColorSwatch(value) {
 
 function isColorSequence(value) {
     if (!Array.isArray(value) || value.length === 0) return false;
-    return value.every(kp =>
-        kp && typeof kp === 'object' &&
-        typeof kp.Time === 'number' &&
-        kp.Value && typeof kp.Value === 'object' &&
-        'r' in kp.Value && 'g' in kp.Value && 'b' in kp.Value
+    return value.every(
+        (kp) =>
+            kp &&
+            typeof kp === 'object' &&
+            typeof kp.Time === 'number' &&
+            kp.Value &&
+            typeof kp.Value === 'object' &&
+            'r' in kp.Value &&
+            'g' in kp.Value &&
+            'b' in kp.Value,
     );
 }
 
 function isNumberSequence(value) {
     if (!Array.isArray(value) || value.length === 0) return false;
-    return value.every(kp =>
-        kp && typeof kp === 'object' &&
-        typeof kp.Time === 'number' &&
-        typeof kp.Value === 'number'
+    return value.every(
+        (kp) =>
+            kp &&
+            typeof kp === 'object' &&
+            typeof kp.Time === 'number' &&
+            typeof kp.Value === 'number',
     );
 }
 
 function buildColorSequenceGradient(value) {
-    const stops = value.map(kp => {
+    const stops = value.map((kp) => {
         const pct = (kp.Time || 0) * 100;
         const to255 = (c) => Math.round(c <= 1 ? c * 255 : c);
         const color = `rgb(${to255(kp.Value.r)}, ${to255(kp.Value.g)}, ${to255(kp.Value.b)})`;
@@ -339,14 +443,18 @@ function buildColorSequenceGradient(value) {
 }
 
 function buildNumberSequenceSvg(value, width = 150, height = 18) {
-    let min = Infinity, max = -Infinity;
+    let min = Infinity,
+        max = -Infinity;
     for (const kp of value) {
         if (kp.Value < min) min = kp.Value;
         if (kp.Value > max) max = kp.Value;
     }
-    if (min === max) { min -= 1; max += 1; }
+    if (min === max) {
+        min -= 1;
+        max += 1;
+    }
 
-    const pts = value.map(kp => {
+    const pts = value.map((kp) => {
         const x = (kp.Time || 0) * width;
         const y = height - ((kp.Value - min) / (max - min)) * (height - 4) - 2;
         return `${x.toFixed(2)},${y.toFixed(2)}`;
@@ -361,7 +469,10 @@ function buildNumberSequenceSvg(value, width = 150, height = 18) {
     svg.style.display = 'block';
 
     const polygon = document.createElementNS(ns, 'polygon');
-    polygon.setAttribute('points', `0,${height} ${pts.join(' ')} ${width},${height}`);
+    polygon.setAttribute(
+        'points',
+        `0,${height} ${pts.join(' ')} ${width},${height}`,
+    );
     polygon.setAttribute('fill', 'rgba(100, 170, 255, 0.25)');
     svg.appendChild(polygon);
 
@@ -390,28 +501,42 @@ function getTintFilter(color) {
     const g = color.g <= 1 ? color.g : color.g / 255;
     const b = color.b <= 1 ? color.b : color.b / 255;
 
-    if (Math.abs(r - 1) < 0.001 && Math.abs(g - 1) < 0.001 && Math.abs(b - 1) < 0.001) return null;
+    if (
+        Math.abs(r - 1) < 0.001 &&
+        Math.abs(g - 1) < 0.001 &&
+        Math.abs(b - 1) < 0.001
+    )
+        return null;
 
-    const id = `rovalra-tint-${Math.round(r*255)}-${Math.round(g*255)}-${Math.round(b*255)}`;
+    const id = `rovalra-tint-${Math.round(r * 255)}-${Math.round(g * 255)}-${Math.round(b * 255)}`;
     if (document.getElementById(id)) return `url(#${id})`;
 
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.setAttribute('width', '0');
     svg.setAttribute('height', '0');
     svg.style.position = 'absolute';
-    
-    const filter = document.createElementNS('http://www.w3.org/2000/svg', 'filter');
+
+    const filter = document.createElementNS(
+        'http://www.w3.org/2000/svg',
+        'filter',
+    );
     filter.setAttribute('id', id);
     filter.setAttribute('color-interpolation-filters', 'sRGB');
-    
-    const matrix = document.createElementNS('http://www.w3.org/2000/svg', 'feColorMatrix');
+
+    const matrix = document.createElementNS(
+        'http://www.w3.org/2000/svg',
+        'feColorMatrix',
+    );
     matrix.setAttribute('type', 'matrix');
-    matrix.setAttribute('values', `${r} 0 0 0 0  0 ${g} 0 0 0  0 0 ${b} 0 0  0 0 0 1 0`);
-    
+    matrix.setAttribute(
+        'values',
+        `${r} 0 0 0 0  0 ${g} 0 0 0  0 0 ${b} 0 0  0 0 0 1 0`,
+    );
+
     filter.appendChild(matrix);
     svg.appendChild(filter);
     document.body.appendChild(svg);
-    
+
     return `url(#${id})`;
 }
 
@@ -433,11 +558,17 @@ function buildUIGradient(g, baseColor = null, elementTransparency = 0) {
                 let next = g.Transparency[g.Transparency.length - 1];
                 for (const t of g.Transparency) {
                     if (t.Time <= kp.Time) prev = t;
-                    if (t.Time >= kp.Time) { next = t; break; }
+                    if (t.Time >= kp.Time) {
+                        next = t;
+                        break;
+                    }
                 }
                 const range = next.Time - prev.Time;
                 if (range > 0) {
-                    transp = prev.Value + (next.Value - prev.Value) * ((kp.Time - prev.Time) / range);
+                    transp =
+                        prev.Value +
+                        (next.Value - prev.Value) *
+                            ((kp.Time - prev.Time) / range);
                 } else {
                     transp = prev.Value;
                 }
@@ -446,44 +577,108 @@ function buildUIGradient(g, baseColor = null, elementTransparency = 0) {
             const finalOpacity = elementOpacity * gradientOpacity;
 
             const r = (kp.Value.r <= 1 ? kp.Value.r : kp.Value.r / 255) * baseR;
-            const grn = (kp.Value.g <= 1 ? kp.Value.g : kp.Value.g / 255) * baseG;
-            const bl = (kp.Value.b <= 1 ? kp.Value.b : kp.Value.b / 255) * baseB;
+            const grn =
+                (kp.Value.g <= 1 ? kp.Value.g : kp.Value.g / 255) * baseG;
+            const bl =
+                (kp.Value.b <= 1 ? kp.Value.b : kp.Value.b / 255) * baseB;
 
             const to255 = (c) => Math.round(c * 255);
-            stops.push(`rgba(${to255(r)}, ${to255(grn)}, ${to255(bl)}, ${finalOpacity}) ${pct}%`);
+            stops.push(
+                `rgba(${to255(r)}, ${to255(grn)}, ${to255(bl)}, ${finalOpacity}) ${pct}%`,
+            );
         }
     }
     if (stops.length === 1) stops.push(stops[0]);
     return `linear-gradient(${rot}deg, ${stops.join(', ')})`;
 }
 
-function sanitizeRichText(text) {
-    let escaped = text
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
+function parseRichTextAttributes(attrs) {
+    const parsed = {};
+    const attrRegex = /([a-zA-Z]+)\s*=\s*(?:"([^"]*)"|'([^']*)')/g;
+    let match;
+    while ((match = attrRegex.exec(attrs))) {
+        parsed[match[1].toLowerCase()] = match[2] ?? match[3] ?? '';
+    }
+    return parsed;
+}
 
-    escaped = escaped.replace(/&lt;br\s*\/?&gt;/gi, '<br/>');
-    escaped = escaped.replace(/&lt;(\/?)(b|i|u|s)&gt;/gi, '<$1$2>');
-    escaped = escaped.replace(/&lt;font\s+([^&]+?)&gt;/gi, (match, attrs) => {
-        const style = {};
-        const colorMatch = attrs.match(/color\s*=\s*&quot;([^&]+)&quot;/i);
-        if (colorMatch) style.color = colorMatch[1];
-        
-        const sizeMatch = attrs.match(/size\s*=\s*&quot;([^&]+)&quot;/i);
-        if (sizeMatch) style['font-size'] = `${sizeMatch[1]}px`;
-        
-        const faceMatch = attrs.match(/face\s*=\s*&quot;([^&]+)&quot;/i);
-        if (faceMatch) style['font-family'] = `'${faceMatch[1]}', sans-serif`;
-        
-        const styleStr = Object.entries(style).map(([k, v]) => `${k}: ${v}`).join('; ');
-        return `<span style="${styleStr}">`;
-    });
-    escaped = escaped.replace(/&lt;\/font&gt;/gi, '</span>');
-    
-    return escaped;
+function safeRichTextColor(value) {
+    if (typeof value !== 'string') return null;
+    const trimmed = value.trim();
+    if (/^#[0-9a-f]{3}(?:[0-9a-f]{3})?$/i.test(trimmed)) return trimmed;
+    const rgbMatch = trimmed.match(
+        /^rgb\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)$/i,
+    );
+    if (!rgbMatch) return null;
+    const parts = rgbMatch.slice(1).map(Number);
+    if (parts.some((part) => part < 0 || part > 255)) return null;
+    return `rgb(${parts.join(', ')})`;
+}
+
+function safeRichTextFontFace(value) {
+    if (typeof value !== 'string') return null;
+    const trimmed = value.trim();
+    if (!/^[\w .'-]{1,80}$/.test(trimmed)) return null;
+    return trimmed;
+}
+
+function applyRichTextFontStyles(el, attrs) {
+    const color = safeRichTextColor(attrs.color);
+    if (color) el.style.color = color;
+
+    const size = Number(attrs.size);
+    if (Number.isFinite(size)) {
+        el.style.fontSize = `${Math.max(1, Math.min(100, Math.round(size)))}px`;
+    }
+
+    const face = safeRichTextFontFace(attrs.face);
+    if (face) el.style.fontFamily = `"${face}", sans-serif`;
+}
+
+function appendRichText(parent, text) {
+    const stack = [parent];
+    const tagRegex = /<\s*(\/?)\s*(br|b|i|u|s|font)\b([^>]*)>/gi;
+    let lastIndex = 0;
+    let match;
+
+    while ((match = tagRegex.exec(text))) {
+        if (match.index > lastIndex) {
+            stack[stack.length - 1].appendChild(
+                document.createTextNode(text.slice(lastIndex, match.index)),
+            );
+        }
+
+        const isClosing = match[1] === '/';
+        const tagName = match[2].toLowerCase();
+
+        if (tagName === 'br' && !isClosing) {
+            stack[stack.length - 1].appendChild(document.createElement('br'));
+        } else if (isClosing) {
+            for (let i = stack.length - 1; i > 0; i--) {
+                if (stack[i].dataset.richTextTag === tagName) {
+                    stack.length = i;
+                    break;
+                }
+            }
+        } else {
+            const el = document.createElement(
+                tagName === 'font' ? 'span' : tagName,
+            );
+            el.dataset.richTextTag = tagName;
+            if (tagName === 'font')
+                applyRichTextFontStyles(el, parseRichTextAttributes(match[3]));
+            stack[stack.length - 1].appendChild(el);
+            stack.push(el);
+        }
+
+        lastIndex = tagRegex.lastIndex;
+    }
+
+    if (lastIndex < text.length) {
+        stack[stack.length - 1].appendChild(
+            document.createTextNode(text.slice(lastIndex)),
+        );
+    }
 }
 
 // --- Font Loading Logic ---
@@ -492,26 +687,78 @@ const fontFamilyMap = new Map();
 const ROBLOX_TEXT_PADDING = 4;
 
 const ROBLOX_FONT_ENUM_MAP = {
-    0: 'Legacy', 1: 'Arial', 2: 'Arial Bold', 3: 'Source Sans Pro',
-    4: 'Source Sans Pro Bold', 5: 'Source Sans Pro Light', 6: 'Source Sans Pro Italic',
-    7: 'Bodoni', 8: 'Garamond', 9: 'Cartoon', 10: 'Code',
-    11: 'Highway', 12: 'SciFi', 13: 'Arcade', 14: 'Fantasy',
-    15: 'Antique', 16: 'Source Sans Pro Semibold', 17: 'Gotham',
-    18: 'Gotham Medium', 19: 'Gotham Bold', 20: 'Gotham Black',
-    21: 'Amatic SC', 22: 'Bangers', 23: 'Creepster', 24: 'Denk One',
-    25: 'Fondamento', 26: 'Fredoka One', 27: 'Grenze Gotisch',
-    28: 'Indie Flower', 29: 'Josefin Sans', 30: 'Jura', 31: 'Kalam',
-    32: 'Luckiest Guy', 33: 'Merriweather', 34: 'Michroma', 35: 'Nunito',
-    36: 'Oswald', 37: 'Patrick Hand', 38: 'Permanent Marker', 39: 'Roboto',
-    40: 'Roboto Condensed', 41: 'Roboto Mono', 42: 'Sarpanch',
-    43: 'Special Elite', 44: 'Titillium Web', 45: 'Ubuntu',
-    46: 'Builder Sans', 47: 'Builder Sans Medium', 48: 'Builder Sans Bold',
-    49: 'Builder Sans ExtraBold', 50: 'Arimo', 51: 'Arimo Bold', 100: 'Unknown'
+    0: 'Legacy',
+    1: 'Arial',
+    2: 'Arial Bold',
+    3: 'Source Sans Pro',
+    4: 'Source Sans Pro Bold',
+    5: 'Source Sans Pro Light',
+    6: 'Source Sans Pro Italic',
+    7: 'Bodoni',
+    8: 'Garamond',
+    9: 'Cartoon',
+    10: 'Code',
+    11: 'Highway',
+    12: 'SciFi',
+    13: 'Arcade',
+    14: 'Fantasy',
+    15: 'Antique',
+    16: 'Source Sans Pro Semibold',
+    17: 'Gotham',
+    18: 'Gotham Medium',
+    19: 'Gotham Bold',
+    20: 'Gotham Black',
+    21: 'Amatic SC',
+    22: 'Bangers',
+    23: 'Creepster',
+    24: 'Denk One',
+    25: 'Fondamento',
+    26: 'Fredoka One',
+    27: 'Grenze Gotisch',
+    28: 'Indie Flower',
+    29: 'Josefin Sans',
+    30: 'Jura',
+    31: 'Kalam',
+    32: 'Luckiest Guy',
+    33: 'Merriweather',
+    34: 'Michroma',
+    35: 'Nunito',
+    36: 'Oswald',
+    37: 'Patrick Hand',
+    38: 'Permanent Marker',
+    39: 'Roboto',
+    40: 'Roboto Condensed',
+    41: 'Roboto Mono',
+    42: 'Sarpanch',
+    43: 'Special Elite',
+    44: 'Titillium Web',
+    45: 'Ubuntu',
+    46: 'Builder Sans',
+    47: 'Builder Sans Medium',
+    48: 'Builder Sans Bold',
+    49: 'Builder Sans ExtraBold',
+    50: 'Arimo',
+    51: 'Arimo Bold',
+    100: 'Unknown',
+};
+
+const ROBLOX_FONT_FAMILY_FALLBACKS = {
+    AmaticSC: '"Amatic SC", sans-serif',
+    BuilderSans: '"Builder Sans", sans-serif',
+    BuilderSansBold: '"Builder Sans", sans-serif',
+    BuilderSansExtraBold: '"Builder Sans", sans-serif',
+    BuilderSansMedium: '"Builder Sans", sans-serif',
+    SourceSansPro: '"Source Sans Pro", sans-serif',
+    SourceSansProBold: '"Source Sans Pro", sans-serif',
+    SourceSansProLight: '"Source Sans Pro", sans-serif',
+    SourceSansProSemiBold: '"Source Sans Pro", sans-serif',
 };
 
 function getRobloxAssetId(value) {
     if (typeof value !== 'string') return null;
-    const match = value.match(/(?:rbxassetid:\/\/|\/asset\/?\?id=|assetid=|[?&]id=)(\d+)/i);
+    const match = value.match(
+        /(?:rbxassetid:\/\/|\/asset\/?\?id=|assetid=|[?&]id=)(\d+)/i,
+    );
     return match ? match[1] : null;
 }
 
@@ -525,43 +772,65 @@ function cssFontStyle(style) {
 }
 
 async function loadFontFamily(fontFamilyUrl) {
-    if (fontFamilyMap.has(fontFamilyUrl)) return fontFamilyMap.get(fontFamilyUrl);
+    if (fontFamilyMap.has(fontFamilyUrl))
+        return fontFamilyMap.get(fontFamilyUrl);
 
     const customAssetId = getRobloxAssetId(fontFamilyUrl);
     const isCustomFont = !!customAssetId;
-    const familyName = isCustomFont ? null : fontFamilyUrl.split('/').pop().replace('.json', '');
-    
+
+    if (!isCustomFont) {
+        const familyName = fontFamilyUrl.split('/').pop().replace('.json', '');
+        const fallback =
+            ROBLOX_FONT_FAMILY_FALLBACKS[familyName] ||
+            `"${familyName}", sans-serif`;
+        fontFamilyMap.set(fontFamilyUrl, fallback);
+        return fallback;
+    }
+
     return new Promise((resolve) => {
-        const request = isCustomFont
-            ? { action: 'getCustomFontFamily', assetId: customAssetId }
-            : { action: 'getFontFamily', familyName };
+        const request = {
+            action: 'getCustomFontFamily',
+            assetId: customAssetId,
+        };
 
         chrome.runtime.sendMessage(request, (response) => {
             if (chrome.runtime.lastError || !response || !response.success) {
-                console.warn('Failed to load font from background', fontFamilyUrl, response?.error);
+                console.warn(
+                    'Failed to load font from background',
+                    fontFamilyUrl,
+                    response?.error,
+                );
                 fontFamilyMap.set(fontFamilyUrl, 'sans-serif');
                 return resolve('sans-serif');
             }
-            
+
             const { name, faces } = response;
             const fontPromises = [];
-            
+
             for (const face of faces) {
                 const mimeType = face.mimeType || 'font/ttf';
                 const fontUrl = `data:${mimeType};base64,${face.base64}`;
                 const fontFace = new FontFace(name, `url(${fontUrl})`, {
                     weight: face.weight.toString(),
-                    style: cssFontStyle(face.style)
+                    style: cssFontStyle(face.style),
                 });
                 fontPromises.push(
-                    fontFace.load().then(loadedFace => {
-                        document.fonts.add(loadedFace);
-                    }).catch(e => {
-                        console.warn('Failed to load font face', name, face.weight, e);
-                    })
+                    fontFace
+                        .load()
+                        .then((loadedFace) => {
+                            document.fonts.add(loadedFace);
+                        })
+                        .catch((e) => {
+                            console.warn(
+                                'Failed to load font face',
+                                name,
+                                face.weight,
+                                e,
+                            );
+                        }),
                 );
             }
-            
+
             Promise.all(fontPromises).then(() => {
                 const cssName = `'${name}', sans-serif`;
                 fontFamilyMap.set(fontFamilyUrl, cssName);
@@ -574,18 +843,25 @@ async function loadFontFamily(fontFamilyUrl) {
 async function preloadFonts(instance) {
     if (!instance) return;
     const fontPromises = [];
-    
+
     function collectFonts(inst) {
         if (!inst) return;
         if (['TextLabel', 'TextButton', 'TextBox'].includes(inst.ClassName)) {
             const fontFace = inst.Properties?.FontFace;
-            if (fontFace && fontFace.Family && !fontFamilyMap.has(fontFace.Family)) {
+            if (
+                fontFace &&
+                fontFace.Family &&
+                !fontFamilyMap.has(fontFace.Family)
+            ) {
                 fontPromises.push(
-                    loadFontFamily(fontFace.Family)
-                        .catch(e => {
-                            console.warn('Failed to preload font', fontFace.Family, e);
-                            fontFamilyMap.set(fontFace.Family, 'sans-serif');
-                        })
+                    loadFontFamily(fontFace.Family).catch((e) => {
+                        console.warn(
+                            'Failed to preload font',
+                            fontFace.Family,
+                            e,
+                        );
+                        fontFamilyMap.set(fontFace.Family, 'sans-serif');
+                    }),
                 );
             }
         }
@@ -595,7 +871,7 @@ async function preloadFonts(instance) {
             }
         }
     }
-    
+
     collectFonts(instance);
     await Promise.all(fontPromises);
 }
@@ -625,13 +901,14 @@ function calculateOptimalFontSize(
     fontWeight,
     fontStyle,
     maxFontSize,
-    minFontSize
+    minFontSize,
 ) {
-    if (width <= 0 || height <= 0 || !text || text.length === 0) return minFontSize;
+    if (width <= 0 || height <= 0 || !text || text.length === 0)
+        return minFontSize;
 
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
-    
+
     let low = Math.floor(minFontSize);
     let high = Math.ceil(maxFontSize);
     let bestFit = low;
@@ -639,20 +916,20 @@ function calculateOptimalFontSize(
     while (low <= high) {
         const mid = Math.floor((low + high) / 2);
         ctx.font = `${fontStyle} ${fontWeight} ${mid}px ${fontFamily}`;
-        
+
         const paragraphs = text.split('\n');
         let lines = 0;
         let maxLineWidth = 0;
-        
+
         for (const p of paragraphs) {
             const words = p.split(' ');
             let currentLine = '';
-            
+
             if (words.length === 1 && words[0] === '') {
                 lines++;
                 continue;
             }
-            
+
             for (const word of words) {
                 const testLine = currentLine ? currentLine + ' ' + word : word;
                 const metrics = ctx.measureText(testLine);
@@ -665,16 +942,16 @@ function calculateOptimalFontSize(
                     currentLine = testLine;
                 }
             }
-            
+
             if (currentLine) {
                 lines++;
                 const w = ctx.measureText(currentLine).width;
                 if (w > maxLineWidth) maxLineWidth = w;
             }
         }
-        
+
         const estimatedHeight = lines * mid * 1.2;
-        
+
         if (estimatedHeight <= height && maxLineWidth <= width) {
             bestFit = mid;
             low = mid + 1;
@@ -687,44 +964,272 @@ function calculateOptimalFontSize(
 }
 
 const DEFAULT_DEVICES = [
-    { Name: "iPad 8th Generation", Width: 1080, Height: 810, PixelDensity: 264, Category: "Tablet" },
-    { Name: "iPad 9th Generation", Width: 1080, Height: 810, PixelDensity: 264, Category: "Tablet" },
-    { Name: "Xiaomi Redmi Pad SE", Width: 960, Height: 600, PixelDensity: 206, Category: "Tablet" },
-    { Name: "Amazon Fire HD 10 (2023)", Width: 960, Height: 600, PixelDensity: 224, Category: "Tablet" },
-    { Name: "iPad 10th Generation", Width: 1180, Height: 820, PixelDensity: 264, Category: "Tablet" },
-    { Name: "iPad A16", Width: 1180, Height: 820, PixelDensity: 264, Category: "Tablet" },
-    { Name: "Samsung Galaxy Tab A8", Width: 960, Height: 600, PixelDensity: 216, Category: "Tablet" },
-    { Name: "Samsung Galaxy Tab A9", Width: 1340, Height: 800, PixelDensity: 179, Category: "Tablet" },
-    { Name: "iPad Air 5th Generation", Width: 1180, Height: 820, PixelDensity: 264, Category: "Tablet" },
-    { Name: "iPad Pro M4 (11in)", Width: 1210, Height: 834, PixelDensity: 264, Category: "Tablet" },
-    { Name: "iPad Pro M5 (13in)", Width: 1376, Height: 1032, PixelDensity: 264, Category: "Tablet" },
-    { Name: "Samsung Galaxy Tab A9+", Width: 960, Height: 600, PixelDensity: 206, Category: "Tablet" },
-    { Name: "Samsung Galaxy Tab S11", Width: 1280, Height: 800, PixelDensity: 274, Category: "Tablet" },
-    { Name: "iPhone XR", Width: 896, Height: 414, PixelDensity: 326, Category: "Phone" },
-    { Name: "iPhone 11", Width: 896, Height: 414, PixelDensity: 326, Category: "Phone" },
-    { Name: "Samsung Galaxy A06", Width: 800, Height: 360, PixelDensity: 262, Category: "Phone" },
-    { Name: "iPhone 13", Width: 844, Height: 390, PixelDensity: 460, Category: "Phone" },
-    { Name: "iPhone 13 Pro", Width: 844, Height: 390, PixelDensity: 460, Category: "Phone" },
-    { Name: "iPhone 13 Pro Max", Width: 926, Height: 428, PixelDensity: 458, Category: "Phone" },
-    { Name: "iPhone 14", Width: 844, Height: 390, PixelDensity: 460, Category: "Phone" },
-    { Name: "Samsung Galaxy A16", Width: 780, Height: 360, PixelDensity: 385, Category: "Phone" },
-    { Name: "iPhone 16", Width: 852, Height: 393, PixelDensity: 460, Category: "Phone" },
-    { Name: "iPhone 16 Pro", Width: 874, Height: 402, PixelDensity: 460, Category: "Phone" },
-    { Name: "iPhone 16 Pro Max", Width: 956, Height: 440, PixelDensity: 460, Category: "Phone" },
-    { Name: "iPhone 17 Pro", Width: 874, Height: 402, PixelDensity: 460, Category: "Phone" },
-    { Name: "Samsung Galaxy S22 Ultra", Width: 772, Height: 360, PixelDensity: 501, Category: "Phone" },
-    { Name: "Samsung Galaxy S25 Ultra", Width: 780, Height: 360, PixelDensity: 498, Category: "Phone" },
-    { Name: "Desktop", Width: 1366, Height: 768, PixelDensity: 96, Category: "Desktop" },
-    { Name: "HD 720", Width: 1280, Height: 720, PixelDensity: 96, Category: "Desktop" },
-    { Name: "HD 1080", Width: 1920, Height: 1080, PixelDensity: 96, Category: "Desktop" },
-    { Name: "VGA", Width: 640, Height: 480, PixelDensity: 96, Category: "Desktop" },
-    { Name: "Xbox One", Width: 1920, Height: 1080, PixelDensity: 96, Category: "Console" },
-    { Name: "PS4", Width: 1920, Height: 1080, PixelDensity: 96, Category: "Console" },
-    { Name: "PS5", Width: 1920, Height: 1080, PixelDensity: 96, Category: "Console" },
-    { Name: "Generic Handheld HD 720", Width: 1280, Height: 720, PixelDensity: 274, Category: "Console" },
-    { Name: "Generic Handheld HD 1080", Width: 1920, Height: 1080, PixelDensity: 411, Category: "Console" },
-    { Name: "Meta Quest 2", Width: 611, Height: 640, PixelDensity: 773, Category: "VR" },
-    { Name: "Meta Quest 3", Width: 688, Height: 736, PixelDensity: 1218, Category: "VR" },
+    {
+        Name: 'iPad 8th Generation',
+        Width: 1080,
+        Height: 810,
+        PixelDensity: 264,
+        Category: 'Tablet',
+    },
+    {
+        Name: 'iPad 9th Generation',
+        Width: 1080,
+        Height: 810,
+        PixelDensity: 264,
+        Category: 'Tablet',
+    },
+    {
+        Name: 'Xiaomi Redmi Pad SE',
+        Width: 960,
+        Height: 600,
+        PixelDensity: 206,
+        Category: 'Tablet',
+    },
+    {
+        Name: 'Amazon Fire HD 10 (2023)',
+        Width: 960,
+        Height: 600,
+        PixelDensity: 224,
+        Category: 'Tablet',
+    },
+    {
+        Name: 'iPad 10th Generation',
+        Width: 1180,
+        Height: 820,
+        PixelDensity: 264,
+        Category: 'Tablet',
+    },
+    {
+        Name: 'iPad A16',
+        Width: 1180,
+        Height: 820,
+        PixelDensity: 264,
+        Category: 'Tablet',
+    },
+    {
+        Name: 'Samsung Galaxy Tab A8',
+        Width: 960,
+        Height: 600,
+        PixelDensity: 216,
+        Category: 'Tablet',
+    },
+    {
+        Name: 'Samsung Galaxy Tab A9',
+        Width: 1340,
+        Height: 800,
+        PixelDensity: 179,
+        Category: 'Tablet',
+    },
+    {
+        Name: 'iPad Air 5th Generation',
+        Width: 1180,
+        Height: 820,
+        PixelDensity: 264,
+        Category: 'Tablet',
+    },
+    {
+        Name: 'iPad Pro M4 (11in)',
+        Width: 1210,
+        Height: 834,
+        PixelDensity: 264,
+        Category: 'Tablet',
+    },
+    {
+        Name: 'iPad Pro M5 (13in)',
+        Width: 1376,
+        Height: 1032,
+        PixelDensity: 264,
+        Category: 'Tablet',
+    },
+    {
+        Name: 'Samsung Galaxy Tab A9+',
+        Width: 960,
+        Height: 600,
+        PixelDensity: 206,
+        Category: 'Tablet',
+    },
+    {
+        Name: 'Samsung Galaxy Tab S11',
+        Width: 1280,
+        Height: 800,
+        PixelDensity: 274,
+        Category: 'Tablet',
+    },
+    {
+        Name: 'iPhone XR',
+        Width: 896,
+        Height: 414,
+        PixelDensity: 326,
+        Category: 'Phone',
+    },
+    {
+        Name: 'iPhone 11',
+        Width: 896,
+        Height: 414,
+        PixelDensity: 326,
+        Category: 'Phone',
+    },
+    {
+        Name: 'Samsung Galaxy A06',
+        Width: 800,
+        Height: 360,
+        PixelDensity: 262,
+        Category: 'Phone',
+    },
+    {
+        Name: 'iPhone 13',
+        Width: 844,
+        Height: 390,
+        PixelDensity: 460,
+        Category: 'Phone',
+    },
+    {
+        Name: 'iPhone 13 Pro',
+        Width: 844,
+        Height: 390,
+        PixelDensity: 460,
+        Category: 'Phone',
+    },
+    {
+        Name: 'iPhone 13 Pro Max',
+        Width: 926,
+        Height: 428,
+        PixelDensity: 458,
+        Category: 'Phone',
+    },
+    {
+        Name: 'iPhone 14',
+        Width: 844,
+        Height: 390,
+        PixelDensity: 460,
+        Category: 'Phone',
+    },
+    {
+        Name: 'Samsung Galaxy A16',
+        Width: 780,
+        Height: 360,
+        PixelDensity: 385,
+        Category: 'Phone',
+    },
+    {
+        Name: 'iPhone 16',
+        Width: 852,
+        Height: 393,
+        PixelDensity: 460,
+        Category: 'Phone',
+    },
+    {
+        Name: 'iPhone 16 Pro',
+        Width: 874,
+        Height: 402,
+        PixelDensity: 460,
+        Category: 'Phone',
+    },
+    {
+        Name: 'iPhone 16 Pro Max',
+        Width: 956,
+        Height: 440,
+        PixelDensity: 460,
+        Category: 'Phone',
+    },
+    {
+        Name: 'iPhone 17 Pro',
+        Width: 874,
+        Height: 402,
+        PixelDensity: 460,
+        Category: 'Phone',
+    },
+    {
+        Name: 'Samsung Galaxy S22 Ultra',
+        Width: 772,
+        Height: 360,
+        PixelDensity: 501,
+        Category: 'Phone',
+    },
+    {
+        Name: 'Samsung Galaxy S25 Ultra',
+        Width: 780,
+        Height: 360,
+        PixelDensity: 498,
+        Category: 'Phone',
+    },
+    {
+        Name: 'Desktop',
+        Width: 1366,
+        Height: 768,
+        PixelDensity: 96,
+        Category: 'Desktop',
+    },
+    {
+        Name: 'HD 720',
+        Width: 1280,
+        Height: 720,
+        PixelDensity: 96,
+        Category: 'Desktop',
+    },
+    {
+        Name: 'HD 1080',
+        Width: 1920,
+        Height: 1080,
+        PixelDensity: 96,
+        Category: 'Desktop',
+    },
+    {
+        Name: 'VGA',
+        Width: 640,
+        Height: 480,
+        PixelDensity: 96,
+        Category: 'Desktop',
+    },
+    {
+        Name: 'Xbox One',
+        Width: 1920,
+        Height: 1080,
+        PixelDensity: 96,
+        Category: 'Console',
+    },
+    {
+        Name: 'PS4',
+        Width: 1920,
+        Height: 1080,
+        PixelDensity: 96,
+        Category: 'Console',
+    },
+    {
+        Name: 'PS5',
+        Width: 1920,
+        Height: 1080,
+        PixelDensity: 96,
+        Category: 'Console',
+    },
+    {
+        Name: 'Generic Handheld HD 720',
+        Width: 1280,
+        Height: 720,
+        PixelDensity: 274,
+        Category: 'Console',
+    },
+    {
+        Name: 'Generic Handheld HD 1080',
+        Width: 1920,
+        Height: 1080,
+        PixelDensity: 411,
+        Category: 'Console',
+    },
+    {
+        Name: 'Meta Quest 2',
+        Width: 611,
+        Height: 640,
+        PixelDensity: 773,
+        Category: 'VR',
+    },
+    {
+        Name: 'Meta Quest 3',
+        Width: 688,
+        Height: 736,
+        PixelDensity: 1218,
+        Category: 'VR',
+    },
 ];
 
 function resolveTextXAlignment(value) {
@@ -740,19 +1245,46 @@ function resolveTextYAlignment(value) {
 }
 
 const DECORATOR_CLASSES = new Set([
-    'UIStroke', 'UICorner', 'UIGradient', 'UIPadding', 'UIScale', 'UIShadow', 
-    'UIAspectRatioConstraint', 'UISizeConstraint', 'UITextSizeConstraint', 
-    'UIFlexItem', 'UIListLayout', 'UIGridLayout'
+    'UIStroke',
+    'UICorner',
+    'UIGradient',
+    'UIPadding',
+    'UIScale',
+    'UIShadow',
+    'UIAspectRatioConstraint',
+    'UISizeConstraint',
+    'UITextSizeConstraint',
+    'UIFlexItem',
+    'UIListLayout',
+    'UIGridLayout',
 ]);
 
 const VALID_GUI_CLASSES = new Set([
-    'ScreenGui', 'BillboardGui', 'SurfaceGui', 'PluginGui', 'DockWidgetPluginGui', 'Frame', 'ScrollingFrame',
-    'TextLabel', 'TextButton', 'TextBox', 'ImageLabel', 'ImageButton',
-    'ViewportFrame', 'VideoFrame', 'CanvasGroup', 'Folder', 'StarterGui'
+    'ScreenGui',
+    'BillboardGui',
+    'SurfaceGui',
+    'PluginGui',
+    'DockWidgetPluginGui',
+    'Frame',
+    'ScrollingFrame',
+    'TextLabel',
+    'TextButton',
+    'TextBox',
+    'ImageLabel',
+    'ImageButton',
+    'ViewportFrame',
+    'VideoFrame',
+    'CanvasGroup',
+    'Folder',
+    'StarterGui',
 ]);
 
 function getVisibilityProp(className) {
-    if (className === 'ScreenGui' || className === 'BillboardGui' || className === 'SurfaceGui') {
+    if (
+        className === 'ScreenGui' ||
+        className === 'BillboardGui' ||
+        className === 'SurfaceGui'
+    ) {
         return 'Enabled';
     }
     return 'Visible';
@@ -763,10 +1295,15 @@ function getVisibilityProp(className) {
 // ==========================================
 function buildLayoutTree(instance, isRoot = false, parentPath = '') {
     const props = instance.Properties || {};
-    
+
     if (!isRoot) {
         const visProp = getVisibilityProp(instance.ClassName);
-        if (props[visProp] === false || props[visProp] === 'false' || props[visProp] === 0) return null;
+        if (
+            props[visProp] === false ||
+            props[visProp] === 'false' ||
+            props[visProp] === 0
+        )
+            return null;
     }
     if (DECORATOR_CLASSES.has(instance.ClassName)) return null;
 
@@ -775,7 +1312,7 @@ function buildLayoutTree(instance, isRoot = false, parentPath = '') {
 
     const decorators = {};
     let childrenToProcess = [];
-    
+
     if (instance.Children) {
         for (const child of instance.Children) {
             if (DECORATOR_CLASSES.has(child.ClassName)) {
@@ -787,12 +1324,13 @@ function buildLayoutTree(instance, isRoot = false, parentPath = '') {
             }
         }
     }
-    
+
     if (decorators.UIListLayout || decorators.UIGridLayout) {
         const layout = decorators.UIListLayout || decorators.UIGridLayout;
         const sortOrder = layout.SortOrder ?? 0;
         childrenToProcess.sort((a, b) => {
-            if (sortOrder === 2) { // LayoutOrder
+            if (sortOrder === 2) {
+                // LayoutOrder
                 const ao = a.Properties?.LayoutOrder ?? 0;
                 const bo = b.Properties?.LayoutOrder ?? 0;
                 if (ao !== bo) return ao - bo;
@@ -802,7 +1340,7 @@ function buildLayoutTree(instance, isRoot = false, parentPath = '') {
             return an < bn ? -1 : an > bn ? 1 : 0;
         });
     }
-    
+
     const name = getInstanceName(instance);
     const currentPath = parentPath ? `${parentPath}.${name}` : name;
 
@@ -815,14 +1353,14 @@ function buildLayoutTree(instance, isRoot = false, parentPath = '') {
         resolvedHeight: 0,
         resolvedX: 0,
         resolvedY: 0,
-        path: currentPath
+        path: currentPath,
     };
-    
+
     for (const child of childrenToProcess) {
         const childNode = buildLayoutTree(child, false, currentPath);
         if (childNode) node.children.push(childNode);
     }
-    
+
     return node;
 }
 
@@ -854,11 +1392,11 @@ function applyModifiers(child) {
         const max = child.decorators.UISizeConstraint.MaxSize;
         const min = child.decorators.UISizeConstraint.MinSize;
         if (max) {
-            if (max.x > 0) width  = Math.min(width,  max.x);
+            if (max.x > 0) width = Math.min(width, max.x);
             if (max.y > 0) height = Math.min(height, max.y);
         }
         if (min) {
-            if (min.x > 0) width  = Math.max(width,  min.x);
+            if (min.x > 0) width = Math.max(width, min.x);
             if (min.y > 0) height = Math.max(height, min.y);
         }
     }
@@ -870,7 +1408,8 @@ function applyModifiers(child) {
         const dominantAxis = c.DominantAxis ?? 0;
         const aspectType = c.AspectType ?? 0;
 
-        if (aspectType === 0) { // FitWithinMaxSize
+        if (aspectType === 0) {
+            // FitWithinMaxSize
             if (dominantAxis === 0) {
                 const newHeight = width / ar;
                 if (newHeight <= height) height = newHeight;
@@ -880,13 +1419,14 @@ function applyModifiers(child) {
                 if (newWidth <= width) width = newWidth;
                 else height = width / ar;
             }
-        } else { // ScaleWithParentSize
+        } else {
+            // ScaleWithParentSize
             if (width / height > ar) width = height * ar;
             else height = width / ar;
         }
     }
 
-    child.resolvedWidth  = Math.max(0, width);
+    child.resolvedWidth = Math.max(0, width);
     child.resolvedHeight = Math.max(0, height);
 }
 
@@ -900,19 +1440,25 @@ function resolveNodeSize(node, parentW, parentH) {
     }
 
     const props = node.instance.Properties || {};
-    const size = props.Size || { X: { Scale: 1, Offset: 0 }, Y: { Scale: 1, Offset: 0 } };
-    
+    const size = props.Size || {
+        X: { Scale: 1, Offset: 0 },
+        Y: { Scale: 1, Offset: 0 },
+    };
+
     let scaleX = size.X?.Scale || 0;
     let offsetX = size.X?.Offset || 0;
     let scaleY = size.Y?.Scale || 0;
     let offsetY = size.Y?.Offset || 0;
 
-    const pos = props.Position || { X: { Scale: 0, Offset: 0 }, Y: { Scale: 0, Offset: 0 } };
-    let x = (parentW * (pos.X?.Scale || 0)) + (pos.X?.Offset || 0);
-    let y = (parentH * (pos.Y?.Scale || 0)) + (pos.Y?.Offset || 0);
+    const pos = props.Position || {
+        X: { Scale: 0, Offset: 0 },
+        Y: { Scale: 0, Offset: 0 },
+    };
+    let x = parentW * (pos.X?.Scale || 0) + (pos.X?.Offset || 0);
+    let y = parentH * (pos.Y?.Scale || 0) + (pos.Y?.Offset || 0);
 
-    node.resolvedWidth  = Math.max(0, (parentW * scaleX) + offsetX);
-    node.resolvedHeight = Math.max(0, (parentH * scaleY) + offsetY);
+    node.resolvedWidth = Math.max(0, parentW * scaleX + offsetX);
+    node.resolvedHeight = Math.max(0, parentH * scaleY + offsetY);
     node.resolvedX = x;
     node.resolvedY = y;
 
@@ -926,9 +1472,18 @@ function resolveNodeSize(node, parentW, parentH) {
 
     // Pre-calculate CanvasSize relative to the parent's content size
     if (node.instance.ClassName === 'ScrollingFrame') {
-        const canvasSize = props.CanvasSize || { X: { Scale: 0, Offset: 0 }, Y: { Scale: 0, Offset: 0 } };
-        node.baseCanvasW = Math.max((parentW * (canvasSize.X?.Scale || 0)) + (canvasSize.X?.Offset || 0), node.resolvedWidth);
-        node.baseCanvasH = Math.max((parentH * (canvasSize.Y?.Scale || 0)) + (canvasSize.Y?.Offset || 0), node.resolvedHeight);
+        const canvasSize = props.CanvasSize || {
+            X: { Scale: 0, Offset: 0 },
+            Y: { Scale: 0, Offset: 0 },
+        };
+        node.baseCanvasW = Math.max(
+            parentW * (canvasSize.X?.Scale || 0) + (canvasSize.X?.Offset || 0),
+            node.resolvedWidth,
+        );
+        node.baseCanvasH = Math.max(
+            parentH * (canvasSize.Y?.Scale || 0) + (canvasSize.Y?.Offset || 0),
+            node.resolvedHeight,
+        );
     }
 }
 
@@ -938,13 +1493,21 @@ function applyChildLayout(node) {
 
     if (node.decorators.UIPadding) {
         const pad = node.decorators.UIPadding;
-        const padL = ((pad.PaddingLeft?.Scale || 0) * node.resolvedWidth) + (pad.PaddingLeft?.Offset || 0);
-        const padR = ((pad.PaddingRight?.Scale || 0) * node.resolvedWidth) + (pad.PaddingRight?.Offset || 0);
-        const padT = ((pad.PaddingTop?.Scale || 0) * node.resolvedHeight) + (pad.PaddingTop?.Offset || 0);
-        const padB = ((pad.PaddingBottom?.Scale || 0) * node.resolvedHeight) + (pad.PaddingBottom?.Offset || 0);
+        const padL =
+            (pad.PaddingLeft?.Scale || 0) * node.resolvedWidth +
+            (pad.PaddingLeft?.Offset || 0);
+        const padR =
+            (pad.PaddingRight?.Scale || 0) * node.resolvedWidth +
+            (pad.PaddingRight?.Offset || 0);
+        const padT =
+            (pad.PaddingTop?.Scale || 0) * node.resolvedHeight +
+            (pad.PaddingTop?.Offset || 0);
+        const padB =
+            (pad.PaddingBottom?.Scale || 0) * node.resolvedHeight +
+            (pad.PaddingBottom?.Offset || 0);
         contentW = Math.max(0, contentW - padL - padR);
         contentH = Math.max(0, contentH - padT - padB);
-        
+
         node.padX = padL;
         node.padY = padT;
     } else {
@@ -979,29 +1542,47 @@ function applyChildLayout(node) {
         resolveChildren(canvasW, canvasH);
 
         if (autoCanvas > 0) {
-            let maxChildX = 0, maxChildY = 0;
+            let maxChildX = 0,
+                maxChildY = 0;
             for (const child of node.children) {
-                maxChildX = Math.max(maxChildX, child.resolvedX + child.resolvedWidth - node.padX);
-                maxChildY = Math.max(maxChildY, child.resolvedY + child.resolvedHeight - node.padY);
+                maxChildX = Math.max(
+                    maxChildX,
+                    child.resolvedX + child.resolvedWidth - node.padX,
+                );
+                maxChildY = Math.max(
+                    maxChildY,
+                    child.resolvedY + child.resolvedHeight - node.padY,
+                );
             }
-            
-            let padR = 0, padB = 0;
+
+            let padR = 0,
+                padB = 0;
             if (node.decorators.UIPadding) {
                 const pad = node.decorators.UIPadding;
-                padR = ((pad.PaddingRight?.Scale || 0) * node.resolvedWidth) + (pad.PaddingRight?.Offset || 0);
-                padB = ((pad.PaddingBottom?.Scale || 0) * node.resolvedHeight) + (pad.PaddingBottom?.Offset || 0);
+                padR =
+                    (pad.PaddingRight?.Scale || 0) * node.resolvedWidth +
+                    (pad.PaddingRight?.Offset || 0);
+                padB =
+                    (pad.PaddingBottom?.Scale || 0) * node.resolvedHeight +
+                    (pad.PaddingBottom?.Offset || 0);
             }
-            
+
             let needsRerun = false;
             if (autoCanvas === 1 || autoCanvas === 3) {
                 const newW = Math.max(canvasW, maxChildX + padR);
-                if (newW > canvasW) { canvasW = newW; needsRerun = true; }
+                if (newW > canvasW) {
+                    canvasW = newW;
+                    needsRerun = true;
+                }
             }
             if (autoCanvas === 2 || autoCanvas === 3) {
                 const newH = Math.max(canvasH, maxChildY + padB);
-                if (newH > canvasH) { canvasH = newH; needsRerun = true; }
+                if (newH > canvasH) {
+                    canvasH = newH;
+                    needsRerun = true;
+                }
             }
-            
+
             // Second pass with updated canvas size
             if (needsRerun) {
                 resolveChildren(canvasW, canvasH);
@@ -1034,22 +1615,36 @@ function applyChildLayout(node) {
         for (const child of node.children) {
             const childVisProp = getVisibilityProp(child.instance.ClassName);
             if (child.instance.Properties?.[childVisProp] === false) continue;
-            maxChildX = Math.max(maxChildX, child.resolvedX + child.resolvedWidth);
-            maxChildY = Math.max(maxChildY, child.resolvedY + child.resolvedHeight);
+            maxChildX = Math.max(
+                maxChildX,
+                child.resolvedX + child.resolvedWidth,
+            );
+            maxChildY = Math.max(
+                maxChildY,
+                child.resolvedY + child.resolvedHeight,
+            );
         }
 
-        let padR = 0, padB = 0;
+        let padR = 0,
+            padB = 0;
         if (node.decorators.UIPadding) {
             const pad = node.decorators.UIPadding;
-            padR = ((pad.PaddingRight?.Scale || 0) * node.resolvedWidth) + (pad.PaddingRight?.Offset || 0);
-            padB = ((pad.PaddingBottom?.Scale || 0) * node.resolvedHeight) + (pad.PaddingBottom?.Offset || 0);
+            padR =
+                (pad.PaddingRight?.Scale || 0) * node.resolvedWidth +
+                (pad.PaddingRight?.Offset || 0);
+            padB =
+                (pad.PaddingBottom?.Scale || 0) * node.resolvedHeight +
+                (pad.PaddingBottom?.Offset || 0);
         }
 
         if (automaticSize === 1 || automaticSize === 3) {
             node.resolvedWidth = Math.max(node.resolvedWidth, maxChildX + padR);
         }
         if (automaticSize === 2 || automaticSize === 3) {
-            node.resolvedHeight = Math.max(node.resolvedHeight, maxChildY + padB);
+            node.resolvedHeight = Math.max(
+                node.resolvedHeight,
+                maxChildY + padB,
+            );
         }
     }
 }
@@ -1058,13 +1653,12 @@ function resolveListLayout(node, cw, ch) {
     const layout = node.decorators.UIListLayout;
     const isHorizontal = layout.FillDirection === 0;
 
-    const flexMode = isHorizontal
-        ? layout.HorizontalFlex
-        : layout.VerticalFlex;
+    const flexMode = isHorizontal ? layout.HorizontalFlex : layout.VerticalFlex;
 
     const pad = layout.Padding || { Scale: 0, Offset: 0 };
 
-    let padSize = ((isHorizontal ? cw : ch) * (pad.Scale || 0)) + (pad.Offset || 0);
+    let padSize =
+        (isHorizontal ? cw : ch) * (pad.Scale || 0) + (pad.Offset || 0);
 
     if (flexMode === 2 || flexMode === 3 || flexMode === 4) {
         padSize = 0;
@@ -1080,9 +1674,12 @@ function resolveListLayout(node, cw, ch) {
     let currentLineSize = 0;
 
     for (const child of children) {
-        const childSize = isHorizontal ? child.resolvedWidth : child.resolvedHeight;
+        const childSize = isHorizontal
+            ? child.resolvedWidth
+            : child.resolvedHeight;
 
-        if (layout.Wraps &&
+        if (
+            layout.Wraps &&
             currentLineSize + childSize > (isHorizontal ? cw : ch) &&
             lines[lines.length - 1].length > 0
         ) {
@@ -1109,7 +1706,9 @@ function resolveListLayout(node, cw, ch) {
     for (const line of lines) {
         let maxCross = 0;
         for (const child of line) {
-            const cross = isHorizontal ? child.resolvedHeight : child.resolvedWidth;
+            const cross = isHorizontal
+                ? child.resolvedHeight
+                : child.resolvedWidth;
             if (cross > maxCross) maxCross = cross;
         }
         lineCrossSizes.push(maxCross);
@@ -1133,11 +1732,17 @@ function resolveListLayout(node, cw, ch) {
     for (let li = 0; li < lines.length; li++) {
         const line = lines[li];
 
-        const lineSize = layout.Wraps ? lineCrossSizes[li] : (isHorizontal ? ch : cw);
+        const lineSize = layout.Wraps
+            ? lineCrossSizes[li]
+            : isHorizontal
+              ? ch
+              : cw;
 
         let lineMainSize = 0;
         for (const child of line) {
-            lineMainSize += isHorizontal ? child.resolvedWidth : child.resolvedHeight;
+            lineMainSize += isHorizontal
+                ? child.resolvedWidth
+                : child.resolvedHeight;
         }
 
         lineMainSize += padSize * Math.max(0, line.length - 1);
@@ -1188,9 +1793,7 @@ function resolveListLayout(node, cw, ch) {
                 (isHorizontal ? cw : ch) -
                 padSize * Math.max(0, line.length - 1);
 
-            const sizePerChild = line.length > 0
-                ? available / line.length
-                : 0;
+            const sizePerChild = line.length > 0 ? available / line.length : 0;
 
             for (const child of line) {
                 if (isHorizontal) child.resolvedWidth = sizePerChild;
@@ -1214,12 +1817,18 @@ function resolveListLayout(node, cw, ch) {
                 }
 
                 for (const child of line) {
-                    const sub = (-freeSpace * child._shrink / effectiveShrink);
+                    const sub = (-freeSpace * child._shrink) / effectiveShrink;
 
                     if (isHorizontal) {
-                        child.resolvedWidth = Math.max(0, child.resolvedWidth - sub);
+                        child.resolvedWidth = Math.max(
+                            0,
+                            child.resolvedWidth - sub,
+                        );
                     } else {
-                        child.resolvedHeight = Math.max(0, child.resolvedHeight - sub);
+                        child.resolvedHeight = Math.max(
+                            0,
+                            child.resolvedHeight - sub,
+                        );
                     }
                 }
             }
@@ -1232,7 +1841,9 @@ function resolveListLayout(node, cw, ch) {
         // recompute main size
         lineMainSize = 0;
         for (const child of line) {
-            lineMainSize += isHorizontal ? child.resolvedWidth : child.resolvedHeight;
+            lineMainSize += isHorizontal
+                ? child.resolvedWidth
+                : child.resolvedHeight;
         }
 
         lineMainSize += padSize * Math.max(0, line.length - 1);
@@ -1257,18 +1868,18 @@ function resolveListLayout(node, cw, ch) {
             const child = line[i];
 
             if (i > 0) {
-                if (flexMode === 3) cursor += freeSpace / Math.max(1, line.length - 1);
+                if (flexMode === 3)
+                    cursor += freeSpace / Math.max(1, line.length - 1);
                 else if (flexMode === 2) cursor += freeSpace / line.length;
-                else if (flexMode === 4) cursor += (freeSpace * 2) / (line.length + 1);
+                else if (flexMode === 4)
+                    cursor += (freeSpace * 2) / (line.length + 1);
             }
 
             let crossStartOffset = 0;
 
             const flexItem = child.decorators.UIFlexItem;
             const itemAlign =
-                flexItem?.ItemLineAlignment ??
-                layout.ItemLineAlignment ??
-                0;
+                flexItem?.ItemLineAlignment ?? layout.ItemLineAlignment ?? 0;
 
             const childCross = isHorizontal
                 ? child.resolvedHeight
@@ -1289,14 +1900,18 @@ function resolveListLayout(node, cw, ch) {
             applyModifiers(child);
 
             child.resolvedX =
-                (isHorizontal ? cursor : crossBaseOffset + crossStartOffset) + node.padX;
+                (isHorizontal ? cursor : crossBaseOffset + crossStartOffset) +
+                node.padX;
 
             child.resolvedY =
-                (isHorizontal ? crossBaseOffset + crossStartOffset : cursor) + node.padY;
+                (isHorizontal ? crossBaseOffset + crossStartOffset : cursor) +
+                node.padY;
 
             applyChildLayout(child);
 
-            cursor += (isHorizontal ? child.resolvedWidth : child.resolvedHeight) + padSize;
+            cursor +=
+                (isHorizontal ? child.resolvedWidth : child.resolvedHeight) +
+                padSize;
         }
 
         lineOffset += lineSize + padSize;
@@ -1306,48 +1921,62 @@ function resolveListLayout(node, cw, ch) {
 function resolveGridLayout(node, cw, ch) {
     const layout = node.decorators.UIGridLayout;
     const isHorizontal = layout.FillDirection === 0;
-    
-    const cellSize = layout.CellSize || { X: { Scale: 0, Offset: 100 }, Y: { Scale: 0, Offset: 100 } };
-    const cellW = (cw * (cellSize.X?.Scale || 0)) + (cellSize.X?.Offset || 0);
-    const cellH = (ch * (cellSize.Y?.Scale || 0)) + (cellSize.Y?.Offset || 0);
-    
-    const pad = layout.CellPadding || { X: { Scale: 0, Offset: 5 }, Y: { Scale: 0, Offset: 5 } };
-    const padW = (cw * (pad.X?.Scale || 0)) + (pad.X?.Offset || 0);
-    const padH = (ch * (pad.Y?.Scale || 0)) + (pad.Y?.Offset || 0);
+
+    const cellSize = layout.CellSize || {
+        X: { Scale: 0, Offset: 100 },
+        Y: { Scale: 0, Offset: 100 },
+    };
+    const cellW = cw * (cellSize.X?.Scale || 0) + (cellSize.X?.Offset || 0);
+    const cellH = ch * (cellSize.Y?.Scale || 0) + (cellSize.Y?.Offset || 0);
+
+    const pad = layout.CellPadding || {
+        X: { Scale: 0, Offset: 5 },
+        Y: { Scale: 0, Offset: 5 },
+    };
+    const padW = cw * (pad.X?.Scale || 0) + (pad.X?.Offset || 0);
+    const padH = ch * (pad.Y?.Scale || 0) + (pad.Y?.Offset || 0);
 
     const cols = Math.max(1, Math.floor((cw + padW) / (cellW + padW)));
     const rows = Math.max(1, Math.floor((ch + padH) / (cellH + padH)));
 
     const hAlign = layout.HorizontalAlignment;
     const vAlign = layout.VerticalAlignment;
-    
-    const gridW = (cols * cellW) + ((cols - 1) * padW);
-    const gridH = (rows * cellH) + ((rows - 1) * padH);
-    
+
+    const gridW = cols * cellW + (cols - 1) * padW;
+    const gridH = rows * cellH + (rows - 1) * padH;
+
     let startX = 0;
     let startY = 0;
-    if (hAlign === 0) startX = (cw - gridW) / 2; 
-    else if (hAlign === 2) startX = cw - gridW; 
-    
-    if (vAlign === 0) startY = (ch - gridH) / 2; 
-    else if (vAlign === 2) startY = ch - gridH; 
+    if (hAlign === 0) startX = (cw - gridW) / 2;
+    else if (hAlign === 2) startX = cw - gridW;
 
-    let col = 0, row = 0;
+    if (vAlign === 0) startY = (ch - gridH) / 2;
+    else if (vAlign === 2) startY = ch - gridH;
+
+    let col = 0,
+        row = 0;
     for (const child of node.children) {
         if (isHorizontal) {
-            if (col >= cols) { col = 0; row++; }
+            if (col >= cols) {
+                col = 0;
+                row++;
+            }
         } else {
-            if (row >= rows) { row = 0; col++; }
+            if (row >= rows) {
+                row = 0;
+                col++;
+            }
         }
-        
+
         child.resolvedWidth = cellW;
         child.resolvedHeight = cellH;
         child.resolvedX = startX + col * (cellW + padW) + node.padX;
         child.resolvedY = startY + row * (cellH + padH) + node.padY;
-        
+
         applyChildLayout(child);
 
-        if (isHorizontal) col++; else row++;
+        if (isHorizontal) col++;
+        else row++;
     }
 }
 
@@ -1366,24 +1995,26 @@ function renderDom(node, imageMap, onSelectInstance, instanceToElMap) {
 
     const el = document.createElement('div');
     el.dataset.rovalraPath = node.path || '';
-    
+
     // Store the element in our map so we can highlight it later
     if (instanceToElMap) instanceToElMap.set(instance, el);
-    
+
     // Make it clickable and select the instance when clicked
     el.style.cursor = 'pointer';
     el.addEventListener('click', (e) => {
         e.stopPropagation();
         if (onSelectInstance) onSelectInstance(instance, el);
     });
-    
+
     el.style.boxSizing = 'border-box';
     el.style.position = node.isRoot ? 'relative' : 'absolute';
     el.style.display = 'block';
-    
+
     const automaticSize = props.AutomaticSize ?? 0;
-    const isText = ['TextLabel', 'TextButton', 'TextBox'].includes(instance.ClassName);
-    
+    const isText = ['TextLabel', 'TextButton', 'TextBox'].includes(
+        instance.ClassName,
+    );
+
     // Implement AutomaticSize visually
     if (isText && automaticSize > 0 && props.TextTruncate === 0) {
         if (automaticSize === 1 || automaticSize === 3) {
@@ -1402,24 +2033,40 @@ function renderDom(node, imageMap, onSelectInstance, instanceToElMap) {
         el.style.width = `${Math.max(0, node.resolvedWidth)}px`;
         el.style.height = `${Math.max(0, node.resolvedHeight)}px`;
     }
-    
-    const transparency = typeof props.BackgroundTransparency === 'number' ? props.BackgroundTransparency : 1;
+
+    const transparency =
+        typeof props.BackgroundTransparency === 'number'
+            ? props.BackgroundTransparency
+            : 1;
 
     // Visual transparency for click-through
     let isVisuallyTransparent = transparency >= 1;
 
     if (['ImageLabel', 'ImageButton'].includes(instance.ClassName)) {
-        const imgTransparency = typeof props.ImageTransparency === 'number' ? props.ImageTransparency : 1;
+        const imgTransparency =
+            typeof props.ImageTransparency === 'number'
+                ? props.ImageTransparency
+                : 1;
         if (imgTransparency < 1) isVisuallyTransparent = false;
     }
     if (['TextLabel', 'TextButton', 'TextBox'].includes(instance.ClassName)) {
-        const textTransparency = typeof props.TextTransparency === 'number' ? props.TextTransparency : 1;
-        if (textTransparency < 1 && typeof props.Text === 'string' && props.Text.length > 0) {
+        const textTransparency =
+            typeof props.TextTransparency === 'number'
+                ? props.TextTransparency
+                : 1;
+        if (
+            textTransparency < 1 &&
+            typeof props.Text === 'string' &&
+            props.Text.length > 0
+        ) {
             isVisuallyTransparent = false;
         }
     }
     if (decorators.UIStroke && decorators.UIStroke.Enabled !== false) {
-        const strokeTransparency = typeof decorators.UIStroke.Transparency === 'number' ? decorators.UIStroke.Transparency : 1;
+        const strokeTransparency =
+            typeof decorators.UIStroke.Transparency === 'number'
+                ? decorators.UIStroke.Transparency
+                : 1;
         if (strokeTransparency < 1) isVisuallyTransparent = false;
     }
 
@@ -1433,13 +2080,13 @@ function renderDom(node, imageMap, onSelectInstance, instanceToElMap) {
     if (!node.isRoot) {
         el.style.left = `${node.resolvedX}px`;
         el.style.top = `${node.resolvedY}px`;
-        
+
         if (props.AnchorPoint) {
             el.style.transformOrigin = `${(props.AnchorPoint.x || 0) * 100}% ${(props.AnchorPoint.y || 0) * 100}%`;
         } else {
             el.style.transformOrigin = '0px 0px';
         }
-        
+
         let transform = '';
         if (typeof props.Rotation === 'number' && props.Rotation !== 0) {
             transform += ` rotate(${props.Rotation}deg)`;
@@ -1457,18 +2104,30 @@ function renderDom(node, imageMap, onSelectInstance, instanceToElMap) {
         el.style.zIndex = props.ZIndex;
     }
 
-    const supportsUIGradient = instance.ClassName !== 'TextBox' && instance.ClassName !== 'ScrollingFrame';
-    const hasUIGradient = supportsUIGradient && decorators.UIGradient && decorators.UIGradient.Enabled !== false;
+    const supportsUIGradient =
+        instance.ClassName !== 'TextBox' &&
+        instance.ClassName !== 'ScrollingFrame';
+    const hasUIGradient =
+        supportsUIGradient &&
+        decorators.UIGradient &&
+        decorators.UIGradient.Enabled !== false;
 
     if (transparency < 1) {
         if (hasUIGradient) {
             const g = decorators.UIGradient;
-            el.style.backgroundImage = buildUIGradient(g, props.BackgroundColor3, transparency);
+            el.style.backgroundImage = buildUIGradient(
+                g,
+                props.BackgroundColor3,
+                transparency,
+            );
             const posX = 50 + (g.Offset?.x || 0) * 100;
             const posY = 50 + (g.Offset?.y || 0) * 100;
             el.style.backgroundPosition = `${posX}% ${posY}%`;
         } else {
-            el.style.backgroundColor = robloxColorToCss(props.BackgroundColor3, 1 - transparency);
+            el.style.backgroundColor = robloxColorToCss(
+                props.BackgroundColor3,
+                1 - transparency,
+            );
         }
     }
 
@@ -1477,15 +2136,21 @@ function renderDom(node, imageMap, onSelectInstance, instanceToElMap) {
     // Implement BorderMode and BorderSizePixel properly
     const borderSize = props.BorderSizePixel ?? 1;
     if (borderSize > 0) {
-        const borderColor = props.BorderColor3 || { r: 0.105882, g: 0.164706, b: 0.203922 };
+        const borderColor = props.BorderColor3 || {
+            r: 0.105882,
+            g: 0.164706,
+            b: 0.203922,
+        };
         const borderMode = props.BorderMode ?? 0; // 0: Outline, 1: Middle, 2: Inset
         const shadowColor = robloxColorToCss(borderColor, 1 - transparency);
         if (shadowColor) {
-            if (borderMode === 0) { 
+            if (borderMode === 0) {
                 shadows.push(`0 0 0 ${borderSize}px ${shadowColor}`);
-            } else if (borderMode === 1) { 
-                shadows.push(`0 0 0 ${borderSize / 2}px ${shadowColor}, inset 0 0 0 ${borderSize / 2}px ${shadowColor}`);
-            } else { 
+            } else if (borderMode === 1) {
+                shadows.push(
+                    `0 0 0 ${borderSize / 2}px ${shadowColor}, inset 0 0 0 ${borderSize / 2}px ${shadowColor}`,
+                );
+            } else {
                 shadows.push(`inset 0 0 0 ${borderSize}px ${shadowColor}`);
             }
         }
@@ -1494,12 +2159,20 @@ function renderDom(node, imageMap, onSelectInstance, instanceToElMap) {
     if (decorators.UIShadow && decorators.UIShadow.Enabled !== false) {
         const s = decorators.UIShadow;
         const minDim = Math.min(node.resolvedWidth, node.resolvedHeight);
-        const blur = ((s.BlurRadius?.Scale || 0) * minDim) + (s.BlurRadius?.Offset || 0);
-        const offX = ((s.Offset?.X?.Scale || 0) * node.resolvedWidth) + (s.Offset?.X?.Offset || 0);
-        const offY = ((s.Offset?.Y?.Scale || 0) * node.resolvedHeight) + (s.Offset?.Y?.Offset || 0);
-        const spread = ((s.Spread?.X?.Scale || 0) * node.resolvedWidth) + (s.Spread?.X?.Offset || 0);
+        const blur =
+            (s.BlurRadius?.Scale || 0) * minDim + (s.BlurRadius?.Offset || 0);
+        const offX =
+            (s.Offset?.X?.Scale || 0) * node.resolvedWidth +
+            (s.Offset?.X?.Offset || 0);
+        const offY =
+            (s.Offset?.Y?.Scale || 0) * node.resolvedHeight +
+            (s.Offset?.Y?.Offset || 0);
+        const spread =
+            (s.Spread?.X?.Scale || 0) * node.resolvedWidth +
+            (s.Spread?.X?.Offset || 0);
         const color = robloxColorToCss(s.Color, 1 - (s.Transparency || 0));
-        if (color) shadows.push(`${offX}px ${offY}px ${blur}px ${spread}px ${color}`);
+        if (color)
+            shadows.push(`${offX}px ${offY}px ${blur}px ${spread}px ${color}`);
     }
 
     let textStrokeWidth = null;
@@ -1507,17 +2180,23 @@ function renderDom(node, imageMap, onSelectInstance, instanceToElMap) {
     if (decorators.UIStroke && decorators.UIStroke.Enabled !== false) {
         const s = decorators.UIStroke;
         const thickness = s.Thickness || 1;
-        const color = robloxColorToCss(s.Color, 1 - (s.Transparency || 0)) || '#000';
+        const color =
+            robloxColorToCss(s.Color, 1 - (s.Transparency || 0)) || '#000';
         const pos = s.BorderStrokePosition;
-        const isTextEl = ['TextLabel', 'TextButton', 'TextBox'].includes(instance.ClassName);
-        
-        if (isTextEl && s.ApplyStrokeMode === 0) { 
+        const isTextEl = ['TextLabel', 'TextButton', 'TextBox'].includes(
+            instance.ClassName,
+        );
+
+        if (isTextEl && s.ApplyStrokeMode === 0) {
             textStrokeWidth = `${thickness * 2}px`;
             textStrokeColor = color;
         } else {
-            if (pos === 2) shadows.push(`inset 0 0 0 ${thickness}px ${color}`); 
-            else if (pos === 0) shadows.push(`0 0 0 ${thickness}px ${color}`); 
-            else shadows.push(`0 0 0 ${thickness/2}px ${color}, inset 0 0 0 ${thickness/2}px ${color}`); 
+            if (pos === 2) shadows.push(`inset 0 0 0 ${thickness}px ${color}`);
+            else if (pos === 0) shadows.push(`0 0 0 ${thickness}px ${color}`);
+            else
+                shadows.push(
+                    `0 0 0 ${thickness / 2}px ${color}, inset 0 0 0 ${thickness / 2}px ${color}`,
+                );
         }
     }
 
@@ -1529,7 +2208,11 @@ function renderDom(node, imageMap, onSelectInstance, instanceToElMap) {
         const c = decorators.UICorner;
         const getRad = (udim) => {
             if (!udim) return 0;
-            return ((udim.Scale || 0) * Math.min(node.resolvedWidth, node.resolvedHeight)) + (udim.Offset || 0);
+            return (
+                (udim.Scale || 0) *
+                    Math.min(node.resolvedWidth, node.resolvedHeight) +
+                (udim.Offset || 0)
+            );
         };
         const tl = getRad(c.TopLeftRadius || c.CornerRadius);
         const tr = getRad(c.TopRightRadius || c.CornerRadius);
@@ -1572,26 +2255,33 @@ function renderDom(node, imageMap, onSelectInstance, instanceToElMap) {
                 requestAnimationFrame(animateScroll);
             };
 
-            el.addEventListener('wheel', (e) => {
-                // Translate vertical wheel movement to horizontal scrolling
-                if (e.deltaY !== 0 && e.deltaX === 0) {
-                    e.preventDefault();
-                    targetScroll += e.deltaY;
-                    
-                    // Clamp the target so it doesn't scroll past the bounds
-                    const maxScroll = el.scrollWidth - el.clientWidth;
-                    targetScroll = Math.max(0, Math.min(targetScroll, maxScroll));
+            el.addEventListener(
+                'wheel',
+                (e) => {
+                    // Translate vertical wheel movement to horizontal scrolling
+                    if (e.deltaY !== 0 && e.deltaX === 0) {
+                        e.preventDefault();
+                        targetScroll += e.deltaY;
 
-                    // Start the animation loop if it isn't already running
-                    if (!isAnimating) {
-                        isAnimating = true;
-                        requestAnimationFrame(animateScroll);
+                        // Clamp the target so it doesn't scroll past the bounds
+                        const maxScroll = el.scrollWidth - el.clientWidth;
+                        targetScroll = Math.max(
+                            0,
+                            Math.min(targetScroll, maxScroll),
+                        );
+
+                        // Start the animation loop if it isn't already running
+                        if (!isAnimating) {
+                            isAnimating = true;
+                            requestAnimationFrame(animateScroll);
+                        }
+                    } else {
+                        // Sync target if the user scrolls natively (e.g. trackpad horizontal swipe)
+                        targetScroll = el.scrollLeft;
                     }
-                } else {
-                    // Sync target if the user scrolls natively (e.g. trackpad horizontal swipe)
-                    targetScroll = el.scrollLeft;
-                }
-            }, { passive: false });
+                },
+                { passive: false },
+            );
 
             // Sync target if the user drags the scrollbar manually
             el.addEventListener('scroll', () => {
@@ -1605,8 +2295,8 @@ function renderDom(node, imageMap, onSelectInstance, instanceToElMap) {
         } else {
             el.style.overflow = 'auto';
         }
-        
-        // Apply scrollbar thickness logic 
+
+        // Apply scrollbar thickness logic
         if (props.ScrollBarThickness === 0) {
             el.style.scrollbarWidth = 'none'; // Firefox
             el.classList.add('rovalra-no-scrollbar');
@@ -1645,39 +2335,52 @@ function renderDom(node, imageMap, onSelectInstance, instanceToElMap) {
                   : 'center';
         el.style.padding = `${ROBLOX_TEXT_PADDING}px`;
         el.style.overflow = 'hidden';
-        
+
         const textSpan = document.createElement('span');
         textSpan.style.display = 'inline-block';
         textSpan.style.boxSizing = 'border-box';
         textSpan.style.maxWidth = '100%';
         textSpan.style.maxHeight = '100%';
         textSpan.style.textAlign = textXAlignment;
-        
+
         let textContent = typeof props.Text === 'string' ? props.Text : '';
-        
-        if (props.RichText !== true && typeof props.MaxVisibleGraphemes === 'number' && props.MaxVisibleGraphemes >= 0) {
-            textContent = Array.from(textContent).slice(0, props.MaxVisibleGraphemes).join('');
+
+        if (
+            props.RichText !== true &&
+            typeof props.MaxVisibleGraphemes === 'number' &&
+            props.MaxVisibleGraphemes >= 0
+        ) {
+            textContent = Array.from(textContent)
+                .slice(0, props.MaxVisibleGraphemes)
+                .join('');
         }
-        
+
         const isRich = props.RichText === true;
         if (isRich) {
-            textSpan.innerHTML = sanitizeRichText(textContent);
+            appendRichText(textSpan, textContent);
         } else {
             textSpan.textContent = textContent;
         }
-        
-        const textTransparency = typeof props.TextTransparency === 'number' ? props.TextTransparency : 0;
+
+        const textTransparency =
+            typeof props.TextTransparency === 'number'
+                ? props.TextTransparency
+                : 0;
         const textColor = props.TextColor3 || { r: 1, g: 1, b: 1 };
-        textSpan.style.color = robloxColorToCss(textColor, 1 - textTransparency);
-        
+        textSpan.style.color = robloxColorToCss(
+            textColor,
+            1 - textTransparency,
+        );
+
         const fontFace = props.FontFace;
         let fontFamily = 'sans-serif';
         let fontWeight = 'normal';
         let fontStyle = 'normal';
-        
+
         if (fontFace && fontFace.Family) {
             fontFamily = fontFamilyMap.get(fontFace.Family) || 'sans-serif';
-            if (typeof fontFace.Weight === 'number') fontWeight = fontFace.Weight;
+            if (typeof fontFace.Weight === 'number')
+                fontWeight = fontFace.Weight;
             if (typeof fontFace.Style === 'number') {
                 const styles = ['normal', 'italic', 'oblique'];
                 if (styles[fontFace.Style]) fontStyle = styles[fontFace.Style];
@@ -1691,35 +2394,47 @@ function renderDom(node, imageMap, onSelectInstance, instanceToElMap) {
 
         const otf = parseOpenTypeFeatures(props.OpenTypeFeatures);
         if (otf) textSpan.style.fontFeatureSettings = otf;
-        
+
         let fontSize = props.TextSize || 14;
-        const lineHeight = typeof props.LineHeight === 'number' ? props.LineHeight : 1;
+        const lineHeight =
+            typeof props.LineHeight === 'number' ? props.LineHeight : 1;
         if (decorators.UITextSizeConstraint && props.TextScaled !== true) {
             const minT = decorators.UITextSizeConstraint.MinTextSize || 1;
             const maxT = decorators.UITextSizeConstraint.MaxTextSize || 1000;
             fontSize = Math.max(minT, Math.min(maxT, fontSize));
         }
-        
+
         if (props.TextScaled === true) {
             textSpan.style.whiteSpace = 'pre-wrap';
             textSpan.style.wordBreak = 'break-word';
             textSpan.style.width = '100%';
             textSpan.style.flex = '0 0 100%';
             textSpan.style.display = 'block';
-            
+
             let maxT = 100;
             let minT = 1;
             if (decorators.UITextSizeConstraint) {
-                maxT = Math.min(100, decorators.UITextSizeConstraint.MaxTextSize || 100);
+                maxT = Math.min(
+                    100,
+                    decorators.UITextSizeConstraint.MaxTextSize || 100,
+                );
                 minT = decorators.UITextSizeConstraint.MinTextSize || 1;
             }
-            
+
             const textPadding = ROBLOX_TEXT_PADDING * 2;
-            const innerWidth = node.resolvedWidth - textPadding > 0 ? node.resolvedWidth - textPadding : 0;
-            const innerHeight = node.resolvedHeight - textPadding > 0 ? node.resolvedHeight - textPadding : 0;
-            
-            const measureText = isRich ? (textSpan.textContent || textContent) : textContent;
-            
+            const innerWidth =
+                node.resolvedWidth - textPadding > 0
+                    ? node.resolvedWidth - textPadding
+                    : 0;
+            const innerHeight =
+                node.resolvedHeight - textPadding > 0
+                    ? node.resolvedHeight - textPadding
+                    : 0;
+
+            const measureText = isRich
+                ? textSpan.textContent || textContent
+                : textContent;
+
             fontSize = calculateOptimalFontSize(
                 innerWidth,
                 innerHeight,
@@ -1728,7 +2443,7 @@ function renderDom(node, imageMap, onSelectInstance, instanceToElMap) {
                 fontWeight,
                 fontStyle,
                 maxT,
-                minT
+                minT,
             );
         } else {
             if (props.TextWrapped === true) {
@@ -1744,11 +2459,11 @@ function renderDom(node, imageMap, onSelectInstance, instanceToElMap) {
                 textSpan.style.whiteSpace = 'pre';
                 if (automaticSize > 0 && props.TextTruncate === 0) {
                     textSpan.style.overflow = 'visible';
-                } else if (props.TextTruncate === 1) { 
+                } else if (props.TextTruncate === 1) {
                     textSpan.style.width = '100%';
                     textSpan.style.overflow = 'hidden';
                     textSpan.style.textOverflow = 'ellipsis';
-                } else if (props.TextTruncate === 2) { 
+                } else if (props.TextTruncate === 2) {
                     textSpan.style.width = '100%';
                     textSpan.style.overflow = 'hidden';
                 }
@@ -1756,23 +2471,30 @@ function renderDom(node, imageMap, onSelectInstance, instanceToElMap) {
         }
         textSpan.style.fontSize = `${fontSize}px`;
         textSpan.style.lineHeight = String(lineHeight);
-        
+
         if (typeof props.TextDirection === 'number') {
-            if (props.TextDirection === 2) textSpan.style.direction = 'rtl'; 
-            else textSpan.style.direction = 'ltr'; 
+            if (props.TextDirection === 2) textSpan.style.direction = 'rtl';
+            else textSpan.style.direction = 'ltr';
         }
 
-        if (typeof props.TextStrokeTransparency === 'number' && props.TextStrokeTransparency < 1 && !textStrokeWidth) {
+        if (
+            typeof props.TextStrokeTransparency === 'number' &&
+            props.TextStrokeTransparency < 1 &&
+            !textStrokeWidth
+        ) {
             const strokeColor = props.TextStrokeColor3 || { r: 0, g: 0, b: 0 };
             const strokeAlpha = 1 - props.TextStrokeTransparency;
             const cssColor = robloxColorToCss(strokeColor, strokeAlpha);
             const w = 1;
             textSpan.style.textShadow = `${w}px ${w}px 0 ${cssColor}, ${-w}px ${-w}px 0 ${cssColor}, ${w}px ${-w}px 0 ${cssColor}, ${-w}px ${w}px 0 ${cssColor}`;
         }
-        
+
         if (hasUIGradient) {
             const g = decorators.UIGradient;
-            textSpan.style.backgroundColor = robloxColorToCss(textColor, 1 - textTransparency);
+            textSpan.style.backgroundColor = robloxColorToCss(
+                textColor,
+                1 - textTransparency,
+            );
             textSpan.style.color = 'transparent';
             textSpan.style.webkitTextFillColor = 'transparent';
             textSpan.style.backgroundImage = buildUIGradient(g);
@@ -1792,11 +2514,11 @@ function renderDom(node, imageMap, onSelectInstance, instanceToElMap) {
             textWrapper.style.maxHeight = '100%';
             textWrapper.style.boxSizing = 'border-box';
             textWrapper.style.textAlign = textXAlignment;
-            
+
             textSpan.style.display = 'block';
             textSpan.style.position = 'relative';
             textSpan.style.zIndex = '1';
-            
+
             const strokeSpan = document.createElement('span');
             strokeSpan.style.display = 'block';
             strokeSpan.style.position = 'absolute';
@@ -1807,7 +2529,7 @@ function renderDom(node, imageMap, onSelectInstance, instanceToElMap) {
             strokeSpan.style.pointerEvents = 'none';
             strokeSpan.style.boxSizing = 'border-box';
             strokeSpan.style.textAlign = textXAlignment;
-            
+
             strokeSpan.style.fontFamily = textSpan.style.fontFamily;
             strokeSpan.style.fontWeight = textSpan.style.fontWeight;
             strokeSpan.style.fontStyle = textSpan.style.fontStyle;
@@ -1818,18 +2540,23 @@ function renderDom(node, imageMap, onSelectInstance, instanceToElMap) {
             strokeSpan.style.width = textSpan.style.width;
             strokeSpan.style.flex = textSpan.style.flex;
             strokeSpan.style.direction = textSpan.style.direction;
-            strokeSpan.style.fontFeatureSettings = textSpan.style.fontFeatureSettings;
+            strokeSpan.style.fontFeatureSettings =
+                textSpan.style.fontFeatureSettings;
 
             strokeSpan.style.color = 'transparent';
             strokeSpan.style.webkitTextFillColor = 'transparent';
             strokeSpan.style.webkitTextStroke = `${textStrokeWidth} ${textStrokeColor}`;
-            
+
             if (isRich) {
-                strokeSpan.innerHTML = textSpan.innerHTML;
+                strokeSpan.replaceChildren(
+                    ...Array.from(textSpan.childNodes, (child) =>
+                        child.cloneNode(true),
+                    ),
+                );
             } else {
                 strokeSpan.textContent = textContent;
             }
-            
+
             textWrapper.appendChild(textSpan);
             textWrapper.appendChild(strokeSpan);
             el.appendChild(textWrapper);
@@ -1841,8 +2568,13 @@ function renderDom(node, imageMap, onSelectInstance, instanceToElMap) {
     if (['ImageLabel', 'ImageButton'].includes(instance.ClassName)) {
         let imgUri = props.Image;
         if (!imgUri && props.ImageContent) {
-            if (typeof props.ImageContent === 'string') imgUri = props.ImageContent;
-            else if (typeof props.ImageContent === 'object' && props.ImageContent.id) imgUri = String(props.ImageContent.id);
+            if (typeof props.ImageContent === 'string')
+                imgUri = props.ImageContent;
+            else if (
+                typeof props.ImageContent === 'object' &&
+                props.ImageContent.id
+            )
+                imgUri = String(props.ImageContent.id);
         }
 
         if (typeof imgUri === 'string') {
@@ -1851,29 +2583,39 @@ function renderDom(node, imageMap, onSelectInstance, instanceToElMap) {
                 const assetId = m[0];
                 const imageUrl = imageMap.get(assetId);
                 if (imageUrl) {
-                    const imgTransparency = typeof props.ImageTransparency === 'number' ? props.ImageTransparency : 0;
+                    const imgTransparency =
+                        typeof props.ImageTransparency === 'number'
+                            ? props.ImageTransparency
+                            : 0;
                     const imgColor = props.ImageColor3 || { r: 1, g: 1, b: 1 };
                     const scaleType = props.ScaleType ?? 0;
                     const resampleMode = props.ResampleMode ?? 0;
                     const rectOffset = props.ImageRectOffset;
                     const rectSize = props.ImageRectSize;
-                    
-                    const isSpriteSheet = rectOffset && rectSize && (rectSize.x !== 0 || rectSize.y !== 0);
+
+                    const isSpriteSheet =
+                        rectOffset &&
+                        rectSize &&
+                        (rectSize.x !== 0 || rectSize.y !== 0);
                     const isSliced = scaleType === 1 && props.SliceCenter;
                     const isTiled = scaleType === 2;
 
                     const filter = getTintFilter(imgColor);
-                    const imageRendering = resampleMode === 1 ? 'pixelated' : 'auto';
+                    const imageRendering =
+                        resampleMode === 1 ? 'pixelated' : 'auto';
 
-                    const useSimpleImg = !isSliced && !isSpriteSheet && !isTiled;
+                    const useSimpleImg =
+                        !isSliced && !isSpriteSheet && !isTiled;
 
                     if (useSimpleImg) {
                         const img = document.createElement('img');
                         img.src = imageUrl;
                         img.style.width = '100%';
                         img.style.height = '100%';
-                        if (scaleType === 3) img.style.objectFit = 'contain'; // Fit
-                        else if (scaleType === 4) img.style.objectFit = 'cover'; // Crop
+                        if (scaleType === 3)
+                            img.style.objectFit = 'contain'; // Fit
+                        else if (scaleType === 4)
+                            img.style.objectFit = 'cover'; // Crop
                         else img.style.objectFit = 'fill'; // 0 = Stretch
                         img.style.pointerEvents = 'none';
                         img.style.position = 'absolute';
@@ -1897,7 +2639,7 @@ function renderDom(node, imageMap, onSelectInstance, instanceToElMap) {
                             gradDiv.style.mixBlendMode = 'multiply';
                             gradDiv.style.webkitMaskImage = `url("${imageUrl}")`;
                             gradDiv.style.maskImage = `url("${imageUrl}")`;
-                            gradDiv.style.maskSize = img.style.objectFit; 
+                            gradDiv.style.maskSize = img.style.objectFit;
                             gradDiv.style.webkitMaskSize = img.style.objectFit;
                             gradDiv.style.maskRepeat = 'no-repeat';
                             gradDiv.style.webkitMaskRepeat = 'no-repeat';
@@ -1921,7 +2663,7 @@ function renderDom(node, imageMap, onSelectInstance, instanceToElMap) {
                         bgDiv.style.borderRadius = el.style.borderRadius;
                         bgDiv.style.transformOrigin = 'center center';
                         if (filter) bgDiv.style.filter = filter;
-                        
+
                         el.appendChild(bgDiv);
 
                         let gradDiv = null;
@@ -1949,20 +2691,22 @@ function renderDom(node, imageMap, onSelectInstance, instanceToElMap) {
                                 const slice = props.SliceCenter;
                                 const sliceScale = props.SliceScale || 1;
 
-                                let top    = slice.Min.y;
-                                let left   = slice.Min.x;
-                                let right  = natW - slice.Max.x;
+                                let top = slice.Min.y;
+                                let left = slice.Min.x;
+                                let right = natW - slice.Max.x;
                                 let bottom = natH - slice.Max.y;
 
                                 const midW = natW - left - right;
                                 const midH = natH - top - bottom;
 
                                 if (midW <= 0) {
-                                    if (left >= right) left = Math.max(0, left - 1);
+                                    if (left >= right)
+                                        left = Math.max(0, left - 1);
                                     else right = Math.max(0, right - 1);
                                 }
                                 if (midH <= 0) {
-                                    if (top >= bottom) top = Math.max(0, top - 1);
+                                    if (top >= bottom)
+                                        top = Math.max(0, top - 1);
                                     else bottom = Math.max(0, bottom - 1);
                                 }
 
@@ -1981,24 +2725,28 @@ function renderDom(node, imageMap, onSelectInstance, instanceToElMap) {
                                     gradDiv.style.maskSize = '100% 100%';
                                     gradDiv.style.webkitMaskPosition = '0 0';
                                     gradDiv.style.maskPosition = '0 0';
-                                    gradDiv.style.webkitMaskRepeat = 'no-repeat';
+                                    gradDiv.style.webkitMaskRepeat =
+                                        'no-repeat';
                                     gradDiv.style.maskRepeat = 'no-repeat';
                                     gradDiv.style.transform = 'none';
                                 }
                                 return;
                             }
-                            
-                            let x1 = 0, y1 = 0;
-                            let absW = natW, absH = natH;
-                            let flipX = 1, flipY = 1;
-                            
+
+                            let x1 = 0,
+                                y1 = 0;
+                            let absW = natW,
+                                absH = natH;
+                            let flipX = 1,
+                                flipY = 1;
+
                             if (isSpriteSheet) {
                                 x1 = rectOffset.x;
                                 y1 = rectOffset.y;
 
                                 absW = rectSize.x;
                                 absH = rectSize.y;
- 
+
                                 if (absW < 0) {
                                     flipX = -1;
                                     absW = Math.abs(absW);
@@ -2030,62 +2778,85 @@ function renderDom(node, imageMap, onSelectInstance, instanceToElMap) {
                                 natW = virtualW;
                                 natH = virtualH;
                             }
-                            
+
                             let scaleX, scaleY;
                             let bgX, bgY;
                             let repeat = 'no-repeat';
-                            
-                            if (scaleType === 3) { 
-                                const scale = Math.min(node.resolvedWidth / absW, node.resolvedHeight / absH);
+
+                            if (scaleType === 3) {
+                                const scale = Math.min(
+                                    node.resolvedWidth / absW,
+                                    node.resolvedHeight / absH,
+                                );
                                 scaleX = scale;
                                 scaleY = scale;
                                 const visW = absW * scale;
                                 const visH = absH * scale;
-                                bgX = (node.resolvedWidth - visW) / 2 - (x1 * scale);
-                                bgY = (node.resolvedHeight - visH) / 2 - (y1 * scale);
-                            } else if (scaleType === 4) { 
-                                const scale = Math.max(node.resolvedWidth / absW, node.resolvedHeight / absH);
+                                bgX =
+                                    (node.resolvedWidth - visW) / 2 -
+                                    x1 * scale;
+                                bgY =
+                                    (node.resolvedHeight - visH) / 2 -
+                                    y1 * scale;
+                            } else if (scaleType === 4) {
+                                const scale = Math.max(
+                                    node.resolvedWidth / absW,
+                                    node.resolvedHeight / absH,
+                                );
                                 scaleX = scale;
                                 scaleY = scale;
                                 const visW = absW * scale;
                                 const visH = absH * scale;
-                                bgX = (node.resolvedWidth - visW) / 2 - (x1 * scale);
-                                bgY = (node.resolvedHeight - visH) / 2 - (y1 * scale);
-                            } else if (isTiled) { 
-                                const tile = props.TileSize || { X: {Scale: 1, Offset: 0}, Y: {Scale: 1, Offset: 0} };
-                                const tileW = (node.resolvedWidth * (tile.X?.Scale || 0)) + (tile.X?.Offset || 0);
-                                const tileH = (node.resolvedHeight * (tile.Y?.Scale || 0)) + (tile.Y?.Offset || 0);
+                                bgX =
+                                    (node.resolvedWidth - visW) / 2 -
+                                    x1 * scale;
+                                bgY =
+                                    (node.resolvedHeight - visH) / 2 -
+                                    y1 * scale;
+                            } else if (isTiled) {
+                                const tile = props.TileSize || {
+                                    X: { Scale: 1, Offset: 0 },
+                                    Y: { Scale: 1, Offset: 0 },
+                                };
+                                const tileW =
+                                    node.resolvedWidth * (tile.X?.Scale || 0) +
+                                    (tile.X?.Offset || 0);
+                                const tileH =
+                                    node.resolvedHeight * (tile.Y?.Scale || 0) +
+                                    (tile.Y?.Offset || 0);
                                 scaleX = tileW / absW;
                                 scaleY = tileH / absH;
                                 bgX = -(x1 * scaleX);
                                 bgY = -(y1 * scaleY);
                                 repeat = 'repeat';
-                            } else { 
+                            } else {
                                 scaleX = node.resolvedWidth / absW;
                                 scaleY = node.resolvedHeight / absH;
                                 bgX = -(x1 * scaleX);
                                 bgY = -(y1 * scaleY);
                             }
-                            
-                            const renderNatW = isSpriteSheet && natW < 1024 ? 1024 : natW;
-                            const renderNatH = isSpriteSheet && natH < 1024 ? 1024 : natH;
+
+                            const renderNatW =
+                                isSpriteSheet && natW < 1024 ? 1024 : natW;
+                            const renderNatH =
+                                isSpriteSheet && natH < 1024 ? 1024 : natH;
 
                             const bgW = renderNatW * scaleX;
                             const bgH = renderNatH * scaleY;
-                            
+
                             bgDiv.style.borderImageSource = '';
                             bgDiv.style.borderStyle = 'none';
                             bgDiv.style.backgroundImage = `url("${imageUrl}")`;
                             bgDiv.style.backgroundSize = `${bgW}px ${bgH}px`;
                             bgDiv.style.backgroundPosition = `${bgX}px ${bgY}px`;
                             bgDiv.style.backgroundRepeat = repeat;
-                            
+
                             if (flipX === -1 || flipY === -1) {
                                 bgDiv.style.transform = `scale(${flipX}, ${flipY})`;
                             } else {
                                 bgDiv.style.transform = 'none';
                             }
-                            
+
                             if (gradDiv) {
                                 gradDiv.style.webkitMaskImage = `url("${imageUrl}")`;
                                 gradDiv.style.maskImage = `url("${imageUrl}")`;
@@ -2100,7 +2871,10 @@ function renderDom(node, imageMap, onSelectInstance, instanceToElMap) {
 
                         const tempImg = new Image();
                         tempImg.onload = () => {
-                            applyBgStyles(tempImg.naturalWidth, tempImg.naturalHeight);
+                            applyBgStyles(
+                                tempImg.naturalWidth,
+                                tempImg.naturalHeight,
+                            );
                         };
                         tempImg.onerror = () => applyBgStyles(100, 100);
                         tempImg.src = imageUrl;
@@ -2110,9 +2884,14 @@ function renderDom(node, imageMap, onSelectInstance, instanceToElMap) {
         }
     }
 
-        if (node.children && node.children.length > 0) {
+    if (node.children && node.children.length > 0) {
         for (const childNode of node.children) {
-            const childEl = renderDom(childNode, imageMap, onSelectInstance, instanceToElMap);
+            const childEl = renderDom(
+                childNode,
+                imageMap,
+                onSelectInstance,
+                instanceToElMap,
+            );
             if (childEl) childContainer.appendChild(childEl); // Changed from el.appendChild
         }
     }
@@ -2129,8 +2908,13 @@ function collectImageIds(instance, ids = [], originalIds = []) {
     if (['ImageLabel', 'ImageButton'].includes(instance.ClassName)) {
         let imgUri = instance.Properties?.Image;
         if (!imgUri && instance.Properties?.ImageContent) {
-            if (typeof instance.Properties.ImageContent === 'string') imgUri = instance.Properties.ImageContent;
-            else if (typeof instance.Properties.ImageContent === 'object' && instance.Properties.ImageContent.id) imgUri = String(instance.Properties.ImageContent.id);
+            if (typeof instance.Properties.ImageContent === 'string')
+                imgUri = instance.Properties.ImageContent;
+            else if (
+                typeof instance.Properties.ImageContent === 'object' &&
+                instance.Properties.ImageContent.id
+            )
+                imgUri = String(instance.Properties.ImageContent.id);
         }
 
         if (typeof imgUri === 'string') {
@@ -2141,9 +2925,13 @@ function collectImageIds(instance, ids = [], originalIds = []) {
                 const rectSize = instance.Properties?.ImageRectSize;
                 const sliceCenter = instance.Properties?.SliceCenter;
                 const scaleType = instance.Properties?.ScaleType ?? 0;
-                
-                const needsOriginal = (rectOffset && rectSize && (rectSize.x !== 0 || rectSize.y !== 0)) || (scaleType === 1 && sliceCenter);
-                
+
+                const needsOriginal =
+                    (rectOffset &&
+                        rectSize &&
+                        (rectSize.x !== 0 || rectSize.y !== 0)) ||
+                    (scaleType === 1 && sliceCenter);
+
                 if (needsOriginal) {
                     if (!originalIds.includes(id)) originalIds.push(id);
                 } else {
@@ -2162,7 +2950,7 @@ function collectImageIds(instance, ids = [], originalIds = []) {
 
 async function fetchImageUrls(assetIds, originalAssetIds) {
     const imageMap = new Map();
-    
+
     if (assetIds.length > 0) {
         for (let i = 0; i < assetIds.length; i += 100) {
             const chunk = assetIds.slice(i, i + 100);
@@ -2181,19 +2969,29 @@ async function fetchImageUrls(assetIds, originalAssetIds) {
                     }
                 }
             } catch (e) {
-                console.warn('[RoValra Explorer] Failed to fetch image thumbnails batch:', e);
+                console.warn(
+                    '[RoValra Explorer] Failed to fetch image thumbnails batch:',
+                    e,
+                );
             }
         }
     }
-    
+
     for (const id of originalAssetIds) {
         imageMap.set(id, `https://assetdelivery.roblox.com/v1/asset/?id=${id}`);
     }
-    
+
     return imageMap;
 }
 
-async function openGuiViewer(instance, wrapper, previewPane, onSelectInstance, registerHighlightCallback, registerRerenderCallback) {
+async function openGuiViewer(
+    instance,
+    wrapper,
+    previewPane,
+    onSelectInstance,
+    registerHighlightCallback,
+    registerRerenderCallback,
+) {
     previewPane.replaceChildren();
     previewPane.style.display = 'flex';
     previewPane.style.flexDirection = 'column';
@@ -2227,15 +3025,15 @@ async function openGuiViewer(instance, wrapper, previewPane, onSelectInstance, r
     const closeBtn = document.createElement('button');
     closeBtn.type = 'button';
     closeBtn.className = 'rovalra-explorer-source-btn';
-    closeBtn.textContent = '✖ Close Preview';
+    closeBtn.textContent = ts('createRoblox.explorer.closePreview');
     closeBtn.style.marginRight = 'auto';
     closeBtn.addEventListener('click', () => {
         previewPane.replaceChildren();
         previewPane.style.display = 'none';
-        
+
         if (registerHighlightCallback) registerHighlightCallback(null);
         if (registerRerenderCallback) registerRerenderCallback(null);
-        
+
         let p = wrapper.parentElement;
         while (p && p !== document.body) {
             if (p.style.width === '1400px') {
@@ -2250,10 +3048,10 @@ async function openGuiViewer(instance, wrapper, previewPane, onSelectInstance, r
 
     const select = document.createElement('select');
     select.className = 'rovalra-explorer-device-select';
-    
+
     const defaultOpt = document.createElement('option');
     defaultOpt.value = 'default';
-    defaultOpt.textContent = 'Default (1280x720)';
+    defaultOpt.textContent = ts('createRoblox.explorer.defaultDevice');
     select.appendChild(defaultOpt);
 
     const grouped = {};
@@ -2277,45 +3075,33 @@ async function openGuiViewer(instance, wrapper, previewPane, onSelectInstance, r
 
     const scaleSelect = document.createElement('select');
     scaleSelect.className = 'rovalra-explorer-scale-select';
-    
+
     const fitOpt = document.createElement('option');
     fitOpt.value = 'fit';
-    fitOpt.textContent = 'Fit to Window';
+    fitOpt.textContent = ts('createRoblox.explorer.fitToWindow');
     scaleSelect.appendChild(fitOpt);
-    
+
     const actualOpt = document.createElement('option');
     actualOpt.value = 'actual';
-    actualOpt.textContent = 'Actual Resolution';
+    actualOpt.textContent = ts('createRoblox.explorer.actualResolution');
     scaleSelect.appendChild(actualOpt);
-    
+
     const physicalOpt = document.createElement('option');
     physicalOpt.value = 'physical';
-    physicalOpt.textContent = 'Physical Size';
+    physicalOpt.textContent = ts('createRoblox.explorer.physicalSize');
     scaleSelect.appendChild(physicalOpt);
-    
+
     toolbar.appendChild(scaleSelect);
 
     const rotateBtn = document.createElement('button');
     rotateBtn.type = 'button';
     rotateBtn.className = 'rovalra-explorer-source-btn';
-    rotateBtn.textContent = 'Rotate';
+    rotateBtn.textContent = ts('createRoblox.explorer.rotate');
     toolbar.appendChild(rotateBtn);
 
     const previewArea = document.createElement('div');
     previewArea.className = 'rovalra-explorer-gui-preview-area';
-    
-    // Add scrollbar styling for the preview
-    const styleTag = document.createElement('style');
-    styleTag.textContent = `
-        .rovalra-explorer-gui-preview-area::-webkit-scrollbar { width: 8px; height: 8px; }
-        .rovalra-explorer-gui-preview-area::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
-        .rovalra-explorer-gui-preview-area::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 4px; }
-        .rovalra-explorer-scrolling-frame::-webkit-scrollbar { width: 8px; height: 8px; }
-        .rovalra-explorer-scrolling-frame::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
-        .rovalra-explorer-scrolling-frame::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.4); border-radius: 4px; }
-        .rovalra-no-scrollbar::-webkit-scrollbar { display: none; }
-    `;
-    previewArea.appendChild(styleTag);
+
     previewArea.style.flex = '1';
     previewArea.style.position = 'relative';
     previewArea.style.overflow = 'hidden';
@@ -2323,7 +3109,7 @@ async function openGuiViewer(instance, wrapper, previewPane, onSelectInstance, r
     previewArea.style.alignItems = 'center';
     previewArea.style.justifyContent = 'center';
     previewArea.style.backgroundColor = '#000';
-    
+
     const viewportWrapper = document.createElement('div');
     viewportWrapper.className = 'rovalra-explorer-gui-viewport-wrapper';
     viewportWrapper.style.transformOrigin = 'center center';
@@ -2335,7 +3121,7 @@ async function openGuiViewer(instance, wrapper, previewPane, onSelectInstance, r
     viewportWrapper.appendChild(viewport);
 
     const loadingText = document.createElement('div');
-    loadingText.textContent = 'Loading Fonts and GUI Preview...';
+    loadingText.textContent = ts('createRoblox.explorer.loadingPreview');
     loadingText.style.color = '#fff';
     loadingText.style.display = 'flex';
     loadingText.style.height = '100%';
@@ -2348,8 +3134,10 @@ async function openGuiViewer(instance, wrapper, previewPane, onSelectInstance, r
 
     const { ids, originalIds } = collectImageIds(instance);
     const imagePromise = fetchImageUrls(ids, originalIds);
-    const fontPromise = preloadFonts(instance).catch(e => console.warn('Font preloading failed:', e));
-    
+    const fontPromise = preloadFonts(instance).catch((e) =>
+        console.warn('Font preloading failed:', e),
+    );
+
     const imageMap = await imagePromise;
     await fontPromise;
 
@@ -2358,16 +3146,16 @@ async function openGuiViewer(instance, wrapper, previewPane, onSelectInstance, r
     let currentPixelDensity = 96;
     let isRotated = false;
     let scaleMode = 'fit';
-    
+
     let selectedPreviewInstance = null;
     const instanceToElMap = new Map();
 
     function highlightSelection(el) {
-        instanceToElMap.forEach(e => {
+        instanceToElMap.forEach((e) => {
             e.style.outline = '';
             e.style.outlineOffset = '';
         });
-        
+
         if (el) {
             el.style.outline = '2px solid #00a2ff';
             el.style.outlineOffset = '1px';
@@ -2390,24 +3178,29 @@ async function openGuiViewer(instance, wrapper, previewPane, onSelectInstance, r
     function renderGui() {
         const w = isRotated ? currentH : currentW;
         const h = isRotated ? currentW : currentH;
-        
+
         viewport.style.width = `${w}px`;
         viewport.style.height = `${h}px`;
-        
+
         viewport.replaceChildren();
         instanceToElMap.clear();
-        
+
         const layoutTree = buildLayoutTree(instance, true);
         if (layoutTree) {
             resolveLayoutTree(layoutTree, w, h);
-            const guiEl = renderDom(layoutTree, imageMap, onSelectWithHighlight, instanceToElMap);
+            const guiEl = renderDom(
+                layoutTree,
+                imageMap,
+                onSelectWithHighlight,
+                instanceToElMap,
+            );
             viewport.appendChild(guiEl);
         }
-        
+
         if (selectedPreviewInstance) {
             highlightSelection(instanceToElMap.get(selectedPreviewInstance));
         }
-        
+
         updateScale();
     }
 
@@ -2418,32 +3211,32 @@ async function openGuiViewer(instance, wrapper, previewPane, onSelectInstance, r
     function updateScale() {
         const w = isRotated ? currentH : currentW;
         const h = isRotated ? currentW : currentH;
-        
+
         let scale = 1;
         if (scaleMode === 'fit') {
             const areaW = previewArea.clientWidth - 20;
             const areaH = previewArea.clientHeight - 20;
             if (areaW <= 0 || areaH <= 0) return;
             scale = Math.min(areaW / w, areaH / h);
-            
+
             previewArea.style.display = 'flex';
             previewArea.style.alignItems = 'center';
             previewArea.style.justifyContent = 'center';
             previewArea.style.overflow = 'hidden';
         } else if (scaleMode === 'physical') {
             scale = 96 / currentPixelDensity;
-            
+
             previewArea.style.display = 'block';
             previewArea.style.overflow = 'auto';
         } else if (scaleMode === 'actual') {
             scale = 1;
-            
+
             previewArea.style.display = 'block';
             previewArea.style.overflow = 'auto';
         }
-        
+
         const safeScale = Math.max(0.05, scale);
-        
+
         viewportWrapper.style.width = `${w * safeScale}px`;
         viewportWrapper.style.height = `${h * safeScale}px`;
         viewport.style.transform = `scale(${safeScale})`;
@@ -2473,7 +3266,7 @@ async function openGuiViewer(instance, wrapper, previewPane, onSelectInstance, r
         renderGui();
     });
 
-    await new Promise(r => requestAnimationFrame(r));
+    await new Promise((r) => requestAnimationFrame(r));
     renderGui();
 
     const resizeObserver = new ResizeObserver(() => updateScale());
@@ -2487,8 +3280,8 @@ function buildExplorer(roots, expandAll) {
     wrapper.className = 'rovalra-explorer';
     wrapper.style.display = 'flex';
     wrapper.style.flexDirection = 'row';
-    
-    wrapper.style.height = '75vh'; 
+
+    wrapper.style.height = '75vh';
     wrapper.style.maxHeight = '75vh';
     wrapper.style.minHeight = '400px';
 
@@ -2504,18 +3297,18 @@ function buildExplorer(roots, expandAll) {
 
     // Search bar container for the explorer tree
     const treeSearchContainer = document.createElement('div');
-    treeSearchContainer.style.cssText = 'padding: 8px; border-bottom: 1px solid #2d2d2d; background: #1e1e1e; flex-shrink: 0;';
+    treeSearchContainer.className = 'rovalra-explorer-search-container';
 
     const treeSearchInput = document.createElement('input');
     treeSearchInput.type = 'search';
-    treeSearchInput.placeholder = 'Search instances… (2+ chars)';
-    treeSearchInput.style.cssText = 'width: 100%; box-sizing: border-box; padding: 6px 10px; background: #2a2a2a; color: #fff; border: 1px solid #3a3a3a; border-radius: 4px; font-size: 13px; outline: none;';
+    treeSearchInput.placeholder = ts('createRoblox.explorer.searchInstances');
+    treeSearchInput.className = 'rovalra-explorer-search-input';
     treeSearchContainer.appendChild(treeSearchInput);
     treePane.appendChild(treeSearchContainer);
 
     // Scrollable tree content area
     const treeContent = document.createElement('div');
-    treeContent.style.cssText = 'flex: 1; overflow-y: auto;';
+    treeContent.className = 'rovalra-explorer-tree-content';
     treePane.appendChild(treeContent);
 
     const previewPane = document.createElement('div');
@@ -2546,19 +3339,19 @@ function buildExplorer(roots, expandAll) {
 
     // --- STATE ---
     let selectedRow = null;
-    let selectedInstance = null; 
+    let selectedInstance = null;
     let previewHighlightFn = null;
     let guiViewerRerender = null;
-    
+
     let explorerSearchQuery = '';
     let propsSearchQuery = '';
     let isInitialRender = true;
     let isSearchActive = false;
-    
+
     // Memory for expansion states
     const expandedInstancesSet = new Set(); // Long-term memory
-    const searchCollapsedSet = new Set();   // Nodes manually collapsed during search
-    
+    const searchCollapsedSet = new Set(); // Nodes manually collapsed during search
+
     const instanceToRowMap = new WeakMap();
     const instanceToExpandMap = new WeakMap();
     const parentMap = new WeakMap();
@@ -2596,7 +3389,7 @@ function buildExplorer(roots, expandAll) {
         selectedRow = rowEl;
         if (rowEl) rowEl.classList.add('selected');
         renderProps(instance);
-        
+
         if (previewHighlightFn) previewHighlightFn(instance);
     }
 
@@ -2625,12 +3418,16 @@ function buildExplorer(roots, expandAll) {
 
     function triggerGuiPreview(instance) {
         openGuiViewer(
-            instance, 
-            wrapper, 
-            previewPane, 
-            handlePreviewSelect, 
-            (fn) => { previewHighlightFn = fn; }, 
-            (fn) => { guiViewerRerender = fn; }
+            instance,
+            wrapper,
+            previewPane,
+            handlePreviewSelect,
+            (fn) => {
+                previewHighlightFn = fn;
+            },
+            (fn) => {
+                guiViewerRerender = fn;
+            },
         );
     }
 
@@ -2651,7 +3448,10 @@ function buildExplorer(roots, expandAll) {
         headerActions.className = 'rovalra-explorer-props-actions';
         header.appendChild(headerActions);
 
-        if (typeof props.Source === 'string' && props.Source.trim().length > 0) {
+        if (
+            typeof props.Source === 'string' &&
+            props.Source.trim().length > 0
+        ) {
             const sourceBtn = document.createElement('button');
             sourceBtn.type = 'button';
             sourceBtn.className = 'rovalra-explorer-source-btn';
@@ -2666,7 +3466,7 @@ function buildExplorer(roots, expandAll) {
             const guiBtn = document.createElement('button');
             guiBtn.type = 'button';
             guiBtn.className = 'rovalra-explorer-source-btn';
-            guiBtn.textContent = 'Preview GUI';
+            guiBtn.textContent = ts('createRoblox.explorer.previewGui');
             guiBtn.addEventListener('click', () => {
                 triggerGuiPreview(instance);
             });
@@ -2677,13 +3477,16 @@ function buildExplorer(roots, expandAll) {
 
         // --- PROPERTIES SEARCH BAR ---
         const propsSearchContainer = document.createElement('div');
-        propsSearchContainer.style.cssText = 'padding: 8px; border-bottom: 1px solid #2d2d2d; background: #1e1e1e; position: sticky; top: 0; z-index: 2;';
+        propsSearchContainer.className =
+            'rovalra-explorer-search-container rovalra-explorer-props-search';
 
         const propsSearchInput = document.createElement('input');
         propsSearchInput.type = 'search';
-        propsSearchInput.placeholder = 'Search properties…';
+        propsSearchInput.placeholder = ts(
+            'createRoblox.explorer.searchProperties',
+        );
         propsSearchInput.value = propsSearchQuery;
-        propsSearchInput.style.cssText = 'width: 100%; box-sizing: border-box; padding: 6px 10px; background: #2a2a2a; color: #fff; border: 1px solid #3a3a3a; border-radius: 4px; font-size: 13px; outline: none;';
+        propsSearchInput.className = 'rovalra-explorer-search-input';
 
         propsSearchContainer.appendChild(propsSearchInput);
         propsPane.appendChild(propsSearchContainer);
@@ -2700,7 +3503,10 @@ function buildExplorer(roots, expandAll) {
         for (const key of keys) {
             if (key === 'Tags' || key === 'AttributesSerialize') continue;
             if (HIDDEN_PROPS.has(key)) continue;
-            (grouped[propGroup(key)] ||= []).push({ label: key, value: props[key] });
+            (grouped[propGroup(key)] ||= []).push({
+                label: key,
+                value: props[key],
+            });
         }
 
         const attributes = parseAttributes(props.AttributesSerialize);
@@ -2732,13 +3538,14 @@ function buildExplorer(roots, expandAll) {
             // --- ColorSequence / NumberSequence visual rendering ---
             if (isColorSequence(rawValue) || isNumberSequence(rawValue)) {
                 const seqWrapper = document.createElement('div');
-                seqWrapper.style.cssText = 'display: flex; align-items: center; gap: 6px; width: 100%;';
+                seqWrapper.className = 'rovalra-explorer-sequence';
 
                 const seqBar = document.createElement('div');
-                seqBar.style.cssText = 'flex: 1; min-width: 80px; max-width: 150px; height: 18px; border-radius: 3px; border: 1px solid rgba(255,255,255,0.15); overflow: hidden;';
+                seqBar.className = 'rovalra-explorer-sequence-bar';
 
                 if (isColorSequence(rawValue)) {
-                    seqBar.style.background = buildColorSequenceGradient(rawValue);
+                    seqBar.style.background =
+                        buildColorSequenceGradient(rawValue);
                 } else {
                     seqBar.style.background = '#1a1a1a';
                     seqBar.appendChild(buildNumberSequenceSvg(rawValue));
@@ -2746,14 +3553,17 @@ function buildExplorer(roots, expandAll) {
 
                 const countLabel = document.createElement('span');
                 countLabel.textContent = `${rawValue.length} pts`;
-                countLabel.style.cssText = 'color: #888; font-size: 11px; white-space: nowrap; flex-shrink: 0;';
+                countLabel.className = 'rovalra-explorer-sequence-count';
 
                 seqWrapper.appendChild(seqBar);
                 seqWrapper.appendChild(countLabel);
                 valueCell.appendChild(seqWrapper);
 
-                const tipLines = rawValue.map(kp => {
-                    const env = kp.Envelope !== undefined ? ` (±${fixNum(kp.Envelope)})` : '';
+                const tipLines = rawValue.map((kp) => {
+                    const env =
+                        kp.Envelope !== undefined
+                            ? ` (±${fixNum(kp.Envelope)})`
+                            : '';
                     if (isColorSequence(rawValue)) {
                         const to255 = (c) => Math.round(c <= 1 ? c * 255 : c);
                         return `t=${fixNum(kp.Time)}: ${to255(kp.Value.r)}, ${to255(kp.Value.g)}, ${to255(kp.Value.b)}${env}`;
@@ -2880,19 +3690,23 @@ function buildExplorer(roots, expandAll) {
         // --- PROPERTIES FILTER LOGIC ---
         function filterProps() {
             const query = propsSearchQuery.toLowerCase().trim();
-            const groupHeaders = table.querySelectorAll('.rovalra-explorer-prop-group');
+            const groupHeaders = table.querySelectorAll(
+                '.rovalra-explorer-prop-group',
+            );
 
-            groupHeaders.forEach(groupHeader => {
+            groupHeaders.forEach((groupHeader) => {
                 const body = groupHeader.nextElementSibling;
                 if (!body) return;
 
                 let anyVisible = false;
-                body.querySelectorAll('.rovalra-explorer-prop-row').forEach(row => {
-                    const propName = row.dataset.propName || '';
-                    const visible = !query || propName.includes(query);
-                    row.style.display = visible ? '' : 'none';
-                    if (visible) anyVisible = true;
-                });
+                body.querySelectorAll('.rovalra-explorer-prop-row').forEach(
+                    (row) => {
+                        const propName = row.dataset.propName || '';
+                        const visible = !query || propName.includes(query);
+                        row.style.display = visible ? '' : 'none';
+                        if (visible) anyVisible = true;
+                    },
+                );
 
                 if (query) {
                     if (anyVisible) {
@@ -2900,7 +3714,9 @@ function buildExplorer(roots, expandAll) {
                         body.style.display = '';
                         if (!groupHeader.classList.contains('open')) {
                             groupHeader.classList.add('open');
-                            arrow.textContent = '▾';
+                            groupHeader.querySelector(
+                                '.rovalra-explorer-prop-group-arrow',
+                            ).textContent = 'v';
                         }
                     } else {
                         groupHeader.style.display = 'none';
@@ -2941,8 +3757,10 @@ function buildExplorer(roots, expandAll) {
         let childrenToRender = allChildren;
 
         if (query) {
-            childrenToRender = allChildren.filter(child =>
-                instanceMatchesQuery(child, query) || hasMatchingDescendant(child, query)
+            childrenToRender = allChildren.filter(
+                (child) =>
+                    instanceMatchesQuery(child, query) ||
+                    hasMatchingDescendant(child, query),
             );
         }
 
@@ -2994,27 +3812,34 @@ function buildExplorer(roots, expandAll) {
             row.appendChild(count);
         }
 
-        if (VALID_GUI_CLASSES.has(instance.ClassName) && instance.ClassName !== 'StarterGui') {
+        if (
+            VALID_GUI_CLASSES.has(instance.ClassName) &&
+            instance.ClassName !== 'StarterGui'
+        ) {
             const visToggle = document.createElement('span');
             visToggle.className = 'rovalra-explorer-vis-toggle';
-            visToggle.textContent = '👁';
+            visToggle.textContent = 'View';
             visToggle.style.cursor = 'pointer';
-            visToggle.style.marginLeft = 'auto'; 
+            visToggle.style.marginLeft = 'auto';
             visToggle.style.fontSize = '14px';
             visToggle.style.padding = '0 4px';
             visToggle.style.userSelect = 'none';
-            visToggle.title = 'Toggle Visibility in Preview';
+            visToggle.title = ts(
+                'createRoblox.explorer.togglePreviewVisibility',
+            );
 
             const propToToggle = getVisibilityProp(instance.ClassName);
             const getVisibility = () => {
                 const val = instance.Properties?.[propToToggle];
                 return val !== false && val !== 'false' && val !== 0;
             };
-            
+
             const updateToggleVisual = () => {
                 const isVisible = getVisibility();
                 visToggle.style.opacity = isVisible ? '1' : '0.3';
-                visToggle.style.textDecoration = isVisible ? 'none' : 'line-through';
+                visToggle.style.textDecoration = isVisible
+                    ? 'none'
+                    : 'line-through';
             };
             updateToggleVisual();
 
@@ -3023,14 +3848,14 @@ function buildExplorer(roots, expandAll) {
                 if (!instance.Properties) instance.Properties = {};
                 instance.Properties[propToToggle] = !getVisibility();
                 updateToggleVisual();
-                
+
                 if (guiViewerRerender) guiViewerRerender();
             });
 
             visToggle.addEventListener('dblclick', (e) => {
                 e.stopPropagation();
             });
-            
+
             row.appendChild(visToggle);
         }
 
@@ -3048,7 +3873,7 @@ function buildExplorer(roots, expandAll) {
             if (!hasChildren) return;
             const shouldExpand = force !== undefined ? force : !expanded;
             if (shouldExpand === expanded) return;
-            
+
             expanded = shouldExpand;
             toggle.textContent = expanded ? '▾' : '▸';
             childContainer.style.display = expanded ? 'block' : 'none';
@@ -3106,11 +3931,12 @@ function buildExplorer(roots, expandAll) {
         let shouldNodeBeExpanded = false;
         if (isSearchActive) {
             // Auto-expand all nodes with children during search, UNLESS explicitly collapsed
-            shouldNodeBeExpanded = hasChildren && !searchCollapsedSet.has(instance);
+            shouldNodeBeExpanded =
+                hasChildren && !searchCollapsedSet.has(instance);
         } else {
             // 1. Check long-term memory
             shouldNodeBeExpanded = expandedInstancesSet.has(instance);
-            
+
             // 2. Ensure ancestors of the selected instance are expanded
             if (!shouldNodeBeExpanded && selectedInstance) {
                 let curr = parentMap.get(selectedInstance);
@@ -3123,7 +3949,7 @@ function buildExplorer(roots, expandAll) {
                     curr = parentMap.get(curr);
                 }
             }
-            
+
             // 3. Initial render expandAll flag
             if (isInitialRender && expandAll && hasChildren) {
                 shouldNodeBeExpanded = true;
@@ -3137,7 +3963,7 @@ function buildExplorer(roots, expandAll) {
         // Restore selection visual state if this is the selected instance
         if (instance === selectedInstance) {
             row.classList.add('selected');
-            selectedRow = row; 
+            selectedRow = row;
         }
 
         return node;
@@ -3160,7 +3986,10 @@ function buildExplorer(roots, expandAll) {
 
         for (const root of visibleRoots) {
             if (query) {
-                if (!instanceMatchesQuery(root, query) && !hasMatchingDescendant(root, query)) {
+                if (
+                    !instanceMatchesQuery(root, query) &&
+                    !hasMatchingDescendant(root, query)
+                ) {
                     continue;
                 }
             }
@@ -3170,13 +3999,13 @@ function buildExplorer(roots, expandAll) {
 
         if (query && matchCount === 0) {
             const empty = document.createElement('div');
-            empty.style.cssText = 'padding: 16px; color: #888; text-align: center; font-size: 13px;';
-            empty.textContent = 'No matching instances found';
+            empty.className = 'rovalra-explorer-search-empty';
+            empty.textContent = ts('createRoblox.explorer.noMatchingInstances');
             treeContent.appendChild(empty);
         } else {
             treeContent.appendChild(frag);
         }
-        
+
         isInitialRender = false;
     }
 
@@ -3185,7 +4014,7 @@ function buildExplorer(roots, expandAll) {
     treeSearchInput.addEventListener('input', () => {
         const val = treeSearchInput.value;
         clearTimeout(searchDebounce);
-        
+
         if (val.length === 0) {
             // Instantly reset if cleared
             if (isSearchActive) {
@@ -3290,7 +4119,12 @@ async function openExplorer(assetId, name, expandAll) {
             roots: asset?.root?.length,
         });
 
-        if (!asset || !asset.isValid || !asset.root || asset.root.length === 0) {
+        if (
+            !asset ||
+            !asset.isValid ||
+            !asset.root ||
+            asset.root.length === 0
+        ) {
             loading.textContent = ts('createRoblox.explorer.loadError');
             return;
         }
@@ -3323,7 +4157,8 @@ async function addCatalogButton(rightToolbar) {
     const button = document.createElement('button');
     button.id = 'rovalra-explorer-btn';
     button.type = 'button';
-    button.className = 'rbx-menu-item btn-generic-more-sm rovalra-explorer-header-btn';
+    button.className =
+        'rbx-menu-item btn-generic-more-sm rovalra-explorer-header-btn';
     button.title = ts('createRoblox.explorer.button');
     button.setAttribute('aria-label', ts('createRoblox.explorer.button'));
 
@@ -3358,7 +4193,8 @@ function addGameButton(contextMenu) {
         const button = document.createElement('button');
         button.id = 'rovalra-explorer-btn';
         button.type = 'button';
-        button.className = 'rbx-menu-item btn-generic-more-sm rovalra-explorer-game-btn';
+        button.className =
+            'rbx-menu-item btn-generic-more-sm rovalra-explorer-game-btn';
         button.setAttribute('aria-label', ts('createRoblox.explorer.button'));
         addTooltip(button, ts('createRoblox.explorer.button'));
 

@@ -1,6 +1,5 @@
 import { SETTINGS_CONFIG } from '../content/core/settings/settingConfig.js';
 import init from './settingsCompat.ts';
-import { unzipSync } from 'fflate';
 
 // --- Constants & State ---
 
@@ -744,7 +743,9 @@ async function fetchTransactionsPage(userId, cursor = null) {
 async function acquireTransactionScanLock(userId) {
     userId = String(userId);
     const scanId = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-    const storage = await chrome.storage.local.get([TRANSACTION_SCAN_LOCKS_KEY]);
+    const storage = await chrome.storage.local.get([
+        TRANSACTION_SCAN_LOCKS_KEY,
+    ]);
     const locks = storage[TRANSACTION_SCAN_LOCKS_KEY] || {};
     const existingLock = locks[userId];
     const now = Date.now();
@@ -767,7 +768,9 @@ async function acquireTransactionScanLock(userId) {
 }
 
 async function refreshTransactionScanLock(userId, scanId) {
-    const storage = await chrome.storage.local.get([TRANSACTION_SCAN_LOCKS_KEY]);
+    const storage = await chrome.storage.local.get([
+        TRANSACTION_SCAN_LOCKS_KEY,
+    ]);
     const locks = storage[TRANSACTION_SCAN_LOCKS_KEY] || {};
     const existingLock = locks[userId];
 
@@ -782,7 +785,9 @@ async function refreshTransactionScanLock(userId, scanId) {
 }
 
 async function releaseTransactionScanLock(userId, scanId) {
-    const storage = await chrome.storage.local.get([TRANSACTION_SCAN_LOCKS_KEY]);
+    const storage = await chrome.storage.local.get([
+        TRANSACTION_SCAN_LOCKS_KEY,
+    ]);
     const locks = storage[TRANSACTION_SCAN_LOCKS_KEY] || {};
 
     if (locks[userId]?.scanId === scanId) {
@@ -1137,7 +1142,8 @@ async function runTransactionLoop(userId, existingData, isIncremental, scanId) {
         if (!ownsLock) return false;
 
         if (!isIncremental && scanFinished) {
-            currentAggregated = aggregateTemporaryTransactionScan(temporaryScan);
+            currentAggregated =
+                aggregateTemporaryTransactionScan(temporaryScan);
         }
 
         const storage = await chrome.storage.local.get([TRANSACTIONS_DATA_KEY]);
@@ -1192,10 +1198,7 @@ async function runTransactionLoop(userId, existingData, isIncremental, scanId) {
             }
 
             await sleep(
-                Math.max(
-                    TRANSACTION_REQUEST_DELAY,
-                    page.rateLimitDelay || 0,
-                ),
+                Math.max(TRANSACTION_REQUEST_DELAY, page.rateLimitDelay || 0),
             );
             continue;
         }
@@ -1298,9 +1301,7 @@ async function fetchBadgesPage(userId, cursor = null) {
                 const retryDelay = Number.isFinite(resetSeconds)
                     ? Math.max(resetSeconds, 1) * 1000
                     : 10000;
-                await new Promise((resolve) =>
-                    setTimeout(resolve, retryDelay),
-                );
+                await new Promise((resolve) => setTimeout(resolve, retryDelay));
                 continue;
             }
 
@@ -1559,9 +1560,7 @@ async function fetchAvatarInventoryPage(sortOption, pageToken = null) {
                 const retryDelay = Number.isFinite(resetSeconds)
                     ? Math.max(resetSeconds, 1) * 1000
                     : 10000;
-                await new Promise((resolve) =>
-                    setTimeout(resolve, retryDelay),
-                );
+                await new Promise((resolve) => setTimeout(resolve, retryDelay));
                 continue;
             }
 
@@ -1694,10 +1693,7 @@ async function runAvatarInventoryLoopForType(
     const seenSignatures = new Set();
 
     while (true) {
-        const data = await fetchAvatarInventoryPage(
-            config.sortOption,
-            cursor,
-        );
+        const data = await fetchAvatarInventoryPage(config.sortOption, cursor);
         if (!data) break;
 
         const items = data.avatarInventoryItems || [];
@@ -1786,9 +1782,7 @@ async function runAvatarInventoryLoopForType(
 
         if (!cursor || foundMatch || (isIncremental && pagesChecked >= 5))
             break;
-        await new Promise((r) =>
-            setTimeout(r, AVATAR_INVENTORY_REQUEST_DELAY),
-        );
+        await new Promise((r) => setTimeout(r, AVATAR_INVENTORY_REQUEST_DELAY));
     }
 
     if (isIncremental && !foundMatch && pagesChecked >= 5) {
@@ -1813,39 +1807,7 @@ async function runAvatarInventoryLoopForType(
     return currentAggregated;
 }
 
-// --- Fetch Roblox Studio Fonts ---
-
-let cachedFonts = null;
-let fontsFetchPromise = null;
-
-async function getFontsCache() {
-    if (cachedFonts) return cachedFonts;
-    if (fontsFetchPromise) return fontsFetchPromise;
-
-    fontsFetchPromise = (async () => {
-        try {
-            const versionRes = await fetch('https://setup.rbxcdn.com/versionQTStudio');
-            if (!versionRes.ok) throw new Error('Failed to fetch Studio version');
-            const version = (await versionRes.text()).trim();
-            
-            const zipRes = await fetch(`https://setup.rbxcdn.com/${version}-content-fonts.zip`);
-            if (!zipRes.ok) throw new Error('Failed to fetch fonts zip');
-            
-            const zipArrayBuffer = await zipRes.arrayBuffer();
-            const zipData = new Uint8Array(zipArrayBuffer);
-            
-            // unzipSync is synchronous and doesn't spawn workers (avoiding CSP issues)
-            cachedFonts = unzipSync(zipData);
-            return cachedFonts;
-        } catch (e) {
-            console.error('RoValra: Failed to load fonts cache', e);
-            fontsFetchPromise = null; // Allow retry on failure
-            throw e;
-        }
-    })();
-
-    return fontsFetchPromise;
-}
+// --- Fetch Roblox Font Assets ---
 
 function uint8ToBase64(u8) {
     let binary = '';
@@ -1868,14 +1830,25 @@ function getAssetIdFromValue(value) {
 }
 
 function detectFontMimeType(bytes) {
-    if (!(bytes instanceof Uint8Array) || bytes.length < 4) return 'application/octet-stream';
+    if (!(bytes instanceof Uint8Array) || bytes.length < 4)
+        return 'application/octet-stream';
 
-    const signature = String.fromCharCode(bytes[0], bytes[1], bytes[2], bytes[3]);
+    const signature = String.fromCharCode(
+        bytes[0],
+        bytes[1],
+        bytes[2],
+        bytes[3],
+    );
     if (signature === 'OTTO') return 'font/otf';
     if (signature === 'ttcf') return 'font/collection';
     if (signature === 'wOFF') return 'font/woff';
     if (signature === 'wOF2') return 'font/woff2';
-    if (bytes[0] === 0x00 && bytes[1] === 0x01 && bytes[2] === 0x00 && bytes[3] === 0x00) {
+    if (
+        bytes[0] === 0x00 &&
+        bytes[1] === 0x01 &&
+        bytes[2] === 0x00 &&
+        bytes[3] === 0x00
+    ) {
         return 'font/ttf';
     }
     if (signature === 'true' || signature === 'typ1') return 'font/ttf';
@@ -1911,7 +1884,9 @@ async function getCustomFontFamily(assetId) {
     const promise = (async () => {
         const infoResponse = await fetchAssetDelivery(normalizedAssetId);
         if (!infoResponse.ok) {
-            throw new Error(`Font info request failed: HTTP ${infoResponse.status}`);
+            throw new Error(
+                `Font info request failed: HTTP ${infoResponse.status}`,
+            );
         }
 
         const fontInfo = await infoResponse.json();
@@ -1920,7 +1895,11 @@ async function getCustomFontFamily(assetId) {
 
         for (const face of findFontFaces(fontInfo)) {
             const faceAssetId = getAssetIdFromValue(
-                face.assetId ?? face.AssetId ?? face.assetID ?? face.id ?? face.Id,
+                face.assetId ??
+                    face.AssetId ??
+                    face.assetID ??
+                    face.id ??
+                    face.Id,
             );
             if (!faceAssetId) continue;
 
@@ -1942,7 +1921,9 @@ async function getCustomFontFamily(assetId) {
         }
 
         if (faces.length === 0) {
-            throw new Error('Custom font did not contain any downloadable faces');
+            throw new Error(
+                'Custom font did not contain any downloadable faces',
+            );
         }
 
         return { success: true, name: familyName, faces };
@@ -2277,47 +2258,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         case 'wearOutfit':
             wearOutfit(request.outfitId).then(sendResponse);
             return true;
-
-        case 'getFontFamily': {
-            const familyName = request.familyName;
-            getFontsCache().then(cache => {
-                // Normalize backslashes to forward slashes to handle Windows-created ZIPs
-                const jsonKey = Object.keys(cache).find(k => 
-                    k.replace(/\\/g, '/').toLowerCase().endsWith(`families/${familyName.toLowerCase()}.json`)
-                );
-                
-                if (!jsonKey) {
-                    const availableJsons = Object.keys(cache)
-                        .filter(k => k.endsWith('.json'))
-                        .map(k => k.replace(/\\/g, '/').split('/').pop());
-                    console.warn(`Font family JSON not found: ${familyName}. Available:`, availableJsons.slice(0, 20));
-                    sendResponse({ success: false, error: 'Font family JSON not found' });
-                    return;
-                }
-                
-                const jsonData = JSON.parse(new TextDecoder().decode(cache[jsonKey]));
-                const faces = [];
-                
-                for (const face of jsonData.faces) {
-                    const fontFileName = face.assetId.split('/').pop().toLowerCase();
-                    const fontKey = Object.keys(cache).find(k => 
-                        k.replace(/\\/g, '/').toLowerCase().endsWith(fontFileName)
-                    );
-                    if (fontKey) {
-                        faces.push({
-                            weight: face.weight,
-                            style: face.style,
-                            base64: uint8ToBase64(cache[fontKey])
-                        });
-                    }
-                }
-                
-                sendResponse({ success: true, name: jsonData.name, faces });
-            }).catch(err => {
-                sendResponse({ success: false, error: err.message });
-            });
-            return true; // Keep message channel open for async fetch
-        }
 
         case 'getCustomFontFamily':
             getCustomFontFamily(request.assetId)
