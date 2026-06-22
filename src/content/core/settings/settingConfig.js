@@ -1400,6 +1400,7 @@ export const SETTINGS_CONFIG = {
                         ],
                         type: 'checkbox',
                         default: true,
+                        exclusiveWith: ['ageKidsTextEnabled'],
                         contributors: ['650766686'],
                     },
                 },
@@ -1413,6 +1414,7 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: false,
+                exclusiveWith: ['ageThemeTextMatch'],
                 contributors: ['650766686', '1564574922'],
                 childSettings: {
                     ageKidsTextInput: {
