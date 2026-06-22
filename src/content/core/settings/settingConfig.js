@@ -4,6 +4,8 @@ import {
     TRANSACTION_FIAT_RATE_OPTIONS,
 } from '../transactions/fiatConfig.js';
 
+const isAprilFools = () => { const d = new Date(); return d.getMonth() === 3 && d.getDate() <= 7; };
+
 // Settings config (not developer settings)
 
 export const SETTINGS_CONFIG = {
@@ -1767,9 +1769,9 @@ export const SETTINGS_CONFIG = {
                 type: 'select',
                 options: [
                     { label: 'Default', value: 'default' },
-                    { label: 'Light', value: 'builtin-light' },
-                    { label: 'Dark', value: 'builtin-dark' },
-                    { label: '(RoValra) Nighty', value: 'custom-nighty' }
+                    { label: isAprilFools() ? '"Ow my eyes"' : 'Light', value: 'builtin-light' },
+                    { label: isAprilFools() ? 'Cave' : 'Dark', value: 'builtin-dark' },
+                    { label: isAprilFools() ? '(RoValra) Headache mode' : '(RoValra) Nighty', value: 'custom-nighty' }
                 ],
                 default: 'default',
                 contributors: ['1564574922']
