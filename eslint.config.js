@@ -57,7 +57,7 @@ const apiRestrictedSyntax = [
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const cssPath = path.join(__dirname, 'src/css/sitewide.css');
+const cssPath = path.join(__dirname, 'src/css/sitewide.scss');
 const allowedCssVars = new Set();
 try {
     if (fs.existsSync(cssPath)) {
@@ -77,7 +77,7 @@ const customPlugin = {
                 type: 'problem',
                 docs: {
                     description:
-                        'Ensure used CSS variables are defined in sitewide.css',
+                        'Ensure used CSS variables are defined in sitewide.scss',
                 },
             },
             create(context) {
@@ -93,7 +93,7 @@ const customPlugin = {
                         ) {
                             context.report({
                                 node,
-                                message: `⚠️ CSS variable '${varName}' is not defined in sitewide.css.`,
+                                message: `⚠️ CSS variable '${varName}' is not defined in sitewide.scss.`,
                             });
                         }
                     }
