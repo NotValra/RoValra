@@ -1768,6 +1768,7 @@ export const SETTINGS_CONFIG = {
                     { label: 'Default', value: 'default' },
                     { label: 'Light', value: 'builtin-light' },
                     { label: 'Dark', value: 'builtin-dark' },
+                    { label: '(RoValra) Nighty', value: 'custom-nighty' }
                 ],
                 default: 'default',
                 contributors: ['1564574922']

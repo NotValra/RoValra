@@ -1,0 +1,52 @@
+.rovalra-custom-nighty-theme,
+.rovalra-custom-nighty-theme * {
+    --color-surface-0: rgb(18, 18, 35) !important;
+
+    --color-surface-100: rgb(25, 26, 45) !important;
+
+    --color-surface-200: rgb(32, 34, 60) !important;
+
+    --color-surface-300: rgb(39, 41, 88) !important;
+
+    --rovalra-main-text-color: #f7f7f8;
+    --rovalra-secondary-text-color: #c7ccd8;
+    --rovalra-tertiary-text-color: rgb(188, 190, 200);
+    --rovalra-container-background-color: var(--color-surface-200);
+    --rovalra-playbutton-color: #5174f5;
+    --rovalra-main-background-color: var(--color-surface-0);
+    --rovalra-button-background-color: rgba(208, 217, 251, 0.12);
+    --rovalra-border-color: rgba(255, 255, 255, 0.2);
+    --rovalra-gray-text-color: rgb(188, 190, 200);
+    --rovalra-profile-header-bg: #191a1f;
+    --rovalra-profile-main-gradient:
+        linear-gradient(
+            91deg,
+            rgba(18, 18, 35, 0.2) 5.83%,
+            rgba(255, 255, 255, 0.2) 47.76%,
+            rgba(18, 18, 35, 0.2) 93.93%
+        ),
+        var(--rovalra-profile-header-bg);
+    --rovalra-profile-overlay-gradient: linear-gradient(
+        rgba(18, 18, 35, 0) 0%,
+        rgba(18, 18, 35, 0.5) 45%,
+        rgba(18, 18, 35, 0.85) 70%,
+        #121215 90%,
+        #121215 100%
+    );
+    --rovalra-icon-blocked-color: #646668;
+
+    --rovalra-theme-content: rgb(88);
+    --rovalra-theme-text: rgb(213, 215, 221);
+    --rovalra-theme-header: white;
+    --rovalra-theme-sliderOn: #ddd;
+    --rovalra-theme-sliderOff: rgba(0, 0, 0, 0.1);
+    --rovalra-theme-sliderButton: white;
+    --rovalra-theme-buttonText: rgba(255, 255, 255, 0.9);
+    --rovalra-theme-buttonBg: rgb(45, 48, 51);
+    --rovalra-theme-buttonHover: rgb(57, 60, 64);
+    --rovalra-theme-buttonActive: rgb(69, 73, 77);
+    --rovalra-theme-buttonBorder: 0px solid rgba(255, 255, 255, 0.1);
+    --rovalra-theme-discordLink: #7289da;
+    --rovalra-theme-githubLink: #2dba4e;
+    --rovalra-theme-robloxLink: #c13ad9;
+}

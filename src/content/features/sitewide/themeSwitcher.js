@@ -3,19 +3,27 @@ import { settings } from "../../core/settings/getSettings";
 const ThemeClasses = {
     'default': undefined,
     'builtin-light': 'light-theme',
-    'builtin-dark': 'dark-theme'
+    'builtin-dark': 'dark-theme',
+    'custom-nighty': ['rovalra-custom-nighty-theme', 'dark-theme'],
 };
 
 let OriginalTheme = undefined;
 
 function SetTheme(theme) {
-    for (const theme of Object.values(ThemeClasses)) {
+    for (let theme of Object.values(ThemeClasses)) {
         if (theme !== undefined) {
-            document.body.classList.remove(theme);
+            if (!Array.isArray(theme)) theme = [theme];
+            for (const t of theme)
+                document.body.classList.remove(t);
         }
     }
 
-    document.body.classList.add(ThemeClasses[theme] ?? OriginalTheme);
+    let v;
+    if (Array.isArray(v = ThemeClasses[theme] ?? OriginalTheme)) {
+        document.body.classList.add(...v);
+    } else {
+        document.body.classList.add(v);
+    }
 }
 
 async function PrepareRenderedTheme() {
@@ -35,6 +43,7 @@ async function PrepareRenderedTheme() {
 
         case 'builtin-light':
         case 'builtin-dark':
+        case 'custom-nighty':
             SetTheme(theme);
             break;
 
