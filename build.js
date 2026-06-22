@@ -116,6 +116,24 @@ if (sass && fs.existsSync(cssDir)) {
         }
     }
 
+    const sitewideScss = path.join(cssDir, 'sitewide.scss');
+    if (fs.existsSync(sitewideScss)) {
+        try {
+            const result = sass.compile(sitewideScss, { style: 'expanded' });
+            if (!fs.existsSync('dist/css'))
+                fs.mkdirSync('dist/css', { recursive: true });
+            fs.writeFileSync(
+                'dist/css/sitewide.css',
+                bannerText + '\n' + result.css,
+            );
+            console.log(
+                'Compiled SCSS: src/css/sitewide.scss -> dist/css/sitewide.css',
+            );
+        } catch (e) {
+            console.error('SCSS Compilation Failed:', e.message);
+        }
+    }
+
     const independentCssDir = path.join(cssDir, 'independent');
     if (fs.existsSync(independentCssDir)) {
         const walkSync = (dir, callback) => {

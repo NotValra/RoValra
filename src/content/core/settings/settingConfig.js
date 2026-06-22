@@ -57,7 +57,7 @@ export const SETTINGS_CONFIG = {
                 label: 'Enable Custom 3D Marketplace Item Renderer',
                 description: [
                     'Adds a try-on preview when hovering over items and adds a feature-rich 3D renderer to item pages.',
-                    'This feature was made possible cause of [RoAvatar](https://github.com/steinann/RoAvatar) ❤️',
+                    'This feature was made possible cause of {{[RoAvatar](https://github.com/steinann/RoAvatar) githubLink}} ❤️',
                 ],
                 type: 'checkbox',
                 default: false,
