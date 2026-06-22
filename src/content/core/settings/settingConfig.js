@@ -1743,6 +1743,13 @@ export const SETTINGS_CONFIG = {
                 },
                 contributors: ['1564574922'],
             },
+            plusStatsEnabled: {
+                label: 'Show Plus Stats',
+                description: "Shows Roblox Plus Stats on the [Plus](https://www.roblox.com/plus) page even if you are not subscribed",
+                type: 'checkbox',
+                default: true,
+                contributors: ['650766686'],
+            },
             settingChangeNote: {
                 label: 'Setting changes alerts',
                 description: [

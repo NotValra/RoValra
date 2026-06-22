@@ -913,9 +913,6 @@
         "currencyTransferConfirmation": "This will open the Roblox client allowing you to send robux.",
         "openClient": "Open Client"
     },
-    "plusPrivateServerTooltip": {
-        "tooltipText": "Original Price: <b>{{originalPrice}} Robux</b><br>Currently shows as <b>Free</b> due to Roblox Plus."
-    },
     "animations": {
         "idle": "Idle",
         "walk": "Walk",
@@ -939,5 +936,19 @@
             "oldest": "Oldest"
         },
         "tooltip": "Sort by when the user joined the community"
+    },
+    "plus": {
+        "stats": {
+            "robux": "You've saved {{robux}} with Plus",
+            "percentOffSmall": "In-game items, avatars and more",
+            "percentOff": "{{percent}} off",
+            "itemsBoughtSmall": "Items bought with Plus discount",
+            "privateServersCreatedSmall": "Private servers created for free",
+            "robuxSentSmall": "Robux sent to friends",
+            "delayNotice": "All data shown here is delayed by 1 day"
+        },
+        "privateServerTooltip": {
+            "tooltipText": "Original Price: <b>{{originalPrice}} Robux</b><br>Currently shows as <b>Free</b> due to Roblox Plus."
+        }
     }
 }
