@@ -8,6 +8,13 @@ function ensureDeveloperSettings() {
     }
 }
 
+function shouldShowSettingsSection(sectionName, options = {}) {
+    if (sectionName === 'Developer' && !options.devTabAdded) return false;
+    if (sectionName === 'FunStuff' && !options.funStuffTabEnabled)
+        return false;
+    return true;
+}
+
 export async function buildSettingsPage({
     handleSearch,
     debounce,
@@ -17,10 +24,14 @@ export async function buildSettingsPage({
     initSettings,
 }) {
     const settings = await new Promise((resolve) => {
-        chrome.storage.local.get('alwaysShowDeveloperSettings', resolve);
+        chrome.storage.local.get(
+            ['alwaysShowDeveloperSettings', 'FunStuffEnabled'],
+            resolve,
+        );
     });
 
     let devTabAdded = settings.alwaysShowDeveloperSettings === true;
+    let funStuffTabEnabled = settings.FunStuffEnabled === true;
     if (devTabAdded) ensureDeveloperSettings();
     const assets = getAssets();
     const containerMain = document.querySelector('main.container-main');
@@ -110,6 +121,13 @@ export async function buildSettingsPage({
             });
 
         Object.keys(SETTINGS_CONFIG).forEach((sectionName) => {
+            if (
+                !shouldShowSettingsSection(sectionName, {
+                    devTabAdded,
+                    funStuffTabEnabled,
+                })
+            )
+                return;
             dropdownItems.push({
                 value: sectionName.toLowerCase(),
                 label: SETTINGS_CONFIG[sectionName].title,
@@ -202,6 +220,7 @@ export async function buildSettingsPage({
         debounce,
         buttonData,
         devTabAdded,
+        funStuffTabEnabled,
         loadTabContent,
         REGIONS,
         initSettings,
@@ -223,6 +242,18 @@ export async function buildSettingsPage({
                 renderMobileDropdown,
             });
         }
+    });
+
+    document.addEventListener('rovalra:settingSaved', (event) => {
+        if (event.detail?.name !== 'FunStuffEnabled') return;
+
+        funStuffTabEnabled = event.detail.value === true;
+        updateFunStuffTabUI({
+            enabled: funStuffTabEnabled,
+            menuList: unifiedMenu,
+            loadTabContent,
+            renderMobileDropdown,
+        });
     });
 
     uiContainer.appendChild(unifiedMenu);
@@ -260,6 +291,7 @@ function createUnifiedMenu({
     debounce,
     buttonData,
     devTabAdded,
+    funStuffTabEnabled,
     loadTabContent,
     REGIONS,
     initSettings,
@@ -370,7 +402,13 @@ function createUnifiedMenu({
     menuList.appendChild(separator);
 
     Object.keys(SETTINGS_CONFIG).forEach((sectionName) => {
-        if (sectionName === 'Developer' && !devTabAdded) return;
+        if (
+            !shouldShowSettingsSection(sectionName, {
+                devTabAdded,
+                funStuffTabEnabled,
+            })
+        )
+            return;
         const listItem = createSidebarItem(
             sectionName,
             SETTINGS_CONFIG[sectionName].title,
@@ -443,6 +481,46 @@ function addDeveloperTabUI({ menuList, loadTabContent, renderMobileDropdown }) {
         requestAnimationFrame(() => {
             devItem.style.opacity = '1';
         });
+    }
+
+    if (typeof renderMobileDropdown === 'function') {
+        renderMobileDropdown();
+    }
+}
+
+function updateFunStuffTabUI({
+    enabled,
+    menuList,
+    loadTabContent,
+    renderMobileDropdown,
+}) {
+    const existingItem = document.getElementById('funstuff-tab');
+
+    if (enabled && !existingItem && menuList && loadTabContent) {
+        const funItem = createSidebarItem(
+            'FunStuff',
+            SETTINGS_CONFIG.FunStuff.title,
+            loadTabContent,
+        );
+        const developerItem = document.getElementById('developer-tab');
+
+        if (developerItem) {
+            menuList.insertBefore(funItem, developerItem);
+        } else {
+            menuList.appendChild(funItem);
+        }
+    } else if (!enabled && existingItem) {
+        existingItem.remove();
+
+        const currentTab = new URLSearchParams(window.location.search).get(
+            'rovalra',
+        );
+        if (currentTab?.toLowerCase() === 'funstuff') {
+            const newUrl = new URL(window.location.href);
+            newUrl.searchParams.set('rovalra', 'info');
+            history.pushState(null, '', newUrl.pathname + newUrl.search);
+            loadTabContent('info');
+        }
     }
 
     if (typeof renderMobileDropdown === 'function') {

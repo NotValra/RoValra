@@ -13,6 +13,14 @@ import { createBadgeSettings } from '../badgeSettings.js';
 
 let isSettingsPage = false;
 
+async function isFunStuffTabEnabled() {
+    return new Promise((resolve) => {
+        chrome.storage.local.get('FunStuffEnabled', (settings) => {
+            resolve(settings.FunStuffEnabled === true);
+        });
+    });
+}
+
 export async function checkRoValraPage() {
     const urlParams = new URLSearchParams(window.location.search);
     const rovalraTab = urlParams.get('rovalra');
@@ -40,6 +48,13 @@ export async function checkRoValraPage() {
 
     async function loadTabContent(hashKey) {
         if (!hashKey) hashKey = 'info';
+
+        const requestedHashKey = hashKey;
+        const requestedLowerHashKey = requestedHashKey.toLowerCase();
+        const funStuffBlocked =
+            requestedLowerHashKey === 'funstuff' &&
+            !(await isFunStuffTabEnabled());
+        if (funStuffBlocked) hashKey = 'info';
 
         document
             .querySelectorAll('#unified-menu .menu-option-content')
@@ -87,6 +102,14 @@ export async function checkRoValraPage() {
         }
 
         const lowerHashKey = hashKey.toLowerCase();
+        if (funStuffBlocked) {
+            const newUrl = new URL(window.location.href);
+            if (newUrl.searchParams.get('rovalra') !== 'info') {
+                newUrl.searchParams.set('rovalra', 'info');
+                history.replaceState(null, '', newUrl.pathname + newUrl.search);
+            }
+        }
+
         const settingsConfigKey = Object.keys(SETTINGS_CONFIG).find(
             (k) => k.toLowerCase() === lowerHashKey,
         );

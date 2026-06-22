@@ -1,4 +1,3 @@
-import * as CacheHandler from '../storage/cacheHandler.js';
 import { callRobloxApiJson } from '../api.js';
 export {
     DEVEX_USD_RATE,
@@ -21,6 +20,9 @@ import {
 } from './fiatConfig.js';
 
 let fiatSettingsPromise = null;
+let currencyRatesPromise = null;
+let currencyRatesCache = null;
+const conversionRateCache = new Map();
 
 chrome.storage.onChanged.addListener((changes, areaName) => {
     if (areaName !== 'local') return;
@@ -64,21 +66,24 @@ export async function getCurrencyConversionRate(baseCurrency, targetCurrency) {
     if (base === target) return 1;
 
     const cacheKey = `${base.toUpperCase()}_${target.toUpperCase()}`;
-    const cachedRate = await CacheHandler.get(
-        'currency_conversion_rates',
-        cacheKey,
-        'local',
-    );
+    const cachedRate = conversionRateCache.get(cacheKey);
     if (typeof cachedRate === 'number' && Number.isFinite(cachedRate)) {
         return cachedRate;
     }
 
     try {
-        const data = await callRobloxApiJson({
-            isRovalraApi: true,
-            subdomain: 'apis',
-            endpoint: '/v1/currency/rates',
-        });
+        if (!currencyRatesPromise) {
+            currencyRatesPromise =
+                currencyRatesCache ||
+                callRobloxApiJson({
+                    isRovalraApi: true,
+                    subdomain: 'apis',
+                    endpoint: '/v1/currency/rates',
+                });
+        }
+
+        const data = await currencyRatesPromise;
+        currencyRatesCache = data;
 
         const usdRates = data?.usd;
         if (!usdRates) {
@@ -101,15 +106,12 @@ export async function getCurrencyConversionRate(baseCurrency, targetCurrency) {
 
         const rate = rateToTarget / rateToBase;
 
-        await CacheHandler.set(
-            'currency_conversion_rates',
-            cacheKey,
-            rate,
-            'local',
-        );
+        conversionRateCache.set(cacheKey, rate);
 
         return rate;
     } catch (error) {
+        currencyRatesCache = null;
+        currencyRatesPromise = null;
         console.error('RoValra: Currency rate fetch failed', error);
         throw error;
     }

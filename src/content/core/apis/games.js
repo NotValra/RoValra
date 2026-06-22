@@ -5,6 +5,7 @@ import { PLAYABILITY_STATUS_STRING_TO_CODE } from '../games/playabilityStatus.js
 const CACHE_SECTION = 'experience_sdui_props';
 const CLOUD_CACHE_SECTION = 'cloud_universe_details';
 const GUIDELINES_CACHE_SECTION = 'experience_guidelines_age_recommendation';
+const universeEligibilityMemoryCache = new Map();
 
 export const REASON_PROHIBITED_TYPES = Object.keys(
     PLAYABILITY_STATUS_STRING_TO_CODE,
@@ -267,6 +268,59 @@ export async function getUniversesVotes(universeIds) {
     }
 }
 
+export async function getUniverseEligibilities(universeIds) {
+    if (!Array.isArray(universeIds) || universeIds.length === 0) return {};
+
+    const normalizedIds = [
+        ...new Set(
+            universeIds
+                .map((id) => Number(id))
+                .filter((id) => Number.isSafeInteger(id) && id > 0),
+        ),
+    ];
+    if (!normalizedIds.length) return {};
+
+    const result = {};
+    const uncachedIds = [];
+
+    for (const universeId of normalizedIds) {
+        const cacheKey = String(universeId);
+        const cached = universeEligibilityMemoryCache.get(cacheKey);
+
+        if (cached) {
+            result[cacheKey] = cached;
+        } else {
+            uncachedIds.push(universeId);
+        }
+    }
+
+    if (!uncachedIds.length) return result;
+
+    try {
+        const data = await callRobloxApiJson({
+            subdomain: 'apis',
+            endpoint: '/core-content/v1/universe-eligibility/batch',
+            method: 'POST',
+            body: { universeIds: uncachedIds },
+        });
+
+        const eligibilities = data?.universeEligibilities || {};
+        Object.entries(eligibilities).forEach(([universeId, eligibility]) => {
+            result[universeId] = eligibility;
+            universeEligibilityMemoryCache.set(universeId, eligibility);
+        });
+    } catch (error) {
+        console.error('RoValra: Failed to fetch universe eligibilities', error);
+    }
+
+    return result;
+}
+
+export async function getUniverseEligibility(universeId) {
+    const eligibilities = await getUniverseEligibilities([universeId]);
+    return eligibilities[String(universeId)] || null;
+}
+
 export default {
     getExperienceSduiProps,
     getVisibilityVariables,
@@ -290,5 +344,7 @@ export default {
     getPlaceDetails,
     getUniversesDetails,
     getUniversesVotes,
+    getUniverseEligibilities,
+    getUniverseEligibility,
     REASON_PROHIBITED_TYPES,
 };

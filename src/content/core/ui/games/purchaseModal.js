@@ -1,5 +1,8 @@
 import { callRobloxApiJson } from '../../api.js';
-import { getUserCurrency } from '../../user/userCurrency.js';
+import {
+    getUserCurrency,
+    setCachedUserCurrency,
+} from '../../user/userCurrency.js';
 import {
     createThumbnailElement,
     getQueuedThumbnail,
@@ -254,6 +257,9 @@ export async function showPurchaseModal(
                     if (purchaseResponse.purchased) {
                         const finalBalance =
                             (currencyData?.robux ?? 0) - currentPrice;
+                        await setCachedUserCurrency(null, {
+                            robux: finalBalance,
+                        });
 
                         const gamePassPurchasedEvent = new CustomEvent(
                             'rovalraGamePassPurchased',

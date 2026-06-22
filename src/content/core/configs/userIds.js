@@ -18,6 +18,7 @@ export const CONTRIBUTOR_USER_IDS = [
     '3602693727', //nxvixz
     '422540285', //RRedshift
     '4866259395', //cam
+    '650766686' // auggeeo
 ];
 
 export const TESTER_USER_IDS = [

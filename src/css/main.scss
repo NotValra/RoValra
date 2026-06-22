@@ -19,12 +19,15 @@
 @use 'features/settings/settings.scss';
 @use 'features/games/servers/serverstats.scss';
 @use 'features/games/quickplay.scss';
+@use 'features/games/events.scss';
 @use 'features/games/hiddenBadges.scss';
 @use 'features/games/badgeLayoutToggle.scss';
 @use 'features/groups/antibots.scss';
 @use 'features/home/homeLayout.scss';
 @use 'components/region_filters.scss';
 @use 'features/catalog/depenencies.scss';
+@use 'features/catalog/explorer.scss';
 @use 'components/robuxIcon.scss';
 @use 'features/sitewide/sidebar_collapse.scss';
 @use 'components/popup.scss';
+@use 'features/sitewide/kids_theme_text.scss';

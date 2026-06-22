@@ -235,6 +235,7 @@
         "newCalculation": "New Calculation",
         "errorTitle": "An Error Occurred",
         "retry": "Retry",
+        "robloxLimitError": "Roblox returned an internal server error. It likely won't be able to scan more transactions because of Roblox limitations.",
         "noEarnings": "No earnings found yet.",
         "other": "Other",
         "groupPayout": "Group Payout"
@@ -273,6 +274,7 @@
         "pack": "Pack",
         "stipend": "Stipend",
         "errorUserId": "Could not retrieve user ID.",
+        "robloxLimitError": "Roblox returned an internal server error. It likely won't be able to scan more transactions because of Roblox limitations.",
         "errorRetries": "Failed after multiple retries. Last error: {{error}}"
     },
     "totalSpentGames": {
@@ -377,7 +379,12 @@
         "options": {
             "normal": "Normal Roblox",
             "kids": "Roblox Kids",
-            "select": "Roblox Select"
+            "select": "Roblox Select",
+            "startmode": "Roblox Leaked Select (Start Mode)"
+        },
+        "badge": {
+            "kids": "KIDS",
+            "select": "SELECT"
         }
     },
     "betaPrograms": {
@@ -619,7 +626,16 @@
         "launching": "Launching..."
     },
     "createRoblox": {
-        "download": "Download"
+        "download": "Download",
+        "explorer": {
+            "button": "Explorer",
+            "title": "Explorer",
+            "loading": "Loading...",
+            "selectInstance": "Select an instance to view its properties",
+            "noProperties": "No properties",
+            "viewSource": "View Source",
+            "loadError": "Failed to load."
+        }
     },
     "priceFloor": {
         "label": "Price Floor:",

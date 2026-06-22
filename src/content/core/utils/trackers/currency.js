@@ -1,34 +1,38 @@
 import { callRobloxApiJson } from '../../api';
 import { getAuthenticatedUserId } from '../../user';
 
-export const USER_CURRENCY_DATA_KEY = 'rovalra_user_currency_v1';
-const USER_CURRENCY_CACHE_DURATION = 30 * 1000;
+export const USER_CURRENCY_CHANGED_EVENT = 'rovalra:user-currency-changed';
 
-let currencyTrackingInterval = null;
+const currencyCache = new Map();
 const activeCurrencyRequests = new Map();
+let currencyTrackingInitialized = false;
 
-async function getStoredCurrencyData(userId) {
-    const result = await new Promise((resolve) =>
-        chrome.storage.local.get([USER_CURRENCY_DATA_KEY], resolve),
+function emitCurrencyChange(userId, currencyData) {
+    document.dispatchEvent(
+        new CustomEvent(USER_CURRENCY_CHANGED_EVENT, {
+            detail: {
+                userId: String(userId),
+                currencyData,
+            },
+        }),
     );
-
-    const allUsersCurrencyData = result[USER_CURRENCY_DATA_KEY] || {};
-    return {
-        allUsersCurrencyData,
-        currentUserData: allUsersCurrencyData[userId] || null,
-    };
 }
 
-async function storeCurrencyData(userId, currencyData) {
-    const { allUsersCurrencyData } = await getStoredCurrencyData(userId);
-    allUsersCurrencyData[userId] = currencyData;
+export async function setCachedUserCurrency(userId, currencyData) {
+    const targetId = userId || (await getAuthenticatedUserId());
+    if (!targetId || !currencyData) return null;
 
-    await new Promise((resolve) =>
-        chrome.storage.local.set(
-            { [USER_CURRENCY_DATA_KEY]: allUsersCurrencyData },
-            resolve,
-        ),
-    );
+    const robux = Number(currencyData.robux);
+    if (!Number.isFinite(robux)) return null;
+
+    const data = {
+        robux,
+        lastChecked: Number(currencyData.lastChecked) || Date.now(),
+    };
+
+    currencyCache.set(String(targetId), data);
+    emitCurrencyChange(targetId, data);
+    return data;
 }
 
 export async function updateUserCurrency(userId) {
@@ -36,6 +40,11 @@ export async function updateUserCurrency(userId) {
     if (!targetId) return null;
 
     const key = String(targetId);
+
+    if (currencyCache.has(key)) {
+        return currencyCache.get(key);
+    }
+
     if (activeCurrencyRequests.has(key)) {
         return activeCurrencyRequests.get(key);
     }
@@ -58,7 +67,7 @@ export async function updateUserCurrency(userId) {
                 lastChecked: Date.now(),
             };
 
-            await storeCurrencyData(targetId, currencyData);
+            await setCachedUserCurrency(targetId, currencyData);
             return currencyData;
         } catch (error) {
             console.error('RoValra: Failed to update user currency', error);
@@ -76,35 +85,25 @@ export async function getUserCurrency(userId) {
     const targetId = userId || (await getAuthenticatedUserId());
     if (!targetId) return null;
 
-    const { currentUserData } = await getStoredCurrencyData(targetId);
-    const now = Date.now();
-    const isFresh =
-        currentUserData &&
-        now - (currentUserData.lastChecked || 0) <=
-            USER_CURRENCY_CACHE_DURATION;
+    const key = String(targetId);
 
-    if (isFresh) return currentUserData;
+    if (currencyCache.has(key)) {
+        return currencyCache.get(key);
+    }
 
-    return (await updateUserCurrency(targetId)) || currentUserData || null;
+    return (await updateUserCurrency(targetId)) || null;
 }
 
 export async function getCachedUserCurrency(userId) {
     const targetId = userId || (await getAuthenticatedUserId());
     if (!targetId) return null;
 
-    const { currentUserData } = await getStoredCurrencyData(targetId);
-    return currentUserData || null;
+    const key = String(targetId);
+    return currencyCache.get(key) || null;
 }
 
 export function initUserCurrencyTracking() {
+    if (currencyTrackingInitialized) return;
+    currencyTrackingInitialized = true;
     getUserCurrency();
-
-    if (!currencyTrackingInterval) {
-        currencyTrackingInterval = setInterval(async () => {
-            const userId = await getAuthenticatedUserId();
-            if (!userId) return;
-
-            await updateUserCurrency(userId);
-        }, USER_CURRENCY_CACHE_DURATION);
-    }
 }

@@ -702,6 +702,8 @@ function onElementFound(container) {
                                 updateOverlay();
                             }
                             continue;
+                        } else if (error.status === 500) {
+                            throw new Error(ts('totalSpent.robloxLimitError'));
                         } else {
                             state.retryCount++;
                             if (state.retryCount > 5) {

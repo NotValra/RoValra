@@ -25,12 +25,18 @@ chrome.storage.onChanged.addListener((changes, area) => {
     }
 });
 
-function formatRelativeTime(date) {
+function formatRelativeTime(date, options = {}) {
     const now = new Date();
     const seconds = Math.floor(Math.abs(now - date) / 1000);
     const isFuture = date > now;
     const suffix = isFuture ? 'FromNow' : 'Ago';
     const round = isFuture ? Math.ceil : Math.floor;
+
+    if (options.relativeDaysOnly && !isFuture) {
+        return ts('time.daysAgo', {
+            count: Math.floor(seconds / 86400),
+        });
+    }
 
     if (seconds < 5) return ts('time.justNow');
     if (seconds < 60) return ts(`time.seconds${suffix}`, { count: seconds });
@@ -53,12 +59,15 @@ function formatRelativeTime(date) {
     return ts(`time.years${suffix}`, { count: years });
 }
 
-function formatTime(date, format) {
+function formatTime(date, format, options = {}) {
     switch (format) {
         case '24h':
             return date.toLocaleString('en-GB', { hour12: false });
         case 'relative':
-            return formatRelativeTime(date);
+            if (options.pastRelativeText && date <= new Date()) {
+                return options.pastRelativeText;
+            }
+            return formatRelativeTime(date, options);
         case 'local':
         default:
             return date.toLocaleString(undefined, {
@@ -94,20 +103,27 @@ observeElement(
         if (!date) return;
 
         container._rovalraDate = date;
+        const options = container._rovalraTimestampOptions || {};
 
         const timeSpan = container.querySelector('span');
         if (!timeSpan) return;
 
         let updateInterval = null;
-        let currentFormat = preferredFormat;
+        let currentFormat = FORMATS.includes(options.initialFormat)
+            ? options.initialFormat
+            : preferredFormat;
 
         const updateDisplay = (format) => {
             if (updateInterval) clearInterval(updateInterval);
             updateInterval = null;
-            timeSpan.textContent = formatTime(date, format);
+            timeSpan.textContent = formatTime(date, format, options);
             if (format === 'relative') {
                 updateInterval = setInterval(() => {
-                    timeSpan.textContent = formatTime(date, 'relative');
+                    timeSpan.textContent = formatTime(
+                        date,
+                        'relative',
+                        options,
+                    );
                 }, 60000);
             }
         };
@@ -161,7 +177,7 @@ observeElement(
     { multiple: true, onRemove: (c) => c._cleanup && c._cleanup() },
 );
 
-export function createInteractiveTimestamp(dateString) {
+export function createInteractiveTimestamp(dateString, options = {}) {
     const date = new Date(dateString);
 
     const container = document.createElement('span');
@@ -170,12 +186,17 @@ export function createInteractiveTimestamp(dateString) {
     container.style.display = 'inline-block';
     container.style.cursor = 'pointer';
     container._rovalraDate = date;
+    container._rovalraTimestampOptions = options;
     container.dataset.date = date.toISOString();
+
+    const initialFormat = FORMATS.includes(options.initialFormat)
+        ? options.initialFormat
+        : preferredFormat;
 
     const timeSpan = document.createElement('span');
     timeSpan.style.borderBottom =
         '1px dashed color-mix(in srgb, var(--rovalra-secondary-text-color) 50%, transparent)';
-    timeSpan.textContent = formatTime(date, preferredFormat);
+    timeSpan.textContent = formatTime(date, initialFormat, options);
 
     container.appendChild(timeSpan);
     return container;
