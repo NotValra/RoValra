@@ -1758,6 +1758,20 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: false,
             },
+            ThemeSwitcher: {
+                label: 'Theme Switcher',
+                description: [
+                    'Allows you to manually switch themes from within RoValra'
+                ],
+                type: 'select',
+                options: [
+                    { label: 'Default', value: 'default' },
+                    { label: 'Light', value: 'builtin-light' },
+                    { label: 'Dark', value: 'builtin-dark' },
+                ],
+                default: 'default',
+                contributors: ['1564574922']
+            }
         },
     },
     AntiAccountTracking: {
