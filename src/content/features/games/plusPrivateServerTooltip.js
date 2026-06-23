@@ -63,7 +63,7 @@ export async function init() {
                 );
 
                 const tooltipText = await t(
-                    'plusPrivateServerTooltip.tooltipText',
+                    'plus.privateServerTooltip.tooltipText',
                     {
                         originalPrice,
                     },

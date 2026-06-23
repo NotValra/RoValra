@@ -99,6 +99,8 @@ import { init as initDraggableGroups } from './features/groups/draggableGroups.j
 import { init as initBulkLeaveGroups } from './features/groups/bulkLeave.js';
 import { init as initPlaceVisits } from './features/groups/placevisits.js';
 import { init as initGroupCreateDate } from './features/groups/createDate.js';
+// Plus
+import { init as initRobloxPlusStats } from './features/plus/stats.js'
 // Profile
 import { init as initDonationLink } from './features/profile/header/donationlink.js';
 import { init as initRap } from './features/profile/header/rap.js';
@@ -285,6 +287,13 @@ const featureRoutes = [
             initR6Warning,
             initAvatarRotator,
             initMultiEquip,
+        ],
+    },
+    // Roblox Plus Page
+    {
+        paths: ['/plus'],
+        features: [
+            initRobloxPlusStats,
         ],
     },
     // User profile pages
