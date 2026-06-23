@@ -54,6 +54,38 @@ export const THEME_CONFIG = {
         githubLink:     "var(--rovalra-theme-githubLink)",
         robloxLink:     "var(--rovalra-theme-robloxLink)",
     },
+    sunset: {
+        content:        "var(--rovalra-theme-content)",  
+        text:           "var(--rovalra-theme-text)",  
+        header:         "var(--rovalra-theme-header)",
+        sliderOn:       "var(--rovalra-theme-sliderOn)",
+        sliderOff:      "var(--rovalra-theme-sliderOff)",  
+        sliderButton:   "var(--rovalra-theme-sliderButton)", 
+        buttonText:     "var(--rovalra-theme-buttonText)",  
+        buttonBg:       "var(--rovalra-theme-buttonBg)",  
+        buttonHover:    "var(--rovalra-theme-buttonHover)",  
+        buttonActive:   "var(--rovalra-theme-buttonActive)",  
+        buttonBorder:   "var(--rovalra-theme-buttonBorder)",
+        discordLink:    "var(--rovalra-theme-discordLink)", 
+        githubLink:     "var(--rovalra-theme-githubLink)",
+        robloxLink:     "var(--rovalra-theme-robloxLink)",
+    },
+    highcontrast: {
+        content:        "var(--rovalra-theme-content)",  
+        text:           "var(--rovalra-theme-text)",  
+        header:         "var(--rovalra-theme-header)",
+        sliderOn:       "var(--rovalra-theme-sliderOn)",
+        sliderOff:      "var(--rovalra-theme-sliderOff)",  
+        sliderButton:   "var(--rovalra-theme-sliderButton)", 
+        buttonText:     "var(--rovalra-theme-buttonText)",  
+        buttonBg:       "var(--rovalra-theme-buttonBg)",  
+        buttonHover:    "var(--rovalra-theme-buttonHover)",  
+        buttonActive:   "var(--rovalra-theme-buttonActive)",  
+        buttonBorder:   "var(--rovalra-theme-buttonBorder)",
+        discordLink:    "var(--rovalra-theme-discordLink)", 
+        githubLink:     "var(--rovalra-theme-githubLink)",
+        robloxLink:     "var(--rovalra-theme-robloxLink)",
+    },
 };
 
 export function withErrorHandling(fn, context = '') {
@@ -79,6 +111,8 @@ export function detectTheme() {
 
         const checkThemeClass = (targetNode) => {
             if (targetNode.classList.contains('rovalra-custom-nighty-theme')) return 'nighty';
+            if (targetNode.classList.contains('rovalra-custom-sunset-theme')) return 'sunset';
+            if (targetNode.classList.contains('rovalra-custom-highcontrast-theme')) return 'highcontrast';
             if (targetNode.classList.contains('dark-theme')) return 'dark';
             if (targetNode.classList.contains('light-theme')) return 'light';
             return null;
