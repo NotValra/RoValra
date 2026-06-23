@@ -118,14 +118,7 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
-            lastEquippedEnabled: {
-                label: 'Last Equipped on Item Pages',
-                description:
-                    'Shows when you last equipped an item on item pages.',
-                type: 'checkbox',
-                default: true,
-                contributors: ['4866259395', '447170745'],
-            },
+
             lastEquippedEnabled: {
                 label: 'Last Equipped on Item Pages',
                 description:
@@ -1015,7 +1008,7 @@ export const SETTINGS_CONFIG = {
                     'Turn this off to disable both the home subplace UI and the profile subplace UI.',
                 ],
                 type: 'checkbox',
-                default: true,
+                default: false,
                 contributors: ['10646979010'],
                 childSettings: {
                     currentlyPlayingSubplaceHomeEnabled: {
