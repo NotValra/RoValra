@@ -1769,10 +1769,11 @@ export const SETTINGS_CONFIG = {
                 type: 'select',
                 options: [
                     { label: 'Default', value: 'default' },
-                    { label: isAprilFools() ? '"Ow my eyes"' : 'Light', value: 'builtin-light' },
-                    { label: isAprilFools() ? 'Cave' : 'Dark', value: 'builtin-dark' },
-                    { label: isAprilFools() ? '(RoValra) Headache mode' : '(RoValra) Nighty', value: 'custom-nighty' },
-                    { label: isAprilFools() ? '(RoValra) Lemon': '(RoValra) Sunset', value: 'custom-sunset' }
+                    { label: isAprilFools() ? '"Ow my eyes"' : 'Light',                         value: 'builtin-light' },
+                    { label: isAprilFools() ? 'Cave' : 'Dark',                                  value: 'builtin-dark' },
+                    { label: isAprilFools() ? '(RoValra) Headache mode' : '(RoValra) Nighty',   value: 'custom-nighty' },
+                    { label: isAprilFools() ? '(RoValra) Lemon': '(RoValra) Sunset',            value: 'custom-sunset' },
+                    { label: isAprilFools() ? '(RoValra) I\'m almost colorblind' : '(RoValra) High Contrast', value: 'custom-highcontrast'}
                 ],
                 default: 'default',
                 contributors: ['1564574922']

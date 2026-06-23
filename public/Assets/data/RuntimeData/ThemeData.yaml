@@ -24,3 +24,9 @@ Sunset:
   PrimaryClass: 'rovalra-custom-sunset-theme'
   ClassList:
     - 'light-theme'
+
+HighContrast:
+  StorageKey: 'custom-highcontrast'
+  PrimaryClass: 'rovalra-custom-highcontrast-theme'
+  ClassList:
+    - 'dark-theme'
