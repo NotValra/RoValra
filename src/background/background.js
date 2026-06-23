@@ -388,12 +388,23 @@ async function callRobloxApiBackground(options) {
         method = 'GET',
         body = null,
         headers = {},
+        fullUrl = null,
     } = options;
 
-    const separator = endpoint.includes('?') ? '&' : '?';
-    let url = `https://${subdomain}.roblox.com${endpoint}`;
+    let url;
+    if (fullUrl) {
+        const parsedUrl = new URL(fullUrl);
+        if (parsedUrl.hostname !== 'setup.rbxcdn.com') {
+            throw new Error('Unsupported fullUrl host for background fetch');
+        }
+        url = parsedUrl.toString();
+    } else {
+        url = `https://${subdomain}.roblox.com${endpoint}`;
+    }
 
-    if (!endpoint.includes('/player-hydration-service/v1/players/signed')) {
+    const separator = url.includes('?') ? '&' : '?';
+
+    if (!endpoint?.includes('/player-hydration-service/v1/players/signed')) {
         url += `${separator}_RoValraRequest=`;
     }
 
@@ -2274,7 +2285,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                     response.headers.forEach(
                         (val, key) => (headers[key] = val),
                     );
-                    const body = await response.text().catch(() => null);
+                    const body =
+                        request.options?.responseType === 'arrayBuffer'
+                            ? await response.arrayBuffer().catch(() => null)
+                            : await response.text().catch(() => null);
                     sendResponse({
                         ok: response.ok,
                         status: response.status,

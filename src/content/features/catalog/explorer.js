@@ -6,8 +6,9 @@ import {
 import { observeElement } from '../../core/observer.js';
 import { createOverlay } from '../../core/ui/overlay.js';
 import { getAssets } from '../../core/assets.js';
-import { callRobloxApiJson } from '../../core/api.js';
+import { callRobloxApi, callRobloxApiJson } from '../../core/api.js';
 import { addTooltip } from '../../core/ui/tooltip.js';
+import { unzipSync } from 'fflate';
 import {
     CATALOG_ITEM_TYPES,
     getCatalogItemDetails,
@@ -771,40 +772,175 @@ function cssFontStyle(style) {
     return 'normal';
 }
 
+let cachedStudioFonts = null;
+let studioFontsFetchPromise = null;
+
+function uint8ToBase64(u8) {
+    let binary = '';
+    const chunk = 8192;
+    for (let i = 0; i < u8.length; i += chunk) {
+        binary += String.fromCharCode.apply(null, u8.subarray(i, i + chunk));
+    }
+    return btoa(binary);
+}
+
+function detectFontMimeType(bytes) {
+    if (!(bytes instanceof Uint8Array) || bytes.length < 4)
+        return 'application/octet-stream';
+
+    const signature = String.fromCharCode(
+        bytes[0],
+        bytes[1],
+        bytes[2],
+        bytes[3],
+    );
+    if (signature === 'OTTO') return 'font/otf';
+    if (signature === 'ttcf') return 'font/collection';
+    if (signature === 'wOFF') return 'font/woff';
+    if (signature === 'wOF2') return 'font/woff2';
+    if (
+        bytes[0] === 0x00 &&
+        bytes[1] === 0x01 &&
+        bytes[2] === 0x00 &&
+        bytes[3] === 0x00
+    ) {
+        return 'font/ttf';
+    }
+    if (signature === 'true' || signature === 'typ1') return 'font/ttf';
+
+    return 'application/octet-stream';
+}
+
+async function callRbxcdn(url) {
+    const response = await callRobloxApi({
+        fullUrl: url,
+        method: 'GET',
+        credentials: 'omit',
+        noCache: true,
+        useBackground: true,
+        responseType: url.endsWith('.zip') ? 'arrayBuffer' : 'text',
+    });
+    if (!response.ok) {
+        throw new Error(`Failed to fetch ${url}: HTTP ${response.status}`);
+    }
+    return response;
+}
+
+async function getStudioFontsCache() {
+    if (cachedStudioFonts) return cachedStudioFonts;
+    if (studioFontsFetchPromise) return studioFontsFetchPromise;
+
+    studioFontsFetchPromise = (async () => {
+        try {
+            const version = (
+                await (
+                    await callRbxcdn('https://setup.rbxcdn.com/versionQTStudio')
+                ).text()
+            ).trim();
+            const zipArrayBuffer = await (
+                await callRbxcdn(
+                    `https://setup.rbxcdn.com/${version}-content-fonts.zip`,
+                )
+            ).arrayBuffer();
+
+            cachedStudioFonts = unzipSync(new Uint8Array(zipArrayBuffer));
+            return cachedStudioFonts;
+        } catch (error) {
+            console.error(
+                'RoValra Explorer: Failed to load Studio fonts',
+                error,
+            );
+            studioFontsFetchPromise = null;
+            throw error;
+        }
+    })();
+
+    return studioFontsFetchPromise;
+}
+
+async function getStudioFontFamily(familyName) {
+    const cache = await getStudioFontsCache();
+    const normalizedFamilyName =
+        typeof familyName === 'string' ? familyName.toLowerCase() : '';
+    const jsonKey = Object.keys(cache).find((key) =>
+        key
+            .replace(/\\/g, '/')
+            .toLowerCase()
+            .endsWith(`families/${normalizedFamilyName}.json`),
+    );
+
+    if (!jsonKey) throw new Error('Font family JSON not found');
+
+    const jsonData = JSON.parse(new TextDecoder().decode(cache[jsonKey]));
+    const faces = [];
+
+    for (const face of jsonData.faces || []) {
+        if (typeof face.assetId !== 'string') continue;
+        const fontFileName = face.assetId.split('/').pop()?.toLowerCase();
+        if (!fontFileName) continue;
+
+        const fontKey = Object.keys(cache).find((key) =>
+            key.replace(/\\/g, '/').toLowerCase().endsWith(fontFileName),
+        );
+        if (!fontKey) continue;
+
+        faces.push({
+            weight: face.weight,
+            style: face.style,
+            mimeType: detectFontMimeType(cache[fontKey]),
+            base64: uint8ToBase64(cache[fontKey]),
+        });
+    }
+
+    return { name: jsonData.name, faces };
+}
+
 async function loadFontFamily(fontFamilyUrl) {
     if (fontFamilyMap.has(fontFamilyUrl))
         return fontFamilyMap.get(fontFamilyUrl);
 
     const customAssetId = getRobloxAssetId(fontFamilyUrl);
     const isCustomFont = !!customAssetId;
+    const familyName = isCustomFont
+        ? null
+        : fontFamilyUrl.split('/').pop().replace('.json', '');
 
-    if (!isCustomFont) {
-        const familyName = fontFamilyUrl.split('/').pop().replace('.json', '');
-        const fallback =
-            ROBLOX_FONT_FAMILY_FALLBACKS[familyName] ||
-            `"${familyName}", sans-serif`;
-        fontFamilyMap.set(fontFamilyUrl, fallback);
-        return fallback;
-    }
+    const fallback = familyName
+        ? ROBLOX_FONT_FAMILY_FALLBACKS[familyName] ||
+          `"${familyName}", sans-serif`
+        : 'sans-serif';
 
-    return new Promise((resolve) => {
-        const request = {
-            action: 'getCustomFontFamily',
-            assetId: customAssetId,
-        };
+    const loadPromise = (async () => {
+        try {
+            const { name, faces } = isCustomFont
+                ? await new Promise((resolve, reject) => {
+                      chrome.runtime.sendMessage(
+                          {
+                              action: 'getCustomFontFamily',
+                              assetId: customAssetId,
+                          },
+                          (response) => {
+                              if (
+                                  chrome.runtime.lastError ||
+                                  !response ||
+                                  !response.success
+                              ) {
+                                  reject(
+                                      new Error(
+                                          response?.error ||
+                                              chrome.runtime.lastError
+                                                  ?.message ||
+                                              'Failed to load custom font',
+                                      ),
+                                  );
+                                  return;
+                              }
+                              resolve(response);
+                          },
+                      );
+                  })
+                : await getStudioFontFamily(familyName);
 
-        chrome.runtime.sendMessage(request, (response) => {
-            if (chrome.runtime.lastError || !response || !response.success) {
-                console.warn(
-                    'Failed to load font from background',
-                    fontFamilyUrl,
-                    response?.error,
-                );
-                fontFamilyMap.set(fontFamilyUrl, 'sans-serif');
-                return resolve('sans-serif');
-            }
-
-            const { name, faces } = response;
             const fontPromises = [];
 
             for (const face of faces) {
@@ -831,13 +967,18 @@ async function loadFontFamily(fontFamilyUrl) {
                 );
             }
 
-            Promise.all(fontPromises).then(() => {
-                const cssName = `'${name}', sans-serif`;
-                fontFamilyMap.set(fontFamilyUrl, cssName);
-                resolve(cssName);
-            });
-        });
-    });
+            await Promise.all(fontPromises);
+            const cssName = `'${name}', sans-serif`;
+            fontFamilyMap.set(fontFamilyUrl, cssName);
+            return cssName;
+        } catch (error) {
+            console.warn('Failed to load font', fontFamilyUrl, error);
+            fontFamilyMap.set(fontFamilyUrl, fallback);
+            return fallback;
+        }
+    })();
+    fontFamilyMap.set(fontFamilyUrl, loadPromise);
+    return loadPromise;
 }
 
 async function preloadFonts(instance) {
