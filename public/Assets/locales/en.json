@@ -939,7 +939,7 @@
     },
     "plus": {
         "stats": {
-            "robux": "You've saved {{robux}} with Plus",
+            "robux": "You've saved {{robux}} when you had Plus",
             "percentOffSmall": "In-game items, avatars and more",
             "percentOff": "{{percent}} off",
             "itemsBoughtSmall": "Items bought with Plus discount",

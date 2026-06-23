@@ -6,14 +6,15 @@ import { observeElement } from '../../core/observer.js';
 
 const additionalContainerDivClasses = 'padding-x-xxlarge large:padding-x-none'; // added for design purposes as it looks better in a mobile layout vs stretching to the side
 const containerDivClasses = `gap-y-large flex flex-col ${additionalContainerDivClasses}`;
-const parentElementQuerySelector = '#roblox-subscription-container > .clip-x > .flex > .width-full.flex.flex-col.self-stretch'
+const parentElementQuerySelector =
+    '#roblox-subscription-container > .clip-x > .flex > .width-full.flex.flex-col.self-stretch';
 
 let containerObserver = null;
 
 const TRANSLATIONS = [
     {
         key: 'plus.stats.robux',
-        fallbackText: 'You\'ve saved {{robux}} with Plus',
+        fallbackText: "You've saved {{robux}} with Plus",
     },
     {
         key: 'plus.stats.percentOffSmall',
@@ -25,7 +26,7 @@ const TRANSLATIONS = [
     },
     {
         key: 'plus.stats.itemsBoughtSmall',
-        fallbackText: 'Items bought with Plus discount'
+        fallbackText: 'Items bought with Plus discount',
     },
     {
         key: 'plus.stats.privateServersCreatedSmall',
@@ -45,32 +46,32 @@ async function getTranslations() {
     return Promise.all(
         TRANSLATIONS.map(async (option) => [
             option.key.split('.')[option.key.split('.').length - 1],
-            (await t(option.key).catch(() => option.fallbackText)),
+            await t(option.key).catch(() => option.fallbackText),
         ]),
-    ).then(entries => Object.fromEntries(entries));
+    ).then((entries) => Object.fromEntries(entries));
 }
 
 async function makeHtml() {
-    if (containerObserver && containerObserver.disconnect) containerObserver.disconnect();
+    if (containerObserver && containerObserver.disconnect)
+        containerObserver.disconnect();
     const containerDiv = document.createElement('div');
     const translations = await getTranslations();
     const robuxSavedTranslationParts = translations.robux.split(' {{robux}} ');
-    const parent = document.querySelector(parentElementQuerySelector)
+    const parent = document.querySelector(parentElementQuerySelector);
     let plusBenefits = null;
 
     try {
         plusBenefits = await callRobloxApiJson({
             endpoint: '/roblox-subscriptions/v1/roblox-plus/benefits',
             subdomain: 'apis',
-            method: 'GET'
+            method: 'GET',
         });
     } catch (e) {
-        console.warn("We had an exception in RoValra Plus Stats:", e);
+        console.warn('We had an exception in RoValra Plus Stats:', e);
         return;
     }
 
-
-    containerDiv.className = containerDivClasses
+    containerDiv.className = containerDivClasses;
 
     // large html stuff incoming
     containerDiv.innerHTML = safeHtml`
@@ -115,7 +116,7 @@ async function makeHtml() {
                     </span>
                     <span
                         class="text-heading-large content-emphasis">
-                        ${translations.percentOff.replace("{{percent}}", "0%")}
+                        ${translations.percentOff.replace('{{percent}}', '0%')}
                     </span>
                 </div>
                 <div
@@ -182,15 +183,17 @@ async function makeHtml() {
     return true;
 }
 
-
 export function init() {
     chrome.storage.local.get(
         {
-            plusStatsEnabled: true
+            plusStatsEnabled: true,
         },
         (settings) => {
             if (settings.plusStatsEnabled == true)
-                containerObserver = observeElement(parentElementQuerySelector, makeHtml)
-        }
+                containerObserver = observeElement(
+                    parentElementQuerySelector,
+                    makeHtml,
+                );
+        },
     );
 }
