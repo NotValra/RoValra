@@ -312,6 +312,7 @@ export async function callRobloxApi(options) {
             useBackground = false,
             useApiKey = false,
             noCache = false,
+            responseType = 'text',
         } = options;
 
         const normalizedHeaders = new Headers(headers);
@@ -338,12 +339,14 @@ export async function callRobloxApi(options) {
                         options: {
                             endpoint,
                             subdomain,
+                            fullUrl: customFullUrl,
                             method,
                             body,
                             headers: Object.fromEntries(
                                 normalizedHeaders.entries(),
                             ),
                             noCache,
+                            responseType,
                         },
                     },
                     (response) => {

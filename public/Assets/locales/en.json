@@ -634,6 +634,18 @@
             "selectInstance": "Select an instance to view its properties",
             "noProperties": "No properties",
             "viewSource": "View Source",
+            "closePreview": "Close Preview",
+            "defaultDevice": "Default (1280x720)",
+            "fitToWindow": "Fit to Window",
+            "actualResolution": "Actual Resolution",
+            "physicalSize": "Physical Size",
+            "rotate": "Rotate",
+            "loadingPreview": "Loading GUI preview...",
+            "searchInstances": "Search instances... (2+ chars)",
+            "searchProperties": "Search properties...",
+            "previewGui": "Preview GUI",
+            "togglePreviewVisibility": "Toggle visibility in preview",
+            "noMatchingInstances": "No matching instances found",
             "loadError": "Failed to load."
         }
     },

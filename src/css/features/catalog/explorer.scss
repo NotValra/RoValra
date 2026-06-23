@@ -1,4 +1,4 @@
-// Studio-style explorer, themed to match the RoValra overlay it sits in.
+/* Studio-style explorer, themed to match the RoValra overlay it sits in. */
 .rovalra-explorer {
     display: flex;
     gap: 8px;
@@ -82,6 +82,43 @@
     color: var(--rovalra-exp-muted);
 }
 
+.rovalra-explorer-search-container {
+    flex-shrink: 0;
+    padding: 8px;
+    background: #1e1e1e;
+    border-bottom: 1px solid #2d2d2d;
+}
+
+.rovalra-explorer-props-search {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+
+.rovalra-explorer-search-input {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 6px 10px;
+    background: #2a2a2a;
+    color: #fff;
+    border: 1px solid #3a3a3a;
+    border-radius: 4px;
+    font-size: 13px;
+    outline: none;
+}
+
+.rovalra-explorer-tree-content {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.rovalra-explorer-search-empty {
+    padding: 16px;
+    color: #888;
+    text-align: center;
+    font-size: 13px;
+}
+
 .rovalra-explorer-props-header {
     position: sticky;
     top: 0;
@@ -121,14 +158,14 @@
 .rovalra-explorer-copyable {
     cursor: text;
     border-radius: 3px;
-    user-select: text; // overrides the panel's user-select:none so values select
+    user-select: text; /* overrides the panel's user-select:none so values select */
 
     &:hover {
         background: rgba(127, 127, 127, 0.12);
     }
 }
 
-// Code view: dark editor look with a line-number gutter and syntax colours.
+/* Code view dark editor look with a line-number gutter and syntax colours. */
 .rovalra-explorer-source {
     display: flex;
     align-items: flex-start;
@@ -241,7 +278,31 @@
     border: 1px solid rgba(0, 0, 0, 0.5);
 }
 
-// Link to the asset page for id-like values (textures, sounds, meshes…).
+.rovalra-explorer-sequence {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+}
+
+.rovalra-explorer-sequence-bar {
+    flex: 1;
+    min-width: 80px;
+    max-width: 150px;
+    height: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.rovalra-explorer-sequence-count {
+    flex-shrink: 0;
+    color: #888;
+    font-size: 11px;
+    white-space: nowrap;
+}
+
+/* Link to the asset page for id-like values (textures, sounds, meshes…). */
 .rovalra-explorer-asset-link {
     flex-shrink: 0;
     display: inline-flex;
@@ -261,7 +322,7 @@
     background-color: currentColor;
 }
 
-// Catalog: mirror BTRoblox — buttons row in the item header, left of the cart.
+/* Catalog mirror BTRoblox — buttons row in the item header, left of the cart. */
 .rovalra-explorer-buttons {
     display: flex;
     flex-direction: row;
@@ -307,7 +368,7 @@
     background-color: currentColor;
 }
 
-// Experience pages: icon-only context menu button.
+/* Experience pages icon-only context menu button. */
 .rovalra-explorer-game-btn {
     display: inline-flex !important;
     align-items: center;
@@ -346,4 +407,116 @@
     padding: 32px;
     text-align: center;
     color: var(--rovalra-exp-muted);
+}
+
+/* === ScreenGui Viewer Styles === */
+.rovalra-explorer-gui-viewer {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 75vh;
+    min-height: 450px;
+    background: #1e1f22;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.rovalra-explorer-gui-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: #2b2d31;
+    border-bottom: 1px solid #1e1f22;
+    flex-shrink: 0;
+}
+
+.rovalra-explorer-device-select,
+.rovalra-explorer-scale-select {
+    flex-grow: 1;
+    max-width: 350px;
+    padding: 5px 10px;
+    background: #1e1f22;
+    color: #cdd0d6;
+    border: 1px solid #3b3d42;
+    border-radius: 4px;
+    font-size: 13px;
+    cursor: pointer;
+
+    optgroup {
+        background: #1e1f22;
+        color: #cdd0d6;
+        font-weight: bold;
+        font-style: normal;
+        padding-top: 4px;
+    }
+
+    option {
+        background: #1e1f22;
+        color: #cdd0d6;
+        font-weight: normal;
+    }
+}
+
+.rovalra-explorer-scale-select {
+    max-width: 180px;
+    flex-grow: 0;
+}
+
+.rovalra-explorer-gui-preview-area {
+    flex-grow: 1;
+    background: #111214;
+    box-sizing: border-box;
+    padding: 10px;
+    /* display, align, justify, overflow are controlled by JS based on scale mode */
+
+    &::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.2);
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 4px;
+    }
+}
+
+.rovalra-explorer-gui-viewport-wrapper {
+    margin: auto; /* Centers when smaller, aligns top-left when larger */
+    position: relative;
+}
+
+.rovalra-explorer-gui-viewport {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: #3b3d42;
+    border: 2px solid #2c2e33;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    transform-origin: top left;
+}
+
+.rovalra-explorer-scrolling-frame {
+    &::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.2);
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.4);
+        border-radius: 4px;
+    }
+}
+
+.rovalra-no-scrollbar::-webkit-scrollbar {
+    display: none;
 }
