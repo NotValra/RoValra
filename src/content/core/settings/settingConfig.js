@@ -118,6 +118,7 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
+
             lastEquippedEnabled: {
                 label: 'Last Equipped on Item Pages',
                 description:
@@ -994,6 +995,34 @@ export const SETTINGS_CONFIG = {
                         label: 'Show Home Layout Button',
                         description: [
                             'Adds the RoValra Layout button to the Home page.',
+                        ],
+                        type: 'checkbox',
+                        default: true,
+                    },
+                },
+            },
+            currentlyPlayingSubplaceEnabled: {
+                label: 'Currently Playing Subplace',
+                description: [
+                    'Master toggle for showing the exact subplace and rootplace a user is playing.',
+                    'Turn this off to disable both the home subplace UI and the profile subplace UI.',
+                ],
+                type: 'checkbox',
+                default: false,
+                contributors: ['10646979010'],
+                childSettings: {
+                    currentlyPlayingSubplaceHomeEnabled: {
+                        label: 'Home Subplace',
+                        description: [
+                            'Shows the subplace section inside Roblox home/friends cards.',
+                        ],
+                        type: 'checkbox',
+                        default: true,
+                    },
+                    currentlyPlayingSubplaceProfileEnabled: {
+                        label: 'Profile Page Subplace',
+                        description: [
+                            'Shows the subplace UI and details on profile pages.',
                         ],
                         type: 'checkbox',
                         default: true,

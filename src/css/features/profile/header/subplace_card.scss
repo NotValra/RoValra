@@ -1,0 +1,464 @@
+@keyframes rovalraSubplacePopupIn {
+    from {
+        opacity: 0;
+        transform: translateY(12px) scale(0.96);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes rovalraSubplacePopupOut {
+    from {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+
+    to {
+        opacity: 0;
+        transform: translateY(8px) scale(0.97);
+    }
+}
+
+.rovalra-subplace-hover-target {
+    cursor: help;
+}
+
+.rovalra-subplace-hover-card {
+    position: absolute;
+    z-index: 10000;
+    width: 220px;
+    max-width: calc(100vw - 16px);
+    padding: 10px 12px;
+    border: 1px solid var(--rovalra-border-color, rgba(255, 255, 255, 0.14));
+    border-radius: 10px;
+    background: var(--rovalra-container-background-color, #232527);
+    color: var(--rovalra-main-text-color, #fff);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.26);
+    pointer-events: auto;
+    opacity: 0;
+    transform: translateY(12px) scale(0.96);
+    transform-origin: top center;
+    transition:
+        opacity 180ms cubic-bezier(0.2, 0.8, 0.2, 1),
+        transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    will-change: opacity, transform;
+}
+
+.rovalra-subplace-hover-card.rovalra-subplace-hover-card-visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    animation: rovalraSubplacePopupIn 180ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.rovalra-subplace-hover-card.rovalra-subplace-hover-card-leaving {
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+    animation: rovalraSubplacePopupOut 160ms ease-in both;
+}
+
+.rovalra-subplace-hover-card-detailed {
+    width: 320px;
+}
+
+.rovalra-subplace-hover-card-detailed .rovalra-profile-subplace-list {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+}
+
+.rovalra-subplace-hover-card-detailed .rovalra-profile-subplace-list-heading {
+    font-size: 12px;
+}
+
+.rovalra-subplace-hover-card-detailed .rovalra-profile-subplace-row-icon {
+    width: 28px;
+    height: 28px;
+    flex-basis: 28px;
+}
+
+.rovalra-subplace-hover-card-detailed .rovalra-profile-subplace-row-name {
+    max-width: 245px;
+    font-size: 14px;
+}
+
+.rovalra-subplace-hover-kicker {
+    margin-bottom: 3px;
+    color: var(--rovalra-secondary-text-color, #b8b8b8);
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.2;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.rovalra-subplace-hover-title {
+    overflow: hidden;
+    color: var(--rovalra-main-text-color, #fff);
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.25;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.rovalra-subplace-hover-details {
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--rovalra-border-color, rgba(255, 255, 255, 0.14));
+}
+
+.rovalra-subplace-hover-meta {
+    overflow: hidden;
+    margin-top: 3px;
+    color: var(--rovalra-secondary-text-color, #b8b8b8);
+    font-size: 11px;
+    line-height: 1.3;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.rovalra-current-subplace-card {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    width: fit-content;
+    max-width: 100%;
+    margin-top: 6px;
+    padding: 6px 10px;
+    border: 1px solid var(--rovalra-border-color, rgba(255, 255, 255, 0.14));
+    border-radius: 999px;
+    background: var(--rovalra-container-background-color, rgba(255, 255, 255, 0.08));
+    color: var(--rovalra-main-text-color, inherit);
+    font-family: inherit;
+    line-height: 1.2;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.rovalra-current-subplace-card:hover,
+.rovalra-current-subplace-card:focus-visible {
+    color: var(--rovalra-main-text-color, inherit);
+    text-decoration: none;
+}
+
+.rovalra-current-subplace-label {
+    color: var(--rovalra-secondary-text-color, #c0c3cc);
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.035em;
+}
+
+.rovalra-current-subplace-name {
+    overflow: hidden;
+    max-width: min(340px, 60vw);
+    color: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.rovalra-subplace-details-card {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.rovalra-profile-subplace-modern,
+.rovalra-current-subplace-card.rovalra-profile-subplace-modern {
+    display: inline-flex;
+    margin-top: 10px;
+}
+
+.rovalra-current-subplace-card.rovalra-profile-subplace-modern .rovalra-current-subplace-name {
+    max-width: min(210px, 34vw);
+}
+
+.rovalra-profile-subplace-legacy-host {
+    flex-wrap: wrap;
+}
+
+.rovalra-profile-subplace-legacy-row {
+    display: flex;
+    flex: 0 0 100%;
+    width: 100%;
+    max-width: 100%;
+    align-items: flex-start;
+    justify-content: flex-start;
+    margin-top: 6px;
+    box-sizing: border-box;
+}
+
+.rovalra-profile-subplace-legacy-row.rovalra-profile-subplace-row-pending {
+    height: 0 !important;
+    min-height: 0 !important;
+    max-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+.rovalra-profile-subplace-legacy-row.rovalra-profile-subplace-row-ready {
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.rovalra-current-subplace-card.rovalra-profile-subplace-legacy-chip {
+    display: inline-flex;
+    align-self: flex-start;
+    flex: 0 0 auto;
+    width: fit-content;
+    max-width: min(220px, 42vw);
+    min-height: 0;
+    margin: 0;
+    box-sizing: border-box;
+    vertical-align: middle;
+}
+
+.rovalra-current-subplace-card.rovalra-profile-subplace-legacy-chip.rovalra-profile-subplace-pending-placement,
+.rovalra-current-subplace-card.rovalra-profile-subplace-legacy-chip:not(.rovalra-profile-subplace-ready) {
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+.rovalra-current-subplace-card.rovalra-profile-subplace-legacy-chip.rovalra-profile-subplace-ready {
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.rovalra-current-subplace-card.rovalra-profile-subplace-legacy-chip .rovalra-current-subplace-label,
+.rovalra-current-subplace-card.rovalra-profile-subplace-legacy-chip .rovalra-current-subplace-name {
+    font-size: inherit;
+    line-height: inherit;
+}
+
+.rovalra-current-subplace-card.rovalra-profile-subplace-legacy-chip .rovalra-current-subplace-name {
+    max-width: min(130px, 28vw);
+}
+
+.rovalra-current-subplace-card.rovalra-profile-subplace-compact {
+    display: inline-flex;
+    vertical-align: middle;
+    margin-top: 0;
+    margin-left: 8px;
+    margin-bottom: 0;
+    padding: 6px 12px;
+    max-width: min(320px, 48vw);
+    flex-shrink: 0;
+}
+
+.rovalra-current-subplace-card.rovalra-profile-subplace-compact .rovalra-current-subplace-name {
+    max-width: min(210px, 34vw);
+}
+
+.rovalra-profile-subplace-list {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    width: fit-content;
+    max-width: min(360px, 100%);
+    margin-top: 10px;
+    color: var(--rovalra-main-text-color, inherit);
+    cursor: default;
+}
+
+.rovalra-profile-subplace-list-heading {
+    width: 100%;
+    color: var(--rovalra-secondary-text-color, #c0c3cc);
+    font-size: 13px;
+    font-weight: 800;
+    line-height: 1.2;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.055em;
+}
+
+.rovalra-profile-subplace-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    max-width: 100%;
+    min-height: 30px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--rovalra-main-text-color, inherit);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.rovalra-profile-subplace-row:hover .rovalra-profile-subplace-row-name,
+.rovalra-profile-subplace-row:focus-visible .rovalra-profile-subplace-row-name {
+    text-decoration: underline;
+}
+
+.rovalra-profile-subplace-row-icon {
+    width: 30px;
+    height: 30px;
+    flex: 0 0 30px;
+    border-radius: 4px;
+    background: var(--rovalra-container-background-color, rgba(0, 0, 0, 0.08));
+    object-fit: cover;
+}
+
+.rovalra-profile-subplace-row-name {
+    overflow: hidden;
+    max-width: min(300px, 70vw);
+    color: var(--rovalra-main-text-color, inherit);
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.25;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.rovalra-home-subplace-host {
+    overflow: visible !important;
+}
+
+.rovalra-home-subplace-card.rovalra-subplace-details-card {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    padding: 10px 24px 12px !important;
+    border-top: 1px solid var(--rovalra-border-color, rgba(255, 255, 255, 0.14)) !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    color: var(--rovalra-main-text-color, inherit) !important;
+    transform-origin: top center !important;
+    animation: rovalra-home-subplace-enter 480ms cubic-bezier(0.2, 0.85, 0.25, 1) both !important;
+}
+
+@keyframes rovalra-home-subplace-enter {
+    from {
+        opacity: 0;
+        transform: translateY(-8px) scale(0.985);
+        clip-path: inset(0 0 100% 0);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        clip-path: inset(0 0 0 0);
+    }
+}
+
+.rovalra-home-subplace-card .rovalra-profile-subplace-list {
+    display: flex !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    gap: 5px !important;
+    align-items: stretch !important;
+}
+
+.rovalra-home-subplace-card .rovalra-profile-subplace-list-heading {
+    margin: 0 0 4px !important;
+    color: var(--rovalra-secondary-text-color, #c8ccd3) !important;
+    font-size: 12px !important;
+    font-weight: 800 !important;
+    line-height: 1.15 !important;
+    text-align: center !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.055em !important;
+}
+
+.rovalra-home-subplace-card .rovalra-profile-subplace-row {
+    display: grid !important;
+    grid-template-columns: 30px minmax(0, 1fr) !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: 30px !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 1px 0 !important;
+    border: 0 !important;
+    border-radius: 6px !important;
+    background: transparent !important;
+    box-sizing: border-box !important;
+}
+
+.rovalra-home-subplace-card .rovalra-profile-subplace-row:hover,
+.rovalra-home-subplace-card .rovalra-profile-subplace-row:focus-visible {
+    background: var(--rovalra-hover-background-color, rgba(255, 255, 255, 0.06)) !important;
+}
+
+.rovalra-home-subplace-card .rovalra-profile-subplace-row:hover .rovalra-profile-subplace-row-name,
+.rovalra-home-subplace-card .rovalra-profile-subplace-row:focus-visible .rovalra-profile-subplace-row-name {
+    text-decoration: none !important;
+}
+
+.rovalra-home-subplace-card .rovalra-profile-subplace-row-icon {
+    width: 28px !important;
+    height: 28px !important;
+    min-width: 28px !important;
+    flex: 0 0 28px !important;
+    border-radius: 5px !important;
+}
+
+.rovalra-home-subplace-card .rovalra-profile-subplace-row-name {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    color: var(--rovalra-main-text-color, inherit) !important;
+    font-size: 14px !important;
+    font-weight: 750 !important;
+    line-height: 1.2 !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}
+
+.rovalra-home-subplace-card .rovalra-subplace-hover-details {
+    width: 100% !important;
+    box-sizing: border-box !important;
+    cursor: default !important;
+    margin: 8px 0 0 !important;
+    padding-top: 8px !important;
+    border-top: 1px solid var(--rovalra-border-color, rgba(255, 255, 255, 0.14)) !important;
+    text-align: center !important;
+}
+
+.rovalra-home-subplace-card .rovalra-subplace-hover-meta {
+    max-width: 100% !important;
+    margin-top: 2px !important;
+    overflow: hidden !important;
+    color: var(--rovalra-secondary-text-color, #b8bdc7) !important;
+    font-size: 11px !important;
+    line-height: 1.25 !important;
+    text-align: center !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    opacity: 0.92 !important;
+}
+
+@media (max-width: 767px) {
+    .rovalra-current-subplace-card.rovalra-profile-subplace-compact {
+        max-width: 100%;
+        margin-left: 0;
+        margin-top: 6px;
+    }
+
+    .rovalra-home-subplace-card.rovalra-subplace-details-card {
+        padding-inline: 16px !important;
+    }
+}

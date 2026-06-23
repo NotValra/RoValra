@@ -23,6 +23,19 @@ function createProfileViewsContent(views) {
 function keepPillAfterUsernameDetails(targetContainer, pill) {
     const appendPill = () => {
         if (!pill.isConnected || pill.parentElement !== targetContainer) return;
+
+        const subplaceChip = targetContainer.querySelector(
+            [
+                ':scope > .rovalra-profile-subplace-legacy-chip',
+                ':scope > .rovalra-profile-subplace-legacy-row',
+            ].join(','),
+        );
+
+        if (subplaceChip) {
+            subplaceChip.before(pill);
+            return;
+        }
+
         targetContainer.appendChild(pill);
     };
 

@@ -5,6 +5,18 @@ import {
 } from '../../thumbnail/thumbnails';
 import { callRobloxApiJson } from '../../api';
 import { getAssets } from '../../assets';
+import { settings } from '../../settings/getSettings.js';
+import {
+    attachSubplaceCardToPresenceTarget,
+    clearSubplaceCardFromPresenceTarget,
+} from './subplaceCard.js';
+
+async function isSubplaceHoverCardEnabled() {
+    return (
+        (await settings.currentlyPlayingSubplaceEnabled) !== false &&
+        (await settings.currentlyPlayingSubplaceHomeEnabled) !== false
+    );
+}
 
 const presenceQueue = {
     pendingIds: new Set(),
@@ -74,7 +86,12 @@ const PRESENCE_MAP = {
     3: { class: 'studio icon-studio', title: 'Studio' },
 };
 
-export function updateUserCardPresence(card, presenceType, gameName) {
+export function updateUserCardPresence(
+    card,
+    presenceType,
+    gameName,
+    presenceData = null,
+) {
     const presence = PRESENCE_MAP[presenceType] || PRESENCE_MAP[0];
     const presenceTitle =
         presenceType === 2 && gameName ? gameName : presence.title;
@@ -85,9 +102,19 @@ export function updateUserCardPresence(card, presenceType, gameName) {
     }
     const sublabel = card.querySelector('.user-card-subname');
     if (sublabel) {
+        clearSubplaceCardFromPresenceTarget(sublabel);
         if (gameName) {
             sublabel.textContent = gameName;
             sublabel.style.fontSize = '9.6px';
+        }
+        if (presenceType === 2 && gameName && presenceData) {
+            isSubplaceHoverCardEnabled()
+                .then((enabled) => {
+                    if (enabled && sublabel.isConnected) {
+                        attachSubplaceCardToPresenceTarget(sublabel, presenceData);
+                    }
+                })
+                .catch(() => {});
         }
     }
 }
@@ -100,7 +127,7 @@ export async function updateFriendTilePresence(card, userId) {
         presenceType === 2 && presence.lastLocation
             ? presence.lastLocation
             : null;
-    updateUserCardPresence(card, presenceType, gameName);
+    updateUserCardPresence(card, presenceType, gameName, presence);
 }
 
 export async function batchFetchPresence(userIds) {
@@ -128,6 +155,7 @@ export function createUserCard({
     isVerified = false,
     isOpaque = false,
     hidePresence = false,
+    presenceData = null,
 }) {
     const presence = PRESENCE_MAP[presenceInfo] || PRESENCE_MAP[0];
     const showSublabel = showUsername && gameName ? true : showUsername;
@@ -195,6 +223,19 @@ export function createUserCard({
         const subname = tileContainer.querySelector('.user-card-subname');
         if (subname) subname.style.textDecoration = 'none';
     });
+
+    if (presenceInfo === 2 && gameName && presenceData) {
+        const sublabel = tileContainer.querySelector('.user-card-subname');
+        if (sublabel) {
+            isSubplaceHoverCardEnabled()
+                .then((enabled) => {
+                    if (enabled && sublabel.isConnected) {
+                        attachSubplaceCardToPresenceTarget(sublabel, presenceData);
+                    }
+                })
+                .catch(() => {});
+        }
+    }
     return tileContainer;
 }
 
@@ -251,7 +292,7 @@ export function createFriendTile(
                 presenceType === 2 && presence.lastLocation
                     ? presence.lastLocation
                     : null;
-            updateUserCardPresence(card, presenceType, gameName);
+            updateUserCardPresence(card, presenceType, gameName, presence);
         });
     }
 
@@ -309,6 +350,7 @@ export async function createFriendTiles(
                 : `https://www.roblox.com/users/${item.id}/profile`,
             presenceInfo: presenceType,
             gameName: isHidden || !gameName ? '' : gameName,
+            presenceData: isHidden ? null : presence,
         });
         containerEl.appendChild(card);
     }
@@ -384,6 +426,7 @@ export async function createUserCardsFromIds(containerEl, ids, limit = 7) {
             href: `https://www.roblox.com/users/${id}/profile`,
             presenceInfo: presenceType,
             gameName,
+            presenceData: presence,
         });
         containerEl.appendChild(card);
     }
