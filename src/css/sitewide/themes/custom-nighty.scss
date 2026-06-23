@@ -10,13 +10,13 @@
 
     --rovalra-main-text-color: #f7f7f8;
     --rovalra-secondary-text-color: #c7ccd8;
-    --rovalra-tertiary-text-color: rgb(188, 190, 200);
+    --rovalra-tertiary-text-color: rgb(188, 190, 220);
     --rovalra-container-background-color: var(--color-surface-200);
-    --rovalra-playbutton-color: #5174f5;
+    --rovalra-playbutton-color: #4068f8;
     --rovalra-main-background-color: var(--color-surface-0);
-    --rovalra-button-background-color: rgba(208, 217, 251, 0.12);
-    --rovalra-border-color: rgba(255, 255, 255, 0.2);
-    --rovalra-gray-text-color: rgb(188, 190, 200);
+    --rovalra-button-background-color: rgba(208, 217, 255, 0.12);
+    --rovalra-border-color: rgba(253, 253, 255, 0.2);
+    --rovalra-gray-text-color: rgb(188, 190, 215);
     --rovalra-profile-header-bg: #191a1f;
     --rovalra-profile-main-gradient:
         linear-gradient(
@@ -36,17 +36,17 @@
     --rovalra-icon-blocked-color: #646668;
 
     --rovalra-theme-content: rgb(88);
-    --rovalra-theme-text: rgb(213, 215, 221);
+    --rovalra-theme-text: rgb(213, 215, 225);
     --rovalra-theme-header: white;
-    --rovalra-theme-sliderOn: #ddd;
-    --rovalra-theme-sliderOff: rgba(0, 0, 0, 0.1);
+    --rovalra-theme-sliderOn: rgba(253, 253, 255);
+    --rovalra-theme-sliderOff: rgba(0, 0, 5, 0.1);
     --rovalra-theme-sliderButton: white;
-    --rovalra-theme-buttonText: rgba(255, 255, 255, 0.9);
-    --rovalra-theme-buttonBg: rgb(45, 48, 51);
-    --rovalra-theme-buttonHover: rgb(57, 60, 64);
-    --rovalra-theme-buttonActive: rgb(69, 73, 77);
-    --rovalra-theme-buttonBorder: 0px solid rgba(255, 255, 255, 0.1);
-    --rovalra-theme-discordLink: #7289da;
-    --rovalra-theme-githubLink: #2dba4e;
-    --rovalra-theme-robloxLink: #c13ad9;
+    --rovalra-theme-buttonText: rgba(253, 253, 255, 0.9);
+    --rovalra-theme-buttonBg: rgb(45, 48, 55);
+    --rovalra-theme-buttonHover: rgb(57, 60, 68);
+    --rovalra-theme-buttonActive: rgb(69, 73, 80);
+    --rovalra-theme-buttonBorder: 0px solid rgba(12, 11, 11, 0.1);
+    --rovalra-theme-discordLink: #647cd3;
+    --rovalra-theme-githubLink: #33bd93;
+    --rovalra-theme-robloxLink: #b14ae0;
 }

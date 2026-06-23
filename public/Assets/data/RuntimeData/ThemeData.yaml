@@ -18,3 +18,9 @@ Nighty:
   PrimaryClass: 'rovalra-custom-nighty-theme'
   ClassList:
     - 'dark-theme'
+
+Sunset:
+  StorageKey: 'custom-sunset'
+  PrimaryClass: 'rovalra-custom-sunset-theme'
+  ClassList:
+    - 'light-theme'

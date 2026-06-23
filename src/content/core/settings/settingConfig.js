@@ -1771,7 +1771,8 @@ export const SETTINGS_CONFIG = {
                     { label: 'Default', value: 'default' },
                     { label: isAprilFools() ? '"Ow my eyes"' : 'Light', value: 'builtin-light' },
                     { label: isAprilFools() ? 'Cave' : 'Dark', value: 'builtin-dark' },
-                    { label: isAprilFools() ? '(RoValra) Headache mode' : '(RoValra) Nighty', value: 'custom-nighty' }
+                    { label: isAprilFools() ? '(RoValra) Headache mode' : '(RoValra) Nighty', value: 'custom-nighty' },
+                    { label: isAprilFools() ? '(RoValra) Lemon': '(RoValra) Sunset', value: 'custom-sunset' }
                 ],
                 default: 'default',
                 contributors: ['1564574922']

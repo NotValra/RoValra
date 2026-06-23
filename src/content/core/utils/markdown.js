@@ -8,7 +8,7 @@ export function parseMarkdown(text, themeColors = {}) {
         /\{\{(.*?) ([a-zA-Z0-9#-_]+)\}\}/g,
         (match, content, colorName) => {
             const colorValue = themeColors[colorName] || colorName || 'inherit';
-            return `<span style="color:${colorValue};">${content}</span>`;
+            return `<span class='rovalra-markdown-color' style="color:${colorValue};">${content}</span>`;
         },
     );
 

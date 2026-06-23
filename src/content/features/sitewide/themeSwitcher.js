@@ -54,6 +54,7 @@ async function PrepareRenderedTheme() {
         case 'builtin-light':
         case 'builtin-dark':
         case 'custom-nighty':
+        case 'custom-sunset':
             SetTheme(theme);
             break;
 
