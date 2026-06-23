@@ -1009,6 +1009,7 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: false,
+                experimental: 'May cause issues',
                 contributors: ['10646979010'],
                 childSettings: {
                     currentlyPlayingSubplaceHomeEnabled: {
@@ -1416,7 +1417,10 @@ export const SETTINGS_CONFIG = {
                             { label: 'Normal Roblox', value: 'normal' },
                             { label: 'Roblox Kids', value: 'kids' },
                             { label: 'Roblox Select', value: 'select' },
-                            { label: 'Roblox Leaked Select (Start Mode)', value: 'startmode' },
+                            {
+                                label: 'Roblox Leaked Select (Start Mode)',
+                                value: 'startmode',
+                            },
                         ],
                         default: 'normal',
                     },
@@ -1458,14 +1462,15 @@ export const SETTINGS_CONFIG = {
                         label: 'Custom Badge Text',
                         description: [
                             'The text you would like to display in the badge.',
-                            'This will be overridden by the Hide The Badge setting'
+                            'This will be overridden by the Hide The Badge setting',
                         ],
                         type: 'input',
                         default: null,
                     },
                     ageKidsTextHiddenEnabled: {
                         label: 'Hide The Badge',
-                        description: 'Hide the badge text describing your age group.',
+                        description:
+                            'Hide the badge text describing your age group.',
                         type: 'checkbox',
                         default: false,
                     },
@@ -1774,7 +1779,8 @@ export const SETTINGS_CONFIG = {
             },
             plusStatsEnabled: {
                 label: 'Show Plus Stats',
-                description: "Shows Roblox Plus Stats on the [Plus](https://www.roblox.com/plus) page even if you are not subscribed",
+                description:
+                    'Shows Roblox Plus Stats on the [Plus](https://www.roblox.com/plus) page even if you are not subscribed',
                 type: 'checkbox',
                 default: true,
                 contributors: ['650766686'],
