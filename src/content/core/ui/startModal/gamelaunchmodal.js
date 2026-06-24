@@ -3,6 +3,7 @@ import { createOverlay } from '../overlay.js';
 import { createSpinner } from '../spinner.js';
 import { getAssets } from '../../assets.js';
 import { parseMarkdown } from '../../utils/markdown.js';
+
 import DOMPurify from 'dompurify';
 
 let activeInstance = null;

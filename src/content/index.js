@@ -42,6 +42,7 @@ import { init as initKidsThemeText } from './features/sitewide/kidsThemeText.js'
 import { init as initSidebarCollapse } from './features/sitewide/sidebarCollapse.js';
 import { init as initRemoveDownloadButton } from './features/sitewide/removeDownloadButton.js';
 import { init as initPaymentMethodBonusItems } from './features/paymentmethods/bonusItems.js';
+import { init as initPopupSystem } from './core/ui/showPopup.js';
 
 // Avatar
 import { init as initAvatarFilters } from './features/avatar/filters.js';
@@ -157,6 +158,7 @@ const featureRoutes = [
         paths: ['*'],
         features: [
             initSettingsPage,
+            initPopupSystem,
             initQuickPlay,
             initEasterEggLinks,
             initCssFixes,

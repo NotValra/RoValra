@@ -1,0 +1,103 @@
+div.rovalra-popup-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 900px;
+    padding: 0;
+    gap: 20px;
+    margin: 0;
+}
+
+.rovalra-popup-message {
+    overflow: hidden;
+    justify-content: left;
+    width: 100%;
+}
+
+.rovalra-popup-message-title {
+    justify-content: center;
+}
+
+.rovalra-popup-button-container {
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    padding-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.rovalra-popup-button {
+    width: 100%;
+    height: 40px;
+    min-height: 40px;
+
+    background: #7b0194;
+    border: none;
+    border-radius: 8px;
+
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+
+    padding: 0;
+    transition: scale .3s !important;
+}
+
+.rovalra-popup-button:hover {
+    scale: 1.02;
+}
+
+.rovalra-popup-button-primary {
+    background: #335fff;
+}
+
+.rovalra-popup-button-secondary {
+    background: #3a3b41;
+}
+
+.rovalra-popup-button-risky {
+    background: linear-gradient(#b60000, #b60000) left / 0% 100% no-repeat,
+              #3a3b41;
+    
+    pointer-events: none;
+    cursor: not-allowed;
+    opacity: 0.5;
+
+    animation: enable-button 3s forwards;
+    animation-delay: 1s;
+    animation-timing-function: cubic-bezier(0.95, 0.05, 0.85, 0.035);
+}
+
+@keyframes enable-button {
+    from {
+        background-size: 0% 100%, 100% 100%;
+        opacity: 0.5;
+        transform: scale(0.98);
+        pointer-events: none;
+    }
+
+    to {
+        background-size: 100% 100%, 100% 100%;
+        pointer-events: auto;
+        opacity: 1;
+        transform: scale(1);
+        cursor: pointer;
+    }
+}
+
+.rovalra-popup-rvl-logo {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    display: block;
+}
