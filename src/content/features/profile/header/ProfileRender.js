@@ -45,10 +45,13 @@ import {
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import * as THREE from 'three';
 import { safeHtml } from '../../../core/packages/dompurify.js';
+import {backgroundRendererRequests} from '../../../core/utils/renderer.js'
 FLAGS.ENABLE_API_MESH_CACHE = false;
 FLAGS.ENABLE_API_RBX_CACHE = false;
 FLAGS.USE_WORKERS = false;
 FLAGS.ONLINE_ASSETS = true;
+
+backgroundRendererRequests()
 
 let currentRig = null;
 let currentRigType = null;
@@ -363,11 +366,6 @@ async function loadRig(rigType) {
 
                 if (currentRig) {
                     currentRig.Destroy();
-                }
-
-                if (customModelInstance) {
-                    RBXRenderer.getScene().remove(customModelInstance);
-                    customModelInstance = null;
                 }
 
                 currentRig = newRig;
@@ -1235,6 +1233,7 @@ async function injectCustomButtons(toggleButton) {
                 'swimidle',
                 'toolslash',
                 'toollunge',
+                'mood',
             ];
 
             if (currentRigType === 'R6') {

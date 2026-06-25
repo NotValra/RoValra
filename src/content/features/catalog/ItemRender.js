@@ -19,6 +19,7 @@ import { isDarkMode } from '../../core/theme';
 import { ts } from '../../core/locale/i18n.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import * as THREE from 'three';
+import {backgroundRendererRequests} from '../../core/utils/renderer.js'
 
 const assets = getAssets();
 
@@ -27,6 +28,8 @@ FLAGS.ENABLE_API_MESH_CACHE = true;
 FLAGS.ENABLE_API_RBX_CACHE = false;
 FLAGS.USE_WORKERS = true;
 FLAGS.ONLINE_ASSETS = true;
+
+backgroundRendererRequests()
 
 const HOVER_FRAME_TIME = 5;
 const HOVER_CAMERA_ROTATION_SPEED = 0.75;
@@ -949,13 +952,31 @@ async function addItem(outfit, itemId, itemType, typee) {
             outfit.removeAssetType(typee);
             outfit.addAsset(itemId, typee, '');
         }
+    } else if (itemType === 'Look') {
+        const lookResult = await API.Looks.GetLook(itemId);
+        console.log(lookResult);
+        if (lookResult instanceof Response) return;
+        const newOutfit = new Outfit();
+        const success = newOutfit.fromLook(lookResult.look, new Authentication());
+        if (!success) return;
+        outfit.assets = newOutfit.assets;
+        outfit.scale = newOutfit.scale;
+        if (!selectedRigType) {
+            selectedRigType = newOutfit.playerAvatarType;
+            updateRigButtonText();
+        }
+        outfit.playerAvatarType = selectedRigType;
+        outfit.bodyColors = newOutfit.bodyColors;
     }
 }
 
 //adds item to outfit based on item link
 async function addItemFromLink(outfit, itemLink, typee) {
     const itemId = getPlaceIdFromUrl(itemLink);
-    const itemType = itemLink.includes('bundles/') ? 'Bundle' : 'Asset';
+    let itemType = itemLink.includes('bundles/') ? 'Bundle' : 'Asset';
+    if (itemLink.includes('looks/')) {
+        itemType = 'Look'
+    }
     await addItem(outfit, itemId, itemType, typee);
 }
 
@@ -1062,7 +1083,7 @@ async function updateMainRenderer() {
     const targetUrl = window.location.href;
 
     needsMainOutfitRenderer =
-        targetUrl.includes('/catalog') || targetUrl.includes('/bundles');
+        targetUrl.includes('/catalog') || targetUrl.includes('/bundles') || targetUrl.includes('/looks');
 
     //set main renderer's outfit back to original
     await loadOgAvatar();
@@ -1334,7 +1355,7 @@ async function asyncInit() {
     //update main renderer
     observeElement('.thumbnail-holder', (element) => {
         const url = window.location.href;
-        if (!url.includes('/catalog') && !url.includes('/bundles')) return;
+        if (!url.includes('/catalog') && !url.includes('/bundles') && !url.includes('/looks')) return;
 
         mainSceneContainer = element;
 
@@ -1344,7 +1365,7 @@ async function asyncInit() {
     //buttons for main thumbnail
     observeElement('.thumbnail-button-container', (element) => {
         const url = window.location.href;
-        if (!url.includes('/catalog') && !url.includes('/bundles')) return;
+        if (!url.includes('/catalog') && !url.includes('/bundles') && !url.includes('/looks')) return;
 
         mainButtonContainer = element;
 
@@ -1468,7 +1489,8 @@ async function asyncInit() {
             if (!itemLinkElement) return;
             if (
                 !itemLinkElement.href.includes('/catalog') &&
-                !itemLinkElement.href.includes('/bundles')
+                !itemLinkElement.href.includes('/bundles') &&
+                !itemLinkElement.href.includes('/looks')
             )
                 return;
 
@@ -1516,7 +1538,8 @@ async function asyncInit() {
             if (!itemLinkElement) return;
             if (
                 !itemLinkElement.href.includes('/catalog') &&
-                !itemLinkElement.href.includes('/bundles')
+                !itemLinkElement.href.includes('/bundles') &&
+                !itemLinkElement.href.includes('/looks')
             )
                 return;
 
@@ -1591,7 +1614,8 @@ export function init() {
     //disable main renderer on pages that dont use it
     if (
         !window.location.href.includes('/catalog') &&
-        !window.location.href.includes('/bundles')
+        !window.location.href.includes('/bundles') && 
+        !window.location.href.includes('/looks')
     ) {
         needsMainOutfitRenderer = false;
     }
