@@ -414,7 +414,7 @@ function createGlobePanel(container) {
     const panel = document.createElement('div');
     panel.id = GLOBE_PANEL_ID;
     panel.className = theme;
-    panel.innerHTML = `<div class="rovalra-globe-header ${theme}"><img src="${assets.rovalraIcon}" class="rovalra-header-logo" title="RoValra" id="${EASTER_EGG_TRIGGER_ID}" alt="Logo"><div id="${HEADER_TITLE_ID}" style="font-weight:bold;">RoValra Region Selector</div></div><div id="${GLOBE_CONTAINER_ID}"></div>`;
+    panel.innerHTML = `<div class="rovalra-globe-header ${theme}"><img data-rovalra-asset="rovalraIcon" src="${assets.rovalraIcon}" class="rovalra-header-logo" title="RoValra" id="${EASTER_EGG_TRIGGER_ID}" alt="Logo"><div id="${HEADER_TITLE_ID}" style="font-weight:bold;">RoValra Region Selector</div></div><div id="${GLOBE_CONTAINER_ID}"></div>`;
     container.appendChild(panel);
 
     const globeContainer = panel.querySelector(`#${GLOBE_CONTAINER_ID}`);

@@ -501,6 +501,13 @@ function getBadgeStyle(key) {
         .join(';');
 }
 
+function getBadgeAssetAttribute(key) {
+    const badge = BADGE_CONFIG[key];
+    return badge?.iconAssetName
+        ? `data-rovalra-asset="${badge.iconAssetName}"`
+        : '';
+}
+
 const donatorBadgeKeys = ['donator_1', 'donator_2', 'donator_3'];
 
 function getDonatorBadgesHtml() {
@@ -513,7 +520,7 @@ function getDonatorBadgesHtml() {
 
             return `
             <div title="${badge.tooltip}" style="display: flex; align-items: center; gap: 10px; padding: 10px; background-color: var(--rovalra-container-background-color, rgba(0,0,0,0.1)); border-radius: 8px; flex: 1; min-width: 240px;">
-                <img src="${badge.icon}" style="width: 32px; height: 32px; ${styleString}" />
+                <img ${getBadgeAssetAttribute(key)} src="${badge.icon}" style="width: 32px; height: 32px; ${styleString}" />
                 <span style="color: var(--rovalra-main-text-color); font-size: 14px;">${shortTooltip}</span>
             </div>
         `;
@@ -1185,8 +1192,8 @@ async function loadTopDonators() {
         const enrichedDonators = donators.map((donator) => ({
             ...donator,
             username:
-                profileMap.get(String(donator.user_id))?.names
-                    ?.combinedName || donator.username,
+                profileMap.get(String(donator.user_id))?.names?.combinedName ||
+                donator.username,
             isVerified:
                 String(donator.user_id) !== '1' &&
                 profileMap.get(String(donator.user_id))?.isVerified === true,
@@ -1310,7 +1317,7 @@ export const buttonData = [
                                             <a href="https://discord.gg/GHd5cSKJRk" target="_blank" class="rovalra-discord-link">${ts('settings.info.discord')}</a>
                                             <a href="https://github.com/NotValra/RoValra" target="_blank" class="rovalra-github-link">
                                                 ${ts('settings.info.github')}
-                                                <img src="${assets.rovalraIcon}" style="width: 20px; height: 20px; margin-right: 0px; vertical-align: middle;" />
+                                                <img data-rovalra-asset="rovalraIcon" src="${assets.rovalraIcon}" style="width: 20px; height: 20px; margin-right: 0px; vertical-align: middle;" />
                                             </a>
                                             <a href="https://www.roblox.com/games/store-section/9452973012" target="_blank" class="rovalra-roblox-link">${ts('settings.info.support')}</a>
                                             <a href="https://www.tiktok.com/@valrawantbanana" target="_blank" class="rovalra-tiktok-link">${ts('settings.info.tiktok')}</a>
@@ -1401,7 +1408,7 @@ export const buttonData = [
                     <div style="display: flex; flex-direction: column; gap: 15px;">
                         <div style="padding: 15px; background-color: var(--rovalra-container-background-color, rgba(0,0,0,0.1)); border-radius: 8px; border: 1px solid var(--rovalra-border-color, rgba(128,128,128,0.2));">
                             <div id="donator-tier-1-header" style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
-                                <img src="${BADGE_CONFIG.donator_1.icon}" style="width: 32px; height: 32px; ${getBadgeStyle('donator_1')}" />
+                                <img ${getBadgeAssetAttribute('donator_1')} src="${BADGE_CONFIG.donator_1.icon}" style="width: 32px; height: 32px; ${getBadgeStyle('donator_1')}" />
                                 <h4 style="color: var(--rovalra-main-text-color); margin: 0; font-size: 16px;">${ts('settings.donatorPerks.tier1')}</h4>
                             </div>
                             <div style="color: var(--rovalra-secondary-text-color); font-size: 14px;">${parseMarkdown(ts('settings.donatorPerks.tier1Desc'), themeColors)}</div>
@@ -1413,7 +1420,7 @@ export const buttonData = [
 
                         <div style="padding: 15px; background-color: var(--rovalra-container-background-color, rgba(0,0,0,0.1)); border-radius: 8px; border: 1px solid var(--rovalra-border-color, rgba(128,128,128,0.2));">
                             <div id="donator-tier-2-header" style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
-                                <img src="${BADGE_CONFIG.donator_2.icon}" style="width: 32px; height: 32px; ${getBadgeStyle('donator_2')}" />
+                                <img ${getBadgeAssetAttribute('donator_2')} src="${BADGE_CONFIG.donator_2.icon}" style="width: 32px; height: 32px; ${getBadgeStyle('donator_2')}" />
                                 <h4 style="color: var(--rovalra-main-text-color); margin: 0; font-size: 16px;">${ts('settings.donatorPerks.tier2')}</h4>
                             </div>
                             <div style="color: var(--rovalra-secondary-text-color); font-size: 14px;">${parseMarkdown(ts('settings.donatorPerks.tier2Desc'), themeColors)}</div>
@@ -1426,7 +1433,7 @@ export const buttonData = [
 
                         <div style="padding: 15px; background-color: var(--rovalra-container-background-color, rgba(0,0,0,0.1)); border-radius: 8px; border: 1px solid var(--rovalra-border-color, rgba(128,128,128,0.2));">
                             <div id="donator-tier-3-header" style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
-                                <img src="${BADGE_CONFIG.donator_3.icon}" style="width: 32px; height: 32px; ${getBadgeStyle('donator_3')}" />
+                                <img ${getBadgeAssetAttribute('donator_3')} src="${BADGE_CONFIG.donator_3.icon}" style="width: 32px; height: 32px; ${getBadgeStyle('donator_3')}" />
                                 <h4 style="color: var(--rovalra-main-text-color); margin: 0; font-size: 16px;">${ts('settings.donatorPerks.tier3')}</h4>
                             </div>
                             <div style="color: var(--rovalra-secondary-text-color); font-size: 14px;">${parseMarkdown(ts('settings.donatorPerks.tier3Desc'), themeColors)}</div>

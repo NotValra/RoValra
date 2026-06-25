@@ -76,6 +76,7 @@ export function addCustomButton(debouncedAddPopoverButton) {
     newButtonSpan.style.fontSize = '12px';
 
     const logo = document.createElement('img');
+    logo.dataset.rovalraAsset = 'rovalraIcon';
     logo.src = assets.rovalraIcon;
     logo.style.width = '15px';
     logo.style.height = '15px';
@@ -151,6 +152,7 @@ export async function addPopoverButton() {
     });
 
     const logo = document.createElement('img');
+    logo.dataset.rovalraAsset = 'rovalraIcon';
     logo.src = assets.rovalraIcon;
     Object.assign(logo.style, { width: '18px', height: '18px' });
 

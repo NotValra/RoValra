@@ -14,14 +14,37 @@ import {
 } from './userIds.js';
 
 const assets = getAssets();
+const ROVALRA_LOGO_ASSET_NAME = 'rovalraIcon';
+
+function applyDynamicBadgeAssets() {
+    for (const badge of Object.values(BADGE_CONFIG)) {
+        if (badge.iconAssetName) {
+            Object.defineProperty(badge, 'icon', {
+                enumerable: true,
+                get() {
+                    return getAssets()[badge.iconAssetName];
+                },
+            });
+        }
+
+        if (badge.confettiAssetName) {
+            Object.defineProperty(badge, 'confetti', {
+                enumerable: true,
+                get() {
+                    return getAssets()[badge.confettiAssetName];
+                },
+            });
+        }
+    }
+}
 
 export const BADGE_CONFIG = {
     creator: {
         type: 'header',
         userIds: [CREATOR_USER_ID],
-        icon: assets.rovalraIcon,
+        iconAssetName: ROVALRA_LOGO_ASSET_NAME,
         tooltip: 'Creator of RoValra',
-        confetti: assets.rovalraIcon,
+        confettiAssetName: ROVALRA_LOGO_ASSET_NAME,
         style: {},
         alwaysShow: true,
         shiny: true,
@@ -29,9 +52,9 @@ export const BADGE_CONFIG = {
     contributor: {
         type: 'header',
         userIds: CONTRIBUTOR_USER_IDS,
-        icon: assets.rovalraIcon,
+        iconAssetName: ROVALRA_LOGO_ASSET_NAME,
         tooltip: 'RoValra Contributor',
-        confetti: assets.rovalraIcon,
+        confettiAssetName: ROVALRA_LOGO_ASSET_NAME,
         style: {
             filter: 'sepia(80%) saturate(300%) brightness(90%) hue-rotate(-20deg)',
         },
@@ -71,19 +94,19 @@ export const BADGE_CONFIG = {
     gilbert: {
         type: 'badge',
         userIds: [CREATOR_USER_ID],
-        icon: assets.rovalraIcon,
+        iconAssetName: ROVALRA_LOGO_ASSET_NAME,
         name: 'Gilbert',
         tooltip: 'Creator of RoValra',
-        confetti: assets.rovalraIcon,
+        confettiAssetName: ROVALRA_LOGO_ASSET_NAME,
         alwaysShow: true,
     },
     gilbertmaker: {
         type: 'badge',
         userIds: [GILBERT_USER_ID],
-        icon: assets.rovalraIcon,
+        iconAssetName: ROVALRA_LOGO_ASSET_NAME,
         name: 'Gilbert',
         tooltip: 'Maker of Fisch, where Gilbert comes from',
-        confetti: assets.rovalraIcon,
+        confettiAssetName: ROVALRA_LOGO_ASSET_NAME,
     },
     rat: {
         type: 'badge',
@@ -145,10 +168,10 @@ export const BADGE_CONFIG = {
     legacy_donator: {
         type: 'header',
         userIds: [],
-        icon: assets.rovalraIcon,
+        iconAssetName: ROVALRA_LOGO_ASSET_NAME,
         tooltip:
             'Legacy Donator. Earned by donating to RoValra before donator badges were a thing.',
-        confetti: assets.rovalraIcon,
+        confettiAssetName: ROVALRA_LOGO_ASSET_NAME,
         style: {
             filter: 'sepia(100%) saturate(600%) brightness(90%) hue-rotate(5deg)',
         },
@@ -157,7 +180,7 @@ export const BADGE_CONFIG = {
     donator_1: {
         type: 'header',
         userIds: [],
-        icon: assets.rovalraIcon,
+        iconAssetName: ROVALRA_LOGO_ASSET_NAME,
         tooltip:
             "Donated any amount of Robux to help Support RoValra's development.",
         url: 'https://www.roblox.com/games/store-section/9452973012',
@@ -168,7 +191,7 @@ export const BADGE_CONFIG = {
     donator_2: {
         type: 'header',
         userIds: [],
-        icon: assets.rovalraIcon,
+        iconAssetName: ROVALRA_LOGO_ASSET_NAME,
         tooltip:
             "Donated 200 or more Robux to help Support RoValra's development.",
         url: 'https://www.roblox.com/games/store-section/9452973012',
@@ -177,7 +200,7 @@ export const BADGE_CONFIG = {
     donator_3: {
         type: 'header',
         userIds: [],
-        icon: assets.rovalraIcon,
+        iconAssetName: ROVALRA_LOGO_ASSET_NAME,
         tooltip:
             "Donated 500 or more Robux to help Support RoValra's development.",
         url: 'https://www.roblox.com/games/store-section/9452973012',
@@ -186,3 +209,5 @@ export const BADGE_CONFIG = {
         },
     },
 };
+
+applyDynamicBadgeAssets();

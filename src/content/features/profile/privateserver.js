@@ -144,6 +144,7 @@ async function processServerRequest(selectedItems, isActive) {
     const assets = getAssets();
     const iconUrl = assets.rovalraIcon;
     const successImage = document.createElement('img');
+    successImage.dataset.rovalraAsset = 'rovalraIcon';
     successImage.src = iconUrl;
     successImage.style.width = '64px';
     successImage.style.height = '64px';

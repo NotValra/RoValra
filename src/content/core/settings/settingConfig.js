@@ -1719,6 +1719,13 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
+            useOldRovalraLogo: {
+                label: 'Use Old RoValra Logo',
+                description:
+                    'Brings back the old RoValra logo across the extension.',
+                type: 'checkbox',
+                default: false,
+            },
             firstAccountEnabled: {
                 label: 'First Account?',
                 description:

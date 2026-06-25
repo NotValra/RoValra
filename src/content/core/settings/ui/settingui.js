@@ -10,8 +10,7 @@ function ensureDeveloperSettings() {
 
 function shouldShowSettingsSection(sectionName, options = {}) {
     if (sectionName === 'Developer' && !options.devTabAdded) return false;
-    if (sectionName === 'FunStuff' && !options.funStuffTabEnabled)
-        return false;
+    if (sectionName === 'FunStuff' && !options.funStuffTabEnabled) return false;
     return true;
 }
 
@@ -64,6 +63,7 @@ export async function buildSettingsPage({
         'display: flex; align-items: center; justify-content: center; margin-bottom: 20px;';
 
     let rovalraIcon = document.createElement('img');
+    rovalraIcon.dataset.rovalraAsset = 'rovalraIcon';
     rovalraIcon.src = assets.rovalraIcon;
     rovalraIcon.style.cssText =
         'width: 35px; height: 35px; margin-left: 5px;  user-select: none;';

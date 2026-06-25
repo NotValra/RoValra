@@ -36,6 +36,9 @@ function createHeaderBadge(parentContainer, badge) {
     });
 
     const icon = document.createElement('img');
+    if (badge.iconAssetName) {
+        icon.dataset.rovalraAsset = badge.iconAssetName;
+    }
     icon.src = badge.icon;
     icon.dataset.badgeId = badge.tooltip || 'badge';
     Object.assign(icon.style, {
@@ -65,6 +68,9 @@ function createHeaderBadge(parentContainer, badge) {
     if (badge.shiny) {
         ensureShineStyle();
         const shineContainer = document.createElement('div');
+        if (badge.iconAssetName) {
+            shineContainer.dataset.rovalraAssetMask = badge.iconAssetName;
+        }
         Object.assign(shineContainer.style, {
             position: 'absolute',
             top: '0',

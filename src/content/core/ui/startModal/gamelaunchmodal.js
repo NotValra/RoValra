@@ -30,6 +30,7 @@ export function showLoadingOverlay(
         logoImg.src = customLogo;
     } else {
         try {
+            logoImg.dataset.rovalraAsset = 'rovalraIcon';
             logoImg.src = getAssets().rovalraIcon;
         } catch (e) {}
     }
