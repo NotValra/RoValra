@@ -4,7 +4,10 @@ import {
     TRANSACTION_FIAT_RATE_OPTIONS,
 } from '../transactions/fiatConfig.js';
 
-const isAprilFools = () => { const d = new Date(); return d.getMonth() === 3 && d.getDate() <= 7; };
+const isAprilFools = () => {
+    const d = new Date();
+    return d.getMonth() === 3 && d.getDate() <= 7;
+};
 
 // Settings config (not developer settings)
 
@@ -1571,19 +1574,46 @@ export const SETTINGS_CONFIG = {
     Miscellaneous: {
         title: 'Miscellaneous',
         settings: {
-            MemoryleakFixEnabled: {
-                label: 'Fix Roblox Memory Leak',
+            ThemeSwitcher: {
+                label: 'Theme Switcher',
                 description: [
-                    'This attempts to fix the memory leak caused by the Roblox website when reloading a page or navigating the site.',
-                    "This fix will redirect most url changes to 'about:blank' and then to the intended url, which fixes the memory leak, but may cause a slight flicker when navigating and issues with the back and forward arrows.",
-                    "If you don't know what a memory leak is or you don't feel like Roblox is using too much memory, you can leave this off.",
-                    '**This feature is not recommended to be used anymore, it seems like Roblox has fixed the memory leak.**',
+                    'Allows you to manually switch themes from within RoValra.',
+                    'This also supports custom themes provided by RoValra.',
                 ],
-                experimental: 'May cause some issues.',
-                type: 'checkbox',
-                default: false,
-                requiredPermissions: ['webNavigation'],
+                type: 'select',
+                options: [
+                    { label: 'Default', value: 'default' },
+                    {
+                        label: isAprilFools() ? '"Ow my eyes"' : 'Light',
+                        value: 'builtin-light',
+                    },
+                    {
+                        label: isAprilFools() ? 'Cave' : 'Dark',
+                        value: 'builtin-dark',
+                    },
+                    {
+                        label: isAprilFools()
+                            ? '(RoValra) Headache mode'
+                            : '(RoValra) Nighty',
+                        value: 'custom-nighty',
+                    },
+                    {
+                        label: isAprilFools()
+                            ? '(RoValra) Lemon'
+                            : '(RoValra) Sunset',
+                        value: 'custom-sunset',
+                    },
+                    {
+                        label: isAprilFools()
+                            ? "(RoValra) I'm almost colorblind"
+                            : '(RoValra) High Contrast',
+                        value: 'custom-highcontrast',
+                    },
+                ],
+                default: 'default',
+                contributors: ['1564574922'],
             },
+
             ExplorerEnabled: {
                 label: 'Explorer',
                 description: [
@@ -1728,6 +1758,19 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: false,
             },
+            MemoryleakFixEnabled: {
+                label: 'Fix Roblox Memory Leak',
+                description: [
+                    'This attempts to fix the memory leak caused by the Roblox website when reloading a page or navigating the site.',
+                    "This fix will redirect most url changes to 'about:blank' and then to the intended url, which fixes the memory leak, but may cause a slight flicker when navigating and issues with the back and forward arrows.",
+                    "If you don't know what a memory leak is or you don't feel like Roblox is using too much memory, you can leave this off.",
+                    '**This feature is not recommended to be used anymore, it seems like Roblox has fixed the memory leak.**',
+                ],
+                experimental: 'May cause some issues.',
+                type: 'checkbox',
+                default: false,
+                requiredPermissions: ['webNavigation'],
+            },
             firstAccountEnabled: {
                 label: 'First Account?',
                 description:
@@ -1809,24 +1852,6 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: false,
             },
-            ThemeSwitcher: {
-                label: 'Theme Switcher',
-                description: [
-                    'Allows you to manually switch themes from within RoValra.',
-                    'This also supports custom themes provided by RoValra.'
-                ],
-                type: 'select',
-                options: [
-                    { label: 'Default', value: 'default' },
-                    { label: isAprilFools() ? '"Ow my eyes"' : 'Light',                         value: 'builtin-light' },
-                    { label: isAprilFools() ? 'Cave' : 'Dark',                                  value: 'builtin-dark' },
-                    { label: isAprilFools() ? '(RoValra) Headache mode' : '(RoValra) Nighty',   value: 'custom-nighty' },
-                    { label: isAprilFools() ? '(RoValra) Lemon': '(RoValra) Sunset',            value: 'custom-sunset' },
-                    { label: isAprilFools() ? '(RoValra) I\'m almost colorblind' : '(RoValra) High Contrast', value: 'custom-highcontrast'}
-                ],
-                default: 'default',
-                contributors: ['1564574922']
-            }
         },
     },
     AntiAccountTracking: {
