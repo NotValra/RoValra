@@ -226,6 +226,11 @@ const featureRoutes = [
             initCatalogExplorer,
         ],
     },
+    // Avatar pages
+    {
+        paths: ['/looks'],
+        features: [initItemRender],
+    },
     // Group pages
     {
         paths: ['/communities/'],
