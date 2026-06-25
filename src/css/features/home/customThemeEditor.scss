@@ -1,0 +1,164 @@
+.rovalra-custom-theme-selector-overlay {
+    align-items: flex-start !important;
+    justify-content: flex-end !important;
+    padding: 76px 18px 18px !important;
+    background: transparent !important;
+    pointer-events: none !important;
+
+    .rovalra-overlay-content {
+        width: min(420px, calc(100vw - 36px)) !important;
+        max-width: min(420px, calc(100vw - 36px)) !important;
+        border: none !important;
+        border-radius: 8px;
+        pointer-events: auto !important;
+    }
+
+    .rovalra-overlay-body {
+        padding: 0 18px;
+    }
+
+    .rovalra-overlay-footer {
+        padding: 14px 18px 18px;
+    }
+}
+
+.rovalra-custom-theme-selector-body {
+    display: grid;
+    gap: 14px;
+    padding-bottom: 2px;
+}
+
+.rovalra-custom-theme-selector-copy {
+    margin: 0;
+    color: var(--rovalra-secondary-text-color);
+    font-size: 13px;
+    line-height: 1.35;
+}
+
+.rovalra-custom-theme-selector-list {
+    display: grid;
+    gap: 9px;
+}
+
+.rovalra-custom-theme-selector-group-title {
+    margin-top: 6px;
+    color: var(--rovalra-secondary-text-color);
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.rovalra-custom-theme-selector-group-title:first-child {
+    margin-top: 0;
+}
+
+.rovalra-custom-theme-selector-row {
+    display: grid;
+    gap: 6px;
+}
+
+.rovalra-custom-theme-selector-label {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin: 0;
+    color: var(--rovalra-main-text-color);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.rovalra-custom-theme-selector-badge {
+    padding: 2px 6px;
+    border-radius: 999px;
+    background: var(--rovalra-button-background-color);
+    color: var(--rovalra-secondary-text-color);
+    font-size: 10px;
+    font-weight: 800;
+    line-height: 1.2;
+    text-transform: uppercase;
+}
+
+.rovalra-custom-theme-selector-controls {
+    display: grid;
+    grid-template-columns: 42px minmax(0, 1fr);
+    align-items: center;
+    gap: 8px;
+}
+
+.rovalra-custom-theme-selector-controls input[type='color'] {
+    width: 42px;
+    height: 36px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+}
+
+.rovalra-custom-theme-selector-alpha-controls {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: auto minmax(0, 1fr) 54px auto;
+    align-items: center;
+    gap: 8px;
+}
+
+.rovalra-custom-theme-selector-alpha-label,
+.rovalra-custom-theme-selector-alpha-percent {
+    color: var(--rovalra-secondary-text-color);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.rovalra-custom-theme-selector-alpha-controls input[type='range'] {
+    min-width: 0;
+    accent-color: var(--rovalra-playbutton-color);
+}
+
+.rovalra-custom-theme-selector-alpha-input {
+    width: 54px;
+    height: 30px;
+    padding: 5px 7px;
+    border: none;
+    border-radius: 4px;
+    background: var(--rovalra-button-background-color);
+    color: var(--rovalra-main-text-color);
+    font: inherit;
+    font-size: 12px;
+}
+
+.rovalra-custom-theme-selector-rgb-input {
+    min-width: 0;
+    height: 36px;
+    padding: 7px 9px;
+    border: none;
+    border-radius: 4px;
+    background: var(--rovalra-button-background-color);
+    color: var(--rovalra-main-text-color);
+    font: inherit;
+    font-size: 13px;
+}
+
+.rovalra-custom-theme-selector-rgb-input:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--rovalra-playbutton-color);
+}
+
+.rovalra-custom-theme-selector-alpha-input:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--rovalra-playbutton-color);
+}
+
+.rovalra-custom-theme-selector-input-invalid {
+    box-shadow: 0 0 0 2px #d93838 !important;
+}
+
+@media (max-width: 640px) {
+    .rovalra-custom-theme-selector-overlay {
+        padding: 64px 10px 10px !important;
+    }
+
+    .rovalra-custom-theme-selector-overlay .rovalra-overlay-content {
+        width: calc(100vw - 20px) !important;
+        max-width: calc(100vw - 20px) !important;
+    }
+}

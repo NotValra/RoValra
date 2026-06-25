@@ -1,0 +1,205 @@
+.rovalra-custom-user-theme {
+    --rovalra-custom-user-surface0: #121215;
+    --rovalra-custom-user-surface100: #191a1f;
+    --rovalra-custom-user-surface200: #272930;
+    --rovalra-custom-user-surface300: #45494d;
+    --rovalra-custom-user-mainText: #f7f7f8;
+    --rovalra-custom-user-secondaryText: #d5d7dd;
+    --rovalra-custom-user-tertiaryText: #bcbec8;
+    --rovalra-custom-user-playButton: #335fff;
+    --rovalra-custom-user-mainBackground: #121215;
+    --rovalra-custom-user-buttonBackground: #2d3033;
+    --rovalra-custom-user-borderColor: #4a4d55;
+    --rovalra-custom-user-grayText: #bcbec8;
+    --rovalra-custom-user-profileHeaderBackground: #191a1f;
+    --rovalra-custom-user-iconBlocked: #646668;
+    --rovalra-custom-user-themeContent: #272930;
+    --rovalra-custom-user-themeText: #d5d7dd;
+    --rovalra-custom-user-themeHeader: #ffffff;
+    --rovalra-custom-user-themeSliderOn: #dddddd;
+    --rovalra-custom-user-themeSliderOff: #24262c;
+    --rovalra-custom-user-themeSliderButton: #ffffff;
+    --rovalra-custom-user-themeButtonText: #ffffff;
+    --rovalra-custom-user-themeButtonBackground: #2d3033;
+    --rovalra-custom-user-themeButtonHover: #393c40;
+    --rovalra-custom-user-themeButtonActive: #45494d;
+    --rovalra-custom-user-themeButtonBorder: #45494d;
+    --rovalra-custom-user-discordLink: #7289da;
+    --rovalra-custom-user-githubLink: #2dba4e;
+    --rovalra-custom-user-robloxLink: #c13ad9;
+}
+
+.rovalra-custom-user-theme,
+.rovalra-custom-user-theme * {
+    --color-surface-0: var(--rovalra-custom-user-surface0) !important;
+    --color-surface-100: var(--rovalra-custom-user-surface100) !important;
+    --color-surface-200: var(--rovalra-custom-user-surface200) !important;
+    --color-surface-300: var(--rovalra-custom-user-surface300) !important;
+    --color-content-default: var(--rovalra-custom-user-mainText) !important;
+    --color-content-emphasis: var(--rovalra-custom-user-mainText) !important;
+    --color-content-muted: var(--rovalra-custom-user-secondaryText) !important;
+    --color-content-secondary: var(
+        --rovalra-custom-user-secondaryText
+    ) !important;
+    --dark-mode-content-default: var(--rovalra-custom-user-mainText) !important;
+    --dark-mode-content-emphasis: var(
+        --rovalra-custom-user-mainText
+    ) !important;
+    --dark-mode-content-muted: var(
+        --rovalra-custom-user-secondaryText
+    ) !important;
+    --dark-mode-content-secondary: var(
+        --rovalra-custom-user-secondaryText
+    ) !important;
+    --light-mode-content-default: var(
+        --rovalra-custom-user-mainText
+    ) !important;
+    --light-mode-content-emphasis: var(
+        --rovalra-custom-user-mainText
+    ) !important;
+    --light-mode-content-muted: var(
+        --rovalra-custom-user-secondaryText
+    ) !important;
+    --light-mode-content-secondary: var(
+        --rovalra-custom-user-secondaryText
+    ) !important;
+    --color-action-primary-background: var(
+        --rovalra-custom-user-playButton
+    ) !important;
+    --color-action-primary-background-hover: color-mix(
+        in srgb,
+        var(--rovalra-custom-user-playButton),
+        white 10%
+    ) !important;
+    --color-action-primary-background-press: color-mix(
+        in srgb,
+        var(--rovalra-custom-user-playButton),
+        black 12%
+    ) !important;
+    --color-action-primary: var(--rovalra-custom-user-playButton) !important;
+    --color-system-primary: var(--rovalra-custom-user-playButton) !important;
+    --dark-mode-action-primary-background: var(
+        --rovalra-custom-user-playButton
+    ) !important;
+    --light-mode-action-primary-background: var(
+        --rovalra-custom-user-playButton
+    ) !important;
+
+    --rovalra-main-text-color: var(--rovalra-custom-user-mainText);
+    --rovalra-secondary-text-color: var(--rovalra-custom-user-secondaryText);
+    --rovalra-tertiary-text-color: var(--rovalra-custom-user-tertiaryText);
+    --rovalra-container-background-color: var(--rovalra-custom-user-surface300);
+    --rovalra-playbutton-color: var(--rovalra-custom-user-playButton);
+    --rovalra-main-background-color: var(--rovalra-custom-user-mainBackground);
+    --rovalra-button-background-color: var(
+        --rovalra-custom-user-buttonBackground
+    );
+    --rovalra-border-color: var(--rovalra-custom-user-borderColor);
+    --rovalra-gray-text-color: var(--rovalra-custom-user-grayText);
+    --rovalra-profile-header-bg: var(
+        --rovalra-custom-user-profileHeaderBackground
+    );
+    --rovalra-profile-main-gradient:
+        linear-gradient(
+            91deg,
+            color-mix(
+                    in srgb,
+                    var(--rovalra-custom-user-mainBackground),
+                    transparent 80%
+                )
+                5.83%,
+            color-mix(
+                    in srgb,
+                    var(--rovalra-custom-user-mainText),
+                    transparent 80%
+                )
+                47.76%,
+            color-mix(
+                    in srgb,
+                    var(--rovalra-custom-user-mainBackground),
+                    transparent 80%
+                )
+                93.93%
+        ),
+        var(--rovalra-profile-header-bg);
+    --rovalra-profile-overlay-gradient: linear-gradient(
+        color-mix(
+                in srgb,
+                var(--rovalra-custom-user-mainBackground),
+                transparent 100%
+            )
+            0%,
+        color-mix(
+                in srgb,
+                var(--rovalra-custom-user-mainBackground),
+                transparent 50%
+            )
+            45%,
+        color-mix(
+                in srgb,
+                var(--rovalra-custom-user-mainBackground),
+                transparent 15%
+            )
+            70%,
+        var(--rovalra-custom-user-mainBackground) 90%,
+        var(--rovalra-custom-user-mainBackground) 100%
+    );
+    --rovalra-icon-blocked-color: var(--rovalra-custom-user-iconBlocked);
+
+    --rovalra-theme-content: var(--rovalra-custom-user-themeContent);
+    --rovalra-theme-text: var(--rovalra-custom-user-themeText);
+    --rovalra-theme-header: var(--rovalra-custom-user-themeHeader);
+    --rovalra-theme-sliderOn: var(--rovalra-custom-user-themeSliderOn);
+    --rovalra-theme-sliderOff: var(--rovalra-custom-user-themeSliderOff);
+    --rovalra-theme-sliderButton: var(--rovalra-custom-user-themeSliderButton);
+    --rovalra-theme-buttonText: var(--rovalra-custom-user-themeButtonText);
+    --rovalra-theme-buttonBg: var(--rovalra-custom-user-themeButtonBackground);
+    --rovalra-theme-buttonHover: var(--rovalra-custom-user-themeButtonHover);
+    --rovalra-theme-buttonActive: var(--rovalra-custom-user-themeButtonActive);
+    --rovalra-theme-buttonBorder: 1px solid
+        var(--rovalra-custom-user-themeButtonBorder);
+    --rovalra-theme-discordLink: var(--rovalra-custom-user-discordLink);
+    --rovalra-theme-githubLink: var(--rovalra-custom-user-githubLink);
+    --rovalra-theme-robloxLink: var(--rovalra-custom-user-robloxLink);
+}
+
+.rovalra-custom-user-theme {
+    .game-card-name,
+    .game-name-title,
+    .friends-carousel-display-name,
+    .container-header h1,
+    .container-header h2,
+    .content-default,
+    .content-emphasis,
+    h1,
+    h2,
+    h3 {
+        color: var(--rovalra-custom-user-mainText) !important;
+    }
+
+    .info-label,
+    .friends-count,
+    .friends-carousel-tile-sublabel,
+    .friends-carousel-tile-experience,
+    .text-secondary,
+    .content-secondary,
+    .content-muted,
+    .text-label-small {
+        color: var(--rovalra-custom-user-secondaryText) !important;
+    }
+
+    .btn-common-play-game-lg,
+    .btn-common-play-game-md,
+    .btn-common-play-game-xs,
+    .btn-growth-md,
+    .btn-growth-xs,
+    .btn-primary-md,
+    .btn-primary-sm,
+    .btn-primary-xs,
+    .bg-action-primary,
+    button[class*='btn-growth'],
+    button[class*='btn-primary'] {
+        background-color: var(--rovalra-custom-user-playButton) !important;
+        border-color: var(--rovalra-custom-user-playButton) !important;
+    }
+}

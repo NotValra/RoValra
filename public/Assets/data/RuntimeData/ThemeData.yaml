@@ -30,3 +30,9 @@ HighContrast:
   PrimaryClass: 'rovalra-custom-highcontrast-theme'
   ClassList:
     - 'dark-theme'
+
+CustomUser:
+  StorageKey: 'custom-user'
+  PrimaryClass: 'rovalra-custom-user-theme'
+  ClassList:
+    - 'dark-theme'

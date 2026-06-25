@@ -113,6 +113,7 @@ export function detectTheme() {
             if (targetNode.classList.contains('rovalra-custom-nighty-theme')) return 'nighty';
             if (targetNode.classList.contains('rovalra-custom-sunset-theme')) return 'sunset';
             if (targetNode.classList.contains('rovalra-custom-highcontrast-theme')) return 'highcontrast';
+            if (targetNode.classList.contains('rovalra-custom-user-theme')) return 'custom-user';
             if (targetNode.classList.contains('dark-theme')) return 'dark';
             if (targetNode.classList.contains('light-theme')) return 'light';
             return null;

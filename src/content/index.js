@@ -142,6 +142,7 @@ import { init as initLegacyThemeSwitcher } from './features/settings/roblox/lega
 // Home
 import { init as initAccurateContinue } from './features/home/accurateContinue.js';
 import { init as initHomeLayout } from './features/home/homeLayout.js';
+import { init as initCustomThemeEditor } from './features/home/customThemeEditor.js';
 import { init as initUnderratedGamesHome } from './features/home/underratedGames.js';
 // create
 import { init as initCreateDownload } from './features/create.roblox.com/download.js';
@@ -201,6 +202,7 @@ const featureRoutes = [
             initSidebarCollapse,
             initRemoveDownloadButton,
             initThemeSwitcher,
+            initCustomThemeEditor,
         ],
     },
     // pretty much just the 40% method

@@ -3,6 +3,7 @@ import {
     TRANSACTION_FIAT_CURRENCY_OPTIONS,
     TRANSACTION_FIAT_RATE_OPTIONS,
 } from '../transactions/fiatConfig.js';
+import { DEFAULT_CUSTOM_THEME } from '../themeCustom.js';
 
 const isAprilFools = () => {
     const d = new Date();
@@ -1609,9 +1610,35 @@ export const SETTINGS_CONFIG = {
                             : '(RoValra) High Contrast',
                         value: 'custom-highcontrast',
                     },
+                    {
+                        label: 'Custom',
+                        value: 'custom-user',
+                    },
                 ],
                 default: 'default',
                 contributors: ['1564574922'],
+                childSettings: {
+                    openCustomThemeEditor: {
+                        label: 'Custom Theme Builder',
+                        description: [
+                            'Opens the editor on the real Roblox home page so you can customize the theme against the actual UI.',
+                            'Choose "Custom" in Theme Switcher to apply this theme.',
+                        ],
+                        type: 'button',
+                        buttonText: 'Open Editor',
+                        event: 'rovalra:openCustomThemeEditor',
+                        condition: {
+                            parent: 'ThemeSwitcher',
+                            value: 'custom-user',
+                        },
+                    },
+                    customUserTheme: {
+                        label: 'Custom Theme Colors',
+                        type: 'themeEditor',
+                        default: DEFAULT_CUSTOM_THEME,
+                        hidden: true,
+                    },
+                },
             },
 
             ExplorerEnabled: {

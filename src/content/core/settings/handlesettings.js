@@ -15,6 +15,7 @@ import {
     REMOTE_SETTING_LOCK_REASON,
     getRemoteSettingLocks,
 } from './remoteSettingLocks.js';
+import { sanitizeCustomTheme } from '../themeCustom.js';
 import './settingsCompat';
 
 let currentUserTier = 0;
@@ -496,6 +497,10 @@ export const handleSaveSettings = async (settingName, value) => {
                         }
                     }
                     break;
+
+                case 'themeEditor':
+                    sanitizedValue = sanitizeCustomTheme(value);
+                    break;
             }
         }
 
@@ -714,6 +719,12 @@ export const initSettings = async (settingsContent) => {
                                 settings[settingName] || setting.default,
                             );
                         }
+                    } else if (setting.type === 'themeEditor') {
+                        if (element.rovalraThemeEditorApi) {
+                            element.rovalraThemeEditorApi.setValue(
+                                settings[settingName] || setting.default,
+                            );
+                        }
                     } else if (
                         setting.type === 'input' ||
                         setting.type === 'color'
@@ -806,6 +817,13 @@ export const initSettings = async (settingsContent) => {
                             } else if (childSetting.type === 'gradient') {
                                 if (childElement.rovalraGradientApi) {
                                     childElement.rovalraGradientApi.setValue(
+                                        settings[childName] ||
+                                            childSetting.default,
+                                    );
+                                }
+                            } else if (childSetting.type === 'themeEditor') {
+                                if (childElement.rovalraThemeEditorApi) {
+                                    childElement.rovalraThemeEditorApi.setValue(
                                         settings[childName] ||
                                             childSetting.default,
                                     );
@@ -1154,6 +1172,7 @@ export function updateConditionalSettingsVisibility(
     }
 
     const settingsToDisable = new Set();
+    const settingsToHide = new Set();
 
     for (const [settingName, isEnabled] of Object.entries(currentSettings)) {
         const config = findSettingConfig(settingName);
@@ -1168,6 +1187,7 @@ export function updateConditionalSettingsVisibility(
                         currentSettings[childConfig.condition.parent] !==
                         childConfig.condition.value
                     ) {
+                        settingsToHide.add(childName);
                         settingsToDisable.add(childName);
                     }
                 } else if (config.type === 'checkbox' && !isEnabled) {
@@ -1182,6 +1202,22 @@ export function updateConditionalSettingsVisibility(
     );
     allSettingElements.forEach((element) => {
         const settingName = element.dataset.settingName;
+        const wrapper =
+            element.closest('.child-setting-item') ||
+            element.closest('.setting');
+        if (wrapper) {
+            wrapper.style.display = settingsToHide.has(settingName) ? 'none' : '';
+        }
+
+        const separator = settingsContent.querySelector(
+            `.child-setting-separator[data-child-setting-name="${settingName}"]`,
+        );
+        if (separator) {
+            separator.style.display = settingsToHide.has(settingName)
+                ? 'none'
+                : '';
+        }
+
         applyDisabledState(
             settingName,
             settingsContent,

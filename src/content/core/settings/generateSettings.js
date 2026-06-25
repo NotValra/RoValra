@@ -932,8 +932,11 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
         for (const [childName, childSetting] of Object.entries(
             setting.childSettings,
         )) {
+            if (childSetting.hidden) continue;
+
             const separator = document.createElement('div');
             separator.className = 'child-setting-separator';
+            separator.dataset.childSettingName = childName;
             settingContainer.appendChild(separator);
 
             const childContainer = document.createElement('div');
