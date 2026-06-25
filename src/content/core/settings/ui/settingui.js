@@ -275,7 +275,7 @@ function stripInlineStyles(container) {
         '.setting-controls',
         '.setting-label-divider',
         'label',
-        'span',
+        'span:not(.rovalra-markdown-color)',
         'div',
     ];
     const elements = container.querySelectorAll(selectors.join(','));

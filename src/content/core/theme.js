@@ -3,42 +3,89 @@
 import { observeAttributes } from './observer.js';
 let cachedTheme = null;
 
-
 export const getCurrentTheme = () => cachedTheme || 'light';
 
 export const THEME_CONFIG = {
     light: {
-        content: 'rgb(247, 247, 248)',
-        text: 'rgb(73, 77, 90)',
-        header: 'rgb(32, 34, 39)',
-        sliderOn: '#444',
-        sliderOff: 'rgba(0, 0, 0, 0.1)',
-        sliderButton: '#24292e',
-        buttonText: 'rgb(57, 59, 61)',
-        buttonBg: 'rgb(242, 244, 245)',
-        buttonHover: 'rgb(224, 226, 227)',
-        buttonActive: 'rgb(210, 212, 213)',
-        buttonBorder: '0 solid rgba(0, 0, 0, 0.1)',
-        discordLink: '#3479b7',
-        githubLink: '#1e722a',
-        robloxLink: '#c13ad9'
+        content:        "var(--rovalra-theme-content)",   
+        text:           "var(--rovalra-theme-text)",  
+        header:         "var(--rovalra-theme-header)",  
+        sliderOn:       "var(--rovalra-theme-sliderOn)",
+        sliderOff:      "var(--rovalra-theme-sliderOff)",  
+        sliderButton:   "var(--rovalra-theme-sliderButton)",  
+        buttonText:     "var(--rovalra-theme-buttonText)",    
+        buttonBg:       "var(--rovalra-theme-buttonBg)",  
+        buttonHover:    "var(--rovalra-theme-buttonHover)",   
+        buttonActive:   "var(--rovalra-theme-buttonActive)",  
+        buttonBorder:   "var(--rovalra-theme-buttonBorder)",     
+        discordLink:    "var(--rovalra-theme-discordLink)",  
+        githubLink:     "var(--rovalra-theme-githubLink)",
+        robloxLink:     "var(--rovalra-theme-robloxLink)",
     },
     dark: {
-        content: 'rgb(39, 41, 48)',
-        text: 'rgb(213, 215, 221)',
-        header: 'white',
-        sliderOn: '#ddd',
-        sliderOff: 'rgba(0, 0, 0, 0.1)',
-        sliderButton: 'white',
-        buttonText: 'rgba(255, 255, 255, 0.9)',
-        buttonBg: 'rgb(45, 48, 51)',
-        buttonHover: 'rgb(57, 60, 64)',
-        buttonActive: 'rgb(69, 73, 77)',
-        buttonBorder: '0px solid rgba(255, 255, 255, 0.1)',
-        discordLink: '#7289da',
-        githubLink: '#2dba4e',
-        robloxLink: '#c13ad9'
-    }
+        content:        "var(--rovalra-theme-content)",  
+        text:           "var(--rovalra-theme-text)",  
+        header:         "var(--rovalra-theme-header)",
+        sliderOn:       "var(--rovalra-theme-sliderOn)",
+        sliderOff:      "var(--rovalra-theme-sliderOff)",  
+        sliderButton:   "var(--rovalra-theme-sliderButton)", 
+        buttonText:     "var(--rovalra-theme-buttonText)",  
+        buttonBg:       "var(--rovalra-theme-buttonBg)",  
+        buttonHover:    "var(--rovalra-theme-buttonHover)",  
+        buttonActive:   "var(--rovalra-theme-buttonActive)",  
+        buttonBorder:   "var(--rovalra-theme-buttonBorder)",
+        discordLink:    "var(--rovalra-theme-discordLink)", 
+        githubLink:     "var(--rovalra-theme-githubLink)",
+        robloxLink:     "var(--rovalra-theme-robloxLink)",
+    },
+    nighty: {
+        content:        "var(--rovalra-theme-content)",  
+        text:           "var(--rovalra-theme-text)",  
+        header:         "var(--rovalra-theme-header)",
+        sliderOn:       "var(--rovalra-theme-sliderOn)",
+        sliderOff:      "var(--rovalra-theme-sliderOff)",  
+        sliderButton:   "var(--rovalra-theme-sliderButton)", 
+        buttonText:     "var(--rovalra-theme-buttonText)",  
+        buttonBg:       "var(--rovalra-theme-buttonBg)",  
+        buttonHover:    "var(--rovalra-theme-buttonHover)",  
+        buttonActive:   "var(--rovalra-theme-buttonActive)",  
+        buttonBorder:   "var(--rovalra-theme-buttonBorder)",
+        discordLink:    "var(--rovalra-theme-discordLink)", 
+        githubLink:     "var(--rovalra-theme-githubLink)",
+        robloxLink:     "var(--rovalra-theme-robloxLink)",
+    },
+    sunset: {
+        content:        "var(--rovalra-theme-content)",  
+        text:           "var(--rovalra-theme-text)",  
+        header:         "var(--rovalra-theme-header)",
+        sliderOn:       "var(--rovalra-theme-sliderOn)",
+        sliderOff:      "var(--rovalra-theme-sliderOff)",  
+        sliderButton:   "var(--rovalra-theme-sliderButton)", 
+        buttonText:     "var(--rovalra-theme-buttonText)",  
+        buttonBg:       "var(--rovalra-theme-buttonBg)",  
+        buttonHover:    "var(--rovalra-theme-buttonHover)",  
+        buttonActive:   "var(--rovalra-theme-buttonActive)",  
+        buttonBorder:   "var(--rovalra-theme-buttonBorder)",
+        discordLink:    "var(--rovalra-theme-discordLink)", 
+        githubLink:     "var(--rovalra-theme-githubLink)",
+        robloxLink:     "var(--rovalra-theme-robloxLink)",
+    },
+    highcontrast: {
+        content:        "var(--rovalra-theme-content)",  
+        text:           "var(--rovalra-theme-text)",  
+        header:         "var(--rovalra-theme-header)",
+        sliderOn:       "var(--rovalra-theme-sliderOn)",
+        sliderOff:      "var(--rovalra-theme-sliderOff)",  
+        sliderButton:   "var(--rovalra-theme-sliderButton)", 
+        buttonText:     "var(--rovalra-theme-buttonText)",  
+        buttonBg:       "var(--rovalra-theme-buttonBg)",  
+        buttonHover:    "var(--rovalra-theme-buttonHover)",  
+        buttonActive:   "var(--rovalra-theme-buttonActive)",  
+        buttonBorder:   "var(--rovalra-theme-buttonBorder)",
+        discordLink:    "var(--rovalra-theme-discordLink)", 
+        githubLink:     "var(--rovalra-theme-githubLink)",
+        robloxLink:     "var(--rovalra-theme-robloxLink)",
+    },
 };
 
 export function withErrorHandling(fn, context = '') {
@@ -63,6 +110,9 @@ export function detectTheme() {
         const body = document.body;
 
         const checkThemeClass = (targetNode) => {
+            if (targetNode.classList.contains('rovalra-custom-nighty-theme')) return 'nighty';
+            if (targetNode.classList.contains('rovalra-custom-sunset-theme')) return 'sunset';
+            if (targetNode.classList.contains('rovalra-custom-highcontrast-theme')) return 'highcontrast';
             if (targetNode.classList.contains('dark-theme')) return 'dark';
             if (targetNode.classList.contains('light-theme')) return 'light';
             return null;

@@ -1,0 +1,51 @@
+.rovalra-custom-sunset-theme,
+.rovalra-custom-sunset-theme * {
+
+    --color-surface-0:   rgb(253, 255, 225) !important;
+    --color-surface-100: rgb(253, 255, 220) !important;
+    --color-surface-200: var(--color-surface-0) /*rgb(252, 255, 210)*/ !important;
+    --color-surface-300: var(--color-surface-100) /*rgb(253, 253, 205)*/ !important;
+
+    --rovalra-main-text-color: #25251f;
+    --rovalra-secondary-text-color: #575a49;
+    --rovalra-tertiary-text-color: rgb(129, 127, 106);
+    --rovalra-container-background-color: var(--color-surface-0);
+    --rovalra-playbutton-color: #3369ff;
+    --rovalra-main-background-color: rgb(255, 255, 250);
+    --rovalra-button-background-color: rgba(74, 75, 27, 0.12);
+    --rovalra-border-color: rgba(0, 0, 0, 0.2);
+    --rovalra-gray-text-color: rgb(129, 129, 106);
+    --rovalra-profile-header-bg: rgb(248, 248, 247);
+    --rovalra-profile-main-gradient:
+        linear-gradient(
+            91deg,
+            rgba(21, 21, 18, 0.05) 5.83%,
+            rgba(255, 255, 255, 0.1) 47.76%,
+            rgba(21, 20, 18, 0.05) 93.93%
+        ),
+        var(--rovalra-profile-header-bg);
+    --rovalra-profile-overlay-gradient: linear-gradient(
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.5) 45%,
+        rgba(255, 255, 255, 0.85) 70%,
+        #fff 90%,
+        #fff 100%
+    );
+    --rovalra-icon-blocked-color: #ffffff;
+
+    --rovalra-theme-content: rgb(248, 248, 247);
+    --rovalra-theme-text: rgb(89, 90, 73);
+    --rovalra-theme-header: rgb(39, 39, 32);
+    --rovalra-theme-sliderOn: #444444;
+    --rovalra-theme-sliderOff: rgba(0, 0, 0, 0.1);
+    --rovalra-theme-sliderButton: #2e2d24;
+    --rovalra-theme-buttonText: rgb(61, 61, 57);
+    --rovalra-theme-buttonBg: rgb(245, 245, 242);
+    --rovalra-theme-buttonHover: rgb(227, 226, 224);
+    --rovalra-theme-buttonActive: rgb(213, 213, 210);
+    --rovalra-theme-buttonBorder: 0 solid rgba(0, 0, 0, 0.1);
+    --rovalra-theme-discordLink: #5caac9;
+    --rovalra-theme-githubLink: #9be272;
+    --rovalra-theme-robloxLink: #ff94df;
+    
+}

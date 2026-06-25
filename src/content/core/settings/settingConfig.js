@@ -4,6 +4,8 @@ import {
     TRANSACTION_FIAT_RATE_OPTIONS,
 } from '../transactions/fiatConfig.js';
 
+const isAprilFools = () => { const d = new Date(); return d.getMonth() === 3 && d.getDate() <= 7; };
+
 // Settings config (not developer settings)
 
 export const SETTINGS_CONFIG = {
@@ -57,7 +59,7 @@ export const SETTINGS_CONFIG = {
                 label: 'Enable Custom 3D Marketplace Item Renderer',
                 description: [
                     'Adds a try-on preview when hovering over items and adds a feature-rich 3D renderer to item pages.',
-                    'This feature was made possible cause of [RoAvatar](https://github.com/steinann/RoAvatar) ❤️',
+                    'This feature was made possible cause of {{[RoAvatar](https://github.com/steinann/RoAvatar) githubLink}} ❤️',
                 ],
                 type: 'checkbox',
                 default: false,
@@ -611,7 +613,7 @@ export const SETTINGS_CONFIG = {
                 description: [
                     'Replaces the default profile avatar with a more customizable and feature-rich 3D renderer.',
                     'This feature is required for custom environments and other render-related settings.',
-                    'This feature was made possible cause of [RoAvatar](https://github.com/steinann/RoAvatar) ❤️',
+                    'This feature was made possible cause of {{[RoAvatar](https://github.com/steinann/RoAvatar) githubLink}} ❤️',
                 ],
                 type: 'checkbox',
                 default: false,
@@ -1807,6 +1809,24 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: false,
             },
+            ThemeSwitcher: {
+                label: 'Theme Switcher',
+                description: [
+                    'Allows you to manually switch themes from within RoValra.',
+                    'This also supports custom themes provided by RoValra.'
+                ],
+                type: 'select',
+                options: [
+                    { label: 'Default', value: 'default' },
+                    { label: isAprilFools() ? '"Ow my eyes"' : 'Light',                         value: 'builtin-light' },
+                    { label: isAprilFools() ? 'Cave' : 'Dark',                                  value: 'builtin-dark' },
+                    { label: isAprilFools() ? '(RoValra) Headache mode' : '(RoValra) Nighty',   value: 'custom-nighty' },
+                    { label: isAprilFools() ? '(RoValra) Lemon': '(RoValra) Sunset',            value: 'custom-sunset' },
+                    { label: isAprilFools() ? '(RoValra) I\'m almost colorblind' : '(RoValra) High Contrast', value: 'custom-highcontrast'}
+                ],
+                default: 'default',
+                contributors: ['1564574922']
+            }
         },
     },
     AntiAccountTracking: {

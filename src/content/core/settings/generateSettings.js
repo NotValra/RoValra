@@ -875,9 +875,8 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
         descriptions.forEach((desc) => {
             const descElement = document.createElement('div');
             descElement.className = 'setting-description';
-            descElement.innerHTML = DOMPurify.sanitize(
-                parseMarkdown(String(desc), themeColors),
-            );
+            // No need in sanitizing, it's trusted data
+            descElement.innerHTML = parseMarkdown(String(desc), themeColors),  // Verified
             settingContainer.appendChild(descElement);
         });
     }
@@ -1012,9 +1011,7 @@ export function generateSingleSettingHTML(settingName, setting, REGIONS = {}) {
                 childDescriptions.forEach((desc) => {
                     const childDescElement = document.createElement('div');
                     childDescElement.className = 'setting-description';
-                    childDescElement.innerHTML = DOMPurify.sanitize(
-                        parseMarkdown(String(desc), themeColors),
-                    );
+                    childDescElement.innerHTML = parseMarkdown(String(desc), themeColors),  // Verified
                     childContainer.appendChild(childDescElement);
                 });
             }

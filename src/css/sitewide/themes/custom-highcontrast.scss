@@ -1,0 +1,56 @@
+.rovalra-custom-highcontrast-theme,
+.rovalra-custom-highcontrast-theme * {
+
+    --color-surface-0:   rgb(0, 0, 0) !important;
+    --color-surface-100:   rgb(5, 5, 5) !important;
+    --color-surface-200:   rgb(10, 10, 10) !important;
+    --color-surface-300:     rgb(20, 20, 20) !important;
+
+    *:not(.radius-circle) > *:not(.rovalra-header-badge):not(.avatar-card-image) > img {
+        border: 2px solid #ffffff;
+        border-radius: 5%;
+        /*object-fit: cover;*/
+    }
+
+    --rovalra-main-text-color: #ffffff;
+    --rovalra-secondary-text-color: #cecece;
+    --rovalra-tertiary-text-color: #d1d1d1;
+    --rovalra-container-background-color: var(--color-surface-100);
+    --rovalra-playbutton-color: hsl(227, 100%, 50%);
+    --rovalra-main-background-color: #000000;
+    --rovalra-button-background-color: rgba(208, 217, 251, 0.12);
+    --rovalra-border-color: rgba(0, 0, 0, 0.637);
+    --rovalra-gray-text-color: rgb(165, 166, 175);
+    --rovalra-profile-header-bg: #14151d;
+    --rovalra-profile-main-gradient:
+        linear-gradient(
+            91deg,
+            rgba(18, 18, 21, 0.2) 5.83%,
+            rgba(255, 255, 255, 0.2) 47.76%,
+            rgba(18, 18, 21, 0.2) 93.93%
+        ),
+        var(--rovalra-profile-header-bg);
+    --rovalra-profile-overlay-gradient: linear-gradient(
+        rgba(18, 18, 21, 0) 0%,
+        rgba(18, 18, 21, 0.5) 45%,
+        rgba(18, 18, 21, 0.85) 70%,
+        #121215 90%,
+        #000000 100%
+    );
+    --rovalra-icon-blocked-color: #502e2e;
+
+    --rovalra-theme-content: rgb(39, 41, 48);
+    --rovalra-theme-text: rgb(255, 255, 255);
+    --rovalra-theme-header: white;
+    --rovalra-theme-sliderOn: #ffffff;
+    --rovalra-theme-sliderOff: rgba(0, 0, 0, 0.1);
+    --rovalra-theme-sliderButton: white;
+    --rovalra-theme-buttonText: rgba(255, 255, 255, 0.9);
+    --rovalra-theme-buttonBg: rgb(33, 39, 46);
+    --rovalra-theme-buttonHover: rgb(33, 46, 63);
+    --rovalra-theme-buttonActive: rgb(4, 41, 78);
+    --rovalra-theme-buttonBorder: 0px solid rgba(255, 255, 255, 0.1);
+    --rovalra-theme-discordLink: #5479ff;
+    --rovalra-theme-githubLink: #0fff47;
+    --rovalra-theme-robloxLink: #d900ff;
+}

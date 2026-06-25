@@ -1,0 +1,47 @@
+style-test-element.dark-theme,
+:root:has(.dark-theme),
+:root.dark-theme,
+:root[color-scheme='dark'],
+:root:has(meta[name='theme-color'][content='#111216']) {
+    --rovalra-main-text-color: #f7f7f8;
+    --rovalra-secondary-text-color: #d5d7dd;
+    --rovalra-tertiary-text-color: rgb(188, 190, 200);
+    --rovalra-container-background-color: #272930;
+    --rovalra-playbutton-color: #335fff;
+    --rovalra-main-background-color: #121215;
+    --rovalra-button-background-color: rgba(208, 217, 251, 0.12);
+    --rovalra-border-color: rgba(255, 255, 255, 0.2);
+    --rovalra-gray-text-color: rgb(188, 190, 200);
+    --rovalra-profile-header-bg: #191a1f;
+    --rovalra-profile-main-gradient:
+        linear-gradient(
+            91deg,
+            rgba(18, 18, 21, 0.2) 5.83%,
+            rgba(255, 255, 255, 0.2) 47.76%,
+            rgba(18, 18, 21, 0.2) 93.93%
+        ),
+        var(--rovalra-profile-header-bg);
+    --rovalra-profile-overlay-gradient: linear-gradient(
+        rgba(18, 18, 21, 0) 0%,
+        rgba(18, 18, 21, 0.5) 45%,
+        rgba(18, 18, 21, 0.85) 70%,
+        #121215 90%,
+        #121215 100%
+    );
+    --rovalra-icon-blocked-color: #646668;
+
+    --rovalra-theme-content: rgb(39, 41, 48);
+    --rovalra-theme-text: rgb(213, 215, 221);
+    --rovalra-theme-header: white;
+    --rovalra-theme-sliderOn: #ddd;
+    --rovalra-theme-sliderOff: rgba(0, 0, 0, 0.1);
+    --rovalra-theme-sliderButton: white;
+    --rovalra-theme-buttonText: rgba(255, 255, 255, 0.9);
+    --rovalra-theme-buttonBg: rgb(45, 48, 51);
+    --rovalra-theme-buttonHover: rgb(57, 60, 64);
+    --rovalra-theme-buttonActive: rgb(69, 73, 77);
+    --rovalra-theme-buttonBorder: 0px solid rgba(255, 255, 255, 0.1);
+    --rovalra-theme-discordLink: #7289da;
+    --rovalra-theme-githubLink: #2dba4e;
+    --rovalra-theme-robloxLink: #c13ad9;
+}

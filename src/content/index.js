@@ -42,6 +42,7 @@ import { init as initKidsThemeText } from './features/sitewide/kidsThemeText.js'
 import { init as initSidebarCollapse } from './features/sitewide/sidebarCollapse.js';
 import { init as initRemoveDownloadButton } from './features/sitewide/removeDownloadButton.js';
 import { init as initPaymentMethodBonusItems } from './features/paymentmethods/bonusItems.js';
+import { init as initThemeSwitcher } from './features/sitewide/themeSwitcher.js';
 
 // Avatar
 import { init as initAvatarFilters } from './features/avatar/filters.js';
@@ -199,6 +200,7 @@ const featureRoutes = [
             initKidsThemeText,
             initSidebarCollapse,
             initRemoveDownloadButton,
+            initThemeSwitcher,
         ],
     },
     // pretty much just the 40% method
