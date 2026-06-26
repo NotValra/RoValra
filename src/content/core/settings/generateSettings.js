@@ -1087,6 +1087,8 @@ export function generateSettingsUI(section, REGIONS = {}) {
     for (const [settingName, setting] of Object.entries(
         sectionConfig.settings,
     )) {
+        if (setting.hidden) continue;
+
         fragment.appendChild(
             generateSingleSettingHTML(settingName, setting, REGIONS),
         );

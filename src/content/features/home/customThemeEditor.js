@@ -1,9 +1,12 @@
 import { createButton } from '../../core/ui/buttons.js';
 import { createOverlay } from '../../core/ui/overlay.js';
+import { createDropdown } from '../../core/ui/dropdown.js';
 import {
     handleSaveSettings,
     loadSettings,
 } from '../../core/settings/handlesettings.js';
+import { createStyledInput } from '../../core/ui/catalog/input.js';
+import { CUSTOM_THEME_SLOT_COUNT } from '../../core/themeCatalog.js';
 import {
     CUSTOM_THEME_FIELDS,
     DEFAULT_CUSTOM_THEME,
@@ -18,7 +21,9 @@ import {
 
 const ACTIVE_SESSION_KEY = 'rovalra_custom_theme_editor_active';
 const PENDING_HOME_OPEN_KEY = 'rovalra_custom_theme_editor_pending_home';
+const SELECTED_SLOT_SESSION_KEY = 'rovalra_custom_theme_editor_slot';
 const SAVE_DELAY_MS = 120;
+const MAX_THEME_NAME_LENGTH = 20;
 
 let initialized = false;
 let saveTimeout = null;
@@ -30,6 +35,11 @@ let editorAlphaInputs = new Map();
 let editorAlphaNumberInputs = new Map();
 let pendingThemeFieldKeys = new Set();
 let applyFrame = null;
+let customThemeSlots = [];
+let currentSlotIndex = 0;
+let slotDropdownApi = null;
+let slotDropdownItems = [];
+let slotNameInput = null;
 
 function isHomePath() {
     const normalizedPath = window.location.pathname
@@ -128,14 +138,119 @@ function colorToRgbText(hex, alpha) {
     return rgb.replace('rgb(', 'rgba(').replace(')', `, ${alpha / 100})`);
 }
 
+function getDefaultSlotName(index) {
+    return `Custom Theme ${index + 1}`;
+}
+
+function normalizeSlotName(value, index) {
+    const trimmed = String(value || '').trim();
+    return (trimmed || getDefaultSlotName(index)).slice(
+        0,
+        MAX_THEME_NAME_LENGTH,
+    );
+}
+
+function getEditableSlotName(value, index) {
+    return String(value ?? getDefaultSlotName(index)).slice(
+        0,
+        MAX_THEME_NAME_LENGTH,
+    );
+}
+
+function createDefaultSlot(index, theme = DEFAULT_CUSTOM_THEME) {
+    return {
+        slot: index,
+        name: getDefaultSlotName(index),
+        theme: sanitizeCustomTheme(theme),
+        created: false,
+    };
+}
+
+function normalizeSlots(settings) {
+    const slots = Array.from({ length: CUSTOM_THEME_SLOT_COUNT }, (_, index) =>
+        createDefaultSlot(
+            index,
+            index === 0
+                ? settings.customUserTheme || DEFAULT_CUSTOM_THEME
+                : DEFAULT_CUSTOM_THEME,
+        ),
+    );
+    const storedSlots = Array.isArray(settings.customUserThemeSlots)
+        ? settings.customUserThemeSlots
+        : [];
+
+    for (const [fallbackIndex, slot] of storedSlots.entries()) {
+        if (!slot || typeof slot !== 'object') continue;
+
+        const rawSlotIndex = Number(slot.slot ?? slot.index);
+        const slotIndex = Number.isFinite(rawSlotIndex)
+            ? Math.max(
+                  0,
+                  Math.min(
+                      CUSTOM_THEME_SLOT_COUNT - 1,
+                      Math.round(rawSlotIndex),
+                  ),
+              )
+            : fallbackIndex;
+        if (!slots[slotIndex]) continue;
+
+        slots[slotIndex] = {
+            slot: slotIndex,
+            name: normalizeSlotName(slot.name, slotIndex),
+            theme: sanitizeCustomTheme(slot.theme || slot.colors || slot),
+            created: true,
+        };
+    }
+
+    return slots;
+}
+
+function serializeCreatedSlots() {
+    return customThemeSlots
+        .filter((slot) => slot?.created)
+        .slice(0, CUSTOM_THEME_SLOT_COUNT)
+        .map((slot) => ({
+            slot: slot.slot,
+            name: normalizeSlotName(slot.name, slot.slot),
+            theme: sanitizeCustomTheme(slot.theme),
+        }));
+}
+
+function updateCurrentSlotFromEditor() {
+    const slot = customThemeSlots[currentSlotIndex];
+    if (!slot) return;
+
+    slot.created = true;
+    slot.name = getEditableSlotName(slotNameInput?.value || slot.name, slot.slot);
+    slot.theme = sanitizeCustomTheme(currentTheme);
+}
+
+async function persistCurrentSlot() {
+    updateCurrentSlotFromEditor();
+    const savedTheme = sanitizeCustomTheme(currentTheme);
+    await Promise.all([
+        handleSaveSettings('customUserTheme', savedTheme),
+        handleSaveSettings('customUserThemeSlots', serializeCreatedSlots()),
+    ]);
+}
+
 function scheduleSave() {
     if (saveTimeout) clearTimeout(saveTimeout);
     saveTimeout = setTimeout(() => {
         saveTimeout = null;
-        handleSaveSettings('customUserTheme', currentTheme).catch((error) => {
+        persistCurrentSlot().catch((error) => {
             console.error('RoValra: Failed to save custom theme.', error);
         });
     }, SAVE_DELAY_MS);
+}
+
+async function flushSave() {
+    if (saveTimeout) {
+        clearTimeout(saveTimeout);
+        saveTimeout = null;
+    }
+
+    await persistCurrentSlot();
 }
 
 function scheduleFieldApply(key) {
@@ -154,6 +269,7 @@ function scheduleFieldApply(key) {
 }
 
 async function activateCustomTheme() {
+    await handleSaveSettings('ThemeSwitcherEnabled', true);
     await handleSaveSettings('ThemeSwitcher', 'custom-user');
     await setTheme('custom-user');
     applyCustomTheme(currentTheme);
@@ -253,13 +369,54 @@ function syncInputs(themeValue) {
     applyCustomTheme(currentTheme);
 }
 
+function syncSlotDropdownLabels() {
+    for (const item of slotDropdownItems) {
+        const slotIndex = Number(item.value);
+        const slotValue = customThemeSlots[slotIndex];
+        item.label = slotValue
+            ? `Slot ${slotIndex + 1}: ${normalizeSlotName(
+                  slotValue.name,
+                  slotIndex,
+              )}`
+            : `Slot ${slotIndex + 1}`;
+    }
+
+    slotDropdownApi?.refresh();
+}
+
+function syncSlotControls({ syncNameInput = true } = {}) {
+    const slot = customThemeSlots[currentSlotIndex];
+    if (!slot) return;
+
+    if (syncNameInput && slotNameInput) {
+        slotNameInput.value = getEditableSlotName(slot.name, slot.slot);
+    }
+
+    syncSlotDropdownLabels();
+    slotDropdownApi?.setValue(String(currentSlotIndex));
+}
+
+async function selectSlot(slotIndex) {
+    const nextSlotIndex = Math.max(
+        0,
+        Math.min(CUSTOM_THEME_SLOT_COUNT - 1, Number(slotIndex) || 0),
+    );
+    if (nextSlotIndex === currentSlotIndex) return;
+
+    await flushSave();
+    currentSlotIndex = nextSlotIndex;
+    const slot = customThemeSlots[currentSlotIndex];
+    syncSlotControls();
+    syncInputs(slot?.theme || DEFAULT_CUSTOM_THEME);
+    await activateCustomTheme();
+}
+
 function createColorRow(field) {
     const row = document.createElement('div');
     row.className = 'rovalra-custom-theme-selector-row';
 
-    const label = document.createElement('label');
+    const label = document.createElement('div');
     label.className = 'rovalra-custom-theme-selector-label';
-    label.htmlFor = `rovalra-custom-theme-${field.key}`;
 
     const labelText = document.createElement('span');
     labelText.textContent = field.label;
@@ -278,6 +435,7 @@ function createColorRow(field) {
     const colorInput = document.createElement('input');
     colorInput.id = `rovalra-custom-theme-${field.key}`;
     colorInput.type = 'color';
+    colorInput.setAttribute('aria-label', field.label);
     colorInput.value = currentTheme[field.key] || field.default;
     colorInput.addEventListener('input', () => {
         setFieldValue(field.key, colorInput.value, {
@@ -289,11 +447,17 @@ function createColorRow(field) {
         syncSingleInput(field.key);
     });
 
-    const rgbInput = document.createElement('input');
-    rgbInput.type = 'text';
-    rgbInput.className = 'rovalra-custom-theme-selector-rgb-input';
-    rgbInput.placeholder = 'rgb(51, 95, 255)';
-    rgbInput.value = hexToRgbText(colorInput.value);
+    const { container: rgbInputContainer, input: rgbInput } =
+        createStyledInput({
+            id: `rovalra-custom-theme-${field.key}-rgb`,
+            label: 'RGB',
+            placeholder: 'rgb(51, 95, 255)',
+            value: hexToRgbText(colorInput.value),
+        });
+    rgbInputContainer.classList.add(
+        'rovalra-custom-theme-selector-rgb-input-wrapper',
+    );
+    rgbInput.classList.add('rovalra-custom-theme-selector-rgb-input');
     rgbInput.addEventListener('input', () => {
         setFieldValue(field.key, rgbInput.value);
     });
@@ -324,13 +488,24 @@ function createColorRow(field) {
         syncSingleInput(field.key);
     });
 
-    const alphaNumberInput = document.createElement('input');
+    const {
+        container: alphaNumberInputContainer,
+        input: alphaNumberInput,
+    } = createStyledInput({
+        id: `rovalra-custom-theme-${field.key}-alpha`,
+        label: '',
+        value: alphaInput.value,
+    });
     alphaNumberInput.type = 'number';
     alphaNumberInput.min = '0';
     alphaNumberInput.max = '100';
     alphaNumberInput.step = '1';
-    alphaNumberInput.className = 'rovalra-custom-theme-selector-alpha-input';
-    alphaNumberInput.value = alphaInput.value;
+    alphaNumberInput.classList.add(
+        'rovalra-custom-theme-selector-alpha-input',
+    );
+    alphaNumberInputContainer.classList.add(
+        'rovalra-custom-theme-selector-alpha-input-wrapper',
+    );
     alphaNumberInput.addEventListener('input', () => {
         setFieldAlpha(field.key, alphaNumberInput.value);
     });
@@ -342,7 +517,7 @@ function createColorRow(field) {
     alphaControls.append(
         alphaLabel,
         alphaInput,
-        alphaNumberInput,
+        alphaNumberInputContainer,
         alphaPercent,
     );
 
@@ -350,9 +525,80 @@ function createColorRow(field) {
     editorRgbInputs.set(field.key, rgbInput);
     editorAlphaInputs.set(field.key, alphaInput);
     editorAlphaNumberInputs.set(field.key, alphaNumberInput);
-    controls.append(colorInput, rgbInput, alphaControls);
+    controls.append(colorInput, rgbInputContainer, alphaControls);
     row.append(label, controls);
     return row;
+}
+
+function createSlotControls() {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'rovalra-custom-theme-slot-controls';
+
+    const slotField = document.createElement('div');
+    slotField.className = 'rovalra-custom-theme-slot-field';
+
+    const slotLabel = document.createElement('span');
+    slotLabel.className = 'rovalra-custom-theme-slot-label';
+    slotLabel.textContent = 'Save Slot';
+
+    slotDropdownItems = Array.from(
+        { length: CUSTOM_THEME_SLOT_COUNT },
+        (_, index) => ({
+            label: `Slot ${index + 1}: ${normalizeSlotName(
+                customThemeSlots[index]?.name,
+                index,
+            )}`,
+            value: String(index),
+        }),
+    );
+    slotDropdownApi = createDropdown({
+        items: slotDropdownItems,
+        initialValue: String(currentSlotIndex),
+        onValueChange: (value) => {
+            selectSlot(Number(value)).catch((error) => {
+                console.error(
+                    'RoValra: Failed to switch custom theme slot.',
+                    error,
+                );
+            });
+        },
+    });
+
+    slotField.append(slotLabel, slotDropdownApi.element);
+
+    const nameField = document.createElement('div');
+    nameField.className = 'rovalra-custom-theme-slot-field';
+
+    const nameLabel = document.createElement('span');
+    nameLabel.className = 'rovalra-custom-theme-slot-label';
+    nameLabel.textContent = 'Theme Name';
+
+    const { container: nameInputContainer, input: nameInput } =
+        createStyledInput({
+            id: 'rovalra-custom-theme-slot-name',
+            label: 'Theme Name',
+            value: normalizeSlotName(
+                customThemeSlots[currentSlotIndex]?.name,
+                currentSlotIndex,
+            ),
+        });
+    nameInput.maxLength = MAX_THEME_NAME_LENGTH;
+    nameInputContainer.classList.add(
+        'rovalra-custom-theme-slot-name-wrapper',
+    );
+    nameInput.addEventListener('input', () => {
+        if (nameInput.value.length > MAX_THEME_NAME_LENGTH) {
+            nameInput.value = nameInput.value.slice(0, MAX_THEME_NAME_LENGTH);
+        }
+        updateCurrentSlotFromEditor();
+        syncSlotControls({ syncNameInput: false });
+        scheduleSave();
+    });
+    slotNameInput = nameInput;
+
+    nameField.append(nameLabel, nameInputContainer);
+    wrapper.append(slotField, nameField);
+    return wrapper;
 }
 
 function createEditorBody() {
@@ -395,7 +641,7 @@ function createEditorBody() {
         }
     }
 
-    body.append(intro, controls);
+    body.append(intro, createSlotControls(), controls);
     return body;
 }
 
@@ -405,30 +651,56 @@ function closeEditor() {
     close();
 }
 
-async function openEditor({ routeHome = false } = {}) {
+function getRequestedSlotIndex(slotIndex) {
+    const number = Number(slotIndex);
+    if (!Number.isFinite(number)) return 0;
+    return Math.max(
+        0,
+        Math.min(CUSTOM_THEME_SLOT_COUNT - 1, Math.round(number)),
+    );
+}
+
+async function openEditor({ routeHome = false, slotIndex = 0 } = {}) {
+    const requestedSlotIndex = getRequestedSlotIndex(slotIndex);
+
     if (routeHome && !isHomePath()) {
         sessionStorage.setItem(ACTIVE_SESSION_KEY, 'true');
         sessionStorage.setItem(PENDING_HOME_OPEN_KEY, 'true');
+        sessionStorage.setItem(
+            SELECTED_SLOT_SESSION_KEY,
+            String(requestedSlotIndex),
+        );
         window.location.href = '/home';
         return;
     }
 
     if (overlayHandle) {
-        syncInputs(currentTheme);
+        if (requestedSlotIndex !== currentSlotIndex) {
+            selectSlot(requestedSlotIndex).catch((error) => {
+                console.error(
+                    'RoValra: Failed to switch custom theme slot.',
+                    error,
+                );
+            });
+        } else {
+            syncInputs(currentTheme);
+        }
         return;
     }
 
     sessionStorage.setItem(ACTIVE_SESSION_KEY, 'true');
 
     const settings = await loadSettings();
-    currentTheme = sanitizeCustomTheme(
-        settings.customUserTheme || DEFAULT_CUSTOM_THEME,
-    );
+    customThemeSlots = normalizeSlots(settings);
+    currentSlotIndex = requestedSlotIndex;
+    currentTheme = sanitizeCustomTheme(customThemeSlots[currentSlotIndex].theme);
     await activateCustomTheme();
 
     const resetButton = createButton('Reset', 'secondary', {
         onClick: () => {
             syncInputs(DEFAULT_CUSTOM_THEME);
+            updateCurrentSlotFromEditor();
+            syncSlotControls();
             scheduleSave();
         },
     });
@@ -446,11 +718,16 @@ async function openEditor({ routeHome = false } = {}) {
         onClose: () => {
             sessionStorage.removeItem(ACTIVE_SESSION_KEY);
             sessionStorage.removeItem(PENDING_HOME_OPEN_KEY);
+            sessionStorage.removeItem(SELECTED_SLOT_SESSION_KEY);
             overlayHandle = null;
             editorInputs = new Map();
             editorRgbInputs = new Map();
             editorAlphaInputs = new Map();
             editorAlphaNumberInputs = new Map();
+            slotDropdownApi?.destroy();
+            slotDropdownApi = null;
+            slotDropdownItems = [];
+            slotNameInput = null;
         },
     });
     overlayHandle.overlay.classList.add(
@@ -468,15 +745,20 @@ function maybeRestoreOpenEditor() {
     if (pendingHomeOpen && !isHomePath()) return;
 
     sessionStorage.removeItem(PENDING_HOME_OPEN_KEY);
-    openEditor();
+    openEditor({
+        slotIndex: sessionStorage.getItem(SELECTED_SLOT_SESSION_KEY),
+    });
 }
 
 export function init() {
     if (!initialized) {
         initialized = true;
 
-        document.addEventListener('rovalra:openCustomThemeEditor', () => {
-            openEditor({ routeHome: true });
+        document.addEventListener('rovalra:openCustomThemeEditor', (event) => {
+            openEditor({
+                routeHome: true,
+                slotIndex: event.detail?.slotIndex ?? 0,
+            });
         });
 
         chrome.storage.onChanged.addListener((changes, namespace) => {

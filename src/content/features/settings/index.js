@@ -2618,6 +2618,8 @@ export async function handleSearch(event) {
         for (const [settingName, settingDef] of Object.entries(
             category.settings,
         )) {
+            if (settingDef.hidden) continue;
+
             const label = (
                 Array.isArray(settingDef.label)
                     ? settingDef.label.join(' ')
@@ -2647,6 +2649,8 @@ export async function handleSearch(event) {
                 for (const [childName, childDef] of Object.entries(
                     settingDef.childSettings,
                 )) {
+                    if (childDef.hidden) continue;
+
                     const childLabel = (
                         Array.isArray(childDef.label)
                             ? childDef.label.join(' ')
