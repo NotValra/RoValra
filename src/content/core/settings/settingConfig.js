@@ -1581,7 +1581,7 @@ export const SETTINGS_CONFIG = {
                     'Allows RoValra to apply themes selected from the theme gallery.',
                 ],
                 type: 'checkbox',
-                default: true,
+                default: false,
                 contributors: ['1564574922', '447170745'],
                 beta: 'Can be slightly buggy',
                 keepChildSettingsEnabled: true,
