@@ -8,6 +8,7 @@ import { createOverlay } from '../../core/ui/overlay.js';
 import { getAssets } from '../../core/assets.js';
 import { callRobloxApi, callRobloxApiJson } from '../../core/api.js';
 import { addTooltip } from '../../core/ui/tooltip.js';
+import { createStyledInput } from '../../core/ui/catalog/input.js';
 import { unzipSync } from 'fflate';
 import {
     CATALOG_ITEM_TYPES,
@@ -3157,11 +3158,11 @@ async function openGuiViewer(
     toolbar.style.display = 'flex';
     toolbar.style.gap = '8px';
     toolbar.style.padding = '8px';
-    toolbar.style.borderBottom = '1px solid #2d2d2d';
+    toolbar.style.borderBottom = '1px solid var(--rovalra-exp-border)';
     toolbar.style.flexShrink = '0';
     toolbar.style.alignItems = 'center';
-    toolbar.style.background = '#1e1e1e';
-    toolbar.style.color = '#fff';
+    toolbar.style.background = 'var(--rovalra-exp-header)';
+    toolbar.style.color = 'var(--rovalra-exp-text)';
 
     const closeBtn = document.createElement('button');
     closeBtn.type = 'button';
@@ -3263,7 +3264,7 @@ async function openGuiViewer(
 
     const loadingText = document.createElement('div');
     loadingText.textContent = ts('createRoblox.explorer.loadingPreview');
-    loadingText.style.color = '#fff';
+    loadingText.style.color = 'var(--rovalra-exp-text)';
     loadingText.style.display = 'flex';
     loadingText.style.height = '100%';
     loadingText.style.alignItems = 'center';
@@ -3434,17 +3435,20 @@ function buildExplorer(roots, expandAll) {
     treePane.style.display = 'flex';
     treePane.style.flexDirection = 'column';
     treePane.style.overflow = 'hidden';
-    treePane.style.borderRight = '1px solid #2d2d2d';
+    treePane.style.borderRight = '1px solid var(--rovalra-exp-border)';
 
     // Search bar container for the explorer tree
     const treeSearchContainer = document.createElement('div');
     treeSearchContainer.className = 'rovalra-explorer-search-container';
 
-    const treeSearchInput = document.createElement('input');
+    const { container: treeSearchWrapper, input: treeSearchInput } =
+        createStyledInput({
+            id: 'rovalra-explorer-tree-search-input',
+            label: ts('createRoblox.explorer.searchInstances'),
+        });
     treeSearchInput.type = 'search';
-    treeSearchInput.placeholder = ts('createRoblox.explorer.searchInstances');
-    treeSearchInput.className = 'rovalra-explorer-search-input';
-    treeSearchContainer.appendChild(treeSearchInput);
+    treeSearchWrapper.classList.add('rovalra-explorer-search-input');
+    treeSearchContainer.appendChild(treeSearchWrapper);
     treePane.appendChild(treeSearchContainer);
 
     // Scrollable tree content area
@@ -3459,8 +3463,8 @@ function buildExplorer(roots, expandAll) {
     previewPane.style.flex = '2 1 50%';
     previewPane.style.minWidth = '300px';
     previewPane.style.height = '100%';
-    previewPane.style.borderLeft = '1px solid #2d2d2d';
-    previewPane.style.borderRight = '1px solid #2d2d2d';
+    previewPane.style.borderLeft = '1px solid var(--rovalra-exp-border)';
+    previewPane.style.borderRight = '1px solid var(--rovalra-exp-border)';
     previewPane.style.overflow = 'hidden';
 
     const propsPane = document.createElement('div');
@@ -3621,15 +3625,16 @@ function buildExplorer(roots, expandAll) {
         propsSearchContainer.className =
             'rovalra-explorer-search-container rovalra-explorer-props-search';
 
-        const propsSearchInput = document.createElement('input');
+        const { container: propsSearchWrapper, input: propsSearchInput } =
+            createStyledInput({
+                id: 'rovalra-explorer-props-search-input',
+                label: ts('createRoblox.explorer.searchProperties'),
+                value: propsSearchQuery,
+            });
         propsSearchInput.type = 'search';
-        propsSearchInput.placeholder = ts(
-            'createRoblox.explorer.searchProperties',
-        );
-        propsSearchInput.value = propsSearchQuery;
-        propsSearchInput.className = 'rovalra-explorer-search-input';
+        propsSearchWrapper.classList.add('rovalra-explorer-search-input');
 
-        propsSearchContainer.appendChild(propsSearchInput);
+        propsSearchContainer.appendChild(propsSearchWrapper);
         propsPane.appendChild(propsSearchContainer);
 
         if (keys.length === 0) {

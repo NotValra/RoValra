@@ -57,7 +57,7 @@
 }
 
 .rovalra-catalog-input-fieldset {
-    border: 1px solid rgb(66 65 65 / 45%);
+    border: 1px solid var(--rovalra-border-color);
     position: absolute;
     top: -5px;
     height: calc(100% + 5px);
@@ -92,7 +92,7 @@
 .rovalra-catalog-input-label.Mui-focused {
 }
 .rovalra-catalog-input-base.Mui-focused .rovalra-catalog-input-fieldset {
-    border: 2px solid rgb(51, 95, 255);
+    border: 2px solid var(--rovalra-playbutton-color);
 }
 .rovalra-catalog-input-label.MuiInputLabel-shrink
     ~ .rovalra-catalog-input-base

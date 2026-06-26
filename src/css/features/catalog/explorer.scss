@@ -85,8 +85,7 @@
 .rovalra-explorer-search-container {
     flex-shrink: 0;
     padding: 8px;
-    background: #1e1e1e;
-    border-bottom: 1px solid #2d2d2d;
+    border-bottom: 1px solid var(--rovalra-exp-border);
 }
 
 .rovalra-explorer-props-search {
@@ -96,15 +95,28 @@
 }
 
 .rovalra-explorer-search-input {
-    box-sizing: border-box;
     width: 100%;
-    padding: 6px 10px;
-    background: #2a2a2a;
-    color: #fff;
-    border: 1px solid #3a3a3a;
-    border-radius: 4px;
-    font-size: 13px;
-    outline: none;
+
+    .rovalra-catalog-input-base {
+        min-height: 34px;
+        border-radius: 4px;
+    }
+
+    .rovalra-catalog-input-field {
+        min-height: 34px;
+        padding: 6px 10px;
+        font-size: 13px !important;
+    }
+
+    .rovalra-catalog-input-label {
+        top: 6px;
+        left: 10px;
+        font-size: 13px;
+    }
+
+    .rovalra-catalog-input-label.MuiInputLabel-shrink {
+        transform: translate(0, -13px) scale(0.75);
+    }
 }
 
 .rovalra-explorer-tree-content {
