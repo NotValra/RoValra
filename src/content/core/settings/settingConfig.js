@@ -93,7 +93,8 @@ export const SETTINGS_CONFIG = {
                 description:
                     'Adds a bonus item selector to eligible Robux purchases of 2,000 Robux or more.',
                 type: 'checkbox',
-                default: true,
+                default: false,
+                beta: 'Currently missing gamepasses.',
             },
             EnableItemDependencies: {
                 label: 'Item Dependencies',
