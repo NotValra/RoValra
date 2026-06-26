@@ -7,7 +7,7 @@ import {
 } from '../../core/themeCustom.js';
 
 /**
- * @typedef {{StorageKey: string, PrimaryClass: string, ClassList?: string[] | undefined}} Theme
+ * @typedef {{StorageKey: string, PrimaryClass: string | null, ClassList?: string[] | undefined}} Theme
  * @typedef {'default' | 'builtin-light' | 'builtin-dark' | 'custom-nighty' | 'custom-sunset' | 'custom-highcontrast' | 'custom-user'} ThemeKey
  */
 
@@ -19,7 +19,7 @@ function GetClassList(theme) {
     return classList.filter(Boolean);  // remove empty strings
 }
 
-/** @param {ThemeKey} key  @returns {Theme} The theme with the corresponding storage key */
+/** @param {ThemeKey} key  @returns {Theme | undefined} The theme with the corresponding storage key */
 function getThemeByStorageKey(key) {
     for (const theme of Object.values(ThemeData)) {
         if (theme.StorageKey === key) return theme;
