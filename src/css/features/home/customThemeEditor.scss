@@ -89,9 +89,29 @@
     width: 42px;
     height: 36px;
     padding: 0;
-    border: none;
-    background: transparent;
+    border: 1px solid rgb(66 65 65 / 45%);
+    border-radius: 6px;
+    background: currentColor;
     cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    overflow: hidden;
+}
+
+.rovalra-custom-theme-selector-controls
+    input[type='color']::-webkit-color-swatch-wrapper {
+    padding: 0;
+}
+
+.rovalra-custom-theme-selector-controls
+    input[type='color']::-webkit-color-swatch {
+    border: 0;
+    border-radius: 5px;
+}
+
+.rovalra-custom-theme-selector-controls input[type='color']::-moz-color-swatch {
+    border: 0;
+    border-radius: 5px;
 }
 
 .rovalra-custom-theme-selector-alpha-controls {
@@ -114,38 +134,64 @@
     accent-color: var(--rovalra-playbutton-color);
 }
 
-.rovalra-custom-theme-selector-alpha-input {
+.rovalra-custom-theme-selector-alpha-input-wrapper {
     width: 54px;
-    height: 30px;
-    padding: 5px 7px;
-    border: none;
-    border-radius: 4px;
-    background: var(--rovalra-button-background-color);
-    color: var(--rovalra-main-text-color);
-    font: inherit;
-    font-size: 12px;
 }
 
-.rovalra-custom-theme-selector-rgb-input {
+.rovalra-custom-theme-selector-rgb-input-wrapper,
+.rovalra-custom-theme-selector-alpha-input-wrapper {
     min-width: 0;
-    height: 36px;
-    padding: 7px 9px;
-    border: none;
-    border-radius: 4px;
-    background: var(--rovalra-button-background-color);
-    color: var(--rovalra-main-text-color);
-    font: inherit;
-    font-size: 13px;
+
+    .rovalra-catalog-input-base {
+        min-height: 36px;
+        border-radius: 6px;
+        background: var(--rovalra-button-background-color);
+    }
+
+    .rovalra-catalog-input-label {
+        top: 7px;
+        left: 10px;
+        font-size: 13px;
+    }
+
+    .rovalra-catalog-input-field {
+        min-height: 36px;
+        padding: 7px 10px;
+        font-size: 13px !important;
+    }
+
+    .rovalra-catalog-input-label.MuiInputLabel-shrink {
+        transform: translate(0, -15px) scale(0.75);
+    }
 }
 
-.rovalra-custom-theme-selector-rgb-input:focus {
-    outline: none;
-    box-shadow: 0 0 0 2px var(--rovalra-playbutton-color);
+.rovalra-custom-theme-selector-alpha-input-wrapper {
+    .rovalra-catalog-input-base {
+        min-height: 30px;
+    }
+
+    .rovalra-catalog-input-label {
+        top: 4px;
+        left: 8px;
+        font-size: 12px;
+    }
+
+    .rovalra-catalog-input-field {
+        min-height: 30px;
+        padding: 5px 7px;
+        text-align: center;
+        font-size: 12px !important;
+    }
+
+    .rovalra-catalog-input-label.MuiInputLabel-shrink {
+        transform: translate(0, -13px) scale(0.75);
+    }
 }
 
-.rovalra-custom-theme-selector-alpha-input:focus {
-    outline: none;
-    box-shadow: 0 0 0 2px var(--rovalra-playbutton-color);
+.rovalra-custom-theme-selector-input-invalid
+    ~ .rovalra-catalog-input-fieldset {
+    border-color: #d93838 !important;
+    border-width: 2px;
 }
 
 .rovalra-custom-theme-selector-input-invalid {

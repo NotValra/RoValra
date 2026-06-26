@@ -4,6 +4,7 @@ import {
     handleSaveSettings,
     loadSettings,
 } from '../../core/settings/handlesettings.js';
+import { createStyledInput } from '../../core/ui/catalog/input.js';
 import {
     CUSTOM_THEME_FIELDS,
     DEFAULT_CUSTOM_THEME,
@@ -257,9 +258,8 @@ function createColorRow(field) {
     const row = document.createElement('div');
     row.className = 'rovalra-custom-theme-selector-row';
 
-    const label = document.createElement('label');
+    const label = document.createElement('div');
     label.className = 'rovalra-custom-theme-selector-label';
-    label.htmlFor = `rovalra-custom-theme-${field.key}`;
 
     const labelText = document.createElement('span');
     labelText.textContent = field.label;
@@ -278,6 +278,7 @@ function createColorRow(field) {
     const colorInput = document.createElement('input');
     colorInput.id = `rovalra-custom-theme-${field.key}`;
     colorInput.type = 'color';
+    colorInput.setAttribute('aria-label', field.label);
     colorInput.value = currentTheme[field.key] || field.default;
     colorInput.addEventListener('input', () => {
         setFieldValue(field.key, colorInput.value, {
@@ -289,11 +290,17 @@ function createColorRow(field) {
         syncSingleInput(field.key);
     });
 
-    const rgbInput = document.createElement('input');
-    rgbInput.type = 'text';
-    rgbInput.className = 'rovalra-custom-theme-selector-rgb-input';
-    rgbInput.placeholder = 'rgb(51, 95, 255)';
-    rgbInput.value = hexToRgbText(colorInput.value);
+    const { container: rgbInputContainer, input: rgbInput } =
+        createStyledInput({
+            id: `rovalra-custom-theme-${field.key}-rgb`,
+            label: 'RGB',
+            placeholder: 'rgb(51, 95, 255)',
+            value: hexToRgbText(colorInput.value),
+        });
+    rgbInputContainer.classList.add(
+        'rovalra-custom-theme-selector-rgb-input-wrapper',
+    );
+    rgbInput.classList.add('rovalra-custom-theme-selector-rgb-input');
     rgbInput.addEventListener('input', () => {
         setFieldValue(field.key, rgbInput.value);
     });
@@ -324,13 +331,24 @@ function createColorRow(field) {
         syncSingleInput(field.key);
     });
 
-    const alphaNumberInput = document.createElement('input');
+    const {
+        container: alphaNumberInputContainer,
+        input: alphaNumberInput,
+    } = createStyledInput({
+        id: `rovalra-custom-theme-${field.key}-alpha`,
+        label: '',
+        value: alphaInput.value,
+    });
     alphaNumberInput.type = 'number';
     alphaNumberInput.min = '0';
     alphaNumberInput.max = '100';
     alphaNumberInput.step = '1';
-    alphaNumberInput.className = 'rovalra-custom-theme-selector-alpha-input';
-    alphaNumberInput.value = alphaInput.value;
+    alphaNumberInput.classList.add(
+        'rovalra-custom-theme-selector-alpha-input',
+    );
+    alphaNumberInputContainer.classList.add(
+        'rovalra-custom-theme-selector-alpha-input-wrapper',
+    );
     alphaNumberInput.addEventListener('input', () => {
         setFieldAlpha(field.key, alphaNumberInput.value);
     });
@@ -342,7 +360,7 @@ function createColorRow(field) {
     alphaControls.append(
         alphaLabel,
         alphaInput,
-        alphaNumberInput,
+        alphaNumberInputContainer,
         alphaPercent,
     );
 
@@ -350,7 +368,7 @@ function createColorRow(field) {
     editorRgbInputs.set(field.key, rgbInput);
     editorAlphaInputs.set(field.key, alphaInput);
     editorAlphaNumberInputs.set(field.key, alphaNumberInput);
-    controls.append(colorInput, rgbInput, alphaControls);
+    controls.append(colorInput, rgbInputContainer, alphaControls);
     row.append(label, controls);
     return row;
 }
