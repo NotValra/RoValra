@@ -38,7 +38,7 @@ import { initializeModernIcons as initModernIcons } from './features/sitewide/mo
 import { init as initLoginBanner } from './features/scamprevention/loginBanner.js';
 import { init as initLessPlus } from './features/sitewide/lessPlus.js';
 import { init as initKidsTheme } from './features/sitewide/kidsTheme.js';
-import { init as initKidsThemeText } from './features/sitewide/kidsThemeText.js'
+import { init as initKidsThemeText } from './features/sitewide/kidsThemeText.js';
 import { init as initSidebarCollapse } from './features/sitewide/sidebarCollapse.js';
 import { init as initRemoveDownloadButton } from './features/sitewide/removeDownloadButton.js';
 import { init as initPaymentMethodBonusItems } from './features/paymentmethods/bonusItems.js';
@@ -101,7 +101,7 @@ import { init as initBulkLeaveGroups } from './features/groups/bulkLeave.js';
 import { init as initPlaceVisits } from './features/groups/placevisits.js';
 import { init as initGroupCreateDate } from './features/groups/createDate.js';
 // Plus
-import { init as initRobloxPlusStats } from './features/plus/stats.js'
+import { init as initRobloxPlusStats } from './features/plus/stats.js';
 // Profile
 import { init as initDonationLink } from './features/profile/header/donationlink.js';
 import { init as initRap } from './features/profile/header/rap.js';
@@ -144,6 +144,7 @@ import { init as initAccurateContinue } from './features/home/accurateContinue.j
 import { init as initHomeLayout } from './features/home/homeLayout.js';
 import { init as initCustomThemeEditor } from './features/home/customThemeEditor.js';
 import { init as initUnderratedGamesHome } from './features/home/underratedGames.js';
+import { init as initThemeCatalogPage } from './features/themes/themeCatalogPage.js';
 // create
 import { init as initCreateDownload } from './features/create.roblox.com/download.js';
 import { init as initCatalogExplorer } from './features/catalog/explorer.js';
@@ -203,6 +204,7 @@ const featureRoutes = [
             initRemoveDownloadButton,
             initThemeSwitcher,
             initCustomThemeEditor,
+            initThemeCatalogPage,
         ],
     },
     // pretty much just the 40% method
@@ -303,9 +305,7 @@ const featureRoutes = [
     // Roblox Plus Page
     {
         paths: ['/plus'],
-        features: [
-            initRobloxPlusStats,
-        ],
+        features: [initRobloxPlusStats],
     },
     // User profile pages
     {
@@ -446,7 +446,7 @@ async function initializePage() {
     const startFeatures = async () => {
         const featureStartTime = performance.now();
 
-        await t('__i18n_ready__').catch(() => { });
+        await t('__i18n_ready__').catch(() => {});
         await refreshRemoteSettingLocks().catch((error) =>
             console.error(
                 'RoValra: Failed to refresh remote settings config.',
@@ -463,8 +463,8 @@ async function initializePage() {
             `%cRoValra Initialized`,
             'font-size: 1.5em; color: #FF4500;',
             `\n(Observer: ${observerStatus})` +
-            `\nFeature Load Time: ${(endTime - featureStartTime).toFixed(2)}ms` +
-            `\nTotal Load Time: ${(endTime - startTime).toFixed(2)}ms`,
+                `\nFeature Load Time: ${(endTime - featureStartTime).toFixed(2)}ms` +
+                `\nTotal Load Time: ${(endTime - startTime).toFixed(2)}ms`,
         );
     };
 
@@ -508,12 +508,12 @@ function setupUrlChangeListeners() {
     const originalPushState = history.pushState;
     const originalReplaceState = history.replaceState;
 
-    history.pushState = function(...args) {
+    history.pushState = function (...args) {
         originalPushState.apply(this, args);
         handleUrlChange();
     };
 
-    history.replaceState = function(...args) {
+    history.replaceState = function (...args) {
         originalReplaceState.apply(this, args);
         handleUrlChange();
     };

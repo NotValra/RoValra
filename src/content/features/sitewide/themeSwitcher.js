@@ -98,6 +98,7 @@ export async function setTheme(themeKey) {
 }
 
 async function PrepareRenderedTheme() {
+    const themeSwitcherEnabled = await settings.ThemeSwitcherEnabled;
     const theme = await settings.ThemeSwitcher;
     await loadThemeData();
 
@@ -107,6 +108,16 @@ async function PrepareRenderedTheme() {
 
         if (document.body.matches('.dark-theme'))
             OriginalTheme = 'builtin-dark';
+    }
+
+    if (!storageListenerRegistered) {
+        storageListenerRegistered = true;
+        chrome.storage.local.onChanged.addListener(PrepareRenderedTheme);
+    }
+
+    if (!themeSwitcherEnabled) {
+        await setTheme(OriginalTheme);
+        return;
     }
 
     switch (theme) {
@@ -127,10 +138,10 @@ async function PrepareRenderedTheme() {
             console.error(`(RoValra) Theme Switcher: Unknown theme "${theme}"`);
     }
 
-    if (!storageListenerRegistered) {
-        storageListenerRegistered = true;
-        chrome.storage.local.onChanged.addListener(PrepareRenderedTheme);
-    }
+}
+
+export async function refreshThemeSwitcher() {
+    await PrepareRenderedTheme();
 }
 
 export function init() {

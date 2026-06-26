@@ -1575,12 +1575,50 @@ export const SETTINGS_CONFIG = {
     Miscellaneous: {
         title: 'Miscellaneous',
         settings: {
-            ThemeSwitcher: {
+            ThemeSwitcherEnabled: {
                 label: 'Theme Switcher',
                 description: [
-                    'Allows you to manually switch themes from within RoValra.',
-                    'This also supports custom themes provided by RoValra.',
+                    'Allows RoValra to apply themes selected from the theme gallery.',
                 ],
+                type: 'checkbox',
+                default: true,
+                contributors: ['1564574922'],
+                keepChildSettingsEnabled: true,
+                childSettings: {
+                    openThemeCatalog: {
+                        label: 'Theme Gallery',
+                        description:
+                            'Browse RoValra themes and preview them before applying one.',
+                        type: 'button',
+                        buttonText: 'Browse Themes',
+                        event: 'rovalra:openThemesPage',
+                    },
+                    openCustomThemeEditor: {
+                        label: 'Custom Theme Builder',
+                        description: [
+                            'Opens the editor on the real Roblox home page so you can customize the theme against the actual UI.',
+                            'Your custom theme appears in the Yours tab on the theme gallery.',
+                        ],
+                        type: 'button',
+                        buttonText: 'Open Editor',
+                        event: 'rovalra:openCustomThemeEditor',
+                    },
+                    customUserTheme: {
+                        label: 'Custom Theme Colors',
+                        type: 'themeEditor',
+                        default: DEFAULT_CUSTOM_THEME,
+                        hidden: true,
+                    },
+                    customUserThemeSlots: {
+                        label: 'Custom Theme Slots',
+                        type: 'themeSlots',
+                        default: [],
+                        hidden: true,
+                    },
+                },
+            },
+            ThemeSwitcher: {
+                label: 'Selected Theme',
                 type: 'select',
                 options: [
                     { label: 'Default', value: 'default' },
@@ -1616,29 +1654,7 @@ export const SETTINGS_CONFIG = {
                     },
                 ],
                 default: 'default',
-                contributors: ['1564574922'],
-                childSettings: {
-                    openCustomThemeEditor: {
-                        label: 'Custom Theme Builder',
-                        description: [
-                            'Opens the editor on the real Roblox home page so you can customize the theme against the actual UI.',
-                            'Choose "Custom" in Theme Switcher to apply this theme.',
-                        ],
-                        type: 'button',
-                        buttonText: 'Open Editor',
-                        event: 'rovalra:openCustomThemeEditor',
-                        condition: {
-                            parent: 'ThemeSwitcher',
-                            value: 'custom-user',
-                        },
-                    },
-                    customUserTheme: {
-                        label: 'Custom Theme Colors',
-                        type: 'themeEditor',
-                        default: DEFAULT_CUSTOM_THEME,
-                        hidden: true,
-                    },
-                },
+                hidden: true,
             },
 
             ExplorerEnabled: {

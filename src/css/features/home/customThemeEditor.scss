@@ -35,6 +35,58 @@
     line-height: 1.35;
 }
 
+.rovalra-custom-theme-slot-controls {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+    padding: 12px;
+    border: 1px solid var(--rovalra-border-color);
+    border-radius: 8px;
+}
+
+.rovalra-custom-theme-slot-field {
+    display: grid;
+    gap: 6px;
+}
+
+.rovalra-custom-theme-slot-label {
+    color: var(--rovalra-secondary-text-color);
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.rovalra-custom-theme-slot-field .rovalra-dropdown-container,
+.rovalra-custom-theme-slot-field .rovalra-dropdown-trigger {
+    width: 100%;
+}
+
+.rovalra-custom-theme-slot-name-wrapper {
+    min-width: 0;
+
+    .rovalra-catalog-input-base {
+        min-height: 38px;
+        border-radius: 6px;
+        background: var(--rovalra-button-background-color);
+    }
+
+    .rovalra-catalog-input-label {
+        top: 8px;
+        left: 10px;
+        font-size: 13px;
+    }
+
+    .rovalra-catalog-input-field {
+        min-height: 38px;
+        padding: 8px 10px;
+        font-size: 13px !important;
+    }
+
+    .rovalra-catalog-input-label.MuiInputLabel-shrink {
+        transform: translate(0, -15px) scale(0.75);
+    }
+}
+
 .rovalra-custom-theme-selector-list {
     display: grid;
     gap: 9px;

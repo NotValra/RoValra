@@ -23,6 +23,7 @@ let gradientSyncTimeout = null;
 let donatorTierPromise = null;
 const colorLiveSaveTimeouts = new Map();
 const FEATURE_STATUS_PROMPT_ACK_KEY = 'featureStatusPromptAcknowledged';
+const CUSTOM_THEME_NAME_MAX_LENGTH = 20;
 
 const isUnavailableSetting = (config) =>
     hasOwn(config, 'locked') || hasOwn(config, 'deprecated');
@@ -40,6 +41,41 @@ const getFeatureStatusPromptPills = () =>
         '<span class="rovalra-pill beta">Beta</span>',
         '<span class="rovalra-pill deprecated">Deprecated</span>',
     ].join('');
+
+function sanitizeCustomThemeSlots(value) {
+    if (!Array.isArray(value)) return [];
+
+    const slotsByIndex = new Map();
+
+    value
+        .slice(0, 5)
+        .forEach((slot, fallbackIndex) => {
+            const source = slot && typeof slot === 'object' ? slot : {};
+            if (!slot || typeof slot !== 'object') return;
+
+            const rawSlotIndex = Number(source.slot ?? source.index);
+            const slotIndex = Number.isFinite(rawSlotIndex)
+                ? Math.max(0, Math.min(4, Math.round(rawSlotIndex)))
+                : fallbackIndex;
+            const name =
+                typeof source.name === 'string' && source.name.trim()
+                    ? sanitizeString(source.name).slice(
+                          0,
+                          CUSTOM_THEME_NAME_MAX_LENGTH,
+                      )
+                    : `Custom Theme ${slotIndex + 1}`;
+            const themeSource = source.theme || source.colors || source;
+
+            slotsByIndex.set(slotIndex, {
+                slot: slotIndex,
+                name,
+                theme: sanitizeCustomTheme(themeSource),
+            });
+        });
+
+    return [...slotsByIndex.values()]
+        .sort((left, right) => left.slot - right.slot);
+}
 
 const shouldShowFeatureStatusPrompt = async (config) => {
     if (!isStatusLabeledOffByDefaultSetting(config)) return false;
@@ -409,6 +445,7 @@ export const handleSaveSettings = async (settingName, value) => {
                             if (settingConfig.options === 'REGIONS') {
                                 validValues = ['AUTO', ...Object.keys(REGIONS)];
                             } else if (settingConfig.options === 'BORDERS') {
+                                validValues = [];
                             } else if (Array.isArray(settingConfig.options)) {
                                 validValues = settingConfig.options.map(
                                     (opt) =>
@@ -500,6 +537,10 @@ export const handleSaveSettings = async (settingName, value) => {
 
                 case 'themeEditor':
                     sanitizedValue = sanitizeCustomTheme(value);
+                    break;
+
+                case 'themeSlots':
+                    sanitizedValue = sanitizeCustomThemeSlots(value);
                     break;
             }
         }
@@ -1190,7 +1231,11 @@ export function updateConditionalSettingsVisibility(
                         settingsToHide.add(childName);
                         settingsToDisable.add(childName);
                     }
-                } else if (config.type === 'checkbox' && !isEnabled) {
+                } else if (
+                    config.type === 'checkbox' &&
+                    !config.keepChildSettingsEnabled &&
+                    !isEnabled
+                ) {
                     settingsToDisable.add(childName);
                 }
             }
