@@ -1,5 +1,5 @@
 import { settings } from "../../core/settings/getSettings";
-import { debugVerbose } from "../../core/debug";
+import { debugVerbose } from "../../core/debugManager.js";
 
 const plusTypeEnum = Object.freeze({
     Full: 0,

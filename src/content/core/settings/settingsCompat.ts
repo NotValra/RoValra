@@ -1,4 +1,4 @@
-import { debugVerbose } from "../debug";
+import { debugVerbose } from "../debugManager.js";
 import { settings } from "./getSettings";
 
 chrome.runtime.sendMessage({ type: "settingsCompatGetRes" }, (message) => {

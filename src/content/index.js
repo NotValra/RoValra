@@ -1,4 +1,4 @@
-import "./core/logging.js";
+import './core/debugManager.js';
 
 import { initializeObserver, startObserving } from './core/observer.js';
 import { detectTheme, dispatchThemeEvent } from './core/theme.js';
