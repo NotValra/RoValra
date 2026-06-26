@@ -1582,7 +1582,8 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
-                contributors: ['1564574922'],
+                contributors: ['1564574922', '447170745'],
+                beta: 'Can be slightly buggy',
                 keepChildSettingsEnabled: true,
                 childSettings: {
                     openThemeCatalog: {
