@@ -6,10 +6,9 @@
     --color-surface-200:   rgb(10, 10, 10) !important;
     --color-surface-300:     rgb(20, 20, 20) !important;
 
-    *:not(.radius-circle) > *:not(.rovalra-header-badge):not(.avatar-card-image) > img {
+    *:not(.radius-circle):not(#settings-container) > *:not(.rovalra-header-badge):not(.avatar-card-image):not(.rbx-menu-item) > img {
         border: 2px solid #ffffff;
         border-radius: 5%;
-        /*object-fit: cover;*/
     }
 
     --rovalra-main-text-color: #ffffff;

@@ -1,6 +1,6 @@
 /* This will be used cross the extension in a future update, too lazy to make everything use it now. */
 
-@import './sitewide/themes.scss';
+@use './sitewide/themes.scss';
 
 .rovalra-markdown span a {
     color: inherit;

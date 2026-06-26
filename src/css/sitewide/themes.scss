@@ -1,6 +1,11 @@
-@import './themes/dark.scss';
-@import './themes/light.scss';
-@import './themes/custom-nighty.scss';
-@import './themes/custom-sunset.scss';
-@import './themes/custom-highcontrast.scss';
-@import './themes/custom-user.scss';
+// Standard Roblox Themes
+@use './themes/dark.scss';
+@use './themes/light.scss';
+
+// Custom RoValra Themes
+@use './themes/custom-nighty.scss';
+@use './themes/custom-sunset.scss';
+@use './themes/custom-highcontrast.scss';
+
+// Custom Theme Builder (user-defined)
+@use './themes/custom-user.scss';
