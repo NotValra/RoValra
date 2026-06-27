@@ -1391,6 +1391,14 @@ export const SETTINGS_CONFIG = {
                 default: true,
                 contributors: ['447170745', '8345351117'],
             },
+            dismissAllNotificationsEnabled: {
+                label: 'Dismiss All Notifications',
+                description:
+                    'Adds a Dismiss All button to the Roblox notification stream.',
+                type: 'checkbox',
+                default: true,
+                contributors: ['546872490'],
+            },
             sidebarCollapseEnabled: {
                 label: 'Collapsible Sidebar',
                 description: ['Adds a button to collapse the Roblox sidebar.'],
