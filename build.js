@@ -239,7 +239,7 @@ function processDirectory(src, dest) {
                         `Error processing ${entry.name}.`,
                         err,
                     );
-                    fs.copyFileSync(srcPath, destPath.slice(0, destPath.length - 4) + 'json');
+                    throw err;
                 }
             } else {
                 fs.copyFileSync(srcPath, destPath);
