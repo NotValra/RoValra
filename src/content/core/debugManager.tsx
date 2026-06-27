@@ -12,6 +12,8 @@
 // Please note that some of the features above are implemented by patching and modifying global APIs.
 // Therefore, please try to make sure that any code patching global APIs is unable of throwing an error.
 
+
+
 import { getTabIdentifier } from "./utils/customTabId.js";
 import { createJSXElement } from "./jsx-runtime";
 
@@ -26,13 +28,18 @@ const oldConsole = console;
 
 function InitPatchLogging() {
     // Patch console to append a RoValra prefix, and also write to Excess Logs
-    globalThis.console = {
+    const newConsoleMethods = {
         log: (fmt, ...msg)   => { writeToExcessLogs(Level.Info, fmt, ...msg); return oldConsole.log(`(RoValra:Log) ${fmt}`, ...msg) },
         debug: (fmt, ...msg) => { writeToExcessLogs(Level.Debug, fmt, ...msg); return oldConsole.debug(`(RoValra:Debug) ${fmt}`, ...msg) },
         info: (fmt, ...msg)  => { writeToExcessLogs(Level.Info, fmt, ...msg); return oldConsole.info(`(RoValra:Info) ${fmt}`, ...msg) },
         warn: (fmt, ...msg)  => { writeToExcessLogs(Level.Warning, fmt, ...msg); return oldConsole.warn(`(RoValra:Warn) ${fmt}`, ...msg) },
         error: (fmt, ...msg) => { writeToExcessLogs(Level.Error, fmt, ...msg); return oldConsole.error(`(RoValra:Error) ${fmt}`, ...msg) },
     } as Console;
+    console.log = newConsoleMethods.log;
+    console.debug = newConsoleMethods.debug;
+    console.info = newConsoleMethods.info;
+    console.warn = newConsoleMethods.warn;
+    console.error = newConsoleMethods.error;
 
     // Any unhandled/uncaught synchronous and asynchronous errors
     if (globalThis.window) {
@@ -72,9 +79,17 @@ export function writeToExcessLogs(level: number, fmt: string, ...args: any[]) {
         const key = computeExtraVerboseDebugKey();
 
         if (key !== undefined) {  // Theoretically, this should never be undefined
+            // Not atomic enough, but a lost log or two isn't very likely under normal conditions and also not a big issue
             chrome.storage.session.get( { [key]: [] }, async (items) => {  // Get the current array of logs
+                try {
                 (items[key] as Array<[number, string, ...string[]]>).push([level, fmt, ...args]);  // Add the new log
-                chrome.storage.session.set( { [key]: items[key] } );  // Save the updated array
+                if ((items[key] as Array<[number, string, ...string[]]>).length >= 1024) {
+                    items[key] = (items[key] as Array<[number, string, ...string[]]>).slice(4);  // Make sure it doesn't grow too large
+                }
+                    await chrome.storage.session.set( { [key]: items[key] } );  // Save the updated array
+                } catch (e) {
+                    oldConsole.error(`(RoValra:Error)`, e);
+                }
             });
         }
     } catch (e) {
@@ -90,19 +105,19 @@ export function debugVerboseLevel(level: number, fmt: string, ...args: any[]) {
 
     switch (level) {
         case Level.Debug:
-            console.debug(fmt, ...args);
+            oldConsole.debug(`(RoValra:DebugVerbose:Debug)${fmt}`, ...args);
             break;
 
         case Level.Info:
-            console.info(fmt, ...args);
+            oldConsole.info(`(RoValra:DebugVerbose:Info)${fmt}`, ...args);
             break;
 
         case Level.Warning:
-            console.warn(fmt, ...args);
+            oldConsole.warn(`(RoValra:DebugVerbose:Warning)${fmt}`, ...args);
             break;
 
         default:
-            console.debug(fmt, ...args);
+            oldConsole.debug(`(RoValra:DebugVerbose:Unknown)${fmt}`, ...args);
     }
 }
 
