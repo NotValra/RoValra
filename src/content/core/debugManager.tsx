@@ -1,6 +1,17 @@
 /// <reference types="chrome" />
 /** @jsx createJSXElement */
 
+// This file implements the following debug features:
+// * Verbose Debugging
+//    * debugVerbose()
+//    * Element creation stack trace storing (see InitVerboseDebug_HTMLElementStackTraceLogging)
+// * Console log prefixes (see InitPatchLogging)
+// * Excess Logs (see InitVerboseDebug_HTMLElementStackTraceLogging)
+
+// To contributors:
+// Please note that some of the features above are implemented by patching and modifying global APIs.
+// Therefore, please try to make sure that any code patching global APIs is unable of throwing an error.
+
 import { getTabIdentifier } from "./utils/customTabId.js";
 import { createJSXElement } from "./jsx-runtime";
 
@@ -57,13 +68,17 @@ export function debugVerbose(fmt: string, ...args: any[]) {
 }
 
 export function writeToExcessLogs(level: number, fmt: string, ...args: any[]) {
-    const key = computeExtraVerboseDebugKey();
+    try {
+        const key = computeExtraVerboseDebugKey();
 
-    if (key !== undefined) {  // Theoretically, this should never be undefined
-        chrome.storage.session.get( { [key]: [] }, async (items) => {  // Get the current array of logs
-            (items[key] as Array<[number, string, ...string[]]>).push([level, fmt, ...args]);  // Add the new log
-            chrome.storage.session.set( { [key]: items[key] } );  // Save the updated array
-        });
+        if (key !== undefined) {  // Theoretically, this should never be undefined
+            chrome.storage.session.get( { [key]: [] }, async (items) => {  // Get the current array of logs
+                (items[key] as Array<[number, string, ...string[]]>).push([level, fmt, ...args]);  // Add the new log
+                chrome.storage.session.set( { [key]: items[key] } );  // Save the updated array
+            });
+        }
+    } catch (e) {
+        oldConsole.error(`(RoValra:Error) writeToExcessLogs: Failed: `, e);
     }
 }
 
@@ -92,14 +107,26 @@ export function debugVerboseLevel(level: number, fmt: string, ...args: any[]) {
 }
 
 function computeExtraVerboseDebugKey() {
-    return getTabIdentifier() !== undefined ? `verbosedebug-log-tab-${getTabIdentifier()}` : "verbosedebug-log-tab-serviceworker";
+    try {
+        return getTabIdentifier() !== undefined ? `verbosedebug-log-tab-${getTabIdentifier()}` : "verbosedebug-log-tab-serviceworker";
+    } catch (e) {
+        return "verbosedebug-log-tab-unknown";
+    }
 }
 
 async function InitVerboseDebugging() {
-    verbose = (await chrome.storage.local.get({verboseDebug: false})).verboseDebug as boolean;  // believe me, I would *love* to use the new settings API here, but that deadlocks
+    try {
+        verbose = (await chrome.storage.local.get({verboseDebug: false})).verboseDebug as boolean;  // believe me, I would *love* to use the new settings API here, but that deadlocks
+    } catch {
+        verbose = false;
+    }
     let key = computeExtraVerboseDebugKey();
-    if (key)
-        await chrome.storage.session.set({ [key]: [] });  // Initialise an empty array for writeToExcessLogs to use
+    try {
+        if (key)
+            await chrome.storage.session.set({ [key]: [] });  // Initialise an empty array for writeToExcessLogs to use
+    } catch (e) {
+        oldConsole.error(`(RoValra:Error)`, e);
+    }
 }
 
 // ---- ----
@@ -113,7 +140,7 @@ let RoValraElements: Array<[Element, string[]]> = [];  // Tracked elements
 function GetStackTrace(): string[] {
     const err = new Error();
     const stackTraceStr = err.stack;
-    return stackTraceStr?.split("\n").filter(Boolean).splice(1).map((s) => s.trimStart()) ?? [];  // Turn the stack trace string into an array
+    return stackTraceStr?.split("\n")?.filter(Boolean)?.splice(1)?.map((s) => s.trimStart()) ?? [];  // Turn the stack trace string into an array
 }
 
 // For every element created by RoValra, this creates a child node containing the full stack trace of whatever created the parent element.
