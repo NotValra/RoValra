@@ -1414,6 +1414,7 @@ export const buttonData = [
                             <div style="color: var(--rovalra-secondary-text-color); font-size: 14px;">${parseMarkdown(ts('settings.donatorPerks.tier1Desc'), themeColors)}</div>
                             <ul style="margin-top: 5px; padding-left: 20px; color: var(--rovalra-secondary-text-color); margin-bottom: 0;">
                                 <li>${ts('settings.donatorPerks.tier1Reward').replace(/\n/g, '<br>')}</li>
+                                <li>${ts('settings.donatorPerks.tier1DiscordRole').replace(/\n/g, '<br>')}</li>
                                 ${getFeaturesByTier(1)}
                             </ul>
                         </div>
@@ -1426,6 +1427,7 @@ export const buttonData = [
                             <div style="color: var(--rovalra-secondary-text-color); font-size: 14px;">${parseMarkdown(ts('settings.donatorPerks.tier2Desc'), themeColors)}</div>
                             <ul style="margin-top: 5px; padding-left: 20px; color: var(--rovalra-secondary-text-color); margin-bottom: 0;">
                                 <li>${ts('settings.donatorPerks.tier2Reward').replace(/\n/g, '<br>')}</li>
+                                <li>${ts('settings.donatorPerks.tier2DiscordRole').replace(/\n/g, '<br>')}</li>
                                 <li>${ts('settings.donatorPerks.previousRewards').replace(/\n/g, '<br>')}</li>
                                 ${getFeaturesByTier(2)}
                             </ul>
@@ -1439,6 +1441,7 @@ export const buttonData = [
                             <div style="color: var(--rovalra-secondary-text-color); font-size: 14px;">${parseMarkdown(ts('settings.donatorPerks.tier3Desc'), themeColors)}</div>
                             <ul style="margin-top: 5px; padding-left: 20px; color: var(--rovalra-secondary-text-color); margin-bottom: 0;">
                                 <li>${ts('settings.donatorPerks.tier3Reward').replace(/\n/g, '<br>')}</li>
+                                <li>${ts('settings.donatorPerks.tier3DiscordRole').replace(/\n/g, '<br>')}</li>
                                 <li>${ts('settings.donatorPerks.previousRewards').replace(/\n/g, '<br>')}</li>
                                 ${getFeaturesByTier(3)}
                             </ul>
