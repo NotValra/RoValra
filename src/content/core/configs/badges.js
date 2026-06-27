@@ -16,6 +16,9 @@ import {
 const assets = getAssets();
 const ROVALRA_LOGO_ASSET_NAME = 'rovalraIcon';
 const DONATOR_BADGE_STYLES = {
+    contributor: {
+        filter: 'sepia(80%) saturate(300%) brightness(90%) hue-rotate(-20deg)',
+    },
     legacy_donator: {
         filter: 'sepia(100%) saturate(600%) brightness(90%) hue-rotate(5deg)',
     },
@@ -81,13 +84,14 @@ export const BADGE_CONFIG = {
     contributor: {
         type: 'header',
         userIds: CONTRIBUTOR_USER_IDS,
-        iconAssetName: ROVALRA_LOGO_ASSET_NAME,
+        iconAssetName: 'contributorIcon',
         tooltip: 'RoValra Contributor',
-        confettiAssetName: ROVALRA_LOGO_ASSET_NAME,
-        style: {
-            filter: 'sepia(80%) saturate(300%) brightness(90%) hue-rotate(-20deg)',
-        },
+        confettiAssetName: 'contributorIcon',
+        oldLogoStyleName: 'contributor',
         shiny: true,
+        grayGlimmer: true,
+        sparkles: true,
+        themeColorIcon: true,
     },
     translator: {
         type: 'header',

@@ -23,8 +23,85 @@ function ensureShineStyle() {
             40% { left: 200%; }
             100% { left: 200%; }
         }
+
+        @keyframes rovalra-badge-sparkle-float {
+            0%, 100% {
+                opacity: 0;
+                transform: scale(0.35) rotate(45deg);
+            }
+            35% {
+                opacity: 1;
+                transform: scale(1) rotate(45deg);
+            }
+            65% {
+                opacity: 0.85;
+                transform: scale(0.8) rotate(45deg);
+            }
+        }
     `; //Verified
     document.head.appendChild(style);
+}
+
+function randomizeSparklePosition(sparkle) {
+    sparkle.style.top = '';
+    sparkle.style.right = '';
+    sparkle.style.bottom = '';
+    sparkle.style.left = '';
+
+    const sideOffset = `${Math.round(Math.random() * 64 + 18)}%`;
+    const horizontalOffset = `${Math.round(Math.random() * 76 + 12)}%`;
+    const sideEdgeDistance = `${Math.round(Math.random() * 4) - 7}px`;
+    const verticalEdgeDistance = `${Math.round(Math.random() * 4) - 3}px`;
+
+    switch (Math.floor(Math.random() * 4)) {
+        case 0:
+            sparkle.style.top = verticalEdgeDistance;
+            sparkle.style.left = horizontalOffset;
+            break;
+        case 1:
+            sparkle.style.right = sideEdgeDistance;
+            sparkle.style.top = sideOffset;
+            break;
+        case 2:
+            sparkle.style.bottom = verticalEdgeDistance;
+            sparkle.style.left = horizontalOffset;
+            break;
+        default:
+            sparkle.style.left = sideEdgeDistance;
+            sparkle.style.top = sideOffset;
+            break;
+    }
+}
+
+function addFloatingSparkles(iconContainer) {
+    const sparkles = [
+        { size: '4px', delay: '0s' },
+        { size: '3px', delay: '0.55s' },
+        { size: '3px', delay: '1.1s' },
+        { size: '4px', delay: '1.65s' },
+    ];
+
+    sparkles.forEach((config) => {
+        const sparkle = document.createElement('span');
+        Object.assign(sparkle.style, {
+            position: 'absolute',
+            width: config.size,
+            height: config.size,
+            background: 'currentColor',
+            border: '1px solid color-mix(in srgb, currentColor 55%, white)',
+            boxShadow: '0 0 5px currentColor',
+            pointerEvents: 'none',
+            zIndex: '3',
+            animation: `rovalra-badge-sparkle-float 2.2s ease-in-out ${config.delay} infinite`,
+        });
+
+        randomizeSparklePosition(sparkle);
+        sparkle.addEventListener('animationiteration', () => {
+            randomizeSparklePosition(sparkle);
+        });
+
+        iconContainer.appendChild(sparkle);
+    });
 }
 
 function createHeaderBadge(parentContainer, badge) {
@@ -36,16 +113,35 @@ function createHeaderBadge(parentContainer, badge) {
         alignItems: 'center',
         marginLeft: '0px',
         verticalAlign: 'middle',
+        overflow: 'visible',
+        color: badge.themeColorIcon ? 'var(--rovalra-main-text-color)' : '',
     });
 
-    const icon = document.createElement('img');
+    if (badge.id === 'contributor') {
+        iconContainer.style.paddingLeft = '5px';
+    }
+
+    const icon = document.createElement(badge.themeColorIcon ? 'span' : 'img');
     if (badge.iconAssetName) {
-        icon.dataset.rovalraAsset = badge.iconAssetName;
+        if (badge.themeColorIcon) {
+            icon.dataset.rovalraAssetMask = badge.iconAssetName;
+        } else {
+            icon.dataset.rovalraAsset = badge.iconAssetName;
+        }
     }
     if (badge.id) {
         icon.dataset.rovalraBadgeConfig = badge.id;
     }
-    icon.src = badge.icon;
+    if (badge.themeColorIcon) {
+        Object.assign(icon.style, {
+            display: 'inline-block',
+            backgroundColor: 'currentColor',
+            webkitMask: `url("${badge.icon}") center / contain no-repeat`,
+            mask: `url("${badge.icon}") center / contain no-repeat`,
+        });
+    } else {
+        icon.src = badge.icon;
+    }
     icon.dataset.badgeId = badge.tooltip || 'badge';
     Object.assign(icon.style, {
         width: badge.size || 'var(--icon-size-large)',
@@ -94,16 +190,26 @@ function createHeaderBadge(parentContainer, badge) {
             position: 'absolute',
             top: '0',
             left: '-100%',
-            width: '50%',
+            width: badge.grayGlimmer ? '70%' : '50%',
             height: '100%',
             background:
-                'linear-gradient(to right, transparent, rgba(255,255,255,0.8), transparent)',
+                badge.grayGlimmer
+                    ? 'linear-gradient(to right, transparent, rgba(70, 70, 70, 0.8), rgba(145, 145, 145, 0.75), transparent)'
+                    : 'linear-gradient(to right, transparent, rgba(255,255,255,0.8), transparent)',
+            mixBlendMode: badge.grayGlimmer ? 'multiply' : '',
             transform: 'skewX(-25deg)',
-            animation: 'rovalra-badge-shine-move 5s infinite',
+            animation: badge.grayGlimmer
+                ? 'rovalra-badge-shine-move 3.2s infinite'
+                : 'rovalra-badge-shine-move 5s infinite',
         });
 
         shineContainer.appendChild(shineBar);
         iconContainer.appendChild(shineContainer);
+    }
+
+    if (badge.sparkles) {
+        ensureShineStyle();
+        addFloatingSparkles(iconContainer);
     }
 
     iconContainer.appendChild(icon);
@@ -195,7 +301,7 @@ async function addHeaderBadges(container) {
                     noCache: isOwnProfile,
                 });
                 if (res?.status === 'success') apiBadges = res.badges;
-            } catch (e) {}
+            } catch {}
 
             data = { apiBadges };
             if (!isOwnProfile) badgeCache.set(currentUserId, data);

@@ -1,6 +1,7 @@
 const assetPaths = {
     rovalraIcon: 'public/Assets/RoValraLogo.png',
     oldRovalraIcon: 'public/Assets/OldLogo/OldLogo.png',
+    contributorIcon: 'public/Assets/Contributor.png',
     donatorTier1Icon: 'public/Assets/DonatorTiers/Bronze.png',
     donatorTier2Icon: 'public/Assets/DonatorTiers/Silver.png',
     donatorTier3Icon: 'public/Assets/DonatorTiers/Gold.png',
