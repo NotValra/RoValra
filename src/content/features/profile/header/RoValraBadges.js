@@ -4,10 +4,8 @@ import { createConfetti } from '../../../core/fun/confetti.js';
 import { BADGE_CONFIG } from '../../../core/configs/badges.js';
 import { callRobloxApiJson } from '../../../core/api.js';
 import { createSquareButton } from '../../../core/ui/profile/header/squarebutton.js';
-import { getAssets } from '../../../core/assets.js';
 import { getUserIdFromUrl } from '../../../core/idExtractor.js';
 import { getAuthenticatedUserId } from '../../../core/user.js';
-import { t } from '../../../core/locale/i18n.js';
 const badgeCache = new Map();
 
 function ensureShineStyle() {
@@ -179,26 +177,6 @@ async function addHeaderBadges(container) {
 
         let data = isOwnProfile ? null : badgeCache.get(currentUserId);
         if (!data) {
-            const settings = await new Promise((r) =>
-                chrome.storage.local.get(
-                    { idVerificationBadgeEnabled: true },
-                    r,
-                ),
-            );
-
-            let verification = null;
-            if (settings.idVerificationBadgeEnabled) {
-                try {
-                    const res = await callRobloxApiJson({
-                        subdomain: 'apis',
-                        endpoint: `/talent/v1/users/verification?userIds=${currentUserId}`,
-                        method: 'GET',
-                        noCache: isOwnProfile,
-                    });
-                    verification = res?.data?.[0];
-                } catch (e) {}
-            }
-
             let apiBadges = [];
             try {
                 const res = await callRobloxApiJson({
@@ -211,7 +189,7 @@ async function addHeaderBadges(container) {
                 if (res?.status === 'success') apiBadges = res.badges;
             } catch (e) {}
 
-            data = { verification, apiBadges };
+            data = { apiBadges };
             if (!isOwnProfile) badgeCache.set(currentUserId, data);
         }
 
@@ -220,22 +198,6 @@ async function addHeaderBadges(container) {
             .forEach((b) => b.remove());
 
         const badgesToRender = [];
-        if (data.verification) {
-            const assets = getAssets();
-            badgesToRender.push({
-                isIcon: true,
-                config: data.verification.isVerified
-                    ? {
-                          icon: assets.verifiedShield,
-                          tooltip: await t('rovalraBadges.userVerified'),
-                      }
-                    : {
-                          icon: assets.UnverifiedShield,
-                          tooltip: await t('rovalraBadges.userNotVerified'),
-                      },
-            });
-        }
-
         for (const key in BADGE_CONFIG) {
             const b = BADGE_CONFIG[key];
             if (b.type === 'header' && b.userIds.includes(currentUserId)) {
