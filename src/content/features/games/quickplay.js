@@ -1,5 +1,5 @@
 import { showReviewPopup } from '../../core/review/review.js';
-import { observeElement, observeIntersection } from '../../core/observer.js';
+import { observeIntersection } from '../../core/observer.js';
 import { callRobloxApi } from '../../core/api.js';
 import {
     launchGame,
@@ -23,8 +23,10 @@ import DOMPurify from 'dompurify';
 import { t, ts } from '../../core/locale/i18n.js';
 import { safeHtml } from '../../core/packages/dompurify.js';
 
-const PROCESSED_MARKER_CLASS = 'rovalra-quickplay-processed';
 const GLOBAL_CONTAINER_ID = 'rovalra-private-servers-global-container';
+const GAME_CARD_LINK_SELECTOR = 'a.game-card-link[href*="/games/"]';
+const PAID_PRICE_SCAN_LIMIT = 80;
+const PAID_PRICE_VIEWPORT_MARGIN = 700;
 
 const State = {
     currentUserId: null,
@@ -44,9 +46,12 @@ const State = {
     currentNextPageCursor: null,
 
     cleanupTimers: new WeakMap(),
+    settings: null,
 };
 
 const intersectionObservers = new Map();
+let paidPriceScanTimer = null;
+let paidPriceListenersAttached = false;
 const Icons = {
     globe: () =>
         createSvgPath(
@@ -610,6 +615,110 @@ function setupPaidPriceBadge(gameLink) {
     );
 
     intersectionObservers.set(gameLink, observer);
+}
+
+function isQuickPlayCardLink(element) {
+    if (!element || !element.matches?.(GAME_CARD_LINK_SELECTOR)) return false;
+    return !element.closest('[data-testid="event-experience-link"]');
+}
+
+function getQuickPlayCardFromTarget(target) {
+    const gameLink = target?.closest?.(GAME_CARD_LINK_SELECTOR);
+    return isQuickPlayCardLink(gameLink) ? gameLink : null;
+}
+
+function isNearViewport(element, margin = 0) {
+    const rect = element.getBoundingClientRect?.();
+    if (!rect) return false;
+
+    const viewportHeight =
+        window.innerHeight || document.documentElement.clientHeight || 0;
+    const viewportWidth =
+        window.innerWidth || document.documentElement.clientWidth || 0;
+
+    return (
+        rect.bottom >= -margin &&
+        rect.right >= -margin &&
+        rect.top <= viewportHeight + margin &&
+        rect.left <= viewportWidth + margin
+    );
+}
+
+function scanVisiblePaidPriceBadges() {
+    paidPriceScanTimer = null;
+    const settings = State.settings;
+    if (!settings?.PaidAccessPriceBadgeEnabled) return;
+
+    let scanned = 0;
+    document.querySelectorAll(GAME_CARD_LINK_SELECTOR).forEach((gameLink) => {
+        if (scanned >= PAID_PRICE_SCAN_LIMIT) return;
+        if (!isQuickPlayCardLink(gameLink)) return;
+        if (gameLink.classList.contains(PAID_PRICE_PROCESSED_CLASS)) return;
+        if (!isNearViewport(gameLink, PAID_PRICE_VIEWPORT_MARGIN)) return;
+
+        scanned++;
+        setupPaidPriceBadge(gameLink);
+    });
+}
+
+function schedulePaidPriceScan(delay = 250) {
+    if (paidPriceScanTimer) return;
+
+    paidPriceScanTimer = setTimeout(() => {
+        if (typeof requestIdleCallback === 'function') {
+            requestIdleCallback(scanVisiblePaidPriceBadges, { timeout: 1200 });
+            return;
+        }
+
+        requestAnimationFrame(scanVisiblePaidPriceBadges);
+    }, delay);
+}
+
+function attachPaidPriceViewportListeners() {
+    if (paidPriceListenersAttached) return;
+    paidPriceListenersAttached = true;
+
+    window.addEventListener('scroll', () => schedulePaidPriceScan(500), {
+        passive: true,
+    });
+    window.addEventListener('resize', () => schedulePaidPriceScan(500), {
+        passive: true,
+    });
+
+    schedulePaidPriceScan(0);
+    setTimeout(() => schedulePaidPriceScan(0), 1200);
+    setTimeout(() => schedulePaidPriceScan(0), 3000);
+}
+
+function handleQuickPlayCardEnter(event) {
+    const gameLink = getQuickPlayCardFromTarget(event.target);
+    if (!gameLink || gameLink.contains(event.relatedTarget)) return;
+
+    const settings = State.settings;
+    if (!settings) return;
+
+    if (settings.PaidAccessPriceBadgeEnabled) {
+        setupPaidPriceBadge(gameLink);
+    }
+
+    setupHoverCard(gameLink, settings);
+}
+
+function handleQuickPlayCardLeave(event) {
+    const gameLink = getQuickPlayCardFromTarget(event.target);
+    if (!gameLink || gameLink.contains(event.relatedTarget)) return;
+
+    scheduleCardCleanup(gameLink);
+}
+
+function attachQuickPlayDelegatedListeners() {
+    if (attachQuickPlayDelegatedListeners._run) return;
+    attachQuickPlayDelegatedListeners._run = true;
+
+    document.addEventListener('pointerover', handleQuickPlayCardEnter);
+    document.addEventListener('pointerout', handleQuickPlayCardLeave);
+    document.addEventListener('focusin', handleQuickPlayCardEnter);
+    document.addEventListener('focusout', handleQuickPlayCardLeave);
 }
 
 function showTemporaryTooltip(parent, text, duration = 1400) {
@@ -1307,35 +1416,13 @@ function initializeQuickPlay() {
             robloxPreferredRegion: 'AUTO',
         },
         (settings) => {
+            State.settings = settings;
             State.currentUserId = getCurrentUserId();
-            const onCardFound = (gameLink) => {
-                if (gameLink.closest('[data-testid="event-experience-link"]')) {
-                    return;
-                }
-                if (settings.PaidAccessPriceBadgeEnabled) {
-                    setupPaidPriceBadge(gameLink);
-                }
+            attachQuickPlayDelegatedListeners();
 
-                if (gameLink.classList.contains(PROCESSED_MARKER_CLASS)) return;
-                gameLink.classList.add(PROCESSED_MARKER_CLASS);
-
-                gameLink.addEventListener('mouseenter', () =>
-                    setupHoverCard(gameLink, settings),
-                );
-                gameLink.addEventListener('mouseleave', () =>
-                    scheduleCardCleanup(gameLink),
-                );
-                gameLink.addEventListener('focus', () =>
-                    setupHoverCard(gameLink, settings),
-                );
-                gameLink.addEventListener('blur', () =>
-                    scheduleCardCleanup(gameLink),
-                );
-            };
-
-            observeElement('a.game-card-link[href*="/games/"]', onCardFound, {
-                multiple: true,
-            });
+            if (settings.PaidAccessPriceBadgeEnabled) {
+                attachPaidPriceViewportListeners();
+            }
         },
     );
 

@@ -45,13 +45,19 @@ const HOME_POPOVER_SELECTORS = [
 ].join(',');
 
 let homePopoverObserverRegistered = false;
-let homeMutationObserver = null;
 let homeScanTimers = [];
 let homeScanFrame = 0;
 let homeHoverContext = null;
 let lastHomeContextUpdate = 0;
 let profileScanTimers = [];
 const homeMutationPopoverCandidates = new Set();
+
+function isHomePath() {
+    const normalizedPath = window.location.pathname
+        .toLowerCase()
+        .replace(/^\/[a-z]{2}(?:-[a-z]{2})?\//, '/');
+    return normalizedPath.startsWith('/home');
+}
 
 const usernameToIdCache = new Map();
 const presenceByUserIdCache = new Map();
@@ -413,6 +419,15 @@ function elementMayOpenHomePopover(element) {
     );
 }
 
+function queueHomePopoverCandidateFromTarget(target) {
+    if (!isHomePath() || !target || target.nodeType !== Node.ELEMENT_NODE)
+        return;
+
+    const root = target.closest?.(HOME_POPOVER_SELECTORS);
+    if (!root || root.closest?.('.rovalra-home-subplace-card')) return;
+
+    homeMutationPopoverCandidates.add(root);
+}
 
 function warmHomePresenceDetails(presence) {
     if (!presence || presence.userPresenceType !== 2 || !presence.placeId) return;
@@ -446,6 +461,7 @@ function prefetchHomeContextSubplace(context) {
 function updateHomeHoverContext(event) {
     const target = event?.target;
     if (!elementMayOpenHomePopover(target)) return;
+    queueHomePopoverCandidateFromTarget(target);
 
     const now = Date.now();
     if (now - lastHomeContextUpdate < 45) {
@@ -845,14 +861,31 @@ function cleanupHomeSubplaceCards() {
 }
 
 function addHomeActionButtonCandidates(candidates) {
-    document.querySelectorAll('button, a, [role="button"]').forEach((action) => {
-        if (action.closest?.('.rovalra-home-subplace-card')) return;
+    homeMutationPopoverCandidates.forEach((node) => {
+        if (!node || !document.body.contains(node)) return;
 
-        const text = normalizeText(action.textContent).toLowerCase();
-        if (text !== 'join' && text !== 'chat' && text !== 'view profile') return;
+        const actions = node.matches?.('button, a, [role="button"]')
+            ? [node]
+            : [];
 
-        const root = findHomePopoverRoot(action);
-        if (root) candidates.add(root);
+        node.querySelectorAll?.('button, a, [role="button"]').forEach(
+            (action) => actions.push(action),
+        );
+
+        actions.forEach((action) => {
+            if (action.closest?.('.rovalra-home-subplace-card')) return;
+
+            const text = normalizeText(action.textContent).toLowerCase();
+            if (
+                text !== 'join' &&
+                text !== 'chat' &&
+                text !== 'view profile'
+            )
+                return;
+
+            const root = findHomePopoverRoot(action);
+            if (root) candidates.add(root);
+        });
     });
 }
 
@@ -879,6 +912,12 @@ function addHomeMutationCandidates(candidates) {
 }
 
 async function scanHomePopovers() {
+    if (!isHomePath()) {
+        homeMutationPopoverCandidates.clear();
+        cleanupHomeSubplaceCards();
+        return;
+    }
+
     if (!(await isHomeSubplaceEnabled())) {
         homeMutationPopoverCandidates.clear();
         cleanupHomeSubplaceCards();
@@ -894,15 +933,8 @@ async function scanHomePopovers() {
     const targetRoot = findHomePopoverRoot(context.target);
     if (targetRoot) candidates.add(targetRoot);
 
-    addHomeMutationCandidates(candidates);
-
-    document.querySelectorAll(HOME_POPOVER_SELECTORS).forEach((element) => {
-        if (!element.closest?.('.rovalra-home-subplace-card')) {
-            candidates.add(element);
-        }
-    });
-
     addHomeActionButtonCandidates(candidates);
+    addHomeMutationCandidates(candidates);
 
     candidates.forEach(processHomePopoverCandidate);
 }
@@ -928,41 +960,12 @@ function scheduleHomePopoverScan() {
         );
 }
 
-function nodeCouldContainHomePopover(node) {
-    if (!getFreshHomeContext()) return false;
-    if (!node || node.nodeType !== Node.ELEMENT_NODE) return false;
-    if (node.closest?.('.rovalra-home-subplace-card')) return false;
-
-    if (node.matches?.(HOME_POPOVER_SELECTORS)) return true;
-    if (node.querySelector?.(HOME_POPOVER_SELECTORS)) return true;
-
-    const text = normalizeText(node.textContent || '');
-    if (!text || text.length > 1200) return false;
-
-    return /\bis playing\b|\bView Profile\b|\bJoin\b/i.test(text);
-}
-
-function registerHomePopoverObserver() {
-    if (homeMutationObserver || !document.body) return;
-
-    homeMutationObserver = new MutationObserver((mutations) => {
-        for (const mutation of mutations) {
-            for (const node of mutation.addedNodes || []) {
-                if (!nodeCouldContainHomePopover(node)) continue;
-                homeMutationPopoverCandidates.add(node);
-                scheduleHomePopoverScan();
-                return;
-            }
-        }
-    });
-
-    homeMutationObserver.observe(document.body, {
-        childList: true,
-        subtree: true,
-    });
-}
-
 async function registerHomeSubplacePopovers() {
+    if (!isHomePath()) {
+        cleanupHomeSubplaceCards();
+        return;
+    }
+
     if (!(await isHomeSubplaceEnabled())) {
         cleanupHomeSubplaceCards();
         return;
@@ -973,7 +976,6 @@ async function registerHomeSubplacePopovers() {
     document.addEventListener('pointerover', updateHomeHoverContext, true);
     document.addEventListener('mouseover', updateHomeHoverContext, true);
     document.addEventListener('focusin', updateHomeHoverContext, true);
-    registerHomePopoverObserver();
 }
 
 function getExperienceUrl(presence) {

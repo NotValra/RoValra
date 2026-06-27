@@ -16,7 +16,6 @@ import { init as initMarkDownTest } from './features/developer/markdowntest.js';
 import { init as initTests } from './features/developer/tests.js';
 import { init as initApiDocs } from './features/developer/apiDocs.js';
 import { init as initModeration } from './features/moderation/moderation.js';
-import { init as initApiKey } from './core/utils/trackers/apiKey.js';
 import { init as initBirthdayTracker } from './core/utils/trackers/birthday.js';
 import { init as initServerTracker } from './core/utils/trackers/servers.js';
 import { initFriendsListTracking } from './core/utils/trackers/friendslist.js';
@@ -171,7 +170,6 @@ const featureRoutes = [
             initStreamerMode,
             initMarkDownTest,
             initTests,
-            initApiKey,
             initBirthdayTracker,
             initServerTracker,
             initFriendsListTracking,
@@ -378,7 +376,7 @@ const featureRoutes = [
     },
     {
         paths: ['/home'],
-        features: [initUnderratedGamesHome, initAccurateContinue],
+        features: [initHomeLayout, initUnderratedGamesHome, initAccurateContinue],
     },
     {
         paths: ['/my/account'],
@@ -425,15 +423,6 @@ async function initializePage() {
     if (window.top !== window.self || pageLoaded) return;
     pageLoaded = true;
 
-    initHomeLayout();
-    if (
-        window.location.pathname
-            .toLowerCase()
-            .replace(/^\/[a-z]{2}(?:-[a-z]{2})?\//, '/')
-            .startsWith('/home')
-    ) {
-        initUnderratedGamesHome();
-    }
     initializeObserver();
     const observerStatus = startObserving();
 
@@ -441,23 +430,41 @@ async function initializePage() {
         console.error('RoValra: OAuth token initialization failed', error),
     );
     startAuthFavoriteCleanupMonitor();
-    initApiKey().catch((error) =>
-        console.error('RoValra: API key initialization failed', error),
-    );
+
+    const runSettingsMaintenance = () => {
+        refreshRemoteSettingLocks()
+            .catch((error) =>
+                console.error(
+                    'RoValra: Failed to refresh remote settings config.',
+                    error,
+                ),
+            )
+            .finally(() =>
+                enforceSettingOverrides().catch((error) =>
+                    console.error(
+                        'RoValra: Failed to enforce setting overrides.',
+                        error,
+                    ),
+                ),
+            );
+    };
+
+    const scheduleSettingsMaintenance = () => {
+        if (typeof requestIdleCallback === 'function') {
+            requestIdleCallback(runSettingsMaintenance, { timeout: 5000 });
+            return;
+        }
+
+        setTimeout(runSettingsMaintenance, 0);
+    };
 
     const startFeatures = async () => {
         const featureStartTime = performance.now();
 
         await t('__i18n_ready__').catch(() => {});
-        await refreshRemoteSettingLocks().catch((error) =>
-            console.error(
-                'RoValra: Failed to refresh remote settings config.',
-                error,
-            ),
-        );
-        await enforceSettingOverrides();
         detectTheme().then((theme) => dispatchThemeEvent(theme));
         runFeaturesForPage();
+        scheduleSettingsMaintenance();
 
         const endTime = performance.now();
 

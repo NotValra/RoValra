@@ -75,6 +75,15 @@ export function initializeObserver() {
                 for (const req of observationRequests) {
                     if (!req.active) continue;
 
+                    if (
+                        req.root !== document &&
+                        req.root !== addedNode &&
+                        !req.root.contains(addedNode) &&
+                        !addedNode.contains(req.root)
+                    ) {
+                        continue;
+                    }
+
                     if (!req.multiple && !req.element) {
                         if (addedNode.matches(req.selector)) {
                             req.element = addedNode;
@@ -119,12 +128,14 @@ export const observeElement = (selector, callback, options = {}) => {
     if (!observerInitialized) startObserving();
 
     const isMultiple = options.multiple || false;
+    const root = options.root || options.scope || document;
 
     const request = {
         selector,
         callback,
         onRemove: options.onRemove,
         multiple: isMultiple,
+        root,
         active: true,
         disconnect() {
             this.active = false;
@@ -134,14 +145,14 @@ export const observeElement = (selector, callback, options = {}) => {
     observationRequests.push(request);
 
     if (isMultiple) {
-        document.querySelectorAll(selector).forEach((element) => {
+        root.querySelectorAll(selector).forEach((element) => {
             if (!request.elements.has(element)) {
                 request.elements.add(element);
                 callback(element);
             }
         });
     } else {
-        const existingElement = document.querySelector(selector);
+        const existingElement = root.querySelector(selector);
         if (existingElement && !request.element) {
             request.element = existingElement;
             callback(existingElement);

@@ -22,7 +22,7 @@
             "js": ["content.js"],
             "css": ["css/sitewide.css", "css/rovalra.css"],
             "run_at": "document_start",
-            "all_frames": true
+            "all_frames": false
         }
     ],
     "permissions": ["declarativeNetRequest", "storage", "scripting"],

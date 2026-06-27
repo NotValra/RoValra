@@ -33,6 +33,7 @@ let categories = [];
 let savedOrder = [];
 let hiddenCategoryKeys = [];
 let initialized = false;
+let observersInitialized = false;
 let homeLayoutButtonEnabled = true;
 let locale = { ...DEFAULT_LOCALE };
 let dropIndicator = null;
@@ -962,28 +963,32 @@ export async function init() {
         });
     }
 
-    observeElement('#HomeContainer', attachHomeLayoutButton, {
-        multiple: true,
-    });
-    observeElement(
-        '#HomeContainer .section',
-        (section) => {
-            const homeContainer = section.closest('#HomeContainer');
-            if (homeContainer) attachHomeLayoutButton(homeContainer);
-        },
-        { multiple: true },
-    );
-    observeElement(
-        '#HomeContainer .place-list-container',
-        (placeListContainer) => {
-            const homeContainer = placeListContainer.closest('#HomeContainer');
-            if (homeContainer) attachHomeLayoutButton(homeContainer);
-        },
-        { multiple: true },
-    );
-    observeElement(
-        '.customize-home-layout-btn, #customize-home-layout-btn',
-        removeHomeLayoutButton,
-        { multiple: true },
-    );
+    if (!observersInitialized) {
+        observersInitialized = true;
+        observeElement('#HomeContainer', attachHomeLayoutButton, {
+            multiple: true,
+        });
+        observeElement(
+            '#HomeContainer .section',
+            (section) => {
+                const homeContainer = section.closest('#HomeContainer');
+                if (homeContainer) attachHomeLayoutButton(homeContainer);
+            },
+            { multiple: true },
+        );
+        observeElement(
+            '#HomeContainer .place-list-container',
+            (placeListContainer) => {
+                const homeContainer =
+                    placeListContainer.closest('#HomeContainer');
+                if (homeContainer) attachHomeLayoutButton(homeContainer);
+            },
+            { multiple: true },
+        );
+        observeElement(
+            '.customize-home-layout-btn, #customize-home-layout-btn',
+            removeHomeLayoutButton,
+            { multiple: true },
+        );
+    }
 }
