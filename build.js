@@ -57,6 +57,10 @@ const commonConfig = {
 
     legalComments: 'none',
 
+    jsx: 'transform',
+    jsxFactory: 'createJSXElement',
+    jsxFragment: 'Fragment',
+
     banner: {
         js: bannerText,
         css: bannerText,
