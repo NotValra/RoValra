@@ -35,6 +35,8 @@ const MAX_HISTORY = 50;
 let initialSearchValue = '';
 let searchHistoryRenderVersion = 0;
 let selectedIndex = 0;
+let activeQuickSearchRequest = null;
+let latestCommittedQuickSearchRequest = null;
 
 const debounce = (func, delay) => {
     let timeout;
@@ -47,6 +49,79 @@ const debounce = (func, delay) => {
 let cachedFriendsData = null;
 let friendsFetchPromise = null;
 let cachedUserId = null;
+
+function createQuickSearchRequest(query) {
+    return {
+        query,
+        userResult: null,
+        gameResult: null,
+        friendResults: [],
+        userDone: false,
+        gameDone: !searchSettings.gameSearchEnabled || query.length < 2,
+        committed: false,
+    };
+}
+
+function isCurrentSearchRequest(request, signal = null) {
+    return (
+        request &&
+        !signal?.aborted &&
+        (activeQuickSearchRequest === request ||
+            latestCommittedQuickSearchRequest === request)
+    );
+}
+
+function setSearchResult(request, key, value) {
+    if (!request) return;
+
+    if (request.committed) {
+        if (key === 'userResult') window._lastRoValraUserResult = value;
+        if (key === 'gameResult') window._lastRoValraGameResult = value;
+        if (key === 'friendResults') window._lastRoValraFriendResults = value;
+        return;
+    }
+
+    request[key] = value;
+}
+
+function getSearchResult(request, key) {
+    if (!request) return null;
+
+    if (request.committed) {
+        if (key === 'userResult') return window._lastRoValraUserResult;
+        if (key === 'gameResult') return window._lastRoValraGameResult;
+        if (key === 'friendResults') return window._lastRoValraFriendResults;
+    }
+
+    return request[key];
+}
+
+function filterFriendResults(request, userId) {
+    const friendResults = getSearchResult(request, 'friendResults');
+    if (!friendResults) return;
+
+    setSearchResult(
+        request,
+        'friendResults',
+        friendResults.filter((el) => el.dataset.userId != userId),
+    );
+}
+
+function commitQuickSearchRequest(request) {
+    if (!request || activeQuickSearchRequest !== request) return;
+    if (!request.userDone || !request.gameDone) return;
+
+    latestCommittedQuickSearchRequest = request;
+    activeQuickSearchRequest = null;
+    request.committed = true;
+
+    window._lastRoValraUserResult = request.userResult;
+    window._lastRoValraGameResult = request.gameResult;
+    window._lastRoValraFriendResults = request.friendResults;
+
+    selectedIndex = 0;
+    injectIntoMenu(true);
+}
 
 function hasExternalSearchItems() {
     const menu = document.querySelector('ul.new-dropdown-menu');
@@ -154,7 +229,7 @@ async function fetchWithRetry(options, retries = 3, signal = null) {
     }
 }
 
-async function performUserSearch(query) {
+async function performUserSearch(query, request) {
     if (userSearchAbortController) {
         userSearchAbortController.abort();
     }
@@ -163,7 +238,7 @@ async function performUserSearch(query) {
 
     try {
         const authedUserId = await getAuthenticatedUserId();
-        if (signal.aborted) return;
+        if (!isCurrentSearchRequest(request, signal)) return;
 
         const promises = [];
         if (searchSettings.userSearchEnabled && query.length >= 2) {
@@ -215,7 +290,7 @@ async function performUserSearch(query) {
 
         localFriendsPromise
             .then(async (localFriends) => {
-                if (signal.aborted) return;
+                if (!isCurrentSearchRequest(request, signal)) return;
 
                 if (localFriends.length > 0) {
                     const validUsers = localFriends.map((f) => ({
@@ -234,27 +309,36 @@ async function performUserSearch(query) {
                         false,
                         signal,
                     );
-                    if (signal.aborted) return;
+                    if (!isCurrentSearchRequest(request, signal)) return;
 
-                    window._lastRoValraFriendResults = validUsers
-                        .map((friendUser) => {
-                            if (
-                                window._lastRoValraUserResult &&
-                                window._lastRoValraUserResult.dataset.userId ==
-                                    friendUser.id
-                            ) {
-                                return null;
-                            }
-                            const thumbData = thumbnailMap.get(friendUser.id);
-                            return createUserResultHtml(
-                                friendUser,
-                                thumbData,
-                                null,
-                                true,
-                                friendUser.isTrusted,
-                            );
-                        })
-                        .filter((el) => el !== null);
+                    setSearchResult(
+                        request,
+                        'friendResults',
+                        validUsers
+                            .map((friendUser) => {
+                                const userResult = getSearchResult(
+                                    request,
+                                    'userResult',
+                                );
+                                if (
+                                    userResult &&
+                                    userResult.dataset.userId == friendUser.id
+                                ) {
+                                    return null;
+                                }
+                                const thumbData = thumbnailMap.get(
+                                    friendUser.id,
+                                );
+                                return createUserResultHtml(
+                                    friendUser,
+                                    thumbData,
+                                    null,
+                                    true,
+                                    friendUser.isTrusted,
+                                );
+                            })
+                            .filter((el) => el !== null),
+                    );
 
                     fetchWithRetry(
                         {
@@ -267,46 +351,54 @@ async function performUserSearch(query) {
                         signal,
                     )
                         .then((presenceData) => {
-                            if (signal.aborted) return;
+                            if (!isCurrentSearchRequest(request, signal))
+                                return;
 
-                            const presences =
-                                presenceData?.userPresences || [];
+                            const presences = presenceData?.userPresences || [];
                             const presenceMap = new Map(
                                 presences.map((p) => [p.userId, p]),
                             );
 
-                            window._lastRoValraFriendResults = validUsers
-                                .map((friendUser) => {
-                                    if (
-                                        window._lastRoValraUserResult &&
-                                        window._lastRoValraUserResult.dataset
-                                            .userId == friendUser.id
-                                    ) {
-                                        return null;
-                                    }
+                            setSearchResult(
+                                request,
+                                'friendResults',
+                                validUsers
+                                    .map((friendUser) => {
+                                        const userResult = getSearchResult(
+                                            request,
+                                            'userResult',
+                                        );
+                                        if (
+                                            userResult &&
+                                            userResult.dataset.userId ==
+                                                friendUser.id
+                                        ) {
+                                            return null;
+                                        }
 
-                                    const thumbData = thumbnailMap.get(
-                                        friendUser.id,
-                                    );
-                                    const presence = presenceMap.get(
-                                        friendUser.id,
-                                    );
-                                    return createUserResultHtml(
-                                        friendUser,
-                                        thumbData,
-                                        presence,
-                                        true,
-                                        friendUser.isTrusted,
-                                    );
-                                })
-                                .filter((el) => el !== null);
-                            injectIntoMenu();
+                                        const thumbData = thumbnailMap.get(
+                                            friendUser.id,
+                                        );
+                                        const presence = presenceMap.get(
+                                            friendUser.id,
+                                        );
+                                        return createUserResultHtml(
+                                            friendUser,
+                                            thumbData,
+                                            presence,
+                                            true,
+                                            friendUser.isTrusted,
+                                        );
+                                    })
+                                    .filter((el) => el !== null),
+                            );
+                            if (request.committed) injectIntoMenu();
                         })
                         .catch(() => {});
                 } else {
-                    window._lastRoValraFriendResults = [];
+                    setSearchResult(request, 'friendResults', []);
                 }
-                injectIntoMenu();
+                if (request.committed) injectIntoMenu();
             })
             .catch((e) => {
                 if (e.name !== 'AbortError')
@@ -315,7 +407,7 @@ async function performUserSearch(query) {
 
         const [userSearchData, localFriends] = await Promise.all(promises);
 
-        if (signal.aborted) return;
+        if (!isCurrentSearchRequest(request, signal)) return;
 
         const userResult = userSearchData?.data?.[0];
         const friendIdsFromSearch = localFriends.map((f) => f.id);
@@ -331,7 +423,7 @@ async function performUserSearch(query) {
             }
         }
         if (userResult) {
-            if (signal.aborted) return;
+            if (!isCurrentSearchRequest(request, signal)) return;
 
             const promises2 = [
                 fetchThumbnails(
@@ -365,7 +457,7 @@ async function performUserSearch(query) {
 
             const [userThumbnailMap, fetchedUserDetails] =
                 await Promise.all(promises2);
-            if (signal.aborted) return;
+            if (!isCurrentSearchRequest(request, signal)) return;
 
             let userDetails = fetchedUserDetails;
             let isTrusted = false;
@@ -390,12 +482,16 @@ async function performUserSearch(query) {
             }
 
             const userThumbData = userThumbnailMap.get(userResult.id);
-            window._lastRoValraUserResult = createUserResultHtml(
-                userDetails,
-                userThumbData,
-                null,
-                userResultIsFriend,
-                isTrusted,
+            setSearchResult(
+                request,
+                'userResult',
+                createUserResultHtml(
+                    userDetails,
+                    userThumbData,
+                    null,
+                    userResultIsFriend,
+                    isTrusted,
+                ),
             );
 
             fetchWithRetry(
@@ -409,46 +505,50 @@ async function performUserSearch(query) {
                 signal,
             )
                 .then((presenceData) => {
-                    if (signal.aborted) return;
+                    if (!isCurrentSearchRequest(request, signal)) return;
 
                     const userPresence = presenceData?.userPresences?.[0];
-                    window._lastRoValraUserResult = createUserResultHtml(
-                        userDetails,
-                        userThumbData,
-                        userPresence,
-                        userResultIsFriend,
-                        isTrusted,
+                    setSearchResult(
+                        request,
+                        'userResult',
+                        createUserResultHtml(
+                            userDetails,
+                            userThumbData,
+                            userPresence,
+                            userResultIsFriend,
+                            isTrusted,
+                        ),
                     );
 
-                    if (window._lastRoValraFriendResults) {
-                        window._lastRoValraFriendResults =
-                            window._lastRoValraFriendResults.filter(
-                                (el) => el.dataset.userId != userResult.id,
-                            );
-                    }
-                    injectIntoMenu();
+                    filterFriendResults(request, userResult.id);
+                    if (request.committed) injectIntoMenu();
                 })
                 .catch(() => {});
 
-            if (window._lastRoValraFriendResults) {
-                window._lastRoValraFriendResults =
-                    window._lastRoValraFriendResults.filter(
-                        (el) => el.dataset.userId != userResult.id,
-                    );
-            }
+            filterFriendResults(request, userResult.id);
         } else {
-            window._lastRoValraUserResult = null;
+            setSearchResult(request, 'userResult', null);
         }
 
-        injectIntoMenu();
+        request.userDone = true;
+        commitQuickSearchRequest(request);
     } catch (e) {
-        if (e.name !== 'AbortError')
+        if (e.name !== 'AbortError') {
             console.error(ts('quickSearch.userSearchError'), e);
+            if (isCurrentSearchRequest(request, signal)) {
+                request.userDone = true;
+                commitQuickSearchRequest(request);
+            }
+        }
     }
 }
 
-async function performGameSearch(query) {
-    if (!searchSettings.gameSearchEnabled) return;
+async function performGameSearch(query, request) {
+    if (!searchSettings.gameSearchEnabled) {
+        request.gameDone = true;
+        commitQuickSearchRequest(request);
+        return;
+    }
 
     if (gameSearchAbortController) {
         gameSearchAbortController.abort();
@@ -458,7 +558,7 @@ async function performGameSearch(query) {
 
     try {
         const authedUserId = await getAuthenticatedUserId();
-        if (signal.aborted) return;
+        if (!isCurrentSearchRequest(request, signal)) return;
 
         if (cachedUserId !== authedUserId) {
             cachedFriendsData = null;
@@ -504,7 +604,7 @@ async function performGameSearch(query) {
             friendsPromise,
         ]);
 
-        if (signal.aborted) return;
+        if (!isCurrentSearchRequest(request, signal)) return;
 
         const gameResult = gameSearchData?.searchResults?.find(
             (r) => r.contentGroupType === 'Game' && r.contents?.length > 0,
@@ -516,7 +616,7 @@ async function performGameSearch(query) {
                     (f) => f.userPresence?.universeId === game.universeId,
                 ) || [];
 
-            if (signal.aborted) return;
+            if (!isCurrentSearchRequest(request, signal)) return;
             const promises = [
                 fetchThumbnails([{ id: game.universeId }], 'GameIcon', '50x50'),
                 fetchWithRetry(
@@ -543,7 +643,7 @@ async function performGameSearch(query) {
             const thumbnailMap = results[0];
             const votesData = results[1];
 
-            if (signal.aborted) return;
+            if (!isCurrentSearchRequest(request, signal)) return;
             const voteInfo =
                 votesData.data && votesData.data[0]
                     ? votesData.data[0]
@@ -583,21 +683,33 @@ async function performGameSearch(query) {
                     .filter((f) => f !== null);
             }
 
-            window._lastRoValraGameResult = createResultHtml(
-                game,
-                thumbnailUrl,
-                playerCount,
-                voteRatio,
-                totalVotes,
-                settings,
-                friendsInfo,
+            setSearchResult(
+                request,
+                'gameResult',
+                createResultHtml(
+                    game,
+                    thumbnailUrl,
+                    playerCount,
+                    voteRatio,
+                    totalVotes,
+                    settings,
+                    friendsInfo,
+                ),
             );
+        } else {
+            setSearchResult(request, 'gameResult', null);
         }
 
-        injectIntoMenu();
+        request.gameDone = true;
+        commitQuickSearchRequest(request);
     } catch (e) {
-        if (e.name !== 'AbortError')
+        if (e.name !== 'AbortError') {
             console.error(ts('quickSearch.gameSearchError'), e);
+            if (isCurrentSearchRequest(request, signal)) {
+                request.gameDone = true;
+                commitQuickSearchRequest(request);
+            }
+        }
     }
 }
 
@@ -1569,16 +1681,24 @@ export function init() {
                 if (gameSearchAbortController)
                     gameSearchAbortController.abort('New search initiated');
 
-                selectedIndex = 0;
-                window._lastRoValraUserResult = null;
-                window._lastRoValraGameResult = null;
-                window._lastRoValraFriendResults = [];
-                injectIntoMenu(true);
+                if (currentVal.length < 1) {
+                    activeQuickSearchRequest = null;
+                    latestCommittedQuickSearchRequest = null;
+                    selectedIndex = 0;
+                    window._lastRoValraUserResult = null;
+                    window._lastRoValraGameResult = null;
+                    window._lastRoValraFriendResults = [];
+                    injectIntoMenu(true);
+                    return;
+                }
 
-                if (currentVal.length < 1) return;
+                const request = createQuickSearchRequest(currentVal);
+                activeQuickSearchRequest = request;
 
-                debouncedUserSearch(currentVal);
-                if (currentVal.length >= 2) debouncedGameSearch(currentVal);
+                debouncedUserSearch(currentVal, request);
+                if (currentVal.length >= 2) {
+                    debouncedGameSearch(currentVal, request);
+                }
             };
 
             input.addEventListener('input', () => triggerSearch());
