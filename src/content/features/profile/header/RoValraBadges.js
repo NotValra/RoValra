@@ -8,6 +8,11 @@ import { getUserIdFromUrl } from '../../../core/idExtractor.js';
 import { getAuthenticatedUserId } from '../../../core/user.js';
 const badgeCache = new Map();
 
+function applyBadgeIconStyle(icon, badge) {
+    icon.style.filter = '';
+    Object.assign(icon.style, badge.style || {});
+}
+
 function ensureShineStyle() {
     if (document.getElementById('rovalra-badge-shine-style')) return;
     const style = document.createElement('style'); //Verified
@@ -37,14 +42,17 @@ function createHeaderBadge(parentContainer, badge) {
     if (badge.iconAssetName) {
         icon.dataset.rovalraAsset = badge.iconAssetName;
     }
+    if (badge.id) {
+        icon.dataset.rovalraBadgeConfig = badge.id;
+    }
     icon.src = badge.icon;
     icon.dataset.badgeId = badge.tooltip || 'badge';
     Object.assign(icon.style, {
         width: badge.size || 'var(--icon-size-large)',
         height: badge.size || 'var(--icon-size-large)',
         cursor: 'pointer',
-        ...badge.style,
     });
+    applyBadgeIconStyle(icon, badge);
 
     if (badge.confetti) {
         icon.addEventListener('click', (e) => {
@@ -286,6 +294,16 @@ async function addProfileBadgeButtons(buttonContainer) {
 }
 
 export function init() {
+    document.addEventListener('rovalra:assetsUpdated', () => {
+        document
+            .querySelectorAll('[data-rovalra-badge-config]')
+            .forEach((icon) => {
+                const badge = BADGE_CONFIG[icon.dataset.rovalraBadgeConfig];
+                if (!badge) return;
+                applyBadgeIconStyle(icon, badge);
+            });
+    });
+
     chrome.storage.local.get({ RoValraBadgesEnable: true }, (settings) => {
         if (!settings.RoValraBadgesEnable) return;
 
