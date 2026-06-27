@@ -81,7 +81,9 @@ function compileScssFile(inputFile, outputFile) {
 esbuild
     .build({
         ...commonConfig,
-        entryPoints: ['src/background/background.js'],
+        entryPoints: [
+            path.join(__dirname, 'src', 'background', 'background.js'),
+        ],
         outfile: 'dist/background.js',
         bundle: true,
     })
@@ -90,7 +92,16 @@ esbuild
 esbuild
     .build({
         ...commonConfig,
-        entryPoints: ['src/content/core/xhr/intercept.js'],
+        entryPoints: [
+            path.join(
+                __dirname,
+                'src',
+                'content',
+                'core',
+                'xhr',
+                'intercept.js',
+            ),
+        ],
         outfile: 'dist/intercept.js',
         bundle: false,
     })
@@ -167,7 +178,9 @@ const dracoSource = fs.readFileSync(dracoPath, 'utf8');
 esbuild
     .build({
         ...commonConfig,
-        entryPoints: ['src/content/index.js'],
+        entryPoints: [
+            path.join(__dirname, 'src', 'content', 'index.js'),
+        ],
         outfile: 'dist/content.js',
         bundle: true,
         // This injects Draco directly into the content script context for roavatar-renderer

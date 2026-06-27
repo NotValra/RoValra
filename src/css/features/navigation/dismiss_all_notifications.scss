@@ -1,0 +1,60 @@
+.notification-stream-header .rovalra-dismiss-all-notifications {
+    appearance: none;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    margin-left: auto;
+    margin-right: 12px;
+    padding: 0;
+}
+
+.notification-stream-header .rovalra-dismiss-all-notifications:disabled {
+    cursor: default;
+    opacity: 0.45;
+}
+
+.rovalra-dismiss-all-status {
+    display: grid;
+    gap: 2px;
+    margin: 0 12px 8px;
+    padding: 8px 10px;
+    border-left: 3px solid #335fff;
+    border-radius: 6px;
+    background: var(--rovalra-container-background-color, rgba(0, 0, 0, 0.04));
+    color: var(--rovalra-main-text-color, #393b3d);
+}
+
+.rovalra-dismiss-all-status[data-state='working'] {
+    border-left-color: #335fff;
+}
+
+.rovalra-dismiss-all-status[data-state='limited'] {
+    border-left-color: #f59f00;
+    background: rgba(245, 159, 0, 0.12);
+}
+
+.rovalra-dismiss-all-status[data-state='done'] {
+    border-left-color: #02aa51;
+    background: rgba(2, 170, 81, 0.1);
+}
+
+.rovalra-dismiss-all-status[data-state='error'] {
+    border-left-color: #e53935;
+    background: rgba(229, 57, 53, 0.1);
+}
+
+.rovalra-dismiss-all-status-title {
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.rovalra-dismiss-all-status-message,
+.rovalra-dismiss-all-status-meta {
+    font-size: 12px;
+    line-height: 1.3;
+}
+
+.rovalra-dismiss-all-status-meta {
+    color: var(--rovalra-secondary-text-color, #606162);
+}
