@@ -1,7 +1,7 @@
 /// <reference types="chrome" />
 /** @jsx createJSXElement */
 
-import { getTabIdentifier } from "./utils/customTabId";
+import { getTabIdentifier } from "./utils/customTabId.js";
 import { createJSXElement } from "./jsx-runtime";
 
 declare global {
@@ -14,6 +14,7 @@ declare global {
 const oldConsole = console;
 
 function InitPatchLogging() {
+    // Patch console to append a RoValra prefix, and also write to Excess Logs
     globalThis.console = {
         log: (fmt, ...msg)   => { writeToExcessLogs(Level.Info, fmt, ...msg); return oldConsole.log(`(RoValra:Log) ${fmt}`, ...msg) },
         debug: (fmt, ...msg) => { writeToExcessLogs(Level.Debug, fmt, ...msg); return oldConsole.debug(`(RoValra:Debug) ${fmt}`, ...msg) },
@@ -22,6 +23,7 @@ function InitPatchLogging() {
         error: (fmt, ...msg) => { writeToExcessLogs(Level.Error, fmt, ...msg); return oldConsole.error(`(RoValra:Error) ${fmt}`, ...msg) },
     } as Console;
 
+    // Any unhandled/uncaught synchronous and asynchronous errors
     if (globalThis.window) {
         window.addEventListener("error", (event) => {
             event.preventDefault();
@@ -56,10 +58,11 @@ export function debugVerbose(fmt: string, ...args: any[]) {
 
 export function writeToExcessLogs(level: number, fmt: string, ...args: any[]) {
     const key = computeExtraVerboseDebugKey();
-    if (key !== undefined) {
-        chrome.storage.session.get( { [key]: [] }, async (items) => {
-            (items[key] as Array<[number, string, ...string[]]>).push([level, fmt, ...args]);
-            chrome.storage.session.set( { [key]: items[key] } );
+
+    if (key !== undefined) {  // Theoretically, this should never be undefined
+        chrome.storage.session.get( { [key]: [] }, async (items) => {  // Get the current array of logs
+            (items[key] as Array<[number, string, ...string[]]>).push([level, fmt, ...args]);  // Add the new log
+            chrome.storage.session.set( { [key]: items[key] } );  // Save the updated array
         });
     }
 }
@@ -96,30 +99,35 @@ async function InitVerboseDebugging() {
     verbose = (await chrome.storage.local.get({verboseDebug: false})).verboseDebug as boolean;  // believe me, I would *love* to use the new settings API here, but that deadlocks
     let key = computeExtraVerboseDebugKey();
     if (key)
-        await chrome.storage.local.set({ [key]: [] });
+        await chrome.storage.session.set({ [key]: [] });  // Initialise an empty array for writeToExcessLogs to use
 }
 
-// -- --
+// ---- ----
 
 
 
-// -- Verbose Debug HTMLElement Stack Traces --
+// ---- Verbose Debug HTMLElement Stack Traces ----
 
-let RoValraElements: Array<[Element, string[]]> = [];
+let RoValraElements: Array<[Element, string[]]> = [];  // Tracked elements
 
 function GetStackTrace(): string[] {
     const err = new Error();
     const stackTraceStr = err.stack;
-    return stackTraceStr?.split("\n").filter(Boolean).splice(1).map((s) => s.trimStart()) ?? [];
+    return stackTraceStr?.split("\n").filter(Boolean).splice(1).map((s) => s.trimStart()) ?? [];  // Turn the stack trace string into an array
 }
 
+// For every element created by RoValra, this creates a child node containing the full stack trace of whatever created the parent element.
+// This does not apply to non-RoValra-created elements. This is purely for debugging purposes
+// Off by default for performance and memory concerns.
+
 function InitVerboseDebug_HTMLElementStackTraceLogging() {  // Note: I know, long and complex name
-    if (!verbose) return;  // This will create tons of DOM elements (880 at the time of writing this comment), so only run this if the Verbose Debugging setting is enabled
+    if (!verbose) return;  // This will create tons of DOM elements (880 on the home page at the time of writing this comment), so only run this if the Verbose Debugging setting is enabled
     if (globalThis.document === undefined) return;  // Ignore background.js
 
     const createElementUnpatched = document.createElement.bind(document);
 
     document.createElement = function<K extends keyof HTMLElementTagNameMap>(tagName: K, options?: ElementCreationOptions | undefined): HTMLElementTagNameMap[K] {
+        // These are elements where injecting stack traces may cause visual glitches
         if ([
             "html",
             "head",
@@ -136,6 +144,9 @@ function InitVerboseDebug_HTMLElementStackTraceLogging() {  // Note: I know, lon
             "hr",
             "meta",
             "link",
+
+            // Technically, there's no need to put these two here since they're created with createElementUnpatched,
+            // but better safe than sorry
             "rovalra-metadata-stacktrace",
             "rovalra-stacktrace-element",
         ].includes(tagName)) {
@@ -145,7 +156,7 @@ function InitVerboseDebug_HTMLElementStackTraceLogging() {  // Note: I know, lon
         if (element.closest('select'))
             return element;
 
-        RoValraElements.push([element, GetStackTrace().slice(3)]);
+        RoValraElements.push([element, GetStackTrace().slice(3)]);  // Keep a reference to the element to track it
 
         return element;
     }
@@ -157,18 +168,18 @@ function InitVerboseDebug_HTMLElementStackTraceLogging() {  // Note: I know, lon
             for (const node of record.addedNodes) {
                 if (!(node instanceof Element)) continue;
 
-                const match = RoValraElements.find(([element]) => element === node);
+                const match = RoValraElements.find(([element]) => element === node);  // Is it tracked?
 
                 if (!match) continue;
 
                 const [targetNode, stackTrace] = match;
 
-                const toProcess = [node];
+                const toProcess = [node];  // All elements we gotta process (get the stack traces of and store the stack traces of)
                 for (const descendant of node.querySelectorAll("*")) {
                     toProcess.push(descendant);
                 }
                 for (const processingNode of toProcess) {
-                    const childMatch = RoValraElements.find(([element]) => element === processingNode) ?? [undefined, stackTrace];
+                    const childMatch = RoValraElements.find(([element]) => element === processingNode) ?? [undefined, stackTrace];  // No checks here -- you wont find Roblox elements under RoValra elements
                     
                     const [, childStackTrace] = childMatch;
 
@@ -201,22 +212,24 @@ function InitVerboseDebug_HTMLElementStackTraceLogging() {  // Note: I know, lon
                     }
                 }
 
-                RoValraElements = RoValraElements.filter(([element]) => !toRemove.find((k) => k === element));
+                RoValraElements = RoValraElements.filter(([element]) => !toRemove.find((k) => k === element));  // Remove those tracked elements so the garbage collector can clean up that data
             }
         }
     });
 
+    // Watch for all changes made to the document.
+    // Remember: this doesn't run in the Verbose Debug feature is disabled, so no need to worry about performance issues for users
     observer.observe(document.documentElement, {
         subtree: true,
         childList: true,
     });
 }
 
-// -- --
+// ---- ----
 
 
 
-// -- Verbose Debug Excess Logs --
+// ---- Verbose Debug Excess Logs ----
 
 // This page can be used to see all RoValra logs across all open tabs (they persist refresh, and get cleared on tab close) and all logs of background.js.
 // It also includes all VerboseDebug logs (even if the feature is disabled), acting as a unified place to view all logs, for debugging purposes.
