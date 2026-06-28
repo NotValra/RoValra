@@ -27,4 +27,10 @@ export default {
 
   skipErrorChecking: true,
   customCss: "./assets/docs/css.css",
+
+  projectDocuments: [
+    "README.md",
+    "CONTRIBUTING.md",
+    "assets/docs/RoValra-LICENSE.md"
+  ],
 };
