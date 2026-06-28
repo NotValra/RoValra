@@ -19,6 +19,7 @@
         "prettier-eslint": "^16.4.2",
         "rimraf": "^6.1.3",
         "sass": "^1.100.0",
+        "typedoc": "0.28.19",
         "yaml": "^2.9.0"
     },
     "dependencies": {
@@ -40,5 +41,6 @@
     "lint-staged": {
         "*.js": "eslint --fix",
         "*.{js,json,css,md}": "prettier --write"
-    }
+    },
+    "type": "module"
 }

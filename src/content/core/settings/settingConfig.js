@@ -12,6 +12,36 @@ const isAprilFools = () => {
 
 // Settings config (not developer settings)
 
+/**
+ * The supported setting input types.
+ *
+ * @typedef {'checkbox' | 'select' | 'input' | 'gradient' | 'color' | 'file' | 'number' | 'button' | 'list'} SettingType
+ */
+
+/**
+ * @typedef {Object} Setting
+ * @property {string} label - The setting label.
+ * @property {number[]} [contributors] - The contributors of the setting
+ * @property {string[] | string} description - The description of the setting
+ * @property {SettingType} type - The input type expected from the user (ex. 'checkbox', 'gradient')
+ * @property {Setting} [childSettings] - Child Settings / Sub-Settings
+ * @property {unknown}  [default] - The default value
+ * 
+ * @property {string} [placeholder] - The placeholder, where applicable
+ * @property {string} [buttonText] - The text of the button, where applicable
+ * @property {string} [event] - The event triggered by activating the setting, where applicable
+ * 
+ * @property {string} [deprecated] - Present if the setting is deprecated. Value represents why the setting is deprecated
+ * @property {string} [beta] - Present if the setting is in beta. Value represents why the setting is in beta
+ * @property {string} [experimental] - Present if the setting is experimental. Value represents why the setting is experimental
+ * 
+ * @group User/Settings
+ */
+
+/**
+ * @type {Record<string, {title: string, settings: Record<string, Setting>}>}
+ * @group User/Settings
+ */
 export const SETTINGS_CONFIG = {
     Marketplace: {
         title: 'Marketplace',
