@@ -2,7 +2,7 @@ name: Deploy TypeDoc to GitHub Pages
 
 on:
   push:
-    branches: [ 'dev/addDevDocs-1' ]
+    branches: [ main ]
 
 permissions:
   contents: read
