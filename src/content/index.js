@@ -1,3 +1,5 @@
+import "./core/logging.js";
+
 import { initializeObserver, startObserving } from './core/observer.js';
 import { detectTheme, dispatchThemeEvent } from './core/theme.js';
 import { getValidAccessToken } from './core/oauth/oauth.js';
