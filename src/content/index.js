@@ -33,6 +33,7 @@ import { init as initGroupFunds } from './features/navigation/groupfunds.js';
 import { init as initUrlTracker } from './core/utils/trackers/urlTracker.js';
 import { init as initCustomFont } from './features/sitewide/customFont.js';
 import { init as initTransactionsLink } from './features/navigation/transactionslink.js';
+import { init as initDocsLink } from './features/navigation/docslink.js';
 import { initializeModernIcons as initModernIcons } from './features/sitewide/modernIcons.js';
 import { init as initLoginBanner } from './features/scamprevention/loginBanner.js';
 import { init as initLessPlus } from './features/sitewide/lessPlus.js';
@@ -187,6 +188,7 @@ const featureRoutes = [
             initBannedUsers,
             initGroupFunds,
             initTransactionsLink,
+            initDocsLink,
             initStatus,
             initCustomFont,
             initRobuxIcons,

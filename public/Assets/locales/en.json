@@ -371,7 +371,8 @@
         "noPermissions": "No Permission"
     },
     "navigation": {
-        "transactions": "Transactions"
+        "transactions": "Transactions",
+        "apiDocs": "API Docs"
     },
     "sidebarCollapse": {
         "collapseSidebar": "Collapse sidebar",

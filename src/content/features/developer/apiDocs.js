@@ -1,59 +1,616 @@
+import SwaggerUIBundle from 'swagger-ui-dist/swagger-ui-bundle.js';
 import { observeElement } from '../../core/observer.js';
-import { callRobloxApi } from '../../core/api.js';
+import { callRobloxApi, callRobloxApiJson } from '../../core/api.js';
 import { createDropdown } from '../../core/ui/dropdown.js';
+import { createStyledInput } from '../../core/ui/catalog/input.js';
 import { createOverlay } from '../../core/ui/overlay.js';
-import DOMPurify from 'dompurify';
+import { settings } from '../../core/settings/getSettings.js';
 
-const CAPTURED_APIS_KEY = 'rovalra_captured_apis';
+const DOCS_INDEX_ENDPOINT = '/v1/roblox-docs';
+const DOCS_BASE_URL = 'https://apis.rovalra.com';
+const SWAGGER_STYLE_ID = 'rovalra-swagger-ui-style';
+const SWAGGER_THEME_STYLE_ID = 'rovalra-swagger-theme-style';
+const SWAGGER_BRIDGE_HEADER = 'x-rovalra-swagger-request';
+const OLD_CAPTURED_APIS_STORAGE_KEY = 'rovalra_captured_apis';
+const OLD_API_DOCS_STORAGE_KEY = 'EnableRobloxApiDocs';
+let swaggerFetchBridgeInstalled = false;
+
+function cleanupOldCapturedApisStorage() {
+    chrome.storage.local.get(OLD_CAPTURED_APIS_STORAGE_KEY, (result) => {
+        if (
+            !Object.prototype.hasOwnProperty.call(
+                result,
+                OLD_CAPTURED_APIS_STORAGE_KEY,
+            )
+        ) {
+            return;
+        }
+
+        chrome.storage.local.remove(OLD_CAPTURED_APIS_STORAGE_KEY);
+    });
+}
+
+function cleanupOldApiDocsStorage() {
+    chrome.storage.local.get(
+        [OLD_API_DOCS_STORAGE_KEY, 'rovalra_settings'],
+        (result) => {
+            if (
+                Object.prototype.hasOwnProperty.call(
+                    result,
+                    OLD_API_DOCS_STORAGE_KEY,
+                )
+            ) {
+                chrome.storage.local.remove(OLD_API_DOCS_STORAGE_KEY);
+            }
+
+            const settingsData = result.rovalra_settings;
+            if (
+                !settingsData ||
+                !Object.prototype.hasOwnProperty.call(
+                    settingsData,
+                    OLD_API_DOCS_STORAGE_KEY,
+                )
+            ) {
+                return;
+            }
+
+            const nextSettingsData = { ...settingsData };
+            delete nextSettingsData[OLD_API_DOCS_STORAGE_KEY];
+            chrome.storage.local.set({ rovalra_settings: nextSettingsData });
+        },
+    );
+}
 
 function removeHomeElement() {
-    const homeElementToRemove = document.querySelector('li.cursor-pointer.btr-nav-node-header_home.btr-nav-header_home');
+    const homeElementToRemove = document.querySelector(
+        'li.cursor-pointer.btr-nav-node-header_home.btr-nav-header_home',
+    );
     if (homeElementToRemove) homeElementToRemove.remove();
 }
 
-function renderDocsPage(contentDiv, suppressWarning = false) {
-    if (window.location.pathname.toLowerCase() !== '/docs') return;
-    
-    contentDiv.innerHTML = '';
-    contentDiv.style.position = 'relative';
-    contentDiv.style.backgroundColor = 'var(--rovalra-container-background-color)';
-    contentDiv.style.minHeight = 'calc(100vh - 60px)';
-    
-    if (!suppressWarning) {
-        const confirmBtn = document.createElement('button');
-        confirmBtn.className = 'btn-primary-md';
-        confirmBtn.textContent = 'I Understand';
-
-        const { close } = createOverlay({
-            title: 'Warning: Advanced Feature',
-            bodyContent: `
-                <div class="flex flex-col gap-medium">
-                    <p>This page allows you to execute API requests.</p>
-                    <p><strong>These requests are performed using your account credentials.</strong></p>
-                    <p>Do not execute any requests if you do not understand what they do. Misuse of this feature could lead to unwanted changes to your account.</p>
-                </div>
-            `,
-            actions: [confirmBtn],
-            preventBackdropClose: true
-        });
-
-        confirmBtn.onclick = () => {
-            close();
-        };
+function loadSwaggerStyles() {
+    if (!document.getElementById(SWAGGER_STYLE_ID)) {
+        const link = document.createElement('link');
+        link.id = SWAGGER_STYLE_ID;
+        link.rel = 'stylesheet';
+        link.href = chrome.runtime.getURL('css/swagger-ui.css');
+        document.head.appendChild(link);
     }
 
+    if (!document.getElementById(SWAGGER_THEME_STYLE_ID)) {
+        const link = document.createElement('link');
+        link.id = SWAGGER_THEME_STYLE_ID;
+        link.rel = 'stylesheet';
+        link.href = chrome.runtime.getURL('css/swagger-theme.css');
+        document.head.appendChild(link);
+    }
+}
+
+function getDocsUrl(documentInfo) {
+    if (!documentInfo?.docs_url) return '';
+    try {
+        return new URL(documentInfo.docs_url, DOCS_BASE_URL).toString();
+    } catch {
+        return '';
+    }
+}
+
+function getDocumentLabel(documentInfo) {
+    return documentInfo?.slug || documentInfo?.docs_url || 'Untitled API';
+}
+
+function getDocumentSearchText(documentInfo) {
+    return [
+        documentInfo?.label,
+        documentInfo?.slug,
+        documentInfo?.docs_url,
+        documentInfo?.docsUrl,
+    ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
+}
+
+function getDocumentGroup(documentInfo) {
+    const slug = documentInfo?.slug || '';
+    const [groupName, childName] = slug.split('/');
+    if (!groupName || !childName) return null;
+    return groupName;
+}
+
+async function fetchDocsIndex() {
+    const data = await callRobloxApiJson({
+        endpoint: DOCS_INDEX_ENDPOINT,
+        isRovalraApi: true,
+        skipAutoAuth: true,
+        noCache: true,
+    });
+
+    if (data?.status !== 'ok' || !Array.isArray(data.documents)) {
+        throw new Error('The docs index returned an unexpected response.');
+    }
+
+    return data.documents
+        .map((documentInfo) => ({
+            ...documentInfo,
+            docsUrl: getDocsUrl(documentInfo),
+            label: getDocumentLabel(documentInfo),
+        }))
+        .filter((documentInfo) => documentInfo.docsUrl);
+}
+
+async function fetchOpenApiSpec(documentInfo) {
+    const url = new URL(documentInfo.docsUrl);
+    return await callRobloxApiJson({
+        endpoint: `${url.pathname}${url.search}`,
+        isRovalraApi: true,
+        skipAutoAuth: true,
+        noCache: true,
+    });
+}
+
+function renderStatus(container, message, tone = 'muted') {
+    const color =
+        tone === 'error' ? '#f93e3e' : 'var(--rovalra-secondary-text-color)';
+    container.textContent = '';
+
+    const status = document.createElement('div');
+    status.style.padding = '40px';
+    status.style.textAlign = 'center';
+    status.style.color = color;
+    status.textContent = message;
+
+    container.appendChild(status);
+}
+
+function showWarning() {
+    const confirmBtn = document.createElement('button');
+    confirmBtn.className = 'btn-primary-md';
+    confirmBtn.textContent = 'I Understand';
+
+    const { close } = createOverlay({
+        title: 'Warning: Advanced Feature',
+        bodyContent: `
+            <div class="flex flex-col gap-medium">
+                <p>This page allows you to inspect and execute documented API requests.</p>
+                <p><strong>Only execute requests if you understand what they do.</strong></p>
+                <p>Misuse of this feature could lead to unwanted changes to your account.</p>
+            </div>
+        `,
+        actions: [confirmBtn],
+        preventBackdropClose: true,
+    });
+
+    confirmBtn.onclick = () => {
+        close();
+    };
+}
+
+function getRequestHeaderValue(headers, name) {
+    if (!headers) return null;
+    if (headers instanceof Headers) return headers.get(name);
+    return headers[name] || headers[name.toLowerCase()] || null;
+}
+
+function removeRequestHeader(headers, name) {
+    const normalizedName = name.toLowerCase();
+
+    if (headers instanceof Headers) {
+        const nextHeaders = new Headers(headers);
+        nextHeaders.delete(name);
+        return Object.fromEntries(nextHeaders.entries());
+    }
+
+    if (Array.isArray(headers)) {
+        return headers.filter(
+            ([key]) => String(key).toLowerCase() !== normalizedName,
+        );
+    }
+
+    const nextHeaders = { ...(headers || {}) };
+    Object.keys(nextHeaders).forEach((key) => {
+        if (key.toLowerCase() === normalizedName) delete nextHeaders[key];
+    });
+    return nextHeaders;
+}
+
+async function getSwaggerRequestBody(input, init) {
+    if (init?.body !== undefined) return init.body;
+    if (input instanceof Request) {
+        const clonedRequest = input.clone();
+        return await clonedRequest.text();
+    }
+    return null;
+}
+
+function getRovalraSubdomain(hostname) {
+    if (hostname === 'rovalra.com') return 'www';
+    return hostname.replace('.rovalra.com', '') || 'apis';
+}
+
+async function callSwaggerRequestThroughApi(input, init = {}) {
+    const request = input instanceof Request ? input : null;
+    const url = request ? request.url : String(input || '');
+    const parsedUrl = new URL(url);
+    const requestHeaders = request ? request.headers : init.headers;
+    const headers = removeRequestHeader(requestHeaders, SWAGGER_BRIDGE_HEADER);
+    const method = init.method || request?.method || 'GET';
+    const isRovalraApi = parsedUrl.hostname.endsWith('rovalra.com');
+
+    return await callRobloxApi({
+        fullUrl: url,
+        endpoint: `${parsedUrl.pathname}${parsedUrl.search}`,
+        subdomain: isRovalraApi
+            ? getRovalraSubdomain(parsedUrl.hostname)
+            : parsedUrl.hostname.endsWith('.roblox.com')
+              ? parsedUrl.hostname.replace('.roblox.com', '')
+              : 'apis',
+        method,
+        isRovalraApi,
+        headers,
+        body: await getSwaggerRequestBody(input, init),
+        credentials:
+            init.credentials ||
+            request?.credentials ||
+            (isRovalraApi ? 'omit' : 'include'),
+        noCache: true,
+    });
+}
+
+function installSwaggerFetchBridge() {
+    if (swaggerFetchBridgeInstalled) return;
+    swaggerFetchBridgeInstalled = true;
+
+    const originalFetch = window.fetch.bind(window);
+    window.fetch = async (input, init = {}) => {
+        const requestHeaders =
+            input instanceof Request ? input.headers : init.headers;
+        if (getRequestHeaderValue(requestHeaders, SWAGGER_BRIDGE_HEADER)) {
+            return await callSwaggerRequestThroughApi(input, init);
+        }
+        return await originalFetch(input, init);
+    };
+}
+
+function getVisibleSwaggerSelects(swaggerContainer) {
+    return Array.from(swaggerContainer.querySelectorAll('select')).filter(
+        (select) => {
+            if (select.dataset.rovalraDropdownEnhanced === 'true') return false;
+            if (select.closest('.rovalra-dropdown-container')) return false;
+
+            const rect = select.getBoundingClientRect();
+            return rect.width > 0 && rect.height > 0;
+        },
+    );
+}
+
+function enhanceSwaggerSelect(select) {
+    if (select.dataset.rovalraDropdownEnhanced === 'true') return;
+    if (select.closest('.rovalra-dropdown-container')) return;
+
+    const selectRect = select.getBoundingClientRect();
+    if (selectRect.width === 0 || selectRect.height === 0) return;
+
+    const items = Array.from(select.options).map((option) => ({
+        label: option.textContent?.trim() || option.value,
+        value: option.value,
+    }));
+
+    if (!items.length) return;
+
+    let isSyncingSelect = false;
+    const dropdown = createDropdown({
+        items,
+        initialValue: select.value,
+        placeholder: 'Select...',
+        onValueChange: (value) => {
+            isSyncingSelect = true;
+            select.value = value;
+            select.dispatchEvent(new Event('change', { bubbles: true }));
+            isSyncingSelect = false;
+        },
+    });
+
+    dropdown.element.classList.add('rovalra-swagger-dropdown');
+    select.dataset.rovalraDropdownEnhanced = 'true';
+    select.style.display = 'none';
+    select.insertAdjacentElement('afterend', dropdown.element);
+
+    select.addEventListener('change', () => {
+        if (isSyncingSelect) return;
+        isSyncingSelect = true;
+        dropdown.setValue(select.value);
+        isSyncingSelect = false;
+    });
+}
+
+function enhanceSwaggerControls(swaggerContainer) {
+    getVisibleSwaggerSelects(swaggerContainer).forEach(enhanceSwaggerSelect);
+}
+
+function watchSwaggerControls(swaggerContainer) {
+    const selectObserver = observeElement('select', enhanceSwaggerSelect, {
+        root: swaggerContainer,
+        multiple: true,
+    });
+
+    requestAnimationFrame(() => {
+        enhanceSwaggerControls(swaggerContainer);
+    });
+
+    return () => {
+        selectObserver.disconnect();
+    };
+}
+
+function renderSwagger(swaggerContainer, spec) {
+    installSwaggerFetchBridge();
+    swaggerContainer.innerHTML = '';
+    swaggerContainer._rovalraStopSwaggerControlWatcher?.();
+    swaggerContainer._rovalraStopSwaggerControlWatcher = null;
+
+    SwaggerUIBundle({
+        domNode: swaggerContainer,
+        spec,
+        deepLinking: true,
+        docExpansion: 'list',
+        defaultModelsExpandDepth: 1,
+        displayRequestDuration: true,
+        filter: true,
+        persistAuthorization: false,
+        tryItOutEnabled: false,
+        validatorUrl: null,
+        withCredentials: true,
+        requestInterceptor: (request) => {
+            const url = String(request.url || '');
+            request.headers = request.headers || {};
+            request.headers[SWAGGER_BRIDGE_HEADER] = 'true';
+
+            if (url.includes('rovalra.com')) {
+                request.credentials = 'omit';
+            } else if (url.includes('roblox.com')) {
+                request.credentials = 'include';
+            }
+            return request;
+        },
+        onComplete: () => {
+            swaggerContainer._rovalraStopSwaggerControlWatcher =
+                watchSwaggerControls(swaggerContainer);
+        },
+    });
+}
+
+function createDocsSidebar({ documents, activeDocument, onSelect }) {
+    const sidebar = document.createElement('aside');
+    sidebar.className = 'rovalra-api-docs-sidebar';
+
+    const { container: searchContainer, input: searchInput } =
+        createStyledInput({
+            id: 'rovalra-api-docs-search',
+            label: 'Search docs',
+            placeholder: 'Search docs',
+        });
+    searchInput.type = 'search';
+    searchContainer.classList.add('rovalra-api-docs-search');
+
+    const list = document.createElement('div');
+    list.className = 'rovalra-api-docs-list';
+
+    let currentDocument = activeDocument;
+    let searchTerm = '';
+    const collapsedGroups = new Set();
+
+    const createDocumentItem = (documentInfo, groupName = null) => {
+        const item = document.createElement('button');
+        item.type = 'button';
+        item.className =
+            'rovalra-api-docs-nav-item rovalra-dropdown-item relative clip group/interactable focus-visible:outline-focus disabled:outline-none foundation-web-menu-item flex items-center content-default text-truncate-split focus-visible:hover:outline-none cursor-pointer stroke-none bg-none text-align-x-left width-full text-body-medium padding-x-medium padding-y-small gap-x-medium radius-medium';
+        item.dataset.value = documentInfo.docsUrl;
+        item.setAttribute(
+            'aria-pressed',
+            String(documentInfo === currentDocument),
+        );
+        item.setAttribute(
+            'data-selected',
+            String(documentInfo === currentDocument),
+        );
+
+        const itemPresentationDiv = document.createElement('div');
+        itemPresentationDiv.setAttribute('role', 'presentation');
+        itemPresentationDiv.className =
+            'absolute inset-[0] transition-colors group-hover/interactable:bg-[var(--color-state-hover)] group-active/interactable:bg-[var(--color-state-press)] group-disabled/interactable:bg-none';
+
+        const itemTextWrapper = document.createElement('div');
+        itemTextWrapper.className =
+            'grow-1 text-truncate-split flex flex-col gap-y-xsmall';
+
+        const itemText = document.createElement('span');
+        itemText.className =
+            'foundation-web-menu-item-title text-no-wrap text-truncate-split content-emphasis';
+        itemText.textContent =
+            groupName && documentInfo.slug?.startsWith(`${groupName}/`)
+                ? documentInfo.slug.slice(groupName.length + 1)
+                : documentInfo.label;
+        itemTextWrapper.appendChild(itemText);
+
+        if (documentInfo === currentDocument) {
+            item.classList.add('is-active');
+            item.classList.add('highlight-enabled');
+        }
+
+        item.append(itemPresentationDiv, itemTextWrapper);
+
+        item.addEventListener('click', () => {
+            currentDocument = documentInfo;
+            renderList();
+            onSelect(documentInfo);
+        });
+
+        return item;
+    };
+
+    const getGroupedDocuments = (visibleDocuments) => {
+        const groups = new Map();
+        const groupedDocuments = new Set();
+
+        documents.forEach((documentInfo) => {
+            const groupName = getDocumentGroup(documentInfo);
+            if (!groupName) return;
+            if (!groups.has(groupName)) groups.set(groupName, []);
+            groups.get(groupName).push(documentInfo);
+        });
+
+        const collapsibleGroups = Array.from(groups.entries())
+            .filter(([, groupDocuments]) => groupDocuments.length >= 2)
+            .map(([groupName, groupDocuments]) => {
+                const visibleGroupDocuments = groupDocuments.filter(
+                    (documentInfo) => visibleDocuments.includes(documentInfo),
+                );
+
+                visibleGroupDocuments.forEach((documentInfo) =>
+                    groupedDocuments.add(documentInfo),
+                );
+
+                return {
+                    groupName,
+                    documents: visibleGroupDocuments,
+                    total: groupDocuments.length,
+                };
+            })
+            .filter((group) => group.documents.length > 0);
+
+        return {
+            collapsibleGroups,
+            ungroupedDocuments: visibleDocuments.filter(
+                (documentInfo) => !groupedDocuments.has(documentInfo),
+            ),
+        };
+    };
+
+    const createGroupSection = ({
+        groupName,
+        documents: groupDocuments,
+        total,
+    }) => {
+        const section = document.createElement('div');
+        section.className = 'rovalra-api-docs-group';
+
+        const isCollapsed = !searchTerm && collapsedGroups.has(groupName);
+        const header = document.createElement('button');
+        header.type = 'button';
+        header.className = 'rovalra-api-docs-group-header';
+        header.setAttribute('aria-expanded', String(!isCollapsed));
+
+        const label = document.createElement('span');
+        label.className = 'rovalra-api-docs-group-label';
+        label.textContent = groupName;
+
+        const count = document.createElement('span');
+        count.className = 'rovalra-api-docs-group-count';
+        count.textContent = `${total}`;
+
+        const arrow = document.createElement('span');
+        arrow.className = 'rovalra-api-docs-group-arrow';
+        arrow.textContent = isCollapsed ? '>' : 'v';
+
+        header.append(label, count, arrow);
+        header.addEventListener('click', () => {
+            if (collapsedGroups.has(groupName)) {
+                collapsedGroups.delete(groupName);
+            } else {
+                collapsedGroups.add(groupName);
+            }
+            renderList();
+        });
+
+        section.appendChild(header);
+
+        if (!isCollapsed) {
+            const children = document.createElement('div');
+            children.className = 'rovalra-api-docs-group-children';
+            groupDocuments.forEach((documentInfo) => {
+                children.appendChild(
+                    createDocumentItem(documentInfo, groupName),
+                );
+            });
+            section.appendChild(children);
+        }
+
+        return section;
+    };
+
+    const renderList = () => {
+        list.textContent = '';
+
+        const visibleDocuments = documents.filter((documentInfo) =>
+            getDocumentSearchText(documentInfo).includes(searchTerm),
+        );
+
+        if (!visibleDocuments.length) {
+            const empty = document.createElement('div');
+            empty.className = 'rovalra-api-docs-empty';
+            empty.textContent = 'No docs found.';
+            list.appendChild(empty);
+            return;
+        }
+
+        const { collapsibleGroups, ungroupedDocuments } =
+            getGroupedDocuments(visibleDocuments);
+
+        collapsibleGroups.forEach((group) => {
+            list.appendChild(createGroupSection(group));
+        });
+
+        ungroupedDocuments.forEach((documentInfo) => {
+            list.appendChild(createDocumentItem(documentInfo));
+        });
+    };
+
+    searchInput.addEventListener('input', () => {
+        searchTerm = searchInput.value.trim().toLowerCase();
+        renderList();
+    });
+
+    renderList();
+    sidebar.append(searchContainer, list);
+
+    return {
+        element: sidebar,
+        setActiveDocument(documentInfo) {
+            currentDocument = documentInfo;
+            renderList();
+        },
+    };
+}
+
+async function renderDocsPage(contentDiv, suppressWarning = false) {
+    if (window.location.pathname.toLowerCase() !== '/docs') return;
+
+    loadSwaggerStyles();
+
+    contentDiv.innerHTML = '';
+    contentDiv.style.position = 'relative';
+    contentDiv.style.backgroundColor =
+        'var(--rovalra-container-background-color)';
+    contentDiv.style.minHeight = 'calc(100vh - 60px)';
+
+    if (!suppressWarning) showWarning();
+
     const container = document.createElement('div');
+    container.className = 'rovalra-api-docs-shell';
     container.style.padding = '20px';
-    container.style.maxWidth = '1200px';
+    container.style.maxWidth = '1440px';
     container.style.margin = '0 auto';
-    
+
     const header = document.createElement('div');
-    header.style.marginBottom = '30px';
+    header.style.marginBottom = '24px';
     header.style.borderBottom = '1px solid var(--rovalra-secondary-text-color)';
     header.style.paddingBottom = '20px';
     header.style.display = 'flex';
     header.style.justifyContent = 'space-between';
     header.style.alignItems = 'center';
+    header.style.gap = '20px';
+    header.style.flexWrap = 'wrap';
 
     const titleGroup = document.createElement('div');
     const h1 = document.createElement('h1');
@@ -62,416 +619,83 @@ function renderDocsPage(contentDiv, suppressWarning = false) {
     h1.style.fontSize = '2.5em';
     h1.style.margin = '0 0 10px 0';
     h1.style.color = 'var(--rovalra-main-text-color)';
-    
+
     const p = document.createElement('p');
-    p.textContent = 'Captured API requests from your current session.';
+    p.textContent = 'OpenAPI documentation loaded from apis.rovalra.com.';
     p.style.color = 'var(--rovalra-secondary-text-color)';
     p.style.margin = '0';
-    
+
     titleGroup.appendChild(h1);
     titleGroup.appendChild(p);
-    
-    const headerRight = document.createElement('div');
-    headerRight.style.display = 'flex';
-    headerRight.style.alignItems = 'center';
-    headerRight.style.gap = '15px';
 
-    const dataSize = document.createElement('span');
-    dataSize.style.color = 'var(--rovalra-secondary-text-color)';
-    dataSize.style.fontSize = '14px';
+    const swaggerContainer = document.createElement('div');
+    swaggerContainer.className = 'rovalra-api-docs-swagger';
+    swaggerContainer.style.minHeight = '420px';
 
-    const clearBtn = document.createElement('button');
-    clearBtn.textContent = 'Clear Data';
-    clearBtn.className = 'btn-secondary-md';
-    clearBtn.style.padding = '8px 16px';
-    clearBtn.style.cursor = 'pointer';
-    clearBtn.onclick = () => {
-        chrome.storage.local.remove(CAPTURED_APIS_KEY, () => {
-            renderDocsPage(contentDiv, true);
-        });
-    };
-    
-    headerRight.appendChild(dataSize);
-    headerRight.appendChild(clearBtn);
+    const docsBody = document.createElement('div');
+    docsBody.className = 'rovalra-api-docs-body';
 
     header.appendChild(titleGroup);
-    header.appendChild(headerRight);
     container.appendChild(header);
+    container.appendChild(docsBody);
     contentDiv.appendChild(container);
 
-    chrome.storage.local.get(CAPTURED_APIS_KEY, (result) => {
-        const data = result[CAPTURED_APIS_KEY] || {};
-        
-        const size = JSON.stringify(data).length;
-        let formattedSize = '0 B';
-        if (size > 0) {
-            const i = Math.floor(Math.log(size) / Math.log(1024));
-            formattedSize = (size / Math.pow(1024, i)).toFixed(2) + ' ' + ['B', 'KB', 'MB', 'GB'][i];
-        }
-        dataSize.textContent = formattedSize;
+    renderStatus(swaggerContainer, 'Loading API documentation...');
 
-        const subdomains = Object.keys(data).sort();
-
-        if (subdomains.length === 0) {
-            const emptyState = document.createElement('div');
-            emptyState.style.textAlign = 'center';
-            emptyState.style.padding = '40px';
-            emptyState.style.color = 'var(--rovalra-secondary-text-color)';
-            emptyState.innerHTML = '<h3>No API calls captured yet</h3><p>Browse Roblox to populate this list.</p>';
-            container.appendChild(emptyState);
-            removeHomeElement();
+    try {
+        const documents = await fetchDocsIndex();
+        if (!documents.length) {
+            renderStatus(swaggerContainer, 'No API documents are available.');
             return;
         }
 
-
-        const controlsContainer = document.createElement('div');
-        controlsContainer.style.display = 'flex';
-        controlsContainer.style.gap = '15px';
-        controlsContainer.style.marginBottom = '20px';
-        controlsContainer.style.alignItems = 'center';
-        controlsContainer.style.flexWrap = 'wrap';
-        let activeSubdomain = subdomains[0];
-        let searchTerm = '';
-
-        const endpointsContainer = document.createElement('div');
-
-        const renderEndpoints = (subdomain, filter = '') => {
-            endpointsContainer.innerHTML = '';
-            const rawEndpoints = data[subdomain];
-            const endpoints = {};
-
-            Object.keys(rawEndpoints).forEach(rawPath => {
-                const normalizedPath = rawPath
-                    .split('?')[0]
-                    .split('/')
-                    .map(segment => {
-                        if (/^\d+$/.test(segment)) return '{id}';
-                        if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(segment)) return '{uuid}';
-                        return segment;
-                    })
-                    .join('/');
-
-                if (!endpoints[normalizedPath]) {
-                    endpoints[normalizedPath] = {};
-                }
-
-                const methods = rawEndpoints[rawPath];
-                Object.keys(methods).forEach(method => {
-                    if (!endpoints[normalizedPath][method]) {
-                        endpoints[normalizedPath][method] = {
-                            ...methods[method],
-                            exampleEndpoint: rawPath
-                        };
-                    }
-                });
-            });
-
-            let endpointKeys = Object.keys(endpoints).sort();
-            if (filter) {
-                const lowerFilter = filter.toLowerCase();
-                endpointKeys = endpointKeys.filter(key => key.toLowerCase().includes(lowerFilter));
+        let activeDocument = documents[0];
+        let sidebarController = null;
+        const renderDocument = async (documentInfo) => {
+            activeDocument = documentInfo;
+            sidebarController?.setActiveDocument(activeDocument);
+            renderStatus(swaggerContainer, 'Loading API document...');
+            try {
+                const spec = await fetchOpenApiSpec(activeDocument);
+                renderSwagger(swaggerContainer, spec);
+            } catch (error) {
+                renderStatus(
+                    swaggerContainer,
+                    `Failed to load ${activeDocument.label}: ${error.message}`,
+                    'error',
+                );
             }
-
-            if (endpointKeys.length === 0) {
-                endpointsContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--rovalra-secondary-text-color);">No endpoints found matching filter.</div>';
-                return;
-            }
-
-            const groups = {};
-            endpointKeys.forEach(endpoint => {
-                const parts = endpoint.split('/');
-                const groupName = parts.length > 1 && parts[1] ? parts[1] : 'General';
-                if (!groups[groupName]) groups[groupName] = [];
-                groups[groupName].push(endpoint);
-            });
-
-            Object.keys(groups).sort().forEach(groupName => {
-                const groupEndpoints = groups[groupName];
-                
-                const section = document.createElement('div');
-                section.style.marginBottom = '20px';
-
-                const header = document.createElement('div');
-                header.style.padding = '10px 15px';
-                header.style.backgroundColor = 'rgba(128, 128, 128, 0.1)';
-                header.style.borderRadius = '6px';
-                header.style.cursor = 'pointer';
-                header.style.display = 'flex';
-                header.style.justifyContent = 'space-between';
-                header.style.alignItems = 'center';
-                header.style.marginBottom = '10px';
-                header.style.userSelect = 'none';
-
-                const title = document.createElement('span');
-                title.textContent = groupName;
-                title.style.fontWeight = 'bold';
-                title.style.fontSize = '18px';
-                title.style.color = 'var(--rovalra-main-text-color)';
-
-                const count = document.createElement('span');
-                count.textContent = `${groupEndpoints.length} endpoints`;
-                count.style.fontSize = '12px';
-                count.style.color = 'var(--rovalra-secondary-text-color)';
-                count.style.backgroundColor = 'rgba(128, 128, 128, 0.1)';
-                count.style.padding = '2px 8px';
-                count.style.borderRadius = '10px';
-
-                const leftSide = document.createElement('div');
-                leftSide.style.display = 'flex';
-                leftSide.style.alignItems = 'center';
-                leftSide.style.gap = '10px';
-                leftSide.appendChild(title);
-                leftSide.appendChild(count);
-
-                const arrow = document.createElement('span');
-                arrow.textContent = '▼';
-                arrow.style.transition = 'transform 0.2s';
-                
-                header.appendChild(leftSide);
-                header.appendChild(arrow);
-
-                const content = document.createElement('div');
-                content.style.display = 'block';
-
-                header.onclick = () => {
-                    const isCollapsed = content.style.display === 'none';
-                    content.style.display = isCollapsed ? 'block' : 'none';
-                    arrow.style.transform = isCollapsed ? 'rotate(0deg)' : 'rotate(-90deg)';
-                };
-
-                section.appendChild(header);
-                section.appendChild(content);
-                endpointsContainer.appendChild(section);
-
-                groupEndpoints.forEach(endpoint => {
-                const methods = endpoints[endpoint];
-                Object.keys(methods).forEach(method => {
-                    const details = methods[method];
-                    const card = document.createElement('div');
-                    card.style.marginBottom = '15px';
-                    card.style.borderRadius = '4px';
-                    card.style.overflow = 'hidden';
-                    card.style.border = '1px solid';
-                    
-                    let color = '#888';
-                    let bg = '#eee';
-                    
-                    switch(method) {
-                        case 'GET': color = '#61affe'; bg = 'rgba(97, 175, 254, 0.1)'; break;
-                        case 'POST': color = '#49cc90'; bg = 'rgba(73, 204, 144, 0.1)'; break;
-                        case 'PUT': color = '#fca130'; bg = 'rgba(252, 161, 48, 0.1)'; break;
-                        case 'DELETE': color = '#f93e3e'; bg = 'rgba(249, 62, 62, 0.1)'; break;
-                        case 'PATCH': color = '#50e3c2'; bg = 'rgba(80, 227, 194, 0.1)'; break;
-                    }
-                    
-                    card.style.borderColor = color;
-
-                    const cardHeader = document.createElement('div');
-                    cardHeader.style.backgroundColor = bg;
-                    cardHeader.style.padding = '10px 15px';
-                    cardHeader.style.display = 'flex';
-                    cardHeader.style.alignItems = 'center';
-                    cardHeader.style.cursor = 'pointer';
-                    cardHeader.style.userSelect = 'none';
-                    
-                    const methodBadge = document.createElement('span');
-                    methodBadge.textContent = method;
-                    methodBadge.style.backgroundColor = color;
-                    methodBadge.style.color = '#fff';
-                    methodBadge.style.padding = '6px 15px';
-                    methodBadge.style.borderRadius = '3px';
-                    methodBadge.style.fontWeight = '700';
-                    methodBadge.style.fontSize = '14px';
-                    methodBadge.style.minWidth = '80px';
-                    methodBadge.style.textAlign = 'center';
-                    methodBadge.style.marginRight = '15px';
-                    
-                    const pathSpan = document.createElement('span');
-                    pathSpan.textContent = endpoint;
-                    pathSpan.style.fontFamily = 'monospace';
-                    pathSpan.style.fontSize = '16px';
-                    pathSpan.style.color = 'var(--rovalra-main-text-color)';
-                    pathSpan.style.wordBreak = 'break-all';
-                    
-                    cardHeader.appendChild(methodBadge);
-                    cardHeader.appendChild(pathSpan);
-                    
-                    const cardBody = document.createElement('div');
-                    cardBody.style.display = 'none';
-                    cardBody.style.padding = '20px';
-                    cardBody.style.backgroundColor = 'var(--rovalra-container-background-color)';
-                    cardBody.style.borderTop = `1px solid ${color}`;
-                    
-                    const tryItOutTitle = document.createElement('h4');
-                    tryItOutTitle.textContent = 'Try it out';
-                    tryItOutTitle.style.marginTop = '0';
-                    cardBody.appendChild(tryItOutTitle);
-
-                    const urlInput = document.createElement('input');
-                    urlInput.type = 'text';
-                    
-                    const baseUrl = subdomain === 'rovalra.com' ? 'https://apis.rovalra.com' : `https://${subdomain}.roblox.com`;
-                    urlInput.value = baseUrl + (details.exampleEndpoint || endpoint);
-                    
-                    urlInput.className = 'form-control input-field';
-                    urlInput.style.width = '100%';
-                    urlInput.style.marginBottom = '10px';
-                    urlInput.style.fontFamily = 'monospace';
-                    cardBody.appendChild(urlInput);
-
-                    let bodyInput = null;
-                    if (method !== 'GET' && method !== 'HEAD') {
-                        const bodyLabel = document.createElement('div');
-                        bodyLabel.textContent = 'Request Body (JSON):';
-                        bodyLabel.style.marginBottom = '5px';
-                        bodyLabel.style.fontWeight = 'bold';
-                        cardBody.appendChild(bodyLabel);
-
-                        bodyInput = document.createElement('textarea');
-                        bodyInput.className = 'form-control input-field';
-                        bodyInput.style.width = '100%';
-                        bodyInput.style.minHeight = '100px';
-                        bodyInput.style.fontFamily = 'monospace';
-                        bodyInput.style.marginBottom = '10px';
-                        if (details.exampleBody) {
-                            bodyInput.value = typeof details.exampleBody === 'string' ? details.exampleBody : JSON.stringify(details.exampleBody, null, 2);
-                        }
-                        cardBody.appendChild(bodyInput);
-                    }
-
-                    const executeBtn = document.createElement('button');
-                    executeBtn.textContent = 'Execute';
-                    executeBtn.className = 'btn-primary-md';
-                    executeBtn.style.marginRight = '10px'; 
-
-                    if (subdomain === 'rovalra.com' && endpoint.includes('/process_servers')) {
-                        executeBtn.disabled = true;
-                        executeBtn.textContent = 'Execution Disabled';
-                        executeBtn.className = 'btn-control-md'; 
-                        executeBtn.style.opacity = '0.6';
-                    }
-                    
-                    const responseContainer = document.createElement('div');
-                    responseContainer.style.marginTop = '15px';
-                    responseContainer.style.display = 'none';
-
-                    executeBtn.onclick = async () => {
-                        responseContainer.style.display = 'block';
-                        responseContainer.innerHTML = 'Loading...';
-                        
-                        try {
-                            let targetUrl = urlInput.value;
-                            let targetEndpoint = targetUrl;
-                            try {
-                                const u = new URL(targetUrl);
-                                targetEndpoint = u.pathname + u.search;
-                            } catch(e) {}
-
-                            const reqOptions = {
-                                subdomain: subdomain === 'rovalra.com' ? 'apis' : subdomain,
-                                endpoint: targetEndpoint,
-                                method: method,
-                                isRovalraApi: subdomain === 'rovalra.com'
-                            };
-
-                            if (bodyInput && bodyInput.value) {
-                                try {
-                                    reqOptions.body = JSON.parse(bodyInput.value);
-                                } catch (e) {
-                                    reqOptions.body = bodyInput.value;
-                                }
-                            }
-
-                            const response = await callRobloxApi(reqOptions);
-                            const statusColor = response.ok ? '#49cc90' : '#f93e3e';
-                            
-                            let responseText = '';
-                            try {
-                                const json = await response.json();
-                                responseText = JSON.stringify(json, null, 2);
-                            } catch (e) {
-                                responseText = await response.text();
-                            }
-
-                            const safeStatusText = DOMPurify.sanitize(response.statusText);
-                            const safeResponseText = DOMPurify.sanitize(responseText);
-
-                            responseContainer.innerHTML = `
-                                <div style="margin-bottom: 5px;"><strong>Status:</strong> <span style="color: ${statusColor}; font-weight: bold;">${response.status} ${safeStatusText}</span></div>
-                                <pre style="background: rgba(0,0,0,0.1); padding: 10px; border-radius: 4px; overflow: auto; max-height: 400px;">${safeResponseText}</pre>
-                            `;// Verified
-                            // Purified the stuff in different places
-                        } catch (err) {
-                            responseContainer.innerHTML = `<div style="color: #f93e3e;">Error: ${err.message}</div>`;
-                        }
-                    };
-
-                    cardBody.appendChild(executeBtn);
-                    cardBody.appendChild(responseContainer);
-                    
-                    cardHeader.onclick = () => {
-                        cardBody.style.display = cardBody.style.display === 'none' ? 'block' : 'none';
-                    };
-                    
-                    card.appendChild(cardHeader);
-                    card.appendChild(cardBody);
-                    content.appendChild(card);
-                });
-            });
-            });
         };
 
-        const dropdownItems = subdomains.map(sub => ({
-            label: sub === 'rovalra.com' ? 'apis.rovalra.com' : `${sub}.roblox.com`,
-            value: sub
-        }));
-
-        const { element: dropdownElement } = createDropdown({
-            items: dropdownItems,
-            initialValue: activeSubdomain,
-            onValueChange: (value) => {
-                activeSubdomain = value;
-                renderEndpoints(activeSubdomain, searchTerm);
-            }
+        sidebarController = createDocsSidebar({
+            documents,
+            activeDocument,
+            onSelect: renderDocument,
         });
-        dropdownElement.style.minWidth = '250px';
-        dropdownElement.style.zIndex = '10';
+        docsBody.append(sidebarController.element, swaggerContainer);
 
-        const searchInput = document.createElement('input');
-        searchInput.type = 'text';
-        searchInput.placeholder = 'Search endpoints...';
-        searchInput.className = 'form-control input-field';
-        searchInput.style.flex = '1';
-        searchInput.style.minWidth = '200px';
-        searchInput.style.padding = '8px 12px';
-        searchInput.style.backgroundColor = 'var(--rovalra-container-background-color)';
-        searchInput.style.border = '1px solid var(--rovalra-secondary-text-color)';
-        searchInput.style.color = 'var(--rovalra-main-text-color)';
-        searchInput.style.borderRadius = '8px';
-        searchInput.style.height = '38px';
-
-        searchInput.addEventListener('input', (e) => {
-            searchTerm = e.target.value;
-            renderEndpoints(activeSubdomain, searchTerm);
-        });
-
-        controlsContainer.appendChild(dropdownElement);
-        controlsContainer.appendChild(searchInput);
-        
-        container.appendChild(controlsContainer);
-        container.appendChild(endpointsContainer);
-
-        renderEndpoints(activeSubdomain);
-    });
-    
-    removeHomeElement();
+        await renderDocument(activeDocument);
+    } catch (error) {
+        renderStatus(
+            swaggerContainer,
+            `Failed to load API documentation: ${error.message}`,
+            'error',
+        );
+    } finally {
+        removeHomeElement();
+    }
 }
 
 export function init() {
+    cleanupOldCapturedApisStorage();
+    cleanupOldApiDocsStorage();
+
     if (window.location.pathname.toLowerCase() !== '/docs') return;
-    
-    chrome.storage.local.get('EnableRobloxApiDocs', (result) => {
-        if (!result.EnableRobloxApiDocs) return;
+
+    (async () => {
+        const docsEnabled = await settings.EnableRobloxApiDocsv2;
+        const sidebarLinkEnabled = await settings.apiDocsSidebarLinkEnabled;
+        if (!docsEnabled && !sidebarLinkEnabled) return;
 
         const contentDiv = document.querySelector('.content#content');
         if (contentDiv) {
@@ -481,5 +705,7 @@ export function init() {
                 renderDocsPage(cDiv);
             });
         }
+    })().catch((error) => {
+        console.error('RoValra: Failed to initialize API docs.', error);
     });
 }

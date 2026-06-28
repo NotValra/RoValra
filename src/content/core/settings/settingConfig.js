@@ -2143,30 +2143,45 @@ export const SETTINGS_CONFIG = {
             },
         },
     },
-    Developer: {
+    PublicDeveloper: {
         title: 'Developer',
         settings: {
+            EnableRobloxApiDocsv2: {
+                label: 'Roblox API docs',
+                description: [
+                    'Adds OpenAPI documentation for Roblox and RoValra APIs on https://www.roblox.com/docs.',
+                    'This documents undocumented Roblox APIs, which can be really useful for Developers.',
+                    'All Roblox APIs were documented by [Cam](https://www.roblox.com/users/4866259395/profile)',
+                ],
+                type: 'checkbox',
+                default: true,
+                contributors: ['4866259395', '447170745'],
+                childSettings: {
+                    apiDocsSidebarLinkEnabled: {
+                        label: 'API Docs sidebar link',
+                        description:
+                            'Adds an API Docs link below Communities in the Roblox sidebar.',
+                        type: 'checkbox',
+                        default: false,
+                    },
+                },
+            },
+        },
+    },
+    Developer: {
+        title: 'RoValra Developer',
+        settings: {
             info: {
-                label: ['Developer Settings'],
+                label: ['RoValra Developer Settings'],
                 description: [
                     "These are features used mostly to develop rovalra, if you don't know what your doing dont touch them.",
                 ],
                 type: 'yay',
             },
             alwaysShowDeveloperSettings: {
-                label: ['Always show developer settings tab'],
+                label: ['Always show RoValra developer settings tab'],
                 description: [
-                    'This will make the developer settings tab always show. So you dont have to do the easter egg every time.',
-                ],
-                type: 'checkbox',
-                default: false,
-            },
-            EnableRobloxApiDocs: {
-                label: 'Roblox API docs',
-                description: [
-                    'This adds documentation for Roblox apis on https://www.roblox.com/docs',
-                    'All the apis are captured when you browse the site.',
-                    'This stores all the APIs in storage.',
+                    'This will make the RoValra developer settings tab always show. So you dont have to do the easter egg every time.',
                 ],
                 type: 'checkbox',
                 default: false,

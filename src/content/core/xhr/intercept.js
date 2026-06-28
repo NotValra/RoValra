@@ -24,25 +24,6 @@
     let ASSET_TYPE_ACCESSORIES = [8, 41, 42, 43, 44, 45, 46, 47, 57, 58];
     let ASSET_TYPE_LAYERED = [64, 65, 66, 67, 68, 69, 70, 71, 72];
 
-    function dispatchCaptureEvent(url, method, body) {
-        if (typeof url !== 'string') return;
-        if (
-            url.match(
-                /\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|mp3|ogg|wav|webm|mp4|json)$/i,
-            ) &&
-            !url.includes('apis.roblox.com') &&
-            !url.includes('games.roblox.com')
-        )
-            return;
-        if (!url.includes('roblox.com') && !url.includes('rovalra.com')) return;
-
-        document.dispatchEvent(
-            new CustomEvent('rovalra-traffic-capture', {
-                detail: { url, method: method || 'GET', body },
-            }),
-        );
-    }
-
     let streamerModeEnabled = false;
     let settingsPageInfoEnabled = true;
     let accurateContinueEnabled = true;
@@ -395,13 +376,8 @@
 
     const originalFetch = window.fetch;
     window.fetch = async function (...args) {
-        const [url, config] = args;
-        const method = config?.method || 'GET';
+        const [url] = args;
         const requestUrl = getRequestUrl(url);
-
-        try {
-            dispatchCaptureEvent(requestUrl, method, config?.body);
-        } catch (e) {}
 
         let response = await originalFetch(...args);
 
@@ -635,14 +611,6 @@
 
     XMLHttpRequest.prototype.send = function (...args) {
         const xhr = this;
-        try {
-            dispatchCaptureEvent(
-                xhr._rovalra_url,
-                xhr._rovalra_method,
-                args[0],
-            );
-        } catch (e) {}
-
         if (
             xhr._rovalra_spoof_settings ||
             xhr._rovalra_spoof_phone ||
@@ -947,6 +915,6 @@
     initializeHooks();
 
     console.log(
-        'RoValra: Request capture, Privacy Spoofing, and Multi-Accessory loaded successfully.',
+        'RoValra: Privacy Spoofing and Multi-Accessory loaded successfully.',
     );
 })();

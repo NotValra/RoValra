@@ -15,6 +15,27 @@ const dracoPath = path.join(
     'dist',
     'draco_decoder.js',
 );
+const swaggerUiCssPath = path.join(
+    __dirname,
+    'node_modules',
+    'swagger-ui-dist',
+    'swagger-ui.css',
+);
+const backgroundEntryPath = path.join(
+    __dirname,
+    'src',
+    'background',
+    'background.js',
+);
+const interceptEntryPath = path.join(
+    __dirname,
+    'src',
+    'content',
+    'core',
+    'xhr',
+    'intercept.js',
+);
+const contentEntryPath = path.join(__dirname, 'src', 'content', 'index.js');
 
 const manifestPath = path.join(__dirname, 'manifest.json');
 const packagePath = path.join(__dirname, 'package.json');
@@ -81,7 +102,7 @@ function compileScssFile(inputFile, outputFile) {
 esbuild
     .build({
         ...commonConfig,
-        entryPoints: ['src/background/background.js'],
+        entryPoints: [backgroundEntryPath],
         outfile: 'dist/background.js',
         bundle: true,
     })
@@ -90,7 +111,7 @@ esbuild
 esbuild
     .build({
         ...commonConfig,
-        entryPoints: ['src/content/core/xhr/intercept.js'],
+        entryPoints: [interceptEntryPath],
         outfile: 'dist/intercept.js',
         bundle: false,
     })
@@ -167,7 +188,7 @@ const dracoSource = fs.readFileSync(dracoPath, 'utf8');
 esbuild
     .build({
         ...commonConfig,
-        entryPoints: ['src/content/index.js'],
+        entryPoints: [contentEntryPath],
         outfile: 'dist/content.js',
         bundle: true,
         // This injects Draco directly into the content script context for roavatar-renderer
@@ -191,6 +212,16 @@ if (fs.existsSync(cssDir)) {
             })
             .catch(() => process.exit(1));
     }
+}
+
+if (fs.existsSync(swaggerUiCssPath)) {
+    if (!fs.existsSync('dist/css'))
+        fs.mkdirSync('dist/css', { recursive: true });
+    fs.copyFileSync(swaggerUiCssPath, 'dist/css/swagger-ui.css');
+    console.log('Copied Swagger UI CSS: dist/css/swagger-ui.css');
+} else {
+    console.error(`Error: swagger-ui.css not found at ${swaggerUiCssPath}`);
+    process.exit(1);
 }
 
 function processDirectory(src, dest) {
@@ -233,12 +264,12 @@ function processDirectory(src, dest) {
             } else if (ext === '.yaml') {
                 try {
                     const data = yaml.parse(fs.readFileSync(srcPath, 'utf8'));
-                    fs.writeFileSync(destPath.slice(0, destPath.length - 4) + 'json', JSON.stringify(data, undefined, ' '));
-                } catch (err) {
-                    console.error(
-                        `Error processing ${entry.name}.`,
-                        err,
+                    fs.writeFileSync(
+                        destPath.slice(0, destPath.length - 4) + 'json',
+                        JSON.stringify(data, undefined, ' '),
                     );
+                } catch (err) {
+                    console.error(`Error processing ${entry.name}.`, err);
                     throw err;
                 }
             } else {
