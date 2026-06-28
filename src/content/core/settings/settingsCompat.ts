@@ -1,4 +1,4 @@
-import { debugVerbose, flush } from "../debug";
+import { debugVerbose } from "../debugManager.js";
 import { settings } from "./getSettings";
 
 chrome.runtime.sendMessage({ type: "settingsCompatGetRes" }, (message) => {
@@ -24,8 +24,6 @@ chrome.runtime.sendMessage({ type: "settingsCompatGetRes" }, (message) => {
     *  ${deleted.join("\n    *  ")}`);
             debugVerbose(`Deleted/locked/deprecated ${deleted.length} settings.`, deleted);
         }
-
-        flush();
     })();
 
     return true; 
