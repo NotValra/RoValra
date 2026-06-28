@@ -90,10 +90,12 @@ function proxify(path = []) {
 }
 
 /**
- * @typedef {Record<string, Settings | string>} Settings
+ * @typedef {{ [settingKey: string]: string | Settings }} Settings
  */
 
 /**
  * @type {Settings}
+ * @group Internal/Settings
+ * @internal
  */
 export const settings = proxify();
