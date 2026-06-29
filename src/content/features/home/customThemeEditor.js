@@ -18,9 +18,10 @@ import {
     applyCustomThemeField,
     setTheme,
 } from '../sitewide/themeSwitcher.js';
+import { THEME_PATH } from '../themes/themeCatalogPage.js';
 
 const ACTIVE_SESSION_KEY = 'rovalra_custom_theme_editor_active';
-const PENDING_HOME_OPEN_KEY = 'rovalra_custom_theme_editor_pending_home';
+const PENDING_THEME_OPEN_KEY = 'rovalra_custom_theme_editor_pending_theme';
 const SELECTED_SLOT_SESSION_KEY = 'rovalra_custom_theme_editor_slot';
 const SAVE_DELAY_MS = 120;
 const MAX_THEME_NAME_LENGTH = 20;
@@ -41,11 +42,11 @@ let slotDropdownApi = null;
 let slotDropdownItems = [];
 let slotNameInput = null;
 
-function isHomePath() {
+function isThemePath() {
     const normalizedPath = window.location.pathname
         .toLowerCase()
         .replace(/^\/[a-z]{2}(?:-[a-z]{2})?\//, '/');
-    return normalizedPath.startsWith('/home');
+    return normalizedPath === THEME_PATH;
 }
 
 function normalizeHex(value) {
@@ -660,17 +661,17 @@ function getRequestedSlotIndex(slotIndex) {
     );
 }
 
-async function openEditor({ routeHome = false, slotIndex = 0 } = {}) {
+async function openEditor({ routeTheme = false, slotIndex = 0 } = {}) {
     const requestedSlotIndex = getRequestedSlotIndex(slotIndex);
 
-    if (routeHome && !isHomePath()) {
+    if (routeTheme && !isThemePath()) {
         sessionStorage.setItem(ACTIVE_SESSION_KEY, 'true');
-        sessionStorage.setItem(PENDING_HOME_OPEN_KEY, 'true');
+        sessionStorage.setItem(PENDING_THEME_OPEN_KEY, 'true');
         sessionStorage.setItem(
             SELECTED_SLOT_SESSION_KEY,
             String(requestedSlotIndex),
         );
-        window.location.href = '/home';
+        window.location.href = THEME_PATH;
         return;
     }
 
@@ -717,7 +718,7 @@ async function openEditor({ routeHome = false, slotIndex = 0 } = {}) {
         preventBackdropClose: true,
         onClose: () => {
             sessionStorage.removeItem(ACTIVE_SESSION_KEY);
-            sessionStorage.removeItem(PENDING_HOME_OPEN_KEY);
+            sessionStorage.removeItem(PENDING_THEME_OPEN_KEY);
             sessionStorage.removeItem(SELECTED_SLOT_SESSION_KEY);
             overlayHandle = null;
             editorInputs = new Map();
@@ -740,11 +741,11 @@ async function openEditor({ routeHome = false, slotIndex = 0 } = {}) {
 function maybeRestoreOpenEditor() {
     if (sessionStorage.getItem(ACTIVE_SESSION_KEY) !== 'true') return;
 
-    const pendingHomeOpen =
-        sessionStorage.getItem(PENDING_HOME_OPEN_KEY) === 'true';
-    if (pendingHomeOpen && !isHomePath()) return;
+    const pendingThemeOpen =
+        sessionStorage.getItem(PENDING_THEME_OPEN_KEY) === 'true';
+    if (pendingThemeOpen && !isThemePath()) return;
 
-    sessionStorage.removeItem(PENDING_HOME_OPEN_KEY);
+    sessionStorage.removeItem(PENDING_THEME_OPEN_KEY);
     openEditor({
         slotIndex: sessionStorage.getItem(SELECTED_SLOT_SESSION_KEY),
     });
@@ -756,7 +757,7 @@ export function init() {
 
         document.addEventListener('rovalra:openCustomThemeEditor', (event) => {
             openEditor({
-                routeHome: true,
+                routeTheme: true,
                 slotIndex: event.detail?.slotIndex ?? 0,
             });
         });

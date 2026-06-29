@@ -1598,7 +1598,7 @@ export const SETTINGS_CONFIG = {
                     openCustomThemeEditor: {
                         label: 'Custom Theme Builder',
                         description: [
-                            'Opens the editor on the real Roblox home page so you can customize the theme against the actual UI.',
+                            'Opens the editor on roblox.com/theme so you can customize the theme against the actual UI.',
                             'Your custom theme appears in the Yours tab on the theme gallery.',
                         ],
                         type: 'button',
