@@ -1,4 +1,3 @@
-import SwaggerUIBundle from 'swagger-ui-dist/swagger-ui-bundle.js';
 import { observeElement } from '../../core/observer.js';
 import { callRobloxApi, callRobloxApiJson } from '../../core/api.js';
 import { createDropdown } from '../../core/ui/dropdown.js';
@@ -14,6 +13,17 @@ const SWAGGER_BRIDGE_HEADER = 'x-rovalra-swagger-request';
 const OLD_CAPTURED_APIS_STORAGE_KEY = 'rovalra_captured_apis';
 const OLD_API_DOCS_STORAGE_KEY = 'EnableRobloxApiDocs';
 let swaggerFetchBridgeInstalled = false;
+let swaggerUiBundlePromise = null;
+
+async function getSwaggerUiBundle() {
+    if (!swaggerUiBundlePromise) {
+        swaggerUiBundlePromise = import(
+            'swagger-ui-dist/swagger-ui-bundle.js'
+        ).then((module) => module.default || module);
+    }
+
+    return await swaggerUiBundlePromise;
+}
 
 function cleanupOldCapturedApisStorage() {
     chrome.storage.local.get(OLD_CAPTURED_APIS_STORAGE_KEY, (result) => {
@@ -343,7 +353,9 @@ function watchSwaggerControls(swaggerContainer) {
     };
 }
 
-function renderSwagger(swaggerContainer, spec) {
+async function renderSwagger(swaggerContainer, spec) {
+    const SwaggerUIBundle = await getSwaggerUiBundle();
+
     installSwaggerFetchBridge();
     swaggerContainer.innerHTML = '';
     swaggerContainer._rovalraStopSwaggerControlWatcher?.();
@@ -657,7 +669,7 @@ async function renderDocsPage(contentDiv, suppressWarning = false) {
             renderStatus(swaggerContainer, 'Loading API document...');
             try {
                 const spec = await fetchOpenApiSpec(activeDocument);
-                renderSwagger(swaggerContainer, spec);
+                await renderSwagger(swaggerContainer, spec);
             } catch (error) {
                 renderStatus(
                     swaggerContainer,
