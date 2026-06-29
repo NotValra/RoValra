@@ -8,8 +8,10 @@ import { createStyledInput } from '../../../core/ui/catalog/input.js';
 import { getPlaceIdFromUrl } from '../../../core/idExtractor.js';
 import { createScrollButtons } from '../../../core/ui/general/scrollButtons.js';
 import { t, ts } from '../../../core/locale/i18n.js';
+import { settings as rovalraSettings } from '../../../core/settings/getSettings.js';
+import { createShopSection } from './Shop.js';
 
-async function fetchUniverseId(placeId) {
+export async function fetchUniverseId(placeId) {
     const metaData = document.getElementById('game-detail-meta-data');
     if (metaData && metaData.dataset.universeId) {
         return metaData.dataset.universeId;
@@ -70,6 +72,15 @@ async function loadAndRenderProducts(storeTab, placeId) {
 
     const universeId = await fetchUniverseId(placeId);
     if (!universeId) return;
+
+    const [devProductsEnabled, shopWidgetsEnabled] = await Promise.all([
+        rovalraSettings.EnableDevProducts,
+        rovalraSettings.shopWidgetsEnabled,
+    ]);
+    const showDevProducts = devProductsEnabled !== false;
+    const showShopWidgets = shopWidgetsEnabled !== false;
+
+    if (!showDevProducts && !showShopWidgets) return;
 
     let products = [];
     let isProductsLoaded = false;
@@ -400,14 +411,25 @@ async function loadAndRenderProducts(storeTab, placeId) {
         }
     };
 
-    let isPassesTabActive = true;
+    const shopSection = showShopWidgets
+        ? createShopSection({
+              parentContainer: gamePassesContainer,
+              universeId,
+          })
+        : null;
+
+    let activeTab = 'passes';
 
     const getPassesEmptyMessages = () =>
         Array.from(
             storeTab.querySelectorAll(
                 '#store-does-not-sell, .section-content-off',
             ),
-        ).filter((element) => !devProductsList.contains(element));
+        ).filter(
+            (element) =>
+                !devProductsList.contains(element) &&
+                !shopSection?.element.contains(element),
+        );
 
     const setPassesEmptyMessagesVisible = (visible) => {
         const shouldShow = visible && passesList.children.length === 0;
@@ -419,8 +441,16 @@ async function loadAndRenderProducts(storeTab, placeId) {
     };
 
     const passesEmptyMessageObserver = new MutationObserver(() => {
-        if (!isPassesTabActive) {
+        if (activeTab !== 'passes') {
             setPassesEmptyMessagesVisible(false);
+        }
+        if (activeTab === 'shop' && shopSection) {
+            const existingDeveloperProductsBlock = storeTab.querySelector(
+                '#rbx-developer-products',
+            );
+            if (existingDeveloperProductsBlock) {
+                existingDeveloperProductsBlock.style.display = 'none';
+            }
         }
     });
 
@@ -429,26 +459,35 @@ async function loadAndRenderProducts(storeTab, placeId) {
         subtree: true,
     });
 
-    const updateTabState = (isPasses) => {
-        isPassesTabActive = isPasses;
+    const updateTabState = (tab) => {
+        activeTab = tab;
 
         const currentRosealFilters = gamePassesContainer.querySelector(
             '.store-item-filters',
         );
+        const existingDeveloperProductsBlock = storeTab.querySelector(
+            '#rbx-developer-products',
+        );
 
-        setPassesEmptyMessagesVisible(isPasses);
+        setPassesEmptyMessagesVisible(tab === 'passes');
 
-        if (isPasses) {
+        if (tab === 'passes') {
             passesList.style.display = '';
             if (currentRosealFilters) currentRosealFilters.style.display = '';
+            if (existingDeveloperProductsBlock)
+                existingDeveloperProductsBlock.style.display = '';
             devProductsList.style.display = 'none';
+            shopSection?.hide();
             paginationContainer.style.display = 'none';
             filterWrapper.style.display = 'none';
-        } else {
+        } else if (tab === 'devProducts' && showDevProducts) {
             passesList.style.display = 'none';
             if (currentRosealFilters)
                 currentRosealFilters.style.display = 'none';
+            if (existingDeveloperProductsBlock)
+                existingDeveloperProductsBlock.style.display = '';
             devProductsList.style.display = '';
+            shopSection?.hide();
 
             if (isProductsLoaded && products.length > 0) {
                 paginationContainer.style.display = 'flex';
@@ -460,49 +499,71 @@ async function loadAndRenderProducts(storeTab, placeId) {
                     setPassesEmptyMessagesVisible(false),
                 );
             }
+        } else if (tab === 'shop' && shopSection) {
+            passesList.style.display = 'none';
+            if (currentRosealFilters)
+                currentRosealFilters.style.display = 'none';
+            if (existingDeveloperProductsBlock)
+                existingDeveloperProductsBlock.style.display = 'none';
+            devProductsList.style.display = 'none';
+            paginationContainer.style.display = 'none';
+            filterWrapper.style.display = 'none';
+            shopSection.show();
+        } else {
+            updateTabState('passes');
         }
     };
 
+    const toggleOptions = [{ text: ts('devProducts.passes'), value: 'passes' }];
+
+    if (showDevProducts)
+        toggleOptions.push({
+            text: ts('devProducts.developerProducts'),
+            value: 'devProducts',
+        });
+
+    if (shopSection) toggleOptions.push({ text: ts('shop.tab'), value: 'shop' });
+
     const toggle = createPillToggle({
-        options: [
-            { text: ts('devProducts.passes'), value: 'passes' },
-            { text: ts('devProducts.developerProducts'), value: 'devProducts' },
-        ],
+        options: toggleOptions,
         initialValue: 'passes',
-        onChange: (value) => updateTabState(value === 'passes'),
+        onChange: (value) => updateTabState(value),
     });
 
-    updateTabState(true);
+    updateTabState('passes');
 
     controlsDiv.appendChild(toggle);
     headerContainer.appendChild(controlsDiv);
     headerContainer.appendChild(filterWrapper);
 }
 
-export function init() {
-    chrome.storage.local.get({ EnableDevProducts: true }, (settings) => {
-        if (!settings.EnableDevProducts) return;
+export async function init() {
+    const [devProductsEnabled, shopWidgetsEnabled] = await Promise.all([
+        rovalraSettings.EnableDevProducts,
+        rovalraSettings.shopWidgetsEnabled,
+    ]);
 
-        observeElement('.tab-pane.store', (storeTab) => {
-            const placeId = getPlaceIdFromUrl();
-            if (!placeId) return;
+    if (devProductsEnabled === false && shopWidgetsEnabled === false) return;
 
-            const checkActive = () => {
-                if (storeTab.classList.contains('active')) {
-                    loadAndRenderProducts(storeTab, placeId);
+    observeElement('.tab-pane.store', (storeTab) => {
+        const placeId = getPlaceIdFromUrl();
+        if (!placeId) return;
+
+        const checkActive = () => {
+            if (storeTab.classList.contains('active')) {
+                loadAndRenderProducts(storeTab, placeId);
+            }
+        };
+
+        checkActive();
+        observeAttributes(
+            storeTab,
+            (mutation) => {
+                if (mutation.attributeName === 'class') {
+                    checkActive();
                 }
-            };
-
-            checkActive();
-            observeAttributes(
-                storeTab,
-                (mutation) => {
-                    if (mutation.attributeName === 'class') {
-                        checkActive();
-                    }
-                },
-                ['class'],
-            );
-        });
+            },
+            ['class'],
+        );
     });
 }

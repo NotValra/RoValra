@@ -273,6 +273,13 @@ export const SETTINGS_CONFIG = {
                 default: true,
                 contributors: ['447170745', '10646979010'],
             },
+            shopWidgetsEnabled: {
+                label: 'View In Game Shop',
+                description:
+                    'This adds a Shop tab to the experience store page which is the in game shop brought to the website.',
+                type: 'checkbox',
+                default: true,
+            },
             QuickOutfitsEnabled: {
                 label: 'Quick Equip Outfits',
                 description: [

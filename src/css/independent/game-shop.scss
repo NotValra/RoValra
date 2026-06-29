@@ -1,0 +1,269 @@
+#rovalra-shop-section {
+    margin-top: 0;
+    min-height: 620px;
+
+    .rovalra-shop-category-controls {
+        display: flex;
+        justify-content: flex-start;
+        min-width: 0;
+        overflow-x: auto;
+        margin-bottom: 12px;
+        padding-bottom: 2px;
+    }
+
+    .rovalra-shop-section-group {
+        margin: 0 0 20px;
+    }
+
+    .rovalra-shop-section-group[hidden] {
+        display: none;
+    }
+
+    .rovalra-shop-section-title {
+        margin: 0 0 10px;
+        font-size: 20px;
+        font-weight: 700;
+        line-height: 1.2;
+        color: var(--rovalra-main-text-color);
+        text-align: left;
+    }
+
+    .rovalra-shop-store-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        align-items: stretch;
+        gap: 20px 12px;
+        margin: 0;
+        padding: 0;
+    }
+
+    .rovalra-shop-store-list::before,
+    .rovalra-shop-store-list::after,
+    .rovalra-shop-robux-list::before,
+    .rovalra-shop-robux-list::after {
+        display: none !important;
+        content: none !important;
+    }
+
+    .rovalra-shop-store-list[hidden] {
+        display: none;
+    }
+
+    .rovalra-shop-store-list .list-item {
+        display: flex;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+    }
+
+    .rovalra-shop-store-list .store-card {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        height: 100%;
+        min-width: 0;
+        text-align: left;
+    }
+
+    .rovalra-shop-store-list .store-card *,
+    .rovalra-shop-store-list .store-card-caption *,
+    .rovalra-shop-store-list .store-product-card-caption * {
+        text-align: left;
+    }
+
+    .rovalra-shop-store-list .store-product-card-thumbnail,
+    .rovalra-shop-store-list .gear-passes-asset,
+    .rovalra-shop-store-list .store-card-image {
+        display: block;
+        width: 100% !important;
+        height: auto !important;
+        aspect-ratio: 1 / 1;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .rovalra-shop-store-list .gear-passes-asset.store-card-link {
+        padding-bottom: 0 !important;
+    }
+
+    .rovalra-shop-store-list .store-card-image {
+        object-fit: cover;
+    }
+
+    .rovalra-shop-store-list .store-card-caption,
+    .rovalra-shop-store-list .store-product-card-caption {
+        display: flex;
+        flex: 1 1 auto;
+        flex-direction: column;
+        min-height: 112px;
+        min-width: 0;
+        padding-top: 8px;
+        text-align: left;
+    }
+
+    .rovalra-shop-store-list .store-card-name,
+    .rovalra-shop-store-list .store-product-card-name {
+        overflow: hidden;
+        display: -webkit-box;
+        width: 100%;
+        min-height: 2.6em;
+        line-height: 1.3em;
+        text-align: left !important;
+        text-overflow: ellipsis;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+    }
+
+    .rovalra-shop-store-list .store-card-price {
+        justify-content: flex-start;
+        min-height: 20px;
+        margin-top: 4px;
+        text-align: left;
+    }
+
+    .rovalra-shop-store-list .store-card-footer {
+        margin-top: auto;
+    }
+
+    .rovalra-shop-store-list .store-card-footer .btn-full-width {
+        width: 100%;
+    }
+
+    .rovalra-shop-store-list .store-card-footer button,
+    .rovalra-shop-store-list .store-card-footer .btn-full-width,
+    .rovalra-shop-card-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center !important;
+    }
+
+    .rovalra-shop-store-list .store-card-footer h5 {
+        width: 100%;
+        margin: 0;
+        text-align: center !important;
+    }
+
+    .rovalra-shop-robux-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        align-items: stretch;
+        gap: 12px;
+        min-height: 80px;
+        margin-top: 0;
+    }
+
+    .rovalra-shop-card {
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        min-width: 0;
+        height: 144px;
+        padding: 12px;
+        border-radius: 8px;
+        background-color: rgba(208, 217, 251, 0.08);
+        color: var(--rovalra-main-text-color);
+        text-decoration: none;
+
+        &:hover,
+        &:focus {
+            color: var(--rovalra-main-text-color);
+            text-decoration: none;
+            background-color: rgba(208, 217, 251, 0.12);
+        }
+    }
+
+    .rovalra-shop-card-info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
+        min-height: 0;
+        flex: 1 1 auto;
+        overflow: hidden;
+    }
+
+    .rovalra-shop-card-thumbnail {
+        flex: 0 0 56px;
+        width: 56px;
+        height: 56px;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .rovalra-shop-card-thumbnail .thumbnail-2d-container {
+        width: 100%;
+        height: 100%;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .rovalra-shop-card-text {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        flex: 1 1 auto;
+    }
+
+    .rovalra-shop-title {
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 18px;
+    }
+
+    .rovalra-shop-description {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        margin-top: 2px;
+        color: var(--rovalra-secondary-text-color);
+        font-size: 14px;
+        line-height: 16px;
+    }
+
+    .rovalra-shop-price {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        min-height: 16px;
+        margin-top: 4px;
+        color: var(--rovalra-main-text-color);
+        font-size: 13px;
+        font-weight: 500;
+        flex-wrap: wrap;
+    }
+
+    .rovalra-shop-card-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 40px;
+        border-radius: 8px;
+        background-color: rgba(208, 217, 251, 0.12);
+        color: var(--rovalra-main-text-color);
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 14px;
+    }
+
+    .rovalra-shop-empty {
+        grid-column: 1 / -1;
+        width: 100%;
+    }
+}
+
+@media (max-width: 640px) {
+    #rovalra-shop-section {
+        min-height: 760px;
+
+        .rovalra-shop-robux-list {
+            grid-template-columns: 1fr;
+        }
+    }
+}

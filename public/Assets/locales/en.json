@@ -456,6 +456,26 @@
             "descending": "Sort Descending"
         }
     },
+    "shop": {
+        "tab": "Shop",
+        "all": "All",
+        "category": "Category",
+        "product": "Product",
+        "gamePass": "Game Pass",
+        "robuxAmount": "{{amount}} Robux",
+        "bonusItem": "Bonus: {{item}}",
+        "bonusItemFallback": "Includes a bonus item",
+        "noItems": "No shop items found.",
+        "failedToLoad": "Failed to load shop items.",
+        "sections": {
+            "robux": "Robux"
+        },
+        "types": {
+            "Product": "Product",
+            "GamePass": "Game Pass",
+            "Robux": "Robux bundle"
+        }
+    },
     "subplaces": {
         "tabTitle": "Subplaces",
         "searchPlaceholder": "Search subplaces",
