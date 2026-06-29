@@ -392,6 +392,65 @@ const featureRoutes = [
 ];
 
 const startTime = performance.now();
+let lastGamePageHashbangHash = null;
+
+function isGamePagePath(pathname = window.location.pathname) {
+    return /^(?:\/[a-z]{2}(?:-[a-z]{2})?)?\/games\//i.test(pathname);
+}
+
+function getHashbangStrippedVariants(hash) {
+    if (!hash.startsWith('#!')) return [];
+
+    const fragment = hash.slice(2);
+    const strippedFragment = fragment.startsWith('/')
+        ? fragment.slice(1)
+        : fragment;
+
+    return [`#${strippedFragment}`, `#/${strippedFragment}`];
+}
+
+function normalizeGamePageHash() {
+    if (!isGamePagePath()) {
+        lastGamePageHashbangHash = null;
+        return false;
+    }
+
+    const currentHash = window.location.hash;
+
+    if (!currentHash) {
+        lastGamePageHashbangHash = null;
+        return false;
+    }
+
+    if (currentHash.startsWith('#!')) {
+        lastGamePageHashbangHash = currentHash;
+        return false;
+    }
+
+    if (!lastGamePageHashbangHash) return false;
+
+    const strippedVariants = getHashbangStrippedVariants(
+        lastGamePageHashbangHash,
+    );
+    if (!strippedVariants.includes(currentHash)) {
+        lastGamePageHashbangHash = null;
+        return false;
+    }
+
+    const oldUrl = window.location.href;
+    window.history.replaceState(
+        history.state,
+        '',
+        `${window.location.pathname}${window.location.search}${lastGamePageHashbangHash}`,
+    );
+    window.dispatchEvent(
+        new HashChangeEvent('hashchange', {
+            oldURL: oldUrl,
+            newURL: window.location.href,
+        }),
+    );
+    return true;
+}
 
 function runFeaturesForPage() {
     const path = window.location.pathname.toLowerCase();
@@ -521,21 +580,26 @@ function setupUrlChangeListeners() {
 
     history.pushState = function (...args) {
         originalPushState.apply(this, args);
+        normalizeGamePageHash();
         handleUrlChange();
     };
 
     history.replaceState = function (...args) {
         originalReplaceState.apply(this, args);
+        normalizeGamePageHash();
         handleUrlChange();
     };
 
     window.addEventListener('popstate', handleUrlChange);
+    window.addEventListener('hashchange', normalizeGamePageHash);
 
     setInterval(() => {
         if (window.location.pathname.toLowerCase() !== lastPath) {
             handleUrlChange();
         }
     }, 500);
+
+    normalizeGamePageHash();
 }
 
 initializePage();
