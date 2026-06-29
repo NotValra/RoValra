@@ -952,9 +952,9 @@ export const SETTINGS_CONFIG = {
                 contributors: [48255812],
                 childSettings: {
                     avatarBorderChoice: {
-                        label: 'Avatar Border',
+                        label: 'Get all Avatar borders for free',
                         description: [
-                            'Choose which border displays around your own avatar.',
+                            'Allows you to use any avatar border for completely free',
                         ],
                         type: 'button',
                         buttonText: 'Open Border Store',
@@ -962,7 +962,7 @@ export const SETTINGS_CONFIG = {
                         avatarPreview: true,
                         donatorTier: 3,
                         donatorReason:
-                            'Donator Tier 3 is required to set a custom avatar border. This is a cosmetic perk to reward donators.',
+                            'Donator Tier 3 gets all avatar borders for free.',
                         default: 'none',
                     },
                 },
