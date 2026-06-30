@@ -2193,6 +2193,14 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: false,
             },
+            alwaysShowAccountStandingTab: {
+                label: ['Always show Account Standing tab'],
+                description: [
+                    'This will make the Account Standing tab show even when your account has no current or previous RoValra moderation action.',
+                ],
+                type: 'checkbox',
+                default: false,
+            },
             EnablebannerTest: {
                 label: ['Banner test'],
                 description: ['This adds a test banner to experiences'],
