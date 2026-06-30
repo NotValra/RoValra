@@ -66,9 +66,25 @@ async function fetchAgeGroup() {
     return await response.json();
 }
 
-function buildTrackedData(userId, birthday, ageGroup) {
+async function fetchVerifiedAge() {
+    const response = await callRobloxApi({
+        subdomain: 'apis',
+        endpoint: '/age-verification-service/v1/age-verification/verified-age',
+        method: 'GET',
+        noCache: true,
+    });
+
+    if (!response.ok) return null;
+    return await response.json();
+}
+
+function buildTrackedData(userId, birthday, ageGroup, verifiedAge) {
     const age = calculateAge(birthday);
-    const isAgeChecked = ageGroup?.isChecked === true;
+    const verifiedAgeValue = Number(verifiedAge?.verifiedAge);
+    const isVerifiedAgeChecked =
+        Number.isFinite(verifiedAgeValue) && verifiedAgeValue > 0;
+    const isAgeChecked =
+        ageGroup?.isChecked === true && isVerifiedAgeChecked === true;
     const isBelow13 = !isAgeChecked || age === null || age < 13;
 
     return {
@@ -93,7 +109,17 @@ function buildTrackedData(userId, birthday, ageGroup) {
                   estimatedAge: ageGroup.estimatedAge,
               }
             : null,
+        verifiedAge: verifiedAge
+            ? {
+                  isVerified: verifiedAge.isVerified === true,
+                  verifiedAge: Number.isFinite(verifiedAgeValue)
+                      ? verifiedAgeValue
+                      : null,
+                  isSeventeenPlus: verifiedAge.isSeventeenPlus === true,
+              }
+            : null,
         isAgeChecked,
+        isVerifiedAgeChecked,
         isBelow13,
         is13PlusAndAgeChecked: isAgeChecked && !isBelow13,
         updatedAt: Date.now(),
@@ -119,7 +145,7 @@ export async function updateBirthdayTracker(forceRefresh = false) {
 
     activeTrackerPromise = (async () => {
         try {
-            const [birthday, ageGroup] = await Promise.all([
+            const [birthday, ageGroup, verifiedAge] = await Promise.all([
                 fetchBirthday().catch((error) => {
                     console.warn(
                         'RoValra: Failed to fetch authenticated user birthday',
@@ -134,9 +160,21 @@ export async function updateBirthdayTracker(forceRefresh = false) {
                     );
                     return null;
                 }),
+                fetchVerifiedAge().catch((error) => {
+                    console.warn(
+                        'RoValra: Failed to fetch authenticated user verified age',
+                        error,
+                    );
+                    return null;
+                }),
             ]);
 
-            const trackedData = buildTrackedData(userId, birthday, ageGroup);
+            const trackedData = buildTrackedData(
+                userId,
+                birthday,
+                ageGroup,
+                verifiedAge,
+            );
             const latestTrackedUsers = await readAllTrackedUsers();
             latestTrackedUsers[userId] = trackedData;
             await writeAllTrackedUsers(latestTrackedUsers);

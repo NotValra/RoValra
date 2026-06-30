@@ -61,9 +61,15 @@ import {
     getUserProfileData,
 } from '../../core/apis/users.js';
 import { showSystemAlert } from '../../core/ui/roblox/alert.js';
+import { isAuthenticatedUserUnder16OrNotAgeChecked } from '../../core/utils/trackers/birthday.js';
 
 const assets = getAssets();
 let REGIONS = {};
+
+const DONATOR_PERKS_GAME_URL =
+    'https://www.roblox.com/games/store-section/9452973012';
+const DONATOR_PERKS_FALLBACK_ONSALE_URL =
+    'https://www.roblox.com/catalog?taxonomy=tZsUsd2BqGViQrJ9Vs3Wah&CreatorName=Valra&CreatorType=Group&salesTypeFilter=1';
 
 const RESTRICTION_LEVELS = [
     'None / No restrictions',
@@ -84,6 +90,51 @@ let topDonatorsCache = null;
 let ownedBordersCache = null;
 const priceCache = new Map();
 const artistCache = new Map();
+
+async function getDonatorPerksDonationUrl(forceRefresh = false) {
+    try {
+        if (await isAuthenticatedUserUnder16OrNotAgeChecked(forceRefresh)) {
+            return DONATOR_PERKS_FALLBACK_ONSALE_URL;
+        }
+    } catch (error) {
+        console.warn(
+            'RoValra: Failed to check donator perks donation eligibility',
+            error,
+        );
+        return DONATOR_PERKS_FALLBACK_ONSALE_URL;
+    }
+
+    return DONATOR_PERKS_GAME_URL;
+}
+
+async function updateDonatorPerksDonationLink(container = document) {
+    const link = container.querySelector('#rovalra-donator-perks-donation-link');
+    if (!link) return;
+
+    link.href = await getDonatorPerksDonationUrl();
+}
+
+function attachDonatorPerksDonationLinkHandler(container = document) {
+    const link = container.querySelector('#rovalra-donator-perks-donation-link');
+    if (!link || link.dataset.rovalraDonationHandlerAttached === 'true') return;
+
+    link.dataset.rovalraDonationHandlerAttached = 'true';
+    link.addEventListener('click', async (event) => {
+        event.preventDefault();
+
+        const popup = window.open('about:blank', '_blank');
+        if (popup) popup.opener = null;
+
+        const url = await getDonatorPerksDonationUrl(true);
+        link.href = url;
+
+        if (popup) {
+            popup.location.href = url;
+        } else {
+            window.location.href = url;
+        }
+    });
+}
 
 function getUserProfileHref(userId) {
     return userId ? `https://www.roblox.com/users/${userId}/profile` : '';
@@ -1399,7 +1450,7 @@ export const buttonData = [
                     <h3 style="color: var(--rovalra-main-text-color); margin-bottom: 5px; font-size: 18px;">${ts('settings.donatorPerks.howToGet')}</h3>
                     <p>${ts('settings.donatorPerks.howToGetDesc')}</p>
                     <div style="margin-top: 10px;">
-                        <a href="https://www.roblox.com/games/store-section/9452973012" target="_blank" class="rovalra-roblox-link">${ts('settings.donatorPerks.goToGame')}</a>
+                        <a id="rovalra-donator-perks-donation-link" href="${DONATOR_PERKS_FALLBACK_ONSALE_URL}" target="_blank" class="rovalra-roblox-link">${ts('settings.donatorPerks.goToGame')}</a>
                     </div>
                 </div>
 
@@ -2493,6 +2544,9 @@ export async function updateContent(buttonInfo, contentContainer) {
     }
 
     if (buttonId === 'donatorPerks') {
+        attachDonatorPerksDonationLinkHandler(contentContainer);
+        void updateDonatorPerksDonationLink(contentContainer);
+
         const badgesResponse = await syncDonatorTier();
         const userTier = getCurrentUserTier();
         if (userTier > 0) {
