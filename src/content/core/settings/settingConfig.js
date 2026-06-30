@@ -698,7 +698,7 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
-            trustedConnectionsEnabled: {
+            trustedConnectionsEnabledv2: {
                 label: 'Trusted Friends',
                 description: [
                     'This feature allows you to accept, request and remove trusted friends on the site by pressing the (...) on their profile, this will only work for eligible friends.',
@@ -707,10 +707,6 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
-                deprecated:
-                    'Roblox is working on an A/B test which does this exact thing. This feature will be disabled when it releases.',
-                locked: 'Roblox released their own version of this.',
-                isPermanent: true,
             },
             currencyTransferEnabled: {
                 label: 'Send Robux',
