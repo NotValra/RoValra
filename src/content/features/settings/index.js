@@ -52,6 +52,7 @@ import {
 import { getBorders, getCachedBorders } from '../../core/configs/borders.js';
 import { createUserCard } from '../../core/ui/profile/userCard.js';
 import { createPill } from '../../core/ui/general/pill.js';
+import { createPillToggle } from '../../core/ui/general/pillToggle.js';
 import {
     applyBorderToContainer,
     findInBorders,
@@ -1919,6 +1920,10 @@ function findBorderItem(categories, value) {
     return null;
 }
 
+function isNewBorderCategory(category) {
+    return category?.new === true;
+}
+
 async function renderStoreBorders(container) {
     container.innerHTML = '';
     const skeleton = document.createDocumentFragment();
@@ -2079,8 +2084,53 @@ async function renderStoreBorders(container) {
                 '<p style="color: var(--rovalra-secondary-text-color);">Sign in to preview borders on your avatar.</p>';
         }
 
-        for (const category of borderCategories) {
-            if (category.value === 'none' || !category.variants) continue;
+        const visibleCategories = borderCategories.filter(
+            (category) => category.value !== 'none' && category.variants,
+        );
+        const storeSections = [];
+        const emptyTabMessage = document.createElement('p');
+        emptyTabMessage.style.cssText =
+            'color: var(--rovalra-secondary-text-color); margin: 16px 0 0 0;';
+        emptyTabMessage.textContent = 'No borders found in this tab.';
+        emptyTabMessage.hidden = true;
+
+        const setStoreTab = (tab) => {
+            let visibleCount = 0;
+            for (const section of storeSections) {
+                const isVisible =
+                    tab === 'all' ||
+                    (tab === 'new' && section.isNew) ||
+                    tab === section.categoryValue;
+
+                section.header.style.display = isVisible ? '' : 'none';
+                section.grid.style.display = isVisible ? 'grid' : 'none';
+                if (isVisible) visibleCount += 1;
+            }
+            emptyTabMessage.hidden = visibleCount > 0;
+        };
+
+        const tabControls = document.createElement('div');
+        tabControls.style.cssText =
+            'display: flex; justify-content: flex-start; margin: 0 0 16px 0; overflow-x: auto; max-width: 100%;';
+        const storeTabs = createPillToggle({
+            options: [
+                { text: 'All', value: 'all' },
+                { text: 'New', value: 'new' },
+                ...visibleCategories.map((category) => ({
+                    text: category.label,
+                    value: category.value,
+                })),
+            ],
+            initialValue: 'all',
+            onChange: setStoreTab,
+        });
+        storeTabs.style.flexWrap = 'wrap';
+        storeTabs.style.maxWidth = '100%';
+        tabControls.appendChild(storeTabs);
+        container.append(tabControls, emptyTabMessage);
+
+        for (const category of visibleCategories) {
+            const categoryIsNew = isNewBorderCategory(category);
 
             const categoryHeader = document.createElement('h3');
             categoryHeader.style.cssText =
@@ -2092,6 +2142,12 @@ async function renderStoreBorders(container) {
             variantsGrid.style.cssText =
                 'display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-bottom: 10px; align-items: flex-start;';
             container.appendChild(variantsGrid);
+            storeSections.push({
+                categoryValue: category.value,
+                isNew: categoryIsNew,
+                header: categoryHeader,
+                grid: variantsGrid,
+            });
 
             const tier = getCurrentUserTier();
 
@@ -2323,6 +2379,7 @@ async function renderStoreBorders(container) {
                 );
             }
         }
+        setStoreTab('all');
     } catch (error) {
         console.error('RoValra: Failed to render store borders', error);
         container.innerHTML =
