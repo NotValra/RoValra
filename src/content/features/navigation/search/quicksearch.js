@@ -17,6 +17,7 @@ import {
     performJoinAction,
     getSavedPreferredRegion,
 } from '../../../core/preferredregion.js';
+import { showRegionDonationPopup } from '../../../core/review/review.js';
 import { launchGame, followUser } from '../../../core/utils/launcher.js';
 import { getAssets } from '../../../core/assets.js';
 import { addTooltip } from '../../../core/ui/tooltip.js';
@@ -1204,6 +1205,7 @@ function createResultHtml(
             e.preventDefault();
             e.stopPropagation();
             const region = await getSavedPreferredRegion();
+            showRegionDonationPopup('quick_search_region');
             performJoinAction(
                 game.rootPlaceId,
                 game.universeId,

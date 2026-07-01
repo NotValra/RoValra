@@ -1953,6 +1953,11 @@ async function getCustomFontFamily(assetId) {
 
 chrome.runtime.onInstalled.addListener((details) => {
     chrome.storage.local.remove('rovalra_transactions_data');
+    chrome.storage.local.get({ rovalra_installed_at: null }, (result) => {
+        if (!result.rovalra_installed_at) {
+            chrome.storage.local.set({ rovalra_installed_at: Date.now() });
+        }
+    });
 
     initializeSettings(details.reason);
     setupContextMenuListener();

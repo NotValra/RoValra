@@ -63,6 +63,7 @@ import {
 } from '../../core/apis/users.js';
 import { showSystemAlert } from '../../core/ui/roblox/alert.js';
 import { isAuthenticatedUserUnder16OrNotAgeChecked } from '../../core/utils/trackers/birthday.js';
+import { createSquareButton } from '../../core/ui/profile/header/squarebutton.js';
 
 const assets = getAssets();
 let REGIONS = {};
@@ -108,33 +109,44 @@ async function getDonatorPerksDonationUrl(forceRefresh = false) {
     return DONATOR_PERKS_GAME_URL;
 }
 
-async function updateDonatorPerksDonationLink(container = document) {
-    const link = container.querySelector('#rovalra-donator-perks-donation-link');
-    if (!link) return;
-
-    link.href = await getDonatorPerksDonationUrl();
-}
-
-function attachDonatorPerksDonationLinkHandler(container = document) {
-    const link = container.querySelector('#rovalra-donator-perks-donation-link');
-    if (!link || link.dataset.rovalraDonationHandlerAttached === 'true') return;
-
-    link.dataset.rovalraDonationHandlerAttached = 'true';
-    link.addEventListener('click', async (event) => {
-        event.preventDefault();
-
+async function openDonatorPerksDonationUrl() {
+    try {
         const popup = window.open('about:blank', '_blank');
         if (popup) popup.opener = null;
 
         const url = await getDonatorPerksDonationUrl(true);
-        link.href = url;
 
         if (popup) {
             popup.location.href = url;
         } else {
             window.location.href = url;
         }
-    });
+    } catch (error) {
+        console.warn('RoValra: Failed to open donation URL', error);
+        window.location.href = DONATOR_PERKS_FALLBACK_ONSALE_URL;
+    }
+}
+
+function renderDonatorPerksDonationButton(container = document) {
+    const holder = container.querySelector(
+        '#rovalra-donator-perks-donation-button-holder',
+    );
+    if (!holder || holder.dataset.rovalraDonationButtonRendered === 'true')
+        return;
+
+    holder.dataset.rovalraDonationButtonRendered = 'true';
+    holder.replaceChildren(
+        createSquareButton({
+            content: 'Donate',
+            id: 'rovalra-donator-perks-donation-button',
+            onClick: openDonatorPerksDonationUrl,
+            width: 'auto',
+            height: 'height-1000',
+            paddingX: 'padding-x-medium',
+            radius: 'radius-medium',
+            disableTextTruncation: true,
+        }),
+    );
 }
 
 function getUserProfileHref(userId) {
@@ -578,6 +590,19 @@ function getDonatorBadgesHtml() {
         `;
         })
         .join('');
+}
+
+function getDonatorTierRewardHtml(tier) {
+    const key = `donator_${tier}`;
+    const badge = BADGE_CONFIG[key];
+    const rewardText = ts(`settings.donatorPerks.tier${tier}Reward`).replace(
+        /\n/g,
+        '<br>',
+    );
+
+    if (!badge) return rewardText;
+
+    return `<span style="display: inline-flex; align-items: center; gap: 6px; vertical-align: middle;"><span>${rewardText}</span><img ${getBadgeAssetAttribute(key)} src="${badge.icon}" alt="" style="width: 18px; height: 18px; flex-shrink: 0; ${getBadgeStyle(key)}" /></span>`;
 }
 
 function getFeaturesByTier(tier) {
@@ -1371,7 +1396,7 @@ export const buttonData = [
                                                 ${ts('settings.info.github')}
                                                 <img data-rovalra-asset="rovalraIcon" src="${assets.rovalraIcon}" style="width: 20px; height: 20px; margin-right: 0px; vertical-align: middle;" />
                                             </a>
-                                            <a href="https://www.roblox.com/games/store-section/9452973012" target="_blank" class="rovalra-roblox-link">${ts('settings.info.support')}</a>
+                                            <a href="https://www.roblox.com/my/account?rovalra=donator+perks" class="rovalra-roblox-link">${ts('settings.info.support')}</a>
                                             <a href="https://www.tiktok.com/@valrawantbanana" target="_blank" class="rovalra-tiktok-link">${ts('settings.info.tiktok')}</a>
                                             <a href="https://x.com/ValraSwag" target="_blank" class="rovalra-x-link">${ts('settings.info.x')}</a>
                                         </div>
@@ -1447,11 +1472,16 @@ export const buttonData = [
                     ${parseMarkdown(ts('settings.donatorPerks.note'), themeColors)}
                 </div>
 
-                <div style="margin-top: 15px;">
-                    <h3 style="color: var(--rovalra-main-text-color); margin-bottom: 5px; font-size: 18px;">${ts('settings.donatorPerks.howToGet')}</h3>
-                    <p>${ts('settings.donatorPerks.howToGetDesc')}</p>
-                    <div style="margin-top: 10px;">
-                        <a id="rovalra-donator-perks-donation-link" href="${DONATOR_PERKS_FALLBACK_ONSALE_URL}" target="_blank" class="rovalra-roblox-link">${ts('settings.donatorPerks.goToGame')}</a>
+                <div style="margin-top: 15px; padding: 15px; background-color: var(--rovalra-container-background-color, rgba(0,0,0,0.1)); border-radius: 8px; border: 1px solid var(--rovalra-border-color, rgba(128,128,128,0.2)); display: flex; align-items: center; justify-content: space-between; gap: 15px; flex-wrap: wrap;">
+                    <div style="min-width: 220px; flex: 1; display: flex; align-items: center; gap: 14px;">
+                        <img data-rovalra-asset="rovalraIcon" src="${assets.rovalraIcon}" alt="" style="width: 52px; height: 52px; flex-shrink: 0;" />
+                        <div>
+                            <h3 style="color: var(--rovalra-main-text-color); margin: 0 0 5px 0; font-size: 18px;">Help Support RoValra</h3>
+                            <p style="color: var(--rovalra-secondary-text-color); margin: 0; font-size: 14px;">Get exclusive cosmetic perks by donating</p>
+                        </div>
+                    </div>
+                    <div style="flex-shrink: 0;">
+                        <div id="rovalra-donator-perks-donation-button-holder"></div>
                     </div>
                 </div>
 
@@ -1465,7 +1495,7 @@ export const buttonData = [
                             </div>
                             <div style="color: var(--rovalra-secondary-text-color); font-size: 14px;">${parseMarkdown(ts('settings.donatorPerks.tier1Desc'), themeColors)}</div>
                             <ul style="margin-top: 5px; padding-left: 20px; color: var(--rovalra-secondary-text-color); margin-bottom: 0;">
-                                <li>${ts('settings.donatorPerks.tier1Reward').replace(/\n/g, '<br>')}</li>
+                                <li>${getDonatorTierRewardHtml(1)}</li>
                                 <li>${ts('settings.donatorPerks.tier1DiscordRole').replace(/\n/g, '<br>')}</li>
                                 ${getFeaturesByTier(1)}
                             </ul>
@@ -1478,7 +1508,7 @@ export const buttonData = [
                             </div>
                             <div style="color: var(--rovalra-secondary-text-color); font-size: 14px;">${parseMarkdown(ts('settings.donatorPerks.tier2Desc'), themeColors)}</div>
                             <ul style="margin-top: 5px; padding-left: 20px; color: var(--rovalra-secondary-text-color); margin-bottom: 0;">
-                                <li>${ts('settings.donatorPerks.tier2Reward').replace(/\n/g, '<br>')}</li>
+                                <li>${getDonatorTierRewardHtml(2)}</li>
                                 <li>${ts('settings.donatorPerks.tier2DiscordRole').replace(/\n/g, '<br>')}</li>
                                 <li>${ts('settings.donatorPerks.previousRewards').replace(/\n/g, '<br>')}</li>
                                 ${getFeaturesByTier(2)}
@@ -1492,7 +1522,7 @@ export const buttonData = [
                             </div>
                             <div style="color: var(--rovalra-secondary-text-color); font-size: 14px;">${parseMarkdown(ts('settings.donatorPerks.tier3Desc'), themeColors)}</div>
                             <ul style="margin-top: 5px; padding-left: 20px; color: var(--rovalra-secondary-text-color); margin-bottom: 0;">
-                                <li>${ts('settings.donatorPerks.tier3Reward').replace(/\n/g, '<br>')}</li>
+                                <li>${getDonatorTierRewardHtml(3)}</li>
                                 <li>${ts('settings.donatorPerks.tier3DiscordRole').replace(/\n/g, '<br>')}</li>
                                 <li>${ts('settings.donatorPerks.previousRewards').replace(/\n/g, '<br>')}</li>
                                 ${getFeaturesByTier(3)}
@@ -2601,8 +2631,7 @@ export async function updateContent(buttonInfo, contentContainer) {
     }
 
     if (buttonId === 'donatorPerks') {
-        attachDonatorPerksDonationLinkHandler(contentContainer);
-        void updateDonatorPerksDonationLink(contentContainer);
+        renderDonatorPerksDonationButton(contentContainer);
 
         const badgesResponse = await syncDonatorTier();
         const userTier = getCurrentUserTier();

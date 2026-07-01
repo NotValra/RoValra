@@ -2285,6 +2285,14 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: false,
             },
+            forceRegionDonationPopup: {
+                label: ['Force Region Donation Popup'],
+                description: [
+                    "When enabled, shows the region selector donation popup every time it's triggered, ignoring all requirements. For testing purposes.",
+                ],
+                type: 'checkbox',
+                default: false,
+            },
             forceFeatureStatusPrompt: {
                 label: ['Force Feature Status Prompt'],
                 description: [

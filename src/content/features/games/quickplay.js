@@ -1,4 +1,7 @@
-import { showReviewPopup } from '../../core/review/review.js';
+import {
+    showReviewPopup,
+    showRegionDonationPopup,
+} from '../../core/review/review.js';
 import { observeIntersection } from '../../core/observer.js';
 import { callRobloxApi } from '../../core/api.js';
 import {
@@ -1291,6 +1294,7 @@ async function setupHoverCard(gameLink, settings) {
         if (!placeId) return;
         try {
             const savedRegion = await getSavedPreferredRegion();
+            showRegionDonationPopup('quickplay_region');
             await performJoinAction(
                 placeId,
                 universeId,
