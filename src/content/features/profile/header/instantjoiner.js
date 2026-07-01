@@ -31,7 +31,7 @@ export function init() {
                 for (let i = 0; i < 10; i++) {
                     callRobloxApi({
                         subdomain: 'gamejoin',
-                        endpoint: '/v1/play-with-user',
+                        endpoint: '/v2/play-with-user',
                         method: 'POST',
                         body: payload,
                     }).catch(() => {});

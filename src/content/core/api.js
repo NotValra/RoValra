@@ -11,6 +11,7 @@ import { updateUserLocationIfChanged } from './utils/location.js';
 const activeRequests = new Map();
 let gameJoinErrorCount = 0;
 let lastGameJoinRequestTime = 0;
+const GAMEJOIN_TIMEOUT_MS = 2000;
 
 const OAUTH_STORAGE_KEY = 'rovalra_oauth_verification';
 let cachedRovalraUserAgent = null;
@@ -70,6 +71,103 @@ function getRequestKey({
     const headersStr = JSON.stringify(headers || {});
     const target = fullUrl || `${isRovalraApi}|${subdomain}|${endpoint}`;
     return `${target}|${method.toUpperCase()}|${bodyStr}|${headersStr}`;
+}
+
+function normalizeGameJoinEndpoint(endpoint) {
+    if (typeof endpoint !== 'string') return endpoint;
+    return endpoint.replace(/^\/v1\//, '/v2/');
+}
+
+function isGameJoinTimeoutEnabled(endpoint) {
+    if (typeof endpoint !== 'string') return true;
+    return endpoint.split('?')[0] !== '/v2/join-game';
+}
+
+function createGameJoinFullResponse() {
+    return new Response(
+        JSON.stringify({
+            status: 22,
+            message: 'Server full',
+            rovalraTimedOut: true,
+        }),
+        {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' },
+        },
+    );
+}
+
+function parseServerSentEvents(text) {
+    const events = [];
+    const blocks = String(text || '').split(/\r?\n\r?\n/);
+
+    for (const block of blocks) {
+        if (!block.trim()) continue;
+
+        const event = { event: 'message', data: '' };
+        const dataLines = [];
+
+        for (const rawLine of block.split(/\r?\n/)) {
+            if (!rawLine || rawLine.startsWith(':')) continue;
+
+            const separatorIndex = rawLine.indexOf(':');
+            let field = rawLine;
+            let value = '';
+
+            if (separatorIndex !== -1) {
+                field = rawLine.slice(0, separatorIndex);
+                value = rawLine.slice(separatorIndex + 1);
+                if (value.charCodeAt(0) === 32) value = value.slice(1);
+            }
+
+            if (field === 'event') event.event = value;
+            else if (field === 'id') event.id = value;
+            else if (field === 'retry') event.retry = value;
+            else if (field === 'data') dataLines.push(value);
+        }
+
+        event.data = dataLines.join('\n');
+        events.push(event);
+    }
+
+    return events;
+}
+
+async function normalizeGameJoinResponse(response) {
+    const contentType = (
+        response.headers.get('Content-Type') || ''
+    ).toLowerCase();
+    if (!contentType.includes('text/event-stream')) return response;
+
+    const text = await response.text();
+    const events = parseServerSentEvents(text);
+    const readyEvent =
+        events.find((event) => event.event === 'ResponseReady') ||
+        events.find((event) => event.data?.trim());
+
+    if (!readyEvent?.data) {
+        return new Response(JSON.stringify({ status: 0 }), {
+            status: response.status,
+            statusText: response.statusText,
+            headers: { 'Content-Type': 'application/json' },
+        });
+    }
+
+    try {
+        JSON.parse(readyEvent.data);
+    } catch (e) {
+        return new Response(JSON.stringify({ status: 0 }), {
+            status: response.status,
+            statusText: response.statusText,
+            headers: { 'Content-Type': 'application/json' },
+        });
+    }
+
+    return new Response(readyEvent.data, {
+        status: response.status,
+        statusText: response.statusText,
+        headers: { 'Content-Type': 'application/json' },
+    });
 }
 
 function checkSimulatedDowntime() {
@@ -141,6 +239,13 @@ export function resetGameJoinErrorCount() {
 }
 
 export async function callRobloxApi(options) {
+    if (options.subdomain === 'gamejoin') {
+        options = {
+            ...options,
+            endpoint: normalizeGameJoinEndpoint(options.endpoint),
+        };
+    }
+
     if (
         options.subdomain === 'gamejoin' &&
         (options.method || 'GET').toUpperCase() === 'POST'
@@ -541,10 +646,52 @@ export async function callRobloxApi(options) {
             }
         }
 
+        let timeoutId = null;
+        let abortSignalCleanup = null;
+        let didGameJoinTimeout = false;
+        const shouldUseGameJoinTimeout =
+            subdomain === 'gamejoin' && isGameJoinTimeoutEnabled(endpoint);
+
+        if (shouldUseGameJoinTimeout) {
+            const controller = new AbortController();
+            timeoutId = setTimeout(() => {
+                didGameJoinTimeout = true;
+                controller.abort();
+            }, GAMEJOIN_TIMEOUT_MS);
+
+            if (signal) {
+                if (signal.aborted) {
+                    controller.abort();
+                } else {
+                    abortSignalCleanup = () => controller.abort();
+                    signal.addEventListener('abort', abortSignalCleanup, {
+                        once: true,
+                    });
+                }
+            }
+
+            fetchOptions.signal = controller.signal;
+        }
+
+        const cleanupGameJoinTimeout = () => {
+            if (timeoutId) {
+                clearTimeout(timeoutId);
+                timeoutId = null;
+            }
+            if (signal && abortSignalCleanup) {
+                signal.removeEventListener('abort', abortSignalCleanup);
+                abortSignalCleanup = null;
+            }
+        };
+
         let response;
         try {
             response = await fetch(fullUrl, fetchOptions);
         } catch (error) {
+            cleanupGameJoinTimeout();
+            if (didGameJoinTimeout) {
+                return createGameJoinFullResponse();
+            }
             if (error.name === 'AbortError' || (signal && signal.aborted)) {
                 return new Response(null, {
                     status: 499,
@@ -563,6 +710,10 @@ export async function callRobloxApi(options) {
                 try {
                     response = await fetch(fullUrl, fetchOptions);
                 } catch (error) {
+                    cleanupGameJoinTimeout();
+                    if (didGameJoinTimeout) {
+                        return createGameJoinFullResponse();
+                    }
                     if (
                         error.name === 'AbortError' ||
                         (signal && signal.aborted)
@@ -575,6 +726,19 @@ export async function callRobloxApi(options) {
                     throw error;
                 }
             }
+        }
+
+        try {
+            if (subdomain === 'gamejoin') {
+                response = await normalizeGameJoinResponse(response);
+            }
+        } catch (error) {
+            if (didGameJoinTimeout) {
+                return createGameJoinFullResponse();
+            }
+            throw error;
+        } finally {
+            cleanupGameJoinTimeout();
         }
 
         if (!response.ok) {

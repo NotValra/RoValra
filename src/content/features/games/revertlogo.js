@@ -647,7 +647,7 @@ function initializeJoinDialogEnhancer() {
                                 if (isGenericJoin) {
                                     const response = await callRobloxApi({
                                         subdomain: 'gamejoin',
-                                        endpoint: '/v1/join-game',
+                                        endpoint: '/v2/join-game',
                                         method: 'POST',
                                         body: apiBody,
                                     });
@@ -670,7 +670,7 @@ function initializeJoinDialogEnhancer() {
                                         urlParams.get('userId');
                                     const response = await callRobloxApi({
                                         subdomain: 'gamejoin',
-                                        endpoint: '/v1/play-with-user',
+                                        endpoint: '/v2/play-with-user',
                                         method: 'POST',
                                         body: {
                                             userIdToFollow: parseInt(

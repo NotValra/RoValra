@@ -137,7 +137,7 @@ async function loadAndRenderHeatmap(placeId, parentElement) {
             try {
                 const joinData = await callRobloxApiJson({
                     subdomain: 'gamejoin',
-                    endpoint: '/v1/join-game',
+                    endpoint: '/v2/join-game',
                     method: 'POST',
                     body: {
                         placeId: parseInt(placeId, 10),

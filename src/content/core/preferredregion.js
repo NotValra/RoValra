@@ -61,7 +61,7 @@ async function isServerActive(placeId, gameId) {
     try {
         const response = await callRobloxApi({
             subdomain: 'gamejoin',
-            endpoint: '/v1/join-game-instance',
+            endpoint: '/v2/join-game-instance',
             method: 'POST',
             body: {
                 placeId: parseInt(placeId, 10),

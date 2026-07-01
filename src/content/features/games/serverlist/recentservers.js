@@ -164,7 +164,7 @@ async function checkServerIsActive(placeId, gameId) {
     try {
         const info = await callRobloxApiJson({
             subdomain: 'gamejoin',
-            endpoint: '/v1/join-game-instance',
+            endpoint: '/v2/join-game-instance',
             method: 'POST',
             body: {
                 placeId: parseInt(placeId, 10),
@@ -177,8 +177,7 @@ async function checkServerIsActive(placeId, gameId) {
 
         if (
             info.joinScript ||
-            info.status === 2 ||
-            (info.queuePosition && info.queuePosition > 0)
+            info.status === 2
         ) {
             return true;
         }

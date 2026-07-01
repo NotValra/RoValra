@@ -504,7 +504,7 @@ export const SETTINGS_CONFIG = {
                         label: 'Full Server Indicators',
                         description: [
                             'This adds indicators when a server is full',
-                            "Like the queue size, and text telling you the server is full if we don't have region data.",
+                            "Like text that tells you the server is full if we don't have region data.",
                         ],
                         type: 'checkbox',
                         default: true,

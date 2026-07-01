@@ -688,7 +688,7 @@ async function getAndCacheServerRegion(server, placeId) {
     try {
         const res = await callRobloxApiJson({
             subdomain: 'gamejoin',
-            endpoint: '/v1/join-game-instance',
+            endpoint: '/v2/join-game-instance',
             method: 'POST',
             body: {
                 placeId: parseInt(placeId, 10),
