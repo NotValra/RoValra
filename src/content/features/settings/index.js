@@ -572,26 +572,6 @@ function getBadgeAssetAttribute(key) {
         : '';
 }
 
-const donatorBadgeKeys = ['donator_1', 'donator_2', 'donator_3'];
-
-function getDonatorBadgesHtml() {
-    return donatorBadgeKeys
-        .map((key) => {
-            const badge = BADGE_CONFIG[key];
-            if (!badge) return '';
-            const styleString = getBadgeStyle(key);
-            const shortTooltip = badge.tooltip.split('.')[0];
-
-            return `
-            <div title="${badge.tooltip}" style="display: flex; align-items: center; gap: 10px; padding: 10px; background-color: var(--rovalra-container-background-color, rgba(0,0,0,0.1)); border-radius: 8px; flex: 1; min-width: 240px;">
-                <img ${getBadgeAssetAttribute(key)} src="${badge.icon}" style="width: 32px; height: 32px; ${styleString}" />
-                <span style="color: var(--rovalra-main-text-color); font-size: 14px;">${shortTooltip}</span>
-            </div>
-        `;
-        })
-        .join('');
-}
-
 function getDonatorTierRewardHtml(tier) {
     const key = `donator_${tier}`;
     const badge = BADGE_CONFIG[key];
@@ -605,8 +585,20 @@ function getDonatorTierRewardHtml(tier) {
     return `<span style="display: inline-flex; align-items: center; gap: 6px; vertical-align: middle;"><span>${rewardText}</span><img ${getBadgeAssetAttribute(key)} src="${badge.icon}" alt="" style="width: 18px; height: 18px; flex-shrink: 0; ${getBadgeStyle(key)}" /></span>`;
 }
 
-function getFeaturesByTier(tier) {
-    const features = [];
+function getDonatorTierHeaderHtml(tier) {
+    const key = `donator_${tier}`;
+    return `<span class="rovalra-donator-tier-table-heading">
+        <img ${getBadgeAssetAttribute(key)} src="${BADGE_CONFIG[key].icon}" alt="" style="${getBadgeStyle(key)}" />
+        <span>${ts(`settings.donatorPerks.tier${tier}`)}</span>
+    </span>`;
+}
+
+function createDonatorPerkLink(settingName, label) {
+    return `<a href="#!/search?q=${encodeURIComponent(settingName)}" class="rovalra-perk-link" data-setting="${settingName}">${label}</a>`;
+}
+
+function getDonatorSettingsPerkRows() {
+    const rows = [];
     for (const [categoryKey, category] of Object.entries(SETTINGS_CONFIG)) {
         const tabId = categoryKey.toLowerCase();
         if (tabId === 'info' || tabId === 'credits' || tabId === 'donatorperks')
@@ -615,27 +607,138 @@ function getFeaturesByTier(tier) {
         for (const [settingName, setting] of Object.entries(
             category.settings,
         )) {
-            if (setting.donatorTier === tier) {
-                features.push(
-                    `<li><a href="#!/search?q=${settingName}" class="rovalra-perk-link" data-setting="${settingName}" style="color: var(--rovalra-main-text-color); text-decoration: underline; cursor: pointer;">${setting.label}</a></li>`,
-                );
+            if (setting.donatorTier) {
+                rows.push({
+                    label: createDonatorPerkLink(settingName, setting.label),
+                    minTier: setting.donatorTier,
+                });
             }
             if (setting.childSettings) {
                 for (const [childName, childSetting] of Object.entries(
                     setting.childSettings,
                 )) {
-                    if (childSetting.donatorTier === tier) {
-                        features.push(
-                            `<li><a href="#!/search?q=${childName}" class="rovalra-perk-link" data-setting="${childName}" style="color: var(--rovalra-main-text-color); text-decoration: underline; cursor: pointer;">${childSetting.label}</a></li>`,
-                        );
+                    if (childSetting.donatorTier) {
+                        rows.push({
+                            label: createDonatorPerkLink(
+                                childName,
+                                childSetting.label,
+                            ),
+                            minTier: childSetting.donatorTier,
+                        });
                     }
                 }
             }
         }
     }
-    return features.length > 0
-        ? features.join('')
-        : `<li>${ts('settings.donatorPerks.moreComingSoon')}</li>`;
+    return rows;
+}
+
+function getDonatorPerkStatusCell(hasPerk) {
+    const label = hasPerk ? 'Included' : 'Not included';
+    return `<td class="rovalra-donator-perk-status-cell" aria-label="${label}" data-rovalra-donator-perk-included="${hasPerk ? 'true' : 'false'}"></td>`;
+}
+
+function renderDonatorPerkStatusPills(container) {
+    container
+        .querySelectorAll('[data-rovalra-donator-perk-included]')
+        .forEach((cell) => {
+            const isIncluded =
+                cell.dataset.rovalraDonatorPerkIncluded === 'true';
+            const label = isIncluded ? 'Included' : 'Not included';
+            const symbol = document.createElement('span');
+            symbol.innerHTML = isIncluded ? '&#10003;' : '&#10005;';
+            symbol.setAttribute('aria-hidden', 'true');
+
+            const pill = createPill(symbol, label, { size: 'small' });
+            pill.classList.add(
+                'rovalra-donator-perk-status-pill',
+                isIncluded ? 'is-included' : 'is-missing',
+            );
+            pill.setAttribute('aria-label', label);
+
+            cell.replaceChildren(pill);
+        });
+}
+
+function getDonatorDiscordRolePerkHtml(tier) {
+    return `<span class="rovalra-donator-discord-role-perk">${ts(`settings.donatorPerks.tier${tier}DiscordRole`).replace(/\n/g, '<br>')}</span>`;
+}
+
+function getDonatorPerksComparisonHtml(themeColors) {
+    const baseRows = [
+        {
+            label: getDonatorTierRewardHtml(1),
+            minTier: 1,
+        },
+        {
+            label: getDonatorDiscordRolePerkHtml(1),
+            minTier: 1,
+        },
+        {
+            label: getDonatorTierRewardHtml(2),
+            minTier: 2,
+        },
+        {
+            label: getDonatorDiscordRolePerkHtml(2),
+            minTier: 2,
+        },
+        {
+            label: getDonatorTierRewardHtml(3),
+            minTier: 3,
+        },
+        {
+            label: getDonatorDiscordRolePerkHtml(3),
+            minTier: 3,
+        },
+    ];
+    const rows = [...baseRows, ...getDonatorSettingsPerkRows()];
+    const body =
+        rows.length > 0
+            ? rows
+                  .map(
+                      ({ label, minTier }) => `
+                        <tr>
+                            <th scope="row">${label}</th>
+                            ${[1, 2, 3]
+                                .map((tier) =>
+                                    getDonatorPerkStatusCell(tier >= minTier),
+                                )
+                                .join('')}
+                        </tr>`,
+                  )
+                  .join('')
+            : `<tr><th scope="row" colspan="4">${ts('settings.donatorPerks.moreComingSoon')}</th></tr>`;
+
+    return `
+        <div class="rovalra-donator-perks-compare" aria-label="${ts('settings.donatorPerks.perkTiers')}">
+            <div class="rovalra-donator-tier-summary">
+                ${[1, 2, 3]
+                    .map(
+                        (tier) => `
+                            <div id="donator-tier-${tier}-header" class="rovalra-donator-tier-heading">
+                                <img ${getBadgeAssetAttribute(`donator_${tier}`)} src="${BADGE_CONFIG[`donator_${tier}`].icon}" alt="" style="${getBadgeStyle(`donator_${tier}`)}" />
+                                <div class="rovalra-donator-tier-copy">
+                                    <h4>${ts(`settings.donatorPerks.tier${tier}`)}</h4>
+                                    <p>${parseMarkdown(ts(`settings.donatorPerks.tier${tier}Desc`), themeColors)}</p>
+                                </div>
+                            </div>`,
+                    )
+                    .join('')}
+            </div>
+            <div class="rovalra-donator-perks-table-wrap">
+                <table class="rovalra-donator-perks-table">
+                    <thead>
+                        <tr>
+                            <th scope="col">${ts('settings.donatorPerks.perk')}</th>
+                            <th scope="col">${getDonatorTierHeaderHtml(1)}</th>
+                            <th scope="col">${getDonatorTierHeaderHtml(2)}</th>
+                            <th scope="col">${getDonatorTierHeaderHtml(3)}</th>
+                        </tr>
+                    </thead>
+                    <tbody>${body}</tbody>
+                </table>
+            </div>
+        </div>`;
 }
 
 let contributorsCache = null;
@@ -1487,55 +1590,7 @@ export const buttonData = [
 
                 <div style="margin-top: 10px;">
                     <h3 style="color: var(--rovalra-main-text-color); margin-bottom: 10px; font-size: 18px;">${ts('settings.donatorPerks.perkTiers')}</h3>
-                    <div style="display: flex; flex-direction: column; gap: 15px;">
-                        <div style="padding: 15px; background-color: var(--rovalra-container-background-color, rgba(0,0,0,0.1)); border-radius: 8px; border: 1px solid var(--rovalra-border-color, rgba(128,128,128,0.2));">
-                            <div id="donator-tier-1-header" style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
-                                <img ${getBadgeAssetAttribute('donator_1')} src="${BADGE_CONFIG.donator_1.icon}" style="width: 32px; height: 32px; ${getBadgeStyle('donator_1')}" />
-                                <h4 style="color: var(--rovalra-main-text-color); margin: 0; font-size: 16px;">${ts('settings.donatorPerks.tier1')}</h4>
-                            </div>
-                            <div style="color: var(--rovalra-secondary-text-color); font-size: 14px;">${parseMarkdown(ts('settings.donatorPerks.tier1Desc'), themeColors)}</div>
-                            <ul style="margin-top: 5px; padding-left: 20px; color: var(--rovalra-secondary-text-color); margin-bottom: 0;">
-                                <li>${getDonatorTierRewardHtml(1)}</li>
-                                <li>${ts('settings.donatorPerks.tier1DiscordRole').replace(/\n/g, '<br>')}</li>
-                                ${getFeaturesByTier(1)}
-                            </ul>
-                        </div>
-
-                        <div style="padding: 15px; background-color: var(--rovalra-container-background-color, rgba(0,0,0,0.1)); border-radius: 8px; border: 1px solid var(--rovalra-border-color, rgba(128,128,128,0.2));">
-                            <div id="donator-tier-2-header" style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
-                                <img ${getBadgeAssetAttribute('donator_2')} src="${BADGE_CONFIG.donator_2.icon}" style="width: 32px; height: 32px; ${getBadgeStyle('donator_2')}" />
-                                <h4 style="color: var(--rovalra-main-text-color); margin: 0; font-size: 16px;">${ts('settings.donatorPerks.tier2')}</h4>
-                            </div>
-                            <div style="color: var(--rovalra-secondary-text-color); font-size: 14px;">${parseMarkdown(ts('settings.donatorPerks.tier2Desc'), themeColors)}</div>
-                            <ul style="margin-top: 5px; padding-left: 20px; color: var(--rovalra-secondary-text-color); margin-bottom: 0;">
-                                <li>${getDonatorTierRewardHtml(2)}</li>
-                                <li>${ts('settings.donatorPerks.tier2DiscordRole').replace(/\n/g, '<br>')}</li>
-                                <li>${ts('settings.donatorPerks.previousRewards').replace(/\n/g, '<br>')}</li>
-                                ${getFeaturesByTier(2)}
-                            </ul>
-                        </div>
-
-                        <div style="padding: 15px; background-color: var(--rovalra-container-background-color, rgba(0,0,0,0.1)); border-radius: 8px; border: 1px solid var(--rovalra-border-color, rgba(128,128,128,0.2));">
-                            <div id="donator-tier-3-header" style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
-                                <img ${getBadgeAssetAttribute('donator_3')} src="${BADGE_CONFIG.donator_3.icon}" style="width: 32px; height: 32px; ${getBadgeStyle('donator_3')}" />
-                                <h4 style="color: var(--rovalra-main-text-color); margin: 0; font-size: 16px;">${ts('settings.donatorPerks.tier3')}</h4>
-                            </div>
-                            <div style="color: var(--rovalra-secondary-text-color); font-size: 14px;">${parseMarkdown(ts('settings.donatorPerks.tier3Desc'), themeColors)}</div>
-                            <ul style="margin-top: 5px; padding-left: 20px; color: var(--rovalra-secondary-text-color); margin-bottom: 0;">
-                                <li>${getDonatorTierRewardHtml(3)}</li>
-                                <li>${ts('settings.donatorPerks.tier3DiscordRole').replace(/\n/g, '<br>')}</li>
-                                <li>${ts('settings.donatorPerks.previousRewards').replace(/\n/g, '<br>')}</li>
-                                ${getFeaturesByTier(3)}
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <div style="margin-top: 20px;">
-                    <h3 style="color: var(--rovalra-main-text-color); margin-bottom: 10px; font-size: 18px;">${ts('settings.donatorPerks.availableBadges')}</h3>
-                    <div style="display: flex; flex-wrap: wrap; gap: 15px; align-items: stretch;">
-                        ${getDonatorBadgesHtml()}
-                    </div>
+                    ${getDonatorPerksComparisonHtml(themeColors)}
                 </div>
 
                 <div style="margin-top: 25px;">
@@ -2632,6 +2687,7 @@ export async function updateContent(buttonInfo, contentContainer) {
 
     if (buttonId === 'donatorPerks') {
         renderDonatorPerksDonationButton(contentContainer);
+        renderDonatorPerkStatusPills(contentContainer);
 
         const badgesResponse = await syncDonatorTier();
         const userTier = getCurrentUserTier();
@@ -2651,15 +2707,18 @@ export async function updateContent(buttonInfo, contentContainer) {
                         `#donator-tier-${userTier}-header`,
                     );
                     if (tierContainer) {
+                        const tierCopy = tierContainer.querySelector(
+                            '.rovalra-donator-tier-copy',
+                        );
                         const tierBadge = document.createElement('span');
                         tierBadge.dataset.rovalraSkipUsdEstimate = 'true';
                         tierBadge.style.cssText =
-                            'margin-left: auto; display: inline-flex; align-items: center; gap: 8px; background-color: var(--rovalra-container-background-color, rgba(0,0,0,0.1)); padding: 4px 10px 4px 4px; border-radius: 20px; border: 1px solid var(--rovalra-border-color); color: var(--rovalra-main-text-color); white-space: nowrap;';
+                            'margin-top: 6px; display: inline-flex; align-items: center; gap: 5px; background-color: var(--rovalra-container-background-color, rgba(0,0,0,0.1)); padding: 2px 7px 2px 2px; border-radius: 16px; border: 1px solid var(--rovalra-border-color); color: var(--rovalra-main-text-color); white-space: nowrap; width: fit-content;';
 
                         const img = document.createElement('img');
                         img.src = userThumbUrl;
                         img.style.cssText =
-                            'width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0;';
+                            'width: 19px; height: 19px; border-radius: 50%; flex-shrink: 0;';
                         tierBadge.appendChild(img);
 
                         const totalDonated =
@@ -2674,7 +2733,7 @@ export async function updateContent(buttonInfo, contentContainer) {
                             robuxIcon.style.marginRight = '2px';
                             donationTotal.append(robuxIcon, totalDonatedLabel);
                             donationTotal.style.cssText =
-                                'display: inline-flex; align-items: center; gap: 2px; color: var(--rovalra-main-text-color); font-size: 12px; font-weight: 700;';
+                                'display: inline-flex; align-items: center; gap: 1px; color: var(--rovalra-main-text-color); font-size: 11px; font-weight: 700;';
                             tierBadge.appendChild(donationTotal);
                         }
                         addTooltip(
@@ -2684,7 +2743,7 @@ export async function updateContent(buttonInfo, contentContainer) {
                                 : 'Your donator tier',
                             { position: 'top' },
                         );
-                        tierContainer.appendChild(tierBadge);
+                        (tierCopy || tierContainer).appendChild(tierBadge);
                     }
                 }
             }

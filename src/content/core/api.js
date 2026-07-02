@@ -12,9 +12,13 @@ const activeRequests = new Map();
 let gameJoinErrorCount = 0;
 let lastGameJoinRequestTime = 0;
 const GAMEJOIN_TIMEOUT_MS = 2000;
+const GAMEJOIN_V2_FLAG_URL = 'https://apis.rovalra.com/v1/gamejoin-v2/';
 
 const OAUTH_STORAGE_KEY = 'rovalra_oauth_verification';
 let cachedRovalraUserAgent = null;
+let gameJoinVersionNavigationKey = null;
+let gameJoinVersionPromise = null;
+let gameJoinUseV2 = true;
 
 const hbaClient = new HBAClient({
     onSite: true,
@@ -73,14 +77,126 @@ function getRequestKey({
     return `${target}|${method.toUpperCase()}|${bodyStr}|${headersStr}`;
 }
 
-function normalizeGameJoinEndpoint(endpoint) {
+function getCurrentNavigationKey() {
+    if (typeof window === 'undefined') return '';
+    return window.location.href;
+}
+
+function parseGameJoinV2Flag(data) {
+    if (typeof data === 'boolean') return data;
+    if (typeof data === 'string') {
+        const normalized = data.trim().toLowerCase();
+        if (normalized === 'true') return true;
+        if (normalized === 'false') return false;
+    }
+    if (data && typeof data === 'object') {
+        if (typeof data.enabled === 'boolean') return data.enabled;
+        if (typeof data.useV2 === 'boolean') return data.useV2;
+        if (typeof data.gamejoinV2 === 'boolean') return data.gamejoinV2;
+    }
+    return true;
+}
+
+async function fetchGameJoinV2Flag() {
+    try {
+        const response = await fetch(
+            `${GAMEJOIN_V2_FLAG_URL}?_RoValraRequest=${Date.now()}`,
+            {
+                method: 'GET',
+                credentials: 'omit',
+                cache: 'no-store',
+                headers: {
+                    Accept: 'application/json',
+                    'x-rovalra-user-agent': getRovalraUserAgent(),
+                },
+            },
+        );
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+
+        const text = await response.text();
+        let data = text;
+        try {
+            data = JSON.parse(text);
+        } catch (e) {}
+
+        gameJoinUseV2 = parseGameJoinV2Flag(data);
+    } catch (error) {
+        gameJoinUseV2 = true;
+        console.warn(
+            'RoValra API: Failed to fetch gamejoin version flag. Falling back to v2.',
+            error,
+        );
+    }
+
+    return gameJoinUseV2;
+}
+
+function refreshGameJoinVersionPreference({ force = false } = {}) {
+    const navigationKey = getCurrentNavigationKey();
+    if (
+        !force &&
+        gameJoinVersionPromise &&
+        gameJoinVersionNavigationKey === navigationKey
+    ) {
+        return gameJoinVersionPromise;
+    }
+
+    gameJoinVersionNavigationKey = navigationKey;
+    gameJoinVersionPromise = fetchGameJoinV2Flag();
+    return gameJoinVersionPromise;
+}
+
+function setupGameJoinVersionNavigationRefresh() {
+    if (
+        typeof window === 'undefined' ||
+        window.__rovalraGameJoinVersionNavigationRefresh
+    ) {
+        return;
+    }
+
+    window.__rovalraGameJoinVersionNavigationRefresh = true;
+    const refreshSoon = () => {
+        queueMicrotask(() => {
+            refreshGameJoinVersionPreference({ force: true });
+        });
+    };
+
+    const originalPushState = history.pushState;
+    const originalReplaceState = history.replaceState;
+
+    history.pushState = function (...args) {
+        const result = originalPushState.apply(this, args);
+        refreshSoon();
+        return result;
+    };
+
+    history.replaceState = function (...args) {
+        const result = originalReplaceState.apply(this, args);
+        refreshSoon();
+        return result;
+    };
+
+    window.addEventListener('popstate', refreshSoon);
+    window.addEventListener('hashchange', refreshSoon);
+    window.addEventListener('pageshow', refreshSoon);
+    window.addEventListener('rovalra:locationchange', refreshSoon);
+
+    refreshGameJoinVersionPreference({ force: true });
+}
+
+setupGameJoinVersionNavigationRefresh();
+
+function normalizeGameJoinEndpoint(endpoint, useV2 = true) {
     if (typeof endpoint !== 'string') return endpoint;
-    return endpoint.replace(/^\/v1\//, '/v2/');
+    return endpoint.replace(/^\/v[12]\//, useV2 ? '/v2/' : '/v1/');
 }
 
 function isGameJoinTimeoutEnabled(endpoint) {
     if (typeof endpoint !== 'string') return true;
-    return endpoint.split('?')[0] !== '/v2/join-game';
+    return endpoint.split('?')[0].replace(/^\/v[12]\//, '/') !== '/join-game';
 }
 
 function createGameJoinFullResponse() {
@@ -240,9 +356,13 @@ export function resetGameJoinErrorCount() {
 
 export async function callRobloxApi(options) {
     if (options.subdomain === 'gamejoin') {
+        const useGameJoinV2 = await refreshGameJoinVersionPreference();
         options = {
             ...options,
-            endpoint: normalizeGameJoinEndpoint(options.endpoint),
+            endpoint: normalizeGameJoinEndpoint(
+                options.endpoint,
+                useGameJoinV2,
+            ),
         };
     }
 
@@ -255,7 +375,10 @@ export async function callRobloxApi(options) {
             typeof options.body === 'object' &&
             !(options.body instanceof FormData)
         ) {
-            const bodyUpdate = { joinOrigin: 'RoValraFetchInfo' };
+            const bodyUpdate = {};
+            if (options.endpoint?.split('?')[0].startsWith('/v2/')) {
+                bodyUpdate.joinOrigin = 'RoValraFetchInfo';
+            }
             if (!options.body.gameJoinAttemptId) {
                 bodyUpdate.gameJoinAttemptId = self.crypto.randomUUID();
             }

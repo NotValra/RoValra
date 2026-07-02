@@ -199,6 +199,155 @@ body:has(#settings-search-input) {
         vertical-align: -2px;
     }
 
+    .rovalra-donator-perks-compare {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .rovalra-donator-tier-summary {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .rovalra-donator-tier-heading {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+        padding: 12px;
+        background-color: var(
+            --rovalra-container-background-color,
+            rgba(0, 0, 0, 0.1)
+        );
+        border: 1px solid var(--rovalra-border-color, rgba(128, 128, 128, 0.2));
+        border-radius: 8px;
+        color: var(--rovalra-main-text-color);
+    }
+
+    .rovalra-donator-tier-heading img {
+        width: 32px;
+        height: 32px;
+        flex-shrink: 0;
+    }
+
+    .rovalra-donator-tier-heading h4 {
+        margin: 0;
+        color: var(--rovalra-main-text-color);
+        font-size: 15px;
+        line-height: 1.2;
+    }
+
+    .rovalra-donator-tier-heading p {
+        margin: 3px 0 0 0;
+        color: var(--rovalra-secondary-text-color);
+        font-size: 12px;
+        line-height: 1.35;
+    }
+
+    .rovalra-donator-perks-table-wrap {
+        overflow-x: auto;
+        border: 1px solid var(--rovalra-border-color, rgba(128, 128, 128, 0.2));
+        border-radius: 8px;
+        background-color: var(
+            --rovalra-container-background-color,
+            rgba(0, 0, 0, 0.1)
+        );
+    }
+
+    .rovalra-donator-perks-table {
+        width: 100%;
+        min-width: 620px;
+        border-collapse: collapse;
+        color: var(--rovalra-main-text-color);
+    }
+
+    .rovalra-donator-perks-table th,
+    .rovalra-donator-perks-table td {
+        padding: 11px 12px;
+        border-bottom: 1px solid
+            var(--rovalra-border-color, rgba(128, 128, 128, 0.2));
+        font-size: 13px;
+        line-height: 1.35;
+    }
+
+    .rovalra-donator-perks-table thead th {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        background-color: var(
+            --rovalra-container-background-color,
+            rgba(0, 0, 0, 0.1)
+        );
+        color: var(--rovalra-main-text-color);
+        font-weight: 700;
+        text-align: center;
+        white-space: nowrap;
+    }
+
+    .rovalra-donator-perks-table thead th:first-child,
+    .rovalra-donator-perks-table tbody th {
+        text-align: left;
+    }
+
+    .rovalra-donator-tier-table-heading {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        white-space: nowrap;
+    }
+
+    .rovalra-donator-tier-table-heading img {
+        width: 20px;
+        height: 20px;
+        flex-shrink: 0;
+    }
+
+    .rovalra-donator-perks-table tbody th {
+        width: 46%;
+        color: var(--rovalra-secondary-text-color);
+        font-weight: 500;
+    }
+
+    .rovalra-donator-discord-role-perk {
+        display: inline-block;
+    }
+
+    .rovalra-donator-perks-table tbody tr:last-child th,
+    .rovalra-donator-perks-table tbody tr:last-child td {
+        border-bottom: 0;
+    }
+
+    .rovalra-donator-perk-status-cell {
+        width: 18%;
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .rovalra-donator-perk-status-pill {
+        display: inline-flex;
+        min-width: 34px;
+        font-weight: 800;
+    }
+
+    .rovalra-donator-perk-status-pill.is-included {
+        background: rgba(35, 165, 90, 0.16);
+        color: #23a55a;
+    }
+
+    .rovalra-donator-perk-status-pill.is-missing {
+        background: rgba(237, 66, 69, 0.14);
+        color: #ed4245;
+    }
+
+    .rovalra-perk-link {
+        color: var(--rovalra-main-text-color);
+        cursor: pointer;
+        text-decoration: underline;
+    }
+
     .rovalra-lock-notice {
         margin-bottom: 12px;
         opacity: 1 !important;
@@ -318,6 +467,14 @@ body:has(#settings-search-input) {
 
         .content {
             padding-top: 10px !important;
+        }
+
+        .rovalra-donator-tier-summary {
+            grid-template-columns: 1fr;
+        }
+
+        .rovalra-donator-perks-table {
+            min-width: 560px;
         }
     }
 }

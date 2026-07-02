@@ -29,6 +29,7 @@
     "host_permissions": [
         "https://games.roblox.com/*",
         "*://*.roblox.com/*",
+        "https://apis.rovalra.com/*",
         "https://gamejoin.roblox.com/v1/join-game-instance",
         "https://users.roblox.com/*"
     ],
