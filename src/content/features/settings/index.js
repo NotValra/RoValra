@@ -742,75 +742,185 @@ function getDonatorPerksComparisonHtml(themeColors) {
 }
 
 let contributorsCache = null;
+let contributorsSortOrder = 'most';
 
-function renderContributors(container, users, thumbMap) {
-    container.innerHTML = '';
-    const listContainer = document.createElement('div');
-    listContainer.style.cssText =
-        'display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;';
+function getContributorContributionCounts() {
+    const counts = new Map(
+        CONTRIBUTOR_USER_IDS.map((id) => [String(id), 0]),
+    );
 
-    CONTRIBUTOR_USER_IDS.forEach((id) => {
-        const user = users.find((u) => String(u.id) === String(id));
-        if (user) {
-            const thumbData = thumbMap.get(String(id));
+    const countSetting = (setting) => {
+        if (!setting) return;
 
-            const item = document.createElement('div');
-            item.className = 'rovalra-donator-card';
-            item.style.cssText = `display: flex; align-items: center; background-color: var(--rovalra-container-background-color, rgba(0,0,0,0.1)); padding: 8px 12px; border-radius: 8px; transition: background-color 0.2s;`;
-
-            const link = document.createElement('a');
-            link.className = 'avatar-card-link';
-            link.href = `https://www.roblox.com/users/${id}/profile`;
-            link.target = '_blank';
-            link.style.cssText = `display: flex; align-items: center; text-decoration: none; color: var(--rovalra-main-text-color); width: 100%;`;
-
-            const avatarContainer = document.createElement('div');
-            avatarContainer.className = 'avatar-card-image';
-            Object.assign(avatarContainer.style, {
-                width: '32px',
-                height: '32px',
-                borderRadius: '50%',
-                marginRight: '10px',
-                overflow: 'hidden',
-                flexShrink: '0',
+        if (Array.isArray(setting.contributors)) {
+            new Set(setting.contributors.map(String)).forEach((id) => {
+                if (counts.has(id)) counts.set(id, counts.get(id) + 1);
             });
-
-            const thumbElement = createThumbnailElement(
-                thumbData,
-                user.displayName,
-                '',
-                {
-                    width: '100%',
-                    height: '100%',
-                    borderRadius: '50%',
-                },
-            );
-
-            const span = document.createElement('span');
-            span.textContent = user.displayName;
-            span.style.fontWeight = '500';
-
-            avatarContainer.appendChild(thumbElement);
-            link.appendChild(avatarContainer);
-            link.appendChild(span);
-            item.appendChild(link);
-            listContainer.appendChild(item);
         }
+
+        Object.values(setting.childSettings || {}).forEach(countSetting);
+    };
+
+    Object.values(SETTINGS_CONFIG).forEach((category) => {
+        Object.values(category.settings || {}).forEach(countSetting);
     });
 
-    container.appendChild(listContainer);
+    return counts;
+}
+
+const contributorContributionCounts = getContributorContributionCounts();
+
+function createContributorProfile(user, thumbData) {
+    const profile = document.createElement('div');
+    profile.className = 'rovalra-contributor-profile';
+
+    const avatarContainer = document.createElement('div');
+    avatarContainer.className = 'avatar-card-image';
+    Object.assign(avatarContainer.style, {
+        width: '32px',
+        height: '32px',
+        borderRadius: '50%',
+        marginRight: '10px',
+        overflow: 'hidden',
+        flexShrink: '0',
+    });
+
+    const thumbElement = createThumbnailElement(
+        thumbData,
+        user.displayName,
+        '',
+        {
+            width: '100%',
+            height: '100%',
+            borderRadius: '50%',
+        },
+    );
+
+    const name = document.createElement('span');
+    name.className = 'rovalra-contributor-name';
+    name.textContent = user.displayName;
+
+    avatarContainer.appendChild(thumbElement);
+    profile.append(avatarContainer, name);
+
+    return profile;
+}
+
+function renderContributors(container, users, thumbMap) {
+    container.replaceChildren();
+
+    const contributors = CONTRIBUTOR_USER_IDS.map((id, index) => {
+        const stringId = String(id);
+        return {
+            id: stringId,
+            index,
+            user: users.find((u) => String(u.id) === stringId),
+            contributionCount: contributorContributionCounts.get(stringId) || 0,
+        };
+    })
+        .filter(({ user }) => user);
+
+    const featureContributors = contributors
+        .filter(({ contributionCount }) => contributionCount > 0)
+        .sort((a, b) => {
+            const countSort =
+                contributorsSortOrder === 'least'
+                    ? a.contributionCount - b.contributionCount
+                    : b.contributionCount - a.contributionCount;
+            return countSort || a.index - b.index;
+        });
+    const backendContributors = contributors.filter(
+        ({ contributionCount }) => contributionCount === 0,
+    );
+
+    const sortBar = document.createElement('div');
+    sortBar.className = 'rovalra-contributors-toolbar';
+
+    const sortLabel = document.createElement('span');
+    sortLabel.className = 'rovalra-contributors-sort-label';
+    sortLabel.textContent = ts('settings.credits.sortLabel');
+
+    const sortToggle = createPillToggle({
+        options: [
+            {
+                text: ts('settings.credits.sortMost'),
+                value: 'most',
+            },
+            {
+                text: ts('settings.credits.sortLeast'),
+                value: 'least',
+            },
+        ],
+        initialValue: contributorsSortOrder,
+        onChange: (value) => {
+            contributorsSortOrder = value;
+            renderContributors(container, users, thumbMap);
+        },
+    });
+
+    sortBar.append(sortLabel, sortToggle);
+
+    const listContainer = document.createElement('ol');
+    listContainer.className = 'rovalra-contributors-list';
+
+    featureContributors.forEach(({ id, user, contributionCount }) => {
+        const item = document.createElement('li');
+        item.className = 'rovalra-contributors-item';
+
+        const link = document.createElement('a');
+        link.className =
+            'avatar-card-link rovalra-donator-card rovalra-contributor-row';
+        link.href = `https://www.roblox.com/users/${id}/profile`;
+        link.target = '_blank';
+
+        const count = document.createElement('span');
+        count.className = 'rovalra-contributor-count';
+        count.textContent = ts('settings.credits.contributionCount', {
+            count: contributionCount,
+        });
+
+        link.append(
+            createContributorProfile(user, thumbMap.get(String(id))),
+            count,
+        );
+        item.appendChild(link);
+        listContainer.appendChild(item);
+    });
+
+    container.append(sortBar, listContainer);
+
+    if (backendContributors.length === 0) return;
+
+    const backendNote = document.createElement('p');
+    backendNote.className = 'rovalra-backend-contributors-note';
+    backendNote.textContent = ts('settings.credits.backendContributorsNote');
+
+    const backendList = document.createElement('div');
+    backendList.className = 'rovalra-backend-contributors-list';
+
+    backendContributors.forEach(({ id, user }) => {
+        const link = document.createElement('a');
+        link.className =
+            'avatar-card-link rovalra-donator-card rovalra-backend-contributor-card';
+        link.href = `https://www.roblox.com/users/${id}/profile`;
+        link.target = '_blank';
+
+        link.appendChild(createContributorProfile(user, thumbMap.get(id)));
+        backendList.appendChild(link);
+    });
+
+    container.append(backendNote, backendList);
 }
 
 function renderContributorsShimmer(container) {
-    container.innerHTML = '';
-    const listContainer = document.createElement('div');
-    listContainer.style.cssText =
-        'display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;';
+    container.replaceChildren();
+    const listContainer = document.createElement('ol');
+    listContainer.className = 'rovalra-contributors-list';
 
     CONTRIBUTOR_USER_IDS.forEach(() => {
-        const item = document.createElement('div');
-        item.className = 'rovalra-donator-card';
-        item.style.cssText = `display: flex; align-items: center; background-color: var(--rovalra-container-background-color, rgba(0,0,0,0.1)); padding: 8px 12px; border-radius: 8px; opacity: 0.7;`;
+        const item = document.createElement('li');
+        item.className =
+            'rovalra-donator-card rovalra-contributor-loading-row';
 
         const avatarContainer = document.createElement('div');
         avatarContainer.className = 'avatar-card-image';
@@ -890,7 +1000,10 @@ async function loadContributors() {
         renderContributors(container, users, thumbMap);
     } catch (err) {
         console.error('RoValra: Error loading contributors', err);
-        container.innerHTML = `<p style="color: var(--rovalra-secondary-text-color);">${ts('settings.credits.failedToLoadContributors')}</p>`;
+        const error = document.createElement('p');
+        error.className = 'rovalra-contributors-error';
+        error.textContent = ts('settings.credits.failedToLoadContributors');
+        container.replaceChildren(error);
     }
 }
 
