@@ -360,6 +360,15 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
+            badgeOwnershipEnabled: {
+                label: 'Dim Unowned Badges',
+                description: [
+                    "Makes experience badges you don't own darker on badge pages. (Similar to how BTRoblox does it)",
+                ],
+                type: 'checkbox',
+                default: true,
+                contributors: [546872490],
+            },
             updateHistoryEnabled: {
                 label: 'Update History',
                 description: [

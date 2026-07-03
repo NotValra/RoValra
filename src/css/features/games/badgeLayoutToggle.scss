@@ -202,4 +202,9 @@
     &:not(.rovalra-badge-grid-view) .rovalra-badge-grid-stats {
         display: none !important;
     }
+
+    .rovalra-badge-not-owned {
+        opacity: 0.45;
+        filter: grayscale(0.85) brightness(0.72);
+    }
 }
