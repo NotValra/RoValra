@@ -583,6 +583,14 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
+            profileCustomizationEnabled: {
+                label: 'Profile Customization',
+                description: [
+                    'Adds a customization button to your own profile for quickly switching avatar borders.',
+                ],
+                type: 'checkbox',
+                default: true,
+            },
             currentlyPlayingLinkEnabled: {
                 label: 'Clickable Currently Playing Card',
                 description: [

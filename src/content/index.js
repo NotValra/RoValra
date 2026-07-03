@@ -135,6 +135,7 @@ import { init as initCurrencyTransfer } from './features/profile/currencytransfe
 import { init as initGroupFilters } from './features/profile/groupFilters.js';
 import { init as initUsernameColor } from './features/profile/header/usernameColor.js';
 import { init as initChatEligibilityTooltip } from './features/profile/header/chatEligibilityTooltip.js';
+import { init as initProfileCustomization } from './features/profile/profileCustomization.js';
 
 // Settings
 import { init as initSettingsPage } from './features/settings/index.js';
@@ -332,6 +333,7 @@ const featureRoutes = [
             initGroupFilters,
             initAvatarDownload,
             initChatEligibilityTooltip,
+            initProfileCustomization,
         ],
     },
     {
