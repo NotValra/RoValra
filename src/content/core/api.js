@@ -134,10 +134,9 @@ async function fetchGameJoinV2Flag() {
     return gameJoinUseV2;
 }
 
-function refreshGameJoinVersionPreference({ force = false } = {}) {
+function refreshGameJoinVersionPreference() {
     const navigationKey = getCurrentNavigationKey();
     if (
-        !force &&
         gameJoinVersionPromise &&
         gameJoinVersionNavigationKey === navigationKey
     ) {
@@ -160,7 +159,7 @@ function setupGameJoinVersionNavigationRefresh() {
     window.__rovalraGameJoinVersionNavigationRefresh = true;
     const refreshSoon = () => {
         queueMicrotask(() => {
-            refreshGameJoinVersionPreference({ force: true });
+            refreshGameJoinVersionPreference();
         });
     };
 
@@ -184,7 +183,7 @@ function setupGameJoinVersionNavigationRefresh() {
     window.addEventListener('pageshow', refreshSoon);
     window.addEventListener('rovalra:locationchange', refreshSoon);
 
-    refreshGameJoinVersionPreference({ force: true });
+    refreshGameJoinVersionPreference();
 }
 
 setupGameJoinVersionNavigationRefresh();
