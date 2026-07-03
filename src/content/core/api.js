@@ -100,7 +100,7 @@ function parseGameJoinV2Flag(data) {
 async function fetchGameJoinV2Flag() {
     try {
         const response = await fetch(
-            `${GAMEJOIN_V2_FLAG_URL}?_RoValraRequest=${Date.now()}`,
+            `${GAMEJOIN_V2_FLAG_URL}?_RoValraRequest`,
             {
                 method: 'GET',
                 credentials: 'omit',
