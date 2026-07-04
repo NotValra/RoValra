@@ -13,6 +13,26 @@ import { createBadgeSettings } from '../badgeSettings.js';
 
 let isSettingsPage = false;
 
+const STATIC_SETTINGS_TAB_IDS = new Set([
+    'info',
+    'credits',
+    'donatorPerks',
+    'store',
+    'changelogs',
+    'accountStanding',
+]);
+
+function findStaticSettingsTab(hashKey) {
+    const lowerHashKey = hashKey.toLowerCase();
+    return buttonData.find((button) => {
+        if (!STATIC_SETTINGS_TAB_IDS.has(button.id)) return false;
+        return (
+            button.id.toLowerCase() === lowerHashKey ||
+            button.text.toLowerCase() === lowerHashKey
+        );
+    });
+}
+
 async function isFunStuffTabEnabled() {
     return new Promise((resolve) => {
         chrome.storage.local.get('FunStuffEnabled', (settings) => {
@@ -116,19 +136,10 @@ export async function checkRoValraPage() {
 
         contentContainer.innerHTML = '';
 
-        if (
-            lowerHashKey === 'info' ||
-            lowerHashKey === 'credits' ||
-            lowerHashKey === 'donator perks' ||
-            lowerHashKey === 'account standing' ||
-            lowerHashKey === 'store'
-        ) {
-            const buttonInfo = buttonData.find(
-                (b) => b.text.toLowerCase() === lowerHashKey,
-            );
-            if (buttonInfo) {
-                await updateContent(buttonInfo, contentContainer);
-            }
+        const staticButtonInfo = findStaticSettingsTab(lowerHashKey);
+
+        if (staticButtonInfo) {
+            await updateContent(staticButtonInfo, contentContainer);
         } else if (lowerHashKey === 'search') {
             const urlParams = new URLSearchParams(window.location.search);
             const query = urlParams.get('q');

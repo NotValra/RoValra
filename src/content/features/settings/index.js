@@ -37,7 +37,10 @@ import { createOverlay } from '../../core/ui/overlay.js';
 import { createInteractiveTimestamp } from '../../core/ui/time/time.js';
 import { createStyledInput } from '../../core/ui/catalog/input.js';
 import { getAuthenticatedUserId } from '../../core/user.js';
-import { parseMarkdown } from '../../core/utils/markdown.js';
+import {
+    parseMarkdown,
+    parseUntrustedMarkdown,
+} from '../../core/utils/markdown.js';
 import { getCurrentTheme, THEME_CONFIG } from '../../core/theme.js';
 import {
     getBatchThumbnails,
@@ -72,6 +75,7 @@ const DONATOR_PERKS_GAME_URL =
     'https://www.roblox.com/games/store-section/9452973012';
 const DONATOR_PERKS_FALLBACK_ONSALE_URL =
     'https://www.roblox.com/catalog?taxonomy=tZsUsd2BqGViQrJ9Vs3Wah&CreatorName=Valra&CreatorType=Group&salesTypeFilter=1';
+const CHANGELOGS_ENDPOINT = '/static/json/changelogs.json';
 
 const RESTRICTION_LEVELS = [
     'None / No restrictions',
@@ -90,8 +94,112 @@ const APPEAL_STATUSES = [
 let standingCache = null;
 let topDonatorsCache = null;
 let ownedBordersCache = null;
+let changelogsCache = null;
 const priceCache = new Map();
 const artistCache = new Map();
+
+function renderChangelogRelease(release) {
+    release = release && typeof release === 'object' ? release : {};
+
+    const card = document.createElement('article');
+    card.className = 'rovalra-changelog-card';
+
+    const header = document.createElement('div');
+    header.className = 'rovalra-changelog-header';
+
+    const titleGroup = document.createElement('div');
+    titleGroup.className = 'rovalra-changelog-title-group';
+
+    const title = document.createElement('h3');
+    title.className = 'rovalra-changelog-title';
+    title.textContent = release.name || release.tag_name || 'Untitled release';
+
+    const dates = document.createElement('div');
+    dates.className = 'rovalra-changelog-dates';
+
+    if (release.published_date) {
+        const githubDate = document.createElement('span');
+        githubDate.textContent = `GitHub: ${release.published_date}`;
+        dates.appendChild(githubDate);
+    }
+
+    if (release.chrome_release_date) {
+        const chromeDate = document.createElement('span');
+        chromeDate.textContent = `Chrome: ${release.chrome_release_date}`;
+        dates.appendChild(chromeDate);
+    }
+
+    titleGroup.append(title, dates);
+
+    header.appendChild(titleGroup);
+
+    const body = document.createElement('div');
+    body.className = 'rovalra-changelog-body';
+    body.innerHTML =
+        parseUntrustedMarkdown(release.body, {
+            fullMarkdown: true,
+            githubMentions: true,
+        }) ||
+        'No changelog notes were provided for this release.';
+
+    card.append(header, body);
+    return card;
+}
+
+async function getChangelogs() {
+    if (changelogsCache) return changelogsCache;
+
+    const response = await callRobloxApi({
+        subdomain: 'www',
+        endpoint: CHANGELOGS_ENDPOINT,
+        method: 'GET',
+        isRovalraApi: true,
+        noCache: true,
+    });
+
+    if (!response.ok) {
+        throw new Error(`Changelog request failed with ${response.status}`);
+    }
+
+    const data = await response.json();
+    changelogsCache = Array.isArray(data?.releases) ? data.releases : [];
+    return changelogsCache;
+}
+
+async function renderChangelogs(container) {
+    container.innerHTML = '';
+
+    const loading = document.createElement('div');
+    loading.className = 'rovalra-changelog-status';
+    loading.textContent = 'Loading changelogs...';
+    container.appendChild(loading);
+
+    try {
+        const releases = await getChangelogs();
+        container.innerHTML = '';
+
+        if (!releases.length) {
+            const empty = document.createElement('div');
+            empty.className = 'rovalra-changelog-status';
+            empty.textContent = 'No changelogs are available right now.';
+            container.appendChild(empty);
+            return;
+        }
+
+        releases.forEach((release) => {
+            container.appendChild(renderChangelogRelease(release));
+        });
+    } catch (error) {
+        console.warn('RoValra: Failed to load changelogs', error);
+        container.innerHTML = '';
+
+        const errorMessage = document.createElement('div');
+        errorMessage.className = 'rovalra-changelog-status';
+        errorMessage.textContent =
+            'Failed to load changelogs. Please try again later.';
+        container.appendChild(errorMessage);
+    }
+}
 
 async function getDonatorPerksDonationUrl(forceRefresh = false) {
     try {
@@ -770,6 +878,16 @@ function getContributorContributionCounts() {
 
 const contributorContributionCounts = getContributorContributionCounts();
 
+function addContributorTooltip(link, id) {
+    const tooltipKey = `settings.credits.contributorTooltips.${id}`;
+    const tooltipText = ts(tooltipKey);
+    if (!tooltipText || tooltipText === tooltipKey) return;
+
+    addTooltip(link, tooltipText, {
+        position: 'top',
+    });
+}
+
 function createContributorProfile(user, thumbData) {
     const profile = document.createElement('div');
     profile.className = 'rovalra-contributor-profile';
@@ -872,6 +990,8 @@ function renderContributors(container, users, thumbMap) {
             'avatar-card-link rovalra-donator-card rovalra-contributor-row';
         link.href = `https://www.roblox.com/users/${id}/profile`;
         link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        addContributorTooltip(link, id);
 
         const count = document.createElement('span');
         count.className = 'rovalra-contributor-count';
@@ -904,6 +1024,8 @@ function renderContributors(container, users, thumbMap) {
             'avatar-card-link rovalra-donator-card rovalra-backend-contributor-card';
         link.href = `https://www.roblox.com/users/${id}/profile`;
         link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        addContributorTooltip(link, id);
 
         link.appendChild(createContributorProfile(user, thumbMap.get(id)));
         backendList.appendChild(link);
@@ -1634,38 +1756,7 @@ export const buttonData = [
         get content() {
             return `
             <div style="padding: 8px;">
-                <h2 style="margin-bottom: 10px; color: var(--rovalra-main-text-color) !important;">${ts('settings.credits.title')}</h2>
-                <ul style="margin-top: 10px; padding-left: 0px; color: var(--rovalra-secondary-text-color);">
-                    <li style="margin-bottom: 8px; list-style-type: disc; margin-left: 20px;">
-                        ${ts('settings.credits.frames')}
-                        <a href="https://github.com/workframes/roblox-owner-counts" target="_blank" class="rovalra-github-link">${ts('settings.info.github')}</a>
-                    </li>
-                    <li style="margin-bottom: 8px; list-style-type: disc; margin-left: 20px;">
-                        ${ts('settings.credits.julia')}
-                        <a href="https://github.com/RoSeal-Extension/Top-Secret-Thing" target="_blank" class="rovalra-github-link">${ts('settings.info.github')}</a>
-                    </li>
-                    <li style="margin-bottom: 8px; list-style-type: disc; margin-left: 20px;">
-                         ${ts('settings.credits.aspect')}
-                         <a href="https://github.com/Aspectise" target="_blank" class="rovalra-github-link">GitHub</a>
-                    </li>
-                    <li style="margin-bottom: 8px; list-style-type: disc; margin-left: 20px;">
-                         ${ts('settings.credits.l5se')}
-                    </li>
-                    <li style="margin-bottom: 8px; list-style-type: disc; margin-left: 20px;">
-                        ${ts('settings.credits.lz')}
-                    </li>
-                    <li style="margin-bottom: 8px; list-style-type: disc; margin-left: 20px;">
-                        ${ts('settings.credits.mmfw')}
-                    </li>
-                    <li style="margin-bottom: 8px; list-style-type: disc; margin-left: 20px;">
-                        ${ts('settings.credits.coweggs')}
-                    </li>
-                    <li style="margin-bottom: 8px; list-style-type: disc; margin-left: 20px;">
-                        ${ts('settings.credits.woozynate')}
-                    </li>
-                </ul>
-
-                <h3 style="margin-top: 25px; margin-bottom: 10px; color: var(--rovalra-main-text-color); font-size: 18px;">${ts('settings.credits.contributorsTitle')}</h3>
+                <h2 style="margin-bottom: 10px; color: var(--rovalra-main-text-color) !important;">${ts('settings.credits.contributorsTitle')}</h2>
                 <div id="rovalra-contributors-list"></div>
             </div>`;
         },
@@ -1727,6 +1818,19 @@ export const buttonData = [
                 <h2 style="margin-bottom: 15px; color: var(--rovalra-main-text-color) !important;">Avatar Border Store</h2>
                 <p style="color: var(--rovalra-secondary-text-color); margin-bottom: 20px;">Avatar border store, buy avatar borders to directly support RoValra and the artists, <strong>Donator tier 3 gets all avatar borders for free.</strong> Buying Avatar Borders counts towards your Donator Tier!</p>
                 <div id="rovalra-store-border-container" style="color: var(--rovalra-secondary-text-color);">Loading borders...</div>
+            </div>`;
+        },
+    },
+    {
+        id: 'changelogs',
+        get text() {
+            return 'Changelogs';
+        },
+        get content() {
+            return `
+            <div style="padding: 8px;">
+                <h2 style="margin-bottom: 15px; color: var(--rovalra-main-text-color) !important;">Changelogs</h2>
+                <div id="rovalra-changelogs-container" style="color: var(--rovalra-secondary-text-color);">Loading changelogs...</div>
             </div>`;
         },
     },
@@ -2758,7 +2862,8 @@ export async function updateContent(buttonInfo, contentContainer) {
         buttonId === 'credits' ||
         buttonId === 'accountStanding' ||
         buttonId === 'donatorPerks' ||
-        buttonId === 'store'
+        buttonId === 'store' ||
+        buttonId === 'changelogs'
     ) {
         ((contentContainer.innerHTML = `
             <div id="settings-content" style="padding: 0; background-color: transparent !important;"> 
@@ -2871,6 +2976,15 @@ export async function updateContent(buttonInfo, contentContainer) {
         );
         if (borderContainer) {
             renderStoreBorders(borderContainer);
+        }
+    }
+
+    if (buttonId === 'changelogs') {
+        const changelogsContainer = contentContainer.querySelector(
+            '#rovalra-changelogs-container',
+        );
+        if (changelogsContainer) {
+            renderChangelogs(changelogsContainer);
         }
     }
 

@@ -288,7 +288,7 @@
     "settings": {
         "tabs": {
             "info": "Info",
-            "credits": "Credits",
+            "credits": "Contributors",
             "donatorPerks": "Donator Perks",
             "settings": "Settings",
             "accountStanding": "Account Standing"
@@ -310,17 +310,12 @@
             "x": "X: ValraSwag"
         },
         "credits": {
-            "title": "RoValra Credits!",
-            "contributed": "Thanks to <b style=\"font-weight: bold;\">everyone who</b> <a href=\"https://github.com/NotValra/RoValra/graphs/contributors\" target=\"_blank\" class=\"rovalra-github-link\">contributed</a>",
-            "frames": "Thanks to <b style=\"font-weight: bold;\">Frames</b> for somehow getting the Roblox sales and revenue on some items",
-            "julia": "Thanks to <b style=\"font-weight: bold;\">Julia</b> for making a repo with all Roblox server datacenters which I used to use to get the regions, but now I switched to my own api.",
-            "aspect": "Thanks to <b style=\"font-weight: bold;\">Aspect</b> for helping me out here and there when I had a bunch of dumb questions or problems.",
-            "l5se": "Thanks to <b style=\"font-weight: bold;\">l5se</b> for allowing me to use their open source region selector as a template for my extension.",
-            "lz": "Thanks to <b style=\"font-weight: bold;\">7_lz</b> for helping me a bunch when preparing for the Chrome Web Store release. They helped a ton and I'm very thankful.",
-            "mmfw": "Thanks to <b style=\"font-weight: bold;\">mmfw</b> for making the screenshots on the chrome web store, and general help with UI design of the extension.",
-            "coweggs": "Thanks to <b style=\"font-weight: bold;\">Coweggs</b> for coming up with the very funny name that is \"RoValra\" as a joke that I then ended up using.",
-            "woozynate": "Thanks to <b style=\"font-weight: bold;\">WoozyNate</b> for making the amazing game called fisch, which is where Gilbert (the logo) is from <3",
             "contributorsTitle": "Contributors",
+            "contributorTooltips": {
+                "146089324": "WoozyNate made fisch, which is where the old RoValra logo is from. You should check out fisch!",
+                "1337447242": "Made the new logo and all store page images.",
+                "795922138": "Came up with the name 'RoValra' as a joke, which was too funny not to use."
+            },
             "sortLabel": "Sort contributors",
             "sortMost": "Most",
             "sortLeast": "Least",

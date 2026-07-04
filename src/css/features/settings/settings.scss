@@ -455,6 +455,131 @@ body:has(#settings-search-input) {
         text-decoration: underline;
     }
 
+    .rovalra-changelog-status {
+        padding: 12px;
+        border-radius: 8px;
+
+        color: var(--rovalra-secondary-text-color);
+    }
+
+    .rovalra-changelog-card {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 10px;
+        padding: 14px 16px;
+        border: 1px solid
+            var(
+                --color-border-default,
+                var(--rovalra-border-color, rgba(128, 128, 128, 0.2))
+            );
+        border-radius: 8px;
+
+        color: var(--rovalra-main-text-color);
+    }
+
+    .rovalra-changelog-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    .rovalra-changelog-title-group {
+        min-width: 0;
+    }
+
+    .rovalra-changelog-title {
+        margin: 0 0 4px 0;
+        color: var(--rovalra-main-text-color);
+        font-size: 18px;
+        line-height: 1.25;
+        overflow-wrap: anywhere;
+    }
+
+    .rovalra-changelog-dates {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px 10px;
+        color: var(--rovalra-secondary-text-color);
+        font-size: 12px;
+        line-height: 1.35;
+    }
+
+    .rovalra-changelog-body {
+        color: var(--rovalra-secondary-text-color);
+        font-size: 14px;
+        line-height: 1.5;
+    }
+
+    .rovalra-changelog-body > :first-child {
+        margin-top: 0;
+    }
+
+    .rovalra-changelog-body > :last-child {
+        margin-bottom: 0;
+    }
+
+    .rovalra-changelog-body h1,
+    .rovalra-changelog-body h2,
+    .rovalra-changelog-body h3,
+    .rovalra-changelog-body h4 {
+        margin: 10px 0 6px;
+        color: var(--rovalra-main-text-color);
+        font-size: 15px;
+        font-weight: 800;
+        line-height: 1.25;
+    }
+
+    .rovalra-changelog-body p {
+        margin: 0 0 8px;
+    }
+
+    .rovalra-changelog-body ul,
+    .rovalra-changelog-body ol {
+        margin: 0 0 10px;
+        padding-left: 22px;
+    }
+
+    .rovalra-changelog-body li {
+        margin-bottom: 4px;
+    }
+
+    .rovalra-changelog-body blockquote {
+        margin: 8px 0;
+        padding: 8px 10px;
+        border-left: 3px solid var(--rovalra-secondary-text-color);
+        background-color: rgba(128, 128, 128, 0.08);
+    }
+
+    .rovalra-changelog-body code {
+        padding: 2px 4px;
+        border-radius: 3px;
+        background-color: rgba(128, 128, 128, 0.16);
+        color: var(--rovalra-main-text-color);
+        font-family: monospace;
+        font-size: 12px;
+    }
+
+    .rovalra-changelog-body pre {
+        overflow-x: auto;
+        padding: 10px;
+        border-radius: 4px;
+        background-color: rgba(128, 128, 128, 0.12);
+    }
+
+    .rovalra-changelog-body pre code {
+        padding: 0;
+        background: transparent;
+    }
+
+    .rovalra-changelog-body a,
+    .rovalra-github-mention {
+        color: var(--rovalra-main-text-color);
+        font-weight: 700;
+        text-decoration: underline;
+    }
+
     .rovalra-lock-notice {
         margin-bottom: 12px;
         opacity: 1 !important;
@@ -582,6 +707,10 @@ body:has(#settings-search-input) {
 
         .rovalra-donator-perks-table {
             min-width: 560px;
+        }
+
+        .rovalra-changelog-header {
+            flex-direction: column;
         }
     }
 }

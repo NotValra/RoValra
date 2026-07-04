@@ -8,6 +8,7 @@ const ACCOUNT_STANDING_TAB_IDS = new Set([
     'credits',
     'donatorPerks',
     'store',
+    'changelogs',
 ]);
 
 function isAccountStandingDirectLink() {
