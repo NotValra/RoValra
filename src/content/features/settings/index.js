@@ -892,9 +892,7 @@ let contributorsCache = null;
 let contributorsSortOrder = 'most';
 
 function getContributorContributionCounts() {
-    const counts = new Map(
-        CONTRIBUTOR_USER_IDS.map((id) => [String(id), 0]),
-    );
+    const counts = new Map(CONTRIBUTOR_USER_IDS.map((id) => [String(id), 0]));
 
     const countSetting = (setting) => {
         if (!setting) return;
@@ -974,8 +972,7 @@ function renderContributors(container, users, thumbMap) {
             user: users.find((u) => String(u.id) === stringId),
             contributionCount: contributorContributionCounts.get(stringId) || 0,
         };
-    })
-        .filter(({ user }) => user);
+    }).filter(({ user }) => user);
 
     const featureContributors = contributors
         .filter(({ contributionCount }) => contributionCount > 0)
@@ -1080,8 +1077,7 @@ function renderContributorsShimmer(container) {
 
     CONTRIBUTOR_USER_IDS.forEach(() => {
         const item = document.createElement('li');
-        item.className =
-            'rovalra-donator-card rovalra-contributor-loading-row';
+        item.className = 'rovalra-donator-card rovalra-contributor-loading-row';
 
         const avatarContainer = document.createElement('div');
         avatarContainer.className = 'avatar-card-image';
@@ -1758,8 +1754,6 @@ export const buttonData = [
                         <p>${ts('settings.info.desc3')}</p>
                         <div style="margin-top: 5px;">
                             <p>${ts('settings.info.desc4')}</p>
-                            <div style="margin-top: 5px;">
-                                <p>${ts('settings.info.gilbert')}</p>
                                 <div style="margin-top: 5px;">
                                     <p>${ts('settings.info.suggestions')}</p>
                                     <div style="margin-top: 5px;">

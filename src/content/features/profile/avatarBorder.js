@@ -9,6 +9,7 @@ import { loadSettings } from '../../core/settings/handlesettings.js';
 import { getUserSettings } from '../../core/donators/settingHandler.js';
 import { getBorders } from '../../core/configs/borders.js';
 import {
+    getUserCardContext,
     onUserCardElement,
     observeUserCardElements,
 } from '../../core/profile/userCardElements.js';
@@ -259,6 +260,29 @@ function ensureBorderContainerLayout(container) {
     container.style.overflow = 'visible';
 }
 
+function removeBorderFromContainer(container) {
+    if (!container) return;
+
+    delete container.dataset.rovalraBorderLoading;
+    delete container.dataset.rovalraIntendedBorder;
+
+    for (const border of container.querySelectorAll(
+        ':scope > .rovalra-avatar-border',
+    )) {
+        border.remove();
+    }
+
+    const clip = container.querySelector(
+        ':scope > .rovalra-avatar-border-clip',
+    );
+    if (!clip) return;
+
+    while (clip.firstChild) {
+        container.insertBefore(clip.firstChild, clip);
+    }
+    clip.remove();
+}
+
 function ensureBorderStructure(container) {
     ensureBorderContainerLayout(container);
     const clip = syncBorderClipChildren(container);
@@ -437,15 +461,19 @@ async function resolveBorderUrl(userId) {
 }
 
 function handleTile(tile, card) {
-    if (tile.dataset.rovalraBorderApplied) return;
-    tile.dataset.rovalraBorderApplied = 'true';
-
     const userId = card?.userId;
     const avatarEl = card?.avatar;
     if (!userId || !avatarEl) return;
+    if (tile.dataset.rovalraBorderApplied === String(userId)) return;
+
+    tile.dataset.rovalraBorderApplied = String(userId);
+    removeBorderFromContainer(avatarEl);
 
     resolveBorderUrl(userId)
         .then((borderUrl) => {
+            const currentUserId = getUserCardContext(tile).userId;
+            if (String(currentUserId) !== String(userId)) return;
+
             if (!borderUrl) return;
             const alwaysPlay = tile.matches(
                 'a.user-avatar-container.avatar.avatar-headshot',

@@ -109,13 +109,22 @@ export function getUserCardContext(element) {
     };
 }
 
-function handleElement(element) {
-    if (observedElements.has(element)) return;
-    if (element.dataset.rovalraUserCardObserved) return;
-    element.dataset.rovalraUserCardObserved = 'true';
+function getContextKey(context) {
+    return [
+        context.userId || '',
+        context.link?.href || '',
+        context.avatar
+            ? context.avatar.className || context.avatar.tagName
+            : '',
+        context.gradientAvatar
+            ? context.gradientAvatar.className || context.gradientAvatar.tagName
+            : '',
+    ].join('|');
+}
 
-    observedElements.add(element);
-    const context = getUserCardContext(element);
+function notifySubscribers(element, context) {
+    const currentContext = context || getUserCardContext(element);
+    if (!currentContext.userId) return;
 
     for (const sub of subscriptions) {
         try {
@@ -126,11 +135,49 @@ function handleElement(element) {
             ) {
                 continue;
             }
-            sub.callback(element, context);
+            sub.callback(element, currentContext);
         } catch (e) {
             console.warn('RoValra: User card element callback error', e);
         }
     }
+}
+
+function refreshElement(element) {
+    const context = getUserCardContext(element);
+    const contextKey = getContextKey(context);
+
+    if (
+        !context.userId ||
+        element.dataset.rovalraUserCardContextKey === contextKey
+    ) {
+        return;
+    }
+
+    element.dataset.rovalraUserCardContextKey = contextKey;
+    notifySubscribers(element, context);
+}
+
+function setupRefreshObserver(element) {
+    if (element.dataset.rovalraUserCardRefreshObserver) return;
+    element.dataset.rovalraUserCardRefreshObserver = 'true';
+
+    const observer = new MutationObserver(() => refreshElement(element));
+    observer.observe(element, {
+        attributes: true,
+        attributeFilter: ['href', 'src', 'class', 'style'],
+        childList: true,
+        subtree: true,
+    });
+}
+
+function handleElement(element) {
+    if (!observedElements.has(element)) {
+        observedElements.add(element);
+    }
+
+    element.dataset.rovalraUserCardObserved = 'true';
+    setupRefreshObserver(element);
+    refreshElement(element);
 }
 
 function setupObservers() {

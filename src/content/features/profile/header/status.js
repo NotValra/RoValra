@@ -18,6 +18,7 @@ import { migrateLegacyStatus } from '../../../core/profile/descriptionhandler.js
 import DOMPurify from 'dompurify';
 import { TRUSTED_USER_IDS } from '../../../core/configs/userIds.js';
 import {
+    getUserCardContext,
     onUserCardElement,
     observeUserCardElements,
 } from '../../../core/profile/userCardElements.js';
@@ -25,6 +26,7 @@ import { settings } from '../../../core/settings/getSettings.js';
 const MAX_STATUS_LENGTH = 128;
 const REPORTING_ENABLED = false;
 let activeHomeStatusBubble = null;
+const homeStatusControllers = new WeakMap();
 
 function renderStatusBubbleContent(bubble, statusText) {
     const html = parseUntrustedMarkdown(statusText);
@@ -322,19 +324,30 @@ async function addStatusBubble(avatarContainer) {
     }
 }
 
-async function addHomeStatusHover(tile) {
-    if (tile.dataset.rovalraStatusObserved) return;
-    tile.dataset.rovalraStatusObserved = 'true';
+async function addHomeStatusHover(tile, card) {
+    const userId = card?.userId;
+    const avatarContainer =
+        card?.statusAvatar ||
+        tile.querySelector(
+            '.avatar-card-fullbody, .avatar-card-image-container',
+        );
+    if (!userId || !avatarContainer) return;
+    if (tile.dataset.rovalraStatusObserved === String(userId)) return;
 
-    const link = tile.querySelector('a.avatar-card-link');
-    const avatarContainer = tile.querySelector(
-        '.avatar-card-fullbody, .avatar-card-image-container',
-    );
-    if (!link || !avatarContainer) return;
+    homeStatusControllers.get(tile)?.abort();
+    homeStatusControllers.delete(tile);
 
-    const match = link.href.match(/\/users\/(\d+)\//);
-    if (!match) return;
-    const userId = match[1];
+    for (const wrapper of avatarContainer.querySelectorAll(
+        ':scope > .rovalra-status-bubble-wrapper',
+    )) {
+        if (activeHomeStatusBubble === wrapper) activeHomeStatusBubble = null;
+        cleanupStatusElements(wrapper.querySelector('.rovalra-status-bubble'));
+        wrapper.remove();
+    }
+
+    tile.dataset.rovalraStatusObserved = String(userId);
+    const controller = new AbortController();
+    homeStatusControllers.set(tile, controller);
 
     const bubbleWrapper = document.createElement('div');
     bubbleWrapper.className = 'rovalra-status-bubble-wrapper';
@@ -352,117 +365,140 @@ async function addHomeStatusHover(tile) {
     let isHovering = false;
     let pendingLoad = null;
 
-    tile.addEventListener('mouseenter', async () => {
-        isHovering = true;
+    tile.addEventListener(
+        'mouseenter',
+        async () => {
+            if (controller.signal.aborted) return;
+            isHovering = true;
 
-        if (!statusLoaded) {
-            if (pendingLoad) return;
+            if (!statusLoaded) {
+                if (pendingLoad) return;
 
-            const loadPromise = (async () => {
-                try {
-                    const authenticatedUserId = await getAuthenticatedUserId();
-                    const isOwnProfile =
-                        authenticatedUserId &&
-                        String(authenticatedUserId) === String(userId);
+                const loadPromise = (async () => {
+                    try {
+                        const currentUserId = getUserCardContext(tile).userId;
+                        if (String(currentUserId) !== String(userId)) return;
 
-                    const settings = await getUserSettings(userId);
+                        const authenticatedUserId =
+                            await getAuthenticatedUserId();
+                        const isOwnProfile =
+                            authenticatedUserId &&
+                            String(authenticatedUserId) === String(userId);
 
-                    const { status } = settings;
+                        const settings = await getUserSettings(userId);
 
-                    if (!isHovering) return;
+                        const { status } = settings;
 
-                    if (status) {
-                        let statusText = status;
-                        if (statusText.length > MAX_STATUS_LENGTH) {
-                            statusText =
-                                statusText.substring(0, MAX_STATUS_LENGTH) +
-                                '...';
+                        const latestUserId = getUserCardContext(tile).userId;
+                        if (
+                            controller.signal.aborted ||
+                            String(latestUserId) !== String(userId)
+                        ) {
+                            return;
                         }
 
-                        renderStatusBubbleContent(bubble, statusText);
-                        statusLoaded = true;
+                        if (!isHovering) return;
 
-                        if (!isOwnProfile && REPORTING_ENABLED) {
-                            bubble.style.cursor = 'pointer';
-                            addTooltip(bubble, 'Report status');
-                            bubble.onclick = (e) => {
-                                e.stopPropagation();
-                                showConfirmationPrompt({
-                                    title: 'Report Status',
-                                    message:
-                                        "Are you sure you want to report this user's status to RoValra moderators?",
-                                    confirmText: 'Report',
-                                    onConfirm: async () => {
-                                        try {
-                                            await reportUserContent(
-                                                userId,
-                                                'status',
-                                            );
-                                        } catch (error) {
-                                            console.error(
-                                                'RoValra: Failed to report status.',
-                                                error,
-                                            );
-                                        }
-                                    },
-                                });
-                            };
+                        if (status) {
+                            let statusText = status;
+                            if (statusText.length > MAX_STATUS_LENGTH) {
+                                statusText =
+                                    statusText.substring(0, MAX_STATUS_LENGTH) +
+                                    '...';
+                            }
+
+                            renderStatusBubbleContent(bubble, statusText);
+                            statusLoaded = true;
+
+                            if (!isOwnProfile && REPORTING_ENABLED) {
+                                bubble.style.cursor = 'pointer';
+                                addTooltip(bubble, 'Report status');
+                                bubble.onclick = (e) => {
+                                    e.stopPropagation();
+                                    showConfirmationPrompt({
+                                        title: 'Report Status',
+                                        message:
+                                            "Are you sure you want to report this user's status to RoValra moderators?",
+                                        confirmText: 'Report',
+                                        onConfirm: async () => {
+                                            try {
+                                                await reportUserContent(
+                                                    userId,
+                                                    'status',
+                                                );
+                                            } catch (error) {
+                                                console.error(
+                                                    'RoValra: Failed to report status.',
+                                                    error,
+                                                );
+                                            }
+                                        },
+                                    });
+                                };
+                            }
+                        } else {
+                            bubbleWrapper.remove();
+                            return;
                         }
-                    } else {
+                    } catch (error) {
+                        if (!isHovering) return;
+                        console.error(
+                            'RoValra: Error fetching status for home page hover.',
+                            error,
+                        );
                         bubbleWrapper.remove();
                         return;
                     }
-                } catch (error) {
-                    if (!isHovering) return;
-                    console.error(
-                        'RoValra: Error fetching status for home page hover.',
-                        error,
+                })();
+
+                pendingLoad = loadPromise;
+                await loadPromise;
+                pendingLoad = null;
+            }
+
+            if (controller.signal.aborted) return;
+
+            if (statusLoaded && isHovering) {
+                if (
+                    activeHomeStatusBubble &&
+                    activeHomeStatusBubble !== bubbleWrapper
+                ) {
+                    const activeBubble = activeHomeStatusBubble.querySelector(
+                        '.rovalra-status-bubble',
                     );
-                    bubbleWrapper.remove();
-                    return;
+                    cleanupStatusElements(activeBubble);
+                    activeBubble.textContent = '';
+                    activeHomeStatusBubble.style.display = 'none';
                 }
-            })();
+                bubbleWrapper.style.display = 'flex';
+                activeHomeStatusBubble = bubbleWrapper;
 
-            pendingLoad = loadPromise;
-            await loadPromise;
-            pendingLoad = null;
-        }
+                const videos = bubble.querySelectorAll('video');
+                for (const video of videos) {
+                    video.muted = true;
+                    video.volume = 0;
 
-        if (statusLoaded && isHovering) {
-            if (
-                activeHomeStatusBubble &&
-                activeHomeStatusBubble !== bubbleWrapper
-            ) {
-                const activeBubble = activeHomeStatusBubble.querySelector(
-                    '.rovalra-status-bubble',
-                );
-                cleanupStatusElements(activeBubble);
-                activeBubble.textContent = '';
-                activeHomeStatusBubble.style.display = 'none';
+                    video.play().catch(() => {});
+                }
             }
-            bubbleWrapper.style.display = 'flex';
-            activeHomeStatusBubble = bubbleWrapper;
+        },
+        { signal: controller.signal },
+    );
 
-            const videos = bubble.querySelectorAll('video');
-            for (const video of videos) {
-                video.muted = true;
-                video.volume = 0;
+    tile.addEventListener(
+        'mouseleave',
+        () => {
+            isHovering = false;
+            cleanupStatusElements(bubble);
+            bubble.textContent = '';
+            statusLoaded = false;
 
-                video.play().catch(() => {});
-            }
-        }
-    });
-
-    tile.addEventListener('mouseleave', () => {
-        isHovering = false;
-        cleanupStatusElements(bubble);
-        bubble.textContent = '';
-        statusLoaded = false;
-
-        if (activeHomeStatusBubble === bubbleWrapper)
-            activeHomeStatusBubble = null;
-        bubbleWrapper.style.display = 'none';
-    });
+            if (activeHomeStatusBubble === bubbleWrapper)
+                activeHomeStatusBubble = null;
+            bubbleWrapper.style.display = 'none';
+        },
+        { signal: controller.signal },
+    );
 }
 
 export async function init() {
