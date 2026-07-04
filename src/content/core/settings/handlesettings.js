@@ -1814,18 +1814,20 @@ export function initializeSettingsEventListeners() {
                 if (settingConfig?.exclusiveWith) {
                     settingConfig.exclusiveWith.forEach(
                         (exclusiveSettingName) => {
-                            const exclusiveElement = document.querySelector(
-                                `#${exclusiveSettingName}`,
-                            );
-                            if (exclusiveElement?.checked) {
-                                exclusiveElement.checked = false;
+                            if (findSettingConfig(exclusiveSettingName) != null) {
+                                const exclusiveElement = document.querySelector(
+                                    `#${exclusiveSettingName}`,
+                                );
+                                if (exclusiveElement?.checked) {
+                                    exclusiveElement.checked = false;
+                                }
+                                savePromises.push(
+                                    handleSaveSettings(
+                                        exclusiveSettingName,
+                                        false,
+                                    ),
+                                );
                             }
-                            savePromises.push(
-                                handleSaveSettings(
-                                    exclusiveSettingName,
-                                    false,
-                                ),
-                            );
                         },
                     );
                 }
