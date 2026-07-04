@@ -1429,11 +1429,14 @@ export const SETTINGS_CONFIG = {
             },
             ageKidsThemeEnabled: {
                 label: 'Age Theme',
-                description:
+                description: [
                     'Lets you choose which Roblox age theme is used across the site.',
+                    'Overrides **Theme Switcher** setting.',
+                ],
                 type: 'checkbox',
                 default: false,
                 contributors: ['447170745', '650766686'],
+                exclusiveWith: ['ThemeSwitcherEnabled'],
                 childSettings: {
                     ageThemeSelection: {
                         label: 'Theme',
@@ -1600,12 +1603,14 @@ export const SETTINGS_CONFIG = {
                 label: 'Theme Switcher',
                 description: [
                     'Allows RoValra to apply themes selected from the theme gallery.',
+                    'Overrides the **Age Theme** setting.',
                 ],
                 type: 'checkbox',
                 default: false,
                 contributors: ['1564574922', '447170745'],
                 beta: 'Can be slightly buggy',
                 keepChildSettingsEnabled: true,
+                exclusiveWith: ['ageKidsThemeEnabled'],
                 childSettings: {
                     openThemeCatalog: {
                         label: 'Theme Gallery',

@@ -60,9 +60,9 @@ function sanitizeCustomThemeSlots(value) {
             const name =
                 typeof source.name === 'string' && source.name.trim()
                     ? sanitizeString(source.name).slice(
-                          0,
-                          CUSTOM_THEME_NAME_MAX_LENGTH,
-                      )
+                        0,
+                        CUSTOM_THEME_NAME_MAX_LENGTH,
+                    )
                     : `Custom Theme ${slotIndex + 1}`;
             const themeSource = source.theme || source.colors || source;
 
@@ -859,14 +859,14 @@ export const initSettings = async (settingsContent) => {
                                 if (childElement.rovalraGradientApi) {
                                     childElement.rovalraGradientApi.setValue(
                                         settings[childName] ||
-                                            childSetting.default,
+                                        childSetting.default,
                                     );
                                 }
                             } else if (childSetting.type === 'themeEditor') {
                                 if (childElement.rovalraThemeEditorApi) {
                                     childElement.rovalraThemeEditorApi.setValue(
                                         settings[childName] ||
-                                            childSetting.default,
+                                        childSetting.default,
                                     );
                                 }
                             } else if (
@@ -1100,7 +1100,7 @@ export const checkSettingLocks = async (settingsContent, currentSettings) => {
                         settingsContent,
                         isLocked,
                         conf.donatorReason ||
-                            'This is a donator-exclusive feature.',
+                        'This is a donator-exclusive feature.',
                         true,
                     );
                     if (isLocked) return true;
@@ -1544,7 +1544,7 @@ export function initializeSettingsEventListeners() {
 
         console.log(
             'Generated Environment JSON:\n' +
-                JSON.stringify(envConfig, null, 2),
+            JSON.stringify(envConfig, null, 2),
         );
         alert('Environment JSON has been printed to the console (F12).');
     });
@@ -1723,7 +1723,7 @@ export function initializeSettingsEventListeners() {
             const settingConfig = findSettingConfig(controlledSettingName);
             const defaultValue =
                 settingConfig?.default !== undefined &&
-                settingConfig.default > 0
+                    settingConfig.default > 0
                     ? settingConfig.default
                     : 1;
 
@@ -1819,13 +1819,13 @@ export function initializeSettingsEventListeners() {
                             );
                             if (exclusiveElement?.checked) {
                                 exclusiveElement.checked = false;
-                                savePromises.push(
-                                    handleSaveSettings(
-                                        exclusiveSettingName,
-                                        false,
-                                    ),
-                                );
                             }
+                            savePromises.push(
+                                handleSaveSettings(
+                                    exclusiveSettingName,
+                                    false,
+                                ),
+                            );
                         },
                     );
                 }
