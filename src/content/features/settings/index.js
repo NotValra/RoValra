@@ -98,6 +98,22 @@ let changelogsCache = null;
 const priceCache = new Map();
 const artistCache = new Map();
 
+/**
+ * @typedef {Object} ReleaseData
+ * @property {string} tag_name The GitHub tag name
+ * @property {string} name The Chrome release name
+ * @property {string} body The release body / description
+ * @property {string} published_date The date of release on GitHub, already formatted
+ * @property {string | null} [chrome_release_date] The date of release on Chrome, already formatted
+ * @property {string} url The GitHub release URL
+ * @property {string | null} [chrome_url] The Chrome release URL
+ */
+
+/**
+ * Render a release based on its data, and return the corresponding HTML
+ * @param {ReleaseData} release 
+ * @returns {HTMLElement} The rendered view
+ */
 function renderChangelogRelease(release) {
     release = release && typeof release === 'object' ? release : {};
 
@@ -117,11 +133,27 @@ function renderChangelogRelease(release) {
     const dates = document.createElement('div');
     dates.className = 'rovalra-changelog-dates';
 
+    /**
+     * @param {HTMLElement} tag 
+     * @param {string} color
+     */
+    function styleLink(tag, color) {
+        tag.style = `color: ${color}; text-decoration: underline;`
+        tag.style.transition = 'color 0.2s ease';
+        tag.addEventListener('mouseenter', function() {
+            tag.style.color = '#ffffff';
+        })
+        tag.addEventListener('mouseleave', function() {
+            tag.style.color = `${color}`;
+        })
+    }
+
     if (release.published_date) {
         const githubDate = document.createElement('span');
         const href = document.createElement('a');
         href.href = release.url;
         href.textContent = `GitHub: ${release.published_date}`;
+        styleLink(href, 'var(--rovalra-theme-githubLink)');
         githubDate.appendChild(href);
         dates.appendChild(githubDate);
     }
@@ -131,6 +163,7 @@ function renderChangelogRelease(release) {
         const href = document.createElement('a');
         href.href = release.chrome_url;
         href.textContent = `Chrome: ${release.chrome_release_date}`;
+        styleLink(href, '#5caac9');
         chromeDate.appendChild(href);
         dates.appendChild(chromeDate);
     }
