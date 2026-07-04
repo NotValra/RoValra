@@ -335,14 +335,17 @@ export async function applyBorderToContainer(
         if (isConfigured) break;
     }
 
-    if (container.querySelector('.rovalra-avatar-border')) {
+    const existingBorders = [
+        ...container.querySelectorAll(':scope > .rovalra-avatar-border'),
+    ];
+    if (
+        existingBorders.length > 0 &&
+        container.dataset.rovalraIntendedBorder !== borderUrl
+    ) {
+        removeBorderFromContainer(container);
+    } else if (existingBorders.length > 0) {
         if (alwaysPlay && animatedLink && animatedLink !== staticLink) {
-            const borders = [
-                ...container.querySelectorAll(
-                    ':scope > .rovalra-avatar-border',
-                ),
-            ];
-            const [border, ...extraBorders] = borders;
+            const [border, ...extraBorders] = existingBorders;
 
             if (border) {
                 border.src = animatedLink;
@@ -358,7 +361,12 @@ export async function applyBorderToContainer(
         return;
     }
 
-    if (container.dataset.rovalraBorderLoading) return;
+    if (
+        container.dataset.rovalraBorderLoading &&
+        container.dataset.rovalraIntendedBorder === borderUrl
+    ) {
+        return;
+    }
     container.dataset.rovalraBorderLoading = 'true';
     container.dataset.rovalraIntendedBorder = borderUrl;
 
@@ -464,6 +472,7 @@ function handleTile(tile, card) {
     const userId = card?.userId;
     const avatarEl = card?.avatar;
     if (!userId || !avatarEl) return;
+    if (tile.dataset.rovalraBorderApplied === 'true') return;
     if (tile.dataset.rovalraBorderApplied === String(userId)) return;
 
     tile.dataset.rovalraBorderApplied = String(userId);
