@@ -1,4 +1,4 @@
-(function () {
+(function() {
     'use strict';
 
     if (window.__ROVALRA_INTERCEPTOR_SETUP__) {
@@ -45,7 +45,7 @@
         homeLayoutHidden = JSON.parse(
             sessionStorage.getItem('rovalra_homeLayoutHidden') || '[]',
         );
-    } catch (e) {}
+    } catch (e) { }
 
     document.addEventListener('rovalra-streamer-mode', (e) => {
         if (typeof e.detail === 'object') {
@@ -79,7 +79,7 @@
                 'rovalra_homeLayoutHidden',
                 JSON.stringify(homeLayoutHidden),
             );
-        } catch (error) {}
+        } catch (error) { }
     });
 
     document.addEventListener('rovalra-home-extra-sorts', (e) => {
@@ -375,7 +375,7 @@
     }
 
     const originalFetch = window.fetch;
-    window.fetch = async function (...args) {
+    window.fetch = async function(...args) {
         const [url] = args;
         const requestUrl = getRequestUrl(url);
 
@@ -396,7 +396,7 @@
                 'apis.roblox.com/token-metadata-service/v1/sessions',
             ].some((path) => requestUrl.includes(path));
 
-            if (isSensitive) {
+            if (isSensitive && location.hostname != "create.roblox.com") {
                 try {
                     const clone = response.clone();
                     const data = await clone.json();
@@ -409,7 +409,7 @@
                         data.phone =
                             data.prefix =
                             data.countryCode =
-                                'RoValra Streamer Mode Enabled';
+                            'RoValra Streamer Mode Enabled';
                     }
                     if (requestUrl.includes('v1/birthdate')) {
                         data.birthMonth = data.birthDay = data.birthYear = 0;
@@ -451,7 +451,7 @@
                         statusText: response.statusText,
                         headers: newHeaders,
                     });
-                } catch (e) {}
+                } catch (e) { }
             }
         }
 
@@ -469,7 +469,7 @@
                             }),
                         ),
                     )
-                    .catch(() => {});
+                    .catch(() => { });
             }
             if (requestUrl.includes(CATALOG_API_URL)) {
                 response
@@ -483,7 +483,7 @@
                             ),
                         ),
                     )
-                    .catch(() => {});
+                    .catch(() => { });
             }
             if (requestUrl.includes(CLIENT_STATUS_API_URL)) {
                 response
@@ -496,7 +496,7 @@
                             }),
                         ),
                     )
-                    .catch(() => {});
+                    .catch(() => { });
             }
             if (
                 requestUrl.includes(GAME_LAUNCH_SUCCESS_URL) &&
@@ -522,7 +522,7 @@
                             }),
                         ),
                     )
-                    .catch(() => {});
+                    .catch(() => { });
             }
             if (
                 requestUrl.includes(GAMES_ROBLOX_API) &&
@@ -538,7 +538,7 @@
                             }),
                         ),
                     )
-                    .catch(() => {});
+                    .catch(() => { });
             }
             if (
                 requestUrl.includes(TRADES_API_URL) &&
@@ -554,7 +554,7 @@
                             }),
                         ),
                     )
-                    .catch(() => {});
+                    .catch(() => { });
             }
             if (requestUrl.includes(TRADES_LIST_API_URL)) {
                 response
@@ -567,7 +567,7 @@
                             }),
                         ),
                     )
-                    .catch(() => {});
+                    .catch(() => { });
             }
         }
 
@@ -577,14 +577,15 @@
     const originalXhrOpen = XMLHttpRequest.prototype.open;
     const originalXhrSend = XMLHttpRequest.prototype.send;
 
-    XMLHttpRequest.prototype.open = function (method, url, ...rest) {
+    XMLHttpRequest.prototype.open = function(method, url, ...rest) {
         this._rovalra_url = url;
         this._rovalra_method = method;
 
         if (
             streamerModeEnabled &&
             typeof url === 'string' &&
-            settingsPageInfoEnabled
+            settingsPageInfoEnabled &&
+            location.hostname != "create.roblox.com"
         ) {
             if (url.includes('/my/settings/json'))
                 this._rovalra_spoof_settings = true;
@@ -609,7 +610,7 @@
         return originalXhrOpen.apply(this, [method, url, ...rest]);
     };
 
-    XMLHttpRequest.prototype.send = function (...args) {
+    XMLHttpRequest.prototype.send = function(...args) {
         const xhr = this;
         if (
             xhr._rovalra_spoof_settings ||
@@ -623,7 +624,7 @@
         ) {
             Object.defineProperty(xhr, 'responseText', {
                 configurable: true,
-                get: function () {
+                get: function() {
                     if (xhr._rovalra_cached_response)
                         return xhr._rovalra_cached_response;
 
@@ -659,13 +660,13 @@
                             data.countryCode =
                                 data.prefix =
                                 data.phone =
-                                    'RoValra Streamer Mode Enabled';
+                                'RoValra Streamer Mode Enabled';
                         }
                         if (xhr._rovalra_spoof_birthdate) {
                             data.birthMonth =
                                 data.birthDay =
                                 data.birthYear =
-                                    0;
+                                0;
                         }
                         if (xhr._rovalra_spoof_age) {
                             data.isVerified = true;
@@ -708,7 +709,7 @@
 
             Object.defineProperty(xhr, 'response', {
                 configurable: true,
-                get: function () {
+                get: function() {
                     if (this.responseType === 'json') {
                         try {
                             return JSON.parse(this.responseText);
@@ -724,7 +725,7 @@
             });
         }
 
-        xhr.addEventListener('load', function () {
+        xhr.addEventListener('load', function() {
             if (typeof xhr._rovalra_url === 'string') {
                 const triggerEvent = (eventName, detail) =>
                     document.dispatchEvent(
@@ -777,7 +778,7 @@
                             'rovalra-trades-list-response',
                             JSON.parse(xhr.responseText),
                         );
-                } catch (e) {}
+                } catch (e) { }
             }
         });
 
@@ -805,7 +806,7 @@
         service.__rovalra_patched = true;
 
         const originalGetLimit = service.getAdvancedAccessoryLimit;
-        service.getAdvancedAccessoryLimit = function (assetTypeId, ...args) {
+        service.getAdvancedAccessoryLimit = function(assetTypeId, ...args) {
             if (multiAccessoryEnabled) {
                 const id = Number(assetTypeId);
                 if (
@@ -821,7 +822,7 @@
         };
 
         const originalAddAsset = service.addAssetToAvatar;
-        service.addAssetToAvatar = function (asset, currentAssets) {
+        service.addAssetToAvatar = function(asset, currentAssets) {
             if (!multiAccessoryEnabled) {
                 return originalAddAsset.apply(this, arguments);
             }
