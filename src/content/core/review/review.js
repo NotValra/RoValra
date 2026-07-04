@@ -1,5 +1,9 @@
 import { createOverlay } from '../../core/ui/overlay.js';
 import { observeElement } from '../../core/observer.js';
+import {
+    getCurrentUserTier,
+    syncDonatorTier,
+} from '../settings/handlesettings.js';
 
 const REVIEW_URL =
     'https://chromewebstore.google.com/detail/rovalra-roblox-improved/njcickgebhnpgmoodjdgohkclfplejli/reviews';
@@ -33,6 +37,42 @@ const REGION_DONATION_SOURCE_WEIGHTS = {
 const REGION_DONATION_MIN_DAYS_INSTALLED = 7;
 const REGION_DONATION_COOLDOWN_DAYS = 14;
 const REGION_DONATION_SCORE_THRESHOLD = 500;
+
+function hasDonatedFromBadgesResponse(response) {
+    const badges = response?.badges || {};
+    const totalDonated =
+        badges.total_donated ??
+        response?.total_donated ??
+        badges.totalDonated ??
+        response?.totalDonated;
+    const numericTotal = Number(totalDonated);
+
+    return (
+        badges.legacy_donator === true ||
+        badges.donator_1 === true ||
+        badges.donator_2 === true ||
+        badges.donator_3 === true ||
+        (Number.isFinite(numericTotal) && numericTotal > 0)
+    );
+}
+
+async function currentUserHasDonated() {
+    if (getCurrentUserTier() >= 1) return true;
+
+    try {
+        const response = await syncDonatorTier();
+        return (
+            getCurrentUserTier() >= 1 ||
+            hasDonatedFromBadgesResponse(response)
+        );
+    } catch (error) {
+        console.warn(
+            'RoValra: Failed to check donation status before showing donation popup.',
+            error,
+        );
+        return getCurrentUserTier() >= 1;
+    }
+}
 
 function createButton(text, className, onClick) {
     const btn = document.createElement('button');
@@ -197,7 +237,7 @@ export function showRegionDonationPopup(source = 'unknown') {
                 INSTALL_TIME_KEY,
                 'forceRegionDonationPopup',
             ],
-            (result) => {
+            async (result) => {
                 const forceShow = result.forceRegionDonationPopup === true;
 
                 if (!forceShow && result[DONATION_STATUS_KEY] === 'dont_show')
@@ -232,6 +272,8 @@ export function showRegionDonationPopup(source = 'unknown') {
                     [DONATION_STATS_KEY]: stats,
                     [INSTALL_TIME_KEY]: installedAt,
                 });
+
+                if (await currentUserHasDonated()) return;
 
                 if (!forceShow) {
                     if (

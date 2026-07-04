@@ -2305,7 +2305,7 @@ export const SETTINGS_CONFIG = {
             forceRegionDonationPopup: {
                 label: ['Force Region Donation Popup'],
                 description: [
-                    "When enabled, shows the region selector donation popup every time it's triggered, ignoring all requirements. For testing purposes.",
+                    "When enabled, shows the region selector donation popup every time it's triggered for non-donators, ignoring cadence requirements. For testing purposes.",
                 ],
                 type: 'checkbox',
                 default: false,
