@@ -60,14 +60,17 @@ async function fetchDeveloperProducts(universeId) {
 
 async function fetchGamePasses(universeId) {
     const passes = [];
-    let cursor = '';
+    const seenPageTokens = new Set();
+    let pageToken = '';
 
     do {
         const data = await callRobloxApiJson({
             subdomain: 'apis',
             endpoint:
                 `/game-passes/v1/universes/${universeId}/game-passes?pageSize=50&passView=Full` +
-                (cursor ? `&cursor=${cursor}` : ''),
+                (pageToken
+                    ? `&pageToken=${encodeURIComponent(pageToken)}`
+                    : ''),
             method: 'GET',
         });
 
@@ -77,8 +80,12 @@ async function fetchGamePasses(universeId) {
             passes.push(...data.data);
         }
 
-        cursor = data?.nextPageToken || data?.nextPageCursor || '';
-    } while (cursor);
+        const nextPageToken = data?.nextPageToken || '';
+        if (!nextPageToken || seenPageTokens.has(nextPageToken)) break;
+
+        seenPageTokens.add(nextPageToken);
+        pageToken = nextPageToken;
+    } while (pageToken);
 
     return passes;
 }
