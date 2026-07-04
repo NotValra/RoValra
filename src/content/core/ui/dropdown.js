@@ -313,6 +313,7 @@ export function createDropdownMenu({
     items,
     onValueChange,
     position,
+    maxHeight,
 }) {
     injectDropdownCss();
 
@@ -331,6 +332,9 @@ export function createDropdownMenu({
         handleValueChange,
         updateTriggerText,
         false,
+        true,
+        false,
+        maxHeight,
     );
 
     const toggle = (forceOpen) => {

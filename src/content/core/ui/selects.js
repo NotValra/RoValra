@@ -42,6 +42,7 @@ export function createDropdownContent(
     showFlags = false,
     showScrollbar = true,
     highlightSelected = false,
+    maxHeight = DEFAULT_PANEL_MAX_HEIGHT,
 ) {
     injectScrollbarStyles();
 
@@ -50,13 +51,13 @@ export function createDropdownContent(
         'rovalra-dropdown-content-panel foundation-web-menu bg-surface-100 stroke-standard stroke-default shadow-transient-high radius-large';
     contentPanel.setAttribute('role', 'listbox');
     contentPanel.style.minWidth = `${triggerElement.offsetWidth}px`;
-    contentPanel.style.maxHeight = `${DEFAULT_PANEL_MAX_HEIGHT}px`;
+    contentPanel.style.maxHeight = `${maxHeight}px`;
     contentPanel.style.overflow = 'hidden';
 
     const dropdownContentInner = document.createElement('div');
     dropdownContentInner.className = 'flex-dropdown-menu';
     dropdownContentInner.style.overflowY = 'auto';
-    dropdownContentInner.style.maxHeight = `${DEFAULT_PANEL_MAX_HEIGHT}px`;
+    dropdownContentInner.style.maxHeight = `${maxHeight}px`;
 
     // Handle visual scrollbar toggle
     if (!showScrollbar) {
@@ -264,15 +265,12 @@ export function createDropdownContent(
             VIEWPORT_EDGE_MARGIN;
         const spaceAbove = triggerRect.top - PANEL_GAP - VIEWPORT_EDGE_MARGIN;
         const openAbove =
-            spaceBelow < DEFAULT_PANEL_MAX_HEIGHT && spaceAbove > spaceBelow;
+            spaceBelow < maxHeight && spaceAbove > spaceBelow;
         const availableHeight = Math.max(
             96,
             Math.floor(openAbove ? spaceAbove : spaceBelow),
         );
-        const panelMaxHeight = Math.min(
-            DEFAULT_PANEL_MAX_HEIGHT,
-            availableHeight,
-        );
+        const panelMaxHeight = Math.min(maxHeight, availableHeight);
 
         contentPanel.style.minWidth = `${minWidth}px`;
         contentPanel.style.maxWidth = `${maxWidth}px`;

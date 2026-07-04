@@ -98,11 +98,11 @@ export async function addNavbarButton() {
                     items: [],
                     onValueChange: () => {},
                     position: 'center',
+                    maxHeight: 640,
                 });
 
                 menu.panel.style.transform = 'translateX(-50%)';
                 menu.panel.style.setProperty('min-width', '320px', 'important');
-                menu.panel.style.maxHeight = '400px';
                 menu.panel.style.overflowY = 'auto';
 
                 const updatePosition = () => {
