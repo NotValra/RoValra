@@ -119,13 +119,19 @@ function renderChangelogRelease(release) {
 
     if (release.published_date) {
         const githubDate = document.createElement('span');
-        githubDate.textContent = `GitHub: ${release.published_date}`;
+        const href = document.createElement('a');
+        href.href = release.url;
+        href.textContent = `GitHub: ${release.published_date}`;
+        githubDate.appendChild(href);
         dates.appendChild(githubDate);
     }
 
     if (release.chrome_release_date) {
         const chromeDate = document.createElement('span');
-        chromeDate.textContent = `Chrome: ${release.chrome_release_date}`;
+        const href = document.createElement('a');
+        href.href = release.chrome_url;
+        href.textContent = `Chrome: ${release.chrome_release_date}`;
+        chromeDate.appendChild(href);
         dates.appendChild(chromeDate);
     }
 
@@ -140,7 +146,7 @@ function renderChangelogRelease(release) {
             fullMarkdown: true,
             githubMentions: true,
         }) ||
-        'No changelog notes were provided for this release.';
+        'No changelog notes were provided for this release.';  // Verified
 
     card.append(header, body);
     return card;
