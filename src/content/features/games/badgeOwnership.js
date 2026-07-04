@@ -19,6 +19,7 @@ const OWNERSHIP_BATCH_SIZE = 100;
 const MAX_RETRIES = 3;
 const UPDATE_DELAY_MS = 500;
 const OWNERSHIP_CACHE_MS = 5 * 60 * 1000;
+const REQUEST_SPACING_MS = 1000;
 const COOLDOWN_MIN_MS = 30 * 1000;
 const COOLDOWN_MAX_MS = 60 * 1000;
 
@@ -58,19 +59,19 @@ function sleep(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function clampCooldown(ms) {
-    return Math.min(Math.max(ms, 1000), COOLDOWN_MAX_MS);
+function normalizeDelay(ms) {
+    return Math.max(ms, 1000);
 }
 
 function getRateLimitDelay(response) {
     const retryAfterSeconds = Number(response.headers.get('retry-after'));
     if (Number.isFinite(retryAfterSeconds) && retryAfterSeconds > 0) {
-        return clampCooldown(retryAfterSeconds * 1000 + 1000);
+        return normalizeDelay(retryAfterSeconds * 1000 + 1000);
     }
 
     const resetValue = Number(response.headers.get('x-ratelimit-reset'));
     if (Number.isFinite(resetValue) && resetValue > 0) {
-        return clampCooldown(
+        return normalizeDelay(
             (resetValue > 1e9
                 ? Math.max(0, resetValue * 1000 - Date.now())
                 : resetValue * 1000) + 1000
@@ -95,23 +96,38 @@ async function getSharedCooldownDelay() {
     return Math.max(0, cooldownUntil - Date.now());
 }
 
-async function setSharedCooldown() {
+async function waitForSharedCooldown() {
+    const delay = await getSharedCooldownDelay();
+    if (delay > 0) {
+        await sleep(delay + Math.floor(Math.random() * 1000));
+    }
+}
+
+async function setSharedCooldown(delayMs) {
+    const cooldownUntil = Number(
+        await getCache(COOLDOWN_SECTION, COOLDOWN_KEY, CACHE_AREA),
+    );
+    const nextCooldownUntil = Date.now() + normalizeDelay(delayMs);
     await setCache(
         COOLDOWN_SECTION,
         COOLDOWN_KEY,
-        Date.now() + getFallbackCooldownDelay(),
+        Math.max(
+            Number.isFinite(cooldownUntil) ? cooldownUntil : 0,
+            nextCooldownUntil,
+        ),
         CACHE_AREA,
     );
 }
 
 async function fetchAwardedDates(userId, badgeIds) {
-    if ((await getSharedCooldownDelay()) > 0) return null;
-
     const params = new URLSearchParams();
     badgeIds.forEach((badgeId) => params.append('badgeIds', badgeId));
     let shouldCooldown = false;
 
     for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+        await waitForSharedCooldown();
+        await setSharedCooldown(REQUEST_SPACING_MS);
+
         let response;
         try {
             response = await callRobloxApi({
@@ -128,9 +144,11 @@ async function fetchAwardedDates(userId, badgeIds) {
         }
 
         if (response.status === 429) {
+            const retryDelay = getRateLimitDelay(response);
             shouldCooldown = true;
+            await setSharedCooldown(retryDelay);
             if (attempt < MAX_RETRIES - 1) {
-                await sleep(getRateLimitDelay(response));
+                await sleep(retryDelay);
                 continue;
             }
             break;
@@ -150,7 +168,7 @@ async function fetchAwardedDates(userId, badgeIds) {
     }
 
     if (shouldCooldown) {
-        await setSharedCooldown();
+        await setSharedCooldown(getFallbackCooldownDelay());
     }
 
     return null;
