@@ -198,6 +198,8 @@ async function addStatusBubble(avatarContainer) {
     if (avatarContainer.querySelector('.rovalra-status-bubble-wrapper')) return;
 
     try {
+        avatarContainer.classList.add('rovalra-status-bubble-host');
+
         const userId = getUserIdFromUrl();
         if (!userId) return;
         const isTrusted = TRUSTED_USER_IDS.has(String(userId));
@@ -333,6 +335,9 @@ async function addHomeStatusHover(tile, card) {
         );
     if (!userId || !avatarContainer) return;
     if (tile.dataset.rovalraStatusObserved === String(userId)) return;
+
+    tile.classList.add('rovalra-status-bubble-tile');
+    avatarContainer.classList.add('rovalra-status-bubble-host');
 
     homeStatusControllers.get(tile)?.abort();
     homeStatusControllers.delete(tile);
