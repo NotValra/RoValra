@@ -6,6 +6,7 @@ import { sanitizeString } from '../utils/sanitize.js';
 import { callRobloxApiJson } from '../api.js';
 import { getAuthenticatedUserId } from '../user.js';
 import { updateUserSettingViaApi } from '../donators/settingHandler.js';
+import { serializeGradientNameSetting } from '../donators/gradientName.js';
 import { createAndShowPopup } from '../../features/catalog/40method.js';
 import * as CacheHandler from '../storage/cacheHandler.js';
 import { hasOwn } from '../utils.js';
@@ -20,6 +21,7 @@ import './settingsCompat';
 
 let currentUserTier = 0;
 let gradientSyncTimeout = null;
+let gradientNameSyncTimeout = null;
 let donatorTierPromise = null;
 const colorLiveSaveTimeouts = new Map();
 const FEATURE_STATUS_PROMPT_ACK_KEY = 'featureStatusPromptAcknowledged';
@@ -94,6 +96,31 @@ const shouldShowFeatureStatusPrompt = async (config) => {
 const markFeatureStatusPromptAcknowledged = async () => {
     await chrome.storage.local.set({ [FEATURE_STATUS_PROMPT_ACK_KEY]: true });
 };
+
+function queueGradientNameSync(settingsOverride = {}) {
+    if (gradientNameSyncTimeout) clearTimeout(gradientNameSyncTimeout);
+
+    gradientNameSyncTimeout = setTimeout(async () => {
+        if (currentUserTier < 3) return;
+
+        const settings = {
+            ...(await loadSettings()),
+            ...settingsOverride,
+        };
+        const gradient =
+            settings.displayNameGradientEnabled === false
+                ? { ...(settings.displayNameGradient || {}), enabled: false }
+                : settings.displayNameGradient;
+        const payload = serializeGradientNameSetting(
+            gradient,
+            settings.displayNameGradientEffect,
+        );
+
+        updateUserSettingViaApi('GradientName', payload).catch((error) =>
+            console.error('RoValra: GradientName sync failed', error),
+        );
+    }, 750);
+}
 
 export const getCurrentUserTier = () => currentUserTier;
 
@@ -487,6 +514,18 @@ export const handleSaveSettings = async (settingName, value) => {
                                 Math.min(100, parseInt(value.fade, 10) || 0),
                             ),
                         };
+                        if (
+                            settingConfig.colorCount >= 3 ||
+                            settingConfig.default?.color3
+                        ) {
+                            sanitizedValue.color3 = sanitizeString(
+                                String(
+                                    value.color3 ||
+                                        settingConfig.default?.color3 ||
+                                        '#f093fb',
+                                ),
+                            );
+                        }
                     } else {
                         console.warn(
                             `Invalid string value for '${settingName}' - converting to string and sanitizing`,
@@ -577,6 +616,15 @@ export const handleSaveSettings = async (settingName, value) => {
                                 );
                             }
                         }, 1000);
+                    }
+                    if (
+                        settingName === 'displayNameGradientEnabled' ||
+                        settingName === 'displayNameGradient' ||
+                        settingName === 'displayNameGradientEffect'
+                    ) {
+                        queueGradientNameSync({
+                            [settingName]: sanitizedValue,
+                        });
                     }
                     if (settingName === 'avatarBorderChoice') {
                         const isDonator = currentUserTier >= 3;

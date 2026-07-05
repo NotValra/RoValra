@@ -13,6 +13,8 @@ import {
 } from '../configs/userIds.js';
 import * as cache from '../storage/cacheHandler.js';
 
+const GRADIENT_NAME_API_KEY = 'GradientName';
+
 const BATCH_MAX_SIZE = 50;
 const BATCH_DELAY_MS = 10;
 let batchQueue = [];
@@ -92,6 +94,9 @@ async function fetchAndProcessSettings(userId, options = {}) {
                 !apiSettings.status &&
                 !apiSettings.border &&
                 !apiSettings.gradient &&
+                !apiSettings[GRADIENT_NAME_API_KEY] &&
+                !apiSettings.GradientName &&
+                !apiSettings.gradientName &&
                 Object.keys(apiSettings).length <= 4
             ) {
                 apiProvidedMeaningfulSettings = false;
@@ -108,12 +113,18 @@ async function fetchAndProcessSettings(userId, options = {}) {
     let finalEnvironment = 1;
     let finalGradient = null;
     let finalBorder = null;
+    let finalGradientName = null;
 
     if (apiProvidedMeaningfulSettings) {
         finalStatus = apiSettings.status;
         finalEnvironment = apiSettings.environment;
         finalGradient = apiSettings.gradient;
         finalBorder = apiSettings.border ?? null;
+        finalGradientName =
+            apiSettings[GRADIENT_NAME_API_KEY] ??
+            apiSettings.GradientName ??
+            apiSettings.gradientName ??
+            null;
     }
 
     if (
@@ -133,6 +144,7 @@ async function fetchAndProcessSettings(userId, options = {}) {
         status: finalStatus,
         environment: finalEnvironment || 1,
         gradient: finalGradient,
+        GradientName: finalGradientName,
         border: finalBorder,
         Views: Number(apiSettings.Views) || 0,
         hide_views:
@@ -280,6 +292,9 @@ async function processApiSettings(userId, apiSettings, options) {
             !apiSettings.status &&
             !apiSettings.border &&
             !apiSettings.gradient &&
+            !apiSettings[GRADIENT_NAME_API_KEY] &&
+            !apiSettings.GradientName &&
+            !apiSettings.gradientName &&
             Object.keys(apiSettings).length <= 4
         ) {
             apiProvidedMeaningfulSettings = false;
@@ -292,12 +307,18 @@ async function processApiSettings(userId, apiSettings, options) {
     let finalEnvironment = 1;
     let finalGradient = null;
     let finalBorder = null;
+    let finalGradientName = null;
 
     if (apiProvidedMeaningfulSettings) {
         finalStatus = apiSettings.status;
         finalEnvironment = apiSettings.environment;
         finalGradient = apiSettings.gradient;
         finalBorder = apiSettings.border ?? null;
+        finalGradientName =
+            apiSettings[GRADIENT_NAME_API_KEY] ??
+            apiSettings.GradientName ??
+            apiSettings.gradientName ??
+            null;
     }
 
     if (
@@ -317,6 +338,7 @@ async function processApiSettings(userId, apiSettings, options) {
         status: finalStatus,
         environment: finalEnvironment || 1,
         gradient: finalGradient,
+        GradientName: finalGradientName,
         border: finalBorder,
         Views: Number(apiSettings.Views) || 0,
         hide_views:

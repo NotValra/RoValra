@@ -500,10 +500,15 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
             return inp;
         };
 
+        const supportsThirdColor =
+            setting.colorCount >= 3 || Boolean(setting.default.color3);
         const color1 = createSwatch('c1');
         const color2 = createSwatch('c2');
+        const color3 = supportsThirdColor ? createSwatch('c3') : null;
         color1.value = setting.default.color1;
         color2.value = setting.default.color2;
+        if (color3)
+            color3.value = setting.default.color3 || setting.default.color2;
 
         const fadeContainer = document.createElement('div');
         fadeContainer.style.cssText =
@@ -563,6 +568,7 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
         angleCircle.appendChild(angleLine);
         preview.appendChild(angleCircle);
         controls.append(color1, color2);
+        if (color3) controls.append(color3);
         contentBody.append(controls, fadeContainer, preview);
 
         let currentAngle = setting.default.angle;
@@ -589,9 +595,12 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
                 angle: currentAngle,
                 fade: parseInt(fadeSlider.value, 10),
             };
+            if (color3) val.color3 = color3.value;
             const s1 = (100 - val.fade) / 2;
             const s2 = 100 - s1;
-            preview.style.background = `linear-gradient(${currentAngle}deg, ${val.color1} ${s1}%, ${val.color2} ${s2}%)`;
+            preview.style.background = color3
+                ? `linear-gradient(${currentAngle}deg, ${val.color1} ${s1}%, ${val.color2} 50%, ${val.color3} ${s2}%)`
+                : `linear-gradient(${currentAngle}deg, ${val.color1} ${s1}%, ${val.color2} ${s2}%)`;
             angleLine.style.transform = `rotate(${currentAngle}deg)`;
             if (save) handleSaveSettings(settingName, val);
             wrapper.dispatchEvent(
@@ -637,14 +646,21 @@ export function generateSettingInput(settingName, setting, REGIONS = {}) {
         toggleInput.addEventListener('change', () => update());
         color1.addEventListener('input', () => update());
         color2.addEventListener('input', () => update());
+        if (color3) color3.addEventListener('input', () => update());
         fadeSlider.addEventListener('input', () => update());
 
         wrapper.rovalraGradientApi = {
             setValue: (val) => {
                 if (!val) return;
                 toggleInput.checked = val.enabled !== false;
-                color1.value = val.color1;
-                color2.value = val.color2;
+                color1.value = val.color1 || setting.default.color1;
+                color2.value = val.color2 || setting.default.color2;
+                if (color3) {
+                    color3.value =
+                        val.color3 ||
+                        setting.default.color3 ||
+                        setting.default.color2;
+                }
                 fadeSlider.value = val.fade ?? 100;
                 currentAngle = val.angle;
                 update(false);

@@ -9,6 +9,8 @@ export const USER_CARD_DEFINITIONS = [
             '.rovalra-user-card-avatar, .avatar-card-fullbody, .avatar-card-image',
         gradientAvatarSelector:
             '.rovalra-user-card-thumbnail, .avatar-card-image',
+        displayNameSelector:
+            '.friends-carousel-display-name, .user-card-name span, .avatar-name',
         statusAvatarSelector:
             '.rovalra-user-card-avatar, .avatar-card-fullbody, .avatar-card-image-container',
     },
@@ -17,30 +19,37 @@ export const USER_CARD_DEFINITIONS = [
         linkSelector: 'a.avatar-card-link',
         avatarSelector: '.avatar-card-fullbody, .avatar-card-image',
         gradientAvatarSelector: '.avatar-card-image',
+        displayNameSelector: '.avatar-name, .user-card-name span',
     },
     {
         selector: '.avatar-card-container',
         linkSelector: 'a.avatar-card-link',
         avatarSelector: '.avatar-card-fullbody, .avatar-card-image',
         gradientAvatarSelector: '.avatar-card-image',
+        displayNameSelector: '.avatar-name, .user-card-name span',
     },
     {
         selector: '.rovalra-donator-card',
         linkSelector: 'a.avatar-card-link',
         avatarSelector: '.avatar-card-fullbody, .avatar-card-image',
         gradientAvatarSelector: '.avatar-card-image',
+        displayNameSelector:
+            '.avatar-name, .user-card-name span, a[href*="/users/"][href*="/profile"]:not(.avatar-card-link)',
     },
     {
         selector: '.user-item-clickable',
         linkSelector: ':scope',
         avatarSelector: '.avatar-card-fullbody, .avatar-card-image',
         gradientAvatarSelector: '.avatar-card-image',
+        displayNameSelector:
+            '.avatar-name, .user-card-name span, .text-name, .name',
     },
     {
         selector: 'a.user-avatar-container.avatar.avatar-headshot',
         linkSelector: ':scope',
         avatarSelector: '.avatar-card-image, .thumbnail-2d-container',
         gradientAvatarSelector: '.avatar-card-image, .thumbnail-2d-container',
+        displayNameSelector: '.avatar-name, .user-card-name span',
     },
 ];
 
@@ -51,6 +60,14 @@ export const USER_CARD_SELECTORS = USER_CARD_DEFINITIONS.map(
 const subscriptions = new Set();
 const observedElements = new Set();
 let active = false;
+
+const DISPLAY_NAME_FALLBACK_SELECTOR = [
+    '.friends-carousel-display-name',
+    '.user-card-name span',
+    '.avatar-name',
+    '.text-name',
+    '.name',
+].join(', ');
 
 function getDefinition(element) {
     return USER_CARD_DEFINITIONS.find(({ selector }) =>
@@ -79,6 +96,40 @@ function getFallbackLink(element) {
     );
 }
 
+function getLinkedDisplayName(element, link) {
+    if (!link?.href) return null;
+
+    const linkUrl = new URL(link.href, window.location.origin);
+    const linkPath = `${linkUrl.pathname}${linkUrl.search}${linkUrl.hash}`;
+    const containers = [
+        element.closest(
+            '#roseal-home-header, .home-header, .home-header-container, .friends-carousel-tile',
+        ),
+        element.parentElement,
+    ].filter(Boolean);
+
+    for (const container of containers) {
+        const linkedNames = container.querySelectorAll(
+            [
+                `a[href="${CSS.escape(linkPath)}"]`,
+                `a[href="${CSS.escape(linkUrl.pathname)}"]`,
+                `a[href="${CSS.escape(linkUrl.href)}"]`,
+            ].join(', '),
+        );
+
+        for (const linkedName of linkedNames) {
+            if (linkedName === link || linkedName.contains(element)) continue;
+            if (linkedName.querySelector('img, .thumbnail-2d-container')) {
+                continue;
+            }
+            if (!linkedName.textContent?.trim()) continue;
+            return linkedName;
+        }
+    }
+
+    return null;
+}
+
 export function getUserCardContext(element) {
     const definition = getDefinition(element);
     const link =
@@ -97,6 +148,10 @@ export function getUserCardContext(element) {
         element.querySelector(
             '.avatar-card-fullbody, .avatar-card-image-container',
         );
+    const displayName =
+        getElement(element, definition?.displayNameSelector) ||
+        element.querySelector(DISPLAY_NAME_FALLBACK_SELECTOR) ||
+        getLinkedDisplayName(element, link);
 
     return {
         element,
@@ -106,6 +161,7 @@ export function getUserCardContext(element) {
         avatar,
         gradientAvatar,
         statusAvatar,
+        displayName,
     };
 }
 
@@ -118,6 +174,9 @@ function getContextKey(context) {
             : '',
         context.gradientAvatar
             ? context.gradientAvatar.className || context.gradientAvatar.tagName
+            : '',
+        context.displayName
+            ? context.displayName.textContent || context.displayName.className
             : '',
     ].join('|');
 }

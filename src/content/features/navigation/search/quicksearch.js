@@ -27,6 +27,7 @@ import { createScrollButtons } from '../../../core/ui/general/scrollButtons.js';
 import { showConfirmationPrompt } from '../../../core/ui/confirmationPrompt.js';
 import { t, ts } from '../../../core/locale/i18n.js';
 import { applyBorderToContainer } from '../../profile/avatarBorder.js';
+import { applyDisplayNameGradientToElement } from '../../profile/header/displayNameGradient.js';
 
 let lastSearchedQuery = '';
 let userSearchAbortController = null;
@@ -186,6 +187,7 @@ let searchSettings = {
     profileBackgroundGradientEnabled: true,
     applyGradientToAvatarTile: true,
     avatarBorderEnabled: true,
+    displayNameGradientEnabled: true,
 };
 
 function updateSearchSettings() {
@@ -199,6 +201,7 @@ function updateSearchSettings() {
             'profileBackgroundGradientEnabled',
             'applyGradientToAvatarTile',
             'avatarBorderEnabled',
+            'displayNameGradientEnabled',
         ],
         (result) => {
             if (result) Object.assign(searchSettings, result);
@@ -263,10 +266,16 @@ function waitForConnectedElement(element, timeoutMs = 1500) {
     });
 }
 
-async function applyUserCosmetics(userId, thumbContainer) {
+async function applyUserCosmetics(
+    userId,
+    thumbContainer,
+    displayNameEl = null,
+    hoverHost = null,
+) {
     if (
         !searchSettings.profileBackgroundGradientEnabled &&
-        !searchSettings.avatarBorderEnabled
+        !searchSettings.avatarBorderEnabled &&
+        !searchSettings.displayNameGradientEnabled
     ) {
         return;
     }
@@ -296,6 +305,13 @@ async function applyUserCosmetics(userId, thumbContainer) {
             if (!connected) return;
 
             await applyBorderToContainer(thumbContainer, userSettings.border);
+        }
+
+        if (searchSettings.displayNameGradientEnabled && displayNameEl) {
+            applyDisplayNameGradientToElement(displayNameEl, userSettings, {
+                animate: false,
+                hoverHost,
+            });
         }
     } catch (e) {
         console.warn(
@@ -886,7 +902,6 @@ function createUserResultHtml(
         },
     );
     thumbContainer.appendChild(thumbEl);
-    applyUserCosmetics(user.id, thumbContainer);
 
     if (presence) {
         let presenceClass = '';
@@ -983,6 +998,7 @@ function createUserResultHtml(
 
     link.appendChild(thumbContainer);
     link.appendChild(infoDiv);
+    applyUserCosmetics(user.id, thumbContainer, displayNameSpan, link);
 
     if (user.hasVerifiedBadge) {
         if (displayNameDiv) {

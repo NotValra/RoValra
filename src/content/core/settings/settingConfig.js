@@ -999,6 +999,54 @@ export const SETTINGS_CONFIG = {
                 default: false,
                 contributors: ['3602693727'],
             },
+            displayNameGradientEnabled: {
+                label: 'Gradient Display Name',
+                description: [
+                    'Shows three-color gradient display names on profiles to all RoValra users.',
+                    'Donator Tier 3 is required to set your own gradient display name.',
+                ],
+                type: 'checkbox',
+                default: true,
+                childSettings: {
+                    displayNameGradient: {
+                        label: 'Display Name Gradient',
+                        description:
+                            'Choose the three colors used on your display name gradient.',
+                        type: 'gradient',
+                        colorCount: 3,
+                        donatorTier: 3,
+                        donatorReason:
+                            'Donator Tier 3 is required to customize your display name gradient.',
+                        default: {
+                            enabled: true,
+                            color1: '#ff4ecd',
+                            color2: '#ffe66d',
+                            color3: '#4dd4ff',
+                            angle: 90,
+                            fade: 100,
+                        },
+                    },
+                    displayNameGradientEffect: {
+                        label: 'Display Name Effect',
+                        description:
+                            'Adds an optional server-synced shine or bloom effect to your gradient display name.',
+                        type: 'select',
+                        options: [
+                            { value: 'none', label: 'None' },
+                            { value: 'shine', label: 'Shine' },
+                            { value: 'sparkles', label: 'Bloom' },
+                            {
+                                value: 'blooming-bloom',
+                                label: 'Blooming Bloom',
+                            },
+                        ],
+                        default: 'none',
+                        donatorTier: 3,
+                        donatorReason:
+                            'Donator Tier 3 is required to use display name effects.',
+                    },
+                },
+            },
         },
     },
     Home: {
