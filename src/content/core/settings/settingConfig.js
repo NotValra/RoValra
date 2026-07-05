@@ -1529,6 +1529,16 @@ export const SETTINGS_CONFIG = {
                     'This allows you to toggle beta programs you are enrolled into easily.',
                 type: 'checkbox',
                 default: false,
+                childSettings: {
+                    previousBetaProgramsEnabled: {
+                        label: 'Show Previous Beta Programs',
+                        description:
+                            'Stores beta programs you have seen before and shows programs that are no longer returned by Roblox as disabled entries in the dropdown.',
+                        type: 'checkbox',
+                        default: true,
+                        storageKey: 'rovalra_previous_beta_programs',
+                    },
+                },
             },
             removeDownloadButton: {
                 label: 'Remove Download Button',
@@ -2253,6 +2263,15 @@ export const SETTINGS_CONFIG = {
                     'This will trick Roblox into thinking you are in an early access program, making Roblox add the early access program UI to your settings',
                     'This setting wont allow you to join any early access programs you werent invited to.',
                     'This will also overwrite any early access programs you might already be in.',
+                ],
+                type: 'checkbox',
+                default: false,
+            },
+            fakePreviousBetaProgramEnabled: {
+                label: ['Fake Previous Beta Program'],
+                description: [
+                    'Adds a fake previous beta program to the beta programs dropdown for testing.',
+                    'Requires previous beta programs to be enabled.',
                 ],
                 type: 'checkbox',
                 default: false,

@@ -398,7 +398,9 @@
     "betaPrograms": {
         "toggleTooltip": "Toggle Beta Programs",
         "noPrograms": "You are not enrolled into any beta programs.",
-        "allowlist": "In an allowlist"
+        "allowlist": "In an allowlist",
+        "previousProgramsTitle": "Previously enrolled beta programs",
+        "previousProgramTooltip": "This beta program is no longer available."
     },
     "quickSearch": {
         "aborted": "Aborted",
