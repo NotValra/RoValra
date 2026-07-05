@@ -10,6 +10,10 @@
         "settingsTitle": "Category Settings",
         "visibility": "Visibility",
         "visibilityDescription": "Choose whether this category appears on Home.",
+        "accurateContinue": "Accurate Continue",
+        "accurateContinueDescription": "Sort Continue by when you last played each game.",
+        "enable": "Enable",
+        "disable": "Disable",
         "show": "Show",
         "hide": "Hide"
     },

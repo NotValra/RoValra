@@ -33,6 +33,9 @@
     let homeLayoutOrder = [];
     let homeLayoutHidden = [];
     let homeExtraSorts = [];
+    let homeLayoutReady = false;
+    let homeLayoutReadyPromise = null;
+    let resolveHomeLayoutReady = null;
 
     try {
         streamerModeEnabled =
@@ -72,6 +75,11 @@
         homeLayoutHidden = Array.isArray(e.detail?.hidden)
             ? e.detail.hidden
             : [];
+        homeLayoutReady = true;
+        if (resolveHomeLayoutReady) {
+            resolveHomeLayoutReady();
+            resolveHomeLayoutReady = null;
+        }
         try {
             sessionStorage.setItem(
                 'rovalra_homeLayoutOrder',
@@ -87,6 +95,22 @@
     document.addEventListener('rovalra-home-extra-sorts', (e) => {
         homeExtraSorts = Array.isArray(e.detail?.sorts) ? e.detail.sorts : [];
     });
+
+    function waitForHomeLayoutState() {
+        if (homeLayoutReady) return Promise.resolve();
+
+        if (!homeLayoutReadyPromise) {
+            homeLayoutReadyPromise = new Promise((resolve) => {
+                const timeout = setTimeout(resolve, 700);
+                resolveHomeLayoutReady = () => {
+                    clearTimeout(timeout);
+                    resolve();
+                };
+            });
+        }
+
+        return homeLayoutReadyPromise;
+    }
 
     function getRequestUrl(url) {
         if (typeof url === 'string') return url;
@@ -141,11 +165,55 @@
         );
     }
 
+    function isLikelyGameHomeSort(sort) {
+        if (!sort || typeof sort !== 'object' || isFriendCarouselSort(sort)) {
+            return false;
+        }
+
+        if (sort.treatmentType === 'Carousel') return true;
+        if (sort.topicId === 100000003) return true;
+        if (sort.numberOfRows !== undefined && sort.numberOfRows !== null) {
+            return true;
+        }
+
+        return ['Carousel', 'GameCarousel', 'EventTile'].includes(
+            sort.topicLayoutData?.componentType,
+        );
+    }
+
+    function getHomeSortGameCount(sort) {
+        if (!sort || typeof sort !== 'object' || isFriendCarouselSort(sort)) {
+            return null;
+        }
+
+        if (Array.isArray(sort.games)) return sort.games.length;
+
+        if (!Array.isArray(sort.recommendationList)) return null;
+
+        if (!sort.recommendationList.length) {
+            return isLikelyGameHomeSort(sort) ? 0 : null;
+        }
+
+        const gameRecommendations = sort.recommendationList.filter(
+            (item) => item?.contentType === 'Game',
+        );
+
+        return gameRecommendations.length
+            ? gameRecommendations.length
+            : null;
+    }
+
+    function canAdjustHomeSort(sort) {
+        const gameCount = getHomeSortGameCount(sort);
+        return gameCount === null || gameCount > 0;
+    }
+
     function dispatchHomeLayoutCategories(data) {
         if (data?.pageType !== 'Home' || !Array.isArray(data.sorts)) return;
 
         const seenKeys = new Set();
         const categories = data.sorts
+            .filter(canAdjustHomeSort)
             .map((sort) => ({
                 key: getHomeSortKey(sort),
                 topic: sort?.topic || 'Untitled',
@@ -379,6 +447,7 @@
         }
 
         try {
+            await waitForHomeLayoutState();
             const data = await response.clone().json();
             const addedExtraSorts = addHomeExtraSorts(data);
             const accurateContinue = applyAccurateContinue(data);
@@ -826,6 +895,13 @@
                 } catch (e) { }
             }
         });
+
+        if (xhr._rovalra_home_layout && !homeLayoutReady) {
+            waitForHomeLayoutState().then(() => {
+                originalXhrSend.apply(xhr, args);
+            });
+            return undefined;
+        }
 
         return originalXhrSend.apply(this, args);
     };

@@ -4,7 +4,7 @@ export async function init() {
     try {
         const settings = await new Promise((resolve) =>
             chrome.storage.local.get(
-                { AccurateContinueEnabled: true },
+                { AccurateContinueEnabled: false },
                 resolve,
             ),
         );
