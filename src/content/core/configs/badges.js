@@ -93,6 +93,17 @@ export const BADGE_CONFIG = {
         sparkles: true,
         themeColorIcon: true,
     },
+    video_star: {
+        type: 'header',
+        userIds: [],
+        iconAssetName: 'videoStarIcon',
+        tooltip: 'Roblox Video Star',
+        confettiAssetName: 'videoStarIcon',
+        shiny: false,
+        sparkles: false,
+        themeColorIcon: true,
+        size: '22px',
+    },
     translator: {
         type: 'header',
         userIds: TRANSLATOR_USER_IDS,

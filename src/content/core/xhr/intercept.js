@@ -16,6 +16,8 @@
     const GAMES_ROBLOX_API = 'https://games.roblox.com/';
     const TRADES_API_URL = 'https://trades.roblox.com/v2/users/';
     const TRADES_LIST_API_URL = 'https://trades.roblox.com/v1/trades/';
+    const GROUP_ROLES_API_HOST = 'groups.roblox.com';
+    const GROUP_ROLES_API_PATH = /^\/v1\/users\/(\d+)\/groups\/roles$/;
     const OMNI_RECOMMENDATION_API_URL =
         'https://apis.roblox.com/discovery-api/omni-recommendation';
     const FRIEND_CAROUSEL_TOPIC_ID = 600000000;
@@ -90,6 +92,37 @@
         if (typeof url === 'string') return url;
         if (url instanceof Request) return url.url;
         return '';
+    }
+
+    function getGroupRolesRequestUserId(url) {
+        if (typeof url !== 'string' || !url) return null;
+
+        try {
+            const parsedUrl = new URL(url, window.location.origin);
+            const pathMatch = parsedUrl.pathname.match(GROUP_ROLES_API_PATH);
+            if (
+                parsedUrl.hostname !== GROUP_ROLES_API_HOST ||
+                !pathMatch ||
+                parsedUrl.searchParams.get('includeLocked') !== 'true'
+            ) {
+                return null;
+            }
+
+            return pathMatch[1];
+        } catch (error) {
+            return null;
+        }
+    }
+
+    function dispatchGroupRolesResponse(url, data) {
+        const userId = getGroupRolesRequestUserId(url);
+        if (!userId) return;
+
+        document.dispatchEvent(
+            new CustomEvent('rovalra-group-roles-response', {
+                detail: { userId, data },
+            }),
+        );
     }
 
     function getHomeSortKey(sort) {
@@ -569,6 +602,13 @@
                     )
                     .catch(() => { });
             }
+            if (getGroupRolesRequestUserId(requestUrl)) {
+                response
+                    .clone()
+                    .json()
+                    .then((d) => dispatchGroupRolesResponse(requestUrl, d))
+                    .catch(() => { });
+            }
         }
 
         return response;
@@ -776,6 +816,11 @@
                     if (url.includes(TRADES_LIST_API_URL))
                         triggerEvent(
                             'rovalra-trades-list-response',
+                            JSON.parse(xhr.responseText),
+                        );
+                    if (getGroupRolesRequestUserId(url))
+                        dispatchGroupRolesResponse(
+                            url,
                             JSON.parse(xhr.responseText),
                         );
                 } catch (e) { }

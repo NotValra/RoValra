@@ -900,6 +900,16 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: true,
+                childSettings: {
+                    videoStarBadgeEnabled: {
+                        label: 'Roblox Video Star Badge',
+                        description: [
+                            'Shows a Video Star badge on profiles for members of the Roblox Video Stars community.',
+                        ],
+                        type: 'checkbox',
+                        default: true,
+                    },
+                },
             },
             profileBackgroundGradientEnabled: {
                 label: 'Custom Profile Background Gradient',

@@ -6,7 +6,48 @@ import { callRobloxApiJson } from '../../../core/api.js';
 import { createSquareButton } from '../../../core/ui/profile/header/squarebutton.js';
 import { getUserIdFromUrl } from '../../../core/idExtractor.js';
 import { getAuthenticatedUserId } from '../../../core/user.js';
+import { settings } from '../../../core/settings/getSettings.js';
 const badgeCache = new Map();
+const videoStarBadgeCache = new Map();
+const VIDEO_STAR_GROUP_ID = 4199740;
+const VIDEO_STAR_BADGE_NAME = 'video_star';
+let groupRolesListenerInitialized = false;
+
+function isVideoStarGroupRole(item) {
+    return (
+        item?.group?.id === VIDEO_STAR_GROUP_ID &&
+        item?.role?.name === 'Video Star'
+    );
+}
+
+function hasVideoStarBadge(userId) {
+    return videoStarBadgeCache.get(String(userId)) === true;
+}
+
+function mergeRuntimeBadges(userId, badges, options = {}) {
+    if (
+        options.videoStarBadgeEnabled === false ||
+        !hasVideoStarBadge(userId) ||
+        badges.includes(VIDEO_STAR_BADGE_NAME)
+    ) {
+        return badges;
+    }
+
+    return [...badges, VIDEO_STAR_BADGE_NAME];
+}
+
+function rerenderCurrentProfileBadges() {
+    const currentUserId = String(getUserIdFromUrl() || '');
+    if (!currentUserId) return;
+
+    document
+        .querySelectorAll('[data-rovalra-observed="true"]')
+        .forEach((container) => {
+            if (container.dataset.rovalraUserId !== currentUserId) return;
+            container.dataset.rovalraUserId = '';
+            addHeaderBadges(container);
+        });
+}
 
 function applyBadgeIconStyle(icon, badge) {
     icon.style.filter = '';
@@ -280,7 +321,10 @@ async function addHeaderBadges(container) {
 
     if (container.dataset.rovalraUserId === currentUserId) return;
 
-    if (container.dataset.rovalraBusy === 'true') return;
+    if (container.dataset.rovalraBusy === 'true') {
+        container.dataset.rovalraPendingRender = 'true';
+        return;
+    }
     container.dataset.rovalraBusy = 'true';
 
     try {
@@ -307,6 +351,12 @@ async function addHeaderBadges(container) {
             if (!isOwnProfile) badgeCache.set(currentUserId, data);
         }
 
+        const videoStarBadgeEnabled =
+            (await settings.videoStarBadgeEnabled) !== false;
+        const mergedApiBadges = mergeRuntimeBadges(currentUserId, data.apiBadges, {
+            videoStarBadgeEnabled,
+        });
+
         container
             .querySelectorAll('.rovalra-header-badge, .rovalra-text-badge')
             .forEach((b) => b.remove());
@@ -319,7 +369,7 @@ async function addHeaderBadges(container) {
             }
         }
 
-        data.apiBadges.forEach((name) => {
+        mergedApiBadges.forEach((name) => {
             if (BADGE_CONFIG[name]) {
                 badgesToRender.push({
                     isIcon: true,
@@ -353,6 +403,11 @@ async function addHeaderBadges(container) {
         container.dataset.rovalraUserId = currentUserId;
     } finally {
         container.dataset.rovalraBusy = 'false';
+        if (container.dataset.rovalraPendingRender === 'true') {
+            container.dataset.rovalraPendingRender = 'false';
+            container.dataset.rovalraUserId = '';
+            addHeaderBadges(container);
+        }
     }
 }
 
@@ -400,6 +455,28 @@ async function addProfileBadgeButtons(buttonContainer) {
 }
 
 export function init() {
+    if (!groupRolesListenerInitialized) {
+        groupRolesListenerInitialized = true;
+        document.addEventListener('rovalra-group-roles-response', (event) => {
+            const userId = String(event.detail?.userId || '');
+            if (!userId) return;
+
+            const groups = event.detail?.data?.data;
+            const isVideoStar =
+                Array.isArray(groups) && groups.some(isVideoStarGroupRole);
+            videoStarBadgeCache.set(userId, isVideoStar);
+
+            if (userId !== String(getUserIdFromUrl() || '')) return;
+
+            rerenderCurrentProfileBadges();
+        });
+
+        document.addEventListener('rovalra:settingSaved', (event) => {
+            if (event.detail?.name !== 'videoStarBadgeEnabled') return;
+            rerenderCurrentProfileBadges();
+        });
+    }
+
     document.addEventListener('rovalra:assetsUpdated', () => {
         document
             .querySelectorAll('[data-rovalra-badge-config]')
