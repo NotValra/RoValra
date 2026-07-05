@@ -262,7 +262,7 @@ function getUserProfileHref(userId) {
 
 function debounce(func, wait) {
     let timeout;
-    return function (...args) {
+    return function(...args) {
         clearTimeout(timeout);
         timeout = setTimeout(() => func.apply(this, args), wait);
     };
@@ -435,7 +435,7 @@ function createArtistCreditSection(artistId) {
                 const data = { name, thumb: thumbnails[0] };
                 artistCache.set(String(artistId), data);
                 applyData(data);
-            } catch (e) {}
+            } catch (e) { }
         })();
     }
 
@@ -614,7 +614,7 @@ async function openBorderOverlay(
             { position: 'top' },
         );
         actionBtn.onclick = async () => {
-            updateUserSettingViaApi('border', variant.link).catch(() => {});
+            updateUserSettingViaApi('border', variant.link).catch(() => { });
             updatePreviewAndUI(
                 variant.value,
                 variant.link,
@@ -753,17 +753,11 @@ function renderDonatorPerkStatusPills(container) {
                 cell.dataset.rovalraDonatorPerkIncluded === 'true';
             const label = isIncluded ? 'Included' : 'Not included';
             const symbol = document.createElement('span');
-            symbol.innerHTML = isIncluded ? '&#10003;' : '&#10005;';
-            symbol.setAttribute('aria-hidden', 'true');
+            symbol.className = "grow-0 shrink-0 basis-auto icon size-[var(--icon-size-small)] " + (isIncluded ? "icon-filled-circle-check" : "rovalra-icon-filled-circle-minus")
 
-            const pill = createPill(symbol, label, { size: 'small' });
-            pill.classList.add(
-                'rovalra-donator-perk-status-pill',
-                isIncluded ? 'is-included' : 'is-missing',
-            );
-            pill.setAttribute('aria-label', label);
+            addTooltip(symbol, label, { position: 'top' })
 
-            cell.replaceChildren(pill);
+            cell.replaceChildren(symbol);
         });
 }
 
@@ -802,26 +796,26 @@ function getDonatorPerksComparisonHtml(themeColors) {
     const body =
         rows.length > 0
             ? rows
-                  .map(
-                      ({ label, minTier }) => `
+                .map(
+                    ({ label, minTier }) => `
                         <tr>
                             <th scope="row">${label}</th>
                             ${[1, 2, 3]
-                                .map((tier) =>
-                                    getDonatorPerkStatusCell(tier >= minTier),
-                                )
-                                .join('')}
+                            .map((tier) =>
+                                getDonatorPerkStatusCell(tier >= minTier),
+                            )
+                            .join('')}
                         </tr>`,
-                  )
-                  .join('')
+                )
+                .join('')
             : `<tr><th scope="row" colspan="4">${ts('settings.donatorPerks.moreComingSoon')}</th></tr>`;
 
     return `
         <div class="rovalra-donator-perks-compare" aria-label="${ts('settings.donatorPerks.perkTiers')}">
             <div class="rovalra-donator-tier-summary">
                 ${[1, 2, 3]
-                    .map(
-                        (tier) => `
+            .map(
+                (tier) => `
                             <div id="donator-tier-${tier}-header" class="rovalra-donator-tier-heading">
                                 <img ${getBadgeAssetAttribute(`donator_${tier}`)} src="${BADGE_CONFIG[`donator_${tier}`].icon}" alt="" style="${getBadgeStyle(`donator_${tier}`)}" />
                                 <div class="rovalra-donator-tier-copy">
@@ -829,8 +823,8 @@ function getDonatorPerksComparisonHtml(themeColors) {
                                     <p>${parseMarkdown(ts(`settings.donatorPerks.tier${tier}Desc`), themeColors)}</p>
                                 </div>
                             </div>`,
-                    )
-                    .join('')}
+            )
+            .join('')}
             </div>
             <div class="rovalra-donator-perks-table-wrap">
                 <table class="rovalra-donator-perks-table">
@@ -1185,30 +1179,30 @@ function renderTopDonators(container, donators, thumbMap, currentUserId) {
         const podiumData = [
             donators[2]
                 ? {
-                      ...donators[2],
-                      rank: 3,
-                      color: '#cd7f32',
-                      height: '60px',
-                      size: '64px',
-                  }
+                    ...donators[2],
+                    rank: 3,
+                    color: '#cd7f32',
+                    height: '60px',
+                    size: '64px',
+                }
                 : null,
             donators[0]
                 ? {
-                      ...donators[0],
-                      rank: 1,
-                      color: '#ffd700',
-                      height: '100px',
-                      size: '80px',
-                  }
+                    ...donators[0],
+                    rank: 1,
+                    color: '#ffd700',
+                    height: '100px',
+                    size: '80px',
+                }
                 : null,
             donators[1]
                 ? {
-                      ...donators[1],
-                      rank: 2,
-                      color: '#c0c0c0',
-                      height: '80px',
-                      size: '72px',
-                  }
+                    ...donators[1],
+                    rank: 2,
+                    color: '#c0c0c0',
+                    height: '80px',
+                    size: '72px',
+                }
                 : null,
         ].filter(Boolean);
 
@@ -1767,7 +1761,7 @@ export const buttonData = [
             <div style="padding: 8px;">
                 <h2 style="margin-bottom: 10px; color: var(--rovalra-main-text-color) !important;">${ts('settings.donatorPerks.title')}</h2>
                 <p>${ts('settings.donatorPerks.subtitle')}</p>
-                
+
                 <div style="margin-top: 15px; font-size: 13px; color: var(--rovalra-secondary-text-color);">
                     ${parseMarkdown(ts('settings.donatorPerks.note'), themeColors)}
                 </div>
@@ -1963,14 +1957,14 @@ async function renderAccountStanding(container) {
             <div style="height: 12px; background: rgba(128,128,128,0.2); border-radius: 6px; position: relative; margin-bottom: 25px;">
                 <div class="standing-status-fill" style="position: absolute; left: 0; top: 0; height: 100%; width: 0%; background: #23a55a; border-radius: 6px; transition: width 0.5s ease, background-color 0.3s;"></div>
                 ${levels
-                    .map((level, index) => {
-                        const leftPos = (index / (levels.length - 1)) * 100;
-                        return `
+            .map((level, index) => {
+                const leftPos = (index / (levels.length - 1)) * 100;
+                return `
                         <div class="standing-status-dot" data-index="${index}" style="position: absolute; left: ${leftPos}%; top: 50%; transform: translate(-50%, -50%); width: 20px; height: 20px; border-radius: 50%; background: ${index === 0 ? level.color : '#4f545c'}; border: 4px solid var(--rovalra-container-background-color); z-index: 2; transition: background 0.3s;"></div>
                         <div class="standing-status-label" data-index="${index}" style="font-size: 12px; font-weight: 600; color: ${index === 0 ? 'var(--rovalra-main-text-color)' : 'var(--rovalra-secondary-text-color)'}; opacity: ${index === 0 ? '1' : '0.5'}; text-align: center; width: 60px; margin-left: -30px; position: absolute; left: ${leftPos}%; margin-top: 15px; transition: color 0.3s, opacity 0.3s;">${level.label}</div>
                     `;
-                    })
-                    .join('')}
+            })
+            .join('')}
             </div>
         </div>
         <div class="standing-policy-anchor"></div>
@@ -2058,11 +2052,11 @@ function updateAccountStandingUI(discordCard, data, levels) {
                 <div style="color: #f23f43; font-weight: 600; font-size: 13px; margin-bottom: 8px;">Disabled Features</div>
                 <div style="display: flex; flex-wrap: wrap; gap: 8px;">
                     ${disabledFeatures
-                        .map(
-                            (feature) =>
-                                `<div style="background: rgba(242, 63, 67, 0.1); padding: 4px 10px; border-radius: 6px; color: #f23f43; font-size: 11px; font-weight: 600; text-transform: capitalize;">${feature}</div>`,
-                        )
-                        .join('')}
+                    .map(
+                        (feature) =>
+                            `<div style="background: rgba(242, 63, 67, 0.1); padding: 4px 10px; border-radius: 6px; color: #f23f43; font-size: 11px; font-weight: 600; text-transform: capitalize;">${feature}</div>`,
+                    )
+                    .join('')}
                 </div>
             </div>`
                 : '';
@@ -2073,15 +2067,15 @@ function updateAccountStandingUI(discordCard, data, levels) {
                 <div style="color: #f23f43; font-weight: 600; font-size: 13px; margin-bottom: 8px;">Moderated Content</div>
                 <div style="display: flex; flex-direction: column; gap: 8px;">
                     ${modContent
-                        .map(
-                            (item) => `
+                    .map(
+                        (item) => `
                         <div style="background: rgba(0,0,0,0.1); padding: 8px; border-radius: 8px;">
                             <div style="font-weight: 600; color: var(--rovalra-secondary-text-color); font-size: 12px; margin-bottom: 4px;">${item.config_key}</div>
                             <div style="font-size: 13px; color: var(--rovalra-main-text-color); word-break: break-all;">${item.content_value}</div>
                         </div>
                     `,
-                        )
-                        .join('')}
+                    )
+                    .join('')}
                 </div>
             </div>`
                 : '';
@@ -2123,7 +2117,7 @@ function updateAccountStandingUI(discordCard, data, levels) {
             appealSection.innerHTML = DOMPurify.sanitize(`
                 <div style="font-size: 14px; font-weight: 600; color: var(--rovalra-secondary-text-color); margin-bottom: 8px;">Appeal Case</div>
                 <div style="font-size: 14px; color: var(--rovalra-main-text-color); margin-bottom: 12px;">Status: <strong style="color: ${statusColor};">${APPEAL_STATUSES[data.appeal.appeal_status]}</strong></div>
-                
+
                 <div style="margin-bottom: 10px;">
                     <div style="font-size: 13px; font-weight: 600; color: var(--rovalra-secondary-text-color); margin-bottom: 2px;">Your Message</div>
                     <div style="font-size: 13px; color: var(--rovalra-main-text-color); opacity: 0.9;">${data.appeal.appeal_message || 'N/A'}</div>
@@ -2700,8 +2694,8 @@ function createEquipButton(
     const tooltip = isSelected
         ? 'Click to unequip this border'
         : isOwned
-          ? 'Equip this border'
-          : 'Buy this border';
+            ? 'Equip this border'
+            : 'Buy this border';
 
     const pill = createPill(text, tooltip, { isButton: true });
     pill.setAttribute('data-equip-btn', variant.value);
@@ -2724,11 +2718,11 @@ function createEquipButton(
         const val = pill.getAttribute('data-equip-btn');
 
         if (currentText === 'Equipped') {
-            updateUserSettingViaApi('border', '').catch(() => {});
+            updateUserSettingViaApi('border', '').catch(() => { });
             updatePreviewAndUI('none', null, container, previewHolder);
         } else if (currentText === 'Equip') {
             const link = pill.getAttribute('data-variant-link');
-            updateUserSettingViaApi('border', link).catch(() => {});
+            updateUserSettingViaApi('border', link).catch(() => { });
             updatePreviewAndUI(val, link, container, previewHolder);
         } else if (currentText === 'Buy') {
             openBorderOverlay(
@@ -2859,12 +2853,12 @@ export async function updateContent(buttonInfo, contentContainer) {
         buttonId === 'changelogs'
     ) {
         ((contentContainer.innerHTML = `
-            <div id="settings-content" style="padding: 0; background-color: transparent !important;"> 
-                <div id="setting-section-content" style="padding: 5px;"> 
+            <div id="settings-content" style="padding: 0; background-color: transparent !important;">
+                <div id="setting-section-content" style="padding: 5px;">
                     <div id="info-credits-background-wrapper" class="setting" style="margin-bottom: 15px;">
                         ${buttonInfo.content}
-                    </div> 
-                </div> 
+                    </div>
+                </div>
                 </div>`), //verified
             sanitizeConfig);
     } else {
@@ -3362,7 +3356,7 @@ function initializeHeartbeatSpoofer() {
         }
     });
 
-    window.fetch = async function (...args) {
+    window.fetch = async function(...args) {
         const url = args[0] ? args[0].toString() : '';
         let isInternal = false;
 

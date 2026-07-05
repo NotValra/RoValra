@@ -433,20 +433,9 @@ body:has(#settings-search-input) {
         vertical-align: middle;
     }
 
-    .rovalra-donator-perk-status-pill {
-        display: inline-flex;
-        min-width: 34px;
-        font-weight: 800;
-    }
-
-    .rovalra-donator-perk-status-pill.is-included {
-        background: rgba(35, 165, 90, 0.16);
-        color: #23a55a;
-    }
-
-    .rovalra-donator-perk-status-pill.is-missing {
-        background: rgba(237, 66, 69, 0.14);
-        color: #ed4245;
+    .rovalra-icon-filled-circle-minus {
+        --svg: url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2732%27%20height%3D%2732%27%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20d%3D%22M12%202C6.48%202%202%206.48%202%2012s4.48%2010%2010%2010%2010-4.48%2010-10S17.52%202%2012%202m5%2011H7v-2h10z%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E');
+        color: #909090;
     }
 
     .rovalra-perk-link {
