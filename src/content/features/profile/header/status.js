@@ -17,6 +17,7 @@ import { parseUntrustedMarkdown } from '../../../core/utils/markdown.js';
 import { migrateLegacyStatus } from '../../../core/profile/descriptionhandler.js';
 import DOMPurify from 'dompurify';
 import { TRUSTED_USER_IDS } from '../../../core/configs/userIds.js';
+import { isAuthenticatedUserUnder16OrNotAgeChecked } from '../../../core/utils/trackers/birthday.js';
 import {
     getUserCardContext,
     onUserCardElement,
@@ -24,6 +25,15 @@ import {
 } from '../../../core/profile/userCardElements.js';
 import { settings } from '../../../core/settings/getSettings.js';
 const MAX_STATUS_LENGTH = 128;
+const RESTRICTED_STATUS_PRESETS = [
+    'Busy',
+    'Working',
+    'Sleeping',
+    'Having fun',
+    'Hi',
+    'Hello',
+    'Playing Roblox!',
+];
 const REPORTING_ENABLED = false;
 let activeHomeStatusBubble = null;
 const homeStatusControllers = new WeakMap();
@@ -31,6 +41,49 @@ const homeStatusControllers = new WeakMap();
 function renderStatusBubbleContent(bubble, statusText) {
     const html = parseUntrustedMarkdown(statusText);
     bubble.innerHTML = html; // Verified
+}
+
+function isRestrictedStatusPreset(statusText) {
+    return RESTRICTED_STATUS_PRESETS.includes(String(statusText || '').trim());
+}
+
+async function getStatusAccessForUser(userId) {
+    const normalizedUserId = String(userId);
+    const isRestrictedViewer =
+        await isAuthenticatedUserUnder16OrNotAgeChecked().catch(() => true);
+    const isTrustedUser = TRUSTED_USER_IDS.has(normalizedUserId);
+
+    return {
+        isRestrictedViewer,
+        isTrustedUser,
+        canUseFreeformStatus: !isRestrictedViewer || isTrustedUser,
+    };
+}
+
+function canViewStatusText(statusText, isOwnProfile, access) {
+    if (access.canUseFreeformStatus) return true;
+    if (isRestrictedStatusPreset(statusText)) return true;
+    return isOwnProfile && !statusText;
+}
+
+async function clearAuthenticatedRestrictedStatus() {
+    try {
+        const authenticatedUserId = await getAuthenticatedUserId();
+        if (!authenticatedUserId) return;
+        const access = await getStatusAccessForUser(authenticatedUserId);
+        if (access.canUseFreeformStatus) return;
+
+        const profileSettings = await getUserSettings(authenticatedUserId);
+        if (!profileSettings?.status) return;
+        if (isRestrictedStatusPreset(profileSettings.status)) return;
+
+        await updateUserSettingViaApi('status', '');
+    } catch (error) {
+        console.warn(
+            'RoValra: Failed to clear restricted authenticated user status.',
+            error,
+        );
+    }
 }
 
 function cleanupStatusElements(container) {
@@ -91,7 +144,7 @@ DOMPurify.addHook('afterSanitizeAttributes', (currentNode) => {
     }
 });
 
-function createStatusHelpText(isTrusted) {
+function createStatusHelpText(isTrusted, access) {
     const helpText = document.createElement('p');
     helpText.className = 'text-description';
     Object.assign(helpText.style, {
@@ -105,24 +158,24 @@ function createStatusHelpText(isTrusted) {
         return helpText;
     }
 
-    helpText.append(
-        "You must follow Roblox's ToS and RoValra's ToS when using status bubbles. If you break these rules, your status may be reset and your status privileges may be revoked.",
-        document.createElement('br'),
-        document.createElement('br'),
-        "If you're restricted from status, ",
-    );
+    if (access?.canUseFreeformStatus === false) {
+        helpText.textContent =
+            'You are limited to only preset statuses. For safety reasons we were forced to limit statuses to presets for under 16 or non age checked users. You can only view preset statuses on other peoples profiles.';
+        return helpText;
+    }
 
-    const appealLink = document.createElement('a');
-    appealLink.href =
-        'https://www.roblox.com/my/account?rovalra=account+standing';
-    appealLink.textContent = 'appeal here';
-    appealLink.style.textDecoration = 'underline';
-    helpText.append(appealLink, '.');
+    helpText.textContent =
+        'You can use preset statuses or write your own status. For safety reasons we were forced to limit statuses to presets for under 16 or non age checked users. Since you are 16+ and age checked, you can also view 16+ statuses on other peoples profiles.';
 
     return helpText;
 }
 
-function openEditStatusOverlay(currentStatus, onSave, isTrusted) {
+function openEditStatusOverlay(
+    currentStatus,
+    onSave,
+    isTrusted,
+    { access, presetsOnly = false } = {},
+) {
     const container = document.createElement('div');
     Object.assign(container.style, {
         display: 'flex',
@@ -132,18 +185,66 @@ function openEditStatusOverlay(currentStatus, onSave, isTrusted) {
         alignItems: 'center',
     });
 
-    const { container: inputContainer, input } = createStyledInput({
-        id: 'rovalra-status-edit-input',
-        label: 'Enter new status',
-        value: currentStatus,
-        multiline: true,
+    let input = null;
+
+    const presetContainer = document.createElement('div');
+    Object.assign(presetContainer.style, {
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        gap: '8px',
+        width: '100%',
     });
-    inputContainer.style.width = '222px';
-    input.maxLength = MAX_STATUS_LENGTH;
 
-    container.appendChild(inputContainer);
+    RESTRICTED_STATUS_PRESETS.forEach((preset) => {
+        const presetBtn = document.createElement('button');
+        presetBtn.type = 'button';
+        presetBtn.className =
+            preset === currentStatus ? 'btn-primary-md' : 'btn-control-md';
+        presetBtn.textContent = preset;
+        presetBtn.addEventListener('click', () => {
+            if (presetsOnly) {
+                saveStatus(preset, presetBtn);
+                return;
+            }
 
-    container.appendChild(createStatusHelpText(isTrusted));
+            if (input) input.value = preset;
+        });
+        presetContainer.appendChild(presetBtn);
+    });
+
+    const clearBtn = document.createElement('button');
+    clearBtn.type = 'button';
+    clearBtn.className = 'btn-control-md';
+    clearBtn.textContent = 'Clear';
+    clearBtn.style.gridColumn = '1 / -1';
+    clearBtn.addEventListener('click', () => {
+        if (presetsOnly) {
+            saveStatus('', clearBtn);
+            return;
+        }
+
+        if (input) input.value = '';
+    });
+    presetContainer.appendChild(clearBtn);
+
+    container.appendChild(presetContainer);
+
+    if (!presetsOnly) {
+        const { container: inputContainer, input: statusInput } =
+            createStyledInput({
+                id: 'rovalra-status-edit-input',
+                label: 'Enter new status',
+                value: currentStatus,
+                multiline: true,
+            });
+        input = statusInput;
+        inputContainer.style.width = '222px';
+        input.maxLength = MAX_STATUS_LENGTH;
+
+        container.appendChild(inputContainer);
+    }
+
+    container.appendChild(createStatusHelpText(isTrusted, access));
 
     const errorDisplay = document.createElement('p');
     errorDisplay.className = 'text-error';
@@ -157,6 +258,7 @@ function openEditStatusOverlay(currentStatus, onSave, isTrusted) {
     const saveBtn = document.createElement('button');
     saveBtn.className = 'btn-primary-md';
     saveBtn.textContent = 'Save';
+    saveBtn.style.display = presetsOnly ? 'none' : '';
 
     const cancelBtn = document.createElement('button');
     cancelBtn.className = 'btn-control-md';
@@ -172,17 +274,16 @@ function openEditStatusOverlay(currentStatus, onSave, isTrusted) {
 
     cancelBtn.onclick = close;
 
-    saveBtn.onclick = async () => {
-        const newStatus = input.value.trim();
-
+    async function saveStatus(newStatus, button = saveBtn) {
         errorDisplay.style.display = 'none';
-        saveBtn.disabled = true;
-        saveBtn.textContent = 'Saving...';
+        button.disabled = true;
+        const originalText = button.textContent;
+        button.textContent = 'Saving...';
 
         const result = await onSave(newStatus);
 
-        saveBtn.disabled = false;
-        saveBtn.textContent = 'Save';
+        button.disabled = false;
+        button.textContent = originalText;
 
         if (result === true) {
             close();
@@ -191,6 +292,10 @@ function openEditStatusOverlay(currentStatus, onSave, isTrusted) {
                 'An unknown error occurred while saving. No changes were applied.';
             errorDisplay.style.display = 'block';
         }
+    }
+
+    saveBtn.onclick = async () => {
+        await saveStatus(input.value.trim());
     };
 }
 
@@ -213,6 +318,19 @@ async function addStatusBubble(avatarContainer) {
 
         const { status } = profileSettings;
         let statusText = status;
+        const access = await getStatusAccessForUser(userId);
+
+        if (
+            isOwnProfile &&
+            !access.canUseFreeformStatus &&
+            statusText &&
+            !isRestrictedStatusPreset(statusText)
+        ) {
+            await updateUserSettingViaApi('status', '');
+            statusText = '';
+        }
+
+        if (!canViewStatusText(statusText, isOwnProfile, access)) return;
 
         if (!statusText && !isOwnProfile) return;
 
@@ -270,6 +388,14 @@ async function addStatusBubble(avatarContainer) {
                     openEditStatusOverlay(
                         statusText === '...' ? '' : statusText,
                         async (newStatus) => {
+                            if (
+                                !access.canUseFreeformStatus &&
+                                newStatus &&
+                                !isRestrictedStatusPreset(newStatus)
+                            ) {
+                                return false;
+                            }
+
                             try {
                                 const updatedValue =
                                     await updateUserSettingViaApi(
@@ -294,6 +420,10 @@ async function addStatusBubble(avatarContainer) {
                             }
                         },
                         isTrusted,
+                        {
+                            access,
+                            presetsOnly: !access.canUseFreeformStatus,
+                        },
                     );
                 });
             });
@@ -393,6 +523,7 @@ async function addHomeStatusHover(tile, card) {
                         const settings = await getUserSettings(userId);
 
                         const { status } = settings;
+                        const access = await getStatusAccessForUser(userId);
 
                         const latestUserId = getUserCardContext(tile).userId;
                         if (
@@ -403,6 +534,11 @@ async function addHomeStatusHover(tile, card) {
                         }
 
                         if (!isHovering) return;
+
+                        if (!canViewStatusText(status, isOwnProfile, access)) {
+                            bubbleWrapper.remove();
+                            return;
+                        }
 
                         if (status) {
                             let statusText = status;
@@ -507,6 +643,8 @@ async function addHomeStatusHover(tile, card) {
 }
 
 export async function init() {
+    clearAuthenticatedRestrictedStatus();
+
     if (!(await settings.statusBubbleEnabled)) return;
 
     migrateLegacyStatus();
