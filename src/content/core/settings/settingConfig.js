@@ -901,10 +901,10 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
                 childSettings: {
-                    videoStarBadgeEnabled: {
-                        label: 'Roblox Video Star Badge',
+                    robloxGroupFeaturesEnabled: {
+                        label: 'Roblox Group Badges',
                         description: [
-                            'Shows a Video Star badge on profiles for members of the Roblox Video Stars community.',
+                            'Enables Badges for groups, like star creator program, Roblox Community feedback Program etc.',
                         ],
                         type: 'checkbox',
                         default: true,

@@ -104,6 +104,16 @@ export const BADGE_CONFIG = {
         themeColorIcon: true,
         size: '22px',
     },
+    community_feedback_program: {
+        type: 'header',
+        userIds: [],
+        iconAssetName: 'communityFeedbackProgramIcon',
+        tooltip: 'Roblox Community Feedback Program Member',
+        shiny: false,
+        sparkles: false,
+        themeColorIcon: true,
+        size: '22px',
+    },
     translator: {
         type: 'header',
         userIds: TRANSLATOR_USER_IDS,
