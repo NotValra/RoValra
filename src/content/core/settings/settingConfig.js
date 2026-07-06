@@ -1029,11 +1029,23 @@ export const SETTINGS_CONFIG = {
                     displayNameGradientEffect: {
                         label: 'Display Name Effect',
                         description:
-                            'Adds an optional server-synced shine or bloom effect to your gradient display name.',
+                            'Adds an optional shine, roll, or bloom effect to your gradient display name.',
                         type: 'select',
                         options: [
                             { value: 'none', label: 'None' },
                             { value: 'shine', label: 'Shine' },
+                            {
+                                value: 'shine-bloom',
+                                label: 'Shine + Bloom',
+                            },
+                            {
+                                value: 'roll',
+                                label: 'Gradient Roll',
+                            },
+                            {
+                                value: 'roll-bloom',
+                                label: 'Gradient Roll + Bloom',
+                            },
                             { value: 'sparkles', label: 'Bloom' },
                             {
                                 value: 'blooming-bloom',

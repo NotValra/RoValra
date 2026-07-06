@@ -17,10 +17,22 @@ const EFFECT_ALIASES = {
     boom: 'blooming-bloom',
     bloom: 'blooming-bloom',
     'blooming bloom': 'blooming-bloom',
+    rolling: 'roll',
+    'rolling gradient': 'roll',
+    'gradient roll': 'roll',
+    'roll bloom': 'roll-bloom',
+    'rolling bloom': 'roll-bloom',
+    'rolling gradient bloom': 'roll-bloom',
+    'gradient roll bloom': 'roll-bloom',
+    'shine bloom': 'shine-bloom',
+    'shine with bloom': 'shine-bloom',
 };
 const VALID_EFFECTS = new Set([
     'none',
     'shine',
+    'shine-bloom',
+    'roll',
+    'roll-bloom',
     'sparkles',
     'blooming-bloom',
 ]);
