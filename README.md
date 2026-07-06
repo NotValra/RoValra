@@ -79,6 +79,23 @@ npm run build
 
 ---
 
+## License
+
+RoValra source code is licensed under the **GNU General Public License version 3.0** unless otherwise stated.
+
+The following image assets are **not** licensed under GPL-3.0 and are not available for reuse:
+
+- `public/Assets/Contributor.png`
+- `public/Assets/icon-16.png`
+- `public/Assets/icon-48.png`
+- `public/Assets/icon-128.png`
+- `public/Assets/RoValraLogo.png`
+- `public/Assets/DonatorTiers/`
+
+These images, including the RoValra logo and related logo/icon artwork, are fully copyrighted by Valra. All rights, title, and ownership in the RoValra logo belong to Valra. They may not be copied, redistributed, modified, published, used, or included in any other project, product, service, website, extension, fork, or derivative work without prior written permission from Valra.
+
+---
+
 ## Credits
 
 - **Contributors:**

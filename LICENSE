@@ -1,3 +1,25 @@
+Project Licensing Notice
+
+Unless otherwise stated, the source code in this repository is licensed under
+the GNU General Public License version 3.0, reproduced below.
+
+The following image assets are not licensed under the GNU General Public
+License version 3.0 and are not open-source assets:
+
+- public/Assets/Contributor.png
+- public/Assets/icon-16.png
+- public/Assets/icon-48.png
+- public/Assets/icon-128.png
+- public/Assets/RoValraLogo.png
+- public/Assets/DonatorTiers/
+
+These images, including the RoValra logo and related logo/icon artwork, are
+fully copyrighted by Valra. All rights, title, and ownership in the RoValra
+logo belong to Valra. No permission is granted to copy, redistribute, modify,
+publish, use, or include these images in any other project, product, service,
+website, extension, fork, or derivative work unless Valra gives prior written
+permission.
+
                     GNU GENERAL PUBLIC LICENSE
                        Version 3, 29 June 2007
 
