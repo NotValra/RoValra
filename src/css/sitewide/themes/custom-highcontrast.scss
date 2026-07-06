@@ -6,11 +6,6 @@
     --color-surface-200:   rgb(10, 10, 10) !important;
     --color-surface-300:     rgb(20, 20, 20) !important;
 
-    *:not(.radius-circle):not(#settings-container) > *:not(.rovalra-header-badge):not(.avatar-card-image):not(.rbx-menu-item) > img {
-        border: 2px solid #ffffff;
-        border-radius: 5%;
-    }
-
     --rovalra-main-text-color: #ffffff;
     --rovalra-secondary-text-color: #cecece;
     --rovalra-tertiary-text-color: #d1d1d1;
@@ -18,7 +13,7 @@
     --rovalra-playbutton-color: hsl(227, 100%, 50%);
     --rovalra-main-background-color: #000000;
     --rovalra-button-background-color: rgba(208, 217, 251, 0.12);
-    --rovalra-border-color: rgba(0, 0, 0, 0.637);
+    --rovalra-border-color: rgba(0, 0, 0, 0);
     --rovalra-gray-text-color: rgb(165, 166, 175);
     --rovalra-profile-header-bg: #14151d;
     --rovalra-profile-main-gradient:

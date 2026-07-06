@@ -100,7 +100,7 @@ export const THEME_CATALOG_THEMES = [
             tertiaryText: ['#d1d1d1', 100],
             mainBackground: ['#000000', 100],
             buttonBackground: ['#d0d9fb', 12],
-            borderColor: ['#000000', 64],
+            borderColor: ['#000000', 0],
             grayText: ['#a5a6af', 100],
             profileHeaderBackground: ['#14151d', 100],
             iconBlocked: ['#502e2e', 100],
@@ -115,7 +115,7 @@ export const THEME_CATALOG_THEMES = [
             themeButtonBackground: ['#21272e', 100],
             themeButtonHover: ['#212e3f', 100],
             themeButtonActive: ['#04294e', 100],
-            themeButtonBorder: ['#ffffff', 10],
+            themeButtonBorder: ['#ffffff', 0],
 
             discordLink: ['#5479ff', 100],
             githubLink: ['#0fff47', 100],
