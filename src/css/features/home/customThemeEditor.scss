@@ -61,6 +61,11 @@
     width: 100%;
 }
 
+.rovalra-custom-theme-mode-controls {
+    display: flex;
+    justify-content: flex-start;
+}
+
 .rovalra-custom-theme-slot-name-wrapper {
     min-width: 0;
 
@@ -240,8 +245,7 @@
     }
 }
 
-.rovalra-custom-theme-selector-input-invalid
-    ~ .rovalra-catalog-input-fieldset {
+.rovalra-custom-theme-selector-input-invalid ~ .rovalra-catalog-input-fieldset {
     border-color: #d93838 !important;
     border-width: 2px;
 }

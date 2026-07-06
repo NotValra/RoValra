@@ -13,10 +13,9 @@ import {
 
 /** @param {Theme} theme  @returns {string[]} */
 function GetClassList(theme) {
-    const classList = [theme.PrimaryClass,
-                        ...(theme.ClassList ?? [])];  // join the rest of the ClassList, if any
+    const classList = [theme.PrimaryClass, ...(theme.ClassList ?? [])]; // join the rest of the ClassList, if any
 
-    return classList.filter(Boolean);  // remove empty strings
+    return classList.filter(Boolean); // remove empty strings
 }
 
 /** @param {ThemeKey} key  @returns {Theme | undefined} The theme with the corresponding storage key */
@@ -38,6 +37,9 @@ let storageListenerRegistered = false;
 let ThemeData = {};
 
 const HEX_COLOR_PATTERN = /^#[0-9a-f]{6}$/i;
+const CUSTOM_THEME_FIELD_MAP = new Map(
+    CUSTOM_THEME_FIELDS.map((field) => [field.key, field]),
+);
 
 async function loadThemeData() {
     if (Object.keys(ThemeData).length > 0) return;
@@ -113,7 +115,6 @@ async function PrepareRenderedTheme() {
         case theme:
             console.error(`(RoValra) Theme Switcher: Unknown theme "${theme}"`);
     }
-
 }
 
 export async function refreshThemeSwitcher() {
@@ -141,9 +142,7 @@ function getThemeFieldCssValue(theme, field) {
 }
 
 export function applyCustomThemeField(key, themeValue) {
-    const field = CUSTOM_THEME_FIELDS.find((themeField) => {
-        return themeField.key === key;
-    });
+    const field = CUSTOM_THEME_FIELD_MAP.get(key);
     if (!field) return;
 
     document.body.style.setProperty(
@@ -167,5 +166,5 @@ export function applyCustomTheme(themeValue) {
 
 export function init() {
     document.addEventListener('DOMContentLoaded', PrepareRenderedTheme);
-    return PrepareRenderedTheme();  // Reduce glitching on page load if selected theme visually conflicts with Roblox theme
+    return PrepareRenderedTheme(); // Reduce glitching on page load if selected theme visually conflicts with Roblox theme
 }
