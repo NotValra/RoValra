@@ -380,15 +380,14 @@ function injectStyles() {
     const style = document.createElement('style');
     style.id = 'rovalra-dynamic-styles';
     style.textContent = `
-        .server-id-text span.show-on-hover {
+        .server-id-text span.show-on-activated {
             background-color: rgb(33, 33, 33);
             color: transparent;
             border-radius: 0px;
             padding: 0 4px;
             transition: background-color 0.2s ease, color 0.2s ease;
-            cursor: default;
         }
-        .server-id-text:hover span.show-on-hover {
+        .server-id-text.active span.show-on-activated {
             background-color: transparent;
             color: inherit;
         }
@@ -1102,7 +1101,7 @@ export async function enhanceServer(server, context) {
         }
 
         idDiv.style.cssText =
-            'font-size: 9px; margin-top: 6px; text-align: center; width: 100%; white-space: normal; word-break: break-all;';
+            'font-size: 9px; margin-top: 6px; text-align: center; width: 100%; white-space: normal; word-break: break-all; cursor: pointer; user-select: none;';
         idDiv.innerHTML = '';
 
         const prefixSpan = document.createElement('span');
@@ -1113,10 +1112,14 @@ export async function enhanceServer(server, context) {
         uuidSpan.textContent = serverId;
 
         if (shouldSpoilerServerId(server)) {
-            uuidSpan.classList.add('show-on-hover');
+            uuidSpan.classList.add('show-on-activated');
         }
 
         idDiv.appendChild(prefixSpan);
         idDiv.appendChild(uuidSpan);
+
+        idDiv.addEventListener("click", (e) => {
+            idDiv.classList.toggle('active');
+        })
     }
 }
