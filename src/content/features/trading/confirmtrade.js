@@ -2,21 +2,109 @@ import { observeElement } from '../../core/observer.js';
 import { addTooltip } from '../../core/ui/tooltip.js';
 import { getAssets } from '../../core/assets.js';
 import { getPlaceIdFromUrl } from '../../core/idExtractor.js';
+import { queueRolimonsFetch } from '../../core/trade/itemHandler.js';
 import {
-    getCachedItemValue,
-    getCachedRolimonsItem,
-    fetchRolimonsItems,
-    queueRolimonsFetch,
-} from '../../core/trade/itemHandler.js';
-import { getBatchThumbnails } from '../../core/thumbnail/thumbnails.js';
+    createThumbnailElement,
+    getBatchThumbnails,
+} from '../../core/thumbnail/thumbnails.js';
 import {
     createRapDiffPill,
     createValueDiffPill,
 } from '../../core/trade/ui/tradePills.js';
-import { cleanPrice } from '../../core/utils/priceCleaner.js';
+import {
+    getLatestTradeDetailsId,
+    getTradeAnalysis,
+} from '../../core/trade/tradeDetailsHandler.js';
+import { getAuthenticatedUserId } from '../../core/user.js';
 
 let observerRequest = null;
 let prefetchRequests = [];
+
+function getThumbnailType(itemType) {
+    return itemType === 'Bundle' ? 'BundleThumbnail' : 'Asset';
+}
+
+async function getTradeThumbnailMap(items) {
+    const idsByType = new Map();
+
+    items.forEach((item) => {
+        if (!item.assetId) return;
+
+        const type = getThumbnailType(item.itemType);
+        if (!idsByType.has(type)) idsByType.set(type, new Set());
+        idsByType.get(type).add(item.assetId);
+    });
+
+    const thumbnailMap = new Map();
+    await Promise.all(
+        Array.from(idsByType.entries()).map(async ([type, ids]) => {
+            const thumbnails = await getBatchThumbnails(
+                Array.from(ids),
+                type,
+                '150x150',
+            );
+
+            thumbnails.forEach((thumbnail) => {
+                thumbnailMap.set(`${type}:${thumbnail.targetId}`, thumbnail);
+            });
+        }),
+    );
+
+    return thumbnailMap;
+}
+
+function createThumbnailShimmer(item) {
+    const thumb = document.createElement('div');
+    thumb.className = 'thumbnail-2d-container shimmer';
+    thumb.dataset.rovalraThumbnailKey = item.thumbnailKey;
+    Object.assign(thumb.style, {
+        width: '64px',
+        height: '64px',
+        borderRadius: '8px',
+        overflow: 'hidden',
+        flexShrink: '0',
+    });
+    return thumb;
+}
+
+function applyThumbnail(thumbContainer, thumbnailData, itemName) {
+    if (!thumbContainer || !thumbnailData) return;
+
+    const thumb = createThumbnailElement(thumbnailData, itemName, '', {
+        width: '64px',
+        height: '64px',
+        borderRadius: '8px',
+        objectFit: 'cover',
+    });
+
+    thumbContainer.classList.remove('shimmer');
+    thumbContainer.innerHTML = '';
+    thumbContainer.appendChild(thumb);
+}
+
+async function hydrateTradePreviewThumbnails(container, previewData) {
+    const allItems = [
+        ...previewData.giving.items,
+        ...previewData.receiving.items,
+    ];
+    const thumbnailMap = await getTradeThumbnailMap(allItems);
+
+    if (!container.isConnected) return;
+
+    allItems.forEach((item) => {
+        const thumbContainers = Array.from(
+            container.querySelectorAll('[data-rovalra-thumbnail-key]'),
+        ).filter(
+            (thumbContainer) =>
+                thumbContainer.dataset.rovalraThumbnailKey ===
+                item.thumbnailKey,
+        );
+        const thumbnailData = thumbnailMap.get(item.thumbnailKey);
+        thumbContainers.forEach((thumbContainer) => {
+            applyThumbnail(thumbContainer, thumbnailData, item.name);
+        });
+    });
+}
 
 export function init() {
     chrome.storage.local.get({ confirmTradeEnabled: true }, (settings) => {
@@ -110,170 +198,49 @@ async function injectTradePreview(
 ) {
     console.log('[RoValra] Inside injectTradePreview.');
     const assets = getAssets();
-    const assetIds = new Set();
+    const activeTradeId =
+        document.querySelector('.trade-row.active[data-trade-id]')?.dataset
+            .tradeId || getLatestTradeDetailsId();
+    const myUserId = await getAuthenticatedUserId();
+    const analysis =
+        isDetailView && activeTradeId
+            ? await getTradeAnalysis(activeTradeId, { myUserId }).catch(
+                  () => null,
+              )
+            : null;
 
-    tradeOffers.forEach((offer) => {
-        const selector = isDetailView
-            ? '.item-card-container'
-            : '.trade-request-item[data-collectibleiteminstanceid]';
-        const items = offer.querySelectorAll(selector);
-
-        items.forEach((item) => {
-            let assetId = item.getAttribute('data-collectibleitemid');
-            if (!assetId) {
-                if (isDetailView) {
-                    const link = item.querySelector('a[href*="/catalog/"]');
-                    if (link) assetId = getPlaceIdFromUrl(link.href);
-                } else {
-                    const instanceId = item.getAttribute(
-                        'data-collectibleiteminstanceid',
-                    );
-                    const cached = getCachedItemValue(instanceId);
-                    if (cached && cached.assetId) assetId = cached.assetId;
-                }
-            }
-            if (assetId) assetIds.add(assetId);
-        });
-    });
-
-    let rolimonsData = {};
-    await fetchRolimonsItems([...assetIds]);
-
-    const thumbnailData = await getBatchThumbnails(
-        [...assetIds],
-        'Asset',
-        '150x150',
-    );
-    const thumbMap = new Map(
-        thumbnailData.map((t) => [String(t.targetId), t.imageUrl]),
-    );
-
-    assetIds.forEach((id) => {
-        const data = getCachedRolimonsItem(id);
-        if (data) {
-            rolimonsData[id] = data;
-        }
-    });
+    if (!analysis) return;
 
     if (!modalBody.isConnected) return;
     console.log('[RoValra] Injecting trade preview.');
 
-    const previewData = {
-        giving: { items: [], robux: 0, totalRap: 0, totalValue: 0 },
-        receiving: { items: [], robux: 0, totalRap: 0, totalValue: 0 },
+    const mapOffer = (offer) => {
+        return {
+            items: offer.items.map((item) => ({
+                assetId: item.assetId,
+                itemType: item.itemType,
+                thumbnailKey: `${getThumbnailType(item.itemType)}:${item.assetId}`,
+                name: item.acronym || item.name || 'Unknown Item',
+                rap: item.rap,
+                value: item.value,
+                serial: item.serial,
+                stock: item.stock,
+                isInvalid: item.isInvalid,
+                isProjected: item.isProjected,
+                isRare: item.isRare,
+            })),
+            robux: offer.stats.offeredRobux,
+            totalRap: offer.stats.rap,
+            totalValue: offer.stats.value,
+        };
     };
 
-    tradeOffers.forEach((offer, index) => {
-        const isMyOffer = index === 0;
-        const side = isMyOffer ? previewData.giving : previewData.receiving;
+    const previewData = {
+        giving: mapOffer(analysis.myOffer),
+        receiving: mapOffer(analysis.partnerOffer),
+    };
 
-        const selector = isDetailView
-            ? '.item-card-container'
-            : '.trade-request-item[data-collectibleiteminstanceid]';
-        const items = offer.querySelectorAll(selector);
-
-        items.forEach((item) => {
-            const instanceId = item.getAttribute(
-                'data-collectibleiteminstanceid',
-            );
-            let assetId = item.getAttribute('data-collectibleitemid');
-            const imgEl = item.querySelector('img');
-            const nameEl = item.querySelector(
-                isDetailView ? '.item-card-name' : '.item-name',
-            );
-            const cachedItem = getCachedItemValue(instanceId);
-            let rap = cachedItem ? cachedItem.rap : 0;
-            const serial = cachedItem ? cachedItem.serial : null;
-            const stock = cachedItem ? cachedItem.stock : null;
-
-            if (isDetailView && !assetId) {
-                const link = item.querySelector('a[href*="/catalog/"]');
-                if (link) assetId = getPlaceIdFromUrl(link.href);
-            }
-
-            if (!assetId && cachedItem && cachedItem.assetId) {
-                assetId = cachedItem.assetId;
-            }
-
-            let thumbUrl = imgEl ? imgEl.src : '';
-            if (assetId && thumbMap.has(String(assetId))) {
-                const apiThumb = thumbMap.get(String(assetId));
-                if (apiThumb) thumbUrl = apiThumb;
-            }
-
-            let value = rap;
-            let isProjected = false;
-            let isRare = false;
-            if (assetId && rolimonsData[assetId]) {
-                if (rap === 0 && rolimonsData[assetId].rap)
-                    rap = rolimonsData[assetId].rap;
-                const rItem = rolimonsData[assetId];
-                if (
-                    rItem.default_price !== undefined &&
-                    rItem.default_price !== null
-                ) {
-                    value = rItem.default_price;
-                }
-                if (rItem.is_projected) isProjected = true;
-                if (rItem.is_rare) isRare = true;
-            }
-
-            if (isDetailView && rap === 0) {
-                const priceEl = item.querySelector(
-                    '.item-card-price .text-robux',
-                );
-                if (priceEl) {
-                    const r = cleanPrice(priceEl.innerText);
-                    if (!isNaN(r)) rap = r;
-                }
-            }
-
-            if (thumbUrl && nameEl) {
-                side.items.push({
-                    img: thumbUrl,
-                    name: nameEl.innerText.trim(),
-                    rap: rap,
-                    value: value,
-                    serial: serial,
-                    stock: stock,
-                    isInvalid: item.classList.contains('invalid-request-item'),
-                    isProjected: isProjected,
-                    isRare: isRare,
-                });
-            }
-        });
-
-        if (isDetailView) {
-            const grayIcon = offer.querySelector('.icon-robux-gray-16x16');
-            if (grayIcon) {
-                const container = grayIcon.closest('.robux-line');
-                if (container && !container.classList.contains('ng-hide')) {
-                    const valEl = container.querySelector('.robux-line-value');
-                    if (valEl) {
-                        const val = cleanPrice(valEl.innerText);
-
-                        if (!isNaN(val)) side.robux = Math.round(val / 0.7);
-                    }
-                }
-            }
-        } else {
-            const robuxInput = offer.querySelector('input[name="robux"]');
-            if (robuxInput) {
-                const val = cleanPrice(robuxInput.value);
-                if (!isNaN(val)) side.robux = val;
-            }
-        }
-
-        const itemsRap = side.items.reduce((sum, i) => sum + (i.rap || 0), 0);
-        side.totalRap = itemsRap;
-        const itemsValue = side.items.reduce(
-            (sum, i) => sum + (i.value || 0),
-            0,
-        );
-        side.totalValue = itemsValue;
-    });
-
-    console.log('[RoValra] Scraped preview data:', previewData);
+    console.log('[RoValra] Trade preview data:', previewData);
 
     const modalDialog = modalBody.closest('.modal-dialog');
     if (modalDialog) {
@@ -315,13 +282,12 @@ async function injectTradePreview(
         data.items.forEach((item) => {
             const wrap = document.createElement('div');
             wrap.style.position = 'relative';
-            const img = document.createElement('img');
-            img.src = item.img;
-            img.style.width = '64px';
-            img.style.height = '64px';
-            img.style.borderRadius = '8px';
-            img.style.border = item.isInvalid ? '2px solid #d43f3a' : 'none';
-            wrap.appendChild(img);
+
+            const thumb = createThumbnailShimmer(item);
+            if (item.isInvalid) {
+                thumb.style.border = '2px solid #d43f3a';
+            }
+            wrap.appendChild(thumb);
 
             if (item.isProjected) {
                 const projIcon = document.createElement('img');
@@ -477,5 +443,11 @@ async function injectTradePreview(
     );
 
     modalBody.appendChild(container);
+    hydrateTradePreviewThumbnails(container, previewData).catch((error) => {
+        console.warn(
+            '[RoValra] Failed to load trade preview thumbnails',
+            error,
+        );
+    });
     console.log('[RoValra] Trade preview injected.');
 }

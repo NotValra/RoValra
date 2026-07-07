@@ -1,4 +1,4 @@
-(function() {
+(function () {
     'use strict';
 
     if (window.__ROVALRA_INTERCEPTOR_SETUP__) {
@@ -15,6 +15,7 @@
     const GAME_SERVERS_API_URL = 'https://games.roblox.com/v1/games/';
     const GAMES_ROBLOX_API = 'https://games.roblox.com/';
     const TRADES_API_URL = 'https://trades.roblox.com/v2/users/';
+    const TRADE_DETAILS_API_URL = 'https://trades.roblox.com/v2/trades/';
     const TRADES_LIST_API_URL = 'https://trades.roblox.com/v1/trades/';
     const GROUP_ROLES_API_HOST = 'groups.roblox.com';
     const GROUP_ROLES_API_PATH = /^\/v1\/users\/(\d+)\/groups\/roles$/;
@@ -50,7 +51,7 @@
         homeLayoutHidden = JSON.parse(
             sessionStorage.getItem('rovalra_homeLayoutHidden') || '[]',
         );
-    } catch (e) { }
+    } catch (e) {}
 
     document.addEventListener('rovalra-streamer-mode', (e) => {
         if (typeof e.detail === 'object') {
@@ -89,7 +90,7 @@
                 'rovalra_homeLayoutHidden',
                 JSON.stringify(homeLayoutHidden),
             );
-        } catch (error) { }
+        } catch (error) {}
     });
 
     document.addEventListener('rovalra-home-extra-sorts', (e) => {
@@ -198,9 +199,7 @@
             (item) => item?.contentType === 'Game',
         );
 
-        return gameRecommendations.length
-            ? gameRecommendations.length
-            : null;
+        return gameRecommendations.length ? gameRecommendations.length : null;
     }
 
     function canAdjustHomeSort(sort) {
@@ -477,7 +476,7 @@
     }
 
     const originalFetch = window.fetch;
-    window.fetch = async function(...args) {
+    window.fetch = async function (...args) {
         const [url] = args;
         const requestUrl = getRequestUrl(url);
 
@@ -498,7 +497,7 @@
                 'apis.roblox.com/token-metadata-service/v1/sessions',
             ].some((path) => requestUrl.includes(path));
 
-            if (isSensitive && location.hostname != "create.roblox.com") {
+            if (isSensitive && location.hostname != 'create.roblox.com') {
                 try {
                     const clone = response.clone();
                     const data = await clone.json();
@@ -511,7 +510,7 @@
                         data.phone =
                             data.prefix =
                             data.countryCode =
-                            'RoValra Streamer Mode Enabled';
+                                'RoValra Streamer Mode Enabled';
                     }
                     if (requestUrl.includes('v1/birthdate')) {
                         data.birthMonth = data.birthDay = data.birthYear = 0;
@@ -553,7 +552,7 @@
                         statusText: response.statusText,
                         headers: newHeaders,
                     });
-                } catch (e) { }
+                } catch (e) {}
             }
         }
 
@@ -571,7 +570,7 @@
                             }),
                         ),
                     )
-                    .catch(() => { });
+                    .catch(() => {});
             }
             if (requestUrl.includes(CATALOG_API_URL)) {
                 response
@@ -585,7 +584,7 @@
                             ),
                         ),
                     )
-                    .catch(() => { });
+                    .catch(() => {});
             }
             if (requestUrl.includes(CLIENT_STATUS_API_URL)) {
                 response
@@ -598,7 +597,7 @@
                             }),
                         ),
                     )
-                    .catch(() => { });
+                    .catch(() => {});
             }
             if (
                 requestUrl.includes(GAME_LAUNCH_SUCCESS_URL) &&
@@ -624,7 +623,7 @@
                             }),
                         ),
                     )
-                    .catch(() => { });
+                    .catch(() => {});
             }
             if (
                 requestUrl.includes(GAMES_ROBLOX_API) &&
@@ -640,7 +639,7 @@
                             }),
                         ),
                     )
-                    .catch(() => { });
+                    .catch(() => {});
             }
             if (
                 requestUrl.includes(TRADES_API_URL) &&
@@ -656,7 +655,7 @@
                             }),
                         ),
                     )
-                    .catch(() => { });
+                    .catch(() => {});
             }
             if (requestUrl.includes(TRADES_LIST_API_URL)) {
                 response
@@ -669,14 +668,27 @@
                             }),
                         ),
                     )
-                    .catch(() => { });
+                    .catch(() => {});
+            }
+            if (requestUrl.includes(TRADE_DETAILS_API_URL)) {
+                response
+                    .clone()
+                    .json()
+                    .then((d) =>
+                        document.dispatchEvent(
+                            new CustomEvent('rovalra-trade-details-response', {
+                                detail: d,
+                            }),
+                        ),
+                    )
+                    .catch(() => {});
             }
             if (getGroupRolesRequestUserId(requestUrl)) {
                 response
                     .clone()
                     .json()
                     .then((d) => dispatchGroupRolesResponse(requestUrl, d))
-                    .catch(() => { });
+                    .catch(() => {});
             }
         }
 
@@ -686,7 +698,7 @@
     const originalXhrOpen = XMLHttpRequest.prototype.open;
     const originalXhrSend = XMLHttpRequest.prototype.send;
 
-    XMLHttpRequest.prototype.open = function(method, url, ...rest) {
+    XMLHttpRequest.prototype.open = function (method, url, ...rest) {
         this._rovalra_url = url;
         this._rovalra_method = method;
 
@@ -694,7 +706,7 @@
             streamerModeEnabled &&
             typeof url === 'string' &&
             settingsPageInfoEnabled &&
-            location.hostname != "create.roblox.com"
+            location.hostname != 'create.roblox.com'
         ) {
             if (url.includes('/my/settings/json'))
                 this._rovalra_spoof_settings = true;
@@ -719,7 +731,7 @@
         return originalXhrOpen.apply(this, [method, url, ...rest]);
     };
 
-    XMLHttpRequest.prototype.send = function(...args) {
+    XMLHttpRequest.prototype.send = function (...args) {
         const xhr = this;
         if (
             xhr._rovalra_spoof_settings ||
@@ -733,7 +745,7 @@
         ) {
             Object.defineProperty(xhr, 'responseText', {
                 configurable: true,
-                get: function() {
+                get: function () {
                     if (xhr._rovalra_cached_response)
                         return xhr._rovalra_cached_response;
 
@@ -769,13 +781,13 @@
                             data.countryCode =
                                 data.prefix =
                                 data.phone =
-                                'RoValra Streamer Mode Enabled';
+                                    'RoValra Streamer Mode Enabled';
                         }
                         if (xhr._rovalra_spoof_birthdate) {
                             data.birthMonth =
                                 data.birthDay =
                                 data.birthYear =
-                                0;
+                                    0;
                         }
                         if (xhr._rovalra_spoof_age) {
                             data.isVerified = true;
@@ -818,7 +830,7 @@
 
             Object.defineProperty(xhr, 'response', {
                 configurable: true,
-                get: function() {
+                get: function () {
                     if (this.responseType === 'json') {
                         try {
                             return JSON.parse(this.responseText);
@@ -834,7 +846,7 @@
             });
         }
 
-        xhr.addEventListener('load', function() {
+        xhr.addEventListener('load', function () {
             if (typeof xhr._rovalra_url === 'string') {
                 const triggerEvent = (eventName, detail) =>
                     document.dispatchEvent(
@@ -887,12 +899,17 @@
                             'rovalra-trades-list-response',
                             JSON.parse(xhr.responseText),
                         );
+                    if (url.includes(TRADE_DETAILS_API_URL))
+                        triggerEvent(
+                            'rovalra-trade-details-response',
+                            JSON.parse(xhr.responseText),
+                        );
                     if (getGroupRolesRequestUserId(url))
                         dispatchGroupRolesResponse(
                             url,
                             JSON.parse(xhr.responseText),
                         );
-                } catch (e) { }
+                } catch (e) {}
             }
         });
 
@@ -927,7 +944,7 @@
         service.__rovalra_patched = true;
 
         const originalGetLimit = service.getAdvancedAccessoryLimit;
-        service.getAdvancedAccessoryLimit = function(assetTypeId, ...args) {
+        service.getAdvancedAccessoryLimit = function (assetTypeId, ...args) {
             if (multiAccessoryEnabled) {
                 const id = Number(assetTypeId);
                 if (
@@ -943,7 +960,7 @@
         };
 
         const originalAddAsset = service.addAssetToAvatar;
-        service.addAssetToAvatar = function(asset, currentAssets) {
+        service.addAssetToAvatar = function (asset, currentAssets) {
             if (!multiAccessoryEnabled) {
                 return originalAddAsset.apply(this, arguments);
             }
