@@ -167,10 +167,10 @@ export const BADGE_CONFIG = {
     gilbertmaker: {
         type: 'badge',
         userIds: [GILBERT_USER_ID],
-        iconAssetName: ROVALRA_LOGO_ASSET_NAME,
+        icon: assets.oldRovalraIcon,
         name: 'Gilbert',
-        tooltip: 'Maker of Fisch, where Gilbert comes from',
-        confettiAssetName: ROVALRA_LOGO_ASSET_NAME,
+        tooltip: 'Maker of Fisch, where Gilbert (an older icon of RoValra) comes from',
+        confetti: assets.oldRovalraIcon,
     },
     rat: {
         type: 'badge',
