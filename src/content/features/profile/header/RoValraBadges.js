@@ -13,6 +13,8 @@ const VIDEO_STAR_GROUP_ID = 4199740;
 const VIDEO_STAR_BADGE_NAME = 'video_star';
 const COMMUNITY_FEEDBACK_PROGRAM_GROUP_ID = 12051064;
 const COMMUNITY_FEEDBACK_PROGRAM_BADGE_NAME = 'community_feedback_program';
+const CREATOR_EVENTS_GROUP_ID = 9420522;
+const CREATOR_EVENTS_BADGE_NAME = 'creator_events';
 let groupRolesListenerInitialized = false;
 
 function isVideoStarGroupMember(item) {
@@ -21,6 +23,10 @@ function isVideoStarGroupMember(item) {
 
 function isCommunityFeedbackProgramGroupMember(item) {
     return item?.group?.id === COMMUNITY_FEEDBACK_PROGRAM_GROUP_ID;
+}
+
+function isCreatorEventsGroupMember(item) {
+    return item?.group?.id === CREATOR_EVENTS_GROUP_ID;
 }
 
 function getRuntimeGroupBadges(userId) {
@@ -34,8 +40,10 @@ function mergeRuntimeBadges(userId, badges, options = {}) {
             : getRuntimeGroupBadges(userId);
     if (!runtimeBadges.length) return badges;
 
+    const disabledRuntimeBadges = options.disabledRuntimeBadges || new Set();
     const mergedBadges = [...badges];
     runtimeBadges.forEach((badgeName) => {
+        if (disabledRuntimeBadges.has(badgeName)) return;
         if (!mergedBadges.includes(badgeName)) mergedBadges.push(badgeName);
     });
     return mergedBadges;
@@ -357,10 +365,14 @@ async function addHeaderBadges(container) {
         }
 
         const robloxGroupFeaturesEnabled =
-            (await settings.robloxGroupFeaturesEnabled) !== false &&
-            (await settings.videoStarBadgeEnabled) !== false;
+            (await settings.robloxGroupFeaturesEnabled) !== false;
+        const disabledRuntimeBadges = new Set();
+        if ((await settings.videoStarBadgeEnabled) === false) {
+            disabledRuntimeBadges.add(VIDEO_STAR_BADGE_NAME);
+        }
         const mergedApiBadges = mergeRuntimeBadges(currentUserId, data.apiBadges, {
             robloxGroupFeaturesEnabled,
+            disabledRuntimeBadges,
         });
 
         container
@@ -475,6 +487,9 @@ export function init() {
                 }
                 if (groups.some(isCommunityFeedbackProgramGroupMember)) {
                     runtimeBadges.push(COMMUNITY_FEEDBACK_PROGRAM_BADGE_NAME);
+                }
+                if (groups.some(isCreatorEventsGroupMember)) {
+                    runtimeBadges.push(CREATOR_EVENTS_BADGE_NAME);
                 }
             }
             groupRuntimeBadgeCache.set(userId, runtimeBadges);
