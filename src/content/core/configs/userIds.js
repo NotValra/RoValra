@@ -19,7 +19,8 @@ export const CONTRIBUTOR_USER_IDS = [
     '422540285', //RRedshift
     '4866259395', //cam
     '650766686', // auggeeoF
-    '146089324', // WoozyNate
+    '146089324', // WoozyNate,
+    '234855795', // Null-Austin
 ];
 
 export const TESTER_USER_IDS = [
