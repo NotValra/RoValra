@@ -78,6 +78,8 @@ import { init as initGameBanner } from './core/ui/games/banner.js';
 import { init as bannertest } from './features/games/banner.js';
 import { init as quickOutfits } from './features/games/actions/quickOutfits.js';
 import { init as initDevProductLoader } from './features/games/tab/DevProducts.js';
+import { init as initDeveloperProductsSection } from './features/games/DeveloperProductsSection.js';
+import { init as initDeveloperProductAutoBuy } from './features/games/developerProductAutoBuy.js';
 import { init as initHeatmap } from './features/games/tab/updateHistory.js';
 import { init as initTotalSpentGames } from './features/games/tab/totalSpentGames.js';
 import { init as initEvents } from './features/games/about/events.js';
@@ -217,6 +219,10 @@ const featureRoutes = [
         paths: ['/catalog', '/bundles', '/game-pass', '/games'],
         features: [init40Method, initPurchasePrompt, initDonationLink],
     },
+    {
+        paths: ['/developer-product/'],
+        features: [initPurchasePrompt, initDeveloperProductAutoBuy],
+    },
     // Game pass viewer for 404 pages
     {
         paths: ['/game-pass/'],
@@ -264,6 +270,7 @@ const featureRoutes = [
     {
         paths: ['/games/'],
         features: [
+            initDeveloperProductsSection,
             initGameBanner,
             initServerIdExtraction,
             initBotDetector,
