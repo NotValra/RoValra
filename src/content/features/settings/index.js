@@ -67,6 +67,10 @@ import {
 import { showSystemAlert } from '../../core/ui/roblox/alert.js';
 import { isAuthenticatedUserUnder16OrNotAgeChecked } from '../../core/utils/trackers/birthday.js';
 import { createSquareButton } from '../../core/ui/profile/header/squarebutton.js';
+import {
+    getActiveModeration,
+    getModerationStatusLabel,
+} from '../../core/moderationStatus.js';
 
 const assets = getAssets();
 let REGIONS = {};
@@ -90,6 +94,13 @@ const APPEAL_STATUSES = [
     'Appeal Denied',
     'Appeal Accepted',
 ];
+const ACCOUNT_STANDING_LEVELS = [
+    { label: 'All Good', color: '#23a55a' },
+    { label: 'Limited', color: '#f0b232' },
+    { label: 'Very Limited', color: '#f26522' },
+    { label: 'At Risk', color: '#f23f43' },
+    { label: 'Suspended', color: '#8b0000' },
+];
 
 let standingCache = null;
 let topDonatorsCache = null;
@@ -97,6 +108,19 @@ let ownedBordersCache = null;
 let changelogsCache = null;
 const priceCache = new Map();
 const artistCache = new Map();
+
+document.addEventListener('rovalra:moderationStatusUpdated', (event) => {
+    standingCache = event.detail?.data || null;
+
+    const standingCard = document.querySelector('.rovalra-account-standing-card');
+    if (standingCard && standingCache) {
+        updateAccountStandingUI(
+            standingCard,
+            standingCache,
+            ACCOUNT_STANDING_LEVELS,
+        );
+    }
+});
 
 function renderChangelogRelease(release) {
     release = release && typeof release === 'object' ? release : {};
@@ -1927,15 +1951,8 @@ function openAppealOverlay(onSave) {
 async function renderAccountStanding(container) {
     container.innerHTML = '';
 
-    const levels = [
-        { label: 'All Good', color: '#23a55a' },
-        { label: 'Limited', color: '#f0b232' },
-        { label: 'Very Limited', color: '#f26522' },
-        { label: 'At Risk', color: '#f23f43' },
-        { label: 'Suspended', color: '#8b0000' },
-    ];
-
     const discordCard = document.createElement('div');
+    discordCard.className = 'rovalra-account-standing-card';
     discordCard.style.cssText =
         'background-color: var(--rovalra-container-background-color); border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 24px;';
     container.appendChild(discordCard);
@@ -1956,9 +1973,10 @@ async function renderAccountStanding(container) {
         <div style="padding: 20px 10px 40px 10px; border-radius: 8px; margin-top: 10px;">
             <div style="height: 12px; background: rgba(128,128,128,0.2); border-radius: 6px; position: relative; margin-bottom: 25px;">
                 <div class="standing-status-fill" style="position: absolute; left: 0; top: 0; height: 100%; width: 0%; background: #23a55a; border-radius: 6px; transition: width 0.5s ease, background-color 0.3s;"></div>
-                ${levels
+                ${ACCOUNT_STANDING_LEVELS
             .map((level, index) => {
-                const leftPos = (index / (levels.length - 1)) * 100;
+                const leftPos =
+                    (index / (ACCOUNT_STANDING_LEVELS.length - 1)) * 100;
                 return `
                         <div class="standing-status-dot" data-index="${index}" style="position: absolute; left: ${leftPos}%; top: 50%; transform: translate(-50%, -50%); width: 20px; height: 20px; border-radius: 50%; background: ${index === 0 ? level.color : '#4f545c'}; border: 4px solid var(--rovalra-container-background-color); z-index: 2; transition: background 0.3s;"></div>
                         <div class="standing-status-label" data-index="${index}" style="font-size: 12px; font-weight: 600; color: ${index === 0 ? 'var(--rovalra-main-text-color)' : 'var(--rovalra-secondary-text-color)'}; opacity: ${index === 0 ? '1' : '0.5'}; text-align: center; width: 60px; margin-left: -30px; position: absolute; left: ${leftPos}%; margin-top: 15px; transition: color 0.3s, opacity 0.3s;">${level.label}</div>
@@ -1975,7 +1993,11 @@ async function renderAccountStanding(container) {
     `);
 
     if (standingCache) {
-        updateAccountStandingUI(discordCard, standingCache, levels);
+        updateAccountStandingUI(
+            discordCard,
+            standingCache,
+            ACCOUNT_STANDING_LEVELS,
+        );
         return;
     }
 
@@ -1990,15 +2012,17 @@ async function renderAccountStanding(container) {
         if (!response.ok) throw new Error('Failed to fetch status');
         const data = await response.json();
         standingCache = data;
-        updateAccountStandingUI(discordCard, data, levels);
+        updateAccountStandingUI(discordCard, data, ACCOUNT_STANDING_LEVELS);
     } catch (err) {
         console.error('RoValra: Failed to load standing data', err);
     }
 }
 
 function updateAccountStandingUI(discordCard, data, levels) {
-    const currentStatus = data.moderation.moderation_status ?? 0;
+    const activeModeration = getActiveModeration(data);
+    const currentStatus = activeModeration?.moderation_status ?? 0;
     const isGoodStanding = currentStatus === 0;
+    const isTemporary = Boolean(activeModeration?.moderation_expires_at);
 
     const iconBg = discordCard.querySelector('.standing-status-icon-bg');
     const iconPath = discordCard.querySelector('.standing-status-icon-path');
@@ -2009,14 +2033,31 @@ function updateAccountStandingUI(discordCard, data, levels) {
     const labels = discordCard.querySelectorAll('.standing-status-label');
     const policyAnchor = discordCard.querySelector('.standing-policy-anchor');
 
+    discordCard
+        .querySelectorAll('.standing-dynamic-section')
+        .forEach((section) => section.remove());
+
+    if (isGoodStanding) {
+        iconBg.style.backgroundColor = '#23a55a';
+        iconPath.setAttribute(
+            'd',
+            'M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z',
+        );
+        statusTitle.textContent = 'Your account is in good standing.';
+        statusDesc.textContent =
+            'You do not have any active violations or restrictions from the RoValra safety team.';
+    }
+
     if (!isGoodStanding) {
         iconBg.style.backgroundColor = '#f23f43';
         iconPath.setAttribute(
             'd',
             'M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z',
         );
-        statusTitle.textContent = 'We found a violation on your account.';
-        statusDesc.textContent = `Your account status has been set to: ${RESTRICTION_LEVELS[currentStatus] || 'Unknown'}`;
+        statusTitle.textContent = isTemporary
+            ? 'Your account is temporarily limited.'
+            : 'We found a violation on your account.';
+        statusDesc.textContent = `Your account status has been set to: ${getModerationStatusLabel(currentStatus)}`;
     }
 
     fill.style.width = `${(currentStatus / (levels.length - 1)) * 100}%`;
@@ -2036,10 +2077,10 @@ function updateAccountStandingUI(discordCard, data, levels) {
     });
 
     if (!isGoodStanding) {
-        const reason = data.moderation.moderation_reason;
-        const modContent = data.moderation.moderated_content_history || [];
+        const reason = activeModeration.moderation_reason;
+        const modContent = activeModeration.moderated_content_history || [];
 
-        const automatedHtml = data.moderation.automated
+        const automatedHtml = activeModeration.automated
             ? `<div style="display: inline-block; margin-top: 8px; padding: 2px 6px; background: #0084ff; color: white; border-radius: 4px; font-size: 12px; font-weight: 600;">Automated Action</div>`
             : `<div style="display: inline-block; margin-top: 8px; padding: 2px 6px; background: rgba(128, 128, 128, 0.2); color: var(--rovalra-secondary-text-color); border-radius: 4px; font-size: 12px; font-weight: 600;">Manual Review</div>`;
 
@@ -2081,6 +2122,7 @@ function updateAccountStandingUI(discordCard, data, levels) {
                 : '';
 
         const reasonHtml = document.createElement('div');
+        reasonHtml.className = 'standing-dynamic-section';
         const violationColor = levels[currentStatus]?.color || '#f23f43';
         reasonHtml.style.cssText =
             'margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--rovalra-border-color);';
@@ -2093,13 +2135,28 @@ function updateAccountStandingUI(discordCard, data, levels) {
                 ${disabledFeaturesHtml}
                 ${modContentHtml}
                 <div style="margin-top: 10px; font-size: 11px; opacity: 0.7;" class="standing-mod-date">Moderated: </div>
+                ${
+                    isTemporary
+                        ? '<div style="margin-top: 6px; font-size: 11px; opacity: 0.85;" class="standing-expiry-date">Temporary restriction expires: </div>'
+                        : ''
+                }
             </div>
         `);
         const dateContainer = reasonHtml.querySelector('.standing-mod-date');
-        if (data.moderation.moderated_at)
+        if (activeModeration.moderated_at)
             dateContainer.appendChild(
-                createInteractiveTimestamp(data.moderation.moderated_at),
+                createInteractiveTimestamp(activeModeration.moderated_at),
             );
+        const expiryContainer = reasonHtml.querySelector(
+            '.standing-expiry-date',
+        );
+        if (expiryContainer && activeModeration.moderation_expires_at) {
+            expiryContainer.appendChild(
+                createInteractiveTimestamp(
+                    activeModeration.moderation_expires_at,
+                ),
+            );
+        }
         discordCard.insertBefore(reasonHtml, policyAnchor);
 
         if (
@@ -2113,6 +2170,7 @@ function updateAccountStandingUI(discordCard, data, levels) {
                 'var(--rovalra-secondary-text-color)';
 
             const appealSection = document.createElement('div');
+            appealSection.className = 'standing-dynamic-section';
             appealSection.style.cssText = `padding: 15px; background: rgba(0,0,0,0.05); border-radius: 8px; border-left: 4px solid ${statusColor};`;
             appealSection.innerHTML = DOMPurify.sanitize(`
                 <div style="font-size: 14px; font-weight: 600; color: var(--rovalra-secondary-text-color); margin-bottom: 8px;">Appeal Case</div>
@@ -2132,6 +2190,7 @@ function updateAccountStandingUI(discordCard, data, levels) {
         if (data.appeal?.appeal_status === 0) {
             const btn = document.createElement('button');
             btn.className = 'btn-secondary-md';
+            btn.classList.add('standing-dynamic-section');
             btn.textContent = 'Appeal this decision';
             btn.style.marginTop = '20px';
             btn.style.width = '100%';

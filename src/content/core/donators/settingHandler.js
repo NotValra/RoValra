@@ -3,6 +3,11 @@ import { getValidAccessToken } from '../oauth/oauth.js';
 import { getAuthenticatedUserId } from '../user.js';
 import { getCurrentUserTier } from '../settings/handlesettings.js';
 import {
+    getTemporaryLimitedUserMessage,
+    isTemporaryLimitedError,
+    refreshModerationStatusAfterLimitedError,
+} from '../moderationStatus.js';
+import {
     TRUSTED_USER_IDS,
     ARTIST_USER_IDS,
     RAT_BADGE_USER_ID,
@@ -451,7 +456,7 @@ export async function getUserSettings(userId, options = {}) {
  * @param {any} value The new value for the setting.
  * @returns {Promise<boolean>} True if the update was successful, false otherwise.
  */
-export async function updateUserSettingViaApi(key, value) {
+export async function updateUserSettingViaApi(key, value, options = {}) {
     try {
         const token = await getValidAccessToken(false, false);
         if (!token) return false;
@@ -476,10 +481,17 @@ export async function updateUserSettingViaApi(key, value) {
         }
         return false;
     } catch (error) {
+        if (isTemporaryLimitedError(error)) {
+            const moderationStatus =
+                await refreshModerationStatusAfterLimitedError(error);
+            error.userMessage = getTemporaryLimitedUserMessage(moderationStatus);
+        }
+
         console.error(
             `RoValra: Failed to update setting '${key}' via API.`,
             error,
         );
+        if (options.throwOnError) throw error;
         return false;
     }
 }

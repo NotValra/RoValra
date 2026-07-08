@@ -13,6 +13,8 @@ let gameJoinErrorCount = 0;
 let lastGameJoinRequestTime = 0;
 const GAMEJOIN_TIMEOUT_MS = 2000;
 const GAMEJOIN_V2_FLAG_URL = 'https://apis.rovalra.com/v1/gamejoin-v2/';
+const TEMPORARILY_LIMITED_MESSAGE =
+    'Your account has been temporarily limited for violating terms of service.';
 
 const OAUTH_STORAGE_KEY = 'rovalra_oauth_verification';
 let cachedRovalraUserAgent = null;
@@ -1044,13 +1046,16 @@ export async function callRobloxApiJson(options) {
         if (options.isRovalraApi) {
             const message = errorBody?.message || errorBody?.error;
             if (
+                message === TEMPORARILY_LIMITED_MESSAGE ||
                 message ===
                     'This feature has been disabled for your account due to moderation.' ||
                 message ===
                     'Your account has been suspended for violating terms of service.'
             ) {
                 showSystemAlert(
-                    'This feature has been disabled due to your violation of the RoValra terms of service.',
+                    message === TEMPORARILY_LIMITED_MESSAGE
+                        ? 'Your account has been temporarily limited. Check Account Standing for details.'
+                        : 'This feature has been disabled due to your violation of the RoValra terms of service.',
                     'warning',
                 );
             }

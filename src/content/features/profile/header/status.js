@@ -186,6 +186,9 @@ function openEditStatusOverlay(currentStatus, onSave, isTrusted) {
 
         if (result === true) {
             close();
+        } else if (typeof result === 'string' && result.trim()) {
+            errorDisplay.textContent = result;
+            errorDisplay.style.display = 'block';
         } else {
             errorDisplay.textContent =
                 'An unknown error occurred while saving. No changes were applied.';
@@ -275,6 +278,7 @@ async function addStatusBubble(avatarContainer) {
                                     await updateUserSettingViaApi(
                                         'status',
                                         newStatus,
+                                        { throwOnError: true },
                                     );
                                 if (typeof updatedValue === 'string') {
                                     updateBubbleUI(updatedValue);
@@ -290,6 +294,9 @@ async function addStatusBubble(avatarContainer) {
                                     'RoValra: Failed to update status via API.',
                                     error,
                                 );
+                                if (error?.userMessage) {
+                                    return error.userMessage;
+                                }
                                 return false;
                             }
                         },
