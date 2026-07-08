@@ -105,6 +105,7 @@ import { init as initPlaceVisits } from './features/groups/placevisits.js';
 import { init as initGroupCreateDate } from './features/groups/createDate.js';
 // Plus
 import { init as initRobloxPlusStats } from './features/plus/stats.js';
+import { init as initRobloxPlusTransferLimits } from './features/plus/transferLimits.js';
 // Profile
 import { init as initDonationLink } from './features/profile/header/donationlink.js';
 import { init as initRap } from './features/profile/header/rap.js';
@@ -318,7 +319,7 @@ const featureRoutes = [
     // Roblox Plus Page
     {
         paths: ['/plus'],
-        features: [initRobloxPlusStats],
+        features: [initRobloxPlusStats, initRobloxPlusTransferLimits],
     },
     // User profile pages
     {
@@ -349,11 +350,7 @@ const featureRoutes = [
     },
     {
         paths: ['/users/', '/banned-users/'],
-        features: [
-            initCategorizeWearing,
-            initRovalraBadges,
-            initUsernameColor,
-        ],
+        features: [initCategorizeWearing, initRovalraBadges, initUsernameColor],
     },
 
     // Transactions page
@@ -395,7 +392,11 @@ const featureRoutes = [
     },
     {
         paths: ['/home'],
-        features: [initHomeLayout, initUnderratedGamesHome, initAccurateContinue],
+        features: [
+            initHomeLayout,
+            initUnderratedGamesHome,
+            initAccurateContinue,
+        ],
     },
     {
         paths: ['/my/account'],

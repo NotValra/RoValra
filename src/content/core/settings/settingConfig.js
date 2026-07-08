@@ -1987,6 +1987,13 @@ export const SETTINGS_CONFIG = {
                 default: true,
                 contributors: ['650766686'],
             },
+            plusTransferLimitsEnabled: {
+                label: 'Show Plus Transfer Limits',
+                description:
+                    'Shows how much Robux you have left before the daily and monthly Roblox Plus transfer limits on the [Plus](https://www.roblox.com/plus) page.',
+                type: 'checkbox',
+                default: true,
+            },
             settingChangeNote: {
                 label: 'Setting changes alerts',
                 description: [
