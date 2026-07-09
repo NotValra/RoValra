@@ -272,14 +272,14 @@ async function renderNavbarTotal() {
     }
 
     if (state.groupIds.length === 0 || state.hideRobux) {
-        clearNavbarOverride();
+        await restorePersonalNavbarBalance();
         return;
     }
 
     const personalRobux = await getPersonalRobuxBalance();
 
     if (!Number.isFinite(personalRobux)) {
-        clearNavbarOverride();
+        await restorePersonalNavbarBalance();
         return;
     }
 
