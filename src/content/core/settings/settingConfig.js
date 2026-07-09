@@ -1663,6 +1663,13 @@ export const SETTINGS_CONFIG = {
                 default: false,
                 storageKey: 'rovalra-group-funds-data',
                 childSettings: {
+                    GroupFundsNavbarTotalEnabled: {
+                        label: 'Combine Community Funds with Robux Balance',
+                        description:
+                            'Combines your Robux balance with your configured community funds in the navbar. Click the balance to see your Robux and each community separately.',
+                        type: 'checkbox',
+                        default: false,
+                    },
                     GroupFundsIds: {
                         label: 'Community IDs',
                         description:
