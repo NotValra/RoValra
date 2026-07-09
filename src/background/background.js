@@ -2358,6 +2358,25 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     return false;
 });
 
+chrome.runtime.onMessage.addListener(async (message, sender) => {
+    if (message?.type === "RoValra-Register-TabID" && sender.tab?.id !== undefined) {
+        chrome.storage.session.set({[`tabid-sessionid-${sender.tab.id}`]: message.id});
+    }
+})
+
+chrome.tabs.onRemoved.addListener(async (tabId) => {
+    const sessionId = (await chrome.storage.session.get(`tabid-sessionid-${tabId}`))[`tabid-sessionid-${tabId}`];
+
+    if (sessionId !== undefined) {
+        chrome.storage.session.remove(`tabid-sessionid-${tabId}`);
+        await chrome.storage.session.remove(`verbosedebug-log-tab-${sessionId}`);
+    }
+});
+
+chrome.storage.session.setAccessLevel({
+    accessLevel: "TRUSTED_AND_UNTRUSTED_CONTEXTS",
+});
+
 // --- Initialization ---
 
 chrome.storage.local.get('MemoryleakFixEnabled', (result) => {
