@@ -271,8 +271,13 @@ async function renderNavbarTotal() {
         return;
     }
 
-    if (state.groupIds.length === 0 || state.hideRobux) {
+    if (state.groupIds.length === 0) {
         await restorePersonalNavbarBalance();
+        return;
+    }
+
+    if (state.hideRobux) {
+        clearNavbarOverride();
         return;
     }
 
@@ -340,7 +345,7 @@ export function init() {
         divider.className = 'rbx-divider';
         section.appendChild(divider);
 
-        if (state.navbarTotalEnabled) {
+        if (state.navbarTotalEnabled && !state.hideRobux) {
             const userData = await getCurrentUserMenuData().catch(() => null);
             const personalBalance = await getPersonalRobuxBalance();
 
