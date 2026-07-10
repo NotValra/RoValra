@@ -76,11 +76,27 @@ function getPrivateGamesRedirectUrl(placeId) {
     return url.toString();
 }
 
+function hasUnavailableGameDetails() {
+    if (document.getElementById('game-details-unavailable-container')) {
+        return true;
+    }
+
+    const playErrorText = document
+        .querySelector('[data-testid="play-error"]')
+        ?.textContent?.trim()
+        .toLowerCase();
+
+    return (
+        playErrorText?.includes('experience') &&
+        playErrorText.includes('not available')
+    );
+}
+
 function redirectIfUnavailableGame(placeId) {
     if (
         !placeId ||
         redirectedUnavailablePlaceIds.has(placeId) ||
-        !document.getElementById('game-details-unavailable-container')
+        !hasUnavailableGameDetails()
     ) {
         return false;
     }

@@ -303,9 +303,9 @@ const featureRoutes = [
             initBadgeOwnership,
         ],
     },
-    // Private games page
+    // Private games page and unavailable game redirects
     {
-        paths: ['/private-games/'],
+        paths: ['/games/', '/private-games/'],
         features: [initPrivateGames],
     },
     // avatar
