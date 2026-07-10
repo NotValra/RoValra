@@ -12,7 +12,10 @@ import { createItemCard } from '../../core/ui/items/items.js';
 import { getAssets } from '../../core/assets.js';
 import { addTooltip } from '../../core/ui/tooltip.js';
 import { formatPlayerCount } from '../../core/games/playerCount.js';
-import { createScrollButtons } from '../../core/ui/general/scrollButtons.js';
+import {
+    createProfileCarouselItem,
+    createProfileCarouselSection,
+} from '../../core/ui/profile/carousel.js';
 import { ts } from '../../core/locale/i18n.js';
 import { createInteractiveTimestamp } from '../../core/ui/time/time.js';
 import {
@@ -910,56 +913,18 @@ async function loadGroups(userId) {
         );
         if (!container) return;
 
-        container.innerHTML = `
-            <div class="profile-communities" style="margin-top: 24px;">
-                <div class="profile-carousel">
-                    <div class="css-17g81zd-collectionCarouselContainer">
-                        <div style="margin-bottom: 12px;"><h2 class="content-emphasis text-heading-small" style="margin: 0;">${ts('bannedUsers.communities')}</h2></div>
-                        <div class="rovalra-groups-carousel-wrapper" style="position: relative; display: flex; align-items: center;">
-                            <div id="rovalra-banned-groups-scroll" style="overflow-x: auto; max-width: 100%; padding-bottom: 10px; scrollbar-width: none; scroll-behavior: smooth; flex-grow: 1;">
-                                <div id="rovalra-banned-groups-list" class="css-1i465w8-carousel" style="display: flex; gap: 12px; width: max-content;"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `; // Verified
-
-        const scrollWrapper = container.querySelector(
-            '.rovalra-groups-carousel-wrapper',
-        );
-        const scrollContainer = document.getElementById(
-            'rovalra-banned-groups-scroll',
-        );
-
-        const updateButtonStates = (left, right) => {
-            const { scrollLeft, scrollWidth, clientWidth } = scrollContainer;
-            const isScrollable = scrollWidth > clientWidth + 5;
-            left.style.display = isScrollable ? 'flex' : 'none';
-            right.style.display = isScrollable ? 'flex' : 'none';
-            left.classList.toggle('rovalra-btn-disabled', scrollLeft <= 5);
-            const isAtEnd = scrollLeft + clientWidth >= scrollWidth - 5;
-            right.classList.toggle('rovalra-btn-disabled', isAtEnd);
-        };
-
-        const { leftButton, rightButton } = createScrollButtons({
-            onLeftClick: () => {
-                scrollContainer.scrollLeft -= 600;
-            },
-            onRightClick: () => {
-                scrollContainer.scrollLeft += 600;
-            },
+        container.innerHTML = '';
+        const {
+            section,
+            list: groupsList,
+            refreshControls,
+        } = createProfileCarouselSection({
+            title: ts('bannedUsers.communities'),
+            className: 'profile-communities',
+            listId: 'rovalra-banned-groups-list',
+            scrollId: 'rovalra-banned-groups-scroll',
         });
-
-        leftButton.classList.add('rovalra-scroll-btn', 'left');
-        rightButton.classList.add('rovalra-scroll-btn', 'right');
-
-        scrollContainer.addEventListener('scroll', () =>
-            updateButtonStates(leftButton, rightButton),
-        );
-
-        scrollWrapper.prepend(leftButton);
-        scrollWrapper.appendChild(rightButton);
+        container.appendChild(section);
 
         const groupIds = userGroups.map((g) => g.group.id);
         const thumbs = await getBatchThumbnails(
@@ -984,9 +949,6 @@ async function loadGroups(userId) {
             return;
 
         const groupThumbMap = new Map(thumbs.map((t) => [t.targetId, t]));
-        const groupsList = document.getElementById(
-            'rovalra-banned-groups-list',
-        );
         groupsList.innerHTML = '';
 
         userGroups.forEach((item) => {
@@ -1003,9 +965,8 @@ async function loadGroups(userId) {
                 memberCount >= 1000
                     ? `${formatPlayerCount(memberCount)}+`
                     : formatPlayerCount(memberCount);
-            const itemWrapper = document.createElement('div');
+            const itemWrapper = createProfileCarouselItem();
             itemWrapper.className = 'css-nhhfrx-carouselItem';
-            itemWrapper.style.width = '150px';
             itemWrapper.innerHTML = DOMPurify.sanitize(`
                 <div class="base-tile">
                     <a class="flex flex-col" href="https://www.roblox.com/groups/${group.id}/-" style="text-decoration: none;">
@@ -1026,7 +987,7 @@ async function loadGroups(userId) {
             groupsList.appendChild(itemWrapper);
         });
 
-        setTimeout(() => updateButtonStates(leftButton, rightButton), 100);
+        setTimeout(refreshControls, 100);
     } catch (e) {}
 }
 
