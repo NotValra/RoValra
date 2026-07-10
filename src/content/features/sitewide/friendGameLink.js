@@ -5,7 +5,7 @@ import { fetchPresenceBatched } from '../../core/ui/profile/userCard.js';
 
 const PROFILE_LINK_SELECTOR =
     '.friend-tile-dropdown a[href*="/users/"][href*="/profile"]';
-const LINK_CLASS = 'rovalra-home-friend-game-link';
+const LINK_CLASS = 'rovalra-friend-game-link';
 
 let observerRegistered = false;
 const pendingProfileLinks = new WeakSet();
@@ -35,9 +35,9 @@ function linkGameTargets(card, placeId) {
     wrapWithGameLink(
         thumbnailTarget,
         href,
-        'rovalra-home-friend-game-thumbnail-link',
+        'rovalra-friend-game-thumbnail-link',
     );
-    wrapWithGameLink(gameName, href, 'rovalra-home-friend-game-name-link');
+    wrapWithGameLink(gameName, href, 'rovalra-friend-game-name-link');
 }
 
 async function linkFriendGame(profileLink) {
@@ -61,9 +61,7 @@ async function linkFriendGame(profileLink) {
 }
 
 export async function init() {
-    if (!(await settings.homeFriendGameLinkEnabled) || observerRegistered) {
-        return;
-    }
+    if (!(await settings.friendGameLinkEnabled) || observerRegistered) return;
 
     observerRegistered = true;
     observeElement(PROFILE_LINK_SELECTOR, linkFriendGame, { multiple: true });

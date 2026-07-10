@@ -41,6 +41,7 @@ import { init as initKidsTheme } from './features/sitewide/kidsTheme.js';
 import { init as initKidsThemeText } from './features/sitewide/kidsThemeText.js';
 import { init as initSidebarCollapse } from './features/sitewide/sidebarCollapse.js';
 import { init as initRemoveDownloadButton } from './features/sitewide/removeDownloadButton.js';
+import { init as initFriendGameLink } from './features/sitewide/friendGameLink.js';
 import { init as initPaymentMethodBonusItems } from './features/paymentmethods/bonusItems.js';
 import { init as initThemeSwitcher } from './features/sitewide/themeSwitcher.js';
 
@@ -151,7 +152,6 @@ import { init as initAccurateContinue } from './features/home/accurateContinue.j
 import { init as initHomeLayout } from './features/home/homeLayout.js';
 import { init as initCustomThemeEditor } from './features/home/customThemeEditor.js';
 import { init as initUnderratedGamesHome } from './features/home/underratedGames.js';
-import { init as initHomeFriendGameLink } from './features/home/friendGameLink.js';
 import { init as initThemeCatalogPage } from './features/themes/themeCatalogPage.js';
 // create
 import { init as initCreateDownload } from './features/create.roblox.com/download.js';
@@ -211,6 +211,7 @@ const featureRoutes = [
             initKidsThemeText,
             initSidebarCollapse,
             initRemoveDownloadButton,
+            initFriendGameLink,
             initThemeSwitcher,
             initCustomThemeEditor,
             initThemeCatalogPage,
@@ -397,7 +398,6 @@ const featureRoutes = [
             initHomeLayout,
             initUnderratedGamesHome,
             initAccurateContinue,
-            initHomeFriendGameLink,
         ],
     },
     {
