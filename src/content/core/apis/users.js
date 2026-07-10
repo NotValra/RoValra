@@ -256,6 +256,7 @@ export const PROFILE_COMPONENTS = {
     SOCIAL_LINKS: 'SocialLinks',
     ABOUT: 'About',
     CURRENTLY_WEARING: 'CurrentlyWearing',
+    USER_MOMENTS: 'UserMoments',
     ACTIONS: 'Actions',
     PROFILE_BACKGROUND: 'ProfileBackground',
     VIEW_FULL_PROFILE: 'ViewFullProfile',
