@@ -45,15 +45,19 @@ async function linkFriendGame(profileLink) {
 
     const card = profileLink.closest('.in-game-friend-card--iarc');
     const userId = Number(getUserIdFromUrl(profileLink.href));
-    if (!card || !userId) return;
+    if (!card || !userId || card.querySelector(`a.${LINK_CLASS}`)) return;
 
     pendingProfileLinks.add(profileLink);
 
-    const presence = await fetchPresenceBatched(userId);
-    if (presence?.userPresenceType !== 2) return;
+    try {
+        const presence = await fetchPresenceBatched(userId);
+        if (presence?.userPresenceType !== 2) return;
 
-    const placeId = presence.rootPlaceId || presence.placeId;
-    if (placeId) linkGameTargets(card, placeId);
+        const placeId = presence.rootPlaceId || presence.placeId;
+        if (placeId) linkGameTargets(card, placeId);
+    } finally {
+        pendingProfileLinks.delete(profileLink);
+    }
 }
 
 export async function init() {
