@@ -1,8 +1,4 @@
-import {
-    callRobloxApiJson,
-    callRobloxApi,
-    checkUrlStatus,
-} from '../../core/api.js';
+import { callRobloxApiJson, callRobloxApi } from '../../core/api.js';
 import {
     fetchThumbnails,
     createThumbnailElement,
@@ -28,6 +24,7 @@ import { getLastClickedUrl } from '../../core/utils/trackers/urlTracker.js';
 import { isAuthenticatedUser13PlusAndAgeChecked } from '../../core/utils/trackers/birthday.js';
 import { createShimmerGrid } from '../../core/ui/shimmer.js';
 import { addTooltip } from '../../core/ui/tooltip.js';
+import { getPlaceIdFromUrl } from '../../core/idExtractor.js';
 function formatVoteCount(count) {
     count = Number(count) || 0;
     if (count >= 1000000000) {
@@ -64,6 +61,59 @@ function renderDisabledNotice() {
 }
 
 let currentActivePlaceId = null;
+let unavailableGameObserver = null;
+let unavailableGameObserverPlaceId = null;
+const redirectedUnavailablePlaceIds = new Set();
+
+function isGamesPage(pathname = window.location.pathname) {
+    return /^(?:\/[a-z]{2}(?:-[a-z]{2})?)?\/games\/\d+/i.test(pathname);
+}
+
+function getPrivateGamesRedirectUrl(placeId) {
+    const url = new URL(`/private-games/${placeId}`, window.location.origin);
+    url.search = window.location.search;
+    url.hash = window.location.hash;
+    return url.toString();
+}
+
+function redirectIfUnavailableGame(placeId) {
+    if (
+        !placeId ||
+        redirectedUnavailablePlaceIds.has(placeId) ||
+        !document.getElementById('game-details-unavailable-container')
+    ) {
+        return false;
+    }
+
+    redirectedUnavailablePlaceIds.add(placeId);
+    window.location.replace(getPrivateGamesRedirectUrl(placeId));
+    return true;
+}
+
+function watchForUnavailableGame(placeId) {
+    if (!placeId) return;
+
+    if (redirectIfUnavailableGame(placeId)) return;
+
+    if (unavailableGameObserver && unavailableGameObserverPlaceId === placeId) {
+        return;
+    }
+
+    unavailableGameObserver?.disconnect();
+    unavailableGameObserverPlaceId = placeId;
+    unavailableGameObserver = new MutationObserver(() => {
+        if (redirectIfUnavailableGame(placeId)) {
+            unavailableGameObserver?.disconnect();
+            unavailableGameObserver = null;
+            unavailableGameObserverPlaceId = null;
+        }
+    });
+
+    unavailableGameObserver.observe(document.documentElement, {
+        childList: true,
+        subtree: true,
+    });
+}
 
 export function init() {
     const privateUrlMatch = window.location.pathname.match(
@@ -72,6 +122,7 @@ export function init() {
     const checkUrlMatch = window.location.pathname.match(
         /^(?:\/[a-z]{2}(?:-[a-z]{2})?)?\/games\/check\/(\d+)/,
     );
+    const gamesUrlPlaceId = isGamesPage() ? getPlaceIdFromUrl() : null;
 
     const placeIdForInit = (privateUrlMatch || checkUrlMatch)?.[1];
     if (
@@ -147,6 +198,10 @@ export function init() {
                 return;
             }
 
+            if (gamesUrlPlaceId) {
+                watchForUnavailableGame(gamesUrlPlaceId);
+            }
+
             const isErrorPage =
                 window.location.pathname.includes('/request-error') ||
                 document.title.includes('Page not found') ||
@@ -210,22 +265,6 @@ async function checkRedirectToStandardPage(gameData, placeId, settings) {
                 gameData.name || gameData._cloudData.displayName,
             );
             const targetUrl = `https://www.roblox.com/games/${placeId}/${gameNameSlug}`;
-
-            try {
-                const status = await checkUrlStatus(targetUrl);
-
-                if (status === 404) {
-                    console.log(
-                        'RoValra: Standard games page returned 404 (game is likely not publicly accessible), staying on private-games page.',
-                    );
-                    return;
-                }
-            } catch (e) {
-                console.warn(
-                    'RoValra: Failed to check if games page exists, proceeding with redirect anyway',
-                    e,
-                );
-            }
 
             window.location.replace(targetUrl);
         }
