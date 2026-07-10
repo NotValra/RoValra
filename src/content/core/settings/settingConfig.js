@@ -1098,6 +1098,15 @@ export const SETTINGS_CONFIG = {
                     },
                 },
             },
+            homeFriendGameLinkEnabled: {
+                label: 'Clickable Friend Currently Playing Card',
+                description: [
+                    'Makes the currently playing experience card in friend hover cards link directly to the experience the user is playing.',
+                ],
+                contributors: ['2963377564'],
+                type: 'checkbox',
+                default: true,
+            },
             currentlyPlayingSubplaceEnabled: {
                 label: 'Currently Playing Subplace',
                 description: [
