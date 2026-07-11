@@ -37,6 +37,7 @@ const IGNORE_USD_SELECTOR =
 
 const INLINE_FIAT_LOCATIONS = '#navbar-robux, #buy-robux-popover';
 const TOOLTIP_FIAT_LOCATIONS = '#rovalra-stat-robux';
+const NAVBAR_BALANCE_UPDATED_EVENT = 'rovalra:navbar-balance-updated';
 
 let robuxPricingPromise = null;
 let robuxIconInitialized = false;
@@ -223,6 +224,13 @@ function shouldUseTrackedNavbarCurrency(element) {
 
 async function resolveEstimateRobuxAmount(element, amount) {
     if (shouldUseTrackedNavbarCurrency(element)) {
+        const explicitNavbarAmount = Number(
+            element.dataset.rovalraNavbarRobuxAmount,
+        );
+        if (Number.isFinite(explicitNavbarAmount) && explicitNavbarAmount > 0) {
+            return explicitNavbarAmount;
+        }
+
         const currencyData = await getCachedUserCurrency();
         const trackedRobux = Number(currencyData?.robux);
         if (Number.isFinite(trackedRobux) && trackedRobux > 0) {
@@ -906,6 +914,11 @@ export function init() {
 
     document.addEventListener(USER_CURRENCY_CHANGED_EVENT, () => {
         scheduleUsdRefresh(0);
+    });
+
+    document.addEventListener(NAVBAR_BALANCE_UPDATED_EVENT, () => {
+        scheduleUsdRefresh(0);
+        scheduleUsdRefresh(50);
     });
 
     observeElement(
