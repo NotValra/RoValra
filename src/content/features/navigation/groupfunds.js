@@ -30,6 +30,8 @@ const state = {
 
 const activeGroupRequests = new Map();
 let currentUserMenuDataPromise = null;
+let personalRowData = null;
+let personalRowDataPromise = null;
 
 function sanitizeGroupIds(groupIds) {
     if (!Array.isArray(groupIds)) return [];
@@ -234,6 +236,109 @@ async function getPersonalRobuxBalance() {
     return Number.isFinite(freshBalance) ? freshBalance : null;
 }
 
+function shouldWarmPersonalRowData() {
+    return (
+        state.groupFundsEnabled &&
+        state.navbarTotalEnabled &&
+        !state.hideRobux
+    );
+}
+
+async function warmPersonalRowData() {
+    if (!shouldWarmPersonalRowData()) return null;
+    if (personalRowDataPromise) return personalRowDataPromise;
+
+    personalRowDataPromise = (async () => {
+        const [userResult, balanceResult] = await Promise.allSettled([
+            getCurrentUserMenuData(),
+            getPersonalRobuxBalance(),
+        ]);
+
+        if (!shouldWarmPersonalRowData()) return null;
+
+        const userData =
+            userResult.status === 'fulfilled' ? userResult.value : null;
+        const personalBalance =
+            balanceResult.status === 'fulfilled'
+                ? Number(balanceResult.value)
+                : NaN;
+
+        personalRowData = {
+            userId: userData?.userId || personalRowData?.userId || null,
+            username: userData?.username || personalRowData?.username || 'User',
+            thumbnailData:
+                userData?.thumbnailData || personalRowData?.thumbnailData || null,
+            personalBalance: Number.isFinite(personalBalance)
+                ? personalBalance
+                : personalRowData?.personalBalance,
+        };
+
+        return personalRowData;
+    })().finally(() => {
+        personalRowDataPromise = null;
+    });
+
+    return personalRowDataPromise;
+}
+
+function upsertPersonalRow(section, divider, data) {
+    if (state.hideRobux || !data) return;
+
+    const personalBalance = Number(data.personalBalance);
+    if (!Number.isFinite(personalBalance)) return;
+
+    let userLi = section.querySelector('.rovalra-personal-robux-row');
+    if (!(userLi instanceof HTMLElement)) {
+        userLi = document.createElement('li');
+        userLi.className = 'rovalra-personal-robux-row';
+        section.insertBefore(userLi, divider.nextSibling);
+    }
+
+    userLi.textContent = '';
+
+    const userLink = document.createElement('a');
+    userLink.className = 'rbx-menu-item';
+    if (data.userId) {
+        userLink.href = `https://www.roblox.com/users/${data.userId}/profile`;
+    }
+    userLink.style.display = 'flex';
+    userLink.style.alignItems = 'center';
+    userLink.style.justifyContent = 'space-between';
+
+    const leftContainer = document.createElement('div');
+    leftContainer.style.display = 'flex';
+    leftContainer.style.alignItems = 'center';
+
+    const iconContainer = document.createElement('span');
+    iconContainer.style.width = '28px';
+    iconContainer.style.height = '28px';
+    iconContainer.style.marginRight = '8px';
+    iconContainer.style.display = 'inline-block';
+
+    if (data.thumbnailData) {
+        const img = createThumbnailElement(data.thumbnailData, 'User', '', {
+            borderRadius: '999px',
+            width: '28px',
+            height: '28px',
+        });
+        iconContainer.appendChild(img);
+    }
+
+    const nameSpan = document.createElement('span');
+    nameSpan.textContent = data.username || 'User';
+
+    const amountSpan = document.createElement('span');
+    const rbxIcon = document.createElement('span');
+    rbxIcon.className = 'icon-robux-16x16';
+    rbxIcon.style.verticalAlign = 'text-bottom';
+    rbxIcon.style.marginRight = '3px';
+    amountSpan.append(rbxIcon, personalBalance.toLocaleString());
+
+    leftContainer.append(iconContainer, nameSpan);
+    userLink.append(leftContainer, amountSpan);
+    userLi.appendChild(userLink);
+}
+
 async function restorePersonalNavbarBalance() {
     const robux = await getPersonalRobuxBalance();
     let restoredAny = false;
@@ -316,6 +421,10 @@ async function syncSettingsAndRender() {
         await ensureFreshDataForConfiguredGroups();
     }
 
+    if (shouldWarmPersonalRowData()) {
+        warmPersonalRowData().catch(() => {});
+    }
+
     await renderNavbarTotal();
 }
 
@@ -323,7 +432,7 @@ export function init() {
     if (state.initialized) return;
     state.initialized = true;
 
-    const renderSection = async (popover) => {
+    const renderSection = (popover) => {
         const menu = popover.querySelector('.dropdown-menu');
         if (!menu) return;
 
@@ -336,7 +445,7 @@ export function init() {
 
         if (!state.groupFundsEnabled || state.groupIds.length === 0) return;
 
-        const allCachedData = await getCache();
+        const allCachedDataPromise = getCache();
 
         const section = document.createElement('div');
         section.className = 'rovalra-group-funds-section';
@@ -346,64 +455,15 @@ export function init() {
         section.appendChild(divider);
 
         if (state.navbarTotalEnabled && !state.hideRobux) {
-            const userData = await getCurrentUserMenuData().catch(() => null);
-            const personalBalance = await getPersonalRobuxBalance();
+            upsertPersonalRow(section, divider, personalRowData);
 
-            if (
-                state.renderVersion === myVersion &&
-                userData &&
-                Number.isFinite(personalBalance)
-            ) {
-                const userLi = document.createElement('li');
-                const userLink = document.createElement('a');
-                userLink.className = 'rbx-menu-item';
-                userLink.href = `https://www.roblox.com/users/${userData.userId}/profile`;
-                userLink.style.display = 'flex';
-                userLink.style.alignItems = 'center';
-                userLink.style.justifyContent = 'space-between';
-
-                const leftContainer = document.createElement('div');
-                leftContainer.style.display = 'flex';
-                leftContainer.style.alignItems = 'center';
-
-                const iconContainer = document.createElement('span');
-                iconContainer.style.width = '28px';
-                iconContainer.style.height = '28px';
-                iconContainer.style.marginRight = '8px';
-                iconContainer.style.display = 'inline-block';
-
-                if (userData.thumbnailData) {
-                    const img = createThumbnailElement(
-                        userData.thumbnailData,
-                        'User',
-                        '',
-                        {
-                            borderRadius: '999px',
-                            width: '28px',
-                            height: '28px',
-                        },
-                    );
-                    iconContainer.appendChild(img);
-                }
-
-                const nameSpan = document.createElement('span');
-                nameSpan.textContent = userData.username;
-
-                const amountSpan = document.createElement('span');
-                const rbxIcon = document.createElement('span');
-                rbxIcon.className = 'icon-robux-16x16';
-                rbxIcon.style.verticalAlign = 'text-bottom';
-                rbxIcon.style.marginRight = '3px';
-                amountSpan.append(rbxIcon, personalBalance.toLocaleString());
-
-                leftContainer.append(iconContainer, nameSpan);
-                userLink.append(leftContainer, amountSpan);
-                userLi.appendChild(userLink);
-                section.appendChild(userLi);
-            }
+            warmPersonalRowData().then((data) => {
+                if (state.renderVersion !== myVersion) return;
+                upsertPersonalRow(section, divider, data);
+            });
         }
 
-        const renderGroup = async (groupId) => {
+        const renderGroup = (groupId) => {
             const fundsLi = document.createElement('li');
             const fundsLink = document.createElement('a');
             fundsLink.className = 'rbx-menu-item';
@@ -495,38 +555,41 @@ export function init() {
                 if (data.pending !== undefined) renderPending(data.pending);
             };
 
-            const cachedData = allCachedData[groupId];
+            amountSpan.textContent = ts('groupFunds.loading');
 
-            if (cachedData) {
-                updateFromData(cachedData);
-            } else {
-                amountSpan.textContent = ts('groupFunds.loading');
-            }
+            allCachedDataPromise.then(async (allCachedData) => {
+                if (state.renderVersion !== myVersion) return;
 
-            if (cachedData && isCacheFresh(cachedData)) {
-                return;
-            }
+                const cachedData = allCachedData[groupId];
 
-            const freshData = await fetchAndCacheGroupData(groupId);
+                if (cachedData) {
+                    updateFromData(cachedData);
+                }
 
-            if (state.renderVersion !== myVersion) return;
+                if (cachedData && isCacheFresh(cachedData)) {
+                    return;
+                }
 
-            if (freshData) {
-                updateFromData(freshData);
-                return;
-            }
+                const freshData = await fetchAndCacheGroupData(groupId);
 
-            if (!cachedData) {
-                amountSpan.textContent = ts('groupFunds.noPermissions');
-                pendingLink.textContent = '';
-            }
+                if (state.renderVersion !== myVersion) return;
+
+                if (freshData) {
+                    updateFromData(freshData);
+                    return;
+                }
+
+                if (!cachedData) {
+                    amountSpan.textContent = ts('groupFunds.noPermissions');
+                    pendingLink.textContent = '';
+                }
+            });
         };
 
         state.groupIds.forEach((groupId) => {
             renderGroup(groupId);
         });
 
-        if (state.renderVersion !== myVersion) return;
         menu.appendChild(section);
     };
 
@@ -580,12 +643,15 @@ export function init() {
         ) {
             syncSettingsAndRender().catch(() => {});
             if (openPopover) {
-                renderSection(openPopover).catch(() => {});
+                renderSection(openPopover);
             }
         }
     });
 
     document.addEventListener(USER_CURRENCY_CHANGED_EVENT, () => {
+        if (shouldWarmPersonalRowData()) {
+            warmPersonalRowData().catch(() => {});
+        }
         renderNavbarTotal().catch(() => {});
     });
 
