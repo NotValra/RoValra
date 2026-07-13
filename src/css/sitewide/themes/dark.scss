@@ -1,8 +1,7 @@
 style-test-element.dark-theme,
-:root:has(.dark-theme),
+body:where(.dark-theme),
 :root.dark-theme,
-:root[color-scheme='dark'],
-:root:has(meta[name='theme-color'][content='#111216']) {
+:root[color-scheme='dark'] {
     --rovalra-main-text-color: #f7f7f8;
     --rovalra-secondary-text-color: #d5d7dd;
     --rovalra-tertiary-text-color: rgb(188, 190, 200);

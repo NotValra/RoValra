@@ -23,6 +23,7 @@ import { initTransactionsTracking } from './core/utils/trackers/transactions.js'
 import { initBadgesTracking } from './core/utils/trackers/badges.js';
 import { initAvatarInventoryTracking } from './core/utils/trackers/avatarInventory.js';
 import { initUserCurrencyTracking } from './core/utils/trackers/currency.js';
+import { init as initClientChannelTracker } from './core/utils/trackers/channels.js';
 import { init as initPrivateGames } from './features/games/privateGames.js';
 import { init as initGamePassViewer } from './features/games/gamePassViewer.js';
 import { init as initQoLToggles } from './features/navigation/QoLToggles.js';
@@ -162,11 +163,13 @@ import { refreshRemoteSettingLocks } from './core/settings/remoteSettingLocks.js
 
 let pageLoaded = false;
 let lastPath = window.location.pathname.toLowerCase();
+const initializedPersistentFeatures = new Set();
 
 const featureRoutes = [
     // Generic features that run on most pages
     {
         paths: ['*'],
+        once: true,
         features: [
             initSettingsPage,
             initQuickPlay,
@@ -186,6 +189,7 @@ const featureRoutes = [
             initBadgesTracking,
             initAvatarInventoryTracking,
             initUserCurrencyTracking,
+            initClientChannelTracker,
             initQoLToggles,
             initCopyId,
             initBetaPrograms,
@@ -477,6 +481,7 @@ function normalizeGamePageHash() {
 function runFeaturesForPage() {
     const path = window.location.pathname.toLowerCase();
     const normalizedPath = path.replace(/^\/[a-z]{2}(?:-[a-z]{2})?\//, '/');
+    const featuresRunThisPass = new Set();
 
     featureRoutes.forEach((route) => {
         if (
@@ -491,6 +496,14 @@ function runFeaturesForPage() {
         ) {
             if (route.features && Array.isArray(route.features)) {
                 route.features.forEach((init) => {
+                    if (featuresRunThisPass.has(init)) return;
+                    if (route.once && initializedPersistentFeatures.has(init)) {
+                        return;
+                    }
+
+                    featuresRunThisPass.add(init);
+                    if (route.once) initializedPersistentFeatures.add(init);
+
                     try {
                         init();
                     } catch (error) {

@@ -16,6 +16,14 @@ const setStorage = (items) => chrome.storage.local.set(items);
 
 const removeStorage = (keys) => chrome.storage.local.remove(keys);
 
+export const REMOTE_SETTING_OVERRIDE_KEY =
+    'overwriteRemoteSettingLocks';
+
+const isRemoteSettingOverrideEnabled = async () => {
+    const result = await getStorage({ [REMOTE_SETTING_OVERRIDE_KEY]: false });
+    return result[REMOTE_SETTING_OVERRIDE_KEY] === true;
+};
+
 const fetchRemoteSettingsConfig = () =>
     callRobloxApiJson({
         isRovalraApi: true,
@@ -86,6 +94,7 @@ export const getRemoteSettingLocks = async () => {
 
 export const refreshRemoteSettingLocks = async () => {
     const disabledKeys = await getRemoteDisabledKeys();
+    const allowRemoteOverrides = await isRemoteSettingOverrideEnabled();
     const disabledKeySet = new Set(disabledKeys);
     const storage = await getStorage(null);
     const currentLocks =
@@ -118,13 +127,27 @@ export const refreshRemoteSettingLocks = async () => {
             reason: REMOTE_SETTING_LOCK_REASON,
         };
 
-        if (storage[key] !== false) {
-            updates[key] = false;
-        }
+        if (allowRemoteOverrides) {
+            if (
+                Object.prototype.hasOwnProperty.call(
+                    nextLocks[key],
+                    'previousValue',
+                ) &&
+                nextLocks[key].previousValue !== undefined
+            ) {
+                updates[key] = nextLocks[key].previousValue;
+                if (bundledSettings[key] !== nextLocks[key].previousValue) {
+                    bundledSettings[key] = nextLocks[key].previousValue;
+                    bundledChanged = true;
+                }
+            }
+        } else {
+            if (storage[key] !== false) updates[key] = false;
 
-        if (bundledSettings[key] !== false) {
-            bundledSettings[key] = false;
-            bundledChanged = true;
+            if (bundledSettings[key] !== false) {
+                bundledSettings[key] = false;
+                bundledChanged = true;
+            }
         }
     }
 

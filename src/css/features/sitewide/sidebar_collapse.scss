@@ -1,12 +1,8 @@
-body:has(
-    .left-nav[data-rovalra-sidebar-collapse-ready='true'][data-rovalra-sidebar-layout-active='true'][data-rovalra-sidebar-move-content='true']
-) {
+body[data-rovalra-sidebar-collapse-ready='true'][data-rovalra-sidebar-layout-active='true'][data-rovalra-sidebar-move-content='true'] {
     --rovalra-sidebar-width: 289px;
 }
 
-body:has(
-    .left-nav[data-rovalra-sidebar-collapsed='true'][data-rovalra-sidebar-layout-active='true'][data-rovalra-sidebar-move-content='true']
-) {
+body[data-rovalra-sidebar-collapsed='true'][data-rovalra-sidebar-layout-active='true'][data-rovalra-sidebar-move-content='true'] {
     --rovalra-sidebar-width: 72px;
 }
 
@@ -19,9 +15,7 @@ body:has(
 }
 
 @media (min-width: 768px) {
-    body:has(
-            .left-nav[data-rovalra-sidebar-collapse-ready='true'][data-rovalra-sidebar-layout-active='true'][data-rovalra-sidebar-move-content='true']
-        )
+    body[data-rovalra-sidebar-collapse-ready='true'][data-rovalra-sidebar-layout-active='true'][data-rovalra-sidebar-move-content='true']
         .container-main {
         margin-left: var(--rovalra-sidebar-width) !important;
     }

@@ -14,7 +14,9 @@ import { showConfirmationPrompt } from '../ui/confirmationPrompt.js';
 import {
     REMOTE_SETTING_LOCKS_KEY,
     REMOTE_SETTING_LOCK_REASON,
+    REMOTE_SETTING_OVERRIDE_KEY,
     getRemoteSettingLocks,
+    refreshRemoteSettingLocks,
 } from './remoteSettingLocks.js';
 import { sanitizeCustomTheme } from '../themeCustom.js';
 import './settingsCompat';
@@ -295,8 +297,10 @@ export const loadSettings = async () => {
                     const remoteLocks = settings[REMOTE_SETTING_LOCKS_KEY] || {};
                     delete settings[REMOTE_SETTING_LOCKS_KEY];
 
-                    for (const key of Object.keys(remoteLocks)) {
-                        forcedSettings[key] = false;
+                    if (settings[REMOTE_SETTING_OVERRIDE_KEY] !== true) {
+                        for (const key of Object.keys(remoteLocks)) {
+                            forcedSettings[key] = false;
+                        }
                     }
 
                     const normalisedSettings = settings;
@@ -409,8 +413,17 @@ export const handleSaveSettings = async (settingName, value) => {
     }
 
     try {
-        const remoteLocks = await getRemoteSettingLocks();
-        if (remoteLocks[settingName] && value !== false) {
+        const [remoteLocks, remoteOverride] = await Promise.all([
+            getRemoteSettingLocks(),
+            chrome.storage.local.get({
+                [REMOTE_SETTING_OVERRIDE_KEY]: false,
+            }),
+        ]);
+        if (
+            remoteLocks[settingName] &&
+            value !== false &&
+            remoteOverride[REMOTE_SETTING_OVERRIDE_KEY] !== true
+        ) {
             value = false;
         }
 
@@ -597,6 +610,17 @@ export const handleSaveSettings = async (settingName, value) => {
                     reject(chrome.runtime.lastError);
                 } else {
                     syncToSettingsKey(settingName, sanitizedValue);
+                    if (
+                        settingName === REMOTE_SETTING_OVERRIDE_KEY &&
+                        sanitizedValue === true
+                    ) {
+                        refreshRemoteSettingLocks().catch((error) =>
+                            console.warn(
+                                'RoValra: Failed to restore remotely disabled settings for developer override.',
+                                error,
+                            ),
+                        );
+                    }
                     if (settingName === 'profileGradient' && sanitizedValue) {
                         if (gradientSyncTimeout)
                             clearTimeout(gradientSyncTimeout);
@@ -1107,6 +1131,7 @@ export const checkSettingLocks = async (settingsContent, currentSettings) => {
         'profile3DRenderForceDisabled',
     ]);
     const remoteLocks = await getRemoteSettingLocks();
+    const remoteOverride = currentSettings[REMOTE_SETTING_OVERRIDE_KEY] === true;
 
     const userTier = currentUserTier;
 
@@ -1128,7 +1153,7 @@ export const checkSettingLocks = async (settingsContent, currentSettings) => {
     for (const category of Object.values(SETTINGS_CONFIG)) {
         for (const [settingName, config] of Object.entries(category.settings)) {
             const processSetting = async (name, conf) => {
-                if (remoteLocks[name]) {
+                if (remoteLocks[name] && !remoteOverride) {
                     if (currentSettings[name] !== false) {
                         await handleSaveSettings(name, false);
                     }
