@@ -1,8 +1,11 @@
 let observerInitialized = false;
-let observationRequests = [];
+const observationRequests = new Set();
 let globalObserver = null;
 let attributeListeners = new Map();
 let childListListeners = new Map();
+const trackedRequestsByElement = new WeakMap();
+
+const OBSERVER_IGNORE_ATTRIBUTE = 'data-rovalra-observer-ignore';
 
 const viewportObservers = new Map();
 const customRootObservers = new WeakMap();
@@ -10,33 +13,128 @@ const intersectionCallbacks = new WeakMap();
 const resizeObservers = new Map();
 const resizeCallbacks = new WeakMap();
 
+function isIgnoredElement(element) {
+    return Boolean(element?.closest?.(`[${OBSERVER_IGNORE_ATTRIBUTE}="true"]`));
+}
+
+function trackRequestElement(request, element) {
+    if (request.multiple) {
+        request.elements.add(element);
+    } else {
+        request.element = element;
+    }
+
+    let requests = trackedRequestsByElement.get(element);
+    if (!requests) {
+        requests = new Set();
+        trackedRequestsByElement.set(element, requests);
+    }
+    requests.add(request);
+}
+
+function untrackRequestElement(request, element, notify = false) {
+    const requests = trackedRequestsByElement.get(element);
+    if (requests) {
+        requests.delete(request);
+        if (requests.size === 0) trackedRequestsByElement.delete(element);
+    }
+
+    if (request.multiple) {
+        request.elements.delete(element);
+        if (notify && typeof request.onRemove === 'function') {
+            request.onRemove(element);
+        }
+        return;
+    }
+
+    if (request.element === element) {
+        request.element = null;
+        if (notify && typeof request.onRemove === 'function') {
+            request.onRemove();
+        }
+    }
+}
+
+function processRemovedTree(removedNode) {
+    if (removedNode.nodeType !== Node.ELEMENT_NODE) return;
+
+    const removedElements = [removedNode, ...removedNode.querySelectorAll('*')];
+    for (const element of removedElements) {
+        if (element.isConnected) continue;
+
+        const requests = trackedRequestsByElement.get(element);
+        if (!requests) continue;
+
+        for (const request of [...requests]) {
+            untrackRequestElement(request, element, request.active);
+        }
+    }
+}
+
+function isWithinRequestRoot(request, element) {
+    return request.root === document || request.root.contains(element);
+}
+
+function requestNeedsMatches(request) {
+    return request.active && (request.multiple || !request.element);
+}
+
+function processRequestMatch(request, element) {
+    if (!requestNeedsMatches(request)) return;
+    if (!isWithinRequestRoot(request, element)) return;
+    if (!element.matches(request.selector)) return;
+    if (request.multiple && request.elements.has(element)) return;
+
+    trackRequestElement(request, element);
+    request.callback(element);
+}
+
+function processAddedTree(addedNode) {
+    if (
+        addedNode.nodeType !== Node.ELEMENT_NODE ||
+        isIgnoredElement(addedNode)
+    ) {
+        return;
+    }
+
+    const requests = [...observationRequests].filter((request) => {
+        if (!requestNeedsMatches(request)) return false;
+        return (
+            request.root === document ||
+            request.root === addedNode ||
+            request.root.contains(addedNode) ||
+            addedNode.contains(request.root)
+        );
+    });
+    if (requests.length === 0) return;
+
+    for (const request of requests) {
+        processRequestMatch(request, addedNode);
+    }
+
+    const selectors = [
+        ...new Set(
+            requests
+                .filter(requestNeedsMatches)
+                .map((request) => request.selector),
+        ),
+    ];
+    if (selectors.length === 0) return;
+
+    for (const element of addedNode.querySelectorAll(selectors.join(','))) {
+        if (isIgnoredElement(element)) continue;
+        for (const request of requests) {
+            processRequestMatch(request, element);
+        }
+    }
+}
+
 export function initializeObserver() {
     if (observerInitialized) {
         return;
     }
 
     globalObserver = new MutationObserver((mutationsList) => {
-        for (const req of observationRequests) {
-            if (!req.active) continue;
-
-            if (req.multiple && req.elements.size > 0) {
-                for (const element of [...req.elements]) {
-                    if (!document.body.contains(element)) {
-                        req.elements.delete(element);
-                        if (typeof req.onRemove === 'function')
-                            req.onRemove(element);
-                    }
-                }
-            } else if (
-                !req.multiple &&
-                req.element &&
-                !document.body.contains(req.element)
-            ) {
-                if (typeof req.onRemove === 'function') req.onRemove();
-                req.element = null;
-            }
-        }
-
         for (const mutation of mutationsList) {
             if (mutation.type === 'attributes') {
                 let listener = attributeListeners.get(mutation.target);
@@ -67,56 +165,11 @@ export function initializeObserver() {
                 }
             }
 
-            if (mutation.addedNodes.length === 0) continue;
-
+            for (const removedNode of mutation.removedNodes) {
+                processRemovedTree(removedNode);
+            }
             for (const addedNode of mutation.addedNodes) {
-                if (addedNode.nodeType !== Node.ELEMENT_NODE) continue;
-
-                for (const req of observationRequests) {
-                    if (!req.active) continue;
-
-                    if (
-                        req.root !== document &&
-                        req.root !== addedNode &&
-                        !req.root.contains(addedNode) &&
-                        !addedNode.contains(req.root)
-                    ) {
-                        continue;
-                    }
-
-                    if (!req.multiple && !req.element) {
-                        if (addedNode.matches(req.selector)) {
-                            req.element = addedNode;
-                            req.callback(addedNode);
-                        } else {
-                            const foundElement = addedNode.querySelector(
-                                req.selector,
-                            );
-                            if (foundElement) {
-                                req.element = foundElement;
-                                req.callback(foundElement);
-                            }
-                        }
-                    }
-
-                    if (req.multiple) {
-                        if (
-                            addedNode.matches(req.selector) &&
-                            !req.elements.has(addedNode)
-                        ) {
-                            req.elements.add(addedNode);
-                            req.callback(addedNode);
-                        }
-                        addedNode
-                            .querySelectorAll(req.selector)
-                            .forEach((child) => {
-                                if (!req.elements.has(child)) {
-                                    req.elements.add(child);
-                                    req.callback(child);
-                                }
-                            });
-                    }
-                }
+                processAddedTree(addedNode);
             }
         }
     }); //Verified
@@ -138,23 +191,35 @@ export const observeElement = (selector, callback, options = {}) => {
         root,
         active: true,
         disconnect() {
+            if (!this.active) return;
             this.active = false;
+            observationRequests.delete(this);
+
+            if (this.multiple) {
+                for (const element of [...this.elements]) {
+                    untrackRequestElement(this, element);
+                }
+            } else if (this.element) {
+                untrackRequestElement(this, this.element);
+            }
         },
         ...(isMultiple ? { elements: new Set() } : { element: null }),
     };
-    observationRequests.push(request);
+    observationRequests.add(request);
 
     if (isMultiple) {
         root.querySelectorAll(selector).forEach((element) => {
-            if (!request.elements.has(element)) {
-                request.elements.add(element);
+            if (!isIgnoredElement(element) && !request.elements.has(element)) {
+                trackRequestElement(request, element);
                 callback(element);
             }
         });
     } else {
-        const existingElement = root.querySelector(selector);
+        const existingElement = [...root.querySelectorAll(selector)].find(
+            (element) => !isIgnoredElement(element),
+        );
         if (existingElement && !request.element) {
-            request.element = existingElement;
+            trackRequestElement(request, existingElement);
             callback(existingElement);
         }
     }
