@@ -2315,6 +2315,14 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: false,
             },
+            overwriteRemoteSettingLocks: {
+                label: ['Override remotely disabled settings'],
+                description: [
+                    'Allows RoValra features to remain enabled even when they are disabled by the remote settings service. This is for testing and may expose unstable features.',
+                ],
+                type: 'checkbox',
+                default: false,
+            },
             alwaysShowAccountStandingTab: {
                 label: ['Always show Account Standing tab'],
                 description: [

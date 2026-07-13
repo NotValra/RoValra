@@ -25,6 +25,8 @@ import { getUserDisplayName } from '../../core/apis/users.js';
 
 let ownedBordersCache = null;
 let overlayInstance = null;
+let profileCustomizationObserver = null;
+let profileCustomizationInitGeneration = 0;
 
 function getUserProfileHref(userId) {
     return userId ? `https://www.roblox.com/users/${userId}/profile` : '';
@@ -738,7 +740,11 @@ function openCustomizationOverlay(userId) {
 
 function keepPillAfterProfileViews(targetContainer, wrapper) {
     const placePill = () => {
-        if (!wrapper.isConnected || wrapper.parentElement !== targetContainer)
+        if (
+            !targetContainer.isConnected ||
+            !wrapper.isConnected ||
+            wrapper.parentElement !== targetContainer
+        )
             return;
 
         const profileViewsPill = targetContainer.querySelector(
@@ -775,6 +781,10 @@ function keepPillAfterProfileViews(targetContainer, wrapper) {
 }
 
 async function initProfileCustomization() {
+    const initGeneration = ++profileCustomizationInitGeneration;
+    profileCustomizationObserver?.disconnect();
+    profileCustomizationObserver = null;
+
     if (!(await rovalraSettings.profileCustomizationEnabled)) return;
 
     const [profileUserId, authedUserId] = await Promise.all([
@@ -782,16 +792,19 @@ async function initProfileCustomization() {
         getAuthenticatedUserId(),
     ]);
 
+    if (initGeneration !== profileCustomizationInitGeneration) return;
     if (!profileUserId || !authedUserId) return;
     if (String(profileUserId) !== String(authedUserId)) return;
 
-    observeElement(
+    profileCustomizationObserver = observeElement(
         '.user-profile-header-info .stylistic-alts-username',
         (username) => {
+            if (!username?.isConnected || !username.parentElement) return;
             if (String(getUserIdFromUrl()) !== String(profileUserId)) return;
 
             const targetContainer = username.parentElement;
-            if (!targetContainer) return;
+            if (!targetContainer.isConnected || !targetContainer.contains(username))
+                return;
             if (
                 targetContainer.querySelector(
                     '.rovalra-profile-customization-pill',
@@ -815,9 +828,10 @@ async function initProfileCustomization() {
                 lineHeight: '18px',
                 width: 'fit-content',
             });
-            pill.addEventListener('click', () =>
-                openCustomizationOverlay(profileUserId),
-            );
+            pill.addEventListener('click', () => {
+                if (String(getUserIdFromUrl()) !== String(profileUserId)) return;
+                openCustomizationOverlay(profileUserId);
+            });
 
             const pillRow = document.createElement('div');
             pillRow.className = 'rovalra-profile-customization-pill-row';
