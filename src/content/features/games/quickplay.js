@@ -2,7 +2,7 @@ import {
     showReviewPopup,
     showRegionDonationPopup,
 } from '../../core/review/review.js';
-import { observeIntersection } from '../../core/observer.js';
+import { observeElement, observeIntersection } from '../../core/observer.js';
 import { callRobloxApi } from '../../core/api.js';
 import {
     launchGame,
@@ -35,7 +35,6 @@ const State = {
     currentUserId: null,
     activePlaceId: null,
     activeGameCardLink: null,
-    hoveredGameCardLink: null,
 
     privateServerStatus: new Map(),
     privateServerList: new Map(),
@@ -54,8 +53,7 @@ const State = {
 };
 
 const intersectionObservers = new Map();
-let paidPriceScanTimer = null;
-let paidPriceListenersAttached = false;
+let paidPriceCardObserver = null;
 const Icons = {
     globe: () =>
         createSvgPath(
@@ -133,8 +131,6 @@ function getGameIdsFromLink(href) {
 }
 
 const PAID_PRICE_BADGE_CLASS = 'rovalra-paid-access-price-badge';
-const PAID_PRICE_BADGE_ICON_CLASS = 'rovalra-paid-access-price-badge-icon';
-const PAID_PRICE_BADGE_VALUE_CLASS = 'rovalra-paid-access-price-badge-value';
 const PAID_PRICE_PROCESSED_CLASS = 'rovalra-paid-price-processed';
 const PAID_PRICE_BADGE_ICON_SVG = `
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
@@ -269,68 +265,6 @@ async function flushPaidPlayabilityQueue() {
     }
 }
 
-function getPaidPriceStore() {
-    if (
-        !window.__rovalraPaidAccessPrices ||
-        !window.__rovalraPaidAccessPrices.set
-    ) {
-        window.__rovalraPaidAccessPrices = new Map();
-    }
-    return window.__rovalraPaidAccessPrices;
-}
-
-function injectPaidPriceBadgeStyles() {
-    if (document.getElementById('rovalra-paid-price-badge-styles')) return;
-
-    const style = document.createElement('style');
-    style.id = 'rovalra-paid-price-badge-styles';
-    style.textContent = `
-        .${PAID_PRICE_BADGE_CLASS} {
-            position: absolute;
-            bottom: 4px;
-            right: 4px;
-            z-index: 5;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 4px;
-            flex: 0 0 auto;
-            height: 19px;
-            max-width: 62px;
-            padding: 0 8px 0 6px;
-            border-radius: 999px;
-            background: #335fff;
-            color: #fff;
-            font-size: 11px;
-            font-weight: 700;
-            line-height: 1;
-            white-space: nowrap;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
-            pointer-events: none;
-        }
-        .${PAID_PRICE_BADGE_CLASS} .${PAID_PRICE_BADGE_ICON_CLASS} {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 11px;
-            height: 11px;
-            flex: 0 0 auto;
-            color: currentColor;
-        }
-        .${PAID_PRICE_BADGE_CLASS} .${PAID_PRICE_BADGE_ICON_CLASS} svg {
-            width: 100%;
-            height: 100%;
-            fill: currentColor;
-            display: block;
-        }
-        .${PAID_PRICE_BADGE_CLASS} .${PAID_PRICE_BADGE_VALUE_CLASS} {
-            display: inline-block;
-            line-height: 1;
-        }
-    `;
-    document.documentElement.appendChild(style);
-}
-
 function getPaidPriceCardRoot(gameLink) {
     return (
         gameLink.closest(
@@ -402,18 +336,16 @@ function addPaidPriceBadge(gameLink, price) {
     );
     if (!thumbContainer) return;
 
-    injectPaidPriceBadgeStyles();
-
     const badge = document.createElement('span');
     badge.className = PAID_PRICE_BADGE_CLASS;
     badge.title = `Paid access: ${price.toLocaleString()} Robux`;
 
     const icon = document.createElement('span');
-    icon.className = PAID_PRICE_BADGE_ICON_CLASS;
-    icon.innerHTML = PAID_PRICE_BADGE_ICON_SVG;
+    icon.className = 'rovalra-paid-access-price-badge-icon';
+    icon.innerHTML = DOMPurify.sanitize(PAID_PRICE_BADGE_ICON_SVG);
 
     const value = document.createElement('span');
-    value.className = PAID_PRICE_BADGE_VALUE_CLASS;
+    value.className = 'rovalra-paid-access-price-badge-value';
     value.textContent = price.toLocaleString();
 
     badge.append(icon, value);
@@ -518,19 +450,16 @@ function flushPaidPriceQueue() {
 
                     if (!price) {
                         paidPriceCache.set(placeId, 0);
-                        getPaidPriceStore().set(key, 0);
                         continue;
                     }
 
                     const showBadge = () => {
                         paidPriceCache.set(placeId, price);
-                        getPaidPriceStore().set(key, price);
                         links.forEach((link) => addPaidPriceBadge(link, price));
                     };
 
                     if (directPlayable === true) {
                         paidPriceCache.set(placeId, 0);
-                        getPaidPriceStore().set(key, 0);
                         links.forEach((link) => removePaidPriceBadge(link));
                         continue;
                     }
@@ -553,7 +482,6 @@ function flushPaidPriceQueue() {
 
                         const finalPrice = hideBadge ? 0 : price;
                         paidPriceCache.set(placeId, finalPrice);
-                        getPaidPriceStore().set(key, finalPrice);
 
                         if (hideBadge) {
                             links.forEach((link) => removePaidPriceBadge(link));
@@ -566,9 +494,7 @@ function flushPaidPriceQueue() {
             })
             .catch(() => {
                 chunk.forEach((placeId) => {
-                    const key = getPaidPriceKey(placeId);
                     paidPriceCache.set(placeId, 0);
-                    getPaidPriceStore().set(key, 0);
                 });
             });
     }
@@ -618,9 +544,14 @@ function stopPaidPriceBadgeObserver(gameLink) {
 
     observer.unobserve();
     intersectionObservers.delete(gameLink);
-    if (!gameLink.isConnected) {
-        gameLink.classList.remove(PAID_PRICE_PROCESSED_CLASS);
-    }
+}
+
+function removePaidPriceCard(gameLink) {
+    stopPaidPriceBadgeObserver(gameLink);
+    if (!gameLink.classList.contains(PAID_PRICE_PROCESSED_CLASS)) return;
+
+    gameLink.classList.remove(PAID_PRICE_PROCESSED_CLASS);
+    removePaidPriceBadge(gameLink);
 }
 
 function isQuickPlayCardLink(element) {
@@ -633,49 +564,19 @@ function getQuickPlayCardFromTarget(target) {
     return isQuickPlayCardLink(gameLink) ? gameLink : null;
 }
 
-function scanPaidPriceCards() {
-    paidPriceScanTimer = null;
-    if (!State.settings?.PaidAccessPriceBadgeEnabled) return;
+function attachPaidPriceCardObserver() {
+    if (paidPriceCardObserver) return;
 
-    intersectionObservers.forEach((observer, gameLink) => {
-        if (!gameLink.isConnected) stopPaidPriceBadgeObserver(gameLink);
-    });
-
-    document
-        .querySelectorAll(
-            `${GAME_CARD_LINK_SELECTOR}:not(.${PAID_PRICE_PROCESSED_CLASS})`,
-        )
-        .forEach((gameLink) => {
-            if (isQuickPlayCardLink(gameLink)) {
-                setupPaidPriceBadge(gameLink);
-            }
-        });
-}
-
-function schedulePaidPriceScan(delay = 250) {
-    if (paidPriceScanTimer) return;
-
-    paidPriceScanTimer = setTimeout(() => {
-        if (typeof requestIdleCallback === 'function') {
-            requestIdleCallback(scanPaidPriceCards, { timeout: 1200 });
-            return;
-        }
-
-        requestAnimationFrame(scanPaidPriceCards);
-    }, delay);
-}
-
-function attachPaidPriceListeners() {
-    if (paidPriceListenersAttached) return;
-    paidPriceListenersAttached = true;
-
-    window.addEventListener('scroll', () => schedulePaidPriceScan(500), {
-        passive: true,
-    });
-    window.addEventListener('resize', () => schedulePaidPriceScan(500), {
-        passive: true,
-    });
-    schedulePaidPriceScan(0);
+    paidPriceCardObserver = observeElement(
+        GAME_CARD_LINK_SELECTOR,
+        (gameLink) => {
+            if (isQuickPlayCardLink(gameLink)) setupPaidPriceBadge(gameLink);
+        },
+        {
+            multiple: true,
+            onRemove: removePaidPriceCard,
+        },
+    );
 }
 
 function handleQuickPlayCardEnter(event) {
@@ -1243,10 +1144,9 @@ function cancelCardCleanup(gameLink) {
 }
 
 function performCardCleanup(gameLink) {
-    cancelCardCleanup(gameLink);
     gameLink.classList.remove(
         'quick-play-hover-active',
-        'quick-play-hover-hidden',
+        'quick-play-hover-superseded',
     );
     gameLink.querySelector('.hover-background')?.remove();
     gameLink.querySelector('.play-button-overlay')?.remove();
@@ -1254,10 +1154,6 @@ function performCardCleanup(gameLink) {
     gameLink
         .querySelectorAll('.quick-play-original-stats')
         .forEach((el) => el.classList.remove('quick-play-original-stats'));
-
-    if (State.hoveredGameCardLink === gameLink) {
-        State.hoveredGameCardLink = null;
-    }
 }
 
 function scheduleCardCleanup(gameLink, delay) {
@@ -1265,12 +1161,7 @@ function scheduleCardCleanup(gameLink, delay) {
 
     const timerId = setTimeout(() => {
         State.cleanupTimers.delete(gameLink);
-        if (
-            gameLink.matches(':hover') &&
-            !gameLink.classList.contains('quick-play-hover-hidden')
-        ) {
-            return;
-        }
+        if (gameLink.matches(':hover')) return;
 
         if (
             State.activeGameCardLink === gameLink &&
@@ -1289,16 +1180,21 @@ function scheduleCardCleanup(gameLink, delay) {
     State.cleanupTimers.set(gameLink, timerId);
 }
 
-function setupHoverCard(gameLink, settings) {
-    if (State.hoveredGameCardLink && State.hoveredGameCardLink !== gameLink) {
-        State.hoveredGameCardLink.classList.remove('quick-play-hover-active');
-        State.hoveredGameCardLink.classList.add('quick-play-hover-hidden');
-        scheduleCardCleanup(State.hoveredGameCardLink, HOVER_CARD_EXIT_DELAY);
-    }
+function hideOtherHoverCards(gameLink) {
+    document
+        .querySelectorAll(`${GAME_CARD_LINK_SELECTOR}.quick-play-hover-active`)
+        .forEach((otherGameLink) => {
+            if (otherGameLink === gameLink) return;
 
-    State.hoveredGameCardLink = gameLink;
+            otherGameLink.classList.remove('quick-play-hover-active');
+            otherGameLink.classList.add('quick-play-hover-superseded');
+        });
+}
+
+function setupHoverCard(gameLink, settings) {
+    hideOtherHoverCards(gameLink);
     cancelCardCleanup(gameLink);
-    gameLink.classList.remove('quick-play-hover-hidden');
+    gameLink.classList.remove('quick-play-hover-superseded');
     gameLink.classList.add('quick-play-hover-active');
 
     if (gameLink.querySelector('.play-button-overlay')) {
@@ -1422,7 +1318,7 @@ async function addRegionTooltip(button) {
 function initializeQuickPlay() {
     if (window.hasRunQuickPlayScript) {
         if (State.settings?.PaidAccessPriceBadgeEnabled) {
-            schedulePaidPriceScan(0);
+            attachPaidPriceCardObserver();
         }
         return;
     }
@@ -1445,24 +1341,9 @@ function initializeQuickPlay() {
             attachQuickPlayDelegatedListeners();
 
             if (settings.PaidAccessPriceBadgeEnabled) {
-                attachPaidPriceListeners();
+                attachPaidPriceCardObserver();
             }
         },
-    );
-
-    window.addEventListener(
-        'beforeunload',
-        () => {
-            State.dropdownPanel?.remove();
-            document
-                .getElementById('rovalra-global-quickplay-tooltip')
-                ?.remove();
-            window.hasRunQuickPlayScript = false;
-
-            intersectionObservers.forEach((obs) => obs.unobserve());
-            intersectionObservers.clear();
-        },
-        { once: true },
     );
 }
 

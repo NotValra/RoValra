@@ -111,8 +111,68 @@ a.game-tile-styles.game-card-link {
         }
     }
 
-    &.quick-play-hover-hidden .play-button-overlay {
-        display: none;
+    &.quick-play-hover-superseded {
+        &::before,
+        .hover-background {
+            opacity: 0;
+            transition: none;
+        }
+
+        .game-card-friend-info,
+        .quick-play-original-stats.game-card-info {
+            transform: none;
+            transition: none;
+        }
+
+        .play-button-overlay {
+            display: none;
+        }
+    }
+}
+
+.rovalra-paid-access-price-badge {
+    position: absolute;
+    right: 4px;
+    bottom: 4px;
+    z-index: 5;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    gap: 4px;
+    height: 19px;
+    max-width: 62px;
+    padding: 0 8px 0 6px;
+    border-radius: 999px;
+    background: #335fff;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
+    pointer-events: none;
+
+    .rovalra-paid-access-price-badge-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+        width: 11px;
+        height: 11px;
+        color: currentColor;
+
+        svg {
+            display: block;
+            width: 100%;
+            height: 100%;
+            fill: currentColor;
+        }
+    }
+
+    .rovalra-paid-access-price-badge-value {
+        display: inline-block;
+        line-height: 1;
     }
 }
 

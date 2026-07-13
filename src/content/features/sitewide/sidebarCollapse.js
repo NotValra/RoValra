@@ -1,3 +1,4 @@
+import DOMPurify from 'dompurify';
 import { observeAttributes, observeElement } from '../../core/observer.js';
 import { getAssets } from '../../core/assets.js';
 import { ts } from '../../core/locale/i18n.js';
@@ -7,33 +8,19 @@ import { settings } from '../../core/settings/getSettings.js';
 
 const COLLAPSED_KEY = 'rovalraSidebarCollapsed';
 const BUTTON_ID = 'rovalra-sidebar-collapse-button';
-const ICON_ID = 'rovalra-sidebar-collapse-icon';
-const EXPANDED_SIDEBAR_WIDTH = 289;
-const COLLAPSED_SIDEBAR_WIDTH = 72;
 const ROBLOX_LEFT_NAV_BREAKPOINT = 768;
 const ROBLOX_NAV_MENU_SELECTOR =
-    'button.menu-button.btn-navigation-nav-menu-md, button[title="nav menu"] .icon-nav-menu';
-const CONTENT_SIDEBAR_SELECTOR = [
-    '.container-main aside',
-    '.container-main [class*="sidebar" i]',
-    '.container-main [class*="side-nav" i]',
-    '.container-main [class*="sidenav" i]',
-    '.content aside',
-    '.content [class*="sidebar" i]',
-    '.content [class*="side-nav" i]',
-    '.content [class*="sidenav" i]',
-].join(', ');
-const ANCHORED_POSITIONS = new Set(['fixed', 'sticky', 'absolute']);
-let moveContentWithSidebar = true;
+    'button.menu-button.btn-navigation-nav-menu-md, .icon-nav-menu';
+const CONTENT_ROOT_SELECTOR = 'main.container-main';
 let currentLeftNav = null;
-let resizeListenerReady = false;
+let currentContentRoot = null;
+let currentRobloxNavButton = null;
+let robloxNavButtonAttributeObserver = null;
 let responsiveSyncQueued = false;
-
-function getCurrentSidebarWidth(leftNav = currentLeftNav) {
-    return isCollapsed(leftNav)
-        ? COLLAPSED_SIDEBAR_WIDTH
-        : EXPANDED_SIDEBAR_WIDTH;
-}
+let layoutResizeQueued = false;
+let dispatchingLayoutResize = false;
+let initialized = false;
+let savedCollapsedState = false;
 
 function getToggleLabel(collapsed) {
     return collapsed
@@ -63,14 +50,9 @@ function getRobloxNavMenuButton() {
     return menuElement?.closest('button') || menuElement;
 }
 
-function isRobloxResponsiveNavActive(leftNav = currentLeftNav) {
+function isRobloxResponsiveNavActive() {
     const menuButton = getRobloxNavMenuButton();
-    if (isVisible(menuButton)) return true;
-
-    if (!leftNav) return false;
-
-    const rect = leftNav.getBoundingClientRect();
-    return rect.width > 0 && rect.right <= 8;
+    return isVisible(menuButton);
 }
 
 function isCustomSidebarLayoutActive() {
@@ -80,118 +62,61 @@ function isCustomSidebarLayoutActive() {
     );
 }
 
-function shouldMoveContentWithSidebar() {
-    return moveContentWithSidebar && isCustomSidebarLayoutActive();
+function getSidebarState(leftNav, collapsed = isCollapsed(leftNav)) {
+    return {
+        collapsed,
+        layoutActive: isCustomSidebarLayoutActive(),
+    };
 }
 
-function updateDocumentSidebarState(leftNav) {
-    if (!document.body) return;
+function updateSidebarState(leftNav, state) {
+    const { collapsed, layoutActive } = state;
+    const contentRoot = currentContentRoot?.isConnected
+        ? currentContentRoot
+        : null;
+    const layoutChanged = contentRoot
+        ? contentRoot.dataset.rovalraSidebarCollapsed !== String(collapsed) ||
+          contentRoot.dataset.rovalraSidebarLayoutActive !==
+              String(layoutActive)
+        : leftNav.dataset.rovalraSidebarLayoutActive !== String(layoutActive);
 
-    const collapsed = isCollapsed(leftNav);
-    const sidebarWidth = getCurrentSidebarWidth(leftNav);
-    const layoutActive = isCustomSidebarLayoutActive();
+    leftNav.dataset.rovalraSidebarLayoutActive = String(layoutActive);
 
-    document.body.dataset.rovalraSidebarCollapseReady = 'true';
-    document.body.dataset.rovalraSidebarCollapsed = String(collapsed);
-    document.body.dataset.rovalraSidebarLayoutActive = String(layoutActive);
-    document.body.dataset.rovalraSidebarMoveContent = String(
-        moveContentWithSidebar,
-    );
-    if (leftNav) {
-        leftNav.dataset.rovalraSidebarLayoutActive = String(layoutActive);
-    }
-    document.body.style.setProperty(
-        '--rovalra-sidebar-width',
-        `${sidebarWidth}px`,
-    );
-    document.body.style.setProperty(
-        '--rovalra-sidebar-offset-delta',
-        `${sidebarWidth - EXPANDED_SIDEBAR_WIDTH}px`,
-    );
-}
-
-function isContentSidebarCandidate(element) {
-    if (!shouldMoveContentWithSidebar() || !currentLeftNav) return false;
-    if (currentLeftNav.contains(element)) return false;
-
-    const style = getComputedStyle(element);
-    if (!ANCHORED_POSITIONS.has(style.position)) return false;
-    if (style.display === 'none' || style.visibility === 'hidden') return false;
-
-    const rect = element.getBoundingClientRect();
-    if (rect.width === 0 || rect.height === 0) return false;
-    if (rect.width > Math.min(420, window.innerWidth * 0.45)) return false;
-
-    const left = Number.parseFloat(style.left);
-    if (!Number.isFinite(left)) return false;
-
-    const expandedOffset = left - EXPANDED_SIDEBAR_WIDTH;
-    const currentOffset = left - getCurrentSidebarWidth();
-
-    return (
-        (expandedOffset >= -8 && expandedOffset <= 160) ||
-        (currentOffset >= -8 && currentOffset <= 160)
-    );
-}
-
-function getContentSidebarOffset(element) {
-    const style = getComputedStyle(element);
-    const left = Number.parseFloat(style.left);
-    const expandedOffset = left - EXPANDED_SIDEBAR_WIDTH;
-    const currentOffset = left - getCurrentSidebarWidth();
-    const offset =
-        expandedOffset >= -8 && expandedOffset <= 160
-            ? expandedOffset
-            : currentOffset;
-
-    return Math.max(-8, Math.min(160, offset));
-}
-
-function syncContentSidebar(element) {
-    if (!isContentSidebarCandidate(element)) return;
-
-    if (!element.dataset.rovalraContentSidebarOriginalLeft) {
-        element.dataset.rovalraContentSidebarOriginalLeft =
-            element.style.left || '';
+    if (contentRoot) {
+        contentRoot.dataset.rovalraSidebarCollapseReady = 'true';
+        contentRoot.dataset.rovalraSidebarCollapsed = String(collapsed);
+        contentRoot.dataset.rovalraSidebarLayoutActive = String(layoutActive);
     }
 
-    const offset = getContentSidebarOffset(element);
-
-    element.dataset.rovalraContentSidebarAdjusted = 'true';
-    element.style.left = `calc(var(--rovalra-sidebar-width, ${EXPANDED_SIDEBAR_WIDTH}px) + ${offset}px)`;
+    return layoutChanged;
 }
 
-function syncContentSidebars() {
-    if (!document.body) return;
+function notifyLayoutResize() {
+    if (layoutResizeQueued) return;
 
-    const shouldMoveContent = shouldMoveContentWithSidebar();
-
-    document
-        .querySelectorAll('[data-rovalra-content-sidebar-adjusted="true"]')
-        .forEach((element) => {
-            if (shouldMoveContent) {
-                syncContentSidebar(element);
-                return;
-            }
-
-            element.style.left =
-                element.dataset.rovalraContentSidebarOriginalLeft || '';
-            delete element.dataset.rovalraContentSidebarAdjusted;
-            delete element.dataset.rovalraContentSidebarOriginalLeft;
-        });
-
-    if (!shouldMoveContent) return;
-
-    document.querySelectorAll(CONTENT_SIDEBAR_SELECTOR).forEach((element) => {
-        syncContentSidebar(element);
+    layoutResizeQueued = true;
+    // Wait for the new content width to apply before Roblox measures it in resize handlers.
+    requestAnimationFrame(() => {
+        layoutResizeQueued = false;
+        dispatchingLayoutResize = true;
+        try {
+            window.dispatchEvent(new Event('resize'));
+        } finally {
+            dispatchingLayoutResize = false;
+        }
     });
+}
+
+function syncSidebarLayout(leftNav, state = getSidebarState(leftNav)) {
+    const layoutChanged = updateSidebarState(leftNav, state);
+
+    if (layoutChanged) notifyLayoutResize();
 }
 
 function syncResponsiveSidebarState() {
     if (!currentLeftNav) return;
 
-    updateDocumentSidebarState(currentLeftNav);
-    syncContentSidebars();
+    syncSidebarLayout(currentLeftNav);
 }
 
 function scheduleResponsiveSidebarStateSync() {
@@ -204,47 +129,68 @@ function scheduleResponsiveSidebarStateSync() {
     });
 }
 
-function ensureResizeListener() {
-    if (resizeListenerReady) return;
-
-    resizeListenerReady = true;
-    window.addEventListener('resize', scheduleResponsiveSidebarStateSync, {
-        passive: true,
-    });
+function handleWindowResize() {
+    if (!dispatchingLayoutResize) scheduleResponsiveSidebarStateSync();
 }
 
 function observeRobloxResponsiveNavButton(menuElement) {
     const menuButton = menuElement.closest('button') || menuElement;
-    if (menuButton.dataset.rovalraSidebarResponsiveObserverReady) return;
+    if (currentRobloxNavButton === menuButton) return;
 
-    menuButton.dataset.rovalraSidebarResponsiveObserverReady = 'true';
-    observeAttributes(
+    robloxNavButtonAttributeObserver?.disconnect();
+    currentRobloxNavButton?.removeEventListener(
+        'click',
+        scheduleResponsiveSidebarStateSync,
+    );
+
+    currentRobloxNavButton = menuButton;
+    robloxNavButtonAttributeObserver = observeAttributes(
         menuButton,
         scheduleResponsiveSidebarStateSync,
         ['aria-expanded', 'aria-hidden', 'class', 'style'],
     );
-    menuButton.addEventListener(
-        'click',
-        () => {
-            scheduleResponsiveSidebarStateSync();
-            setTimeout(scheduleResponsiveSidebarStateSync, 0);
-        },
-        { passive: true },
-    );
+    menuButton.addEventListener('click', scheduleResponsiveSidebarStateSync, {
+        passive: true,
+    });
     scheduleResponsiveSidebarStateSync();
 }
 
-function setCollapsed(leftNav, collapsed) {
+function removeRobloxResponsiveNavButton() {
+    robloxNavButtonAttributeObserver?.disconnect();
+    robloxNavButtonAttributeObserver = null;
+    currentRobloxNavButton?.removeEventListener(
+        'click',
+        scheduleResponsiveSidebarStateSync,
+    );
+    currentRobloxNavButton = null;
+    scheduleResponsiveSidebarStateSync();
+}
+
+function attachContentRoot(contentRoot) {
+    currentContentRoot = contentRoot;
+    if (currentLeftNav) syncSidebarLayout(currentLeftNav);
+}
+
+function removeContentRoot() {
+    currentContentRoot = null;
+}
+
+function applyCollapsedState(leftNav, collapsed) {
+    const state = getSidebarState(leftNav, collapsed);
     leftNav.dataset.rovalraSidebarCollapsed = String(collapsed);
-    updateDocumentSidebarState(leftNav);
-    syncContentSidebars();
-    chrome.storage.local.set({ [COLLAPSED_KEY]: collapsed });
+    syncSidebarLayout(leftNav, state);
 
     const button = leftNav.querySelector(`#${BUTTON_ID}`);
     if (button) {
         button.setAttribute('aria-pressed', String(collapsed));
         button.setAttribute('aria-label', getToggleLabel(collapsed));
     }
+}
+
+function setCollapsed(leftNav, collapsed) {
+    savedCollapsedState = collapsed;
+    applyCollapsedState(leftNav, collapsed);
+    chrome.storage.local.set({ [COLLAPSED_KEY]: collapsed });
 }
 
 async function getStoredCollapsed() {
@@ -265,18 +211,22 @@ async function getStoredCollapsed() {
     return collapsed;
 }
 
-function createIconOverlay() {
+const storedCollapsedPromise = getStoredCollapsed().catch((error) => {
+    console.error('RoValra: Failed to load sidebar collapsed state', error);
+    return false;
+});
+
+function createCollapseIcon() {
     const icon = document.createElement('span');
-    icon.id = ICON_ID;
-    icon.className = 'rovalra-sidebar-collapse-icon-overlay';
+    icon.className = 'rovalra-sidebar-collapse-icon';
     icon.setAttribute('aria-hidden', 'true');
 
     const svgData = getAssets().sidebarCollapseIcon;
     if (svgData.startsWith('data:image/svg+xml,')) {
-        icon.innerHTML = decodeURIComponent(svgData.split(',')[1]); // verified
+        icon.innerHTML = DOMPurify.sanitize(
+            decodeURIComponent(svgData.split(',')[1]),
+        );
     }
-
-    icon.querySelector('svg')?.classList.add('rovalra-sidebar-collapse-icon');
 
     return icon;
 }
@@ -313,34 +263,27 @@ function addCollapsedNavTooltip(control) {
 
 function attachCollapseButton(leftNav) {
     currentLeftNav = leftNav;
+    const collapsed = leftNav.dataset.rovalraSidebarCollapseReady
+        ? isCollapsed(leftNav)
+        : savedCollapsedState;
+    const state = getSidebarState(leftNav, collapsed);
 
     if (leftNav.dataset.rovalraSidebarCollapseReady) {
-        leftNav.dataset.rovalraSidebarMoveContent = String(
-            moveContentWithSidebar,
-        );
-        updateDocumentSidebarState(leftNav);
-        syncContentSidebars();
+        syncSidebarLayout(leftNav, state);
         return;
     }
 
+    leftNav.dataset.rovalraSidebarCollapsed = String(collapsed);
     leftNav.dataset.rovalraSidebarCollapseReady = 'true';
-    leftNav.dataset.rovalraSidebarMoveContent = String(moveContentWithSidebar);
-    ensureResizeListener();
-    observeAttributes(leftNav, scheduleResponsiveSidebarStateSync, [
-        'aria-hidden',
-        'class',
-        'style',
-    ]);
 
     const button = createSquareButton({
-        content: '',
+        content: createCollapseIcon(),
         id: BUTTON_ID,
         width: '40px',
         height: 'height-1000',
         paddingX: 'padding-x-none',
         radius: 'radius-medium',
         disableTextTruncation: true,
-        contentClassName: 'rovalra-sidebar-collapse-button-content',
         onClick: () => {
             setCollapsed(leftNav, !isCollapsed(leftNav));
         },
@@ -349,8 +292,8 @@ function attachCollapseButton(leftNav) {
     button.classList.add('rovalra-sidebar-collapse-button');
     button.classList.remove('bg-action-standard', 'content-action-standard');
     button.classList.add('bg-none', 'content-emphasis');
-    button.setAttribute('aria-label', getToggleLabel(false));
-    button.setAttribute('aria-pressed', 'false');
+    button.setAttribute('aria-label', getToggleLabel(collapsed));
+    button.setAttribute('aria-pressed', String(collapsed));
 
     addTooltip(button, () => getToggleLabel(isCollapsed(leftNav)), {
         position: () =>
@@ -360,23 +303,37 @@ function attachCollapseButton(leftNav) {
         showArrow: false,
     });
     leftNav.appendChild(button);
-    leftNav.appendChild(createIconOverlay());
 
-    getStoredCollapsed().then((collapsed) => setCollapsed(leftNav, collapsed));
-    updateDocumentSidebarState(leftNav);
-    syncContentSidebars();
+    syncSidebarLayout(leftNav, state);
+}
+
+function removeLeftNav() {
+    currentLeftNav = null;
+
+    if (currentContentRoot?.dataset.rovalraSidebarLayoutActive === 'true') {
+        currentContentRoot.dataset.rovalraSidebarLayoutActive = 'false';
+        notifyLayoutResize();
+    }
 }
 
 async function initSidebarCollapse() {
-    if (!(await settings.sidebarCollapseEnabled)) return;
+    const [enabled, collapsed] = await Promise.all([
+        settings.sidebarCollapseEnabled,
+        storedCollapsedPromise,
+    ]);
+    if (!enabled) return;
 
-    moveContentWithSidebar =
-        (await settings.sidebarCollapseMoveContentEnabled) !== false;
+    savedCollapsedState = collapsed;
+    window.addEventListener('resize', handleWindowResize, { passive: true });
 
-    observeElement('.left-nav', attachCollapseButton);
-    observeElement(ROBLOX_NAV_MENU_SELECTOR, observeRobloxResponsiveNavButton);
-    observeElement(CONTENT_SIDEBAR_SELECTOR, syncContentSidebar, {
-        multiple: true,
+    observeElement('.left-nav', attachCollapseButton, {
+        onRemove: removeLeftNav,
+    });
+    observeElement(ROBLOX_NAV_MENU_SELECTOR, observeRobloxResponsiveNavButton, {
+        onRemove: removeRobloxResponsiveNavButton,
+    });
+    observeElement(CONTENT_ROOT_SELECTOR, attachContentRoot, {
+        onRemove: removeContentRoot,
     });
     observeElement(
         '.left-nav nav li > a, .left-nav nav li > button, .left-nav .roseal-left-nav-item .nav-item-link',
@@ -386,6 +343,9 @@ async function initSidebarCollapse() {
 }
 
 export function init() {
+    if (initialized) return;
+    initialized = true;
+
     initSidebarCollapse().catch((error) =>
         console.error('RoValra: Sidebar collapse initialization failed', error),
     );
