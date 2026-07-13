@@ -1497,6 +1497,19 @@ export const SETTINGS_CONFIG = {
                     },
                 },
             },
+            sidebarLayoutEnabled: {
+                label: 'Sidebar Layout',
+                description: [
+                    'Lets you reorder and hide buttons in the Roblox sidebar.',
+                ],
+                type: 'checkbox',
+                default: true,
+                contributors: ['2963377564'],
+                storageKey: [
+                    'rovalra_sidebar_layout_order',
+                    'rovalra_sidebar_layout_hidden',
+                ],
+            },
             ageKidsThemeEnabled: {
                 label: 'Age Theme',
                 description: [

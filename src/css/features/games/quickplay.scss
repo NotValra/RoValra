@@ -108,8 +108,11 @@ a.game-tile-styles.game-card-link {
         .play-button-overlay {
             opacity: 1;
             transform: translateY(0);
-            transition-delay: 0.1s;
         }
+    }
+
+    &.quick-play-hover-hidden .play-button-overlay {
+        display: none;
     }
 }
 
@@ -384,25 +387,6 @@ a.game-tile-styles.game-card-link {
         &::after {
             background: none;
             border: none;
-        }
-    }
-}
-
-.list-item.hover-game-tile.grid-tile.old-hover {
-    .featured-game-container {
-        a.game-tile-styles.game-card-link:hover .play-button-overlay {
-            display: none;
-            pointer-events: none;
-        }
-    }
-
-    &.focused {
-        .featured-game-container {
-            a.game-tile-styles.game-card-link .play-button-overlay {
-                display: block;
-                transform: translateY(0) !important;
-                pointer-events: auto;
-            }
         }
     }
 }

@@ -28,13 +28,14 @@ import { safeHtml } from '../../core/packages/dompurify.js';
 
 const GLOBAL_CONTAINER_ID = 'rovalra-private-servers-global-container';
 const GAME_CARD_LINK_SELECTOR = 'a.game-card-link[href*="/games/"]';
-const PAID_PRICE_SCAN_LIMIT = 80;
-const PAID_PRICE_VIEWPORT_MARGIN = 700;
+const HOVER_CARD_EXIT_DELAY = 100;
+const PRIVATE_SERVER_EXIT_DELAY = 200;
 
 const State = {
     currentUserId: null,
     activePlaceId: null,
     activeGameCardLink: null,
+    hoveredGameCardLink: null,
 
     privateServerStatus: new Map(),
     privateServerList: new Map(),
@@ -344,12 +345,7 @@ function hasNativePaidPrice(gameLink, price) {
     const card = getPaidPriceCardRoot(gameLink);
     if (!card) return false;
 
-    const clone = card.cloneNode(true);
-    clone
-        .querySelectorAll?.(`.${PAID_PRICE_BADGE_CLASS}`)
-        .forEach((node) => node.remove());
-
-    const text = (clone.textContent || '').replace(/\s+/g, ' ').trim();
+    const text = (card.textContent || '').replace(/\s+/g, ' ').trim();
     if (/\b\d[\d,.]*\s*Robux\b/i.test(text)) return true;
 
     const escapedPrice = String(price || '').replace(
@@ -607,17 +603,24 @@ function setupPaidPriceBadge(gameLink) {
         (entry) => {
             if (entry.isIntersecting) {
                 processPaidPriceBadgeLogic(gameLink, placeId);
-                const obs = intersectionObservers.get(gameLink);
-                if (obs) {
-                    obs.unobserve();
-                    intersectionObservers.delete(gameLink);
-                }
+                stopPaidPriceBadgeObserver(gameLink);
             }
         },
         { threshold: 0.1 },
     );
 
     intersectionObservers.set(gameLink, observer);
+}
+
+function stopPaidPriceBadgeObserver(gameLink) {
+    const observer = intersectionObservers.get(gameLink);
+    if (!observer) return;
+
+    observer.unobserve();
+    intersectionObservers.delete(gameLink);
+    if (!gameLink.isConnected) {
+        gameLink.classList.remove(PAID_PRICE_PROCESSED_CLASS);
+    }
 }
 
 function isQuickPlayCardLink(element) {
@@ -630,38 +633,23 @@ function getQuickPlayCardFromTarget(target) {
     return isQuickPlayCardLink(gameLink) ? gameLink : null;
 }
 
-function isNearViewport(element, margin = 0) {
-    const rect = element.getBoundingClientRect?.();
-    if (!rect) return false;
-
-    const viewportHeight =
-        window.innerHeight || document.documentElement.clientHeight || 0;
-    const viewportWidth =
-        window.innerWidth || document.documentElement.clientWidth || 0;
-
-    return (
-        rect.bottom >= -margin &&
-        rect.right >= -margin &&
-        rect.top <= viewportHeight + margin &&
-        rect.left <= viewportWidth + margin
-    );
-}
-
-function scanVisiblePaidPriceBadges() {
+function scanPaidPriceCards() {
     paidPriceScanTimer = null;
-    const settings = State.settings;
-    if (!settings?.PaidAccessPriceBadgeEnabled) return;
+    if (!State.settings?.PaidAccessPriceBadgeEnabled) return;
 
-    let scanned = 0;
-    document.querySelectorAll(GAME_CARD_LINK_SELECTOR).forEach((gameLink) => {
-        if (scanned >= PAID_PRICE_SCAN_LIMIT) return;
-        if (!isQuickPlayCardLink(gameLink)) return;
-        if (gameLink.classList.contains(PAID_PRICE_PROCESSED_CLASS)) return;
-        if (!isNearViewport(gameLink, PAID_PRICE_VIEWPORT_MARGIN)) return;
-
-        scanned++;
-        setupPaidPriceBadge(gameLink);
+    intersectionObservers.forEach((observer, gameLink) => {
+        if (!gameLink.isConnected) stopPaidPriceBadgeObserver(gameLink);
     });
+
+    document
+        .querySelectorAll(
+            `${GAME_CARD_LINK_SELECTOR}:not(.${PAID_PRICE_PROCESSED_CLASS})`,
+        )
+        .forEach((gameLink) => {
+            if (isQuickPlayCardLink(gameLink)) {
+                setupPaidPriceBadge(gameLink);
+            }
+        });
 }
 
 function schedulePaidPriceScan(delay = 250) {
@@ -669,15 +657,15 @@ function schedulePaidPriceScan(delay = 250) {
 
     paidPriceScanTimer = setTimeout(() => {
         if (typeof requestIdleCallback === 'function') {
-            requestIdleCallback(scanVisiblePaidPriceBadges, { timeout: 1200 });
+            requestIdleCallback(scanPaidPriceCards, { timeout: 1200 });
             return;
         }
 
-        requestAnimationFrame(scanVisiblePaidPriceBadges);
+        requestAnimationFrame(scanPaidPriceCards);
     }, delay);
 }
 
-function attachPaidPriceViewportListeners() {
+function attachPaidPriceListeners() {
     if (paidPriceListenersAttached) return;
     paidPriceListenersAttached = true;
 
@@ -687,10 +675,7 @@ function attachPaidPriceViewportListeners() {
     window.addEventListener('resize', () => schedulePaidPriceScan(500), {
         passive: true,
     });
-
     schedulePaidPriceScan(0);
-    setTimeout(() => schedulePaidPriceScan(0), 1200);
-    setTimeout(() => schedulePaidPriceScan(0), 3000);
 }
 
 function handleQuickPlayCardEnter(event) {
@@ -699,6 +684,22 @@ function handleQuickPlayCardEnter(event) {
 
     const settings = State.settings;
     if (!settings) return;
+
+    if (
+        State.activeGameCardLink &&
+        State.activeGameCardLink !== gameLink &&
+        State.dropdownPanel?.classList.contains('visible')
+    ) {
+        clearTimeout(State.hideOverlayTimer);
+        hidePrivateServersOverlay();
+    }
+
+    if (
+        State.activeGameCardLink === gameLink &&
+        State.dropdownPanel?.classList.contains('visible')
+    ) {
+        clearTimeout(State.hideOverlayTimer);
+    }
 
     if (settings.PaidAccessPriceBadgeEnabled) {
         setupPaidPriceBadge(gameLink);
@@ -711,7 +712,29 @@ function handleQuickPlayCardLeave(event) {
     const gameLink = getQuickPlayCardFromTarget(event.target);
     if (!gameLink || gameLink.contains(event.relatedTarget)) return;
 
-    scheduleCardCleanup(gameLink);
+    if (
+        State.activeGameCardLink === gameLink &&
+        State.dropdownPanel?.classList.contains('visible')
+    ) {
+        if (event.type === 'focusout' && gameLink.matches(':hover')) return;
+
+        clearTimeout(State.hideOverlayTimer);
+        State.hideOverlayTimer = setTimeout(
+            hidePrivateServersOverlay,
+            PRIVATE_SERVER_EXIT_DELAY,
+        );
+        scheduleCardCleanup(gameLink, PRIVATE_SERVER_EXIT_DELAY);
+        return;
+    }
+
+    if (
+        gameLink.matches(':hover') ||
+        gameLink.contains(document.activeElement)
+    ) {
+        return;
+    }
+
+    scheduleCardCleanup(gameLink, HOVER_CARD_EXIT_DELAY);
 }
 
 function attachQuickPlayDelegatedListeners() {
@@ -862,16 +885,21 @@ function createGlobalPrivateServerContainer() {
     dropdownPanel.addEventListener('mouseenter', () => {
         clearTimeout(State.hideOverlayTimer);
         if (State.activeGameCardLink) {
-            const timerId = State.cleanupTimers.get(State.activeGameCardLink);
-            if (timerId) clearTimeout(timerId);
+            cancelCardCleanup(State.activeGameCardLink);
             State.activeGameCardLink.classList.add('quick-play-hover-active');
         }
     });
 
     dropdownPanel.addEventListener('mouseleave', () => {
-        State.hideOverlayTimer = setTimeout(hidePrivateServersOverlay, 200);
+        State.hideOverlayTimer = setTimeout(
+            hidePrivateServersOverlay,
+            PRIVATE_SERVER_EXIT_DELAY,
+        );
         if (State.activeGameCardLink) {
-            scheduleCardCleanup(State.activeGameCardLink);
+            scheduleCardCleanup(
+                State.activeGameCardLink,
+                PRIVATE_SERVER_EXIT_DELAY,
+            );
         }
     });
 }
@@ -1203,43 +1231,46 @@ function hidePrivateServersOverlay() {
     State.activeGameCardLink = null;
     State.activePlaceId = null;
     State.currentNextPageCursor = null;
+    State.hideOverlayTimer = null;
 }
 
-function forceCleanOtherCards(exceptCard) {
-    const activeCards = document.querySelectorAll(
-        '.game-card-link.quick-play-hover-active',
-    );
-    activeCards.forEach((card) => {
-        if (card !== exceptCard) {
-            if (
-                State.activeGameCardLink === card &&
-                State.dropdownPanel?.matches(':hover')
-            ) {
-                return;
-            }
-            performCardCleanup(card);
-        }
-    });
+function cancelCardCleanup(gameLink) {
+    const timerId = State.cleanupTimers.get(gameLink);
+    if (!timerId) return;
+
+    clearTimeout(timerId);
+    State.cleanupTimers.delete(gameLink);
 }
 
 function performCardCleanup(gameLink) {
-    gameLink.classList.remove('quick-play-hover-active');
-    if (!gameLink.matches(':hover')) {
-        gameLink.querySelector('.hover-background')?.remove();
-        gameLink.querySelector('.play-button-overlay')?.remove();
-        gameLink.classList.remove('game-tile-styles');
-        gameLink
-            .querySelectorAll('.quick-play-original-stats')
-            .forEach((el) => el.classList.remove('quick-play-original-stats'));
+    cancelCardCleanup(gameLink);
+    gameLink.classList.remove(
+        'quick-play-hover-active',
+        'quick-play-hover-hidden',
+    );
+    gameLink.querySelector('.hover-background')?.remove();
+    gameLink.querySelector('.play-button-overlay')?.remove();
+    gameLink.classList.remove('game-tile-styles');
+    gameLink
+        .querySelectorAll('.quick-play-original-stats')
+        .forEach((el) => el.classList.remove('quick-play-original-stats'));
+
+    if (State.hoveredGameCardLink === gameLink) {
+        State.hoveredGameCardLink = null;
     }
 }
 
-function scheduleCardCleanup(gameLink) {
-    const existing = State.cleanupTimers.get(gameLink);
-    if (existing) clearTimeout(existing);
+function scheduleCardCleanup(gameLink, delay) {
+    cancelCardCleanup(gameLink);
 
     const timerId = setTimeout(() => {
-        if (gameLink.matches(':hover')) return;
+        State.cleanupTimers.delete(gameLink);
+        if (
+            gameLink.matches(':hover') &&
+            !gameLink.classList.contains('quick-play-hover-hidden')
+        ) {
+            return;
+        }
 
         if (
             State.activeGameCardLink === gameLink &&
@@ -1253,19 +1284,24 @@ function scheduleCardCleanup(gameLink) {
         }
 
         performCardCleanup(gameLink);
-    }, 100);
+    }, delay);
 
     State.cleanupTimers.set(gameLink, timerId);
 }
 
-async function setupHoverCard(gameLink, settings) {
-    forceCleanOtherCards(gameLink);
+function setupHoverCard(gameLink, settings) {
+    if (State.hoveredGameCardLink && State.hoveredGameCardLink !== gameLink) {
+        State.hoveredGameCardLink.classList.remove('quick-play-hover-active');
+        State.hoveredGameCardLink.classList.add('quick-play-hover-hidden');
+        scheduleCardCleanup(State.hoveredGameCardLink, HOVER_CARD_EXIT_DELAY);
+    }
 
-    const existing = State.cleanupTimers.get(gameLink);
-    if (existing) clearTimeout(existing);
+    State.hoveredGameCardLink = gameLink;
+    cancelCardCleanup(gameLink);
+    gameLink.classList.remove('quick-play-hover-hidden');
+    gameLink.classList.add('quick-play-hover-active');
 
     if (gameLink.querySelector('.play-button-overlay')) {
-        gameLink.classList.add('quick-play-hover-active');
         return;
     }
 
@@ -1357,23 +1393,6 @@ async function setupHoverCard(gameLink, settings) {
             if (placeId) showPrivateServerOverlay(gameLink, placeId);
         };
         wrapper.appendChild(psBtn);
-
-        gameLink.addEventListener('mouseenter', () => {
-            if (
-                State.dropdownPanel?.classList.contains('visible') &&
-                State.activeGameCardLink === gameLink
-            ) {
-                clearTimeout(State.hideOverlayTimer);
-            }
-        });
-        gameLink.addEventListener('mouseleave', () => {
-            if (State.activeGameCardLink === gameLink) {
-                State.hideOverlayTimer = setTimeout(
-                    hidePrivateServersOverlay,
-                    200,
-                );
-            }
-        });
     }
 
     overlay.appendChild(wrapper);
@@ -1384,10 +1403,6 @@ async function setupHoverCard(gameLink, settings) {
             .querySelectorAll('.game-card-info, .game-card-friend-info')
             .forEach((el) => el.classList.add('quick-play-original-stats'));
     }
-
-    requestAnimationFrame(() =>
-        gameLink.classList.add('quick-play-hover-active'),
-    );
 }
 
 async function addRegionTooltip(button) {
@@ -1405,7 +1420,12 @@ async function addRegionTooltip(button) {
 }
 
 function initializeQuickPlay() {
-    if (window.hasRunQuickPlayScript) return;
+    if (window.hasRunQuickPlayScript) {
+        if (State.settings?.PaidAccessPriceBadgeEnabled) {
+            schedulePaidPriceScan(0);
+        }
+        return;
+    }
     window.hasRunQuickPlayScript = true;
     window.EMULATE_API_FAILURE = true;
 
@@ -1425,7 +1445,7 @@ function initializeQuickPlay() {
             attachQuickPlayDelegatedListeners();
 
             if (settings.PaidAccessPriceBadgeEnabled) {
-                attachPaidPriceViewportListeners();
+                attachPaidPriceListeners();
             }
         },
     );
