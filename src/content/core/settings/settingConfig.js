@@ -2026,6 +2026,14 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: false,
             },
+            disableChannelTracking: {
+                label: 'Disable Channel Tracking',
+                description: [
+                    'Stops RoValra from sending your channel to the RoValra backends. We use this to improve RoValra and data is Public. We have safety messures in place to prevent private channels from ever being stored.',
+                ],
+                type: 'checkbox',
+                default: false,
+            },
         },
     },
     AntiAccountTracking: {
@@ -2061,6 +2069,7 @@ export const SETTINGS_CONFIG = {
                     },
                 },
             },
+
             spoofAsOffline: {
                 label: 'Spoof status as Offline',
                 description: [
