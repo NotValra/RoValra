@@ -25,6 +25,349 @@ import { isAuthenticatedUser13PlusAndAgeChecked } from '../../core/utils/tracker
 import { createShimmerGrid } from '../../core/ui/shimmer.js';
 import { addTooltip } from '../../core/ui/tooltip.js';
 import { getPlaceIdFromUrl } from '../../core/idExtractor.js';
+import { launchGame, launchPrivateGame } from '../../core/utils/launcher.js';
+
+const SERVER_LIST_ENDPOINTS = {
+    friends: 'Friend',
+    private: 'private-servers',
+    public: 'Public',
+};
+
+function createServerText(text, className = '') {
+    const element = document.createElement('span');
+    element.className = className;
+    element.textContent = text;
+    return element;
+}
+
+function createServerActionButton(label, onClick) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'btn-control-md btn-primary-md rovalra-server-action';
+    button.textContent = label;
+    button.addEventListener('click', onClick);
+    return button;
+}
+
+function createServerAvatar(className = '') {
+    const avatar = document.createElement('div');
+    avatar.className = `rovalra-server-avatar ${className}`;
+    avatar.textContent = ' ';
+    return avatar;
+}
+
+function createServerCard(server, type, placeId) {
+    const card = document.createElement('li');
+    card.className = `rovalra-server-card rovalra-server-card-${type}`;
+
+    const avatar = createServerAvatar();
+    card.appendChild(avatar);
+
+    const header = document.createElement('div');
+    header.className = 'rovalra-server-card-header';
+    const title =
+        type === 'private'
+            ? server.name || ts('privateGames.servers.privateServer')
+            : type === 'friends'
+              ? 'Friends server'
+              : 'Public server';
+    header.appendChild(createServerText(title, 'rovalra-server-card-title'));
+
+    const details = document.createElement('div');
+    details.className = 'rovalra-server-card-details';
+    const playerCount = createServerText(
+        ts('privateGames.servers.players', {
+            playing: Number(server.playing) || 0,
+            maxPlayers: Number(server.maxPlayers) || 0,
+        }),
+        'rovalra-server-card-players',
+    );
+
+    if (type === 'private') {
+        playerCount.classList.add('rovalra-server-card-private-players');
+        header.appendChild(playerCount);
+    } else {
+        details.appendChild(playerCount);
+    }
+
+    if (type === 'public' || type === 'friends') {
+        details.appendChild(
+            createServerText(
+                `Ping: ${Math.round(Number(server.ping) || 0)} ms`,
+            ),
+        );
+        details.appendChild(
+            createServerText(`FPS: ${Math.round(Number(server.fps) || 0)}`),
+        );
+        if (type === 'friends' && Array.isArray(server.players)) {
+            const friendNames = server.players
+                .map((player) => player.displayName || player.name)
+                .filter(Boolean)
+                .slice(0, 3);
+            if (friendNames.length) {
+                details.appendChild(
+                    createServerText(`Friends: ${friendNames.join(', ')}`),
+                );
+            }
+        }
+    }
+
+    let playerGauge = null;
+    if (type === 'public' || type === 'friends') {
+        const gauge = document.createElement('div');
+        gauge.className = 'rovalra-server-player-gauge';
+        const gaugeFill = document.createElement('span');
+        gaugeFill.style.width = `${Math.min(
+            100,
+            ((Number(server.playing) || 0) / (Number(server.maxPlayers) || 1)) *
+                100,
+        )}%`;
+        gauge.appendChild(gaugeFill);
+        playerGauge = gauge;
+    }
+
+    const footer = document.createElement('div');
+    footer.className = 'rovalra-server-card-footer';
+    const serverId = server.id || server.vipServerId;
+    if (serverId)
+        footer.appendChild(
+            createServerText(`ID: ${serverId}`, 'rovalra-server-card-id'),
+        );
+
+    if (type === 'private') {
+        if (server.accessCode && server.vipServerId) {
+            footer.appendChild(
+                createServerActionButton(ts('privateGames.servers.join'), () =>
+                    launchPrivateGame(
+                        placeId,
+                        server.accessCode,
+                        server.vipServerId,
+                    ),
+                ),
+            );
+        }
+    } else if (server.id) {
+        footer.appendChild(
+            createServerActionButton(ts('privateGames.servers.join'), () =>
+                launchGame(placeId, server.id),
+            ),
+        );
+    }
+
+    card.append(header);
+    if (type !== 'private') card.appendChild(details);
+    if (playerGauge) card.appendChild(playerGauge);
+    card.appendChild(footer);
+    return card;
+}
+
+async function loadServerCardAvatars(card, server, type) {
+    const avatar = card.querySelector('.rovalra-server-avatar');
+    if (!avatar) return;
+
+    const items =
+        type === 'private'
+            ? server.owner?.id
+                ? [{ id: server.owner.id }]
+                : []
+            : (server.playerTokens || []).slice(0, 5).map((id) => ({ id }));
+    if (!items.length) return;
+
+    try {
+        const thumbnails = await fetchThumbnails(
+            items,
+            type === 'private' ? 'AvatarHeadshot' : 'PlayerToken',
+            '150x150',
+        );
+        if (type === 'private') {
+            const image = document.createElement('img');
+            image.src = thumbnails.get(items[0].id)?.imageUrl || '';
+            image.alt = ts('privateGames.servers.ownerAvatar');
+            avatar.replaceChildren(image);
+            return;
+        }
+
+        avatar.replaceChildren(
+            ...items.map((item) => {
+                const image = document.createElement('img');
+                image.src = thumbnails.get(item.id)?.imageUrl || '';
+                image.alt = ts('privateGames.servers.playerAvatar');
+                return image;
+            }),
+        );
+        const hiddenPlayers = Math.max(
+            0,
+            (Number(server.playing) || 0) - items.length,
+        );
+        if (hiddenPlayers) {
+            const more = document.createElement('span');
+            more.textContent = ts('privateGames.servers.morePlayers', {
+                count: hiddenPlayers,
+            });
+            avatar.appendChild(more);
+        }
+    } catch (error) {
+        console.warn('RoValra: Failed to load server avatars', error);
+    }
+}
+
+function createServerSection(id, title, description, type, placeId) {
+    const section = document.createElement('section');
+    section.className = 'rovalra-server-section';
+    section.dataset.serverType = type;
+    const heading = document.createElement('div');
+    heading.className = 'container-header';
+    heading.appendChild(createServerText(title, 'font-header-2'));
+    if (description) {
+        heading.appendChild(
+            createServerText(description, 'rovalra-server-section-description'),
+        );
+    }
+    const list = document.createElement('ul');
+    list.className = 'rovalra-server-grid';
+    list.id = `rovalra-${id}-servers-list`;
+    const status = document.createElement('p');
+    status.className = 'rovalra-server-status';
+    section.append(heading, status, list);
+    return section;
+}
+
+async function loadServerSection(section, type, placeId) {
+    if (section.dataset.loading === 'true') return;
+    section.dataset.loading = 'true';
+    const status = section.querySelector('.rovalra-server-status');
+    const list = section.querySelector('.rovalra-server-grid');
+    const cursor = section.dataset.cursor || '';
+    const loadedCursors = section._rovalraLoadedCursors || new Set();
+    section._rovalraLoadedCursors = loadedCursors;
+    if (loadedCursors.has(cursor)) {
+        loadMore.hidden = true;
+        section.dataset.loading = 'false';
+        return;
+    }
+    loadedCursors.add(cursor);
+    if (!cursor)
+        status.textContent = ts('privateGames.servers.loading');
+
+    try {
+        const endpoint = `/v1/games/${placeId}/${SERVER_LIST_ENDPOINTS[type]}?cursor=${encodeURIComponent(cursor)}&sortOrder=Desc&excludeFullGames=false`;
+        const response = await callRobloxApiJson({
+            subdomain: 'games',
+            endpoint,
+        });
+        const servers = Array.isArray(response?.data) ? response.data : [];
+        const loadedServerIds = new Set(
+            Array.from(list.children)
+                .map((card) => card.dataset.serverId)
+                .filter(Boolean),
+        );
+        const newServers = servers.filter((server) => {
+            const serverId = String(server.id || server.vipServerId || '');
+            if (!serverId || loadedServerIds.has(serverId)) return false;
+            loadedServerIds.add(serverId);
+            return true;
+        });
+        newServers.forEach((server) => {
+            const card = createServerCard(server, type, placeId);
+            card.dataset.serverId = String(
+                server.id || server.vipServerId || '',
+            );
+            list.appendChild(card);
+            loadServerCardAvatars(card, server, type);
+        });
+        const nextCursor = response?.nextPageCursor || '';
+        section.dataset.cursor = nextCursor;
+        const shouldShowLoadMore =
+            list.children.length > 8 && nextCursor && nextCursor !== cursor;
+        const existingLoadMore = section.querySelector(
+            '.rovalra-server-load-more',
+        );
+        if (shouldShowLoadMore) {
+            const loadMore =
+                existingLoadMore ||
+                createServerActionButton(ts('privateGames.servers.loadMore'), () =>
+                    loadServerSection(section, type, placeId),
+                );
+            loadMore.classList.add('rovalra-server-load-more');
+            if (!existingLoadMore) section.appendChild(loadMore);
+        } else {
+            existingLoadMore?.remove();
+        }
+        status.textContent = list.children.length
+            ? ''
+            : ts('privateGames.servers.noServers');
+    } catch (error) {
+        loadedCursors.delete(cursor);
+        console.warn(`RoValra: Failed to load ${type} servers`, error);
+        status.textContent = ts('privateGames.servers.loadError');
+    } finally {
+        section.dataset.loading = 'false';
+    }
+}
+
+function setupServersTab(serversTab, placeId) {
+    if (!document.getElementById('rovalra-private-game-servers-styles')) {
+        const style = document.createElement('style');
+        style.id = 'rovalra-private-game-servers-styles';
+        style.textContent = `
+            .rovalra-servers-tab { padding: 16px 0; color: var(--rovalra-main-text-color); }
+            .rovalra-server-section { margin-bottom: 38px; }
+            .rovalra-server-section .container-header { margin-bottom: 12px; }
+            .rovalra-server-section-description { display: block; margin-top: 2px; color: var(--rovalra-secondary-text-color); font-size: 14px; font-weight: 400; }
+            .rovalra-server-status { min-height: 18px; margin: 0 0 12px; color: var(--rovalra-secondary-text-color); }
+            .rovalra-server-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 18px; margin: 0; padding: 0; list-style: none; }
+            .rovalra-server-card { position: relative; display: flex; flex-direction: column; gap: 10px; min-height: 174px; padding: 12px; background: var(--rovalra-container-background-color, #272930); box-sizing: border-box; }
+            .rovalra-server-card-header, .rovalra-server-card-footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+            .rovalra-server-card-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+            .rovalra-server-card-details { display: flex; flex-wrap: wrap; gap: 6px 12px; color: var(--rovalra-secondary-text-color); font-size: 12px; }
+            .rovalra-server-card-owner { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+            .rovalra-server-card-id { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--rovalra-secondary-text-color); font-size: 10px; }
+            .rovalra-server-card-footer { margin-top: auto; }
+            .rovalra-server-player-gauge { order: 2; height: 4px; overflow: hidden; border-radius: 3px; background: #c4c7d0; }
+            .rovalra-server-player-gauge span { display: block; height: 100%; border-radius: inherit; background: #69738b; }
+            .rovalra-server-action { min-width: 72px; height: 24px; padding: 0 12px; font-size: 12px; }
+            .rovalra-server-card-public, .rovalra-server-card-friends { padding-top: 12px; }
+            .rovalra-server-card-public .rovalra-server-card-details, .rovalra-server-card-friends .rovalra-server-card-details { order: 1; }
+            .rovalra-server-card-public .rovalra-server-card-header, .rovalra-server-card-friends .rovalra-server-card-header { display: none; }
+            .rovalra-server-card-public .rovalra-server-player-gauge, .rovalra-server-card-friends .rovalra-server-player-gauge { order: 2; }
+            .rovalra-server-card-public .rovalra-server-card-footer, .rovalra-server-card-friends .rovalra-server-card-footer { order: 3; }
+            .rovalra-server-card-public .rovalra-server-card-id, .rovalra-server-card-friends .rovalra-server-card-id { order: 0; }
+            .rovalra-server-section[data-server-type="private"] .rovalra-server-grid { display: flex; flex-direction: column; gap: 2px; }
+            .rovalra-server-card-public .rovalra-server-action, .rovalra-server-card-friends .rovalra-server-action { background: #3a3d49; }
+            .rovalra-server-avatar { display: flex; flex-wrap: wrap; align-content: flex-start; gap: 5px; min-height: 58px; }
+            .rovalra-server-avatar img, .rovalra-server-avatar span { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; background: #e2e3e3; }
+            .rovalra-server-avatar span { display: flex; align-items: center; justify-content: center; background: #69738b; color: white; font-size: 14px; }
+            .rovalra-server-card-private { display: grid; grid-template-columns: 42px 1fr auto; grid-template-rows: auto; align-items: center; min-height: 64px; padding: 8px 0; background: transparent; }
+            .rovalra-server-card-private .rovalra-server-avatar { grid-row: auto; min-height: 42px; }
+            .rovalra-server-card-private .rovalra-server-avatar img { width: 40px; height: 40px; }
+            .rovalra-server-card-private .rovalra-server-card-header { min-width: 0; justify-content: flex-start; gap: 6px; }
+            .rovalra-server-card-private .rovalra-server-card-private-players { font-size: 14px; font-weight: 400; color: var(--rovalra-secondary-text-color); white-space: nowrap; }
+            .rovalra-server-card-private .rovalra-server-card-details { grid-column: 2; }
+            .rovalra-server-card-private .rovalra-server-card-footer { grid-column: 3; grid-row: auto; margin: 0; }
+            .rovalra-server-card-private .rovalra-server-card-id { display: none; }
+            .rovalra-server-card-private .rovalra-server-action { min-width: 200px; height: 32px; background: #283f91 !important; transition: background-color 0.15s ease; }
+            .rovalra-server-card-private .rovalra-server-action:hover { background: #344fa9 !important; }
+            .rovalra-server-load-more { display: block; margin: 14px auto 0; }
+            @media (max-width: 600px) { .rovalra-server-card-private { grid-template-columns: 42px 1fr; } .rovalra-server-card-private .rovalra-server-card-footer { grid-column: 2; grid-row: 3; } .rovalra-server-card-private .rovalra-server-action { min-width: 100%; } }
+        `;
+        document.head.appendChild(style);
+    }
+    serversTab.contentPane.className += ' rovalra-servers-tab';
+    serversTab.contentPane.append(
+        createServerSection(
+            'private',
+            ts('privateGames.servers.title'),
+            ts('privateGames.servers.description'),
+            'private',
+            placeId,
+        ),
+    );
+    serversTab.contentPane
+        .querySelectorAll('.rovalra-server-section')
+        .forEach((section) =>
+            loadServerSection(section, section.dataset.serverType, placeId),
+        );
+}
 function formatVoteCount(count) {
     count = Number(count) || 0;
     if (count >= 1000000000) {
@@ -1188,6 +1531,16 @@ function renderPrivateGamePage(game, placeId, settings) {
             classes: ['store'],
         });
 
+        const serversTab = createTab({
+            id: 'servers',
+            label: ts('privateGames.tabs.servers') || 'Servers',
+            container: tabsContainer,
+            contentContainer: tabContentContainer,
+            classes: ['servers'],
+        });
+
+        setupServersTab(serversTab, placeId);
+
         const descriptionText =
             game.description || ts('privateGames.description.noDescription');
 
@@ -1387,6 +1740,12 @@ function renderPrivateGamePage(game, placeId, settings) {
             aboutTab.contentPane.classList.add('active');
         };
 
+        const switchToServersTab = () => {
+            clearActiveStates();
+            serversTab.tab.classList.add('active');
+            serversTab.contentPane.classList.add('active');
+        };
+
         storeTab.tab.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopImmediatePropagation();
@@ -1405,10 +1764,21 @@ function renderPrivateGamePage(game, placeId, settings) {
             }
         });
 
+        serversTab.tab.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            switchToServersTab();
+            if (window.location.hash !== '#!/servers') {
+                window.location.hash = '#!/servers';
+            }
+        });
+
         const handleHashChange = () => {
             const hash = window.location.hash;
             if (hash.includes('#!/store')) {
                 switchToStoreTab();
+            } else if (hash.includes('#!/servers')) {
+                switchToServersTab();
             } else if (hash.includes('#!/about')) {
                 switchToAboutTab();
             }

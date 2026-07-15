@@ -810,7 +810,22 @@
     "privateGames": {
         "tabs": {
             "about": "About",
-            "store": "Store"
+            "store": "Store",
+            "servers": "Servers"
+        },
+        "servers": {
+            "title": "Your Private Servers",
+            "description": "Play in your own space, solo or with people you invite",
+            "privateServer": "Private server",
+            "players": "{{playing}} of {{maxPlayers}} people max",
+            "join": "Join",
+            "loadMore": "Load More",
+            "loading": "Loading servers...",
+            "noServers": "No Servers Found.",
+            "loadError": "Unable to load servers.",
+            "ownerAvatar": "Server owner",
+            "playerAvatar": "Player",
+            "morePlayers": "+{{count}}"
         },
         "privateExperience": "Private Experience",
         "experienceIsPrivate": "This experience is private.",
