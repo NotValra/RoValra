@@ -4,8 +4,6 @@ import { getAuthenticatedUserId } from '../../user.js';
 export const ROBUX_TRANSFER_DATA_KEY = 'rovalra_robux_transfer_limits_v1';
 export const ROBUX_TRANSFER_CHANGED_EVENT =
     'rovalra:robux-transfer-limits-changed';
-export const ROBUX_TRANSFER_DAILY_LIMIT = 5000;
-export const ROBUX_TRANSFER_MONTHLY_LIMIT = 10000;
 export const ROBUX_TRANSFER_REFRESH_MS = 5 * 60 * 1000;
 
 const SUBSCRIPTION_CACHE_TTL_MS = 60 * 60 * 1000;
@@ -129,6 +127,25 @@ async function fetchCurrencyTransfers(userId) {
     return Array.isArray(response?.data) ? response.data : [];
 }
 
+async function fetchRobloxTransferLimits() {
+    const response = await callRobloxApiJson({
+        subdomain: 'apis',
+        endpoint: '/transfer/v1/robux-transfer/user-transfer-limit',
+        method: 'GET',
+        noCache: true,
+    });
+
+    const dailyLimit = Number(response?.dailyLimit);
+    const monthlyLimit = Number(response?.monthlyLimit);
+    if (!Number.isFinite(dailyLimit) || !Number.isFinite(monthlyLimit)) {
+        throw new Error(
+            'Roblox transfer-limit response did not include limits',
+        );
+    }
+
+    return { dailyLimit, monthlyLimit };
+}
+
 function transactionBelongsToSender(transaction, userId) {
     const details = transaction?.details || {};
     return (
@@ -179,7 +196,7 @@ function buildNetSentTransfers(transactions, userId) {
         .sort((a, b) => b.createdMs - a.createdMs);
 }
 
-function calculateDailyStats(transfers, now = Date.now()) {
+function calculateDailyStats(transfers, dailyLimit, now = Date.now()) {
     const windowStart = now - DAY_MS;
     const dailyTransfers = transfers.filter(
         (transfer) => transfer.createdMs >= windowStart,
@@ -195,7 +212,7 @@ function calculateDailyStats(transfers, now = Date.now()) {
         (a, b) => a.createdMs - b.createdMs,
     )) {
         runningTotal += transfer.amount;
-        if (runningTotal >= ROBUX_TRANSFER_DAILY_LIMIT) {
+        if (runningTotal >= dailyLimit) {
             resetTimestampMs = transfer.createdMs + DAY_MS;
             break;
         }
@@ -203,8 +220,8 @@ function calculateDailyStats(transfers, now = Date.now()) {
 
     return {
         sent,
-        remaining: clampRemaining(ROBUX_TRANSFER_DAILY_LIMIT, sent),
-        limit: ROBUX_TRANSFER_DAILY_LIMIT,
+        remaining: clampRemaining(dailyLimit, sent),
+        limit: dailyLimit,
         resetTimestampMs,
         windowStartTimestampMs: resetTimestampMs
             ? resetTimestampMs - DAY_MS
@@ -213,7 +230,7 @@ function calculateDailyStats(transfers, now = Date.now()) {
     };
 }
 
-function calculateMonthlyStats(transfers, subscriptionWindow) {
+function calculateMonthlyStats(transfers, monthlyLimit, subscriptionWindow) {
     const start = subscriptionWindow?.start;
     const end = subscriptionWindow?.end;
     const monthlyTransfers =
@@ -230,8 +247,8 @@ function calculateMonthlyStats(transfers, subscriptionWindow) {
 
     return {
         sent,
-        remaining: clampRemaining(ROBUX_TRANSFER_MONTHLY_LIMIT, sent),
-        limit: ROBUX_TRANSFER_MONTHLY_LIMIT,
+        remaining: clampRemaining(monthlyLimit, sent),
+        limit: monthlyLimit,
         windowStartTimestampMs: start || null,
         windowEndTimestampMs: end || null,
     };
@@ -241,12 +258,17 @@ function buildTransferData(
     userId,
     transactions,
     subscription,
+    limits,
     now = Date.now(),
 ) {
     const subscriptionWindow = getSubscriptionWindow(subscription, now);
     const transfers = buildNetSentTransfers(transactions, userId);
-    const daily = calculateDailyStats(transfers, now);
-    const monthly = calculateMonthlyStats(transfers, subscriptionWindow);
+    const daily = calculateDailyStats(transfers, limits.dailyLimit, now);
+    const monthly = calculateMonthlyStats(
+        transfers,
+        limits.monthlyLimit,
+        subscriptionWindow,
+    );
 
     return {
         userId: String(userId),
@@ -256,8 +278,8 @@ function buildTransferData(
         sentThisMonth: monthly.sent,
         remainingToday: daily.remaining,
         remainingThisMonth: monthly.remaining,
-        dailyLimit: ROBUX_TRANSFER_DAILY_LIMIT,
-        monthlyLimit: ROBUX_TRANSFER_MONTHLY_LIMIT,
+        dailyLimit: limits.dailyLimit,
+        monthlyLimit: limits.monthlyLimit,
         subscription: subscriptionWindow,
         source: {
             transactionCount: Array.isArray(transactions)
@@ -312,11 +334,29 @@ export async function updateRobuxTransferData(forceRefresh = false) {
                       return cachedData?.subscriptionRaw || null;
                   })
                 : cachedData.subscriptionRaw || null;
+            const limits = await fetchRobloxTransferLimits().catch((error) => {
+                console.warn(
+                    'RoValra: Failed to fetch Roblox Robux transfer limits',
+                    error,
+                );
+
+                const dailyLimit = Number(cachedData?.dailyLimit);
+                const monthlyLimit = Number(cachedData?.monthlyLimit);
+                if (
+                    !Number.isFinite(dailyLimit) ||
+                    !Number.isFinite(monthlyLimit)
+                ) {
+                    throw error;
+                }
+
+                return { dailyLimit, monthlyLimit };
+            });
             const transactions = await fetchCurrencyTransfers(userId);
             const transferData = buildTransferData(
                 userId,
                 transactions,
                 subscription,
+                limits,
             );
 
             transferData.subscriptionRaw = subscription;

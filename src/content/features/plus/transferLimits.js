@@ -113,8 +113,8 @@ function upsertTransferLimits(data = null) {
 
     const container = document.createElement('div');
     container.className = containerClasses;
-    const dailyLimit = data?.dailyLimit ?? 5000;
-    const monthlyLimit = data?.monthlyLimit ?? 10000;
+    const dailyLimit = data?.dailyLimit;
+    const monthlyLimit = data?.monthlyLimit;
     const caption = safeHtml`
         <span class="text-caption-medium content-muted">
             Daily limit is ${formatRobux(dailyLimit)}. Monthly limit is ${formatRobux(monthlyLimit)}. Updates every 5 minutes.
