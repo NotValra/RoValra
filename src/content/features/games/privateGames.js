@@ -275,6 +275,16 @@ export function init() {
 async function checkRedirectToStandardPage(gameData, placeId, settings) {
     if (settings.disablePrivateGameRedirection) return;
 
+    // Roblox can report a non-private visibility for experiences that still
+    // cannot be opened on the normal game page (for example unrated or
+    // moderated experiences). Redirecting those here sends the user to
+    // /games/:placeId, whose unavailable shell redirects straight back to
+    // /private-games/:placeId. Wait for playability and only leave this page
+    // when Roblox says the standard page is actually playable.
+    if (!gameData._playabilityStatus || !gameData._playabilityStatus.isPlayable) {
+        return;
+    }
+
     if (gameData._existsInGamesApi === true && gameData._cloudData) {
         if (gameData._cloudData.visibility !== 'PRIVATE') {
             const gameNameSlug = slugifyGameName(
@@ -384,6 +394,11 @@ function loadAndRenderPrivateGame(placeId, settings, isSkeletonOnly = false) {
                             placeId,
                         );
                         updateGameDataUpdated(gameData);
+                        checkRedirectToStandardPage(
+                            gameData,
+                            placeId,
+                            settings || {},
+                        );
                     }
                 })
                 .catch((e) =>
