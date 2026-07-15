@@ -26,11 +26,12 @@ import { createShimmerGrid } from '../../core/ui/shimmer.js';
 import { addTooltip } from '../../core/ui/tooltip.js';
 import { getPlaceIdFromUrl } from '../../core/idExtractor.js';
 import { launchGame, launchPrivateGame } from '../../core/utils/launcher.js';
+import { createProfileHeaderButton } from '../../core/ui/profile/header/button.js';
 
 const SERVER_LIST_ENDPOINTS = {
-    friends: 'Friend',
+    friends: 'servers/Friend',
     private: 'private-servers',
-    public: 'Public',
+    public: 'servers/Public',
 };
 
 function createServerText(text, className = '') {
@@ -41,11 +42,11 @@ function createServerText(text, className = '') {
 }
 
 function createServerActionButton(label, onClick) {
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.className = 'btn-control-md btn-primary-md rovalra-server-action';
-    button.textContent = label;
-    button.addEventListener('click', onClick);
+    const button = createProfileHeaderButton({
+        content: document.createTextNode(label),
+        onClick,
+    });
+    button.classList.add('rovalra-server-action');
     return button;
 }
 
@@ -91,14 +92,6 @@ function createServerCard(server, type, placeId) {
     }
 
     if (type === 'public' || type === 'friends') {
-        details.appendChild(
-            createServerText(
-                `Ping: ${Math.round(Number(server.ping) || 0)} ms`,
-            ),
-        );
-        details.appendChild(
-            createServerText(`FPS: ${Math.round(Number(server.fps) || 0)}`),
-        );
         if (type === 'friends' && Array.isArray(server.players)) {
             const friendNames = server.players
                 .map((player) => player.displayName || player.name)
@@ -147,11 +140,11 @@ function createServerCard(server, type, placeId) {
             );
         }
     } else if (server.id) {
-        footer.appendChild(
-            createServerActionButton(ts('privateGames.servers.join'), () =>
-                launchGame(placeId, server.id),
-            ),
+        const joinButton = createServerActionButton(
+            ts('privateGames.servers.join'),
+            () => launchGame(placeId, server.id),
         );
+        footer.appendChild(joinButton);
     }
 
     card.append(header);
@@ -206,6 +199,7 @@ async function loadServerCardAvatars(card, server, type) {
             });
             avatar.appendChild(more);
         }
+        avatar.classList.toggle('single', items.length === 1 && !hiddenPlayers);
     } catch (error) {
         console.warn('RoValra: Failed to load server avatars', error);
     }
@@ -250,7 +244,13 @@ async function loadServerSection(section, type, placeId) {
         status.textContent = ts('privateGames.servers.loading');
 
     try {
-        const endpoint = `/v1/games/${placeId}/${SERVER_LIST_ENDPOINTS[type]}?cursor=${encodeURIComponent(cursor)}&sortOrder=Desc&excludeFullGames=false`;
+        const query = new URLSearchParams();
+        if (type === 'friends' || type === 'public') {
+            query.set('limit', '100');
+        }
+        if (cursor) query.set('cursor', cursor);
+        const queryString = query.toString();
+        const endpoint = `/v1/games/${placeId}/${SERVER_LIST_ENDPOINTS[type]}${queryString ? `?${queryString}` : ''}`;
         const response = await callRobloxApiJson({
             subdomain: 'games',
             endpoint,
@@ -314,39 +314,42 @@ function setupServersTab(serversTab, placeId) {
             .rovalra-server-section { margin-bottom: 38px; }
             .rovalra-server-section .container-header { margin-bottom: 12px; }
             .rovalra-server-section-description { display: block; margin-top: 2px; color: var(--rovalra-secondary-text-color); font-size: 14px; font-weight: 400; }
-            .rovalra-server-status { min-height: 18px; margin: 0 0 12px; color: var(--rovalra-secondary-text-color); }
-            .rovalra-server-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 18px; margin: 0; padding: 0; list-style: none; }
+            .rovalra-server-status { min-height: 18px; margin: 0 0 12px; color: var(--rovalra-secondary-text-color); text-align: center; }
+            .rovalra-server-grid { display: grid; grid-template-columns: repeat(auto-fill, 268px); gap: 18px; margin: 0; padding: 0; list-style: none; }
             .rovalra-server-card { position: relative; display: flex; flex-direction: column; gap: 10px; min-height: 174px; padding: 12px; background: var(--rovalra-container-background-color, #272930); box-sizing: border-box; }
             .rovalra-server-card-header, .rovalra-server-card-footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
             .rovalra-server-card-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
             .rovalra-server-card-details { display: flex; flex-wrap: wrap; gap: 6px 12px; color: var(--rovalra-secondary-text-color); font-size: 12px; }
             .rovalra-server-card-owner { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
             .rovalra-server-card-id { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--rovalra-secondary-text-color); font-size: 10px; }
+            .rovalra-server-card-players { font-size: 16px; }
             .rovalra-server-card-footer { margin-top: auto; }
-            .rovalra-server-player-gauge { order: 2; height: 4px; overflow: hidden; border-radius: 3px; background: #c4c7d0; }
+            .rovalra-server-player-gauge { order: 2; height: 6px; overflow: hidden; border-radius: 3px; background: #c4c7d0; }
             .rovalra-server-player-gauge span { display: block; height: 100%; border-radius: inherit; background: #69738b; }
-            .rovalra-server-action { min-width: 72px; height: 24px; padding: 0 12px; font-size: 12px; }
-            .rovalra-server-card-public, .rovalra-server-card-friends { padding-top: 12px; }
+            .rovalra-server-action { min-width: 72px; height: 24px; padding: 0 12px; border-radius: 6px !important; justify-content: center; font-size: 12px; }
+            .rovalra-server-card-public, .rovalra-server-card-friends { width: 268px; min-width: 268px; height: 250px; padding-top: 12px; }
             .rovalra-server-card-public .rovalra-server-card-details, .rovalra-server-card-friends .rovalra-server-card-details { order: 1; }
             .rovalra-server-card-public .rovalra-server-card-header, .rovalra-server-card-friends .rovalra-server-card-header { display: none; }
             .rovalra-server-card-public .rovalra-server-player-gauge, .rovalra-server-card-friends .rovalra-server-player-gauge { order: 2; }
             .rovalra-server-card-public .rovalra-server-card-footer, .rovalra-server-card-friends .rovalra-server-card-footer { order: 3; }
             .rovalra-server-card-public .rovalra-server-card-id, .rovalra-server-card-friends .rovalra-server-card-id { order: 0; }
+            .rovalra-server-card-public .rovalra-server-card-footer, .rovalra-server-card-friends .rovalra-server-card-footer { flex-direction: column; align-items: stretch; gap: 8px; }
+            .rovalra-server-card-public .rovalra-server-action, .rovalra-server-card-friends .rovalra-server-action { order: 0; width: 100%; height: 22px; }
+            .rovalra-server-card-public .rovalra-server-card-id, .rovalra-server-card-friends .rovalra-server-card-id { order: 1; }
             .rovalra-server-section[data-server-type="private"] .rovalra-server-grid { display: flex; flex-direction: column; gap: 2px; }
-            .rovalra-server-card-public .rovalra-server-action, .rovalra-server-card-friends .rovalra-server-action { background: #3a3d49; }
-            .rovalra-server-avatar { display: flex; flex-wrap: wrap; align-content: flex-start; gap: 5px; min-height: 58px; }
-            .rovalra-server-avatar img, .rovalra-server-avatar span { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; background: #e2e3e3; }
+            .rovalra-server-avatar { display: grid; grid-template-columns: repeat(3, 60px); grid-template-rows: repeat(2, 60px); justify-content: center; justify-items: center; align-content: flex-start; gap: 5px; min-height: 125px; padding: 0 8px; }
+            .rovalra-server-avatar.single { grid-template-columns: 60px; }
+            .rovalra-server-avatar img, .rovalra-server-avatar span { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; background: #e2e3e3; }
             .rovalra-server-avatar span { display: flex; align-items: center; justify-content: center; background: #69738b; color: white; font-size: 14px; }
             .rovalra-server-card-private { display: grid; grid-template-columns: 42px 1fr auto; grid-template-rows: auto; align-items: center; min-height: 64px; padding: 8px 0; background: transparent; }
-            .rovalra-server-card-private .rovalra-server-avatar { grid-row: auto; min-height: 42px; }
+            .rovalra-server-card-private .rovalra-server-avatar { display: flex; grid-template-columns: none; grid-row: auto; min-height: 42px; padding: 0; }
             .rovalra-server-card-private .rovalra-server-avatar img { width: 40px; height: 40px; }
             .rovalra-server-card-private .rovalra-server-card-header { min-width: 0; justify-content: flex-start; gap: 6px; }
-            .rovalra-server-card-private .rovalra-server-card-private-players { font-size: 14px; font-weight: 400; color: var(--rovalra-secondary-text-color); white-space: nowrap; }
+            .rovalra-server-card-private .rovalra-server-card-private-players { font-size: 16px; font-weight: 400; color: var(--rovalra-secondary-text-color); white-space: nowrap; }
             .rovalra-server-card-private .rovalra-server-card-details { grid-column: 2; }
             .rovalra-server-card-private .rovalra-server-card-footer { grid-column: 3; grid-row: auto; margin: 0; }
             .rovalra-server-card-private .rovalra-server-card-id { display: none; }
-            .rovalra-server-card-private .rovalra-server-action { min-width: 200px; height: 32px; background: #283f91 !important; transition: background-color 0.15s ease; }
-            .rovalra-server-card-private .rovalra-server-action:hover { background: #344fa9 !important; }
+            .rovalra-server-card-private .rovalra-server-action { min-width: 200px; height: 32px; }
             .rovalra-server-load-more { display: block; margin: 14px auto 0; }
             @media (max-width: 600px) { .rovalra-server-card-private { grid-template-columns: 42px 1fr; } .rovalra-server-card-private .rovalra-server-card-footer { grid-column: 2; grid-row: 3; } .rovalra-server-card-private .rovalra-server-action { min-width: 100%; } }
         `;
@@ -359,6 +362,20 @@ function setupServersTab(serversTab, placeId) {
             ts('privateGames.servers.title'),
             ts('privateGames.servers.description'),
             'private',
+            placeId,
+        ),
+        createServerSection(
+            'friends',
+            ts('privateGames.servers.friendsTitle'),
+            '',
+            'friends',
+            placeId,
+        ),
+        createServerSection(
+            'public',
+            ts('privateGames.servers.publicTitle'),
+            '',
+            'public',
             placeId,
         ),
     );
@@ -1301,6 +1318,9 @@ function renderPrivateGamePage(game, placeId, settings) {
                             </div>
                         </div>
                         <div class="game-buttons-container">
+                            <div class="rovalra-private-page-notice" style="margin-bottom: 8px; color: var(--rovalra-secondary-text-color); font-size: 13px; line-height: 1.3; text-align: center;">
+                                ${ts('privateGames.rovalraNotice')}
+                            </div>
                             <div class="game-details-play-button-container">
                                 <button type="button" class="btn-common-play-game-unplayable-lg btn-primary-md btn-full-width" disabled="" data-testid="play-unplayable-button">
                                     <span class="icon-status-unavailable-secondary"></span>

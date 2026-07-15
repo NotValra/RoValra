@@ -816,6 +816,8 @@
         "servers": {
             "title": "Your Private Servers",
             "description": "Play in your own space, solo or with people you invite",
+            "friendsTitle": "Servers My Friends Are In",
+            "publicTitle": "Other Servers",
             "privateServer": "Private server",
             "players": "{{playing}} of {{maxPlayers}} people max",
             "join": "Join",
