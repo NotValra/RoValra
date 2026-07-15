@@ -219,11 +219,14 @@ export async function checkAssetsInBatch(assetIds) {
 const ACCESSORY_TYPE_IDS = new Set([
     8, 41, 42, 43, 44, 45, 46, 47, 57, 58, 64, 65, 66, 67, 68, 69, 70, 71, 72,
 ]);
+const LAYERED_TYPE_IDS = new Set([
+    64, 65, 66, 67, 68, 69, 70, 71, 72
+])
 const HEAD_TYPE_IDS = new Set([17, 79]);
 
 function avatarFormatFor(assetTypeId) {
     if (HEAD_TYPE_IDS.has(assetTypeId)) return 'avatar_meshpart_head';
-    if (ACCESSORY_TYPE_IDS.has(assetTypeId)) return 'avatar_meshpart_accessory';
+    if (ACCESSORY_TYPE_IDS.has(assetTypeId) && !LAYERED_TYPE_IDS.has(assetTypeId)) return 'avatar_meshpart_accessory';
     return null;
 }
 
@@ -233,6 +236,7 @@ async function resolveAssetLocation(assetId, format) {
         subdomain: 'assetdelivery',
         endpoint: `/v2/asset/?id=${assetId}`,
         method: 'GET',
+        useBackground: true,
         headers,
         sanitize: false,
     });
