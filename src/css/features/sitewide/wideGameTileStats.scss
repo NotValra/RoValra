@@ -1,0 +1,11 @@
+[data-testid='wide-game-tile-sponsored-footer']
+    > .rovalra-wide-game-tile-sponsored-stats {
+    display: inline-flex !important;
+    align-items: center;
+    flex-shrink: 0;
+    white-space: nowrap;
+
+    .rovalra-wide-game-tile-sponsored-label, .rovalra-wide-game-tile-sponsored-separator {
+        padding-right: 8px !important;
+    }
+}

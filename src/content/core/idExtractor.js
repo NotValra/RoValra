@@ -28,6 +28,20 @@ export function getPlaceIdFromUrl(url = window.location.href) {
     return null;
 }
 
+export function getUniverseIdFromUrl(url = window.location.href) {
+    try {
+        const universeId = new URL(
+            url,
+            window.location.origin,
+        ).searchParams.get('universeId');
+
+        return /^\d+$/.test(universeId || '') ? universeId : null;
+    } catch (e) {
+        console.warn('RoValra: URL parsing failed', e);
+        return null;
+    }
+}
+
 export function getGamePassIdFromUrl(url = window.location.href) {
     try {
         const urlObj = new URL(url, window.location.origin);
