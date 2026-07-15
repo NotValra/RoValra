@@ -17,6 +17,18 @@
         "show": "Show",
         "hide": "Hide"
     },
+    "sidebarLayout": {
+        "untitled": "Untitled",
+        "empty": "RoValra was unable to find any sidebar buttons.",
+        "reset": "Reset",
+        "save": "Save",
+        "overlayTitle": "Sidebar Layout",
+        "button": "Customize Layout",
+        "myProfile": "My Profile",
+        "disabled": "Disabled",
+        "show": "Show",
+        "hide": "Hide"
+    },
     "underratedGames": {
         "topic": "Underrated Games",
         "subtitle": "Underrated games hand picked by the RoValra community.",

@@ -1486,16 +1486,21 @@ export const SETTINGS_CONFIG = {
                 description: ['Adds a button to collapse the Roblox sidebar.'],
                 type: 'checkbox',
                 default: true,
+                contributors: ['447170745', '2963377564'],
                 storageKey: 'rovalraSidebarCollapsed',
-                childSettings: {
-                    sidebarCollapseMoveContentEnabled: {
-                        label: 'Move content with collapsed sidebar',
-                        description:
-                            'Moves the page content to match the current sidebar width.',
-                        type: 'checkbox',
-                        default: true,
-                    },
-                },
+            },
+            sidebarLayoutEnabled: {
+                label: 'Sidebar Layout',
+                description: [
+                    'Lets you reorder and hide buttons in the Roblox sidebar.',
+                ],
+                type: 'checkbox',
+                default: true,
+                contributors: ['2963377564'],
+                storageKey: [
+                    'rovalra_sidebar_layout_order',
+                    'rovalra_sidebar_layout_hidden',
+                ],
             },
             ageKidsThemeEnabled: {
                 label: 'Age Theme',
