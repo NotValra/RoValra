@@ -1453,7 +1453,7 @@ export const SETTINGS_CONFIG = {
         },
     },
     Plus: {
-        title: "Roblox Plus",
+        title: 'Roblox Plus',
         settings: {
             reducePlusAds: {
                 label: 'Less Roblox Plus',
@@ -1497,8 +1497,8 @@ export const SETTINGS_CONFIG = {
                 description: [
                     'This allows Roblox Plus Subscribers to start a transfer by pressing the (...) on anyones profile but now directly on the website!',
                     'You can also use the "Send" button on the [Buy Robux](https://www.roblox.com/upgrades/robux) page.',
-                    'If you have an account under 18 you can also accept Robux transfers in the notifications tab.',
-                    '***Note**: On the Buy Robux Page, you cannot use the friends section, only the search section.*'
+                    'If you have an account under 18 you may need to accept Robux transfers in the notifications tab.',
+                    '***Note**: On the Buy Robux Page, you cannot use the friends section, only the search section.*',
                 ],
                 childSettings: {
                     keepRobuxAppButtonEnabled: {
