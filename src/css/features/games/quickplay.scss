@@ -188,7 +188,7 @@ a.game-tile-styles.game-card-link {
     gap: 0px;
     transform: translateY(0px);
     transition: opacity 0.2s ease-out, transform 0.2s ease-out;
-    pointer-events: none;
+    pointer-events: auto;
 }
 
 .play-buttons-wrapper {
@@ -222,6 +222,9 @@ a.game-tile-styles.game-card-link {
 .play-game-button {
     flex-grow: 1;
     position: relative;
+    .icon-common-play {
+        transform: scale(0.8);
+    }
 }
 
 .server-browser-button,
@@ -417,6 +420,10 @@ a.game-tile-styles.game-card-link {
     }
 
     a.game-tile-styles.game-card-link {
+
+        .play-button-overlay {
+            transform: translateY(6px) !important;
+        }
 
         &::after,
         &::before,

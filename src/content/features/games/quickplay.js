@@ -564,6 +564,12 @@ function getQuickPlayCardFromTarget(target) {
     return isQuickPlayCardLink(gameLink) ? gameLink : null;
 }
 
+function isQuickPlayCardHovered(gameLink) {
+    const hoverTarget =
+        gameLink.closest('[data-testid="wide-game-tile"]') || gameLink;
+    return hoverTarget.matches(':hover');
+}
+
 function attachPaidPriceCardObserver() {
     if (paidPriceCardObserver) return;
 
@@ -629,7 +635,7 @@ function handleQuickPlayCardLeave(event) {
     }
 
     if (
-        gameLink.matches(':hover') ||
+        isQuickPlayCardHovered(gameLink) ||
         gameLink.contains(document.activeElement)
     ) {
         return;
@@ -1161,7 +1167,7 @@ function scheduleCardCleanup(gameLink, delay) {
 
     const timerId = setTimeout(() => {
         State.cleanupTimers.delete(gameLink);
-        if (gameLink.matches(':hover')) return;
+        if (isQuickPlayCardHovered(gameLink)) return;
 
         if (
             State.activeGameCardLink === gameLink &&
@@ -1189,6 +1195,11 @@ function hideOtherHoverCards(gameLink) {
             otherGameLink.classList.remove('quick-play-hover-active');
             otherGameLink.classList.add('quick-play-hover-superseded');
         });
+}
+
+function lockSpecialLayoutOverlayPosition(overlay) {
+    overlay.style.top = `${overlay.offsetTop}px`;
+    overlay.style.bottom = 'auto';
 }
 
 function setupHoverCard(gameLink, settings) {
@@ -1293,6 +1304,8 @@ function setupHoverCard(gameLink, settings) {
 
     overlay.appendChild(wrapper);
     gameLink.appendChild(overlay);
+
+    if (isSpecialLayout) lockSpecialLayoutOverlayPosition(overlay);
 
     if (!isSpecialLayout) {
         gameLink
