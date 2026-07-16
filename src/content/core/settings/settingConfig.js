@@ -551,15 +551,6 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
-            PlusPrivateServerTooltipEnabled: {
-                label: 'Roblox Plus Free Server Tooltip',
-                description: [
-                    'Adds a tooltip showing the original cost of a private server if it is free due to Roblox Plus.',
-                ],
-                type: 'checkbox',
-                default: true,
-                contributors: ['447170745', '546872490'],
-            },
         },
     },
     Profile: {
@@ -725,16 +716,7 @@ export const SETTINGS_CONFIG = {
                 type: 'checkbox',
                 default: true,
             },
-            currencyTransferEnabled: {
-                label: 'Send Robux',
-                description: [
-                    'This allows Roblox Plus Subscribers to start a currency transfer by pressing the (...) on anyones profile.',
-                ],
-                type: 'checkbox',
-                default: true,
-                locked: 'Roblox released their own version of this feature',
-                isPermanent: true,
-            },
+
             lastOnlineEnabled: {
                 label: 'Show Last Online / Last Seen',
                 description: [
@@ -1470,6 +1452,85 @@ export const SETTINGS_CONFIG = {
             },
         },
     },
+    Plus: {
+        title: "Roblox Plus",
+        settings: {
+            reducePlusAds: {
+                label: 'Less Roblox Plus',
+                description: [
+                    'Makes Roblox Plus advertising more subtle.',
+                    'Not recommended if you have an active Roblox Plus subscription.',
+                ],
+                type: 'checkbox',
+                default: false,
+                childSettings: {
+                    removeAllPlusAdds: {
+                        label: 'Remove all Roblox Plus advertising.',
+                        type: 'checkbox',
+                        default: false,
+                    },
+                },
+                contributors: ['1564574922'],
+            },
+            PlusPrivateServerTooltipEnabled: {
+                label: 'Roblox Plus Free Server Tooltip',
+                description: [
+                    'Adds a tooltip showing the original cost of a private server if it is free due to Roblox Plus.',
+                ],
+                type: 'checkbox',
+                default: true,
+                contributors: ['447170745', '546872490'],
+            },
+            currencyTransferEnabled: {
+                label: 'Send Robux',
+                description: [
+                    'This allows Roblox Plus Subscribers to start a currency transfer by pressing the (...) on anyones profile.',
+                ],
+                type: 'checkbox',
+                default: true,
+                locked: 'Roblox released their own version of this feature',
+                isPermanent: true,
+                hidden: true,
+            },
+            sendRobuxEnabled: {
+                label: 'Send Robux',
+                description: [
+                    'This allows Roblox Plus Subscribers to start a transfer by pressing the (...) on anyones profile but now directly on the website!',
+                    'You can also use the "Send" button on the [Buy Robux](https://www.roblox.com/upgrades/robux) page.',
+                    'If you have an account under 18 you can also accept Robux transfers in the notifications tab.',
+                    '***Note**: On the Buy Robux Page, you cannot use the friends section, only the search section.*'
+                ],
+                childSettings: {
+                    keepRobuxAppButtonEnabled: {
+                        label: 'Keep The Open In App button',
+                        description: [
+                            'Keeps the profile item that opens the app to send Robux.',
+                        ],
+                        type: 'checkbox',
+                        default: false,
+                    },
+                },
+                contributors: ['650766686'],
+                type: 'checkbox',
+                default: true,
+            },
+            plusStatsEnabled: {
+                label: 'Show Plus Stats',
+                description:
+                    'Shows Roblox Plus Stats on the [Plus](https://www.roblox.com/plus) page even if you are not subscribed',
+                type: 'checkbox',
+                default: true,
+                contributors: ['650766686'],
+            },
+            plusTransferLimitsEnabled: {
+                label: 'Show Plus Transfer Limits',
+                description:
+                    'Shows how much Robux you have left before the daily and monthly Roblox Plus transfer limits on the [Plus](https://www.roblox.com/plus) page.',
+                type: 'checkbox',
+                default: true,
+            },
+        },
+    },
     Navigation: {
         title: 'Navigation',
         settings: {
@@ -1976,38 +2037,6 @@ export const SETTINGS_CONFIG = {
                     'Makes the currently playing experience card in friend hover cards link directly to the experience the user is playing.',
                 ],
                 contributors: ['2963377564'],
-                type: 'checkbox',
-                default: true,
-            },
-            reducePlusAds: {
-                label: 'Less Roblox Plus',
-                description: [
-                    'Makes Roblox Plus advertising more subtle.',
-                    'Not recommended if you have an active Roblox Plus subscription.',
-                ],
-                type: 'checkbox',
-                default: false,
-                childSettings: {
-                    removeAllPlusAdds: {
-                        label: 'Remove all Roblox Plus advertising.',
-                        type: 'checkbox',
-                        default: false,
-                    },
-                },
-                contributors: ['1564574922'],
-            },
-            plusStatsEnabled: {
-                label: 'Show Plus Stats',
-                description:
-                    'Shows Roblox Plus Stats on the [Plus](https://www.roblox.com/plus) page even if you are not subscribed',
-                type: 'checkbox',
-                default: true,
-                contributors: ['650766686'],
-            },
-            plusTransferLimitsEnabled: {
-                label: 'Show Plus Transfer Limits',
-                description:
-                    'Shows how much Robux you have left before the daily and monthly Roblox Plus transfer limits on the [Plus](https://www.roblox.com/plus) page.',
                 type: 'checkbox',
                 default: true,
             },
