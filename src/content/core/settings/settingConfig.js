@@ -1080,6 +1080,17 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: false,
+                childSettings: {
+                    accurateContinueAutoRefreshEnabled: {
+                        label: 'Auto Refresh Continue',
+                        description: [
+                            'Updates the Continue row after a game launches, without reloading the page.',
+                        ],
+                        type: 'checkbox',
+                        default: true,
+                        contributors: ['10646979010'], // rav4
+                    },
+                },
             },
             underratedGamesEnabled: {
                 label: 'Underrated Games',

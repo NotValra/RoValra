@@ -19,9 +19,6 @@
     const TRADES_LIST_API_URL = 'https://trades.roblox.com/v1/trades/';
     const GROUP_ROLES_API_HOST = 'groups.roblox.com';
     const GROUP_ROLES_API_PATH = /^\/v1\/users\/(\d+)\/groups\/roles$/;
-    const PROFILE_API_URL =
-        'https://apis.roblox.com/profile-platform-api/v1/profiles/get';
-    const ROBLOX_ADMIN_GROUP_ID = 1200769;
     const OMNI_RECOMMENDATION_API_URL =
         'https://apis.roblox.com/discovery-api/omni-recommendation';
     const FRIEND_CAROUSEL_TOPIC_ID = 600000000;
@@ -40,19 +37,6 @@
     let homeLayoutReady = false;
     let homeLayoutReadyPromise = null;
     let resolveHomeLayoutReady = null;
-    let robloxGroupFeaturesEnabled = true;
-
-    document.addEventListener('rovalra:settingSaved', (event) => {
-        if (event.detail?.name === 'robloxGroupFeaturesEnabled') {
-            robloxGroupFeaturesEnabled = event.detail.value !== false;
-        }
-    });
-    document.addEventListener('rovalra:settingsState', (event) => {
-        if (typeof event.detail?.robloxGroupFeaturesEnabled === 'boolean') {
-            robloxGroupFeaturesEnabled =
-                event.detail.robloxGroupFeaturesEnabled;
-        }
-    });
 
     try {
         streamerModeEnabled =
@@ -133,37 +117,6 @@
         if (typeof url === 'string') return url;
         if (url instanceof Request) return url.url;
         return '';
-    }
-
-    function isRobloxAdminGroupMember(data) {
-        return data?.components?.Communities?.communityIds?.some(
-            (groupId) => Number(groupId) === ROBLOX_ADMIN_GROUP_ID,
-        );
-    }
-
-    function applyRobloxAdminProfileResponse(data) {
-        if (
-            robloxGroupFeaturesEnabled &&
-            isRobloxAdminGroupMember(data) &&
-            data?.components?.UserProfileHeader
-        ) {
-            data.components.UserProfileHeader.isRobloxAdmin = true;
-            return true;
-        }
-
-        return false;
-    }
-
-    function responseWithJson(response, data) {
-        const newHeaders = new Headers(response.headers);
-        newHeaders.delete('content-length');
-        newHeaders.delete('content-encoding');
-
-        return new Response(JSON.stringify(data), {
-            status: response.status,
-            statusText: response.statusText,
-            headers: newHeaders,
-        });
     }
 
     function getGroupRolesRequestUserId(url) {
@@ -605,15 +558,6 @@
 
         response = await applyHomeLayoutToFetchResponse(requestUrl, response);
 
-        if (requestUrl.includes(PROFILE_API_URL)) {
-            try {
-                const data = await response.clone().json();
-                if (applyRobloxAdminProfileResponse(data)) {
-                    response = responseWithJson(response, data);
-                }
-            } catch (error) {}
-        }
-
         if (typeof requestUrl === 'string') {
             if (requestUrl.includes(CATALOG_API_URL)) {
                 response
@@ -783,9 +727,6 @@
         ) {
             this._rovalra_home_layout = true;
         }
-        if (typeof url === 'string' && url.includes(PROFILE_API_URL)) {
-            this._rovalra_profile_api = true;
-        }
 
         return originalXhrOpen.apply(this, [method, url, ...rest]);
     };
@@ -800,8 +741,7 @@
             xhr._rovalra_spoof_country ||
             xhr._rovalra_spoof_age_group ||
             xhr._rovalra_spoof_sessions ||
-            xhr._rovalra_home_layout ||
-            xhr._rovalra_profile_api
+            xhr._rovalra_home_layout
         ) {
             Object.defineProperty(xhr, 'responseText', {
                 configurable: true,
@@ -825,9 +765,6 @@
                             hideHomeSorts(data);
                             applyAccurateContinue(data);
                             reorderHomeSorts(data);
-                        }
-                        if (xhr._rovalra_profile_api) {
-                            applyRobloxAdminProfileResponse(data);
                         }
                         if (xhr._rovalra_spoof_settings) {
                             data.UserEmail = 'RoValra Streamer Mode Enabled';
