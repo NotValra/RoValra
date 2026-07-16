@@ -308,7 +308,7 @@ async function addTrustedFriendButton(menu) {
         }
     } catch (err) {}
 }
-
+//test
 export function init() {
     chrome.storage.local.get(
         { trustedConnectionsEnabledv2: true },
