@@ -114,7 +114,7 @@ export function updateUserCardPresence(
                         attachSubplaceCardToPresenceTarget(sublabel, presenceData);
                     }
                 })
-                .catch(() => {});
+                .catch(() => { });
         }
     }
 }
@@ -149,6 +149,7 @@ export function createUserCard({
     username,
     thumbData,
     href,
+    userId = 0,
     showUsername = true,
     presenceInfo = 0,
     gameName,
@@ -171,20 +172,18 @@ export function createUserCard({
     const tileContainer = document.createElement('div');
     tileContainer.className = 'friends-carousel-tile';
     const innerHtml = `
-        <div class="user-card user-card-content rovalra-user-card" style="width: 90px; ${isOpaque ? 'background: var(--rovalra-container-background-color) !important; opacity: 1 !important; border-radius: 50%;' : ''}">
+        <div class="user-card user-card-content rovalra-user-card" style="width: 90px; ${isOpaque ? 'background: var(--rovalra-container-background-color) !important; opacity: 1 !important; border-radius: 50%;' : ''}" ${Number(userId) > 0 ? `data-rovalra-card-user-id="${userId}"` : ''}>
             <div class="avatar avatar-card-fullbody avatar-card-image-container user-profile-header-details-avatar-container rovalra-user-card-avatar" style="width: 90px; height: 90px; position: relative;">
                 ${href ? `<a href="${href}" class="avatar-card-link">` : ''}
                     <span class="thumbnail-2d-container avatar-card-image rovalra-user-card-thumbnail" style="width: 100%; height: 100%; display: block; overflow: hidden; border-radius: 50%; background: var(--rovalra-button-background-color);"></span>
                 ${href ? `</a>` : ''}
-                ${
-                    !hidePresence
-                        ? `<div class="avatar-status" style="width: 28px !important; height: 28px !important; max-width: 28px !important; max-height: 28px !important; min-width: 28px !important; min-height: 28px !important; overflow: hidden !important; display: block !important;"><span data-testid="presence-icon" title="${presenceTitle}" class="${presence.class}" style="width: 28px !important; height: 28px !important; display: block !important; transform: scale(1) !important; zoom: 1 !important; font-size: 28px !important;"></span></div>`
-                        : ''
-                }
+                ${!hidePresence
+            ? `<div class="avatar-status" style="width: 28px !important; height: 28px !important; max-width: 28px !important; max-height: 28px !important; min-width: 28px !important; min-height: 28px !important; overflow: hidden !important; display: block !important;"><span data-testid="presence-icon" title="${presenceTitle}" class="${presence.class}" style="width: 28px !important; height: 28px !important; display: block !important; transform: scale(1) !important; zoom: 1 !important; font-size: 28px !important;"></span></div>`
+            : ''
+        }
             </div>
-            ${
-                showSublabel
-                    ? `
+            ${showSublabel
+            ? `
             <div class="user-card-labels" style="display: block; margin-top: 8px; max-width: 90px; width: 90px;">
                 <div class="user-card-name" style="overflow: hidden; line-height: 1.2;">
                     <span style="font-weight: 400; font-size: 12.8px; color: var(--rovalra-main-text-color); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; max-width: 90px; text-align: center; transition: text-decoration 0.2s ease;">${displayName}${verifiedSvg}</span>
@@ -192,14 +191,14 @@ export function createUserCard({
                 <div class="user-card-subname" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: ${sublabelFontSize}; color: var(--rovalra-secondary-text-color); max-width: 90px; display: block; text-align: center; transition: text-decoration 0.2s ease;">${sublabelText}</div>
             </div>
             `
-                    : `
+            : `
             <div class="user-card-labels-no-username" style="margin-top: 8px; max-width: 90px; width: 90px; text-align: center;">
                 <div class="user-card-name" style="overflow: hidden; line-height: 1.2;">
                     <span style="font-weight: 400; font-size: 12.8px; color: var(--rovalra-main-text-color); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; max-width: 90px; text-align: center; transition: text-decoration 0.2s ease;">${displayName}${verifiedSvg}</span>
                 </div>
             </div>
             `
-            }
+        }
         </div>
     `;
     tileContainer.innerHTML = DOMPurify.sanitize(
@@ -233,7 +232,7 @@ export function createUserCard({
                         attachSubplaceCardToPresenceTarget(sublabel, presenceData);
                     }
                 })
-                .catch(() => {});
+                .catch(() => { });
         }
     }
     return tileContainer;
@@ -252,6 +251,7 @@ export function createFriendTile(
         username: isHidden ? '' : username || '',
         thumbData: thumbData || { state: 'Error' },
         href,
+        userId: isHidden ? -1 : item.id,
         presenceInfo: 0,
         isVerified,
     });
@@ -281,7 +281,7 @@ export function createFriendTile(
                     }
                 }
             })
-            .catch(() => {});
+            .catch(() => { });
     }
 
     if (!isHidden) {
@@ -348,6 +348,7 @@ export async function createFriendTiles(
             href: isHidden
                 ? ''
                 : `https://www.roblox.com/users/${item.id}/profile`,
+            userId: isHidden ? -1 : item.id,
             presenceInfo: presenceType,
             gameName: isHidden || !gameName ? '' : gameName,
             presenceData: isHidden ? null : presence,
@@ -424,6 +425,7 @@ export async function createUserCardsFromIds(containerEl, ids, limit = 7) {
             isVerified: profile.names.isVerified || false,
             thumbData: thumbMap.get(id) || { state: 'Error' },
             href: `https://www.roblox.com/users/${id}/profile`,
+            userId: id,
             presenceInfo: presenceType,
             gameName,
             presenceData: presence,

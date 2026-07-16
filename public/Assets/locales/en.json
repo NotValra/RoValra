@@ -1043,6 +1043,60 @@
         },
         "privateServerTooltip": {
             "tooltipText": "Original Price: <b>{{originalPrice}} Robux</b><br>Currently shows as <b>Free</b> due to Roblox Plus."
+        },
+        "sendRobux": {
+            "profile": {
+                "button": "Send Robux",
+                "openInApp": "Open In App"
+            },
+            "buyRobux": {
+                "notice": "These links will open in app. Use the search box above instead."
+            },
+            "popup": {
+                "shared": {
+                    "title": "Send Robux",
+                    "titleSilly": "send bobux :3",
+                    "okBtn": "OK"
+                },
+                "step1": {
+                    "robuxInputName": "Robux Amount to Send",
+                    "mutedNotice": "Robux are sent instantly with no fees",
+                    "minRobux": "You must send at least {robuxAmount} Robux",
+                    "maxRobux": "You must send no more than {robuxAmount} Robux",
+                    "notEnoughRobux": "You don't have enough Robux",
+                    "nextBtn": "Next"
+                },
+                "step2": {
+                    "sendBtn": "Send",
+                    "editBtn": "Edit",
+                    "mutedNotice": "No cancellations. You may need age check or parent approval.",
+                    "transferErrorGeneric": "An unknown error occured.",
+                    "transferErrorNoMessage": "Unknown error occured with no message provided",
+                    "transferSuccessBody": "The transfer was a success!",
+                    "transferSuccessBodySilly": "transfer was alright! very cool",
+                    "transferSuccessOkBtnSilly": "electric boogaloo",
+                    "userInfoFriendTime": "Friended {{time, relativetime}}",
+                    "userInfoMutualFriends_one": "{{count}} mutual friend",
+                    "userInfoMutualFriends_other": "{{count}} mutual friends",
+                    "userInfoJoin": "Joined in {{year}}",
+                    "paramPassedError": "An unknown error occured! Check console and report the issue to RoValra."
+                },
+                "parentPerms": {
+                    "askBtn": "Ask",
+                    "sendRobuxBody": "To send Robux, you need parent permission",
+                    "receiveRobuxBody": "To receive Robux, you need parent permission",
+                    "askTitle": "Ask for Permission",
+                    "askTitleSilly": "ask parents for perms",
+                    "errorSending": "An unknown error occured, check the console and report it to RoValra",
+                    "errorReceivingTitle": "There was an error accepting the Robux",
+                    "errorReceivingBody": "An unknown error occured, you might have already accepted this Robux transfer. Check the console for details.",
+                    "errorReceivingOkBtnSilly": "aw",
+                    "successfulAskTitle": "Request Sent",
+                    "successfulAskTitleSilly": "we notified ur parents, prepare...",
+                    "successfulAskBody": "We have sent the request to your parents and guardians via email!",
+                    "successfulAskOkBtnSilly": "alright very cool, thanks"
+                }
+            }
         }
     }
 }
