@@ -5,6 +5,7 @@ export const USER_CARD_DEFINITIONS = [
     {
         selector: '.friends-carousel-tile',
         linkSelector: 'a.avatar-card-link',
+        userCardSelector: '.user-card, .user-card-content, .rovalra-user-card',
         avatarSelector:
             '.rovalra-user-card-avatar, .avatar-card-fullbody, .avatar-card-image',
         gradientAvatarSelector:
@@ -17,6 +18,7 @@ export const USER_CARD_DEFINITIONS = [
     {
         selector: 'li.list-item.avatar-card',
         linkSelector: 'a.avatar-card-link',
+        userCardSelector: '.user-card, .user-card-content, .rovalra-user-card',
         avatarSelector: '.avatar-card-fullbody, .avatar-card-image',
         gradientAvatarSelector: '.avatar-card-image',
         displayNameSelector: '.avatar-name, .user-card-name span',
@@ -24,6 +26,7 @@ export const USER_CARD_DEFINITIONS = [
     {
         selector: '.avatar-card-container',
         linkSelector: 'a.avatar-card-link',
+        userCardSelector: '.user-card, .user-card-content, .rovalra-user-card',
         avatarSelector: '.avatar-card-fullbody, .avatar-card-image',
         gradientAvatarSelector: '.avatar-card-image',
         displayNameSelector: '.avatar-name, .user-card-name span',
@@ -31,6 +34,7 @@ export const USER_CARD_DEFINITIONS = [
     {
         selector: '.rovalra-donator-card',
         linkSelector: 'a.avatar-card-link',
+        userCardSelector: '.user-card, .user-card-content, .rovalra-user-card',
         avatarSelector: '.avatar-card-fullbody, .avatar-card-image',
         gradientAvatarSelector: '.avatar-card-image',
         displayNameSelector:
@@ -135,7 +139,10 @@ export function getUserCardContext(element) {
     const link =
         getElement(element, definition?.linkSelector) ||
         getFallbackLink(element);
-    const userId = link?.href ? getUserIdFromUrl(link.href) : null;
+    const userCardEl = getElement(element, definition?.userCardSelector)
+    const userId = userCardEl && userCardEl.dataset.rovalraCardUserId
+        ? userCardEl.dataset.rovalraCardUserId
+        : (link?.href ? getUserIdFromUrl(link.href) : null);
     const avatar =
         getElement(element, definition?.avatarSelector) ||
         element.querySelector(

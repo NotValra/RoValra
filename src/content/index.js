@@ -47,6 +47,7 @@ import { init as initFriendGameLink } from './features/sitewide/friendGameLink.j
 import { init as initWideGameTileStats } from './features/sitewide/wideGameTileStats.js';
 import { init as initPaymentMethodBonusItems } from './features/paymentmethods/bonusItems.js';
 import { init as initThemeSwitcher } from './features/sitewide/themeSwitcher.js';
+import { initNotificationCenter as initReceiveRobuxNotificationCenter } from './features/plus/sendRobux.js';
 
 // Avatar
 import { init as initAvatarFilters } from './features/avatar/filters.js';
@@ -145,6 +146,7 @@ import { init as initUsernameColor } from './features/profile/header/usernameCol
 import { init as initDisplayNameGradient } from './features/profile/header/displayNameGradient.js';
 import { init as initChatEligibilityTooltip } from './features/profile/header/chatEligibilityTooltip.js';
 import { init as initProfileCustomization } from './features/profile/profileCustomization.js';
+import { initProfileButton as initSendRobuxProfileButton } from './features/plus/sendRobux.js';
 
 // Settings
 import { init as initSettingsPage } from './features/settings/index.js';
@@ -161,6 +163,8 @@ import { init as initCreateDownload } from './features/create.roblox.com/downloa
 import { init as initCatalogExplorer } from './features/catalog/explorer.js';
 import { enforceSettingOverrides } from './core/settings/handlesettings.js';
 import { refreshRemoteSettingLocks } from './core/settings/remoteSettingLocks.js';
+// buy page
+import { initBuyRobuxPage as initSendRobuxBuyPage } from './features/plus/sendRobux.js'
 
 let pageLoaded = false;
 let lastPath = window.location.pathname.toLowerCase();
@@ -223,6 +227,7 @@ const featureRoutes = [
             initThemeSwitcher,
             initCustomThemeEditor,
             initThemeCatalogPage,
+            initReceiveRobuxNotificationCenter,
         ],
     },
     // pretty much just the 40% method
@@ -356,6 +361,7 @@ const featureRoutes = [
             initAvatarDownload,
             initChatEligibilityTooltip,
             initProfileCustomization,
+            initSendRobuxProfileButton,
         ],
     },
     {
@@ -416,6 +422,11 @@ const featureRoutes = [
     {
         paths: ['/NewLogin', '/Login'],
         features: [initLoginBanner],
+    },
+    // Buy Robux Page
+    {
+        paths: ['/upgrades/robux'],
+        features: [initSendRobuxBuyPage],
     },
 ];
 
@@ -559,7 +570,7 @@ async function initializePage() {
     const startFeatures = async () => {
         const featureStartTime = performance.now();
 
-        await t('__i18n_ready__').catch(() => {});
+        await t('__i18n_ready__').catch(() => { });
         detectTheme().then((theme) => dispatchThemeEvent(theme));
         runFeaturesForPage();
         scheduleSettingsMaintenance();
@@ -570,8 +581,8 @@ async function initializePage() {
             `%cRoValra Initialized`,
             'font-size: 1.5em; color: #FF4500;',
             `\n(Observer: ${observerStatus})` +
-                `\nFeature Load Time: ${(endTime - featureStartTime).toFixed(2)}ms` +
-                `\nTotal Load Time: ${(endTime - startTime).toFixed(2)}ms`,
+            `\nFeature Load Time: ${(endTime - featureStartTime).toFixed(2)}ms` +
+            `\nTotal Load Time: ${(endTime - startTime).toFixed(2)}ms`,
         );
     };
 
@@ -615,13 +626,13 @@ function setupUrlChangeListeners() {
     const originalPushState = history.pushState;
     const originalReplaceState = history.replaceState;
 
-    history.pushState = function (...args) {
+    history.pushState = function(...args) {
         originalPushState.apply(this, args);
         normalizeGamePageHash();
         handleUrlChange();
     };
 
-    history.replaceState = function (...args) {
+    history.replaceState = function(...args) {
         originalReplaceState.apply(this, args);
         normalizeGamePageHash();
         handleUrlChange();
