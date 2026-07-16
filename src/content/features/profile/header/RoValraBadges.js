@@ -473,6 +473,14 @@ async function addProfileBadgeButtons(buttonContainer) {
 }
 
 export function init() {
+    settings.robloxGroupFeaturesEnabled.then((enabled) => {
+        document.dispatchEvent(
+            new CustomEvent('rovalra:settingsState', {
+                detail: { robloxGroupFeaturesEnabled: enabled !== false },
+            }),
+        );
+    });
+
     if (!groupRolesListenerInitialized) {
         groupRolesListenerInitialized = true;
         document.addEventListener('rovalra-group-roles-response', (event) => {
