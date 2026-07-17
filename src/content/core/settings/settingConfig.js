@@ -1062,6 +1062,17 @@ export const SETTINGS_CONFIG = {
                 ],
                 type: 'checkbox',
                 default: false,
+                childSettings: {
+                    accurateContinueAutoRefreshEnabled: {
+                        label: 'Auto Refresh Continue',
+                        description: [
+                            'Updates the Continue row after a game launches, without reloading the page.',
+                        ],
+                        type: 'checkbox',
+                        default: false, // Not on by default cuz people are used to it not updating, so it randomly uipdating will get annoying.
+                        contributors: ['10646979010'], // hi im rav4
+                    },
+                },
             },
             underratedGamesEnabled: {
                 label: 'Underrated Games',
