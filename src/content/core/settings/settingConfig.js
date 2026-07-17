@@ -1069,7 +1069,7 @@ export const SETTINGS_CONFIG = {
                             'Updates the Continue row after a game launches, without reloading the page.',
                         ],
                         type: 'checkbox',
-                        default: true,
+                        default: false, // Not on by default cuz people are used to it not updating, so it randomly uipdating will get annoying.
                         contributors: ['10646979010'], // hi im rav4
                     },
                 },
