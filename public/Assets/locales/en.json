@@ -1061,8 +1061,8 @@
                 "step1": {
                     "robuxInputName": "Robux Amount to Send",
                     "mutedNotice": "Robux are sent instantly with no fees",
-                    "minRobux": "You must send at least {robuxAmount} Robux",
-                    "maxRobux": "You must send no more than {robuxAmount} Robux",
+                    "minRobux": "You must send at least {{robuxAmount}} Robux",
+                    "maxRobux": "You must send no more than {{robuxAmount}} Robux",
                     "notEnoughRobux": "You don't have enough Robux",
                     "nextBtn": "Next"
                 },
