@@ -245,6 +245,7 @@ export async function getUserVerifiedBadgeStatus(userId) {
     return userData?.hasVerifiedBadge || false;
 }
 
+// This is like my child :3
 export const PROFILE_TYPES = {
     USER: 'User',
     COMMUNITY: 'Community',

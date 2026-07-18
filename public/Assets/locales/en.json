@@ -900,7 +900,7 @@
         "inventory": "Inventory",
         "by": "By",
         "usePassIn": "Use this Pass in:",
-        "rovalraNoticeDescription": "This game pass page is not viewable without RoValra."
+        "rovalraNoticeDescription": "This game pass is inactive and cannot be purchased due to Roblox limitations, possibly related to account age or game visibility."
     },
     "playabilityStatus": {
         "0": "This experience is unavailable",
