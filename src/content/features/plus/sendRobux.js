@@ -367,7 +367,7 @@ async function sendParentPermission(userId, robuxAmount, transferRequestId, east
             }
             overlay.close();
             const successfulAsk = createOverlay({
-                title: await t(`plus.sendRobux.popup.parentPerms.askTitle${easterEgg || isAprilFools() ? 'Silly' : ''}`),
+                title: await t(`plus.sendRobux.popup.parentPerms.successfulAskTitle${easterEgg || isAprilFools() ? 'Silly' : ''}`),
                 bodyContent: await t('plus.sendRobux.popup.parentPerms.successfulAskBody'),
                 showLogo: true,
                 actions: [
@@ -437,7 +437,7 @@ async function sendParentPermissionRecieve(transferRequestId, easterEgg = false)
                     title: await t('plus.sendRobux.popup.parentPerms.errorReceivingTitle'),
                     bodyContent: await t('plus.sendRobux.popup.parentPerms.errorReceivingBody'),
                     showLogo: true,
-                    actions: [createButton(t(`plus.sendRobux.popup.${easterEgg || isAprilFools() ? 'parentPerms.errorReceivingOkBtnSilly' : 'shared.okBtn'}`), "secondary", {
+                    actions: [createButton(await t(`plus.sendRobux.popup.${easterEgg || isAprilFools() ? 'parentPerms.errorReceivingOkBtnSilly' : 'shared.okBtn'}`), "secondary", {
                         onClick: () => { errorAsk.close(); }
                     })],
                     onClose: () => { },
@@ -448,7 +448,7 @@ async function sendParentPermissionRecieve(transferRequestId, easterEgg = false)
             }
             overlay.close();
             const successfulAsk = createOverlay({
-                title: await t(`plus.sendRobux.popup.parentPerms.askTitle${easterEgg || isAprilFools() ? 'Silly' : ''}`),
+                title: await t(`plus.sendRobux.popup.parentPerms.successfulAskTitle${easterEgg || isAprilFools() ? 'Silly' : ''}`),
                 bodyContent: await t('plus.sendRobux.popup.parentPerms.successfulAskBody'),
                 showLogo: true,
                 actions: [createButton(await t(`plus.sendRobux.popup.${easterEgg || isAprilFools() ? 'parentPerms.successfulAskOkBtnSilly' : 'shared.okBtn'}`), 'secondary', {
