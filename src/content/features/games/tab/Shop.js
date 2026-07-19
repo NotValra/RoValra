@@ -156,14 +156,20 @@ function normalizeGamePass(pass) {
 function createRobuxHref(item, paymentSessionId) {
     const productId = item.info?.productId || item.id;
 
-    if (!productId || !paymentSessionId) {
+    if (!productId) {
         return 'https://www.roblox.com/upgrades/robux';
     }
+
+    const sessionId =
+        paymentSessionId ||
+        (typeof crypto !== 'undefined' && crypto.randomUUID
+            ? crypto.randomUUID()
+            : `${Date.now()}-${Math.random().toString(16).slice(2)}`);
 
     const params = new URLSearchParams({
         ap: String(productId),
         page: 'RobuxRedesign',
-        paymentSessionId,
+        paymentSessionId: sessionId,
     });
 
     return `https://www.roblox.com/upgrades/paymentmethods?${params.toString()}`;
@@ -185,9 +191,7 @@ function normalizeRobux(item, bonusItem, paymentSessionId) {
         name: ts('shop.robuxAmount', {
             amount: robux.toLocaleString(),
         }),
-        description: bonusName
-            ? ts('shop.bonusItem', { item: bonusName })
-            : ts('shop.bonusItemFallback'),
+        description: bonusName ? ts('shop.bonusItem', { item: bonusName }) : '',
         priceText,
         robux,
         iconId: bonusIconId,
@@ -265,9 +269,9 @@ async function enrichShopItems(categories, universeId) {
                 normalized = normalizeProduct(productMap.get(Number(item.id)));
             } else if (item.type === 'GamePass') {
                 normalized = normalizeGamePass(passMap.get(Number(item.id)));
-            } else if (item.type === 'Robux' && item.bonusItem) {
+            } else if (item.type === 'Robux') {
                 const bonusItem =
-                    item.bonusItem.type === 'GamePass'
+                    item.bonusItem?.type === 'GamePass'
                         ? passMap.get(Number(item.bonusItem.id))
                         : null;
                 normalized = normalizeRobux(item, bonusItem, paymentSessionId);
@@ -286,8 +290,6 @@ function getAllCategory(categories) {
 
     categories.forEach((category) => {
         (category.items || []).forEach((item) => {
-            if (item.type === 'Robux' && !item.bonusItem) return;
-
             const key = makeItemKey(item);
             if (seen.has(key)) return;
 
@@ -325,13 +327,34 @@ function createRobuxShopCard(item, thumbnailMap) {
     const thumbnail = item.iconId
         ? thumbnailMap.get(Number(item.iconId))
         : null;
-    const thumb = createThumbnailElement(
-        thumbnail || { state: 'Broken' },
-        item.name,
-        'rovalra-shop-thumbnail',
-        { width: '100%', height: '100%', borderRadius: '8px' },
-    );
-    thumbContainer.appendChild(thumb);
+    if (thumbnail) {
+        thumbContainer.appendChild(
+            createThumbnailElement(
+                thumbnail,
+                item.name,
+                'rovalra-shop-thumbnail',
+                { width: '100%', height: '100%', borderRadius: '8px' },
+            ),
+        );
+    } else if (item.type === 'Robux') {
+        const robuxIcon = createRobuxIcon({
+            size: '36px',
+            color: 'var(--rovalra-secondary-text-color)',
+        });
+        thumbContainer.style.display = 'flex';
+        thumbContainer.style.alignItems = 'center';
+        thumbContainer.style.justifyContent = 'center';
+        thumbContainer.appendChild(robuxIcon);
+    } else {
+        thumbContainer.appendChild(
+            createThumbnailElement(
+                { state: 'Broken' },
+                item.name,
+                'rovalra-shop-thumbnail',
+                { width: '100%', height: '100%', borderRadius: '8px' },
+            ),
+        );
+    }
 
     const textSection = document.createElement('div');
     textSection.className = 'rovalra-shop-card-text';
@@ -717,11 +740,6 @@ export function createShopSection({ parentContainer, universeId }) {
 
                 const renderCategory = (category) => {
                     const items = (category.items || [])
-                        .filter(
-                            (item) =>
-                                item.type !== 'Robux' ||
-                                Boolean(item.bonusItem),
-                        )
                         .map((item) => normalizedByKey.get(makeItemKey(item)))
                         .filter(Boolean);
                     renderItems(
