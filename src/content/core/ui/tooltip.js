@@ -4,6 +4,7 @@ import DOMPurify from 'dompurify';
 let activeTooltipCleanup = null;
 let activeTooltipOwner = null;
 const tooltipShells = new WeakMap();
+const TOOLTIP_Z_INDEX = '2147483647';
 
 function getTooltipShell(container) {
     let shell = tooltipShells.get(container);
@@ -11,6 +12,11 @@ function getTooltipShell(container) {
 
     const tooltipElement = document.createElement('div');
     tooltipElement.style.position = 'absolute';
+    tooltipElement.style.setProperty(
+        'z-index',
+        TOOLTIP_Z_INDEX,
+        'important',
+    );
     tooltipElement.style.pointerEvents = 'none';
     tooltipElement.style.display = 'none';
     tooltipElement.setAttribute('role', 'tooltip');
