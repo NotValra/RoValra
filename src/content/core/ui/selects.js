@@ -264,16 +264,21 @@ export function createDropdownContent(
             PANEL_GAP -
             VIEWPORT_EDGE_MARGIN;
         const spaceAbove = triggerRect.top - PANEL_GAP - VIEWPORT_EDGE_MARGIN;
+
+        contentPanel.style.minWidth = `${minWidth}px`;
+        contentPanel.style.maxWidth = `${maxWidth}px`;
+        contentPanel.style.maxHeight = 'none';
+        dropdownContentInner.style.maxHeight = 'none';
+        const naturalPanelHeight = contentPanel.offsetHeight;
+        const requiredPanelHeight = Math.min(naturalPanelHeight, maxHeight);
         const openAbove =
-            spaceBelow < maxHeight && spaceAbove > spaceBelow;
+            spaceBelow < requiredPanelHeight && spaceAbove > spaceBelow;
         const availableHeight = Math.max(
             96,
             Math.floor(openAbove ? spaceAbove : spaceBelow),
         );
         const panelMaxHeight = Math.min(maxHeight, availableHeight);
 
-        contentPanel.style.minWidth = `${minWidth}px`;
-        contentPanel.style.maxWidth = `${maxWidth}px`;
         contentPanel.style.maxHeight = `${panelMaxHeight}px`;
 
         const verticalPadding =
@@ -296,8 +301,9 @@ export function createDropdownContent(
             Math.max(triggerRect.left, VIEWPORT_EDGE_MARGIN),
             maxLeft,
         );
+        const panelHeight = contentPanel.offsetHeight;
         const top = openAbove
-            ? triggerRect.top - panelMaxHeight - PANEL_GAP
+            ? triggerRect.top - panelHeight - PANEL_GAP
             : triggerRect.bottom + PANEL_GAP;
 
         contentPanel.style.left = `${left + window.scrollX}px`;
