@@ -4169,7 +4169,14 @@ function openSource(title, source) {
 }
 
 async function loadBundleTree(bundleId) {
-    const invalid = { assetId: bundleId, root: null, format: null, isValid: false };
+    const invalid = {
+        assetId: bundleId,
+        root: null,
+        format: null,
+        isValid: false,
+    };
+
+    if (!/\/bundles\//i.test(window.location.pathname)) return invalid;
 
     try {
         const details = await callRobloxApiJson({
@@ -4180,9 +4187,7 @@ async function loadBundleTree(bundleId) {
 
         const items = (details?.items || []).filter(
             (item) =>
-                item &&
-                item.id &&
-                String(item.type).toLowerCase() === 'asset',
+                item && item.id && String(item.type).toLowerCase() === 'asset',
         );
         if (items.length === 0) return invalid;
 
@@ -4210,7 +4215,12 @@ async function loadBundleTree(bundleId) {
     }
 }
 
-async function openExplorer(assetId, name, expandAll, loadTree = loadAssetTree) {
+async function openExplorer(
+    assetId,
+    name,
+    expandAll,
+    loadTree = loadAssetTree,
+) {
     const loading = document.createElement('div');
     loading.className = 'rovalra-explorer-loading';
     loading.textContent = ts('createRoblox.explorer.loading');
