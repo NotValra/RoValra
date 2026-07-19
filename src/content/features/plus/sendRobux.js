@@ -16,14 +16,12 @@ import { createRobuxIcon } from '../../core/ui/robuxIcon.js';
 import { getUserFullData, getUserProfileData } from '../../core/apis/users.js';
 import { fetchUserThumbnailWithApiKey, getBatchThumbnails } from '../../core/thumbnail/thumbnails.js';
 import { createUserCard } from '../../core/ui/profile/userCard.js';
-import { observeElement, observeChildren, initializeObserver, startObserving } from '../../core/observer.js';
-import { use } from 'i18next';
+import { observeElement, observeChildren, startObserving } from '../../core/observer.js';
 import { fetchFriendsCustom, fetchFriendsOnlineStatus } from '../../core/utils/trackers/friendslist.js';
 import { getUserSettings } from '../../core/donators/settingHandler.js';
 import { applyDisplayNameGradientToElement } from '../profile/header/displayNameGradient.js';
 import { applyBorderToContainer } from '../profile/avatarBorder.js';
 import { applyGradientForUserId } from '../profile/header/profileBackground.js';
-import { refreshMainPageSelectionCount } from '../groups/Antibots.js';
 
 let keepOpenInAppProfileItem = false;
 const cssClassNamePrefix = "rovalra-sendrobux";
