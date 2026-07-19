@@ -311,6 +311,8 @@ function getEstimateAnchor(element) {
 function isValidEstimateContainer(element) {
     if (!(element instanceof HTMLElement)) return false;
     if (element.closest(IGNORE_USD_SELECTOR)) return false;
+
+    if (element.closest('#navbar-robux .nav-credit')) return false;
     if (element.matches('.rovalra-usd-estimate')) return false;
     return true;
 }
@@ -764,6 +766,10 @@ async function attachUsdEstimateToValueElement(element) {
 }
 
 function refreshVisibleUsdEstimates() {
+    document
+        .querySelectorAll('#navbar-robux .nav-credit .rovalra-usd-estimate')
+        .forEach((element) => element.remove());
+
     document
         .querySelectorAll(USD_TARGET_ICON_SELECTOR)
         .forEach((element) => attachUsdEstimate(element));
