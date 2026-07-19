@@ -122,6 +122,14 @@ function getContrastRatio(left, right) {
     return (lighter + 0.05) / (darker + 0.05);
 }
 
+function getLighterColor(color, amount = 0.42) {
+    return {
+        red: color.red + (255 - color.red) * amount,
+        green: color.green + (255 - color.green) * amount,
+        blue: color.blue + (255 - color.blue) * amount,
+    };
+}
+
 function updateContrastShadow(nameEl, gradient) {
     const background = getBackgroundColor(nameEl);
     const gradientColors = getGradientColors(gradient);
@@ -141,10 +149,8 @@ function updateContrastShadow(nameEl, gradient) {
         nameEl.style.removeProperty(CONTRAST_SHADOW_PROPERTY);
         return;
     }
-    const shadowColor =
-        getRelativeLuminance(background) > 0.5
-            ? 'rgba(0, 0, 0, 0.52)'
-            : 'rgba(255, 255, 255, 0.58)';
+    const lighterGradientColor = getLighterColor(averageGradientColor);
+    const shadowColor = `rgba(${Math.round(lighterGradientColor.red)}, ${Math.round(lighterGradientColor.green)}, ${Math.round(lighterGradientColor.blue)}, 0.68)`;
     nameEl.style.setProperty(
         CONTRAST_SHADOW_PROPERTY,
         `drop-shadow(0 0.5px 1px ${shadowColor}) drop-shadow(0 0 1px ${shadowColor})`,
