@@ -7,6 +7,7 @@ import {
     createThumbnailElement,
 } from '../../core/thumbnail/thumbnails.js';
 import { getAssets } from '../../core/assets.js';
+import { getPlaceIdFromUrl } from '../../core/idExtractor.js';
 import DOMPurify from 'dompurify';
 
 const THUMBNAIL_SIZE = '150x150';
@@ -106,11 +107,8 @@ async function mountDependencyScanner(favButton) {
 
     favButton.dataset.rovalraScanning = 'true';
 
-    const urlMatch = window.location.pathname.match(
-        /\/(?:catalog|bundles|hidden-catalog)\/(\d+)/,
-    );
-    if (!urlMatch) return;
-    const mainAssetId = parseInt(urlMatch[1], 10);
+    const mainAssetId = getPlaceIdFromUrl();
+    if (!mainAssetId) return;
 
     try {
         const results = await checkAssetsInBatch([mainAssetId]);
@@ -286,6 +284,8 @@ async function mountDependencyScanner(favButton) {
 }
 
 export function init() {
+    if (/\/bundles\//i.test(window.location.pathname)) return;
+
     chrome.storage.local.get('EnableItemDependencies', (data) => {
         if (data.EnableItemDependencies === true) {
             startObserving();
