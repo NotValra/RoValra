@@ -150,7 +150,7 @@ function updateContrastShadow(nameEl, gradient) {
         return;
     }
     const lighterGradientColor = getLighterColor(averageGradientColor);
-    const shadowColor = `rgba(${Math.round(lighterGradientColor.red)}, ${Math.round(lighterGradientColor.green)}, ${Math.round(lighterGradientColor.blue)}, 0.68)`;
+    const shadowColor = `rgba(${Math.round(lighterGradientColor.red)}, ${Math.round(lighterGradientColor.green)}, ${Math.round(lighterGradientColor.blue)}, 0.42)`;
     nameEl.style.setProperty(
         CONTRAST_SHADOW_PROPERTY,
         `drop-shadow(0 0.5px 1px ${shadowColor}) drop-shadow(0 0 1px ${shadowColor})`,
