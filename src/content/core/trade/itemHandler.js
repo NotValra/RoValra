@@ -5,6 +5,9 @@ const itemValueCache = new Map();
 const rolimonsCache = new Map();
 const riskCache = new Map();
 const rolimonsCacheTimestamp = new Map();
+const ROLIMONS_CACHE_TTL_MS = 60 * 1000;
+let rolimonsDatasetFetchedAt = 0;
+let rolimonsFetchPromise = null;
 
 const fetchQueue = new Set();
 let fetchTimer = null;
@@ -48,89 +51,84 @@ export function getCachedRisk(assetId) {
 }
 
 export async function fetchRolimonsItems(ids) {
-    const uniqueIds = [...new Set(ids)].filter((id) => {
-        const strId = String(id);
-        if (!rolimonsCache.has(strId)) return true;
-        const timestamp = rolimonsCacheTimestamp.get(strId) || 0;
-        return Date.now() - timestamp > 60000;
-    });
+    const now = Date.now();
+    if (now - rolimonsDatasetFetchedAt <= ROLIMONS_CACHE_TTL_MS) return;
+    if (rolimonsFetchPromise) return rolimonsFetchPromise;
 
-    if (uniqueIds.length === 0) return;
+    const requestedIds = [...new Set(ids || [])].map(String);
+    rolimonsFetchPromise = (async () => {
+        try {
+            const response = await callRobloxApi({
+                isRovalraApi: true,
+                endpoint: '/v1/rolimons/limiteds',
+                noCache: true,
+            });
+            if (!response.ok) return;
 
-    const chunks = [];
-    for (let i = 0; i < uniqueIds.length; i += 50) {
-        chunks.push(uniqueIds.slice(i, i + 50));
-    }
+            const json = await response.json();
+            if (!json.items || typeof json.items !== 'object') return;
 
-    await Promise.all(
-        chunks.map(async (chunk) => {
-            try {
-                const response = await callRobloxApi({
-                    isRovalraApi: true,
-                    endpoint: `/v1/rolimons/items?item_ids=${chunk.join(',')}`,
-                    noCache: true,
-                });
-                if (response.ok) {
-                    const json = await response.json();
-                    if (json.success && json.items) {
-                        const updatedRiskIds = [];
-                        Object.entries(json.items).forEach(([id, data]) => {
-                            rolimonsCache.set(id, data);
-                            rolimonsCacheTimestamp.set(id, Date.now());
+            const fetchedAt = Date.now();
+            const updatedRiskIds = [];
 
-                            const cachedRisk = riskCache.get(id);
-                            if (cachedRisk && cachedRisk.priceData) {
-                                let riskData = data;
-                                if (cachedRisk.robloxBestPrice) {
-                                    riskData = {
-                                        ...data,
-                                        best_price: cachedRisk.robloxBestPrice,
-                                    };
-                                }
-                                const newRisk = calculateRisk(
-                                    cachedRisk.priceData,
-                                    riskData,
-                                    cachedRisk.volumeData,
-                                );
-                                cachedRisk.risk = newRisk;
-                                updatedRiskIds.push(id);
-                            }
-                        });
-                        chunk.forEach((id) => {
-                            const strId = String(id);
-                            if (!json.items[strId]) {
-                                rolimonsCache.set(strId, null);
-                                rolimonsCacheTimestamp.set(strId, Date.now());
-                            }
-                        });
-                        document.dispatchEvent(
-                            new CustomEvent('rovalra-rolimons-data-update', {
-                                detail: Object.keys(json.items),
-                            }),
-                        );
-                        if (updatedRiskIds.length > 0) {
-                            document.dispatchEvent(
-                                new CustomEvent('rovalra-risk-data-update', {
-                                    detail: updatedRiskIds,
-                                }),
-                            );
-                        }
-                    }
+            rolimonsCache.clear();
+            rolimonsCacheTimestamp.clear();
+            Object.entries(json.items).forEach(([id, data]) => {
+                rolimonsCache.set(id, data);
+                rolimonsCacheTimestamp.set(id, fetchedAt);
+
+                const cachedRisk = riskCache.get(id);
+                if (cachedRisk && cachedRisk.priceData) {
+                    const riskData = cachedRisk.robloxBestPrice
+                        ? { ...data, best_price: cachedRisk.robloxBestPrice }
+                        : data;
+                    cachedRisk.risk = calculateRisk(
+                        cachedRisk.priceData,
+                        riskData,
+                        cachedRisk.volumeData,
+                    );
+                    updatedRiskIds.push(id);
                 }
-            } catch (e) {
-                console.warn('[RoValra] Failed to fetch Rolimons data', e);
+            });
+
+            requestedIds.forEach((id) => {
+                if (!json.items[id]) {
+                    rolimonsCache.set(id, null);
+                    rolimonsCacheTimestamp.set(id, fetchedAt);
+                }
+            });
+            rolimonsDatasetFetchedAt = fetchedAt;
+
+            document.dispatchEvent(
+                new CustomEvent('rovalra-rolimons-data-update', {
+                    detail: Object.keys(json.items),
+                }),
+            );
+            if (updatedRiskIds.length > 0) {
+                document.dispatchEvent(
+                    new CustomEvent('rovalra-risk-data-update', {
+                        detail: updatedRiskIds,
+                    }),
+                );
             }
-        }),
-    );
+        } catch (e) {
+            console.warn('[RoValra] Failed to fetch Rolimons data', e);
+        } finally {
+            rolimonsFetchPromise = null;
+        }
+    })();
+
+    return rolimonsFetchPromise;
 }
 
 export function queueRolimonsFetch(input) {
     const ids = Array.isArray(input) ? input : [input];
     const newIds = ids.filter((id) => {
         const strId = String(id);
-        if (!rolimonsCache.has(strId)) return true;
-        const timestamp = rolimonsCacheTimestamp.get(strId) || 0;
-        return Date.now() - timestamp > 60000;
+        if (Date.now() - rolimonsDatasetFetchedAt > ROLIMONS_CACHE_TTL_MS) {
+            return true;
+        }
+        return !rolimonsCache.has(strId);
     });
 
     if (newIds.length === 0) return Promise.resolve();
