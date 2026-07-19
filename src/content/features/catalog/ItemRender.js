@@ -19,7 +19,7 @@ import { isDarkMode } from '../../core/theme';
 import { ts } from '../../core/locale/i18n.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import * as THREE from 'three';
-import {backgroundRendererRequests} from '../../core/utils/renderer.js'
+import { backgroundRendererRequests } from '../../core/utils/renderer.js';
 
 const assets = getAssets();
 
@@ -29,10 +29,11 @@ FLAGS.ENABLE_API_RBX_CACHE = false;
 FLAGS.USE_WORKERS = true;
 FLAGS.ONLINE_ASSETS = true;
 
-backgroundRendererRequests()
+backgroundRendererRequests();
 
 const HOVER_FRAME_TIME = 5;
 const HOVER_CAMERA_ROTATION_SPEED = 0.75;
+const DEFAULT_ITEM_RENDER_LIGHTING_MULTIPLIER = 1.5;
 const BASEPLATE_ENVIRONMENT_ENDPOINT = '/static/json/baseplate.json';
 const renderEnvironmentModeValues = new Set([
     'default',
@@ -957,7 +958,10 @@ async function addItem(outfit, itemId, itemType, typee) {
         console.log(lookResult);
         if (lookResult instanceof Response) return;
         const newOutfit = new Outfit();
-        const success = newOutfit.fromLook(lookResult.look, new Authentication());
+        const success = newOutfit.fromLook(
+            lookResult.look,
+            new Authentication(),
+        );
         if (!success) return;
         outfit.assets = newOutfit.assets;
         outfit.scale = newOutfit.scale;
@@ -975,7 +979,7 @@ async function addItemFromLink(outfit, itemLink, typee) {
     const itemId = getPlaceIdFromUrl(itemLink);
     let itemType = itemLink.includes('bundles/') ? 'Bundle' : 'Asset';
     if (itemLink.includes('looks/')) {
-        itemType = 'Look'
+        itemType = 'Look';
     }
     await addItem(outfit, itemId, itemType, typee);
 }
@@ -1065,10 +1069,13 @@ async function startRenderer() {
     document.body.addEventListener('mousemove', updateMousePos);
     document.body.addEventListener('pointerup', stopItemHoverCameraRotation);
 
+    mainScene.wellLitDirectionalLightIntensity *=
+        DEFAULT_ITEM_RENDER_LIGHTING_MULTIPLIER;
+    itemHoverScene.wellLitDirectionalLightIntensity *=
+        DEFAULT_ITEM_RENDER_LIGHTING_MULTIPLIER;
+
     //update theme
     if (!isDarkMode()) {
-        mainScene.wellLitDirectionalLightIntensity *= 2.25;
-        itemHoverScene.wellLitDirectionalLightIntensity *= 2.25;
         RBXRenderer.setBackgroundColor(0xdbdbdc);
     }
 
@@ -1083,7 +1090,9 @@ async function updateMainRenderer() {
     const targetUrl = window.location.href;
 
     needsMainOutfitRenderer =
-        targetUrl.includes('/catalog') || targetUrl.includes('/bundles') || targetUrl.includes('/looks');
+        targetUrl.includes('/catalog') ||
+        targetUrl.includes('/bundles') ||
+        targetUrl.includes('/looks');
 
     //set main renderer's outfit back to original
     await loadOgAvatar();
@@ -1355,7 +1364,12 @@ async function asyncInit() {
     //update main renderer
     observeElement('.thumbnail-holder', (element) => {
         const url = window.location.href;
-        if (!url.includes('/catalog') && !url.includes('/bundles') && !url.includes('/looks')) return;
+        if (
+            !url.includes('/catalog') &&
+            !url.includes('/bundles') &&
+            !url.includes('/looks')
+        )
+            return;
 
         mainSceneContainer = element;
 
@@ -1365,7 +1379,12 @@ async function asyncInit() {
     //buttons for main thumbnail
     observeElement('.thumbnail-button-container', (element) => {
         const url = window.location.href;
-        if (!url.includes('/catalog') && !url.includes('/bundles') && !url.includes('/looks')) return;
+        if (
+            !url.includes('/catalog') &&
+            !url.includes('/bundles') &&
+            !url.includes('/looks')
+        )
+            return;
 
         mainButtonContainer = element;
 
@@ -1614,7 +1633,7 @@ export function init() {
     //disable main renderer on pages that dont use it
     if (
         !window.location.href.includes('/catalog') &&
-        !window.location.href.includes('/bundles') && 
+        !window.location.href.includes('/bundles') &&
         !window.location.href.includes('/looks')
     ) {
         needsMainOutfitRenderer = false;
