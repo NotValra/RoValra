@@ -1009,7 +1009,7 @@ export const SETTINGS_CONFIG = {
                         donatorReason:
                             'Donator Tier 3 is required to customize your display name gradient.',
                         default: {
-                            enabled: true,
+                            enabled: false,
                             color1: '#ff4ecd',
                             color2: '#ffe66d',
                             color3: '#4dd4ff',
