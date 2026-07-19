@@ -670,6 +670,8 @@
     },
     "createRoblox": {
         "download": "Download",
+        "downloadMesh": "Download .mesh",
+        "downloadObj": "Download .obj",
         "explorer": {
             "button": "Explorer",
             "title": "Explorer",
