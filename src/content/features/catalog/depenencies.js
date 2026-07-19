@@ -16,7 +16,8 @@ function findDependencies(roots) {
     const dependencies = [];
     const idRegex = /(?:rbxassetid:\/\/|id=)(\d+)/i;
 
-    const ignoredProperties = ['ShirtTemplate', 'PantsTemplate', 'Graphic'];
+    const ignoredProperties = []; // Removed cuz of Robloxs "Safety changes" so we dont need to hide this anymore trust
+    //['ShirtTemplate', 'PantsTemplate', 'Graphic'];
 
     const extractId = (str) => {
         if (!str || typeof str !== 'string') return null;
@@ -107,8 +108,8 @@ async function mountDependencyScanner(favButton) {
 
     favButton.dataset.rovalraScanning = 'true';
 
-    const mainAssetId = getPlaceIdFromUrl();
-    if (!mainAssetId) return;
+    const mainAssetId = Number.parseInt(getPlaceIdFromUrl(), 10);
+    if (!Number.isFinite(mainAssetId)) return;
 
     try {
         const results = await checkAssetsInBatch([mainAssetId]);

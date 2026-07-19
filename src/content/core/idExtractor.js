@@ -9,7 +9,7 @@ export function getPlaceIdFromUrl(url = window.location.href) {
         }
 
         const match = urlObj.pathname.match(
-            /^(?:\/[a-z]{2}(?:-[a-z]{2})?)?\/(?:games|catalog|bundles|looks|library|game-pass|private-games)\/(\d+)/i,
+            /^(?:\/[a-z]{2}(?:-[a-z]{2})?)?\/(?:games|catalog|bundles|hidden-catalog|looks|library|game-pass|private-games)\/(\d+)/i,
         );
         if (match && match[1]) {
             return match[1];
@@ -19,7 +19,7 @@ export function getPlaceIdFromUrl(url = window.location.href) {
     }
 
     const match = url.match(
-        /\/(?:games|catalog|bundles|looks|library|game-pass|private-games)\/(\d+)/,
+        /\/(?:games|catalog|bundles|hidden-catalog|looks|library|game-pass|private-games)\/(\d+)/,
     );
     if (match) {
         return match[1];
