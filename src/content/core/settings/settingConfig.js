@@ -59,18 +59,15 @@ export const SETTINGS_CONFIG = {
                     },
                 },
             },
-            marketplace3DRenderEnabled: {
+            marketplace3DRenderEnabledV2: {
                 label: 'Enable Custom 3D Marketplace Item Renderer',
                 description: [
                     'Adds a try-on preview when hovering over items and adds a feature-rich 3D renderer to item pages.',
                     'This feature was made possible cause of {{[RoAvatar](https://github.com/steinann/RoAvatar) githubLink}} ❤️',
                 ],
                 type: 'checkbox',
-                default: false,
+                default: true,
                 contributors: ['126448532'],
-
-                experimental:
-                    'This feature may cause performance issues. And may be buggy',
                 childSettings: {
                     marketplace3DRenderHoverPreviewDisabled: {
                         label: 'Disable Hover Preview',

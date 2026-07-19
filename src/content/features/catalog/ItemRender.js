@@ -1621,15 +1621,20 @@ export function init() {
     }
 
     //run feature if enabled
-    chrome.storage.local.get(
-        { marketplace3DRenderEnabled: true, marketplace3DRenderActive: false },
-        (result) => {
-            if (result.marketplace3DRenderEnabled) {
-                mainRendererEnabled = result.marketplace3DRenderActive;
-                asyncInit();
-            }
-        },
-    );
+    chrome.storage.local.remove('marketplace3DRenderEnabled', () => {
+        chrome.storage.local.get(
+            {
+                marketplace3DRenderEnabledV2: true,
+                marketplace3DRenderActive: false,
+            },
+            (result) => {
+                if (result.marketplace3DRenderEnabledV2) {
+                    mainRendererEnabled = result.marketplace3DRenderActive;
+                    asyncInit();
+                }
+            },
+        );
+    });
 
     //update z-index for elements so theyre above renderer canvas
     const styleString = 'style'; //supress warning because i think a css file just for setting z-index is unnecessary
