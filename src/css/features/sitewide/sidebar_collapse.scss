@@ -64,6 +64,13 @@ $roblox-left-nav-breakpoint: 768px;
     }
 }
 
+// Removes roqols side bar collabse thingy
+.left-nav[data-rovalra-sidebar-collapse-ready='true']
+    nav
+    > li.nav-minimise-button {
+    display: none !important;
+}
+
 .left-nav[data-rovalra-sidebar-collapse-ready='true']:not(
         [data-rovalra-sidebar-layout-active='true']
     )
