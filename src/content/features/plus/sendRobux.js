@@ -13,11 +13,15 @@ import { createButton } from '../../core/ui/buttons.js';
 import { createSpinnerContainer } from '../../core/ui/spinner.js';
 import { getUserCurrency } from '../../core/user/userCurrency.js';
 import { createRobuxIcon } from '../../core/ui/robuxIcon.js';
-import { getUserFullData } from '../../core/apis/users.js';
-import { fetchUserThumbnailWithApiKey } from '../../core/thumbnail/thumbnails.js';
+import { getUserFullData, getUserProfileData } from '../../core/apis/users.js';
+import { fetchUserThumbnailWithApiKey, getBatchThumbnails } from '../../core/thumbnail/thumbnails.js';
 import { createUserCard } from '../../core/ui/profile/userCard.js';
-import { observeElement, observeChildren } from '../../core/observer.js';
-import { use } from 'i18next';
+import { observeElement, observeChildren, startObserving } from '../../core/observer.js';
+import { fetchFriendsCustom, fetchFriendsOnlineStatus } from '../../core/utils/trackers/friendslist.js';
+import { getUserSettings } from '../../core/donators/settingHandler.js';
+import { applyDisplayNameGradientToElement } from '../profile/header/displayNameGradient.js';
+import { applyBorderToContainer } from '../profile/avatarBorder.js';
+import { applyGradientForUserId } from '../profile/header/profileBackground.js';
 
 let keepOpenInAppProfileItem = false;
 const cssClassNamePrefix = "rovalra-sendrobux";
@@ -137,7 +141,7 @@ async function showStep1Popup(userId, robuxAmount = 0, easterEgg = false) {
         ev.target.value = ev.target.value.replace(/[^0-9]/g, '');
         mutedTextNotice.textContent = await t('plus.sendRobux.popup.step1.mutedNotice');
         mutedTextNotice.classList.remove('error')
-        for (quickSelectNum in quickSelectOptionMap) {
+        for (const quickSelectNum in quickSelectOptionMap) {
             const quickSelect = quickSelectOptionMap[quickSelectNum];
             if (ev.target.value == quickSelectNum)
                 quickSelect.classList.add("selected");
@@ -150,7 +154,7 @@ async function showStep1Popup(userId, robuxAmount = 0, easterEgg = false) {
     const quickSelectOptions = [25, 50, 100, 200];
     let quickSelectOptionMap = {}
     robuxButtonsContainer.classList.add(`${cssClassNamePrefix}-quick-btns`);
-    for (aButtonAmount of quickSelectOptions) {
+    for (const aButtonAmount of quickSelectOptions) {
         const buttonAmount = aButtonAmount;
         const robuxQuickButton = document.createElement('button');
         const quickBtnRobuxIcon = createRobuxIcon();
@@ -567,6 +571,12 @@ async function addSendRobuxButton(menu) {
     const container = menu.querySelector('[role="group"]') || menu;
     const menuItems = container.querySelectorAll('[role="menuitem"]');
 
+    if (menuItems.length > 0) {
+        menuItems[0].insertAdjacentElement('afterend', button);
+    } else {
+        container.appendChild(button);
+    }
+
     for (const element of menuItems) {
         const titleContainer = element.querySelector('.grow-1');
         const title = titleContainer.querySelector('.foundation-web-menu-item-title');
@@ -583,12 +593,6 @@ async function addSendRobuxButton(menu) {
                 element.remove();
             }
         }
-    }
-
-    if (menuItems.length > 0) {
-        menuItems[0].insertAdjacentElement('afterend', button);
-    } else {
-        container.appendChild(button);
     }
 }
 
@@ -636,38 +640,163 @@ export function initNotificationCenter() {
 }
 
 export function initBuyRobuxPage() {
-    chrome.storage.local.get({ sendRobuxEnabled: false }, (settings) => {
+    chrome.storage.local.get({
+        sendRobuxEnabled: false,
+        profileBackgroundGradientEnabled: true,
+        displayNameGradientEnabled: true,
+        avatarBorderEnabled: true
+    }, (settings) => {
         if (!settings.sendRobuxEnabled) return;
 
-        observeElement('.fui-base-sheet-overlay.foundation-web-portal-zindex.fixed h2.text-title-large.content-default.margin-top-small', async (element) => {
-            const notice = document.createElement('span');
-            notice.textContent = await t('sendRobux.buyRobux.notice', {
-                defaultValue: 'These links will open in app. Use the search box above instead.'
-            });
-            notice.classList.add(`${cssClassNamePrefix}-friends-notice`);
-            element.appendChild(notice);
+        startObserving();
 
-        }, { multiple: false, });
+        var friendsToSendRobux = null;
+        var thumbnailData = null;
+
+        // friendsRobuxCache
+        async function friendsRobuxInit() {
+            const userId = await getAuthenticatedUserId();
+            const friendsOnline = await fetchFriendsOnlineStatus(userId);
+            const usersInUserSort1Params = new URLSearchParams({
+                userSort: 1
+            });
+            const usersInUserSort1 = await fetchFriendsCustom(userId, usersInUserSort1Params);
+
+            const userSortIds = new Set(usersInUserSort1.PageItems.map(user => user.id));
+
+            const addFriendsOnlineIds = friendsOnline
+                .filter(e => !userSortIds.has(e.id))
+                .map(e => e.id)
+
+            if (addFriendsOnlineIds.length > 0) userSortIds.add(...addFriendsOnlineIds);
+
+            const userSortIdsArray = [...userSortIds];
+
+
+            var allUserProfiles = await getUserProfileData(userSortIdsArray);
+            var thumbnails = await getBatchThumbnails(userSortIdsArray, 'AvatarHeadshot');
+
+            console.group('Testing Send Robux Friends Selection');
+            console.log('All Ids', userSortIds);
+            console.log('All Profile Data', allUserProfiles);
+            console.log('All Thumbs', thumbnails)
+            console.groupEnd();
+
+
+            for (const idIndexString in userSortIdsArray) {
+                const idIndex = Number(idIndexString);
+                console.log(allUserProfiles.profileDetails[idIndex]);
+                allUserProfiles.profileDetails[idIndex].imageUrl = thumbnails[idIndex].imageUrl;
+            }
+
+            friendsToSendRobux = allUserProfiles;
+            thumbnailData = thumbnails;
+        }
 
         observeElement('#user-search-listbox > .flex.flex-row.items-center.gap-small.padding-small.width-full.cursor-pointer.shrink-0.bg-transparent', async (element) => {
             if (element.dataset.rovalraSendrobuxHooked) return;
-            var newEl = element.cloneNode(true);
-            element.style.display = 'none';
-            newEl.dataset.rovalraSendrobuxHooked = true
-            newEl.addEventListener('click', (ev) => {
-                ev.preventDefault();
-                document.querySelector('.fui-sheet-close-affordance-container > button').click();
-                showStep1Popup(newEl.id.replace('user-', ''), 0, window.event?.shiftKey || false);
-            });
-            element.parentNode.appendChild(newEl, element);
+            const profileUserSettings = await getUserSettings(element.id.replace('user-', ''));
 
+            const waitForImageObserver = observeElement('img', () => {
+                if (!element.isConnected) return;
+                var newEl = element.cloneNode(true);
 
+                newEl.dataset.rovalraSendrobuxHooked = true
+                newEl.addEventListener('click', (ev) => {
+                    ev.preventDefault();
+                    document.querySelector('.fui-sheet-close-affordance-container > button').click();
+                    showStep1Popup(newEl.id.replace('user-', ''), 0, window.event?.shiftKey || false);
+                });
+
+                if (settings.displayNameGradientEnabled)
+                    applyDisplayNameGradientToElement(newEl.querySelector('span.inline-flex.items-center.gap-xxsmall.text-body-medium.content-emphasis > span'), profileUserSettings, { hoverHost: newEl });
+                if (settings.avatarBorderEnabled)
+                    applyBorderToContainer(newEl.querySelector('div.radius-circle.overflow-hidden'), profileUserSettings.border, true);
+                if (settings.profileBackgroundGradientEnabled)
+                    applyGradientForUserId(newEl.id.replace('user-', ''), newEl.querySelector('div.radius-circle.overflow-hidden'), true);
+
+                element.parentNode.appendChild(newEl);
+                setTimeout(() => { waitForImageObserver.disconnect() }, 100);
+            }, { scope: element });
         }, {
             multiple: true,
             onRemove: (element) => {
                 if (element.dataset.rovalraSendrobuxHooked) return;
-                document.querySelector(`#${element.id}[data-rovalra-sendrobux-hooked=true]`).remove();
+                const selector = `#${element.id}[data-rovalra-sendrobux-hooked=true]`;
+                const elementSelected = document.querySelector(selector);
+                if (elementSelected) elementSelected.remove();
             }
         });
+
+        observeElement('.fui-base-sheet-overlay.foundation-web-portal-zindex.fixed div.friends-listbox-cap', async (element) => {
+            if (element.dataset.rovalraSendrobuxFriendlistselect == true) return;
+            element.dataset.rovalraSendrobuxFriendlistselect = true
+            if (friendsToSendRobux == null) await friendsRobuxInit();
+            const profiles = friendsToSendRobux.profileDetails;
+
+            for (const profile of profiles) {
+                console.log(profile, profile.userId);
+                const profileUserSettings = await getUserSettings(profile.userId);
+
+
+                console.log(profile.names.cominedName + ' RoValra Settings:', profileUserSettings)
+
+                const profileDiv = document.createElement('div')
+                profileDiv.classList.add(
+                    'flex',
+                    'flex-row',
+                    'items-center',
+                    'gap-small',
+                    'padding-small',
+                    'width-full',
+                    'cursor-pointer',
+                    'shrink-0',
+                    'bg-none',
+                    `${cssClassNamePrefix}-friendlistitem`
+                );
+                profileDiv.role = 'option';
+                profileDiv.tabIndex = 0;
+                profileDiv.ariaSelected = false;
+                profileDiv.ariaLabel = profile.names.combinedName
+
+                profileDiv.innerHTML = DOMPurify.sanitize(`
+                    <div class="height-800 width-800 radius-circle overflow-hidden shrink-0 bg-surface-300 flex items-center justify-center">
+                        <img src="${profile.imageUrl}" alt="${profile.names.combinedName}" class="height-full width-full object-cover" />
+                    </div>
+                    <div class="flex flex-row items-center gap-xsmall">
+                        <span class="text-body-medium content-emphasis">${profile.names.combinedName}</span>
+                        <span class="items-center gap-xxsmall inline-flex shrink-0 [--icon-size-small:1em]">
+                            ${/* Verified Badge */ profile.isVerified ? `<span class="relative flex items-center justify-center">
+                                <span role="presentation" class="grow-0 shrink-0 basis-auto icon icon-filled-verified-backplate size-[var(--icon-size-medium)] content-system-emphasis"></span>
+                                <span role="presentation" class="grow-0 shrink-0 basis-auto icon icon-filled-verified-check size-[var(--icon-size-medium)] absolute" style="color: white;"></span>
+                            </span>` : ''}
+                            ${/* Roblox Plus Badge */ profile.hasRobloxSubscription ? `<span role="presentation" class="grow-0 shrink-0 basis-auto icon icon-regular-roblox-plus size-[var(--icon-size-small)] content-system-contrast" aria-label="Roblox Plus subscriber"></span>` : ''}
+                        </span>
+                    </div>
+                `);
+
+                if (settings.displayNameGradientEnabled)
+                    applyDisplayNameGradientToElement(profileDiv.querySelector('.text-body-medium.content-emphasis'), profileUserSettings, { hoverHost: profileDiv });
+                if (settings.avatarBorderEnabled)
+                    applyBorderToContainer(profileDiv.querySelector('div.radius-circle.overflow-hidden'), profileUserSettings.border, true);
+                if (settings.profileBackgroundGradientEnabled)
+                    applyGradientForUserId(profile.userId, profileDiv.querySelector('div.radius-circle.overflow-hidden'), true);
+
+                profileDiv.onclick = async () => {
+                    document.querySelector('.fui-sheet-close-affordance-container > button').click();
+                    if (profile.names.username == "Account Deleted") {
+                        const deletedAccountNoticeOverlay = createOverlay({
+                            title: await t('plus.sendRobux.buyRobux.deletedAccountTitle'),
+                            bodyContent: await t('plus.sendRobux.buyRobux.deletedAccountBody'),
+                            showLogo: true,
+                            actions: [createButton(await t('plus.sendRobux.popup.shared.okBtn'), 'secondary', { onClick: () => { deletedAccountNoticeOverlay.close(); } })],
+                        });
+                    } else
+                        showStep1Popup(profile.userId, 0, window.event?.shiftKey || false);
+                }
+
+                element.appendChild(profileDiv);
+            }
+        }, { multiple: true });
     });
 }

@@ -85,7 +85,7 @@ async function getGradientSettingsCached(userId) {
     return gradientSettingsPromises.get(cacheKey);
 }
 
-async function applyGradientForUserId(
+export async function applyGradientForUserId(
     userId,
     element,
     isSmallScale = false,

@@ -195,8 +195,22 @@ $prefix: rovalra-sendrobux;
     }
 }
 
-h2 > .#{$prefix}-friends-notice {
-    font-size: 10px;
-    padding-left: 10px;
-    color: #acacac;
+.fui-base-sheet-overlay.foundation-web-portal-zindex.fixed
+    div.friends-listbox-cap[data-#{$prefix}-friendlistselect='true']
+    > .flex.flex-row.items-center.gap-small.padding-small.width-full.cursor-pointer.shrink-0.bg-none {
+    display: none;
+
+    &.#{$prefix}-friendlistitem {
+        display: flex;
+        border-radius: 12px; /* it was in the style for the item but why not just use css */
+    }
+}
+
+#user-search-listbox
+    > .flex.flex-row.items-center.gap-small.padding-small.width-full.cursor-pointer.shrink-0.bg-transparent {
+    display: none;
+
+    &[data-#{$prefix}-hooked] {
+        display: flex;
+    }
 }

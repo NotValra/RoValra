@@ -156,6 +156,7 @@ export async function getUserProfileData(userIds) {
                 fields: [
                     'isVerified',
                     'isDeleted',
+                    'hasRobloxSubscription',
                     'names.combinedName',
                     'names.displayName',
                     'names.username',

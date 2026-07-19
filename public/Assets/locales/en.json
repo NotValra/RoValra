@@ -1053,7 +1053,8 @@
                 "openInApp": "Open In App"
             },
             "buyRobux": {
-                "notice": "These links will open in app. Use the search box above instead."
+                "deletedAccountTitle": "Cannot Send Robux",
+                "deletedAccountBody": "This user's account has been deleted, it cannot be sent Robux"
             },
             "popup": {
                 "shared": {
