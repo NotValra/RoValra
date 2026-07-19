@@ -7,7 +7,7 @@ import {
     registerProfileContextMenuAction,
     createContextMenuButton,
 } from '../../core/ui/profile/contextMenu.js';
-import DOMPurify, { safeHtml } from '../../core/packages/dompurify.js';
+import DOMPurify from '../../core/packages/dompurify.js';
 import { createOverlay } from '../../core/ui/overlay.js';
 import { createButton } from '../../core/ui/buttons.js';
 import { createSpinnerContainer } from '../../core/ui/spinner.js';
