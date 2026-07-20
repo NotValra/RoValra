@@ -7,6 +7,7 @@ import { observeElement } from '../../../core/observer.js';
 import { getAuthenticatedUserId } from '../../../core/user.js';
 import { addTooltip } from '../../../core/ui/tooltip.js';
 import { normalizeProfilePronouns } from '../../../core/profile/pronouns.js';
+import { ts } from '../../../core/locale/i18n.js';
 
 const PRONOUNS_SETTING_NAME = 'profilePronouns';
 const USERNAME_SELECTOR = '.user-profile-header-info .stylistic-alts-username';
@@ -40,7 +41,7 @@ function renderPronouns(usernameElement) {
     }
 
     if (!pronounsElement.dataset.rovalraPronounsTooltip) {
-        addTooltip(pronounsElement, 'Pronouns', {
+        addTooltip(pronounsElement, ts('profilePronouns.label'), {
             position: 'top',
             showArrow: false,
             tooltipClassName: 'rovalra-pronouns-tooltip',
@@ -49,7 +50,10 @@ function renderPronouns(usernameElement) {
     }
 
     pronounsElement.textContent = activePronouns;
-    pronounsElement.setAttribute('aria-label', `Pronouns: ${activePronouns}`);
+    pronounsElement.setAttribute(
+        'aria-label',
+        ts('profilePronouns.ariaLabel', { pronouns: activePronouns }),
+    );
     pronounsElement.removeAttribute('title');
 }
 

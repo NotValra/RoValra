@@ -1,6 +1,8 @@
 import { getUserIdFromUrl } from '../../../core/idExtractor.js';
 import { observeElement } from '../../../core/observer.js';
 import { getAuthenticatedUserId } from '../../../core/user.js';
+import { createStyledInput } from '../../../core/ui/catalog/input.js';
+import { ts } from '../../../core/locale/i18n.js';
 
 const PROFILE_NOTES_SETTING_NAME = 'profileNotesEnabled';
 const PROFILE_NOTES_STORAGE_KEY = 'rovalra_profile_notes';
@@ -167,13 +169,12 @@ function createProfileNoteController(host, userId, initialNote) {
     const card = document.createElement('section');
     card.className = 'rovalra-profile-note-card';
     card.dataset.profileUserId = String(userId);
-    card.setAttribute('aria-label', 'Private profile note');
+    card.setAttribute('aria-label', ts('profileNotes.ariaLabel'));
 
     const heading = document.createElement('div');
     heading.className = 'rovalra-profile-note-heading';
-    heading.textContent = 'Note (only visible to you)';
-    heading.title =
-        'This note is stored only in this browser and is never sent to Roblox or RoValra.';
+    heading.textContent = ts('profileNotes.heading');
+    heading.title = ts('profileNotes.headingTooltip');
 
     const editorHost = document.createElement('div');
     editorHost.className = 'rovalra-profile-note-editor-host';
@@ -196,14 +197,14 @@ function createProfileNoteController(host, userId, initialNote) {
             'rovalra-profile-note-placeholder',
             !currentNote,
         );
-        display.textContent = currentNote || 'Click to add a note';
+        display.textContent = currentNote || ts('profileNotes.addNote');
         display.setAttribute(
             'aria-label',
             currentNote
-                ? 'Edit private profile note'
-                : 'Add private profile note',
+                ? ts('profileNotes.editAriaLabel')
+                : ts('profileNotes.addAriaLabel'),
         );
-        display.title = 'Click to edit. Notes are saved only in this browser.';
+        display.title = ts('profileNotes.displayTooltip');
         display.addEventListener('click', startEditing);
 
         editorHost.appendChild(display);
@@ -243,15 +244,17 @@ function createProfileNoteController(host, userId, initialNote) {
         editing = true;
         card.classList.add('rovalra-profile-note-editing');
 
-        const textarea = document.createElement('textarea');
-        textarea.className = 'rovalra-profile-note-input';
-        textarea.value = currentNote;
+        const { container: inputContainer, input: textarea } =
+            createStyledInput({
+                id: `rovalra-profile-note-${userId}`,
+                label: ts('profileNotes.ariaLabel'),
+                placeholder: ts('profileNotes.inputPlaceholder'),
+                value: currentNote,
+                multiline: true,
+            });
         textarea.maxLength = MAX_NOTE_LENGTH;
-        textarea.rows = 1;
-        textarea.placeholder = 'Add a private note';
-        textarea.setAttribute('aria-label', 'Private profile note');
-        textarea.title =
-            'Saved when you click outside. Press Escape to cancel or Ctrl+Enter to save.';
+        textarea.setAttribute('aria-label', ts('profileNotes.ariaLabel'));
+        textarea.title = ts('profileNotes.inputTooltip');
 
         let shouldSave = true;
         textarea.addEventListener(
@@ -273,7 +276,7 @@ function createProfileNoteController(host, userId, initialNote) {
             }
         });
 
-        editorHost.replaceChildren(textarea);
+        editorHost.replaceChildren(inputContainer);
         requestAnimationFrame(() => {
             textarea.focus();
             textarea.setSelectionRange(

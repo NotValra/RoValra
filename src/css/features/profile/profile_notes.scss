@@ -30,8 +30,7 @@
     margin-top: 5px;
 }
 
-.rovalra-profile-note-display,
-.rovalra-profile-note-input {
+.rovalra-profile-note-display {
     display: block;
     box-sizing: border-box;
     width: calc(100% + 16px);
@@ -46,26 +45,6 @@
     background: transparent;
     border: 1px solid transparent;
     border-radius: 6px;
-    transition:
-        border-color 140ms ease,
-        background-color 140ms ease,
-        transform 120ms ease,
-        opacity 140ms ease;
-    animation: rovalra-profile-note-field-in 160ms ease-out;
-
-    &:hover,
-    &:focus {
-        border-color: var(--rovalra-border-color);
-        background-color: color-mix(
-            in srgb,
-            var(--rovalra-button-background-color) 35%,
-            transparent
-        );
-    }
-
-    &:active {
-        transform: scale(0.99);
-    }
 }
 
 .rovalra-profile-note-display {
@@ -84,23 +63,14 @@
     font-style: italic;
 }
 
-.rovalra-profile-note-input {
-    max-height: 120px;
-    resize: vertical;
-    outline: 0;
-
-    &::placeholder {
-        color: var(--rovalra-secondary-text-color);
-        font-style: italic;
-        opacity: 0.8;
-    }
+.rovalra-profile-note-editor-host .rovalra-catalog-input-wrapper {
+    width: calc(100% + 16px);
+    margin-left: -8px;
+    transform-origin: top center;
+    animation: rovalra-profile-note-editor-in 180ms ease-out both;
 }
 
-.rovalra-profile-note-editing .rovalra-profile-note-input {
-    transform-origin: center;
-}
-
-@keyframes rovalra-profile-note-field-in {
+@keyframes rovalra-profile-note-editor-in {
     from {
         opacity: 0;
         transform: translateY(3px) scale(0.99);
@@ -109,14 +79,6 @@
     to {
         opacity: 1;
         transform: translateY(0) scale(1);
-    }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .rovalra-profile-note-display,
-    .rovalra-profile-note-input {
-        transition: none;
-        animation: none;
     }
 }
 
@@ -138,8 +100,14 @@
     }
 
     .rovalra-profile-note-display,
-    .rovalra-profile-note-input {
+    .rovalra-profile-note-editor-host .rovalra-catalog-input-wrapper {
         width: 100%;
         margin-left: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .rovalra-profile-note-editor-host .rovalra-catalog-input-wrapper {
+        animation: none;
     }
 }
