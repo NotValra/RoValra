@@ -4262,13 +4262,20 @@ async function openExplorer(
 
 async function addCatalogButton(rightToolbar) {
     const assetId = getPlaceIdFromUrl();
+    const pageKey = `catalog:${assetId || ''}`;
     if (
         !assetId ||
-        rightToolbar.dataset.rovalraExplorerChecked ||
-        document.getElementById('rovalra-explorer-btn')
+        (rightToolbar.dataset.rovalraExplorerPageKey === pageKey &&
+            rightToolbar.parentElement?.querySelector(
+                '.rovalra-explorer-buttons',
+            ))
     )
         return;
-    rightToolbar.dataset.rovalraExplorerChecked = '1';
+
+    rightToolbar.parentElement
+        ?.querySelector('.rovalra-explorer-buttons')
+        ?.remove();
+    rightToolbar.dataset.rovalraExplorerPageKey = pageKey;
 
     const assets = getAssets();
 
@@ -4303,13 +4310,20 @@ async function addCatalogButton(rightToolbar) {
 
 function addBundleButton(rightToolbar) {
     const bundleId = getPlaceIdFromUrl();
+    const pageKey = `bundle:${bundleId || ''}`;
     if (
         !bundleId ||
-        rightToolbar.dataset.rovalraExplorerChecked ||
-        document.getElementById('rovalra-explorer-btn')
+        (rightToolbar.dataset.rovalraExplorerPageKey === pageKey &&
+            rightToolbar.parentElement?.querySelector(
+                '.rovalra-explorer-buttons',
+            ))
     )
         return;
-    rightToolbar.dataset.rovalraExplorerChecked = '1';
+
+    rightToolbar.parentElement
+        ?.querySelector('.rovalra-explorer-buttons')
+        ?.remove();
+    rightToolbar.dataset.rovalraExplorerPageKey = pageKey;
 
     const assets = getAssets();
 
@@ -4344,11 +4358,25 @@ function addBundleButton(rightToolbar) {
 
 function addGameButton(contextMenu) {
     const placeId = getPlaceIdFromUrl();
-    if (!placeId || contextMenu.dataset.rovalraExplorerChecked) return;
-    contextMenu.dataset.rovalraExplorerChecked = '1';
+    const pageKey = `game:${placeId || ''}`;
+    if (!placeId) return;
+
+    if (contextMenu.dataset.rovalraExplorerPageKey !== pageKey) {
+        contextMenu
+            .querySelector('.rovalra-explorer-game-btn')
+            ?.remove();
+        contextMenu.dataset.rovalraExplorerPageKey = pageKey;
+    } else if (contextMenu.querySelector('.rovalra-explorer-game-btn')) {
+        return;
+    }
 
     canAccessAsset(parseInt(placeId, 10)).then((ok) => {
-        if (!ok || document.getElementById('rovalra-explorer-btn')) return;
+        if (
+            !ok ||
+            contextMenu.dataset.rovalraExplorerPageKey !== pageKey ||
+            contextMenu.querySelector('.rovalra-explorer-game-btn')
+        )
+            return;
 
         const assets = getAssets();
 

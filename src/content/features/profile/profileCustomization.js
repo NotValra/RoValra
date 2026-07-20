@@ -738,26 +738,16 @@ function openCustomizationOverlay(userId) {
     renderOwnedBorderPicker(body, userId);
 }
 
-function keepPillAfterProfileViews(targetContainer, wrapper) {
-    const placePill = () => {
-        if (
-            !targetContainer.isConnected ||
-            !wrapper.isConnected ||
-            wrapper.parentElement !== targetContainer
-        )
-            return;
+function keepPillAfterUsernameDetails(targetContainer, pill) {
+    const appendPill = () => {
+        if (!pill.isConnected || pill.parentElement !== targetContainer) return;
 
-        const profileViewsRow = targetContainer.querySelector(
-            ':scope > .rovalra-profile-views-row',
-        );
         const profileViewsPill = targetContainer.querySelector(
             ':scope > .rovalra-profile-views-pill',
         );
         const roproLikeCount = targetContainer.querySelector(
             ':scope > #reputationDiv',
         );
-        const profileViewsAnchor =
-            profileViewsRow || profileViewsPill || roproLikeCount;
         const subplaceChip = targetContainer.querySelector(
             [
                 ':scope > .rovalra-profile-subplace-legacy-chip',
@@ -765,27 +755,36 @@ function keepPillAfterProfileViews(targetContainer, wrapper) {
             ].join(','),
         );
 
-        if (
-            profileViewsAnchor &&
-            profileViewsAnchor.nextElementSibling !== wrapper
-        ) {
-            profileViewsAnchor.after(wrapper);
+        if (profileViewsPill) {
+            if (profileViewsPill.nextElementSibling !== pill) {
+                profileViewsPill.after(pill);
+            }
             return;
         }
 
-        if (!profileViewsAnchor && subplaceChip) {
-            if (wrapper.nextElementSibling === subplaceChip) return;
-            subplaceChip.before(wrapper);
+        if (roproLikeCount) {
+            if (roproLikeCount.nextElementSibling !== pill) {
+                roproLikeCount.after(pill);
+            }
             return;
         }
 
-        if (targetContainer.lastElementChild === wrapper) return;
-        targetContainer.appendChild(wrapper);
+        if (subplaceChip) {
+            if (pill.nextElementSibling !== subplaceChip) {
+                subplaceChip.before(pill);
+            }
+            return;
+        }
+
+        if (targetContainer.lastElementChild !== pill) {
+            targetContainer.appendChild(pill);
+        }
     };
 
-    placePill();
-    [0, 250, 1000, 2500].forEach((delay) => setTimeout(placePill, delay));
-    observeChildren(targetContainer, placePill);
+    appendPill();
+    [0, 250, 1000, 2500].forEach((delay) => {
+        setTimeout(appendPill, delay);
+    });
 }
 
 async function initProfileCustomization() {
@@ -811,10 +810,7 @@ async function initProfileCustomization() {
             if (String(getUserIdFromUrl()) !== String(profileUserId)) return;
 
             const targetContainer = username.parentElement;
-            if (
-                !targetContainer.isConnected ||
-                !targetContainer.contains(username)
-            )
+            if (!targetContainer.isConnected || !targetContainer.contains(username))
                 return;
             if (
                 targetContainer.querySelector(
@@ -838,25 +834,18 @@ async function initProfileCustomization() {
                 fontSize: '11px',
                 lineHeight: '18px',
                 width: 'fit-content',
+                marginTop: '6px',
             });
             pill.addEventListener('click', () => {
-                if (String(getUserIdFromUrl()) !== String(profileUserId))
-                    return;
+                if (String(getUserIdFromUrl()) !== String(profileUserId)) return;
                 openCustomizationOverlay(profileUserId);
             });
 
-            const pillRow = document.createElement('div');
-            pillRow.className = 'rovalra-profile-customization-pill-row';
-            Object.assign(pillRow.style, {
-                display: 'flex',
-                flexBasis: '100%',
-                width: '100%',
-                marginTop: '6px',
-            });
-            pillRow.appendChild(pill);
-
-            targetContainer.appendChild(pillRow);
-            keepPillAfterProfileViews(targetContainer, pillRow);
+            targetContainer.appendChild(pill);
+            keepPillAfterUsernameDetails(targetContainer, pill);
+            observeChildren(targetContainer, () =>
+                keepPillAfterUsernameDetails(targetContainer, pill),
+            );
         },
     );
 }

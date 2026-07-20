@@ -28,6 +28,23 @@
         background-color: var(--rovalra-secondary-text-color);
     }
 }
+
+.rovalra-profile-username-row:has(
+        > .rovalra-profile-views-pill,
+        > .rovalra-profile-customization-pill
+    ) {
+    display: grid !important;
+    grid-template-columns: max-content max-content;
+    align-items: center;
+    column-gap: 8px;
+    row-gap: 4px;
+}
+
+.rovalra-profile-username-row
+    > :is(.rovalra-profile-views-pill, .rovalra-profile-customization-pill) {
+    grid-column: 1 / -1;
+    justify-self: start;
+}
 // Its cool dont get me wrong but it just doesnt match robloxs tooltips.
 /*
 .tooltip.rovalra-pronouns-tooltip {

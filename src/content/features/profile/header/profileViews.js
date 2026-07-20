@@ -20,9 +20,9 @@ function createProfileViewsContent(views) {
     return content;
 }
 
-function keepViewsRowAfterUsernameDetails(targetContainer, row) {
-    const appendRow = () => {
-        if (!row.isConnected || row.parentElement !== targetContainer) return;
+function keepPillAfterUsernameDetails(targetContainer, pill) {
+    const appendPill = () => {
+        if (!pill.isConnected || pill.parentElement !== targetContainer) return;
 
         const subplaceChip = targetContainer.querySelector(
             [
@@ -30,51 +30,48 @@ function keepViewsRowAfterUsernameDetails(targetContainer, row) {
                 ':scope > .rovalra-profile-subplace-legacy-row',
             ].join(','),
         );
-        const customizationElement = targetContainer.querySelector(
-            [
-                ':scope > .rovalra-profile-customization-pill-row',
-                ':scope > .rovalra-profile-customization-pill',
-            ].join(','),
+        const customizationPill = targetContainer.querySelector(
+            ':scope > .rovalra-profile-customization-pill',
         );
         const roproLikeCount = targetContainer.querySelector(
             ':scope > #reputationDiv',
         );
 
         if (roproLikeCount) {
-            if (roproLikeCount.nextElementSibling !== row) {
-                roproLikeCount.after(row);
+            if (roproLikeCount.nextElementSibling !== pill) {
+                roproLikeCount.after(pill);
             }
             if (
-                customizationElement &&
-                row.nextElementSibling !== customizationElement
+                customizationPill &&
+                pill.nextElementSibling !== customizationPill
             ) {
-                row.after(customizationElement);
+                pill.after(customizationPill);
             }
             return;
         }
 
-        if (customizationElement) {
-            if (row.nextElementSibling !== customizationElement) {
-                customizationElement.before(row);
+        if (customizationPill) {
+            if (pill.nextElementSibling !== customizationPill) {
+                customizationPill.before(pill);
             }
             return;
         }
 
         if (subplaceChip) {
-            if (row.nextElementSibling !== subplaceChip) {
-                subplaceChip.before(row);
+            if (pill.nextElementSibling !== subplaceChip) {
+                subplaceChip.before(pill);
             }
             return;
         }
 
-        if (targetContainer.lastElementChild !== row) {
-            targetContainer.appendChild(row);
+        if (targetContainer.lastElementChild !== pill) {
+            targetContainer.appendChild(pill);
         }
     };
 
-    appendRow();
+    appendPill();
     [0, 250, 1000, 2500].forEach((delay) => {
-        setTimeout(appendRow, delay);
+        setTimeout(appendPill, delay);
     });
 }
 
@@ -106,7 +103,7 @@ async function initProfileViews() {
             const targetContainer = username.parentElement;
             if (!targetContainer) return;
 
-            if (targetContainer.querySelector('.rovalra-profile-views-row'))
+            if (targetContainer.querySelector('.rovalra-profile-views-pill'))
                 return;
 
             const pill = createPill(
@@ -116,15 +113,10 @@ async function initProfileViews() {
             );
             pill.classList.add('rovalra-profile-views-pill');
 
-            const row = document.createElement('div');
-            row.className = 'rovalra-profile-views-row';
-            row.appendChild(pill);
-
-            targetContainer.classList.add('rovalra-profile-views-host');
-            targetContainer.appendChild(row);
-            keepViewsRowAfterUsernameDetails(targetContainer, row);
+            targetContainer.appendChild(pill);
+            keepPillAfterUsernameDetails(targetContainer, pill);
             observeChildren(targetContainer, () =>
-                keepViewsRowAfterUsernameDetails(targetContainer, row),
+                keepPillAfterUsernameDetails(targetContainer, pill),
             );
         },
     );
