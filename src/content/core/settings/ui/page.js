@@ -54,9 +54,10 @@ export async function checkRoValraPage() {
 
     syncDonatorTier().catch(() => {});
 
-    const regionData = await getRegionData().catch((err) => {
+    let regionData = { regions: {}, continents: {} };
+    const regionDataPromise = getRegionData().catch((err) => {
         console.error('Settings: Failed to load region data.', err);
-        return { regions: {}, continents: {} };
+        return regionData;
     });
 
     const containerMain = document.querySelector('main.container-main');
@@ -226,5 +227,26 @@ export async function checkRoValraPage() {
         const unifiedMenu = document.getElementById('unified-menu');
         await loadTabContent(rovalraTab || 'info');
         await applyTheme();
+
+        regionDataPromise.then((loadedRegionData) => {
+            regionData = loadedRegionData;
+
+            const currentTab = new URLSearchParams(window.location.search).get(
+                'rovalra',
+            );
+            const hasRegionSettings =
+                currentTab &&
+                Object.keys(SETTINGS_CONFIG).some(
+                    (key) => key.toLowerCase() === currentTab.toLowerCase(),
+                );
+            if (hasRegionSettings) {
+                loadTabContent(currentTab).catch((error) =>
+                    console.warn(
+                        'RoValra: Failed to refresh settings region data.',
+                        error,
+                    ),
+                );
+            }
+        });
     }
 }

@@ -106,7 +106,9 @@ export async function buildSettingsPage({
 
     let devTabAdded = settings.alwaysShowDeveloperSettings === true;
     let funStuffTabEnabled = settings.FunStuffEnabled === true;
-    let accountStandingTabVisible = await shouldShowAccountStandingTab(settings);
+    let accountStandingTabVisible =
+        settings.alwaysShowAccountStandingTab === true ||
+        isAccountStandingDirectLink();
     if (devTabAdded) ensureDeveloperSettings();
     const assets = getAssets();
     const containerMain = document.querySelector('main.container-main');
@@ -344,6 +346,19 @@ export async function buildSettingsPage({
     uiContainer.appendChild(unifiedMenu);
     uiContainer.appendChild(contentContainer);
 
+    shouldShowAccountStandingTab(settings)
+        .then((enabled) => {
+            accountStandingTabVisible = enabled;
+            updateAccountStandingTabUI({
+                enabled,
+                buttonData,
+                menuList: unifiedMenu,
+                loadTabContent,
+                renderMobileDropdown,
+            });
+        })
+        .catch(() => {});
+
     return { rovalraHeader, settingsContainer, contentDiv, userAccountDiv };
 }
 
@@ -439,8 +454,8 @@ function createUnifiedMenu({
     searchListItem.appendChild(searchInput);
     menuList.appendChild(searchListItem);
 
-    const staticItems = buttonData.filter(
-        (item) => shouldShowStaticTab(item, accountStandingTabVisible),
+    const staticItems = buttonData.filter((item) =>
+        shouldShowStaticTab(item, accountStandingTabVisible),
     );
     staticItems.forEach((item) => {
         const listItem = document.createElement('li');

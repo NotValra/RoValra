@@ -112,7 +112,9 @@ const artistCache = new Map();
 document.addEventListener('rovalra:moderationStatusUpdated', (event) => {
     standingCache = event.detail?.data || null;
 
-    const standingCard = document.querySelector('.rovalra-account-standing-card');
+    const standingCard = document.querySelector(
+        '.rovalra-account-standing-card',
+    );
     if (standingCard && standingCache) {
         updateAccountStandingUI(
             standingCard,
@@ -286,7 +288,7 @@ function getUserProfileHref(userId) {
 
 function debounce(func, wait) {
     let timeout;
-    return function(...args) {
+    return function (...args) {
         clearTimeout(timeout);
         timeout = setTimeout(() => func.apply(this, args), wait);
     };
@@ -459,7 +461,7 @@ function createArtistCreditSection(artistId) {
                 const data = { name, thumb: thumbnails[0] };
                 artistCache.set(String(artistId), data);
                 applyData(data);
-            } catch (e) { }
+            } catch (e) {}
         })();
     }
 
@@ -638,7 +640,7 @@ async function openBorderOverlay(
             { position: 'top' },
         );
         actionBtn.onclick = async () => {
-            updateUserSettingViaApi('border', variant.link).catch(() => { });
+            updateUserSettingViaApi('border', variant.link).catch(() => {});
             updatePreviewAndUI(
                 variant.value,
                 variant.link,
@@ -777,9 +779,13 @@ function renderDonatorPerkStatusPills(container) {
                 cell.dataset.rovalraDonatorPerkIncluded === 'true';
             const label = isIncluded ? 'Included' : 'Not included';
             const symbol = document.createElement('span');
-            symbol.className = "grow-0 shrink-0 basis-auto icon size-[var(--icon-size-small)] " + (isIncluded ? "icon-filled-circle-check" : "rovalra-icon-filled-circle-minus")
+            symbol.className =
+                'grow-0 shrink-0 basis-auto icon size-[var(--icon-size-small)] ' +
+                (isIncluded
+                    ? 'icon-filled-circle-check'
+                    : 'rovalra-icon-filled-circle-minus');
 
-            addTooltip(symbol, label, { position: 'top' })
+            addTooltip(symbol, label, { position: 'top' });
 
             cell.replaceChildren(symbol);
         });
@@ -3266,12 +3272,11 @@ function onPopoverRemoved() {
 }
 
 async function initializeExtension() {
-    try {
-        const data = await getRegionData();
-        REGIONS = data.regions;
-    } catch (e) {
-        console.warn('Failed to load region data:', e);
-    }
+    getRegionData()
+        .then((data) => {
+            REGIONS = data.regions;
+        })
+        .catch((e) => console.warn('Failed to load region data:', e));
 
     await applyTheme();
 
