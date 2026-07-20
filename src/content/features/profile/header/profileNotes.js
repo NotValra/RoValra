@@ -9,6 +9,7 @@ const PROFILE_NOTES_STORAGE_KEY = 'rovalra_profile_notes';
 const PROFILE_ACTION_BUTTON_SELECTOR =
     '#user-profile-header-contextual-menu-button';
 const MAX_NOTE_LENGTH = 256;
+const MAX_NOTE_ROWS = 2;
 
 let actionButtonObserver = null;
 let activeController = null;
@@ -253,6 +254,8 @@ function createProfileNoteController(host, userId, initialNote) {
                 multiline: true,
             });
         textarea.maxLength = MAX_NOTE_LENGTH;
+        textarea.rows = MAX_NOTE_ROWS;
+        textarea.classList.add('rovalra-profile-note-input');
         textarea.setAttribute('aria-label', ts('profileNotes.ariaLabel'));
         textarea.title = ts('profileNotes.inputTooltip');
 

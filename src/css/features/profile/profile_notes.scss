@@ -48,9 +48,12 @@
 }
 
 .rovalra-profile-note-display {
-    overflow: auto;
+    overflow: hidden;
     white-space: pre-wrap;
     overflow-wrap: anywhere;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
     cursor: text;
 
     &:focus-visible {
@@ -68,6 +71,11 @@
     margin-left: -8px;
     transform-origin: top center;
     animation: rovalra-profile-note-editor-in 180ms ease-out both;
+}
+
+.rovalra-profile-note-input {
+    max-height: calc(2 * 1.4375em + 16px);
+    overflow-y: auto !important;
 }
 
 @keyframes rovalra-profile-note-editor-in {
