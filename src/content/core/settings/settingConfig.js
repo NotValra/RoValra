@@ -35,6 +35,10 @@ const isAprilFools = () => {
  * @property {string} [beta] - Present if the setting is in beta. Value represents why the setting is in beta
  * @property {string} [experimental] - Present if the setting is experimental. Value represents why the setting is experimental
  * 
+ * @property {string[]} [exclusiveWith] - Other settings that this setting is incompatible with, or should not be enabled at the same time with. Note: if setting A defines exclusiveWith = [settingB], you'd generally need to also do settingB.exclusiveWith = [settingA]
+ * 
+ * @property {string[]} [requiredPermissions] - The Chrome permission the setting requires, if any
+ * 
  * @group User/Settings
  */
 
