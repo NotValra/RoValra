@@ -19,7 +19,8 @@
     "prettier-eslint": "^17.1.1",
     "rimraf": "^6.1.3",
     "sass": "^1.101.0",
-    "yaml": "^2.9.0"
+    "yaml": "^2.9.0",
+    "typedoc": "0.28.19"
   },
   "dependencies": {
     "dompurify": "^3.4.11",

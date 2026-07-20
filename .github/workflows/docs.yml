@@ -1,0 +1,36 @@
+# Credits to @steinann for making the workflow i stole and modified
+name: Deploy TypeDoc to GitHub Pages
+
+on:
+  push:
+    branches: [ "main", "dev/addDevDocs-1" ]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  deploy-docs:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          registry-url: 'https://registry.npmjs.org'
+      - run: npm ci
+      - run: npx typedoc --options typedoc.config.mjs
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./cidocs 
+      - name: Deploy to github pages
+        id: deployment
+        uses: actions/deploy-pages@v4

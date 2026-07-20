@@ -385,6 +385,15 @@ export const syncDonatorTier = async () => {
     return donatorTierPromise;
 };
 
+/**
+ * Returns all settings.
+ * @remarks
+ * Loops through SETTING_CONFIG, getting the key of each setting and retrieving the value from chrome.storage.local.
+ * @dangerous This function applies no caching. Please use the new settings API instead.
+ * @see getSettings.js
+ * @internal
+ * @returns {Promise<Record<string, unknown>>} All RoValra settings
+ */
 export const loadSettings = async () => {
     return new Promise((resolve, reject) => {
         const defaultSettings = {};
